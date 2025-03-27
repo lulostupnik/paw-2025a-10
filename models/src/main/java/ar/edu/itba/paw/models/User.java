@@ -8,9 +8,10 @@ public class User{
     private final String firstname;
     private final String lastname;
     private final University university;
-    private final int profilePictureId;
+    private final String career;
+    // private final int profilePictureId;
 
-    public User(int id, String email, String username, /* String password, */ String firstname, String lastname, University university, int profilePictureId){
+    public User(int id, String email, String username, /* String password,*/ String firstname, String lastname, University university, String career/*,  int profilePictureId */){
         this.id = id;
         this.email = email;
         this.username = username;
@@ -18,7 +19,8 @@ public class User{
         this.firstname = firstname;
         this.lastname = lastname;
         this.university = university;
-        this.profilePictureId = profilePictureId;
+        this.career = career;
+        // this.profilePictureId = profilePictureId;
     }
 
     public int getId() {
@@ -51,7 +53,13 @@ public class User{
         return university;
     }
 
+    public String getCareer() {
+        return career;
+    }
+
+    /*
     public int getProfilePictureId() {
         return profilePictureId;
     }
+    */
 }

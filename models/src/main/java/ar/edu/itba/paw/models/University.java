@@ -9,6 +9,11 @@ public class University{
         this.abbreviation = abbreviation;
     }
 
+    public University(String name){
+        this.name = name;
+        this.abbreviation = null;
+    }
+
     public String getName() {
         return name;
     }

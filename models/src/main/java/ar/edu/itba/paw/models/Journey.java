@@ -5,16 +5,18 @@ import java.util.Date;
 public class Journey{
     private final User user;
     private final String destinationCity;
-    private final Date departureDate;
-    private final Date arrivalDate;
+    private final Date startDate;
+    private final Date endDate;
     private final University destinationUniversity;
+    private final String description;
 
-    public Journey(User user, String destinationCity, Date departureDate, Date arrivalDate, University destinationUniversity){
+    public Journey(User user, String destinationCity, Date startDate, Date endDate, University destinationUniversity, String description) {
         this.user = user;
         this.destinationCity = destinationCity;
-        this.departureDate = departureDate;
-        this.arrivalDate = arrivalDate;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.destinationUniversity = destinationUniversity;
+        this.description = description;
     }
 
     public User getUser() {
@@ -25,16 +27,20 @@ public class Journey{
         return destinationCity;
     }
 
-    public Date getDepartureDate() {
-        return departureDate;
+    public Date getStartDate() {
+        return startDate;
     }
 
-    public Date getArrivalDate() {
-        return arrivalDate;
+    public Date getEndDate() {
+        return endDate;
     }
 
     public University getDestinationUniversity() {
         return destinationUniversity;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
 }
