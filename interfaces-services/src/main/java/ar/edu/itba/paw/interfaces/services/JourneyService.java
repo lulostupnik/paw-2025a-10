@@ -11,5 +11,6 @@ public interface JourneyService {
     Journey createJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId,
                                     String destinationUniversity, String destinationCity, Date startDate, Date endDate, String description);
 
-
+    void replyToJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId,
+                                    long journeyId, String message);
 }
