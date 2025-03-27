@@ -19,11 +19,11 @@ public class UserServiceImpl implements UserService {
         this.universityService = universityService;
     }
 
-    public User createUser(String email, String username, String firstname, String lastname, String universityName, String career) {
+    public User createUser(String email, String username, String firstname, String lastname, String universityName, String career, long profilePictureId) {
         Optional<University> university = universityService.findByName(universityName);
         if (university.isEmpty()) {
             throw new RuntimeException("University not found");
         }
-        return new User(1, email, username, firstname, lastname, university.get(), career);
+        return new User(1, email, username, firstname, lastname, university.get(), career, profilePictureId);
     }
 }

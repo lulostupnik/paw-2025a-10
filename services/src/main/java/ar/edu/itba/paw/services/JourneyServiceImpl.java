@@ -28,10 +28,10 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
-    public Journey createJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, String destinationUniversity, String destinationCity, Date startDate, Date endDate, String description) {
+    public Journey createJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId, String destinationUniversity, String destinationCity, Date startDate, Date endDate, String description) {
         // FIXME: implement
         University destination = universityService.findByName(destinationUniversity).orElseThrow(() -> new RuntimeException("Destination University not found"));
-        User user = userService.createUser(email, username, firstname, lastname, originUniversity, career);
+        User user = userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId);
         return new Journey(user, destinationCity, startDate, endDate, destination, description);
     }
 }

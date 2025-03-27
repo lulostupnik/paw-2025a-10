@@ -9,9 +9,9 @@ public class User{
     private final String lastname;
     private final University university;
     private final String career;
-    // private final int profilePictureId;
+    private final long profilePictureId;
 
-    public User(int id, String email, String username, /* String password,*/ String firstname, String lastname, University university, String career/*,  int profilePictureId */){
+    public User(int id, String email, String username, /* String password,*/ String firstname, String lastname, University university, String career,  long profilePictureId ){
         this.id = id;
         this.email = email;
         this.username = username;
@@ -20,7 +20,7 @@ public class User{
         this.lastname = lastname;
         this.university = university;
         this.career = career;
-        // this.profilePictureId = profilePictureId;
+        this.profilePictureId = profilePictureId;
     }
 
     public int getId() {
