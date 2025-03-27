@@ -3,6 +3,7 @@ package ar.edu.itba.paw.models;
 import java.util.Date;
 
 public class Journey{
+    private final long id;
     private final User user;
     private final String destinationCity;
     private final Date startDate;
@@ -10,7 +11,8 @@ public class Journey{
     private final University destinationUniversity;
     private final String description;
 
-    public Journey(User user, String destinationCity, Date startDate, Date endDate, University destinationUniversity, String description) {
+    public Journey(long id, User user, String destinationCity, Date startDate, Date endDate, University destinationUniversity, String description) {
+        this.id = id;
         this.user = user;
         this.destinationCity = destinationCity;
         this.startDate = startDate;
@@ -41,6 +43,10 @@ public class Journey{
 
     public String getDescription() {
         return description;
+    }
+
+    public long getId() {
+        return id;
     }
 
 }
