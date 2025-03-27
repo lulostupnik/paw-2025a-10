@@ -9,6 +9,7 @@ import java.util.Optional;
 public interface JourneyDao {
     // List<Journey> pageJourneys(int page, int pageSize);
 
+    //SI VAMOS A QUERER FILTRAR VA A HABER QUE BUSCAR POR QUERY, CATEGORIA, FECHA, ETC.
     Journey create(long userId, long destinationUniversityId, String destinationCity, Date startDate, Date endDate,String description);
     List<Journey> listAll();
     // Optional<Journey> findByUserId(long userId); // eventualmente podría ser un List<Journey>
