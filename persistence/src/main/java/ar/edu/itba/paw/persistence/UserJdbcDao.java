@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -40,6 +41,8 @@ public class UserJdbcDao implements UserDao {
                 .usingGeneratedKeyColumns("id");
     }
 
+    // TODO: methods findById, findByEmail and findByUsername are very similar, we should refactor them
+    // -> maybe use enum to specify the column to search by
 
     @Override
     public Optional<User> findById(long id) {
@@ -77,37 +80,39 @@ public class UserJdbcDao implements UserDao {
                 "WHERE u.email = ?", USER_ROW_MAPPER, email).stream().findFirst();
     }
 
-
-    @Override
-    public User create(String email, String username, String firstname, String lastname, long universityId, String career, long profilePictureId) {
-
-      //NO FUE TESTEADO
-        //        Map<String, Object> parameters = Map.of(
-//                "email", email,
-//                "username", username,
-//                "firstname", firstname,
-//                "lastname", lastname,
-//                "university", universityId,
-//                "career", career,
-//                "profile_picture_id", profilePictureId
-//        );
-//        //VER TEMA JOIN PUSE NULL PORQUE SINO ROMPE
-//        final Number keys = jdbcInsert.executeAndReturnKey(parameters);
-//        return new User(
-//                keys.longValue(),
-//                email,
-//                username,
-//                firstname,
-//                lastname,
-//                null,
-//                career,
-//                profilePictureId
-//        );
-        return null;
-    }
-
     @Override
     public Optional<User> findByUsername(String username) {
-        return Optional.empty();
+        return jdbcTemplate.query("SELECT \n" +
+                "    u.id AS user_id,\n" +
+                "    u.email AS user_email,\n" +
+                "    u.firstname AS user_firstname,\n" +
+                "    u.lastname AS user_lastname,\n" +
+                "    u.username AS user_username,\n" +
+                "    u.university AS user_university,\n" +
+                "    u.career AS user_career,\n" +
+                "    u.profile_picture_id AS user_profile_picture_id,\n" +
+                "    un.name AS university_name,\n" +
+                "    un.abbreviation AS university_abbreviation\n" +
+                "FROM users u\n" +
+                "JOIN university un ON u.university = un.id\n" +
+                "WHERE u.username = ?", USER_ROW_MAPPER, username).stream().findFirst();
     }
+
+
+    @Override
+    public User create(String email, String username, String firstname, String lastname, long universityId /*University university*/, String career, long profilePictureId) {
+        final Map<String, Object> args = new HashMap<>();
+        args.put("email", email);
+        args.put("username", username);
+        args.put("firstname", firstname);
+        args.put("lastname", lastname);
+        args.put("university", universityId); // university.getId()
+        args.put("career", career);
+        args.put("profile_picture_id", profilePictureId);
+        final Number id = jdbcInsert.executeAndReturnKey(args);
+        return new User(id.longValue(), email, username, firstname, lastname, new University(universityId, "", ""), career, profilePictureId);
+        // return new User(email, username, firstname, lastname, university, career, profilePictureId);
+    }
+
+
 }
