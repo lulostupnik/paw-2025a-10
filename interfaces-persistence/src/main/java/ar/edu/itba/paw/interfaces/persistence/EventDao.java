@@ -13,8 +13,7 @@ public interface EventDao {
 
     Event create(long userId, long cityId, Date date, String description, long flyerImageId);
     //BUSCO POR CIUDAD,DATE O BUSCO POR QUERY(ciudad + fecha).
-    List<Event> listByCity(long cityId);
-    List<Event> listByDate(Date date);
-    Optional<Event> findByUserId(long userId);
-    Optional<Event> findById(long eventId);
+    List<Event> listByQuery(Long cityId, Date date);
+    //Optional<Event> findByUserId(long userId);
+    //Optional<Event> findById(long eventId);
 }
