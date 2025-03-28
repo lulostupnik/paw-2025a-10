@@ -23,7 +23,6 @@ CREATE TABLE IF NOT EXISTS university (
         abbreviation VARCHAR(255) DEFAULT NULL
 );
 
-
 -- CREATE TABLE IF NOT EXISTS career (
 --         id SERIAL PRIMARY KEY,
 --         name VARCHAR(255) NOT NULL UNIQUE
@@ -39,21 +38,17 @@ CREATE TABLE IF NOT EXISTS university (
 -- );
 
 
-CREATE TABLE IF NOT EXISTS "user" (
+CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         email VARCHAR(100) NOT NULL UNIQUE,
         firstname VARCHAR(100) NOT NULL,
         lastname VARCHAR(100) NOT NULL,
         username VARCHAR(50) NOT NULL UNIQUE,
-        university INTEGER NOT NULL,            -- to delete
-        career VARCHAR(50),                     -- career_in_university_id INTEGER NOT NULL,
---         password VARCHAR(100) NOT NULL,
---         profile_picture_id VARCHAR(1023) NOT NULL,
+        university INTEGER NOT NULL,
+        career VARCHAR(50),
+        profile_picture_id INTEGER NOT NULL,
 
-        FOREIGN KEY (university) REFERENCES university(id) ON DELETE RESTRICT   -- to delete
---         FOREIGN KEY (career_in_university_id) REFERENCES career_in_university ON DELETE RESTRICT,
---         FOREIGN KEY (profile_picture_id) REFERENCES image ON DELETE RESTRICT
-
+        FOREIGN KEY (university) REFERENCES university(id) ON DELETE RESTRICT
 );
 
 -- CREATE TABLE IF NOT EXISTS area_of_study (
@@ -81,7 +76,7 @@ CREATE TABLE IF NOT EXISTS journey (
         id SERIAL PRIMARY KEY,
         user_id INTEGER NOT NULL,
         destination_university_id INTEGER NOT NULL,
-        city VARCHAR(100) NOT NULL,                     -- city_id INTEGER NOT NULL,
+        city VARCHAR(100) NOT NULL,
         start_date DATE NOT NULL,
         end_date DATE NOT NULL,
         description VARCHAR(2047),
