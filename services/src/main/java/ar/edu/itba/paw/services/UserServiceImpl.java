@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.services;
 
+import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.University;
@@ -13,10 +14,12 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UniversityService universityService;
+    private final UserDao userDao;
 
     @Autowired
-    public UserServiceImpl(UniversityService universityService) {
+    public UserServiceImpl(UniversityService universityService, UserDao userDao) {
         this.universityService = universityService;
+        this.userDao = userDao;
     }
 
     public User createUser(String email, String username, String firstname, String lastname, String universityName, String career, long profilePictureId) {
@@ -25,5 +28,9 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("University not found");
         }
         return new User(1, email, username, firstname, lastname, university.get(), career, profilePictureId);
+    }
+
+    public Optional<User> findByEmail(String email) {
+        return userDao.findByEmail(email);
     }
 }
