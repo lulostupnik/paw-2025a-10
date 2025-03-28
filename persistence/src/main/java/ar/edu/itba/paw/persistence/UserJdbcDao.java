@@ -10,6 +10,8 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -78,6 +80,29 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public User create(String email, String username, String firstname, String lastname, long universityId, String career, long profilePictureId) {
+
+      //NO FUE TESTEADO
+        //        Map<String, Object> parameters = Map.of(
+//                "email", email,
+//                "username", username,
+//                "firstname", firstname,
+//                "lastname", lastname,
+//                "university", universityId,
+//                "career", career,
+//                "profile_picture_id", profilePictureId
+//        );
+//        //VER TEMA JOIN PUSE NULL PORQUE SINO ROMPE
+//        final Number keys = jdbcInsert.executeAndReturnKey(parameters);
+//        return new User(
+//                keys.longValue(),
+//                email,
+//                username,
+//                firstname,
+//                lastname,
+//                null,
+//                career,
+//                profilePictureId
+//        );
         return null;
     }
 
