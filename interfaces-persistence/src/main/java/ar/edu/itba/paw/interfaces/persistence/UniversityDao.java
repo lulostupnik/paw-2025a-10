@@ -6,4 +6,6 @@ import java.util.Optional;
 
 public interface UniversityDao {
     Optional<University> findByName(String name);
+    Optional<University> findByAbbreviation(String abbreviation);
+    // ¿Poner un findByNameOrAbbreviation?
 }
