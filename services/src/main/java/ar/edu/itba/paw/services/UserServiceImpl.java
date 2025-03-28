@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService {
         if (university.isEmpty()) {
             throw new RuntimeException("University not found");
         }
-        return new User(1, email, username, firstname, lastname, university.get(), career, profilePictureId);
+        return userDao.create(email, username, firstname, lastname, university.get().getId(), career, profilePictureId);
     }
 
     public Optional<User> findByEmail(String email) {

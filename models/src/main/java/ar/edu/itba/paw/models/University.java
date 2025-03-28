@@ -30,4 +30,8 @@ public class University{
     public String getAbbreviation() {
         return abbreviation;
     }
+
+    public long getId() {
+        return id;
+    }
 }
