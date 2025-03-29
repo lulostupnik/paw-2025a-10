@@ -11,18 +11,6 @@ public class University{
         this.abbreviation = abbreviation;
     }
 
-    public University(String name, String abbreviation){
-        this.name = name;
-        this.abbreviation = abbreviation;
-        this.id = 0; // FIXME
-    }
-
-    public University(String name){
-        this.name = name;
-        this.abbreviation = null;
-        this.id = 0; // FIXME
-    }
-
     public String getName() {
         return name;
     }
@@ -33,5 +21,13 @@ public class University{
 
     public long getId() {
         return id;
+    }
+
+    @Override
+    public String toString() {
+        if(abbreviation == null){
+            return name;
+        }
+        return name + " (" + abbreviation + ")";
     }
 }

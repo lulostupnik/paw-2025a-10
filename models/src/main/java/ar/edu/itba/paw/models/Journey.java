@@ -8,7 +8,7 @@ public class Journey{
     private final String destinationCity;
     private final Date startDate;
     private final Date endDate;
-    private final University destinationUniversity;
+    private final University destinationUniversity; // FIXME: Cambiar por String -> lo obtenemos del toString();
     private final String description;
 
     public Journey(long id, User user, String destinationCity, Date startDate, Date endDate, University destinationUniversity, String description) {

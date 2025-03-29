@@ -12,7 +12,9 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /*
 
@@ -111,8 +113,16 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
     @Override
-    public Journey create(User user, long destinationUniversityId, String destinationCity, Date startDate, Date endDate, String description) {
-        return null;
+    public Journey create(User user, University destinationUniversity, String destinationCity, Date startDate, Date endDate, String description) {
+        final Map<String, Object> args = new HashMap<>();
+        args.put("user_id", user.getId());
+        args.put("destination_university_id", destinationUniversity.getId());
+        args.put("city", destinationCity);
+        args.put("start_date", startDate);
+        args.put("end_date", endDate);
+        args.put("description", description);
+        final Number id = jdbcInsert.executeAndReturnKey(args);
+        return new Journey(id.longValue(), user, destinationCity, startDate, endDate, destinationUniversity, description);
     }
 
     @Override

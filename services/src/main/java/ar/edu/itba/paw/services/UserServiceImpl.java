@@ -28,7 +28,8 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("University not found");
         }
         // subir imagen ¿puede ser async? -> supongo que no porque necesito el id de la imagen para crear el usuario
-        return userDao.create(email, username, firstname, lastname, university.get().getId(), career, profilePictureId);
+        // todo: ¿chequear si el usuario ya existe? -> ¿o dejo que la excepción la tire la capa de persistencia?
+        return userDao.create(email, username, firstname, lastname, university.get(), career, profilePictureId);
     }
 
     public Optional<User> findByEmail(String email) {

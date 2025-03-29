@@ -100,18 +100,17 @@ public class UserJdbcDao implements UserDao {
 
 
     @Override
-    public User create(String email, String username, String firstname, String lastname, long universityId /*University university*/, String career, long profilePictureId) {
+    public User create(String email, String username, String firstname, String lastname, University university, String career, long profilePictureId) {
         final Map<String, Object> args = new HashMap<>();
         args.put("email", email);
         args.put("username", username);
         args.put("firstname", firstname);
         args.put("lastname", lastname);
-        args.put("university", universityId); // university.getId()
+        args.put("university", university.getId());
         args.put("career", career);
         args.put("profile_picture_id", profilePictureId);
         final Number id = jdbcInsert.executeAndReturnKey(args);
-        return new User(id.longValue(), email, username, firstname, lastname, new University(universityId, "", ""), career, profilePictureId);
-        // return new User(email, username, firstname, lastname, university, career, profilePictureId);
+        return new User(id.longValue(), email, username, firstname, lastname, university/*.toString()*/, career, profilePictureId);
     }
 
 

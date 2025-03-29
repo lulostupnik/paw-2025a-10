@@ -36,10 +36,11 @@ public class JourneyServiceImpl implements JourneyService {
         University destination = universityService.findByName(destinationUniversity).orElseThrow(() -> new RuntimeException("Destination University not found"));
         Optional<User> maybeUser = userService.findByEmail(email);
         User user;
-        user = maybeUser.orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId));
+        user = maybeUser.orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId)); // todo: ¿acá debería usar el service o el dao? -> el service puede llegar a tener validaciones que ya acabo de hacer en esta clase
         // id me lo da la bd btw
         // return journeyDao.create(user, destinationCity, startDate, endDate, destination, description);
-        return new Journey(1, user, destinationCity, startDate, endDate, destination, description);
+        // FIXME: chequear si el journey ya existe (¿solo si no cree el usuario?)
+        return journeyDao.create(user, destination, destinationCity, startDate, endDate, description);
     }
 
     @Override
