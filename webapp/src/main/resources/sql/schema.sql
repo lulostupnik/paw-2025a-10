@@ -82,20 +82,20 @@ CREATE TABLE IF NOT EXISTS journey (
         description VARCHAR(2047),
 
         FOREIGN KEY (destination_university_id) REFERENCES university ON DELETE RESTRICT,
-        FOREIGN KEY (user_id) REFERENCES "user" ON DELETE RESTRICT
+        FOREIGN KEY (user_id) REFERENCES users ON DELETE RESTRICT
         -- FOREIGN KEY (city_id) REFERENCES city
 );
 
 
--- CREATE TABLE IF NOT EXISTS interested_in_journey (
---         user_id_from INTEGER NOT NULL,
---         journey_id INTEGER NOT NULL,
---         descripcion VARCHAR(1023) NOT NULL,
---
---         FOREIGN KEY (user_id_from) REFERENCES "user"(id) ON DELETE CASCADE,
---         FOREIGN KEY (journey_id) REFERENCES journey(id) ON DELETE CASCADE,
---         PRIMARY KEY (user_id_from, journey_id)
--- );
+CREATE TABLE IF NOT EXISTS journey_responses (
+        user_id INTEGER NOT NULL,
+        journey_id INTEGER NOT NULL,
+        message VARCHAR(1023) NOT NULL,
+
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (journey_id) REFERENCES journey(id) ON DELETE CASCADE,
+        PRIMARY KEY (user_id, journey_id)
+);
 
 -- CREATE TABLE IF NOT EXISTS event (
 --         id SERIAL PRIMARY KEY,
