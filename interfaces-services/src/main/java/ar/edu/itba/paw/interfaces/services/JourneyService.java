@@ -4,6 +4,7 @@ import ar.edu.itba.paw.models.Journey;
 import ar.edu.itba.paw.models.User;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 public interface JourneyService {
@@ -13,4 +14,6 @@ public interface JourneyService {
 
     void replyToJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId,
                                     long journeyId, String message);
+
+    List<Journey> getAllJourneys();
 }

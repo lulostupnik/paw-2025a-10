@@ -27,6 +27,7 @@ public class UserServiceImpl implements UserService {
         if (university.isEmpty()) {
             throw new RuntimeException("University not found");
         }
+        // subir imagen ¿puede ser async? -> supongo que no porque necesito el id de la imagen para crear el usuario
         return userDao.create(email, username, firstname, lastname, university.get().getId(), career, profilePictureId);
     }
 

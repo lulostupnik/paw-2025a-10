@@ -10,17 +10,21 @@ import ar.edu.itba.paw.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class JourneyServiceImpl implements JourneyService {
 
-    // private final JourneyDao journeyDao;
+    private final JourneyDao journeyDao;
     private final UserService userService;
     private final UniversityService universityService;
 
     @Autowired
-    public JourneyServiceImpl(UserService userService, UniversityService universityService) {
+    public JourneyServiceImpl(JourneyDao journeyDao, UserService userService, UniversityService universityService) {
+        this.journeyDao = journeyDao;
         this.userService = userService;
         this.universityService = universityService;
     }
@@ -30,8 +34,11 @@ public class JourneyServiceImpl implements JourneyService {
     public Journey createJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId, String destinationUniversity, String destinationCity, Date startDate, Date endDate, String description) {
         // FIXME: implement
         University destination = universityService.findByName(destinationUniversity).orElseThrow(() -> new RuntimeException("Destination University not found"));
-        User user = userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId);
+        Optional<User> maybeUser = userService.findByEmail(email);
+        User user;
+        user = maybeUser.orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId));
         // id me lo da la bd btw
+        // return journeyDao.create(user, destinationCity, startDate, endDate, destination, description);
         return new Journey(1, user, destinationCity, startDate, endDate, destination, description);
     }
 
@@ -48,6 +55,11 @@ public class JourneyServiceImpl implements JourneyService {
         // si no existe, manejar el error -> ¿? -> throw new RuntimeException("Journey not found"); o NotFoundException o JourneyNotFoundException o algo así?
         // mandar el mail
 
+    }
+
+    @Override
+    public List<Journey> getAllJourneys() {
+        return journeyDao.listAll();
     }
 
 }
