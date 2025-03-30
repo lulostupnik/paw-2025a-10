@@ -17,7 +17,7 @@
 -- );
 
 
-CREATE TABLE IF NOT EXISTS university (
+CREATE TABLE IF NOT EXISTS universities (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL UNIQUE,
         abbreviation VARCHAR(255) DEFAULT NULL
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS users (
         career VARCHAR(50),
         profile_picture_id INTEGER NOT NULL,
 
-        FOREIGN KEY (university) REFERENCES university(id) ON DELETE RESTRICT
+        FOREIGN KEY (university) REFERENCES universities(id) ON DELETE RESTRICT
 );
 
 -- CREATE TABLE IF NOT EXISTS area_of_study (
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- );
 
 
-CREATE TABLE IF NOT EXISTS journey (
+CREATE TABLE IF NOT EXISTS journeys (
         id SERIAL PRIMARY KEY,
         user_id INTEGER NOT NULL,
         destination_university_id INTEGER NOT NULL,
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS journey (
         end_date DATE NOT NULL,
         description VARCHAR(2047),
 
-        FOREIGN KEY (destination_university_id) REFERENCES university ON DELETE RESTRICT,
+        FOREIGN KEY (destination_university_id) REFERENCES universities ON DELETE RESTRICT,
         FOREIGN KEY (user_id) REFERENCES users ON DELETE RESTRICT
         -- FOREIGN KEY (city_id) REFERENCES city
 );
@@ -91,9 +91,10 @@ CREATE TABLE IF NOT EXISTS journey_responses (
         user_id INTEGER NOT NULL,
         journey_id INTEGER NOT NULL,
         message VARCHAR(1023) NOT NULL,
+        -- agregar created_at -> ¿Se puede autogenerar con el motor de la base de datos?
 
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-        FOREIGN KEY (journey_id) REFERENCES journey(id) ON DELETE CASCADE,
+        FOREIGN KEY (journey_id) REFERENCES journeys(id) ON DELETE CASCADE,
         PRIMARY KEY (user_id, journey_id)
 );
 

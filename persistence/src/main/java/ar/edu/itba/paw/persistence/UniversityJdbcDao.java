@@ -24,11 +24,11 @@ public class UniversityJdbcDao implements UniversityDao {
 
     @Override
     public Optional<University> findByName(String name) {
-        return jdbcTemplate.query("SELECT * FROM university WHERE name = ?", UNIVERSITY_ROW_MAPPER, name).stream().findFirst();
+        return jdbcTemplate.query("SELECT * FROM universities WHERE name = ?", UNIVERSITY_ROW_MAPPER, name).stream().findFirst();
     }
 
     @Override
     public Optional<University> findByAbbreviation(String abbreviation) {
-        return jdbcTemplate.query("SELECT * FROM university WHERE abbreviation = ?", UNIVERSITY_ROW_MAPPER, abbreviation).stream().findFirst();
+        return jdbcTemplate.query("SELECT * FROM universities WHERE abbreviation = ?", UNIVERSITY_ROW_MAPPER, abbreviation).stream().findFirst();
     }
 }

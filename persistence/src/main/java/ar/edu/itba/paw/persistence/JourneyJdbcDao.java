@@ -64,9 +64,9 @@ public class JourneyJdbcDao implements JourneyDao {
             "    un2.abbreviation AS destination_university_abbreviation \n" +
             "\n" +
             "FROM users us\n" +
-            "JOIN journey j ON j.user_id = us.id\n" +
-            "JOIN university un1 ON us.university = un1.id\n" +
-            "JOIN university un2 ON j.destination_university_id = un2.id;\n";
+            "JOIN journeys j ON j.user_id = us.id\n" +
+            "JOIN universities un1 ON us.university = un1.id\n" +
+            "JOIN universities un2 ON j.destination_university_id = un2.id;\n";
 
     private final static RowMapper<Journey> JOURNEY_ROW_MAPPER = (rs, rowNum) -> new Journey(
             rs.getLong("journey_id"),
@@ -108,7 +108,7 @@ public class JourneyJdbcDao implements JourneyDao {
     public JourneyJdbcDao(final DataSource dataSource){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-                .withTableName("journey")
+                .withTableName("journeys")
                 .usingGeneratedKeyColumns("id");
     }
 
@@ -128,12 +128,6 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public List<Journey> listAll() {
         return jdbcTemplate.query(QUERY, JOURNEY_ROW_MAPPER);
-        // return jdbcTemplate.query()
-        /*
-        SELECT
-        j.id AS j_id, 
-        FROM users us, journey j, university un1, university un2
-        WHERE j.user_id = us.id AND j.destination_university_id = un1.id AND us.university = un2.id;
-        */
+
     }
 }

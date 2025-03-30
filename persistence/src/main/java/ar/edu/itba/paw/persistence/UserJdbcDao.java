@@ -58,7 +58,7 @@ public class UserJdbcDao implements UserDao {
                 "    un.name AS university_name,\n" +
                 "    un.abbreviation AS university_abbreviation\n" +
                 "FROM users u\n" +
-                "JOIN university un ON u.university = un.id\n" +
+                "JOIN universities un ON u.university = un.id\n" +
                 "WHERE u.id = ?", USER_ROW_MAPPER, id).stream().findFirst();
     }
 
@@ -76,7 +76,7 @@ public class UserJdbcDao implements UserDao {
                 "    un.name AS university_name,\n" +
                 "    un.abbreviation AS university_abbreviation\n" +
                 "FROM users u\n" +
-                "JOIN university un ON u.university = un.id\n" +
+                "JOIN universities un ON u.university = un.id\n" +
                 "WHERE u.email = ?", USER_ROW_MAPPER, email).stream().findFirst();
     }
 
@@ -94,7 +94,7 @@ public class UserJdbcDao implements UserDao {
                 "    un.name AS university_name,\n" +
                 "    un.abbreviation AS university_abbreviation\n" +
                 "FROM users u\n" +
-                "JOIN university un ON u.university = un.id\n" +
+                "JOIN universities un ON u.university = un.id\n" +
                 "WHERE u.username = ?", USER_ROW_MAPPER, username).stream().findFirst();
     }
 
