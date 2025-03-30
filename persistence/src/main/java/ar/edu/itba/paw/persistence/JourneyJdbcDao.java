@@ -11,10 +11,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /*
 
@@ -66,7 +63,7 @@ public class JourneyJdbcDao implements JourneyDao {
             "FROM users us\n" +
             "JOIN journeys j ON j.user_id = us.id\n" +
             "JOIN universities un1 ON us.university = un1.id\n" +
-            "JOIN universities un2 ON j.destination_university_id = un2.id;\n";
+            "JOIN universities un2 ON j.destination_university_id = un2.id\n";
 
     private final static RowMapper<Journey> JOURNEY_ROW_MAPPER = (rs, rowNum) -> new Journey(
             rs.getLong("journey_id"),
@@ -128,6 +125,12 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public List<Journey> listAll() {
         return jdbcTemplate.query(QUERY, JOURNEY_ROW_MAPPER);
-
     }
+
+    @Override
+    public Optional<Journey> findById(long id) {
+        return jdbcTemplate.query(QUERY + " WHERE j.id = ?", JOURNEY_ROW_MAPPER, id).stream().findFirst();
+    }
+
+    // Hacer un exists o existsBy para no tener que retornar el objeto
 }
