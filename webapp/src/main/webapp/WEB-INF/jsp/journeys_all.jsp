@@ -78,7 +78,7 @@
         <div class="journey-description">
             <c:out value="${journey.description}" />
         </div>
-        <button class="reply-button">Responder</button>
+        <button class="reply-button" onclick="window.location.href='/journey/${journey.id}/reply'">Responder</button>
     </div>
 </c:forEach>
 
