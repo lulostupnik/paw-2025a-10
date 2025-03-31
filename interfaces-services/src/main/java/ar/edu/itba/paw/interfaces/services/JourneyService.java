@@ -1,16 +1,13 @@
 package ar.edu.itba.paw.interfaces.services;
 
 import ar.edu.itba.paw.models.Journey;
-import ar.edu.itba.paw.models.User;
-
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 public interface JourneyService {
 
     Journey createJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId,
-                                    String destinationUniversity, String destinationCity, Date startDate, Date endDate, String description);
+                                    String destinationUniversity, String destinationCity, LocalDate startDate, LocalDate endDate, String description);
 
     void replyToJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId,
                                     long journeyId, String message);

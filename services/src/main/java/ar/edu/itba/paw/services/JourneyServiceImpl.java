@@ -11,7 +11,7 @@ import ar.edu.itba.paw.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -34,15 +34,18 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
-    public Journey createJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId, String destinationUniversity, String destinationCity, Date startDate, Date endDate, String description) {
-        // FIXME: implement
-        University destination = universityService.findByName(destinationUniversity).orElseThrow(() -> new RuntimeException("Destination University not found"));
+    public Journey createJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId, String destinationUniversity, String destinationCity, LocalDate startDate, LocalDate endDate, String description) {
+        //University destination = universityService.findByName(destinationUniversity).orElseThrow(() -> new RuntimeException("Destination University not found"));
+        //For testing purposes, accept custom input
+        //FIXME: Implement university account creation & stuff to remove custom input
+        University destination = universityService.findByAny(destinationUniversity).orElseGet(() -> universityService.registerUniversity(destinationUniversity, destinationUniversity));
         Optional<User> maybeUser = userService.findByEmail(email);
-        User user;
-        user = maybeUser.orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId)); // todo: ¿acá debería usar el service o el dao? -> el service puede llegar a tener validaciones que ya acabo de hacer en esta clase
+        User user = maybeUser.orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId)); // todo: ¿acá debería usar el service o el dao? -> el service puede llegar a tener validaciones que ya acabo de hacer en esta clase
         // id me lo da la bd btw
-        // return journeyDao.create(user, destinationCity, startDate, endDate, destination, description);
-        // FIXME: chequear si el journey ya existe? (¿solo si no cree el usuario?) -> chequear sino que las fechas no se solapen
+        
+        if (!journeyDao.findOverlappingJourney(user.getId(), startDate, endDate).isPresent()) {
+            new RuntimeException("There's already a journey registered in this time period");
+        }
         return journeyDao.create(user, destination, destinationCity, startDate, endDate, description);
     }
 

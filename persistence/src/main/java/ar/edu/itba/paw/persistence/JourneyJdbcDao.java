@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.time.LocalDate;
 import java.util.*;
 
 /*
@@ -82,8 +83,8 @@ public class JourneyJdbcDao implements JourneyDao {
                     rs.getLong("user_profile_picture_id")
             ),
             rs.getString("journey_city"),
-            rs.getDate("journey_start_date"),
-            rs.getDate("journey_end_date"),
+            rs.getDate("journey_start_date").toLocalDate(),
+            rs.getDate("journey_end_date").toLocalDate(),
             new University(
                     rs.getLong("destination_university_id"),
                     rs.getString("destination_university_name"),
@@ -110,7 +111,7 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
     @Override
-    public Journey create(User user, University destinationUniversity, String destinationCity, Date startDate, Date endDate, String description) {
+    public Journey create(User user, University destinationUniversity, String destinationCity, LocalDate startDate, LocalDate endDate, String description) {
         final Map<String, Object> args = new HashMap<>();
         args.put("user_id", user.getId());
         args.put("destination_university_id", destinationUniversity.getId());
@@ -131,6 +132,11 @@ public class JourneyJdbcDao implements JourneyDao {
     public Optional<Journey> findById(long id) {
         return jdbcTemplate.query(QUERY + " WHERE j.id = ?", JOURNEY_ROW_MAPPER, id).stream().findFirst();
     }
+    
+    @Override
+    public Optional<Journey> findOverlappingJourney(long id, LocalDate startDate, LocalDate endDate) {
+        return jdbcTemplate.query(QUERY + " WHERE user_id = ? AND start_date >= ? AND end_date <= ?", JOURNEY_ROW_MAPPER, id, startDate, endDate).stream().findFirst();
+    }
 
-    // Hacer un exists o existsBy para no tener que retornar el objeto
+
 }

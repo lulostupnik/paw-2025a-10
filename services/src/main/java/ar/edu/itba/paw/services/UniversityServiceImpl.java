@@ -18,7 +18,7 @@ public class UniversityServiceImpl implements UniversityService {
         this.universityDao = universityDao;
     }
 
-
+    @Override
     public Optional<University> findByName(String name) {
         return universityDao.findByName(name);
     }
@@ -27,4 +27,15 @@ public class UniversityServiceImpl implements UniversityService {
     public Optional<University> findByAbbreviation(String abbreviation) {
         return universityDao.findByAbbreviation(abbreviation);
     }
+
+    @Override    
+    public Optional<University> findByAny(String queryString){
+        return universityDao.findByAny(queryString);
+    }
+
+    @Override
+    public University registerUniversity(String name, String abbreviation) {
+        return universityDao.createUniversity(name, abbreviation);
+    }
+
 }

@@ -7,4 +7,6 @@ import java.util.Optional;
 public interface UniversityService {
     Optional<University> findByName(String name);
     Optional<University> findByAbbreviation(String abbreviation);
+    Optional<University> findByAny(String queryString);
+    University registerUniversity(String name, String abbreviation);
 }
