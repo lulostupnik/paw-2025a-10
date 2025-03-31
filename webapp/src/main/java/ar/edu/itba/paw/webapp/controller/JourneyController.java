@@ -17,6 +17,8 @@ import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.models.Journey;
 import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
 
+import java.util.List;
+
 @Controller
 public class JourneyController {
 
@@ -29,8 +31,11 @@ public class JourneyController {
 
     @RequestMapping("/journeys")
     public ModelAndView getJourneys() {
+        List<Journey> journeys = js.getAllJourneys();
+        final ModelAndView mav = new ModelAndView("journeys_all");
+        mav.addObject("journeys", journeys);
         // TODO: Implement the logic to fetch journeys
-        return new ModelAndView("journey");
+        return mav;
     }
     @RequestMapping(value = "/journey", method = POST)
     public ModelAndView createJourney(@Valid @ModelAttribute("createJourneyForm") final CreateJourneyForm jf, final BindingResult errors) {
