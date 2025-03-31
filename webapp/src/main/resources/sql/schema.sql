@@ -1,7 +1,7 @@
--- CREATE TABLE IF NOT EXISTS image (
---         id SERIAL PRIMARY KEY,
---         content BYTEA NOT NULL
--- );
+CREATE TABLE IF NOT EXISTS images (
+        id SERIAL PRIMARY KEY,
+        content BYTEA NOT NULL
+);
 
 -- CREATE TABLE IF NOT EXISTS category (
 --         id SERIAL PRIMARY KEY,
