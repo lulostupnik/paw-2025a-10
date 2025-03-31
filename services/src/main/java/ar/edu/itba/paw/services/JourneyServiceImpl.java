@@ -76,4 +76,9 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyDao.listAll();
     }
 
+    @Override
+    public Optional<Journey> getJourneyById(long id) {
+        return journeyDao.findById(id);
+    }
+
 }

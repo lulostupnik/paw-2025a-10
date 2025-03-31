@@ -1,10 +1,8 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.web.bind.annotation.RequestMethod.PUT;
-
 import javax.validation.Valid;
 
+import ar.edu.itba.paw.webapp.form.ReplyJourneyForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -18,6 +16,9 @@ import ar.edu.itba.paw.models.Journey;
 import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
 
 import java.util.List;
+import java.util.Optional;
+
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @Controller
 public class JourneyController {
@@ -56,12 +57,31 @@ public class JourneyController {
     @RequestMapping(value = "/journey/{id}")
     public ModelAndView getJourney(@PathVariable long id) {
         //TODO: Implement the logic to fetch a specific journey
-        return new ModelAndView("journey");
+        return new ModelAndView("journey_reply");
     }
 
     @RequestMapping(value = "/journey/{id}/reply", method = POST)
-    public ModelAndView replyToJourney(@PathVariable int id) {
-        // TODO: Implement the logic to reply to a journey
-        return new ModelAndView("journey");
+    public ModelAndView replyToJourney(@PathVariable int id, @Valid @ModelAttribute("replyJourneyForm") final ReplyJourneyForm rjf, final BindingResult errors) {
+        if (errors.hasErrors()) {
+            return replyToJourneyForm(id, rjf);
+        }
+
+        //FIXME: Add fields for user creation just in case it does not exist. This will be removed after 1st sprint when we implement authorization
+        js.replyToJourney(rjf.getEmail(), rjf.getUsername(), rjf.getFirstName(),
+                rjf.getLastName(), rjf.getOriginUniversity(), rjf.getCareer(), 1, id, rjf.getMessage() );
+
+        return new ModelAndView("journeys_all");
+    }
+
+    @RequestMapping(value = "/journey/{id}/reply")
+    public ModelAndView replyToJourneyForm(@PathVariable int id, @ModelAttribute("replyJourneyForm") final ReplyJourneyForm rjf) {
+        ModelAndView mav = new ModelAndView("journey_reply");
+        Optional<Journey> journey = js.getJourneyById(id);
+        if(journey.isEmpty()){
+           return getJourneys();
+        }
+        mav.addObject("journey", journey.get());
+        mav.addObject("replyJourneyForm", rjf);
+        return mav;
     }
 }

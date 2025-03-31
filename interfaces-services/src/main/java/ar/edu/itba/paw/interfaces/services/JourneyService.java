@@ -3,6 +3,7 @@ package ar.edu.itba.paw.interfaces.services;
 import ar.edu.itba.paw.models.Journey;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface JourneyService {
 
@@ -13,4 +14,6 @@ public interface JourneyService {
                                     long journeyId, String message);
 
     List<Journey> getAllJourneys();
+
+    Optional<Journey> getJourneyById(long id);
 }
