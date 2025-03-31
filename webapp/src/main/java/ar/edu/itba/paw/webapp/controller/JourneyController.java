@@ -70,7 +70,7 @@ public class JourneyController {
         js.replyToJourney(rjf.getEmail(), rjf.getUsername(), rjf.getFirstName(),
                 rjf.getLastName(), rjf.getOriginUniversity(), rjf.getCareer(), 1, id, rjf.getMessage() );
 
-        return new ModelAndView("journeys_all");
+        return getJourneys();
     }
 
     @RequestMapping(value = "/journey/{id}/reply")

@@ -15,13 +15,13 @@ public class ReplyJourneyForm {
     @Size(min = 2, max = 100)
     private String lastName;
 
-    @Size(max = 50)
+    @Size(min=2, max = 50)
     private String username;
 
-    @Size(max = 50)
+    @Size(min=2, max = 50)
     private String originUniversity;
 
-    @Size(max = 50)
+    @Size(min =2, max = 50)
     private String career;
 
     @Size(min = 2, max = 2047)

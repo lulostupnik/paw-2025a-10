@@ -60,7 +60,7 @@
 
 <div class="reply-container">
     <h2>Responder al Viaje</h2>
-    <c:url var="registerUrl" value="/journeys/${journey.id}/reply"/>
+    <c:url var="registerUrl" value="/journey/${journey.id}/reply"/>
     <p>
         <c:out value="${journey.user.email}"/>
     </p>
@@ -75,6 +75,29 @@
             </label>
 
         </div>
+        <div>
+            <form:errors path="firstName" cssClass="error" element="p"/>
+            <label>
+                <spring:message code="createJourney.firstName"/>
+                <spring:message code="createJourney.firstName.hint" var="nameHint"/>
+                <form:input path="firstName" placeholder="${nameHint}"/>
+            </label>
+        </div>
+        <div>
+            <form:errors path="lastName" cssClass="error" element="p"/>
+            <label>
+                <spring:message code="createJourney.lastName"/>
+                <spring:message code="createJourney.lastName.hint" var="lastNameHint"/>
+                <form:input path="lastName" placeholder="${lastNameHint}"/>
+            </label>
+        </div>
+        <div>
+            <form:errors path="username" cssClass="error" element="p"/>
+            <label>
+                <spring:message code="createJourney.username"/>
+                <spring:message code="createJourney.username.hint" var="usernameHint"/>
+                <form:input path="username" placeholder="${usernameHint}"/>
+            </label>
         <div>
             <form:errors path="career" cssClass="error" element="p"/>
             <label>
@@ -94,13 +117,13 @@
         <div>
             <form:errors path="message" cssClass="error" element="p"/>
             <label>
-                <spring:message code="createJourney.description"/>
-                <spring:message code="createJourney.description.hint" var="descriptionHint"/>
-                <form:input path="message" placeholder="${descriptionHint}"/>
+                <spring:message code="replyJourney.message"/>
+                <spring:message code="replyJourney.message.hint" var="messageHint"/>
+                <form:input path="message" placeholder="${messageHint}"/>
             </label>
         </div>
         <div>
-            <spring:message code="createJourney.submit" var="submit"/>
+            <spring:message code="replyJourney.reply" var="submit"/>
             <input type="submit" value="${submit}"/>
         </div>
     </form:form>
