@@ -1,5 +1,3 @@
-
-<html>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
@@ -8,79 +6,69 @@
 <html lang="es">
 <head>
     <title>Journeys</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f8fa;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .journey-card {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-            width: 500px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: 1px solid #e1e8ed;
-        }
-
-        .journey-header {
-            font-weight: bold;
-            color: #14171a;
-        }
-
-        .journey-meta {
-            color: #657786;
-            font-size: 14px;
-        }
-
-        .journey-description {
-            margin-top: 10px;
-            font-size: 15px;
-        }
-
-        .reply-button {
-            background-color: #1da1f2;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .reply-button:hover {
-            background-color: #0c85d0;
-        }
-    </style>
+    <!-- Include Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {}
+            }
+        };
+    </script>
+    <!-- Include Preline UI Kit CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/preline/dist/preline.min.css" />
 </head>
-<body>
+<body class="bg-gray-100">
 
-<h2>Journeys</h2>
+<div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
+    <div class="mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl text-gray-800 font-bold sm:text-3xl">
+                Journeys
+            </h2>
+            <a href="${pageContext.request.contextPath}/journey" class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700">
+                Create Journey
+            </a>
+        </div>
 
-<c:forEach var="journey" items="${journeys}">
-    <div class="journey-card">
-        <div class="journey-header">
-            <c:out value="${journey.user.firstname} ${journey.user.lastname}" />
+        <!-- Journeys List -->
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <c:forEach var="journey" items="${journeys}">
+                <div class="group block rounded-xl p-4 sm:p-6 bg-white border border-gray-200 hover:border-blue-600">
+                    <div class="flex items-center gap-x-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">
+                                <c:out value="${journey.user.firstname} ${journey.user.lastname}" />
+                            </h3>
+                            <p class="text-sm text-gray-500">
+                                <c:out value="${journey.destinationCity}" /> -
+                                <c:out value="${journey.destinationUniversity}" />
+                            </p>
+                            <p class="text-sm text-gray-500 mt-1">
+                                <c:out value="${journey.startDate}" /> → <c:out value="${journey.endDate}" />
+                            </p>
+                        </div>
+                    </div>
+                    <p class="mt-3 text-gray-600 line-clamp-3">
+                        <c:out value="${journey.description}" />
+                    </p>
+                    <div class="mt-4">
+                        <a href="/journey/${journey.id}/reply" class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2">
+                            Responder
+                        </a>
+                    </div>
+                </div>
+            </c:forEach>
+
+            <c:if test="${empty journeys}">
+                <div class="col-span-full text-center py-10">
+                    <p class="text-gray-500">No journeys available.</p>
+                </div>
+            </c:if>
         </div>
-        <div class="journey-meta">
-            <c:out value="${journey.destinationCity}" /> -
-            <c:out value="${journey.destinationUniversity}" />
-        </div>
-        <div class="journey-meta">
-            <c:out value="${journey.startDate}" /> → <c:out value="${journey.endDate}" />
-        </div>
-        <div class="journey-description">
-            <c:out value="${journey.description}" />
-        </div>
-        <button class="reply-button" onclick="window.location.href='/journey/${journey.id}/reply'">Responder</button>
+        <!-- End Journeys List -->
     </div>
-</c:forEach>
+</div>
 
 </body>
 </html>
