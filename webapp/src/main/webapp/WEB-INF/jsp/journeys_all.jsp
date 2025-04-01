@@ -5,7 +5,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <title>Journeys</title>
+    <title><spring:message code="journey.page.title"/></title>
     <!-- Include Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -24,10 +24,10 @@
     <div class="mx-auto">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-xl text-gray-800 font-bold sm:text-3xl">
-                Journeys
+                <spring:message code="journey.list.title"/>
             </h2>
             <a href="${pageContext.request.contextPath}/journey" class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700">
-                Create Journey
+                <spring:message code="journey.create.button"/>
             </a>
         </div>
 
@@ -54,7 +54,7 @@
                     </p>
                     <div class="mt-4">
                         <a href="/journey/${journey.id}/reply" class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2">
-                            Responder
+                            <spring:message code="journey.reply.button"/>
                         </a>
                     </div>
                 </div>
@@ -62,7 +62,7 @@
 
             <c:if test="${empty journeys}">
                 <div class="col-span-full text-center py-10">
-                    <p class="text-gray-500">No journeys available.</p>
+                    <p class="text-gray-500"><spring:message code="journey.no.journeys"/></p>
                 </div>
             </c:if>
         </div>
