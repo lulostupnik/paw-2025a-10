@@ -34,7 +34,7 @@
 
     <!-- Card -->
     <div class="mt-5 p-4 relative z-10 bg-white border border-gray-200 rounded-xl sm:mt-10 md:p-10">
-      <form:form method="post" action="${pageContext.request.contextPath}/events/create" modelAttribute="createEventForm">
+      <form:form method="post" action="${pageContext.request.contextPath}/events/create" modelAttribute="createEventForm" enctype="multipart/form-data">
 
         <!-- Email Field -->
         <spring:message code="event.email.hint" var="emailHint"/>

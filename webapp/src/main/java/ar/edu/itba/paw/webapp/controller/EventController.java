@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.models.Event;
 import ar.edu.itba.paw.webapp.form.CreateEventForm;
 
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -41,7 +42,7 @@ public class EventController {
         return new ModelAndView("events/create");
     }
 
-    @RequestMapping(path = "/create", method = POST)
+    @RequestMapping(path = "/create", method = POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ModelAndView createEvent(@Valid @ModelAttribute("createEventForm") final CreateEventForm eventForm,
                                     final BindingResult errors) {
         if (errors.hasErrors()) {
