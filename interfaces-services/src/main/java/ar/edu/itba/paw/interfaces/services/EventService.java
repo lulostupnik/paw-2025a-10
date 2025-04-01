@@ -11,4 +11,5 @@ public interface EventService {
 
     void replyToEvent(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId,
                         long eventId, String message);
+
 }
