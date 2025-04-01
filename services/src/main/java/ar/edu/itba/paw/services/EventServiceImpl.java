@@ -3,15 +3,11 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.EventDao;
 import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.EventService;
-import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.*;
-import com.sun.tools.jconsole.JConsoleContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.security.spec.ECField;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -20,18 +16,18 @@ import java.util.Optional;
 public class EventServiceImpl implements EventService {
     // private final JourneyDao journeyDao;
     private final UserService userService;
-    private final CityService cityService;
+    //private final CityService cityService;
     private final EventDao eventDao;
 
     @Autowired
     public EventServiceImpl(UserService userService, CityService cityService, EventDao eventDao) {
         this.userService = userService;
-        this.cityService = cityService;
+        //this.cityService = cityService;
         this.eventDao = eventDao;
     }
 
     @Override
-    public Event createEvent(String email, String cityName, Date date, MultipartFile flyer, String description){
+    public Event createEvent(String email, String cityName, Date date, byte[] flyer, String description){
         Optional<User> user = userService.findByEmail(email);
         if (user.isEmpty()) {
             throw new RuntimeException("User not found");
@@ -44,7 +40,7 @@ public class EventServiceImpl implements EventService {
 //        }
 
         //FIXME: Image is missing, 1 as a placeholder
-        return eventDao.create(user.get(), null, date, description, 1);
+        return eventDao.create(user.get(), new City(null, null, 1), date, description, 1);
     }
 
     @Override

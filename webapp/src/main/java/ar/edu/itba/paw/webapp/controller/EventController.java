@@ -3,6 +3,7 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.models.Event;
 import ar.edu.itba.paw.webapp.form.CreateEventForm;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -12,9 +13,11 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 @Controller
 @RequestMapping("/events")
@@ -33,7 +36,7 @@ public class EventController {
         return mav;
     }
 
-    @RequestMapping("/create")
+    @RequestMapping(value = "/create", method = GET)
     public ModelAndView createEventForm(@ModelAttribute("createEventForm") final CreateEventForm form) {
         return new ModelAndView("events/create");
     }
@@ -44,8 +47,15 @@ public class EventController {
         if (errors.hasErrors()) {
             return new ModelAndView("events/create");
         }
-
-        Event event = eventService.createEvent(eventForm.getEmail(), eventForm.getCity(), eventForm.getDate(), eventForm.getFlyer(), eventForm.getDescription());
+        byte[] image = null;
+        try {
+            if (eventForm.getFlyer() != null){
+                image = eventForm.getFlyer().getBytes();
+            }
+        } catch(IOException e) {
+            //what to do?
+        }
+        Event event = eventService.createEvent(eventForm.getEmail(), eventForm.getCity(), eventForm.getDate(), image, eventForm.getDescription());
         return new ModelAndView("redirect:/events/" + event.getId());
     }
 

@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.persistence;
 import ar.edu.itba.paw.interfaces.persistence.EventDao;
-import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Event;
 import ar.edu.itba.paw.models.University;
@@ -13,9 +12,6 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.*;
-
-import static java.util.Arrays.stream;
-
 
 @Repository
 public class EventJdbcDao implements EventDao {
@@ -41,7 +37,7 @@ public class EventJdbcDao implements EventDao {
             ),
             rs.getDate("event_date"),
             rs.getString("description"),
-            rs.getObject("flyer_image_id") != null ? rs.getLong( "flyer_image_id") : null,
+            rs.getLong( "flyer_image_id"),
             new City(
                     rs.getString("name"), // City name
                     rs.getString("country"),
