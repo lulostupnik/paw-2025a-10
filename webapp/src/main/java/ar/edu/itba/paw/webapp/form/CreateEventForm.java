@@ -18,6 +18,7 @@ public class CreateEventForm {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date date;
 
+
     private MultipartFile flyer;
 
     @Size(min = 2, max = 200)

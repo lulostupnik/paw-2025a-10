@@ -1,9 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <html>
 <head>
-  <title>Events</title>
+  <title><spring:message code="event.page.title"/></title>
   <!-- Include Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -22,10 +23,10 @@
   <div class="mx-auto">
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-xl text-gray-800 font-bold sm:text-3xl">
-        All Events
+        <spring:message code="event.list.title"/>
       </h2>
       <a href="${pageContext.request.contextPath}/events/create" class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700">
-        Create Event
+        <spring:message code="event.create.button"/>
       </a>
     </div>
 
@@ -35,22 +36,28 @@
         <a href="${pageContext.request.contextPath}/events/${event.id}" class="group block rounded-xl p-4 sm:p-6 bg-white border border-gray-200 hover:border-blue-600">
           <!-- Image -->
           <c:if test="${not empty event.flyerImageId}">
-            <img src="${pageContext.request.contextPath}/images/${event.flyerImageId}" alt="Event Flyer" class="w-full h-40 object-cover rounded-lg">
+            <img src="${pageContext.request.contextPath}/images/${event.flyerImageId}" alt="<spring:message code='event.flyer.alt'/>" class="w-full h-40 object-cover rounded-lg">
           </c:if>
 
           <div class="flex items-center gap-x-4 mt-3">
             <div>
-              <h3 class="text-lg font-semibold text-gray-800">${event.eventCity.name}</h3>
-              <p class="text-sm text-gray-500">${event.date}</p>
+              <h3 class="text-lg font-semibold text-gray-800">
+                <spring:message code="event.city"/>: ${event.eventCity.name}
+              </h3>
+              <p class="text-sm text-gray-500">
+                <spring:message code="event.date"/>: ${event.date}
+              </p>
             </div>
           </div>
-          <p class="mt-3 text-gray-600 line-clamp-3">${event.description}</p>
+          <p class="mt-3 text-gray-600 line-clamp-3">
+            <spring:message code="event.description"/>: ${event.description}
+          </p>
         </a>
       </c:forEach>
 
       <c:if test="${empty events}">
         <div class="col-span-full text-center py-10">
-          <p class="text-gray-500">No events found. Be the first to create one!</p>
+          <p class="text-gray-500"><spring:message code="event.no.events"/></p>
         </div>
       </c:if>
     </div>
