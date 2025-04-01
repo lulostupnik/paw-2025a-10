@@ -66,11 +66,11 @@ CREATE TABLE IF NOT EXISTS users (
 -- );
 
 
--- CREATE TABLE IF NOT EXISTS city (
--- id SERIAL PRIMARY KEY,
--- name VARCHAR(100)
--- country VARCHAR(100),
--- );
+CREATE TABLE IF NOT EXISTS city (
+                                    id SERIAL PRIMARY KEY,
+                                    name VARCHAR(100),
+    country VARCHAR(100)
+    );
 
 
 
@@ -100,14 +100,14 @@ CREATE TABLE IF NOT EXISTS journey_responses (
 );
 
 CREATE TABLE IF NOT EXISTS event (
-        id SERIAL PRIMARY KEY,
-        user_id INTEGER NOT NULL,
-        city_id INTEGER NOT NULL,
-        event_date DATE NOT NULL,
-        description VARCHAR(2047),
-        flyer_image_id INTEGER,
+                                     id SERIAL PRIMARY KEY,
+                                     user_id INTEGER NOT NULL,
+                                     city_id INTEGER NOT NULL,
+                                     event_date DATE NOT NULL,
+                                     description VARCHAR(2047),
+    flyer_image_id INTEGER,
 
-        FOREIGN KEY user_id REFERENCES "user" ON DELETE RESTRICT,
-        FOREIGN KEY (city_id) REFERENCES city,
-        FOREIGN KEY (flyer_image_id) REFERENCES image
-);
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT,
+    FOREIGN KEY (city_id) REFERENCES city(id) ON DELETE RESTRICT,
+    FOREIGN KEY (flyer_image_id) REFERENCES images(id) ON DELETE RESTRICT
+    );

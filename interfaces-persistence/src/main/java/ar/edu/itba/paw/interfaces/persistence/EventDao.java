@@ -11,5 +11,6 @@ public interface EventDao {
     Event create(User user, City city, Date date, String description, long flyerImageId);
     List<Event> listByQuery(Long cityId, Date date);
     //Optional<Event> findByUserId(long userId);
-    //Optional<Event> findById(long eventId);
+    Optional<Event> findById(long eventId);
+    List<Event> listAll();
 }

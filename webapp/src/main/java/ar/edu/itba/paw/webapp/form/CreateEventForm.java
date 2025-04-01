@@ -23,6 +23,14 @@ public class CreateEventForm {
     @Size(min = 2, max = 200)
     private String description;
 
+    @Email
+    @Size(min = 2, max = 100)
+    private String email;
+
+   public String getEmail() {
+        return email;
+    }
+
     public String getCity() {
         return city;
     }
@@ -37,6 +45,10 @@ public class CreateEventForm {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public MultipartFile getFlyer() {

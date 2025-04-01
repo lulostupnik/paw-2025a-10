@@ -14,6 +14,8 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.util.*;
 
+import static java.util.Arrays.stream;
+
 
 //FIXME: Not yet tested
 @Repository
@@ -90,6 +92,25 @@ public class EventJdbcDao implements EventDao {
                 EVENT_ROW_MAPPER,
                 params.toArray()
         );
+    }
+
+    @Override
+    public Optional<Event> findById(long eventId) {
+        return jdbcTemplate.query("SELECT * FROM events e " +
+                "JOIN users u ON e.user_id = u.id " +
+                "JOIN universities un ON u.university = un.id " +
+                "JOIN cities c ON e.city_id = c.id " +
+                "WHERE e.id = ?",
+                EVENT_ROW_MAPPER, eventId).stream().findFirst();
+    }
+
+    @Override
+    public List<Event> listAll() {
+        return jdbcTemplate.query("SELECT * FROM events e " +
+                "JOIN users u ON e.user_id = u.id " +
+                "JOIN universities un ON u.university = un.id " +
+                "JOIN cities c ON e.city_id = c.id",
+                EVENT_ROW_MAPPER);
     }
 
 }

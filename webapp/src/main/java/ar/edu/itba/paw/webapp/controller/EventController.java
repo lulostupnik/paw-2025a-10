@@ -2,10 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.models.Event;
-import ar.edu.itba.paw.models.Image;
-import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.form.CreateEventForm;
-import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -15,13 +12,12 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 
-import java.io.IOException;
+import java.util.Optional;
 
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
 @Controller
-
+@RequestMapping("/events")
 public class EventController {
 
     private final EventService eventService;
@@ -30,56 +26,37 @@ public class EventController {
         this.eventService = eventService;
     }
 
-    @RequestMapping("/events")
+    @RequestMapping
     public ModelAndView getEvents() {
-        // TODO: Implement the logic to fetch events
-        return new ModelAndView("event");
+        ModelAndView mav = new ModelAndView("events/list");
+        mav.addObject("events", eventService.getAllEvents());
+        return mav;
     }
 
+    @RequestMapping("/create")
+    public ModelAndView showCreateEventForm(@ModelAttribute("createEventForm") final CreateEventForm form) {
+        return new ModelAndView("events/create");
+    }
 
-    //FIXME: Not yet tested, nor finished
-    @RequestMapping(value = "/events", method = POST)
+    @RequestMapping(method = POST)
     public ModelAndView createEvent(@Valid @ModelAttribute("createEventForm") final CreateEventForm eventForm,
                                     final BindingResult errors) {
         if (errors.hasErrors()) {
-            return new ModelAndView("event");
+            return new ModelAndView("events/create");
         }
 
-        try {
-            //FIXME: look for user by email if created, otherwise create it
-            //User user = eventService.getUserByEmail(eventForm.getEmail());
-            //FIXME: with the new or founded user it should create the event, we also need to add the image
-            //Event event = eventService.createEvent("s","s","s","s","s","s",3, eventForm.);
+        Event event = eventService.createEvent(eventForm.getEmail(), eventForm.getCity(), eventForm.getDate(), eventForm.getDescription());
+        return new ModelAndView("redirect:/events/" + event.getId());
+    }
 
-
-            //ModelAndView mav = new ModelAndView("redirect:/events/" + eve);
-            return new ModelAndView("event");
-        } catch (Exception e) {
-            ModelAndView mav = new ModelAndView("event");
-            mav.addObject("createEventForm", eventForm);
-            mav.addObject("error", "Failed to create event: " + e.getMessage());
-            return mav;
+    @RequestMapping("/{id}")
+    public ModelAndView getEvent(@PathVariable long id) {
+        Optional<Event> event = eventService.getEventById(id);
+        if (event.isEmpty()) {
+            return new ModelAndView("redirect:/events"); // Redirect if event is not found
         }
-    }
-
-    @RequestMapping(value = "/events")
-    public ModelAndView createEventForm(@ModelAttribute("createEventForm") final CreateEventForm ef) {
-        return new ModelAndView("event");
-    }
-
-
-    @RequestMapping(value = "/events/{id}")
-    public ModelAndView getEvent(@PathVariable int id) {
-        return new ModelAndView("event");
-    }
-    @RequestMapping(value = "/events/{id}", method = PUT)
-    public ModelAndView updateEvent(@PathVariable int id) {
-        return new ModelAndView("event");
-    }
-
-    @RequestMapping(value = "/events/{id}/response", method = POST)
-    public ModelAndView replyToEvent(@PathVariable int id) {
-        return new ModelAndView("event");
-
+        ModelAndView mav = new ModelAndView("events/detail");
+        mav.addObject("event", event);
+        return mav;
     }
 }
