@@ -34,7 +34,7 @@ public class CityJdbcDao implements CityDao {
     public CityJdbcDao(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-                .withTableName("city")
+                .withTableName("cities")
                 .usingGeneratedKeyColumns("id");
     }
 
