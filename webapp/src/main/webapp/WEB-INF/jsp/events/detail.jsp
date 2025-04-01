@@ -23,24 +23,34 @@
     </a>
 
     <!-- Event Details Card -->
-    <div class="p-4 sm:p-6 lg:p-8 bg-white border border-gray-200 rounded-xl">
-      <div class="mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">${event.city}</h2>
-        <p class="text-sm text-gray-500">
-          <fmt:formatDate value="${event.date}" pattern="MMMM d, yyyy" />
-        </p>
-      </div>
+    <c:if test="${event.present}">
+      <div class="p-4 sm:p-6 lg:p-8 bg-white border border-gray-200 rounded-xl">
+        <div class="mb-6">
+          <h2 class="text-2xl font-bold text-gray-800">${event.get().eventCity.name}</h2>
+          <p class="text-sm text-gray-500">
+            <fmt:formatDate value="${event.get().date}" pattern="MMMM d, yyyy" />
+          </p>
+        </div>
 
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold mb-2">Description</h3>
-        <p class="text-gray-700">${event.description}</p>
-      </div>
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold mb-2">Description</h3>
+          <p class="text-gray-700">${event.get().description}</p>
+        </div>
 
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold mb-2">Contact</h3>
-        <p class="text-gray-700">${event.email}</p>
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold mb-2">Contact</h3>
+          <p class="text-gray-700">${event.get().user.email}</p>
+        </div>
+
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold mb-2">Flyer Image</h3>
+          <!-- Display the flyer image if available -->
+          <c:if test="${not empty event.get().flyerImageId}">
+            <img src="${pageContext.request.contextPath}/images/${event.get().flyerImageId}" alt="Event Flyer" class="w-full h-auto rounded-lg" />
+          </c:if>
+        </div>
       </div>
-    </div>
+    </c:if>
   </div>
 </div>
 

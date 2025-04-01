@@ -6,6 +6,13 @@
   <title>Events</title>
   <!-- Include Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {}
+      }
+    };
+  </script>
   <!-- Include Preline UI Kit CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/preline/dist/preline.min.css" />
 </head>
@@ -26,9 +33,14 @@
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
       <c:forEach items="${events}" var="event">
         <a href="${pageContext.request.contextPath}/events/${event.id}" class="group block rounded-xl p-4 sm:p-6 bg-white border border-gray-200 hover:border-blue-600">
-          <div class="flex items-center gap-x-4">
+          <!-- Image -->
+          <c:if test="${not empty event.flyerImageId}">
+            <img src="${pageContext.request.contextPath}/images/${event.flyerImageId}" alt="Event Flyer" class="w-full h-40 object-cover rounded-lg">
+          </c:if>
+
+          <div class="flex items-center gap-x-4 mt-3">
             <div>
-              <h3 class="text-lg font-semibold text-gray-800">${event.city}</h3>
+              <h3 class="text-lg font-semibold text-gray-800">${event.eventCity.name}</h3>
               <p class="text-sm text-gray-500">${event.date}</p>
             </div>
           </div>

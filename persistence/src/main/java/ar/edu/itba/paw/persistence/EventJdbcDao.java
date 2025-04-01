@@ -24,21 +24,32 @@ public class EventJdbcDao implements EventDao {
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
 
-    private final static RowMapper<Event> EVENT_ROW_MAPPER = (rs, rowNum) -> new Event(
-            rs.getLong("event_id"),
-            new User(rs.getLong("user_id"),
-                    rs.getString("user_email"),
-                    rs.getString("user_username"),
-                    rs.getString("user_firstname"),
-                    rs.getString("user_lastname"),
-                    new University(rs.getLong("user_university"), rs.getString("university_name"), rs.getString("university_abbreviation")),
-                    rs.getString("user_career"),
-                    rs.getLong("user_profile_picture_id")),
+    private static final RowMapper<Event> EVENT_ROW_MAPPER = (rs, rowNum) -> new Event(
+            rs.getLong("id"), // Event ID from `events` table
+            new User(
+                    rs.getLong("user_id"),
+                    rs.getString("email"), // Correct field from `users`
+                    rs.getString("username"),
+                    rs.getString("firstname"),
+                    rs.getString("lastname"),
+                    new University(
+                            rs.getLong("university"),
+                            rs.getString("name"), // University name
+                            rs.getString("abbreviation")
+                    ),
+                    rs.getString("career"),
+                    rs.getObject("profile_picture_id") != null ? rs.getLong("profile_picture_id") : null
+            ),
             rs.getDate("event_date"),
-            rs.getString("event_description"),
-            rs.getLong("event_flyer_image_id"),
-            new City(rs.getString("city_name"), rs.getString("city_country"), rs.getLong("city_id"))
+            rs.getString("description"),
+            rs.getObject("flyer_image_id") != null ? rs.getLong( "flyer_image_id") : null,
+            new City(
+                    rs.getString("name"), // City name
+                    rs.getString("country"),
+                    rs.getLong("city_id")
+            )
     );
+
 
 
     @Autowired

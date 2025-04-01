@@ -24,9 +24,9 @@ public class CityJdbcDao implements CityDao {
     private final SimpleJdbcInsert jdbcInsert;
 
     private final static RowMapper<City> CITY_ROW_MAPPER = (rs, rowNum) -> new City(
-            rs.getString("city_name"),
-            rs.getString("city_country"),
-            rs.getLong("city_id")
+            rs.getString("name"),
+            rs.getString("country"),
+            rs.getLong("id")
             );
 
 
