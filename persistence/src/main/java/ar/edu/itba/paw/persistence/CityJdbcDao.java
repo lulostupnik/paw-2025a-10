@@ -45,7 +45,7 @@ public class CityJdbcDao implements CityDao {
 
 
     @Override
-    public Optional<City> findBy(long id, String name, String country) {
+    public Optional<City> findBy(Long id, String name, String country) {
         StringBuilder queryBuilder = new StringBuilder();
         List<Object> params = new ArrayList<>();
 

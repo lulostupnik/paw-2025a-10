@@ -34,18 +34,18 @@ public class EventController {
     }
 
     @RequestMapping("/create")
-    public ModelAndView showCreateEventForm(@ModelAttribute("createEventForm") final CreateEventForm form) {
+    public ModelAndView createEventForm(@ModelAttribute("createEventForm") final CreateEventForm form) {
         return new ModelAndView("events/create");
     }
 
-    @RequestMapping(method = POST)
+    @RequestMapping(path = "/create", method = POST)
     public ModelAndView createEvent(@Valid @ModelAttribute("createEventForm") final CreateEventForm eventForm,
                                     final BindingResult errors) {
         if (errors.hasErrors()) {
             return new ModelAndView("events/create");
         }
 
-        Event event = eventService.createEvent(eventForm.getEmail(), eventForm.getCity(), eventForm.getDate(), eventForm.getDescription());
+        Event event = eventService.createEvent(eventForm.getEmail(), eventForm.getCity(), eventForm.getDate(), eventForm.getFlyer(), eventForm.getDescription());
         return new ModelAndView("redirect:/events/" + event.getId());
     }
 

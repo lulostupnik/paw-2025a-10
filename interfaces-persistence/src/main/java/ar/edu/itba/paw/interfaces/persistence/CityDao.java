@@ -5,5 +5,5 @@ import ar.edu.itba.paw.models.City;
 import java.util.Optional;
 
 public interface CityDao {
-    Optional<City> findBy(long id, String name, String country);
+    Optional<City> findBy(Long id, String name, String country);
 }

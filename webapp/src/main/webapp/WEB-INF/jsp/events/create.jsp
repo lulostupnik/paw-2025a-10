@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<!-- NO SE ESTA UTILIZANDO FORMDATA -->
 
 <html>
 <head>
@@ -16,7 +17,7 @@
 <div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
   <!-- Back Link -->
   <div class="mb-6">
-    <a href="${pageContext.request.contextPath}/events" class="inline-flex items-center gap-x-1.5 text-sm text-blue-600 decoration-2 hover:underline">
+    <a href="${pageContext.request.contextPath}/events/create" class="inline-flex items-center gap-x-1.5 text-sm text-blue-600 decoration-2 hover:underline">
       <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
         <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
       </svg>
@@ -33,7 +34,7 @@
 
     <!-- Card -->
     <div class="mt-5 p-4 relative z-10 bg-white border border-gray-200 rounded-xl sm:mt-10 md:p-10">
-      <form:form method="post" action="${pageContext.request.contextPath}/events" modelAttribute="createEventForm" enctype="multipart/form-data">
+      <form:form method="post" action="${pageContext.request.contextPath}/events/create" modelAttribute="createEventForm">
 
         <!-- Email Field -->
         <spring:message code="event.email.hint" var="emailHint"/>
@@ -64,15 +65,6 @@
           </form:label>
           <form:input path="date" type="date" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500" />
           <form:errors path="date" class="text-red-500 text-sm mt-1" />
-        </div>
-
-        <!-- Flyer Field -->
-        <div class="mb-4 sm:mb-8">
-          <form:label path="flyer" class="block mb-2 text-sm font-medium">
-            <spring:message code="event.flyer"/>
-          </form:label>
-          <form:input path="flyer" type="file" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500" />
-          <form:errors path="flyer" class="text-red-500 text-sm mt-1" />
         </div>
 
         <!-- Description Field -->

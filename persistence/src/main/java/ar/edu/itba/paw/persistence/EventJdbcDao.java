@@ -17,7 +17,6 @@ import java.util.*;
 import static java.util.Arrays.stream;
 
 
-//FIXME: Not yet tested
 @Repository
 public class EventJdbcDao implements EventDao {
 

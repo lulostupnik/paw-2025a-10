@@ -1,12 +1,15 @@
 package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.persistence.EventDao;
+import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.*;
+import com.sun.tools.jconsole.JConsoleContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.spec.ECField;
 import java.util.Date;
@@ -17,28 +20,31 @@ import java.util.Optional;
 public class EventServiceImpl implements EventService {
     // private final JourneyDao journeyDao;
     private final UserService userService;
+    private final CityService cityService;
     private final EventDao eventDao;
 
     @Autowired
-    public EventServiceImpl(UserService userService, EventDao eventDao) {
+    public EventServiceImpl(UserService userService, CityService cityService, EventDao eventDao) {
         this.userService = userService;
+        this.cityService = cityService;
         this.eventDao = eventDao;
     }
 
     @Override
-    public Event createEvent(String email, String city, Date date, String description){
+    public Event createEvent(String email, String cityName, Date date, MultipartFile flyer, String description){
         Optional<User> user = userService.findByEmail(email);
         if (user.isEmpty()) {
             throw new RuntimeException("User not found");
         }
-        //FIXME: City is not implemented
-        //Optional<City> city = cityService.findByName(cityName);
-        //if (city.isEmpty()) {
-        //    throw new RuntimeException("City not found");
-        //}
 
-        //FIXME: Image is missing, sequential as a placeholder
-        return eventDao.create(user.get(), null, date, description, new java.util.concurrent.atomic.AtomicInteger(1).getAndIncrement());
+        //FIXME: City is not being created yet, therefore as we are not passing a city to the create it will break
+//        Optional<City> city = cityService.findByName("Buenos Aires");
+//        if (city.isEmpty()) {
+//            throw new RuntimeException("City not found");
+//        }
+
+        //FIXME: Image is missing, 1 as a placeholder
+        return eventDao.create(user.get(), null, date, description, 1);
     }
 
     @Override
