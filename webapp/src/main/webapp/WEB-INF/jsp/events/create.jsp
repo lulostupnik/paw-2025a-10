@@ -17,7 +17,7 @@
 <div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
   <!-- Back Link -->
   <div class="mb-6">
-    <a href="${pageContext.request.contextPath}/events/create" class="inline-flex items-center gap-x-1.5 text-sm text-blue-600 decoration-2 hover:underline">
+    <a href="${pageContext.request.contextPath}/events" class="inline-flex items-center gap-x-1.5 text-sm text-blue-600 decoration-2 hover:underline">
       <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
         <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
       </svg>
