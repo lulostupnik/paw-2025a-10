@@ -32,10 +32,28 @@
                     <h2 class="text-xl text-gray-800 font-bold sm:text-3xl">
                         <spring:message code="journey.list.title"/>
                     </h2>
-                    <a href="${pageContext.request.contextPath}/journey" class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700">
-                        <spring:message code="journey.create.button"/>
-                    </a>
+                    <div class="flex items-center gap-3">
+                        <!-- Toggle Filters Form - No JavaScript needed -->
+<%--                        <form action="${pageContext.request.contextPath}/journeys" method="get">--%>
+<%--                            <input type="hidden" name="showFilters" value="${param.showFilters eq 'true' ? 'false' : 'true'}">--%>
+<%--                            <button type="submit" class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50">--%>
+<%--                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">--%>
+<%--                                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>--%>
+<%--                                </svg>--%>
+<%--                                <spring:message code="journey.filters.${param.showFilters eq 'true' ? 'hide' : 'show'}" text="${param.showFilters eq 'true' ? 'Hide' : 'Show'} Filters"/>--%>
+<%--                            </button>--%>
+<%--                        </form>--%>
+
+                        <a href="${pageContext.request.contextPath}/journey" class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700">
+                            <spring:message code="journey.create.button"/>
+                        </a>
+                    </div>
                 </div>
+
+                <!-- Include the filters component conditionally -->
+<%--                <c:if test="${param.showFilters eq 'true'}">--%>
+<%--                    <jsp:include page="components/filters.jsp" />--%>
+<%--                </c:if>--%>
 
                 <!-- Journeys List -->
                 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
