@@ -99,15 +99,6 @@ CREATE TABLE IF NOT EXISTS journey_responses (
         PRIMARY KEY (user_id, journey_id)
 );
 
-CREATE TABLE IF NOT EXISTS event_responses (
-                                                 user_id INTEGER NOT NULL,
-                                                 event_id INTEGER NOT NULL,
-                                                 message VARCHAR(1023) NOT NULL,
-
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
-    PRIMARY KEY (user_id, event_id)
-    );
 
 CREATE TABLE IF NOT EXISTS events (
                                      id SERIAL PRIMARY KEY,
@@ -120,4 +111,14 @@ CREATE TABLE IF NOT EXISTS events (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT,
     FOREIGN KEY (city_id) REFERENCES cities(id) ON DELETE RESTRICT,
     FOREIGN KEY (flyer_image_id) REFERENCES images(id) ON DELETE RESTRICT
+    );
+
+CREATE TABLE IF NOT EXISTS event_responses (
+                                               user_id INTEGER NOT NULL,
+                                               event_id INTEGER NOT NULL,
+                                               message VARCHAR(1023) NOT NULL,
+
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, event_id)
     );
