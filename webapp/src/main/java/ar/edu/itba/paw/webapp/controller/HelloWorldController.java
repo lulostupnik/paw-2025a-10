@@ -8,6 +8,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.naming.Context;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 
@@ -26,26 +27,31 @@ public class HelloWorldController {
         return mav;
     }
 
-//un controller to test
-    @RequestMapping("/sendmail")
-    public ModelAndView sendMail() {
-        // Create a Thymeleaf context and add variables
-        Map<String, Object> vars = new HashMap<String, Object>();
-        vars.put("usernae", "Lucas Stupnik"); // Dynamic value
-        vars.put("message", "This is a <strong>test HTML email</strong>!");
+    @GetMapping("/sendEmail")
+    public String sendEmail() {
 
-        // Send HTML email using Thymeleaf template
+        // Set Spanish as the user's locale
+        Locale userLocale = new Locale("es");
+
+        // 1) Prepare the subject arguments, for the key: "mail.subject.welcome"
+        //    which includes a placeholder {0}.
+        Object[] subjectArgs = {"Carlos"};
+
+        // 2) Variables for the Thymeleaf template (the HTML body)
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("name", "Carlos");
+
+        // 3) Send the email
         emailService.sendHtmlMessage(
-                "lstupnik@itba.edu.ar",
-                "Test HTML Email",
-                "welcome", // Name of the Thymeleaf template (without .html)
-                 vars
+                "lstupnik@itba.edu.ar",    // Destination email address
+                "mail.subject.welcome",     // The subject key from messages_es.properties
+                subjectArgs,                // Replacement for placeholders (i.e. {0} -> "Carlos")
+                "welcome",          // The Thymeleaf template name (no .html if configured)
+                variables,                  // Variables map for the template
+                userLocale                  // <--- Spanish
         );
-
-        // Return a confirmation view
-        ModelAndView mav = new ModelAndView("mail_sent");
-        mav.addObject("message", "HTML email sent successfully!");
-        return mav;
+        // Return a simple status
+        return "Email sent in Spanish!"; //esto falla lo q vuelve, pero no importa es para probar. 
     }
 
 }

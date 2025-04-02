@@ -1,8 +1,16 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
 <body>
-<h1 th:text="${username}  "> Hello User (fallabck) </h1>
-<h2 th:text="${message}">ms</h2>
-<p>Welcome to our platform!</p>
+<h1 th:text="#{email.welcome.greeting}">Welcome!</h1>
+
+<p th:text="${name}">Username</p>
+
+<p th:text="#{email.welcome.body}">
+    We’re excited to have you on board.
+</p>
+
 </body>
 </html>

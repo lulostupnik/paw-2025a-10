@@ -65,7 +65,6 @@ public class WebConfig /* extends WebMvcConfigurerAdapter */ {
         ms.setCacheSeconds((int) TimeUnit.MINUTES.toSeconds(5));
         ms.setBasename("classpath:i18n/messages");
         ms.setDefaultEncoding(StandardCharsets.UTF_8.name());
-
         return ms;
     }
 
