@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.models.Event;
 import ar.edu.itba.paw.webapp.form.CreateEventForm;
 
+import ar.edu.itba.paw.webapp.form.ReplyEventForm;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -72,17 +73,17 @@ public class EventController {
     }
 
     @RequestMapping(value = "/{id}/reply")
-    public ModelAndView createReplyEventForm(@ModelAttribute("createReplyEventForm") final CreateEventForm form) {
+    public ModelAndView createReplyEventForm(@ModelAttribute("replyEventForm") final ReplyEventForm form) {
         return new ModelAndView("events/{id}/reply");
     }
 
     @RequestMapping(value = "/{id}/reply", method = POST)
-    public ModelAndView reply(@ModelAttribute("createReplyEventForm") final CreateEventForm form, BindingResult errors) {
+    public ModelAndView reply(@ModelAttribute("replyEventForm") final ReplyEventForm form, BindingResult errors) {
         if (errors.hasErrors()) {
             return new ModelAndView("events/{id}/reply");
         }
         //TODO: Implement the logic to reply to an event
-        //eventService.replyToEvent(form.getEmail(), form.getUsername(), form.getFirstName(), form.getLastName(), form.getOriginUniversity(), form.getCareer(), 1, id, form.getMessage());
+        //eventService.replyToEvent(form.getEmail(), form.getUsername(), form.getFirstName(), form.getLastName(), form.getOriginUniversity(), form.getCareer(), 1, event.getId(), form.getMessage());
         return new ModelAndView("events/{id}/reply");
     }
 

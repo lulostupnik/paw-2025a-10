@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.persistence.EventDao;
+import ar.edu.itba.paw.interfaces.persistence.EventResponseDao;
 import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.UserService;
@@ -17,11 +18,13 @@ public class EventServiceImpl implements EventService {
     // private final JourneyDao journeyDao;
     private final UserService userService;
     //private final CityService cityService;
+    private final EventResponseDao eventResponseDao;
     private final EventDao eventDao;
 
     @Autowired
-    public EventServiceImpl(UserService userService, CityService cityService, EventDao eventDao) {
+    public EventServiceImpl(UserService userService, CityService cityService, EventResponseDao eventResponseDao, EventDao eventDao) {
         this.userService = userService;
+        this.eventResponseDao = eventResponseDao;
         //this.cityService = cityService;
         this.eventDao = eventDao;
     }
@@ -45,8 +48,17 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void replyToEvent(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId, long eventId, String message) {
+        eventDao.findById(eventId).orElseThrow(()-> new RuntimeException("Event not found")).getId();
 
+        Optional<Event> maybeEvent = eventDao.findById(eventId);
+        if (maybeEvent.isEmpty()) {
+            throw new RuntimeException("Event not found");
+        }
+        long userId = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId)).getId();
+        eventResponseDao.create(userId, eventId, message);
     }
+
+
 
     @Override
     public Optional<Event> getEventById(long id){
