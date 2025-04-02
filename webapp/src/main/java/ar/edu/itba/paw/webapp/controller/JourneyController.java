@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import javax.validation.Valid;
 
+import ar.edu.itba.paw.models.Event;
 import ar.edu.itba.paw.webapp.form.ReplyJourneyForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -56,8 +57,10 @@ public class JourneyController {
     }
     @RequestMapping(value = "/journey/{id}")
     public ModelAndView getJourney(@PathVariable long id) {
-        //TODO: Implement the logic to fetch a specific journey
-        return new ModelAndView("onejourney");
+        Optional<Journey> journey = js.getJourneyById(id);
+        final ModelAndView mav = new ModelAndView("onejourney");
+        mav.addObject("journey", journey);
+        return mav;
     }
 
     @RequestMapping(value = "/journey/{id}/reply", method = POST)

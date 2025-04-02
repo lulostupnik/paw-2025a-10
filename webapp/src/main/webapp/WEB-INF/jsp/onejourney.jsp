@@ -1,6 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <html>
@@ -47,12 +46,12 @@
                 <div class="mb-6">
                     <h3 class="text-lg font-semibold mb-2"><spring:message code="journey.destination"/></h3>
                     <div class="flex flex-wrap gap-2">
-            <span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-              <spring:message code="journey.city"/>: ${journey.get().destinationCity}
-            </span>
+                        <span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <spring:message code="journey.city"/>: ${journey.get().destinationCity}
+                        </span>
                         <span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-              <spring:message code="journey.university"/>: ${journey.get().destinationUniversity}
-            </span>
+                            <spring:message code="journey.university"/>: ${journey.get().destinationUniversity}
+                        </span>
                     </div>
                 </div>
 
@@ -60,15 +59,11 @@
                 <div class="mb-6">
                     <h3 class="text-lg font-semibold mb-2"><spring:message code="journey.dates"/></h3>
                     <div class="flex items-center gap-x-2">
-            <span class="text-gray-700">
-              <fmt:formatDate value="${journey.get().startDate}" pattern="MMMM d, yyyy" />
-            </span>
+                        <span class="text-gray-700">${formattedStartDate}</span>
                         <svg class="w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                            <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
                         </svg>
-                        <span class="text-gray-700">
-              <fmt:formatDate value="${journey.get().endDate}" pattern="MMMM d, yyyy" />
-            </span>
+                        <span class="text-gray-700">${formattedEndDate}</span>
                     </div>
                 </div>
 
