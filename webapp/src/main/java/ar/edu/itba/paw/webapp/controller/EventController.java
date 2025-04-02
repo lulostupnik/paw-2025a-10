@@ -70,4 +70,20 @@ public class EventController {
         mav.addObject("event", event);
         return mav;
     }
+
+    @RequestMapping(value = "/{id}/reply")
+    public ModelAndView createReplyEventForm(@ModelAttribute("createReplyEventForm") final CreateEventForm form) {
+        return new ModelAndView("events/{id}/reply");
+    }
+
+    @RequestMapping(value = "/{id}/reply", method = POST)
+    public ModelAndView reply(@ModelAttribute("createReplyEventForm") final CreateEventForm form, BindingResult errors) {
+        if (errors.hasErrors()) {
+            return new ModelAndView("events/{id}/reply");
+        }
+        //TODO: Implement the logic to reply to an event
+        //eventService.replyToEvent(form.getEmail(), form.getUsername(), form.getFirstName(), form.getLastName(), form.getOriginUniversity(), form.getCareer(), 1, id, form.getMessage());
+        return new ModelAndView("events/{id}/reply");
+    }
+
 }
