@@ -124,10 +124,6 @@ public class WebConfig /* extends WebMvcConfigurerAdapter */ {
         templateResolver.setCharacterEncoding(StandardCharsets.UTF_8.name());
         templateResolver.setCacheable(false); // Disable cache for development
         return templateResolver;
-    @Bean
-    public StandardServletMultipartResolver multipartResolver() {
-        return new StandardServletMultipartResolver();
-    }
 
     /*
     @Override
@@ -137,4 +133,5 @@ public class WebConfig /* extends WebMvcConfigurerAdapter */ {
     }
     */
 
+}
 }
