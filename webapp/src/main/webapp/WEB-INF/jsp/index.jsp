@@ -12,22 +12,20 @@
     <!-- Include Preline UI Kit CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/preline/dist/preline.min.css" />
 </head>
-<body class="bg-gray-50">
+
+<body class="bg-gray-100">
 <div class="flex h-full min-h-screen">
     <!-- Include the sidebar component -->
     <jsp:include page="components/sidebar.jsp" />
 
     <!-- Main Content -->
-    <div class="ml-64 flex-1 p-6">
-        <div class="max-w-7xl mx-auto">
+    <div class="ml-64 flex-1">
+        <div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
             <!-- Welcome Header -->
-            <div class="mb-8">
+            <div class="mx-auto mb-6"> <!-- Changed to mb-6 to match the second file -->
                 <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">
                     <spring:message code="dashboard.welcome" text="Welcome to the Exchange Platform"/>
                 </h1>
-                <p class="mt-2 text-lg text-gray-600">
-                    <spring:message code="dashboard.subtitle" text="Discover journeys and events from students around the world"/>
-                </p>
             </div>
 
             <!-- Content Grid -->

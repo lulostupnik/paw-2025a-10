@@ -48,8 +48,6 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void replyToEvent(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId, long eventId, String message) {
-        eventDao.findById(eventId).orElseThrow(()-> new RuntimeException("Event not found")).getId();
-
         Optional<Event> maybeEvent = eventDao.findById(eventId);
         if (maybeEvent.isEmpty()) {
             throw new RuntimeException("Event not found");

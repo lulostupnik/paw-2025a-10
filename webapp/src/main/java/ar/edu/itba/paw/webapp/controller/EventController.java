@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.models.Event;
+import ar.edu.itba.paw.models.Journey;
 import ar.edu.itba.paw.webapp.form.CreateEventForm;
 
 import ar.edu.itba.paw.webapp.form.ReplyEventForm;
@@ -73,18 +74,25 @@ public class EventController {
     }
 
     @RequestMapping(value = "/{id}/reply")
-    public ModelAndView createReplyEventForm(@ModelAttribute("replyEventForm") final ReplyEventForm form) {
-        return new ModelAndView("events/{id}/reply");
+    public ModelAndView createReplyEventForm(@PathVariable int id, @ModelAttribute("replyEventForm") final ReplyEventForm form) {
+        ModelAndView mav = new ModelAndView("events/reply");
+        Optional<Event> event = eventService.getEventById(id);
+        if(event.isEmpty()){
+            return getEvent(id);
+        }
+        mav.addObject("event", event.get());
+        mav.addObject("replyEventForm", form);
+        return mav;
     }
 
     @RequestMapping(value = "/{id}/reply", method = POST)
-    public ModelAndView reply(@ModelAttribute("replyEventForm") final ReplyEventForm form, BindingResult errors) {
+    public ModelAndView reply(@PathVariable int id, @ModelAttribute("replyEventForm") final ReplyEventForm form, BindingResult errors) {
         if (errors.hasErrors()) {
-            return new ModelAndView("events/{id}/reply");
+            return new ModelAndView("events/reply");
         }
-        //TODO: Implement the logic to reply to an event
-        //eventService.replyToEvent(form.getEmail(), form.getUsername(), form.getFirstName(), form.getLastName(), form.getOriginUniversity(), form.getCareer(), 1, event.getId(), form.getMessage());
-        return new ModelAndView("events/{id}/reply");
+        //FIXME: The image id is hardcoded to 1, this should be changed to the logged in user id
+        eventService.replyToEvent(form.getEmail(), form.getUsername(), form.getFirstName(), form.getLastName(), form.getOriginUniversity(), form.getCareer(), 1, id, form.getMessage());
+        return getEvents();
     }
 
 }

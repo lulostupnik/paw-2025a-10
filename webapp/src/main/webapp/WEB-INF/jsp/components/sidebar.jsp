@@ -13,9 +13,9 @@
     <h1 class="text-xl font-semibold text-gray-800">
       <spring:message code="app.name" text="Exchange Platform"/>
     </h1>
-    <p class="text-sm text-gray-500 mt-1">
-      <spring:message code="app.welcome" text="Welcome"/> <c:out value="${user.email}" escapeXml="true"/>!
-    </p>
+<%--    <p class="text-sm text-gray-500 mt-1">--%>
+<%--      <spring:message code="app.welcome" text="Welcome"/> <c:out value="${user.email}" escapeXml="true"/>!--%>
+<%--    </p>--%>
   </div>
 
   <!-- Navigation -->
