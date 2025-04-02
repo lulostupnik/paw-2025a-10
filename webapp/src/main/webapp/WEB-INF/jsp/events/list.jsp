@@ -36,38 +36,64 @@
           </a>
         </div>
 
-        <!-- Events List -->
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <c:forEach items="${events}" var="event">
-            <a href="${pageContext.request.contextPath}/events/${event.id}" class="group block rounded-xl p-4 sm:p-6 bg-white border border-gray-200 hover:border-blue-600">
-              <!-- Image -->
-              <c:if test="${not empty event.flyerImageId}">
-                <img src="${pageContext.request.contextPath}/images/${event.flyerImageId}" alt="<spring:message code='event.flyer.alt'/>" class="w-full h-40 object-cover rounded-lg">
-              </c:if>
+        <!-- Events List with horizontal scrolling -->
+        <div class="overflow-x-auto pb-6">
+          <div class="inline-flex gap-6 min-w-full">
+            <c:forEach items="${events}" var="event">
+              <!-- Card with buttons below -->
+              <div class="w-80 flex-shrink-0">
+                <div class="rounded-xl bg-white border border-gray-200 hover:border-blue-600 transition-all duration-200 h-full">
+                  <div class="p-4 sm:p-6">
+                    <!-- Image -->
+                    <c:if test="${not empty event.flyerImageId}">
+                      <img src="${pageContext.request.contextPath}/images/${event.flyerImageId}" alt="<spring:message code='event.flyer.alt'/>" class="w-full h-40 object-cover rounded-lg">
+                    </c:if>
 
-              <div class="flex items-center gap-x-4 mt-3">
-                <div>
-                  <h3 class="text-lg font-semibold text-gray-800">
-                    <spring:message code="event.city"/>: ${event.eventCity.name}
-                  </h3>
-                  <p class="text-sm text-gray-500">
-                    <spring:message code="event.date"/>: ${event.date}
-                  </p>
+                    <div class="flex items-center gap-x-4 mt-3">
+                      <div>
+                        <h3 class="text-lg font-semibold text-gray-800">
+                          <spring:message code="event.city"/>: ${event.eventCity.name}
+                        </h3>
+                        <p class="text-sm text-gray-500">
+                          <spring:message code="event.date"/>: ${event.date}
+                        </p>
+                      </div>
+                    </div>
+                    <p class="mt-3 text-gray-600 line-clamp-3">
+                      <spring:message code="event.description"/>: ${event.description}
+                    </p>
+
+                    <!-- Action Buttons -->
+                    <div class="mt-4 flex gap-2">
+                      <a href="${pageContext.request.contextPath}/events/${event.id}"
+                         class="py-2 px-3 flex-1 inline-flex justify-center items-center text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50">
+                        <spring:message code="event.view.details" text="View Details"/>
+                      </a>
+                      <a href="${pageContext.request.contextPath}/events/${event.id}/reply"
+                         class="py-2 px-3 flex-1 inline-flex justify-center items-center text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700">
+                        <spring:message code="event.reply" text="Reply"/>
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <p class="mt-3 text-gray-600 line-clamp-3">
-                <spring:message code="event.description"/>: ${event.description}
-              </p>
-            </a>
-          </c:forEach>
+            </c:forEach>
 
-          <c:if test="${empty events}">
-            <div class="col-span-full text-center py-10">
-              <p class="text-gray-500"><spring:message code="event.no.events"/></p>
-            </div>
-          </c:if>
+            <c:if test="${empty events}">
+              <div class="col-span-full text-center py-10">
+                <p class="text-gray-500"><spring:message code="event.no.events"/></p>
+              </div>
+            </c:if>
+          </div>
         </div>
         <!-- End Events List -->
+
+        <!-- Scroll indicator -->
+        <div class="mt-4 flex justify-center gap-1">
+          <span class="block w-2 h-2 rounded-full bg-blue-600"></span>
+          <span class="block w-2 h-2 rounded-full bg-gray-300"></span>
+          <span class="block w-2 h-2 rounded-full bg-gray-300"></span>
+        </div>
       </div>
     </div>
   </div>
