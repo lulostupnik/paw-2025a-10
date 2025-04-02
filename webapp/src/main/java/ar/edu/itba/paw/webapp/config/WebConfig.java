@@ -12,6 +12,7 @@ import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.jdbc.datasource.init.DatabasePopulator;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
@@ -85,6 +86,10 @@ public class WebConfig /* extends WebMvcConfigurerAdapter */ {
         dbp.addScript(schemaSql);
         return dbp;
     }
+        @Bean
+    public StandardServletMultipartResolver multipartResolver() {
+        return new StandardServletMultipartResolver();
+    }
 
 
     @Bean
@@ -119,6 +124,9 @@ public class WebConfig /* extends WebMvcConfigurerAdapter */ {
         templateResolver.setCharacterEncoding(StandardCharsets.UTF_8.name());
         templateResolver.setCacheable(false); // Disable cache for development
         return templateResolver;
+    @Bean
+    public StandardServletMultipartResolver multipartResolver() {
+        return new StandardServletMultipartResolver();
     }
 
     /*

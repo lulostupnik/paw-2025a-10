@@ -57,7 +57,7 @@ public class JourneyController {
     @RequestMapping(value = "/journey/{id}")
     public ModelAndView getJourney(@PathVariable long id) {
         //TODO: Implement the logic to fetch a specific journey
-        return new ModelAndView("journey_reply");
+        return new ModelAndView("onejourney");
     }
 
     @RequestMapping(value = "/journey/{id}/reply", method = POST)

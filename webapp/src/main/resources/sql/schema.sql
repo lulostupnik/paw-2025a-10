@@ -66,10 +66,11 @@ CREATE TABLE IF NOT EXISTS users (
 -- );
 
 
--- CREATE TABLE IF NOT EXISTS city (
--- id SERIAL PRIMARY KEY,
--- name VARCHAR(100)
--- );
+CREATE TABLE IF NOT EXISTS cities (
+                                    id SERIAL PRIMARY KEY,
+                                    name VARCHAR(100),
+    country VARCHAR(100)
+    );
 
 
 
@@ -98,17 +99,25 @@ CREATE TABLE IF NOT EXISTS journey_responses (
         PRIMARY KEY (user_id, journey_id)
 );
 
--- CREATE TABLE IF NOT EXISTS event (
---         id SERIAL PRIMARY KEY,
---         user_id INTEGER NOT NULL,
---         destination_university_id INTEGER NOT NULL,
---         city_id INTEGER NOT NULL,
---         event_date DATE NOT NULL,
---         description VARCHAR(2047),
---         flyer_image_id INTEGER,
+CREATE TABLE IF NOT EXISTS event_responses (
+                                                 user_id INTEGER NOT NULL,
+                                                 event_id INTEGER NOT NULL,
+                                                 message VARCHAR(1023) NOT NULL,
 
---         FOREIGN KEY (destination_university_id) REFERENCES university ON DELETE RESTRICT,
---         FOREIGN KEY user_id REFERENCES "user" ON DELETE RESTRICT,
---         FOREIGN KEY (city_id) REFERENCES city,
---         FOREIGN KEY (flyer_image_id) REFERENCES image
--- );
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, event_id)
+    );
+
+CREATE TABLE IF NOT EXISTS events (
+                                     id SERIAL PRIMARY KEY,
+                                     user_id INTEGER NOT NULL,
+                                     city_id INTEGER NOT NULL,
+                                     event_date DATE NOT NULL,
+                                     description VARCHAR(2047),
+    flyer_image_id INTEGER,
+
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT,
+    FOREIGN KEY (city_id) REFERENCES cities(id) ON DELETE RESTRICT,
+    FOREIGN KEY (flyer_image_id) REFERENCES images(id) ON DELETE RESTRICT
+    );
