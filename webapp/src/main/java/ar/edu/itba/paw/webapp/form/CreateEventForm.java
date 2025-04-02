@@ -68,5 +68,5 @@ public class CreateEventForm {
         this.description = description;
     }
 
-    }
+
 }
