@@ -53,7 +53,7 @@
                         <c:out value="${journey.description}" />
                     </p>
                     <div class="mt-4">
-                        <a href="/journey/${journey.id}/reply" class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2">
+                        <a href="${pageContext.request.contextPath}/journey/${journey.id}/reply" class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2">
                             <spring:message code="journey.reply.button"/>
                         </a>
                     </div>
