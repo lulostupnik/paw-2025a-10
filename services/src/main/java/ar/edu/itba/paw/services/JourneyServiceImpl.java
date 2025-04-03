@@ -2,6 +2,7 @@ package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
+import ar.edu.itba.paw.interfaces.services.EmailService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.interfaces.services.UserService;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -21,15 +23,17 @@ public class JourneyServiceImpl implements JourneyService {
 
     private final JourneyDao journeyDao;
     private final UserService userService;
+    private final EmailService emailService;
     private final UniversityService universityService;
     private final JourneyResponseDao journeyResponseDao;
 
     @Autowired
-    public JourneyServiceImpl(JourneyDao journeyDao, UserService userService, UniversityService universityService, JourneyResponseDao journeyResponseDao) {
+    public JourneyServiceImpl(JourneyDao journeyDao, UserService userService, UniversityService universityService, JourneyResponseDao journeyResponseDao, EmailService emailService) {
         this.journeyDao = journeyDao;
         this.userService = userService;
         this.universityService = universityService;
         this.journeyResponseDao = journeyResponseDao;
+        this.emailService = emailService;
     }
 
 
@@ -57,6 +61,7 @@ public class JourneyServiceImpl implements JourneyService {
         if (maybeJourney.isEmpty()) {
             throw new RuntimeException("Journey not found");
         }
+        Journey journey = maybeJourney.get();
 
         long userId = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId)).getId();
         // tal vez deberíamos chequear por username también -> si intenta repetirlo nos va a caer una excepción de la bd
@@ -65,7 +70,10 @@ public class JourneyServiceImpl implements JourneyService {
         User user = maybeUser.orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId));
         */
 
+
         // mandar el mail
+        //@TODO cambiar el Locale
+        emailService.answerJourneyMail( email, journey.getUser().getEmail() , firstname, lastname,username, career, originUniversity, message , new Locale("es"));
 
         journeyResponseDao.create(userId, journeyId, message);
 

@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import javax.validation.Valid;
 
+import ar.edu.itba.paw.interfaces.services.EmailService;
 import ar.edu.itba.paw.webapp.form.ReplyJourneyForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

@@ -7,11 +7,17 @@ import java.util.Map;
 public interface EmailService {
 //    void sendSimpleMessage(String to, String subject, String text);
 //    void sendHtmlMessage(String to, String subject, String templateName, Map<String, Object> variables);
-    void sendHtmlMessage(String to,
-                                String subjectKey,
-                                Object[] subjectArgs,
-                                String templateName,
-                                Map<String, Object> variables,
-                                Locale locale);
+//    void sendHtmlMessage(String to,
+//                                String subjectKey,
+//                                Object[] subjectArgs,
+//                                String templateName,
+//                                Map<String, Object> variables,
+//                                Locale locale);
+
+    void answerJourneyMail(String from, String to,
+                                  String firstName, String lastName,
+                                  String username, String career,
+                                  String originUniversity, String message,
+                                  Locale locale);
 
 }

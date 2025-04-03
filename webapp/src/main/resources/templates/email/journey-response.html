@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{email.journey.reply.title}">Journey Reply</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; color: #333;">
+
+<!-- Header with Logo -->
+<div style="text-align: center; margin-bottom: 30px;">
+     <h1 style="font-size: 28px; font-weight: bold; color: #000000; margin: 0;">
+        Go<span style="color: #3366ff;">Together</span>
+     </h1>
+    <h2 th:text="#{email.journey.reply.heading}">Reply to journey</h2>
+</div>
+
+<!-- Message content -->
+<div style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: #333;">
+    <p><strong th:text="#{email.label.email}">Email:</strong> <span th:text="${email}">email@example.com</span></p>
+    <p><strong th:text="#{email.label.firstname}">First name:</strong> <span th:text="${firstname}">Firstname</span></p>
+    <p><strong th:text="#{email.label.lastname}">Last name:</strong> <span th:text="${lastname}">Lastname</span></p>
+    <p><strong th:text="#{email.label.username}">Username:</strong> <span th:text="${username}">username</span></p>
+    <p><strong th:text="#{email.label.career}">Career:</strong> <span th:text="${career}">Engineering</span></p>
+    <p><strong th:text="#{email.label.university}">Origin university:</strong> <span th:text="${university}">University Name</span></p>
+    <p>
+        <strong th:text="#{email.label.message}">Message:</strong>
+        <span th:text="${message}" style="display: inline; color: #333;">This is the reply message text.</span>
+    </p>
+</div>
+
+<!-- Call to action -->
+<div style="text-align: center; margin-top: 40px;">
+    <a th:href="@{https://gotoguether.com}"
+       style="display: inline-block; background-color: #3366ff; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;"
+       th:text="#{email.journey.reply.cta}">
+        Visit GoToguether
+    </a>
+</div>
+
+</body>
+</html>

@@ -30,14 +30,16 @@ public class EmailServiceImpl implements EmailService {
         this.templateEngine = emailTemplateEngine;
         this.messageSource = messageSource;
     }
+
     @Async
-    @Override
-    public void sendHtmlMessage(String to,
-                                String subjectKey,
-                                Object[] subjectArgs,
-                                String templateName,
-                                Map<String, Object> variables,
-                                Locale locale) {
+    protected void sendHtmlMessage(String to,
+                                   String subjectKey,
+                                   Object[] subjectArgs,
+                                   String templateName,
+                                   Map<String, Object> variables,
+                                   Locale locale) {
+
+
         try {
             String subject = messageSource.getMessage(subjectKey, subjectArgs, locale);
             MimeMessage message = emailSender.createMimeMessage();
@@ -54,6 +56,39 @@ public class EmailServiceImpl implements EmailService {
             throw new RuntimeException("Failed to send email", e);
         }
     }
+
+
+
+    @Async
+    @Override
+    public void answerJourneyMail(String from, String to,
+                                  String firstName, String lastName,
+                                  String username, String career,
+                                  String originUniversity, String message,
+                                  Locale locale) {
+
+        Map<String, Object> variables = Map.of(
+                "email", from,                 // quien está respondiendo
+                "firstname", firstName,
+                "lastname", lastName,
+                "username", username,
+                "career", career,
+                "university", originUniversity,
+                "message", message
+        );
+        sendHtmlMessage(
+                to,
+                "email.journey.reply.subject",
+                new Object[]{},
+                "journey-response",
+                variables,
+                locale
+        );
+
+    }
+
+
+
     /*
     @Override
     public void sendSimpleMessage(String to, String subject, String text) {
