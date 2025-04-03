@@ -1,8 +1,10 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.EventService;
+import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.Event;
 import ar.edu.itba.paw.models.Journey;
+import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.form.CreateEventForm;
 
 import ar.edu.itba.paw.webapp.form.ReplyEventForm;
@@ -27,9 +29,11 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 public class EventController {
 
     private final EventService eventService;
+    private final UserService userService;
 
-    public EventController(EventService eventService) {
+    public EventController(EventService eventService, UserService userService) {
         this.eventService = eventService;
+        this.userService = userService;
     }
 
     @RequestMapping
@@ -86,11 +90,11 @@ public class EventController {
     }
 
     @RequestMapping(value = "/{id}/reply", method = POST)
-    public ModelAndView reply(@PathVariable int id, @ModelAttribute("replyEventForm") final ReplyEventForm form, BindingResult errors) {
+    public ModelAndView reply(@PathVariable int id, @Valid @ModelAttribute("replyEventForm") final ReplyEventForm form, BindingResult errors) {
         if (errors.hasErrors()) {
             return new ModelAndView("events/reply");
         }
-        //FIXME: The image id is hardcoded to 1, this should be changed to the logged in user id
+        // FIXME: The image id is hardcoded to 1, this should be changed to the logged in user id
         eventService.replyToEvent(form.getEmail(), form.getUsername(), form.getFirstName(), form.getLastName(), form.getOriginUniversity(), form.getCareer(), 1, id, form.getMessage());
         return getEvents();
     }

@@ -78,7 +78,7 @@
         <p class="text-sm font-medium text-gray-500">
           <spring:message code="event.organizer" text="Organizer"/>
         </p>
-        <p class="text-base text-gray-800">${event.email}</p>
+        <p class="text-base text-gray-800">${event.user.email}</p>
       </div>
     </div>
 
