@@ -138,5 +138,36 @@ public class JourneyJdbcDao implements JourneyDao {
         return jdbcTemplate.query(QUERY + " WHERE user_id = ? AND start_date >= ? AND end_date <= ?", JOURNEY_ROW_MAPPER, id, startDate, endDate).stream().findFirst();
     }
 
+    @Override
+    public List<Journey> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest) {
+        String query = QUERY;
+        List<String> filters = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+
+        if (destination != null || startDate != null || endDate != null || interest != null) {
+            query += " WHERE ";
+
+            if (destination != null) {
+                filters.add("j.city = ?");
+                params.add(destination);
+            }
+            if (startDate != null) {
+                filters.add("j.start_date <= ?");
+                params.add(startDate);
+            }
+            if (endDate != null) {
+                filters.add("j.end_date >= ?");
+                params.add(endDate);
+            }
+            if (interest != null) {
+                filters.add("j.description LIKE ?");
+                params.add("%" + interest + "%"); // Agrega los % para el LIKE
+            }
+
+            query += String.join(" AND ", filters);
+        }
+
+        return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
+    }
 
 }

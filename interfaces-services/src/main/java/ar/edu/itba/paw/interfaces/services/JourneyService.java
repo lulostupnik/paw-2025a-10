@@ -16,4 +16,6 @@ public interface JourneyService {
     List<Journey> getAllJourneys();
 
     Optional<Journey> getJourneyById(long id);
+
+    List<Journey> getFilteredJourneys(String destination, LocalDate startDate, LocalDate endDate, String interest);
 }
