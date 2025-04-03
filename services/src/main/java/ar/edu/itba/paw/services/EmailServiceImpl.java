@@ -31,6 +31,7 @@ public class EmailServiceImpl implements EmailService {
         this.messageSource = messageSource;
     }
 
+//    @TODO preguntar que pasa con la excepcion
     @Async
     protected void sendHtmlMessage(String to,
                                    String subjectKey,
@@ -84,7 +85,6 @@ public class EmailServiceImpl implements EmailService {
                 variables,
                 locale
         );
-
     }
 
 
