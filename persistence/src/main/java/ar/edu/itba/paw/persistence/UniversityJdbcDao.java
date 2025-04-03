@@ -41,7 +41,7 @@ public class UniversityJdbcDao implements UniversityDao {
     
     @Override
     public Optional<University> findByAny(String searchString) {
-        return jdbcTemplate.query("SELECT * FROM universities WHERE abbreviation LIKE %?% OR name LIKE %?%", UNIVERSITY_ROW_MAPPER, searchString, searchString).stream().findFirst();
+        return jdbcTemplate.query("SELECT * FROM universities WHERE abbreviation LIKE ? OR name LIKE ?", UNIVERSITY_ROW_MAPPER, searchString, searchString).stream().findFirst();
     }
 
     @Override
