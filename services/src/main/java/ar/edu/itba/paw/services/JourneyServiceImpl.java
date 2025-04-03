@@ -89,4 +89,8 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyDao.findById(id);
     }
 
+    public List<Journey> getFilteredJourneys(String destination, LocalDate startDate, LocalDate endDate, String interest) {
+        return journeyDao.findByFilters(destination, startDate,endDate, interest);
+    }
+
 }

@@ -5,17 +5,21 @@ import javax.validation.Valid;
 import ar.edu.itba.paw.interfaces.services.EmailService;
 import ar.edu.itba.paw.webapp.form.ReplyJourneyForm;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.models.Journey;
 import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,11 +37,13 @@ public class JourneyController {
     }
 
     @RequestMapping
-    public ModelAndView getJourneys() {
-        List<Journey> journeys = js.getAllJourneys();
+    public ModelAndView getJourneys(        @RequestParam(required = false) String destination,
+                                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                                            @RequestParam(required = false) String interest) {
         final ModelAndView mav = new ModelAndView("journeys/list");
+        List<Journey> journeys = js.getFilteredJourneys(destination, startDate, endDate, interest);
         mav.addObject("journeys", journeys);
-        // TODO: Implement the logic to fetch journeys
         return mav;
     }
     @RequestMapping(value = "/create", method = POST)
@@ -74,7 +80,7 @@ public class JourneyController {
         js.replyToJourney(rjf.getEmail(), rjf.getUsername(), rjf.getFirstName(),
                 rjf.getLastName(), rjf.getOriginUniversity(), rjf.getCareer(), 1, id, rjf.getMessage() );
 
-        return getJourneys();
+        return getJourneys(null,null, null, null);
     }
 
     @RequestMapping(value = "/{id}/reply")
@@ -82,7 +88,7 @@ public class JourneyController {
         ModelAndView mav = new ModelAndView("journeys/reply");
         Optional<Journey> journey = js.getJourneyById(id);
         if(journey.isEmpty()){
-           return getJourneys();
+           return getJourneys(null,null, null, null);
         }
         mav.addObject("journey", journey.get());
         mav.addObject("replyJourneyForm", rjf);
