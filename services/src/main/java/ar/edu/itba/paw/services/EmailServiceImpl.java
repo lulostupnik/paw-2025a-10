@@ -6,6 +6,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -29,7 +30,7 @@ public class EmailServiceImpl implements EmailService {
         this.templateEngine = emailTemplateEngine;
         this.messageSource = messageSource;
     }
-
+    @Async
     @Override
     public void sendHtmlMessage(String to,
                                 String subjectKey,
