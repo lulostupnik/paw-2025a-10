@@ -32,7 +32,7 @@
       </a>
 
       <!-- Journeys -->
-      <a href="${pageContext.request.contextPath}/journeys"
+      <a href="${pageContext.request.contextPath}/journeys/"
          class="flex items-center px-3 py-2 text-sm font-medium rounded-md
                      ${fn:contains(currentUri, '/journey') ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -2,7 +2,6 @@ package ar.edu.itba.paw.webapp.controller;
 
 import javax.validation.Valid;
 
-import ar.edu.itba.paw.models.Event;
 import ar.edu.itba.paw.webapp.form.ReplyJourneyForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,6 +21,7 @@ import java.util.Optional;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @Controller
+@RequestMapping("/journeys")
 public class JourneyController {
 
     private final JourneyService js;
@@ -31,15 +31,15 @@ public class JourneyController {
         this.js = js;
     }
 
-    @RequestMapping("/journeys")
+    @RequestMapping
     public ModelAndView getJourneys() {
         List<Journey> journeys = js.getAllJourneys();
-        final ModelAndView mav = new ModelAndView("journeys_all");
+        final ModelAndView mav = new ModelAndView("journeys/list");
         mav.addObject("journeys", journeys);
         // TODO: Implement the logic to fetch journeys
         return mav;
     }
-    @RequestMapping(value = "/journey", method = POST)
+    @RequestMapping(value = "/create", method = POST)
     public ModelAndView createJourney(@Valid @ModelAttribute("createJourneyForm") final CreateJourneyForm jf, final BindingResult errors) {
         if (errors.hasErrors()) {
             return createJourneyForm(jf);
@@ -50,20 +50,20 @@ public class JourneyController {
         
         return getJourney(journey.getId());
     }
-    @RequestMapping(value = "/journey")
+    @RequestMapping(value = "/create")
     public ModelAndView createJourneyForm(@ModelAttribute("createJourneyForm") final CreateJourneyForm jf) {
         // TODO: Implement the logic to create a journey
-        return new ModelAndView("journey");
+        return new ModelAndView("journeys/create");
     }
-    @RequestMapping(value = "/journey/{id}")
+    @RequestMapping(value = "/{id}")
     public ModelAndView getJourney(@PathVariable long id) {
         Optional<Journey> journey = js.getJourneyById(id);
-        final ModelAndView mav = new ModelAndView("onejourney");
+        final ModelAndView mav = new ModelAndView("journeys/detail");
         mav.addObject("journey", journey);
         return mav;
     }
 
-    @RequestMapping(value = "/journey/{id}/reply", method = POST)
+    @RequestMapping(value = "/{id}/reply", method = POST)
     public ModelAndView replyToJourney(@PathVariable int id, @Valid @ModelAttribute("replyJourneyForm") final ReplyJourneyForm rjf, final BindingResult errors) {
         if (errors.hasErrors()) {
             return replyToJourneyForm(id, rjf);
@@ -76,9 +76,9 @@ public class JourneyController {
         return getJourneys();
     }
 
-    @RequestMapping(value = "/journey/{id}/reply")
+    @RequestMapping(value = "/{id}/reply")
     public ModelAndView replyToJourneyForm(@PathVariable int id, @ModelAttribute("replyJourneyForm") final ReplyJourneyForm rjf) {
-        ModelAndView mav = new ModelAndView("journey_reply");
+        ModelAndView mav = new ModelAndView("journeys/reply");
         Optional<Journey> journey = js.getJourneyById(id);
         if(journey.isEmpty()){
            return getJourneys();

@@ -3,18 +3,18 @@ CREATE TABLE IF NOT EXISTS images (
         content BYTEA NOT NULL
 );
 
--- CREATE TABLE IF NOT EXISTS category (
---         id SERIAL PRIMARY KEY,
---         name varchar(100) NOT NULL UNIQUE
--- );
+CREATE TABLE IF NOT EXISTS category (
+        id SERIAL PRIMARY KEY,
+        name varchar(100) NOT NULL UNIQUE
+);
 
--- CREATE TABLE IF NOT EXISTS user_interest (
---         user_id INTEGER NOT NULL,
---         category_id INTEGER NOT NULL,
---         description VARCHAR(200),
---         PRIMARY KEY (user_id, category_id),
---         FOREIGN KEY (category_id) REFERENCES category ON DELETE CASCADE
--- );
+CREATE TABLE IF NOT EXISTS user_interest (
+        user_id INTEGER NOT NULL,
+        category_id INTEGER NOT NULL,
+        description VARCHAR(200),
+        PRIMARY KEY (user_id, category_id),
+        FOREIGN KEY (category_id) REFERENCES category ON DELETE CASCADE
+);
 
 
 CREATE TABLE IF NOT EXISTS universities (

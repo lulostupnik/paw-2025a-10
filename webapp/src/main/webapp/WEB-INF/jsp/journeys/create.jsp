@@ -39,7 +39,7 @@
 
         <!-- Card -->
         <div class="mt-5 p-4 relative z-10 bg-white border border-gray-200 rounded-xl sm:mt-10 md:p-10">
-            <c:url var="registerUrl" value="/journey/"/>
+            <c:url var="registerUrl" value="/journeys/create"/>
             <form:form modelAttribute="createJourneyForm" action="${registerUrl}" method="post">
 
                 <!-- Email Field -->
@@ -120,8 +120,5 @@
         <!-- End Card -->
     </div>
 </div>
-
-<!-- Include Preline JS -->
-<script src="https://cdn.jsdelivr.net/npm/preline/dist/preline.min.js"></script>
 </body>
 </html>
