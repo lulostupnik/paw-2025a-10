@@ -62,7 +62,7 @@ public class EventController {
         } catch(IOException e) {
             //what to do?
         }
-        Event event = eventService.createEvent(eventForm.getEmail(), eventForm.getCity(), eventForm.getDate(), image, eventForm.getDescription());
+        Event event = eventService.createEvent(eventForm.getEmail(), eventForm.getCity(), eventForm.getDate(), image, eventForm.getDescription(),eventForm.getFirstName(), eventForm.getLastName(), null, eventForm.getUniversity(), null, 1);
         return new ModelAndView("redirect:/events/" + event.getId());
     }
 

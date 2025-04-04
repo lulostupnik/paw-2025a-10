@@ -34,11 +34,10 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Event createEvent(String email, String cityName, Date date, byte[] flyer, String description){
-        Optional<User> user = userService.findByEmail(email);
-        if (user.isEmpty()) {
-            throw new RuntimeException("User not found");
-        }
+    public Event createEvent(String email, String cityName, Date date, byte[] flyer, String description, String firstname, String lastname, String username, String originUniversity, String career, long profilePictureId) {
+        Optional<User> maybeUser = userService.findByEmail(email);
+        User user = maybeUser.orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId)); // todo: ¿acá debería usar el service o el dao? -> el service puede llegar a tener validaciones que ya acabo de hacer en esta clase
+
 
         //FIXME: City is not being created yet, therefore as we are not passing a city to the create it will break
 //        Optional<City> city = cityService.findByName("Buenos Aires");
@@ -46,8 +45,10 @@ public class EventServiceImpl implements EventService {
 //            throw new RuntimeException("City not found");
 //        }
 
+        // id me lo da la bd btw
+
         //FIXME: Image is missing, 1 as a placeholder
-        return eventDao.create(user.get(), new City(null, null, 1), date, description, 1);
+        return eventDao.create(maybeUser.get(), new City(null, null, 1), date, description, 1);
     }
 
     @Override
