@@ -3,6 +3,7 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.EventDao;
 import ar.edu.itba.paw.interfaces.persistence.EventResponseDao;
 import ar.edu.itba.paw.interfaces.services.CityService;
+import ar.edu.itba.paw.interfaces.services.EmailService;
 import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.*;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -19,14 +21,16 @@ public class EventServiceImpl implements EventService {
     private final UserService userService;
     //private final CityService cityService;
     private final EventResponseDao eventResponseDao;
+    private final EmailService emailService;
     private final EventDao eventDao;
 
     @Autowired
-    public EventServiceImpl(UserService userService, CityService cityService, EventResponseDao eventResponseDao, EventDao eventDao) {
+    public EventServiceImpl(UserService userService, CityService cityService, EventResponseDao eventResponseDao, EventDao eventDao, EmailService emailService) {
         this.userService = userService;
         this.eventResponseDao = eventResponseDao;
         //this.cityService = cityService;
         this.eventDao = eventDao;
+        this.emailService = emailService;
     }
 
     @Override
@@ -52,8 +56,11 @@ public class EventServiceImpl implements EventService {
         if (maybeEvent.isEmpty()) {
             throw new RuntimeException("Event not found");
         }
+        Event event = maybeEvent.get();
         long userId = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId)).getId();
         eventResponseDao.create(userId, eventId, message);
+        //@TODO cambiar locale
+        emailService.answerEventMail(email,event.getUser().getEmail(), firstname, lastname, username, career, originUniversity, message, Locale.ENGLISH);
     }
 
 

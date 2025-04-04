@@ -20,4 +20,10 @@ public interface EmailService {
                                   String originUniversity, String message,
                                   Locale locale);
 
+    void answerEventMail(String from, String to,
+                                String firstName, String lastName,
+                                String username, String career,
+                                String originUniversity, String message,
+                                Locale locale);
+
 }

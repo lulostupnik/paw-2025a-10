@@ -58,8 +58,6 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-
-
     @Async
     @Override
     public void answerJourneyMail(String from, String to,
@@ -86,6 +84,34 @@ public class EmailServiceImpl implements EmailService {
                 locale
         );
     }
+    @Async
+    @Override
+    public void answerEventMail(String from, String to,
+                                String firstName, String lastName,
+                                String username, String career,
+                                String originUniversity, String message,
+                                Locale locale) {
+
+        Map<String, Object> variables = Map.of(
+                "email", from,
+                "firstname", firstName,
+                "lastname", lastName,
+                "username", username,
+                "career", career,
+                "university", originUniversity,
+                "message", message
+        );
+
+        sendHtmlMessage(
+                to,
+                "email.event.reply.title", // Subject key (make sure to define it in your messages_*.properties)
+                new Object[]{},
+                "event-response", // Thymeleaf template name without `.html`
+                variables,
+                locale
+        );
+    }
+
 
 
 
