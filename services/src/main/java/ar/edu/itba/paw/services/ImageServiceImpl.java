@@ -14,35 +14,27 @@ public class ImageServiceImpl implements ImageService {
     private final ImageDao imageDao;
 
     @Autowired
-    public ImageServiceImpl(ImageDao imageDao) {
+    public ImageServiceImpl(final ImageDao imageDao) {
         this.imageDao = imageDao;
     }
 
+    // ¿Agregar Transactional?
     @Override
-    public Image storeImage(byte[] imageData) {
-        // No sabía si era mejor usar un MultipartFile o un byte[] -> creo que usar MultipartFile estaría violando la separación de capas
-        // todo: ver de cambiar a un stream de bytes -> creo que sería mejor porque no tendría que cargar todo en memoria
+    public long storeImage(byte[] imageData) { // ¿Cambiar a InputStream?
         return imageDao.saveImage(imageData);
     }
 
+    // ¿Agregar Transactional?
     @Override
-    public Image getImage(Long id) {
-        return imageDao.getImageById(id).orElseThrow(); // (Lanza NoSuchElementException)
+    public Optional<Image> getImage(Long id) {
+        return imageDao.getImageById(id);
     }
 
-    /*
+    // ¿Agregar Transactional?
     @Override
     public void deleteImage(Long id) {
         imageDao.deleteImage(id);
     }
-    */
-
-    /*
-    @Override
-    public List<Image> getAllImages() {
-        return imageDao.getAllImages();
-    }
-    */
 
 }
 

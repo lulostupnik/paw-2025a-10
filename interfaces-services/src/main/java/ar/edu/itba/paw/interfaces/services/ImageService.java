@@ -1,13 +1,11 @@
 package ar.edu.itba.paw.interfaces.services;
 
 import ar.edu.itba.paw.models.Image;
-
-import java.util.List;
+import java.util.Optional;
 
 public interface ImageService {
-    public Image storeImage(byte[] imageData);
-    public Image getImage(Long id);
-    // public List<Image> getAllImages();
-    // public void deleteImage(Long id);
+    long storeImage(byte[] imageData);
+    Optional<Image> getImage(Long id);
+    void deleteImage(Long id);
 }
 
