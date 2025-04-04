@@ -36,12 +36,12 @@
           </a>
         </div>
 
-        <!-- Events List with horizontal scrolling -->
-        <div class="overflow-x-auto pb-6">
-          <div class="inline-flex gap-6 min-w-full">
+        <!-- Events List with vertical scrolling -->
+        <div class="max-h-[600px] overflow-y-auto pb-6 pr-2">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <c:forEach items="${events}" var="event">
               <!-- Card with buttons below -->
-              <div class="w-80 flex-shrink-0">
+              <div class="flex-shrink-0">
                 <div class="rounded-xl bg-white border border-gray-200 hover:border-blue-600 transition-all duration-200 h-full">
                   <div class="p-4 sm:p-6">
                     <!-- Image -->
@@ -88,16 +88,14 @@
         </div>
         <!-- End Events List -->
 
-        <!-- Scroll indicator -->
-        <div class="mt-4 flex justify-center gap-1">
-          <span class="block w-2 h-2 rounded-full bg-blue-600"></span>
-          <span class="block w-2 h-2 rounded-full bg-gray-300"></span>
-          <span class="block w-2 h-2 rounded-full bg-gray-300"></span>
-        </div>
+        <!-- Scroll indicator - removed horizontal dots since we're now using vertical scroll -->
       </div>
     </div>
   </div>
 </div>
+
+<!-- Include Preline UI Kit JS -->
+<script src="https://cdn.jsdelivr.net/npm/preline/dist/preline.min.js"></script>
 
 </body>
 </html>
