@@ -3,7 +3,7 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
     <title><spring:message code="journey.page.title"/></title>
     <!-- Include Tailwind CSS -->
@@ -37,7 +37,7 @@
                             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                             </svg>
-                            <spring:message code="journey.filter.toggle" text="Filters"/>
+                            <spring:message code="journey.filter.toggle"/>
                         </button>
                         <a href="${pageContext.request.contextPath}/journeys/create" class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700">
                             <spring:message code="journey.create.button"/>
@@ -53,22 +53,22 @@
                     <form:form action="${pageContext.request.contextPath}/journeys/" method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div>
                             <label for="destination" class="block text-sm font-medium text-gray-700 mb-1">
-                                <spring:message code="journey.filter.destination" text="Destination"/>
+                                <spring:message code="journey.filter.destination"/>
                             </label>
                             <input type="text" id="destination" name="destination" class="py-2 px-3 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
-                                   placeholder="<spring:message code="journey.filter.destination.placeholder" text="City or University"/>" />
+                                   placeholder="<spring:message code="journey.filter.destination.placeholder"/>" />
                         </div>
 
                         <div>
                             <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">
-                                <spring:message code="journey.filter.startDate" text="Start Date"/>
+                                <spring:message code="journey.filter.startDate"/>
                             </label>
                             <input type="date" id="startDate" name="startDate" class="py-2 px-3 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500" />
                         </div>
 
                         <div>
                             <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">
-                                <spring:message code="journey.filter.endDate" text="End Date"/>
+                               <spring:message code="journey.filter.endDate" text="End Date"/>
                             </label>
                             <input type="date" id="endDate" name="endDate" class="py-2 px-3 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500" />
                         </div>
