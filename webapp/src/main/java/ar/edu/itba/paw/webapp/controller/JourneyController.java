@@ -3,6 +3,7 @@ package ar.edu.itba.paw.webapp.controller;
 import javax.validation.Valid;
 
 import ar.edu.itba.paw.interfaces.services.EmailService;
+import ar.edu.itba.paw.webapp.form.FilterJourneyForm;
 import ar.edu.itba.paw.webapp.form.ReplyJourneyForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -94,4 +95,22 @@ public class JourneyController {
         mav.addObject("replyJourneyForm", rjf);
         return mav;
     }
+
+    @RequestMapping(value ="/filter", method = POST)
+    public ModelAndView filterJourney(@ModelAttribute("filterJourneyForm") final FilterJourneyForm form, final BindingResult errors) {
+        if(errors.hasErrors()) {
+            return createJourneyForm(form);
+        }
+        final ModelAndView mav = new ModelAndView("journeys/list");
+        List<Journey> journeys = js.getFilteredJourneys(form.getDestination(), form.getStartDate(), form.getEndDate(), form.getInterest());
+        mav.addObject("journeys", journeys);
+        return new ModelAndView("journeys/list");
+    }
+
+    @RequestMapping(value ="/filter")
+    public ModelAndView createJourneyForm(@ModelAttribute("filterJourneyForm") final FilterJourneyForm form) {
+        return new ModelAndView("journeys/list");
+    }
+
+
 }
