@@ -45,10 +45,8 @@ public class EventServiceImpl implements EventService {
 //            throw new RuntimeException("City not found");
 //        }
 
-        // id me lo da la bd btw
-
         //FIXME: Image is missing, 1 as a placeholder
-        return eventDao.create(maybeUser.get(), new City(null, null, 1), date, description, 1);
+        return eventDao.create(user, new City(null, null, 1), date, description, 1);
     }
 
     @Override
