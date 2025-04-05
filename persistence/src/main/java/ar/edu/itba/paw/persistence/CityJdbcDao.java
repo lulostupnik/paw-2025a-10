@@ -21,7 +21,6 @@ import java.util.*;
 public class CityJdbcDao implements CityDao {
 
     private final JdbcTemplate jdbcTemplate;
-    private final SimpleJdbcInsert jdbcInsert;
 
     private final static RowMapper<City> CITY_ROW_MAPPER = (rs, rowNum) -> new City(
             rs.getString("name"),
@@ -29,20 +28,10 @@ public class CityJdbcDao implements CityDao {
             rs.getLong("id")
             );
 
-
     @Autowired
     public CityJdbcDao(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-                .withTableName("cities")
-                .usingGeneratedKeyColumns("id");
     }
-
-    public CityJdbcDao(JdbcTemplate jdbcTemplate, SimpleJdbcInsert jdbcInsert) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.jdbcInsert = jdbcInsert;
-    }
-
 
     @Override
     public Optional<City> findBy(Long id, String name, String country) {
