@@ -28,6 +28,38 @@ public class CreateEventForm {
     @Size(min = 2, max = 100)
     private String email;
 
+    @Size(min = 2, max = 100)
+    private String university;
+
+    public String getUniversity() {
+        return university;
+    }
+    public void setUniversity(String university) {
+        this.university = university;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    @Size(min = 2, max = 100)
+    private String firstName;
+
+    @Size(min = 2, max = 100)
+    private String lastName;
+
    public String getEmail() {
         return email;
     }
@@ -67,6 +99,6 @@ public class CreateEventForm {
     public void setDescription(String description) {
         this.description = description;
     }
-
+    
 
 }

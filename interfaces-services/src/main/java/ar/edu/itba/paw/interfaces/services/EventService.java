@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EventService {
-    Event createEvent(String email, String city, Date date, byte[] flyer, String description);
+    Event createEvent(String email, String cityName, Date date, byte[] flyer, String description, String firstname, String lastname, String username, String originUniversity, String career, long profilePictureId);
 
     void replyToEvent(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId,
                         long eventId, String message);

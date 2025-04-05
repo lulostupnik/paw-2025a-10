@@ -2,7 +2,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<!-- NO SE ESTA UTILIZANDO FORMDATA -->
 
 <html>
 <head>
@@ -35,6 +34,40 @@
     <!-- Card -->
     <div class="mt-5 p-4 relative z-10 bg-white border border-gray-200 rounded-xl sm:mt-10 md:p-10">
       <form:form method="post" action="${pageContext.request.contextPath}/events/create" modelAttribute="createEventForm" enctype="multipart/form-data">
+
+        <!-- First Name Field -->
+        <spring:message code="event.firstName.hint" var="firstNameHint" text="Enter your first name"/>
+        <div class="mb-4 sm:mb-8">
+          <form:label path="firstName" class="block mb-2 text-sm font-medium">
+            <spring:message code="event.firstName" text="First Name"/>
+          </form:label>
+          <form:input path="firstName" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
+                      placeholder="${firstNameHint}" />
+          <form:errors path="firstName" class="text-red-500 text-sm mt-1" />
+        </div>
+
+        <!-- Last Name Field -->
+        <spring:message code="event.lastName.hint" var="lastNameHint" text="Enter your last name"/>
+        <div class="mb-4 sm:mb-8">
+          <form:label path="lastName" class="block mb-2 text-sm font-medium">
+            <spring:message code="event.lastName" text="Last Name"/>
+          </form:label>
+          <form:input path="lastName" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
+                      placeholder="${lastNameHint}" />
+          <form:errors path="lastName" class="text-red-500 text-sm mt-1" />
+        </div>
+
+        <!-- University Field -->
+        <spring:message code="event.uniiversity.hint" var="universityHint" text="Enter your university"/>
+        <div class="mb-4 sm:mb-8">
+          <form:label path="university" class="block mb-2 text-sm font-medium">
+            <spring:message code="event.university" text="University"/>
+          </form:label>
+          <form:input path="university" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
+                      placeholder="${universityHint}" />
+          <form:errors path="university" class="text-red-500 text-sm mt-1" />
+        </div>
+
 
         <!-- Email Field -->
         <spring:message code="event.email.hint" var="emailHint"/>
