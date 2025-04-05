@@ -47,7 +47,7 @@ public class EventServiceImpl implements EventService {
 //        }
 
         //FIXME: Image is missing, 1 as a placeholder
-        return eventDao.create(user.get(), new City(null, null, 1), date, description, 1);
+        return eventDao.create(user.get(), new City(null, null, 0), date, description, 1);
     }
 
     @Override
@@ -63,6 +63,14 @@ public class EventServiceImpl implements EventService {
         emailService.answerEventMail(email,event.getUser().getEmail(), firstname, lastname, username, career, originUniversity, message, Locale.ENGLISH);
     }
 
+    /*
+    @Override
+    public void createEvent(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture, Date date, byte[] flyer, String description) {
+        // FIXME: id -> image
+        User user = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, 1));
+
+    }
+    */
 
 
     @Override

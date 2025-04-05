@@ -12,6 +12,10 @@ public interface EventService {
     void replyToEvent(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId,
                         long eventId, String message);
 
+    /*
+    void createEvent(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture, Date date, byte[] flyer, String description);
+    */
+
     Optional<Event> getEventById(long id);
 
     List<Event> getAllEvents();

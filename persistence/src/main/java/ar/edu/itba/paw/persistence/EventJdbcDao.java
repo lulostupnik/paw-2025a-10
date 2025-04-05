@@ -33,7 +33,7 @@ public class EventJdbcDao implements EventDao {
                             rs.getString("abbreviation")
                     ),
                     rs.getString("career"),
-                    rs.getObject("profile_picture_id") != null ? rs.getLong("profile_picture_id") : null
+                    rs.getLong("profile_picture_id")
             ),
             rs.getDate("event_date"),
             rs.getString("description"),
