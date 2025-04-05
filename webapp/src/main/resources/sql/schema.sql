@@ -65,6 +65,11 @@ CREATE TABLE IF NOT EXISTS users (
 --         FOREIGN KEY (area_of_study_id) REFERENCES area_of_study(id) ON DELETE CASCADE
 -- );
 
+CREATE TABLE IF NOT EXISTS countries (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    code VARCHAR(3) NOT NULL UNIQUE
+);
 
 CREATE TABLE IF NOT EXISTS cities (
                                     id SERIAL PRIMARY KEY,
