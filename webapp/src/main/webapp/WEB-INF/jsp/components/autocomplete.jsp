@@ -94,7 +94,14 @@
 
 <div class="mb-4 sm:mb-8">
   <form:label path="${param.path}" class="block mb-2 text-sm font-medium">
-    <spring:message code="createJourney.${param.label}" />
+    <c:choose>
+      <c:when test="${not empty param.messagePrefix}">
+        <spring:message code="${param.messagePrefix}.${param.label}" />
+      </c:when>
+      <c:otherwise>
+        <spring:message code="${param.label}" text="${param.label}" />
+      </c:otherwise>
+    </c:choose>
     <c:if test="${param.required == 'true'}">
       <span class="text-red-500">*</span>
     </c:if>

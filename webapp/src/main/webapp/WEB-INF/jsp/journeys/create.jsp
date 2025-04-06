@@ -108,6 +108,7 @@
                 <jsp:include page="/WEB-INF/jsp/components/autocomplete.jsp">
                     <jsp:param name="path" value="destinationCity" />
                     <jsp:param name="label" value="destinationCity" />
+                    <jsp:param name="messagePrefix" value="createJourney" />
                     <jsp:param name="placeholder" value="${cityHint}" />
                     <jsp:param name="hint" value="Start typing to see matching cities" />
                     <jsp:param name="icon" value="${cityIcon}" />
@@ -128,6 +129,7 @@
                 <jsp:include page="/WEB-INF/jsp/components/autocomplete.jsp">
                     <jsp:param name="path" value="destinationUniversity" />
                     <jsp:param name="label" value="destinationUniversity" />
+                    <jsp:param name="messagePrefix" value="createJourney" />
                     <jsp:param name="placeholder" value="${universityHint}" />
                     <jsp:param name="hint" value="Start typing to see matching universities" />
                     <jsp:param name="icon" value="${universityIcon}" />
