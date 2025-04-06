@@ -22,7 +22,7 @@
   <nav class="flex-1 overflow-auto py-4">
     <div class="px-3 space-y-1">
       <!-- Home -->
-      <a href="${pageContext.request.contextPath}/"
+      <a href="<c:url value="${pageContext.request.contextPath}/"/>"
          class="flex items-center px-3 py-2 text-sm font-medium rounded-md
                      ${fn:endsWith(currentUri, '/') || fn:endsWith(currentUri, '/dashboard') || fn:endsWith(currentUri, '/index.jsp') ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -32,7 +32,7 @@
       </a>
 
       <!-- Journeys -->
-      <a href="${pageContext.request.contextPath}/journeys/"
+      <a href="<c:url value=" ${pageContext.request.contextPath}/journeys/"/>"
          class="flex items-center px-3 py-2 text-sm font-medium rounded-md
                      ${fn:contains(currentUri, '/journey') ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -42,7 +42,7 @@
       </a>
 
       <!-- Events -->
-      <a href="${pageContext.request.contextPath}/events"
+      <a href="<c:url value=" ${pageContext.request.contextPath}/events"/>"
          class="flex items-center px-3 py-2 text-sm font-medium rounded-md
                      ${fn:contains(currentUri, '/events') ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -56,21 +56,23 @@
                                 <spring:message code="journey.filter.destination"/>
                             </label>
                             <input type="text" id="destination" name="destination" class="py-2 px-3 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
-                                   placeholder="<spring:message code="journey.filter.destination.placeholder"/>" />
+                                   placeholder="<spring:message code="journey.filter.destination.placeholder"/>" value="${filterJourneyForm.destination}" />
                         </div>
 
                         <div>
                             <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">
                                 <spring:message code="journey.filter.startDate"/>
                             </label>
-                            <input type="date" id="startDate" name="startDate" class="py-2 px-3 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500" />
+                            <input type="date" id="startDate" name="startDate" class="py-2 px-3 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
+                                   value="${filterJourneyForm.startDate}"/>
                         </div>
 
                         <div>
                             <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">
                                <spring:message code="journey.filter.endDate" text="End Date"/>
                             </label>
-                            <input type="date" id="endDate" name="endDate" class="py-2 px-3 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500" />
+                            <input type="date" id="endDate" name="endDate" class="py-2 px-3 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
+                                   value="${filterJourneyForm.endDate}"/>
                         </div>
 
                         <div>
@@ -78,7 +80,7 @@
                                 <spring:message code="journey.filter.interest" text="Interest"/>
                             </label>
                             <input type="text" id="interest" name="interest" class="py-2 px-3 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
-                                   placeholder="<spring:message code="journey.filter.interest.placeholder" text="Area of interest"/>" />
+                                   placeholder="<spring:message code="journey.filter.interest.placeholder" text="Area of interest"/>" value="${filterJourneyForm.interest}"/>
                         </div>
 
                         <div class="md:col-span-2 lg:col-span-4 flex justify-end gap-2">

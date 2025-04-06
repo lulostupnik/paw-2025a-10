@@ -44,6 +44,12 @@ public class JourneyController {
                                             @RequestParam(required = false) String interest) {
         final ModelAndView mav = new ModelAndView("journeys/list");
         List<Journey> journeys = js.getFilteredJourneys(destination, startDate, endDate, interest);
+        FilterJourneyForm filterJourneyForm = new FilterJourneyForm();
+        filterJourneyForm.setDestination(destination);
+        filterJourneyForm.setStartDate(startDate);
+        filterJourneyForm.setEndDate(endDate);
+        filterJourneyForm.setInterests(interest);
+        mav.addObject("filterJourneyForm", filterJourneyForm);
         mav.addObject("journeys", journeys);
         return mav;
     }
