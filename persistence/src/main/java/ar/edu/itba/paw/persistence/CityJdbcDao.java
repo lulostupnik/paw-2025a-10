@@ -65,18 +65,27 @@ public class CityJdbcDao implements CityDao {
     }
 
     @Override
+    public Optional<City> findByName(String name) {
+        return jdbcTemplate.query(
+                QUERY + "AND ci.name = ?",
+                CITY_ROW_MAPPER,
+                name
+        ).stream().findFirst();
+    }
+
+    @Override
     public List<City> findAll() {
         return jdbcTemplate.query(QUERY, CITY_ROW_MAPPER);
     }
 
     @Override
     public List<City> findAllByCountry(String country) {
-        return jdbcTemplate.query(QUERY + "AND country_name = ?", CITY_ROW_MAPPER, country);
+        return jdbcTemplate.query(QUERY + "AND co.name = ?", CITY_ROW_MAPPER, country);
     }
 
     @Override
     public List<City> findAllBySubstring(String substring) {
-        return jdbcTemplate.query(QUERY + "AND city_name LIKE ?", CITY_ROW_MAPPER, "%" + substring + "%");
+        return jdbcTemplate.query(QUERY + "AND ci.name LIKE ?", CITY_ROW_MAPPER, "%" + substring + "%");
     }
 
 
