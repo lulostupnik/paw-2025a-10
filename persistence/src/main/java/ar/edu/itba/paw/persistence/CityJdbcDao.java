@@ -23,9 +23,9 @@ public class CityJdbcDao implements CityDao {
     private final JdbcTemplate jdbcTemplate;
 
     private final static RowMapper<City> CITY_ROW_MAPPER = (rs, rowNum) -> new City(
-            rs.getString("city_name"),
-            rs.getString("country_name"),
-            rs.getLong("city_id")
+            rs.getString("name"),
+            rs.getString("name"),
+            rs.getLong("id")
     );
 
     private final static String QUERY = "SELECT ci.name as city_name, ci.id as city_id, co.name as country_name FROM cities ci, countries co WHERE ci.country = co.id ";
@@ -71,6 +71,11 @@ public class CityJdbcDao implements CityDao {
                 CITY_ROW_MAPPER,
                 name
         ).stream().findFirst();
+    }
+
+    @Override
+    public List<City> getAllCities() {
+        return jdbcTemplate.query("SELECT * FROM cities ORDER BY name", CITY_ROW_MAPPER);
     }
 
     @Override

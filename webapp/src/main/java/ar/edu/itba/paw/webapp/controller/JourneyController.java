@@ -2,7 +2,11 @@ package ar.edu.itba.paw.webapp.controller;
 
 import javax.validation.Valid;
 
+import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.EmailService;
+import ar.edu.itba.paw.interfaces.services.UniversityService;
+import ar.edu.itba.paw.models.City;
+import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.webapp.form.FilterJourneyForm;
 import ar.edu.itba.paw.webapp.form.ReplyJourneyForm;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,10 +36,14 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 public class JourneyController {
 
     private final JourneyService js;
+    private final CityService cityService;
+    private final UniversityService universityService;
 
     @Autowired
-    public JourneyController(final JourneyService js){
+    public JourneyController(final JourneyService js, CityService cityService, UniversityService universityService){
         this.js = js;
+        this.cityService = cityService;
+        this.universityService = universityService;
     }
 
     @RequestMapping
@@ -67,8 +75,12 @@ public class JourneyController {
     }
     @RequestMapping(value = "/create")
     public ModelAndView createJourneyForm(@ModelAttribute("createJourneyForm") final CreateJourneyForm jf) {
-        // TODO: Implement the logic to create a journey
-        return new ModelAndView("journeys/create");
+        final ModelAndView mav = new ModelAndView("journeys/create");
+        List<City> cities = cityService.getAllCities();
+        List<University> universities = universityService.getAllUniversities();
+        mav.addObject("universities", universities);
+        mav.addObject("cities", cities);
+        return mav;
     }
     @RequestMapping(value = "/{id}")
     public ModelAndView getJourney(@PathVariable long id) {

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -51,5 +52,10 @@ public class UniversityJdbcDao implements UniversityDao {
         args.put("abbreviation", abbreviation);
         final Number id = jdbcInsert.executeAndReturnKey(args);
         return new University(id.longValue(), name, abbreviation);
+    }
+
+    @Override
+    public List<University> getAllUniversities() {
+        return jdbcTemplate.query("SELECT * FROM universities ORDER BY name", UNIVERSITY_ROW_MAPPER);
     }
 }
