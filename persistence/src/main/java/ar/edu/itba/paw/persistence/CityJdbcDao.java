@@ -43,17 +43,17 @@ public class CityJdbcDao implements CityDao {
         queryBuilder.append(QUERY);
 
         if (id > 0) {
-            queryBuilder.append("AND city_id = ? ");
+            queryBuilder.append("AND ci.id = ? ");
             params.add(id);
         }
 
         if (name != null && !name.isEmpty()) {
-            queryBuilder.append("AND city_name = ? ");
+            queryBuilder.append("AND ci.name = ? ");
             params.add(name);
         }
 
         if (country != null && !country.isEmpty()) {
-            queryBuilder.append("AND country_name = ? ");
+            queryBuilder.append("AND co.name = ? ");
             params.add(country);
         }
 
