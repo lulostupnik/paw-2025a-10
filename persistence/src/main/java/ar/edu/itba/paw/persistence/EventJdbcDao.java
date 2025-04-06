@@ -39,7 +39,7 @@ public class EventJdbcDao implements EventDao {
             rs.getString("event_description"),
             rs.getLong( "event_flyer_image_id"),
             new City(
-                    rs.getString("city_name"), // Va a tener conflicto con el nombre de la universidad
+                    rs.getString("city_name"),  // Va a tener conflicto con el nombre de la universidad
                     rs.getString("city_country"),
                     rs.getLong("city_id")
             )
