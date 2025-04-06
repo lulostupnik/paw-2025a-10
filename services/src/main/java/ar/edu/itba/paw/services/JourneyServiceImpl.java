@@ -47,10 +47,22 @@ public class JourneyServiceImpl implements JourneyService {
         User user = maybeUser.orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId)); // todo: ¿acá debería usar el service o el dao? -> el service puede llegar a tener validaciones que ya acabo de hacer en esta clase
         // id me lo da la bd btw
         
-        if (!journeyDao.findOverlappingJourney(user.getId(), startDate, endDate).isPresent()) {
-            new RuntimeException("There's already a journey registered in this time period");
+        if (journeyDao.findOverlappingJourney(user.getId(), startDate, endDate).isEmpty()) {
+            throw new RuntimeException("There's already a journey registered in this time period");
         }
         return journeyDao.create(user, destination, destinationCity, startDate, endDate, description);
+    }
+
+    @Override
+    public Journey createJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture, String destinationUniversity, String destinationCity, LocalDate startDate, LocalDate endDate, String description) {
+        // FIXME
+        // long city_id = cityDao.findByName(destinationCity).orElseThrow(() -> new RuntimeException("City not found")).getId();
+        University destination = universityService.findByAny(destinationUniversity).orElseThrow(() -> new RuntimeException("Destination University not found"));
+        User user = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePicture));
+        if (journeyDao.findOverlappingJourney(user.getId(), startDate, endDate).isEmpty()) {
+            throw new RuntimeException("There's already a journey registered in this time period");
+        }
+        return journeyDao.create(user, destination, destinationCity, startDate, endDate, description); // FIXME
     }
 
     @Override
@@ -63,12 +75,18 @@ public class JourneyServiceImpl implements JourneyService {
         Optional<User> maybeUser = userService.findByEmail(email);
         User user = maybeUser.orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId));
         */
-
-
-
         journeyResponseDao.create(userId, journeyId, message);
 
         //@TODO cambiar el Locale
+        emailService.answerJourneyMail( email, journey.getUser().getEmail() , firstname, lastname,username, career, originUniversity, message , new Locale("es"));
+    }
+
+    @Override
+    public void replyToJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture, long journeyId, String message) {
+        Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> new RuntimeException("Journey not found"));
+        long userId = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePicture)).getId();
+        journeyResponseDao.create(userId, journeyId, message);
+
         emailService.answerJourneyMail( email, journey.getUser().getEmail() , firstname, lastname,username, career, originUniversity, message , new Locale("es"));
     }
 
