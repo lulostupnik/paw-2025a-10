@@ -20,30 +20,58 @@ public class EventJdbcDao implements EventDao {
     private final SimpleJdbcInsert jdbcInsert;
 
     private static final RowMapper<Event> EVENT_ROW_MAPPER = (rs, rowNum) -> new Event(
-            rs.getLong("id"), // Event ID from `events` table
+            rs.getLong("event_id"), // Event ID from `events` table
             new User(
                     rs.getLong("user_id"),
-                    rs.getString("email"), // Correct field from `users`
-                    rs.getString("username"),
-                    rs.getString("firstname"),
-                    rs.getString("lastname"),
+                    rs.getString("user_email"), // Correct field from `users`
+                    rs.getString("user_username"),
+                    rs.getString("user_firstname"),
+                    rs.getString("user_lastname"),
                     new University(
-                            rs.getLong("university"),
-                            rs.getString("name"), // University name
-                            rs.getString("abbreviation")
+                            rs.getLong("university_id"),
+                            rs.getString("university_name"), // University name
+                            rs.getString("university_abbreviation")
                     ),
-                    rs.getString("career"),
-                    rs.getLong("profile_picture_id")
+                    rs.getString("user_career"),
+                    rs.getLong("user_profile_picture_id")
             ),
             rs.getDate("event_date"),
-            rs.getString("description"),
-            rs.getLong( "flyer_image_id"),
+            rs.getString("event_description"),
+            rs.getLong( "event_flyer_image_id"),
             new City(
-                    rs.getString("name"), // City name
-                    rs.getString("country"),
+                    rs.getString("city_name"), // Va a tener conflicto con el nombre de la universidad
+                    rs.getString("city_country"),
                     rs.getLong("city_id")
             )
     );
+
+    private static final String QUERY = "SELECT \n" +
+            "    us.id AS user_id, \n" +
+            "    us.email AS user_email, \n" +
+            "    us.firstname AS user_firstname, \n" +
+            "    us.lastname AS user_lastname, \n" +
+            "    us.username AS user_username, \n" +
+            "    us.university AS user_university, \n" +
+            "    us.career AS user_career, \n" +
+            "    us.profile_picture_id AS user_profile_picture_id, \n" +
+            "\n" +
+            "    e.id AS event_id, \n" +
+            "    e.event_date AS event_date, \n" +
+            "    e.description AS event_description, \n" +
+            "    e.flyer_image_id AS event_flyer_image_id, \n" +
+            "\n" +
+            "    un.id AS university_id, \n" +
+            "    un.name AS university_name, \n" +
+            "    un.abbreviation AS university_abbreviation, \n" +
+            "\n" +
+            "   c.id AS city_id, \n" +
+            "   c.name AS city_name, \n" +
+            "   c.country AS city_country \n" +
+            "\n" +
+            "FROM events e\n" +
+            "JOIN users us ON e.user_id = us.id\n" +
+            "JOIN universities un ON us.university = un.id\n" +
+            "JOIN cities c ON e.city_id = c.id\n";
 
 
 
@@ -66,7 +94,7 @@ public class EventJdbcDao implements EventDao {
                 "user_id", user.getId(),
                 "city_id", city.getId(),
                 "event_date", date,
-                "event_description", description,
+                "description", description, // ¿?
                 "flyer_image_id", flyerImageId
                 );
         final Number keys = jdbcInsert.executeAndReturnKey(parameters);
@@ -112,11 +140,6 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public List<Event> listAll() {
-        return jdbcTemplate.query("SELECT * FROM events e " +
-                "JOIN users u ON e.user_id = u.id " +
-                "JOIN universities un ON u.university = un.id " +
-                "JOIN cities c ON e.city_id = c.id",
-                EVENT_ROW_MAPPER);
+        return jdbcTemplate.query(QUERY, EVENT_ROW_MAPPER);
     }
-
 }
