@@ -101,11 +101,10 @@ public class EventJdbcDao implements EventDao {
         return new Event(keys.longValue(), user, date, description, flyerImageId, city);
     }
 
+    // FIXME
     @Override
     public List<Event> listByQuery(Long cityId, Date date) {
-        StringBuilder sqlBuilder = new StringBuilder(
-                "SELECT * FROM events e"
-        );
+        StringBuilder sqlBuilder = new StringBuilder(QUERY);
         List<Object> params = new ArrayList<>();
         boolean firstCondition = true;
         if (cityId != null) {
@@ -129,7 +128,7 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public Optional<Event> findById(long eventId) {
-        return jdbcTemplate.query(QUERY + "WHERE event_id = ?",
+        return jdbcTemplate.query(QUERY + "WHERE e.id = ?",
                 EVENT_ROW_MAPPER, eventId).stream().findFirst();
     }
 
