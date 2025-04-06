@@ -7,14 +7,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EventService {
+
+    // TODO: no usen más está
     Event createEvent(String email, String cityName, Date date, byte[] flyer, String description, String firstname, String lastname, String username, String originUniversity, String career, long profilePictureId);
 
     void replyToEvent(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId,
                         long eventId, String message);
 
-    /*
-    void createEvent(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture, Date date, byte[] flyer, String description);
-    */
+    // TODO: usen está
+    Event createEvent(String email, String cityName, Date date, byte[] flyer, String description, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture);
+
 
     Optional<Event> getEventById(long id);
 

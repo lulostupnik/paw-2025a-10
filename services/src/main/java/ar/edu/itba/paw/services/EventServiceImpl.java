@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.services;
 
-import ar.edu.itba.paw.interfaces.persistence.EventDao;
-import ar.edu.itba.paw.interfaces.persistence.EventResponseDao;
+import ar.edu.itba.paw.interfaces.persistence.*;
 import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.EmailService;
 import ar.edu.itba.paw.interfaces.services.EventService;
@@ -23,30 +22,31 @@ public class EventServiceImpl implements EventService {
     private final EventResponseDao eventResponseDao;
     private final EmailService emailService;
     private final EventDao eventDao;
+    private final ImageDao imageDao;
+    private final UserDao userDao;
+    private final CityDao cityDao;
 
     @Autowired
-    public EventServiceImpl(UserService userService, CityService cityService, EventResponseDao eventResponseDao, EventDao eventDao, EmailService emailService) {
+    public EventServiceImpl(UserService userService, CityService cityService, EventResponseDao eventResponseDao, EventDao eventDao, EmailService emailService, ImageDao imageDao, UserDao userDao, CityDao cityDao) {
         this.userService = userService;
         this.eventResponseDao = eventResponseDao;
         //this.cityService = cityService;
         this.eventDao = eventDao;
         this.emailService = emailService;
+        this.imageDao = imageDao;
+        this.userDao = userDao;
+        this.cityDao = cityDao;
     }
 
     @Override
     public Event createEvent(String email, String cityName, Date date, byte[] flyer, String description, String firstname, String lastname, String username, String originUniversity, String career, long profilePictureId) {
+        City city = cityDao.findByName(cityName).orElseThrow(() -> new RuntimeException("City not found"));
         Optional<User> maybeUser = userService.findByEmail(email);
-        User user = maybeUser.orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId)); // todo: ¿acá debería usar el service o el dao? -> el service puede llegar a tener validaciones que ya acabo de hacer en esta clase
+        User user = maybeUser.orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId));
+        // long flyerImageId = imageDao.saveImage(flyer);
+        long flyerImageId = 1; // FIXME
 
-
-        //FIXME: City is not being created yet, therefore as we are not passing a city to the create it will break
-//        Optional<City> city = cityService.findByName("Buenos Aires");
-//        if (city.isEmpty()) {
-//            throw new RuntimeException("City not found");
-//        }
-
-        //FIXME: Image is missing, 1 as a placeholder
-        return eventDao.create(user, new City(null, null, 1), date, description, 1);
+        return eventDao.create(user, city, date, description, flyerImageId);
     }
 
     @Override
@@ -62,6 +62,24 @@ public class EventServiceImpl implements EventService {
         emailService.answerEventMail(email,event.getUser().getEmail(), firstname, lastname, username, career, originUniversity, message, Locale.ENGLISH);
     }
 
+    // FIXME: Mepa que esto debería ser transaccional
+    @Override
+    public Event createEvent(String email, String cityName, Date date, byte[] flyer, String description, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture) {
+        City city = cityDao.findByName(cityName).orElseThrow(() -> new RuntimeException("City not found"));
+        Optional<User> maybeUser = userService.findByEmail(email);
+        User user;
+        if(maybeUser.isPresent()){
+            user = maybeUser.get();
+        } else {
+            // long profilePictureId = imageDao.saveImage(profilePicture);
+            long profilePictureId = 1; // FIXME
+            user = userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId);
+        }
+        // long flyerImageId = imageDao.saveImage(flyer);
+        long flyerImageId = 1; // FIXME
+
+        return eventDao.create(user, city, date, description, flyerImageId);
+    }
 
 
     @Override
