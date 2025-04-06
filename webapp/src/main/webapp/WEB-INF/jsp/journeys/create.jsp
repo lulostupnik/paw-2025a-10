@@ -151,7 +151,7 @@
                     <spring:message code="createJourney.username.hint" var="usernameHint"/>
                     <form:input path="username" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
                                 placeholder="${usernameHint}"/>
-                    <form:errors path="career" cssClass="text-red-500 text-sm mt-1" element="p"/>
+                    <form:errors path="username" cssClass="text-red-500 text-sm mt-1" element="p"/>
                 </div>
 
                 <!-- Description Field -->
