@@ -40,4 +40,9 @@ public class CityServiceImpl implements CityService {
         return cityDao.findAllBySubstring(substring);
     }
 
+    @Override
+    public List<City> getAllCities() {
+        return cityDao.getAllCities();
+    }
+
 }

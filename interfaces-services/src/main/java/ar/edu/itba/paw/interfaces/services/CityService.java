@@ -10,4 +10,5 @@ public interface CityService {
     List<City> findAll();
     List<City> findAllByCountry(String country);
     List<City> findAllBySubstring(String substring);
+    List<City> getAllCities();
 }

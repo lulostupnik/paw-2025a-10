@@ -1,10 +1,10 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.EventService;
+import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.interfaces.services.UserService;
-import ar.edu.itba.paw.models.Event;
-import ar.edu.itba.paw.models.Journey;
-import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.webapp.form.CreateEventForm;
 
 import ar.edu.itba.paw.webapp.form.ReplyEventForm;
@@ -19,6 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -30,10 +31,15 @@ public class EventController {
 
     private final EventService eventService;
     private final UserService userService;
+    private final CityService cityService;
+    private final UniversityService universityService;
 
-    public EventController(EventService eventService, UserService userService) {
+    public EventController(EventService eventService, UserService userService, CityService cityService, UniversityService universityService) {
         this.eventService = eventService;
         this.userService = userService;
+
+        this.cityService = cityService;
+        this.universityService = universityService;
     }
 
     @RequestMapping
@@ -45,7 +51,12 @@ public class EventController {
 
     @RequestMapping(value = "/create", method = GET)
     public ModelAndView createEventForm(@ModelAttribute("createEventForm") final CreateEventForm form) {
-        return new ModelAndView("events/create");
+        ModelAndView mav = new ModelAndView("events/create");
+        List<City> cities = cityService.getAllCities();
+        List<University> universities = universityService.getAllUniversities();
+        mav.addObject("universities", universities);
+        mav.addObject("cities", cities);
+        return mav;
     }
 
     @RequestMapping(path = "/create", method = POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
