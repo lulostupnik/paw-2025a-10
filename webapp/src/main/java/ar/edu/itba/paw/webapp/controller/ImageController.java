@@ -2,8 +2,10 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.ImageService;
 import ar.edu.itba.paw.models.Image;
+import ar.edu.itba.paw.webapp.form.UploadImageForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -16,6 +18,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.io.IOException;
 
 
 @Controller
@@ -45,5 +50,24 @@ public class ImageController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+    }
+
+    @RequestMapping(value = "upload", method = RequestMethod.GET)
+    public ModelAndView uploadImageForm(@ModelAttribute("uploadImageForm") final UploadImageForm uploadImageForm) {
+        return new ModelAndView("images/upload");
+    }
+
+    @RequestMapping(value = "upload", method = RequestMethod.POST)
+    public ModelAndView uploadImage(@Valid @ModelAttribute("uploadImageForm") final UploadImageForm uploadImageForm, final BindingResult errors) {
+        long id = 0;
+        if(errors.hasErrors()){
+            // FIXME
+        }
+        try {
+            id = imageService.storeImage(uploadImageForm.getImage().getBytes());
+        } catch (IOException e) {
+           // FIXME
+        }
+        return new ModelAndView("redirect:/images/" + id );
     }
 }
