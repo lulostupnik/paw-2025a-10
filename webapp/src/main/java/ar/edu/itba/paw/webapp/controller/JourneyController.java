@@ -7,6 +7,7 @@ import ar.edu.itba.paw.webapp.form.FilterJourneyForm;
 import ar.edu.itba.paw.webapp.form.ReplyJourneyForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -53,14 +54,14 @@ public class JourneyController {
         mav.addObject("journeys", journeys);
         return mav;
     }
-    @RequestMapping(value = "/create", method = POST)
+    @RequestMapping(value = "/create", method = POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ModelAndView createJourney(@Valid @ModelAttribute("createJourneyForm") final CreateJourneyForm jf, final BindingResult errors) {
         if (errors.hasErrors()) {
             return createJourneyForm(jf);
         }
 
         //FIXME: Add fields for user creation just in case it does not exist. This will be removed after 1st sprint when we implement authorization
-        final Journey journey = js.createJourney(jf.getEmail(), null, null, null, null, null, 1, jf.getDestinationUniversity(), jf.getDestinationCity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription());
+        final Journey journey = js.createJourney(jf.getEmail(), jf.getUsername(), null, null, jf.getDestinationUniversity(), jf.getCareer(), 1, jf.getDestinationUniversity(), jf.getDestinationCity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription());
         
         return getJourney(journey.getId());
     }

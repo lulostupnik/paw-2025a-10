@@ -114,7 +114,7 @@
                                             </h3>
                                             <p class="text-sm text-gray-500">
                                                 <c:out value="${journey.destinationCity}" /> -
-                                                <c:out value="${journey.destinationUniversity}" />
+                                                <c:out value="${journey.destinationUniversity.name}" />
                                             </p>
                                             <p class="text-sm text-gray-500 mt-1">
                                                 <c:out value="${journey.startDate}" /> → <c:out value="${journey.endDate}" />

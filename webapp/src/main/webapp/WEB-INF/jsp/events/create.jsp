@@ -34,6 +34,20 @@
     <!-- Card -->
     <div class="mt-5 p-4 relative z-10 bg-white border border-gray-200 rounded-xl sm:mt-10 md:p-10">
       <form:form method="post" action="${pageContext.request.contextPath}/events/create" modelAttribute="createEventForm" enctype="multipart/form-data">
+        <!-- Profile picture Upload Field -->
+        <div class="mb-4 sm:mb-8">
+          <form:label path="profilePicture" class="block mb-2 text-sm font-medium">
+            <spring:message code="createJourney.profile_picture" />
+          </form:label>
+          <div class="flex flex-col items-center p-5 border-2 border-gray-300 border-dashed rounded-lg bg-gray-50">
+            <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+            </svg>
+            <p class="mb-2 text-sm text-gray-500 text-center"><spring:message code ="upload_picture.profile"/></p>
+            <form:input path="profilePicture" type="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" accept="image/png, image/jpeg, application/pdf" />
+          </div>
+          <form:errors path="profilePicture" class="text-red-500 text-sm mt-1" />
+        </div>
 
         <!-- First Name Field -->
         <spring:message code="event.firstName.hint" var="firstNameHint" text="Enter your first name"/>
@@ -47,7 +61,7 @@
         </div>
 
         <!-- Last Name Field -->
-        <spring:message code="event.lastName.hint" var="lastNameHint" text="Enter your last name"/>
+        <spring:message code="event.lastName.hint" var="lastNameHint"/>
         <div class="mb-4 sm:mb-8">
           <form:label path="lastName" class="block mb-2 text-sm font-medium">
             <spring:message code="event.lastName" text="Last Name"/>
@@ -58,7 +72,7 @@
         </div>
 
         <!-- University Field -->
-        <spring:message code="event.uniiversity.hint" var="universityHint" text="Enter your university"/>
+        <spring:message code="event.uniiversity.hint" var="universityHint" />
         <div class="mb-4 sm:mb-8">
           <form:label path="university" class="block mb-2 text-sm font-medium">
             <spring:message code="event.university" text="University"/>
@@ -68,6 +82,27 @@
           <form:errors path="university" class="text-red-500 text-sm mt-1" />
         </div>
 
+        <!-- Career Field -->
+        <spring:message code="createJourney.career.hint" var="careerHint"/>
+        <div class="mb-4 sm:mb-8">
+          <form:label path="career" class="block mb-2 text-sm font-medium">
+            <spring:message code="createJourney.career" />
+          </form:label>
+          <form:input path="career" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
+                      placeholder="${careerHint}" />
+          <form:errors path="career" class="text-red-500 text-sm mt-1" />
+        </div>
+
+        <!-- Username Field -->
+        <spring:message code="createJourney.username.hint" var="usernameHint"/>
+        <div class="mb-4 sm:mb-8">
+          <form:label path="username" class="block mb-2 text-sm font-medium">
+            <spring:message code="createJourney.username"/>
+          </form:label>
+          <form:input path="username" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
+                      placeholder="${usernameHint}" />
+          <form:errors path="username" class="text-red-500 text-sm mt-1" />
+        </div>
 
         <!-- Email Field -->
         <spring:message code="event.email.hint" var="emailHint"/>
@@ -120,7 +155,7 @@
             <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
             </svg>
-            <p class="mb-2 text-sm text-gray-500 text-center">Upload your event flyer (PNG, JPG or PDF)</p>
+            <p class="mb-2 text-sm text-gray-500 text-center"><spring:message code="upload_picture.flyer"/></p>
             <form:input path="flyer" type="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" accept="image/png, image/jpeg, application/pdf" />
           </div>
           <form:errors path="flyer" class="text-red-500 text-sm mt-1" />

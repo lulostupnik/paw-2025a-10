@@ -21,6 +21,8 @@ public class CreateEventForm {
 
     private MultipartFile flyer;
 
+    private MultipartFile profilePicture;
+
     @Size(min = 2, max = 200)
     private String description;
 
@@ -30,6 +32,25 @@ public class CreateEventForm {
 
     @Size(min = 2, max = 100)
     private String university;
+
+    @Size(min = 2, max = 50)
+    private String career;
+
+    @Size(min = 2, max = 50)
+    private String username;
+
+    public String getCareer() {
+        return career;
+    }
+    public void setCareer(String career) {
+        this.career = career;
+    }
+    public String getUsername() {
+        return username;
+    }
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     public String getUniversity() {
         return university;
@@ -99,6 +120,12 @@ public class CreateEventForm {
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
+    public MultipartFile getProfilePicture() {
+        return profilePicture;
+    }
+    public void setProfilePicture(MultipartFile profilePicture) {
+        this.profilePicture = profilePicture;
+    }
 
 }
