@@ -73,7 +73,20 @@ public class EventController {
         } catch(IOException e) {
             //what to do?
         }
-        Event event = eventService.createEvent(eventForm.getEmail(), eventForm.getCity(), eventForm.getDate(), image, eventForm.getDescription(),eventForm.getFirstName(), eventForm.getLastName(), null, eventForm.getUniversity(), null, 1);
+        Event event;
+        byte[] flyerBytes;
+        byte[] profilePicture;
+        try {
+            flyerBytes = eventForm.getFlyer().getBytes();
+            // foto chabon
+            // username
+            // Carrera
+        } catch (IOException e) {
+            // Handle the exception, e.g., log it or return an error response
+            throw new RuntimeException("Error reading flyer file", e);
+        }
+
+        event = eventService.createEvent(eventForm.getEmail(), eventForm.getCity(), eventForm.getDate(), flyerBytes, eventForm.getDescription(), eventForm.getFirstName(), eventForm.getLastName(), eventForm.getFirstName(), eventForm.getUniversity(), eventForm.getLastName(), flyerBytes);
         return new ModelAndView("redirect:/events/" + event.getId());
     }
 
