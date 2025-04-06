@@ -10,9 +10,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Include Preline UI Kit CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/preline/dist/preline.min.css" />
-  <!-- Awesomplete CSS & JS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>
 </head>
 <body class="bg-gray-100">
 
@@ -33,22 +30,6 @@
         <spring:message code="event.create.header"/>
       </h2>
     </div>
-
-    <script>
-      // City options
-      var cityOptions = [
-        <c:forEach var="city" items="${cities}" varStatus="status">
-        "${city.name}"<c:if test="${!status.last}">,</c:if>
-        </c:forEach>
-      ];
-
-      // University options
-      var universityOptions = [
-        <c:forEach var="university" items="${universities}" varStatus="status">
-        "${university.name}"<c:if test="${!status.last}">,</c:if>
-        </c:forEach>
-      ];
-    </script>
 
     <!-- Card -->
     <div class="mt-5 p-4 relative z-10 bg-white border border-gray-200 rounded-xl sm:mt-10 md:p-10">
@@ -91,24 +72,18 @@
         </div>
 
         <!-- University Field -->
-        <spring:message code="event.uniiversity.hint" var="universityHint" />
-        <c:set var="universityIcon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="w-4 h-4" viewBox="0 0 16 16">
-            <path d="M8.211 2.047a.5.5 0 0 0-.422 0l-7.5 3.5a.5.5 0 0 0 .025.917l7.5 3a.5.5 0 0 0 .372 0L14 7.14V13a1 1 0 0 0-1 1v2h3v-2a1 1 0 0 0-1-1V6.739l.686-.275a.5.5 0 0 0 .025-.917l-7.5-3.5Z"/>
-            <path d="M4.176 9.032a.5.5 0 0 0-.656.327l-.5 1.7a.5.5 0 0 0 .294.605l4.5 1.8a.5.5 0 0 0 .372 0l4.5-1.8a.5.5 0 0 0 .294-.605l-.5-1.7a.5.5 0 0 0-.656-.327L8 10.466 4.176 9.032Z"/>
-          </svg>
-        </c:set>
-
-        <jsp:include page="/WEB-INF/jsp/components/autocomplete.jsp">
-          <jsp:param name="path" value="university" />
-          <jsp:param name="label" value="university" />
-          <jsp:param name="messagePrefix" value="event" />
-          <jsp:param name="placeholder" value="${universityHint}" />
-          <jsp:param name="hint" value="Start typing to see matching universities" />
-          <jsp:param name="icon" value="${universityIcon}" />
-          <jsp:param name="listVar" value="universityOptions" />
-          <jsp:param name="required" value="true" />
-        </jsp:include>
+        <div class="mb-4 sm:mb-8">
+          <form:label path="university" class="block mb-2 text-sm font-medium">
+            <spring:message code="event.university" text="University"/>
+          </form:label>
+          <form:select path="university" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
+            <option value=""><spring:message code="event.university.select" text="Select a university"/></option>
+            <c:forEach var="university" items="${universities}">
+              <option value="${university.name}">${university.name}</option>
+            </c:forEach>
+          </form:select>
+          <form:errors path="university" class="text-red-500 text-sm mt-1" />
+        </div>
 
         <!-- Career Field -->
         <spring:message code="createJourney.career.hint" var="careerHint"/>
@@ -144,23 +119,18 @@
         </div>
 
         <!-- City Field -->
-        <spring:message code="event.city.hint" var="cityHint"/>
-        <c:set var="cityIcon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="w-4 h-4" viewBox="0 0 16 16">
-            <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
-          </svg>
-        </c:set>
-
-        <jsp:include page="/WEB-INF/jsp/components/autocomplete.jsp">
-          <jsp:param name="path" value="city" />
-          <jsp:param name="label" value="city" />
-          <jsp:param name="messagePrefix" value="event" />
-          <jsp:param name="placeholder" value="${cityHint}" />
-          <jsp:param name="hint" value="Start typing to see matching cities" />
-          <jsp:param name="icon" value="${cityIcon}" />
-          <jsp:param name="listVar" value="cityOptions" />
-          <jsp:param name="required" value="true" />
-        </jsp:include>
+        <div class="mb-4 sm:mb-8">
+          <form:label path="city" class="block mb-2 text-sm font-medium">
+            <spring:message code="event.city" text="City"/>
+          </form:label>
+          <form:select path="city" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
+            <option value=""><spring:message code="event.city.select" text="Select a city"/></option>
+            <c:forEach var="city" items="${cities}">
+              <option value="${city.name}">${city.name}</option>
+            </c:forEach>
+          </form:select>
+          <form:errors path="city" class="text-red-500 text-sm mt-1" />
+        </div>
 
         <!-- Date Field -->
         <div class="mb-4 sm:mb-8">
@@ -210,5 +180,7 @@
   </div>
 </div>
 
+<!-- Preline JS -->
+<script src="https://cdn.jsdelivr.net/npm/preline/dist/preline.min.js"></script>
 </body>
 </html>

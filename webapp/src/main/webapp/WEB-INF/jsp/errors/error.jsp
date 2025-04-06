@@ -39,7 +39,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><fmt:message key="error.${errorType}.title" /> - <fmt:message key="header.brand" /></title>
+    <title><fmt:message key="error.${errorType}.title" /></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -52,18 +52,8 @@
 </head>
 <body class="flex flex-col min-h-screen bg-white dark:bg-gray-900">
 <div class="max-w-3xl flex flex-col mx-auto min-h-screen">
-    <!-- ========== HEADER ========== -->
-    <header class="mb-auto flex justify-center z-50 w-full py-4">
-        <nav class="px-4 sm:px-6 lg:px-8">
-            <a class="flex-none text-xl font-semibold sm:text-3xl text-gray-900 dark:text-white" href="${pageContext.request.contextPath}/" aria-label="<fmt:message key="header.brand" />">
-                <fmt:message key="header.brand" />
-            </a>
-        </nav>
-    </header>
-    <!-- ========== END HEADER ========== -->
-
     <!-- ========== MAIN CONTENT ========== -->
-    <main id="content">
+    <main id="content" class="flex-grow flex items-center justify-center">
         <div class="text-center py-10 px-4 sm:px-6 lg:px-8">
             <h1 class="block text-7xl font-bold text-gray-800 sm:text-9xl dark:text-white">
                 <fmt:message key="error.${errorType}.title" />
