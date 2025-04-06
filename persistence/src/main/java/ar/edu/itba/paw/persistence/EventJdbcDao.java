@@ -71,7 +71,7 @@ public class EventJdbcDao implements EventDao {
             "FROM events e\n" +
             "JOIN users us ON e.user_id = us.id\n" +
             "JOIN universities un ON us.university = un.id\n" +
-            "JOIN cities c ON e.city_id = c.id\n";
+            "JOIN cities c ON e.city_id = c.id \n";
 
 
 
@@ -109,15 +109,14 @@ public class EventJdbcDao implements EventDao {
         List<Object> params = new ArrayList<>();
         boolean firstCondition = true;
         if (cityId != null) {
-            sqlBuilder.append("WHERE")
-                    .append(" e.city_id = ?");
+            sqlBuilder.append("WHERE city_id = ?");
             params.add(cityId);
             firstCondition = false;
         }
 
         if (date != null) {
             sqlBuilder.append(firstCondition ? " WHERE" : " AND")
-                    .append(" e.date AFTER ?");
+                    .append(" event_date AFTER ?");
             params.add(date);
         }
 
@@ -130,11 +129,7 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public Optional<Event> findById(long eventId) {
-        return jdbcTemplate.query("SELECT * FROM events e " +
-                "JOIN users u ON e.user_id = u.id " +
-                "JOIN universities un ON u.university = un.id " +
-                "JOIN cities c ON e.city_id = c.id " +
-                "WHERE e.id = ?",
+        return jdbcTemplate.query(QUERY + "WHERE event_id = ?",
                 EVENT_ROW_MAPPER, eventId).stream().findFirst();
     }
 
