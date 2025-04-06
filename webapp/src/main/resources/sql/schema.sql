@@ -72,10 +72,12 @@ CREATE TABLE IF NOT EXISTS countries (
 );
 
 CREATE TABLE IF NOT EXISTS cities (
-                                    id SERIAL PRIMARY KEY,
-                                    name VARCHAR(100),
-    country VARCHAR(100)
-    );
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    country INTEGER NOT NULL,
+
+    FOREIGN KEY (country) REFERENCES countries(id) ON DELETE RESTRICT
+);
 
 
 

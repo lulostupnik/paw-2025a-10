@@ -23,10 +23,12 @@ public class CityJdbcDao implements CityDao {
     private final JdbcTemplate jdbcTemplate;
 
     private final static RowMapper<City> CITY_ROW_MAPPER = (rs, rowNum) -> new City(
-            rs.getString("name"),
-            rs.getString("country"),
-            rs.getLong("id")
-            );
+            rs.getString("city_name"),
+            rs.getString("country_name"),
+            rs.getLong("city_id")
+    );
+
+    private final static String QUERY = "SELECT ci.name as city_name, ci.id as city_id, co.name as country_name FROM cities ci, countries co WHERE ci.country = co.id ";
 
     @Autowired
     public CityJdbcDao(DataSource dataSource) {
@@ -38,20 +40,20 @@ public class CityJdbcDao implements CityDao {
         StringBuilder queryBuilder = new StringBuilder();
         List<Object> params = new ArrayList<>();
 
-        queryBuilder.append("SELECT * FROM cities WHERE 1=1 ");
+        queryBuilder.append(QUERY);
 
         if (id > 0) {
-            queryBuilder.append("AND id = ? ");
+            queryBuilder.append("AND city_id = ? ");
             params.add(id);
         }
 
         if (name != null && !name.isEmpty()) {
-            queryBuilder.append("AND name = ? ");
+            queryBuilder.append("AND city_name = ? ");
             params.add(name);
         }
 
         if (country != null && !country.isEmpty()) {
-            queryBuilder.append("AND country = ? ");
+            queryBuilder.append("AND country_name = ? ");
             params.add(country);
         }
 
@@ -61,4 +63,21 @@ public class CityJdbcDao implements CityDao {
                 params.toArray()
         ).stream().findFirst();
     }
+
+    @Override
+    public List<City> findAll() {
+        return jdbcTemplate.query(QUERY, CITY_ROW_MAPPER);
+    }
+
+    @Override
+    public List<City> findAllByCountry(String country) {
+        return jdbcTemplate.query(QUERY + "AND country_name = ?", CITY_ROW_MAPPER, country);
+    }
+
+    @Override
+    public List<City> findAllBySubstring(String substring) {
+        return jdbcTemplate.query(QUERY + "AND city_name LIKE ?", CITY_ROW_MAPPER, "%" + substring + "%");
+    }
+
+
 }

@@ -6,6 +6,7 @@ import ar.edu.itba.paw.models.City;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -22,4 +23,20 @@ public class CityServiceImpl implements CityService {
     public Optional<City> findByName(String name) {
         return cityDao.findBy(null, name, null);
     }
+
+    @Override
+    public List<City> findAll() {
+        return cityDao.findAll();
+    }
+
+    @Override
+    public List<City> findAllByCountry(String country) {
+        return cityDao.findAllByCountry(country);
+    }
+
+    @Override
+    public List<City> findAllBySubstring(String substring) {
+        return cityDao.findAllBySubstring(substring);
+    }
+
 }
