@@ -68,9 +68,16 @@ public class JourneyController {
             return createJourneyForm(jf);
         }
 
+        byte[] profilePicture = null;
+        try {
+            profilePicture = jf.getProfilePicture().getBytes();
+        } catch (Exception e) {
+            // FIXME
+        }
+
         //FIXME: Add fields for user creation just in case it does not exist. This will be removed after 1st sprint when we implement authorization
         final Journey journey = js.createJourney(jf.getEmail(), jf.getUsername(), jf.getFirstName(),
-                jf.getLastName(), jf.getDestinationUniversity(), jf.getCareer(), 1, jf.getDestinationUniversity(), jf.getDestinationCity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription());
+                jf.getLastName(), jf.getDestinationUniversity(), jf.getCareer(), profilePicture, jf.getDestinationUniversity(), jf.getDestinationCity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription());
         
         return getJourney(journey.getId());
     }
