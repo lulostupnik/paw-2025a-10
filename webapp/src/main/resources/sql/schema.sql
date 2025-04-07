@@ -45,10 +45,11 @@ CREATE TABLE IF NOT EXISTS users (
         lastname VARCHAR(100) NOT NULL,
         username VARCHAR(50) NOT NULL UNIQUE,
         university INTEGER NOT NULL,
-        career VARCHAR(50),
+        career_id INTEGER NOT NULL,
         profile_picture_id INTEGER NOT NULL,
 
-        FOREIGN KEY (university) REFERENCES universities(id) ON DELETE RESTRICT
+        FOREIGN KEY (university) REFERENCES universities(id) ON DELETE RESTRICT,
+        FOREIGN KEY (career_id) REFERENCES careers(id) ON DELETE RESTRICT
 );
 
 -- CREATE TABLE IF NOT EXISTS area_of_study (
