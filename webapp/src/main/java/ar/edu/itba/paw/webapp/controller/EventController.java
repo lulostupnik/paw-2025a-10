@@ -78,7 +78,7 @@ public class EventController {
             // Handle the exception, e.g., log it or return an error response
             throw new RuntimeException("Error reading flyer file", e);
         }
-        event = eventService.createEvent(eventForm.getEmail(), eventForm.getCity(), eventForm.getDate(), flyerBytes, eventForm.getDescription(), eventForm.getFirstName(), eventForm.getLastName(), eventForm.getUsername(), eventForm.getUniversity(), eventForm.getCareer(), profilePictureBytes);
+        event = eventService.createEvent(eventForm.getEmail(), eventForm.getCity(), eventForm.getDate(), flyerBytes, eventForm.getDescription(),  eventForm.getUsername(),eventForm.getFirstName(), eventForm.getLastName(), eventForm.getUniversity(), eventForm.getCareer(), profilePictureBytes);
         return getEvent(event.getId());
     }
 

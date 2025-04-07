@@ -52,7 +52,7 @@ public class EventServiceImpl implements EventService {
         long userId = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePicture, new String[]{})).getId();
         eventResponseDao.create(userId, eventId, message);
         //@TODO cambiar locale
-        emailService.answerEventMail(email,event.getUser().getEmail(), firstname, lastname, username, career, originUniversity, message, Locale.ENGLISH);
+        emailService.answerEventMail(email,event.getUser().getEmail(), firstname, lastname, username, career, originUniversity, message, Locale.ENGLISH, profilePicture);
     }
 
 
