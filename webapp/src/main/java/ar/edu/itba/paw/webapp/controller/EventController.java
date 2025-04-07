@@ -79,7 +79,7 @@ public class EventController {
             throw new RuntimeException("Error reading flyer file", e);
         }
         event = eventService.createEvent(eventForm.getEmail(), eventForm.getCity(), eventForm.getDate(), flyerBytes, eventForm.getDescription(), eventForm.getFirstName(), eventForm.getLastName(), eventForm.getUsername(), eventForm.getUniversity(), eventForm.getCareer(), profilePictureBytes);
-        return new ModelAndView("redirect:/events/" + event.getId());
+        return getEvent(event.getId());
     }
 
     @RequestMapping("/{id}")

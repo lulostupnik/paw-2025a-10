@@ -39,79 +39,44 @@ public class EmailServiceImpl implements EmailService {
 
 
 
-//    @Async
-//    protected void sendHtmlMessage(String to,
-//                                   String[] cc,
-//                                   String subjectKey,
-//                                   Object[] subjectArgs,
-//                                   String templateName,
-//                                   Map<String, Object> variables,
-//                                   Locale locale) {
-//
-//        try {
-//            String subject = messageSource.getMessage(subjectKey, subjectArgs, locale);
-//            MimeMessage message = emailSender.createMimeMessage();
-//            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-//
-//            Context context = new Context(locale);
-//            context.setVariables(variables);
-//            String htmlContent = templateEngine.process(templateName, context);
-//
-//            helper.setFrom(fromEmail);
-//            helper.setTo(to);
-//
-//            if (cc != null && cc.length > 0) {
-//                helper.setCc(cc);
-//            }
-//
-//            helper.setSubject(subject);
-//            helper.setText(htmlContent, true);
-//
-//
-//
-//            emailSender.send(message);
-//        } catch (Exception e) {
-//            throw new RuntimeException("Failed to send email", e);
-//        }
-//    }
-protected void sendHtmlMessage(String to,
-                               String[] cc,
-                               String subjectKey,
-                               Object[] subjectArgs,
-                               String templateName,
-                               Map<String, Object> variables,
-                               Locale locale,
-                               byte[] imageBytes) {
+    protected void sendHtmlMessage(String to,
+                                   String[] cc,
+                                   String subjectKey,
+                                   Object[] subjectArgs,
+                                   String templateName,
+                                   Map<String, Object> variables,
+                                   Locale locale,
+                                   byte[] imageBytes) {
 
-    try {
-        String subject = messageSource.getMessage(subjectKey, subjectArgs, locale);
-        MimeMessage message = emailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        try {
+            String subject = messageSource.getMessage(subjectKey, subjectArgs, locale);
+            MimeMessage message = emailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-        Context context = new Context(locale);
-        context.setVariables(variables);
-        String htmlContent = templateEngine.process(templateName, context);
+            Context context = new Context(locale);
+            context.setVariables(variables);
+            String htmlContent = templateEngine.process(templateName, context);
 
-        helper.setFrom(fromEmail);
-        helper.setTo(to);
-        if (cc != null && cc.length > 0) {
-            helper.setCc(cc);
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            if (cc != null && cc.length > 0) {
+                helper.setCc(cc);
+            }
+
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+
+            if (imageBytes != null) {
+                DataSource imageSource = new ByteArrayDataSource(imageBytes, "image/jpeg"); // or image/png
+                helper.addInline("profileImage", imageSource);
+            }
+
+            emailSender.send(message);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to send email", e);
         }
-
-        helper.setSubject(subject);
-        helper.setText(htmlContent, true);
-
-        if (imageBytes != null) {
-            DataSource imageSource = new ByteArrayDataSource(imageBytes, "image/jpeg"); // or image/png
-            helper.addInline("profileImage", imageSource);
-        }
-
-        emailSender.send(message);
-
-    } catch (Exception e) {
-        throw new RuntimeException("Failed to send email", e);
     }
-}
 
 
 
@@ -155,7 +120,7 @@ protected void sendHtmlMessage(String to,
                                 String firstName, String lastName,
                                 String username, String career,
                                 String originUniversity, String message,
-                                Locale locale) {
+                                Locale locale, byte[] profilePicture) {
 
         Map<String, Object> variables = Map.of(
                 "email", from,
@@ -164,7 +129,8 @@ protected void sendHtmlMessage(String to,
                 "username", username,
                 "career", career,
                 "university", originUniversity,
-                "message", message
+                "message", message,
+                "hasProfileImage", profilePicture != null && profilePicture.length > 0
         );
 
         sendHtmlMessage(
@@ -175,8 +141,7 @@ protected void sendHtmlMessage(String to,
                 "event-response",
                 variables,
                 locale,
-                null
-
+                profilePicture
         );
     }
 

@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><spring:message code="app.title" text="Student Exchange Platform"/></title>
+    <title><spring:message code="app.title"/></title>
     <!-- Include Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Include Preline UI Kit CSS -->
@@ -24,10 +24,10 @@
             <!-- Welcome Header -->
             <div class="mx-auto mb-10">
                 <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl mb-2">
-                    <spring:message code="dashboard.welcome" text="Welcome to the Student Exchange Platform"/>
+                    <spring:message code="dashboard.welcome"/>
                 </h1>
                 <p class="text-gray-600 max-w-3xl">
-                    <spring:message code="dashboard.intro" text="Discover exchange opportunities, connect with fellow students, and explore educational journeys around the world."/>
+                    <spring:message code="dashboard.intro"/>
                 </p>
             </div>
 
@@ -38,14 +38,14 @@
                     <div class="p-5 border-b border-gray-200">
                         <div class="flex justify-between items-center">
                             <h2 class="text-lg font-semibold text-gray-800">
-                                <spring:message code="dashboard.newest.journeys" text="Newest Journeys"/>
+                                <spring:message code="dashboard.newest.journeys"/>
                             </h2>
                             <a href="<c:url value='/journeys'/>" class="text-sm font-medium text-blue-600 hover:text-blue-700">
-                                <spring:message code="dashboard.view.all" text="View All"/>
+                                <spring:message code="dashboard.view.all" />
                             </a>
                         </div>
                         <p class="text-sm text-gray-500 mt-1">
-                            <spring:message code="dashboard.newest.journeys.desc" text="Recently added exchange experiences"/>
+                            <spring:message code="dashboard.newest.journeys.desc"/>
                         </p>
                     </div>
 
@@ -54,7 +54,7 @@
                         <c:if test="${empty journeys}">
                             <div class="p-5 text-center">
                                 <p class="text-gray-500">
-                                    <spring:message code="dashboard.no.journeys" text="No journeys available"/>
+                                    <spring:message code="dashboard.no.journeys"/>
                                 </p>
                             </div>
                         </c:if>
@@ -76,7 +76,7 @@
                                             </p>
                                         </div>
                                         <a href="<c:url value='/journeys/${journey.id}'/>" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
-                                            <spring:message code="dashboard.details" text="Details"/>
+                                            <spring:message code="dashboard.details"/>
                                             <svg class="ml-1 w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                                             </svg>
@@ -93,14 +93,14 @@
                     <div class="p-5 border-b border-gray-200">
                         <div class="flex justify-between items-center">
                             <h2 class="text-lg font-semibold text-gray-800">
-                                <spring:message code="dashboard.newest.events" text="Newest Events"/>
+                                <spring:message code="dashboard.newest.events"/>
                             </h2>
                             <a href="<c:url value='/events'/>" class="text-sm font-medium text-blue-600 hover:text-blue-700">
-                                <spring:message code="dashboard.view.all" text="View All"/>
+                                <spring:message code="dashboard.view.all"/>
                             </a>
                         </div>
                         <p class="text-sm text-gray-500 mt-1">
-                            <spring:message code="dashboard.newest.events.desc" text="Recently added events and opportunities"/>
+                            <spring:message code="dashboard.newest.events.desc" />
                         </p>
                     </div>
 
@@ -109,7 +109,7 @@
                         <c:if test="${empty events}">
                             <div class="p-5 text-center">
                                 <p class="text-gray-500">
-                                    <spring:message code="dashboard.no.events" text="No events available"/>
+                                    <spring:message code="dashboard.no.events"/>
                                 </p>
                             </div>
                         </c:if>
@@ -127,7 +127,7 @@
                                             </p>
                                         </div>
                                         <a href="<c:url value='/events/${event.id}'/>" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
-                                            <spring:message code="dashboard.details" text="Details"/>
+                                            <spring:message code="dashboard.details"/>
                                             <svg class="ml-1 w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                                             </svg>

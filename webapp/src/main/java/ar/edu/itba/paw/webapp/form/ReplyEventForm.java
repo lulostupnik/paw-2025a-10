@@ -11,7 +11,9 @@ public class ReplyEventForm {
         @Email
         private String email;
 
-        @Size(min = 2, max = 100)
+        private MultipartFile profilePicture;
+
+    @Size(min = 2, max = 100)
         private String firstName;
 
         @Size(min = 2, max = 100)
@@ -28,8 +30,6 @@ public class ReplyEventForm {
 
         @Size(min = 2, max = 2047)
         private String message;
-
-    private MultipartFile profilePicture;
 
         public MultipartFile getProfilePicture() {
             return profilePicture;
@@ -97,6 +97,5 @@ public class ReplyEventForm {
         public void setMessage(String message) {
             this.message = message;
         }
-
 
 }
