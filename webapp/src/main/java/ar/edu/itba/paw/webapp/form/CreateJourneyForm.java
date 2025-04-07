@@ -45,6 +45,8 @@ public class CreateJourneyForm {
     @Size(min = 2, max = 50)
     private String username;
 
+    private String[] interests;
+
     public String getCareer() {
         return career;
     }
@@ -123,5 +125,11 @@ public class CreateJourneyForm {
     }
     public void setLastName(String lastname) {
         this.lastname = lastname;
+    }
+    public String[] getInterests() {
+        return interests;
+    }
+    public void setInterests(String[] interests) {
+        this.interests = interests;
     }
 }

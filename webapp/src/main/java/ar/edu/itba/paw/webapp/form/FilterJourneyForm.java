@@ -12,12 +12,18 @@ public class FilterJourneyForm {
     @Size(min = 2, max = 100)
     private String destination;
 
-    public void setInterests(String interests) {
-        this.interests = interests;
-    }
+    @Size(min = 2, max = 100)
+    private String interests;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate endDate;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
+
+    public void setInterests(String interests) {
+        this.interests = interests;
+    }
 
     public String getDestination() {
         return destination;
@@ -43,15 +49,12 @@ public class FilterJourneyForm {
         this.startDate = startDate;
     }
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate endDate;
+
 
     public String getInterests() {
         return interests;
     }
 
-    @Size(min = 2, max = 100)
-    private String interests;
 
     public String getInterest() {
         return interests;
