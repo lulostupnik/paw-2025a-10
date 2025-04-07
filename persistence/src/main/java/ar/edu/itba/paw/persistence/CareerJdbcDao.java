@@ -19,8 +19,8 @@ public class CareerJdbcDao implements CareerDao {
     private final JdbcTemplate jdbcTemplate;
 
     private final static RowMapper<Career> CAREER_ROW_MAPPER = (rs, rowNum) -> new Career(
-            rs.getLong("career_id"),
-            rs.getString("career_name")
+            rs.getLong("id"),
+            rs.getString("name")
     );
 
     @Autowired

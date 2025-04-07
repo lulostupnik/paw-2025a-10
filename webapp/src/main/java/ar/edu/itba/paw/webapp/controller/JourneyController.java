@@ -103,15 +103,22 @@ public class JourneyController {
         return mav;
     }
 
-    @RequestMapping(value = "/{id}/reply", method = POST)
+    @RequestMapping(value = "/{id}/reply", method = POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ModelAndView replyToJourney(@PathVariable int id, @Valid @ModelAttribute("replyJourneyForm") final ReplyJourneyForm rjf, final BindingResult errors) {
         if (errors.hasErrors()) {
             return replyToJourneyForm(id, rjf);
         }
+        byte[] profilePicture;
+        try{
+            profilePicture =  rjf.getProfilePicture().getBytes();
+        }catch (Exception e){
+            throw new RuntimeException("Missing profile picture"); // @TODO fix me
+        }
 
         //FIXME: Add fields for user creation just in case it does not exist. This will be removed after 1st sprint when we implement authorization
         js.replyToJourney(rjf.getEmail(), rjf.getUsername(), rjf.getFirstName(),
-                rjf.getLastName(), rjf.getOriginUniversity(), rjf.getCareer(), 1, id, rjf.getMessage() );
+                rjf.getLastName(), rjf.getOriginUniversity(), rjf.getCareer(), profilePicture, id, rjf.getMessage() );
+
 
         return getJourneys(null,null, null, null);
     }
