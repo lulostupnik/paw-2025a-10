@@ -128,6 +128,10 @@ public class JourneyController {
         if(journey.isEmpty()){
            return getJourneys(null,null, null, null);
         }
+        List<University> universities = universityService.getAllUniversities();
+        List<Career> careers = carreerService.findAll();
+        mav.addObject("careers", careers);
+        mav.addObject("universities", universities);
         mav.addObject("journey", journey.get());
         mav.addObject("replyJourneyForm", rjf);
         return mav;
