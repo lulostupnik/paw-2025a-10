@@ -73,22 +73,22 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyDao.create(user, destination, city, startDate, endDate, description); // FIXME
     }
 
-    @Override
+    /*@Override
     public void replyToJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId, long journeyId, String message) {
         Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> new RuntimeException("Journey not found"));
 
 
         long userId = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId)).getId();
         // tal vez deberíamos chequear por username también -> si intenta repetirlo nos va a caer una excepción de la bd
-        /*
-        Optional<User> maybeUser = userService.findByEmail(email);
-        User user = maybeUser.orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId));
-        */
+
+//        Optional<User> maybeUser = userService.findByEmail(email);
+//        User user = maybeUser.orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId));
+
         journeyResponseDao.create(userId, journeyId, message);
 
         //@TODO cambiar el Locale
         emailService.answerJourneyMail( email, journey.getUser().getEmail() , firstname, lastname,username, career, originUniversity, message , new Locale("es"));
-    }
+    }*/
 
     @Override
     public void replyToJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture, long journeyId, String message) {
@@ -96,7 +96,9 @@ public class JourneyServiceImpl implements JourneyService {
         long userId = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePicture, new String[]{})).getId();
         journeyResponseDao.create(userId, journeyId, message);
 
-        emailService.answerJourneyMail( email, journey.getUser().getEmail() , firstname, lastname,username, career, originUniversity, message , new Locale("es"));
+        User user = journey.getUser();
+//@TODO cambiar el locale
+        emailService.answerJourneyMail( email, user.getEmail() , firstname, lastname,username, career, originUniversity, message , new Locale("es"), profilePicture);
     }
 
     @Override
