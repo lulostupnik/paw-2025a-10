@@ -51,7 +51,7 @@
 
                     <!-- Journey List -->
                     <div class="divide-y divide-gray-200">
-                        <c:if test="${empty newJourneys}">
+                        <c:if test="${empty journeys}">
                             <div class="p-5 text-center">
                                 <p class="text-gray-500">
                                     <spring:message code="dashboard.no.journeys" text="No journeys available"/>
@@ -59,8 +59,8 @@
                             </div>
                         </c:if>
 
-                        <c:if test="${not empty newJourneys}">
-                            <c:forEach var="journey" items="${newJourneys}" varStatus="status">
+                        <c:if test="${not empty journeys}">
+                            <c:forEach var="journey" items="${journeys}" varStatus="status">
                                 <div class="p-5 hover:bg-gray-50">
                                     <div class="flex justify-between">
                                         <div>
@@ -106,7 +106,7 @@
 
                     <!-- Events List -->
                     <div class="divide-y divide-gray-200">
-                        <c:if test="${empty newEvents}">
+                        <c:if test="${empty events}">
                             <div class="p-5 text-center">
                                 <p class="text-gray-500">
                                     <spring:message code="dashboard.no.events" text="No events available"/>
@@ -114,8 +114,8 @@
                             </div>
                         </c:if>
 
-                        <c:if test="${not empty newEvents}">
-                            <c:forEach var="event" items="${newEvents}" varStatus="status">
+                        <c:if test="${not empty events}">
+                            <c:forEach var="event" items="${events}" varStatus="status">
                                 <div class="p-5 hover:bg-gray-50">
                                     <div class="flex justify-between">
                                         <div>

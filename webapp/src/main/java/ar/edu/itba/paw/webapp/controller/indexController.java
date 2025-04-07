@@ -30,12 +30,12 @@ public class indexController {
     }
 
     @RequestMapping("/")
-    public ModelAndView helloWorld() {
+    public ModelAndView index() {
         ModelAndView mav = new ModelAndView("index");
         List<Event> events = eventService.getAllEvents();
-        mav.addObject("newEvents", events);
+        mav.addObject("events", events);
         List<Journey> journeys = journeyService.getAllJourneys();
-        mav.addObject("newJourneys", journeys);
+        mav.addObject("journeys", journeys);
         return mav;
     }
 
