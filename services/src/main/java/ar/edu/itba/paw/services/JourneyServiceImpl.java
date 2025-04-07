@@ -47,7 +47,7 @@ public class JourneyServiceImpl implements JourneyService {
         User user = maybeUser.orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId)); // todo: ¿acá debería usar el service o el dao? -> el service puede llegar a tener validaciones que ya acabo de hacer en esta clase
         // id me lo da la bd btw
         
-        if (journeyDao.findOverlappingJourney(user.getId(), startDate, endDate).isEmpty()) {
+        if (journeyDao.findOverlappingJourney(user.getId(), startDate, endDate).isPresent()) {
             throw new RuntimeException("There's already a journey registered in this time period");
         }
         return journeyDao.create(user, destination, destinationCity, startDate, endDate, description);

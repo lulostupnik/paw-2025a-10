@@ -69,7 +69,8 @@ public class JourneyController {
         }
 
         //FIXME: Add fields for user creation just in case it does not exist. This will be removed after 1st sprint when we implement authorization
-        final Journey journey = js.createJourney(jf.getEmail(), jf.getUsername(), null, null, jf.getDestinationUniversity(), jf.getCareer(), 1, jf.getDestinationUniversity(), jf.getDestinationCity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription());
+        final Journey journey = js.createJourney(jf.getEmail(), jf.getUsername(), jf.getFirstName(),
+                jf.getLastName(), jf.getDestinationUniversity(), jf.getCareer(), 1, jf.getDestinationUniversity(), jf.getDestinationCity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription());
         
         return getJourney(journey.getId());
     }
@@ -85,8 +86,11 @@ public class JourneyController {
     @RequestMapping(value = "/{id}")
     public ModelAndView getJourney(@PathVariable long id) {
         Optional<Journey> journey = js.getJourneyById(id);
+        if(journey.isEmpty()){
+            return new ModelAndView("journeys/not_found");
+        }
         final ModelAndView mav = new ModelAndView("journeys/detail");
-        mav.addObject("journey", journey);
+        mav.addObject("journey", journey.get());
         return mav;
     }
 

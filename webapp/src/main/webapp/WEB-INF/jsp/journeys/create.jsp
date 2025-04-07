@@ -42,6 +42,28 @@
             <c:url var="registerUrl" value="/journeys/create"/>
             <form:form modelAttribute="createJourneyForm" action="${registerUrl}" method="post" enctype="multipart/form-data">
 
+                <!-- First Name Field -->
+                <div class="mb-4 sm:mb-8">
+                    <form:label path="firstName" class="block mb-2 text-sm font-medium">
+                        <spring:message code="createJourney.firstName"/>
+                    </form:label>
+                    <spring:message code="createJourney.firstName.hint" var="firstNameHint"/>
+                    <form:input path="firstName" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
+                                placeholder="${firstNameHint}"/>
+                    <form:errors path="firstName" cssClass="text-red-500 text-sm mt-1" element="p"/>
+                </div>
+
+                <!-- Last Name Field -->
+                <div class="mb-4 sm:mb-8">
+                    <form:label path="lastName" class="block mb-2 text-sm font-medium">
+                        <spring:message code="createJourney.lastName"/>
+                    </form:label>
+                    <spring:message code="createJourney.lastName.hint" var="lastNameHint"/>
+                    <form:input path="lastName" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
+                                placeholder="${lastNameHint}"/>
+                    <form:errors path="lastName" cssClass="text-red-500 text-sm mt-1" element="p"/>
+                </div>
+
                 <!-- Email Field -->
                 <div class="mb-4 sm:mb-8">
                     <form:label path="email" class="block mb-2 text-sm font-medium">
@@ -81,7 +103,7 @@
                         <spring:message code="createJourney.destinationCity"/>
                     </form:label>
                     <form:select path="destinationCity" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value=""><spring:message code="createJourney.destinationCity.select" text="Select a city"/></option>
+                        <option value=""><spring:message code="createJourney.destinationCity.select"/></option>
                         <c:forEach var="city" items="${cities}">
                             <option value="${city.name}">${city.name}</option>
                         </c:forEach>
@@ -95,7 +117,7 @@
                         <spring:message code="createJourney.destinationUniversity"/>
                     </form:label>
                     <form:select path="destinationUniversity" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value=""><spring:message code="createJourney.destinationUniversity.select" text="Select a university"/></option>
+                        <option value=""><spring:message code="createJourney.destinationUniversity.select"/></option>
                         <c:forEach var="university" items="${universities}">
                             <option value="${university.name}">${university.name}</option>
                         </c:forEach>

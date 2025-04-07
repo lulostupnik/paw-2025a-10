@@ -11,6 +11,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class CreateJourneyForm {
 
+    @Size(min = 2, max = 100)
+    private String firstname;
+
+    @Size(min = 2, max = 100)
+    private String lastname;
+
     @Size(min = 6, max = 100)
     //@Pattern(regexp = "[a-zA-Z0-9]+$")
     @Email
@@ -104,5 +110,18 @@ public class CreateJourneyForm {
 
     public void setDescription(String description){
         this.description = description;
+    }
+
+    public String getFirstName() {
+        return firstname;
+    }
+    public void setFirstName(String firstname) {
+        this.firstname = firstname;
+    }
+    public String getLastName() {
+        return lastname;
+    }
+    public void setLastName(String lastname) {
+        this.lastname = lastname;
     }
 }
