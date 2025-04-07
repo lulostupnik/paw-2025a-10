@@ -100,6 +100,13 @@ public class EventController {
         mav.addObject("event", event);
         return mav;
     }
+    private ModelAndView getReplyFormWithEvent(int id, ReplyEventForm form) {
+        ModelAndView mav = new ModelAndView("events/reply");
+        Optional<Event> event = eventService.getEventById(id);
+        event.ifPresent(e -> mav.addObject("event", e));
+        mav.addObject("replyEventForm", form);
+        return mav;
+    }
 
     @RequestMapping(value = "/{id}/reply")
     public ModelAndView createReplyEventForm(@PathVariable int id, @ModelAttribute("replyEventForm") final ReplyEventForm form) {
@@ -116,7 +123,7 @@ public class EventController {
     @RequestMapping(value = "/{id}/reply", method = POST)
     public ModelAndView reply(@PathVariable int id, @Valid @ModelAttribute("replyEventForm") final ReplyEventForm form, BindingResult errors) {
         if (errors.hasErrors()) {
-            return new ModelAndView("events/reply");
+            return getReplyFormWithEvent(id, form);
         }
         // FIXME: The image id is hardcoded to 1, this should be changed to the logged in user id
         eventService.replyToEvent(form.getEmail(), form.getUsername(), form.getFirstName(), form.getLastName(), form.getOriginUniversity(), form.getCareer(), 1, id, form.getMessage());
