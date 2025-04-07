@@ -7,13 +7,22 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
 
 public class CreateJourneyForm {
+
+    @Size(min = 2, max = 100)
+    private String firstname;
+
+    @Size(min = 2, max = 100)
+    private String lastname;
 
     @Size(min = 6, max = 100)
     //@Pattern(regexp = "[a-zA-Z0-9]+$")
     @Email
     private String email;
+
+    private MultipartFile profilePicture;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
@@ -29,6 +38,31 @@ public class CreateJourneyForm {
 
     @Size(min = 2, max = 2047)
     private String description;
+
+    @Size(min = 2, max = 50)
+    private String career;
+
+    @Size(min = 2, max = 50)
+    private String username;
+
+    public String getCareer() {
+        return career;
+    }
+    public void setCareer(String career) {
+        this.career = career;
+    }
+    public String getUsername() {
+        return username;
+    }
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    public MultipartFile getProfilePicture() {
+        return profilePicture;
+    }
+    public void setProfilePicture(MultipartFile profilePicture) {
+        this.profilePicture = profilePicture;
+    }
 
     public String getEmail(){
         return email;
@@ -76,5 +110,18 @@ public class CreateJourneyForm {
 
     public void setDescription(String description){
         this.description = description;
+    }
+
+    public String getFirstName() {
+        return firstname;
+    }
+    public void setFirstName(String firstname) {
+        this.firstname = firstname;
+    }
+    public String getLastName() {
+        return lastname;
+    }
+    public void setLastName(String lastname) {
+        this.lastname = lastname;
     }
 }

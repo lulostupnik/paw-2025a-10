@@ -2,11 +2,16 @@ package ar.edu.itba.paw.webapp.controller;
 
 import javax.validation.Valid;
 
+import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.EmailService;
+import ar.edu.itba.paw.interfaces.services.UniversityService;
+import ar.edu.itba.paw.models.City;
+import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.webapp.form.FilterJourneyForm;
 import ar.edu.itba.paw.webapp.form.ReplyJourneyForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -31,10 +36,14 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 public class JourneyController {
 
     private final JourneyService js;
+    private final CityService cityService;
+    private final UniversityService universityService;
 
     @Autowired
-    public JourneyController(final JourneyService js){
+    public JourneyController(final JourneyService js, CityService cityService, UniversityService universityService){
         this.js = js;
+        this.cityService = cityService;
+        this.universityService = universityService;
     }
 
     @RequestMapping
@@ -53,27 +62,35 @@ public class JourneyController {
         mav.addObject("journeys", journeys);
         return mav;
     }
-    @RequestMapping(value = "/create", method = POST)
+    @RequestMapping(value = "/create", method = POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ModelAndView createJourney(@Valid @ModelAttribute("createJourneyForm") final CreateJourneyForm jf, final BindingResult errors) {
         if (errors.hasErrors()) {
             return createJourneyForm(jf);
         }
 
         //FIXME: Add fields for user creation just in case it does not exist. This will be removed after 1st sprint when we implement authorization
-        final Journey journey = js.createJourney(jf.getEmail(), null, null, null, null, null, 1, jf.getDestinationUniversity(), jf.getDestinationCity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription());
+        final Journey journey = js.createJourney(jf.getEmail(), jf.getUsername(), jf.getFirstName(),
+                jf.getLastName(), jf.getDestinationUniversity(), jf.getCareer(), 1, jf.getDestinationUniversity(), jf.getDestinationCity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription());
         
         return getJourney(journey.getId());
     }
     @RequestMapping(value = "/create")
     public ModelAndView createJourneyForm(@ModelAttribute("createJourneyForm") final CreateJourneyForm jf) {
-        // TODO: Implement the logic to create a journey
-        return new ModelAndView("journeys/create");
+        final ModelAndView mav = new ModelAndView("journeys/create");
+        List<City> cities = cityService.getAllCities();
+        List<University> universities = universityService.getAllUniversities();
+        mav.addObject("universities", universities);
+        mav.addObject("cities", cities);
+        return mav;
     }
     @RequestMapping(value = "/{id}")
     public ModelAndView getJourney(@PathVariable long id) {
         Optional<Journey> journey = js.getJourneyById(id);
+        if(journey.isEmpty()){
+            return new ModelAndView("journeys/not_found");
+        }
         final ModelAndView mav = new ModelAndView("journeys/detail");
-        mav.addObject("journey", journey);
+        mav.addObject("journey", journey.get());
         return mav;
     }
 

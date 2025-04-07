@@ -6,6 +6,7 @@ import ar.edu.itba.paw.models.University;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -36,6 +37,11 @@ public class UniversityServiceImpl implements UniversityService {
     @Override
     public University registerUniversity(String name, String abbreviation) {
         return universityDao.createUniversity(name, abbreviation);
+    }
+
+    @Override
+    public List<University> getAllUniversities() {
+        return universityDao.getAllUniversities();
     }
 
 }

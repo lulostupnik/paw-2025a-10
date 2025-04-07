@@ -2,6 +2,7 @@ package ar.edu.itba.paw.interfaces.persistence;
 
 import ar.edu.itba.paw.models.University;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UniversityDao {
@@ -9,4 +10,5 @@ public interface UniversityDao {
     Optional<University> findByAbbreviation(String abbreviation);
     Optional<University> findByAny(String search);
     University createUniversity(String name, String abbreviation);
+    List<University> getAllUniversities();
 }
