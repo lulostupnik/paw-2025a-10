@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,6 +52,9 @@ public class InterestJdbcDao implements InterestDao {
 
     @Override
     public List<Interest> findIdByName(String[] names) {
+        if(names == null || names.length == 0) {
+            return new ArrayList<>();
+        }
         for(String name : names) {
             if (name == null || name.isEmpty()) {
                 throw new IllegalArgumentException("Interest name cannot be null or empty");
