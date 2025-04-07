@@ -35,9 +35,9 @@
             <div class="p-4 sm:p-6 lg:p-8 bg-white border border-gray-200 rounded-xl">
                 <!-- User Info -->
                 <div class="mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800">${journey.user.firstname} ${journey.user.lastname}</h2>
+                    <h2 class="text-2xl font-bold text-gray-800"><c:out value="${journey.user.firstname} ${journey.user.lastname}"/></h2>
                     <p class="text-sm text-gray-500">
-                        <spring:message code="journey.contact"/>: ${journey.user.email}
+                        <spring:message code="journey.contact"/>:<c:out value="${journey.user.email}"/>
                     </p>
                 </div>
 
@@ -46,10 +46,10 @@
                     <h3 class="text-lg font-semibold mb-2"><spring:message code="journey.destination"/></h3>
                     <div class="flex flex-wrap gap-2">
                         <span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            <spring:message code="journey.city"/>: ${journey.destinationCity}
+                            <spring:message code="journey.city"/>:<c:out value=" ${journey.destinationCity}"/>
                         </span>
                         <span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                            <spring:message code="journey.university"/>: ${journey.destinationUniversity.name}
+                            <spring:message code="journey.university"/>: <c:out value=" ${journey.destinationUniversity.name}"/>
                         </span>
                     </div>
                 </div>
@@ -58,23 +58,23 @@
                 <div class="mb-6">
                     <h3 class="text-lg font-semibold mb-2"><spring:message code="journey.dates"/></h3>
                     <div class="flex items-center gap-x-2">
-                        <span class="text-gray-700">${journey.startDate}</span>
+                        <span class="text-gray-700"><c:out value="${journey.startDate}"/></span>
                         <svg class="w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
                         </svg>
-                        <span class="text-gray-700">${journey.endDate}</span>
+                        <span class="text-gray-700"><c:out value="${journey.endDate}"/>}</span>
                     </div>
                 </div>
 
                 <!-- Description -->
                 <div class="mb-6">
                     <h3 class="text-lg font-semibold mb-2"><spring:message code="journey.description"/></h3>
-                    <p class="text-gray-700">${journey.description}</p>
+                    <p class="text-gray-700"><c:out value="${journey.description}"/></p>
                 </div>
 
                 <!-- Reply Button -->
                 <div class="mt-8">
-                    <a href="${pageContext.request.contextPath}/journeys/${journey.id}/reply"
+                    <a href="<c:url value ="${pageContext.request.contextPath}/journeys/${journey.id}/reply"/>"
                        class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-all text-sm">
                         <spring:message code="journey.reply.button"/>
                     </a>

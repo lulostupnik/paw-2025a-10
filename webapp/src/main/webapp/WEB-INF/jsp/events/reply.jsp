@@ -34,17 +34,17 @@
   <div class="mx-auto max-w-2xl">
     <div class="text-center mb-6">
       <h2 class="text-xl text-gray-800 font-bold sm:text-3xl">
-        <spring:message code="replyEvent.title" text="Reply to Event"/>
+        <spring:message code="replyEvent.title" />
       </h2>
       <p class="mt-2 text-gray-600">
-        <spring:message code="replyEvent.subtitle" text="Responding to"/>: <c:out value="${event.eventCity.name}"/> - <c:out value="${event.date}"/>
+        <spring:message code="replyEvent.subtitle" />: <c:out value="${event.eventCity.name}"/> - <c:out value="${event.date}"/>
       </p>
     </div>
 
     <!-- Event Details Card -->
     <div class="mb-8 p-4 sm:p-6 bg-white border border-gray-200 rounded-xl">
       <h3 class="text-lg font-semibold text-gray-800 mb-2">
-        <spring:message code="event.details" text="Event Details"/>
+        <spring:message code="event.details"/>
       </h3>
 
       <!-- Event Image if available -->

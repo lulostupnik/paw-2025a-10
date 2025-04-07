@@ -15,7 +15,7 @@
                 <form:input type="file" path="image"/>
             </div>
             <button type="submit">
-                    Submit
+                    <spring:message code="upload.button"/>
             </button>
         </form:form>
 </body>
