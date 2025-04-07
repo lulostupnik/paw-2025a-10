@@ -23,10 +23,10 @@ CREATE TABLE IF NOT EXISTS universities (
         abbreviation VARCHAR(255) DEFAULT NULL
 );
 
--- CREATE TABLE IF NOT EXISTS career (
---         id SERIAL PRIMARY KEY,
---         name VARCHAR(255) NOT NULL UNIQUE
--- );
+CREATE TABLE IF NOT EXISTS careers (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL UNIQUE
+);
 
 -- CREATE TABLE IF NOT EXISTS career_in_university (
 --         id SERIAL PRIMARY KEY,

@@ -1,13 +1,11 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.interfaces.services.CityService;
-import ar.edu.itba.paw.interfaces.services.EventService;
-import ar.edu.itba.paw.interfaces.services.UniversityService;
-import ar.edu.itba.paw.interfaces.services.UserService;
+import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.webapp.form.CreateEventForm;
 
 import ar.edu.itba.paw.webapp.form.ReplyEventForm;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -33,13 +31,15 @@ public class EventController {
     private final UserService userService;
     private final CityService cityService;
     private final UniversityService universityService;
+    private final CareerService carreerService;
 
-    public EventController(EventService eventService, UserService userService, CityService cityService, UniversityService universityService) {
+    @Autowired
+    public EventController(EventService eventService, UserService userService, CityService cityService, UniversityService universityService, CareerService carreerService) {
         this.eventService = eventService;
         this.userService = userService;
-
         this.cityService = cityService;
         this.universityService = universityService;
+        this.carreerService = carreerService;
     }
 
     @RequestMapping
@@ -54,6 +54,8 @@ public class EventController {
         ModelAndView mav = new ModelAndView("events/create");
         List<City> cities = cityService.getAllCities();
         List<University> universities = universityService.getAllUniversities();
+        List<Career> careers = carreerService.findAll();
+        mav.addObject("careers", careers);
         mav.addObject("universities", universities);
         mav.addObject("cities", cities);
         return mav;
