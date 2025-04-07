@@ -116,13 +116,13 @@
 
     <c:if test="${not empty param.icon}">
       <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
-          ${param.icon}
+          <c:out value="${param.icon}"/>
       </div>
     </c:if>
   </div>
 
   <c:if test="${not empty param.hint}">
-    <div class="text-xs text-gray-500 mt-1">${param.hint}</div>
+    <div class="text-xs text-gray-500 mt-1"><c:out value=" ${param.hint}"/></div>
   </c:if>
 
   <form:errors path="${param.path}" cssClass="text-red-500 text-sm mt-1" element="p" />
