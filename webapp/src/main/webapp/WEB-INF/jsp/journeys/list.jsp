@@ -99,14 +99,14 @@
                         </div>
                     </form:form>
                 </div>
-
                 <!-- Journeys List with vertical scrolling -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[600px] overflow-y-auto pb-6 pr-2">
                     <c:forEach var="journey" items="${journeys}">
                         <!-- Card -->
                         <div class="flex-shrink-0">
-                            <div class="rounded-xl bg-white border border-gray-200 hover:border-blue-600 transition-all duration-200 h-full">
-                                <div class="p-4 sm:p-6">
+                            <div class="rounded-xl bg-white border border-gray-200 hover:border-blue-600 transition-all duration-200 h-full flex flex-col">
+                                <!-- Card Content -->
+                                <div class="p-4 sm:p-6 flex-grow">
                                     <div class="flex items-center gap-x-4">
                                         <div>
                                             <h3 class="text-lg font-semibold text-gray-800">
@@ -124,9 +124,11 @@
                                     <p class="mt-3 text-gray-600 line-clamp-3">
                                         <c:out value="${journey.description}" />
                                     </p>
+                                </div>
 
-                                    <!-- Action Buttons -->
-                                    <div class="mt-4 flex gap-2">
+                                <!-- Action Buttons - Fixed at bottom -->
+                                <div class="p-4 sm:px-6 sm:pb-6 mt-auto">
+                                    <div class="flex gap-2">
                                         <a href="<c:url value="/journeys/${journey.id}"/>"
                                            class="py-2 px-3 flex-1 inline-flex justify-center items-center text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50">
                                             <spring:message code="journey.view.details"/>
@@ -140,6 +142,7 @@
                             </div>
                         </div>
                     </c:forEach>
+                </div>
 
                     <c:if test="${empty journeys}">
                         <div class="col-span-full text-center py-10">
