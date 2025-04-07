@@ -37,7 +37,7 @@
                 <div class="mb-6">
                     <h2 class="text-2xl font-bold text-gray-800"><c:out value="${journey.user.firstname} ${journey.user.lastname}"/></h2>
                     <p class="text-sm text-gray-500">
-                        <spring:message code="journey.contact"/>:<c:out value="${journey.user.email}"/>
+                        <spring:message code="journey.contact"/><c:out value="${journey.user.email}"/>
                     </p>
                 </div>
 
@@ -46,10 +46,10 @@
                     <h3 class="text-lg font-semibold mb-2"><spring:message code="journey.destination"/></h3>
                     <div class="flex flex-wrap gap-2">
                         <span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            <spring:message code="journey.city"/>:<c:out value=" ${journey.destinationCity}"/>
+                            <spring:message code="journey.city"/><c:out value=" ${journey.destinationCity}"/>
                         </span>
                         <span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                            <spring:message code="journey.university"/>: <c:out value=" ${journey.destinationUniversity.name}"/>
+                            <spring:message code="journey.university"/> <c:out value=" ${journey.destinationUniversity.name}"/>
                         </span>
                     </div>
                 </div>

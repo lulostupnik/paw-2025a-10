@@ -77,18 +77,16 @@ public class EventController {
         }
         Event event;
         byte[] flyerBytes;
-        byte[] profilePicture;
+        byte[] profilePictureBytes;
         try {
             flyerBytes = eventForm.getFlyer().getBytes();
-            // foto chabon
-            // username
-            // Carrera
+            profilePictureBytes = eventForm.getProfilePicture().getBytes();
         } catch (IOException e) {
             // Handle the exception, e.g., log it or return an error response
             throw new RuntimeException("Error reading flyer file", e);
         }
 
-        event = eventService.createEvent(eventForm.getEmail(), eventForm.getCity(), eventForm.getDate(), flyerBytes, eventForm.getDescription(), eventForm.getFirstName(), eventForm.getLastName(), eventForm.getFirstName(), eventForm.getUniversity(), eventForm.getLastName(), flyerBytes);
+        event = eventService.createEvent(eventForm.getEmail(), eventForm.getCity(), eventForm.getDate(), flyerBytes, eventForm.getDescription(), eventForm.getFirstName(), eventForm.getLastName(), eventForm.getUsername(), eventForm.getUniversity(), eventForm.getCareer(), profilePictureBytes);
         return new ModelAndView("redirect:/events/" + event.getId());
     }
 
@@ -96,10 +94,10 @@ public class EventController {
     public ModelAndView getEvent(@PathVariable long id) {
         Optional<Event> event = eventService.getEventById(id);
         if (event.isEmpty()) {
-            return new ModelAndView("redirect:/events"); // Redirect if event is not found
+            return new ModelAndView("events/not_found");
         }
         ModelAndView mav = new ModelAndView("events/detail");
-        mav.addObject("event", event);
+        mav.addObject("event", event.get());
         return mav;
     }
     private ModelAndView getReplyFormWithEvent(int id, ReplyEventForm form) {
