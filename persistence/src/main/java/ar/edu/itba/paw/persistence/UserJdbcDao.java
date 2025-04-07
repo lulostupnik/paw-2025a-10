@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
+import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class UserJdbcDao implements UserDao {
             rs.getString("user_firstname"),
             rs.getString("user_lastname"),
             new University(rs.getLong("user_university"), rs.getString("university_name"), rs.getString("university_abbreviation")),
-            rs.getString("user_career"),
+            new Career(rs.getLong("career_id"), rs.getString("career_name")),
             rs.getLong("user_profile_picture_id")
     );
 
@@ -53,12 +54,14 @@ public class UserJdbcDao implements UserDao {
                 "    u.lastname AS user_lastname,\n" +
                 "    u.username AS user_username,\n" +
                 "    u.university AS user_university,\n" +
-                "    u.career AS user_career,\n" +
+                "    c.name AS career_name,\n" +
+                "    c.id AS career_id,\n" +
                 "    u.profile_picture_id AS user_profile_picture_id,\n" +
                 "    un.name AS university_name,\n" +
                 "    un.abbreviation AS university_abbreviation\n" +
                 "FROM users u\n" +
                 "JOIN universities un ON u.university = un.id\n" +
+                "JOIN careers c ON c.id = u.career_id\n" +
                 "WHERE u.id = ?", USER_ROW_MAPPER, id).stream().findFirst();
     }
 
@@ -71,12 +74,14 @@ public class UserJdbcDao implements UserDao {
                 "    u.lastname AS user_lastname,\n" +
                 "    u.username AS user_username,\n" +
                 "    u.university AS user_university,\n" +
-                "    u.career AS user_career,\n" +
+                "    c.name AS career_name,\n" +
+                "    c.id AS career_id,\n" +
                 "    u.profile_picture_id AS user_profile_picture_id,\n" +
                 "    un.name AS university_name,\n" +
                 "    un.abbreviation AS university_abbreviation\n" +
                 "FROM users u\n" +
                 "JOIN universities un ON u.university = un.id\n" +
+                "JOIN careers c ON c.id = u.career_id\n" +
                 "WHERE u.email = ?", USER_ROW_MAPPER, email).stream().findFirst();
     }
 
@@ -89,25 +94,27 @@ public class UserJdbcDao implements UserDao {
                 "    u.lastname AS user_lastname,\n" +
                 "    u.username AS user_username,\n" +
                 "    u.university AS user_university,\n" +
-                "    u.career AS user_career,\n" +
+                "    c.name AS career_name,\n" +
+                "    c.id AS career_id,\n" +
                 "    u.profile_picture_id AS user_profile_picture_id,\n" +
                 "    un.name AS university_name,\n" +
                 "    un.abbreviation AS university_abbreviation\n" +
                 "FROM users u\n" +
                 "JOIN universities un ON u.university = un.id\n" +
+                "JOIN careers c ON c.id = u.career_id\n" +
                 "WHERE u.username = ?", USER_ROW_MAPPER, username).stream().findFirst();
     }
 
 
     @Override
-    public User create(String email, String username, String firstname, String lastname, University university, String career, long profilePictureId) {
+    public User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId) {
         final Map<String, Object> args = new HashMap<>();
         args.put("email", email);
         args.put("username", username);
         args.put("firstname", firstname);
         args.put("lastname", lastname);
         args.put("university", university.getId());
-        args.put("career", career);
+        args.put("career_id", career.getId());
         args.put("profile_picture_id", profilePictureId);
         final Number id = jdbcInsert.executeAndReturnKey(args);
         return new User(id.longValue(), email, username, firstname, lastname, university/*.toString()*/, career, profilePictureId);
