@@ -9,4 +9,9 @@ public class Country {
     private final long id;
     private final String name;
     private final String code;
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
