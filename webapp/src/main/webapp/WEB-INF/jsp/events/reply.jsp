@@ -37,7 +37,7 @@
         <spring:message code="replyEvent.title" />
       </h2>
       <p class="mt-2 text-gray-600">
-        <spring:message code="replyEvent.subtitle" />: <c:out value="${event.eventCity.name}"/> - <c:out value="${event.date}"/>
+        <spring:message code="replyEvent.subtitle" /> <c:out value="${event.eventCity.name}"/> - <c:out value="${event.date}"/>
       </p>
     </div>
 

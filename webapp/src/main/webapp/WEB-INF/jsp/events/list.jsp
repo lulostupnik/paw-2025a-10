@@ -31,7 +31,7 @@
           <h2 class="text-xl text-gray-800 font-bold sm:text-3xl">
             <spring:message code="event.list.title"/>
           </h2>
-          <a href="${pageContext.request.contextPath}/events/create" class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700">
+          <a href="<c:url value="${pageContext.request.contextPath}/events/create"/>" class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700">
             <spring:message code="event.create.button"/>
           </a>
         </div>
@@ -46,21 +46,21 @@
                   <div class="p-4 sm:p-6">
                     <!-- Image -->
                     <c:if test="${not empty event.flyerImageId}">
-                      <img src="${pageContext.request.contextPath}/images/${event.flyerImageId}" alt="<spring:message code='event.flyer.alt'/>" class="w-full h-40 object-cover rounded-lg">
+                      <img src="<c:url value=" ${pageContext.request.contextPath}/images/${event.flyerImageId}"/>" alt="<spring:message code='event.flyer.alt'/>" class="w-full h-40 object-cover rounded-lg">
                     </c:if>
 
                     <div class="flex items-center gap-x-4 mt-3">
                       <div>
                         <h3 class="text-lg font-semibold text-gray-800">
-                          <spring:message code="event.city"/>: ${event.eventCity.name}
+                          <spring:message code="event.city"/><c:url value=" ${event.eventCity.name}"/>
                         </h3>
                         <p class="text-sm text-gray-500">
-                          <spring:message code="event.date"/>: ${event.date}
+                          <spring:message code="event.date"/> <c:url value=" ${event.date}"/>
                         </p>
                       </div>
                     </div>
                     <p class="mt-3 text-gray-600 line-clamp-3">
-                      <spring:message code="event.description"/>: ${event.description}
+                      <spring:message code="event.description"/> <c:url value=" ${event.description}"/>
                     </p>
 
                     <!-- Action Buttons -->

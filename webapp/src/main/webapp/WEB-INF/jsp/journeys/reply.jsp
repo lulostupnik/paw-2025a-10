@@ -37,7 +37,7 @@
                 <spring:message code="replyJourney.title"/>
             </h2>
             <p class="mt-2 text-gray-600">
-                <spring:message code="replyJourney.subtitle"/>: <c:out value="${journey.user.email}"/>
+                <spring:message code="replyJourney.subtitle"/> <c:out value="${journey.user.email}"/>
             </p>
         </div>
 
