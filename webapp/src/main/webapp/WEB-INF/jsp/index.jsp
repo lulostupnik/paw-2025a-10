@@ -60,7 +60,7 @@
                                             <c:out value="${journey.startDate}" /> → <c:out value="${journey.endDate}" />
                                         </p>
                                     </div>
-                                    <a href="${pageContext.request.contextPath}/journey/${journey.id}" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
+                                    <a href="<c:url /journey/${journey.id}"/>" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
                                         <spring:message code="dashboard.details" text="Details"/>
                                         <svg class="ml-1 w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -87,7 +87,7 @@
                             <h2 class="text-lg font-semibold text-gray-800">
                                 <spring:message code="dashboard.recommended.events" text="Recommended Events"/>
                             </h2>
-                            <a href="${pageContext.request.contextPath}/events" class="text-sm font-medium text-blue-600 hover:text-blue-700">
+                            <a href="<c:url/events"/>" class="text-sm font-medium text-blue-600 hover:text-blue-700">
                                 <spring:message code="dashboard.view.all" text="View All"/>
                             </a>
                         </div>
@@ -109,7 +109,7 @@
                                             <c:out value="${event.description}" />
                                         </p>
                                     </div>
-                                    <a href="${pageContext.request.contextPath}/events/${event.id}" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
+                                    <a href="<c:url>/events/${event.id}"/>" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
                                         <spring:message code="dashboard.details" text="Details"/>
                                         <svg class="ml-1 w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
