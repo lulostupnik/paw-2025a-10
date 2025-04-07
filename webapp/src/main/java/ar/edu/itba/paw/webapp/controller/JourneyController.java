@@ -2,9 +2,8 @@ package ar.edu.itba.paw.webapp.controller;
 
 import javax.validation.Valid;
 
-import ar.edu.itba.paw.interfaces.services.CityService;
-import ar.edu.itba.paw.interfaces.services.EmailService;
-import ar.edu.itba.paw.interfaces.services.UniversityService;
+import ar.edu.itba.paw.interfaces.services.*;
+import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.webapp.form.FilterJourneyForm;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.models.Journey;
 import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
 
@@ -38,12 +36,14 @@ public class JourneyController {
     private final JourneyService js;
     private final CityService cityService;
     private final UniversityService universityService;
+    private final CareerService carreerService;
 
     @Autowired
-    public JourneyController(final JourneyService js, CityService cityService, UniversityService universityService){
+    public JourneyController(final JourneyService js, CityService cityService, UniversityService universityService, CareerService carreerService){
         this.js = js;
         this.cityService = cityService;
         this.universityService = universityService;
+        this.carreerService = carreerService;
     }
 
     @RequestMapping
@@ -86,6 +86,8 @@ public class JourneyController {
         final ModelAndView mav = new ModelAndView("journeys/create");
         List<City> cities = cityService.getAllCities();
         List<University> universities = universityService.getAllUniversities();
+        List<Career> careers = carreerService.findAll();
+        mav.addObject("careers", careers);
         mav.addObject("universities", universities);
         mav.addObject("cities", cities);
         return mav;
