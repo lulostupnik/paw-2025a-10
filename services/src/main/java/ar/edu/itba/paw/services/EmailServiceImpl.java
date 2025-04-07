@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import javax.activation.DataSource;
 import javax.mail.internet.MimeMessage;
 import javax.mail.util.ByteArrayDataSource;
 import java.io.File;
@@ -36,80 +37,82 @@ public class EmailServiceImpl implements EmailService {
 
 //    @TODO preguntar que pasa con la excepcion
 
-   /* @Async
-    protected void sendHtmlMessage(String to,
-                                   String[] cc,
-                                   String subjectKey,
-                                   Object[] subjectArgs,
-                                   String templateName,
-                                   Map<String, Object> variables,
-                                   Locale locale) {
 
-        try {
-            String subject = messageSource.getMessage(subjectKey, subjectArgs, locale);
-            MimeMessage message = emailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            Context context = new Context(locale);
-            context.setVariables(variables);
-            String htmlContent = templateEngine.process(templateName, context);
-            helper.setFrom(fromEmail);
-            helper.setTo(to);
 
-            if (cc != null && cc.length > 0) {
-                helper.setCc(cc);
-            }
+//    @Async
+//    protected void sendHtmlMessage(String to,
+//                                   String[] cc,
+//                                   String subjectKey,
+//                                   Object[] subjectArgs,
+//                                   String templateName,
+//                                   Map<String, Object> variables,
+//                                   Locale locale) {
+//
+//        try {
+//            String subject = messageSource.getMessage(subjectKey, subjectArgs, locale);
+//            MimeMessage message = emailSender.createMimeMessage();
+//            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+//
+//            Context context = new Context(locale);
+//            context.setVariables(variables);
+//            String htmlContent = templateEngine.process(templateName, context);
+//
+//            helper.setFrom(fromEmail);
+//            helper.setTo(to);
+//
+//            if (cc != null && cc.length > 0) {
+//                helper.setCc(cc);
+//            }
+//
+//            helper.setSubject(subject);
+//            helper.setText(htmlContent, true);
+//
+//
+//
+//            emailSender.send(message);
+//        } catch (Exception e) {
+//            throw new RuntimeException("Failed to send email", e);
+//        }
+//    }
+protected void sendHtmlMessage(String to,
+                               String[] cc,
+                               String subjectKey,
+                               Object[] subjectArgs,
+                               String templateName,
+                               Map<String, Object> variables,
+                               Locale locale,
+                               byte[] imageBytes) {
 
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
-            emailSender.send(message);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to send email", e);
+    try {
+        String subject = messageSource.getMessage(subjectKey, subjectArgs, locale);
+        MimeMessage message = emailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        Context context = new Context(locale);
+        context.setVariables(variables);
+        String htmlContent = templateEngine.process(templateName, context);
+
+        helper.setFrom(fromEmail);
+        helper.setTo(to);
+        if (cc != null && cc.length > 0) {
+            helper.setCc(cc);
         }
-    }*/
 
+        helper.setSubject(subject);
+        helper.setText(htmlContent, true);
 
-    @Async
-    protected void sendHtmlMessage(String to,
-                                   String[] cc,
-                                   String subjectKey,
-                                   Object[] subjectArgs,
-                                   String templateName,
-                                   Map<String, Object> variables,
-                                   Locale locale,
-                                   byte[] imageBytes,
-                                   String imageContentId,
-                                   String imageMimeType) {
-
-        try {
-            String subject = messageSource.getMessage(subjectKey, subjectArgs, locale);
-            MimeMessage message = emailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-            Context context = new Context(locale);
-            context.setVariables(variables);
-            String htmlContent = templateEngine.process(templateName, context);
-
-            helper.setFrom(fromEmail);
-            helper.setTo(to);
-
-            if (cc != null && cc.length > 0) {
-                helper.setCc(cc);
-            }
-
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
-
-            // Adjuntar imagen inline desde byte[]
-            if (imageBytes != null && imageContentId != null && imageMimeType != null) {
-                ByteArrayDataSource dataSource = new ByteArrayDataSource(imageBytes, imageMimeType);
-                helper.addInline(imageContentId, dataSource);
-            }
-
-            emailSender.send(message);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to send email", e);
+        if (imageBytes != null) {
+            DataSource imageSource = new ByteArrayDataSource(imageBytes, "image/jpeg"); // or image/png
+            helper.addInline("profileImage", imageSource);
         }
+
+        emailSender.send(message);
+
+    } catch (Exception e) {
+        throw new RuntimeException("Failed to send email", e);
     }
+}
+
 
 
 
@@ -120,7 +123,9 @@ public class EmailServiceImpl implements EmailService {
                                   String firstName, String lastName,
                                   String username, String career,
                                   String originUniversity, String message,
-                                  Locale locale) {
+                                  Locale locale, byte[] profilePicture) {
+
+
 
         Map<String, Object> variables = Map.of(
                 "email", from,                 // quien está respondiendo
@@ -129,8 +134,10 @@ public class EmailServiceImpl implements EmailService {
                 "username", username,
                 "career", career,
                 "university", originUniversity,
-                "message", message
+                "message", message,
+                "hasProfileImage", profilePicture != null && profilePicture.length > 0
         );
+
         sendHtmlMessage(
                 to,
                 new String[] {from},
@@ -139,9 +146,7 @@ public class EmailServiceImpl implements EmailService {
                 "journey-response",
                 variables,
                 locale,
-                null,
-                null,
-                null
+                profilePicture
         );
     }
     @Async
@@ -170,9 +175,8 @@ public class EmailServiceImpl implements EmailService {
                 "event-response",
                 variables,
                 locale,
-                null,
-                null,
                 null
+
         );
     }
 
