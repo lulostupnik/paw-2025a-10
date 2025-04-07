@@ -50,7 +50,7 @@
         </div>
 
         <!-- First Name Field -->
-        <spring:message code="event.firstName.hint" var="firstNameHint" text="Enter your first name"/>
+        <spring:message code="event.firstName.hint" var="firstNameHint"/>
         <div class="mb-4 sm:mb-8">
           <form:label path="firstName" class="block mb-2 text-sm font-medium">
             <spring:message code="event.firstName"/>
@@ -74,7 +74,7 @@
         <!-- University Field -->
         <div class="mb-4 sm:mb-8">
           <form:label path="university" class="block mb-2 text-sm font-medium">
-            <spring:message code="event.university" text="University"/>
+            <spring:message code="event.university"/>
           </form:label>
           <form:select path="university" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
             <option value=""><spring:message code="createJourney.destinationUniversity.select"/></option>
@@ -88,10 +88,10 @@
         <!-- Career Field -->
         <div class="mb-4 sm:mb-8">
           <form:label path="career" class="block mb-2 text-sm font-medium">
-            <spring:message code="event.career" text="career"/>
+            <spring:message code="event.career"/>
           </form:label>
           <form:select path="career" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
-            <option value=""><spring:message code="event.career.select" text="Select a career"/></option>
+            <option value=""><spring:message code="event.career.select"/></option>
             <c:forEach var="career" items="${careers}">
               <option value="${career.name}">${career.name}</option>
             </c:forEach>
@@ -124,7 +124,7 @@
         <!-- City Field -->
         <div class="mb-4 sm:mb-8">
           <form:label path="city" class="block mb-2 text-sm font-medium">
-            <spring:message code="event.city" text="City"/>
+            <spring:message code="event.city"/>
           </form:label>
           <form:select path="city" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
             <option value=""><spring:message code="createJourney.destinationCity.select" /></option>
@@ -158,7 +158,7 @@
         <!-- Flyer Upload Field -->
         <div class="mb-4 sm:mb-8">
           <form:label path="flyer" class="block mb-2 text-sm font-medium">
-            <spring:message code="event.flyer" text="Upload Flyer"/>
+            <spring:message code="event.flyer"/>
           </form:label>
           <div class="flex flex-col items-center p-5 border-2 border-gray-300 border-dashed rounded-lg bg-gray-50">
             <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">

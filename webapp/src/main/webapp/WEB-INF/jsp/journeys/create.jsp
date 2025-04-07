@@ -26,7 +26,7 @@
             <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
             </svg>
-            <spring:message code="journey.back" text="Back"/>
+            <spring:message code="journey.back"/>
         </a>
     </div>
 
@@ -128,10 +128,10 @@
                 <!-- Career Field -->
                 <div class="mb-4 sm:mb-8">
                     <form:label path="career" class="block mb-2 text-sm font-medium">
-                        <spring:message code="event.career" text="career"/>
+                        <spring:message code="event.career"/>
                     </form:label>
                     <form:select path="career" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value=""><spring:message code="event.career.select" text="Select a career"/></option>
+                        <option value=""><spring:message code="event.career.select"/></option>
                         <c:forEach var="career" items="${careers}">
                             <option value="${career.name}"><c:out value=" ${career.name}"/></option>
                         </c:forEach>
@@ -169,7 +169,7 @@
                         <!-- Search input -->
                         <input type="text" id="interestSearch"
                                class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
-                               placeholder="<spring:message code="event.interest.search" text="Search and select interests..."/>" />
+                               placeholder="<spring:message code="event.interest.search"/>" />
 
                         <!-- Dropdown for search results -->
                         <div id="interestDropdown" class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
@@ -187,7 +187,7 @@
                     <div id="selectedInterests" class="flex flex-wrap gap-2 mt-2"></div>
 
                     <div class="mt-2 text-sm text-gray-500">
-                        <spring:message code="event.interest.select" text="Search and select multiple interests" />
+                        <spring:message code="event.interest.select"/>
                     </div>
                     <form:errors path="interests" class="text-red-500 text-sm mt-1" />
                 </div>

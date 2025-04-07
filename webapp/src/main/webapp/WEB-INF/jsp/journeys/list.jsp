@@ -48,7 +48,7 @@
                 <!-- Filter Section - Initially Hidden -->
                 <div id="filterSection" class="bg-white p-4 rounded-xl border border-gray-200 mb-6 hidden transition-all duration-300">
                     <h3 class="text-lg font-semibold text-gray-800 mb-3">
-                        <spring:message code="journey.filter.title" text="Filter Journeys"/>
+                        <spring:message code="journey.filter.title"/>
                     </h3>
                     <form:form action="${pageContext.request.contextPath}/journeys/" method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div>
@@ -88,7 +88,7 @@
                                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
-                                <spring:message code="journey.filter.reset" text="Reset Filters"/>
+                                <spring:message code="journey.filter.reset"/>
                             </a>
                             <button type="submit" class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-700 text-white hover:bg-blue-800 shadow-md transition-colors">
                                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -129,7 +129,7 @@
                                     <div class="mt-4 flex gap-2">
                                         <a href="<c:url value="/journeys/${journey.id}"/>"
                                            class="py-2 px-3 flex-1 inline-flex justify-center items-center text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50">
-                                            <spring:message code="journey.view.details" text="View Details"/>
+                                            <spring:message code="journey.view.details"/>
                                         </a>
                                         <a href="<c:url value="/journeys/${journey.id}/reply"/>"
                                            class="py-2 px-3 flex-1 inline-flex justify-center items-center text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700">

@@ -5,7 +5,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title><spring:message code="replyEvent.title" text="Reply to Event"/></title>
+  <title><spring:message code="replyEvent.title"/></title>
   <!-- Include Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -27,7 +27,7 @@
       <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
         <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
       </svg>
-      <spring:message code="event.back" text="Back to Events"/>
+      <spring:message code="event.back"/>
     </a>
   </div>
 
@@ -55,13 +55,13 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <div>
           <p class="text-sm font-medium text-gray-500">
-            <spring:message code="event.city" text="City"/>
+            <spring:message code="event.city"/>
           </p>
           <p class="text-base text-gray-800">${event.eventCity.name}</p>
         </div>
         <div>
           <p class="text-sm font-medium text-gray-500">
-            <spring:message code="event.date" text="Date"/>
+            <spring:message code="event.date"/>
           </p>
           <p class="text-base text-gray-800">${event.date}</p>
         </div>
@@ -69,14 +69,14 @@
 
       <div class="mb-2">
         <p class="text-sm font-medium text-gray-500">
-          <spring:message code="event.description" text="Description"/>
+          <spring:message code="event.description"/>
         </p>
         <p class="text-base text-gray-800">${event.description}</p>
       </div>
 
       <div>
         <p class="text-sm font-medium text-gray-500">
-          <spring:message code="event.organizer" text="Organizer"/>
+          <spring:message code="event.organizer"/>
         </p>
         <p class="text-base text-gray-800">${event.user.email}</p>
       </div>
@@ -90,9 +90,9 @@
         <!-- Email Field -->
         <div class="mb-4 sm:mb-6">
           <form:label path="email" class="block mb-2 text-sm font-medium">
-            <spring:message code="replyEvent.email" text="Your Email"/>
+            <spring:message code="replyEvent.email" />
           </form:label>
-          <spring:message code="replyEvent.email.hint" var="emailHint" text="Enter your email address"/>
+          <spring:message code="replyEvent.email.hint" var="emailHint"/>
           <form:input path="email" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
                       placeholder="${emailHint}"/>
           <form:errors path="email" cssClass="text-red-500 text-sm mt-1" element="p"/>
@@ -101,9 +101,9 @@
         <!-- First Name Field -->
         <div class="mb-4 sm:mb-6">
           <form:label path="firstName" class="block mb-2 text-sm font-medium">
-            <spring:message code="replyEvent.firstName" text="First Name"/>
+            <spring:message code="replyEvent.firstName"/>
           </form:label>
-          <spring:message code="replyEvent.firstName.hint" var="firstNameHint" text="Enter your first name"/>
+          <spring:message code="replyEvent.firstName.hint" var="firstNameHint"/>
           <form:input path="firstName" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
                       placeholder="${firstNameHint}"/>
           <form:errors path="firstName" cssClass="text-red-500 text-sm mt-1" element="p"/>
@@ -112,9 +112,9 @@
         <!-- Last Name Field -->
         <div class="mb-4 sm:mb-6">
           <form:label path="lastName" class="block mb-2 text-sm font-medium">
-            <spring:message code="replyEvent.lastName" text="Last Name"/>
+            <spring:message code="replyEvent.lastName" />
           </form:label>
-          <spring:message code="replyEvent.lastName.hint" var="lastNameHint" text="Enter your last name"/>
+          <spring:message code="replyEvent.lastName.hint" var="lastNameHint" />
           <form:input path="lastName" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
                       placeholder="${lastNameHint}"/>
           <form:errors path="lastName" cssClass="text-red-500 text-sm mt-1" element="p"/>
@@ -123,9 +123,9 @@
         <!-- Username Field -->
         <div class="mb-4 sm:mb-6">
           <form:label path="username" class="block mb-2 text-sm font-medium">
-            <spring:message code="replyEvent.username" text="Username"/>
+            <spring:message code="replyEvent.username" />
           </form:label>
-          <spring:message code="replyEvent.username.hint" var="usernameHint" text="Enter your username"/>
+          <spring:message code="replyEvent.username.hint" var="usernameHint"/>
           <form:input path="username" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
                       placeholder="${usernameHint}"/>
           <form:errors path="username" cssClass="text-red-500 text-sm mt-1" element="p"/>
@@ -148,10 +148,10 @@
         <!-- Career Field -->
         <div class="mb-4 sm:mb-8">
           <form:label path="career" class="block mb-2 text-sm font-medium">
-            <spring:message code="event.career" text="career"/>
+            <spring:message code="event.career"/>
           </form:label>
           <form:select path="career" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
-            <option value=""><spring:message code="event.career.select" text="Select a career"/></option>
+            <option value=""><spring:message code="event.career.select"/></option>
             <c:forEach var="career" items="${careers}">
               <option value="${career.name}">${career.name}</option>
             </c:forEach>
@@ -162,9 +162,9 @@
         <!-- Message Field -->
         <div class="mb-4 sm:mb-6">
           <form:label path="message" class="block mb-2 text-sm font-medium">
-            <spring:message code="replyEvent.message" text="Your Message"/>
+            <spring:message code="replyEvent.message"/>
           </form:label>
-          <spring:message code="replyEvent.message.hint" var="messageHint" text="Any questions or comments about the event?"/>
+          <spring:message code="replyEvent.message.hint" var="messageHint"/>
           <form:textarea path="message" rows="4" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
                          placeholder="${messageHint}"/>
           <form:errors path="message" cssClass="text-red-500 text-sm mt-1" element="p"/>
@@ -172,7 +172,7 @@
 
         <!-- Submit Button -->
         <div class="mt-6">
-          <spring:message code="replyEvent.submit" var="submit" text="Submit Response"/>
+          <spring:message code="replyEvent.submit" var="submit"/>
           <button type="submit" class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2">
               ${submit}
           </button>

@@ -67,11 +67,11 @@
                     <div class="mt-4 flex gap-2">
                       <a href="<c:url value="/events/${event.id}"/>"
                          class="py-2 px-3 flex-1 inline-flex justify-center items-center text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50">
-                        <spring:message code="event.view.details" text="View Details"/>
+                        <spring:message code="event.view.details"/>
                       </a>
                       <a href="<c:url value="/events/${event.id}/reply"/>"
                          class="py-2 px-3 flex-1 inline-flex justify-center items-center text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700">
-                        <spring:message code="event.reply" text="Reply"/>
+                        <spring:message code="event.reply"/>
                       </a>
                     </div>
                   </div>
