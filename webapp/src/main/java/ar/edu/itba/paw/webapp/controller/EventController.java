@@ -95,25 +95,20 @@ public class EventController {
     private ModelAndView getReplyFormWithEvent(int id, ReplyEventForm form) {
         ModelAndView mav = new ModelAndView("events/reply");
         Optional<Event> event = eventService.getEventById(id);
-        event.ifPresent(e -> mav.addObject("event", e));
+        if(event.isEmpty()){
+            return getEvent(id);
+        }
+        mav.addObject("careers", carreerService.findAll());
+        mav.addObject("universities", universityService.getAllUniversities());
+        mav.addObject("event", event.get());
         mav.addObject("replyEventForm", form);
         return mav;
     }
 
     @RequestMapping(value = "/{id}/reply")
     public ModelAndView createReplyEventForm(@PathVariable int id, @ModelAttribute("replyEventForm") final ReplyEventForm form) {
-        ModelAndView mav = new ModelAndView("events/reply");
-        Optional<Event> event = eventService.getEventById(id);
-        if(event.isEmpty()){
-            return getEvent(id);
-        }
-        List<University> universities = universityService.getAllUniversities();
-        List<Career> careers = carreerService.findAll();
-        mav.addObject("careers", careers);
-        mav.addObject("universities", universities);
-        mav.addObject("event", event.get());
-        mav.addObject("replyEventForm", form);
-        return mav;
+
+        return getReplyFormWithEvent(id,form);
     }
 
     @RequestMapping(value = "/{id}/reply", method = POST)
@@ -129,7 +124,8 @@ public class EventController {
             throw new RuntimeException("Error reading flyer file", e);
         }
         eventService.replyToEvent(form.getEmail(), form.getUsername(), form.getFirstName(), form.getLastName(), form.getOriginUniversity(), form.getCareer(), profilePictureBytes, id, form.getMessage());
-        return getEvents();
+        return new ModelAndView("redirect:/events");
+
     }
 
 }

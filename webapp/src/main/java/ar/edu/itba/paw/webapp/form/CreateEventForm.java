@@ -18,7 +18,6 @@ public class CreateEventForm {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date date;
 
-
     private MultipartFile flyer;
 
     private MultipartFile profilePicture;
@@ -38,6 +37,12 @@ public class CreateEventForm {
 
     @Size(min = 2, max = 50)
     private String username;
+
+    @Size(min = 2, max = 100)
+    private String firstName;
+
+    @Size(min = 2, max = 100)
+    private String lastName;
 
     public String getCareer() {
         return career;
@@ -75,11 +80,6 @@ public class CreateEventForm {
         this.firstName = firstName;
     }
 
-    @Size(min = 2, max = 100)
-    private String firstName;
-
-    @Size(min = 2, max = 100)
-    private String lastName;
 
    public String getEmail() {
         return email;

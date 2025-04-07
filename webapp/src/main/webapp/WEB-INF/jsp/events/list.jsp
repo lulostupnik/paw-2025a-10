@@ -35,18 +35,20 @@
             <spring:message code="event.create.button"/>
           </a>
         </div>
-
         <!-- Events List with vertical scrolling -->
         <div class="max-h-[600px] overflow-y-auto pb-6 pr-2">
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <c:forEach items="${events}" var="event">
               <!-- Card with buttons below -->
               <div class="flex-shrink-0">
-                <div class="rounded-xl bg-white border border-gray-200 hover:border-blue-600 transition-all duration-200 h-full">
-                  <div class="p-4 sm:p-6">
+                <div class="rounded-xl bg-white border border-gray-200 hover:border-blue-600 transition-all duration-200 h-full flex flex-col">
+                  <!-- Card Content -->
+                  <div class="p-4 sm:p-6 flex-grow">
                     <!-- Image -->
                     <c:if test="${not empty event.flyerImageId}">
-                      <img src="<c:url value=" ${pageContext.request.contextPath}/images/${event.flyerImageId}"/>" alt="<spring:message code='event.flyer.alt'/>" class="w-full h-40 object-cover rounded-lg">
+                      <img src="<c:url value="${pageContext.request.contextPath}/images/${event.flyerImageId}"/>"
+                           alt="<spring:message code='event.flyer.alt'/>"
+                           class="w-full h-40 object-cover rounded-lg">
                     </c:if>
 
                     <div class="flex items-center gap-x-4 mt-3">
@@ -62,9 +64,11 @@
                     <p class="mt-3 text-gray-600 line-clamp-3">
                       <spring:message code="event.description"/> <c:url value=" ${event.description}"/>
                     </p>
+                  </div>
 
-                    <!-- Action Buttons -->
-                    <div class="mt-4 flex gap-2">
+                  <!-- Action Buttons - Fixed at bottom -->
+                  <div class="p-4 sm:px-6 sm:pb-6 mt-auto">
+                    <div class="flex gap-2">
                       <a href="<c:url value="/events/${event.id}"/>"
                          class="py-2 px-3 flex-1 inline-flex justify-center items-center text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50">
                         <spring:message code="event.view.details"/>
@@ -78,6 +82,8 @@
                 </div>
               </div>
             </c:forEach>
+          </div>
+        </div>
 
             <c:if test="${empty events}">
               <div class="col-span-full text-center py-10">
