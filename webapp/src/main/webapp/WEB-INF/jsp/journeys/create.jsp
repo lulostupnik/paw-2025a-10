@@ -133,12 +133,13 @@
                     <form:select path="career" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
                         <option value=""><spring:message code="event.career.select" text="Select a career"/></option>
                         <c:forEach var="career" items="${careers}">
-                            <option value="${career.name}">${career.name}</option>
+                            <option value="${career.name}"><c:out value=" ${career.name}"/></option>
                         </c:forEach>
                     </form:select>
                     <form:errors path="career" class="text-red-500 text-sm mt-1" />
                 </div>
 
+                <!-- Username Field -->
                 <div class="mb-4 sm:mb-8">
                     <form:label path="username" class="block mb-2 text-sm font-medium">
                         <spring:message code="createJourney.username"/>
@@ -147,6 +148,48 @@
                     <form:input path="username" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
                                 placeholder="${usernameHint}"/>
                     <form:errors path="username" cssClass="text-red-500 text-sm mt-1" element="p"/>
+                </div>
+
+                <!-- Interests Field -->
+                <!-- Interests Field - Enhanced searchable multi-select with tags -->
+                <div class="mb-4 sm:mb-8">
+                    <form:label path="interests" class="block mb-2 text-sm font-medium">
+                        <spring:message code="event.interest" />
+                    </form:label>
+
+                    <!-- Hidden select that will hold the actual form data -->
+                    <form:select path="interests" multiple="true" id="interestsSelect" style="display: none;">
+                        <c:forEach var="interest" items="${interests}">
+                            <option value="${interest.name}"><c:out value="${interest.name}"/></option>
+                        </c:forEach>
+                    </form:select>
+
+                    <!-- Custom UI for interests selection -->
+                    <div class="relative">
+                        <!-- Search input -->
+                        <input type="text" id="interestSearch"
+                               class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
+                               placeholder="<spring:message code="event.interest.search" text="Search and select interests..."/>" />
+
+                        <!-- Dropdown for search results -->
+                        <div id="interestDropdown" class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                            <ul class="py-1 text-sm">
+                                <c:forEach var="interest" items="${interests}">
+                                    <li class="interest-option px-4 py-2 hover:bg-gray-100 cursor-pointer" data-value="${interest.name}">
+                                        <c:out value="${interest.name}"/>
+                                    </li>
+                                </c:forEach>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Selected interests will appear here as tags -->
+                    <div id="selectedInterests" class="flex flex-wrap gap-2 mt-2"></div>
+
+                    <div class="mt-2 text-sm text-gray-500">
+                        <spring:message code="event.interest.select" text="Search and select multiple interests" />
+                    </div>
+                    <form:errors path="interests" class="text-red-500 text-sm mt-1" />
                 </div>
 
                 <!-- Description Field -->
@@ -190,5 +233,155 @@
 
 <!-- Preline JS -->
 <script src="https://cdn.jsdelivr.net/npm/preline/dist/preline.min.js"></script>
+<!-- JavaScript for the custom interests selector -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const interestsSelect = document.getElementById('interestsSelect');
+        const interestSearch = document.getElementById('interestSearch');
+        const interestDropdown = document.getElementById('interestDropdown');
+        const selectedInterests = document.getElementById('selectedInterests');
+        const interestOptions = document.querySelectorAll('.interest-option');
+
+        // Store selected values as objects with value and text properties
+        let selectedValues = [];
+
+        // Initialize with any pre-selected values (for edit forms)
+        initializeSelectedValues();
+        updateSelectedTags();
+
+        // Toggle dropdown on input focus
+        interestSearch.addEventListener('focus', function() {
+            interestDropdown.classList.remove('hidden');
+            filterOptions(this.value);
+        });
+
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!interestSearch.contains(e.target) && !interestDropdown.contains(e.target)) {
+                interestDropdown.classList.add('hidden');
+            }
+        });
+
+        // Filter options as user types
+        interestSearch.addEventListener('input', function() {
+            filterOptions(this.value);
+            interestDropdown.classList.remove('hidden');
+        });
+
+        // Handle option selection
+        interestOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const value = this.dataset.value;
+                const text = this.textContent.trim();
+
+                // Check if already selected
+                const exists = selectedValues.some(item => item.value === value);
+
+                // Toggle selection
+                if (!exists) {
+                    // Add to selected values
+                    selectedValues.push({ value: value, text: text });
+
+                    // Update the hidden select
+                    updateSelectElement();
+                }
+
+                // Update the UI
+                updateSelectedTags();
+                interestSearch.value = '';
+                interestDropdown.classList.add('hidden');
+            });
+        });
+
+        // Filter dropdown options based on search text
+        function filterOptions(searchText) {
+            const filter = searchText.toLowerCase();
+            interestOptions.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                if (text.includes(filter)) {
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        }
+
+        // Initialize selected values from the select element
+        function initializeSelectedValues() {
+            // Get all option elements
+            const options = interestsSelect.querySelectorAll('option');
+
+            // Check which ones are selected
+            options.forEach(option => {
+                if (option.selected) {
+                    selectedValues.push({
+                        value: option.value,
+                        text: option.textContent.trim()
+                    });
+                }
+            });
+        }
+
+        // Update the select element based on selectedValues array
+        function updateSelectElement() {
+            const options = interestsSelect.querySelectorAll('option');
+            const selectedValueIds = selectedValues.map(item => item.value);
+
+            options.forEach(option => {
+                option.selected = selectedValueIds.includes(option.value);
+            });
+        }
+
+        // Update the selected tags UI
+        function updateSelectedTags() {
+            // Clear existing tags
+            selectedInterests.innerHTML = '';
+
+            // Create tags for each selected value
+            selectedValues.forEach(item => {
+                // Create tag container
+                const tag = document.createElement('div');
+                tag.className = 'flex items-center bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded';
+
+                // Add text node
+                const textNode = document.createTextNode(item.text);
+                tag.appendChild(textNode);
+
+                // Create remove button
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'ml-1.5 text-blue-800 hover:text-blue-900';
+                removeBtn.dataset.value = item.value;
+
+                // Create SVG for the remove button
+                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                svg.setAttribute('width', '12');
+                svg.setAttribute('height', '12');
+                svg.setAttribute('fill', 'currentColor');
+                svg.setAttribute('viewBox', '0 0 16 16');
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', 'M8 8.707l3.646 3.647a.5.5 0 0 0 .708-.708L8.707 8l3.647-3.646a.5.5 0 0 0-.708-.708L8 7.293 4.354 3.646a.5.5 0 1 0-.708.708L7.293 8l-3.647 3.646a.5.5 0 0 0 .708.708L8 8.707z');
+
+                svg.appendChild(path);
+                removeBtn.appendChild(svg);
+
+                // Add remove button functionality
+                removeBtn.addEventListener('click', function() {
+                    const valueToRemove = this.dataset.value;
+                    selectedValues = selectedValues.filter(item => item.value !== valueToRemove);
+                    updateSelectElement();
+                    updateSelectedTags();
+                });
+
+                // Add button to tag
+                tag.appendChild(removeBtn);
+
+                // Add tag to container
+                selectedInterests.appendChild(tag);
+            });
+        }
+    });
+</script>
 </body>
 </html>

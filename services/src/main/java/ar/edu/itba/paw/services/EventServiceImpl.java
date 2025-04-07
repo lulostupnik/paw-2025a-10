@@ -9,10 +9,7 @@ import ar.edu.itba.paw.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class EventServiceImpl implements EventService {
@@ -66,7 +63,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public Event createEvent(String email, String cityName, Date date, byte[] flyer, String description, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture) {
         City city = cityDao.findByName(cityName).orElseThrow(() -> new RuntimeException("City not found"));
-        User user = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePicture));
+        User user = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePicture, new String[]{}));
         // long profilePictureId = imageDao.saveImage(profilePicture);
         // long profilePictureId = 1; // FIXME
         long flyerImageId = imageDao.saveImage(flyer);
@@ -78,7 +75,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public void replyToEvent(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePictureId, long eventId, String message) {
         Event event = eventDao.findById(eventId).orElseThrow(() -> new RuntimeException("Event not found"));
-        long userId = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId)).getId();
+        long userId = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId, new String[]{})).getId();
         eventResponseDao.create(userId, eventId, message);
         //@TODO cambiar locale
         emailService.answerEventMail(email,event.getUser().getEmail(), firstname, lastname, username, career, originUniversity, message, Locale.ENGLISH);

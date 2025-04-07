@@ -3,9 +3,7 @@ package ar.edu.itba.paw.webapp.controller;
 import javax.validation.Valid;
 
 import ar.edu.itba.paw.interfaces.services.*;
-import ar.edu.itba.paw.models.Career;
-import ar.edu.itba.paw.models.City;
-import ar.edu.itba.paw.models.University;
+import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.webapp.form.FilterJourneyForm;
 import ar.edu.itba.paw.webapp.form.ReplyJourneyForm;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import ar.edu.itba.paw.models.Journey;
 import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
 
 import java.time.LocalDate;
@@ -37,13 +34,15 @@ public class JourneyController {
     private final CityService cityService;
     private final UniversityService universityService;
     private final CareerService carreerService;
+    private final InterestService interestService;
 
     @Autowired
-    public JourneyController(final JourneyService js, CityService cityService, UniversityService universityService, CareerService carreerService){
+    public JourneyController(final JourneyService js, CityService cityService, UniversityService universityService, CareerService carreerService, InterestService interestService){
         this.js = js;
         this.cityService = cityService;
         this.universityService = universityService;
         this.carreerService = carreerService;
+        this.interestService = interestService;
     }
 
     @RequestMapping
@@ -77,19 +76,18 @@ public class JourneyController {
 
         //FIXME: Add fields for user creation just in case it does not exist. This will be removed after 1st sprint when we implement authorization
         final Journey journey = js.createJourney(jf.getEmail(), jf.getUsername(), jf.getFirstName(),
-                jf.getLastName(), jf.getDestinationUniversity(), jf.getCareer(), profilePicture, jf.getDestinationUniversity(), jf.getDestinationCity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription());
+                jf.getLastName(), jf.getDestinationUniversity(), jf.getCareer(), profilePicture, jf.getDestinationUniversity(), jf.getDestinationCity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription(), jf.getInterests());
         
         return getJourney(journey.getId());
     }
     @RequestMapping(value = "/create")
     public ModelAndView createJourneyForm(@ModelAttribute("createJourneyForm") final CreateJourneyForm jf) {
         final ModelAndView mav = new ModelAndView("journeys/create");
-        List<City> cities = cityService.getAllCities();
-        List<University> universities = universityService.getAllUniversities();
-        List<Career> careers = carreerService.findAll();
-        mav.addObject("careers", careers);
-        mav.addObject("universities", universities);
-        mav.addObject("cities", cities);
+
+        mav.addObject("interests", interestService.findAll());
+        mav.addObject("careers", carreerService.findAll());
+        mav.addObject("universities", universityService.getAllUniversities());
+        mav.addObject("cities", cityService.getAllCities());
         return mav;
     }
     @RequestMapping(value = "/{id}")
@@ -130,6 +128,10 @@ public class JourneyController {
         if(journey.isEmpty()){
            return getJourneys(null,null, null, null);
         }
+        List<University> universities = universityService.getAllUniversities();
+        List<Career> careers = carreerService.findAll();
+        mav.addObject("careers", careers);
+        mav.addObject("universities", universities);
         mav.addObject("journey", journey.get());
         mav.addObject("replyJourneyForm", rjf);
         return mav;

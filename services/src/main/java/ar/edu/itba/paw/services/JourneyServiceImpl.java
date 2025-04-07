@@ -4,10 +4,7 @@ import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
 import ar.edu.itba.paw.interfaces.services.*;
-import ar.edu.itba.paw.models.City;
-import ar.edu.itba.paw.models.Journey;
-import ar.edu.itba.paw.models.University;
-import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,20 +23,22 @@ public class JourneyServiceImpl implements JourneyService {
     private final UniversityService universityService;
     private final JourneyResponseDao journeyResponseDao;
     private final CityService cityService;
+    private final InterestService interestService;
 
     @Autowired
-    public JourneyServiceImpl(JourneyDao journeyDao, UserService userService, UniversityService universityService, JourneyResponseDao journeyResponseDao, EmailService emailService, CityService cityService) {
+    public JourneyServiceImpl(JourneyDao journeyDao, UserService userService, UniversityService universityService, JourneyResponseDao journeyResponseDao, EmailService emailService, CityService cityService, InterestService interestService) {
         this.journeyDao = journeyDao;
         this.userService = userService;
         this.universityService = universityService;
         this.journeyResponseDao = journeyResponseDao;
         this.emailService = emailService;
         this.cityService = cityService;
+        this.interestService = interestService;
     }
 
 
     @Override
-    public Journey createJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId, String destinationUniversity, String destinationCity, LocalDate startDate, LocalDate endDate, String description) {
+    public Journey createJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId, String destinationUniversity, String destinationCity, LocalDate startDate, LocalDate endDate, String description, String[] interests) {
         //University destination = universityService.findByName(destinationUniversity).orElseThrow(() -> new RuntimeException("Destination University not found"));
         //For testing purposes, accept custom input
         //FIXME: Implement university account creation & stuff to remove custom input
@@ -59,11 +58,12 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
-    public Journey createJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture, String destinationUniversity, String destinationCity, LocalDate startDate, LocalDate endDate, String description) {
+    public Journey createJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture, String destinationUniversity,
+                                 String destinationCity, LocalDate startDate, LocalDate endDate, String description, String[] interests) {
         // FIXME
         // long city_id = cityDao.findByName(destinationCity).orElseThrow(() -> new RuntimeException("City not found")).getId();
         University destination = universityService.findByAny(destinationUniversity).orElseThrow(() -> new RuntimeException("Destination University not found"));
-        User user = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePicture));
+        User user = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePicture, interests));
         /*
         if (journeyDao.findOverlappingJourney(user.getId(), startDate, endDate).isEmpty()) {
             throw new RuntimeException("There's already a journey registered in this time period");
@@ -93,7 +93,7 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     public void replyToJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture, long journeyId, String message) {
         Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> new RuntimeException("Journey not found"));
-        long userId = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePicture)).getId();
+        long userId = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePicture, new String[]{})).getId();
         journeyResponseDao.create(userId, journeyId, message);
 
         User user = journey.getUser();

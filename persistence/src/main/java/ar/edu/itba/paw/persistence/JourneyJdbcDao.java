@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
+import ar.edu.itba.paw.interfaces.persistence.InterestDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 import ar.edu.itba.paw.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.time.LocalDate;
@@ -72,6 +74,9 @@ public class JourneyJdbcDao implements JourneyDao {
             "JOIN countries co ON ci.country_id = co.id\n" +
             "JOIN universities un1 ON us.university = un1.id\n" +
             "JOIN universities un2 ON j.destination_university_id = un2.id\n";
+
+    private final static String QUERY_INTEREST = QUERY + " JOIN user_interest ui ON us.id = ui.user_id\n" +
+            "JOIN category c ON ui.category_id = c.id\n";
 
     private final static RowMapper<Journey> JOURNEY_ROW_MAPPER = (rs, rowNum) -> new Journey(
             rs.getLong("journey_id"),
@@ -154,28 +159,33 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public List<Journey> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest) {
-        String query = QUERY;
+        String query;
+        if(interest != null && !interest.isEmpty()){
+            query = QUERY_INTEREST;
+        } else {
+            query = QUERY;
+        }
         List<String> filters = new ArrayList<>();
         List<Object> params = new ArrayList<>();
 
         if (destination != null || startDate != null || endDate != null || interest != null) {
             query += " WHERE ";
 
-            if (destination != null) {
-                filters.add("j.city = ?");
+            if (destination != null && !destination.isEmpty()) {
+                filters.add("ci.name = ?");
                 params.add(destination);
             }
-            if (startDate != null) {
+            if (startDate != null && !startDate.equals("")) {
                 filters.add("j.start_date <= ?");
                 params.add(startDate);
             }
-            if (endDate != null) {
+            if (endDate != null && !endDate.equals("")) {
                 filters.add("j.end_date >= ?");
                 params.add(endDate);
             }
-            if (interest != null) {
-                filters.add("j.description LIKE ?");
-                params.add("%" + interest + "%"); // Agrega los % para el LIKE
+            if (interest != null && !interest.isEmpty()) {
+                filters.add("c.name = ?");
+                params.add(interest); // Agrega los % para el LIKE
             }
 
             query += String.join(" AND ", filters);

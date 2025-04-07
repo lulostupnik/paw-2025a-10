@@ -132,25 +132,31 @@
         </div>
 
         <!-- Origin University Field -->
-        <div class="mb-4 sm:mb-6">
-          <form:label path="originUniversity" class="block mb-2 text-sm font-medium">
-            <spring:message code="replyEvent.originUniversity" text="Origin University"/>
+        <div class="mb-4 sm:mb-8">
+          <form:label path="university" class="block mb-2 text-sm font-medium">
+            <spring:message code="event.university" text="University"/>
           </form:label>
-          <spring:message code="replyEvent.originUniversity.hint" var="originUniversityHint" text="Enter your university"/>
-          <form:input path="originUniversity" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
-                      placeholder="${originUniversityHint}"/>
-          <form:errors path="originUniversity" cssClass="text-red-500 text-sm mt-1" element="p"/>
+          <form:select path="originUniversity" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
+            <option value=""><spring:message code="createJourney.destinationUniversity.select"/></option>
+            <c:forEach var="university" items="${universities}">
+              <option value="${university.name}">${university.name}</option>
+            </c:forEach>
+          </form:select>
+          <form:errors path="originUniversity" class="text-red-500 text-sm mt-1" />
         </div>
 
         <!-- Career Field -->
-        <div class="mb-4 sm:mb-6">
+        <div class="mb-4 sm:mb-8">
           <form:label path="career" class="block mb-2 text-sm font-medium">
-            <spring:message code="replyEvent.career" text="Career"/>
+            <spring:message code="event.career" text="career"/>
           </form:label>
-          <spring:message code="replyEvent.career.hint" var="careerHint" text="Enter your career"/>
-          <form:input path="career" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
-                      placeholder="${careerHint}"/>
-          <form:errors path="career" cssClass="text-red-500 text-sm mt-1" element="p"/>
+          <form:select path="career" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
+            <option value=""><spring:message code="event.career.select" text="Select a career"/></option>
+            <c:forEach var="career" items="${careers}">
+              <option value="${career.name}">${career.name}</option>
+            </c:forEach>
+          </form:select>
+          <form:errors path="career" class="text-red-500 text-sm mt-1" />
         </div>
 
         <!-- Message Field -->
