@@ -25,8 +25,13 @@
     <p><strong th:text="#{email.label.career}">Carrera:</strong> <span th:text="${career}">Ingeniería</span></p>
     <p>
         <strong th:text="#{email.label.message}">Tu Mensaje:</strong>
-        <span th:text="${message}" style="display: inline; color: #333;">¿Alguna pregunta o comentario sobre el evento?</span>
+        <span th:text="${message}" style="display: inline; color: #333;"></span>
     </p>
+    <div th:if="${hasProfileImage}" style="text-align: center; margin: 30px 0;">
+        <p style="margin-bottom: 10px; font-weight: bold;" th:text="#{email.label.profilePicture}">Profile picture:</p>
+        <img th:src="'cid:profileImage'" alt="Profile Picture"
+             style="max-width: 150px; border-radius: 50%; box-shadow: 0 0 6px rgba(0,0,0,0.2);" />
+    </div>
 </div>
 
 <!-- Call to action -->

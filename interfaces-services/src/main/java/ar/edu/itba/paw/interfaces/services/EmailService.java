@@ -16,6 +16,6 @@ public interface EmailService {
                                 String firstName, String lastName,
                                 String username, String career,
                                 String originUniversity, String message,
-                                Locale locale);
+                                Locale locale, byte[] imageBytes);
 
 }

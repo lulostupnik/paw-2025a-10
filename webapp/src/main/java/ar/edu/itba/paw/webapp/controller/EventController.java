@@ -131,8 +131,14 @@ public class EventController {
         if (errors.hasErrors()) {
             return getReplyFormWithEvent(id, form);
         }
+        byte[] profileBytes;
+        try{
+             profileBytes = form.getProfilePicture().getBytes();
+        }catch (Exception e){
+            throw new RuntimeException("Could not get profile picture"); //@TODO change
+        }
         // FIXME: The image id is hardcoded to 1, this should be changed to the logged in user id
-        eventService.replyToEvent(form.getEmail(), form.getUsername(), form.getFirstName(), form.getLastName(), form.getOriginUniversity(), form.getCareer(), 1, id, form.getMessage());
+        eventService.replyToEvent(form.getEmail(), form.getUsername(), form.getFirstName(), form.getLastName(), form.getOriginUniversity(), form.getCareer(), profileBytes, id, form.getMessage());
         return getEvents();
     }
 

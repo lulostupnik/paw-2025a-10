@@ -47,16 +47,17 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void replyToEvent(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId, long eventId, String message) {
+    public void replyToEvent(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture, long eventId, String message) {
         Optional<Event> maybeEvent = eventDao.findById(eventId);
         if (maybeEvent.isEmpty()) {
             throw new RuntimeException("Event not found");
         }
         Event event = maybeEvent.get();
-        long userId = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId)).getId();
+        //@TODO change interests
+        long userId = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePicture, null)).getId();
         eventResponseDao.create(userId, eventId, message);
         //@TODO cambiar locale
-        emailService.answerEventMail(email,event.getUser().getEmail(), firstname, lastname, username, career, originUniversity, message, Locale.ENGLISH);
+        emailService.answerEventMail(email,event.getUser().getEmail(), firstname, lastname, username, career, originUniversity, message, Locale.ENGLISH, profilePicture);
     }
 
     // FIXME: Mepa que esto debería ser transaccional
@@ -72,14 +73,14 @@ public class EventServiceImpl implements EventService {
         return eventDao.create(user, city, date, description, flyerImageId);
     }
 
-    @Override
-    public void replyToEvent(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePictureId, long eventId, String message) {
-        Event event = eventDao.findById(eventId).orElseThrow(() -> new RuntimeException("Event not found"));
-        long userId = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId, new String[]{})).getId();
-        eventResponseDao.create(userId, eventId, message);
-        //@TODO cambiar locale
-        emailService.answerEventMail(email,event.getUser().getEmail(), firstname, lastname, username, career, originUniversity, message, Locale.ENGLISH);
-    }
+//    @Override
+//    public void replyToEvent(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePictureId, long eventId, String message) {
+//        Event event = eventDao.findById(eventId).orElseThrow(() -> new RuntimeException("Event not found"));
+//        long userId = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId, new String[]{})).getId();
+//        eventResponseDao.create(userId, eventId, message);
+//        //@TODO cambiar locale
+//        emailService.answerEventMail(email,event.getUser().getEmail(), firstname, lastname, username, career, originUniversity, message, Locale.ENGLISH);
+//    }
 
 
     @Override
