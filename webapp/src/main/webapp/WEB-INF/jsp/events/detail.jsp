@@ -29,7 +29,7 @@
       <div class="p-4 sm:p-6 lg:p-8 bg-white border border-gray-200 rounded-xl relative">
         <!-- Reply Button in Top Right -->
         <div class="absolute top-4 right-4">
-          <a href="<c:url value=" ${pageContext.request.contextPath}/event/${event.id}/reply"/>"
+          <a href="<c:url value=" ${pageContext.request.contextPath}/events/${event.id}/reply"/>"
              class="py-2 px-4 inline-flex justify-center items-center gap-2 rounded-md border border-transparent font-semibold bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-all text-sm">
             <spring:message code="event.reply.button"/>
           </a>

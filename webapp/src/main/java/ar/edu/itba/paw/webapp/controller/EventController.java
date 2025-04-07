@@ -66,7 +66,6 @@ public class EventController {
     public ModelAndView createEvent(@Valid @ModelAttribute("createEventForm") final CreateEventForm eventForm,
                                     final BindingResult errors) {
         if (errors.hasErrors()) {
-            System.out.println("failed");
 
             return new ModelAndView("events/create");
         }
@@ -77,7 +76,6 @@ public class EventController {
                 image = eventForm.getFlyer().getBytes();
             }
         } catch(IOException e) {
-            System.out.println("failed twice" );
             //what to do?
         }
         Event event;
@@ -90,9 +88,8 @@ public class EventController {
             // Handle the exception, e.g., log it or return an error response
             throw new RuntimeException("Error reading flyer file", e);
         }
-        System.out.println("GETTING here");
         event = eventService.createEvent(eventForm.getEmail(), eventForm.getCity(), eventForm.getDate(), flyerBytes, eventForm.getDescription(), eventForm.getFirstName(), eventForm.getLastName(), eventForm.getUsername(), eventForm.getUniversity(), eventForm.getCareer(), profilePictureBytes);
-        return new ModelAndView("/events/" + event.getId());
+        return new ModelAndView("redirect:/events/" + event.getId());
     }
 
     @RequestMapping("/{id}")

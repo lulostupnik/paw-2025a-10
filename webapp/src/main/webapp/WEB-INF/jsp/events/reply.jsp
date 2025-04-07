@@ -133,8 +133,8 @@
 
         <!-- Origin University Field -->
         <div class="mb-4 sm:mb-8">
-          <form:label path="university" class="block mb-2 text-sm font-medium">
-            <spring:message code="event.university" text="University"/>
+          <form:label path="originUniversity" class="block mb-2 text-sm font-medium">
+            <spring:message code="event.university"/>
           </form:label>
           <form:select path="originUniversity" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
             <option value=""><spring:message code="createJourney.destinationUniversity.select"/></option>
