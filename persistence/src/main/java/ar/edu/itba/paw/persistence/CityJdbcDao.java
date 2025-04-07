@@ -74,6 +74,11 @@ public class CityJdbcDao implements CityDao {
                 name
         ).stream().findFirst();
     }
+
+    @Override
+    public List<City> getAllCities() {
+        return jdbcTemplate.query("SELECT * FROM cities ORDER BY name", CITY_ROW_MAPPER);
+    }
     /*
     @Override
     public List<City> getAllCities() {
