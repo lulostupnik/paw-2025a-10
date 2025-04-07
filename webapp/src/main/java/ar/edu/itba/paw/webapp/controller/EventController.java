@@ -75,18 +75,16 @@ public class EventController {
         }
         Event event;
         byte[] flyerBytes;
-        byte[] profilePicture;
+        byte[] profilePictureBytes;
         try {
             flyerBytes = eventForm.getFlyer().getBytes();
-            // foto chabon
-            // username
-            // Carrera
+            profilePictureBytes = eventForm.getProfilePicture().getBytes();
         } catch (IOException e) {
             // Handle the exception, e.g., log it or return an error response
             throw new RuntimeException("Error reading flyer file", e);
         }
 
-        event = eventService.createEvent(eventForm.getEmail(), eventForm.getCity(), eventForm.getDate(), flyerBytes, eventForm.getDescription(), eventForm.getFirstName(), eventForm.getLastName(), eventForm.getFirstName(), eventForm.getUniversity(), eventForm.getLastName(), flyerBytes);
+        event = eventService.createEvent(eventForm.getEmail(), eventForm.getCity(), eventForm.getDate(), flyerBytes, eventForm.getDescription(), eventForm.getFirstName(), eventForm.getLastName(), eventForm.getUsername(), eventForm.getUniversity(), eventForm.getCareer(), profilePictureBytes);
         return new ModelAndView("redirect:/events/" + event.getId());
     }
 
