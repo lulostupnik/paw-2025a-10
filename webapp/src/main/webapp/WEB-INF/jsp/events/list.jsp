@@ -31,7 +31,7 @@
           <h2 class="text-xl text-gray-800 font-bold sm:text-3xl">
             <spring:message code="event.list.title"/>
           </h2>
-          <a href="<c:url value="${pageContext.request.contextPath}/events/create"/>" class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700">
+          <a href="<c:url value="/events/create"/>" class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700">
             <spring:message code="event.create.button"/>
           </a>
         </div>
@@ -65,11 +65,11 @@
 
                     <!-- Action Buttons -->
                     <div class="mt-4 flex gap-2">
-                      <a href="${pageContext.request.contextPath}/events/${event.id}"
+                      <a href="<c:url value="/events/${event.id}"/>"
                          class="py-2 px-3 flex-1 inline-flex justify-center items-center text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50">
                         <spring:message code="event.view.details" text="View Details"/>
                       </a>
-                      <a href="${pageContext.request.contextPath}/events/${event.id}/reply"
+                      <a href="<c:url value="/events/${event.id}/reply"/>"
                          class="py-2 px-3 flex-1 inline-flex justify-center items-center text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700">
                         <spring:message code="event.reply" text="Reply"/>
                       </a>

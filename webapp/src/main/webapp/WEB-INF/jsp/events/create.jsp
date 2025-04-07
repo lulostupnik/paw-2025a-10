@@ -16,7 +16,7 @@
 <div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
   <!-- Back Link -->
   <div class="mb-6">
-    <a href="${pageContext.request.contextPath}/events" class="inline-flex items-center gap-x-1.5 text-sm text-blue-600 decoration-2 hover:underline">
+    <a href="<c:url value="/events/"/>" class="inline-flex items-center gap-x-1.5 text-sm text-blue-600 decoration-2 hover:underline">
       <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
         <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
       </svg>
@@ -53,7 +53,7 @@
         <spring:message code="event.firstName.hint" var="firstNameHint" text="Enter your first name"/>
         <div class="mb-4 sm:mb-8">
           <form:label path="firstName" class="block mb-2 text-sm font-medium">
-            <spring:message code="event.firstName" text="First Name"/>
+            <spring:message code="event.firstName"/>
           </form:label>
           <form:input path="firstName" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
                       placeholder="${firstNameHint}" />
@@ -64,7 +64,7 @@
         <spring:message code="event.lastName.hint" var="lastNameHint"/>
         <div class="mb-4 sm:mb-8">
           <form:label path="lastName" class="block mb-2 text-sm font-medium">
-            <spring:message code="event.lastName" text="Last Name"/>
+            <spring:message code="event.lastName"/>
           </form:label>
           <form:input path="lastName" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
                       placeholder="${lastNameHint}" />
@@ -77,7 +77,7 @@
             <spring:message code="event.university" text="University"/>
           </form:label>
           <form:select path="university" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
-            <option value=""><spring:message code="event.university.select" text="Select a university"/></option>
+            <option value=""><spring:message code="createJourney.destinationUniversity.select"/></option>
             <c:forEach var="university" items="${universities}">
               <option value="${university.name}">${university.name}</option>
             </c:forEach>
@@ -127,7 +127,7 @@
             <spring:message code="event.city" text="City"/>
           </form:label>
           <form:select path="city" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
-            <option value=""><spring:message code="event.city.select" text="Select a city"/></option>
+            <option value=""><spring:message code="createJourney.destinationCity.select" /></option>
             <c:forEach var="city" items="${cities}">
               <option value="${city.name}">${city.name}</option>
             </c:forEach>

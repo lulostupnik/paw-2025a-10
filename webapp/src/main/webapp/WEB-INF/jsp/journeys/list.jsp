@@ -39,7 +39,7 @@
                             </svg>
                             <spring:message code="journey.filter.toggle"/>
                         </button>
-                        <a href="${pageContext.request.contextPath}/journeys/create" class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700">
+                        <a href="<c:url value="/journeys/create"/>" class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700">
                             <spring:message code="journey.create.button"/>
                         </a>
                     </div>
@@ -84,7 +84,7 @@
                         </div>
 
                         <div class="md:col-span-2 lg:col-span-4 flex justify-end gap-2">
-                            <a href="${pageContext.request.contextPath}/journeys" class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 transition-colors">
+                            <a href="<c:url value="/journeys"/>" class="py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 transition-colors">
                                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
@@ -127,11 +127,11 @@
 
                                     <!-- Action Buttons -->
                                     <div class="mt-4 flex gap-2">
-                                        <a href="${pageContext.request.contextPath}/journeys/${journey.id}"
+                                        <a href="<c:url value="/journeys/${journey.id}"/>"
                                            class="py-2 px-3 flex-1 inline-flex justify-center items-center text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50">
                                             <spring:message code="journey.view.details" text="View Details"/>
                                         </a>
-                                        <a href="${pageContext.request.contextPath}/journeys/${journey.id}/reply"
+                                        <a href="<c:url value="/journeys/${journey.id}/reply"/>"
                                            class="py-2 px-3 flex-1 inline-flex justify-center items-center text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700">
                                             <spring:message code="journey.reply.button"/>
                                         </a>
