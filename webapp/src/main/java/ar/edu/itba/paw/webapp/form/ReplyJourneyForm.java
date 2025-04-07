@@ -1,5 +1,7 @@
 package ar.edu.itba.paw.webapp.form;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
 
@@ -11,6 +13,8 @@ public class ReplyJourneyForm {
 
     @Size(min = 2, max = 100)
     private String firstName;
+    private MultipartFile profilePicture;
+
 
     @Size(min = 2, max = 100)
     private String lastName;
@@ -81,5 +85,11 @@ public class ReplyJourneyForm {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+    public MultipartFile getProfilePicture() {
+        return profilePicture;
+    }
+    public void setProfilePicture(MultipartFile profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }

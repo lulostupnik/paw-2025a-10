@@ -33,7 +33,7 @@
 
     <!-- Card -->
     <div class="mt-5 p-4 relative z-10 bg-white border border-gray-200 rounded-xl sm:mt-10 md:p-10">
-      <form:form method="post" action="${pageContext.request.contextPath}/events/create" modelAttribute="createEventForm" enctype="multipart/form-data">
+      <form:form method="post" action="/events/create" modelAttribute="createEventForm" enctype="multipart/form-data">
         <!-- Profile picture Upload Field -->
         <div class="mb-4 sm:mb-8">
           <form:label path="profilePicture" class="block mb-2 text-sm font-medium">

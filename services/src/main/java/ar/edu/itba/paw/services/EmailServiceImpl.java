@@ -3,6 +3,7 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.services.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -12,6 +13,8 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import javax.mail.internet.MimeMessage;
+import javax.mail.util.ByteArrayDataSource;
+import java.io.File;
 import java.util.Locale;
 import java.util.Map;
 
@@ -32,14 +35,15 @@ public class EmailServiceImpl implements EmailService {
     }
 
 //    @TODO preguntar que pasa con la excepcion
-    @Async
+
+   /* @Async
     protected void sendHtmlMessage(String to,
+                                   String[] cc,
                                    String subjectKey,
                                    Object[] subjectArgs,
                                    String templateName,
                                    Map<String, Object> variables,
                                    Locale locale) {
-
 
         try {
             String subject = messageSource.getMessage(subjectKey, subjectArgs, locale);
@@ -50,13 +54,65 @@ public class EmailServiceImpl implements EmailService {
             String htmlContent = templateEngine.process(templateName, context);
             helper.setFrom(fromEmail);
             helper.setTo(to);
+
+            if (cc != null && cc.length > 0) {
+                helper.setCc(cc);
+            }
+
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
             emailSender.send(message);
         } catch (Exception e) {
             throw new RuntimeException("Failed to send email", e);
         }
+    }*/
+
+
+    @Async
+    protected void sendHtmlMessage(String to,
+                                   String[] cc,
+                                   String subjectKey,
+                                   Object[] subjectArgs,
+                                   String templateName,
+                                   Map<String, Object> variables,
+                                   Locale locale,
+                                   byte[] imageBytes,
+                                   String imageContentId,
+                                   String imageMimeType) {
+
+        try {
+            String subject = messageSource.getMessage(subjectKey, subjectArgs, locale);
+            MimeMessage message = emailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            Context context = new Context(locale);
+            context.setVariables(variables);
+            String htmlContent = templateEngine.process(templateName, context);
+
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+
+            if (cc != null && cc.length > 0) {
+                helper.setCc(cc);
+            }
+
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+
+            // Adjuntar imagen inline desde byte[]
+            if (imageBytes != null && imageContentId != null && imageMimeType != null) {
+                ByteArrayDataSource dataSource = new ByteArrayDataSource(imageBytes, imageMimeType);
+                helper.addInline(imageContentId, dataSource);
+            }
+
+            emailSender.send(message);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to send email", e);
+        }
     }
+
+
+
 
     @Async
     @Override
@@ -77,11 +133,15 @@ public class EmailServiceImpl implements EmailService {
         );
         sendHtmlMessage(
                 to,
+                new String[] {from},
                 "email.journey.reply.subject",
                 new Object[]{},
                 "journey-response",
                 variables,
-                locale
+                locale,
+                null,
+                null,
+                null
         );
     }
     @Async
@@ -104,11 +164,15 @@ public class EmailServiceImpl implements EmailService {
 
         sendHtmlMessage(
                 to,
-                "email.event.reply.title", // Subject key (make sure to define it in your messages_*.properties)
+                new String[] {from},
+                "email.event.reply.title",
                 new Object[]{},
-                "event-response", // Thymeleaf template name without `.html`
+                "event-response",
                 variables,
-                locale
+                locale,
+                null,
+                null,
+                null
         );
     }
 

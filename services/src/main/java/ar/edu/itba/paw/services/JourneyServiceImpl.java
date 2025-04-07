@@ -77,6 +77,7 @@ public class JourneyServiceImpl implements JourneyService {
     public void replyToJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId, long journeyId, String message) {
         Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> new RuntimeException("Journey not found"));
 
+
         long userId = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId)).getId();
         // tal vez deberíamos chequear por username también -> si intenta repetirlo nos va a caer una excepción de la bd
         /*
