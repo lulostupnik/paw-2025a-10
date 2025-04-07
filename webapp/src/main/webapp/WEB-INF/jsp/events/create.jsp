@@ -33,7 +33,9 @@
 
     <!-- Card -->
     <div class="mt-5 p-4 relative z-10 bg-white border border-gray-200 rounded-xl sm:mt-10 md:p-10">
-      <form:form method="post" action="/events/create" modelAttribute="createEventForm" enctype="multipart/form-data">
+        <c:url var="registerUrl" value="/events/create"/>
+        <form:form modelAttribute="createEventForm" action="${registerUrl}" method="post" enctype="multipart/form-data">
+
         <!-- Profile picture Upload Field -->
         <div class="mb-4 sm:mb-8">
           <form:label path="profilePicture" class="block mb-2 text-sm font-medium">
@@ -50,26 +52,26 @@
         </div>
 
         <!-- First Name Field -->
-        <spring:message code="event.firstName.hint" var="firstNameHint"/>
-        <div class="mb-4 sm:mb-8">
-          <form:label path="firstName" class="block mb-2 text-sm font-medium">
-            <spring:message code="event.firstName"/>
-          </form:label>
-          <form:input path="firstName" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
-                      placeholder="${firstNameHint}" />
-          <form:errors path="firstName" class="text-red-500 text-sm mt-1" />
-        </div>
+          <div class="mb-4 sm:mb-8">
+            <form:label path="firstName" class="block mb-2 text-sm font-medium">
+              <spring:message code="createJourney.firstName"/>
+            </form:label>
+            <spring:message code="createJourney.firstName.hint" var="firstNameHint"/>
+            <form:input path="firstName" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
+                        placeholder="${firstNameHint}"/>
+            <form:errors path="firstName" cssClass="text-red-500 text-sm mt-1" element="p"/>
+          </div>
 
         <!-- Last Name Field -->
-        <spring:message code="event.lastName.hint" var="lastNameHint"/>
-        <div class="mb-4 sm:mb-8">
-          <form:label path="lastName" class="block mb-2 text-sm font-medium">
-            <spring:message code="event.lastName"/>
-          </form:label>
-          <form:input path="lastName" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
-                      placeholder="${lastNameHint}" />
-          <form:errors path="lastName" class="text-red-500 text-sm mt-1" />
-        </div>
+          <div class="mb-4 sm:mb-8">
+            <form:label path="lastName" class="block mb-2 text-sm font-medium">
+              <spring:message code="createJourney.lastName"/>
+            </form:label>
+            <spring:message code="createJourney.lastName.hint" var="lastNameHint"/>
+            <form:input path="lastName" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
+                        placeholder="${lastNameHint}"/>
+            <form:errors path="lastName" cssClass="text-red-500 text-sm mt-1" element="p"/>
+          </div>
 
         <!-- University Field -->
         <div class="mb-4 sm:mb-8">
@@ -100,15 +102,15 @@
         </div>
 
         <!-- Username Field -->
-        <spring:message code="createJourney.username.hint" var="usernameHint"/>
-        <div class="mb-4 sm:mb-8">
-          <form:label path="username" class="block mb-2 text-sm font-medium">
-            <spring:message code="createJourney.username"/>
-          </form:label>
-          <form:input path="username" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
-                      placeholder="${usernameHint}" />
-          <form:errors path="username" class="text-red-500 text-sm mt-1" />
-        </div>
+          <div class="mb-4 sm:mb-8">
+            <form:label path="username" class="block mb-2 text-sm font-medium">
+              <spring:message code="createJourney.username"/>
+            </form:label>
+            <spring:message code="createJourney.username.hint" var="usernameHint"/>
+            <form:input path="username" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
+                        placeholder="${usernameHint}"/>
+            <form:errors path="username" cssClass="text-red-500 text-sm mt-1" element="p"/>
+          </div>
 
         <!-- Email Field -->
         <spring:message code="event.email.hint" var="emailHint"/>
