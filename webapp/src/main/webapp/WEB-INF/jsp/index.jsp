@@ -119,11 +119,8 @@
                                 <div class="p-5 hover:bg-gray-50">
                                     <div class="flex justify-between">
                                         <div>
-                                            <h3 class="text-base font-semibold text-gray-800">
-                                                <c:out value="${event.name}" />
-                                            </h3>
                                             <p class="text-sm text-gray-600 mt-1">
-                                                <c:out value="${event.eventCity.name}" /> • <c:out value="${event.date}" />
+                                                 <c:out value="${event.date}" />
                                             </p>
                                             <p class="text-sm text-gray-500 mt-1 line-clamp-2">
                                                 <c:out value="${event.description}" />
