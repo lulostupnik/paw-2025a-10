@@ -22,109 +22,122 @@
     <div class="ml-64 flex-1">
         <div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
             <!-- Welcome Header -->
-            <div class="mx-auto mb-6">
-                <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">
-                    <spring:message code="dashboard.welcome" text="Welcome to the Exchange Platform"/>
+            <div class="mx-auto mb-10">
+                <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl mb-2">
+                    <spring:message code="dashboard.welcome" text="Welcome to the Student Exchange Platform"/>
                 </h1>
+                <p class="text-gray-600 max-w-3xl">
+                    <spring:message code="dashboard.intro" text="Discover exchange opportunities, connect with fellow students, and explore educational journeys around the world."/>
+                </p>
             </div>
 
             <!-- Content Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Recommended Journeys -->
+                <!-- Newest Journeys -->
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
                     <div class="p-5 border-b border-gray-200">
                         <div class="flex justify-between items-center">
                             <h2 class="text-lg font-semibold text-gray-800">
-                                <spring:message code="dashboard.recommended.journeys" text="Recommended Journeys"/>
+                                <spring:message code="dashboard.newest.journeys" text="Newest Journeys"/>
                             </h2>
-                            <a href="${pageContext.request.contextPath}/journeys" class="text-sm font-medium text-blue-600 hover:text-blue-700">
+                            <a href="<c:url value='/journeys'/>" class="text-sm font-medium text-blue-600 hover:text-blue-700">
                                 <spring:message code="dashboard.view.all" text="View All"/>
                             </a>
                         </div>
+                        <p class="text-sm text-gray-500 mt-1">
+                            <spring:message code="dashboard.newest.journeys.desc" text="Recently added exchange experiences"/>
+                        </p>
                     </div>
 
                     <!-- Journey List -->
                     <div class="divide-y divide-gray-200">
-                        <c:forEach var="journey" items="${recommendedJourneys}" varStatus="status">
-                            <div class="p-5 hover:bg-gray-50">
-                                <div class="flex justify-between">
-                                    <div>
-                                        <h3 class="text-base font-semibold text-gray-800">
-                                            <c:out value="${journey.user.firstname} ${journey.user.lastname}" />
-                                        </h3>
-                                        <p class="text-sm text-gray-600 mt-1">
-                                            <c:out value="${journey.destinationCity}" /> -
-                                            <c:out value="${journey.destinationUniversity}" />
-                                        </p>
-                                        <p class="text-sm text-gray-500 mt-1">
-                                            <c:out value="${journey.startDate}" /> → <c:out value="${journey.endDate}" />
-                                        </p>
-                                    </div>
-                                    <a href="<c:url value='/journey/${journey.id}'/>" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
-                                        <spring:message code="dashboard.details" text="Details"/>
-                                        <svg class="ml-1 w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                        </svg>
-                                    </a>
-                                </div>
-                            </div>
-                        </c:forEach>
-
-                        <c:if test="${empty recommendedJourneys}">
+                        <c:if test="${empty newJourneys}">
                             <div class="p-5 text-center">
                                 <p class="text-gray-500">
-                                    <spring:message code="dashboard.no.journeys" text="No recommended journeys available"/>
+                                    <spring:message code="dashboard.no.journeys" text="No journeys available"/>
                                 </p>
                             </div>
+                        </c:if>
+
+                        <c:if test="${not empty newJourneys}">
+                            <c:forEach var="journey" items="${newJourneys}" varStatus="status">
+                                <div class="p-5 hover:bg-gray-50">
+                                    <div class="flex justify-between">
+                                        <div>
+                                            <h3 class="text-base font-semibold text-gray-800">
+                                                <c:out value="${journey.user.firstname} ${journey.user.lastname}" />
+                                            </h3>
+                                            <p class="text-sm text-gray-600 mt-1">
+                                                <c:out value="${journey.destinationCity}" /> -
+                                                <c:out value="${journey.destinationUniversity}" />
+                                            </p>
+                                            <p class="text-sm text-gray-500 mt-1">
+                                                <c:out value="${journey.startDate}" /> → <c:out value="${journey.endDate}" />
+                                            </p>
+                                        </div>
+                                        <a href="<c:url value='/journey/${journey.id}'/>" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
+                                            <spring:message code="dashboard.details" text="Details"/>
+                                            <svg class="ml-1 w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </div>
+                            </c:forEach>
                         </c:if>
                     </div>
                 </div>
 
-                <!-- Recommended Events -->
+                <!-- Newest Events -->
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
                     <div class="p-5 border-b border-gray-200">
                         <div class="flex justify-between items-center">
                             <h2 class="text-lg font-semibold text-gray-800">
-                                <spring:message code="dashboard.recommended.events" text="Recommended Events"/>
+                                <spring:message code="dashboard.newest.events" text="Newest Events"/>
                             </h2>
                             <a href="<c:url value='/events'/>" class="text-sm font-medium text-blue-600 hover:text-blue-700">
                                 <spring:message code="dashboard.view.all" text="View All"/>
                             </a>
                         </div>
+                        <p class="text-sm text-gray-500 mt-1">
+                            <spring:message code="dashboard.newest.events.desc" text="Recently added events and opportunities"/>
+                        </p>
                     </div>
 
                     <!-- Events List -->
                     <div class="divide-y divide-gray-200">
-                        <c:forEach var="event" items="${recommendedEvents}" varStatus="status">
-                            <div class="p-5 hover:bg-gray-50">
-                                <div class="flex justify-between">
-                                    <div>
-                                        <h3 class="text-base font-semibold text-gray-800">
-                                            <c:out value="${event.eventCity.name}" />
-                                        </h3>
-                                        <p class="text-sm text-gray-600 mt-1">
-                                            <c:out value="${event.date}" />
-                                        </p>
-                                        <p class="text-sm text-gray-500 mt-1 line-clamp-2">
-                                            <c:out value="${event.description}" />
-                                        </p>
-                                    </div>
-                                    <a href="<c:url value='/events/${event.id}'/>" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
-                                        <spring:message code="dashboard.details" text="Details"/>
-                                        <svg class="ml-1 w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                        </svg>
-                                    </a>
-                                </div>
-                            </div>
-                        </c:forEach>
-
-                        <c:if test="${empty recommendedEvents}">
+                        <c:if test="${empty newEvents}">
                             <div class="p-5 text-center">
                                 <p class="text-gray-500">
-                                    <spring:message code="dashboard.no.events" text="No recommended events available"/>
+                                    <spring:message code="dashboard.no.events" text="No events available"/>
                                 </p>
                             </div>
+                        </c:if>
+
+                        <c:if test="${not empty newEvents}">
+                            <c:forEach var="event" items="${newEvents}" varStatus="status">
+                                <div class="p-5 hover:bg-gray-50">
+                                    <div class="flex justify-between">
+                                        <div>
+                                            <h3 class="text-base font-semibold text-gray-800">
+                                                <c:out value="${event.name}" />
+                                            </h3>
+                                            <p class="text-sm text-gray-600 mt-1">
+                                                <c:out value="${event.eventCity.name}" /> • <c:out value="${event.date}" />
+                                            </p>
+                                            <p class="text-sm text-gray-500 mt-1 line-clamp-2">
+                                                <c:out value="${event.description}" />
+                                            </p>
+                                        </div>
+                                        <a href="<c:url value='/events/${event.id}'/>" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
+                                            <spring:message code="dashboard.details" text="Details"/>
+                                            <svg class="ml-1 w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </div>
+                            </c:forEach>
                         </c:if>
                     </div>
                 </div>
@@ -133,5 +146,7 @@
     </div>
 </div>
 
+<!-- Include Preline JS -->
+<script src="https://cdn.jsdelivr.net/npm/preline/dist/preline.js"></script>
 </body>
 </html>
