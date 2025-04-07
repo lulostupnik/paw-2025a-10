@@ -98,7 +98,7 @@ public class EventJdbcDao implements EventDao {
                 "user_id", user.getId(),
                 "city_id", city.getId(),
                 "event_date", date,
-                "description", description, // ¿?
+                "description", description,
                 "flyer_image_id", flyerImageId
                 );
         final Number keys = jdbcInsert.executeAndReturnKey(parameters);

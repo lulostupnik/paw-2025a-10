@@ -35,60 +35,34 @@ public class JourneyServiceImpl implements JourneyService {
         this.cityService = cityService;
         this.interestService = interestService;
     }
-
-
-    @Override
-    public Journey createJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId, String destinationUniversity, String destinationCity, LocalDate startDate, LocalDate endDate, String description, String[] interests) {
-        //University destination = universityService.findByName(destinationUniversity).orElseThrow(() -> new RuntimeException("Destination University not found"));
-        //For testing purposes, accept custom input
-        //FIXME: Implement university account creation & stuff to remove custom input
-        University destination = universityService.findByAny(destinationUniversity).orElseGet(() -> universityService.registerUniversity(destinationUniversity, destinationUniversity));
-        Optional<User> maybeUser = userService.findByEmail(email);
-        User user = maybeUser.orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId)); // todo: ¿acá debería usar el service o el dao? -> el service puede llegar a tener validaciones que ya acabo de hacer en esta clase
-        // id me lo da la bd btw
-        
-        if (journeyDao.findOverlappingJourney(user.getId(), startDate, endDate).isPresent()) {
-            throw new RuntimeException("There's already a journey registered in this time period");
+    private void checkDates(LocalDate startDate, LocalDate endDate) {
+        if(startDate == null || endDate == null) {
+            throw new RuntimeException("Start date and end date cannot be null");
         }
-
-
-        City city = cityService.findByName(destinationCity).orElseThrow(() -> new RuntimeException("Destination City not found"));
-
-        return journeyDao.create(user, destination, city, startDate, endDate, description);
+        if(startDate.isAfter(endDate)) {
+            throw new RuntimeException("Start date cannot be after end date");
+        }
+        if(startDate.isBefore(LocalDate.now())) {
+            throw new RuntimeException("Start date cannot be before today");
+        }
+        if(endDate.isBefore(LocalDate.now())) {
+            throw new RuntimeException("End date cannot be before today");
+        }
     }
-
     @Override
     public Journey createJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture, String destinationUniversity,
                                  String destinationCity, LocalDate startDate, LocalDate endDate, String description, String[] interests) {
-        // FIXME
-        // long city_id = cityDao.findByName(destinationCity).orElseThrow(() -> new RuntimeException("City not found")).getId();
+        checkDates(startDate, endDate);
+
         University destination = universityService.findByAny(destinationUniversity).orElseThrow(() -> new RuntimeException("Destination University not found"));
         User user = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePicture, interests));
-        /*
-        if (journeyDao.findOverlappingJourney(user.getId(), startDate, endDate).isEmpty()) {
+        if (journeyDao.findOverlappingJourney(user.getId(), startDate, endDate).isPresent()) {
             throw new RuntimeException("There's already a journey registered in this time period");
         }
-        */
         City city = cityService.findByName(destinationCity).orElseThrow(() -> new RuntimeException("Destination City not found"));
         return journeyDao.create(user, destination, city, startDate, endDate, description); // FIXME
     }
 
-    /*@Override
-    public void replyToJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId, long journeyId, String message) {
-        Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> new RuntimeException("Journey not found"));
-
-
-        long userId = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId)).getId();
-        // tal vez deberíamos chequear por username también -> si intenta repetirlo nos va a caer una excepción de la bd
-
-//        Optional<User> maybeUser = userService.findByEmail(email);
-//        User user = maybeUser.orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePictureId));
-
-        journeyResponseDao.create(userId, journeyId, message);
-
-        //@TODO cambiar el Locale
-        emailService.answerJourneyMail( email, journey.getUser().getEmail() , firstname, lastname,username, career, originUniversity, message , new Locale("es"));
-    }*/
 
     @Override
     public void replyToJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture, long journeyId, String message) {
@@ -97,7 +71,7 @@ public class JourneyServiceImpl implements JourneyService {
         journeyResponseDao.create(userId, journeyId, message);
 
         User user = journey.getUser();
-//@TODO cambiar el locale
+        //@TODO cambiar el locale
         emailService.answerJourneyMail( email, user.getEmail() , firstname, lastname,username, career, originUniversity, message , new Locale("es"), profilePicture);
     }
 

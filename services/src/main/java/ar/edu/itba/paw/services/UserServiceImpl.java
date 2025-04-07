@@ -37,13 +37,6 @@ public class UserServiceImpl implements UserService {
         this.interestService = interestService;
     }
 
-    public User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, long profilePictureId) {
-        University university = universityService.findByName(universityName).orElseThrow(() -> new RuntimeException("University not found"));
-        Career career = careerService.findByName(careerName).orElseThrow(() -> new RuntimeException("Career not found"));
-        // subir imagen ¿puede ser async? -> supongo que no porque necesito el id de la imagen para crear el usuario
-        // todo: ¿chequear si el usuario ya existe? -> ¿o dejo que la excepción la tire la capa de persistencia?
-        return userDao.create(email, username, firstname, lastname, university, career, profilePictureId);
-    }
 
     // creo que debería ser @Transactional
     @Override
@@ -53,7 +46,7 @@ public class UserServiceImpl implements UserService {
         Career career = careerService.findByName(careerName).orElseThrow(() -> new RuntimeException("Career not found"));
         long profilePictureId = imageDao.saveImage(profilePicture);
         User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId);
-        List<Interest> interestList = interestService.createUserInterests(interests, user.getId());
+        interestService.createUserInterests(interests, user.getId());
         return user;
     }
 

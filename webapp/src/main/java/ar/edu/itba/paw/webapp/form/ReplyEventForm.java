@@ -1,5 +1,7 @@
 package ar.edu.itba.paw.webapp.form;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
 
@@ -27,7 +29,20 @@ public class ReplyEventForm {
         @Size(min = 2, max = 2047)
         private String message;
 
-        public String getEmail() {
+    private MultipartFile profilePicture;
+
+        public MultipartFile getProfilePicture() {
+            return profilePicture;
+        }
+
+        public void setProfilePicture(MultipartFile profilePicture) {
+            this.profilePicture = profilePicture;
+        }
+
+
+
+
+    public String getEmail() {
             return email;
         }
 

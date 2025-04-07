@@ -66,17 +66,7 @@ public class EventController {
     public ModelAndView createEvent(@Valid @ModelAttribute("createEventForm") final CreateEventForm eventForm,
                                     final BindingResult errors) {
         if (errors.hasErrors()) {
-
-            return new ModelAndView("events/create");
-        }
-        byte[] image = null;
-        try {
-            if (eventForm.getFlyer() != null){
-
-                image = eventForm.getFlyer().getBytes();
-            }
-        } catch(IOException e) {
-            //what to do?
+            return createEventForm(eventForm);
         }
         Event event;
         byte[] flyerBytes;
@@ -131,8 +121,14 @@ public class EventController {
         if (errors.hasErrors()) {
             return getReplyFormWithEvent(id, form);
         }
-        // FIXME: The image id is hardcoded to 1, this should be changed to the logged in user id
-        eventService.replyToEvent(form.getEmail(), form.getUsername(), form.getFirstName(), form.getLastName(), form.getOriginUniversity(), form.getCareer(), 1, id, form.getMessage());
+        byte[] profilePictureBytes;
+        try {
+            profilePictureBytes = form.getProfilePicture().getBytes();
+        } catch (IOException e) {
+            // Handle the exception, e.g., log it or return an error response
+            throw new RuntimeException("Error reading flyer file", e);
+        }
+        eventService.replyToEvent(form.getEmail(), form.getUsername(), form.getFirstName(), form.getLastName(), form.getOriginUniversity(), form.getCareer(), profilePictureBytes, id, form.getMessage());
         return getEvents();
     }
 
