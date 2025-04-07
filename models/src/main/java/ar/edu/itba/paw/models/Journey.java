@@ -9,7 +9,7 @@ import java.time.LocalDate;
 public class Journey{
     private final long id;
     private final User user;
-    private final String destinationCity;
+    private final City destinationCity;
     private final LocalDate startDate;
     private final LocalDate endDate;
     private final University destinationUniversity; // FIXME: Cambiar por String -> lo obtenemos del toString();

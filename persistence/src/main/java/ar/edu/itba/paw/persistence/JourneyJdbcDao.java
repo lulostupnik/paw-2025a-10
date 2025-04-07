@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
+import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Journey;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
@@ -48,10 +49,14 @@ public class JourneyJdbcDao implements JourneyDao {
             "    j.id AS journey_id, \n" +
             "    j.user_id AS journey_user_id, \n" +
             "    j.destination_university_id AS journey_destination_university_id, \n" +
-            "    j.city AS journey_city, \n" +
+            "    j.city_id AS journey_city_id, \n" +
             "    j.start_date AS journey_start_date, \n" +
             "    j.end_date AS journey_end_date, \n" +
             "    j.description AS journey_description, \n" +
+            "\n" +
+            "   ci.id AS city_id, \n" +
+            "   co.name AS country_name, \n" +
+            "   ci.name AS city_name, \n" +
             "\n" +
             "    un1.id AS university_id, \n" +
             "    un1.name AS university_name, \n" +
@@ -61,8 +66,10 @@ public class JourneyJdbcDao implements JourneyDao {
             "    un2.name AS destination_university_name, \n" +
             "    un2.abbreviation AS destination_university_abbreviation \n" +
             "\n" +
-            "FROM users us\n" +
+            "FROM users us \n" +
             "JOIN journeys j ON j.user_id = us.id\n" +
+            "JOIN cities ci ON j.city_id = ci.id\n" +
+            "JOIN countries co ON ci.country_id = co.id\n" +
             "JOIN universities un1 ON us.university = un1.id\n" +
             "JOIN universities un2 ON j.destination_university_id = un2.id\n";
 
@@ -82,7 +89,11 @@ public class JourneyJdbcDao implements JourneyDao {
                     rs.getString("user_career"),
                     rs.getLong("user_profile_picture_id")
             ),
-            rs.getString("journey_city"),
+            new City(
+                    rs.getString("city_name"),
+                    rs.getString("country_name"),
+                    rs.getLong("journey_city_id")
+            ),
             rs.getDate("journey_start_date").toLocalDate(),
             rs.getDate("journey_end_date").toLocalDate(),
             new University(
@@ -111,11 +122,11 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
     @Override
-    public Journey create(User user, University destinationUniversity, String destinationCity, LocalDate startDate, LocalDate endDate, String description) {
+    public Journey create(User user, University destinationUniversity, City destinationCity, LocalDate startDate, LocalDate endDate, String description) {
         final Map<String, Object> args = new HashMap<>();
         args.put("user_id", user.getId());
         args.put("destination_university_id", destinationUniversity.getId());
-        args.put("city", destinationCity);
+        args.put("city_id", destinationCity.getId());
         args.put("start_date", startDate);
         args.put("end_date", endDate);
         args.put("description", description);

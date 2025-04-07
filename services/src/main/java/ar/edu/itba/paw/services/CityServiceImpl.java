@@ -22,7 +22,7 @@ public class CityServiceImpl implements CityService {
 
     @Override
     public Optional<City> findByName(String name) {
-        return cityDao.findBy(null, name, null);
+        return cityDao.findByName(name);
     }
 
     @Override

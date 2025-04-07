@@ -39,8 +39,8 @@ public class EventJdbcDao implements EventDao {
             rs.getString("event_description"),
             rs.getLong( "event_flyer_image_id"),
             new City(
-                    rs.getString("city_name"),  // Va a tener conflicto con el nombre de la universidad
-                    rs.getString("city_country"),
+                    rs.getString("city_name"), // Va a tener conflicto con el nombre de la universidad
+                    rs.getString("country_name"),
                     rs.getLong("city_id")
             )
     );
@@ -66,12 +66,13 @@ public class EventJdbcDao implements EventDao {
             "\n" +
             "   c.id AS city_id, \n" +
             "   c.name AS city_name, \n" +
-            "   c.country AS city_country \n" +
             "\n" +
+            "   co.name AS country_name\n" +
             "FROM events e\n" +
             "JOIN users us ON e.user_id = us.id\n" +
             "JOIN universities un ON us.university = un.id\n" +
-            "JOIN cities c ON e.city_id = c.id \n";
+            "JOIN cities c ON e.city_id = c.id \n" +
+            "JOIN countries co ON c.country_id = co.id\n";
 
 
 
