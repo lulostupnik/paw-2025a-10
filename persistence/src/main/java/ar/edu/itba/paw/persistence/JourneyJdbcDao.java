@@ -1,10 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
-import ar.edu.itba.paw.models.City;
-import ar.edu.itba.paw.models.Journey;
-import ar.edu.itba.paw.models.University;
-import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -43,8 +40,10 @@ public class JourneyJdbcDao implements JourneyDao {
             "    us.lastname AS user_lastname, \n" +
             "    us.username AS user_username, \n" +
             "    us.university AS user_university, \n" +
-            "    us.career AS user_career, \n" +
             "    us.profile_picture_id AS user_profile_picture_id, \n" +
+            "\n" +
+            "    ca.id AS career_id, \n" +
+            "    ca.name AS career_name, \n" +
             "\n" +
             "    j.id AS journey_id, \n" +
             "    j.user_id AS journey_user_id, \n" +
@@ -68,6 +67,7 @@ public class JourneyJdbcDao implements JourneyDao {
             "\n" +
             "FROM users us \n" +
             "JOIN journeys j ON j.user_id = us.id\n" +
+            "JOIN careers ca ON us.career_id = ca.id\n" +
             "JOIN cities ci ON j.city_id = ci.id\n" +
             "JOIN countries co ON ci.country_id = co.id\n" +
             "JOIN universities un1 ON us.university = un1.id\n" +
@@ -86,7 +86,10 @@ public class JourneyJdbcDao implements JourneyDao {
                             rs.getString("university_name"),
                             rs.getString("university_abbreviation")
                     ),
-                    rs.getString("user_career"),
+                    new Career(
+                            rs.getLong("career_id"),
+                            rs.getString("career_name")
+                    ),
                     rs.getLong("user_profile_picture_id")
             ),
             new City(

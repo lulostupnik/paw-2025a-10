@@ -13,6 +13,6 @@ public class User{
     private final String firstname;
     private final String lastname;
     private final University university; // FIXME: ¿Cambiar por String? -> lo obtenemos del toString();
-    private final String career;
+    private final Career career;
     private final long profilePictureId;
 }

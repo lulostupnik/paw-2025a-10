@@ -1,9 +1,6 @@
 package ar.edu.itba.paw.persistence;
 import ar.edu.itba.paw.interfaces.persistence.EventDao;
-import ar.edu.itba.paw.models.City;
-import ar.edu.itba.paw.models.Event;
-import ar.edu.itba.paw.models.University;
-import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -32,7 +29,10 @@ public class EventJdbcDao implements EventDao {
                             rs.getString("university_name"), // University name
                             rs.getString("university_abbreviation")
                     ),
-                    rs.getString("user_career"),
+                    new Career(
+                            rs.getLong("career_id"),
+                            rs.getString("career_name")
+                    ),
                     rs.getLong("user_profile_picture_id")
             ),
             rs.getDate("event_date"),
@@ -52,8 +52,10 @@ public class EventJdbcDao implements EventDao {
             "    us.lastname AS user_lastname, \n" +
             "    us.username AS user_username, \n" +
             "    us.university AS user_university, \n" +
-            "    us.career AS user_career, \n" +
             "    us.profile_picture_id AS user_profile_picture_id, \n" +
+            "\n" +
+            "    ca.id AS career_id, \n" +
+            "    ca.name AS career_name, \n" +
             "\n" +
             "    e.id AS event_id, \n" +
             "    e.event_date AS event_date, \n" +
@@ -70,6 +72,7 @@ public class EventJdbcDao implements EventDao {
             "   co.name AS country_name\n" +
             "FROM events e\n" +
             "JOIN users us ON e.user_id = us.id\n" +
+            "JOIN careers ca ON ca.id = us.career_id\n" +
             "JOIN universities un ON us.university = un.id\n" +
             "JOIN cities c ON e.city_id = c.id \n" +
             "JOIN countries co ON c.country_id = co.id\n";
