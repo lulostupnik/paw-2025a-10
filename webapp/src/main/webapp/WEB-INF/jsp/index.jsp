@@ -22,7 +22,7 @@
     <div class="ml-64 flex-1">
         <div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
             <!-- Welcome Header -->
-            <div class="mx-auto mb-6"> <!-- Changed to mb-6 to match the second file -->
+            <div class="mx-auto mb-6">
                 <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">
                     <spring:message code="dashboard.welcome" text="Welcome to the Exchange Platform"/>
                 </h1>
@@ -60,7 +60,7 @@
                                             <c:out value="${journey.startDate}" /> → <c:out value="${journey.endDate}" />
                                         </p>
                                     </div>
-                                    <a href="<c:url /journey/${journey.id}"/>" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
+                                    <a href="<c:url value='/journey/${journey.id}'/>" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
                                         <spring:message code="dashboard.details" text="Details"/>
                                         <svg class="ml-1 w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -87,7 +87,7 @@
                             <h2 class="text-lg font-semibold text-gray-800">
                                 <spring:message code="dashboard.recommended.events" text="Recommended Events"/>
                             </h2>
-                            <a href="<c:url/events"/>" class="text-sm font-medium text-blue-600 hover:text-blue-700">
+                            <a href="<c:url value='/events'/>" class="text-sm font-medium text-blue-600 hover:text-blue-700">
                                 <spring:message code="dashboard.view.all" text="View All"/>
                             </a>
                         </div>
@@ -109,7 +109,7 @@
                                             <c:out value="${event.description}" />
                                         </p>
                                     </div>
-                                    <a href="<c:url>/events/${event.id}"/>" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
+                                    <a href="<c:url value='/events/${event.id}'/>" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
                                         <spring:message code="dashboard.details" text="Details"/>
                                         <svg class="ml-1 w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
