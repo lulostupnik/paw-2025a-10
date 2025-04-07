@@ -8,10 +8,10 @@ import java.util.Optional;
 public interface JourneyService {
 
     Journey createJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId,
-                                    String destinationUniversity, String destinationCity, LocalDate startDate, LocalDate endDate, String description);
+                                    String destinationUniversity, String destinationCity, LocalDate startDate, LocalDate endDate, String description, String[] interests);
 
     Journey createJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture,
-                                    String destinationUniversity, String destinationCity, LocalDate startDate, LocalDate endDate, String description);
+                                    String destinationUniversity, String destinationCity, LocalDate startDate, LocalDate endDate, String description, String[] interests);
 
     void replyToJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, long profilePictureId,
                                     long journeyId, String message);

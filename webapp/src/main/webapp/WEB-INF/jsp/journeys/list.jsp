@@ -80,7 +80,7 @@
                                 <spring:message code="journey.filter.interest" />
                             </label>
                             <input type="text" id="interest" name="interest" class="py-2 px-3 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
-                                   placeholder="<spring:message code="journey.filter.interest.placeholder" />" value="<c:out value=" ${filterJourneyForm.interest}"/>" />
+                                   placeholder="<spring:message code="journey.filter.interest.placeholder" />" value="<c:out value="${filterJourneyForm.interest}"/>" />
                         </div>
 
                         <div class="md:col-span-2 lg:col-span-4 flex justify-end gap-2">
