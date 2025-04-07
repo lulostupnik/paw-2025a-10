@@ -74,9 +74,9 @@ CREATE TABLE IF NOT EXISTS countries (
 CREATE TABLE IF NOT EXISTS cities (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100),
-    country INTEGER NOT NULL,
+    country_id INTEGER NOT NULL,
 
-    FOREIGN KEY (country) REFERENCES countries(id) ON DELETE RESTRICT
+    FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE RESTRICT
 );
 
 
@@ -86,10 +86,11 @@ CREATE TABLE IF NOT EXISTS journeys (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
     destination_university_id INTEGER NOT NULL,
-    city VARCHAR(100) NOT NULL,
+    city_id INTEGER NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     description VARCHAR(2047),
+    FOREIGN KEY (city_id) REFERENCES cities(id) ON DELETE RESTRICT,
     FOREIGN KEY (destination_university_id) REFERENCES universities(id) ON DELETE RESTRICT,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT
     );

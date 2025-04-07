@@ -28,7 +28,7 @@ public class CityJdbcDao implements CityDao {
             rs.getLong("city_id")
     );
 
-    private final static String QUERY = "SELECT ci.name as city_name, ci.id as city_id, co.name as country_name FROM cities ci, countries co WHERE ci.country = co.id ";
+    private final static String QUERY = "SELECT ci.name as city_name, ci.id as city_id, co.name as country_name FROM cities ci, countries co WHERE ci.country_id = co.id ";
 
     @Autowired
     public CityJdbcDao(DataSource dataSource) {
