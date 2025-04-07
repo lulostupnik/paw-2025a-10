@@ -44,7 +44,7 @@
         <!-- Reply Form Card -->
         <div class="p-4 sm:p-6 lg:p-8 bg-white border border-gray-200 rounded-xl">
             <c:url var="registerUrl" value="/journeys/${journey.id}/reply"/>
-            <form:form modelAttribute="replyJourneyForm" action="${registerUrl}" method="post">
+            <form:form modelAttribute="replyJourneyForm" action="${registerUrl}" method="post" enctype="multipart/form-data">
 
                 <!-- Email Field -->
                 <div class="mb-4 sm:mb-6">

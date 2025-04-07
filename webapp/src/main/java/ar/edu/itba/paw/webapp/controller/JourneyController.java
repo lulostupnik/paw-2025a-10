@@ -120,8 +120,7 @@ public class JourneyController {
                 rjf.getLastName(), rjf.getOriginUniversity(), rjf.getCareer(), profilePicture, id, rjf.getMessage() );
 
 
-
-            return getJourneys(null,null, null, null);
+        return getJourneys(null,null, null, null);
     }
 
     @RequestMapping(value = "/{id}/reply")
