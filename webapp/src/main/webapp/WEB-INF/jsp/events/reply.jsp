@@ -59,8 +59,8 @@
         </jsp:include>
 
         <!-- Email Field -->
-        <c:set var="emailLabel"><spring:message code="replyEvent.email"/></c:set>
-        <c:set var="emailHint"><spring:message code="replyEvent.email.hint"/></c:set>
+        <c:set var="emailLabel"><spring:message code="reply.email"/></c:set>
+        <c:set var="emailHint"><spring:message code="reply.email.hint"/></c:set>
         <jsp:include page="../components/text-field.jsp">
           <jsp:param name="path" value="email" />
           <jsp:param name="label" value="${emailLabel}" />
@@ -69,8 +69,8 @@
         </jsp:include>
 
         <!-- First Name Field -->
-        <c:set var="firstNameLabel"><spring:message code="replyEvent.firstName"/></c:set>
-        <c:set var="firstNameHint"><spring:message code="replyEvent.firstName.hint"/></c:set>
+        <c:set var="firstNameLabel"><spring:message code="reply.firstName"/></c:set>
+        <c:set var="firstNameHint"><spring:message code="reply.firstName.hint"/></c:set>
         <jsp:include page="../components/text-field.jsp">
           <jsp:param name="path" value="firstName" />
           <jsp:param name="label" value="${firstNameLabel}" />
@@ -78,8 +78,8 @@
         </jsp:include>
 
         <!-- Last Name Field -->
-        <c:set var="lastNameLabel"><spring:message code="replyEvent.lastName"/></c:set>
-        <c:set var="lastNameHint"><spring:message code="replyEvent.lastName.hint"/></c:set>
+        <c:set var="lastNameLabel"><spring:message code="reply.lastName"/></c:set>
+        <c:set var="lastNameHint"><spring:message code="reply.lastName.hint"/></c:set>
         <jsp:include page="../components/text-field.jsp">
           <jsp:param name="path" value="lastName" />
           <jsp:param name="label" value="${lastNameLabel}" />
@@ -87,8 +87,8 @@
         </jsp:include>
 
         <!-- Username Field -->
-        <c:set var="usernameLabel"><spring:message code="replyEvent.username"/></c:set>
-        <c:set var="usernameHint"><spring:message code="replyEvent.username.hint"/></c:set>
+        <c:set var="usernameLabel"><spring:message code="reply.username"/></c:set>
+        <c:set var="usernameHint"><spring:message code="reply.username.hint"/></c:set>
         <jsp:include page="../components/text-field.jsp">
           <jsp:param name="path" value="username" />
           <jsp:param name="label" value="${usernameLabel}" />
@@ -116,8 +116,8 @@
         </jsp:include>
 
         <!-- Message Field -->
-        <c:set var="messageLabel"><spring:message code="replyEvent.message"/></c:set>
-        <c:set var="messageHint"><spring:message code="replyEvent.message.hint"/></c:set>
+        <c:set var="messageLabel"><spring:message code="reply.message"/></c:set>
+        <c:set var="messageHint"><spring:message code="reply.message.hint"/></c:set>
         <jsp:include page="../components/text-area.jsp">
           <jsp:param name="path" value="message" />
           <jsp:param name="label" value="${messageLabel}" />
@@ -125,7 +125,7 @@
         </jsp:include>
 
         <!-- Submit Button -->
-        <c:set var="submitButtonLabel"><spring:message code="replyEvent.submit"/></c:set>
+        <c:set var="submitButtonLabel"><spring:message code="reply.submit"/></c:set>
         <jsp:include page="../components/button.jsp">
           <jsp:param name="label" value="${submitButtonLabel}" />
           <jsp:param name="type" value="submit" />
