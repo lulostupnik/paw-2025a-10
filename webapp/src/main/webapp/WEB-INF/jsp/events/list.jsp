@@ -5,22 +5,11 @@
 <html>
 <head>
   <title><spring:message code="event.page.title"/></title>
-  <!-- Include Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {}
-      }
-    };
-  </script>
-  <!-- Include Preline UI Kit CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/preline/dist/preline.min.css" />
+  <link rel="stylesheet" href="<c:url value='/resources/css/form-components.css'/>" />
 </head>
 <body class="bg-gray-100">
 
 <div class="flex h-full min-h-screen">
-  <!-- Include the sidebar component -->
   <jsp:include page="../components/sidebar.jsp" />
 
   <!-- Main Content -->

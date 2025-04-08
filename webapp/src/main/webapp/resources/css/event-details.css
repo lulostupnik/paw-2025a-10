@@ -1,0 +1,153 @@
+/* Base styles */
+body {
+    background-color: #f3f4f6;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    color: #111827;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 85rem;
+    padding: 2.5rem 1rem;
+    margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+    .container {
+        padding: 2.5rem 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .container {
+        padding: 3.5rem 2rem;
+    }
+}
+
+/* Back link */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    color: #2563eb;
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.back-link svg {
+    width: 0.75rem;
+    height: 0.75rem;
+}
+
+/* Content container */
+.content-container {
+    max-width: 42rem;
+    margin: 0 auto;
+}
+
+/* Event card */
+.event-card {
+    position: relative;
+    padding: 1rem;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+}
+
+@media (min-width: 640px) {
+    .event-card {
+        padding: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .event-card {
+        padding: 2rem;
+    }
+}
+
+/* Reply button */
+.reply-button-container {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+.reply-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+    background-color: #2563eb;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.reply-button:hover {
+    background-color: #1d4ed8;
+}
+
+.reply-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+/* Event header */
+.event-header {
+    margin-bottom: 1.5rem;
+}
+
+.event-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 0.25rem 0;
+}
+
+.event-date {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+/* Event section */
+.event-section {
+    margin-bottom: 1.5rem;
+}
+
+.section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 0.5rem 0;
+}
+
+.section-content {
+    color: #4b5563;
+    margin: 0;
+}
+
+/* Event image */
+.event-image {
+    width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+}
+
+/* Utility classes */
+.mb-6 {
+    margin-bottom: 1.5rem;
+}
