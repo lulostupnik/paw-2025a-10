@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import ar.edu.itba.paw.webapp.validation.ImageSize;
+import ar.edu.itba.paw.webapp.validation.NoExistingJourney;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,9 +20,10 @@ public class CreateJourneyForm {
     @Size(min = 2, max = 100)
     private String lastName;
 
-    @Size(min = 6, max = 100)
     //@Pattern(regexp = "[a-zA-Z0-9]+$")
+    @Size(min = 6, max = 100)
     @Email
+    @NoExistingJourney
     private String email;
 
     @NotNull
