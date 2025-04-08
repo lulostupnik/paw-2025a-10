@@ -42,7 +42,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><fmt:message key="error.${errorType}.title" /></title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/error-styles.css">
+    <link rel="stylesheet" href="<c:url value="/resources/css/error-styles.css"/>"/>
     <script>
         // Check for dark mode preference
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
