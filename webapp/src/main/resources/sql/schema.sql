@@ -12,7 +12,6 @@ CREATE TABLE IF NOT EXISTS category (
 CREATE TABLE IF NOT EXISTS user_interest (
         user_id INTEGER NOT NULL,
         category_id INTEGER NOT NULL,
-        description VARCHAR(200),
         PRIMARY KEY (user_id, category_id),
         FOREIGN KEY (category_id) REFERENCES category ON DELETE CASCADE
 );
