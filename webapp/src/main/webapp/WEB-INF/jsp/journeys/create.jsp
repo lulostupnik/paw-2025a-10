@@ -1,10 +1,3 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: fer
-  Date: 27/3/25
-  Time: 15:27
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
@@ -12,18 +5,29 @@
 <html>
 <head>
     <title><spring:message code="createJourney.title"/></title>
-    <!-- Include Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Include Preline UI Kit CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/preline/dist/preline.min.css" />
-</head>
-<body class="bg-gray-100">
+    <!-- Include custom CSS -->
+    <link rel="stylesheet" href="<c:url value='/resources/css/base.css'/>" />
+    <link rel="stylesheet" href="<c:url value='/resources/css/autocomplete.css'/>" />
+    <style>
+        /* Inline styles to ensure proper sizing */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
 
-<div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
+        /* Fix for SVG icons */
+        svg {
+            max-width: 100%;
+            max-height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
     <!-- Back Link -->
     <div class="mb-6">
-        <a href="<c:url value="/journeys"/>" class="inline-flex items-center gap-x-1.5 text-sm text-blue-600 decoration-2 hover:underline">
-            <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <a href="<c:url value="/journeys"/>" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
             </svg>
             <spring:message code="journey.back"/>
@@ -32,356 +36,138 @@
 
     <div class="mx-auto max-w-2xl">
         <div class="text-center">
-            <h2 class="text-xl text-gray-800 font-bold sm:text-3xl">
+            <h2 class="header">
                 <spring:message code="createJourney.title"/>
             </h2>
         </div>
 
         <!-- Card -->
-        <div class="mt-5 p-4 relative z-10 bg-white border border-gray-200 rounded-xl sm:mt-10 md:p-10">
+        <div class="card">
             <c:url var="registerUrl" value="/journeys/create"/>
             <form:form modelAttribute="createJourneyForm" action="${registerUrl}" method="post" enctype="multipart/form-data">
 
                 <!-- First Name Field -->
-                <div class="mb-4 sm:mb-8">
-                    <form:label path="firstName" class="block mb-2 text-sm font-medium">
-                        <spring:message code="createJourney.firstName"/>
-                    </form:label>
-                    <spring:message code="createJourney.firstName.hint" var="firstNameHint"/>
-                    <form:input path="firstName" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
-                                placeholder="${firstNameHint}"/>
-                    <form:errors path="firstName" cssClass="text-red-500 text-sm mt-1" element="p"/>
-                </div>
+                <c:set var="firstNameLabel"><spring:message code="createJourney.firstName"/></c:set>
+                <c:set var="firstNameHint"><spring:message code="createJourney.firstName.hint"/></c:set>
+                <jsp:include page="../components/text-field.jsp">
+                    <jsp:param name="path" value="firstName" />
+                    <jsp:param name="label" value="${firstNameLabel}" />
+                    <jsp:param name="placeholder" value="${firstNameHint}" />
+                </jsp:include>
 
                 <!-- Last Name Field -->
-                <div class="mb-4 sm:mb-8">
-                    <form:label path="lastName" class="block mb-2 text-sm font-medium">
-                        <spring:message code="createJourney.lastName"/>
-                    </form:label>
-                    <spring:message code="createJourney.lastName.hint" var="lastNameHint"/>
-                    <form:input path="lastName" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
-                                placeholder="${lastNameHint}"/>
-                    <form:errors path="lastName" cssClass="text-red-500 text-sm mt-1" element="p"/>
-                </div>
+                <c:set var="lastNameLabel"><spring:message code="createJourney.lastName"/></c:set>
+                <c:set var="lastNameHint"><spring:message code="createJourney.lastName.hint"/></c:set>
+                <jsp:include page="../components/text-field.jsp">
+                    <jsp:param name="path" value="lastName" />
+                    <jsp:param name="label" value="${lastNameLabel}" />
+                    <jsp:param name="placeholder" value="${lastNameHint}" />
+                </jsp:include>
 
                 <!-- Email Field -->
-                <div class="mb-4 sm:mb-8">
-                    <form:label path="email" class="block mb-2 text-sm font-medium">
-                        <spring:message code="createJourney.userEmail"/>
-                    </form:label>
-                    <spring:message code="createJourney.userEmail.hint" var="emailHint"/>
-                    <form:input path="email" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
-                                placeholder="${emailHint}"/>
-                    <form:errors path="email" cssClass="text-red-500 text-sm mt-1" element="p"/>
-                </div>
+                <c:set var="emailLabel"><spring:message code="createJourney.userEmail"/></c:set>
+                <c:set var="emailHint"><spring:message code="createJourney.userEmail.hint"/></c:set>
+                <jsp:include page="../components/text-field.jsp">
+                    <jsp:param name="path" value="email" />
+                    <jsp:param name="label" value="${emailLabel}" />
+                    <jsp:param name="placeholder" value="${emailHint}" />
+                    <jsp:param name="type" value="email" />
+                </jsp:include>
 
                 <!-- Start Date Field -->
-                <div class="mb-4 sm:mb-8">
-                    <form:label path="startDate" class="block mb-2 text-sm font-medium">
-                        <spring:message code="createJourney.startDate"/>
-                    </form:label>
-                    <spring:message code="createJourney.startDate.hint" var="startDateHint"/>
-                    <form:input type="date" path="startDate" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
-                                placeholder="${startDateHint}"/>
-                    <form:errors path="startDate" cssClass="text-red-500 text-sm mt-1" element="p"/>
-                </div>
+                <c:set var="startDateLabel"><spring:message code="createJourney.startDate"/></c:set>
+                <jsp:include page="../components/date-field.jsp">
+                    <jsp:param name="path" value="startDate" />
+                    <jsp:param name="label" value="${startDateLabel}" />
+                </jsp:include>
 
                 <!-- End Date Field -->
-                <div class="mb-4 sm:mb-8">
-                    <form:label path="endDate" class="block mb-2 text-sm font-medium">
-                        <spring:message code="createJourney.endDate"/>
-                    </form:label>
-                    <spring:message code="createJourney.endDate.hint" var="endDateHint"/>
-                    <form:input type="date" path="endDate" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
-                                placeholder="${endDateHint}"/>
-                    <form:errors path="endDate" cssClass="text-red-500 text-sm mt-1" element="p"/>
-                </div>
+                <c:set var="endDateLabel"><spring:message code="createJourney.endDate"/></c:set>
+                <jsp:include page="../components/date-field.jsp">
+                    <jsp:param name="path" value="endDate" />
+                    <jsp:param name="label" value="${endDateLabel}" />
+                </jsp:include>
 
                 <!-- Destination City Field -->
-                <div class="mb-4 sm:mb-8">
-                    <form:label path="destinationCity" class="block mb-2 text-sm font-medium">
-                        <spring:message code="createJourney.destinationCity"/>
-                    </form:label>
-                    <form:select path="destinationCity" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value=""><spring:message code="createJourney.destinationCity.select"/></option>
-                        <c:forEach var="city" items="${cities}">
-                            <option value="${city.name}"><c:out value="${city.name}"/></option>
-                        </c:forEach>
-                    </form:select>
-                    <form:errors path="destinationCity" cssClass="text-red-500 text-sm mt-1" element="p"/>
-                </div>
+                <c:set var="cityLabel"><spring:message code="createJourney.destinationCity"/></c:set>
+                <c:set target="${requestScope}" property="cityItems" value="${cities}" />
+                <jsp:include page="../components/dropdown.jsp">
+                    <jsp:param name="path" value="destinationCity" />
+                    <jsp:param name="label" value="${cityLabel}" />
+                    <jsp:param name="items" value="cityItems" />
+                    <jsp:param name="defaultMessageCode" value="createJourney.destinationCity.select" />
+                </jsp:include>
 
                 <!-- Destination University Field -->
-                <div class="mb-4 sm:mb-8">
-                    <form:label path="destinationUniversity" class="block mb-2 text-sm font-medium">
-                        <spring:message code="createJourney.destinationUniversity"/>
-                    </form:label>
-                    <form:select path="destinationUniversity" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value=""><spring:message code="createJourney.destinationUniversity.select"/></option>
-                        <c:forEach var="university" items="${universities}">
-                            <option value="${university.name}"><c:out value=" ${university.name}"/></option>
-                        </c:forEach>
-                    </form:select>
-                    <form:errors path="destinationUniversity" cssClass="text-red-500 text-sm mt-1" element="p"/>
-                </div>
+                <c:set var="universityLabel"><spring:message code="createJourney.destinationUniversity"/></c:set>
+                <c:set target="${requestScope}" property="universityItems" value="${universities}" />
+                <jsp:include page="../components/dropdown.jsp">
+                    <jsp:param name="path" value="destinationUniversity" />
+                    <jsp:param name="label" value="${universityLabel}" />
+                    <jsp:param name="items" value="universityItems" />
+                    <jsp:param name="defaultMessageCode" value="createJourney.destinationUniversity.select" />
+                </jsp:include>
 
                 <!-- Career Field -->
-                <div class="mb-4 sm:mb-8">
-                    <form:label path="career" class="block mb-2 text-sm font-medium">
-                        <spring:message code="event.career"/>
-                    </form:label>
-                    <form:select path="career" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value=""><spring:message code="event.career.select"/></option>
-                        <c:forEach var="career" items="${careers}">
-                            <option value="${career.name}"><c:out value="${career.name}"/></option>
-                        </c:forEach>
-                    </form:select>
-                    <form:errors path="career" class="text-red-500 text-sm mt-1" />
-                </div>
+                <c:set var="careerLabel"><spring:message code="event.career"/></c:set>
+                <c:set target="${requestScope}" property="careerItems" value="${careers}" />
+                <jsp:include page="../components/dropdown.jsp">
+                    <jsp:param name="path" value="career" />
+                    <jsp:param name="label" value="${careerLabel}" />
+                    <jsp:param name="items" value="careerItems" />
+                    <jsp:param name="defaultMessageCode" value="event.career.select" />
+                </jsp:include>
 
                 <!-- Username Field -->
-                <div class="mb-4 sm:mb-8">
-                    <form:label path="username" class="block mb-2 text-sm font-medium">
-                        <spring:message code="createJourney.username"/>
-                    </form:label>
-                    <spring:message code="createJourney.username.hint" var="usernameHint"/>
-                    <form:input path="username" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
-                                placeholder="${usernameHint}"/>
-                    <form:errors path="username" cssClass="text-red-500 text-sm mt-1" element="p"/>
-                </div>
+                <c:set var="usernameLabel"><spring:message code="createJourney.username"/></c:set>
+                <c:set var="usernameHint"><spring:message code="createJourney.username.hint"/></c:set>
+                <jsp:include page="../components/text-field.jsp">
+                    <jsp:param name="path" value="username" />
+                    <jsp:param name="label" value="${usernameLabel}" />
+                    <jsp:param name="placeholder" value="${usernameHint}" />
+                </jsp:include>
 
                 <!-- Interests Field -->
-                <!-- Interests Field - Enhanced searchable multi-select with tags -->
-                <div class="mb-4 sm:mb-8">
-                    <form:label path="interests" class="block mb-2 text-sm font-medium">
-                        <spring:message code="event.interest" />
-                    </form:label>
-
-                    <!-- Hidden select that will hold the actual form data -->
-                    <form:select path="interests" multiple="true" id="interestsSelect" style="display: none;">
-                        <c:forEach var="interest" items="${interests}">
-                            <option value="${interest.name}"><c:out value="${interest.name}"/></option>
-                        </c:forEach>
-                    </form:select>
-
-                    <!-- Custom UI for interests selection -->
-                    <div class="relative">
-                        <!-- Search input -->
-                        <input type="text" id="interestSearch"
-                               class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
-                               placeholder="<spring:message code="event.interest.search"/>" />
-
-                        <!-- Dropdown for search results -->
-                        <div id="interestDropdown" class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                            <ul class="py-1 text-sm">
-                                <c:forEach var="interest" items="${interests}">
-                                    <li class="interest-option px-4 py-2 hover:bg-gray-100 cursor-pointer" data-value="${interest.name}">
-                                        <c:out value="${interest.name}"/>
-                                    </li>
-                                </c:forEach>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Selected interests will appear here as tags -->
-                    <div id="selectedInterests" class="flex flex-wrap gap-2 mt-2"></div>
-
-                    <div class="mt-2 text-sm text-gray-500">
-                        <spring:message code="event.interest.select"/>
-                    </div>
-                    <form:errors path="interests" class="text-red-500 text-sm mt-1"/>
-                </div>
+                <c:set var="interestsLabel"><spring:message code="event.interest"/></c:set>
+                <c:set var="interestsSearchPlaceholder"><spring:message code="event.interest.search"/></c:set>
+                <c:set var="interestsHelpText"><spring:message code="event.interest.select"/></c:set>
+                <c:set target="${requestScope}" property="interestItems" value="${interests}" />
+                <jsp:include page="../components/autocomplete.jsp">
+                    <jsp:param name="path" value="interests" />
+                    <jsp:param name="label" value="${interestsLabel}" />
+                    <jsp:param name="items" value="interestItems" />
+                    <jsp:param name="searchPlaceholder" value="${interestsSearchPlaceholder}" />
+                    <jsp:param name="helpText" value="${interestsHelpText}" />
+                </jsp:include>
 
                 <!-- Description Field -->
-                <div class="mb-4 sm:mb-8">
-                    <form:label path="description" class="block mb-2 text-sm font-medium">
-                        <spring:message code="createJourney.description"/>
-                    </form:label>
-                    <spring:message code="createJourney.description.hint" var="descriptionHint"/>
-                    <form:textarea path="description" rows="4" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
-                                   placeholder="${descriptionHint}"/>
-                    <form:errors path="description" cssClass="text-red-500 text-sm mt-1" element="p"/>
-                </div>
+                <c:set var="descriptionLabel"><spring:message code="createJourney.description"/></c:set>
+                <c:set var="descriptionHint"><spring:message code="createJourney.description.hint"/></c:set>
+                <jsp:include page="../components/text-area.jsp">
+                    <jsp:param name="path" value="description" />
+                    <jsp:param name="label" value="${descriptionLabel}" />
+                    <jsp:param name="placeholder" value="${descriptionHint}" />
+                </jsp:include>
 
                 <!-- Profile picture Upload Field -->
-                <div class="mb-4 sm:mb-8">
-                    <form:label path="profilePicture" class="block mb-2 text-sm font-medium">
-                        <spring:message code="createJourney.profile_picture" />
-                    </form:label>
-                    <div class="flex flex-col items-center p-5 border-2 border-gray-300 border-dashed rounded-lg bg-gray-50">
-                        <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"></path>
-                        </svg>
-                        <p class="mb-2 text-sm text-gray-500 text-center"><spring:message code ="upload_picture.profile"/></p>
-                        <form:input path="profilePicture" type="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" accept="image/png, image/jpeg" />
-                    </div>
-                    <form:errors path="profilePicture" class="text-red-500 text-sm mt-1" />
-                </div>
+                <c:set var="profilePicLabel"><spring:message code="createJourney.profile_picture"/></c:set>
+                <jsp:include page="../components/image-upload.jsp">
+                    <jsp:param name="path" value="profilePicture" />
+                    <jsp:param name="label" value="${profilePicLabel}" />
+                    <jsp:param name="messageCode" value="upload_picture.profile" />
+                </jsp:include>
 
                 <!-- Submit Button -->
-                <div class="mt-6 grid">
-                    <spring:message code="createJourney.submit" var="submit"/>
-                    <button type="submit" class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2">
-                            ${submit}
-                    </button>
-                </div>
+                <c:set var="submitButtonLabel"><spring:message code="createJourney.submit"/></c:set>
+                <jsp:include page="../components/button.jsp">
+                    <jsp:param name="label" value="${submitButtonLabel}" />
+                    <jsp:param name="type" value="submit" />
+                </jsp:include>
             </form:form>
         </div>
         <!-- End Card -->
     </div>
 </div>
 
-<!-- Preline JS -->
-<script src="https://cdn.jsdelivr.net/npm/preline/dist/preline.min.js"></script>
-<!-- JavaScript for the custom interests selector -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const interestsSelect = document.getElementById('interestsSelect');
-        const interestSearch = document.getElementById('interestSearch');
-        const interestDropdown = document.getElementById('interestDropdown');
-        const selectedInterests = document.getElementById('selectedInterests');
-        const interestOptions = document.querySelectorAll('.interest-option');
-
-        // Store selected values as objects with value and text properties
-        let selectedValues = [];
-
-        // Initialize with any pre-selected values (for edit forms)
-        initializeSelectedValues();
-        updateSelectedTags();
-
-        // Toggle dropdown on input focus
-        interestSearch.addEventListener('focus', function() {
-            interestDropdown.classList.remove('hidden');
-            filterOptions(this.value);
-        });
-
-        // Hide dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!interestSearch.contains(e.target) && !interestDropdown.contains(e.target)) {
-                interestDropdown.classList.add('hidden');
-            }
-        });
-
-        // Filter options as user types
-        interestSearch.addEventListener('input', function() {
-            filterOptions(this.value);
-            interestDropdown.classList.remove('hidden');
-        });
-
-        // Handle option selection
-        interestOptions.forEach(option => {
-            option.addEventListener('click', function() {
-                const value = this.dataset.value;
-                const text = this.textContent.trim();
-
-                // Check if already selected
-                const exists = selectedValues.some(item => item.value === value);
-
-                // Toggle selection
-                if (!exists) {
-                    // Add to selected values
-                    selectedValues.push({ value: value, text: text });
-
-                    // Update the hidden select
-                    updateSelectElement();
-                }
-
-                // Update the UI
-                updateSelectedTags();
-                interestSearch.value = '';
-                interestDropdown.classList.add('hidden');
-            });
-        });
-
-        // Filter dropdown options based on search text
-        function filterOptions(searchText) {
-            const filter = searchText.toLowerCase();
-            interestOptions.forEach(option => {
-                const text = option.textContent.toLowerCase();
-                if (text.includes(filter)) {
-                    option.style.display = '';
-                } else {
-                    option.style.display = 'none';
-                }
-            });
-        }
-
-        // Initialize selected values from the select element
-        function initializeSelectedValues() {
-            // Get all option elements
-            const options = interestsSelect.querySelectorAll('option');
-
-            // Check which ones are selected
-            options.forEach(option => {
-                if (option.selected) {
-                    selectedValues.push({
-                        value: option.value,
-                        text: option.textContent.trim()
-                    });
-                }
-            });
-        }
-
-        // Update the select element based on selectedValues array
-        function updateSelectElement() {
-            const options = interestsSelect.querySelectorAll('option');
-            const selectedValueIds = selectedValues.map(item => item.value);
-
-            options.forEach(option => {
-                option.selected = selectedValueIds.includes(option.value);
-            });
-        }
-
-        // Update the selected tags UI
-        function updateSelectedTags() {
-            // Clear existing tags
-            selectedInterests.innerHTML = '';
-
-            // Create tags for each selected value
-            selectedValues.forEach(item => {
-                // Create tag container
-                const tag = document.createElement('div');
-                tag.className = 'flex items-center bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded';
-
-                // Add text node
-                const textNode = document.createTextNode(item.text);
-                tag.appendChild(textNode);
-
-                // Create remove button
-                const removeBtn = document.createElement('button');
-                removeBtn.type = 'button';
-                removeBtn.className = 'ml-1.5 text-blue-800 hover:text-blue-900';
-                removeBtn.dataset.value = item.value;
-
-                // Create SVG for the remove button
-                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                svg.setAttribute('width', '12');
-                svg.setAttribute('height', '12');
-                svg.setAttribute('fill', 'currentColor');
-                svg.setAttribute('viewBox', '0 0 16 16');
-
-                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                path.setAttribute('d', 'M8 8.707l3.646 3.647a.5.5 0 0 0 .708-.708L8.707 8l3.647-3.646a.5.5 0 0 0-.708-.708L8 7.293 4.354 3.646a.5.5 0 1 0-.708.708L7.293 8l-3.647 3.646a.5.5 0 0 0 .708.708L8 8.707z');
-
-                svg.appendChild(path);
-                removeBtn.appendChild(svg);
-
-                // Add remove button functionality
-                removeBtn.addEventListener('click', function() {
-                    const valueToRemove = this.dataset.value;
-                    selectedValues = selectedValues.filter(item => item.value !== valueToRemove);
-                    updateSelectElement();
-                    updateSelectedTags();
-                });
-
-                // Add button to tag
-                tag.appendChild(removeBtn);
-
-                // Add tag to container
-                selectedInterests.appendChild(tag);
-            });
-        }
-    });
-</script>
 </body>
 </html>
