@@ -45,7 +45,8 @@
                     <form:form action="${actionGet}" method="GET"
                                modelAttribute="filterJourneyForm"
                                class="filter-form">
-                        <div class="filter-grid">
+
+                    <div class="filter-grid">
                             <div class="filter-item">
                                 <c:set var="destinationLabel"><spring:message code="createJourney.destinationUniversity"/></c:set>
                                 <jsp:include page="../components/dropdown.jsp">
@@ -73,18 +74,18 @@
                             </div>
 
                             <!-- Interest Filter using the autocomplete component -->
-                            <div class="filter-item">
-                                <c:set var="interestFilter"><spring:message code="journey.filter.interest.placeholder"/></c:set>
-                                <c:set var="interestsLabel"><spring:message code="journey.filter.interest"/></c:set>
-                                <jsp:include page="../components/autocomplete.jsp">
-                                    <jsp:param name="path" value="interest"/>
-                                    <jsp:param name="label" value="${interestsLabel}"/>
-                                    <jsp:param name="items" value="interests"/>
-                                    <jsp:param name="searchPlaceholder" value="${interestFilter}"/>
-                                    <jsp:param name="helpText" value=""/>
-                                </jsp:include>
-                            </div>
+                        <!-- Interest Filter using dropdown instead of autocomplete -->
+                        <div class="filter-item">
+                            <c:set var="interestsLabel"><spring:message code="journey.filter.interest"/></c:set>
+                            <jsp:include page="../components/dropdown.jsp">
+                                <jsp:param name="path" value="interest"/>
+                                <jsp:param name="label" value="${interestsLabel}"/>
+                                <jsp:param name="items" value="interests"/>
+                                <jsp:param name="defaultMessageCode" value="journey.filter.interest.placeholder"/>
+                            </jsp:include>
                         </div>
+
+                    </div>
 
                         <div class="filter-actions">
                             <a href="<c:url value="/journeys"/>" class="btn-danger">
