@@ -105,7 +105,7 @@
                     <form:select path="destinationCity" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
                         <option value=""><spring:message code="createJourney.destinationCity.select"/></option>
                         <c:forEach var="city" items="${cities}">
-                            <option value="${city.name}">${city.name}</option>
+                            <option value="${city.name}"><c:out value="${city.name}"/></option>
                         </c:forEach>
                     </form:select>
                     <form:errors path="destinationCity" cssClass="text-red-500 text-sm mt-1" element="p"/>
@@ -119,7 +119,7 @@
                     <form:select path="destinationUniversity" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
                         <option value=""><spring:message code="createJourney.destinationUniversity.select"/></option>
                         <c:forEach var="university" items="${universities}">
-                            <option value="${university.name}">${university.name}</option>
+                            <option value="${university.name}"><c:out value=" ${university.name}"/></option>
                         </c:forEach>
                     </form:select>
                     <form:errors path="destinationUniversity" cssClass="text-red-500 text-sm mt-1" element="p"/>
@@ -133,7 +133,7 @@
                     <form:select path="career" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
                         <option value=""><spring:message code="event.career.select"/></option>
                         <c:forEach var="career" items="${careers}">
-                            <option value="${career.name}"><c:out value=" ${career.name}"/></option>
+                            <option value="${career.name}"><c:out value="${career.name}"/></option>
                         </c:forEach>
                     </form:select>
                     <form:errors path="career" class="text-red-500 text-sm mt-1" />
@@ -171,7 +171,7 @@
                                class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
                                placeholder="<spring:message code="event.interest.search"/>" />
 
-                        <!-- Dropdown for search results -->
+                        <!-- Dropdown for search results -->t
                         <div id="interestDropdown" class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                             <ul class="py-1 text-sm">
                                 <c:forEach var="interest" items="${interests}">
@@ -213,7 +213,7 @@
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
                         </svg>
                         <p class="mb-2 text-sm text-gray-500 text-center"><spring:message code ="upload_picture.profile"/></p>
-                        <form:input path="profilePicture" type="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" accept="image/png, image/jpeg, application/pdf" />
+                        <form:input path="profilePicture" type="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" accept="image/png, image/jpeg" />
                     </div>
                     <form:errors path="profilePicture" class="text-red-500 text-sm mt-1" />
                 </div>

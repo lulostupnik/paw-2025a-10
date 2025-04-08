@@ -37,7 +37,7 @@
                 <spring:message code="replyJourney.title"/>
             </h2>
             <p class="mt-2 text-gray-600">
-                <spring:message code="replyJourney.subtitle"/> <c:out value="${journey.user.email}"/>
+                <spring:message code="replyJourney.subtitle" arguments="${journey.user.email}"/>
             </p>
         </div>
 
@@ -66,7 +66,7 @@
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
                         </svg>
                         <p class="mb-2 text-sm text-gray-500 text-center"><spring:message code ="upload_picture.profile"/></p>
-                        <form:input path="profilePicture" type="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" accept="image/png, image/jpeg, application/pdf" />
+                        <form:input path="profilePicture" type="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" accept="image/png, image/jpeg" />
                     </div>
                     <form:errors path="profilePicture" class="text-red-500 text-sm mt-1" />
                 </div>
@@ -112,7 +112,7 @@
                     <form:select path="career" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
                         <option value=""><spring:message code="event.career.select"/></option>
                         <c:forEach var="career" items="${careers}">
-                            <option value="${career.name}">${career.name}</option>
+                            <option value="${career.name}"><c:out value=" ${career.name}"/></option>
                         </c:forEach>
                     </form:select>
                     <form:errors path="career" class="text-red-500 text-sm mt-1" />
@@ -126,7 +126,7 @@
                     <form:select path="originUniversity" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
                         <option value=""><spring:message code="createJourney.destinationUniversity.select"/></option>
                         <c:forEach var="university" items="${universities}">
-                            <option value="${university.name}">${university.name}</option>
+                            <option value="${university.name}">$<c:out value="${university.name}"/></option>
                         </c:forEach>
                     </form:select>
                     <form:errors path="originUniversity" cssClass="text-red-500 text-sm mt-1" element="p"/>
