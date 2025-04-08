@@ -194,4 +194,9 @@ public class JourneyJdbcDao implements JourneyDao {
         return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
     }
 
+    @Override
+    public Optional<Journey> findByUserId(long userId) {
+        return jdbcTemplate.query(QUERY + " WHERE us.id = ?", JOURNEY_ROW_MAPPER, userId).stream().findFirst();
+    }
+
 }

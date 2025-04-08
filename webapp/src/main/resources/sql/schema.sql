@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS cities (
 
 CREATE TABLE IF NOT EXISTS journeys (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL UNIQUE,
     destination_university_id INTEGER NOT NULL,
     city_id INTEGER NOT NULL,
     start_date DATE NOT NULL,
