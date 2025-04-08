@@ -80,6 +80,7 @@
                 <jsp:include page="../components/date-field.jsp">
                     <jsp:param name="path" value="startDate" />
                     <jsp:param name="label" value="${startDateLabel}" />
+                    <jsp:param name="isStartDate" value="true" />
                 </jsp:include>
 
                 <!-- End Date Field -->
