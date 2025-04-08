@@ -10,4 +10,6 @@ public interface UserService {
     User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, byte[] profilePicture, String[] interests);
 
     Optional<User> findByEmail(String email);
+    Optional<User> findById(long id);
+    Optional<User> findByUsername(String username);
 }

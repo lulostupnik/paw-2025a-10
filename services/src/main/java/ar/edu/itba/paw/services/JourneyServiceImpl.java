@@ -55,7 +55,8 @@ public class JourneyServiceImpl implements JourneyService {
         checkDates(startDate, endDate);
 
         University destination = universityService.findByAny(destinationUniversity).orElseThrow(() -> new RuntimeException("Destination University not found"));
-        User user = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePicture, interests));
+        //Solo por ahora busco tmbn x username
+        User user = userService.findByEmail(email).orElseGet(() -> userService.findByUsername(username).orElseGet(()-> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePicture, interests)));
         /*
         if (journeyDao.findOverlappingJourney(user.getId(), startDate, endDate).isPresent()) {
             throw new RuntimeException("There's already a journey registered in this time period");

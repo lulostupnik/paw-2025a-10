@@ -41,7 +41,8 @@
                     <h3 class="filter-title">
                         <spring:message code="journey.filter.title"/>
                     </h3>
-                    <form:form action="/journeys/" method="GET"
+                    <c:set var="actionGet"><c:url value="/journeys"/></c:set>
+                    <form:form action="${actionGet}" method="GET"
                                modelAttribute="filterJourneyForm"
                                class="filter-form">
                         <div class="filter-grid">
