@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS images (
 
 CREATE TABLE IF NOT EXISTS category (
         id SERIAL PRIMARY KEY,
-        name varchar(100) NOT NULL UNIQUE
+        en_name varchar(100) NOT NULL UNIQUE,
+        es_name varchar(100) NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS user_interest (
