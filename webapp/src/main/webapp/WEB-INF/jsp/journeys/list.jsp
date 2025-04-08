@@ -46,35 +46,40 @@
                                class="filter-form">
                         <div class="filter-grid">
                             <div class="filter-item">
+                                <c:set var="destinationLabel"><spring:message code="createJourney.destinationUniversity"/></c:set>
                                 <jsp:include page="../components/dropdown.jsp">
                                     <jsp:param name="path" value="destination"/>
-                                    <jsp:param name="label" value="${spring.getMessage('journey.filter.destination')}"/>
+                                    <jsp:param name="label" value="${destinationLabel}"/>
                                     <jsp:param name="items" value="cities"/>
                                     <jsp:param name="defaultMessageCode" value="journey.filter.destination.placeholder"/>
                                 </jsp:include>
                             </div>
 
                             <div class="filter-item">
+                                <c:set var="startDateFilter"><spring:message code="journey.filter.startDate"/></c:set>
                                 <jsp:include page="../components/date-field.jsp">
                                     <jsp:param name="path" value="startDate"/>
-                                    <jsp:param name="label" value="${spring.getMessage('journey.filter.startDate')}"/>
+                                    <jsp:param name="label" value="${startDateFilter}"/>
                                 </jsp:include>
                             </div>
 
                             <div class="filter-item">
+                                <c:set var="endDateFilter"><spring:message code="journey.filter.endDate"/></c:set>
                                 <jsp:include page="../components/date-field.jsp">
                                     <jsp:param name="path" value="endDate"/>
-                                    <jsp:param name="label" value="${spring.getMessage('journey.filter.endDate')}"/>
+                                    <jsp:param name="label" value="${endDateFilter}"/>
                                 </jsp:include>
                             </div>
 
                             <!-- Interest Filter using the autocomplete component -->
                             <div class="filter-item">
+                                <c:set var="interestFilter"><spring:message code="journey.filter.interest.placeholder"/></c:set>
+                                <c:set var="interestsLabel"><spring:message code="journey.filter.interest"/></c:set>
                                 <jsp:include page="../components/autocomplete.jsp">
                                     <jsp:param name="path" value="interest"/>
-                                    <jsp:param name="label" value="${spring.getMessage('journey.filter.interest')}"/>
+                                    <jsp:param name="label" value="${interestsLabel}"/>
                                     <jsp:param name="items" value="interests"/>
-                                    <jsp:param name="searchPlaceholder" value="${spring.getMessage('journey.filter.interest.placeholder')}"/>
+                                    <jsp:param name="searchPlaceholder" value="${interestFilter}"/>
                                     <jsp:param name="helpText" value=""/>
                                 </jsp:include>
                             </div>
