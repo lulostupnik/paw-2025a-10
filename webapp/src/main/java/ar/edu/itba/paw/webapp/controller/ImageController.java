@@ -52,22 +52,4 @@ public class ImageController {
         }
     }
 
-    @RequestMapping(value = "upload", method = RequestMethod.GET)
-    public ModelAndView uploadImageForm(@ModelAttribute("uploadImageForm") final UploadImageForm uploadImageForm) {
-        return new ModelAndView("images/upload");
-    }
-
-    @RequestMapping(value = "upload", method = RequestMethod.POST)
-    public ModelAndView uploadImage(@Valid @ModelAttribute("uploadImageForm") final UploadImageForm uploadImageForm, final BindingResult errors) {
-        long id = 0;
-        if(errors.hasErrors()){
-            // FIXME
-        }
-        try {
-            id = imageService.storeImage(uploadImageForm.getImage().getBytes());
-        } catch (IOException e) {
-           // FIXME
-        }
-        return new ModelAndView("redirect:/images/" + id );
-    }
 }

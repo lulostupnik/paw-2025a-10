@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import javax.validation.constraints.Email;
 //import javax.validation.constraints.Pattern;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,7 +22,7 @@ public class CreateJourneyForm {
     //@Pattern(regexp = "[a-zA-Z0-9]+$")
     @Email
     private String email;
-
+    @NotNull
     private MultipartFile profilePicture;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -45,6 +46,7 @@ public class CreateJourneyForm {
     @Size(min = 2, max = 50)
     private String username;
 
+    @NotNull
     private String[] interests;
 
     public String getCareer() {

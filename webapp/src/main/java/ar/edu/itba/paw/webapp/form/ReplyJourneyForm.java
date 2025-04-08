@@ -3,6 +3,7 @@ package ar.edu.itba.paw.webapp.form;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class ReplyJourneyForm {
@@ -13,12 +14,10 @@ public class ReplyJourneyForm {
 
     @Size(min = 2, max = 100)
     private String firstName;
+    @NotNull
     private MultipartFile profilePicture;
-
-
     @Size(min = 2, max = 100)
     private String lastName;
-
     @Size(min=2, max = 50)
     private String username;
 
