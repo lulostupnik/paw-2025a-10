@@ -10,16 +10,16 @@
     --debug-bg: #f3f4f6;
 }
 
-html.dark-mode {
-    --bg-color: #111827;
-    --text-color: #ffffff;
-    --text-muted: #9ca3af;
-    --primary-color: #2563eb;
-    --primary-hover: #3b82f6;
-    --error-text: #f87171;
-    --border-color: #374151;
-    --debug-bg: #1f2937;
-}
+/*html.dark-mode {*/
+/*    --bg-color: #111827;*/
+/*    --text-color: #ffffff;*/
+/*    --text-muted: #9ca3af;*/
+/*    --primary-color: #2563eb;*/
+/*    --primary-hover: #3b82f6;*/
+/*    --error-text: #f87171;*/
+/*    --border-color: #374151;*/
+/*    --debug-bg: #1f2937;*/
+/*}*/
 
 * {
     box-sizing: border-box;
