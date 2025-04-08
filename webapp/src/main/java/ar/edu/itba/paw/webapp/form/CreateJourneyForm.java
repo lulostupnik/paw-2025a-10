@@ -25,7 +25,7 @@ public class CreateJourneyForm {
     private String email;
 
     @NotNull
-    @ImageSize() // 2MB
+    @ImageSize() // 1KB
     private MultipartFile profilePicture;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
