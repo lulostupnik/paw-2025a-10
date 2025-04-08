@@ -37,7 +37,7 @@
                 <spring:message code="replyJourney.title"/>
             </h2>
             <p class="mt-2 text-gray-600">
-                <spring:message code="replyJourney.subtitle"/> <c:out value="${journey.user.email}"/>
+                <spring:message code="replyJourney.subtitle" arguments="${journey.user.email}"/>
             </p>
         </div>
 
@@ -112,7 +112,7 @@
                     <form:select path="career" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
                         <option value=""><spring:message code="event.career.select"/></option>
                         <c:forEach var="career" items="${careers}">
-                            <option value="${career.name}">${career.name}</option>
+                            <option value="${career.name}"><c:out value=" ${career.name}"/></option>
                         </c:forEach>
                     </form:select>
                     <form:errors path="career" class="text-red-500 text-sm mt-1" />
@@ -126,7 +126,7 @@
                     <form:select path="originUniversity" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
                         <option value=""><spring:message code="createJourney.destinationUniversity.select"/></option>
                         <c:forEach var="university" items="${universities}">
-                            <option value="${university.name}">${university.name}</option>
+                            <option value="${university.name}">$<c:out value="${university.name}"/></option>
                         </c:forEach>
                     </form:select>
                     <form:errors path="originUniversity" cssClass="text-red-500 text-sm mt-1" element="p"/>
