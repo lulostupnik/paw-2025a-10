@@ -35,7 +35,7 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 @EnableAsync
 @ComponentScan({ "ar.edu.itba.paw.webapp.controller", "ar.edu.itba.paw.services", "ar.edu.itba.paw.persistence"}) // , "ar.edu.itba.paw.services"
 @Configuration
-public class WebConfig /* extends WebMvcConfigurerAdapter */ {
+public class WebConfig implements WebMvcConfigurer {
 
 
     @Value("classpath:sql/schema.sql")
@@ -124,6 +124,12 @@ public class WebConfig /* extends WebMvcConfigurerAdapter */ {
         templateResolver.setCharacterEncoding(StandardCharsets.UTF_8.name());
         templateResolver.setCacheable(false); // Disable cache for development
         return templateResolver;
+    }
+
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/resources/**").addResourceLocations("/resources/");
     }
 
 //    @Bean
