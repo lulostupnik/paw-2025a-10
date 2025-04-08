@@ -50,13 +50,19 @@
                     <h3 class="text-lg font-semibold text-gray-800 mb-3">
                         <spring:message code="journey.filter.title"/>
                     </h3>
-                    <form:form action="${pageContext.request.contextPath}/journeys/" method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <form:form action="${pageContext.request.contextPath}/journeys/" method="GET"
+                               modelAttribute="filterJourneyForm"
+                               class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div>
-                            <label for="destination" class="block text-sm font-medium text-gray-700 mb-1">
+                            <form:label path="destination" class="block text-sm font-medium text-gray-700 mb-1">
                                 <spring:message code="journey.filter.destination"/>
-                            </label>
-                            <input type="text" id="destination" name="destination" class="py-2 px-3 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
-                                   placeholder="<spring:message code="journey.filter.destination.placeholder"/>" value="<c:out value="${filterJourneyForm.destination}"/>" />
+                            </form:label>
+                            <form:select path="destination" class="py-2.5 px-4 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option value=""><spring:message code="journey.filter.destination.placeholder"/></option>
+                                <c:forEach var="city" items="${cities}">
+                                    <option value="${city.name}" ${filterJourneyForm.destination eq city.name ? 'selected' : ''}>${city.name}</option>
+                                </c:forEach>
+                            </form:select>
                         </div>
 
                         <div>
@@ -76,11 +82,13 @@
                         </div>
 
                         <div>
-                            <label for="interest" class="block text-sm font-medium text-gray-700 mb-1">
-                                <spring:message code="journey.filter.interest" />
-                            </label>
-                            <input type="text" id="interest" name="interest" class="py-2 px-3 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
-                                   placeholder="<spring:message code="journey.filter.interest.placeholder" />" value="<c:out value="${filterJourneyForm.interest}"/>" />
+                            <form:label path="interest" class="block text-sm font-medium text-gray-700 mb-1">
+                                <spring:message code="journey.filter.interest"/>
+                            </form:label>
+                            <form:select path="interest" class="py-2.5 px-4 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option value=""><spring:message code="journey.filter.interest.placeholder"/></option>
+                                <form:options items="${interests}" itemValue="name" itemLabel="name"/>
+                            </form:select>
                         </div>
 
                         <div class="md:col-span-2 lg:col-span-4 flex justify-end gap-2">

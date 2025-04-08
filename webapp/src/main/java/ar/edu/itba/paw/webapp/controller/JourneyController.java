@@ -57,6 +57,11 @@ public class JourneyController {
         filterJourneyForm.setStartDate(startDate);
         filterJourneyForm.setEndDate(endDate);
         filterJourneyForm.setInterests(interest);
+        List<City> cities = cityService.getAllCities();
+        List<Interest> interests = interestService.findAll();
+
+        mav.addObject("cities", cities);
+        mav.addObject("interests", interests);
         mav.addObject("filterJourneyForm", filterJourneyForm);
         mav.addObject("journeys", journeys);
         return mav;
