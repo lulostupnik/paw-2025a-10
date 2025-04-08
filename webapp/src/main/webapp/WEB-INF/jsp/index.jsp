@@ -24,9 +24,7 @@
                 <h1 class="page-title">
                     <spring:message code="dashboard.welcome"/>
                 </h1>
-                <p class="page-intro">
-                    <spring:message code="dashboard.intro"/>
-                </p>
+
             </div>
 
             <!-- Content Grid -->
