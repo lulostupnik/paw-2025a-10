@@ -34,69 +34,65 @@
     request.setAttribute("errorType", errorType);
 %>
 
+<link rel="stylesheet" href="<c:url value='/resources/css/error-style.css'/>" />
+
 <!DOCTYPE html>
 <html lang="${pageContext.request.locale.language}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><fmt:message key="error.${errorType}.title" /></title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/error-styles.css">
     <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {}
-            }
+        // Check for dark mode preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark-mode');
         }
     </script>
 </head>
-<body class="flex flex-col min-h-screen bg-white dark:bg-gray-900">
-<div class="max-w-3xl flex flex-col mx-auto min-h-screen">
-    <!-- ========== MAIN CONTENT ========== -->
-    <main id="content" class="flex-grow flex items-center justify-center">
-        <div class="text-center py-10 px-4 sm:px-6 lg:px-8">
-            <h1 class="block text-7xl font-bold text-gray-800 sm:text-9xl dark:text-white">
+<body>
+<div class="container">
+    <main id="content">
+        <div class="error-content">
+            <h1 class="error-title">
                 <fmt:message key="error.${errorType}.title" />
             </h1>
-            <p class="mt-3 text-gray-600 dark:text-neutral-400">
+            <p class="error-message">
                 <fmt:message key="error.${errorType}.message" />
             </p>
-            <p class="text-gray-600 dark:text-neutral-400">
+            <p class="error-description">
                 <fmt:message key="error.${errorType}.description" />
             </p>
 
             <%-- Display exception details in development mode --%>
             <c:if test="${not empty param.debug && not empty throwable}">
-                <div class="mt-6 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg text-left overflow-auto max-h-64">
-                    <h3 class="font-bold text-red-600 dark:text-red-400">Exception Details:</h3>
-                    <p class="text-sm text-gray-700 dark:text-gray-300">${throwable.message}</p>
-                    <pre class="mt-2 text-xs text-gray-600 dark:text-gray-400 overflow-auto">
-                            <c:forEach var="stackTraceElement" items="${throwable.stackTrace}">
-                                ${stackTraceElement}
-                            </c:forEach>
-                        </pre>
+                <div class="exception-details">
+                    <h3 class="exception-title">Exception Details:</h3>
+                    <p class="exception-message">${throwable.message}</p>
+                    <pre class="exception-stack-trace">
+                        <c:forEach var="stackTraceElement" items="${throwable.stackTrace}">
+                            ${stackTraceElement}
+                        </c:forEach>
+                    </pre>
                 </div>
             </c:if>
 
-            <div class="mt-5 flex flex-col justify-center items-center gap-2 sm:flex-row sm:gap-3">
-                <a class="w-full sm:w-auto py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none" href="${pageContext.request.contextPath}/">
-                    <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            <div class="button-container">
+                <a class="back-button" href="<c:url value="/"/>">
+                    <svg class="back-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                     <fmt:message key="button.back" />
                 </a>
             </div>
         </div>
     </main>
-    <!-- ========== END MAIN CONTENT ========== -->
 
-    <!-- ========== FOOTER ========== -->
-    <footer class="mt-auto text-center py-5">
-        <div class="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8">
-            <p class="text-sm text-gray-500 dark:text-neutral-500">
+    <footer>
+        <div class="footer-content">
+            <p class="copyright-text">
                 <fmt:message key="footer.copyright" /> <%= java.time.Year.now().getValue() %>
             </p>
         </div>
     </footer>
-    <!-- ========== END FOOTER ========== -->
 </div>
 </body>
 </html>
