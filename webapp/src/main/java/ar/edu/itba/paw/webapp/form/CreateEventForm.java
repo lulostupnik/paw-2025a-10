@@ -5,6 +5,7 @@ import java.util.Date;
 
 import javax.validation.constraints.Email;
 //import javax.validation.constraints.Pattern;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -17,9 +18,9 @@ public class CreateEventForm {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date date;
-
+    @NotNull
     private MultipartFile flyer;
-
+    @NotNull
     private MultipartFile profilePicture;
 
     @Size(min = 2, max = 200)
