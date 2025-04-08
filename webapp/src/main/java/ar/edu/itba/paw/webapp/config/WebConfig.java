@@ -14,6 +14,7 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
@@ -67,6 +68,7 @@ public class WebConfig /* extends WebMvcConfigurerAdapter */ {
         ms.setCacheSeconds((int) TimeUnit.MINUTES.toSeconds(5));
         ms.setBasename("classpath:i18n/messages");
         ms.setDefaultEncoding(StandardCharsets.UTF_8.name());
+
         return ms;
     }
 
@@ -122,14 +124,11 @@ public class WebConfig /* extends WebMvcConfigurerAdapter */ {
         templateResolver.setCharacterEncoding(StandardCharsets.UTF_8.name());
         templateResolver.setCacheable(false); // Disable cache for development
         return templateResolver;
-
-    /*
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry){
-        super.addResourceHandlers(registry);
-        registry.addResourceHandler("/css/**").addResourceLocations("/WEB-INF/css/");
     }
-    */
 
-}
+//    @Bean
+//    public LocaleResolver localeResolver() {
+//        return new CustomLocaleResolver();
+//    }
+
 }
