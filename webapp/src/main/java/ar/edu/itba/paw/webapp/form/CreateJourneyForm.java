@@ -10,9 +10,11 @@ import javax.validation.constraints.Size;
 import ar.edu.itba.paw.webapp.validation.FutureDate;
 import ar.edu.itba.paw.webapp.validation.ImageSize;
 import ar.edu.itba.paw.webapp.validation.NoExistingJourney;
+import ar.edu.itba.paw.webapp.validation.ValidDateRange;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
+@ValidDateRange
 public class CreateJourneyForm {
 
     @Size(min = 2, max = 100)
@@ -31,10 +33,12 @@ public class CreateJourneyForm {
     @ImageSize() // 1KB
     private MultipartFile profilePicture;
 
+    @NotNull
     @FutureDate
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
 
+    @NotNull
     @FutureDate
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
