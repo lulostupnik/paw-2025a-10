@@ -133,9 +133,5 @@ public class WebConfig  extends WebMvcConfigurerAdapter  {
         return templateResolver;
     }
 
-//    @Bean
-//    public LocaleResolver localeResolver() {
-//        return new CustomLocaleResolver();
-//    }
 
 }

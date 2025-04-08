@@ -5,14 +5,12 @@ CREATE TABLE IF NOT EXISTS images (
 
 CREATE TABLE IF NOT EXISTS category (
         id SERIAL PRIMARY KEY,
-        en_name varchar(100) NOT NULL UNIQUE,
-        es_name varchar(100) NOT NULL UNIQUE
+        name varchar(100) NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS user_interest (
         user_id INTEGER NOT NULL,
         category_id INTEGER NOT NULL,
-        description VARCHAR(200),
         PRIMARY KEY (user_id, category_id),
         FOREIGN KEY (category_id) REFERENCES category ON DELETE CASCADE
 );
@@ -86,7 +84,7 @@ CREATE TABLE IF NOT EXISTS cities (
 
 CREATE TABLE IF NOT EXISTS journeys (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL UNIQUE,
     destination_university_id INTEGER NOT NULL,
     city_id INTEGER NOT NULL,
     start_date DATE NOT NULL,

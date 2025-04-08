@@ -56,9 +56,15 @@ public class JourneyServiceImpl implements JourneyService {
 
         University destination = universityService.findByAny(destinationUniversity).orElseThrow(() -> new RuntimeException("Destination University not found"));
         User user = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePicture, interests));
+        /*
         if (journeyDao.findOverlappingJourney(user.getId(), startDate, endDate).isPresent()) {
             throw new RuntimeException("There's already a journey registered in this time period");
         }
+        */
+        if(journeyDao.findByUserId(user.getId()).isPresent()) {
+            throw new RuntimeException("User already has a journey");
+        }
+
         City city = cityService.findByName(destinationCity).orElseThrow(() -> new RuntimeException("Destination City not found"));
         return journeyDao.create(user, destination, city, startDate, endDate, description); // FIXME
     }
@@ -87,6 +93,15 @@ public class JourneyServiceImpl implements JourneyService {
 
     public List<Journey> getFilteredJourneys(String destination, LocalDate startDate, LocalDate endDate, String interest) {
         return journeyDao.findByFilters(destination, startDate,endDate, interest);
+    }
+
+    @Override
+    public Boolean userHasJourney(String email) {
+        Optional<User> maybeUser = userService.findByEmail(email);
+        if(maybeUser.isEmpty()){
+            return false;
+        }
+        return journeyDao.findByUserId(maybeUser.get().getId()).isPresent();
     }
 
 }
