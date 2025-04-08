@@ -171,7 +171,7 @@
                                class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500"
                                placeholder="<spring:message code="event.interest.search"/>" />
 
-                        <!-- Dropdown for search results -->
+                        <!-- Dropdown for search results -->t
                         <div id="interestDropdown" class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                             <ul class="py-1 text-sm">
                                 <c:forEach var="interest" items="${interests}">
