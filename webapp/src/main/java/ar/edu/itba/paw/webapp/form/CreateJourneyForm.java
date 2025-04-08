@@ -7,6 +7,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import ar.edu.itba.paw.webapp.validation.FutureDate;
 import ar.edu.itba.paw.webapp.validation.ImageSize;
 import ar.edu.itba.paw.webapp.validation.NoExistingJourney;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -30,9 +31,11 @@ public class CreateJourneyForm {
     @ImageSize() // 1KB
     private MultipartFile profilePicture;
 
+    @FutureDate
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
 
+    @FutureDate
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
