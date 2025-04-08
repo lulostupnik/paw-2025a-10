@@ -7,6 +7,7 @@
     <title><spring:message code="createJourney.title"/></title>
     <!-- Include custom CSS -->
     <link rel="stylesheet" href="<c:url value='/resources/css/base.css'/>" />
+    <link rel="stylesheet" href="<c:url value='/resources/css/form-components.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/autocomplete.css'/>" />
     <style>
         /* Inline styles to ensure proper sizing */
