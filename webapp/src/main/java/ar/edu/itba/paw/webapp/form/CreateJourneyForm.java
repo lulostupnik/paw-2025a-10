@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import javax.validation.constraints.Email;
 //import javax.validation.constraints.Pattern;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -12,16 +13,16 @@ import org.springframework.web.multipart.MultipartFile;
 public class CreateJourneyForm {
 
     @Size(min = 2, max = 100)
-    private String firstname;
+    private String firstName;
 
     @Size(min = 2, max = 100)
-    private String lastname;
+    private String lastName;
 
     @Size(min = 6, max = 100)
     //@Pattern(regexp = "[a-zA-Z0-9]+$")
     @Email
     private String email;
-
+    @NotNull
     private MultipartFile profilePicture;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -45,6 +46,7 @@ public class CreateJourneyForm {
     @Size(min = 2, max = 50)
     private String username;
 
+    @NotNull
     private String[] interests;
 
     public String getCareer() {
@@ -115,16 +117,16 @@ public class CreateJourneyForm {
     }
 
     public String getFirstName() {
-        return firstname;
+        return firstName;
     }
     public void setFirstName(String firstname) {
-        this.firstname = firstname;
+        this.firstName = firstname;
     }
     public String getLastName() {
-        return lastname;
+        return lastName;
     }
     public void setLastName(String lastname) {
-        this.lastname = lastname;
+        this.lastName = lastname;
     }
     public String[] getInterests() {
         return interests;

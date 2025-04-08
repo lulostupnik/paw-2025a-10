@@ -73,11 +73,19 @@ public class EventController {
         byte[] profilePictureBytes;
         try {
             flyerBytes = eventForm.getFlyer().getBytes();
-            profilePictureBytes = eventForm.getProfilePicture().getBytes();
         } catch (IOException e) {
             // Handle the exception, e.g., log it or return an error response
             throw new RuntimeException("Error reading flyer file", e);
         }
+        try {
+            profilePictureBytes = eventForm.getProfilePicture().getBytes();
+
+        } catch (IOException e) {
+            // Handle the exception, e.g., log it or return an error response
+            throw new RuntimeException("Error reading profile picture", e);
+        }
+
+
         event = eventService.createEvent(eventForm.getEmail(), eventForm.getCity(), eventForm.getDate(), flyerBytes, eventForm.getDescription(),  eventForm.getUsername(),eventForm.getFirstName(), eventForm.getLastName(), eventForm.getUniversity(), eventForm.getCareer(), profilePictureBytes);
         return getEvent(event.getId());
     }

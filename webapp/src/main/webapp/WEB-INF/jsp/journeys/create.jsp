@@ -105,7 +105,7 @@
                     <form:select path="destinationCity" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
                         <option value=""><spring:message code="createJourney.destinationCity.select"/></option>
                         <c:forEach var="city" items="${cities}">
-                            <option value="${city.name}">${city.name}</option>
+                            <option value="${city.name}"><c:out value="${city.name}"/></option>
                         </c:forEach>
                     </form:select>
                     <form:errors path="destinationCity" cssClass="text-red-500 text-sm mt-1" element="p"/>
@@ -119,7 +119,7 @@
                     <form:select path="destinationUniversity" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
                         <option value=""><spring:message code="createJourney.destinationUniversity.select"/></option>
                         <c:forEach var="university" items="${universities}">
-                            <option value="${university.name}">${university.name}</option>
+                            <option value="${university.name}"><c:out value=" ${university.name}"/></option>
                         </c:forEach>
                     </form:select>
                     <form:errors path="destinationUniversity" cssClass="text-red-500 text-sm mt-1" element="p"/>
@@ -133,7 +133,7 @@
                     <form:select path="career" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
                         <option value=""><spring:message code="event.career.select"/></option>
                         <c:forEach var="career" items="${careers}">
-                            <option value="${career.name}"><c:out value=" ${career.name}"/></option>
+                            <option value="${career.name}"><c:out value="${career.name}"/></option>
                         </c:forEach>
                     </form:select>
                     <form:errors path="career" class="text-red-500 text-sm mt-1" />

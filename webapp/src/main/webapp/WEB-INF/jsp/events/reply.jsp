@@ -37,7 +37,7 @@
         <spring:message code="replyEvent.title" />
       </h2>
       <p class="mt-2 text-gray-600">
-        <spring:message code="replyEvent.subtitle" /> <c:out value="${event.eventCity.name}"/> - <c:out value="${event.date}"/>
+        <spring:message code="replyEvent.subtitle" arguments="${event.eventCity.name},${event.date}" />
       </p>
     </div>
 
@@ -49,7 +49,7 @@
 
       <!-- Event Image if available -->
       <c:if test="${not empty event.flyerImageId}">
-        <img src="${pageContext.request.contextPath}/images/${event.flyerImageId}" alt="<spring:message code='event.flyer.alt'/>" class="w-full h-40 object-cover rounded-lg mb-4">
+        <img src="<c:url value="${pageContext.request.contextPath}/images/${event.flyerImageId}"/>" alt="<spring:message code='event.flyer.alt'/>" class="w-full h-40 object-cover rounded-lg mb-4">
       </c:if>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
@@ -57,13 +57,13 @@
           <p class="text-sm font-medium text-gray-500">
             <spring:message code="event.city"/>
           </p>
-          <p class="text-base text-gray-800">${event.eventCity.name}</p>
+          <p class="text-base text-gray-800"><c:out value="${event.eventCity.name}"/></p>
         </div>
         <div>
           <p class="text-sm font-medium text-gray-500">
             <spring:message code="event.date"/>
           </p>
-          <p class="text-base text-gray-800">${event.date}</p>
+          <p class="text-base text-gray-800"><c:out value="${event.date}"/></p>
         </div>
       </div>
 
@@ -71,14 +71,14 @@
         <p class="text-sm font-medium text-gray-500">
           <spring:message code="event.description"/>
         </p>
-        <p class="text-base text-gray-800">${event.description}</p>
+        <p class="text-base text-gray-800"><c:out value=" ${event.description}"/></p>
       </div>
 
       <div>
         <p class="text-sm font-medium text-gray-500">
           <spring:message code="event.organizer"/>
         </p>
-        <p class="text-base text-gray-800">${event.user.email}</p>
+        <p class="text-base text-gray-800"><c:out value=" ${event.user.email}"/></p>
       </div>
     </div>
 
@@ -154,7 +154,7 @@
           <form:select path="originUniversity" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
             <option value=""><spring:message code="createJourney.destinationUniversity.select"/></option>
             <c:forEach var="university" items="${universities}">
-              <option value="${university.name}">${university.name}</option>
+              <option value="${university.name}"><c:out value="${university.name}"/></option>
             </c:forEach>
           </form:select>
           <form:errors path="originUniversity" class="text-red-500 text-sm mt-1" />
@@ -168,7 +168,7 @@
           <form:select path="career" class="py-2.5 sm:py-3 px-4 block w-full border border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500">
             <option value=""><spring:message code="event.career.select"/></option>
             <c:forEach var="career" items="${careers}">
-              <option value="${career.name}">${career.name}</option>
+              <option value="${career.name}"><c:out value="${career.name}"/></option>
             </c:forEach>
           </form:select>
           <form:errors path="career" class="text-red-500 text-sm mt-1" />
