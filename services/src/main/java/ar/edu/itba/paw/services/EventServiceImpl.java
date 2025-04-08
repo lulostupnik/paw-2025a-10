@@ -46,6 +46,7 @@ public class EventServiceImpl implements EventService {
         return eventDao.create(user, city, date, description, flyerImageId);
     }
 
+
     @Override
     public void replyToEvent(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture, long eventId, String message) {
         Event event = eventDao.findById(eventId).orElseThrow(() -> new RuntimeException("Event not found"));
