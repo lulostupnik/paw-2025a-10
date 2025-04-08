@@ -27,11 +27,11 @@
 <div class="container">
     <!-- Back Link -->
     <div class="mb-6">
-        <a href="<c:url value="/events/"/>" class="back-link">
+        <a href="<c:url value="/journeys/"/>" class="back-link">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
             </svg>
-            <spring:message code="event.back"/>
+            <spring:message code="journey.back"/>
         </a>
     </div>
         
@@ -46,7 +46,7 @@
         </div>
 
         <!-- Reply Form Card -->
-        <div class="p-4 sm:p-6 lg:p-8 bg-white border border-gray-200 rounded-xl">
+        <div class="card">
             <c:url var="registerUrl" value="/journeys/${journey.id}/reply"/>
             <form:form modelAttribute="replyJourneyForm" action="${registerUrl}" method="post" enctype="multipart/form-data">
 
