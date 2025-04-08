@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.webapp.form;
 
+import ar.edu.itba.paw.webapp.validation.ImageSize;
 import org.springframework.lang.NonNull;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,7 +13,9 @@ public class ReplyEventForm {
         @Size(min = 2, max = 100)
         @Email
         private String email;
+
         @NotNull
+        @ImageSize
         private MultipartFile profilePicture;
 
         @Size(min = 2, max = 100)

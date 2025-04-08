@@ -8,6 +8,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import ar.edu.itba.paw.webapp.validation.ImageSize;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,9 +19,13 @@ public class CreateEventForm {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date date;
+
     @NotNull
+    @ImageSize() // 2MB
     private MultipartFile flyer;
+
     @NotNull
+    @ImageSize() // 2MB
     private MultipartFile profilePicture;
 
     @Size(min = 2, max = 200)

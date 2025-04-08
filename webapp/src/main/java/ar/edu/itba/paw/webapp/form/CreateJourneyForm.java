@@ -7,6 +7,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import ar.edu.itba.paw.webapp.validation.ImageSize;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,7 +23,9 @@ public class CreateJourneyForm {
     //@Pattern(regexp = "[a-zA-Z0-9]+$")
     @Email
     private String email;
+
     @NotNull
+    @ImageSize() // 2MB
     private MultipartFile profilePicture;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
