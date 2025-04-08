@@ -65,13 +65,6 @@ public class InterestJdbcDao implements InterestDao {
 
         }
         StringBuilder query = new StringBuilder(QUERY + " WHERE name IN (");
-        String tmp = spanishOrEnglish ? ES_QUERY : EN_QUERY;
-        if(spanishOrEnglish){
-            tmp += " WHERE es_name IN (";
-        } else {
-            tmp += " WHERE en_name IN (";
-        }
-        StringBuilder query = new StringBuilder(tmp);
         for (int i = 0; i < names.length; i++) {
             query.append("?");
             if (i < names.length - 1) {
