@@ -12,6 +12,6 @@ public @interface ImageSize {
     Class<?>[] groups() default {};
     Class<? extends javax.validation.Payload>[] payload() default {};
 
-    long max() default 2 * 1024 * 1024; // 2MB
+    long max() default 2 ; // 2MB
 
 }
