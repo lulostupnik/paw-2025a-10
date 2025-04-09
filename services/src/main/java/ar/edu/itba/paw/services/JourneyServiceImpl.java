@@ -50,8 +50,10 @@ public class JourneyServiceImpl implements JourneyService {
         }
     }
     @Override
-    public Journey createJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture, String destinationUniversity,
+    public Journey createJourney(String email, String username, String firstname, String lastname,
+                                 String originUniversity, String career, byte[] profilePicture, String destinationUniversity,
                                   LocalDate startDate, LocalDate endDate, String description, String[] interests) {
+
         checkDates(startDate, endDate);
 
         University destination = universityService.findByAny(destinationUniversity).orElseThrow(() -> new RuntimeException("Destination University not found"));

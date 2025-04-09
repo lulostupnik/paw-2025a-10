@@ -99,6 +99,16 @@
                     <jsp:param name="defaultMessageCode" value="createJourney.destinationUniversity.select" />
                 </jsp:include>
 
+                <c:set var="universityLabel"><spring:message code="createJourney.originUniversity"/></c:set>
+                <c:set target="${requestScope}" property="universityItems" value="${universities}" />
+                <jsp:include page="../components/dropdown.jsp">
+                    <jsp:param name="path" value="originUniversity" />
+                    <jsp:param name="label" value="${universityLabel}" />
+                    <jsp:param name="items" value="universityItems" />
+                    <jsp:param name="defaultMessageCode" value="createJourney.originUniversity.select" />
+                </jsp:include>
+
+
                 <!-- Career Field -->
                 <c:set var="careerLabel"><spring:message code="event.career"/></c:set>
                 <c:set target="${requestScope}" property="careerItems" value="${careers}" />

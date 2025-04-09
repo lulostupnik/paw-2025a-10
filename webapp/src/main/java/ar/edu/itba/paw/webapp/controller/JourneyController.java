@@ -81,7 +81,7 @@ public class JourneyController {
 
         //FIXME: Add fields for user creation just in case it does not exist. This will be removed after 1st sprint when we implement authorization
         final Journey journey = js.createJourney(jf.getEmail(), jf.getUsername(), jf.getFirstName(),
-                jf.getLastName(), jf.getDestinationUniversity(), jf.getCareer(), profilePicture, jf.getDestinationUniversity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription(), jf.getInterests());
+                jf.getLastName(), jf.getOriginUniversity(), jf.getCareer(), profilePicture, jf.getDestinationUniversity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription(), jf.getInterests());
         
         return getJourney(journey.getId());
     }

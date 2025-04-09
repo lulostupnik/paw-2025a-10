@@ -46,6 +46,10 @@ public class CreateJourneyForm {
     @Size(min = 2, max = 100)
     private String destinationUniversity;
 
+    @Size(min = 2, max = 100)
+    private String originUniversity;
+
+
     @Size(min = 2, max = 2047)
     private String description;
 
@@ -117,7 +121,15 @@ public class CreateJourneyForm {
     public void setDestinationUniversity(String destination){
         this.destinationUniversity = destination;
     }
-        
+
+    public String getOriginUniversity(){
+        return originUniversity;
+    }
+
+    public void setOriginUniversity(String originUniversity){
+        this.originUniversity = originUniversity;
+    }
+
     public String getDescription(){
         return description;
     }
