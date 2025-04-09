@@ -2,6 +2,23 @@
 .form-group {
     margin-bottom: 1.5rem;
 }
+input,
+select,
+textarea,
+button,
+label,
+.file-input,
+.form-input,
+.form-select,
+.form-textarea,
+.btn-primary {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    color: inherit;
+}
+
+
 
 .form-label {
     display: block;
@@ -27,6 +44,7 @@
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     box-sizing: border-box;
 }
+
 
 .form-input:focus,
 .form-select:focus,
