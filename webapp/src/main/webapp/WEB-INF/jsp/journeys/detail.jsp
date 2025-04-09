@@ -36,7 +36,7 @@
                 <h3 class="section-title"><spring:message code="journey.destination"/></h3>
                 <div class="tags">
                     <span class="tag tag-blue">
-                        <spring:message code="journey.city"/><c:out value=" ${journey.destinationCity}"/>
+                        <spring:message code="journey.city"/><c:out value=" ${journey.destinationUniversity.city}"/>
                     </span>
                     <span class="tag tag-gray">
                         <spring:message code="journey.university"/> <c:out value=" ${journey.destinationUniversity.name}"/>

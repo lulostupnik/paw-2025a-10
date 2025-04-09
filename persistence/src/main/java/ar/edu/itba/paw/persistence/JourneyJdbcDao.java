@@ -180,7 +180,7 @@ public class JourneyJdbcDao implements JourneyDao {
         List<Object> params = new ArrayList<>();
 
         if (destination != null && !destination.isEmpty()) {
-            filters.add("ci.name = ?");
+            filters.add("ci2.name = ?");
             params.add(destination);
         }
         if (startDate != null) {

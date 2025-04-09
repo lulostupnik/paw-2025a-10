@@ -64,7 +64,7 @@
                                                 <c:out value="${journey.user.firstname} ${journey.user.lastname}" />
                                             </h3>
                                             <p class="item-subtitle">
-                                                <c:out value="${journey.destinationCity}" /> -
+                                                <c:out value="${journey.destinationUniversity.city}" /> -
                                                 <c:out value="${journey.destinationUniversity}" />
                                             </p>
                                             <p class="item-details">

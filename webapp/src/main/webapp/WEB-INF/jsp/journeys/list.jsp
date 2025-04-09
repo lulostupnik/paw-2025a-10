@@ -117,7 +117,7 @@
                                             <c:out value="${journey.user.firstname} ${journey.user.lastname}" />
                                         </h3>
                                         <p class="journey-destination">
-                                            <c:out value="${journey.destinationCity}" /> -
+                                            <c:out value="${journey.destinationUniversity.city}" /> -
                                             <c:out value="${journey.destinationUniversity.name}" />
                                         </p>
                                         <p class="journey-dates">

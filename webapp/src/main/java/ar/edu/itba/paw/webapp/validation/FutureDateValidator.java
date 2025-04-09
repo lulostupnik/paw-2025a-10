@@ -11,7 +11,7 @@ public class FutureDateValidator implements ConstraintValidator<FutureDate, Loca
     @Override
     public boolean isValid(LocalDate date, ConstraintValidatorContext context) {
         if (date == null) {
-            return true; // Maneja con @NotNull si es necesario
+            return true;
         }
         return date.isAfter(LocalDate.now()) || date.isEqual(LocalDate.now());
     }

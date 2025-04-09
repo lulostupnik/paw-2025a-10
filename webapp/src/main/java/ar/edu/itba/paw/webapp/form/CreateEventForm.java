@@ -8,6 +8,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import ar.edu.itba.paw.webapp.validation.FutureDate;
 import ar.edu.itba.paw.webapp.validation.ImageSize;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,6 +18,7 @@ public class CreateEventForm {
     @Size(min = 2, max = 100)
     private String city;
 
+    @FutureDate
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date date;
 
