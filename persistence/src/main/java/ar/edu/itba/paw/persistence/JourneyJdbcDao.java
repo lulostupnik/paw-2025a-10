@@ -160,39 +160,41 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public List<Journey> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest) {
         String query;
-        if(interest != null && !interest.isEmpty()){
+
+        if (interest != null && !interest.isEmpty()) {
             query = QUERY_INTEREST;
         } else {
             query = QUERY;
         }
+
         List<String> filters = new ArrayList<>();
         List<Object> params = new ArrayList<>();
 
-        if (destination != null || startDate != null || endDate != null || interest != null) {
-            query += " WHERE ";
+        if (destination != null && !destination.isEmpty()) {
+            filters.add("ci.name = ?");
+            params.add(destination);
+        }
+        if (startDate != null) {
+            filters.add("j.start_date <= ?");
+            params.add(startDate);
+        }
+        if (endDate != null) {
+            filters.add("j.end_date >= ?");
+            params.add(endDate);
+        }
+        if (interest != null && !interest.isEmpty()) {
+            filters.add("c.name = ?");
+            params.add(interest);
+        }
 
-            if (destination != null && !destination.isEmpty()) {
-                filters.add("ci.name = ?");
-                params.add(destination);
-            }
-            if (startDate != null && !startDate.equals("")) {
-                filters.add("j.start_date <= ?");
-                params.add(startDate);
-            }
-            if (endDate != null && !endDate.equals("")) {
-                filters.add("j.end_date >= ?");
-                params.add(endDate);
-            }
-            if (interest != null && !interest.isEmpty()) {
-                filters.add("c.name = ?");
-                params.add(interest); // Agrega los % para el LIKE
-            }
-
-            query += String.join(" AND ", filters);
+        // Solo agregamos WHERE si hay filtros
+        if (!filters.isEmpty()) {
+            query += " WHERE " + String.join(" AND ", filters);
         }
 
         return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
     }
+
 
     @Override
     public Optional<Journey> findByUserId(long userId) {

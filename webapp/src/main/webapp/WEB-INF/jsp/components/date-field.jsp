@@ -15,4 +15,7 @@ Parameters:
   </form:label>
   <form:input path="${param.path}" type="date" cssClass="form-input" />
   <form:errors path="${param.path}" cssClass="error-message" />
+  <c:if test="${param.isStartDate}">
+    <form:errors path="" cssClass="error-message"/>
+  </c:if>
 </div>
