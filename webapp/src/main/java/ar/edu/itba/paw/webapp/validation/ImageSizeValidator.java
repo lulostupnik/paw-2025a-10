@@ -14,7 +14,7 @@ private long max;
     @Override
     public boolean isValid(MultipartFile file, javax.validation.ConstraintValidatorContext context) {
         if (file == null || file.isEmpty()) {
-            return true; // Not validating null or empty files
+            return false; 
         }
         return file.getSize() <= max;
     }
