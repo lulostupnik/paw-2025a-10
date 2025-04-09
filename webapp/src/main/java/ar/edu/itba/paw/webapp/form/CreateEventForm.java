@@ -18,7 +18,6 @@ public class CreateEventForm {
     @Size(min = 2, max = 100)
     private String city;
 
-    @FutureDate
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date date;
 
