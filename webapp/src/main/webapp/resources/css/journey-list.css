@@ -10,6 +10,7 @@
     font-size: 1.875rem;
     font-weight: 700;
     color: #1f2937;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Ensure consistent font */
 }
 
 .header-actions {
@@ -33,6 +34,7 @@
     font-weight: 600;
     color: #1f2937;
     margin-bottom: 0.75rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Ensure consistent font */
 }
 
 .filter-form {
@@ -95,11 +97,14 @@
     font-weight: 600;
     color: #1f2937;
     margin-bottom: 0.25rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Ensure consistent font */
 }
 
-.journey-destination, .journey-dates {
+.journey-destination,
+.journey-dates {
     font-size: 0.875rem;
     color: #6b7280;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Ensure consistent font */
 }
 
 .journey-description {
@@ -109,6 +114,7 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Ensure consistent font */
 }
 
 .journey-card-actions {
@@ -132,6 +138,7 @@
     text-align: center;
     padding: 2.5rem 0;
     color: #6b7280;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Ensure consistent font */
 }
 
 /* Interest dropdown */
@@ -161,6 +168,7 @@
     padding: 0.5rem 1rem;
     cursor: pointer;
     font-size: 0.875rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Ensure consistent font */
 }
 
 .interest-option:hover {
@@ -185,6 +193,7 @@
     border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 500;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Ensure consistent font */
 }
 
 .interest-tag-remove {
@@ -201,6 +210,7 @@
     padding: 0.5rem 1rem;
     color: #6b7280;
     font-size: 0.875rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Ensure consistent font */
 }
 
 /* Responsive styles */
