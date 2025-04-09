@@ -8,9 +8,7 @@
     <title><spring:message code="event.create.title"/></title>
     <!-- Include CSS files -->
     <link rel="stylesheet" href="<c:url value='/resources/css/base.css'/>" />
-    <link rel="stylesheet" href="<c:url value='/resources/css/form-group.css'/>" />
-    <link rel="stylesheet" href="<c:url value='/resources/css/file-upload.css'/>" />
-    <link rel="stylesheet" href="<c:url value='/resources/css/select.css'/>" />
+    <link rel="stylesheet" href="<c:url value='/resources/css/form-components.css'/>" />
 </head>
 <body>
 
