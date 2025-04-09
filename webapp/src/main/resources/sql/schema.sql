@@ -16,10 +16,28 @@ CREATE TABLE IF NOT EXISTS user_interest (
 );
 
 
+CREATE TABLE IF NOT EXISTS countries (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL UNIQUE,
+        code VARCHAR(3) NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS cities (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) UNIQUE,
+        country_id INTEGER NOT NULL,
+
+        FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE RESTRICT
+);
+
+
 CREATE TABLE IF NOT EXISTS universities (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL UNIQUE,
-        abbreviation VARCHAR(255) DEFAULT NULL
+        city_id INTEGER NOT NULL,
+        abbreviation VARCHAR(255) DEFAULT NULL,
+
+        FOREIGN KEY (city_id) REFERENCES cities(id) ON DELETE RESTRICT
 );
 
 CREATE TABLE IF NOT EXISTS careers (
@@ -65,19 +83,6 @@ CREATE TABLE IF NOT EXISTS users (
 --         FOREIGN KEY (area_of_study_id) REFERENCES area_of_study(id) ON DELETE CASCADE
 -- );
 
-CREATE TABLE IF NOT EXISTS countries (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    code VARCHAR(3) NOT NULL UNIQUE
-);
-
-CREATE TABLE IF NOT EXISTS cities (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100),
-    country_id INTEGER NOT NULL,
-
-    FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE RESTRICT
-);
 
 
 
@@ -86,11 +91,9 @@ CREATE TABLE IF NOT EXISTS journeys (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL UNIQUE,
     destination_university_id INTEGER NOT NULL,
-    city_id INTEGER NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     description VARCHAR(2047),
-    FOREIGN KEY (city_id) REFERENCES cities(id) ON DELETE RESTRICT,
     FOREIGN KEY (destination_university_id) REFERENCES universities(id) ON DELETE RESTRICT,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT
     );

@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
+import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.University;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,44 +19,44 @@ import java.util.Optional;
 @Repository
 public class UniversityJdbcDao implements UniversityDao {
     private final JdbcTemplate jdbcTemplate;
-    private final SimpleJdbcInsert jdbcInsert;
 
-    private final static RowMapper<University> UNIVERSITY_ROW_MAPPER = (rs, rowNum) -> new University(rs.getLong("id"), rs.getString("name"), rs.getString("abbreviation"));
+    private final static RowMapper<University> UNIVERSITY_ROW_MAPPER = (rs, rowNum) ->
+            new University(rs.getLong("university_id"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id")));
+
+    private final static String QUERY =
+                    "SELECT " +
+                    "un.name AS university_name, \n" +
+                    "un.abbreviation AS university_abbreviation, \n" +
+                    "un.id AS university_id, \n" +
+                    "ci.id AS city_id, \n" +
+                    "ci.name AS city_name, \n" +
+                    "co.name AS country_name \n" +
+                    "FROM universities un \n" +
+                    "JOIN cities ci ON un.city_id = ci.id \n" +
+                    "JOIN countries co ON ci.country_id = co.id ";
 
     @Autowired
     public UniversityJdbcDao(final DataSource dataSource){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-            .withTableName("universities")
-            .usingGeneratedKeyColumns("id");
     }
 
     @Override
     public Optional<University> findByName(String name) {
-        return jdbcTemplate.query("SELECT * FROM universities WHERE name = ?", UNIVERSITY_ROW_MAPPER, name).stream().findFirst();
+        return jdbcTemplate.query(QUERY + " WHERE un.name = ?", UNIVERSITY_ROW_MAPPER, name).stream().findFirst();
     }
 
     @Override
     public Optional<University> findByAbbreviation(String abbreviation) {
-        return jdbcTemplate.query("SELECT * FROM universities WHERE abbreviation = ?", UNIVERSITY_ROW_MAPPER, abbreviation).stream().findFirst();
+        return jdbcTemplate.query(QUERY + " WHERE un.abbreviation = ?", UNIVERSITY_ROW_MAPPER, abbreviation).stream().findFirst();
     }    
     
     @Override
     public Optional<University> findByAny(String searchString) {
-        return jdbcTemplate.query("SELECT * FROM universities WHERE abbreviation LIKE ? OR name LIKE ?", UNIVERSITY_ROW_MAPPER, searchString, searchString).stream().findFirst();
-    }
-
-    @Override
-    public University createUniversity(final String name, final String abbreviation){
-        final Map<String, Object> args = new HashMap<>();
-        args.put("name", name);
-        args.put("abbreviation", abbreviation);
-        final Number id = jdbcInsert.executeAndReturnKey(args);
-        return new University(id.longValue(), name, abbreviation);
+        return jdbcTemplate.query(QUERY + " WHERE un.abbreviation LIKE ? OR un.name LIKE ?", UNIVERSITY_ROW_MAPPER, searchString, searchString).stream().findFirst();
     }
 
     @Override
     public List<University> getAllUniversities() {
-        return jdbcTemplate.query("SELECT * FROM universities ORDER BY name", UNIVERSITY_ROW_MAPPER);
+        return jdbcTemplate.query(QUERY + " ORDER BY un.name", UNIVERSITY_ROW_MAPPER);
     }
 }

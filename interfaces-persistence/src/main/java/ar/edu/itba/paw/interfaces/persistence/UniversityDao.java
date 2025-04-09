@@ -9,6 +9,5 @@ public interface UniversityDao {
     Optional<University> findByName(String name);
     Optional<University> findByAbbreviation(String abbreviation);
     Optional<University> findByAny(String search);
-    University createUniversity(String name, String abbreviation);
     List<University> getAllUniversities();
 }

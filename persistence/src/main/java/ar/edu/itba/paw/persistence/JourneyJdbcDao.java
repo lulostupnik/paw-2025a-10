@@ -50,14 +50,17 @@ public class JourneyJdbcDao implements JourneyDao {
             "    j.id AS journey_id, \n" +
             "    j.user_id AS journey_user_id, \n" +
             "    j.destination_university_id AS journey_destination_university_id, \n" +
-            "    j.city_id AS journey_city_id, \n" +
             "    j.start_date AS journey_start_date, \n" +
             "    j.end_date AS journey_end_date, \n" +
             "    j.description AS journey_description, \n" +
             "\n" +
-            "   ci.id AS city_id, \n" +
-            "   co.name AS country_name, \n" +
-            "   ci.name AS city_name, \n" +
+            "   ci1.id AS city_id, \n" +
+            "   co1.name AS country_name, \n" +
+            "   ci1.name AS city_name, \n" +
+            "\n" +
+            "   ci2.id AS destination_city_id, \n" +
+            "   co2.name AS destination_country_name, \n" +
+            "   ci2.name AS destination_city_name, \n" +
             "\n" +
             "    un1.id AS university_id, \n" +
             "    un1.name AS university_name, \n" +
@@ -70,10 +73,12 @@ public class JourneyJdbcDao implements JourneyDao {
             "FROM users us \n" +
             "JOIN journeys j ON j.user_id = us.id\n" +
             "JOIN careers ca ON us.career_id = ca.id\n" +
-            "JOIN cities ci ON j.city_id = ci.id\n" +
-            "JOIN countries co ON ci.country_id = co.id\n" +
             "JOIN universities un1 ON us.university = un1.id\n" +
-            "JOIN universities un2 ON j.destination_university_id = un2.id\n";
+            "JOIN cities ci1 ON un1.city_id = ci1.id\n" +
+            "JOIN countries co1 ON ci1.country_id = co1.id\n" +
+            "JOIN universities un2 ON j.destination_university_id = un2.id\n" +
+            "JOIN cities ci2 ON un2.city_id = ci2.id\n" +
+            "JOIN countries co2 ON ci2.country_id = co2.id\n";
 
     private final static String QUERY_INTEREST = QUERY + " JOIN user_interest ui ON us.id = ui.user_id\n" +
             "JOIN category c ON ui.category_id = c.id\n";
@@ -89,7 +94,12 @@ public class JourneyJdbcDao implements JourneyDao {
                     new University(
                             rs.getLong("user_university"),
                             rs.getString("university_name"),
-                            rs.getString("university_abbreviation")
+                            rs.getString("university_abbreviation"),
+                            new City(
+                                    rs.getString("city_name"),
+                                    rs.getString("country_name"),
+                                    rs.getLong("city_id")
+                            )
                     ),
                     new Career(
                             rs.getLong("career_id"),
@@ -97,17 +107,17 @@ public class JourneyJdbcDao implements JourneyDao {
                     ),
                     rs.getLong("user_profile_picture_id")
             ),
-            new City(
-                    rs.getString("city_name"),
-                    rs.getString("country_name"),
-                    rs.getLong("journey_city_id")
-            ),
             rs.getDate("journey_start_date").toLocalDate(),
             rs.getDate("journey_end_date").toLocalDate(),
             new University(
                     rs.getLong("destination_university_id"),
                     rs.getString("destination_university_name"),
-                    rs.getString("destination_university_abbreviation")
+                    rs.getString("destination_university_abbreviation"),
+                    new City(
+                            rs.getString("destination_city_name"),
+                            rs.getString("destination_country_name"),
+                            rs.getLong("destination_city_id")
+                    )
             ),
             rs.getString("journey_description")
     );
@@ -130,16 +140,15 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
     @Override
-    public Journey create(User user, University destinationUniversity, City destinationCity, LocalDate startDate, LocalDate endDate, String description) {
+    public Journey create(User user, University destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
         final Map<String, Object> args = new HashMap<>();
         args.put("user_id", user.getId());
         args.put("destination_university_id", destinationUniversity.getId());
-        args.put("city_id", destinationCity.getId());
         args.put("start_date", startDate);
         args.put("end_date", endDate);
         args.put("description", description);
         final Number id = jdbcInsert.executeAndReturnKey(args);
-        return new Journey(id.longValue(), user, destinationCity, startDate, endDate, destinationUniversity, description);
+        return new Journey(id.longValue(), user, startDate, endDate, destinationUniversity, description);
     }
 
     @Override

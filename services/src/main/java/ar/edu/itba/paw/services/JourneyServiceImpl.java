@@ -51,7 +51,7 @@ public class JourneyServiceImpl implements JourneyService {
     }
     @Override
     public Journey createJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture, String destinationUniversity,
-                                 String destinationCity, LocalDate startDate, LocalDate endDate, String description, String[] interests) {
+                                  LocalDate startDate, LocalDate endDate, String description, String[] interests) {
         checkDates(startDate, endDate);
 
         University destination = universityService.findByAny(destinationUniversity).orElseThrow(() -> new RuntimeException("Destination University not found"));
@@ -66,8 +66,7 @@ public class JourneyServiceImpl implements JourneyService {
             throw new RuntimeException("User already has a journey");
         }
 
-        City city = cityService.findByName(destinationCity).orElseThrow(() -> new RuntimeException("Destination City not found"));
-        return journeyDao.create(user, destination, city, startDate, endDate, description); // FIXME
+        return journeyDao.create(user, destination, startDate, endDate, description); // FIXME
     }
 
 

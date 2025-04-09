@@ -35,11 +35,6 @@ public class UniversityServiceImpl implements UniversityService {
     }
 
     @Override
-    public University registerUniversity(String name, String abbreviation) {
-        return universityDao.createUniversity(name, abbreviation);
-    }
-
-    @Override
     public List<University> getAllUniversities() {
         return universityDao.getAllUniversities();
     }

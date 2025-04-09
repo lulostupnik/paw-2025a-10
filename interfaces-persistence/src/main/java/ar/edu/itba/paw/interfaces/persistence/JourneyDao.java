@@ -13,7 +13,7 @@ public interface JourneyDao {
     // List<Journey> pageJourneys(int page, int pageSize);
 
     //SI VAMOS A QUERER FILTRAR VA A HABER QUE BUSCAR POR QUERY, CATEGORIA, FECHA, ETC.
-    Journey create(User user, University university, City destinationCity, LocalDate startDate, LocalDate endDate, String description);
+    Journey create(User user, University university, LocalDate startDate, LocalDate endDate, String description);
     List<Journey> listAll();
     Optional<Journey> findById(long id);
     // Optional<Journey> findByUserId(long userId); // eventualmente podría ser un List<Journey>

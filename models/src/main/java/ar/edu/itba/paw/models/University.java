@@ -9,6 +9,7 @@ public class University{
     private final long id;
     private final String name;
     private final String abbreviation;
+    private final City city;
 
     @Override
     public String toString() {

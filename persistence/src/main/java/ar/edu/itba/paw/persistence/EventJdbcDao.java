@@ -27,7 +27,12 @@ public class EventJdbcDao implements EventDao {
                     new University(
                             rs.getLong("university_id"),
                             rs.getString("university_name"), // University name
-                            rs.getString("university_abbreviation")
+                            rs.getString("university_abbreviation"),
+                            new City(
+                                    rs.getString("origin_city_name"),
+                                    rs.getString("origin_country_name"),
+                                    rs.getLong("origin_city_id")
+                            )
                     ),
                     new Career(
                             rs.getLong("career_id"),
@@ -69,13 +74,20 @@ public class EventJdbcDao implements EventDao {
             "   c.id AS city_id, \n" +
             "   c.name AS city_name, \n" +
             "\n" +
-            "   co.name AS country_name\n" +
+            "   co.name AS country_name, \n" +
+            "\n" +
+            "   ci2.id AS origin_city_id, \n" +
+            "   ci2.name AS origin_city_name, \n" +
+            "\n" +
+            "   co2.name AS origin_country_name\n" +
             "FROM events e\n" +
             "JOIN users us ON e.user_id = us.id\n" +
             "JOIN careers ca ON ca.id = us.career_id\n" +
             "JOIN universities un ON us.university = un.id\n" +
+            "JOIN cities ci2 ON un.city_id = ci2.id \n" +
+            "JOIN countries co2 ON co2.id = ci2.country_id\n" +
             "JOIN cities c ON e.city_id = c.id \n" +
-            "JOIN countries co ON c.country_id = co.id\n";
+            "JOIN countries co ON c.country_id = co.id \n";
 
 
 
