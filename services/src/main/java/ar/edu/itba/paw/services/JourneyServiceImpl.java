@@ -73,7 +73,8 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     public void replyToJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture, long journeyId, String message) {
         Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> new RuntimeException("Journey not found"));
-        long userId = userService.findByEmail(email).orElseGet(() -> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePicture, new String[]{})).getId();
+        //parche temporal buscar por username
+        long userId = userService.findByEmail(email).orElseGet(() -> userService.findByUsername(username).orElseGet(()-> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePicture, new String[]{}))).getId();
         journeyResponseDao.create(userId, journeyId, message);
 
         User user = journey.getUser();
