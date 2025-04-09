@@ -9,12 +9,15 @@ Parameters:
 - placeholder: Placeholder text (optional)
 - rows: Number of rows (default: 4)
 --%>
-
+<c:set var="escapedPlaceholder">
+  <c:out value="${param.placeholder}" />
+</c:set>
 <div class="form-group">
   <form:label path="${param.path}" cssClass="form-label">
-    ${param.label}
+    <c:out value="${param.label}" />
   </form:label>
   <form:textarea path="${param.path}" rows="${empty param.rows ? '4' : param.rows}"
-                 cssClass="form-textarea" placeholder="${param.placeholder}" />
+                 cssClass="form-input" placeholder="${escapedPlaceholder}" />
   <form:errors path="${param.path}" cssClass="error-message" />
 </div>
+
