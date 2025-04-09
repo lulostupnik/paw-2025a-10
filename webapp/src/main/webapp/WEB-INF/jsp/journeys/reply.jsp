@@ -86,7 +86,7 @@
 
 
                 <!-- Origin University Field -->
-                <c:set var="universityLabel"><spring:message code="event.university"/></c:set>
+                <c:set var="universityLabel"><spring:message code="reply.university"/></c:set>
                 <c:set target="${requestScope}" property="universityItems" value="${universities}" />
                 <jsp:include page="../components/dropdown.jsp">
                     <jsp:param name="path" value="originUniversity" />
