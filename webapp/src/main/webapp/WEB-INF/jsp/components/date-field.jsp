@@ -10,7 +10,7 @@ Parameters:
 
 <div class="form-group">
   <form:label path="${param.path}" cssClass="form-label">
-    ${param.label}
+    <c:out value="${param.label}" />
   </form:label>
   <form:input path="${param.path}" type="date" cssClass="form-input" />
   <form:errors path="${param.path}" cssClass="error-message" />

@@ -13,7 +13,7 @@ Parameters:
 --%>
 <div class="form-group">
   <form:label path="${param.path}" cssClass="form-label">
-    ${param.label}
+    <c:out value="${param.label}" />
   </form:label>
   <form:select path="${param.path}" cssClass="form-select">
     <form:option value=""><spring:message code="${param.defaultMessageCode}"/></form:option>
