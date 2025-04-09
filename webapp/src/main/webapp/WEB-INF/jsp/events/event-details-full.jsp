@@ -22,7 +22,7 @@ Parameters:
     <div class="event-header">
         <h2 class="event-title"><c:out value="${event.eventCity.name}"/></h2>
         <p class="event-date">
-            <fmt:formatDate value="${event.date}" pattern="MMMM d, yyyy" />
+           <fmt:formatDate value="${event.date}" pattern="MMMM d, yyyy" />
         </p>
     </div>
 

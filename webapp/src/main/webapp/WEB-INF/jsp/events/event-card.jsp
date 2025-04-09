@@ -15,15 +15,15 @@
         <div class="event-info">
             <div>
                 <h3 class="event-title">
-                    <spring:message code="event.city"/> ${param.eventCity}
+                    <spring:message code="event.city"/><c:out value="${param.eventCity}"/>
                 </h3>
                 <p class="event-date">
-                    <spring:message code="event.date"/> ${param.eventDate}
+                    <spring:message code="event.date"/><c:out value="${param.eventDate}"/>
                 </p>
             </div>
         </div>
         <p class="event-description">
-            <spring:message code="event.description"/> ${param.eventDescription}
+            <spring:message code="event.description"/><c:out value="${param.eventDescription}"/>
         </p>
     </div>
 

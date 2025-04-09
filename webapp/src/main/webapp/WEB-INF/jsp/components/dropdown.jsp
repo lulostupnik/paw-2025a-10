@@ -19,7 +19,7 @@ Parameters:
   <form:select path="${param.path}" cssClass="form-select">
     <option value=""><spring:message code="${param.defaultMessageCode}"/></option>
     <c:forEach var="item" items="${requestScope[param.items]}">
-      <option value="${item[empty param.itemValue ? 'name' : param.itemValue]}">${item[empty param.itemLabel ? 'name' : param.itemLabel]}</option>
+      <option value="<c:out value = "${item[empty param.itemValue ? 'name' : param.itemValue]}"/>"><c:out value="${item[empty param.itemLabel ? 'name' : param.itemLabel]}"/></option>
     </c:forEach>
   </form:select>
   <form:errors path="${param.path}" cssClass="error-message" />
