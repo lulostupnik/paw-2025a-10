@@ -14,7 +14,7 @@ Parameters:
 
 <div class="form-group">
   <form:label path="${param.path}" cssClass="form-label">
-    ${param.label}
+    <c:out value="${param.label}" />
   </form:label>
 
   <!-- Hidden select that will hold the actual form data -->

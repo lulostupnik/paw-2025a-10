@@ -4,6 +4,6 @@
 <div class="btn-container">
     <button type="${empty param.type ? 'submit' : param.type}"
             class="btn-primary ${param.additionalClasses}">
-        ${param.label}
+        <c:out value="${param.label}" />
     </button>
 </div>

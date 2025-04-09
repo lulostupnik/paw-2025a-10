@@ -4,7 +4,7 @@
 
 <div class="form-group">
   <form:label path="${param.path}" cssClass="form-label">
-    ${param.label}
+    <c:out value="${param.label}" />
   </form:label>
   <div class="file-upload-area">
     <svg class="file-upload-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16" width="24" height="24">

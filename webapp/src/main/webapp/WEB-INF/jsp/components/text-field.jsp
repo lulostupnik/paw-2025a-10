@@ -10,11 +10,14 @@ Parameters:
 - type: Input type (default: "text")
 --%>
 
+<c:set var="escapedPlaceholder">
+  <c:out value="${param.placeholder}" />
+</c:set>
 <div class="form-group">
   <form:label path="${param.path}" cssClass="form-label">
-    ${param.label}
+    <c:out value="${param.label}" />
   </form:label>
   <form:input path="${param.path}" type="${empty param.type ? 'text' : param.type}"
-              cssClass="form-input" placeholder="${param.placeholder}" />
+              cssClass="form-input" placeholder="${escapedPlaceholder}" />
   <form:errors path="${param.path}" cssClass="error-message" element="p" />
 </div>
