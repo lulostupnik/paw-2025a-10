@@ -9,12 +9,7 @@
   <!-- Include ALL necessary CSS files -->
   <link rel="stylesheet" href="<c:url value='/resources/css/base.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/event-details.css'/>" />
-  <style>
-    /* Inline styles to ensure proper sizing */
-    *, *::before, *::after {
-      box-sizing: border-box;
-    }
-  </style>
+
 </head>
 <body>
 

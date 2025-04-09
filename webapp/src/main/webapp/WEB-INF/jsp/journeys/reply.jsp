@@ -9,18 +9,7 @@
     <!-- Include custom CSS -->
     <link rel="stylesheet" href="<c:url value='/resources/css/base.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/form-components.css'/>" />
-    <style>
-        /* Inline styles to ensure proper sizing */
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
-
-        /* Fix for SVG icons */
-        svg {
-            max-width: 100%;
-            max-height: 100%;
-        }
-    </style>
+ 
 </head>
 <body>
 
