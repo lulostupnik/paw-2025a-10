@@ -40,8 +40,8 @@ public class CreateJourneyForm {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
-    @Size(min = 2, max = 100)
-    private String destinationCity;
+//    @Size(min = 2, max = 100)
+//    private String destinationCity;
 
     @Size(min = 2, max = 100)
     private String destinationUniversity;
@@ -102,13 +102,13 @@ public class CreateJourneyForm {
         this.endDate = endDate;
     }
 
-    public String getDestinationCity(){
-        return destinationCity;
-    }
-
-    public void setDestinationCity(String destination){
-        this.destinationCity = destination;
-    }
+//    public String getDestinationCity(){
+//        return destinationCity;
+//    }
+//
+//    public void setDestinationCity(String destination){
+//        this.destinationCity = destination;
+//    }
     
     public String getDestinationUniversity(){
         return destinationUniversity;

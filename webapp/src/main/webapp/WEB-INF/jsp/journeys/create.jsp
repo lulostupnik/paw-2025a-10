@@ -79,15 +79,15 @@
                     <jsp:param name="label" value="${endDateLabel}" />
                 </jsp:include>
 
-                <!-- Destination City Field -->
-                <c:set var="cityLabel"><spring:message code="createJourney.destinationCity"/></c:set>
-                <c:set target="${requestScope}" property="cityItems" value="${cities}" />
-                <jsp:include page="../components/dropdown.jsp">
-                    <jsp:param name="path" value="destinationCity" />
-                    <jsp:param name="label" value="${cityLabel}" />
-                    <jsp:param name="items" value="cityItems" />
-                    <jsp:param name="defaultMessageCode" value="createJourney.destinationCity.select" />
-                </jsp:include>
+<%--                <!-- Destination City Field -->--%>
+<%--                <c:set var="cityLabel"><spring:message code="createJourney.destinationCity"/></c:set>--%>
+<%--                <c:set target="${requestScope}" property="cityItems" value="${cities}" />--%>
+<%--                <jsp:include page="../components/dropdown.jsp">--%>
+<%--                    <jsp:param name="path" value="destinationCity" />--%>
+<%--                    <jsp:param name="label" value="${cityLabel}" />--%>
+<%--                    <jsp:param name="items" value="cityItems" />--%>
+<%--                    <jsp:param name="defaultMessageCode" value="createJourney.destinationCity.select" />--%>
+<%--                </jsp:include>--%>
 
                 <!-- Destination University Field -->
                 <c:set var="universityLabel"><spring:message code="createJourney.destinationUniversity"/></c:set>
