@@ -25,7 +25,8 @@ public class UserJdbcDao implements UserDao {
             rs.getString("user_lastname"),
             new University(rs.getLong("user_university"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id"))),
             new Career(rs.getLong("career_id"), rs.getString("career_name")),
-            rs.getLong("user_profile_picture_id"));
+            rs.getLong("user_profile_picture_id"),
+            rs.getString("user_password"));
 
     private final static String QUERY = "SELECT \n" +
             "    u.id AS user_id,\n" +
@@ -34,6 +35,7 @@ public class UserJdbcDao implements UserDao {
             "    u.lastname AS user_lastname,\n" +
             "    u.username AS user_username,\n" +
             "    u.university AS user_university,\n" +
+            "    u.password AS user_password,\n" +
             "    c.name AS career_name,\n" +
             "    c.id AS career_id,\n" +
             "    u.profile_picture_id AS user_profile_picture_id,\n" +
@@ -77,9 +79,15 @@ public class UserJdbcDao implements UserDao {
         return jdbcTemplate.query(QUERY + " WHERE u.username = ?", USER_ROW_MAPPER, username).stream().findFirst();
     }
 
+    @Override
+    public void changePassword(String email, String password) {
+        jdbcTemplate.update("UPDATE users SET password = ? WHERE email = ?", password, email);
+    }
+
 
     @Override
-    public User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId) {
+    public User create(String email, String username, String firstname, String lastname, University university,
+                       Career career, long profilePictureId, String password) {
         final Map<String, Object> args = new HashMap<>();
         args.put("email", email);
         args.put("username", username);
@@ -88,8 +96,9 @@ public class UserJdbcDao implements UserDao {
         args.put("university", university.getId());
         args.put("career_id", career.getId());
         args.put("profile_picture_id", profilePictureId);
+        args.put("password", password);
         final Number id = jdbcInsert.executeAndReturnKey(args);
-        return new User(id.longValue(), email, username, firstname, lastname, university/*.toString()*/, career, profilePictureId);
+        return new User(id.longValue(), email, username, firstname, lastname, university/*.toString()*/, career, profilePictureId, password);
     }
 
 

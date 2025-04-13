@@ -58,7 +58,11 @@
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
     </dependency>
-    <!-- Según el dibujito acá no tendría que agregar a persistence con scope runtime? Tendría sentido, pero en el video no lo agregó -->
+      <dependency>
+          <groupId>org.springframework.security</groupId>
+          <artifactId>spring-security-core</artifactId>
+      </dependency>
+      <!-- Según el dibujito acá no tendría que agregar a persistence con scope runtime? Tendría sentido, pero en el video no lo agregó -->
   </dependencies>
 
   <build>

@@ -7,6 +7,8 @@ import ar.edu.itba.paw.webapp.form.CreateEventForm;
 import ar.edu.itba.paw.webapp.form.ReplyEventForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -70,23 +72,15 @@ public class EventController {
         }
         Event event;
         byte[] flyerBytes;
-        byte[] profilePictureBytes;
         try {
             flyerBytes = eventForm.getFlyer().getBytes();
         } catch (IOException e) {
             // Handle the exception, e.g., log it or return an error response
             throw new RuntimeException("Error reading flyer file", e);
         }
-        try {
-            profilePictureBytes = eventForm.getProfilePicture().getBytes();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        } catch (IOException e) {
-            // Handle the exception, e.g., log it or return an error response
-            throw new RuntimeException("Error reading profile picture", e);
-        }
-
-
-        event = eventService.createEvent(eventForm.getEmail(), eventForm.getCity(), eventForm.getDate(), flyerBytes, eventForm.getDescription(),  eventForm.getUsername(),eventForm.getFirstName(), eventForm.getLastName(), eventForm.getUniversity(), eventForm.getCareer(), profilePictureBytes);
+        event = eventService.createEvent(authentication.getName(),eventForm.getCity(), eventForm.getDate(), flyerBytes, eventForm.getDescription());
         return getEvent(event.getId());
     }
 
@@ -124,14 +118,10 @@ public class EventController {
         if (errors.hasErrors()) {
             return getReplyFormWithEvent(id, form);
         }
-        byte[] profilePictureBytes;
-        try {
-            profilePictureBytes = form.getProfilePicture().getBytes();
-        } catch (IOException e) {
-            // Handle the exception, e.g., log it or return an error response
-            throw new RuntimeException("Error reading flyer file", e);
-        }
-        eventService.replyToEvent(form.getEmail(), form.getUsername(), form.getFirstName(), form.getLastName(), form.getOriginUniversity(), form.getCareer(), profilePictureBytes, id, form.getMessage());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+
+        eventService.replyToEvent(authentication.getName(), id, form.getMessage());
         return new ModelAndView("redirect:/events");
 
     }

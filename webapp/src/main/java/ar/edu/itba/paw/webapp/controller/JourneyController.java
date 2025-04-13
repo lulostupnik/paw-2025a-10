@@ -9,6 +9,8 @@ import ar.edu.itba.paw.webapp.form.ReplyJourneyForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -66,33 +68,22 @@ public class JourneyController {
         mav.addObject("journeys", journeys);
         return mav;
     }
-    @RequestMapping(value = "/create", method = POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value = "/create", method = POST)
     public ModelAndView createJourney(@Valid @ModelAttribute("createJourneyForm") final CreateJourneyForm jf, final BindingResult errors) {
         if (errors.hasErrors()) {
             return createJourneyForm(jf);
         }
-
-        byte[] profilePicture = null;
-        try {
-            profilePicture = jf.getProfilePicture().getBytes();
-        } catch (Exception e) {
-            // FIXME
-        }
-
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         //FIXME: Add fields for user creation just in case it does not exist. This will be removed after 1st sprint when we implement authorization
-        final Journey journey = js.createJourney(jf.getEmail(), jf.getUsername(), jf.getFirstName(),
-                jf.getLastName(), jf.getOriginUniversity(), jf.getCareer(), profilePicture, jf.getDestinationUniversity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription(), jf.getInterests());
-        
+        final Journey journey = js.createJourney(authentication.getName(), // Devuelve el username
+                jf.getDestinationUniversity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription());
         return getJourney(journey.getId());
     }
+
     @RequestMapping(value = "/create")
     public ModelAndView createJourneyForm(@ModelAttribute("createJourneyForm") final CreateJourneyForm jf) {
         final ModelAndView mav = new ModelAndView("journeys/create");
-
-        mav.addObject("interests", interestService.findAll());
-        mav.addObject("careers", carreerService.findAll());
         mav.addObject("universities", universityService.getAllUniversities());
-        mav.addObject("cities", cityService.getAllCities());
         return mav;
     }
     @RequestMapping(value = "/{id}")
@@ -111,16 +102,11 @@ public class JourneyController {
         if (errors.hasErrors()) {
             return replyToJourneyForm(id, rjf);
         }
-        byte[] profilePicture;
-        try{
-            profilePicture =  rjf.getProfilePicture().getBytes();
-        }catch (Exception e){
-            throw new RuntimeException("Missing profile picture"); // @TODO fix me
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
 
         //FIXME: Add fields for user creation just in case it does not exist. This will be removed after 1st sprint when we implement authorization
-        js.replyToJourney(rjf.getEmail(), rjf.getUsername(), rjf.getFirstName(),
-                rjf.getLastName(), rjf.getOriginUniversity(), rjf.getCareer(), profilePicture, id, rjf.getMessage() );
+        js.replyToJourney(authentication.getName(), id, rjf.getMessage());
 
 
         return getJourneys(null,null, null, null);

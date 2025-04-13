@@ -37,11 +37,10 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public Event createEvent(String email, String cityName, Date date, byte[] flyer, String description, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture) {
+    public Event createEvent(String email, String cityName, Date date, byte[] flyer, String description) {
         City city = cityDao.findByName(cityName).orElseThrow(() -> new RuntimeException("City not found"));
 
-        //parche temporal buscar por username
-        User user = userService.findByEmail(email).orElseGet(() -> userService.findByUsername(username).orElseGet(()-> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePicture, new String[]{})));
+        User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
         long flyerImageId = imageDao.saveImage(flyer);
 
         return eventDao.create(user, city, date, description, flyerImageId);
@@ -49,12 +48,16 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public void replyToEvent(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture, long eventId, String message) {
+    public void replyToEvent(String email, long eventId, String message) {
         Event event = eventDao.findById(eventId).orElseThrow(() -> new RuntimeException("Event not found"));
         //parche temporal buscar por username
-        long userId = userService.findByEmail(email).orElseGet(() -> userService.findByUsername(username).orElseGet(()-> userService.createUser(email, username, firstname, lastname, originUniversity, career, profilePicture, new String[]{}))).getId();        eventResponseDao.create(userId, eventId, message);
+        User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
+        eventResponseDao.create(user.getId(), eventId, message);
         //@TODO cambiar locale
-        emailService.answerEventMail(email,event.getUser().getEmail(), firstname, lastname, username, career, originUniversity, message, Locale.ENGLISH, profilePicture);
+        emailService.answerEventMail(email,event.getUser().getEmail(), user.getFirstname(),
+                user.getLastname(),user.getUsername(),user.getCareer().getName(), user.getUniversity().getName(),
+                message, Locale.ENGLISH,
+                imageDao.getImageById(user.getProfilePictureId()).orElseThrow(() -> new RuntimeException("Image not found")).getData());
     }
 
 

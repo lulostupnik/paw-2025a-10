@@ -11,6 +11,7 @@ import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
@@ -27,25 +28,28 @@ public class UserServiceImpl implements UserService {
     private final ImageDao imageDao;
     private final CareerService careerService;
     private final InterestService interestService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UniversityService universityService, UserDao userDao, ImageDao imageDao, CareerService careerService, InterestService interestService) {
+    public UserServiceImpl(UniversityService universityService, UserDao userDao, ImageDao imageDao, CareerService careerService, InterestService interestService, PasswordEncoder passwordEncoder) {
         this.universityService = universityService;
         this.userDao = userDao;
         this.imageDao = imageDao;
         this.careerService = careerService;
         this.interestService = interestService;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
     // creo que debería ser @Transactional
     @Override
-    public User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, byte[] profilePicture, String[] interests) {
+    public User createUser(String email, String username, String firstname, String lastname, String universityName,
+                           String careerName, byte[] profilePicture, String[] interests, String password) {
 
         University university = universityService.findByName(universityName).orElseThrow(() -> new RuntimeException("University not found"));
         Career career = careerService.findByName(careerName).orElseThrow(() -> new RuntimeException("Career not found"));
         long profilePictureId = imageDao.saveImage(profilePicture);
-        User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId);
+        User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId,passwordEncoder.encode( password));
         interestService.createUserInterests(interests, user.getId());
         return user;
     }

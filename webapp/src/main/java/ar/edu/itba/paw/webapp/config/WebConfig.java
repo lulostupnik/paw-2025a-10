@@ -5,6 +5,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
@@ -14,7 +15,6 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
-import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
@@ -35,7 +35,28 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 @EnableAsync
 @ComponentScan({ "ar.edu.itba.paw.webapp.controller", "ar.edu.itba.paw.services", "ar.edu.itba.paw.persistence"}) // , "ar.edu.itba.paw.services"
 @Configuration
+@PropertySource("classpath:application.properties")
 public class WebConfig implements WebMvcConfigurer {
+    @Value("${db.url}")
+    private String dbUrl;
+
+    @Value("${db.username}")
+    private String dbUsername;
+
+    @Value("${db.password}")
+    private String dbPassword;
+
+    @Value("${mail.host}")
+    private String mailHost;
+
+    @Value("${mail.port}")
+    private String mailPort;
+
+    @Value("${mail.username}")
+    private String mailUsername;
+
+    @Value("${mail.password}")
+    private String mailPassword;
 
 
     @Value("classpath:sql/schema.sql")
@@ -97,7 +118,6 @@ public class WebConfig implements WebMvcConfigurer {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587);
-
         mailSender.setUsername("paw.2025a.10@gmail.com");
         mailSender.setPassword("<CONFIGURAR_LOCALMENTE>");
 

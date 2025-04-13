@@ -39,72 +39,6 @@
             <c:url var="registerUrl" value="/journeys/${journey.id}/reply"/>
             <form:form modelAttribute="replyJourneyForm" action="${registerUrl}" method="post" enctype="multipart/form-data">
 
-                <!-- Email Field -->
-                <c:set var="emailLabel"><spring:message code="reply.email"/></c:set>
-                <c:set var="emailHint"><spring:message code="reply.email.hint"/></c:set>
-                <jsp:include page="../components/text-field.jsp">
-                    <jsp:param name="path" value="email" />
-                    <jsp:param name="label" value="${emailLabel}" />
-                    <jsp:param name="placeholder" value="${emailHint}" />
-                    <jsp:param name="type" value="email" />
-                </jsp:include>
-
-                <!-- Profile Picture Upload Field -->
-                <c:set var="profilePicLabel"><spring:message code="createJourney.profile_picture" /></c:set>
-                <jsp:include page="../components/image-upload.jsp">
-                    <jsp:param name="path" value="profilePicture" />
-                    <jsp:param name="label" value="${profilePicLabel}" />
-                    <jsp:param name="messageCode" value="upload_picture.profile" />
-                </jsp:include>
-
-                <!-- First Name Field -->
-                <c:set var="firstNameLabel"><spring:message code="reply.firstName"/></c:set>
-                <c:set var="firstNameHint"><spring:message code="reply.firstName.hint"/></c:set>
-                <jsp:include page="../components/text-field.jsp">
-                    <jsp:param name="path" value="firstName" />
-                    <jsp:param name="label" value="${firstNameLabel}" />
-                    <jsp:param name="placeholder" value="${firstNameHint}" />
-                </jsp:include>
-
-                <!-- Last Name Field -->
-                <c:set var="lastNameLabel"><spring:message code="reply.lastName"/></c:set>
-                <c:set var="lastNameHint"><spring:message code="reply.lastName.hint"/></c:set>
-                <jsp:include page="../components/text-field.jsp">
-                    <jsp:param name="path" value="lastName" />
-                    <jsp:param name="label" value="${lastNameLabel}" />
-                    <jsp:param name="placeholder" value="${lastNameHint}" />
-                </jsp:include>
-
-                <!-- Username Field -->
-                <c:set var="usernameLabel"><spring:message code="reply.username"/></c:set>
-                <c:set var="usernameHint"><spring:message code="reply.username.hint"/></c:set>
-                <jsp:include page="../components/text-field.jsp">
-                    <jsp:param name="path" value="username" />
-                    <jsp:param name="label" value="${usernameLabel}" />
-                    <jsp:param name="placeholder" value="${usernameHint}" />
-                </jsp:include>
-
-
-                <!-- Origin University Field -->
-                <c:set var="universityLabel"><spring:message code="reply.university"/></c:set>
-                <c:set target="${requestScope}" property="universityItems" value="${universities}" />
-                <jsp:include page="../components/dropdown.jsp">
-                    <jsp:param name="path" value="originUniversity" />
-                    <jsp:param name="label" value="${universityLabel}" />
-                    <jsp:param name="items" value="universityItems" />
-                    <jsp:param name="defaultMessageCode" value="createJourney.destinationUniversity.select" />
-                </jsp:include>
-                
-                <!-- Career Field -->
-                <c:set var="careerLabel"><spring:message code="event.career"/></c:set>
-                <c:set target="${requestScope}" property="careerItems" value="${careers}" />
-                <jsp:include page="../components/dropdown.jsp">
-                    <jsp:param name="path" value="career" />
-                    <jsp:param name="label" value="${careerLabel}" />
-                    <jsp:param name="items" value="careerItems" />
-                    <jsp:param name="defaultMessageCode" value="event.career.select" />
-                </jsp:include>
-
                 <!-- Message Field -->
                 <c:set var="messageLabel"><spring:message code="reply.message"/></c:set>
                 <c:set var="messageHint"><spring:message code="reply.message.hint"/></c:set>
@@ -113,6 +47,7 @@
                     <jsp:param name="label" value="${messageLabel}" />
                     <jsp:param name="placeholder" value="${messageHint}" />
                 </jsp:include>
+
                 <!-- Submit Button -->
                 <c:set var="submitButtonLabel"><spring:message code="reply.submit"/></c:set>
                 <jsp:include page="../components/button.jsp">

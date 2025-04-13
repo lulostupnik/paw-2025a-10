@@ -7,6 +7,7 @@
   <name>intpaw</name>
   <properties>
     <org.springframework.version>5.3.33</org.springframework.version>
+    <org.spring-security.version>5.3.13.RELEASE</org.spring-security.version>
     <org.postgresql.version>42.2.5</org.postgresql.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>21</maven.compiler.source>
@@ -30,6 +31,11 @@
         <artifactId>spring-context</artifactId>
         <version>${org.springframework.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>${org.springframework.version}</version>
+      </dependency>
 
       <dependency>
         <groupId>org.springframework</groupId>
@@ -42,6 +48,21 @@
         <version>${org.postgresql.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-core</artifactId>
+        <version>${org.spring-security.version}</version>
+      </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+            <version>${org.spring-security.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+            <version>${org.spring-security.version}</version>
+        </dependency>
 
 <!--  Cosas para el EMAIL    -->
       <dependency>

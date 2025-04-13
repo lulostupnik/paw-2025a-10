@@ -7,11 +7,9 @@ import java.util.Optional;
 
 public interface JourneyService {
 
-    Journey createJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture,
-                                    String destinationUniversity, LocalDate startDate, LocalDate endDate, String description, String[] interests);
+    Journey createJourney(String email, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
 
-    void replyToJourney(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture,
-                                    long journeyId, String message);
+    void replyToJourney(String email, long journeyId, String message);
 
     List<Journey> getAllJourneys();
 

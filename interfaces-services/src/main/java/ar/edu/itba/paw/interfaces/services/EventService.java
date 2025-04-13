@@ -7,9 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EventService {
-    Event createEvent(String email, String cityName, Date date, byte[] flyer, String description, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePicture);
-    void replyToEvent(String email, String username, String firstname, String lastname, String originUniversity, String career, byte[] profilePictureId,
-                        long eventId, String message);
+    Event createEvent(String email, String cityName, Date date, byte[] flyer, String description);
+    void replyToEvent(String email,long eventId, String message);
 
     Optional<Event> getEventById(long id);
 

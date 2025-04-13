@@ -18,4 +18,5 @@ public class User{
     private final University university; // FIXME: ¿Cambiar por String? -> lo obtenemos del toString();
     private final Career career;
     private final long profilePictureId;
+    private final String password;
 }

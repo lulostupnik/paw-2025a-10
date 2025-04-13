@@ -14,22 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 @ValidDateRange
 public class CreateJourneyForm {
 
-    @Size(min = 2, max = 100)
-    private String firstName;
-
-    @Size(min = 2, max = 100)
-    private String lastName;
-
-    //@Pattern(regexp = "[a-zA-Z0-9]+$")
-    @Size(min = 6, max = 100)
-    @Email
-    @NoExistingJourney
-    private String email;
-
-    @NotNull
-    @ImageSize() // 1KB
-    private MultipartFile profilePicture;
-
     @NotNull
     @FutureDate
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -46,49 +30,8 @@ public class CreateJourneyForm {
     @Size(min = 2, max = 100)
     private String destinationUniversity;
 
-    @Size(min = 2, max = 100)
-    private String originUniversity;
-
-
     @Size(min = 2, max = 2047)
     private String description;
-
-    @Size(min = 2, max = 50)
-    private String career;
-
-    @Size(min = 2, max = 50)
-    private String username;
-
-    @NotNull
-    @ValidInterest
-    private String[] interests;
-
-    public String getCareer() {
-        return career;
-    }
-    public void setCareer(String career) {
-        this.career = career;
-    }
-    public String getUsername() {
-        return username;
-    }
-    public void setUsername(String username) {
-        this.username = username;
-    }
-    public MultipartFile getProfilePicture() {
-        return profilePicture;
-    }
-    public void setProfilePicture(MultipartFile profilePicture) {
-        this.profilePicture = profilePicture;
-    }
-
-    public String getEmail(){
-        return email;
-    }
-
-    public void setEmail(String email){
-        this.email = email;
-    }
     
     public LocalDate getStartDate(){
         return startDate;
@@ -122,14 +65,6 @@ public class CreateJourneyForm {
         this.destinationUniversity = destination;
     }
 
-    public String getOriginUniversity(){
-        return originUniversity;
-    }
-
-    public void setOriginUniversity(String originUniversity){
-        this.originUniversity = originUniversity;
-    }
-
     public String getDescription(){
         return description;
     }
@@ -138,22 +73,4 @@ public class CreateJourneyForm {
         this.description = description;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-    public void setFirstName(String firstname) {
-        this.firstName = firstname;
-    }
-    public String getLastName() {
-        return lastName;
-    }
-    public void setLastName(String lastname) {
-        this.lastName = lastname;
-    }
-    public String[] getInterests() {
-        return interests;
-    }
-    public void setInterests(String[] interests) {
-        this.interests = interests;
-    }
 }
