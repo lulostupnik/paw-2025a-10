@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.Locale;
 import java.util.Map;
 
+@Async
 @Service
 public class EmailServiceImpl implements EmailService {
     private final JavaMailSender emailSender;
@@ -82,7 +83,6 @@ public class EmailServiceImpl implements EmailService {
 
 
 
-    @Async
     @Override
     public void answerJourneyMail(String from, String to,
                                   String firstName, String lastName,
@@ -114,7 +114,6 @@ public class EmailServiceImpl implements EmailService {
                 profilePicture
         );
     }
-    @Async
     @Override
     public void answerEventMail(String from, String to,
                                 String firstName, String lastName,
