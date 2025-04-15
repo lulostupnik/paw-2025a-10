@@ -1,24 +1,8 @@
-/* Form group styles */
+/* Form styles - FIXED */
 .form-group {
     margin-bottom: 1.5rem;
+    width: 100%;
 }
-input,
-select,
-textarea,
-button,
-label,
-.file-input,
-.form-input,
-.form-select,
-.form-textarea,
-.btn-primary {
-    font-family: inherit;
-    font-size: inherit;
-    line-height: inherit;
-    color: inherit;
-}
-
-
 
 .form-label {
     display: block;
@@ -33,7 +17,7 @@ label,
 .form-textarea {
     display: block;
     width: 100%;
-    padding: 0.625rem 1rem;
+    padding: 0.75rem 1rem;
     font-size: 0.875rem;
     line-height: 1.5;
     color: #1f2937;
@@ -45,7 +29,6 @@ label,
     box-sizing: border-box;
 }
 
-
 .form-input:focus,
 .form-select:focus,
 .form-textarea:focus {
@@ -55,7 +38,7 @@ label,
 }
 
 .form-textarea {
-    min-height: 6rem;
+    min-height: 8rem;
     resize: vertical;
 }
 
@@ -66,12 +49,30 @@ label,
     color: #ef4444;
 }
 
-/* File upload styles */
+/* Form container - FIXED */
+.form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+}
+
+.form-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* File upload styles - FIXED */
 .file-upload-area {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 1.25rem;
+    padding: 1.5rem;
     border: 2px dashed #d1d5db;
     border-radius: 0.375rem;
     background-color: #f9fafb;
@@ -114,11 +115,11 @@ label,
     background-color: #dbeafe;
 }
 
-/* Select/Dropdown styles */
+/* Select/Dropdown styles - FIXED */
 .form-select {
     display: block;
     width: 100%;
-    padding: 0.625rem 1rem;
+    padding: 0.75rem 1rem;
     font-size: 0.875rem;
     font-weight: 400;
     line-height: 1.5;
@@ -133,15 +134,9 @@ label,
     appearance: none;
 }
 
-.form-select:focus {
-    border-color: #3b82f6;
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
-}
-
-/* Date field styles */
+/* Date field styles - FIXED */
 input[type="date"].form-input {
-    padding: 0.625rem 0.75rem;
+    padding: 0.75rem 1rem;
     appearance: none;
 }
 
@@ -154,39 +149,51 @@ input[type="date"].form-input::-webkit-calendar-picker-indicator:hover {
     opacity: 1;
 }
 
-/* Button styles */
-.btn-container {
-    margin-top: 1.5rem;
+/* Filter section - FIXED */
+.filter-section {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 1.5rem;
 }
 
-.btn-primary {
-    display: inline-block;
+.filter-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 1rem;
+}
+
+.filter-form {
     width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    line-height: 1.5;
-    text-align: center;
-    text-decoration: none;
-    vertical-align: middle;
-    cursor: pointer;
-    user-select: none;
-    border: 1px solid transparent;
-    border-radius: 0.375rem;
-    color: #fff;
+}
+
+.filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+/* Form submit button - FIXED */
+.form-submit {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
     background-color: #2563eb;
-    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    color: white;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    border: none;
+    transition: background-color 0.2s;
+    cursor: pointer;
 }
 
-.btn-primary:hover {
+.form-submit:hover {
     background-color: #1d4ed8;
-}
-
-.btn-primary:focus {
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
-}
-
-.btn-primary:active {
-    background-color: #1e40af;
 }

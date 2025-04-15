@@ -1,0 +1,64 @@
+/* Container styles - FIXED */
+.container {
+    max-width: 85rem;
+    padding: 2.5rem 1rem;
+    margin: 0 auto;
+}
+
+.content-container {
+    max-width: 85rem;
+    padding: 2.5rem 1rem;
+    margin: 0 auto;
+}
+
+.content-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.narrow-container {
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.card-container {
+    background-color: white;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 640px) {
+    .container,
+    .content-container {
+        padding: 2.5rem 1.5rem;
+    }
+
+    .card-container {
+        padding: 2rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .container,
+    .content-container {
+        padding: 3.5rem 2rem;
+    }
+
+    .card-container {
+        padding: 2.5rem;
+    }
+}
+
+.layout-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.main-content {
+    margin-left: 16rem; /* Same as sidebar width */
+    flex: 1;
+    padding: 2rem;
+}

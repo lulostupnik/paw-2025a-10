@@ -7,7 +7,6 @@
 <head>
     <title><spring:message code="journey.page.title"/></title>
     <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
-    <link rel="stylesheet" href="<c:url value='/resources/css/journey-list.css'/>" />
 </head>
 <body>
 

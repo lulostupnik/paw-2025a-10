@@ -12,9 +12,7 @@
 <html>
 <head>
     <title><spring:message code="register.title"/></title>
-    <link rel="stylesheet" href="<c:url value='/resources/css/base.css'/>" />
-    <link rel="stylesheet" href="<c:url value='/resources/css/form-components.css'/>" />
-    <link rel="stylesheet" href="<c:url value='/resources/css/autocomplete.css'/>" />
+    <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
 </head>
 <body>
 <div class="container">

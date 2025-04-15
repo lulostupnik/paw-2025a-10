@@ -8,7 +8,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><spring:message code="app.title"/></title>
     <link rel="stylesheet" href="<c:url value="/resources/css/main.css"/>" />
-    <link href="<c:url value='/resources/css/index.css' />" rel="stylesheet"/>
 </head>
 
 <body>

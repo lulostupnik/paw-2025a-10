@@ -7,8 +7,7 @@
 <head>
   <title><spring:message code="replyEvent.title"/></title>
   <!-- Include custom CSS -->
-  <link rel="stylesheet" href="<c:url value='/resources/css/base.css'/>" />
-  <link rel="stylesheet" href="<c:url value='/resources/css/form-components.css'/>" />
+  <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
 </head>
 <body>
 

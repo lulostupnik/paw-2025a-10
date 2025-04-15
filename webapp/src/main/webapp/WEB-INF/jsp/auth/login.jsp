@@ -5,8 +5,7 @@
 <html>
 <head>
     <title><spring:message code="login.title"/></title>
-    <link rel="stylesheet" href="<c:url value='/resources/css/base.css'/>" />
-    <link rel="stylesheet" href="<c:url value='/resources/css/form-components.css'/>" />
+    <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
     <style>
         body {
             font-family: Arial, sans-serif;

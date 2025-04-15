@@ -1,0 +1,202 @@
+/* Journey page specific styles - FIXED */
+.journeys-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.journeys-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.journeys-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.journey-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.journey-user-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.journey-destination,
+.journey-dates {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+.journey-description {
+    color: #4b5563;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Journey details - FIXED */
+.journey-detail {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+}
+
+.journey-detail-header {
+    margin-bottom: 1.5rem;
+}
+
+.journey-detail-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 0.5rem;
+}
+
+.journey-detail-contact {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+.journey-detail-section {
+    margin-bottom: 1.5rem;
+}
+
+.journey-detail-section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 0.5rem;
+}
+
+.destination-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.destination-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.375rem 0.75rem;
+    background-color: #eff6ff;
+    color: #1e40af;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 9999px;
+}
+
+.journey-dates-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.journey-description-text {
+    color: #4b5563;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Journey grid - FIXED */
+.journey-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* No journeys message - FIXED */
+.no-journeys {
+    text-align: center;
+    padding: 3rem 0;
+    color: #6b7280;
+    background-color: white;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+}
+
+.no-journeys-message {
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Journey form - FIXED */
+.journey-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.journey-form-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.journey-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.journey-form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+.journey-form-input,
+.journey-form-select,
+.journey-form-textarea {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #1f2937;
+    background-color: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.journey-form-submit {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    background-color: #2563eb;
+    color: white;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.journey-form-submit:hover {
+    background-color: #1d4ed8;
+}

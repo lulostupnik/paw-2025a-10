@@ -34,7 +34,7 @@
     request.setAttribute("errorType", errorType);
 %>
 
-<link rel="stylesheet" href="<c:url value='/resources/css/error-style.css'/>" />
+<link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
 
 <!DOCTYPE html>
 <html lang="${pageContext.request.locale.language}">

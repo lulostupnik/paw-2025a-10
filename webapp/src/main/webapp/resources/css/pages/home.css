@@ -1,0 +1,32 @@
+/* Home page specific styles */
+.welcome-header {
+    margin: 0 auto 2.5rem;
+}
+
+.page-intro {
+    color: #4b5563;
+    max-width: 48rem;
+    margin: 0;
+}
+
+.view-all-link {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.view-all-link:hover {
+    color: #1d4ed8;
+}
+
+/* Empty states */
+.empty-list {
+    padding: 1.25rem;
+    text-align: center;
+}
+
+.empty-message {
+    color: #6b7280;
+    margin: 0;
+}

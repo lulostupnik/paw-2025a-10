@@ -1,4 +1,4 @@
-/* Sidebar */
+/* Sidebar styles */
 .sidebar {
     display: flex;
     flex-direction: column;
@@ -9,7 +9,6 @@
     height: 100%;
 }
 
-/* Logo / Brand */
 .sidebar-brand {
     padding: 1rem 1.5rem;
     border-bottom: 1px solid #e5e7eb;
@@ -23,7 +22,6 @@
     margin-bottom: 0.5rem;
 }
 
-/* Navigation */
 .sidebar-nav {
     flex: 1;
     overflow: auto;

@@ -4,7 +4,7 @@
 <html>
 <head>
     <title><spring:message code="event.detail.title"/></title>
-    <link rel="stylesheet" href="<c:url value='/resources/css/not-found-style.css'/>" />
+    <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
 
 </head>
 <body>

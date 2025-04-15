@@ -1,0 +1,52 @@
+/* Error page specific styles */
+.error-content {
+    text-align: center;
+    padding: 2.5rem 1rem;
+}
+
+.error-title {
+    font-size: 4.5rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+@media (min-width: 640px) {
+    .error-title {
+        font-size: 6rem;
+    }
+}
+
+.error-message,
+.error-description {
+    margin-top: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Exception details */
+.exception-details {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: var(--debug-bg);
+    border-radius: 0.5rem;
+    text-align: left;
+    overflow: auto;
+    max-height: 16rem;
+}
+
+.exception-title {
+    font-weight: 700;
+    color: var(--error-text);
+}
+
+.exception-message {
+    font-size: 0.875rem;
+    color: var(--text-color);
+}
+
+.exception-stack-trace {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    overflow: auto;
+    white-space: pre;
+}
