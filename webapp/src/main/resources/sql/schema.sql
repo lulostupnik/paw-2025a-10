@@ -150,3 +150,4 @@ UPDATE users
 SET password = '$2b$10$KbQiA8xVuOPQkfiYJ0X0FubQbQjEJpTr6QOBD3qL6sYzFoq2nJ8fK'
 WHERE password IS NULL;
 
+ALTER TABLE users ADD COLUMN IF NOT EXISTS language VARCHAR(2) NOT NULL DEFAULT 'en' CHECK (language IN ('en', 'es'));
