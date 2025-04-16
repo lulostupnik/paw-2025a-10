@@ -18,4 +18,7 @@ public interface JourneyService {
     List<Journey> getFilteredJourneys(String destination, LocalDate startDate, LocalDate endDate, String interest);
 
     Boolean userHasJourney(String email); // ja
-}
+
+    public List<Journey> getRecommendedJourneys(String email);
+
+    }

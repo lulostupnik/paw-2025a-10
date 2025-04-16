@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 public class Interest {
     private final Long id;
     private final String name;
-
     @Override
     public String toString() {
         return name;
