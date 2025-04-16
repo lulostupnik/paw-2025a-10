@@ -78,7 +78,7 @@ public class AuthController {
         final User user = userService.createUser(form.getEmail(), form.getUsername(), form.getFirstName(),
                 form.getLastName(), form.getOriginUniversity(), form.getCareer(), profilePicture, form.getInterests(), form.getPassword(), currentLocale);
         LOGGER.info("Successfully created user {}", user);
-        
+
         return new ModelAndView("redirect:login");
     }
 }
