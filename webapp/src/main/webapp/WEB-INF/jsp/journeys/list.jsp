@@ -18,11 +18,11 @@
     <div class="main-content">
         <div class="content-container">
             <div class="content-wrapper">
-                <div class="header">
-                    <h2 class="page-title">
+                <div class="journeys-header">
+                    <h2 class="journeys-title">
                         <spring:message code="journey.list.title"/>
                     </h2>
-                    <div class="header-actions">
+                    <div class="journeys-actions">
                         <button id="filterToggleBtn" class="btn-secondary">
                             <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
@@ -45,7 +45,7 @@
                                modelAttribute="filterJourneyForm"
                                class="filter-form">
 
-                    <div class="filter-grid">
+                        <div class="filter-grid">
                             <div class="filter-item">
                                 <c:set var="destinationLabel"><spring:message code="createJourney.destinationUniversity"/></c:set>
                                 <jsp:include page="../components/dropdown.jsp">
@@ -72,19 +72,18 @@
                                 </jsp:include>
                             </div>
 
-                            <!-- Interest Filter using the autocomplete component -->
-                        <!-- Interest Filter using dropdown instead of autocomplete -->
-                        <div class="filter-item">
-                            <c:set var="interestsLabel"><spring:message code="journey.filter.interest"/></c:set>
-                            <jsp:include page="../components/dropdown.jsp">
-                                <jsp:param name="path" value="interest"/>
-                                <jsp:param name="label" value="${interestsLabel}"/>
-                                <jsp:param name="items" value="interests"/>
-                                <jsp:param name="defaultMessageCode" value="journey.filter.interest.placeholder"/>
-                            </jsp:include>
-                        </div>
+                            <!-- Interest Filter using dropdown instead of autocomplete -->
+                            <div class="filter-item">
+                                <c:set var="interestsLabel"><spring:message code="journey.filter.interest"/></c:set>
+                                <jsp:include page="../components/dropdown.jsp">
+                                    <jsp:param name="path" value="interest"/>
+                                    <jsp:param name="label" value="${interestsLabel}"/>
+                                    <jsp:param name="items" value="interests"/>
+                                    <jsp:param name="defaultMessageCode" value="journey.filter.interest.placeholder"/>
+                                </jsp:include>
+                            </div>
 
-                    </div>
+                        </div>
 
                         <div class="filter-actions">
                             <a href="<c:url value="/journeys"/>" class="btn-danger">
@@ -148,7 +147,7 @@
 
                 <c:if test="${empty journeys}">
                     <div class="no-journeys">
-                        <p><spring:message code="journey.no.journeys"/></p>
+                        <p class="no-journeys-message"><spring:message code="journey.no.journeys"/></p>
                     </div>
                 </c:if>
             </div>
