@@ -1,3 +1,4 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
@@ -22,7 +23,7 @@ Parameters:
     <div class="event-header">
         <h2 class="event-title"><c:out value="${event.eventCity.name}"/></h2>
         <p class="event-date">
-           <fmt:formatDate value="${event.date}" pattern="MMMM d, yyyy" />
+            <fmt:formatDate value="${event.date}" pattern="MMMM d, yyyy" />
         </p>
     </div>
 
