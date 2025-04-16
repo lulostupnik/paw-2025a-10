@@ -63,6 +63,11 @@
           <artifactId>spring-security-core</artifactId>
       </dependency>
       <!-- Según el dibujito acá no tendría que agregar a persistence con scope runtime? Tendría sentido, pero en el video no lo agregó -->
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
