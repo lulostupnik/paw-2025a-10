@@ -138,11 +138,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     public List<Journey> getRecommendedJourneys(String email) {
-        Optional<User> maybeUser = userService.findByEmail(email);
-        if(maybeUser.isEmpty()){
-            return null;
-        }
-        return journeyDao.getRecommendedJourneys(maybeUser.get().getId());
+        return journeyDao.getRecommendedJourneys(email);
     }
 
 }
