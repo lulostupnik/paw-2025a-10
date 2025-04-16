@@ -18,26 +18,23 @@ import java.util.*;
 public class EventServiceImpl implements EventService {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventServiceImpl.class);
 
-    // private final JourneyDao journeyDao;
     private final UserService userService;
-    //private final CityService cityService;
     private final EventResponseDao eventResponseDao;
     private final EmailService emailService;
     private final EventDao eventDao;
     private final ImageDao imageDao;
-    //private final UserDao userDao;
     private final CityDao cityDao;
+    private final EventAttendanceDao eventAttendanceDao;
 
     @Autowired
-    public EventServiceImpl(UserService userService, CityService cityService, EventResponseDao eventResponseDao, EventDao eventDao, EmailService emailService, ImageDao imageDao, UserDao userDao, CityDao cityDao) {
+    public EventServiceImpl(UserService userService, EventResponseDao eventResponseDao, EventDao eventDao, EmailService emailService, ImageDao imageDao, CityDao cityDao, EventAttendanceDao eventAttendanceDao) {
         this.userService = userService;
         this.eventResponseDao = eventResponseDao;
-        //this.cityService = cityService;
         this.eventDao = eventDao;
         this.emailService = emailService;
         this.imageDao = imageDao;
-        //this.userDao = userDao;
         this.cityDao = cityDao;
+        this.eventAttendanceDao = eventAttendanceDao;
     }
 
     @Override
@@ -68,7 +65,7 @@ public class EventServiceImpl implements EventService {
         LOGGER.debug("Looking for user {}", email);
         User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
 
-        LOGGER.info("Event reply is valid, commiting new reply to persistance");
+        LOGGER.info("Event reply is valid, commiting new reply to persistence");
         eventResponseDao.create(user.getId(), eventId, message);
 
         LOGGER.info("Sending email notification to event owner");
@@ -88,4 +85,63 @@ public class EventServiceImpl implements EventService {
     public List<Event> getAllEvents() {
         return eventDao.listAll();
     }
+
+
+    @Override
+    public void attendEvent(long userId, long eventId) {
+        eventAttendanceDao.attend(userId, eventId);
+    }
+
+    @Override
+    public void attendEvent(String email, long eventId) {
+        long userId = userService.findByEmail(email).orElseThrow().getId();
+        attendEvent(userId, eventId);
+    }
+
+
+    @Override
+    public void cancelAttendance(long userId, long eventId) {
+        eventAttendanceDao.cancel(userId, eventId);
+    }
+
+    @Override
+    public void cancelAttendance(String email, long eventId) {
+        long userId = userService.findByEmail(email).orElseThrow().getId();
+        cancelAttendance(userId, eventId);
+    }
+
+    @Override
+    public boolean isUserAttending(long userId, long eventId) {
+        return eventAttendanceDao.isAttending(userId, eventId);
+    }
+
+    @Override
+    public boolean isUserAttending(String email, long eventId) {
+        long userId = userService.findByEmail(email).orElseThrow().getId();
+        return isUserAttending(userId, eventId);
+    }
+
+
+    @Override
+    public List<User> getEventAttendees(long eventId) {
+        return eventAttendanceDao.getAttendees(eventId);
+    }
+
+    @Override
+    public int getEventAttendeesCount(long eventId) {
+        return eventAttendanceDao.getAttendeesCount(eventId);
+    }
+
+
+    @Override
+    public List<Event> getUserAttendingEvents(long userId) {
+        return eventAttendanceDao.getAttendingEvents(userId);
+    }
+
+    @Override
+    public List<Event> getUserAttendingEvents(String userEmail) {
+        long userId = userService.findByEmail(userEmail).orElseThrow().getId();
+        return getUserAttendingEvents(userId);
+    }
+
 }
