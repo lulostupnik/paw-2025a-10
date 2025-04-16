@@ -2,14 +2,12 @@ package ar.edu.itba.paw.webapp.form;
 
 import java.time.LocalDate;
 
-import javax.validation.constraints.Email;
 //import javax.validation.constraints.Pattern;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import ar.edu.itba.paw.webapp.validation.*;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.multipart.MultipartFile;
 
 @ValidDateRange
 public class CreateJourneyForm {
@@ -71,6 +69,21 @@ public class CreateJourneyForm {
 
     public void setDescription(String description){
         this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{startDate: \"");
+        sb.append(startDate);
+        sb.append("\", endDate: \"");
+        sb.append(endDate);
+        sb.append("\", destinationUniversity: \"");
+        sb.append(destinationUniversity);
+        sb.append("\", description: \"");
+        sb.append(description);
+        sb.append("\"}");
+        return sb.toString();
     }
 
 }

@@ -1,30 +1,34 @@
 package ar.edu.itba.paw.services;
 
-import ar.edu.itba.paw.interfaces.persistence.CityDao;
+//import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+//import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Date;
+//import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 @Service
 public class JourneyServiceImpl implements JourneyService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JourneyServiceImpl.class);
 
     private final JourneyDao journeyDao;
     private final UserService userService;
     private final EmailService emailService;
     private final UniversityService universityService;
     private final JourneyResponseDao journeyResponseDao;
-    private final CityService cityService;
-    private final InterestService interestService;
+    //private final CityService cityService;
+    //private final InterestService interestService;
     private final ImageService imageService;
 
     @Autowired
@@ -35,10 +39,11 @@ public class JourneyServiceImpl implements JourneyService {
         this.universityService = universityService;
         this.journeyResponseDao = journeyResponseDao;
         this.emailService = emailService;
-        this.cityService = cityService;
-        this.interestService = interestService;
+        //this.cityService = cityService;
+        //this.interestService = interestService;
         this.imageService = imageService;
     }
+
     private void checkDates(LocalDate startDate, LocalDate endDate) {
         if(startDate == null || endDate == null) {
             throw new RuntimeException("Start date and end date cannot be null");
@@ -53,33 +58,47 @@ public class JourneyServiceImpl implements JourneyService {
             throw new RuntimeException("End date cannot be before today");
         }
     }
+
     @Override
     public Journey createJourney(String email, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
-
+        LOGGER.debug("Creating journey for {}", email);
         checkDates(startDate, endDate);
 
+        LOGGER.debug("Looking for university {}", destinationUniversity);
         University destination = universityService.findByAny(destinationUniversity).orElseThrow(() -> new RuntimeException("Destination University not found"));
+
+        LOGGER.debug("Looking for user {}", email);
         //Solo por ahora busco tmbn x username
         User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
+
         if (journeyDao.findOverlappingJourney(user.getId(), startDate, endDate).isPresent()) {
+            LOGGER.info("User has an overlapping journey");
             throw new RuntimeException("There's already a journey registered in this time period");
         }
-        if(journeyDao.findByUserId(user.getId()).isPresent()) {
-            throw new RuntimeException("User already has a journey");
-        }
+        //if(journeyDao.findByUserId(user.getId()).isPresent()) {
+        //    throw new RuntimeException("User already has a journey");
+        //}
 
+        LOGGER.info("Journey data is valid, commiting new event to persistance");
         return journeyDao.create(user, destination, startDate, endDate, description); // FIXME
     }
 
 
     @Override
     public void replyToJourney(String email, long journeyId, String message) {
+        LOGGER.debug("Replying to journey {}", journeyId);
+
+        LOGGER.debug("Looking for journey {}", journeyId);
         Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> new RuntimeException("Journey not found"));
+
+        LOGGER.debug("Looking for user {}", email);
         //parche temporal buscar por username
         User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
 
+        LOGGER.info("Journey reply is valid, commiting new reply to persistance");
         journeyResponseDao.create(user.getId(), journeyId, message);
 
+        LOGGER.info("Sending email notification to journey owner");
         User receiver = journey.getUser();
         //@TODO cambiar el locale
         emailService.answerJourneyMail( email, receiver.getEmail() , user.getFirstname(), user.getLastname(),

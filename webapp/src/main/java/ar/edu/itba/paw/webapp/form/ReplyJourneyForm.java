@@ -1,10 +1,5 @@
 package ar.edu.itba.paw.webapp.form;
 
-import ar.edu.itba.paw.webapp.validation.ImageSize;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class ReplyJourneyForm {
@@ -18,6 +13,11 @@ public class ReplyJourneyForm {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    @Override
+    public String toString() {
+        return "{message: \"" + message + "\"}";
     }
 
 }

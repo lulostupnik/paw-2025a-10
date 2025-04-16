@@ -35,20 +35,45 @@
     </dependency>
 
     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.logback-extensions</groupId>
+      <artifactId>logback-ext-spring</artifactId>
+    </dependency>
+    
+    <dependency>
       <groupId>ar.edu.itba.paw</groupId>
       <artifactId>models</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>ar.edu.itba.paw</groupId>
       <artifactId>interfaces-services</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <!-- No estoy seguro de si la siguiente se necesita, creería que si -->
     <dependency>
       <groupId>ar.edu.itba.paw</groupId>
       <artifactId>interfaces-persistence</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -63,6 +88,11 @@
           <artifactId>spring-security-core</artifactId>
       </dependency>
       <!-- Según el dibujito acá no tendría que agregar a persistence con scope runtime? Tendría sentido, pero en el video no lo agregó -->
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
