@@ -27,7 +27,7 @@ public class UserJdbcDao implements UserDao {
             new Career(rs.getLong("career_id"), rs.getString("career_name")),
             rs.getLong("user_profile_picture_id"),
             rs.getString("user_password"),
-            Locale.of(rs.getString("language")));  //@todo check
+            Locale.of(rs.getString("user_language")));  //@todo check
 
     private final static String QUERY = "SELECT \n" +
             "    u.id AS user_id,\n" +
