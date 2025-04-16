@@ -41,7 +41,7 @@
       <artifactId>validation-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
+      <groupId>org.hibernate.validator</groupId>
       <artifactId>hibernate-validator</artifactId>
     </dependency>
     <dependency>
@@ -75,32 +75,55 @@
       <artifactId>spring-security-config</artifactId>
     </dependency>
 
-
-
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.logback-extensions</groupId>
+      <artifactId>logback-ext-spring</artifactId>
+    </dependency>
+    
     <dependency>
       <groupId>ar.edu.itba.paw</groupId>
       <artifactId>models</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <!-- interfaces-persistence no va acá, para no violar la separación en capas -->
     <!-- igual estará disponible para el runtime porque está en persistence, pero no podremos referirnos a sus interfaces desde webapp-->
     <dependency>
       <groupId>ar.edu.itba.paw</groupId>
       <artifactId>interfaces-services</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>ar.edu.itba.paw</groupId>
       <artifactId>services</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.version}</version>
       <scope>runtime</scope>
     </dependency>
     <!-- No entiendo bien porque acá podemos acceder a persistence en runtime -->
     <dependency>
       <groupId>ar.edu.itba.paw</groupId>
       <artifactId>persistence</artifactId>
-      <version>${parent.version}</version>
+      <version>${project.version}</version>
       <scope>runtime</scope>
     </dependency>
 
@@ -131,6 +154,9 @@
         <plugin>
           <artifactId>maven-war-plugin</artifactId>
           <version>3.4.0</version>
+          <configuration>
+            <packagingExcludes>**/logback-test.xml</packagingExcludes>
+          </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-install-plugin</artifactId>
