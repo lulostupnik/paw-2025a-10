@@ -154,4 +154,21 @@ public class EventJdbcDao implements EventDao {
     public List<Event> listAll() {
         return jdbcTemplate.query(QUERY, EVENT_ROW_MAPPER);
     }
+
+    @Override
+    public List<Event> getRecommendedEvents(String email) {
+        return jdbcTemplate.query("""
+                WITH user_data AS (
+                    SELECT city_id
+                    FROM users
+                    JOIN universities ON users.university = universities.id
+                    JOIN cities ON universities.city_id = id
+                    WHERE email = ?
+                )
+                SELECT *
+                FROM events
+                JOIN user_data ON user_data.city_id = events.city_id
+                WHERE event_date >= CURRENT_DATE
+    """, EVENT_ROW_MAPPER, email);
+    }
 }

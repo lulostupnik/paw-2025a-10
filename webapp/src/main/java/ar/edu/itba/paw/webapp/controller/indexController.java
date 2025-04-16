@@ -39,7 +39,7 @@ public class indexController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         LOGGER.debug("Auth provided for: {}", authentication.getPrincipal());
 
-        List<Event> events = eventService.getAllEvents();
+        List<Event> events = eventService.getRecommendedEvents(authentication.getName());
         LOGGER.debug("Events: {}", events);
         mav.addObject("events", events);
 

@@ -144,4 +144,9 @@ public class EventServiceImpl implements EventService {
         return getUserAttendingEvents(userId);
     }
 
+    @Override
+    public List<Event> getRecommendedEvents(String email){
+        return eventDao.getRecommendedEvents(email);
+    }
+
 }
