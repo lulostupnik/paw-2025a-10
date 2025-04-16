@@ -134,6 +134,15 @@ CREATE TABLE IF NOT EXISTS event_responses (
     PRIMARY KEY (user_id, event_id)
     );
 
+CREATE TABLE IF NOT EXISTS events_attendances (
+        user_id INTEGER NOT NULL,
+        event_id INTEGER NOT NULL,
+
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+        PRIMARY KEY (user_id, event_id)
+);
+
 ALTER TABLE users
     ADD COLUMN IF NOT EXISTS password VARCHAR(100) NOT NULL DEFAULT '$2b$10$KbQiA8xVuOPQkfiYJ0X0FubQbQjEJpTr6QOBD3qL6sYzFoq2nJ8fK';
 
