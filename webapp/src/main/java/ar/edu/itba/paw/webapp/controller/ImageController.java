@@ -2,30 +2,21 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.ImageService;
 import ar.edu.itba.paw.models.Image;
-import ar.edu.itba.paw.webapp.form.UploadImageForm;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.io.IOException;
-
 
 @Controller
 @RequestMapping("/images")
 public class ImageController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImageController.class);
 
     private final ImageService imageService;
 
@@ -34,13 +25,11 @@ public class ImageController {
         this.imageService = imageService;
     }
 
-
-
     @GetMapping("/{id}")
     public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
+        LOGGER.debug("Getting image {}", id);
         try {
             Image image = imageService.getImage(id).orElseThrow(); // Luego lanzar una excepción personalizada: ImageNotFoundException
-
             return ResponseEntity.ok()
                     .contentType(MediaType.IMAGE_JPEG)
                     .header(HttpHeaders.CONTENT_DISPOSITION,
@@ -48,6 +37,7 @@ public class ImageController {
                     .body(image.getData());
 
         } catch (Exception e) {
+            LOGGER.warn("Image {} not found", id);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }

@@ -59,4 +59,19 @@ public class FilterJourneyForm {
     public String getInterest() {
         return interests;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{destination: \"");
+        sb.append(destination);
+        sb.append("\", interests: \"");
+        sb.append(interests);
+        sb.append("\", startDate: \"");
+        sb.append(startDate);
+        sb.append("\", endDate: \"");
+        sb.append(endDate);
+        sb.append("\"}");
+        return sb.toString();
+    }
 }

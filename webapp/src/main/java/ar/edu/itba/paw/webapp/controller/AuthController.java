@@ -5,8 +5,10 @@ import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.*;
-import ar.edu.itba.paw.webapp.form.CreateEventForm;
 import ar.edu.itba.paw.webapp.form.CreateUserForm;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -15,11 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.List;
-
 @Controller
 public class AuthController {
-    private  final UniversityService universityService;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
+
+    private final UniversityService universityService;
     private final CareerService careerService;
     private final UserService userService;
     private final InterestService interestService;
@@ -33,35 +36,40 @@ public class AuthController {
     }
     @RequestMapping("/login")
     public ModelAndView loginForm() {
+        LOGGER.debug("Loading login form");
         return new ModelAndView("auth/login");
     }
 
     @RequestMapping(value = "/register", method = {RequestMethod.GET})
     public ModelAndView registerForm(@ModelAttribute ("createUserForm") final CreateUserForm form) {
+        LOGGER.debug("Loading register form");
         ModelAndView mav = new ModelAndView("auth/register");
         mav.addObject("careers", careerService.findAll());
         mav.addObject("universities",  universityService.getAllUniversities());
-        mav.addObject("interests", interestService.findAll() );
+        mav.addObject("interests", interestService.findAll());
         return mav;
     }
 
 
     @RequestMapping(value = "/register", method = {RequestMethod.POST})
     public ModelAndView registerSubmit(@ModelAttribute("createUserForm") final CreateUserForm form, final BindingResult errors) {
+        LOGGER.info("CREATING USER FROM USERFORM {}", form);
         if (errors.hasErrors()) {
+            LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
             return registerForm(form);
         }
 
         byte[] profilePicture = null;
         try {
             profilePicture = form.getProfilePicture().getBytes();
+            LOGGER.debug("User picture loaded successfully");
         } catch (Exception e) {
-            // FIXME
+            LOGGER.error("Error getting submitted image: {}", e.getMessage());
         }
 
-        //FIXME: Add fields for user creation just in case it does not exist. This will be removed after 1st sprint when we implement authorization
         final User user = userService.createUser(form.getEmail(), form.getUsername(), form.getFirstName(),
                 form.getLastName(), form.getOriginUniversity(), form.getCareer(), profilePicture, form.getInterests(), form.getPassword());
+        LOGGER.info("Successfully created user {}", user);
 
         return new ModelAndView("redirect:login");
     }

@@ -1,14 +1,11 @@
 package ar.edu.itba.paw.webapp.form;
 
-import java.time.LocalDate;
 import java.util.Date;
 
-import javax.validation.constraints.Email;
 //import javax.validation.constraints.Pattern;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import ar.edu.itba.paw.webapp.validation.FutureDate;
 import ar.edu.itba.paw.webapp.validation.ImageSize;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,4 +57,18 @@ public class CreateEventForm {
         this.description = description;
     }
 
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("{city: \"");
+        sb.append(city);
+        sb.append("\", date: \"");
+        sb.append(date);
+        sb.append("\", description: \"");
+        sb.append(description);
+        sb.append("\", profilePictureSize: ");
+        sb.append(flyer.getSize());
+        sb.append("}");
+        return sb.toString();
+    }
 }

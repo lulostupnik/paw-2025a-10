@@ -116,4 +116,36 @@ public class CreateUserForm {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("{email: \"");
+        sb.append(email);
+        sb.append("\", username: \"");
+        sb.append(username);
+        sb.append("\", firstName: \"");
+        sb.append(firstName);
+        sb.append("\", lastName: \"");
+        sb.append(lastName);
+        sb.append("\", university: \"");
+        sb.append(university);        
+        sb.append("\", originUniversity: \"");
+        sb.append(originUniversity);
+        sb.append("\", career: \"");
+        sb.append(career);
+        sb.append("\", interests: {");
+        for (int i = 0; i < interests.length; i++) {
+            sb.append("\"");
+            sb.append(interests[i]);
+            sb.append("\"");
+            if (i + 1 != interests.length){
+                sb.append(", ");
+            }
+        }
+        sb.append("}, profilePictureSize: ");
+        sb.append(profilePicture.getSize());
+        sb.append("}");
+        return sb.toString();
+    }
 }

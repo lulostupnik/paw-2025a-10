@@ -7,21 +7,20 @@ import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.Career;
-import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
     private final UniversityService universityService;
     private final UserDao userDao;
@@ -46,11 +45,23 @@ public class UserServiceImpl implements UserService {
     public User createUser(String email, String username, String firstname, String lastname, String universityName,
                            String careerName, byte[] profilePicture, String[] interests, String password) {
 
+        LOGGER.debug("Creating user for {}", email);
+
+        LOGGER.debug("Looking for university {}", universityName);
         University university = universityService.findByName(universityName).orElseThrow(() -> new RuntimeException("University not found"));
+
+        LOGGER.debug("Looking for career {}", careerName);
         Career career = careerService.findByName(careerName).orElseThrow(() -> new RuntimeException("Career not found"));
+
+        LOGGER.debug("Saving profile picture");
         long profilePictureId = imageDao.saveImage(profilePicture);
-        User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId,passwordEncoder.encode( password));
+
+        LOGGER.info("User data is valid, commiting new user to persistance", universityName);
+        User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId, passwordEncoder.encode(password));
+
+        LOGGER.debug("Saving user interests {}", interests.toString());
         interestService.createUserInterests(interests, user.getId());
+        
         return user;
     }
 

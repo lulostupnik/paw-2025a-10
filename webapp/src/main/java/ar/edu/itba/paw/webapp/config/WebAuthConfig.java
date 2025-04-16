@@ -1,6 +1,9 @@
 package ar.edu.itba.paw.webapp.config;
 
 import ar.edu.itba.paw.webapp.auth.PawUserDetailsService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +26,8 @@ import java.util.concurrent.TimeUnit;
 @PropertySource("classpath:application.properties")
 public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebAuthConfig.class);
+
     @Autowired
     private PawUserDetailsService userDetailsService;
 
@@ -38,8 +43,10 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(userDetailsService)
                 .passwordEncoder(passwordEncoder());
     }
+
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
+        LOGGER.info("Configuring security (has key from properties file = {})", authKey.length() > 0);
         http.userDetailsService(userDetailsService)
                 .sessionManagement()
 //                .invalidSessionUrl("/login")
@@ -51,17 +58,18 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                     .usernameParameter("j_username")
                     .passwordParameter("j_password")
                     .defaultSuccessUrl("/", false)
-                .loginPage("/login")
+                    .loginPage("/login")
                 .and().rememberMe()
-                .rememberMeParameter("j_rememberme")
-                .userDetailsService(userDetailsService)
-                .key("niasdnfrufajsdnfirasdjfnaorfnjdsfnaor")
-                .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(30))
+                    .rememberMeParameter("j_rememberme")
+                    .userDetailsService(userDetailsService)
+                    //TODO Move key to a separate file
+                    .key("niasdnfrufajsdnfirasdjfnaorfnjdsfnaor")
+                    .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(30))
                 .and().logout()
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/login")
+                    .logoutUrl("/logout")
+                    .logoutSuccessUrl("/login")
                 .and().exceptionHandling()
-                .accessDeniedPage("/errors/error")
+                .   accessDeniedPage("/errors/error")
                 .and().csrf().disable();
     }
     @Override
