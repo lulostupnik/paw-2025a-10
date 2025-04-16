@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -43,7 +44,7 @@ public class UserServiceImpl implements UserService {
     // creo que debería ser @Transactional
     @Override
     public User createUser(String email, String username, String firstname, String lastname, String universityName,
-                           String careerName, byte[] profilePicture, String[] interests, String password) {
+                           String careerName, byte[] profilePicture, String[] interests, String password, Locale locale) {
 
         LOGGER.debug("Creating user for {}", email);
 
@@ -57,7 +58,7 @@ public class UserServiceImpl implements UserService {
         long profilePictureId = imageDao.saveImage(profilePicture);
 
         LOGGER.info("User data is valid, commiting new user to persistance", universityName);
-        User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId, passwordEncoder.encode(password));
+        User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId, passwordEncoder.encode(password), locale);
 
         LOGGER.debug("Saving user interests {}", interests.toString());
         interestService.createUserInterests(interests, user.getId());

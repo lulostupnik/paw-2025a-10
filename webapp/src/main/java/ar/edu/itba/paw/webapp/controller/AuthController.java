@@ -10,12 +10,16 @@ import ar.edu.itba.paw.webapp.form.CreateUserForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.LocaleContextResolver;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.Locale;
 
 @Controller
 public class AuthController {
@@ -42,6 +46,7 @@ public class AuthController {
 
     @RequestMapping(value = "/register", method = {RequestMethod.GET})
     public ModelAndView registerForm(@ModelAttribute ("createUserForm") final CreateUserForm form) {
+
         LOGGER.debug("Loading register form");
         ModelAndView mav = new ModelAndView("auth/register");
         mav.addObject("careers", careerService.findAll());
@@ -53,6 +58,9 @@ public class AuthController {
 
     @RequestMapping(value = "/register", method = {RequestMethod.POST})
     public ModelAndView registerSubmit(@ModelAttribute("createUserForm") final CreateUserForm form, final BindingResult errors) {
+
+        Locale currentLocale = LocaleContextHolder.getLocale();
+
         LOGGER.info("CREATING USER FROM USERFORM {}", form);
         if (errors.hasErrors()) {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
@@ -68,9 +76,9 @@ public class AuthController {
         }
 
         final User user = userService.createUser(form.getEmail(), form.getUsername(), form.getFirstName(),
-                form.getLastName(), form.getOriginUniversity(), form.getCareer(), profilePicture, form.getInterests(), form.getPassword());
+                form.getLastName(), form.getOriginUniversity(), form.getCareer(), profilePicture, form.getInterests(), form.getPassword(), currentLocale);
         LOGGER.info("Successfully created user {}", user);
-
+        
         return new ModelAndView("redirect:login");
     }
 }

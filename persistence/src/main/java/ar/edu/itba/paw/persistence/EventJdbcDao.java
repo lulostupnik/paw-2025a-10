@@ -39,7 +39,8 @@ public class EventJdbcDao implements EventDao {
                             rs.getString("career_name")
                     ),
                     rs.getLong("user_profile_picture_id"),
-                    rs.getString("user_password")
+                    rs.getString("user_password"),
+                    Locale.of(rs.getString("user_language"))
             ),
             rs.getDate("event_date"),
             rs.getString("event_description"),
@@ -60,6 +61,7 @@ public class EventJdbcDao implements EventDao {
             "    us.university AS user_university, \n" +
             "    us.profile_picture_id AS user_profile_picture_id, \n" +
             "    us.password AS user_password, \n" +
+            "    u.language AS user_language,\n" +
             "\n" +
             "    ca.id AS career_id, \n" +
             "    ca.name AS career_name, \n" +
