@@ -39,7 +39,11 @@ public class AuthController {
         LOGGER.debug("Loading login form");
         return new ModelAndView("auth/login");
     }
-
+    @RequestMapping("/landing")
+    public ModelAndView landing() {
+        LOGGER.debug("Loading landing page");
+        return new ModelAndView("/landing");
+    }
     @RequestMapping(value = "/register", method = {RequestMethod.GET})
     public ModelAndView registerForm(@ModelAttribute ("createUserForm") final CreateUserForm form) {
         LOGGER.debug("Loading register form");

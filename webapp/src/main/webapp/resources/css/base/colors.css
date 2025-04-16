@@ -1,26 +1,27 @@
 /* Color variables and color-related styles */
 :root {
-    --color-primary: #2563eb;
-    --color-primary-hover: #1d4ed8;
-    --color-primary-light: #dbeafe;
-    --color-primary-dark: #1e40af;
-
-    --color-gray-50: #f9fafb;
-    --color-gray-100: #f3f4f6;
-    --color-gray-200: #e5e7eb;
-    --color-gray-300: #d1d5db;
-    --color-gray-400: #9ca3af;
-    --color-gray-500: #6b7280;
-    --color-gray-600: #4b5563;
-    --color-gray-700: #374151;
-    --color-gray-800: #1f2937;
+    --color-primary: #4361ee;
+    --color-primary-dark: #3a56d4;
+    --color-primary-light: #eef2ff;
+    --color-accent: #8b5cf6;
+    --color-accent-light: #f5f0ff;
+    --color-dark: #1f2937;
     --color-gray-900: #111827;
-
-    --color-danger: #dc2626;
-    --color-danger-hover: #b91c1c;
-
+    --color-gray-800: #1f2937;
+    --color-gray-700: #374151;
+    --color-gray-600: #4b5563;
+    --color-gray-500: #6b7280;
+    --color-gray-400: #9ca3af;
+    --color-gray-300: #d1d5db;
+    --color-gray-200: #e5e7eb;
+    --color-gray-100: #f3f4f6;
+    --color-gray-50: #f9fafb;
     --color-white: #ffffff;
-    --color-black: #000000;
+    --color-error: #ef4444;
+    --color-warning: #f59e0b;
+    --color-success: #10b981;
+    --color-info: #3b82f6;
+    --color-background: #eff6ff;
 }
 
 .text-primary {
@@ -32,7 +33,7 @@
 }
 
 .text-danger {
-    color: var(--color-danger);
+    color: var(--color-error);
 }
 
 .bg-primary {
