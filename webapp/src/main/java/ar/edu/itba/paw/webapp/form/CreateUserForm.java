@@ -144,7 +144,7 @@ public class CreateUserForm {
             }
         }
         sb.append("}, profilePictureSize: ");
-        sb.append(profilePicture.getSize());
+        sb.append(profilePicture == null || profilePicture.isEmpty() ? 0 : profilePicture.getSize());
         sb.append("}");
         return sb.toString();
     }
