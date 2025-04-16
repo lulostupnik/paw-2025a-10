@@ -212,4 +212,100 @@ public class JourneyJdbcDao implements JourneyDao {
         return jdbcTemplate.query(QUERY + " WHERE us.id = ?", JOURNEY_ROW_MAPPER, userId).stream().findFirst();
     }
 
+    @Override
+    public List<Journey> getRecommendedJourneys(long userId) {
+        String sql = """
+            WITH user_interests AS (
+                SELECT category_id, score
+                FROM user_interest
+                WHERE user_id = ?
+            ),
+            user_journey AS (
+                SELECT
+                    j.destination_university_id AS university_id,
+                    univ.city_id,
+                    j.start_date AS user_start,
+                    j.end_date AS user_end
+                FROM journeys j
+                JOIN universities univ ON j.destination_university_id = univ.id
+                WHERE j.user_id = ?
+                LIMIT 1
+            ),
+            journey_scores AS (
+                SELECT
+                    j.id AS journey_id,
+                    j.user_id AS journey_user_id,
+                    j.description,
+                    j.start_date,
+                    j.end_date,
+                    u.firstname || ' ' || u.lastname AS user_name,
+    
+                    -- University Match
+                    CASE
+                        WHEN j.destination_university_id = uj.university_id THEN 50
+                        ELSE 0
+                    END AS university_match_score,
+    
+                    -- City Match
+                    CASE
+                        WHEN dest_univ.city_id = uj.city_id THEN 30
+                        ELSE 0
+                    END AS city_match_score,
+    
+                    -- Interest Match
+                    COALESCE((
+                        SELECT SUM(ui.score) * 3
+                        FROM user_interest journey_ui
+                        JOIN user_interests ui ON ui.category_id = journey_ui.category_id
+                        WHERE journey_ui.user_id = j.user_id
+                    ), 0) AS interest_match_score,
+    
+                    -- Timing Match
+                    CASE
+                        WHEN (j.start_date, j.end_date) OVERLAPS (uj.user_start, uj.user_end) THEN 15
+                        ELSE 0
+                    END AS timing_match_score,
+    
+                    dest_univ.name AS university_name,
+                    c.name AS city_name,
+                    co.name AS country_name
+    
+                FROM journeys j
+                JOIN users u ON j.user_id = u.id
+                JOIN universities dest_univ ON j.destination_university_id = dest_univ.id
+                JOIN cities c ON dest_univ.city_id = c.id
+                JOIN countries co ON c.country_id = co.id
+                CROSS JOIN user_journey uj
+                WHERE j.user_id != ?
+            )
+    
+            SELECT
+                journey_id,
+                journey_user_id,
+                user_name,
+                description,
+                start_date,
+                end_date,
+                university_name,
+                city_name,
+                country_name,
+                university_match_score,
+                city_match_score,
+                interest_match_score,
+                timing_match_score,
+                (university_match_score + city_match_score + interest_match_score + timing_match_score) AS total_score
+    
+            FROM journey_scores
+            ORDER BY
+                total_score DESC,
+                university_match_score DESC,
+                city_match_score DESC,
+                timing_match_score DESC,
+                interest_match_score DESC
+            """;
+
+        return jdbcTemplate.query(sql, new Object[]{userId, userId, userId}, JOURNEY_ROW_MAPPER);
+    };
+
+
 }

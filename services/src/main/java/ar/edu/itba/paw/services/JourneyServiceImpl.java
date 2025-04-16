@@ -142,7 +142,7 @@ public class JourneyServiceImpl implements JourneyService {
         if(maybeUser.isEmpty()){
             return null;
         }
-        return journeyDao.findRecommendedJourneys(maybeUser.get().getId());
+        return journeyDao.getRecommendedJourneys(maybeUser.get().getId());
     }
 
 }

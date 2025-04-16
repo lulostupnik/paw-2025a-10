@@ -20,5 +20,6 @@ public interface JourneyDao {
     Optional<Journey> findOverlappingJourney(long id, LocalDate startDate, LocalDate endDate);
     List<Journey> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest);
     Optional<Journey> findByUserId(long userId);
+    List<Journey> getRecommendedJourneys(long userId);
 
 }
