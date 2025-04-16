@@ -213,7 +213,7 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
     @Override
-    public List<Journey> getRecommendedJourneys(long userId) {
+    public List<Journey> getRecommendedJourneys(long id) {
         String sql = """
             WITH user_interests AS (
                 SELECT category_id, score

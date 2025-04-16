@@ -53,12 +53,12 @@ public class InterestServiceImpl implements InterestService {
 
     @Override
     public void updateScoreByInterest(Interest interest, Long userId) {
-        interestDao.updateUserInterest(interest, userId);
+        interestDao.updateScoreByInterest(interest, userId);
     }
 
     @Override
     public void updateScoreByInterests(List<Interest> interests, Long userId) {
-        interestDao.updateUserInterests(interests, userId);
+        interestDao.updateScoreByInterests(interests, userId);
 
     }
 
