@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -67,7 +68,7 @@ public class EventServiceImpl implements EventService {
         User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
 
         LOGGER.info("Event reply is valid, commiting new reply to persistence");
-        eventResponseDao.create(user.getId(), user.getUsername(),eventId, message, LocalDate.now());
+        eventResponseDao.create(user.getId(), user.getUsername(),eventId, message, LocalDateTime.now());
 
         LOGGER.info("Sending email notification to event owner");
         //@TODO cambiar locale

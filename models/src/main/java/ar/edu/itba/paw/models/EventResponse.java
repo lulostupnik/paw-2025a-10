@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @RequiredArgsConstructor
@@ -12,7 +13,7 @@ public class EventResponse {
     private final String username;
     private final long eventId;
     private final String message;
-    private final LocalDate date;
+    private final LocalDateTime dateTime;
 
 
 

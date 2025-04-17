@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -25,10 +26,10 @@ public class EventResponseJdbcDao implements EventResponseDao {
             rs.getString("username"),
             rs.getLong("event_id"),
             rs.getString("message"),
-            rs.getDate("response_date").toLocalDate()
+            rs.getTimestamp("date_time").toLocalDateTime()
     );
     private static final String QUERY_BY_EVENT_ID =
-            "SELECT er.user_id, us.username as username, er.event_id, er.message, er.response_date " +
+            "SELECT er.user_id, us.username as username, er.event_id, er.message, er.date_time " +
                     "FROM event_responses er " +
                     "JOIN users us " +
                     "ON er.user_id = us.id " +
@@ -42,15 +43,15 @@ public class EventResponseJdbcDao implements EventResponseDao {
 
 
     @Override
-    public EventResponse create(long userId, String username, long eventId, String message, LocalDate date) {
+    public EventResponse create(long userId, String username, long eventId, String message, LocalDateTime dateTime) {
         final Map<String, Object> args = new HashMap<>();
         args.put("user_id", userId);
         args.put("event_id", eventId);
         args.put("message", message);
-        args.put("response_date", date);
+        args.put("date_time", dateTime);
 
         jdbcInsert.execute(args);
-        return new EventResponse(userId, username, eventId, message, date);
+        return new EventResponse(userId, username, eventId, message, dateTime);
     }
 
     @Override
