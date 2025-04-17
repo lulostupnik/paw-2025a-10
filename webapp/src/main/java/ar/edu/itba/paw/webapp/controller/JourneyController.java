@@ -123,9 +123,12 @@ public class JourneyController {
             return new ModelAndView("journeys/not_found");
         }
 
+        List<JourneyResponse> journeyResponses = js.getJourneyResponses(journey.get().getId());
+
         final ModelAndView mav = new ModelAndView("journeys/detail");
         LOGGER.debug("Journey found: {}", journey.get());
         mav.addObject("journey", journey.get());
+        mav.addObject("journeyResponses", journeyResponses);
         return mav;
     }
 
