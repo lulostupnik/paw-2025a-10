@@ -56,6 +56,8 @@ public class EventServiceImpl implements EventService {
         return eventDao.create(user, city, date, description, flyerImageId);
     }
 
+    //@TODO agregar que mande mail 
+
     @Override
     public void replyToEvent(String email, long eventId, String message) {
         LOGGER.debug("Replying to event {}", eventId);
