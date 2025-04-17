@@ -6,6 +6,8 @@
 <head>
   <title><spring:message code="event.page.title"/></title>
   <link rel="stylesheet" href="<c:url value="/resources/css/main.css"/>" />
+  <link rel="stylesheet" href="<c:url value="/resources/css/cards.css"/>" />
+  <link rel="stylesheet" href="<c:url value="/resources/css/events.css"/>" />
 </head>
 <body>
 
@@ -25,7 +27,43 @@
         </a>
       </div>
 
-      <!-- Events List with vertical scrolling -->
+      <!-- Category Navigation (optional) -->
+      <div class="category-nav">
+        <div class="category-scroll">
+          <a href="<c:url value="/events?type=all"/>" class="category-item ${empty param.type || param.type == 'all' ? 'active' : ''}">
+            <div class="category-icon">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <span><spring:message code="event.type.all"/></span>
+          </a>
+          <a href="<c:url value="/events?type=social"/>" class="category-item ${param.type == 'social' ? 'active' : ''}">
+            <div class="category-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <span><spring:message code="event.type.social"/></span>
+          </a>
+          <a href="<c:url value="/events?type=cultural"/>" class="category-item ${param.type == 'cultural' ? 'active' : ''}">
+            <div class="category-icon">
+              <i class="fas fa-landmark"></i>
+            </div>
+            <span><spring:message code="event.type.cultural"/></span>
+          </a>
+          <a href="<c:url value="/events?type=academic"/>" class="category-item ${param.type == 'academic' ? 'active' : ''}">
+            <div class="category-icon">
+              <i class="fas fa-graduation-cap"></i>
+            </div>
+            <span><spring:message code="event.type.academic"/></span>
+          </a>
+          <a href="<c:url value="/events?type=travel"/>" class="category-item ${param.type == 'travel' ? 'active' : ''}">
+            <div class="category-icon">
+              <i class="fas fa-plane"></i>
+            </div>
+            <span><spring:message code="event.type.travel"/></span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Events Grid -->
       <div class="events-container">
         <div class="events-grid">
           <c:forEach items="${events}" var="event">
@@ -49,5 +87,6 @@
   </div>
 </div>
 
+<script src="<c:url value="/resources/js/event-cards.js"/>"></script>
 </body>
 </html>
