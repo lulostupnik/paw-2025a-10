@@ -104,14 +104,25 @@ public class EventController {
     @RequestMapping("/{id}")
     public ModelAndView getEvent(@PathVariable long id) {
         LOGGER.debug("Getting info for event {}", id);
-        Optional<Event> event = eventService.getEventById(id);
-        if (event.isEmpty()) {
+        Optional<Event> maybeEvent = eventService.getEventById(id);
+        if (maybeEvent.isEmpty()) {
             LOGGER.warn("Event {} not found", id);
             return new ModelAndView("events/not_found");
         }
-        LOGGER.info("Found event {}", event.get());
+
+        Event event = maybeEvent.get();
+        LOGGER.info("Found event {}", event);
+
+        List<EventResponse> eventResponses = eventService.getEventResponses(event.getId());
+
+        Boolean attend = eventService.isUserAttending(SecurityContextHolder.getContext().getAuthentication().getName(), id);
+
         ModelAndView mav = new ModelAndView("events/detail");
-        mav.addObject("event", event.get());
+        mav.addObject("event", event);
+        mav.addObject("event_response", eventService.getEventResponses(event.getId()));
+        mav.addObject("attendees", eventService.getEventAttendees(id));
+        mav.addObject("attend", attend);
+        mav.addObject("eventResponses", eventResponses);
         return mav;
     }
 
@@ -153,4 +164,12 @@ public class EventController {
 
     }
 
+    @RequestMapping(value="/{id}/attend",method = POST,produces = "application/json")
+   public ModelAndView attendEvent(@PathVariable int id) {
+                LOGGER.debug("Attending event {}", id);
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                eventService.attendEvent(authentication.getName(), id);
+                return new ModelAndView("redirect:/events/{id}");
+            }
+    
 }

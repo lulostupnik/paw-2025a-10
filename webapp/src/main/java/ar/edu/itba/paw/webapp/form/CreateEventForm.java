@@ -67,7 +67,7 @@ public class CreateEventForm {
         sb.append("\", description: \"");
         sb.append(description);
         sb.append("\", profilePictureSize: ");
-        sb.append(flyer.getSize());
+        sb.append(flyer == null || flyer.isEmpty() ? 0 : flyer.getSize());
         sb.append("}");
         return sb.toString();
     }

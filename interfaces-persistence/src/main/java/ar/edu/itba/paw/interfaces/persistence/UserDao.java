@@ -3,10 +3,11 @@ package ar.edu.itba.paw.interfaces.persistence;
 import ar.edu.itba.paw.models.*;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 public interface UserDao {
-    User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password);
+    User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale);
     Optional<User> findById(long id);
     Optional<User> findByEmail(String email);
     Optional<UserPassword> findByEmailWithPass(String email);

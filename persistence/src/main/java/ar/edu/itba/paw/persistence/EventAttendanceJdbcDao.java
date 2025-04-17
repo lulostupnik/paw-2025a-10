@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Repository
@@ -27,7 +28,8 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
             rs.getString("user_lastname"),
             new University(rs.getLong("user_university"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id"))),
             new Career(rs.getLong("career_id"), rs.getString("career_name")),
-            rs.getLong("user_profile_picture_id"));
+            rs.getLong("user_profile_picture_id"),
+            Locale.of(rs.getString("user_language")));
 
     private final static String GET_ATTENDEES_QUERY =
             "SELECT \n" +
@@ -37,7 +39,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                     "    u.lastname AS user_lastname,\n" +
                     "    u.username AS user_username,\n" +
                     "    u.university AS user_university,\n" +
-                    "    u.password AS user_password,\n" +
+                    "    u.language AS user_language,\n" +
                     "    c.name AS career_name,\n" +
                     "    c.id AS career_id,\n" +
                     "    u.profile_picture_id AS user_profile_picture_id,\n" +
@@ -76,7 +78,8 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                             rs.getLong("career_id"),
                             rs.getString("career_name")
                     ),
-                    rs.getLong("user_profile_picture_id")
+                    rs.getLong("user_profile_picture_id"),
+                    Locale.of(rs.getString("user_language"))
             ),
             rs.getDate("event_date"),
             rs.getString("event_description"),
@@ -96,6 +99,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
             "    us.username AS user_username, \n" +
             "    us.university AS user_university, \n" +
             "    us.profile_picture_id AS user_profile_picture_id, \n" +
+            "    us.language AS user_language,\n" +
             "\n" +
             "    ca.id AS career_id, \n" +
             "    ca.name AS career_name, \n" +

@@ -3,6 +3,8 @@ package ar.edu.itba.paw.models;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Locale;
+
 @Getter
 @RequiredArgsConstructor
 public class User{
@@ -14,7 +16,7 @@ public class User{
     private final University university;
     private final Career career;
     private final long profilePictureId;
-
+    private final Locale locale;
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -32,8 +34,11 @@ public class User{
         sb.append(firstname);
         sb.append("\", lastname: \"");
         sb.append(lastname);
+        sb.append("\", language: \"");
+        sb.append(locale);
         sb.append("\", profilePictureId: ");
         sb.append(profilePictureId);
+
         sb.append("}");
         return sb.toString();
     }

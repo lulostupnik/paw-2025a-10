@@ -61,4 +61,5 @@
     margin-left: 16rem; /* Same as sidebar width */
     flex: 1;
     padding: 2rem;
+    background-color: var(--color-background)
 }

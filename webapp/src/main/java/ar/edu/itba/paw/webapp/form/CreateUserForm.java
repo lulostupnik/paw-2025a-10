@@ -134,17 +134,20 @@ public class CreateUserForm {
         sb.append(originUniversity);
         sb.append("\", career: \"");
         sb.append(career);
-        sb.append("\", interests: {");
-        for (int i = 0; i < interests.length; i++) {
-            sb.append("\"");
-            sb.append(interests[i]);
-            sb.append("\"");
-            if (i + 1 != interests.length){
-                sb.append(", ");
+        if(interests != null) {
+            sb.append("\", interests: {");
+            for (int i = 0; i < interests.length; i++) {
+                sb.append("\"");
+                sb.append(interests[i]);
+                sb.append("\"");
+                if (i + 1 != interests.length) {
+                    sb.append(", ");
+                }
             }
+            sb.append("}");
         }
-        sb.append("}, profilePictureSize: ");
-        sb.append(profilePicture.getSize());
+        sb.append(" profilePictureSize: ");
+        sb.append(profilePicture == null || profilePicture.isEmpty() ? 0 : profilePicture.getSize());
         sb.append("}");
         return sb.toString();
     }

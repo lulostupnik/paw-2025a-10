@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.interfaces.services;
 
 import ar.edu.itba.paw.models.Event;
+import ar.edu.itba.paw.models.EventResponse;
 import ar.edu.itba.paw.models.User;
 import java.util.Date;
 import java.util.List;
@@ -21,5 +22,6 @@ public interface EventService {
     int getEventAttendeesCount(long eventId);
     List<Event> getUserAttendingEvents(String userEmail);
     List<Event> getUserAttendingEvents(long userId);
+    List<EventResponse> getEventResponses(long eventId);
     public List<Event> getRecommendedEvents(String email);
 }

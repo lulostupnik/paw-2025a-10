@@ -18,6 +18,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
@@ -160,9 +161,10 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/resources/**").addResourceLocations("/resources/");
     }
 
-//    @Bean
-//    public LocaleResolver localeResolver() {
-//        return new CustomLocaleResolver();
-//    }
+    @Bean
+    public LocaleResolver localeResolver() {
+        return new CustomLocaleResolver();
+    }
+
 
 }

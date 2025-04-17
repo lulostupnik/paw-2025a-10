@@ -3,9 +3,9 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<link href="<c:url value='/resources/css/sidebar.css' />" rel="stylesheet"/>
+<link href="<c:url value='/resources/css/layout/sidebar.css' />" rel="stylesheet"/>
 
-<c:url var="homeUrl" value="/" />
+<c:url var="homeUrl" value="/home" />
 <c:url var="journeysUrl" value="/journeys" />
 <c:url var="eventsUrl" value="/events" />
 <c:set var="uri" value="${requestScope['javax.servlet.forward.request_uri'] != null

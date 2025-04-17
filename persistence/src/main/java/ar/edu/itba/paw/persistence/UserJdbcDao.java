@@ -25,7 +25,8 @@ public class UserJdbcDao implements UserDao {
             rs.getString("user_lastname"),
             new University(rs.getLong("user_university"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id"))),
             new Career(rs.getLong("career_id"), rs.getString("career_name")),
-            rs.getLong("user_profile_picture_id"));
+            rs.getLong("user_profile_picture_id")),
+            Locale.of(rs.getString("user_language")));
 
 
     private final static RowMapper<UserPassword> USER_PASSWORD_ROW_MAPPER = (rs, rowNum)-> new UserPassword(
@@ -37,8 +38,8 @@ public class UserJdbcDao implements UserDao {
             new University(rs.getLong("user_university"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id"))),
             new Career(rs.getLong("career_id"), rs.getString("career_name")),
             rs.getLong("user_profile_picture_id"),
-            rs.getString("user_password")
-    );
+            rs.getString("user_password"),
+            Locale.of(rs.getString("user_language")));
 
     private final static String QUERY = "SELECT \n" +
             "    u.id AS user_id,\n" +
@@ -47,6 +48,7 @@ public class UserJdbcDao implements UserDao {
             "    u.lastname AS user_lastname,\n" +
             "    u.username AS user_username,\n" +
             "    u.university AS user_university,\n" +
+            "    u.language AS user_language,\n" +
             "    c.name AS career_name,\n" +
             "    c.id AS career_id,\n" +
             "    u.profile_picture_id AS user_profile_picture_id,\n" +
@@ -69,6 +71,7 @@ public class UserJdbcDao implements UserDao {
             "    u.lastname AS user_lastname,\n" +
             "    u.username AS user_username,\n" +
             "    u.university AS user_university,\n" +
+            "    u.language AS user_language,\n" +
             "    c.name AS career_name,\n" +
             "    c.id AS career_id,\n" +
             "    u.profile_picture_id AS user_profile_picture_id,\n" +
@@ -125,7 +128,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public User create(String email, String username, String firstname, String lastname, University university,
-                       Career career, long profilePictureId, String password) {
+                       Career career, long profilePictureId, String password, Locale locale) {
         final Map<String, Object> args = new HashMap<>();
         args.put("email", email);
         args.put("username", username);
@@ -135,8 +138,9 @@ public class UserJdbcDao implements UserDao {
         args.put("career_id", career.getId());
         args.put("profile_picture_id", profilePictureId);
         args.put("password", password);
+        args.put("language", locale);
         final Number id = jdbcInsert.executeAndReturnKey(args);
-        return new User(id.longValue(), email, username, firstname, lastname, university, career, profilePictureId);
+        return new User(id.longValue(), email, username, firstname, lastname, university/*.toString()*/, career, profilePictureId, locale);
     }
 
 

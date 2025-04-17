@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.sql.DataSource;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.logging.Logger;
 
 /*
 
@@ -45,6 +44,7 @@ public class JourneyJdbcDao implements JourneyDao {
             "    us.university AS user_university, \n" +
             "    us.profile_picture_id AS user_profile_picture_id, \n" +
             "\n" +
+            "    us.language AS user_language,\n" +
             "    ca.id AS career_id, \n" +
             "    ca.name AS career_name, \n" +
             "\n" +
@@ -106,7 +106,8 @@ public class JourneyJdbcDao implements JourneyDao {
                             rs.getLong("career_id"),
                             rs.getString("career_name")
                     ),
-                    rs.getLong("user_profile_picture_id")
+                    rs.getLong("user_profile_picture_id"),
+                    Locale.of(rs.getString("user_language"))
             ),
             rs.getDate("journey_start_date").toLocalDate(),
             rs.getDate("journey_end_date").toLocalDate(),
