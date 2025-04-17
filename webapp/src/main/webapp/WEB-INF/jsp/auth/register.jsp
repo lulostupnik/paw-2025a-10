@@ -164,8 +164,9 @@
                         <form:label path="firstName" cssClass="form-label required-field">
                             <spring:message code="createJourney.firstName"/>
                         </form:label>
+                        <c:set var="john"><spring:message code="john"/></c:set>
                         <form:input path="firstName" cssClass="form-input ${not empty errors.getFieldError('firstName') ? 'error' : ''}"
-                                    placeholder="John" required="true" />
+                                    placeholder="${john}" required="true" />
                         <form:errors path="firstName" cssClass="error-message" />
                     </div>
 
@@ -173,8 +174,9 @@
                         <form:label path="lastName" cssClass="form-label required-field">
                             <spring:message code="createJourney.lastName"/>
                         </form:label>
+                        <c:set var="doe"><spring:message code="doe"/></c:set>
                         <form:input path="lastName" cssClass="form-input ${not empty errors.getFieldError('lastName') ? 'error' : ''}"
-                                    placeholder="Doe" required="true" />
+                                    placeholder="${doe}" required="true" />
                         <form:errors path="lastName" cssClass="error-message" />
                     </div>
                 </div>
@@ -184,8 +186,9 @@
                         <form:label path="username" cssClass="form-label required-field">
                             <spring:message code="createJourney.username"/>
                         </form:label>
+                        <c:set var="johnUsername"><spring:message code="john.username"/></c:set>
                         <form:input path="username" cssClass="form-input ${not empty errors.getFieldError('username') ? 'error' : ''}"
-                                    placeholder="johndoe" required="true" />
+                                    placeholder="${johnUsername}" required="true" />
                         <form:errors path="username" cssClass="error-message" />
                     </div>
 
@@ -566,6 +569,10 @@
 
 <!-- Enhanced autocomplete and interests selection script -->
 <script>
+
+        const noInterestsMessage = '<spring:message code="interests.none.selected"/>';
+
+
     document.addEventListener("DOMContentLoaded", function() {
         // Initialize career autocomplete
         initAutocomplete("career", "careerSearch", "careerDropdown");
@@ -789,7 +796,7 @@
                 if (selectedValues.length === 0) {
                     const emptyState = document.createElement("div");
                     emptyState.className = "empty-interests";
-                    emptyState.textContent = "No interests selected";
+                    emptyState.textContent = noInterestsMessage;
                     selectedInterests.appendChild(emptyState);
                     return;
                 }

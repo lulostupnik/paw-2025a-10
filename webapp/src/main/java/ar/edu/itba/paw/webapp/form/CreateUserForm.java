@@ -29,7 +29,7 @@ public class CreateUserForm {
     @Size(min = 2, max = 100)
     private String firstName;
 
-    @Size(min = 2, max = 100)
+    @Size(min = 8, max = 100)
     private String password;
 
     @Size(min = 2, max = 100)
