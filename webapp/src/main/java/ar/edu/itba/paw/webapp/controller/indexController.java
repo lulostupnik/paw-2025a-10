@@ -28,11 +28,11 @@ public class indexController {
         this.journeyService = journeyService;
     }
 
-    @RequestMapping("/")
+    @RequestMapping("/home")
     public ModelAndView index() {
         LOGGER.debug("Getting dashboard page...");
 
-        ModelAndView mav = new ModelAndView("index");
+        ModelAndView mav = new ModelAndView("home");
 
         List<Event> events = eventService.getAllEvents();
         LOGGER.debug("Events: {}", events);

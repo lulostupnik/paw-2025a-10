@@ -9,7 +9,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-<div class="login-container">
+<div class="container">
+    <div class="mb-6">
+        <a href="<c:url value="/"/>" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+            </svg>
+            <spring:message code="register.back"/>
+        </a>
+    </div>
+    <div class="mx-auto max-w-2xl login-content">
     <div class="login-header">
         <h1 class="login-title"><spring:message code="login.title"/></h1>
     </div>
@@ -54,12 +63,11 @@
                            type="checkbox"
                            class="checkbox-input" />
                     <span><spring:message code="remember_me"/></span>
+                    <span class="checkbox-custom"></span>
                 </label>
             </div>
-
-            <!-- Submit Button -->
             <div class="form-group-log">
-                <button type="submit" class="btn-primary">
+                <button type="submit" class="btn-primary justify-center">
                     <spring:message code="login.submit"/>
                 </button>
             </div>
@@ -76,6 +84,7 @@
 <%--            </a>--%>
 <%--        </div>--%>
     </div>
+</div>
 </div>
 </body>
 </html>
