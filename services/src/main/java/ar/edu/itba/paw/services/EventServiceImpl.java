@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -66,13 +67,13 @@ public class EventServiceImpl implements EventService {
         User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
 
         LOGGER.info("Event reply is valid, commiting new reply to persistence");
-        eventResponseDao.create(user.getId(), eventId, message);
+        eventResponseDao.create(user.getId(), user.getUsername(),eventId, message, LocalDate.now());
 
         LOGGER.info("Sending email notification to event owner");
         //@TODO cambiar locale
         emailService.answerEventMail(email,event.getUser().getEmail(), user.getFirstname(),
                 user.getLastname(),user.getUsername(),user.getCareer().getName(), user.getUniversity().getName(),
-                message, Locale.ENGLISH,
+                message, user.getLocale(),
                 imageDao.getImageById(user.getProfilePictureId()).orElseThrow(() -> new RuntimeException("Image not found")).getData());
     }
 

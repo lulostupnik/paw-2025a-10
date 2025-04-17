@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -21,17 +22,17 @@ public class EventResponseJdbcDao implements EventResponseDao {
 
     private static final RowMapper<EventResponse> EVENT_RESPONSE_ROW_MAPPER = (rs, rowNum) -> new EventResponse(
             rs.getLong("user_id"), // Event ID from `events` table
+            rs.getString("username"),
             rs.getLong("event_id"),
-            rs.getString("message")
+            rs.getString("message"),
+            rs.getDate("response_date").toLocalDate()
     );
     private static final String QUERY_BY_EVENT_ID =
-            "SELECT er.user_id, er.event_id, er.message FROM event_responses er WHERE er.event_id = ?";
-//    private static final String QUERY = "SELECT \n" +
-//            "    er.user_id, \n" +
-//            "    er.event_id, \n" +
-//            "    er.message    \n"+
-//
-//            "FROM event_responses er\n";
+            "SELECT er.user_id, us.username as username, er.event_id, er.message, er.response_date " +
+                    "FROM event_responses er " +
+                    "JOIN users us " +
+                    "ON er.user_id = us.id " +
+                    "WHERE er.event_id = ?";
 
     @Autowired
     public EventResponseJdbcDao(DataSource dataSource){
@@ -41,13 +42,15 @@ public class EventResponseJdbcDao implements EventResponseDao {
 
 
     @Override
-    public EventResponse create(long userId, long eventId, String message) {
+    public EventResponse create(long userId, String username, long eventId, String message, LocalDate date) {
         final Map<String, Object> args = new HashMap<>();
         args.put("user_id", userId);
         args.put("event_id", eventId);
         args.put("message", message);
+        args.put("response_date", date);
+
         jdbcInsert.execute(args);
-        return new EventResponse(userId, eventId, message);
+        return new EventResponse(userId, username, eventId, message, date);
     }
 
     @Override
