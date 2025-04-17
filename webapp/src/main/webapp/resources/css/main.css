@@ -17,7 +17,6 @@
 @import "components/navigation.css";
 @import "components/tags.css";
 @import "components/checbox.css";
-@import "components/journey-card.css"; /* Journey card component */
 
 /* 4. Page-specific Styles */
 @import "pages/home.css";

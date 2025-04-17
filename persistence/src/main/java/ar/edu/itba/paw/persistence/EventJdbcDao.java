@@ -173,6 +173,7 @@ public class EventJdbcDao implements EventDao {
             us.username AS user_username, 
             us.university AS user_university, 
             us.profile_picture_id AS user_profile_picture_id, 
+            us.language AS user_language,
             
             ca.id AS career_id, 
             ca.name AS career_name, 

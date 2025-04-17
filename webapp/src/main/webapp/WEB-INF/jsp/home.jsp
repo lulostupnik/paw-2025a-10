@@ -154,37 +154,13 @@
 
                     <c:if test="${not empty events}">
                         <c:forEach var="event" items="${events}" varStatus="status">
-                            <div class="card event-card">
-                                <c:if test="${not empty event.flyerImageId}">
-                                    <div class="card-image">
-                                        <img src="<c:url value='/images/${event.flyerImageId}'/>" alt="Event Flyer" class="event-img">
-                                    </div>
-                                </c:if>
-                                <div class="card-body">
-                                    <h3 class="card-title">
-                                        <c:out value="${event.eventCity.name}" />
-                                    </h3>
-                                    <div class="card-dates">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="card-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                        <span class="card-date">
-                                            <c:out value="${event.date}" />
-                                        </span>
-                                    </div>
-                                    <p class="card-description">
-                                        <c:out value="${event.description}" />
-                                    </p>
-                                </div>
-                                <div class="card-footer">
-                                    <a href="<c:url value='/events/${event.id}'/>" class="card-btn">
-                                        <spring:message code="dashboard.details"/>
-                                        <svg class="card-btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                        </svg>
-                                    </a>
-                                </div>
-                            </div>
+                            <jsp:include page="events/event-card.jsp">
+                                <jsp:param name="eventId" value="${event.id}" />
+                                <jsp:param name="eventCity" value="${event.eventCity.name}" />
+                                <jsp:param name="eventDate" value="${event.date}" />
+                                <jsp:param name="eventDescription" value="${event.description}" />
+                                <jsp:param name="flyerImageId" value="${event.flyerImageId}" />
+                            </jsp:include>
                         </c:forEach>
                     </c:if>
                 </div>
