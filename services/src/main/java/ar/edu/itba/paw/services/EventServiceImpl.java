@@ -144,4 +144,8 @@ public class EventServiceImpl implements EventService {
         return getUserAttendingEvents(userId);
     }
 
+    public List<EventResponse> getEventResponses(long eventId){
+        return eventResponseDao.listAllFromEvent(eventId);
+    }
+
 }

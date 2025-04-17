@@ -104,14 +104,18 @@ public class EventController {
     @RequestMapping("/{id}")
     public ModelAndView getEvent(@PathVariable long id) {
         LOGGER.debug("Getting info for event {}", id);
-        Optional<Event> event = eventService.getEventById(id);
-        if (event.isEmpty()) {
+        Optional<Event> maybeEvent = eventService.getEventById(id);
+        if (maybeEvent.isEmpty()) {
             LOGGER.warn("Event {} not found", id);
             return new ModelAndView("events/not_found");
         }
-        LOGGER.info("Found event {}", event.get());
+        Event event = maybeEvent.get();
+        List<EventResponse> eventResponses = eventService.getEventResponses(event.getId());
+
+        LOGGER.info("Found event {}", event);
         ModelAndView mav = new ModelAndView("events/detail");
-        mav.addObject("event", event.get());
+        mav.addObject("event", event);
+        mav.addObject("eventResponses");
         return mav;
     }
 
