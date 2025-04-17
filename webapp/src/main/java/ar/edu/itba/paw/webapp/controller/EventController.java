@@ -37,14 +37,14 @@ public class EventController {
     private final EventService eventService;
     private final CityService cityService;
     private final UniversityService universityService;
-    private final CareerService carreerService;
+    private final CareerService careerService;
 
     @Autowired
-    public EventController(EventService eventService, CityService cityService, UniversityService universityService, CareerService carreerService) {
+    public EventController(EventService eventService, CityService cityService, UniversityService universityService, CareerService careerService) {
         this.eventService = eventService;
         this.cityService = cityService;
         this.universityService = universityService;
-        this.carreerService = carreerService;
+        this.careerService = careerService;
     }
 
     @RequestMapping
@@ -54,6 +54,7 @@ public class EventController {
         List<Event> events = eventService.getAllEvents();
         LOGGER.debug("Events found: {}", events);
         mav.addObject("events", events);
+        mav.addObject("eventsAttended", eventService.getUserAttendingEvents(SecurityContextHolder.getContext().getAuthentication().getName()));
         return mav;
     }
 
@@ -65,7 +66,7 @@ public class EventController {
         LOGGER.debug("Cities: {}", cities);
         List<University> universities = universityService.getAllUniversities();
         LOGGER.debug("Universities: {}", universities);
-        List<Career> careers = carreerService.findAll();
+        List<Career> careers = careerService.findAll();
         LOGGER.debug("Careers: {}", careers);
         mav.addObject("careers", careers);
         mav.addObject("universities", universities);
@@ -133,7 +134,7 @@ public class EventController {
             return getEvent(id);
         }
         LOGGER.debug("Event found: {}", event.get());
-        mav.addObject("careers", carreerService.findAll());
+        mav.addObject("careers", careerService.findAll());
         mav.addObject("universities", universityService.getAllUniversities());
         mav.addObject("event", event.get());
         mav.addObject("replyEventForm", form);

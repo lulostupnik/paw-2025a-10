@@ -6,8 +6,8 @@
 <head>
   <title><spring:message code="event.page.title"/></title>
   <link rel="stylesheet" href="<c:url value="/resources/css/main.css"/>" />
-  <link rel="stylesheet" href="<c:url value="/resources/css/cards.css"/>" />
-  <link rel="stylesheet" href="<c:url value="/resources/css/events.css"/>" />
+  <link rel="stylesheet" href="<c:url value="/resources/css/components/cards.css"/>" />
+  <link rel="stylesheet" href="<c:url value="/resources/css/pages/events.css"/>" />
 </head>
 <body>
 
@@ -67,12 +67,19 @@
       <div class="events-container">
         <div class="events-grid">
           <c:forEach items="${events}" var="event">
+            <c:set var="attend" value="false" />
+            <c:forEach items="${eventsAttended}" var="attendedEvent">
+              <c:if test="${attendedEvent.id == event.id}">
+                <c:set var="attend" value="true" />
+              </c:if>
+            </c:forEach>
             <jsp:include page="event-card.jsp">
               <jsp:param name="eventId" value="${event.id}" />
               <jsp:param name="eventCity" value="${event.eventCity.name}" />
               <jsp:param name="eventDate" value="${event.date}" />
               <jsp:param name="eventDescription" value="${event.description}" />
               <jsp:param name="flyerImageId" value="${event.flyerImageId}" />
+              <jsp:param name="attend" value="${attend}" />
             </jsp:include>
           </c:forEach>
 
@@ -87,6 +94,5 @@
   </div>
 </div>
 
-<script src="<c:url value="/resources/js/event-cards.js"/>"></script>
 </body>
 </html>

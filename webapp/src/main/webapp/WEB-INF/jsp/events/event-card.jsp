@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <div class="event-card-wrapper">
     <a href="<c:url value="/events/${param.eventId}"/>" class="event-card-link">
@@ -25,9 +26,22 @@
 <%--                </div>--%>
 
                 <!-- Attend Button -->
-                <button class="attend-button" data-event-id="${param.eventId}" aria-label="<spring:message code='event.attend'/>" onclick="toggleAttendance(event, ${param.eventId}, this)">
-                    <i class="fas fa-calendar-check"></i>
-                </button>
+                <c:if test="${param.attend}">
+                    <div class="attend-button-container">
+                        <button type="button" class="attend-button attended" data-event-id="${param.eventId}" aria-label="<spring:message code='event.attend'/>">
+                            <i class="fas fa-calendar-check"></i>
+                        </button>
+                    </div>
+                </c:if>
+                <c:if test="${not param.attend}">
+                    <c:set var="postAttendanceUrl"><c:url value='/events/${param.eventId}/attend'/></c:set>
+                    <form:form method="post" action="${postAttendanceUrl}" id="attendanceForm">
+                        <input type="hidden" name="eventId" value="${param.eventId}"/>
+                        <button type="submit" class="attend-button" data-event-id="${param.eventId}" aria-label="<spring:message code='event.attend'/>">
+                            <i class="fas fa-calendar-check"></i>
+                        </button>
+                    </form:form>
+                </c:if>
             </div>
 
             <!-- Event Info -->
