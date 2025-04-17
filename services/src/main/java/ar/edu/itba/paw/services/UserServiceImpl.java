@@ -83,4 +83,14 @@ public class UserServiceImpl implements UserService {
     public Optional<User> findByUsername(String username) {
         return userDao.findByUsername(username);
     }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return userDao.existsByUsername(username);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return userDao.existsByEmail(email);
+    }
 }

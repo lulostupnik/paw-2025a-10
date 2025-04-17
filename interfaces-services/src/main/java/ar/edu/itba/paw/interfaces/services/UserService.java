@@ -15,4 +15,6 @@ public interface UserService {
     Optional<UserPassword> findByEmailWithPass(String email);
     Optional<User> findById(long id);
     Optional<User> findByUsername(String username);
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
 }

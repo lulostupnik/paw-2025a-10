@@ -125,6 +125,16 @@ public class UserJdbcDao implements UserDao {
         jdbcTemplate.update("UPDATE users SET password = ? WHERE email = ?", password, email);
     }
 
+    @Override
+    public boolean existsByUsername(String username) {
+        return jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)", Boolean.class, username);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)", Boolean.class, email);
+    }
+
 
     @Override
     public User create(String email, String username, String firstname, String lastname, University university,

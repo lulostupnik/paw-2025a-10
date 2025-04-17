@@ -15,6 +15,9 @@ public interface UserDao {
     Optional<User> findByUsername(String username);
     void changePassword(String email, String password);
 
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
+
     // podríamos generalizar en findBy(String field, String value) o algo por el estilo
 
 }
