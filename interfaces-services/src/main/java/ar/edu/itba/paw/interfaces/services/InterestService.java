@@ -13,4 +13,7 @@ public interface InterestService {
     List<Interest> findIdByName(String[] names);
     Optional<Interest> createUserInterest(Interest interest, Long userId);
     List<Interest> createUserInterests(String[] interests, Long userId);
+    void updateScoreByInterest(Interest interest, Long userId);
+    void updateScoreByInterests(List<Interest> interests, Long userId);
+
 }

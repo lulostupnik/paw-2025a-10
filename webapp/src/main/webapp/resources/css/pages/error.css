@@ -1,31 +1,382 @@
 /* Error page specific styles */
-.error-content {
+:root {
+    --error-blue: #3b82f6;
+    --error-red: #ef4444;
+    --error-amber: #f59e0b;
+    --error-purple: #8b5cf6;
+    --text-color: #1f2937;
+    --text-muted: #6b7280;
+    --bg-light: #f9fafb;
+    --bg-white: #ffffff;
+    --border-color: #e5e7eb;
+    --debug-bg: #f3f4f6;
+}
+
+.error-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    background-color: var(--bg-light);
+    background-image: radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+}
+
+.error-card {
+    background-color: var(--bg-white);
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    width: 100%;
+    max-width: 42rem;
+    padding: 2.5rem;
     text-align: center;
-    padding: 2.5rem 1rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.error-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0.25rem;
+    background: linear-gradient(to right, var(--error-blue), var(--error-purple));
+}
+
+.error-type-404 .error-card::before {
+    background: linear-gradient(to right, var(--error-purple), #a78bfa);
+}
+
+.error-type-403 .error-card::before {
+    background: linear-gradient(to right, var(--error-amber), #fcd34d);
+}
+
+.error-type-500 .error-card::before {
+    background: linear-gradient(to right, var(--error-red), #f87171);
+}
+
+.error-icon-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.error-icon {
+    width: 6rem;
+    height: 6rem;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+    transition: transform 0.3s ease;
+}
+
+.error-icon:hover {
+    transform: scale(1.05);
+}
+
+/* Error type specific colors */
+.error-type-404 .error-icon {
+    color: var(--error-purple);
+}
+
+.error-type-403 .error-icon {
+    color: var(--error-amber);
+}
+
+.error-type-500 .error-icon {
+    color: var(--error-red);
+}
+
+.error-type-general .error-icon {
+    color: var(--error-blue);
+}
+
+.error-code {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+    line-height: 1;
+    background: linear-gradient(to right, var(--text-color), #4b5563);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .error-title {
-    font-size: 4.5rem;
-    font-weight: 700;
+    font-size: 1.5rem;
+    font-weight: 600;
     color: var(--text-color);
+    margin-bottom: 1rem;
 }
 
-@media (min-width: 640px) {
-    .error-title {
-        font-size: 6rem;
-    }
-}
-
-.error-message,
-.error-description {
-    margin-top: 0.75rem;
+.error-message {
     color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    max-width: 30rem;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
 }
 
-/* Exception details */
-.exception-details {
+.error-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.primary-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+/* Primary action button colors by error type */
+.error-type-404 .primary-action {
+    background-color: var(--error-purple);
+}
+
+.error-type-403 .primary-action {
+    background-color: var(--error-amber);
+}
+
+.error-type-500 .primary-action {
+    background-color: var(--error-red);
+}
+
+.error-type-general .primary-action {
+    background-color: var(--error-blue);
+}
+
+.primary-action:hover {
+    opacity: 0.9;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.primary-action:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.secondary-action {
+    background-color: #6b7280;
+}
+
+.secondary-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
     margin-top: 1.5rem;
-    padding: 1rem;
+}
+
+.secondary-action-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.secondary-action-link:hover {
+    color: var(--error-blue);
+    text-decoration: none;
+    background-color: rgba(243, 244, 246, 0.5);
+}
+
+/* Secondary action hover colors by error type */
+.error-type-404 .secondary-action-link:hover {
+    color: var(--error-purple);
+}
+
+.error-type-403 .secondary-action-link:hover {
+    color: var(--error-amber);
+}
+
+.error-type-500 .secondary-action-link:hover {
+    color: var(--error-red);
+}
+
+.error-type-general .secondary-action-link:hover {
+    color: var(--error-blue);
+}
+
+.secondary-action-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+.search-container {
+    margin-top: 1.5rem;
+    width: 100%;
+    max-width: 24rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.search-form {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.search-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--error-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.error-type-404 .search-input:focus {
+    border-color: var(--error-purple);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.error-type-403 .search-input:focus {
+    border-color: var(--error-amber);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.error-type-500 .search-input:focus {
+    border-color: var(--error-red);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.search-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+/* Search button colors by error type */
+.error-type-404 .search-button {
+    background-color: var(--error-purple);
+}
+
+.error-type-403 .search-button {
+    background-color: var(--error-amber);
+}
+
+.error-type-500 .search-button {
+    background-color: var(--error-red);
+}
+
+.error-type-general .search-button {
+    background-color: var(--error-blue);
+}
+
+.search-button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.search-button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.search-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.help-section {
+    margin-top: 2rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+}
+
+.help-title {
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.help-list {
+    text-align: left;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.help-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+
+.help-item:hover {
+    background-color: rgba(243, 244, 246, 0.5);
+}
+
+.help-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+}
+
+/* Help icon colors by error type */
+.error-type-404 .help-icon {
+    color: var(--error-purple);
+}
+
+.error-type-403 .help-icon {
+    color: var(--error-amber);
+}
+
+.error-type-500 .help-icon {
+    color: var(--error-red);
+}
+
+.error-type-general .help-icon {
+    color: var(--error-blue);
+}
+
+.exception-details {
+    margin-top: 2rem;
+    padding: 1.5rem;
     background-color: var(--debug-bg);
     border-radius: 0.5rem;
     text-align: left;
@@ -34,19 +385,72 @@
 }
 
 .exception-title {
-    font-weight: 700;
-    color: var(--error-text);
+    font-weight: 600;
+    color: var(--error-red);
+    margin-bottom: 0.5rem;
 }
 
 .exception-message {
     font-size: 0.875rem;
     color: var(--text-color);
+    margin-bottom: 1rem;
+    word-break: break-word;
 }
 
 .exception-stack-trace {
-    margin-top: 0.5rem;
     font-size: 0.75rem;
     color: var(--text-muted);
     overflow: auto;
     white-space: pre;
+}
+
+/* Language selector */
+.language-selector {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.language-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.language-select {
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    background-color: var(--bg-white);
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.language-select:focus {
+    outline: none;
+    border-color: var(--error-blue);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+@media (min-width: 640px) {
+    .error-actions {
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .language-selector {
+        top: 1.5rem;
+        right: 1.5rem;
+    }
+
+    .language-label {
+        font-size: 0.875rem;
+    }
+
+    .language-select {
+        font-size: 0.875rem;
+    }
 }

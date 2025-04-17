@@ -43,9 +43,8 @@ public class JourneyJdbcDao implements JourneyDao {
             "    us.username AS user_username, \n" +
             "    us.university AS user_university, \n" +
             "    us.profile_picture_id AS user_profile_picture_id, \n" +
-            "    us.password AS user_password, \n" +
-            "    us.language AS user_language,\n" +
             "\n" +
+            "    us.language AS user_language,\n" +
             "    ca.id AS career_id, \n" +
             "    ca.name AS career_name, \n" +
             "\n" +
@@ -108,7 +107,6 @@ public class JourneyJdbcDao implements JourneyDao {
                             rs.getString("career_name")
                     ),
                     rs.getLong("user_profile_picture_id"),
-                    rs.getString("user_password"),
                     Locale.of(rs.getString("user_language"))
             ),
             rs.getDate("journey_start_date").toLocalDate(),
@@ -125,14 +123,6 @@ public class JourneyJdbcDao implements JourneyDao {
             ),
             rs.getString("journey_description")
     );
-
-    /*
-    private final static RowMapper<Journey> JOURNEY_ROW_MAPPER = (rs, rowNum) -> new Journey(
-            rs.getLong("journey_id"),
-            new User(rs.getLong("journey_user_id"), rs.getString("user_email"), rs.getString("user_username"), rs.getString("user_firstname"), rs.getString("user_lastname"), new University(...))
-    );
-    */
-
 
 
     @Autowired
@@ -213,5 +203,116 @@ public class JourneyJdbcDao implements JourneyDao {
     public Optional<Journey> findByUserId(long userId) {
         return jdbcTemplate.query(QUERY + " WHERE us.id = ?", JOURNEY_ROW_MAPPER, userId).stream().findFirst();
     }
+
+    @Override
+    public List<Journey> getRecommendedJourneys(String email) {
+        String query = """
+               WITH user_data AS (
+                   SELECT id, university, language AS user_university, career_id
+                   FROM users
+                   WHERE email = ?
+               ),
+                    user_interests AS (
+                        SELECT category_id, score
+                        FROM user_interest
+                                 JOIN user_data ud ON user_interest.user_id = ud.id
+                    ),
+                    user_journey AS (
+                        SELECT
+                            j.destination_university_id AS university_id,
+                            univ.city_id,
+                            j.start_date AS user_start,
+                            j.end_date AS user_end
+                        FROM journeys j
+                                 JOIN universities univ ON j.destination_university_id = univ.id
+                                 JOIN user_data ud ON ud.id = j.user_id
+                        LIMIT 1
+                    ),
+                    journey_scores AS (
+                        SELECT
+                            j.id AS journey_id,
+                            u.id AS user_id,
+                            u.language AS user_language,
+                            u.email AS user_email,
+                            u.username AS user_username,
+                            u.firstname AS user_firstname,
+                            u.lastname AS user_lastname,
+                            uu.id AS user_university,
+                            uu.name AS university_name,
+                            uu.abbreviation AS university_abbreviation,
+                            uc.name AS city_name,
+                            co.name AS country_name,
+                            uc.id AS city_id,
+                            c.id AS career_id,
+                            c.name AS career_name,
+                            u.profile_picture_id AS user_profile_picture_id,
+                            j.start_date AS journey_start_date,
+                            j.end_date AS journey_end_date,
+                            dest_univ.id AS destination_university_id,
+                            dest_univ.name AS destination_university_name,
+                            dest_univ.abbreviation AS destination_university_abbreviation,
+                            dest_city.name AS destination_city_name,
+                            dest_country.name AS destination_country_name,
+                            dest_city.id AS destination_city_id,
+                            j.description AS journey_description,
+               
+               
+                            -- Scores
+                            CASE WHEN j.destination_university_id = uj.university_id THEN 50 ELSE 0 END AS university_match_score,
+                            CASE WHEN dest_univ.city_id = uj.city_id THEN 30 ELSE 0 END AS city_match_score,
+                            COALESCE((
+                                         SELECT SUM(ui.score) * 3
+                                         FROM user_interest journey_ui
+                                                  JOIN user_interests ui ON ui.category_id = journey_ui.category_id
+                                         WHERE journey_ui.user_id = j.user_id
+                                     ), 0) AS interest_match_score,
+                            CASE WHEN (j.start_date, j.end_date) OVERLAPS (uj.user_start, uj.user_end) THEN 15 ELSE 0 END AS timing_match_score
+                        FROM journeys j
+                                 JOIN users u ON j.user_id = u.id
+                                 JOIN universities dest_univ ON j.destination_university_id = dest_univ.id
+                                 JOIN cities dest_city ON dest_univ.city_id = dest_city.id
+                                 JOIN countries dest_country ON dest_city.country_id = dest_country.id
+                                 JOIN universities uu ON u.university = uu.id
+                                 JOIN cities uc ON uu.city_id = uc.id
+                                 JOIN countries co ON uc.country_id = co.id
+                                 LEFT JOIN careers c ON u.career_id = c.id
+                                 CROSS JOIN user_journey uj
+                                 CROSS JOIN user_data ud
+                        WHERE j.user_id != ud.id
+                    )
+               
+               SELECT
+                   journey_id,
+                   user_id,
+                   user_language,
+                   user_email,
+                   user_username,
+                   user_firstname,
+                   user_lastname,
+                   user_profile_picture_id,
+                   user_university,
+                   university_name,
+                   university_abbreviation,
+                   city_name,
+                   city_id,
+                   country_name,
+                   career_id,
+                   career_name,
+                   journey_start_date,
+                   journey_end_date,
+                   destination_university_id,
+                   destination_university_name,
+                   destination_university_abbreviation,
+                   destination_city_name,
+                   destination_country_name,
+                   destination_city_id,
+                   journey_description
+               FROM journey_scores
+               ORDER BY
+                   (university_match_score + city_match_score + interest_match_score + timing_match_score) DESC
+            """;
+        return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, email);
+    };
+
 
 }

@@ -39,7 +39,6 @@ public class EventJdbcDao implements EventDao {
                             rs.getString("career_name")
                     ),
                     rs.getLong("user_profile_picture_id"),
-                    rs.getString("user_password"),
                     Locale.of(rs.getString("user_language"))
             ),
             rs.getDate("event_date"),
@@ -60,7 +59,6 @@ public class EventJdbcDao implements EventDao {
             "    us.username AS user_username, \n" +
             "    us.university AS user_university, \n" +
             "    us.profile_picture_id AS user_profile_picture_id, \n" +
-            "    us.password AS user_password, \n" +
             "    us.language AS user_language,\n" +
             "\n" +
             "    ca.id AS career_id, \n" +
@@ -155,5 +153,58 @@ public class EventJdbcDao implements EventDao {
     @Override
     public List<Event> listAll() {
         return jdbcTemplate.query(QUERY, EVENT_ROW_MAPPER);
+    }
+
+    @Override
+    public List<Event> getRecommendedEvents(String email) {
+        return jdbcTemplate.query("""
+               WITH user_data AS (
+            SELECT u.id, c.id AS city_id
+            FROM users u
+            JOIN universities un ON u.university = un.id
+            JOIN cities c ON un.city_id = c.id
+            WHERE u.email = ?
+        )
+        SELECT 
+            us.id AS user_id, 
+            us.email AS user_email, 
+            us.firstname AS user_firstname, 
+            us.lastname AS user_lastname, 
+            us.username AS user_username, 
+            us.university AS user_university, 
+            us.profile_picture_id AS user_profile_picture_id, 
+            
+            ca.id AS career_id, 
+            ca.name AS career_name, 
+            
+            e.id AS event_id, 
+            e.event_date AS event_date, 
+            e.description AS event_description, 
+            e.flyer_image_id AS event_flyer_image_id, 
+            
+            un.id AS university_id, 
+            un.name AS university_name, 
+            un.abbreviation AS university_abbreviation, 
+            
+            c.id AS city_id, 
+            c.name AS city_name, 
+            
+            co.name AS country_name, 
+            
+            ci2.id AS origin_city_id, 
+            ci2.name AS origin_city_name, 
+            
+            co2.name AS origin_country_name
+        FROM events e
+        JOIN users us ON e.user_id = us.id
+        JOIN careers ca ON ca.id = us.career_id
+        JOIN universities un ON us.university = un.id
+        JOIN cities ci2 ON un.city_id = ci2.id 
+        JOIN countries co2 ON co2.id = ci2.country_id
+        JOIN cities c ON e.city_id = c.id 
+        JOIN countries co ON c.country_id = co.id
+        JOIN user_data ud ON ud.city_id = e.city_id
+        WHERE e.event_date >= CURRENT_DATE
+    """, EVENT_ROW_MAPPER, email);
     }
 }

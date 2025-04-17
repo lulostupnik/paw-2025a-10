@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.auth;
 
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.UserPassword;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -27,7 +28,7 @@ public class PawUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        final User user = us.findByEmail(username).orElseThrow(() ->
+        final UserPassword user = us.findByEmailWithPass(username).orElseThrow(() ->
                 new UsernameNotFoundException("No user by the name " + username));
 //        if(!BCRYPT_PATTERN.matcher(user.getPassword()).matches()) {
 //            //TODO: update password with hashed version
@@ -37,9 +38,7 @@ public class PawUserDetailsService implements UserDetailsService {
                 new SimpleGrantedAuthority("ROLE_USER"),
                 new SimpleGrantedAuthority("ROLE_ADMIN")
         );
-        System.out.println(user.getPassword());
-        return new org.springframework.security.core.userdetails.User(username,
-                user.getPassword(), authorities);
+        return new org.springframework.security.core.userdetails.User(username, user.getPassword(), authorities);
     }
 }
 

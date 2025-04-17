@@ -56,7 +56,7 @@ public class EventServiceImpl implements EventService {
         return eventDao.create(user, city, date, description, flyerImageId);
     }
 
-    //@TODO agregar que mande mail 
+    //@TODO agregar que mande mail
 
     @Override
     public void replyToEvent(String email, long eventId, String message) {
@@ -150,6 +150,11 @@ public class EventServiceImpl implements EventService {
 
     public List<EventResponse> getEventResponses(long eventId){
         return eventResponseDao.listAllFromEvent(eventId);
+    }
+
+    @Override
+    public List<Event> getRecommendedEvents(String email){
+        return eventDao.getRecommendedEvents(email);
     }
 
 }

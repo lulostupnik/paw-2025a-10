@@ -29,7 +29,6 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
             new University(rs.getLong("user_university"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id"))),
             new Career(rs.getLong("career_id"), rs.getString("career_name")),
             rs.getLong("user_profile_picture_id"),
-            rs.getString("user_password"),
             Locale.of(rs.getString("user_language")));
 
     private final static String GET_ATTENDEES_QUERY =
@@ -40,7 +39,6 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                     "    u.lastname AS user_lastname,\n" +
                     "    u.username AS user_username,\n" +
                     "    u.university AS user_university,\n" +
-                    "    u.password AS user_password,\n" +
                     "    u.language AS user_language,\n" +
                     "    c.name AS career_name,\n" +
                     "    c.id AS career_id,\n" +
@@ -81,7 +79,6 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                             rs.getString("career_name")
                     ),
                     rs.getLong("user_profile_picture_id"),
-                    rs.getString("user_password"),
                     Locale.of(rs.getString("user_language"))
             ),
             rs.getDate("event_date"),
@@ -102,7 +99,6 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
             "    us.username AS user_username, \n" +
             "    us.university AS user_university, \n" +
             "    us.profile_picture_id AS user_profile_picture_id, \n" +
-            "    us.password AS user_password, \n" +
             "    us.language AS user_language,\n" +
             "\n" +
             "    ca.id AS career_id, \n" +

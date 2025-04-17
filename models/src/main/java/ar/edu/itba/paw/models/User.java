@@ -13,10 +13,9 @@ public class User{
     private final String username;
     private final String firstname;
     private final String lastname;
-    private final University university; // FIXME: ¿Cambiar por String? -> lo obtenemos del toString();
+    private final University university;
     private final Career career;
     private final long profilePictureId;
-    private final String password;
     private final Locale locale;
     @Override
     public String toString() {
@@ -35,7 +34,7 @@ public class User{
         sb.append(firstname);
         sb.append("\", lastname: \"");
         sb.append(lastname);
-        sb.append("\", lastname: \"");
+        sb.append("\", language: \"");
         sb.append(locale);
         sb.append("\", profilePictureId: ");
         sb.append(profilePictureId);

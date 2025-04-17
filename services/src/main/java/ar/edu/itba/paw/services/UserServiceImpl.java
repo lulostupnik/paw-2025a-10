@@ -10,6 +10,7 @@ import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
 
+import ar.edu.itba.paw.models.UserPassword;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +71,12 @@ public class UserServiceImpl implements UserService {
     public Optional<User> findByEmail(String email) {
         return userDao.findByEmail(email);
     }
+
+    @Override
+    public Optional<UserPassword> findByEmailWithPass(String email) {
+        return userDao.findByEmailWithPass(email);
+    }
+
     public Optional<User> findById(long id) {
         return userDao.findById(id);
     }

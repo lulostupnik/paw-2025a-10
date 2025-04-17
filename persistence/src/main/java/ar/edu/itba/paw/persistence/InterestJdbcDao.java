@@ -90,5 +90,18 @@ public class InterestJdbcDao implements InterestDao {
         return interestList;
     }
 
+    @Override
+    public void updateScoreByInterest(Interest interest, Long userId) {
+        jdbcTemplate.update("UPDATE user_interest SET score = score + 1 WHERE user_id = ? AND category_id = ?",
+                userId, interest.getId());
+    }
+
+    @Override
+    public void updateScoreByInterests(List<Interest> interests, Long userId) {
+        for (Interest interest : interests) {
+            updateScoreByInterest(interest, userId);
+        }
+    }
+
 
 }

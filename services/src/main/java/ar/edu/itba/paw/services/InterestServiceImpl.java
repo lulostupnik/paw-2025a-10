@@ -51,4 +51,15 @@ public class InterestServiceImpl implements InterestService {
         return interestDao.createUserInterests(interests, userId);
     }
 
+    @Override
+    public void updateScoreByInterest(Interest interest, Long userId) {
+        interestDao.updateScoreByInterest(interest, userId);
+    }
+
+    @Override
+    public void updateScoreByInterests(List<Interest> interests, Long userId) {
+        interestDao.updateScoreByInterests(interests, userId);
+
+    }
+
 }

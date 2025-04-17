@@ -22,9 +22,6 @@ public interface EventService {
     int getEventAttendeesCount(long eventId);
     List<Event> getUserAttendingEvents(String userEmail);
     List<Event> getUserAttendingEvents(long userId);
-
-
     List<EventResponse> getEventResponses(long eventId);
+    public List<Event> getRecommendedEvents(String email);
 }
-
-

@@ -30,6 +30,7 @@ public class JourneyServiceImpl implements JourneyService {
     //private final CityService cityService;
     //private final InterestService interestService;
     private final ImageService imageService;
+    private final InterestService interestService;
 
     @Autowired
     public JourneyServiceImpl(JourneyDao journeyDao, UserService userService, ImageService imageService,
@@ -40,7 +41,7 @@ public class JourneyServiceImpl implements JourneyService {
         this.journeyResponseDao = journeyResponseDao;
         this.emailService = emailService;
         //this.cityService = cityService;
-        //this.interestService = interestService;
+        this.interestService = interestService;
         this.imageService = imageService;
     }
 
@@ -98,6 +99,11 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.info("Journey reply is valid, commiting new reply to persistance");
         journeyResponseDao.create(user.getId(), journeyId, message);
 
+
+        LOGGER.info("Updating interest score");
+        List<Interest> interests = interestService.findByUserId(journey.getUser().getId());
+        interestService.updateScoreByInterests(interests, user.getId());
+
         LOGGER.info("Sending email notification to journey owner");
         User receiver = journey.getUser();
         //@TODO cambiar el locale
@@ -128,6 +134,11 @@ public class JourneyServiceImpl implements JourneyService {
             return false;
         }
         return journeyDao.findByUserId(maybeUser.get().getId()).isPresent();
+    }
+
+    @Override
+    public List<Journey> getRecommendedJourneys(String email) {
+        return journeyDao.getRecommendedJourneys(email);
     }
 
 }

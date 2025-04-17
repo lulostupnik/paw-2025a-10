@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS category (
 CREATE TABLE IF NOT EXISTS user_interest (
         user_id INTEGER NOT NULL,
         category_id INTEGER NOT NULL,
+        score INTEGER NOT NULL DEFAULT 0,
         PRIMARY KEY (user_id, category_id),
         FOREIGN KEY (category_id) REFERENCES category ON DELETE CASCADE
 );
@@ -64,8 +65,9 @@ CREATE TABLE IF NOT EXISTS users (
         university INTEGER NOT NULL,
         career_id INTEGER NOT NULL,
         profile_picture_id INTEGER NOT NULL,
+        language VARCHAR(2) NOT NULL DEFAULT 'en' CHECK (language IN ('en', 'es')),
 
-        FOREIGN KEY (university) REFERENCES universities(id) ON DELETE RESTRICT,
+    FOREIGN KEY (university) REFERENCES universities(id) ON DELETE RESTRICT,
         FOREIGN KEY (career_id) REFERENCES careers(id) ON DELETE RESTRICT
 );
 
