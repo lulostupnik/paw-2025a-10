@@ -41,7 +41,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                     "    u.username AS user_username,\n" +
                     "    u.university AS user_university,\n" +
                     "    u.password AS user_password,\n" +
-                    "    ge AS user_language,\n" +
+                    "    u.language AS user_language,\n" +
                     "    c.name AS career_name,\n" +
                     "    c.id AS career_id,\n" +
                     "    u.profile_picture_id AS user_profile_picture_id,\n" +

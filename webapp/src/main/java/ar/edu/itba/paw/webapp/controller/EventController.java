@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -111,7 +112,10 @@ public class EventController {
         }
         LOGGER.info("Found event {}", event.get());
         ModelAndView mav = new ModelAndView("events/detail");
+        Boolean attend = eventService.isUserAttending(SecurityContextHolder.getContext().getAuthentication().getName(), id);
         mav.addObject("event", event.get());
+        mav.addObject("attendees", eventService.getEventAttendees(id));
+        mav.addObject("attend", attend);
         return mav;
     }
 
@@ -127,6 +131,14 @@ public class EventController {
         mav.addObject("event", event.get());
         mav.addObject("replyEventForm", form);
         return mav;
+    }
+
+    @PostMapping(value="/{id}/attend", produces = "application/json")
+    public ModelAndView attendEvent(@PathVariable int id) {
+        LOGGER.debug("Attending event {}", id);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        eventService.attendEvent(authentication.getName(), id);
+        return new ModelAndView("redirect:/events/{id}");
     }
 
     @RequestMapping(value = "/{id}/reply")
