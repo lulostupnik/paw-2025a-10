@@ -1,7 +1,7 @@
-// package ar.edu.itba.paw.models;
+ package ar.edu.itba.paw.models;
 
-// public enum Cities {
-//     //AR("Argentina-key")
+ public enum Cities {
+     //AR("Argentina-key")
 
 
-// }
+ }
