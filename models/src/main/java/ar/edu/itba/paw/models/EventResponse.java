@@ -5,6 +5,9 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Locale;
 
 @Getter
 @RequiredArgsConstructor
@@ -15,6 +18,9 @@ public class EventResponse {
     private final String message;
     private final LocalDateTime dateTime;
 
+    public String getFormattedDate() {
+        return dateTime.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    }
 
 
     @Override

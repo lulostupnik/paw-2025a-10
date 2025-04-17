@@ -119,6 +119,7 @@ public class EventController {
 
         ModelAndView mav = new ModelAndView("events/detail");
         mav.addObject("event", event);
+        mav.addObject("event_response", eventService.getEventResponses(event.getId()));
         mav.addObject("attendees", eventService.getEventAttendees(id));
         mav.addObject("attend", attend);
         mav.addObject("eventResponses", eventResponses);

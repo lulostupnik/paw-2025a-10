@@ -102,4 +102,28 @@ Parameters:
                  alt="Event Flyer" class="event-image" />
         </c:if>
     </div>
+
+    <div class="event-section comments-section">
+        <h3 class="section-title">Comments</h3>
+        <c:choose>
+            <c:when test="${not empty eventResponses}">
+                <ul class="comments-list">
+                    <c:forEach var="response" items="${eventResponses}">
+                        <li class="comment-item">
+                            <div class="comment-header">
+                                <span class="comment-username"><c:out value="${response.username}"/></span>
+                                <span class="comment-date"><c:out value="${response.formattedDate}"/></span>
+
+                            </div>
+                            <p class="comment-message"><c:out value="${response.message}"/></p>
+                        </li>
+                    </c:forEach>
+                </ul>
+            </c:when>
+            <c:otherwise>
+                <p class="no-comments">No comments yet. Be the first to say something!</p>
+            </c:otherwise>
+        </c:choose>
+    </div>
+
 </div>
