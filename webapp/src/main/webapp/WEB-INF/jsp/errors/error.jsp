@@ -78,7 +78,7 @@
             </c:if>
 
             <div class="button-container">
-                <a class="back-button" href="<c:url value="/"/>">
+                <a class="back-button" href="<c:url value="/home"/>">
                     <svg class="back-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                     <fmt:message key="button.back" />
                 </a>

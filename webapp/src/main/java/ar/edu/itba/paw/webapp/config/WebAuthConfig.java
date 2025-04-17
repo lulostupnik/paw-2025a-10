@@ -51,18 +51,18 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
 //                .invalidSessionUrl("/login")
                 .and().authorizeRequests()
-                    .antMatchers("/login", "/register").anonymous()
+                    .antMatchers("/login", "/register", "/").anonymous()
                     .antMatchers("/admin/**").hasRole("ADMIN")
                     .antMatchers("/**").authenticated()
                 .and().formLogin()
                     .usernameParameter("j_username")
                     .passwordParameter("j_password")
-                    .defaultSuccessUrl("/", false)
+                    .defaultSuccessUrl("/home", false)
                     .loginPage("/login")
                 .and().rememberMe()
                     .rememberMeParameter("j_rememberme")
                     .userDetailsService(userDetailsService)
-                    //TODO Move key to a separate file
+                    //TODO Move key to a separate filex`
                     .key("niasdnfrufajsdnfirasdjfnaorfnjdsfnaor")
                     .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(30))
                 .and().logout()
@@ -76,6 +76,6 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     public void configure(final WebSecurity web) throws Exception {
         web.ignoring()
                 .antMatchers("/resources/css/**", "/resources/js/**", "/resources/img/**",
-                        "/resources/favicon.ico", "/errors/error");
+                        "/resources/favicon.ico", "/errors/error", "/resources/icons/**");
     }
 }

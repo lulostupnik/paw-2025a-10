@@ -16,7 +16,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.LocaleContextResolver;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Locale;
@@ -43,10 +42,10 @@ public class AuthController {
         LOGGER.debug("Loading login form");
         return new ModelAndView("auth/login");
     }
-    @RequestMapping("/landing")
+    @RequestMapping("/")
     public ModelAndView landing() {
         LOGGER.debug("Loading landing page");
-        return new ModelAndView("/landing");
+        return new ModelAndView("index");
     }
     @RequestMapping(value = "/register", method = {RequestMethod.GET})
     public ModelAndView registerForm(@ModelAttribute ("createUserForm") final CreateUserForm form) {
