@@ -25,7 +25,7 @@ public class UserJdbcDao implements UserDao {
             rs.getString("user_lastname"),
             new University(rs.getLong("user_university"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id"))),
             new Career(rs.getLong("career_id"), rs.getString("career_name")),
-            rs.getLong("user_profile_picture_id")),
+            rs.getLong("user_profile_picture_id"),
             Locale.of(rs.getString("user_language")));
 
 
