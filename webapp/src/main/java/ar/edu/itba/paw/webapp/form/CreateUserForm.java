@@ -1,16 +1,19 @@
 package ar.edu.itba.paw.webapp.form;
 
+import ar.edu.itba.paw.webapp.validation.EmailNotInUse;
 import ar.edu.itba.paw.webapp.validation.ImageSize;
+import ar.edu.itba.paw.webapp.validation.UsernameNotInUse;
 import ar.edu.itba.paw.webapp.validation.ValidInterest;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
 public class CreateUserForm {
 
     @Email
     @Size(min = 2, max = 100)
+    @EmailNotInUse
     private String email;
 
     @Size(min = 2, max = 100)
@@ -20,6 +23,7 @@ public class CreateUserForm {
     private String career;
 
     @Size(min = 2, max = 50)
+    @UsernameNotInUse
     private String username;
 
     @Size(min = 2, max = 100)
