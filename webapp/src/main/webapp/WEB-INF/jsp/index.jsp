@@ -1,225 +1,398 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<!DOCTYPE html>
-<html lang="en">
+
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><spring:message code="app.title" text="GoTogether - Connect Travelers Worldwide"/></title>
+    <title><spring:message code="app.name"/> - <spring:message code="landing.title"/></title>
+    <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/landing.css'/>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-<header>
-    <div class="container">
-        <div class="logo">
-            <%--            <img src="logo.png" alt="GoTogether Logo">--%>
-            <span><spring:message code="app.name" text="GoTogether"/></span>
+<div class="landing-page">
+    <!-- Navigation -->
+    <header class="landing-header">
+        <div class="container">
+            <div class="landing-nav">
+                <div class="landing-logo">
+                    <a href="<c:url value='/'/>">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="logo-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="logo-text"><spring:message code="app.name"/></span>
+                    </a>
+                </div>
+                <div class="landing-menu">
+                    <a href="<c:url value='/journeys'/>" class="menu-link"><spring:message code="nav.explore"/></a>
+                    <a href="<c:url value='/events'/>" class="menu-link"><spring:message code="nav.events"/></a>
+                    <a href="<c:url value='/about'/>" class="menu-link"><spring:message code="nav.about"/></a>
+                </div>
+                <div class="landing-auth">
+                    <a href="<c:url value='/login'/>" class="btn-secondary"><spring:message code="auth.login"/></a>
+                    <a href="<c:url value='/register'/>" class="btn-primary btn-signup"><spring:message code="auth.register"/></a>
+                </div>
+            </div>
         </div>
-        <nav>
-            <ul>
-                <li><a href="#journeys"><spring:message code="nav.journeys" text="Journeys"/></a></li>
-                <li><a href="#events"><spring:message code="nav.events" text="Events"/></a></li>
-                <li><a href="#destinations"><spring:message code="nav.destinations" text="Destinations"/></a></li>
-                <li><a href="#programs"><spring:message code="nav.programs" text="Exchange Programs"/></a></li>
-                <li><a href="#resources"><spring:message code="nav.resources" text="Resources"/></a></li>
-                <li><a href="#contact"><spring:message code="nav.contact" text="Contact"/></a></li>
-            </ul>
-        </nav>
-        <div class="header-buttons">
-            <c:set var="loginUrl"><c:url value="/login"/></c:set>
-            <a href="${loginUrl}" class="cta-button secondary"><spring:message code="button.login" text="Log in"/></a>
-            <form action="${pageContext.request.contextPath}/register" method="get">
-                <button type="submit" class="cta-button primary"><spring:message code="button.getStarted" text="Get started"/></button>
-            </form>
-        </div>
-    </div>
-</header>
+    </header>
 
-<main>
-    <section class="hero">
+    <!-- Hero Section -->
+    <section class="hero-section">
         <div class="container">
             <div class="hero-content">
-                <h1><spring:message code="hero.title.part1" />
-                    <span class="highlight"><spring:message code="hero.title.highlight1"/></span>,<br>
-                    <spring:message code="hero.title.part2"/>
-                    <span class="highlight"><spring:message code="hero.title.highlight2"/></span>
-                </h1>
-                <p><spring:message code="hero.description" text="When you join GoTogether, you're doing something much bigger than just finding travel companions. You're transforming how students connect, explore, and experience new cities during their exchange programs."/></p>
-                <div class="cta-buttons">
-                    <button class="cta-button primary"><spring:message code="button.getStarted" text="Get started"/></button>
-                    <button class="cta-button secondary"><spring:message code="button.howItWorks" text="How it works"/></button>
+                <h1 class="hero-title"><spring:message code="landing.hero.title"/></h1>
+                <p class="hero-subtitle"><spring:message code="landing.hero.subtitle"/></p>
+                <div class="hero-cta">
+                    <a href="<c:url value='/register'/>" class="btn-primary btn-large">
+                        <spring:message code="landing.hero.cta"/>
+                    </a>
+                    <a href="<c:url value='/journeys'/>" class="btn-secondary btn-large">
+                        <spring:message code="landing.hero.explore"/>
+                    </a>
                 </div>
             </div>
             <div class="hero-image">
-                <img src="<c:url value="/resources/icons/cityscape.jpeg"/>" alt="<spring:message code="hero.image.alt" text="Students exploring a city together"/>">
+                <img src="<c:url value='/resources/images/hero-image.jpg'/>" alt="Students traveling" class="hero-img">
             </div>
         </div>
     </section>
 
-    <section class="features">
+    <!-- Features Section -->
+    <section class="features-section">
         <div class="container">
-            <h2><spring:message code="features.title" text="Why choose GoTogether?"/></h2>
-            <div class="feature-grid">
+            <div class="section-header">
+                <h2 class="section-title"><spring:message code="landing.features.title"/></h2>
+                <p class="section-subtitle"><spring:message code="landing.features.subtitle"/></p>
+            </div>
+            <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">
-<%--                        <img src="icon-connect.png" alt="<spring:message code="features.connect.icon.alt" text="Connect icon"/>">--%>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="feature-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                        </svg>
                     </div>
-                    <h3><spring:message code="features.connect.title" text="Connect Travelers"/></h3>
-                    <p><spring:message code="features.connect.description" text="Build meaningful connections with other exchange students traveling to the same destination."/></p>
+                    <h3 class="feature-title"><spring:message code="landing.feature1.title"/></h3>
+                    <p class="feature-description"><spring:message code="landing.feature1.description"/></p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
-<%--                        <img src="icon-engage.png" alt="<spring:message code="features.engage.icon.alt" text="Engage icon"/>">--%>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="feature-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
                     </div>
-                    <h3><spring:message code="features.engage.title" text="Create Journeys"/></h3>
-                    <p><spring:message code="features.engage.description" text="Plan and organize journeys with fellow travelers to explore your new city together."/></p>
+                    <h3 class="feature-title"><spring:message code="landing.feature2.title"/></h3>
+                    <p class="feature-description"><spring:message code="landing.feature2.description"/></p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
-<%--                        <img src="icon-grow.png" alt="<spring:message code="features.grow.icon.alt" text="Grow icon"/>">--%>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="feature-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
                     </div>
-                    <h3><spring:message code="features.grow.title" text="Join Events"/></h3>
-                    <p><spring:message code="features.grow.description" text="Discover and participate in local events specifically designed for exchange students."/></p>
+                    <h3 class="feature-title"><spring:message code="landing.feature3.title"/></h3>
+                    <p class="feature-description"><spring:message code="landing.feature3.description"/></p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="testimonials">
+    <!-- How It Works Section -->
+    <section class="how-it-works-section">
         <div class="container">
-            <h2><spring:message code="testimonials.title" text="What our travelers say"/></h2>
-            <div class="testimonial-slider" id="testimonialSlider">
-                <div class="testimonial">
-                    <p><spring:message code="testimonials.1.quote" text="\"GoTogether transformed my exchange semester in Barcelona. I met amazing friends before even arriving and we explored the city together from day one.\""/></p>
-                    <div class="testimonial-author">
-<%--                        <img src="avatar1.png" alt="<spring:message code="testimonials.1.author.alt" text="Testimonial author"/>">--%>
-                        <div>
-                            <h4><spring:message code="testimonials.1.author.name" text="Sarah Johnson"/></h4>
-                            <p><spring:message code="testimonials.1.author.role" text="Exchange Student, University of Barcelona"/></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="testimonial">
-                    <p><spring:message code="testimonials.2.quote" text="\"Finding other students going to Tokyo was incredibly easy with GoTogether. We planned weekend trips together and it made my exchange experience so much better.\""/></p>
-                    <div class="testimonial-author">
-<%--                        <img src="avatar2.png" alt="<spring:message code="testimonials.2.author.alt" text="Testimonial author"/>">--%>
-                        <div>
-                            <h4><spring:message code="testimonials.2.author.name" text="Michael Chen"/></h4>
-                            <p><spring:message code="testimonials.2.author.role" text="Exchange Student, Waseda University"/></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="testimonial">
-                    <p><spring:message code="testimonials.3.quote" text="\"The events feature on GoTogether helped me discover local activities I would have never found on my own. I made friends from all over the world!\""/></p>
-                    <div class="testimonial-author">
-<%--                        <img src="avatar3.png" alt="<spring:message code="testimonials.3.author.alt" text="Testimonial author"/>">--%>
-                        <div>
-                            <h4><spring:message code="testimonials.3.author.name" text="Emma Rodriguez"/></h4>
-                            <p><spring:message code="testimonials.3.author.role" text="Exchange Student, Sciences Po Paris"/></p>
-                        </div>
-                    </div>
-                </div>
+            <div class="section-header">
+                <h2 class="section-title"><spring:message code="landing.how.title"/></h2>
+                <p class="section-subtitle"><spring:message code="landing.how.subtitle"/></p>
             </div>
-            <div class="slider-controls">
-                <button id="prevBtn" aria-label="<spring:message code="testimonials.controls.previous" text="Previous testimonial"/>">←</button>
-                <div class="slider-dots" id="sliderDots">
-                    <span class="dot active"></span>
-                    <span class="dot"></span>
-                    <span class="dot"></span>
+            <div class="steps-container">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3 class="step-title"><spring:message code="landing.step1.title"/></h3>
+                        <p class="step-description"><spring:message code="landing.step1.description"/></p>
+                    </div>
                 </div>
-                <button id="nextBtn" aria-label="<spring:message code="testimonials.controls.next" text="Next testimonial"/>">→</button>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3 class="step-title"><spring:message code="landing.step2.title"/></h3>
+                        <p class="step-description"><spring:message code="landing.step2.description"/></p>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3 class="step-title"><spring:message code="landing.step3.title"/></h3>
+                        <p class="step-description"><spring:message code="landing.step3.description"/></p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
+    <!-- Featured Journeys Section -->
+    <section class="featured-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title"><spring:message code="landing.featured.events.title" text="Featured Events"/></h2>
+                <p class="section-subtitle"><spring:message code="landing.featured.events.subtitle" text="Discover exciting events happening around the world"/></p>
+            </div>
+            <div class="featured-events">
+                <!-- Event Card 1 -->
+                <div class="featured-event-card">
+                    <div class="event-image-container">
+                        <div class="event-image-placeholder">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="placeholder-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="event-card-content">
+                        <div class="event-card-header">
+                            <h3 class="event-card-title">International Student Mixer</h3>
+                            <p class="event-card-subtitle">Barcelona, Spain</p>
+                        </div>
+                        <p class="event-card-description">Join fellow international students for a night of networking, cultural exchange, and fun activities. Meet students from around the world and make lasting connections.</p>
+                        <div class="event-card-footer">
+                            <div class="event-date">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span>June 15, 2023</span>
+                            </div>
+                            <div class="event-organizer">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                <span>Maria Rodriguez</span>
+                            </div>
+                            <a href="<c:url value='/events/1'/>" class="btn-text">
+                                <spring:message code="landing.event.view" text="View Details"/>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Card 2 -->
+                <div class="featured-event-card">
+                    <div class="event-image-container">
+                        <div class="event-image-placeholder">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="placeholder-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="event-card-content">
+                        <div class="event-card-header">
+                            <h3 class="event-card-title">Tech Innovation Summit</h3>
+                            <p class="event-card-subtitle">Berlin, Germany</p>
+                        </div>
+                        <p class="event-card-description">Explore the latest technological innovations and network with industry leaders at this premier tech conference. Featuring workshops, panel discussions, and hands-on demonstrations.</p>
+                        <div class="event-card-footer">
+                            <div class="event-date">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span>July 22, 2023</span>
+                            </div>
+                            <div class="event-organizer">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                <span>Thomas Schmidt</span>
+                            </div>
+                            <a href="<c:url value='/events/2'/>" class="btn-text">
+                                <spring:message code="landing.event.view" text="View Details"/>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Card 3 -->
+                <div class="featured-event-card">
+                    <div class="event-image-container">
+                        <div class="event-image-placeholder">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="placeholder-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="event-card-content">
+                        <div class="event-card-header">
+                            <h3 class="event-card-title">Cultural Exchange Workshop</h3>
+                            <p class="event-card-subtitle">Tokyo, Japan</p>
+                        </div>
+                        <p class="event-card-description">Immerse yourself in Japanese culture through this interactive workshop. Learn traditional arts, language basics, and cultural etiquette while connecting with local students.</p>
+                        <div class="event-card-footer">
+                            <div class="event-date">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span>August 5, 2023</span>
+                            </div>
+                            <div class="event-organizer">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                <span>Yuki Tanaka</span>
+                            </div>
+                            <a href="<c:url value='/events/3'/>" class="btn-text">
+                                <spring:message code="landing.event.view" text="View Details"/>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="featured-cta">
+                <a href="<c:url value='/events'/>" class="btn-primary btn-large">
+                    <spring:message code="landing.featured.events.cta" text="Explore All Events"/>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title"><spring:message code="landing.testimonials.title"/></h2>
+                <p class="section-subtitle"><spring:message code="landing.testimonials.subtitle"/></p>
+            </div>
+            <div class="testimonials-container">
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="quote-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                        </svg>
+                        <p class="testimonial-text"><spring:message code="landing.testimonial1.text"/></p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">
+                            <div class="avatar-placeholder">EM</div>
+                        </div>
+                        <div class="testimonial-info">
+                            <h4 class="testimonial-name"><spring:message code="landing.testimonial1.name"/></h4>
+                            <p class="testimonial-role"><spring:message code="landing.testimonial1.role"/></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="quote-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                        </svg>
+                        <p class="testimonial-text"><spring:message code="landing.testimonial2.text"/></p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">
+                            <div class="avatar-placeholder">RJ</div>
+                        </div>
+                        <div class="testimonial-info">
+                            <h4 class="testimonial-name"><spring:message code="landing.testimonial2.name"/></h4>
+                            <p class="testimonial-role"><spring:message code="landing.testimonial2.role"/></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
     <section class="cta-section">
         <div class="container">
-            <h2><spring:message code="cta.title" text="Ready to transform your exchange experience?"/></h2>
-            <p><spring:message code="cta.description" text="Join thousands of exchange students who are connecting and exploring new cities together."/></p>
-            <div class="cta-buttons">
-                <button class="cta-button primary"><spring:message code="cta.button.findJourneys" text="Find Journeys"/></button>
-                <button class="cta-button secondary"><spring:message code="cta.button.howItWorks" text="How It Works"/></button>
+            <div class="cta-container">
+                <div class="cta-content">
+                    <h2 class="cta-title"><spring:message code="landing.cta.title"/></h2>
+                    <p class="cta-description"><spring:message code="landing.cta.description"/></p>
+                </div>
+                <div class="cta-buttons">
+                    <a href="<c:url value='/register'/>" class="btn-primary btn-cta-signup">
+                        <spring:message code="landing.cta.button"/>
+                    </a>
+                </div>
             </div>
         </div>
     </section>
-</main>
 
-<footer>
-    <div class="container">
-        <div class="footer-grid">
-            <div class="footer-col">
-                <div class="logo">
-<%--                    <img src="logo.png" alt="<spring:message code="footer.logo.alt" text="GoTogether Logo"/>">--%>
-                    <span><spring:message code="app.name" text="GoTogether"/></span>
+    <!-- Footer -->
+    <footer class="landing-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <a href="<c:url value='/'/>">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="logo-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="logo-text"><spring:message code="app.name"/></span>
+                    </a>
+                    <p class="footer-tagline"><spring:message code="landing.footer.tagline"/></p>
                 </div>
-                <p><spring:message code="footer.tagline" text="Connecting travelers, creating memories."/></p>
-<%--                <div class="social-links">--%>
-<%--                    <a href="#" aria-label="Facebook"><img src="facebook.png" alt="Facebook"></a>--%>
-<%--                    <a href="#" aria-label="Twitter"><img src="twitter.png" alt="Twitter"></a>--%>
-<%--                    <a href="#" aria-label="Instagram"><img src="instagram.png" alt="Instagram"></a>--%>
-<%--                    <a href="#" aria-label="LinkedIn"><img src="linkedin.png" alt="LinkedIn"></a>--%>
-<%--                </div>--%>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h3 class="footer-heading"><spring:message code="landing.footer.explore"/></h3>
+                        <ul class="footer-menu">
+                            <li><a href="<c:url value='/journeys'/>"><spring:message code="nav.journeys"/></a></li>
+                            <li><a href="<c:url value='/events'/>"><spring:message code="nav.events"/></a></li>
+                            <li><a href="<c:url value='/universities'/>"><spring:message code="nav.universities"/></a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h3 class="footer-heading"><spring:message code="landing.footer.company"/></h3>
+                        <ul class="footer-menu">
+                            <li><a href="<c:url value='/about'/>"><spring:message code="nav.about"/></a></li>
+                            <li><a href="<c:url value='/contact'/>"><spring:message code="nav.contact"/></a></li>
+                            <li><a href="<c:url value='/careers'/>"><spring:message code="nav.careers"/></a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h3 class="footer-heading"><spring:message code="landing.footer.legal"/></h3>
+                        <ul class="footer-menu">
+                            <li><a href="<c:url value='/terms'/>"><spring:message code="nav.terms"/></a></li>
+                            <li><a href="<c:url value='/privacy'/>"><spring:message code="nav.privacy"/></a></li>
+                            <li><a href="<c:url value='/cookies'/>"><spring:message code="nav.cookies"/></a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <div class="footer-col">
-                <h3><spring:message code="footer.journeys.title" text="Journeys"/></h3>
-                <ul>
-                    <li><a href="#"><spring:message code="footer.journeys.create" text="Create Journey"/></a></li>
-                    <li><a href="#"><spring:message code="footer.journeys.find" text="Find Journeys"/></a></li>
-                    <li><a href="#"><spring:message code="footer.journeys.popular" text="Popular Routes"/></a></li>
-                    <li><a href="#"><spring:message code="footer.journeys.tips" text="Travel Tips"/></a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h3><spring:message code="footer.programs.title" text="Exchange Programs"/></h3>
-                <ul>
-                    <li><a href="#"><spring:message code="footer.programs.erasmus" text="Erasmus+"/></a></li>
-                    <li><a href="#"><spring:message code="footer.programs.semester" text="Semester Abroad"/></a></li>
-                    <li><a href="#"><spring:message code="footer.programs.summer" text="Summer Schools"/></a></li>
-                    <li><a href="#"><spring:message code="footer.programs.language" text="Language Courses"/></a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h3><spring:message code="footer.resources.title" text="Resources"/></h3>
-                <ul>
-                    <li><a href="#"><spring:message code="footer.resources.blog" text="Travel Blog"/></a></li>
-                    <li><a href="#"><spring:message code="footer.resources.stories" text="Student Stories"/></a></li>
-                    <li><a href="#"><spring:message code="footer.resources.guides" text="City Guides"/></a></li>
-                    <li><a href="#"><spring:message code="footer.resources.support" text="Support Center"/></a></li>
-                </ul>
+            <div class="footer-bottom">
+                <p class="copyright">&copy; <spring:message code="app.year"/> <spring:message code="app.name"/>. <spring:message code="landing.footer.copyright"/></p>
+                <div class="social-links">
+                    <a href="#" class="social-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="social-icon">
+                            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                        </svg>
+                    </a>
+                    <a href="#" class="social-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="social-icon">
+                            <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                        </svg>
+                    </a>
+                    <a href="#" class="social-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" stroke-linec height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="social-icon">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                    </a>
+                    <a href="#" class="social-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="social-icon">
+                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                            <rect x="2" y="9" width="4" height="12"></rect>
+                            <circle cx="4" cy="4" r="2"></circle>
+                        </svg>
+                    </a>
+                </div>
             </div>
         </div>
-        <div class="footer-bottom">
-            <p><spring:message code="footer.copyright" text="&copy; {0} GoTogether. All rights reserved." arguments="${currentYear}"/></p>
-            <div class="footer-links">
-                <a href="#"><spring:message code="footer.links.privacy" text="Privacy Policy"/></a>
-                <a href="#"><spring:message code="footer.links.terms" text="Terms of Service"/></a>
-                <a href="#"><spring:message code="footer.links.cookies" text="Cookie Policy"/></a>
-            </div>
-        </div>
-    </div>
-</footer>
-
-<script src="${pageContext.request.contextPath}/resources/js/landing.js"></script>
-<%-- JSP Integration --%>
-<%
-    // Example JSP code for dynamic content
-    String welcomeMessage = "Welcome to GoTogether!";
-    String currentYear = java.time.Year.now().toString();
-    request.setAttribute("currentYear", currentYear);
-%>
-
-<script>
-    // Access JSP variables in JavaScript
-    const welcomeMsg = "<%= welcomeMessage %>";
-    const year = "<%= currentYear %>";
-
-    // Update copyright year dynamically
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log(welcomeMsg);
-        // No need to update copyright year here as we're using spring:message with arguments
-    });
-</script>
+    </footer>
+</div>
 </body>
 </html>
