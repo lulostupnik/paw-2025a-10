@@ -62,6 +62,27 @@ public class UserJdbcDao implements UserDao {
             "JOIN countries co ON co.id = ci.country_id\n";
 
 
+    private final static String PASSWORD_QUERY = "SELECT \n" +
+            "    u.id AS user_id,\n" +
+            "    u.email AS user_email,\n" +
+            "    u.firstname AS user_firstname,\n" +
+            "    u.lastname AS user_lastname,\n" +
+            "    u.username AS user_username,\n" +
+            "    u.university AS user_university,\n" +
+            "    c.name AS career_name,\n" +
+            "    c.id AS career_id,\n" +
+            "    u.profile_picture_id AS user_profile_picture_id,\n" +
+            "    un.name AS university_name,\n" +
+            "    un.abbreviation AS university_abbreviation, \n" +
+            "    ci.id AS city_id, \n" +
+            "    ci.name AS city_name, \n" +
+            "    co.name AS country_name,\n" +
+            "    u.password AS user_password\n" +
+            "FROM users u\n" +
+            "JOIN universities un ON u.university = un.id\n" +
+            "JOIN careers c ON c.id = u.career_id\n" +
+            "JOIN cities ci ON ci.id = un.city_id\n" +
+            "JOIN countries co ON co.id = ci.country_id";
 
     @Autowired
     public UserJdbcDao(DataSource dataSource) {
@@ -87,7 +108,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public Optional<UserPassword> findByEmailWithPass(String email) {
-        return jdbcTemplate.query(QUERY + ", u.password AS user_password WHERE u.email = ?",
+        return jdbcTemplate.query(PASSWORD_QUERY + " WHERE u.email = ?",
                 USER_PASSWORD_ROW_MAPPER, email).stream().findFirst();
     }
 
