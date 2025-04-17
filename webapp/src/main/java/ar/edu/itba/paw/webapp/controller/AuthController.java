@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
+
+import java.util.List;
 import java.util.Locale;
 
 @Controller
@@ -53,9 +55,17 @@ public class AuthController {
 
         LOGGER.debug("Loading register form");
         ModelAndView mav = new ModelAndView("auth/register");
-        mav.addObject("careers", careerService.findAll());
-        mav.addObject("universities",  universityService.getAllUniversities());
-        mav.addObject("interests", interestService.findAll());
+        List<Career> careers = careerService.findAll();
+        LOGGER.debug("Found careers {}", careers);
+        mav.addObject("careers", careers);
+
+        List<University> universities = universityService.getAllUniversities();
+        LOGGER.debug("Found universities {}", universities);
+        mav.addObject("universities",  universities);
+
+        List<Interest> interests = interestService.findAll();
+        LOGGER.debug("Found interests {}", interests);
+        mav.addObject("interests", interests);
         return mav;
     }
 
@@ -79,9 +89,8 @@ public class AuthController {
             LOGGER.error("Error getting submitted image: {}", e.getMessage());
         }
 
-        final User user = userService.createUser(form.getEmail(), form.getUsername(), form.getFirstName(),
+        userService.createUser(form.getEmail(), form.getUsername(), form.getFirstName(),
                 form.getLastName(), form.getOriginUniversity(), form.getCareer(), profilePicture, form.getInterests(), form.getPassword(), currentLocale);
-        LOGGER.info("Successfully created user {}", user);
 
         return new ModelAndView("redirect:login");
     }

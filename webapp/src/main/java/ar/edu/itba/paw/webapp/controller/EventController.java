@@ -115,14 +115,18 @@ public class EventController {
         LOGGER.info("Found event {}", event);
 
         List<EventResponse> eventResponses = eventService.getEventResponses(event.getId());
+        LOGGER.debug("Got event responses {}", eventResponses);
 
-        Boolean attend = eventService.isUserAttending(SecurityContextHolder.getContext().getAuthentication().getName(), id);
+        List<User> attendees = eventService.getEventAttendees(id);
+        LOGGER.debug("Got event attendees {}", attendees);
+
+        Boolean isAttending = eventService.isUserAttending(SecurityContextHolder.getContext().getAuthentication().getName(), id);
+        LOGGER.debug("User attending event {}", isAttending);
 
         ModelAndView mav = new ModelAndView("events/detail");
         mav.addObject("event", event);
-        mav.addObject("event_response", eventService.getEventResponses(event.getId()));
-        mav.addObject("attendees", eventService.getEventAttendees(id));
-        mav.addObject("attend", attend);
+        mav.addObject("attendees", attendees);
+        mav.addObject("attend", isAttending);
         mav.addObject("eventResponses", eventResponses);
         return mav;
     }
@@ -131,11 +135,19 @@ public class EventController {
         ModelAndView mav = new ModelAndView("events/reply");
         Optional<Event> event = eventService.getEventById(id);
         if(event.isEmpty()){
+            LOGGER.debug("Event {} not found", id);
             return getEvent(id);
         }
         LOGGER.debug("Event found: {}", event.get());
-        mav.addObject("careers", careerService.findAll());
-        mav.addObject("universities", universityService.getAllUniversities());
+
+        List<Career> careers = careerService.findAll();
+        LOGGER.debug("Found careers {}", careers);
+
+        List<University> universities = universityService.getAllUniversities();
+        LOGGER.debug("Found universities {}", universities);
+
+        mav.addObject("careers", careers);
+        mav.addObject("universities", universities);
         mav.addObject("event", event.get());
         mav.addObject("replyEventForm", form);
         return mav;
@@ -159,14 +171,13 @@ public class EventController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         LOGGER.debug("Auth provided for: {}", authentication.getPrincipal());
 
-        //TODO Return an event reply for logging (?)
         eventService.replyToEvent(authentication.getName(), id, form.getMessage());
         return new ModelAndView("redirect:/events");
 
     }
 
     @RequestMapping(value="/{id}/attend",method = POST,produces = "application/json")
-   public ModelAndView attendEvent(@PathVariable int id) {
+    public ModelAndView attendEvent(@PathVariable int id) {
                 LOGGER.debug("Attending event {}", id);
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
                 eventService.attendEvent(authentication.getName(), id);

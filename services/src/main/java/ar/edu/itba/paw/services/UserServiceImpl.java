@@ -64,6 +64,7 @@ public class UserServiceImpl implements UserService {
         LOGGER.debug("Saving user interests {}", interests.toString());
         interestService.createUserInterests(interests, user.getId());
         
+        LOGGER.info("Successfully created user {}", user);
         return user;
     }
 

@@ -143,7 +143,6 @@ public class JourneyController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         LOGGER.debug("Auth provided for: {}", authentication.getPrincipal());
 
-        //TODO: Return journey reply for logging (?)
         js.replyToJourney(authentication.getName(), id, rjf.getMessage());
 
         return getJourneys(null,null, null, null);
