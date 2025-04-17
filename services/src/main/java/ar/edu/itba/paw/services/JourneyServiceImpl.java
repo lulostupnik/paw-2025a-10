@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 //import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -97,7 +98,7 @@ public class JourneyServiceImpl implements JourneyService {
         User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
 
         LOGGER.info("Journey reply is valid, commiting new reply to persistance");
-        journeyResponseDao.create(user.getId(), journeyId, message);
+        journeyResponseDao.create(user.getId(), user.getUsername() ,journeyId, message, LocalDateTime.now());
 
 
         LOGGER.info("Updating interest score");
@@ -106,10 +107,9 @@ public class JourneyServiceImpl implements JourneyService {
 
         LOGGER.info("Sending email notification to journey owner");
         User receiver = journey.getUser();
-        //@TODO cambiar el locale
         emailService.answerJourneyMail( email, receiver.getEmail() , user.getFirstname(), user.getLastname(),
                 user.getUsername(), user.getCareer().getName(),
-                user.getUniversity().getName(), message , new Locale("es"),
+                user.getUniversity().getName(), message , user.getLocale(),
                 imageService.getImage(user.getProfilePictureId()).orElseThrow(()->new RuntimeException("Image not found")).getData());
     }
 
@@ -139,6 +139,10 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     public List<Journey> getRecommendedJourneys(String email) {
         return journeyDao.getRecommendedJourneys(email);
+    }
+    @Override
+    public List<JourneyResponse> getJourneyResponses(long journeyId){
+        return journeyResponseDao.listAllFromJourney(journeyId);
     }
 
 }

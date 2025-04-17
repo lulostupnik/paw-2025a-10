@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.validation.Valid;
 import java.util.Locale;
 
 @Controller
@@ -60,7 +61,7 @@ public class AuthController {
 
 
     @RequestMapping(value = "/register", method = {RequestMethod.POST})
-    public ModelAndView registerSubmit(@ModelAttribute("createUserForm") final CreateUserForm form, final BindingResult errors) {
+    public ModelAndView registerSubmit(@Valid @ModelAttribute("createUserForm") final CreateUserForm form, final BindingResult errors) {
 
         Locale currentLocale = LocaleContextHolder.getLocale();
 

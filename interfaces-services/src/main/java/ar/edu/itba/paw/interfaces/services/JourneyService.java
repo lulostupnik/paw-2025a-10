@@ -1,6 +1,9 @@
 package ar.edu.itba.paw.interfaces.services;
 
+import ar.edu.itba.paw.models.EventResponse;
 import ar.edu.itba.paw.models.Journey;
+import ar.edu.itba.paw.models.JourneyResponse;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +22,8 @@ public interface JourneyService {
 
     Boolean userHasJourney(String email); // ja
 
-    public List<Journey> getRecommendedJourneys(String email);
+    List<Journey> getRecommendedJourneys(String email);
 
-    }
+    List<JourneyResponse> getJourneyResponses(long journeyId);
+
+}

@@ -103,7 +103,7 @@
                             <div class="date-range">
                                 <div class="date-item">
                                     <span class="date-label"><spring:message code="journey.startDate"/>:</span>
-                                    <span class="date-value"><fmt:formatDate value="${journey.startDate}" pattern="MMMM d, yyyy" /></span>
+<%--                                    <span class="date-value"><fmt:formatDate value="${journey.startDate}" pattern="MMMM d, yyyy" /></span>--%>
                                 </div>
                                 <div class="date-separator">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="date-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -111,18 +111,18 @@
                                     </svg>
                                 </div>
                                 <div class="date-item">
-                                    <span class="date-label"><spring:message code="journey.endDate"/>:</span>
-                                    <span class="date-value"><fmt:formatDate value="${journey.endDate}" pattern="MMMM d, yyyy" /></span>
+<%--                                    <span class="date-label"><spring:message code="journey.endDate"/>:</span>--%>
+<%--                                    <span class="date-value"><fmt:formatDate value="${journey.endDate}" pattern="MMMM d, yyyy" /></span>--%>
                                 </div>
                             </div>
                             <div class="date-duration">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="duration-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span class="duration-text">
-                                    <c:set var="daysBetween" value="${(journey.endDate.time - journey.startDate.time) / (1000*60*60*24)}" />
-                                    <fmt:formatNumber value="${daysBetween}" pattern="#0" /> <spring:message code="journey.days"/>
-                                </span>
+<%--                                <span class="duration-text">--%>
+<%--                                    <c:set var="daysBetween" value="${(journey.endDate.time - journey.startDate.time) / (1000*60*60*24)}" />--%>
+<%--&lt;%&ndash;                                    <fmt:formatNumber value="${daysBetween}" pattern="#0" /> <spring:message code="journey.days"/>&ndash;%&gt;--%>
+<%--                                </span>--%>
                             </div>
                         </div>
                     </div>
@@ -139,6 +139,30 @@
                             <p class="journey-description-text"><c:out value="${journey.description}"/></p>
                         </div>
                     </div>
+
+                    <div class="event-section comments-section">
+                        <h3 class="section-title">Comments</h3>
+                        <c:choose>
+                            <c:when test="${not empty journeyResponses}">
+                                <ul class="comments-list">
+                                    <c:forEach var="response" items="${journeyResponses}">
+                                        <li class="comment-item">
+                                            <div class="comment-header">
+                                                <span class="comment-username"><c:out value="${response.username}"/></span>
+                                                <span class="comment-date"><c:out value="${response.formattedDate}"/></span>
+
+                                            </div>
+                                            <p class="comment-message"><c:out value="${response.message}"/></p>
+                                        </li>
+                                    </c:forEach>
+                                </ul>
+                            </c:when>
+                            <c:otherwise>
+                                <p class="no-comments">No comments yet. Be the first to say something!</p>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+
                 </div>
             </div>
         </div>
