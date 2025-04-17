@@ -25,8 +25,20 @@ public class UserJdbcDao implements UserDao {
             rs.getString("user_lastname"),
             new University(rs.getLong("user_university"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id"))),
             new Career(rs.getLong("career_id"), rs.getString("career_name")),
+            rs.getLong("user_profile_picture_id"));
+
+
+    private final static RowMapper<UserPassword> USER_PASSWORD_ROW_MAPPER = (rs, rowNum)-> new UserPassword(
+                 rs.getLong("user_id"),
+            rs.getString("user_email"),
+            rs.getString("user_username"),
+            rs.getString("user_firstname"),
+            rs.getString("user_lastname"),
+            new University(rs.getLong("user_university"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id"))),
+            new Career(rs.getLong("career_id"), rs.getString("career_name")),
             rs.getLong("user_profile_picture_id"),
-            rs.getString("user_password"));
+            rs.getString("user_password")
+    );
 
     private final static String QUERY = "SELECT \n" +
             "    u.id AS user_id,\n" +
@@ -35,7 +47,6 @@ public class UserJdbcDao implements UserDao {
             "    u.lastname AS user_lastname,\n" +
             "    u.username AS user_username,\n" +
             "    u.university AS user_university,\n" +
-            "    u.password AS user_password,\n" +
             "    c.name AS career_name,\n" +
             "    c.id AS career_id,\n" +
             "    u.profile_picture_id AS user_profile_picture_id,\n" +
@@ -75,6 +86,12 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
+    public Optional<UserPassword> findByEmailWithPass(String email) {
+        return jdbcTemplate.query(QUERY + ", u.password AS user_password WHERE u.email = ?",
+                USER_PASSWORD_ROW_MAPPER, email).stream().findFirst();
+    }
+
+    @Override
     public Optional<User> findByUsername(String username) {
         return jdbcTemplate.query(QUERY + " WHERE u.username = ?", USER_ROW_MAPPER, username).stream().findFirst();
     }
@@ -98,7 +115,7 @@ public class UserJdbcDao implements UserDao {
         args.put("profile_picture_id", profilePictureId);
         args.put("password", password);
         final Number id = jdbcInsert.executeAndReturnKey(args);
-        return new User(id.longValue(), email, username, firstname, lastname, university/*.toString()*/, career, profilePictureId, password);
+        return new User(id.longValue(), email, username, firstname, lastname, university, career, profilePictureId);
     }
 
 

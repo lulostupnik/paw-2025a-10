@@ -27,8 +27,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
             rs.getString("user_lastname"),
             new University(rs.getLong("user_university"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id"))),
             new Career(rs.getLong("career_id"), rs.getString("career_name")),
-            rs.getLong("user_profile_picture_id"),
-            rs.getString("user_password"));
+            rs.getLong("user_profile_picture_id"));
 
     private final static String GET_ATTENDEES_QUERY =
             "SELECT \n" +
@@ -77,8 +76,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                             rs.getLong("career_id"),
                             rs.getString("career_name")
                     ),
-                    rs.getLong("user_profile_picture_id"),
-                    rs.getString("user_password")
+                    rs.getLong("user_profile_picture_id")
             ),
             rs.getDate("event_date"),
             rs.getString("event_description"),
@@ -98,7 +96,6 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
             "    us.username AS user_username, \n" +
             "    us.university AS user_university, \n" +
             "    us.profile_picture_id AS user_profile_picture_id, \n" +
-            "    us.password AS user_password, \n" +
             "\n" +
             "    ca.id AS career_id, \n" +
             "    ca.name AS career_name, \n" +
