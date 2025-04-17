@@ -6,8 +6,10 @@
 <html>
 <head>
   <title>Event Details</title>
-  <!-- Include ALL necessary CSS files -->
+  <!-- Include necessary CSS files -->
   <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
+  <link rel="stylesheet" href="<c:url value='/resources/css/event-details.css'/>" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 
