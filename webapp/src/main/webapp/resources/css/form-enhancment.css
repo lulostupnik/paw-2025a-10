@@ -1,0 +1,145 @@
+/* Autocomplete enhancements */
+.autocomplete-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.dropdown-menu {
+    position: absolute;
+    z-index: 10;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0 0 var(--radius) var(--radius);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: -1px;
+}
+
+.dropdown-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: var(--primary-light);
+}
+
+/* Password strength meter - Compact Visual Design */
+.password-strength {
+    margin-top: 0.5rem;
+}
+
+.password-meter {
+    height: 4px;
+    width: 100%;
+    background-color: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.password-bar {
+    height: 100%;
+    width: 0;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.password-feedback {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.password-status {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-weight: 500;
+}
+
+.password-emoji {
+    font-size: 0.875rem;
+}
+
+.password-message {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* Compact requirements grid */
+.password-requirements {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.25rem 1rem;
+    margin-top: 0.5rem;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.requirement-item {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.requirement-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+    margin-right: 0.25rem;
+    flex-shrink: 0;
+}
+
+.requirement-met .requirement-icon {
+    color: var(--success-color, #10b981);
+}
+
+.requirement-unmet .requirement-icon {
+    color: var(--text-muted, #9ca3af);
+}
+
+/* Enhanced strength levels with smooth transitions */
+.strength-very-weak {
+    background-color: #ef4444;
+}
+
+.strength-weak {
+    background-color: #f59e0b;
+}
+
+.strength-medium {
+    background-color: #3b82f6;
+}
+
+.strength-strong {
+    background-color: #10b981;
+}
+
+.strength-very-strong {
+    background-color: #059669;
+}
+
+/* Text colors matching the bar */
+.text-very-weak {
+    color: #ef4444;
+}
+
+.text-weak {
+    color: #f59e0b;
+}
+
+.text-medium {
+    color: #3b82f6;
+}
+
+.text-strong {
+    color: #10b981;
+}
+
+.text-very-strong {
+    color: #059669;
+}

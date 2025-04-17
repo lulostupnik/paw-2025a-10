@@ -14,6 +14,7 @@
     <title><spring:message code="register.title"/></title>
     <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
+    <link rel="stylesheet" href="<c:url value='/resources/css/form-enhancements.css'/>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
@@ -37,6 +38,15 @@
             <p class="auth-subtitle"><spring:message code="register.subtitle" text="Create your account to get started"/></p>
         </div>
 
+        <!-- Hidden internationalization messages for JavaScript -->
+        <input type="hidden" id="i18n-password-very-weak" value="<spring:message code="password.strength.very-weak" text="Very Weak"/>" />
+        <input type="hidden" id="i18n-password-weak" value="<spring:message code="password.strength.weak" text="Weak"/>" />
+        <input type="hidden" id="i18n-password-medium" value="<spring:message code="password.strength.medium" text="Medium"/>" />
+        <input type="hidden" id="i18n-password-strong" value="<spring:message code="password.strength.strong" text="Strong"/>" />
+        <input type="hidden" id="i18n-password-very-strong" value="<spring:message code="password.strength.very-strong" text="Very Strong"/>" />
+        <input type="hidden" id="i18n-password-strength" value="<spring:message code="password.strength.label" text="Password Strength"/>" />
+
+
         <c:url var="registerUrl" value="/register"/>
         <form:form modelAttribute="createUserForm" action="${registerUrl}" method="post" enctype="multipart/form-data" class="auth-form">
             <div class="auth-columns">
@@ -58,9 +68,7 @@
                         <form:password path="password" cssClass="form-input ${not empty errors.getFieldError('password') ? 'error' : ''}"
                                        placeholder="••••••••" required="true" />
                         <form:errors path="password" cssClass="error-message" />
-                        <div class="helper-text">
-                            <spring:message code="register.password.requirements" text="Password must be at least 8 characters"/>
-                        </div>
+                        <!-- Password strength meter will be inserted here by JavaScript -->
                     </div>
 
                     <div class="form-group">
@@ -148,9 +156,6 @@
                         <!-- Selected interests will appear here as tags -->
                         <div id="selectedInterests" class="selected-tags"></div>
 
-                        <div class="helper-text">
-                            <spring:message code="event.interest.select"/>
-                        </div>
 
                         <form:errors path="interests" cssClass="error-message" />
                     </div>
@@ -198,6 +203,10 @@
     </div>
 </div>
 
+<!-- Include the form enhancements script -->
+<script src="<c:url value='/resources/js/form-enhancement.js'/>"></script>
+
+<!-- Existing scripts for interests selection and file upload preview -->
 <script>
     // Interests selection functionality
     document.addEventListener('DOMContentLoaded', function() {
@@ -382,7 +391,7 @@
         });
     });
 
-    // Form validation
+    // Form validation with password strength check
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.querySelector('.auth-form');
 
@@ -406,6 +415,23 @@
             if (emailInput && emailInput.value.trim() && !isValidEmail(emailInput.value.trim())) {
                 showError(emailInput, '<spring:message code="register.email.invalid" text="Please enter a valid email address"/>');
                 isValid = false;
+            }
+
+            // Password strength validation
+            const passwordInput = document.getElementById('password');
+            if (passwordInput && passwordInput.value.trim()) {
+                const passwordStrength = evaluatePasswordStrength(passwordInput.value, [
+                    { id: "length", regex: /.{8,}/ },
+                    { id: "lowercase", regex: /[a-z]/ },
+                    { id: "uppercase", regex: /[A-Z]/ },
+                    { id: "number", regex: /[0-9]/ },
+                    { id: "special", regex: /[^A-Za-z0-9]/ }
+                ]);
+
+                if (passwordStrength.score < 50 || !passwordStrength.meetsAllRequirements) {
+                    showError(passwordInput, '<spring:message code="password.strength.insufficient" text="Password does not meet security requirements"/>');
+                    isValid = false;
+                }
             }
 
             if (!isValid) {
