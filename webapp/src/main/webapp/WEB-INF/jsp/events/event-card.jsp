@@ -19,10 +19,10 @@
                     </div>
                 </c:if>
 
-                <!-- Favorite Badge -->
-                <div class="favorite-badge">
-                    <spring:message code="event.favorite.badge"/>
-                </div>
+<%--                <!-- Favorite Badge -->--%>
+<%--                <div class="favorite-badge">--%>
+<%--                    <spring:message code="event.favorite.badge"/>--%>
+<%--                </div>--%>
 
                 <!-- Attend Button -->
                 <button class="attend-button" data-event-id="${param.eventId}" aria-label="<spring:message code='event.attend'/>" onclick="toggleAttendance(event, ${param.eventId}, this)">
