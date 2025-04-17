@@ -1,21 +1,30 @@
 package ar.edu.itba.paw.persistence;
 
-import ar.edu.itba.paw.interfaces.persistence.EventAttendanceDao;
-import ar.edu.itba.paw.models.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import ar.edu.itba.paw.interfaces.persistence.EventAttendanceDao;
+import ar.edu.itba.paw.models.Career;
+import ar.edu.itba.paw.models.City;
+import ar.edu.itba.paw.models.Event;
+import ar.edu.itba.paw.models.University;
+import ar.edu.itba.paw.models.User;
 
 @Repository
 public class EventAttendanceJdbcDao implements EventAttendanceDao {
+    private static Logger LOGGER = LoggerFactory.getLogger(EventAttendanceJdbcDao.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
@@ -142,6 +151,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
 
     @Override
     public void attend(long userId, long eventId) {
+        LOGGER.debug("Registering user {} will attend event {}", userId, eventId);
         Map<String, Object> params = new HashMap<>();
         params.put("user_id", userId);
         params.put("event_id", eventId);
@@ -150,12 +160,14 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
 
     @Override
     public void cancel(long userId, long eventId) {
+        LOGGER.debug("Registering user {} will cancel attendance to event {}", userId, eventId);
         jdbcTemplate.update("DELETE FROM event_attendances WHERE user_id = ? AND event_id = ?", userId, eventId);
     }
 
 
     @Override
     public boolean isAttending(long userId, long eventId) {
+        LOGGER.debug("Querying DB for user {} attending event {}", userId, eventId);
         return jdbcTemplate.queryForObject(
                 "SELECT EXISTS(SELECT 1 FROM event_attendances WHERE user_id = ? AND event_id = ?)",
                 Boolean.class, userId, eventId);
@@ -163,11 +175,13 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
 
     @Override
     public List<User> getAttendees(long eventId) {
+        LOGGER.debug("Querying DB for attendees for event {}", eventId);
         return jdbcTemplate.query(GET_ATTENDEES_QUERY, USER_ROW_MAPPER, eventId);
     }
 
     @Override
     public int getAttendeesCount(long eventId) {
+        LOGGER.debug("Querying DB for attendee count for event {}", eventId);
         return jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM event_attendances WHERE event_id = ?",
                 Integer.class, eventId);
@@ -175,6 +189,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
 
     @Override
     public List<Event> getAttendingEvents(long userId) {
+        LOGGER.debug("Querying DB for events user {} will attend", userId);
         return jdbcTemplate.query(GET_EVENTS_QUERY, EVENT_ROW_MAPPER, userId);
     }
 }

@@ -1,8 +1,10 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
-import ar.edu.itba.paw.models.EventResponse;
 import ar.edu.itba.paw.models.JourneyResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -17,6 +19,7 @@ import java.util.Map;
 
 @Repository
 public class JourneyResponseJdbcDao implements JourneyResponseDao {
+    private static Logger LOGGER = LoggerFactory.getLogger(JourneyResponseJdbcDao.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
@@ -41,6 +44,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
 
     @Override
     public JourneyResponse create(long userId, String username, long journeyId, String message, LocalDateTime dateTime) {
+        LOGGER.debug("Registering new journey response to journey {} from user {} ({}) saying '{}' on {}", journeyId, userId, username, message, dateTime);
         final Map<String, Object> args = new HashMap<>();
         args.put("user_id", userId);
         args.put("journey_id", journeyId);
@@ -61,8 +65,8 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     }
 
     @Override
-    public List<JourneyResponse> listAllFromJourney(long journeyId)
-    {
+    public List<JourneyResponse> listAllFromJourney(long journeyId){
+        LOGGER.debug("Querying DB for replies to journey {}", journeyId);
         return jdbcTemplate.query(QUERY_BY_JOURNEY_ID, JOURNEY_RESPONSE_ROW_MAPPER, journeyId);
     }
 

@@ -2,6 +2,9 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.models.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -13,6 +16,7 @@ import java.util.*;
 
 @Repository
 public class UserJdbcDao implements UserDao {
+    private static Logger LOGGER = LoggerFactory.getLogger(UserJdbcDao.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
@@ -100,38 +104,48 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public Optional<User> findById(long id) {
+        LOGGER.debug("Querying DB for user id {}", id);
         return jdbcTemplate.query(QUERY +
                 " WHERE u.id = ?", USER_ROW_MAPPER, id).stream().findFirst();
     }
 
     @Override
     public Optional<User> findByEmail(String email) {
+        LOGGER.debug("Querying DB for user mail {}", email);
         return jdbcTemplate.query(QUERY + " WHERE u.email = ?", USER_ROW_MAPPER, email).stream().findFirst();
     }
 
     @Override
     public Optional<UserPassword> findByEmailWithPass(String email) {
+        LOGGER.debug("Querying DB for user mail {} (with password)", email);
         return jdbcTemplate.query(PASSWORD_QUERY + " WHERE u.email = ?",
                 USER_PASSWORD_ROW_MAPPER, email).stream().findFirst();
     }
 
     @Override
     public Optional<User> findByUsername(String username) {
+        LOGGER.debug("Querying DB for username {}", username);
         return jdbcTemplate.query(QUERY + " WHERE u.username = ?", USER_ROW_MAPPER, username).stream().findFirst();
     }
 
     @Override
     public void changePassword(String email, String password) {
-        jdbcTemplate.update("UPDATE users SET password = ? WHERE email = ?", password, email);
+        LOGGER.debug("Updating password for user email {} (has password {})", email, password.length() > 0);
+        int rows = jdbcTemplate.update("UPDATE users SET password = ? WHERE email = ?", password, email);
+        if (rows == 0) {
+            LOGGER.warn("Password change failed: User not found");
+        }
     }
 
     @Override
     public boolean existsByUsername(String username) {
+        LOGGER.debug("Querying DB for existance of username {}", username);
         return jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)", Boolean.class, username);
     }
 
     @Override
     public boolean existsByEmail(String email) {
+        LOGGER.debug("Querying DB for existance of user with email {}", email);
         return jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)", Boolean.class, email);
     }
 
@@ -139,6 +153,7 @@ public class UserJdbcDao implements UserDao {
     @Override
     public User create(String email, String username, String firstname, String lastname, University university,
                        Career career, long profilePictureId, String password, Locale locale) {
+        LOGGER.debug("Registering new user to DB");
         final Map<String, Object> args = new HashMap<>();
         args.put("email", email);
         args.put("username", username);

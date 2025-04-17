@@ -1,17 +1,31 @@
 package ar.edu.itba.paw.persistence;
-import ar.edu.itba.paw.interfaces.persistence.EventDao;
-import ar.edu.itba.paw.models.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
-import java.util.*;
+import ar.edu.itba.paw.interfaces.persistence.EventDao;
+import ar.edu.itba.paw.models.Career;
+import ar.edu.itba.paw.models.City;
+import ar.edu.itba.paw.models.Event;
+import ar.edu.itba.paw.models.University;
+import ar.edu.itba.paw.models.User;
 
 @Repository
 public class EventJdbcDao implements EventDao {
+    private static Logger LOGGER = LoggerFactory.getLogger(EventJdbcDao.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
@@ -108,6 +122,7 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public Event create(User user, City city, Date date, String description, long flyerImageId) {
+        LOGGER.debug("Registering new event for user {} in {} on {} ({}) with image {}", user, city, date, description, flyerImageId);
         final Map<String, Object> parameters = Map.of(
                 "user_id", user.getId(),
                 "city_id", city.getId(),
@@ -116,22 +131,27 @@ public class EventJdbcDao implements EventDao {
                 "flyer_image_id", flyerImageId
                 );
         final Number keys = jdbcInsert.executeAndReturnKey(parameters);
+        LOGGER.debug("Successfully registered event {}", keys.longValue());
         return new Event(keys.longValue(), user, date, description, flyerImageId, city);
     }
 
     // FIXME
     @Override
     public List<Event> listByQuery(Long cityId, Date date) {
+        LOGGER.debug("Querying DB for event");
+
         StringBuilder sqlBuilder = new StringBuilder(QUERY);
         List<Object> params = new ArrayList<>();
         boolean firstCondition = true;
         if (cityId != null) {
+            LOGGER.debug("Event condition: in city {}");
             sqlBuilder.append("WHERE city_id = ?");
             params.add(cityId);
             firstCondition = false;
         }
 
         if (date != null) {
+            LOGGER.debug("Event condition: date after {}");
             sqlBuilder.append(firstCondition ? " WHERE" : " AND")
                     .append(" event_date AFTER ?");
             params.add(date);
@@ -146,17 +166,20 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public Optional<Event> findById(long eventId) {
+        LOGGER.debug("Querying DB for event {}", eventId);
         return jdbcTemplate.query(QUERY + "WHERE e.id = ?",
                 EVENT_ROW_MAPPER, eventId).stream().findFirst();
     }
 
     @Override
     public List<Event> listAll() {
+        LOGGER.debug("Querying DB for all events");
         return jdbcTemplate.query(QUERY, EVENT_ROW_MAPPER);
     }
 
     @Override
     public List<Event> getRecommendedEvents(String email) {
+        LOGGER.debug("Querying DB for recommended events for usermail {}", email);
         return jdbcTemplate.query("""
                WITH user_data AS (
             SELECT u.id, c.id AS city_id

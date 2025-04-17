@@ -2,26 +2,24 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.ImageDao;
 import ar.edu.itba.paw.models.Image;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
 @Repository
 public class ImageJdbcDao implements ImageDao {
+    private static Logger LOGGER = LoggerFactory.getLogger(ImageJdbcDao.class);
+
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
 
@@ -37,20 +35,26 @@ public class ImageJdbcDao implements ImageDao {
 
     @Override
     public long saveImage(byte[] imageData) {
-        return jdbcInsert.executeAndReturnKey(Map.of("content", imageData)).longValue();
+        LOGGER.debug("Registering new image of size {}", imageData.length);
+        Number key = jdbcInsert.executeAndReturnKey(Map.of("content", imageData)).longValue();
+        LOGGER.debug("Successfully registered image {}", key.longValue());
+        return key.longValue();
     }
 
     @Override
     public Optional<Image> getImageById(long id) {
+        LOGGER.debug("Querying DB for image {}", id);
         try {
             return jdbcTemplate.query("SELECT * FROM images WHERE id = ?", IMAGE_ROW_MAPPER, id).stream().findFirst();
         } catch (DataAccessException e) {
+            LOGGER.error("Error accessing image {}", e);
             throw new RuntimeException("Error while saving image", e);
         }
     }
 
     @Override
     public void deleteImage(long id) {
+        LOGGER.debug("Deleting image {} from DB", id);
         jdbcTemplate.update("DELETE FROM images WHERE id = ?", id);
     }
 

@@ -1,18 +1,29 @@
 package ar.edu.itba.paw.persistence;
 
-import ar.edu.itba.paw.interfaces.persistence.InterestDao;
-import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
-import ar.edu.itba.paw.models.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.sql.DataSource;
-import java.time.LocalDate;
-import java.util.*;
+import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
+import ar.edu.itba.paw.models.Career;
+import ar.edu.itba.paw.models.City;
+import ar.edu.itba.paw.models.Journey;
+import ar.edu.itba.paw.models.University;
+import ar.edu.itba.paw.models.User;
 
 /*
 
@@ -32,6 +43,8 @@ import java.util.*;
 
 @Repository
 public class JourneyJdbcDao implements JourneyDao {
+    private static Logger LOGGER = LoggerFactory.getLogger(JourneyJdbcDao.class);
+
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
 
@@ -135,6 +148,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public Journey create(User user, University destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
+        LOGGER.debug("Registering new journey of {} to {} from {} to {} ({})", user, destinationUniversity, startDate, endDate, description);
         final Map<String, Object> args = new HashMap<>();
         args.put("user_id", user.getId());
         args.put("destination_university_id", destinationUniversity.getId());
@@ -142,31 +156,39 @@ public class JourneyJdbcDao implements JourneyDao {
         args.put("end_date", endDate);
         args.put("description", description);
         final Number id = jdbcInsert.executeAndReturnKey(args);
+        LOGGER.info("Successfully registered journey {}", id.longValue());
         return new Journey(id.longValue(), user, startDate, endDate, destinationUniversity, description);
     }
 
     @Override
     public List<Journey> listAll() {
+        LOGGER.debug("Querying DB for all journeys");
         return jdbcTemplate.query(QUERY, JOURNEY_ROW_MAPPER);
     }
 
     @Override
     public Optional<Journey> findById(long id) {
+        LOGGER.debug("Querying DB for journey {}", id);
         return jdbcTemplate.query(QUERY + " WHERE j.id = ?", JOURNEY_ROW_MAPPER, id).stream().findFirst();
     }
     
     @Override
-    public Optional<Journey> findOverlappingJourney(long id, LocalDate startDate, LocalDate endDate) {
-        return jdbcTemplate.query(QUERY + " WHERE user_id = ? AND start_date >= ? AND end_date <= ?", JOURNEY_ROW_MAPPER, id, startDate, endDate).stream().findFirst();
+    public Optional<Journey> findOverlappingJourney(long userId, LocalDate startDate, LocalDate endDate) {
+        LOGGER.debug("Querying DB for overlapping journeys for user {} from {} to {}", userId, startDate, endDate);
+        return jdbcTemplate.query(QUERY + " WHERE user_id = ? AND start_date >= ? AND end_date <= ?", JOURNEY_ROW_MAPPER, userId, startDate, endDate).stream().findFirst();
     }
 
     @Override
     public List<Journey> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest) {
+        LOGGER.debug("Querying DB for journeys with filters");
+
         String query;
 
         if (interest != null && !interest.isEmpty()) {
+            LOGGER.debug("Interest present, using interest query");
             query = QUERY_INTEREST;
         } else {
+            LOGGER.debug("Interest not present, using regular query");
             query = QUERY;
         }
 
@@ -174,24 +196,29 @@ public class JourneyJdbcDao implements JourneyDao {
         List<Object> params = new ArrayList<>();
 
         if (destination != null && !destination.isEmpty()) {
+            LOGGER.debug("Filter added: destination {}", destination);
             filters.add("ci2.name = ?");
             params.add(destination);
         }
         if (startDate != null) {
+            LOGGER.debug("Filter added: start date {}", startDate);
             filters.add("j.start_date <= ?");
             params.add(startDate);
         }
         if (endDate != null) {
+            LOGGER.debug("Filter added: end date {}", endDate);
             filters.add("j.end_date >= ?");
             params.add(endDate);
         }
         if (interest != null && !interest.isEmpty()) {
+            LOGGER.debug("Filter added: interest {}", interest);
             filters.add("c.name = ?");
             params.add(interest);
         }
 
         // Solo agregamos WHERE si hay filtros
         if (!filters.isEmpty()) {
+            LOGGER.debug("Filters present, adding to query");
             query += " WHERE " + String.join(" AND ", filters);
         }
 
@@ -201,11 +228,14 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public Optional<Journey> findByUserId(long userId) {
+        LOGGER.debug("Querying DB for journeys from user {}", userId);
         return jdbcTemplate.query(QUERY + " WHERE us.id = ?", JOURNEY_ROW_MAPPER, userId).stream().findFirst();
     }
 
     @Override
     public List<Journey> getRecommendedJourneys(String email) {
+        LOGGER.debug("Querying DB for recommended journeys for usermail {}", email);
+
         String query = """
                WITH user_data AS (
                    SELECT id, university, language AS user_university, career_id

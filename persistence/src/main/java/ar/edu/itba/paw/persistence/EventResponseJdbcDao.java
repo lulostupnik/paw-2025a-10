@@ -1,23 +1,27 @@
 package ar.edu.itba.paw.persistence;
 
-import ar.edu.itba.paw.interfaces.persistence.EventResponseDao;
-import ar.edu.itba.paw.models.*;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import ar.edu.itba.paw.interfaces.persistence.EventResponseDao;
+import ar.edu.itba.paw.models.EventResponse;
 
 @Repository
 public class EventResponseJdbcDao implements EventResponseDao {
+    private static Logger LOGGER = LoggerFactory.getLogger(EventResponseJdbcDao.class);
+
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
 
@@ -44,6 +48,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
 
     @Override
     public EventResponse create(long userId, String username, long eventId, String message, LocalDateTime dateTime) {
+        LOGGER.debug("Registering new event response for event {} by user {} ({}) who says {} on {}", eventId, userId, username, message, dateTime);
         final Map<String, Object> args = new HashMap<>();
         args.put("user_id", userId);
         args.put("event_id", eventId);
@@ -51,12 +56,13 @@ public class EventResponseJdbcDao implements EventResponseDao {
         args.put("date_time", dateTime);
 
         jdbcInsert.execute(args);
+        LOGGER.debug("Successfully registered event response");
         return new EventResponse(userId, username, eventId, message, dateTime);
     }
 
     @Override
-    public List<EventResponse> listAllFromEvent(long eventId)
-    {
+    public List<EventResponse> listAllFromEvent(long eventId){
+        LOGGER.debug("Querying DB for replies to event {}", eventId);
         return jdbcTemplate.query(QUERY_BY_EVENT_ID, EVENT_RESPONSE_ROW_MAPPER, eventId);
     }
 }

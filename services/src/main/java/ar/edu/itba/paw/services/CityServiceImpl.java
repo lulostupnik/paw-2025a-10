@@ -3,8 +3,10 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.models.City;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.Optional;
 
 @Service
 public class CityServiceImpl implements CityService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CityServiceImpl.class);
 
     private final CityDao cityDao;
 
@@ -22,21 +25,25 @@ public class CityServiceImpl implements CityService {
 
     @Override
     public Optional<City> findByName(String name) {
+        LOGGER.debug("Finding city by name {}", name);
         return cityDao.findByName(name);
     }
 
     @Override
     public List<City> findAll() {
+        LOGGER.debug("Finding all cities");
         return cityDao.findAll();
     }
 
     @Override
     public List<City> findAllByCountry(String country) {
+        LOGGER.debug("Finding city by country name {}", country);
         return cityDao.findAllByCountry(country);
     }
 
     @Override
     public List<City> findAllBySubstring(String substring) {
+        LOGGER.debug("Finding city by substring {}", substring);
         return cityDao.findAllBySubstring(substring);
     }
 
