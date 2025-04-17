@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS user_interest (
         user_id INTEGER NOT NULL,
         category_id INTEGER NOT NULL,
         score INTEGER NOT NULL DEFAULT 0,
+
         PRIMARY KEY (user_id, category_id),
         FOREIGN KEY (category_id) REFERENCES category ON DELETE CASCADE
 );
@@ -148,11 +149,12 @@ CREATE TABLE IF NOT EXISTS event_attendances (
 ALTER TABLE users
     ADD COLUMN IF NOT EXISTS password VARCHAR(100) NOT NULL DEFAULT '$2b$10$KbQiA8xVuOPQkfiYJ0X0FubQbQjEJpTr6QOBD3qL6sYzFoq2nJ8fK';
 
+
 UPDATE users
 SET password = '$2b$10$KbQiA8xVuOPQkfiYJ0X0FubQbQjEJpTr6QOBD3qL6sYzFoq2nJ8fK'
 WHERE password IS NULL;
 
 ALTER TABLE users ADD COLUMN IF NOT EXISTS language VARCHAR(2) NOT NULL DEFAULT 'en' CHECK (language IN ('en', 'es'));
-
+ALTER TABLE user_interest ADD COLUMN IF NOT EXISTS score INTEGER NOT NULL DEFAULT 0
 ALTER TABLE event_responses ADD COLUMN IF NOT EXISTS date_time TIMESTAMP NOT NULL DEFAULT CURRENT_DATE;
 
