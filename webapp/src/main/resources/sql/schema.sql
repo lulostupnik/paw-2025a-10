@@ -177,3 +177,11 @@ CREATE INDEX IF NOT EXISTS idx_journey_responses_journeyid_datetime
 -- ALTER TABLE journey_responses
 --     ADD COLUMN id SERIAL PRIMARY KEY;
 -- COMMIT;
+
+-- BEGIN;
+-- ALTER TABLE event_responses
+--     DROP CONSTRAINT event_responses_pkey;
+--
+-- ALTER TABLE event_responses
+--     ADD COLUMN id SERIAL PRIMARY KEY;
+-- COMMIT;

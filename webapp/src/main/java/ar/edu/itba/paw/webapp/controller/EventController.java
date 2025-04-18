@@ -110,11 +110,11 @@ public class EventController {
         
         event = eventService.createEvent(authentication.getName(),eventForm.getCity(), eventForm.getDate(), flyerBytes, eventForm.getDescription());
         LOGGER.info("Successfully created event {}", event);
-        return getEvent(event.getId());
+        return getEvent(event.getId(), new ReplyEventForm());
     }
 
     @RequestMapping("/{id}")
-    public ModelAndView getEvent(@PathVariable long id) {
+    public ModelAndView getEvent(@PathVariable long id,  @ModelAttribute("replyEventForm") final ReplyEventForm form) {
         LOGGER.debug("Getting info for event {}", id);
         Optional<Event> maybeEvent = eventService.getEventById(id);
         if (maybeEvent.isEmpty()) {
@@ -139,6 +139,7 @@ public class EventController {
         mav.addObject("attendees", attendees);
         mav.addObject("attend", isAttending);
         mav.addObject("eventResponses", eventResponses);
+        mav.addObject("replyEventForm", form);
         return mav;
     }
 
@@ -147,7 +148,7 @@ public class EventController {
         Optional<Event> event = eventService.getEventById(id);
         if(event.isEmpty()){
             LOGGER.debug("Event {} not found", id);
-            return getEvent(id);
+            return getEvent(id, form);
         }
         LOGGER.debug("Event found: {}", event.get());
 
@@ -183,8 +184,8 @@ public class EventController {
         LOGGER.debug("Auth provided for: {}", authentication.getPrincipal());
 
         eventService.replyToEvent(authentication.getName(), id, form.getMessage());
-        return new ModelAndView("redirect:/events");
-
+//        return new ModelAndView("redirect:/events");
+        return getEvent(id, new ReplyEventForm());
     }
 
     @RequestMapping(value="/{id}/attend",method = POST,produces = "application/json")
