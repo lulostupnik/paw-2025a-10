@@ -97,7 +97,8 @@ public class JourneyController {
                 jf.getDestinationUniversity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription());
 
         LOGGER.info("Successfully created journey {}", journey);
-        return getJourney(journey.getId());
+        ReplyJourneyForm rjf = new ReplyJourneyForm();  //@TODO tiene sentido??
+        return getJourney(journey.getId(), rjf);
     }
 
     @RequestMapping(value = "/create")
@@ -113,7 +114,7 @@ public class JourneyController {
     }
 
     @RequestMapping(value = "/{id}")
-    public ModelAndView getJourney(@PathVariable long id) {
+    public ModelAndView getJourney(@PathVariable long id, @ModelAttribute("replyJourneyForm") final ReplyJourneyForm rjf) {
         LOGGER.debug("Getting info for journey {}", id);
 
         Optional<Journey> journey = js.getJourneyById(id);
@@ -129,6 +130,7 @@ public class JourneyController {
         LOGGER.debug("Journey found: {}", journey.get());
         mav.addObject("journey", journey.get());
         mav.addObject("journeyResponses", journeyResponses);
+        mav.addObject("replyJourneyForm", rjf);
         return mav;
     }
 
@@ -138,41 +140,42 @@ public class JourneyController {
 
         if (errors.hasErrors()) {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
-            return replyToJourneyForm(id, rjf);
+//            return replyToJourneyForm(id, rjf);
+            return getJourney(id, rjf);
         }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         LOGGER.debug("Auth provided for: {}", authentication.getPrincipal());
 
         js.replyToJourney(authentication.getName(), id, rjf.getMessage());
 
-        return getJourneys(null,null, null, null);
+        return getJourney(id, new ReplyJourneyForm());
     }
 
-    @RequestMapping(value = "/{id}/reply")
-    public ModelAndView replyToJourneyForm(@PathVariable int id, @ModelAttribute("replyJourneyForm") final ReplyJourneyForm rjf) {
-        LOGGER.debug("Getting journey reply form for journey {}", id);
-
-        ModelAndView mav = new ModelAndView("journeys/reply");
-        Optional<Journey> journey = js.getJourneyById(id);
-
-        if(journey.isEmpty()){
-            LOGGER.debug("Journey {} not found, redirecting to journey list", id);
-            return getJourneys(null,null, null, null);
-        }
-        LOGGER.debug("Journey found: {}", journey.get());
-
-        List<University> universities = universityService.getAllUniversities();
-        LOGGER.debug("Universities: {}", universities);
-
-        List<Career> careers = carreerService.findAll();
-        LOGGER.debug("Careers: {}", careers);
-
-        mav.addObject("careers", careers);
-        mav.addObject("universities", universities);
-        mav.addObject("journey", journey.get());
-        mav.addObject("replyJourneyForm", rjf);
-        return mav;
-    }
+//    @RequestMapping(value = "/{id}/reply")
+//    public ModelAndView replyToJourneyForm(@PathVariable int id, @ModelAttribute("replyJourneyForm") final ReplyJourneyForm rjf) {
+//        LOGGER.debug("Getting journey reply form for journey {}", id);
+//
+//        ModelAndView mav = new ModelAndView("journeys/reply");
+//        Optional<Journey> journey = js.getJourneyById(id);
+//
+//        if(journey.isEmpty()){
+//            LOGGER.debug("Journey {} not found, redirecting to journey list", id);
+//            return getJourneys(null,null, null, null);
+//        }
+//        LOGGER.debug("Journey found: {}", journey.get());
+//
+//        List<University> universities = universityService.getAllUniversities();
+//        LOGGER.debug("Universities: {}", universities);
+//
+//        List<Career> careers = carreerService.findAll();
+//        LOGGER.debug("Careers: {}", careers);
+//
+//        mav.addObject("careers", careers);
+//        mav.addObject("universities", universities);
+//        mav.addObject("journey", journey.get());
+//        mav.addObject("replyJourneyForm", rjf);
+//        return mav;
+//    }
 
     @RequestMapping(value ="/filter", method = POST)
     public ModelAndView filterJourney(@ModelAttribute("filterJourneyForm") final FilterJourneyForm form, final BindingResult errors) {
