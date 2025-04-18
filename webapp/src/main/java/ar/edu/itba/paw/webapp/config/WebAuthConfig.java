@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.webapp.config;
 
 import ar.edu.itba.paw.webapp.auth.PawUserDetailsService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +52,10 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .and().authorizeRequests()
                     .antMatchers("/login", "/register", "/").anonymous()
                     .antMatchers("/admin/**").hasRole("ADMIN")
+//                    .antMatchers("/events/**", "/journeys/**").permitAll()
+                    .antMatchers("/events/create", "/journeys/create").authenticated()
+                    .antMatchers("/events/*/reply", "/journeys/*/reply", "/events/*/attend").authenticated()
+                    .antMatchers("/events", "/events/*", "/journeys", "/journeys/*", "/journeys/filter").permitAll()
                     .antMatchers("/**").authenticated()
                 .and().formLogin()
                     .usernameParameter("j_username")

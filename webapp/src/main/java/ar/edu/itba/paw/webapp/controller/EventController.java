@@ -22,6 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,7 +55,17 @@ public class EventController {
         List<Event> events = eventService.getAllEvents();
         LOGGER.debug("Events found: {}", events);
         mav.addObject("events", events);
+        /*
         mav.addObject("eventsAttended", eventService.getUserAttendingEvents(SecurityContextHolder.getContext().getAuthentication().getName()));
+        */
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        List<Event> eventsAttended = Collections.emptyList();
+
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+            eventsAttended = eventService.getUserAttendingEvents(auth.getName());
+        }
+
+        mav.addObject("eventsAttended", eventsAttended);
         return mav;
     }
 
