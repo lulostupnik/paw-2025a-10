@@ -14,22 +14,22 @@
 <body>
 <div class="layout-container">
     <!-- Include the sidebar component -->
-    <jsp:include page="components/sidebar.jsp" />
 
     <!-- Main Content -->
     <div class="main-content">
+        <jsp:include page="components/navbar.jsp" />
         <div class="content-container">
-            <!-- Hero Section -->
-            <div class="hero-section">
-                <div class="hero-content">
-                    <h1 class="hero-title">
-                        <spring:message code="dashboard.welcome"/>
-                    </h1>
-                    <p class="hero-description">
-                        <spring:message code="dashboard.subtitle" />
-                    </p>
-                </div>
-            </div>
+<%--            <!-- Hero Section -->--%>
+<%--            <div class="hero-section">--%>
+<%--                <div class="hero-content">--%>
+<%--                    <h1 class="hero-title">--%>
+<%--                        <spring:message code="dashboard.welcome"/>--%>
+<%--                    </h1>--%>
+<%--                    <p class="hero-description">--%>
+<%--                        <spring:message code="dashboard.subtitle" />--%>
+<%--                    </p>--%>
+<%--                </div>--%>
+<%--            </div>--%>
 
             <!-- Recommended Journeys Section -->
             <section class="content-section">

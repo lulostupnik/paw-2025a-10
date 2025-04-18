@@ -88,16 +88,6 @@
 /*    border-color: #E31C5F;*/
 /*}*/
 
-.btn-secondary {
-    background-color: white;
-    color: #222222;
-    border: 1px solid #DDDDDD;
-}
-
-.btn-secondary:hover {
-    background-color: #F7F7F7;
-}
-
 /* Event modal */
 .event-modal {
     display: none;

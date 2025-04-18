@@ -13,10 +13,10 @@
 
 <div class="layout-container">
   <!-- Include the sidebar component -->
-  <jsp:include page="../components/sidebar.jsp" />
 
   <!-- Main Content -->
   <div class="main-content">
+    <jsp:include page="../components/navbar.jsp" />
     <div class="content-container">
       <div class="header-container">
         <h2 class="page-title">

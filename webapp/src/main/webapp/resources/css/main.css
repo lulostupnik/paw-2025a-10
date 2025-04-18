@@ -8,7 +8,7 @@
 /* 2. Layout Styles */
 @import "layout/container.css";
 @import "layout/grid.css";
-@import "layout/sidebar.css";
+/*@import "layout/sidebar.css";*/
 
 /* 3. Component Styles */
 @import "components/buttons.css";

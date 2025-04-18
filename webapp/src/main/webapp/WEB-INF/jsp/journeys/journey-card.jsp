@@ -6,12 +6,12 @@
 <div class="event-card-wrapper">
     <a href="<c:url value="/journeys/${param.journeyId}"/>" class="event-card-link">
         <div class="event-card">
-            <!-- Image Container -->
+            <!-- Image Container with improved aspect ratio for profile pictures -->
             <div class="event-image-container">
                 <c:if test="${not empty param.profilePictureId}">
                     <img src="<c:url value="/images/${param.profilePictureId}"/>"
                          alt="<spring:message code='journey.profile.alt'/>"
-                         class="event-image">
+                         class="event-image profile-image">
                 </c:if>
                 <c:if test="${empty param.profilePictureId}">
                     <div class="event-image-placeholder">
@@ -20,14 +20,14 @@
                 </c:if>
             </div>
 
-            <!-- Journey Info -->
+            <!-- Journey Info with improved layout -->
             <div class="event-info-container">
                 <div class="event-header">
                     <div class="event-location">
                         <h3><c:out value="${param.city}"/></h3>
                     </div>
                     <div class="event-rating">
-                        <span><c:out value="${param.userName}"/></span>
+                        <span class="user-name"><c:out value="${param.userName}"/></span>
                     </div>
                 </div>
 
@@ -42,7 +42,7 @@
                 <fmt:formatDate value="${parsedEndDate}" pattern="yyyy" var="endYear" />
 
                 <div class="event-name">
-                    <p>
+                    <p class="date-range">
                         <spring:message code="journey.dates"/>
                         <c:out value="${startDay}"/> <spring:message code="month.${startMonth}"/>
                         <spring:message code="journey.to"/>

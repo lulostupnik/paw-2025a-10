@@ -6,7 +6,6 @@
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    gap: 0.5rem;
     padding: 0.625rem 1.25rem;
     font-size: 0.875rem;
     font-weight: 500;
@@ -25,7 +24,7 @@
 
 .btn-primary {
     color: #fff;
-    background-color: #2563eb;
+    background-color: #4f46e5;
     border-color: transparent;
 }
 
