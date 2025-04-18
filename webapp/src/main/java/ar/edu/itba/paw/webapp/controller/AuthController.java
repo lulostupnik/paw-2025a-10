@@ -11,6 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -32,17 +37,27 @@ public class AuthController {
     private final CareerService careerService;
     private final UserService userService;
     private final InterestService interestService;
+    private final AuthenticationManager authenticationManager;
 
     @Autowired
-    public AuthController(final UniversityService universityService, final CareerService carreerService, UserService userService, InterestService interestService) {
+    public AuthController(final UniversityService universityService, final CareerService carreerService, UserService userService,
+                          InterestService interestService, final AuthenticationManager authenticationManager) {
         this.universityService = universityService;
         this.careerService = carreerService;
         this.userService = userService;
         this.interestService = interestService;
+        this.authenticationManager = authenticationManager;
     }
     @RequestMapping("/login")
-    public ModelAndView loginForm() {
+    public ModelAndView loginForm(Authentication authentication) {
         LOGGER.debug("Loading login form");
+        if (authentication != null
+                && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+            return new ModelAndView("redirect:/home");
+
+        }
+
         return new ModelAndView("auth/login");
     }
     @RequestMapping("/")
@@ -52,7 +67,6 @@ public class AuthController {
     }
     @RequestMapping(value = "/register", method = {RequestMethod.GET})
     public ModelAndView registerForm(@ModelAttribute ("createUserForm") final CreateUserForm form) {
-
         LOGGER.debug("Loading register form");
         ModelAndView mav = new ModelAndView("auth/register");
         List<Career> careers = careerService.findAll();
@@ -91,6 +105,10 @@ public class AuthController {
 
         userService.createUser(form.getEmail(), form.getUsername(), form.getFirstName(),
                 form.getLastName(), form.getOriginUniversity(), form.getCareer(), profilePicture, form.getInterests(), form.getPassword(), currentLocale);
+        Authentication authToken = new UsernamePasswordAuthenticationToken(form.getEmail(), form.getPassword());
+        Authentication authentication = authenticationManager.authenticate(authToken);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
 
         return new ModelAndView("redirect:login");
     }
