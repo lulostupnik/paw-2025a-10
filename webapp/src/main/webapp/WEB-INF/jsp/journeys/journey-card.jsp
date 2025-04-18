@@ -41,14 +41,13 @@
                 <fmt:formatDate value="${parsedEndDate}" pattern="MM" var="endMonth" />
                 <fmt:formatDate value="${parsedEndDate}" pattern="yyyy" var="endYear" />
 
-                <div class="event-name">
-                    <p class="date-range">
-                        <spring:message code="journey.dates"/>
-                        <c:out value="${startDay}"/> <spring:message code="month.${startMonth}"/>
-                        <spring:message code="journey.to"/>
-                        <c:out value="${endDay}"/> <spring:message code="month.${endMonth}"/>
-                        <c:out value="${endYear}"/>
-                    </p>
+                <div class="card-dates">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="card-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span class="card-date-range">
+                        <c:out value="${param.startDate}" /> → <c:out value="${param.endDate}" />
+                    </span>
                 </div>
 
                 <div class="event-description-container">

@@ -79,7 +79,7 @@
                                             <img src="${userProfileImage}" alt="${username}" class="avatar-image" />
                                         </c:when>
                                         <c:otherwise>
-                                            <div class="avatar-placeholder">
+                                            <div class="avatar-placeholder-navbar">
                                                     ${fn:substring(username, 0, 1).toUpperCase()}
                                             </div>
                                         </c:otherwise>

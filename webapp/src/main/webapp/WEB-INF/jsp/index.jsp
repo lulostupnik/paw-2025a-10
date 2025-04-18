@@ -36,11 +36,11 @@
     </section>
 
     <!-- Features Section -->
-    <section class="features-section">
+    <section class="features-section-landing">
         <div class="container">
-            <div class="section-header">
-                <h2 class="section-title"><spring:message code="landing.features.title"/></h2>
-                <p class="section-subtitle"><spring:message code="landing.features.subtitle"/></p>
+            <div class="section-header-landing ">
+                <h2 class="section-title-landing" ><spring:message code="landing.features.title"/></h2>
+                <p class="section-subtitle-landing "><spring:message code="landing.features.subtitle"/></p>
             </div>
             <div class="features-grid">
                 <div class="feature-card">
@@ -108,11 +108,11 @@
     </section>
 
     <!-- Featured Journeys Section -->
-    <section class="featured-section">
+    <section class="featured-section ">
         <div class="container">
-            <div class="section-header">
-                <h2 class="section-title"><spring:message code="landing.featured.events.title"/></h2>
-                <p class="section-subtitle"><spring:message code="landing.featured.events.subtitle"/></p>
+            <div class="section-header-landing ">
+                <h2 class="section-title-landing "><spring:message code="landing.featured.events.title"/></h2>
+                <p class="section-subtitle-landing "><spring:message code="landing.featured.events.subtitle"/></p>
             </div>
             <div class="featured-events">
                 <c:forEach items="${recommendedEvents}" var="event">
@@ -121,7 +121,7 @@
                             <c:if test="${not empty event.flyerImageId}">
                                 <img src="<c:url value="/images/${event.flyerImageId}"/>"
                                     alt="<spring:message code='event.flyer.alt'/>"
-                                    class="event-image">
+                                    class="event-image profile-image">
                             </c:if>
                             <c:if test="${empty event.flyerImageId}">
                                 <div class="event-image-placeholder">
@@ -135,7 +135,7 @@
                             <div class="event-card-header">
                                 <%--<h3 class="event-card-title">${event.title}</h3>--%>
                                 <h3 class="event-card-title">Placeholder title</h3>
-                                <p class="event-card-subtitle">${event.eventCity}</p>
+                                <p class="event-card-subtitle">${event.eventCity.name}</p>
                             </div>
                             <p class="event-card-description">${event.description}</p>
                             <div class="event-card-footer">
@@ -172,9 +172,9 @@
     <!-- Testimonials Section -->
     <section class="testimonials-section">
         <div class="container">
-            <div class="section-header">
-                <h2 class="section-title"><spring:message code="landing.testimonials.title"/></h2>
-                <p class="section-subtitle"><spring:message code="landing.testimonials.subtitle"/></p>
+            <div class="section-header-landing ">
+                <h2 class="section-title-landing "><spring:message code="landing.testimonials.title"/></h2>
+                <p class="section-subtitle-landing "><spring:message code="landing.testimonials.subtitle"/></p>
             </div>
             <div class="testimonials-container">
                 <div class="testimonial-card">

@@ -6,6 +6,7 @@
     background-color: white;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     width: 100%;
+    padding: 1rem 0;
 }
 
 .topbar-container {
@@ -127,7 +128,7 @@
     object-fit: cover;
 }
 
-.avatar-placeholder {
+.avatar-placeholder-navbar {
     width: 100%;
     height: 100%;
     display: flex;
