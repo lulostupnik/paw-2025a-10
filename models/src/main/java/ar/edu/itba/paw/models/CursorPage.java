@@ -9,5 +9,5 @@ import java.util.List;
 public class CursorPage<T, C> {
     private final List<T> items;
     private final C nextCursor;
-    // private final boolean hasNext;
+    private final boolean hasNext;
 }
