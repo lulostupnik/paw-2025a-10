@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -37,6 +38,11 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
 
     protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService)
@@ -48,14 +54,15 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
         LOGGER.info("Configuring security (has key from properties file = {})", authKey.length() > 0);
         http.userDetailsService(userDetailsService)
                 .sessionManagement()
-//                .invalidSessionUrl("/login")
+                .invalidSessionUrl("/")
                 .and().authorizeRequests()
-                    .antMatchers("/login", "/register", "/").anonymous()
+                    .antMatchers( "/register").anonymous()
+                    .antMatchers("/login").permitAll()
                     .antMatchers("/admin/**").hasRole("ADMIN")
 //                    .antMatchers("/events/**", "/journeys/**").permitAll()
                     .antMatchers("/events/create", "/journeys/create").authenticated()
                     .antMatchers("/events/*/reply", "/journeys/*/reply", "/events/*/attend").authenticated()
-                    .antMatchers("/events", "/events/*", "/journeys", "/journeys/*", "/journeys/filter").permitAll()
+                    .antMatchers("/","/events", "/events/{id}", "/journeys", "/journeys/{id}", "/journeys/filter").permitAll()
                     .antMatchers("/**").authenticated()
                 .and().formLogin()
                     .usernameParameter("j_username")
@@ -65,20 +72,20 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .and().rememberMe()
                     .rememberMeParameter("j_rememberme")
                     .userDetailsService(userDetailsService)
-                    //TODO Move key to a separate filex`
+                    //TODO Move key to a separate file
                     .key("niasdnfrufajsdnfirasdjfnaorfnjdsfnaor")
                     .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(30))
                 .and().logout()
                     .logoutUrl("/logout")
                     .logoutSuccessUrl("/login")
                 .and().exceptionHandling()
-                .   accessDeniedPage("/errors/error")
+                .accessDeniedPage("/errors/403")
                 .and().csrf().disable();
     }
     @Override
     public void configure(final WebSecurity web) throws Exception {
         web.ignoring()
-                .antMatchers("/resources/css/**", "/resources/js/**", "/resources/img/**",
-                        "/resources/favicon.ico", "/errors/error", "/resources/icons/**");
+                .antMatchers("/resources/css/**", "/resources/js/**", "/resources/images/**",
+                        "/resources/favicon.ico", "/errors/*", "/resources/icons/**");
     }
 }

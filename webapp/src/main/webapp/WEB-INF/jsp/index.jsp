@@ -52,7 +52,7 @@
                 </div>
             </div>
             <div class="hero-image">
-                <img src="<c:url value='/resources/images/hero-image.jpg'/>" alt="Students traveling" class="hero-img">
+                <img src="<c:url value='/resources/images/cityscape.jpeg'/>" alt="Students traveling" class="hero-img">
             </div>
         </div>
     </section>
