@@ -42,7 +42,8 @@ public class EventResponseJdbcDao implements EventResponseDao {
     @Autowired
     public EventResponseJdbcDao(DataSource dataSource){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("event_responses");
+        this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("event_responses")
+                                                            .usingGeneratedKeyColumns("id");
     }
 
 
