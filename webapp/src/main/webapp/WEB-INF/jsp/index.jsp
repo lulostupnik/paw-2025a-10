@@ -137,120 +137,52 @@
                 <p class="section-subtitle"><spring:message code="landing.featured.events.subtitle" text="Discover exciting events happening around the world"/></p>
             </div>
             <div class="featured-events">
-                <!-- Event Card 1 -->
-                <div class="featured-event-card">
-                    <div class="event-image-container">
-                        <div class="event-image-placeholder">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="placeholder-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
+                <c:forEach items="${recommendedEvents}" var="event">
+                    <div class="featured-event-card">
+                        <div class="event-image-container">
+                            <c:if test="${not empty event.flyerImageId}">
+                                <img src="<c:url value="/images/${event.flyerImageId}"/>"
+                                    alt="<spring:message code='event.flyer.alt'/>"
+                                    class="event-image">
+                            </c:if>
+                            <c:if test="${empty event.flyerImageId}">
+                                <div class="event-image-placeholder">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="placeholder-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>                                
+                                </div>
+                            </c:if>
+                        </div>
+                        <div class="event-card-content">
+                            <div class="event-card-header">
+                                <%--<h3 class="event-card-title">${event.title}</h3>--%>
+                                <h3 class="event-card-title">Placeholder title</h3>
+                                <p class="event-card-subtitle">${event.eventCity}</p>
+                            </div>
+                            <p class="event-card-description">${event.description}</p>
+                            <div class="event-card-footer">
+                                <div class="event-date">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <span>${event.date}</span>
+                                </div>
+                                <div class="event-organizer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    <span>${event.user.firstname} ${event.user.lastname}</span>
+                                </div>
+                                <a href="<c:url value='/events/1'/>" class="btn-text">
+                                    <spring:message code="landing.event.view" text="View Details"/>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                    <div class="event-card-content">
-                        <div class="event-card-header">
-                            <h3 class="event-card-title">International Student Mixer</h3>
-                            <p class="event-card-subtitle">Barcelona, Spain</p>
-                        </div>
-                        <p class="event-card-description">Join fellow international students for a night of networking, cultural exchange, and fun activities. Meet students from around the world and make lasting connections.</p>
-                        <div class="event-card-footer">
-                            <div class="event-date">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <span>June 15, 2023</span>
-                            </div>
-                            <div class="event-organizer">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                                <span>Maria Rodriguez</span>
-                            </div>
-                            <a href="<c:url value='/events/1'/>" class="btn-text">
-                                <spring:message code="landing.event.view" text="View Details"/>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Event Card 2 -->
-                <div class="featured-event-card">
-                    <div class="event-image-container">
-                        <div class="event-image-placeholder">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="placeholder-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="event-card-content">
-                        <div class="event-card-header">
-                            <h3 class="event-card-title">Tech Innovation Summit</h3>
-                            <p class="event-card-subtitle">Berlin, Germany</p>
-                        </div>
-                        <p class="event-card-description">Explore the latest technological innovations and network with industry leaders at this premier tech conference. Featuring workshops, panel discussions, and hands-on demonstrations.</p>
-                        <div class="event-card-footer">
-                            <div class="event-date">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <span>July 22, 2023</span>
-                            </div>
-                            <div class="event-organizer">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                                <span>Thomas Schmidt</span>
-                            </div>
-                            <a href="<c:url value='/events/2'/>" class="btn-text">
-                                <spring:message code="landing.event.view" text="View Details"/>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Event Card 3 -->
-                <div class="featured-event-card">
-                    <div class="event-image-container">
-                        <div class="event-image-placeholder">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="placeholder-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="event-card-content">
-                        <div class="event-card-header">
-                            <h3 class="event-card-title">Cultural Exchange Workshop</h3>
-                            <p class="event-card-subtitle">Tokyo, Japan</p>
-                        </div>
-                        <p class="event-card-description">Immerse yourself in Japanese culture through this interactive workshop. Learn traditional arts, language basics, and cultural etiquette while connecting with local students.</p>
-                        <div class="event-card-footer">
-                            <div class="event-date">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <span>August 5, 2023</span>
-                            </div>
-                            <div class="event-organizer">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                                <span>Yuki Tanaka</span>
-                            </div>
-                            <a href="<c:url value='/events/3'/>" class="btn-text">
-                                <spring:message code="landing.event.view" text="View Details"/>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon-right" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                </c:forEach>
             <div class="featured-cta">
                 <a href="<c:url value='/events'/>" class="btn-primary btn-large">
                     <spring:message code="landing.featured.events.cta" text="Explore All Events"/>
