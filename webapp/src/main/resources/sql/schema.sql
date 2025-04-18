@@ -165,3 +165,15 @@ ALTER TABLE user_interest ADD COLUMN IF NOT EXISTS score INTEGER NOT NULL DEFAUL
 
 CREATE INDEX IF NOT EXISTS idx_journey_responses_journeyid_datetime
     ON journey_responses (journey_id, date_time);
+
+
+
+-- Solo hay que ejecutar el codigo siguiente una vez. Lo dejo comentado para evitar errores.
+
+-- BEGIN;
+-- ALTER TABLE journey_responses
+-- DROP CONSTRAINT journey_responses_pkey;
+--
+-- ALTER TABLE journey_responses
+--     ADD COLUMN id SERIAL PRIMARY KEY;
+-- COMMIT;
