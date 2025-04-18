@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 @Getter
 @RequiredArgsConstructor
 public class JourneyResponse {
+//    private final long id; @TODO hay que agregarle el id?
     private final long userId;
     private final String username;
     private final long journeyId;

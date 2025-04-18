@@ -17,6 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+
+//@TODO sort them in query by date
 @Repository
 public class JourneyResponseJdbcDao implements JourneyResponseDao {
     private static Logger LOGGER = LoggerFactory.getLogger(JourneyResponseJdbcDao.class);
@@ -39,7 +42,11 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     @Autowired
     public JourneyResponseJdbcDao(DataSource dataSource){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("journey_responses");
+        this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("journey_responses")
+                .usingGeneratedKeyColumns("id");
+
+//        this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("journey_responses");
     }
 
     @Override
