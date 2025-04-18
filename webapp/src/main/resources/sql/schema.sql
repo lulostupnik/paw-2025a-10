@@ -106,6 +106,7 @@ CREATE TABLE IF NOT EXISTS journey_responses (
         user_id INTEGER NOT NULL,
         journey_id INTEGER NOT NULL,
         message VARCHAR(1023) NOT NULL,
+        date_time TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
         -- agregar created_at -> ¿Se puede autogenerar con el motor de la base de datos?
 
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -131,6 +132,7 @@ CREATE TABLE IF NOT EXISTS event_responses (
                                                user_id INTEGER NOT NULL,
                                                event_id INTEGER NOT NULL,
                                                message VARCHAR(1023) NOT NULL,
+                                               date_time TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
 
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
@@ -160,3 +162,6 @@ ALTER TABLE event_responses ADD COLUMN IF NOT EXISTS date_time TIMESTAMP NOT NUL
 ALTER TABLE journey_responses ADD COLUMN IF NOT EXISTS date_time TIMESTAMP NOT NULL DEFAULT CURRENT_DATE;
 
 ALTER TABLE user_interest ADD COLUMN IF NOT EXISTS score INTEGER NOT NULL DEFAULT 0;
+
+CREATE INDEX IF NOT EXISTS idx_journey_responses_journeyid_datetime
+    ON journey_responses (journey_id, date_time);
