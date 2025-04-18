@@ -1,16 +1,15 @@
-
-
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><spring:message code="journey.detail.title"/></title>
+    <title><spring:message code="event.detail.title"/></title>
     <link rel="stylesheet" href="<c:url value="/resources/css/main.css"/>" />
     <script>
         function toggleComments() {
@@ -28,86 +27,185 @@
                 expandIcon.style.display = 'inline';
             }
         }
+
+        function toggleAttendees() {
+            const attendeesList = document.getElementById('attendees-list');
+            const attendeesCollapseIcon = document.getElementById('attendees-collapse-icon');
+            const attendeesExpandIcon = document.getElementById('attendees-expand-icon');
+
+            if (attendeesList.style.display === 'none') {
+                attendeesList.style.display = 'grid';
+                attendeesCollapseIcon.style.display = 'inline';
+                attendeesExpandIcon.style.display = 'none';
+            } else {
+                attendeesList.style.display = 'none';
+                attendeesCollapseIcon.style.display = 'none';
+                attendeesExpandIcon.style.display = 'inline';
+            }
+        }
     </script>
 </head>
 
 <body>
 <div class="layout-container">
     <!-- Include the sidebar component -->
+    <jsp:include page="../components/sidebar.jsp" />
+
     <!-- Main Content -->
     <div class="main-content">
-        <jsp:include page="../components/navbar.jsp" />
         <div class="content-container">
-            <!-- Back to Journeys Button -->
+            <!-- Back to Events Button -->
             <div class="back-navigation">
-                <a href="<c:url value='/journeys'/>" class="back-link">
+                <a href="<c:url value='/events'/>" class="back-link">
                     <img src="<c:url value='/resources/icons/back.svg'/>" alt="Back" class="icon" />
-                    <spring:message code="journey.detail.back.to.list" />
+                    <spring:message code="event.detail.back.to.list" />
                 </a>
             </div>
 
-            <!-- Journey Detail Card -->
-            <div class="content-card journey-detail-card">
-                <!-- Journey Detail Header -->
-                <div class="journey-detail-header">
-                    <div class="journey-user-info">
-                        <div class="user-avatar">
-                            <c:if test="${not empty journey.user.profilePictureId}">
-                                <img src="<c:url value='/images/${journey.user.profilePictureId}'/>" alt="Profile" class="avatar-img">
-                            </c:if>
-                            <c:if test="${empty journey.user.profilePictureId}">
-                                <div class="avatar-placeholder">
-                                    <c:out value="${fn:substring(journey.user.firstname, 0, 1)}${fn:substring(journey.user.lastname, 0, 1)}" />
-                                </div>
-                            </c:if>
-                        </div>
-                        <div class="user-details">
-                            <h1 class="journey-title">
-                                <c:out value="${journey.user.firstname} ${journey.user.lastname}'s Journey" />
+            <!-- Event Detail Card -->
+            <div class="content-card event-detail-card">
+                <!-- Event Flyer Banner -->
+
+                <!-- Event Detail Header -->
+                <div class="event-detail-header">
+                    <div class="event-info">
+                        <div class="event-title-section">
+                            <h1 class="event-title">
+                                 <spring:message code="event.title.suffix"  arguments="${event.eventCity.name}" />
                             </h1>
-                            <div class="journey-meta">
-                                <div class="journey-destination">
+                            <div class="event-meta">
+                                <div class="event-location">
                                     <img src="<c:url value='/resources/icons/location.svg'/>" alt="Location" class="icon" />
-                                    <span class="destination-text">
-                                        <c:out value="${journey.destinationUniversity.city}" /> -
-                                        <c:out value="${journey.destinationUniversity.name}" />
+                                    <span class="location-text">
+                                        <c:out value="${event.eventCity.name}" />
                                     </span>
                                 </div>
-                                <div class="journey-dates">
+                                <div class="event-date">
                                     <img src="<c:url value='/resources/icons/calendar_black.svg'/>" alt="Calendar" class="icon" />
-                                    <span class="date-range">
-                                        <c:out value="${journey.startDate}" /> → <c:out value="${journey.endDate}" />
+                                    <span class="date-text">
+                                        <fmt:formatDate value="${event.date}" pattern="MMMM d, yyyy" />
                                     </span>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Attend Button -->
+                        <div class="attend-button-container">
+                            <c:choose>
+                                <c:when test="${attend}">
+                                    <div class="attending-badge">
+                                        <img src="<c:url value='/resources/icons/check.svg'/>" alt="Attending" class="attending-icon" />
+                                        <span class="attending-text"><spring:message code="event.attending" /></span>
+                                    </div>
+                                </c:when>
+                                <c:otherwise>
+                                    <form action="<c:url value='/events/${event.id}/attend'/>" method="post">
+                                        <button type="submit" class="attend-button">
+                                            <img src="<c:url value='/resources/icons/calendar-plus.svg'/>" alt="Attend" class="attend-icon" />
+                                            <span><spring:message code="event.attend" /></span>
+                                        </button>
+                                    </form>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
                     </div>
                 </div>
+                <div class="event-flyer-container">
+                    <c:if test="${not empty event.flyerImageId}">
+                        <img src="<c:url value='/images/${event.flyerImageId}'/>" alt="Event Flyer" class="event-flyer-img">
+                    </c:if>
+                    <c:if test="${empty event.flyerImageId}">
+                        <div class="event-flyer-placeholder">
+                                <%--                            @TODO CHECK THIS--%>
+                                <%--                            <img src="<c:url value='/resources/icons/event-placeholder.svg'/>" alt="No Flyer" class="event-placeholder-icon" />--%>
+                            <p class="event-placeholder-text"><spring:message code="event.no.flyer" /></p>
+                        </div>
+                    </c:if>
+                </div>
 
-                <!-- Journey Description Section -->
+
+                <!-- Event Description Section -->
                 <section class="content-section">
                     <div class="section-header">
                         <h2 class="section-title">
                             <img src="<c:url value='/resources/icons/description.svg'/>" alt="Description" class="icon" />
-                            <spring:message code="journey.description" />
+                            <spring:message code="event.description" />
                         </h2>
                     </div>
                     <div class="section-content">
-                        <div class="journey-description-card">
-                            <p class="journey-description-text">
-                                <c:out value="${journey.description}" />
+                        <div class="event-description-card">
+                            <p class="event-description-text">
+                                <c:out value="${event.description}" />
                             </p>
                         </div>
                     </div>
                 </section>
 
-                <!-- Journey Responses Section -->
+                <!-- Event Attendees Section -->
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <img src="<c:url value='/resources/icons/users.svg'/>" alt="Attendees" class="icon" />
+                            <spring:message code="event.attendees" />
+                            <span class="attendees-count">(<c:out value="${fn:length(attendees)}" />)</span>
+                        </h2>
+                        <button onclick="toggleAttendees()" class="toggle-attendees-btn" aria-label="Toggle attendees">
+                            <span id="attendees-collapse-icon">
+                                <img src="<c:url value='/resources/icons/collapse.svg'/>" alt="Collapse" class="icon" />
+                            </span>
+                            <span id="attendees-expand-icon" style="display: none;">
+                                <img src="<c:url value='/resources/icons/expand.svg'/>" alt="Expand" class="icon" />
+                            </span>
+                        </button>
+                    </div>
+
+                    <!-- Attendees List -->
+                    <div id="attendees-list" class="section-content attendees-grid">
+                        <c:if test="${empty attendees}">
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <img src="<c:url value='/resources/icons/users-empty.svg'/>" alt="No Attendees" class="empty-icon-img" />
+                                </div>
+                                <p class="empty-message">
+                                    <spring:message code="event.no.attendees" />
+                                </p>
+                            </div>
+                        </c:if>
+
+                        <c:if test="${not empty attendees}">
+                            <c:forEach var="attendee" items="${attendees}">
+                                <div class="attendee-card">
+                                    <div class="attendee-avatar">
+                                        <c:if test="${not empty attendee.profilePictureId}">
+                                            <img src="<c:url value='/images/${attendee.profilePictureId}'/>" alt="Profile" class="avatar-img">
+                                        </c:if>
+                                        <c:if test="${empty attendee.profilePictureId}">
+                                            <div class="avatar-placeholder">
+                                                <c:out value="${fn:substring(attendee.firstname, 0, 1)}${fn:substring(attendee.lastname, 0, 1)}" />
+                                            </div>
+                                        </c:if>
+                                    </div>
+                                    <div class="attendee-info">
+                                        <h3 class="attendee-name">
+                                            <c:out value="${attendee.firstname} ${attendee.lastname}" />
+                                        </h3>
+                                        <p class="attendee-email">
+                                            <c:out value="${attendee.email}" />
+                                        </p>
+                                    </div>
+                                </div>
+                            </c:forEach>
+                        </c:if>
+                    </div>
+                </section>
+
+                <!-- Event Responses Section -->
                 <section class="content-section">
                     <div class="section-header">
                         <h2 class="section-title">
                             <img src="<c:url value='/resources/icons/comments.svg'/>" alt="Comments" class="icon" />
-                            <spring:message code="journey.detail.responses" />
-                            <span class="response-count">(<c:out value="${fn:length(journeyResponses)}" />)</span>
+                            <spring:message code="event.responses" />
+                            <span class="response-count">(<c:out value="${fn:length(eventResponses)}" />)</span>
                         </h2>
                         <button onclick="toggleComments()" class="toggle-comments-btn" aria-label="Toggle comments">
                             <span id="collapse-icon">
@@ -121,20 +219,20 @@
 
                     <!-- Responses List -->
                     <div id="comments-list" class="section-content responses-list">
-                        <c:if test="${empty journeyResponses}">
+                        <c:if test="${empty eventResponses}">
                             <div class="empty-state">
                                 <div class="empty-icon">
                                     <img src="<c:url value='/resources/icons/no_comment.svg'/>" alt="No Comments" class="empty-icon-img" />
                                 </div>
                                 <p class="empty-message">
-                                    <spring:message code="journey.detail.no.responses" />
+                                    <spring:message code="event.no.responses" />
                                 </p>
                             </div>
                         </c:if>
 
-                        <c:if test="${not empty journeyResponses}">
+                        <c:if test="${not empty eventResponses}">
                             <!-- Sort responses by date (newest first) -->
-                            <c:set var="sortedResponses" value="${journeyResponses}" />
+                            <c:set var="sortedResponses" value="${eventResponses}" />
                             <c:forEach var="response" items="${sortedResponses}">
                                 <div class="response-card">
                                     <div class="response-header">
@@ -170,13 +268,13 @@
                     <div class="section-header">
                         <h2 class="section-title">
                             <img src="<c:url value='/resources/icons/reply.svg'/>" alt="Reply" class="icon" />
-                            <spring:message code="journey.detail.leave.reply" />
+                            <spring:message code="event.leave.reply" />
                         </h2>
                     </div>
                     <div class="section-content">
                         <div class="reply-form-container">
-                            <c:url var="replyUrl" value="/journeys/${journey.id}/reply"/>
-                            <form:form modelAttribute="replyJourneyForm" action="${replyUrl}" method="post" enctype="multipart/form-data" cssClass="reply-form">
+                            <c:url var="replyUrl" value="/events/${event.id}/reply"/>
+                            <form:form modelAttribute="replyEventForm" action="${replyUrl}" method="post" enctype="multipart/form-data" cssClass="reply-form">
                                 <!-- Message Field -->
                                 <c:set var="messageLabel"><spring:message code="reply.message"/></c:set>
                                 <c:set var="messageHint"><spring:message code="reply.message.hint"/></c:set>
