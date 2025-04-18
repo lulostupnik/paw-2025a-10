@@ -2,6 +2,7 @@ package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
+import ar.edu.itba.paw.models.CursorPage;
 import ar.edu.itba.paw.models.University;
 
 import org.slf4j.Logger;
@@ -46,6 +47,21 @@ public class UniversityServiceImpl implements UniversityService {
     public List<University> getAllUniversities() {
         LOGGER.debug("Getting all universities");
         return universityDao.getAllUniversities();
+    }
+
+    @Override
+    public List<University> searchBySubstring(String substring) {
+        return universityDao.searchBySubstring(substring);
+    }
+
+    @Override
+    public CursorPage<University, Long> getAllUniversitiesAfter(Long cursor, int limit) {
+        return universityDao.getAllUniversitiesAfter(cursor, limit);
+    }
+
+    @Override
+    public CursorPage<University, Long> searchBySubstringAfter(String substring, Long cursor, int limit) {
+        return universityDao.searchBySubstringAfter(substring, cursor, limit);
     }
 
 }

@@ -2,6 +2,7 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
 import ar.edu.itba.paw.models.City;
+import ar.edu.itba.paw.models.CursorPage;
 import ar.edu.itba.paw.models.University;
 
 import org.slf4j.Logger;
@@ -9,11 +10,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -64,5 +68,51 @@ public class UniversityJdbcDao implements UniversityDao {
     public List<University> getAllUniversities() {
         LOGGER.debug("Querying DB for all universities");
         return jdbcTemplate.query(QUERY + " ORDER BY un.name", UNIVERSITY_ROW_MAPPER);
+    }
+
+    @Override
+    public List<University> searchBySubstring(String substring) {
+        final String like = "%" + substring + "%";
+
+        final String sql = QUERY + " WHERE (un.name ILIKE ? OR un.abbreviation ILIKE ?) ";
+
+        return jdbcTemplate.query(sql, UNIVERSITY_ROW_MAPPER, like, like);
+    }
+
+    @Override
+    public CursorPage<University, Long> getAllUniversitiesAfter(Long cursor, int limit) {
+        final String sql = QUERY +
+                (cursor != null ? " WHERE un.id > ? " : "") +
+                " ORDER BY un.id ASC LIMIT ?";
+
+        final List<University> universities = cursor != null
+                ? jdbcTemplate.query(sql, UNIVERSITY_ROW_MAPPER, cursor, limit + 1)
+                : jdbcTemplate.query(sql, UNIVERSITY_ROW_MAPPER, limit + 1);
+
+        boolean hasNext = universities.size() > limit;
+        List<University> page = hasNext ? universities.subList(0, limit) : universities;
+        Long nextCursor = hasNext ? page.get(page.size() - 1).getId() : null;
+
+        return new CursorPage<>(page, nextCursor, hasNext);
+    }
+
+    @Override
+    public CursorPage<University, Long> searchBySubstringAfter(String substring, Long cursor, int limit) {
+        final String like = "%" + substring + "%";
+
+        final String sql = QUERY +
+                " WHERE (un.name ILIKE ? OR un.abbreviation ILIKE ?) " +
+                (cursor != null ? " AND un.id > ? " : "") +
+                " ORDER BY un.id ASC LIMIT ?";
+
+        final List<University> universities = cursor != null
+                ? jdbcTemplate.query(sql, UNIVERSITY_ROW_MAPPER, like, like, cursor, limit + 1)
+                : jdbcTemplate.query(sql, UNIVERSITY_ROW_MAPPER, like, like, limit + 1);
+
+        boolean hasNext = universities.size() > limit;
+        List<University> page = hasNext ? universities.subList(0, limit) : universities;
+        Long nextCursor = hasNext ? page.get(page.size() - 1).getId() : null;
+
+        return new CursorPage<>(page, nextCursor, hasNext);
     }
 }
