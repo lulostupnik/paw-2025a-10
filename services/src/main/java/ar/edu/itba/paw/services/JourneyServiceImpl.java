@@ -145,4 +145,9 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyResponseDao.listAllFromJourney(journeyId);
     }
 
+    @Override
+    public CursorPage<JourneyResponse, LocalDateTime> listFromJourneyAfter(long journeyId, LocalDateTime cursor, int limit) {
+        return journeyResponseDao.listFromJourneyAfter(journeyId, cursor, limit);
+    }
+
 }
