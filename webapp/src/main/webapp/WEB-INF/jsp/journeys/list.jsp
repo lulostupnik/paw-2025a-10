@@ -7,16 +7,15 @@
 <head>
     <title><spring:message code="journey.page.title"/></title>
     <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
-    <link rel="stylesheet" href="<c:url value='/resources/css/cards.css'/>" />
+    <link rel="stylesheet" href="<c:url value='/resources/css/journey-card-styles.css'/>" />
 </head>
 <body>
 
 <div class="layout-container">
     <!-- Include the sidebar component -->
-    <jsp:include page="../components/sidebar.jsp" />
-
     <!-- Main Content -->
     <div class="main-content">
+        <jsp:include page="../components/navbar.jsp" />
         <div class="content-container">
             <div class="header-container">
                 <h2 class="page-title">

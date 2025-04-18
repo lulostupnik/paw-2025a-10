@@ -34,10 +34,9 @@
 <body>
 <div class="layout-container">
     <!-- Include the sidebar component -->
-    <jsp:include page="../components/sidebar.jsp" />
-
     <!-- Main Content -->
     <div class="main-content">
+        <jsp:include page="../components/navbar.jsp" />
         <div class="content-container">
             <!-- Back to Journeys Button -->
             <div class="back-navigation">

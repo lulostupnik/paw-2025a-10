@@ -1174,63 +1174,10 @@ footer {
     height: 1.25rem;
 }
 
-/* Button Styles */
-.btn-primary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.625rem 1.25rem;
-    background-color: #4f46e5;
-    color: white;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    text-decoration: none;
-    transition: background-color 0.2s;
-    border: none;
-    cursor: pointer;
-}
-
-.btn-primary:hover {
-    background-color: #4338ca;
-}
-
-.btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.625rem 1.25rem;
-    background-color: white;
-    color: #1f2937;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    text-decoration: none;
-    transition: background-color 0.2s;
-    cursor: pointer;
-}
-
-.btn-secondary:hover {
-    background-color: #f9fafb;
-}
 
 .btn-large {
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
-}
-
-/* Enhanced Button Styles */
-.btn-signup {
-    background-color: #5b21b6; /* Darker violet color for better visibility */
-    color: white;
-    border: none;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 4px 6px rgba(91, 33, 182, 0.25);
-}
-
-.btn-signup:hover {
-    background-color: #4c1d95; /* Even darker violet on hover */
-    transform: translateY(-2px);
-    box-shadow: 0 6px 8px rgba(91, 33, 182, 0.3);
 }
 
 .btn-cta-signup {
@@ -1405,10 +1352,6 @@ footer {
         width: 100%;
     }
 
-    .btn-primary,
-    .btn-secondary {
-        width: 100%;
-    }
 
     .landing-menu {
         flex-direction: column;

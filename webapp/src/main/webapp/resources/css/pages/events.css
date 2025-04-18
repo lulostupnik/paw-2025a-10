@@ -1,3 +1,46 @@
+
+/*!* Button styles *!*/
+/*.btn {*/
+/*    display: inline-flex;*/
+/*    align-items: center;*/
+/*    justify-content: center;*/
+/*    padding: 0.5rem 1rem;*/
+/*    border-radius: 0.375rem;*/
+/*    font-size: 0.875rem;*/
+/*    font-weight: 500;*/
+/*    text-decoration: none;*/
+/*    transition: all 0.2s;*/
+/*}*/
+
+/*.btn-primary {*/
+/*    background-color: #FF385C;*/
+/*    color: white;*/
+/*    border: 1px solid #FF385C;*/
+/*}*/
+
+/*.btn-primary:hover {*/
+/*    background-color: #E31C5F;*/
+/*    border-color: #E31C5F;*/
+/*}*/
+
+.btn-secondary {
+    background-color: white;
+    color: #222222;
+    border: 1px solid #DDDDDD;
+}
+
+.btn-secondary:hover {
+    background-color: #F7F7F7;
+}
+
+/* Event modal */
+.event-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
 /*!* Event page specific styles *!*/
 /*.events-container {*/
 /*    width: 100%;*/
@@ -419,9 +462,6 @@
     margin: 0;
 }
 
-.section-content {
-    width: 100%;
-}
 
 /* Event Description */
 .event-description-card {

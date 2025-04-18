@@ -54,7 +54,7 @@ public class AuthController {
         if (authentication != null
                 && authentication.isAuthenticated()
                 && !(authentication instanceof AnonymousAuthenticationToken)) {
-            return new ModelAndView("redirect:/home");
+            return new ModelAndView("redirect:/explore");
 
         }
 

@@ -61,18 +61,17 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* Event card - UPDATED with Airbnb style */
+/* Improved styling for journey cards */
 .event-card {
     position: relative;
     background: #ffffff;
     border-radius: 0.75rem;
     overflow: hidden;
     transition: transform 0.2s, box-shadow 0.2s;
-    margin-bottom: 2rem;
     height: 100%;
+    width: 100%;
     display: flex;
     flex-direction: column;
-    cursor: pointer;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -81,21 +80,45 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-/*!* Event image container *!*/
-/*.event-image-container {*/
-/*    position: relative;*/
-/*    width: 100%;*/
-/*    padding-top: 66.67%; !* 3:2 aspect ratio *!*/
-/*    overflow: hidden;*/
-/*}*/
+/* Event card wrapper */
+.event-card-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+}
 
-.event-image {
+/* Event card link */
+.event-card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+    width: 100%;
+}
+
+.event-card-link:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Event image container - IMPROVED for profile pictures */
+.event-image-container {
+    position: relative;
+    width: 100%;
+    padding-top: 100%; /* 1:1 aspect ratio for square profile pictures */
+    overflow: hidden;
+    background-color: #f3f4f6;
+}
+
+/* Profile image - IMPROVED to show full face */
+.profile-image {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: cover; /* Ensures image covers area without stretching */
+    object-position: center top; /* Prioritizes showing the top portion (face) */
 }
 
 .event-image-placeholder {
@@ -111,6 +134,97 @@
     color: #9ca3af;
     font-size: 2rem;
 }
+
+/* Event info container - IMPROVED */
+.event-info-container {
+    padding: 1.25rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+}
+
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.event-location h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+}
+
+.event-rating {
+    display: flex;
+    align-items: center;
+}
+
+/* User name styling - IMPROVED */
+.user-name {
+    font-size: 0.875rem;
+    color: #4f46e5;
+    font-weight: 500;
+}
+
+.event-name {
+    margin-bottom: 0.75rem;
+}
+
+/* Date range styling - IMPROVED */
+.date-range {
+    font-size: 0.875rem;
+    color: #4b5563;
+    margin: 0;
+    font-weight: 500;
+}
+
+.event-description-container {
+    margin-bottom: 0.5rem;
+    flex-grow: 1;
+}
+
+.event-description {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Grid layout for cards - IMPROVED */
+.events-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+@media (min-width: 640px) {
+    .events-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .events-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1280px) {
+    .events-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
 
 /* Favorite Badge */
 .favorite-badge {
@@ -174,27 +288,11 @@
     margin-bottom: 0.5rem;
 }
 
-.event-location h3 {
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: #222222;
-    margin: 0;
-}
-
-.event-rating {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.875rem;
-}
 
 .event-rating i {
     color: #222222;
 }
 
-.event-name {
-    margin-bottom: 0.5rem;
-}
 
 .event-name p {
     font-size: 0.875rem;

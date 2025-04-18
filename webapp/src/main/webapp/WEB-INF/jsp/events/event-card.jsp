@@ -12,7 +12,7 @@
                 <c:if test="${not empty param.flyerImageId}">
                     <img src="<c:url value="/images/${param.flyerImageId}"/>"
                          alt="<spring:message code='event.flyer.alt'/>"
-                         class="event-image">
+                         class="event-image profile-image">
                 </c:if>
                 <c:if test="${empty param.flyerImageId}">
                     <div class="event-image-placeholder">

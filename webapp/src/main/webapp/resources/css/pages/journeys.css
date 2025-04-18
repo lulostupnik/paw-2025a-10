@@ -207,6 +207,67 @@
     white-space: pre-line;
     margin: 0;
 }
+.journeys-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+    .journeys-header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+.journeys-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.journeys-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.create-journey-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background-color: #4f46e5;
+    color: white;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    border: none;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+.create-journey-btn:hover {
+    background-color: #4338ca;
+}
+
+.create-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+.journey-destination,
+.journey-dates {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin:0;
+    }
+
 
 /* Empty State */
 .empty-state {
