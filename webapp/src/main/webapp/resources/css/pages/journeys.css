@@ -453,3 +453,301 @@
         gap: 8px;
     }
 }
+
+
+/*@NEW*/
+
+
+/* Enhanced Journey Detail Styles */
+
+/* Content Card */
+.content-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.journey-detail-card {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Journey Detail Header */
+.journey-detail-header {
+    background-color: var(--color-primary-light, #e6f0ff);
+    padding: 32px;
+    border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.journey-user-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.user-avatar {
+    flex-shrink: 0;
+}
+
+.avatar-img, .avatar-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-placeholder {
+    background-color: var(--color-primary, #4f46e5);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    font-weight: bold;
+}
+
+.user-details {
+    flex-grow: 1;
+}
+
+.journey-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--color-text-dark, #1f2937);
+}
+
+.journey-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.journey-destination, .journey-dates {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-text-muted, #6b7280);
+    font-size: 1rem;
+}
+
+.icon {
+    width: 20px;
+    height: 20px;
+    color: var(--color-primary, #4f46e5);
+}
+
+/* Content Sections */
+.content-section {
+    padding: 24px 32px;
+    border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.content-section:last-child {
+    border-bottom: none;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text-dark, #1f2937);
+    margin: 0;
+}
+
+.section-content {
+    width: 100%;
+}
+
+/* Journey Description */
+.journey-description-card {
+    background-color: var(--color-background-alt, #f9fafb);
+    border-radius: 8px;
+    padding: 24px;
+}
+
+.journey-description-text {
+    line-height: 1.7;
+    color: var(--color-text, #4b5563);
+    white-space: pre-line;
+    font-size: 1rem;
+}
+
+/* Responses */
+.response-count {
+    font-size: 0.9rem;
+    color: var(--color-text-muted, #6b7280);
+    font-weight: normal;
+    margin-left: 4px;
+}
+
+.toggle-comments-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-primary, #4f46e5);
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.toggle-comments-btn:hover {
+    background-color: var(--color-primary-light, #e6f0ff);
+}
+
+.responses-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.response-card {
+    background-color: var(--color-background-alt, #f9fafb);
+    border-radius: 8px;
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.response-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.response-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.response-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.response-avatar .avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+}
+
+.response-username {
+    font-weight: 600;
+    margin-bottom: 2px;
+    color: var(--color-text-dark, #1f2937);
+}
+
+.response-date {
+    font-size: 0.85rem;
+    color: var(--color-text-muted, #6b7280);
+    margin: 0;
+}
+
+.response-message {
+    line-height: 1.6;
+    color: var(--color-text, #4b5563);
+    white-space: pre-line;
+    margin: 0;
+}
+
+/* Empty State */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    background-color: var(--color-background-alt, #f9fafb);
+    border-radius: 8px;
+}
+
+.empty-icon {
+    width: 48px;
+    height: 48px;
+    color: var(--color-text-muted, #6b7280);
+    margin-bottom: 16px;
+}
+
+.empty-message {
+    color: var(--color-text-muted, #6b7280);
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Reply Form */
+.reply-form-container {
+    background-color: var(--color-background-alt, #f9fafb);
+    border-radius: 8px;
+    padding: 24px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+}
+
+/* Back Navigation */
+.back-navigation {
+    margin-bottom: 24px;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-primary, #4f46e5);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+    padding: 8px 0;
+}
+
+.back-link:hover {
+    color: var(--color-primary-dark, #4338ca);
+}
+
+.back-icon {
+    width: 16px;
+    height: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .journey-detail-header {
+        padding: 24px;
+    }
+
+    .content-section {
+        padding: 20px 24px;
+    }
+
+    .journey-user-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .journey-title {
+        font-size: 1.5rem;
+    }
+
+    .journey-meta {
+        flex-direction: column;
+        gap: 12px;
+    }
+}
