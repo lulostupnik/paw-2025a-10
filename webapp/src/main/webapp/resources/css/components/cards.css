@@ -61,54 +61,6 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* Improved styling for journey cards */
-.event-card {
-    position: relative;
-    background: #ffffff;
-    border-radius: 0.75rem;
-    overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.event-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-/* Event card wrapper */
-.event-card-wrapper {
-    width: 100%;
-    height: 100%;
-    display: flex;
-}
-
-/* Event card link */
-.event-card-link {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-    height: 100%;
-    width: 100%;
-}
-
-.event-card-link:hover {
-    text-decoration: none;
-    color: inherit;
-}
-
-/* Event image container - IMPROVED for profile pictures */
-.event-image-container {
-    position: relative;
-    width: 100%;
-    padding-top: 100%; /* 1:1 aspect ratio for square profile pictures */
-    overflow: hidden;
-    background-color: #f3f4f6;
-}
 
 /* Profile image - IMPROVED to show full face */
 .profile-image {
@@ -121,7 +73,7 @@
     object-position: center top; /* Prioritizes showing the top portion (face) */
 }
 
-.event-image-placeholder {
+.image-placeholder {
     position: absolute;
     top: 0;
     left: 0;
@@ -135,21 +87,6 @@
     font-size: 2rem;
 }
 
-/* Event info container - IMPROVED */
-.event-info-container {
-    padding: 1.25rem;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    background-color: #ffffff;
-}
-
-.event-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.75rem;
-}
 
 .event-location h3 {
     font-size: 1.125rem;
@@ -173,6 +110,108 @@
 .event-name {
     margin-bottom: 0.75rem;
 }
+/* Add these styles to fix the event card footer */
+.event-card-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: start;
+    flex-direction: column;
+    margin-top: auto;
+    gap: 0.75rem;
+}
+
+.event-date,
+.event-organizer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-primary);
+}
+
+.event-card-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.event-card-header {
+    margin-bottom: 1rem;
+}
+.event-card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem;
+    color: #1f2937;
+}
+
+.event-card-subtitle {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+.event-card-description {
+    color: #4b5563;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    flex-grow: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.event-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+}
+.organizer-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px; /* Limit width of organizer name */
+}
+
+/* Add responsive adjustments */
+@media (min-width: 640px) {
+    .organizer-name {
+        max-width: 150px; /* Allow more space on larger screens */
+    }
+}
+
+@media (min-width: 768px) {
+    .organizer-name {
+        max-width: 180px; /* Allow even more space on larger screens */
+    }
+}
+
+.featured-events {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.featured-event-card {
+    background: white;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.featured-event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
 
 /* Date range styling - IMPROVED */
 .date-range {
@@ -460,11 +499,10 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* Event image container - FIXED */
 .event-image-container {
     position: relative;
     width: 100%;
-    padding-top: 66.67%; /* 3:2 aspect ratio */
+    padding-top: 56.25%; /* 16:9 aspect ratio */
     overflow: hidden;
 }
 
@@ -579,19 +617,6 @@
     object-fit: cover;
 }
 
-.journey-image-placeholder {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f3f4f6;
-    color: #9ca3af;
-    font-size: 2rem;
-}
 
 /* Join Button */
 .join-button {

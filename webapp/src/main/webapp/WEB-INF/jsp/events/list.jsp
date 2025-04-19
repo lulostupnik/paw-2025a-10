@@ -75,11 +75,13 @@
             </c:forEach>
             <jsp:include page="event-card.jsp">
               <jsp:param name="eventId" value="${event.id}" />
-              <jsp:param name="eventCity" value="${event.eventCity.name}" />
-              <jsp:param name="eventDate" value="${event.date}" />
-              <jsp:param name="eventDescription" value="${event.description}" />
+              <jsp:param name="city" value="${event.eventCity.name}" />
+              <jsp:param name="date" value="${event.date}" />
+              <jsp:param name="description" value="${event.description}" />
               <jsp:param name="flyerImageId" value="${event.flyerImageId}" />
               <jsp:param name="attend" value="${attend}" />
+              <jsp:param name="firstname" value="${event.user.firstname}" />
+              <jsp:param name="lastname" value="${event.user.lastname}"/>
             </jsp:include>
           </c:forEach>
 

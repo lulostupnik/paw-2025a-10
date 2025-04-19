@@ -6,8 +6,7 @@
 
 <div class="event-card-wrapper">
     <a href="<c:url value="/events/${param.eventId}"/>" class="event-card-link">
-        <div class="event-card">
-            <!-- Image Container -->
+        <div class="featured-event-card">
             <div class="event-image-container">
                 <c:if test="${not empty param.flyerImageId}">
                     <img src="<c:url value="/images/${param.flyerImageId}"/>"
@@ -15,59 +14,57 @@
                          class="event-image profile-image">
                 </c:if>
                 <c:if test="${empty param.flyerImageId}">
-                    <div class="event-image-placeholder">
-                        <i class="fas fa-calendar-alt"></i>
+                    <div class="image-placeholder">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="placeholder-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
                     </div>
                 </c:if>
-
-<%--                <!-- Favorite Badge -->--%>
-<%--                <div class="favorite-badge">--%>
-<%--                    <spring:message code="event.favorite.badge"/>--%>
-<%--                </div>--%>
+                <%--                <!-- Favorite Badge -->--%>
+                <%--                <div class="favorite-badge">--%>
+                <%--                    <spring:message code="event.favorite.badge"/>--%>
+                <%--                </div>--%>
 
                 <!-- Attend Button -->
-                <c:if test="${param.attend}">
-                    <div class="attend-button-container">
-                        <button type="button" class="attend-button attended" data-event-id="${param.eventId}" aria-label="<spring:message code='event.attend'/>">
-                            <i class="fas fa-calendar-check"></i>
-                        </button>
-                    </div>
-                </c:if>
-                <c:if test="${not param.attend}">
-                    <c:set var="postAttendanceUrl"><c:url value='/events/${param.eventId}/attend'/></c:set>
-                    <form:form method="post" action="${postAttendanceUrl}" id="attendanceForm">
-                        <input type="hidden" name="eventId" value="${param.eventId}"/>
-                        <button type="submit" class="attend-button" data-event-id="${param.eventId}" aria-label="<spring:message code='event.attend'/>">
-                            <i class="fas fa-calendar-check"></i>
-                        </button>
-                    </form:form>
+                <c:if test="${not empty username}">
+                    <c:if test="${param.attend}">
+                        <div class="attend-button-container">
+                            <button type="button" class="attend-button attended" data-event-id="${param.eventId}" aria-label="<spring:message code='event.attend'/>">
+                                <i class="fas fa-calendar-check"></i>
+                            </button>
+                        </div>
+                    </c:if>
+                    <c:if test="${not param.attend}">
+                        <c:set var="postAttendanceUrl"><c:url value='/events/${param.eventId}/attend'/></c:set>
+                        <form:form method="post" action="${postAttendanceUrl}" id="attendanceForm">
+                            <input type="hidden" name="eventId" value="${param.eventId}"/>
+                            <button type="submit" class="attend-button" data-event-id="${param.eventId}" aria-label="<spring:message code='event.attend'/>">
+                                <i class="fas fa-calendar-check"></i>
+                            </button>
+                        </form:form>
+                    </c:if>
                 </c:if>
             </div>
-
-            <!-- Event Info -->
-            <div class="event-info-container">
-                <div class="event-header">
-                    <div class="event-location">
-                        <h3><c:out value="${param.eventCity}"/></h3>
-                    </div>
-                    <div class="event-rating">
-                        <i class="fas fa-star"></i>
-                        <span>5.0</span>
-                    </div>
+            <div class="event-card-content">
+                <div class="event-card-header">
+                    <%--<h3 class="event-card-title">${event.title}</h3>--%>
+                    <h3 class="event-card-title">Placeholder title</h3>
+                    <p class="event-card-subtitle">${param.city}</p>
                 </div>
-
-                <!-- Format date -->
-                <fmt:parseDate value="${param.eventDate}" pattern="yyyy-MM-dd" var="parsedDate" />
-                <fmt:formatDate value="${parsedDate}" pattern="d" var="day" />
-                <fmt:formatDate value="${parsedDate}" pattern="MM" var="month" />
-                <fmt:formatDate value="${parsedDate}" pattern="yyyy" var="year" />
-
-                <div class="event-name">
-                    <p><spring:message code="event.date"/> <c:out value="${day}"/> <spring:message code="month.${month}"/> <c:out value="${year}"/></p>
-                </div>
-
-                <div class="event-description-container">
-                    <p class="event-description"><c:out value="${param.eventDescription}"/></p>
+                <p class="event-card-description">${param.description}</p>
+                <div class="event-card-footer">
+                    <div class="event-date">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span>${param.date}</span>
+                    </div>
+                    <div class="event-organizer">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 016 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <span class="organizer-name" title="${param.firstname} ${param.lastname}">${param.firstname} ${param.lastname}</span>
+                    </div>
                 </div>
             </div>
         </div>

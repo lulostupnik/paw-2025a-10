@@ -14,7 +14,7 @@
                          class="event-image profile-image">
                 </c:if>
                 <c:if test="${empty param.profilePictureId}">
-                    <div class="event-image-placeholder">
+                    <div class="image-placeholder">
                         <i class="fas fa-user"></i>
                     </div>
                 </c:if>

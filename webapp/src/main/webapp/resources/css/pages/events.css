@@ -382,10 +382,7 @@
     color: var(--color-primary, #4f46e5);
 }
 
-/* Attend Button */
-.attend-button-container {
-    flex-shrink: 0;
-}
+
 
 .attend-button {
     display: flex;
@@ -754,6 +751,7 @@
     }
 
     .attend-button-container {
+        flex-shrink: 0;
         width: 100%;
         margin-top: 16px;
     }

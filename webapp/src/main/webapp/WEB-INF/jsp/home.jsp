@@ -153,13 +153,22 @@
                     </c:if>
 
                     <c:if test="${not empty events}">
-                        <c:forEach var="event" items="${events}" varStatus="status">
+                        <c:forEach items="${events}" var="event">
+                            <c:set var="attend" value="false" />
+                            <c:forEach items="${eventsAttended}" var="attendedEvent">
+                                <c:if test="${attendedEvent.id == event.id}">
+                                    <c:set var="attend" value="true" />
+                                </c:if>
+                            </c:forEach>
                             <jsp:include page="events/event-card.jsp">
                                 <jsp:param name="eventId" value="${event.id}" />
-                                <jsp:param name="eventCity" value="${event.eventCity.name}" />
-                                <jsp:param name="eventDate" value="${event.date}" />
-                                <jsp:param name="eventDescription" value="${event.description}" />
+                                <jsp:param name="city" value="${event.eventCity.name}" />
+                                <jsp:param name="date" value="${event.date}" />
+                                <jsp:param name="description" value="${event.description}" />
                                 <jsp:param name="flyerImageId" value="${event.flyerImageId}" />
+                                <jsp:param name="attend" value="${attend}" />
+                                <jsp:param name="firstname" value="${event.user.firstname}" />
+                                <jsp:param name="lastname" value="${event.user.lastname}"/>
                             </jsp:include>
                         </c:forEach>
                     </c:if>
