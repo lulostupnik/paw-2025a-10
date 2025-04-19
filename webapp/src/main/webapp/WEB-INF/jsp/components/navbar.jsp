@@ -3,14 +3,14 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<c:url var="homeUrl" value="/explore" />
-<c:url var="journeysUrl" value="/journeys" />
-<c:url var="eventsUrl" value="/events" />
-<c:url var="exploreUrl" value="/explore" />
-<c:url var="loginUrl" value="/login" />
-<c:url var="registerUrl" value="/register" />
-<c:url var="logoutUrl" value="/logout" />
-<c:url var="profileUrl" value="/profile" />
+<c:url var="homeUrl" value="explore" />
+<c:url var="journeysUrl" value="journeys" />
+<c:url var="eventsUrl" value="events" />
+<c:url var="exploreUrl" value="explore" />
+<c:url var="loginUrl" value="login" />
+<c:url var="registerUrl" value="register" />
+<c:url var="logoutUrl" value="logout" />
+<c:url var="profileUrl" value="profile" />
 <c:set var="uri" value="${requestScope['javax.servlet.forward.request_uri'] != null
                           ? requestScope['javax.servlet.forward.request_uri']
                           : request.requestURI}" />
