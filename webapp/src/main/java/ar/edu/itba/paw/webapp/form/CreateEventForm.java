@@ -15,6 +15,9 @@ public class CreateEventForm {
     @Size(min = 2, max = 100)
     private String city;
 
+    @Size(max = 100)
+    private String title;
+
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date date;
 
@@ -55,6 +58,12 @@ public class CreateEventForm {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+    public String getTitle() {
+        return title;
+    }
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     @Override

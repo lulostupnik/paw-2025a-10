@@ -34,6 +34,15 @@
             <c:url var="registerUrl" value="/events/create"/>
             <form:form modelAttribute="createEventForm" action="${registerUrl}" method="post" enctype="multipart/form-data">
 
+                <!-- Event Name Field -->
+                <c:set var="eventNameLabel"><spring:message code="event.name"/></c:set>
+                <c:set var="eventNameHint"><spring:message code="event.name.hint"/></c:set>
+                <jsp:include page="../components/text-field.jsp">
+                    <jsp:param name="path" value="title" />
+                    <jsp:param name="label" value="${eventNameLabel}" />
+                    <jsp:param name="placeholder" value="${eventNameLabel}" />
+                </jsp:include>
+
                 <!-- City Field -->
                 <c:set var="cityLabel"><spring:message code="event.city"/></c:set>
                 <c:set target="${requestScope}" property="cityItems" value="${cities}" />

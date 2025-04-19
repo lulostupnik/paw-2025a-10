@@ -108,7 +108,7 @@ public class EventController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         LOGGER.debug("Auth provided for: {}", authentication.getPrincipal());
         
-        event = eventService.createEvent(authentication.getName(),eventForm.getCity(), eventForm.getDate(), flyerBytes, eventForm.getDescription());
+        event = eventService.createEvent(authentication.getName(),eventForm.getCity(), eventForm.getDate(), flyerBytes, eventForm.getDescription(), eventForm.getTitle());
         LOGGER.info("Successfully created event {}", event);
         return getEvent(event.getId(), new ReplyEventForm());
     }

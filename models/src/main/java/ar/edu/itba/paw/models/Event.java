@@ -14,6 +14,7 @@ public class Event {
     private final String description;
     private final long flyerImageId;
     private final City eventCity;
+    private final String title;
 
     @Override
     public String toString() {

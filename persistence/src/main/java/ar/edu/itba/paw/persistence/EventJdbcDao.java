@@ -58,8 +58,8 @@ public class EventJdbcDao implements EventDao {
             new City(
                     rs.getString("city_name"), // Va a tener conflicto con el nombre de la universidad
                     rs.getString("country_name"),
-                    rs.getLong("city_id")
-            )
+                    rs.getLong("city_id")),
+            rs.getString("event_title")
     );
 
     private static final String QUERY = "SELECT \n" +
@@ -79,6 +79,7 @@ public class EventJdbcDao implements EventDao {
             "    e.event_date AS event_date, \n" +
             "    e.description AS event_description, \n" +
             "    e.flyer_image_id AS event_flyer_image_id, \n" +
+            "    e.title AS event_title, \n" +
             "\n" +
             "    un.id AS university_id, \n" +
             "    un.name AS university_name, \n" +
@@ -118,18 +119,19 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public Event create(User user, City city, Date date, String description, long flyerImageId) {
+    public Event create(User user, City city, Date date, String description, long flyerImageId, String title) {
         LOGGER.debug("Registering new event for user {} in {} on {} ({}) with image {}", user, city, date, description, flyerImageId);
         final Map<String, Object> parameters = Map.of(
                 "user_id", user.getId(),
                 "city_id", city.getId(),
                 "event_date", date,
                 "description", description,
-                "flyer_image_id", flyerImageId
+                "flyer_image_id", flyerImageId,
+                "title", title
                 );
         final Number keys = jdbcInsert.executeAndReturnKey(parameters);
         LOGGER.debug("Successfully registered event {}", keys.longValue());
-        return new Event(keys.longValue(), user, date, description, flyerImageId, city);
+        return new Event(keys.longValue(), user, date, description, flyerImageId, city, title);
     }
 
     // FIXME
@@ -202,6 +204,7 @@ public class EventJdbcDao implements EventDao {
             e.event_date AS event_date, 
             e.description AS event_description, 
             e.flyer_image_id AS event_flyer_image_id, 
+            e.title AS event_title,
             
             un.id AS university_id, 
             un.name AS university_name, 
@@ -238,6 +241,7 @@ public class EventJdbcDao implements EventDao {
             e.event_date AS event_date, 
             e.description AS event_description, 
             e.flyer_image_id AS event_flyer_image_id, 
+            e.title AS event_title,
                 
             us.id AS user_id, 
             us.email AS user_email, 

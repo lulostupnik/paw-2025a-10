@@ -116,44 +116,43 @@
             </div>
             <div class="featured-events">
                 <c:forEach items="${recommendedEvents}" var="event">
-                    <div class="featured-event-card">
-                        <div class="event-image-container">
-                            <c:if test="${not empty event.flyerImageId}">
-                                <img src="<c:url value="/images/${event.flyerImageId}"/>"
-                                    alt="<spring:message code='event.flyer.alt'/>"
-                                    class="event-image profile-image">
-                            </c:if>
-                            <c:if test="${empty event.flyerImageId}">
-                                <div class="image-placeholder">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="placeholder-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
-                            </c:if>
-                        </div>
-                        <div class="event-card-content">
-                            <div class="event-card-header">
-                                <%--<h3 class="event-card-title">${event.title}</h3>--%>
-                                <h3 class="event-card-title">Placeholder title</h3>
-                                <p class="event-card-subtitle">${event.eventCity.name}</p>
+                    <c:if test="${empty recommendedEvents}">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="empty-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
                             </div>
-                            <p class="event-card-description">${event.description}</p>
-                            <div class="event-card-footer">
-                                <div class="event-date">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                    <span>${event.date}</span>
-                                </div>
-                                <div class="event-organizer">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                    </svg>
-                                    <span>${event.user.firstname} ${event.user.lastname}</span>
-                                </div>
-                            </div>
+                            <p class="empty-message">
+                                <spring:message code="dashboard.no.events"/>
+                            </p>
+                            <a href="<c:url value='/events/create'/>" class="empty-action-btn">
+                                <spring:message code="dashboard.create.event"/>
+                            </a>
                         </div>
-                    </div>
+                    </c:if>
+
+                    <c:if test="${not empty recommendedEvents}">
+                        <c:forEach items="${recommendedEvents}" var="event">
+                            <c:set var="attend" value="false" />
+                            <c:forEach items="${eventsAttended}" var="attendedEvent">
+                                <c:if test="${attendedEvent.id == event.id}">
+                                    <c:set var="attend" value="true" />
+                                </c:if>
+                            </c:forEach>
+                            <jsp:include page="events/event-card.jsp">
+                                <jsp:param name="eventId" value="${event.id}" />
+                                <jsp:param name="city" value="${event.eventCity.name}" />
+                                <jsp:param name="date" value="${event.date}" />
+                                <jsp:param name="description" value="${event.description}" />
+                                <jsp:param name="flyerImageId" value="${event.flyerImageId}" />
+                                <jsp:param name="attend" value="${attend}" />
+                                <jsp:param name="firstname" value="${event.user.firstname}" />
+                                <jsp:param name="lastname" value="${event.user.lastname}"/>
+                                <jsp:param name="title" value="${event.title}"/>
+                            </jsp:include>
+                        </c:forEach>
+                    </c:if>
                 </c:forEach>
             <div class="featured-cta">
                 <a href="<c:url value='/events'/>" class="btn-primary btn-large">

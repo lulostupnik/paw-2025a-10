@@ -48,7 +48,7 @@
             <div class="event-card-content">
                 <div class="event-card-header">
                     <%--<h3 class="event-card-title">${event.title}</h3>--%>
-                    <h3 class="event-card-title">Placeholder title</h3>
+                    <h3 class="event-card-title">${param.title}</h3>
                     <p class="event-card-subtitle">${param.city}</p>
                 </div>
                 <p class="event-card-description">${param.description}</p>

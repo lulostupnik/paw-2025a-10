@@ -166,6 +166,19 @@ ALTER TABLE user_interest ADD COLUMN IF NOT EXISTS score INTEGER NOT NULL DEFAUL
 CREATE INDEX IF NOT EXISTS idx_journey_responses_journeyid_datetime
     ON journey_responses (journey_id, date_time);
 
+-- Step 1: Add column if it doesn't exist
+ALTER TABLE events
+    ADD COLUMN IF NOT EXISTS title VARCHAR(255);
+
+-- Step 2: Fill NULL titles with default value
+UPDATE events
+SET title = 'Event'
+WHERE title IS NULL;
+
+-- Step 3: Set column as NOT NULL (safe because we just filled NULLs)
+ALTER TABLE events
+    ALTER COLUMN title SET NOT NULL;
+
 
 
 -- Solo hay que ejecutar el codigo siguiente una vez. Lo dejo comentado para evitar errores.

@@ -38,7 +38,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Event createEvent(String email, String cityName, Date date, byte[] flyer, String description) {
+    public Event createEvent(String email, String cityName, Date date, byte[] flyer, String description, String title) {
         LOGGER.debug("Creating event for user {}", email);
 
         LOGGER.debug("Looking for city {}", cityName);
@@ -51,7 +51,7 @@ public class EventServiceImpl implements EventService {
         long flyerImageId = imageDao.saveImage(flyer);
 
         LOGGER.info("Event data is valid, commiting new event to persistance");
-        return eventDao.create(user, city, date, description, flyerImageId);
+        return eventDao.create(user, city, date, description, flyerImageId, title);
     }
 
     //@TODO agregar que mande mail

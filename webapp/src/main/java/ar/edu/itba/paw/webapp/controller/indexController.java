@@ -30,27 +30,6 @@ public class indexController {
         this.journeyService = journeyService;
     }
 
-    @RequestMapping("/explore")
-    public ModelAndView index() {
-        LOGGER.debug("Getting dashboard page...");
-
-        ModelAndView mav = new ModelAndView("home");
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        LOGGER.debug("Auth provided for: {}", authentication.getPrincipal());
-
-        List<Event> events = eventService.getRecommendedEvents(authentication.getName());
-        LOGGER.debug("Events: {}", events);
-        mav.addObject("events", events);
-        mav.addObject("eventsAttended", eventService.getUserAttendingEvents(
-                SecurityContextHolder.getContext().getAuthentication().getName()));
-
-        List<Journey> journeys = journeyService.getRecommendedJourneys(authentication.getName());
-        LOGGER.debug("Journeys: {}", journeys);
-        mav.addObject("journeys", journeys);
-        
-        return mav;
-    }
 
 
 }

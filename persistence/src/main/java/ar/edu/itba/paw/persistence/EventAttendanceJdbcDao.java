@@ -93,7 +93,8 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                     rs.getString("city_name"), // Va a tener conflicto con el nombre de la universidad
                     rs.getString("country_name"),
                     rs.getLong("city_id")
-            )
+            ),
+            rs.getString("event_title") // Assuming you have a title field in the events table
     );
 
     private final static String GET_EVENTS_QUERY = "SELECT \n" +
@@ -113,6 +114,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
             "    e.event_date AS event_date, \n" +
             "    e.description AS event_description, \n" +
             "    e.flyer_image_id AS event_flyer_image_id, \n" +
+            "    e.title AS event_title, \n" +
             "\n" +
             "    un.id AS university_id, \n" +
             "    un.name AS university_name, \n" +
