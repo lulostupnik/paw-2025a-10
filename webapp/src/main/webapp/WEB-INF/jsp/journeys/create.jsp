@@ -28,13 +28,13 @@
         </div>
 
         <c:url var="createJourneyUrl" value="/journeys/create"/>
-        <form:form modelAttribute="createJourneyForm" action="${createJourneyUrl}" method="post" class="auth-form">
+        <form:form modelAttribute="createJourneyForm" action="${createJourneyUrl}" method="post" class="auth-form" id="journeyForm">
             <!-- Start Date Field -->
             <div class="form-group">
                 <form:label path="startDate" cssClass="form-label required-field">
                     <spring:message code="createJourney.startDate"/>
                 </form:label>
-                <form:input path="startDate" type="date" cssClass="form-input ${not empty errors.getFieldError('startDate') ? 'error' : ''}" required="true" />
+                <form:input path="startDate" id="startDate" type="date" cssClass="form-input ${not empty errors.getFieldError('startDate') ? 'error' : ''}" required="true" />
                 <form:errors path="startDate" cssClass="error-message" />
             </div>
 
@@ -43,11 +43,11 @@
                 <form:label path="endDate" cssClass="form-label required-field">
                     <spring:message code="createJourney.endDate"/>
                 </form:label>
-                <form:input path="endDate" type="date" cssClass="form-input ${not empty errors.getFieldError('endDate') ? 'error' : ''}" required="true" />
+                <form:input path="endDate" id="endDate" type="date" cssClass="form-input ${not empty errors.getFieldError('endDate') ? 'error' : ''}" required="true" />
                 <form:errors path="endDate" cssClass="error-message" />
             </div>
 
-            <!-- Destination University Field with Autocomplete -->
+            <!-- Destination University Field with Enhanced Autocomplete -->
             <div class="form-group">
                 <form:label path="destinationUniversity" cssClass="form-label required-field">
                     <spring:message code="createJourney.destinationUniversity"/>
@@ -59,14 +59,16 @@
                             <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
                         </c:forEach>
                     </form:select>
-                    <input type="text" id="universitySearch" class="form-input" placeholder="<spring:message code="createJourney.destinationUniversity.search" text="Type to search university..."/>" />
-                    <div id="universityDropdown" class="dropdown-menu" style="display: none;">
+                    <input type="text" id="universitySearch" class="form-input autocomplete-input" placeholder="<spring:message code="createJourney.destinationUniversity.search" text="Type to search university..."/>" />
+                    <div id="universityDropdown" class="autocomplete-dropdown" style="display: none;">
                         <c:forEach var="item" items="${universities}">
-                            <div class="dropdown-item" data-value="${item.name}">
+                            <div class="autocomplete-item" data-value="${item.name}">
                                 <c:out value="${item.name}"/>
                             </div>
                         </c:forEach>
                     </div>
+                    <!-- Container for selected universities -->
+                    <div id="selectedUniversities" class="selected-tags"></div>
                 </div>
                 <form:errors path="destinationUniversity" cssClass="error-message" />
             </div>
@@ -98,95 +100,9 @@
     </div>
 </div>
 
-<!-- JavaScript for autocomplete -->
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Initialize university autocomplete
-        initAutocomplete("destinationUniversity", "universitySearch", "universityDropdown");
-
-        /**
-         * Initialize autocomplete for select fields
-         */
-        function initAutocomplete(selectId, searchId, dropdownId) {
-            const selectField = document.getElementById(selectId);
-            const searchInput = document.getElementById(searchId);
-            const dropdown = document.getElementById(dropdownId);
-
-            if (!selectField || !searchInput || !dropdown) return;
-
-            const dropdownItems = dropdown.querySelectorAll(".dropdown-item");
-
-            // Show dropdown on focus
-            searchInput.addEventListener("focus", function() {
-                dropdown.style.display = "block";
-                filterDropdownItems(this.value.toLowerCase(), dropdownItems);
-            });
-
-            // Hide dropdown when clicking outside
-            document.addEventListener("click", function(e) {
-                if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
-                    dropdown.style.display = "none";
-                }
-            });
-
-            // Filter items as user types
-            searchInput.addEventListener("input", function() {
-                dropdown.style.display = "block";
-                filterDropdownItems(this.value.toLowerCase(), dropdownItems);
-            });
-
-            // Handle item selection with visual feedback
-            dropdownItems.forEach(item => {
-                item.addEventListener("click", function() {
-                    const value = this.dataset.value;
-                    const text = this.textContent.trim();
-
-                    // Update the select field
-                    selectField.value = value;
-
-                    // Update the search input
-                    searchInput.value = text;
-
-                    // Add highlight effect
-                    searchInput.classList.add("highlight-selection");
-                    setTimeout(() => {
-                        searchInput.classList.remove("highlight-selection");
-                    }, 1000);
-
-                    // Hide dropdown
-                    dropdown.style.display = "none";
-
-                    // Trigger change event
-                    const event = new Event("change");
-                    selectField.dispatchEvent(event);
-                });
-            });
-
-            // Initialize with selected value if any
-            if (selectField.value) {
-                const selectedOption = Array.from(selectField.options).find(option => option.value === selectField.value);
-                if (selectedOption) {
-                    searchInput.value = selectedOption.textContent;
-                }
-            }
-        }
-
-        /**
-         * Filter dropdown items based on search text
-         */
-        function filterDropdownItems(searchText, items) {
-            let visibleCount = 0;
-
-            items.forEach(item => {
-                const text = item.textContent.toLowerCase();
-                const isVisible = text.includes(searchText);
-                item.style.display = isVisible ? "block" : "none";
-                if (isVisible) visibleCount++;
-            });
-
-            return visibleCount;
-        }
-    });
-</script>
+<!-- Include modularized JavaScript files -->
+<script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
+<script src="<c:url value='/resources/js/components/file-upload.js'/>"></script>
+<script src="<c:url value='/resources/js/journey-form.js'/>"></script>
 </body>
 </html>

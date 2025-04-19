@@ -8,22 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Import necessary modules
     const ListAutocomplete = window.ListAutocomplete || {}
-    const FileUpload = window.FileUpload || {}
-
-    // Initialize city autocomplete with single-select mode
-    try {
-        window.cityAutocomplete = ListAutocomplete.init({
-            selectId: "city",
-            searchId: "citySearch",
-            dropdownId: "cityDropdown",
-            selectedContainerId: "selectedCity",
-            emptyMessage: "No city selected",
-            multiSelect: false, // Single-select mode
-        })
-        console.log("City autocomplete component initialized")
-    } catch (error) {
-        console.error("Failed to initialize city autocomplete component:", error)
-    }
 
     // Initialize university autocomplete with multi-select mode
     try {
@@ -34,26 +18,16 @@ document.addEventListener("DOMContentLoaded", () => {
             selectedContainerId: "selectedUniversities",
             emptyMessage: "No universities selected",
             multiSelect: true, // Multi-select mode
+            onSelect: (value, text) => {
+                console.log(`Selected university: ${text} (${value})`)
+            },
+            onRemove: (value) => {
+                console.log(`Removed university: ${value}`)
+            },
         })
         console.log("University autocomplete component initialized")
     } catch (error) {
         console.error("Failed to initialize university autocomplete component:", error)
-    }
-
-    // Initialize file upload component
-    try {
-        window.journeyFileUpload = FileUpload.init({
-            fileInputId: "journeyFile",
-            previewContainerId: "filePreview",
-            previewImageId: "previewImage",
-            fileNameId: "fileName",
-            removeButtonId: "removeFile",
-            maxSizeMB: 5,
-            sizeExceededMessage: "File size exceeds 5MB limit",
-        })
-        console.log("File upload component initialized")
-    } catch (error) {
-        console.error("Failed to initialize file upload component:", error)
     }
 
     // Form validation
@@ -101,6 +75,28 @@ document.addEventListener("DOMContentLoaded", () => {
                         endDate.parentNode.appendChild(errorMsg)
                     }
                     errorMsg.textContent = "End date must be after start date"
+                }
+            }
+
+            // Validate university selection
+            if (window.universityAutocomplete) {
+                const selectedUniversities = window.universityAutocomplete.getSelectedValues()
+                if (selectedUniversities.length === 0) {
+                    isValid = false
+                    const universitySearch = document.getElementById("universitySearch")
+                    if (universitySearch) {
+                        universitySearch.classList.add("error")
+
+                        // Create error message if it doesn't exist
+                        const container = universitySearch.closest(".autocomplete-wrapper")
+                        let errorMsg = container.querySelector(".error-message")
+                        if (!errorMsg) {
+                            errorMsg = document.createElement("div")
+                            errorMsg.className = "error-message"
+                            container.appendChild(errorMsg)
+                        }
+                        errorMsg.textContent = "Please select at least one university"
+                    }
                 }
             }
 
