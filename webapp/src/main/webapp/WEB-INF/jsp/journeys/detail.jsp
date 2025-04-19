@@ -86,12 +86,12 @@
 
                 <!-- Journey Description Section -->
                 <section class="content-section">
-                    <div class="section-header">
-                        <h2 class="section-title">
-                            <img src="<c:url value='/resources/icons/description.svg'/>" alt="Description" class="icon" />
-                            <spring:message code="journey.description" />
-                        </h2>
-                    </div>
+<%--                    <div class="section-header">--%>
+<%--                        <h2 class="section-title">--%>
+<%--                            <img src="<c:url value='/resources/icons/description.svg'/>" alt="Description" class="icon" />--%>
+<%--                            <spring:message code="journey.description" />--%>
+<%--                        </h2>--%>
+<%--                    </div>--%>
                     <div class="section-content">
                         <div class="journey-description-card">
                             <p class="journey-description-text">
@@ -163,16 +163,9 @@
                             </c:forEach>
                         </c:if>
                     </div>
-                </section>
 
-                <!-- Reply Form Section -->
-                <section class="content-section">
-                    <div class="section-header">
-                        <h2 class="section-title">
-                            <img src="<c:url value='/resources/icons/reply.svg'/>" alt="Reply" class="icon" />
-                            <spring:message code="journey.detail.leave.reply" />
-                        </h2>
-                    </div>
+
+<%--                    Leave a comment div--%>
                     <div class="section-content">
                         <div class="reply-form-container">
                             <c:url var="replyUrl" value="/journeys/${journey.id}/reply"/>
@@ -198,6 +191,40 @@
                         </div>
                     </div>
                 </section>
+
+                <!-- Reply Form Section -->
+<%--                <section class="content-section">--%>
+<%--                    <div class="section-header">--%>
+<%--                        <h2 class="section-title">--%>
+<%--                            <img src="<c:url value='/resources/icons/reply.svg'/>" alt="Reply" class="icon" />--%>
+<%--                            <spring:message code="journey.detail.leave.reply" />--%>
+<%--                        </h2>--%>
+<%--                    </div>--%>
+<%--                    <div class="section-content">--%>
+<%--                        <div class="reply-form-container">--%>
+<%--                            <c:url var="replyUrl" value="/journeys/${journey.id}/reply"/>--%>
+<%--                            <form:form modelAttribute="replyJourneyForm" action="${replyUrl}" method="post" enctype="multipart/form-data" cssClass="reply-form">--%>
+<%--                                <!-- Message Field -->--%>
+<%--                                <c:set var="messageLabel"><spring:message code="reply.message"/></c:set>--%>
+<%--                                <c:set var="messageHint"><spring:message code="reply.message.hint"/></c:set>--%>
+<%--                                <jsp:include page="../components/text-area.jsp">--%>
+<%--                                    <jsp:param name="path" value="message" />--%>
+<%--                                    <jsp:param name="label" value="${messageLabel}" />--%>
+<%--                                    <jsp:param name="placeholder" value="${messageHint}" />--%>
+<%--                                </jsp:include>--%>
+
+<%--                                <!-- Submit Button -->--%>
+<%--                                <div class="form-actions">--%>
+<%--                                    <c:set var="submitButtonLabel"><spring:message code="reply.submit"/></c:set>--%>
+<%--                                    <jsp:include page="../components/button.jsp">--%>
+<%--                                        <jsp:param name="label" value="${submitButtonLabel}" />--%>
+<%--                                        <jsp:param name="type" value="submit" />--%>
+<%--                                    </jsp:include>--%>
+<%--                                </div>--%>
+<%--                            </form:form>--%>
+<%--                        </div>--%>
+<%--                    </div>--%>
+<%--                </section>--%>
             </div>
         </div>
     </div>

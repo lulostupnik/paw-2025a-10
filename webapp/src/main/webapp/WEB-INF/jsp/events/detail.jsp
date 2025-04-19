@@ -136,12 +136,12 @@
 
                 <!-- Event Description Section -->
                 <section class="content-section">
-                    <div class="section-header">
-                        <h2 class="section-title">
-                            <img src="<c:url value='/resources/icons/description.svg'/>" alt="Description" class="icon" />
-                            <spring:message code="event.description" />
-                        </h2>
-                    </div>
+<%--                    <div class="section-header">--%>
+<%--                        <h2 class="section-title">--%>
+<%--                            <img src="<c:url value='/resources/icons/description.svg'/>" alt="Description" class="icon" />--%>
+<%--                            <spring:message code="event.description" />--%>
+<%--                        </h2>--%>
+<%--                    </div>--%>
                     <div class="section-content">
                         <div class="event-description-card">
                             <p class="event-description-text">
@@ -257,7 +257,7 @@
                                                     <c:out value="${response.username}" />
                                                 </h3>
                                                 <p class="response-date">
-                                                    <c:out value="${response.getFormattedDate()}" />
+                                                    <c:out value="${response.formattedDate}" />
                                                 </p>
                                             </div>
                                         </div>
@@ -271,16 +271,8 @@
                             </c:forEach>
                         </c:if>
                     </div>
-                </section>
+<%--                    Leave a comment section--%>
 
-                <!-- Reply Form Section -->
-                <section class="content-section">
-                    <div class="section-header">
-                        <h2 class="section-title">
-                            <img src="<c:url value='/resources/icons/reply.svg'/>" alt="Reply" class="icon" />
-                            <spring:message code="event.leave.reply" />
-                        </h2>
-                    </div>
                     <div class="section-content">
                         <div class="reply-form-container">
                             <c:url var="replyUrl" value="/events/${event.id}/reply"/>
@@ -306,6 +298,8 @@
                         </div>
                     </div>
                 </section>
+
+
             </div>
         </div>
     </div>

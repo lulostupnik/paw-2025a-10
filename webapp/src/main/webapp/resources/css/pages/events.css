@@ -696,13 +696,7 @@
     margin: 0;
 }
 
-/* Reply Form */
-.reply-form-container {
-    background-color: var(--color-background-alt, #f9fafb);
-    border-radius: 8px;
-    padding: 24px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
+
 
 .reply-form {
     display: flex;
@@ -890,4 +884,48 @@
         transform: translateX(0);
         pointer-events: auto;
     }
+}
+
+/* Add spacing between comments list and reply form without the separator line */
+.responses-list {
+    margin-bottom: 24px;
+}
+
+/* Make the reply form container stand out more */
+.reply-form-container {
+    background-color: #f9fafb;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin-top: 16px;
+    border: 1px solid #f3f4f6;
+}
+
+/* .responses-list:after {
+    content: '';
+    display: block;
+    height: 1px;
+    background: #e5e7eb;
+    margin: 16px 0;
+    opacity: 0.7;
+} */
+
+/* Make the reply form more visually distinct */
+.reply-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Improve the textarea styling */
+.form-group textarea {
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group textarea:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    outline: none;
 }
