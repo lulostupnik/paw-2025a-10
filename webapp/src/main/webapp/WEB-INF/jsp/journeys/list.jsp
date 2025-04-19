@@ -107,6 +107,8 @@
                             <jsp:param name="description" value="${journey.description}" />
                             <jsp:param name="profilePictureId" value="${journey.user.profilePictureId}" />
                             <jsp:param name="userName" value="${journey.user.username}" />
+                            <jsp:param name="university" value="${journey.destinationUniversity.name}" />
+                            <jsp:param name="country" value="${journey.destinationUniversity.city.country}" />
                         </jsp:include>
                     </c:forEach>
                     <c:if test="${empty journeys}">
