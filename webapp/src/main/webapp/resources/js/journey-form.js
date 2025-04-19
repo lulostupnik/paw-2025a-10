@@ -9,23 +9,100 @@ document.addEventListener("DOMContentLoaded", () => {
     // Import necessary modules
     const ListAutocomplete = window.ListAutocomplete || {}
 
-    // Initialize university autocomplete with multi-select mode
+    // Initialize university autocomplete with single-select mode
     try {
+        // Check if all required elements exist
+        const requiredElements = [
+            { id: "destinationUniversity", name: "Select element" },
+            { id: "universitySearch", name: "Search input" },
+            { id: "universityDropdown", name: "Dropdown container" },
+            { id: "selectedUniversities", name: "Selected container" },
+        ]
+
+        const missingElements = []
+        requiredElements.forEach((el) => {
+            if (!document.getElementById(el.id)) {
+                missingElements.push(el.name + " (" + el.id + ")")
+            }
+        })
+
+        if (missingElements.length > 0) {
+            console.error("Missing required elements for autocomplete:", missingElements.join(", "))
+            return
+        }
+
+        // Make sure the dropdown container has a parent with position: relative
+        const dropdownContainer = document.getElementById("universityDropdown")
+        const autocompleteWrapper = dropdownContainer.closest(".autocomplete-wrapper")
+        if (autocompleteWrapper) {
+            autocompleteWrapper.style.position = "relative"
+        }
+
         window.universityAutocomplete = ListAutocomplete.init({
             selectId: "destinationUniversity",
             searchId: "universitySearch",
             dropdownId: "universityDropdown",
             selectedContainerId: "selectedUniversities",
-            emptyMessage: "No universities selected",
-            multiSelect: true, // Multi-select mode
+            emptyMessage: "No university selected",
+            multiSelect: false, // Single-select mode
             onSelect: (value, text) => {
                 console.log(`Selected university: ${text} (${value})`)
+                // Force update the select element value
+                const selectElement = document.getElementById("destinationUniversity")
+                if (selectElement) {
+                    // For single-select, just set the value
+                    selectElement.value = value
+
+                    // Trigger change event
+                    const event = new Event("change", { bubbles: true })
+                    selectElement.dispatchEvent(event)
+                }
             },
             onRemove: (value) => {
                 console.log(`Removed university: ${value}`)
             },
         })
         console.log("University autocomplete component initialized")
+
+        // Add some CSS to make sure dropdown items are clickable
+        const style = document.createElement("style")
+        style.textContent = `
+      .autocomplete-item {
+        cursor: pointer;
+        padding: 8px;
+        border-bottom: 1px solid #eee;
+      }
+      .autocomplete-item:hover {
+        background-color: #f0f0f0;
+      }
+      .autocomplete-dropdown {
+        background-color: white;
+        border: 1px solid #ddd;
+        border-top: none;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 9999;
+      }
+      .selected-tag {
+        display: inline-flex;
+        align-items: center;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+        padding: 4px 8px;
+        margin: 4px;
+        font-size: 14px;
+      }
+      .tag-remove {
+        background: none;
+        border: none;
+        cursor: pointer;
+        margin-left: 6px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+      }
+    `
+        document.head.appendChild(style)
     } catch (error) {
         console.error("Failed to initialize university autocomplete component:", error)
     }
@@ -80,8 +157,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Validate university selection
             if (window.universityAutocomplete) {
-                const selectedUniversities = window.universityAutocomplete.getSelectedValues()
-                if (selectedUniversities.length === 0) {
+                const selectedUniversity = window.universityAutocomplete.getSelectedValue()
+                if (!selectedUniversity) {
                     isValid = false
                     const universitySearch = document.getElementById("universitySearch")
                     if (universitySearch) {
@@ -95,7 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             errorMsg.className = "error-message"
                             container.appendChild(errorMsg)
                         }
-                        errorMsg.textContent = "Please select at least one university"
+                        errorMsg.textContent = "Please select a university"
                     }
                 }
             }

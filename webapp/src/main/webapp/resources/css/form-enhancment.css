@@ -190,39 +190,42 @@
     display: none; /* Ensure hidden by default */
 }
 /* Autocomplete dropdown styling */
-.autocomplete-dropdown,
-.dropdown-menu {
-    position: absolute;
+.autocomplete-wrapper {
+    position: relative;
     width: 100%;
-    max-height: 200px;
-    overflow-y: auto;
-    background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-    z-index: 1000;
 }
 
-.autocomplete-item,
-.dropdown-item {
-    padding: 8px 12px;
+.autocomplete-dropdown {
+    position: absolute;
+    width: 100%;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 9999;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.autocomplete-item {
+    padding: 10px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    border-bottom: 1px solid #eee;
 }
 
 .autocomplete-item:hover,
-.dropdown-item:hover {
+.autocomplete-item:focus {
     background-color: #f5f5f5;
 }
 
-.autocomplete-item.selected,
-.dropdown-item.selected {
-    background-color: #e0f7fa;
+.autocomplete-item.selected {
+    background-color: #e0f0ff;
 }
 
-.autocomplete-item.no-results {
-    color: #999;
+.autocomplete-item.no-results,
+.autocomplete-item.loading {
     font-style: italic;
+    color: #888;
 }
 
 /* Selected tags styling */
@@ -234,11 +237,11 @@
 }
 
 .selected-tag {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    background-color: #e0f7fa;
-    border-radius: 16px;
-    padding: 4px 8px 4px 12px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    padding: 4px 8px;
     font-size: 14px;
 }
 
@@ -246,31 +249,21 @@
     background: none;
     border: none;
     cursor: pointer;
+    padding: 0;
     margin-left: 6px;
-    padding: 2px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    color: #555;
+    color: #666;
 }
 
 .tag-remove:hover {
-    color: #f44336;
+    color: #ff0000;
 }
 
 .empty-interests {
     color: #888;
     font-style: italic;
-    margin-top: 8px;
-}
-
-/* Autocomplete wrapper */
-.autocomplete-wrapper {
-    position: relative;
-}
-
-.autocomplete-input {
-    width: 100%;
+    margin-top: 4px;
 }
 
 /* Highlight effect for selection */

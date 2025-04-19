@@ -25,6 +25,8 @@ let ListAutocomplete = (() => {
             ...options,
         }
 
+        console.log("Initializing ListAutocomplete with config:", config)
+
         // Get DOM elements
         const selectElement = document.getElementById(config.selectId)
         const searchInput = document.getElementById(config.searchId)
@@ -49,8 +51,13 @@ let ListAutocomplete = (() => {
             return
         }
 
-        // Ensure dropdown is hidden by default
+        // Ensure dropdown has proper styling for positioning and visibility
         dropdownContainer.style.display = "none"
+        dropdownContainer.style.position = "absolute"
+        dropdownContainer.style.zIndex = "9999"
+        dropdownContainer.style.width = "100%"
+        dropdownContainer.style.maxHeight = "200px"
+        dropdownContainer.style.overflowY = "auto"
 
         // Store selected values
         let selectedValues = []
@@ -67,26 +74,42 @@ let ListAutocomplete = (() => {
 
         // Show dropdown on focus
         searchInput.addEventListener("focus", function () {
+            console.log("Search input focused")
+            positionDropdown()
             dropdownContainer.style.display = "block"
             filterOptions(this.value)
         })
 
         // Show dropdown on click (for better mobile experience)
-        searchInput.addEventListener("click", function () {
+        searchInput.addEventListener("click", function (e) {
+            console.log("Search input clicked")
+            e.stopPropagation() // Prevent immediate closing
+            positionDropdown()
             dropdownContainer.style.display = "block"
             filterOptions(this.value)
         })
 
-        // Hide dropdown when clicking outside
+        // Position dropdown relative to search input
+        function positionDropdown() {
+            const inputRect = searchInput.getBoundingClientRect()
+            dropdownContainer.style.width = inputRect.width + "px"
+            // No need to set top/left if using absolute positioning within a relative container
+        }
+
+        // Global click handler to close dropdown
         document.addEventListener("click", (e) => {
+            // Only close if click is outside both the search input and dropdown
             if (!searchInput.contains(e.target) && !dropdownContainer.contains(e.target)) {
+                console.log("Closing dropdown - clicked outside")
                 dropdownContainer.style.display = "none"
             }
         })
 
         // Filter options as user types
         searchInput.addEventListener("input", function () {
+            console.log("Search input changed:", this.value)
             dropdownContainer.style.display = "block"
+            positionDropdown()
 
             const searchText = this.value.trim()
 
@@ -162,9 +185,48 @@ let ListAutocomplete = (() => {
         }
 
         /**
+         * Handle selection of an item
+         */
+        function handleItemSelection(value, text) {
+            console.log("Handling item selection:", value, text)
+
+            // Check if already selected
+            const exists = selectedValues.some((item) => item.value === value)
+
+            if (!exists) {
+                // For single select, clear existing selections first
+                if (!config.multiSelect && selectedValues.length > 0) {
+                    selectedValues = []
+                }
+
+                // Add to selected values
+                selectedValues.push({ value, text })
+
+                // Update the hidden select
+                updateSelectElement()
+
+                // Call onSelect callback if provided
+                if (typeof config.onSelect === "function") {
+                    config.onSelect(value, text)
+                }
+            }
+
+            // Update the UI
+            updateSelectedTags()
+            searchInput.value = ""
+
+            // Hide dropdown after selection
+            dropdownContainer.style.display = "none"
+
+            console.log("Selection complete, current values:", selectedValues)
+        }
+
+        /**
          * Update dropdown with results from API
          */
         function updateDropdownFromResults(data) {
+            console.log("Updating dropdown from results:", data)
+
             // Clear existing content
             while (dropdownContainer.firstChild) {
                 dropdownContainer.removeChild(dropdownContainer.firstChild)
@@ -181,53 +243,46 @@ let ListAutocomplete = (() => {
 
             // Add each result to dropdown
             data.forEach((item) => {
-                const option = document.createElement("div")
-                option.className = "autocomplete-item"
-                option.dataset.value = typeof item === "object" ? item.id || item.value || item.name : item
-                option.textContent = typeof item === "object" ? item.name || item.text || item.label : item
-
-                // Add click handler
-                option.addEventListener("click", function () {
-                    const value = this.dataset.value
-                    const text = this.textContent.trim()
-
-                    // Check if already selected
-                    const exists = selectedValues.some((item) => item.value === value)
-
-                    if (!exists) {
-                        // For single select, clear existing selections first
-                        if (!config.multiSelect && selectedValues.length > 0) {
-                            selectedValues = []
-                        }
-
-                        // Add to selected values
-                        selectedValues.push({ value, text })
-
-                        // Update the hidden select
-                        updateSelectElement()
-
-                        // Highlight the selected option
-                        this.classList.add("selected")
-                        setTimeout(() => {
-                            this.classList.remove("selected")
-                        }, 500)
-
-                        // Call onSelect callback if provided
-                        if (typeof config.onSelect === "function") {
-                            config.onSelect(value, text)
-                        }
-                    }
-
-                    // Update the UI
-                    updateSelectedTags()
-                    searchInput.value = ""
-
-                    // Hide dropdown after selection
-                    dropdownContainer.style.display = "none"
-                })
-
-                dropdownContainer.appendChild(option)
+                addDropdownItem(
+                    typeof item === "object" ? item.id || item.value || item.name : item,
+                    typeof item === "object" ? item.name || item.text || item.label : item,
+                )
             })
+        }
+
+        /**
+         * Add a single item to the dropdown
+         */
+        function addDropdownItem(value, text) {
+            const option = document.createElement("div")
+            option.className = "autocomplete-item"
+            option.dataset.value = value
+            option.textContent = text
+
+            // Make sure the item is clickable
+            option.style.cursor = "pointer"
+            option.style.padding = "8px"
+            option.style.borderBottom = "1px solid #eee"
+
+            // Add hover effect
+            option.addEventListener("mouseover", function () {
+                this.style.backgroundColor = "#f0f0f0"
+            })
+
+            option.addEventListener("mouseout", function () {
+                this.style.backgroundColor = ""
+            })
+
+            // Add click handler directly
+            option.onclick = (e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                console.log("Option clicked:", value, text)
+                handleItemSelection(value, text)
+                return false
+            }
+
+            dropdownContainer.appendChild(option)
         }
 
         /**
@@ -244,6 +299,8 @@ let ListAutocomplete = (() => {
                     })
                 }
             })
+
+            console.log("Initialized selected values:", selectedValues)
         }
 
         /**
@@ -267,114 +324,59 @@ let ListAutocomplete = (() => {
             options.forEach((option) => {
                 option.selected = selectedValueIds.includes(option.value)
             })
+
+            // Trigger change event on select element
+            const event = new Event("change", { bubbles: true })
+            selectElement.dispatchEvent(event)
         }
 
         /**
          * Filter dropdown options based on search text
          */
         function filterOptions(searchText) {
+            console.log("Filtering options for:", searchText)
+
             const filter = searchText.toLowerCase()
-            let visibleCount = 0
 
-            // Get all dropdown options
-            const dropdownOptions = dropdownContainer.querySelectorAll(".autocomplete-item:not(.no-results):not(.loading)")
-
-            // If no options exist yet, populate from select element
-            if (dropdownOptions.length === 0) {
-                populateDropdownFromSelect()
-            }
-
-            // Now filter the options
-            const updatedOptions = dropdownContainer.querySelectorAll(".autocomplete-item:not(.no-results):not(.loading)")
-            updatedOptions.forEach((option) => {
-                const text = option.textContent.toLowerCase()
-                const isVisible = text.includes(filter)
-                option.style.display = isVisible ? "block" : "none"
-                if (isVisible) visibleCount++
-            })
-
-            // Show "no results" message if needed
-            const noResultsMsg = dropdownContainer.querySelector(".no-results")
-            if (visibleCount === 0) {
-                if (!noResultsMsg) {
-                    const msg = document.createElement("div")
-                    msg.className = "autocomplete-item no-results"
-                    msg.textContent = "No matching items found"
-                    dropdownContainer.appendChild(msg)
-                }
-            } else if (noResultsMsg) {
-                noResultsMsg.remove()
-            }
-        }
-
-        /**
-         * Populate dropdown from select element
-         */
-        function populateDropdownFromSelect() {
             // Clear existing content
             while (dropdownContainer.firstChild) {
                 dropdownContainer.removeChild(dropdownContainer.firstChild)
             }
 
-            // Add each option from select element
+            // Get all options from select element
             const options = selectElement.querySelectorAll("option")
+            let visibleCount = 0
+
+            // Filter and add matching options
             options.forEach((option) => {
                 // Skip empty options
                 if (!option.value) return
 
-                const dropdownItem = document.createElement("div")
-                dropdownItem.className = "autocomplete-item"
-                dropdownItem.dataset.value = option.value
-                dropdownItem.textContent = option.textContent.trim()
+                const text = option.textContent.trim()
+                const value = option.value
 
-                // Add click handler
-                dropdownItem.addEventListener("click", function () {
-                    const value = this.dataset.value
-                    const text = this.textContent.trim()
-
-                    // Check if already selected
-                    const exists = selectedValues.some((item) => item.value === value)
-
-                    if (!exists) {
-                        // For single select, clear existing selections first
-                        if (!config.multiSelect && selectedValues.length > 0) {
-                            selectedValues = []
-                        }
-
-                        // Add to selected values
-                        selectedValues.push({ value, text })
-
-                        // Update the hidden select
-                        updateSelectElement()
-
-                        // Highlight the selected option
-                        this.classList.add("selected")
-                        setTimeout(() => {
-                            this.classList.remove("selected")
-                        }, 500)
-
-                        // Call onSelect callback if provided
-                        if (typeof config.onSelect === "function") {
-                            config.onSelect(value, text)
-                        }
-                    }
-
-                    // Update the UI
-                    updateSelectedTags()
-                    searchInput.value = ""
-
-                    // Hide dropdown after selection
-                    dropdownContainer.style.display = "none"
-                })
-
-                dropdownContainer.appendChild(dropdownItem)
+                // Check if option text matches filter
+                if (text.toLowerCase().includes(filter)) {
+                    addDropdownItem(value, text)
+                    visibleCount++
+                }
             })
+
+            // Show "no results" message if needed
+            if (visibleCount === 0) {
+                const msg = document.createElement("div")
+                msg.className = "autocomplete-item no-results"
+                msg.textContent = "No matching items found"
+                dropdownContainer.appendChild(msg)
+            }
         }
 
         /**
          * Update the selected tags UI
          */
         function updateSelectedTags() {
+            console.log("Updating selected tags UI")
+
             // Clear existing tags
             selectedContainer.innerHTML = ""
 
