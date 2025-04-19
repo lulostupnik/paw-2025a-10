@@ -1291,16 +1291,6 @@ footer {
     margin: 0;
 }
 
-.event-card-description {
-    color: #4b5563;
-    margin-bottom: 1.5rem;
-    line-height: 1.6;
-    flex-grow: 1;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
 
 .event-card-footer {
     display: flex;
@@ -1309,15 +1299,6 @@ footer {
     align-items: center;
     margin-top: auto;
     gap: 0.75rem;
-}
-
-.event-date,
-.event-organizer {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    color: #6b7280;
 }
 
 .event-icon {
