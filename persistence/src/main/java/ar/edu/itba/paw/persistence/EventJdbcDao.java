@@ -231,4 +231,60 @@ public class EventJdbcDao implements EventDao {
         WHERE e.event_date >= CURRENT_DATE
     """, EVENT_ROW_MAPPER, email);
     }
+
+    public List<Event> getTopEvents(){
+        LOGGER.debug("Querying DB for top events");
+        //Events happening soon and having many attendees.
+        return jdbcTemplate.query("""
+        SELECT
+            e.id AS event_id, 
+            e.event_date AS event_date, 
+            e.description AS event_description, 
+            e.flyer_image_id AS event_flyer_image_id, 
+                
+            us.id AS user_id, 
+            us.email AS user_email, 
+            us.firstname AS user_firstname, 
+            us.lastname AS user_lastname, 
+            us.username AS user_username, 
+            us.university AS user_university, 
+            us.profile_picture_id AS user_profile_picture_id, 
+            us.language AS user_language,
+                
+            ca.id AS career_id, 
+            ca.name AS career_name, 
+                
+            un.id AS university_id, 
+            un.name AS university_name, 
+            un.abbreviation AS university_abbreviation, 
+                
+            c.id AS city_id, 
+            c.name AS city_name, 
+                
+            co.name AS country_name, 
+                
+            ci2.id AS origin_city_id, 
+            ci2.name AS origin_city_name, 
+                
+            co2.name AS origin_country_name,
+
+            COUNT(ea.user_id) AS attendees
+
+        FROM events e
+        JOIN users us ON e.user_id = us.id
+        JOIN careers ca ON ca.id = us.career_id
+        JOIN universities un ON us.university = un.id
+        JOIN cities ci2 ON un.city_id = ci2.id 
+        JOIN countries co2 ON co2.id = ci2.country_id
+        JOIN cities c ON e.city_id = c.id 
+        JOIN countries co ON c.country_id = co.id
+        LEFT JOIN event_attendances ea ON ea.event_id = e.id
+        WHERE e.event_date >= CURRENT_DATE
+        GROUP BY(e.id, us.id, ca.id, un.id, c.id, co.name, ci2.id, co2.name)
+        ORDER BY(COUNT(ea.user_id), e.event_date) DESC
+        LIMIT 3
+
+    """, EVENT_ROW_MAPPER);
+    }
+
 }

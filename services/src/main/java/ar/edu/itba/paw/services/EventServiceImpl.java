@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.persistence.*;
-import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.EmailService;
 import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.UserService;
@@ -12,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -156,5 +154,12 @@ public class EventServiceImpl implements EventService {
     public List<Event> getRecommendedEvents(String email){
         return eventDao.getRecommendedEvents(email);
     }
+
+    @Override
+    public List<Event> getTopEvents(){
+        LOGGER.debug("Getting top events");
+        return eventDao.getTopEvents();
+    }
+
 
 }

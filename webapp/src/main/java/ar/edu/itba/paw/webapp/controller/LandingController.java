@@ -28,8 +28,7 @@ public class LandingController {
         LOGGER.debug("Loading landing page");
         ModelAndView mav = new ModelAndView("index");
 
-        //TODO Change for recommended events for landing
-        List<Event> recommendedEvents = eventService.getAllEvents();
+        List<Event> recommendedEvents = eventService.getTopEvents();
         LOGGER.debug("Found events {}", recommendedEvents);
         mav.addObject("recommendedEvents", recommendedEvents);
 

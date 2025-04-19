@@ -14,4 +14,5 @@ public interface EventDao {
     Optional<Event> findById(long eventId);
     List<Event> listAll();
     public List<Event> getRecommendedEvents(String email);
+    public List<Event> getTopEvents();
 }

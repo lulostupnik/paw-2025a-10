@@ -24,4 +24,5 @@ public interface EventService {
     List<Event> getUserAttendingEvents(long userId);
     List<EventResponse> getEventResponses(long eventId);
     List<Event> getRecommendedEvents(String email);
+    List<Event> getTopEvents();
 }
