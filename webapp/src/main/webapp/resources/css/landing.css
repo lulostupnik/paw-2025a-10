@@ -526,6 +526,29 @@ footer {
         width: 100%;
     }
 }
+
+/* New Outline Button Style for Sign Up */
+.btn-outline-signup {
+    display: inline-block;
+    padding: 0.75rem 2.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #6366f1; /* Indigo/purple color */
+    background-color: white;
+    border: 2px solid #6366f1; /* Indigo/purple border */
+    border-radius: 2rem; /* More rounded corners */
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.btn-outline-signup:hover {
+    background-color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(99, 102, 241, 0.1);
+}
+
 /* Landing Page Styles */
 
 /* Base Styles */
@@ -1174,7 +1197,6 @@ footer {
     height: 1.25rem;
 }
 
-
 .btn-large {
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
@@ -1195,10 +1217,113 @@ footer {
     box-shadow: 0 6px 8px rgba(91, 33, 182, 0.3);
 }
 
+/* Featured Events Section */
+.featured-events {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.featured-event-card {
+    background: white;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.featured-event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.event-image-container {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 aspect ratio */
+    overflow: hidden;
+}
+
+.event-image-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f3f4f6;
+    color: #9ca3af;
+}
+
 .placeholder-icon {
     width: 3rem;
     height: 3rem;
     color: #9ca3af;
+}
+
+.event-card-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.event-card-header {
+    margin-bottom: 1rem;
+}
+
+.event-card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem;
+    color: #1f2937;
+}
+
+.event-card-subtitle {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+.event-card-description {
+    color: #4b5563;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    flex-grow: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.event-card-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    gap: 0.75rem;
+}
+
+.event-date,
+.event-organizer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.event-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
 }
 
 /* Responsive adjustments */
@@ -1220,7 +1345,7 @@ footer {
 
 @media (max-width: 639px) {
     .event-card-footer {
-        flex-direction: row;
+        flex-direction: column;
         align-items: flex-start;
     }
 
@@ -1248,7 +1373,6 @@ footer {
         flex-direction: column;
         width: 100%;
     }
-
 
     .landing-menu {
         flex-direction: column;
