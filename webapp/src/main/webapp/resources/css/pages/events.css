@@ -776,3 +776,95 @@
         height: 200px;
     }
 }
+
+
+
+/* Modern Attendance Button Styles */
+.attendance-control {
+    margin-top: 8px;
+}
+
+.attendance-status {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn-attendance {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: none;
+    width: 100%;
+}
+
+.btn-attend {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.btn-attend:hover {
+    background-color: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-attend:active {
+    transform: translateY(0);
+}
+
+.btn-attending {
+    background-color: #10b981;
+    color: white;
+}
+
+.btn-cancel-attendance {
+    background-color: white;
+    color: #ef4444;
+    border: 1px solid #ef4444;
+}
+
+.btn-cancel-attendance:hover {
+    background-color: #fee2e2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-cancel-attendance:active {
+    transform: translateY(0);
+}
+
+.btn-icon {
+    width: 18px;
+    height: 18px;
+}
+
+.btn-text {
+    font-weight: 500;
+    letter-spacing: 0.01em;
+}
+
+/* For mobile responsiveness */
+@media (max-width: 640px) {
+    .btn-attendance {
+        width: 100%;
+    }
+}
+
+@media (min-width: 768px) {
+    .attendance-status {
+        flex-direction: row;
+    }
+
+    .cancel-form {
+        flex: 1;
+    }
+}

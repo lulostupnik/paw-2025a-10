@@ -194,6 +194,16 @@ public class EventController {
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
                 eventService.attendEvent(authentication.getName(), id);
                 return new ModelAndView("redirect:/events/{id}");
-            }
+    }
+
+    @RequestMapping(value="/{id}/dont-attend",method = POST,produces = "application/json")
+    public ModelAndView dontAttendEvent(@PathVariable int id) {
+        LOGGER.debug("Attending event {}", id);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        eventService.cancelAttendance(authentication.getName(), id);
+        return new ModelAndView("redirect:/events/{id}");
+    }
+
+
     
 }

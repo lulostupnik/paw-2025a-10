@@ -89,25 +89,53 @@
                             </div>
                         </div>
 
-                        <!-- Attend Button -->
-                        <div class="attend-button-container">
+                        <!-- Attend Button Section -->
+<%--                        <div class="attendance-control">--%>
+<%--                            <c:choose>--%>
+<%--                                <c:when test="${attend}">--%>
+<%--                                    <div class="btn-attendance btn-attending">--%>
+<%--                                        <img src="<c:url value='/resources/icons/check.svg'/>" alt="<spring:message code='event.attending'/>" class="btn-icon" />--%>
+<%--                                        <span class="btn-text"><spring:message code="event.attending" /></span>--%>
+<%--                                    </div>--%>
+<%--                                </c:when>--%>
+<%--                                <c:otherwise>--%>
+<%--                                    <form action="<c:url value='/events/${event.id}/attend'/>" method="post">--%>
+<%--                                        <button type="submit" class="btn-attendance btn-attend">--%>
+<%--                                            <img src="<c:url value='/resources/icons/calendar-plus.svg'/>" alt="<spring:message code='event.attend'/>" class="btn-icon" />--%>
+<%--                                            <span class="btn-text"><spring:message code="event.attend" /></span>--%>
+<%--                                        </button>--%>
+<%--                                    </form>--%>
+<%--                                </c:otherwise>--%>
+<%--                            </c:choose>--%>
+<%--                        </div>--%>
+                        <!-- Attend Button Section -->
+                        <div class="attendance-control">
                             <c:choose>
                                 <c:when test="${attend}">
-                                    <div class="attending-badge">
-                                        <img src="<c:url value='/resources/icons/check.svg'/>" alt="Attending" class="attending-icon" />
-                                        <span class="attending-text"><spring:message code="event.attending" /></span>
+                                    <div class="attendance-status">
+                                        <div class="btn-attendance btn-attending">
+                                            <img src="<c:url value='/resources/icons/check.svg'/>" alt="<spring:message code='event.attending'/>" class="btn-icon" />
+                                            <span class="btn-text"><spring:message code="event.attending" /></span>
+                                        </div>
+                                        <form action="<c:url value='/events/${event.id}/dont-attend'/>" method="post" class="cancel-form">
+                                            <button type="submit" class="btn-attendance btn-cancel-attendance">
+                                                <img src="<c:url value='/resources/icons/x.svg'/>" alt="<spring:message code='event.cancel.attendance'/>" class="btn-icon" />
+                                                <span class="btn-text"><spring:message code="event.cancel.attendance" /></span>
+                                            </button>
+                                        </form>
                                     </div>
                                 </c:when>
                                 <c:otherwise>
                                     <form action="<c:url value='/events/${event.id}/attend'/>" method="post">
-                                        <button type="submit" class="attend-button">
-                                            <img src="<c:url value='/resources/icons/calendar-plus.svg'/>" alt="Attend" class="attend-icon" />
-                                            <span><spring:message code="event.attend" /></span>
+                                        <button type="submit" class="btn-attendance btn-attend">
+                                            <img src="<c:url value='/resources/icons/calendar-plus.svg'/>" alt="<spring:message code='event.attend'/>" class="btn-icon" />
+                                            <span class="btn-text"><spring:message code="event.attend" /></span>
                                         </button>
                                     </form>
                                 </c:otherwise>
                             </c:choose>
                         </div>
+
                     </div>
                 </div>
                 <div class="event-flyer-container">
