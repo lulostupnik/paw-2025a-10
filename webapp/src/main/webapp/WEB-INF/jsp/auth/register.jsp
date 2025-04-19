@@ -242,12 +242,12 @@
 
                     <!-- Enhanced interests section with improved autocomplete and multi-select -->
                     <div class="form-group">
-                        <form:label path="interests" cssClass="form-label">
+                        <form:label path="interests" cssClass="form-label required-field">
                             <spring:message code="event.interest"/>
                         </form:label>
 
                         <!-- Hidden select that will hold the actual form data -->
-                        <form:select path="interests" multiple="true" id="interestsSelect" style="display: none;">
+                        <form:select path="interests" multiple="true" id="interestsSelect" style="display: none;" required="true">
                             <c:forEach var="item" items="${interests}">
                                 <option value="${item.name}"><c:out value="${item.name}"/></option>
                             </c:forEach>
@@ -275,7 +275,7 @@
 
                     <!-- Enhanced file upload area -->
                     <div class="form-group">
-                        <form:label path="profilePicture" cssClass="form-label">
+                        <form:label path="profilePicture" cssClass="form-label required-field">
                             <spring:message code="createJourney.profile_picture"/>
                         </form:label>
                         <div class="file-upload">
@@ -289,7 +289,7 @@
                                 <span class="file-upload-hint">
                                     <spring:message code="upload_picture.hint" text="JPG or PNG, max 5MB"/>
                                 </span>
-                                <form:input path="profilePicture" type="file" cssClass="file-upload-input" accept="image/png, image/jpeg" />
+                                <form:input path="profilePicture" type="file" cssClass="file-upload-input" accept="image/png, image/jpeg" required="true" />
                             </label>
                         </div>
                         <div id="filePreview" class="file-preview" style="display: none;">
