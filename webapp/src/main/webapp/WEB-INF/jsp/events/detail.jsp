@@ -90,7 +90,7 @@
                         </div>
 
 
-            
+
                         <!-- Attend Button Section -->
                         <div class="attendance-control">
                             <c:choose>
