@@ -38,6 +38,21 @@ document.addEventListener("DOMContentLoaded", () => {
             autocompleteWrapper.style.position = "relative"
         }
 
+        // Add appropriate classes to match design
+        const searchInput = document.getElementById("universitySearch")
+        if (searchInput) {
+            searchInput.classList.add("autocomplete-input")
+        }
+
+        if (dropdownContainer) {
+            dropdownContainer.classList.add("autocomplete-dropdown")
+        }
+
+        const selectedContainer = document.getElementById("selectedUniversities")
+        if (selectedContainer) {
+            selectedContainer.classList.add("selected-tags")
+        }
+
         window.universityAutocomplete = ListAutocomplete.init({
             selectId: "destinationUniversity",
             searchId: "universitySearch",
@@ -64,45 +79,11 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         console.log("University autocomplete component initialized")
 
-        // Add some CSS to make sure dropdown items are clickable
-        const style = document.createElement("style")
-        style.textContent = `
-      .autocomplete-item {
-        cursor: pointer;
-        padding: 8px;
-        border-bottom: 1px solid #eee;
-      }
-      .autocomplete-item:hover {
-        background-color: #f0f0f0;
-      }
-      .autocomplete-dropdown {
-        background-color: white;
-        border: 1px solid #ddd;
-        border-top: none;
-        max-height: 200px;
-        overflow-y: auto;
-        z-index: 9999;
-      }
-      .selected-tag {
-        display: inline-flex;
-        align-items: center;
-        background-color: #f0f0f0;
-        border-radius: 4px;
-        padding: 4px 8px;
-        margin: 4px;
-        font-size: 14px;
-      }
-      .tag-remove {
-        background: none;
-        border: none;
-        cursor: pointer;
-        margin-left: 6px;
-        padding: 0;
-        display: flex;
-        align-items: center;
-      }
-    `
-        document.head.appendChild(style)
+        // Remove any inline styles we added previously
+        const oldStyle = document.getElementById("autocomplete-inline-styles")
+        if (oldStyle) {
+            oldStyle.remove()
+        }
     } catch (error) {
         console.error("Failed to initialize university autocomplete component:", error)
     }

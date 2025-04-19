@@ -56,8 +56,6 @@ let ListAutocomplete = (() => {
         dropdownContainer.style.position = "absolute"
         dropdownContainer.style.zIndex = "9999"
         dropdownContainer.style.width = "100%"
-        dropdownContainer.style.maxHeight = "200px"
-        dropdownContainer.style.overflowY = "auto"
 
         // Store selected values
         let selectedValues = []
@@ -258,20 +256,6 @@ let ListAutocomplete = (() => {
             option.className = "autocomplete-item"
             option.dataset.value = value
             option.textContent = text
-
-            // Make sure the item is clickable
-            option.style.cursor = "pointer"
-            option.style.padding = "8px"
-            option.style.borderBottom = "1px solid #eee"
-
-            // Add hover effect
-            option.addEventListener("mouseover", function () {
-                this.style.backgroundColor = "#f0f0f0"
-            })
-
-            option.addEventListener("mouseout", function () {
-                this.style.backgroundColor = ""
-            })
 
             // Add click handler directly
             option.onclick = (e) => {
