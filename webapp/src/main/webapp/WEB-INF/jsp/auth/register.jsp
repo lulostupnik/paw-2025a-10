@@ -200,14 +200,16 @@
                                     <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
                                 </c:forEach>
                             </form:select>
-                            <input type="text" id="careerSearch" class="form-input" placeholder="<spring:message code="event.career.search" text="Type to search..."/>" />
-                            <div id="careerDropdown" class="dropdown-menu" style="display: none;">
+                            <input type="text" id="careerSearch" class="autocomplete-input" placeholder="<spring:message code="event.career.search" text="Type to search..."/>" />
+                            <div id="careerDropdown" class="autocomplete-dropdown" style="display: none;">
                                 <c:forEach var="item" items="${careers}">
-                                    <div class="dropdown-item" data-value="${item.name}">
+                                    <div class="autocomplete-item" data-value="${item.name}">
                                         <c:out value="${item.name}"/>
                                     </div>
                                 </c:forEach>
                             </div>
+                            <!-- Container for selected career tag -->
+                            <div id="selectedCareer" class="selected-tags"></div>
                         </div>
                         <form:errors path="career" cssClass="error-message" />
                     </div>
@@ -224,14 +226,16 @@
                                     <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
                                 </c:forEach>
                             </form:select>
-                            <input type="text" id="universitySearch" class="form-input" placeholder="<spring:message code="createJourney.originUniversity.search" text="Type to search..."/>" />
-                            <div id="universityDropdown" class="dropdown-menu" style="display: none;">
+                            <input type="text" id="universitySearch" class="autocomplete-input" placeholder="<spring:message code="createJourney.originUniversity.search" text="Type to search..."/>" />
+                            <div id="universityDropdown" class="autocomplete-dropdown" style="display: none;">
                                 <c:forEach var="item" items="${universities}">
-                                    <div class="dropdown-item" data-value="${item.name}">
+                                    <div class="autocomplete-item" data-value="${item.name}">
                                         <c:out value="${item.name}"/>
                                     </div>
                                 </c:forEach>
                             </div>
+                            <!-- Container for selected university tag -->
+                            <div id="selectedUniversity" class="selected-tags"></div>
                         </div>
                         <form:errors path="originUniversity" cssClass="error-message" />
                     </div>
@@ -318,7 +322,6 @@
 
 <!-- Include modularized JavaScript files -->
 <script src="<c:url value='/resources/js/components/password-strength.js'/>"></script>
-<script src="<c:url value='/resources/js/components/autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/components/file-upload.js'/>"></script>
 <script src="<c:url value='/resources/js/register.js'/>"></script>

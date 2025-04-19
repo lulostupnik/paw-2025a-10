@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Import necessary modules (assuming they are available)
     // If not using modules, ensure these variables are declared globally or loaded via script tags
     const PasswordStrength = window.PasswordStrength || {}
-    const Autocomplete = window.Autocomplete || {}
     const ListAutocomplete = window.ListAutocomplete || {}
     const FileUpload = window.FileUpload || {}
 
@@ -23,31 +22,45 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("Failed to initialize password strength component:", error)
     }
 
-    // Initialize career autocomplete
+    // Initialize career autocomplete with API endpoint using ListAutocomplete in single-select mode
     try {
-        window.careerAutocomplete = Autocomplete.init({
+        window.careerAutocomplete = ListAutocomplete.init({
             selectId: "career",
             searchId: "careerSearch",
             dropdownId: "careerDropdown",
+            selectedContainerId: "selectedCareer",
+            apiEndpoint: "/api/careers/search",
+            minChars: 2,
+            debounceTime: 300,
+            emptyMessage: "No career selected",
+            multiSelect: false, // Set to single-select mode
         })
+
         console.log("Career autocomplete component initialized")
     } catch (error) {
         console.error("Failed to initialize career autocomplete component:", error)
     }
 
-    // Initialize university autocomplete
+    // Initialize university autocomplete with API endpoint using ListAutocomplete in single-select mode
     try {
-        window.universityAutocomplete = Autocomplete.init({
+        window.universityAutocomplete = ListAutocomplete.init({
             selectId: "originUniversity",
             searchId: "universitySearch",
             dropdownId: "universityDropdown",
+            selectedContainerId: "selectedUniversity",
+            apiEndpoint: "/api/universities/search",
+            minChars: 2,
+            debounceTime: 300,
+            emptyMessage: "No university selected",
+            multiSelect: false, // Set to single-select mode
         })
+
         console.log("University autocomplete component initialized")
     } catch (error) {
         console.error("Failed to initialize university autocomplete component:", error)
     }
 
-    // Initialize interests multi-select
+    // Initialize interests multi-select with API endpoint using ListAutocomplete in multi-select mode
     try {
         const emptyMessage = document.getElementById("i18n-interests-none")
             ? document.getElementById("i18n-interests-none").value
@@ -58,7 +71,11 @@ document.addEventListener("DOMContentLoaded", () => {
             searchId: "interestSearch",
             dropdownId: "interestDropdown",
             selectedContainerId: "selectedInterests",
+            apiEndpoint: "/api/interests/search",
+            minChars: 2,
+            debounceTime: 300,
             emptyMessage: emptyMessage,
+            multiSelect: true, // Keep multi-select mode for interests
         })
         console.log("Interests list autocomplete component initialized")
     } catch (error) {
@@ -67,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Initialize file upload
     try {
-        window.FileUpload = FileUpload.init({
+        window.fileUpload = FileUpload.init({
             // Using default IDs
             maxSizeMB: 5,
             sizeExceededMessage: "File size exceeds 5MB limit",

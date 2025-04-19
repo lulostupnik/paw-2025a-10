@@ -1,7 +1,7 @@
 /**
  * List Autocomplete Component
  *
- * Provides multi-select functionality with autocomplete
+ * Provides multi-select or single-select functionality with autocomplete
  */
 let ListAutocomplete = (() => {
     /**
@@ -18,6 +18,10 @@ let ListAutocomplete = (() => {
             emptyMessage: "No items selected",
             onSelect: null,
             onRemove: null,
+            multiSelect: true, // New parameter to control single/multi select behavior
+            apiEndpoint: null, // API endpoint for dynamic suggestions
+            minChars: 2, // Minimum characters before triggering search
+            debounceTime: 300, // Debounce time for API requests
             ...options,
         }
 
@@ -45,8 +49,17 @@ let ListAutocomplete = (() => {
             return
         }
 
+        // Ensure dropdown is hidden by default
+        dropdownContainer.style.display = "none"
+
         // Store selected values
         let selectedValues = []
+
+        // Cache for API results to reduce requests
+        const apiCache = {}
+
+        // Debounce function for API requests
+        let debounceTimeout = null
 
         // Initialize with any pre-selected values
         initializeSelectedValues()
@@ -54,6 +67,12 @@ let ListAutocomplete = (() => {
 
         // Show dropdown on focus
         searchInput.addEventListener("focus", function () {
+            dropdownContainer.style.display = "block"
+            filterOptions(this.value)
+        })
+
+        // Show dropdown on click (for better mobile experience)
+        searchInput.addEventListener("click", function () {
             dropdownContainer.style.display = "block"
             filterOptions(this.value)
         })
@@ -68,44 +87,148 @@ let ListAutocomplete = (() => {
         // Filter options as user types
         searchInput.addEventListener("input", function () {
             dropdownContainer.style.display = "block"
-            filterOptions(this.value)
-        })
 
-        // Handle option selection with visual feedback
-        const dropdownOptions = dropdownContainer.querySelectorAll(".autocomplete-item")
-        dropdownOptions.forEach((option) => {
-            option.addEventListener("click", function () {
-                const value = this.dataset.value
-                const text = this.textContent.trim()
+            const searchText = this.value.trim()
 
-                // Check if already selected
-                const exists = selectedValues.some((item) => item.value === value)
-
-                if (!exists) {
-                    // Add to selected values
-                    selectedValues.push({ value, text })
-
-                    // Update the hidden select
-                    updateSelectElement()
-
-                    // Highlight the selected option
-                    this.classList.add("selected")
-                    setTimeout(() => {
-                        this.classList.remove("selected")
-                    }, 500)
-
-                    // Call onSelect callback if provided
-                    if (typeof config.onSelect === "function") {
-                        config.onSelect(value, text)
-                    }
+            // If API endpoint is provided and we have enough characters, fetch from API
+            if (config.apiEndpoint && searchText.length >= config.minChars) {
+                // Clear any existing timeout
+                if (debounceTimeout) {
+                    clearTimeout(debounceTimeout)
                 }
 
-                // Update the UI
-                updateSelectedTags()
-                searchInput.value = ""
-                searchInput.focus() // Keep focus for adding more
-            })
+                // Set new timeout for debouncing
+                debounceTimeout = setTimeout(() => {
+                    // Check if we already have cached results
+                    if (apiCache[searchText]) {
+                        updateDropdownFromResults(apiCache[searchText])
+                    } else {
+                        // Show loading indicator
+                        showLoadingIndicator()
+
+                        // Fetch from API
+                        fetch(`${config.apiEndpoint}?q=${encodeURIComponent(searchText)}`)
+                            .then((response) => {
+                                if (!response.ok) {
+                                    throw new Error("Network response was not ok")
+                                }
+                                return response.json()
+                            })
+                            .then((data) => {
+                                // Cache the results
+                                apiCache[searchText] = data
+
+                                // Update dropdown with results
+                                updateDropdownFromResults(data)
+                            })
+                            .catch((error) => {
+                                console.error("Error fetching autocomplete data:", error)
+                                // Fall back to client-side filtering
+                                hideLoadingIndicator()
+                                filterOptions(searchText)
+                            })
+                    }
+                }, config.debounceTime)
+            } else {
+                // Use client-side filtering for short queries or when no API is provided
+                filterOptions(searchText)
+            }
         })
+
+        /**
+         * Show loading indicator in dropdown
+         */
+        function showLoadingIndicator() {
+            // Clear existing content
+            while (dropdownContainer.firstChild) {
+                dropdownContainer.removeChild(dropdownContainer.firstChild)
+            }
+
+            // Add loading indicator
+            const loadingItem = document.createElement("div")
+            loadingItem.className = "autocomplete-item loading"
+            loadingItem.textContent = "Loading..."
+            dropdownContainer.appendChild(loadingItem)
+        }
+
+        /**
+         * Hide loading indicator
+         */
+        function hideLoadingIndicator() {
+            const loadingItem = dropdownContainer.querySelector(".loading")
+            if (loadingItem) {
+                loadingItem.remove()
+            }
+        }
+
+        /**
+         * Update dropdown with results from API
+         */
+        function updateDropdownFromResults(data) {
+            // Clear existing content
+            while (dropdownContainer.firstChild) {
+                dropdownContainer.removeChild(dropdownContainer.firstChild)
+            }
+
+            // If no results, show message
+            if (!data || data.length === 0) {
+                const noResults = document.createElement("div")
+                noResults.className = "autocomplete-item no-results"
+                noResults.textContent = "No matching items found"
+                dropdownContainer.appendChild(noResults)
+                return
+            }
+
+            // Add each result to dropdown
+            data.forEach((item) => {
+                const option = document.createElement("div")
+                option.className = "autocomplete-item"
+                option.dataset.value = typeof item === "object" ? item.id || item.value || item.name : item
+                option.textContent = typeof item === "object" ? item.name || item.text || item.label : item
+
+                // Add click handler
+                option.addEventListener("click", function () {
+                    const value = this.dataset.value
+                    const text = this.textContent.trim()
+
+                    // Check if already selected
+                    const exists = selectedValues.some((item) => item.value === value)
+
+                    if (!exists) {
+                        // For single select, clear existing selections first
+                        if (!config.multiSelect && selectedValues.length > 0) {
+                            selectedValues = []
+                        }
+
+                        // Add to selected values
+                        selectedValues.push({ value, text })
+
+                        // Update the hidden select
+                        updateSelectElement()
+
+                        // Highlight the selected option
+                        this.classList.add("selected")
+                        setTimeout(() => {
+                            this.classList.remove("selected")
+                        }, 500)
+
+                        // Call onSelect callback if provided
+                        if (typeof config.onSelect === "function") {
+                            config.onSelect(value, text)
+                        }
+                    }
+
+                    // Update the UI
+                    updateSelectedTags()
+                    searchInput.value = ""
+
+                    // Hide dropdown after selection
+                    dropdownContainer.style.display = "none"
+                })
+
+                dropdownContainer.appendChild(option)
+            })
+        }
 
         /**
          * Initialize selected values from the select element
@@ -127,6 +250,17 @@ let ListAutocomplete = (() => {
          * Update the select element based on selectedValues array
          */
         function updateSelectElement() {
+            // For single select, just set the value
+            if (!config.multiSelect) {
+                if (selectedValues.length > 0) {
+                    selectElement.value = selectedValues[0].value
+                } else {
+                    selectElement.value = ""
+                }
+                return
+            }
+
+            // For multi-select, update all options
             const options = selectElement.querySelectorAll("option")
             const selectedValueIds = selectedValues.map((item) => item.value)
 
@@ -142,7 +276,17 @@ let ListAutocomplete = (() => {
             const filter = searchText.toLowerCase()
             let visibleCount = 0
 
-            dropdownOptions.forEach((option) => {
+            // Get all dropdown options
+            const dropdownOptions = dropdownContainer.querySelectorAll(".autocomplete-item:not(.no-results):not(.loading)")
+
+            // If no options exist yet, populate from select element
+            if (dropdownOptions.length === 0) {
+                populateDropdownFromSelect()
+            }
+
+            // Now filter the options
+            const updatedOptions = dropdownContainer.querySelectorAll(".autocomplete-item:not(.no-results):not(.loading)")
+            updatedOptions.forEach((option) => {
                 const text = option.textContent.toLowerCase()
                 const isVisible = text.includes(filter)
                 option.style.display = isVisible ? "block" : "none"
@@ -150,11 +294,10 @@ let ListAutocomplete = (() => {
             })
 
             // Show "no results" message if needed
-            const noResultsMsg = document.getElementById("noInterestResults")
+            const noResultsMsg = dropdownContainer.querySelector(".no-results")
             if (visibleCount === 0) {
                 if (!noResultsMsg) {
                     const msg = document.createElement("div")
-                    msg.id = "noInterestResults"
                     msg.className = "autocomplete-item no-results"
                     msg.textContent = "No matching items found"
                     dropdownContainer.appendChild(msg)
@@ -162,6 +305,70 @@ let ListAutocomplete = (() => {
             } else if (noResultsMsg) {
                 noResultsMsg.remove()
             }
+        }
+
+        /**
+         * Populate dropdown from select element
+         */
+        function populateDropdownFromSelect() {
+            // Clear existing content
+            while (dropdownContainer.firstChild) {
+                dropdownContainer.removeChild(dropdownContainer.firstChild)
+            }
+
+            // Add each option from select element
+            const options = selectElement.querySelectorAll("option")
+            options.forEach((option) => {
+                // Skip empty options
+                if (!option.value) return
+
+                const dropdownItem = document.createElement("div")
+                dropdownItem.className = "autocomplete-item"
+                dropdownItem.dataset.value = option.value
+                dropdownItem.textContent = option.textContent.trim()
+
+                // Add click handler
+                dropdownItem.addEventListener("click", function () {
+                    const value = this.dataset.value
+                    const text = this.textContent.trim()
+
+                    // Check if already selected
+                    const exists = selectedValues.some((item) => item.value === value)
+
+                    if (!exists) {
+                        // For single select, clear existing selections first
+                        if (!config.multiSelect && selectedValues.length > 0) {
+                            selectedValues = []
+                        }
+
+                        // Add to selected values
+                        selectedValues.push({ value, text })
+
+                        // Update the hidden select
+                        updateSelectElement()
+
+                        // Highlight the selected option
+                        this.classList.add("selected")
+                        setTimeout(() => {
+                            this.classList.remove("selected")
+                        }, 500)
+
+                        // Call onSelect callback if provided
+                        if (typeof config.onSelect === "function") {
+                            config.onSelect(value, text)
+                        }
+                    }
+
+                    // Update the UI
+                    updateSelectedTags()
+                    searchInput.value = ""
+
+                    // Hide dropdown after selection
+                    dropdownContainer.style.display = "none"
+                })
+
+                dropdownContainer.appendChild(dropdownItem)
+            })
         }
 
         /**
@@ -246,6 +453,11 @@ let ListAutocomplete = (() => {
                     return false
                 }
 
+                // For single select, clear existing selections first
+                if (!config.multiSelect && selectedValues.length > 0) {
+                    selectedValues = []
+                }
+
                 // Add to selected values
                 selectedValues.push({ value, text })
                 updateSelectElement()
@@ -269,6 +481,9 @@ let ListAutocomplete = (() => {
                 updateSelectElement()
                 updateSelectedTags()
             },
+            isSingleSelect: () => !config.multiSelect,
+            getSelectedValue: () => (selectedValues.length > 0 ? selectedValues[0].value : null),
+            getSelectedText: () => (selectedValues.length > 0 ? selectedValues[0].text : null),
         }
 
         // Store instance methods on the element for future reference
