@@ -2,10 +2,11 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="sprng" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <div class="event-card-wrapper">
     <a href="<c:url value="/journeys/${param.journeyId}"/>" class="event-card-link">
-        <div class="event-card">
+        <div class="featured-event-card">
             <!-- Image Container with improved aspect ratio for profile pictures -->
             <div class="event-image-container">
                 <c:if test="${not empty param.profilePictureId}">
@@ -21,11 +22,17 @@
             </div>
 
             <!-- Journey Info with improved layout -->
-            <div class="event-info-container">
-                <div class="event-header">
+            <div class="event-card-content">
+                <div class="event-card-header">
                     <div class="event-location">
-                        <h3><c:out value="${param.city}"/></h3>
+                        <h3><spring:message code="journey.destinationCityAndCountry" arguments="${param.city},${param.country}"/></h3>
                     </div>
+                    <p class="event-card-subtitle mt-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        <span class="university-name" title="${param.university}"><c:out value="${param.university}"/></span>
+                    </p>
                     <div class="event-rating">
                         <span class="user-name"><c:out value="${param.userName}"/></span>
                     </div>
@@ -49,10 +56,7 @@
                         <c:out value="${param.startDate}" /> → <c:out value="${param.endDate}" />
                     </span>
                 </div>
-
-                <div class="event-description-container">
-                    <p class="event-description"><c:out value="${param.description}"/></p>
-                </div>
+                <p class="event-card-description">${param.description}</p>
             </div>
         </div>
     </a>
