@@ -161,5 +161,37 @@ public class EventServiceImpl implements EventService {
         return eventDao.getTopEvents();
     }
 
+    @Override
+    public CursorPage<EventResponse, LocalDateTime> getEventResponses(long eventId, LocalDateTime cursor, int limit) {
+        return eventResponseDao.getEventsForUser(eventId, cursor, limit);
+    }
+
+    @Override
+    public CursorPage<Event, Long> getAllEvents(Long cursor, int limit) {
+        return eventDao.listAll(cursor, limit);
+    }
+
+    @Override
+    public CursorPage<Event, Long> listByCity(City city, Long cursor, int limit) {
+        return eventDao.listByCity(city, cursor, limit);
+    }
+
+    @Override
+    public CursorPage<User, Long> getEventAttendees(long eventId, Long cursor, int limit) {
+        // return eventAttendanceDao.getAttendees(eventId);
+        return eventAttendanceDao.getAttendees(eventId, cursor, limit);
+    }
+
+    @Override
+    public CursorPage<Event, Long> getUserAttendingEvents(long userId, Long cursor, int limit) {
+        // return eventAttendanceDao.getAttendingEvents(userId);
+        return eventAttendanceDao.getAttendingEvents(userId, cursor, limit);
+    }
+
+    @Override
+    public CursorPage<Event, Long> getUserAttendingEvents(String userEmail, Long cursor, int limit) {
+        long userId = userService.findByEmail(userEmail).orElseThrow().getId();
+        return getUserAttendingEvents(userId, cursor, limit);
+    }
 
 }

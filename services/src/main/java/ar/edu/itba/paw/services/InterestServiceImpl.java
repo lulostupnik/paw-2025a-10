@@ -2,6 +2,7 @@ package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.persistence.InterestDao;
 import ar.edu.itba.paw.interfaces.services.InterestService;
+import ar.edu.itba.paw.models.CursorPage;
 import ar.edu.itba.paw.models.Interest;
 
 import org.slf4j.Logger;
@@ -76,6 +77,12 @@ public class InterestServiceImpl implements InterestService {
         LOGGER.debug("Increasing score of interests {} for user {}", interests, userId);
         interestDao.updateScoreByInterests(interests, userId);
 
+    }
+
+    @Override
+    public CursorPage<Interest, Long> findAll(Long cursor, int limit){
+        LOGGER.debug("Getting all interests");
+        return interestDao.findAll(cursor, limit);
     }
 
 }

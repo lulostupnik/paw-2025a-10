@@ -1,8 +1,8 @@
 package ar.edu.itba.paw.interfaces.services;
 
-import ar.edu.itba.paw.models.Event;
-import ar.edu.itba.paw.models.EventResponse;
-import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.*;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -25,4 +25,14 @@ public interface EventService {
     List<EventResponse> getEventResponses(long eventId);
     List<Event> getRecommendedEvents(String email);
     List<Event> getTopEvents();
+
+    CursorPage<EventResponse, LocalDateTime> getEventResponses(long eventId, LocalDateTime cursor, int limit);
+
+    CursorPage<User, Long> getEventAttendees(long eventId, Long cursor, int limit);
+
+    CursorPage<Event, Long> getUserAttendingEvents(long userId, Long cursor, int limit);
+    CursorPage<Event, Long> getUserAttendingEvents(String userEmail, Long cursor, int limit);
+
+    CursorPage<Event, Long> getAllEvents(Long cursor, int limit);
+    CursorPage<Event, Long> listByCity(City city, Long cursor, int limit);
 }

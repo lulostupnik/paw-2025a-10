@@ -1,4 +1,5 @@
 package ar.edu.itba.paw.persistence;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Optional;
 
 import javax.sql.DataSource;
 
+import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +19,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import ar.edu.itba.paw.interfaces.persistence.EventDao;
-import ar.edu.itba.paw.models.Career;
-import ar.edu.itba.paw.models.City;
-import ar.edu.itba.paw.models.Event;
-import ar.edu.itba.paw.models.University;
-import ar.edu.itba.paw.models.User;
 
 @Repository
 public class EventJdbcDao implements EventDao {
@@ -286,5 +283,49 @@ public class EventJdbcDao implements EventDao {
 
     """, EVENT_ROW_MAPPER);
     }
+
+    @Override
+    public CursorPage<Event, Long> listAll(Long cursor, int limit) {
+        String sql = QUERY + (cursor != null ? " WHERE e.id > ? " :"") + " ORDER BY e.id LIMIT ?";
+        List<Event> eventList;
+        if(cursor != null) {
+            eventList = jdbcTemplate.query(sql, EVENT_ROW_MAPPER, cursor, limit + 1);
+        } else {
+            eventList = jdbcTemplate.query(sql, EVENT_ROW_MAPPER, limit + 1);
+        }
+        Long nextCursor = null;
+        boolean hasNext = eventList != null && eventList.size() > limit;
+        if(hasNext){
+            eventList.removeLast();
+            nextCursor = eventList.getLast().getId();
+        }
+        return new CursorPage<>(eventList, nextCursor, hasNext);
+
+    }
+
+    @Override
+    public CursorPage<Event, Long> listByCity(City city, Long cursor, int limit) {
+        LOGGER.debug("Querying DB for events in city {} with cursor {} and limit {}", city, cursor, limit);
+
+        String sql = QUERY + " WHERE e.city_id = ? " + (cursor != null ? " AND e.id > ? " : "") + " ORDER BY e.id LIMIT ?";
+
+        List<Event> eventList;
+        if (cursor != null) {
+            eventList = jdbcTemplate.query(sql, EVENT_ROW_MAPPER, city.getId(), cursor, limit + 1);
+        } else {
+            eventList = jdbcTemplate.query(sql, EVENT_ROW_MAPPER, city.getId(), limit + 1);
+        }
+
+        boolean hasNext = eventList != null && eventList.size() > limit;
+        Long nextCursor = null;
+
+        if (hasNext) {
+            eventList.removeLast();
+            nextCursor = eventList.getLast().getId();
+        }
+
+        return new CursorPage<>(eventList, nextCursor, hasNext);
+    }
+
 
 }

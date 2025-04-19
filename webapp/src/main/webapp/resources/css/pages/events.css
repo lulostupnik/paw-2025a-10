@@ -774,3 +774,120 @@
         height: 200px;
     }
 }
+
+/* Modern Attendance Button Styles */
+.attendance-control {
+    margin-top: 8px;
+}
+
+/* Container for the attending status with hover effect */
+.attendance-status-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.attendance-status-container:hover .btn-attending {
+    padding-right: 48px; /* Make room for the cancel button */
+}
+
+.attendance-status-container:hover .cancel-attendance-form {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+
+
+/* Main attendance buttons */
+.btn-attendance {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: none;
+    width: 100%;
+}
+
+.btn-attend {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.btn-attend:hover {
+    background-color: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-attend:active {
+    transform: translateY(0);
+}
+
+.btn-attending {
+    background-color: #10b981;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+/* Cancel attendance form and button */
+.cancel-attendance-form {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.btn-cancel-attendance {
+    height: 100%;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-cancel-attendance:hover {
+    background-color: #dc2626;
+}
+
+.btn-icon {
+    width: 18px;
+    height: 18px;
+}
+
+.btn-text {
+    font-weight: 500;
+    letter-spacing: 0.01em;
+}
+
+/* For mobile responsiveness - always show cancel button on touch devices */
+@media (max-width: 768px) {
+    .attendance-status-container {
+        padding-right: 40px; /* Always make room for the cancel button on mobile */
+    }
+
+    .cancel-attendance-form {
+        opacity: 1;
+        transform: translateX(0);
+        pointer-events: auto;
+    }
+}

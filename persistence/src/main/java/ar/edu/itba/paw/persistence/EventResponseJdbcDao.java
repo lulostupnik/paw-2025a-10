@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import ar.edu.itba.paw.models.CursorPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,5 +66,23 @@ public class EventResponseJdbcDao implements EventResponseDao {
     public List<EventResponse> listAllFromEvent(long eventId){
         LOGGER.debug("Querying DB for replies to event {}", eventId);
         return jdbcTemplate.query(QUERY_BY_EVENT_ID, EVENT_RESPONSE_ROW_MAPPER, eventId);
+    }
+
+    @Override
+    public CursorPage<EventResponse, LocalDateTime> getEventsForUser(long eventId, LocalDateTime cursor, int limit) {
+        String sql = QUERY_BY_EVENT_ID + (cursor != null ? " AND date_time < ?" : "") + " ORDER BY date_time DESC LIMIT ?";
+        List<EventResponse> responseList;
+        if(cursor != null) {
+            responseList = jdbcTemplate.query(sql, EVENT_RESPONSE_ROW_MAPPER, eventId, limit + 1);
+        } else {
+            responseList = jdbcTemplate.query(sql, EVENT_RESPONSE_ROW_MAPPER, limit + 1);
+        }
+        LocalDateTime nextCursor = null;
+        boolean hasNext = responseList != null && responseList.size() > limit;
+        if(hasNext){
+            responseList.removeLast();
+            nextCursor = responseList.getLast().getDateTime();
+        }
+        return new CursorPage<>(responseList, nextCursor, hasNext);
     }
 }

@@ -150,4 +150,14 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyResponseDao.listFromJourneyAfter(journeyId, cursor, limit);
     }
 
+    @Override
+    public CursorPage<Journey, Long> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest, Long cursor, int pageSize) {
+        return journeyDao.findByFilters(destination, startDate, endDate, interest, cursor, pageSize);
+    }
+
+    @Override
+    public CursorPage<Journey, Long> listAll(Long cursor, int pageSize) {
+        return journeyDao.listAll(cursor, pageSize);
+    }
+
 }
