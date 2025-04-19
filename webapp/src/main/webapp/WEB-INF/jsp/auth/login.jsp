@@ -7,12 +7,11 @@
     <title><spring:message code="login.title"/></title>
     <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
-    <link rel="stylesheet" href="<c:url value='/resources/css/landing.css'/>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-    <!-- Navigation -->
-  <jsp:include page="../components/navbar.jsp" />
+<!-- Navigation -->
+<jsp:include page="../components/navbar.jsp" />
 <div class="auth-container">
     <div class="auth-card">
         <div class="auth-header">

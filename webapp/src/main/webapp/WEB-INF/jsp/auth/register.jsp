@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/form-enhancements.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/password-strength.css'/>" />
-    <link rel="stylesheet" href="<c:url value='/resources/css/landing.css'/>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
