@@ -216,7 +216,7 @@
                     <p class="cta-description"><spring:message code="landing.cta.description"/></p>
                 </div>
                 <div class="cta-buttons">
-                    <a href="<c:url value='/register'/>" class="btn-primary btn-cta-signup">
+                    <a href="<c:url value='/register'/>" class="btn-outline-signup">
                         <spring:message code="landing.cta.button"/>
                     </a>
                 </div>
