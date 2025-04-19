@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -41,8 +42,7 @@ public class UserServiceImpl implements UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-
-    // creo que debería ser @Transactional
+    @Transactional
     @Override
     public User createUser(String email, String username, String firstname, String lastname, String universityName,
                            String careerName, byte[] profilePicture, String[] interests, String password, Locale locale) {
@@ -68,28 +68,36 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-
+    @Transactional(readOnly = true)
     public Optional<User> findByEmail(String email) {
         return userDao.findByEmail(email);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<UserPassword> findByEmailWithPass(String email) {
         return userDao.findByEmailWithPass(email);
     }
 
+    @Transactional(readOnly = true)
+    @Override
     public Optional<User> findById(long id) {
         return userDao.findById(id);
     }
+
+    @Transactional(readOnly = true)
+    @Override
     public Optional<User> findByUsername(String username) {
         return userDao.findByUsername(username);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public boolean existsByUsername(String username) {
         return userDao.existsByUsername(username);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public boolean existsByEmail(String email) {
         return userDao.existsByEmail(email);

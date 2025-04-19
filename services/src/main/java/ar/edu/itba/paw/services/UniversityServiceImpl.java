@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,40 +26,47 @@ public class UniversityServiceImpl implements UniversityService {
         this.universityDao = universityDao;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<University> findByName(String name) {
         LOGGER.debug("Getting university with name {}", name);
         return universityDao.findByName(name);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<University> findByAbbreviation(String abbreviation) {
         LOGGER.debug("Getting university with abbreviation {}", abbreviation);
         return universityDao.findByAbbreviation(abbreviation);
     }
 
+    @Transactional(readOnly = true)
     @Override    
     public Optional<University> findByAny(String queryString){
         LOGGER.debug("Getting university like {}", queryString);
         return universityDao.findByAny(queryString);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<University> getAllUniversities() {
         LOGGER.debug("Getting all universities");
         return universityDao.getAllUniversities();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<University> searchBySubstring(String substring) {
         return universityDao.searchBySubstring(substring);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CursorPage<University, Long> getAllUniversitiesAfter(Long cursor, int limit) {
         return universityDao.getAllUniversitiesAfter(cursor, limit);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CursorPage<University, Long> searchBySubstringAfter(String substring, Long cursor, int limit) {
         return universityDao.searchBySubstringAfter(substring, cursor, limit);
