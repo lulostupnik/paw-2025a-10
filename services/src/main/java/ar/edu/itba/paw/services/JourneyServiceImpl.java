@@ -79,9 +79,9 @@ public class JourneyServiceImpl implements JourneyService {
             LOGGER.info("User has an overlapping journey");
             throw new RuntimeException("There's already a journey registered in this time period");
         }
-        //if(journeyDao.findByUserId(user.getId()).isPresent()) {
-        //    throw new RuntimeException("User already has a journey");
-        //}
+        if(journeyDao.findByUserId(user.getId()).isPresent()) {
+            throw new RuntimeException("User already has a journey");
+        }
 
         LOGGER.info("Journey data is valid, commiting new event to persistance");
         return journeyDao.create(user, destination, startDate, endDate, description); // FIXME
