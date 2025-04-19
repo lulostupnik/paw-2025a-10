@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/form-enhancements.css'/>" />
+    <link rel="stylesheet" href="<c:url value='/resources/css/password-strength.css'/>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
@@ -29,7 +30,7 @@
 
         <c:url var="createEventUrl" value="/events/create"/>
         <form:form modelAttribute="createEventForm" action="${createEventUrl}" method="post" enctype="multipart/form-data" class="auth-form">
-            <!-- City Field with Autocomplete -->
+            <!-- City Field with Enhanced Autocomplete -->
             <div class="form-group">
                 <form:label path="city" cssClass="form-label required-field">
                     <spring:message code="event.city"/>
@@ -41,14 +42,16 @@
                             <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
                         </c:forEach>
                     </form:select>
-                    <input type="text" id="citySearch" class="form-input" placeholder="<spring:message code="event.city.search" text="Type to search city..."/>" />
-                    <div id="cityDropdown" class="dropdown-menu" style="display: none;">
+                    <input type="text" id="citySearch" class="autocomplete-input" placeholder="<spring:message code="event.city.search" text="Type to search city..."/>" />
+                    <div id="cityDropdown" class="autocomplete-dropdown" style="display: none;">
                         <c:forEach var="item" items="${cities}">
-                            <div class="dropdown-item" data-value="${item.name}">
+                            <div class="autocomplete-item" data-value="${item.name}">
                                 <c:out value="${item.name}"/>
                             </div>
                         </c:forEach>
                     </div>
+                    <!-- Container for selected city tag -->
+                    <div id="selectedCity" class="selected-tags"></div>
                 </div>
                 <form:errors path="city" cssClass="error-message" />
             </div>
@@ -91,7 +94,7 @@
                         <span class="file-upload-hint">
                             <spring:message code="upload_picture.hint" text="JPG or PNG, max 5MB"/>
                         </span>
-                        <form:input path="flyer" type="file" cssClass="file-upload-input" accept="image/png, image/jpeg" />
+                        <form:input path="flyer" id="eventFile" type="file" cssClass="file-upload-input" accept="image/png, image/jpeg" />
                     </label>
                 </div>
                 <div id="filePreview" class="file-preview" style="display: none;">
@@ -119,143 +122,9 @@
     </div>
 </div>
 
-<!-- JavaScript for autocomplete and file upload preview -->
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Initialize city autocomplete
-        initAutocomplete("city", "citySearch", "cityDropdown");
-
-        // Initialize file upload preview
-        initFileUploadPreview();
-
-        /**
-         * Initialize autocomplete for select fields
-         */
-        function initAutocomplete(selectId, searchId, dropdownId) {
-            const selectField = document.getElementById(selectId);
-            const searchInput = document.getElementById(searchId);
-            const dropdown = document.getElementById(dropdownId);
-
-            if (!selectField || !searchInput || !dropdown) return;
-
-            const dropdownItems = dropdown.querySelectorAll(".dropdown-item");
-
-            // Show dropdown on focus
-            searchInput.addEventListener("focus", function() {
-                dropdown.style.display = "block";
-                filterDropdownItems(this.value.toLowerCase(), dropdownItems);
-            });
-
-            // Hide dropdown when clicking outside
-            document.addEventListener("click", function(e) {
-                if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
-                    dropdown.style.display = "none";
-                }
-            });
-
-            // Filter items as user types
-            searchInput.addEventListener("input", function() {
-                dropdown.style.display = "block";
-                filterDropdownItems(this.value.toLowerCase(), dropdownItems);
-            });
-
-            // Handle item selection with visual feedback
-            dropdownItems.forEach(item => {
-                item.addEventListener("click", function() {
-                    const value = this.dataset.value;
-                    const text = this.textContent.trim();
-
-                    // Update the select field
-                    selectField.value = value;
-
-                    // Update the search input
-                    searchInput.value = text;
-
-                    // Add highlight effect
-                    searchInput.classList.add("highlight-selection");
-                    setTimeout(() => {
-                        searchInput.classList.remove("highlight-selection");
-                    }, 1000);
-
-                    // Hide dropdown
-                    dropdown.style.display = "none";
-
-                    // Trigger change event
-                    const event = new Event("change");
-                    selectField.dispatchEvent(event);
-                });
-            });
-
-            // Initialize with selected value if any
-            if (selectField.value) {
-                const selectedOption = Array.from(selectField.options).find(option => option.value === selectField.value);
-                if (selectedOption) {
-                    searchInput.value = selectedOption.textContent;
-                }
-            }
-        }
-
-        /**
-         * Filter dropdown items based on search text
-         */
-        function filterDropdownItems(searchText, items) {
-            let visibleCount = 0;
-
-            items.forEach(item => {
-                const text = item.textContent.toLowerCase();
-                const isVisible = text.includes(searchText);
-                item.style.display = isVisible ? "block" : "none";
-                if (isVisible) visibleCount++;
-            });
-
-            return visibleCount;
-        }
-
-        /**
-         * Initialize file upload preview
-         */
-        function initFileUploadPreview() {
-            const fileInput = document.querySelector('input[type="file"]');
-            const filePreview = document.getElementById('filePreview');
-            const previewImage = document.getElementById('previewImage');
-            const fileName = document.getElementById('fileName');
-            const removeFile = document.getElementById('removeFile');
-
-            if (!fileInput || !filePreview || !previewImage || !fileName || !removeFile) return;
-
-            fileInput.addEventListener('change', function() {
-                if (this.files && this.files[0]) {
-                    const file = this.files[0];
-
-                    // Check file size (max 5MB)
-                    if (file.size > 5 * 1024 * 1024) {
-                        alert('File size exceeds 5MB limit');
-                        this.value = '';
-                        return;
-                    }
-
-                    // Update file name
-                    fileName.textContent = file.name;
-
-                    // Create preview image
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        previewImage.src = e.target.result;
-                        filePreview.style.display = 'flex';
-                    }
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            // Remove file
-            removeFile.addEventListener('click', function() {
-                fileInput.value = '';
-                filePreview.style.display = 'none';
-                previewImage.src = '#';
-                fileName.textContent = '';
-            });
-        }
-    });
-</script>
+<!-- Include modularized JavaScript files -->
+<script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
+<script src="<c:url value='/resources/js/components/file-upload.js'/>"></script>
+<script src="<c:url value='/resources/js/event-form.js'/>"></script>
 </body>
 </html>

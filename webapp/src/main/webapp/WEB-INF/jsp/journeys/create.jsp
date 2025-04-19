@@ -8,45 +8,8 @@
     <!-- Include custom CSS -->
     <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
-    <link rel="stylesheet" href="<c:url value='/resources/css/form-enhancment.css'/>" />
+    <link rel="stylesheet" href="<c:url value='/resources/css/form-enhancements.css'/>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        /* Additional styles for autocomplete functionality */
-        .autocomplete-wrapper {
-            position: relative;
-            width: 100%;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
-            max-height: 200px;
-            overflow-y: auto;
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-            z-index: 1000;
-            margin-top: 2px;
-        }
-
-        .dropdown-item {
-            padding: 10px 15px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .dropdown-item:hover {
-            background-color: #f5f5f5;
-        }
-
-        .highlight-selection {
-            background-color: #e6f7ff;
-            transition: background-color 0.3s;
-        }
-    </style>
 </head>
 <body>
 <jsp:include page="../components/navbar.jsp"/>
@@ -90,17 +53,17 @@
                     <spring:message code="createJourney.destinationUniversity"/>
                 </form:label>
                 <div class="autocomplete-wrapper">
-                    <form:select path="destinationUniversity" id="universitySelect" cssClass="form-select" style="display: none;">
+                    <form:select path="destinationUniversity" id="destinationUniversity" cssClass="form-select ${not empty errors.getFieldError('destinationUniversity') ? 'error' : ''}" required="true" style="display: none;">
                         <form:option value=""><spring:message code="createJourney.destinationUniversity.select"/></form:option>
-                        <c:forEach var="university" items="${universities}">
-                            <form:option value="${university.id}">${university.name}</form:option>
+                        <c:forEach var="item" items="${universities}">
+                            <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
                         </c:forEach>
                     </form:select>
-                    <input type="text" id="universityInput" class="form-input" placeholder="<spring:message code="createJourney.destinationUniversity.search" text="Type to search university..."/>" />
+                    <input type="text" id="universitySearch" class="form-input" placeholder="<spring:message code="createJourney.destinationUniversity.search" text="Type to search university..."/>" />
                     <div id="universityDropdown" class="dropdown-menu" style="display: none;">
-                        <c:forEach var="university" items="${universities}">
-                            <div class="dropdown-item" data-value="${university.id}" data-text="${university.name}">
-                                    ${university.name}
+                        <c:forEach var="item" items="${universities}">
+                            <div class="dropdown-item" data-value="${item.name}">
+                                <c:out value="${item.name}"/>
                             </div>
                         </c:forEach>
                     </div>
@@ -113,8 +76,12 @@
                 <form:label path="description" cssClass="form-label required-field">
                     <spring:message code="createJourney.description"/>
                 </form:label>
-                <form:textarea path="description" cssClass="form-textarea ${not empty errors.getFieldError('description') ? 'error' : ''}"
-                               placeholder="<spring:message code="createJourney.description.hint"/>" required="true" />
+
+                <c:set var="descriptionHint"><spring:message code="createJourney.description.hint"/></c:set>
+                <form:textarea path="description"
+                               cssClass="form-textarea ${not empty errors.getFieldError('description') ? 'error' : ''}"
+                               placeholder="${descriptionHint}"
+                               required="true" />
                 <form:errors path="description" cssClass="error-message" />
             </div>
 
@@ -134,87 +101,91 @@
 <!-- JavaScript for autocomplete -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // University autocomplete functionality
-        const universitySelect = document.getElementById('universitySelect');
-        const universityInput = document.getElementById('universityInput');
-        const universityDropdown = document.getElementById('universityDropdown');
-        const universityItems = universityDropdown ? universityDropdown.querySelectorAll('.dropdown-item') : [];
+        // Initialize university autocomplete
+        initAutocomplete("destinationUniversity", "universitySearch", "universityDropdown");
 
-        // Initialize with selected value if any
-        if (universitySelect && universitySelect.value) {
-            for (const option of universitySelect.options) {
-                if (option.value === universitySelect.value) {
-                    if (universityInput) universityInput.value = option.textContent;
-                    break;
+        /**
+         * Initialize autocomplete for select fields
+         */
+        function initAutocomplete(selectId, searchId, dropdownId) {
+            const selectField = document.getElementById(selectId);
+            const searchInput = document.getElementById(searchId);
+            const dropdown = document.getElementById(dropdownId);
+
+            if (!selectField || !searchInput || !dropdown) return;
+
+            const dropdownItems = dropdown.querySelectorAll(".dropdown-item");
+
+            // Show dropdown on focus
+            searchInput.addEventListener("focus", function() {
+                dropdown.style.display = "block";
+                filterDropdownItems(this.value.toLowerCase(), dropdownItems);
+            });
+
+            // Hide dropdown when clicking outside
+            document.addEventListener("click", function(e) {
+                if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.style.display = "none";
                 }
-            }
-        }
-
-        // Show dropdown when input is focused
-        if (universityInput && universityDropdown) {
-            universityInput.addEventListener('focus', function() {
-                universityDropdown.style.display = 'block';
-                filterItems(universityInput.value.toLowerCase(), universityItems);
             });
 
             // Filter items as user types
-            universityInput.addEventListener('input', function() {
-                universityDropdown.style.display = 'block';
-                filterItems(this.value.toLowerCase(), universityItems);
+            searchInput.addEventListener("input", function() {
+                dropdown.style.display = "block";
+                filterDropdownItems(this.value.toLowerCase(), dropdownItems);
             });
-        }
 
-        // Handle item selection
-        if (universityItems.length > 0) {
-            universityItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    const value = this.getAttribute('data-value');
-                    const text = this.getAttribute('data-text');
+            // Handle item selection with visual feedback
+            dropdownItems.forEach(item => {
+                item.addEventListener("click", function() {
+                    const value = this.dataset.value;
+                    const text = this.textContent.trim();
 
-                    if (universitySelect) universitySelect.value = value;
-                    if (universityInput) {
-                        universityInput.value = text;
-                        // Visual feedback
-                        universityInput.classList.add('highlight-selection');
-                        setTimeout(() => {
-                            universityInput.classList.remove('highlight-selection');
-                        }, 800);
-                    }
+                    // Update the select field
+                    selectField.value = value;
 
-                    if (universityDropdown) universityDropdown.style.display = 'none';
+                    // Update the search input
+                    searchInput.value = text;
+
+                    // Add highlight effect
+                    searchInput.classList.add("highlight-selection");
+                    setTimeout(() => {
+                        searchInput.classList.remove("highlight-selection");
+                    }, 1000);
+
+                    // Hide dropdown
+                    dropdown.style.display = "none";
+
+                    // Trigger change event
+                    const event = new Event("change");
+                    selectField.dispatchEvent(event);
                 });
             });
+
+            // Initialize with selected value if any
+            if (selectField.value) {
+                const selectedOption = Array.from(selectField.options).find(option => option.value === selectField.value);
+                if (selectedOption) {
+                    searchInput.value = selectedOption.textContent;
+                }
+            }
         }
 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (universityInput && universityDropdown && !universityInput.contains(e.target) && !universityDropdown.contains(e.target)) {
-                universityDropdown.style.display = 'none';
-            }
-        });
-
-        // Helper function to filter dropdown items
-        function filterItems(searchText, items) {
-            let hasVisibleItems = false;
+        /**
+         * Filter dropdown items based on search text
+         */
+        function filterDropdownItems(searchText, items) {
+            let visibleCount = 0;
 
             items.forEach(item => {
-                const itemText = item.textContent.toLowerCase();
-                if (itemText.includes(searchText)) {
-                    item.style.display = 'block';
-                    hasVisibleItems = true;
-                } else {
-                    item.style.display = 'none';
-                }
+                const text = item.textContent.toLowerCase();
+                const isVisible = text.includes(searchText);
+                item.style.display = isVisible ? "block" : "none";
+                if (isVisible) visibleCount++;
             });
 
-            return hasVisibleItems;
+            return visibleCount;
         }
-
-        // Add console logging for debugging
-        console.log('University Select:', universitySelect);
-        console.log('University Input:', universityInput);
-        console.log('University Dropdown:', universityDropdown);
-        console.log('University Items:', universityItems.length);
     });
 </script>
 </body>
