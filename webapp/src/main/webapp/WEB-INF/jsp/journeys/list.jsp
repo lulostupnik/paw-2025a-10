@@ -162,7 +162,7 @@
                 <c:set var="actionGet"><c:url value="/journeys"/></c:set>
                 <form:form action="${actionGet}" method="GET"
                            modelAttribute="filterJourneyForm"
-                           class="filter-form">
+                           class="filter-form" id="journeyFilterForm">
 
                     <div class="filter-grid">
                         <!-- Destination filter with autocomplete -->
@@ -230,10 +230,10 @@
                     </div>
 
                     <div class="filter-actions">
-                        <a href="<c:url value="/journeys"/>" class="btn-danger btn-with-icon">
+                        <button type="button" id="resetFiltersBtn" class="btn-danger btn-with-icon">
                             <i class="fas fa-times btn-icon"></i>
                             <spring:message code="journey.filter.reset"/>
-                        </a>
+                        </button>
                         <button type="submit" class="btn-primary btn-with-icon">
                             <i class="fas fa-filter btn-icon"></i>
                             <spring:message code="journey.filter.button"/>
@@ -254,8 +254,6 @@
                             <jsp:param name="description" value="${journey.description}" />
                             <jsp:param name="profilePictureId" value="${journey.user.profilePictureId}" />
                             <jsp:param name="userName" value="${journey.user.username}" />
-                            <jsp:param name="university" value="${journey.destinationUniversity.name}" />
-                            <jsp:param name="country" value="${journey.destinationUniversity.city.country}" />
                         </jsp:include>
                     </c:forEach>
                     <c:if test="${empty journeys}">
@@ -279,6 +277,7 @@
         // Initialize filter toggle
         const filterToggleBtn = document.getElementById('filterToggleBtn');
         const filterSection = document.getElementById('filterSection');
+        const filterForm = document.getElementById('journeyFilterForm');
 
         // Check if there are any filter parameters in the URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -303,6 +302,41 @@
 
         // Initialize with any pre-selected values
         initializeSelectedValues();
+
+        // Reset button functionality
+        const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+        if (resetFiltersBtn) {
+            resetFiltersBtn.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent default button behavior
+
+                // Clear all form inputs
+                const inputs = filterForm.querySelectorAll('input');
+                inputs.forEach(input => {
+                    input.value = '';
+                });
+
+                // Clear all select elements
+                const selects = filterForm.querySelectorAll('select');
+                selects.forEach(select => {
+                    Array.from(select.options).forEach(option => {
+                        option.selected = false;
+                    });
+                    // Select the first empty option if it exists
+                    if (select.options.length > 0 && select.options[0].value === '') {
+                        select.options[0].selected = true;
+                    }
+                });
+
+                // Clear all selected tags
+                const selectedContainers = filterForm.querySelectorAll('.selected-items-container');
+                selectedContainers.forEach(container => {
+                    container.innerHTML = '';
+                });
+
+                // Navigate to the base journeys URL
+                window.location.href = '<c:url value="/journeys"/>';
+            });
+        }
 
         // Function to initialize autocomplete
         function initAutocomplete(inputId, dropdownId, selectId, containerid, multiSelect) {
