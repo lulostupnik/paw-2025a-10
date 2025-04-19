@@ -16,6 +16,7 @@ public class CreateEventForm {
     private String city;
 
     @Size(max = 100)
+    @NotNull
     private String title;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")

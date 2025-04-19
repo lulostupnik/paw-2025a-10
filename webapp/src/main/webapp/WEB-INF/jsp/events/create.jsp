@@ -32,6 +32,16 @@
         <form:form modelAttribute="createEventForm" action="${createEventUrl}" method="post" enctype="multipart/form-data" class="auth-form">
             <!-- City Field with Enhanced Autocomplete -->
             <div class="form-group">
+                <div class="form-group">
+                    <form:label path="title" cssClass="form-label required-field">
+                        <spring:message code="event.name"/>
+                    </form:label>
+                    <c:set var="title"><spring:message code="event.name.hint"/></c:set>
+                    <form:input path="title" cssClass="form-input ${not empty errors.getFieldError('title') ? 'error' : ''}"
+                                placeholder="${title}" required="true" />
+                    <form:errors path="title" cssClass="error-message" />
+                </div>
+
                 <form:label path="city" cssClass="form-label required-field">
                     <spring:message code="event.city"/>
                 </form:label>

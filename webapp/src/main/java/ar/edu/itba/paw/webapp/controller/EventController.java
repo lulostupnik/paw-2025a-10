@@ -111,7 +111,7 @@ public class EventController {
         
         event = eventService.createEvent(authentication.getName(),eventForm.getCity(), eventForm.getDate(), flyerBytes, eventForm.getDescription(), eventForm.getTitle());
         LOGGER.info("Successfully created event {}", event);
-        return getEvent(event.getId(), new ReplyEventForm());
+        return new ModelAndView("redirect:/events/{id}", "id", event.getId());
     }
 
     @RequestMapping("/{id}")
