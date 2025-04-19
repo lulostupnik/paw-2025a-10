@@ -8,11 +8,132 @@
     <title><spring:message code="journey.page.title"/></title>
     <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/journey-card-styles.css'/>" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <style>
+        /* Autocomplete styling to match existing components */
+        .autocomplete-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .autocomplete-input {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            color: #1f2937;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            box-sizing: border-box;
+        }
+
+        .autocomplete-input:focus {
+            border-color: #4f46e5;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.25);
+        }
+
+        .autocomplete-dropdown {
+            position: absolute;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-top: 4px;
+        }
+
+        .autocomplete-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: #1f2937;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item:hover {
+            background-color: #f9fafb;
+        }
+
+        .selected-items-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .selected-tag {
+            display: flex;
+            align-items: center;
+            background-color: #ede9fe;
+            color: #4f46e5;
+            border-radius: 0.375rem;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .tag-remove {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 8px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            color: #4f46e5;
+        }
+
+        .hidden-select {
+            display: none;
+        }
+
+        .empty-message {
+            color: #6b7280;
+            font-style: italic;
+            font-size: 0.875rem;
+            padding: 0.5rem 0;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Filter grid styling */
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Button styling with icons */
+        .btn-with-icon {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-icon {
+            font-size: 0.875rem;
+        }
+    </style>
 </head>
 <body>
 
 <div class="layout-container">
-    <!-- Include the sidebar component -->
     <!-- Main Content -->
     <div class="main-content">
         <jsp:include page="../components/navbar.jsp" />
@@ -22,11 +143,12 @@
                     <spring:message code="journey.list.title"/>
                 </h2>
                 <div class="journeys-actions">
-                    <button id="filterToggleBtn" class="btn-secondary">
+                    <button id="filterToggleBtn" class="btn-secondary btn-with-icon">
                         <i class="fas fa-filter btn-icon"></i>
                         <spring:message code="journey.filter.toggle"/>
                     </button>
-                    <a href="<c:url value="/journeys/create"/>" class="btn btn-primary">
+                    <a href="<c:url value="/journeys/create"/>" class="btn btn-primary btn-with-icon">
+                        <i class="fas fa-plus btn-icon"></i>
                         <spring:message code="journey.create.button"/>
                     </a>
                 </div>
@@ -43,14 +165,27 @@
                            class="filter-form">
 
                     <div class="filter-grid">
+                        <!-- Destination filter with autocomplete -->
                         <div class="filter-item">
                             <c:set var="destinationLabel"><spring:message code="createJourney.destinationUniversity"/></c:set>
-                            <jsp:include page="../components/dropdown.jsp">
-                                <jsp:param name="path" value="destination"/>
-                                <jsp:param name="label" value="${destinationLabel}"/>
-                                <jsp:param name="items" value="cities"/>
-                                <jsp:param name="defaultMessageCode" value="journey.filter.destination.placeholder"/>
-                            </jsp:include>
+                            <label for="citySearch" class="form-label">${destinationLabel}</label>
+                            <div class="autocomplete-wrapper">
+                                <input type="text" id="citySearch" class="autocomplete-input"
+                                       placeholder="<spring:message code='journey.filter.destination.placeholder'/>"
+                                       value="${param.destinationName}" />
+                                <select id="city" name="destination" class="hidden-select">
+                                    <option value=""></option>
+                                    <c:forEach var="city" items="${cities}">
+                                        <option value="${city.id}" ${param.destination == city.id ? 'selected' : ''}>${city.name}</option>
+                                    </c:forEach>
+                                </select>
+                                <div id="cityDropdown" class="autocomplete-dropdown">
+                                    <c:forEach var="city" items="${cities}">
+                                        <div class="autocomplete-item" data-value="${city.id}">${city.name}</div>
+                                    </c:forEach>
+                                </div>
+                                <div id="citySelectedContainer" class="selected-items-container"></div>
+                            </div>
                         </div>
 
                         <div class="filter-item">
@@ -69,25 +204,37 @@
                             </jsp:include>
                         </div>
 
-                        <!-- Interest Filter using dropdown instead of autocomplete -->
+                        <!-- Interest filter with autocomplete -->
                         <div class="filter-item">
                             <c:set var="interestsLabel"><spring:message code="journey.filter.interest"/></c:set>
-                            <jsp:include page="../components/dropdown.jsp">
-                                <jsp:param name="path" value="interest"/>
-                                <jsp:param name="label" value="${interestsLabel}"/>
-                                <jsp:param name="items" value="interests"/>
-                                <jsp:param name="defaultMessageCode" value="journey.filter.interest.placeholder"/>
-                            </jsp:include>
+                            <label for="interest-search" class="form-label">${interestsLabel}</label>
+                            <div class="autocomplete-wrapper">
+                                <input type="text" id="interest-search" class="autocomplete-input"
+                                       placeholder="<spring:message code='journey.filter.interest.placeholder'/>"
+                                       value="${param.interestName}" />
+                                <select id="interest-select" name="interest" class="hidden-select">
+                                    <option value=""></option>
+                                    <c:forEach var="interest" items="${interests}">
+                                        <option value="${interest.id}" ${param.interest == interest.id ? 'selected' : ''}>${interest.name}</option>
+                                    </c:forEach>
+                                </select>
+                                <div id="interest-dropdown" class="autocomplete-dropdown">
+                                    <c:forEach var="interest" items="${interests}">
+                                        <div class="autocomplete-item" data-value="${interest.id}">${interest.name}</div>
+                                    </c:forEach>
+                                </div>
+                                <div id="interestSelectedContainer" class="selected-items-container"></div>
+                            </div>
                         </div>
 
                     </div>
 
                     <div class="filter-actions">
-                        <a href="<c:url value="/journeys"/>" class="btn-danger">
+                        <a href="<c:url value="/journeys"/>" class="btn-danger btn-with-icon">
                             <i class="fas fa-times btn-icon"></i>
                             <spring:message code="journey.filter.reset"/>
                         </a>
-                        <button type="submit" class="btn-primary">
+                        <button type="submit" class="btn-primary btn-with-icon">
                             <i class="fas fa-filter btn-icon"></i>
                             <spring:message code="journey.filter.button"/>
                         </button>
@@ -121,12 +268,15 @@
     </div>
 </div>
 
-<!-- Filter Toggle JavaScript -->
+<script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
+<script src="<c:url value='/resources/js/journey-cards.js'/>"></script>
+
+<!-- Custom JavaScript for the autocomplete functionality -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize filter toggle
         const filterToggleBtn = document.getElementById('filterToggleBtn');
         const filterSection = document.getElementById('filterSection');
-        const filterForm = filterSection.querySelector('form');
 
         // Check if there are any filter parameters in the URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -139,27 +289,187 @@
         // Toggle filter section visibility
         filterToggleBtn.addEventListener('click', function() {
             filterSection.classList.toggle('hidden');
-
             // Optional: Animate the toggle button
             this.classList.toggle('active');
         });
 
-        // Optional: Add event listener for reset button to clear form fields
-        const resetButton = filterSection.querySelector('a[href*="/journeys"]');
-        if (resetButton) {
-            resetButton.addEventListener('click', function(e) {
-                // Clear all form fields before navigating
-                const inputs = filterForm.querySelectorAll('input');
-                inputs.forEach(input => {
+        // City Autocomplete
+        initAutocomplete('citySearch', 'cityDropdown', 'city', 'citySelectedContainer', false);
+
+        // Interest Autocomplete
+        initAutocomplete('interest-search', 'interest-dropdown', 'interest-select', 'interestSelectedContainer', false);
+
+        // Initialize with any pre-selected values
+        initializeSelectedValues();
+
+        // Function to initialize autocomplete
+        function initAutocomplete(inputId, dropdownId, selectId, containerid, multiSelect) {
+            const input = document.getElementById(inputId);
+            const dropdown = document.getElementById(dropdownId);
+            const select = document.getElementById(selectId);
+            const selectedContainer = document.getElementById(containerid);
+            const options = dropdown.querySelectorAll('.autocomplete-item');
+
+            // Show dropdown on input focus
+            input.addEventListener('focus', function() {
+                dropdown.style.display = 'block';
+                filterOptions(this.value);
+            });
+
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+
+            // Filter options as user types
+            input.addEventListener('input', function() {
+                filterOptions(this.value);
+                dropdown.style.display = 'block';
+            });
+
+            // Handle option selection
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    const value = this.dataset.value;
+                    const text = this.textContent.trim();
+
+                    // For single select, clear previous selection
+                    if (!multiSelect) {
+                        // Clear all options
+                        Array.from(select.options).forEach(opt => {
+                            opt.selected = false;
+                        });
+
+                        // Clear selected container
+                        selectedContainer.innerHTML = '';
+                    }
+
+                    // Find and select the option
+                    Array.from(select.options).forEach(opt => {
+                        if (opt.value === value) {
+                            opt.selected = true;
+                        }
+                    });
+
+                    // Update input and selected container
                     input.value = '';
+
+                    // Create selected tag
+                    const tag = document.createElement('div');
+                    tag.className = 'selected-tag';
+                    tag.innerHTML = text;
+
+                    // Add remove button for tag
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'tag-remove';
+                    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    removeBtn.addEventListener('click', function() {
+                        // Deselect the option
+                        Array.from(select.options).forEach(opt => {
+                            if (opt.value === value) {
+                                opt.selected = false;
+                            }
+                        });
+
+                        // Remove the tag
+                        tag.remove();
+                    });
+
+                    tag.appendChild(removeBtn);
+                    selectedContainer.appendChild(tag);
+
+                    // Hide dropdown
+                    dropdown.style.display = 'none';
+                });
+            });
+
+            // Filter dropdown options based on search text
+            function filterOptions(searchText) {
+                const filter = searchText.toLowerCase();
+                let hasResults = false;
+
+                options.forEach(option => {
+                    const text = option.textContent.toLowerCase();
+                    if (text.includes(filter)) {
+                        option.style.display = '';
+                        hasResults = true;
+                    } else {
+                        option.style.display = 'none';
+                    }
                 });
 
-                // Let the default navigation happen
-                // (The link will take the user to the base journeys URL)
-            });
+                // Show no results message if needed
+                let noResultsMsg = dropdown.querySelector('.empty-message');
+                if (!hasResults) {
+                    if (!noResultsMsg) {
+                        noResultsMsg = document.createElement('div');
+                        noResultsMsg.className = 'empty-message';
+                        noResultsMsg.textContent = 'No results found';
+                        dropdown.appendChild(noResultsMsg);
+                    }
+                    noResultsMsg.style.display = '';
+                } else if (noResultsMsg) {
+                    noResultsMsg.style.display = 'none';
+                }
+            }
+        }
+
+        // Initialize selected values from URL parameters
+        function initializeSelectedValues() {
+            // City
+            const citySelect = document.getElementById('city');
+            const citySelectedContainer = document.getElementById('citySelectedContainer');
+
+            if (citySelect.value) {
+                const selectedOption = Array.from(citySelect.options).find(opt => opt.selected);
+                if (selectedOption) {
+                    const tag = document.createElement('div');
+                    tag.className = 'selected-tag';
+                    tag.innerHTML = selectedOption.textContent;
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'tag-remove';
+                    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    removeBtn.addEventListener('click', function() {
+                        selectedOption.selected = false;
+                        tag.remove();
+                    });
+
+                    tag.appendChild(removeBtn);
+                    citySelectedContainer.appendChild(tag);
+                }
+            }
+
+            // Interest
+            const interestSelect = document.getElementById('interest-select');
+            const interestSelectedContainer = document.getElementById('interestSelectedContainer');
+
+            if (interestSelect.value) {
+                const selectedOption = Array.from(interestSelect.options).find(opt => opt.selected);
+                if (selectedOption) {
+                    const tag = document.createElement('div');
+                    tag.className = 'selected-tag';
+                    tag.innerHTML = selectedOption.textContent;
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'tag-remove';
+                    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    removeBtn.addEventListener('click', function() {
+                        selectedOption.selected = false;
+                        tag.remove();
+                    });
+
+                    tag.appendChild(removeBtn);
+                    interestSelectedContainer.appendChild(tag);
+                }
+            }
         }
     });
 </script>
-<script src="<c:url value='/resources/js/journey-cards.js'/>"></script>
 </body>
 </html>
