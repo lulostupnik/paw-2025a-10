@@ -115,7 +115,6 @@
                 <p class="section-subtitle-landing "><spring:message code="landing.featured.events.subtitle"/></p>
             </div>
             <div class="featured-events">
-                <c:forEach items="${recommendedEvents}" var="event">
                     <c:if test="${empty recommendedEvents}">
                         <div class="empty-state">
                             <div class="empty-icon">
@@ -153,7 +152,6 @@
                             </jsp:include>
                         </c:forEach>
                     </c:if>
-                </c:forEach>
             <div class="featured-cta">
                 <a href="<c:url value='/events'/>" class="btn-primary btn-large">
                     <spring:message code="landing.featured.events.cta"/>

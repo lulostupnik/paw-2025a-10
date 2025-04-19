@@ -94,7 +94,7 @@
                         <!-- Attend Button Section -->
                         <div class="attendance-control">
                             <c:choose>
-                                <c:when test="${attend}">
+                                <c:when test="${not empty username and attend}">
                                     <div class="attendance-status-container">
                                         <div class="btn-attendance btn-attending">
                                             <img src="<c:url value='/resources/icons/check.svg'/>" alt="<spring:message code='event.attending'/>" class="btn-icon" />

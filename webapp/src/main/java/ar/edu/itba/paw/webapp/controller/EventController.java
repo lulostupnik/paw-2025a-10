@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -131,7 +132,11 @@ public class EventController {
         List<User> attendees = eventService.getEventAttendees(id);
         LOGGER.debug("Got event attendees {}", attendees);
 
-        Boolean isAttending = eventService.isUserAttending(SecurityContextHolder.getContext().getAuthentication().getName(), id);
+        boolean isAttending = false;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal())) {
+            isAttending = eventService.isUserAttending(SecurityContextHolder.getContext().getAuthentication().getName(), id);
+        }
         LOGGER.debug("User attending event {}", isAttending);
 
         ModelAndView mav = new ModelAndView("events/detail");
@@ -189,19 +194,27 @@ public class EventController {
     }
 
     @RequestMapping(value="/{id}/attend",method = POST,produces = "application/json")
-    public ModelAndView attendEvent(@PathVariable int id) {
+    public ModelAndView attendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer) {
                 LOGGER.debug("Attending event {}", id);
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
                 eventService.attendEvent(authentication.getName(), id);
-                return new ModelAndView("redirect:/events/{id}");
+        if (referer != null && !referer.isEmpty()) {
+            return new ModelAndView("redirect:" + referer);
+        } else {
+            return new ModelAndView("redirect:/events/{id}");
+        }
     }
 
     @RequestMapping(value="/{id}/dont-attend",method = POST,produces = "application/json")
-    public ModelAndView dontAttendEvent(@PathVariable int id) {
+    public ModelAndView dontAttendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer) {
         LOGGER.debug("Attending event {}", id);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         eventService.cancelAttendance(authentication.getName(), id);
-        return new ModelAndView("redirect:/events/{id}");
+        if (referer != null && !referer.isEmpty()) {
+            return new ModelAndView("redirect:" + referer);
+        } else {
+            return new ModelAndView("redirect:/events/{id}");
+        }
     }
 
 

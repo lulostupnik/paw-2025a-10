@@ -91,6 +91,10 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void attendEvent(long userId, long eventId) {
+        if(eventAttendanceDao.isAttending(userId, eventId)){
+            LOGGER.debug("User {} is already attending event {}", userId, eventId);
+            return;
+        }
         eventAttendanceDao.attend(userId, eventId);
     }
 

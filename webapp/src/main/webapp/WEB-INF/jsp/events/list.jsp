@@ -6,8 +6,6 @@
 <head>
   <title><spring:message code="event.page.title"/></title>
   <link rel="stylesheet" href="<c:url value="/resources/css/main.css"/>" />
-  <link rel="stylesheet" href="<c:url value="/resources/css/components/cards.css"/>" />
-  <link rel="stylesheet" href="<c:url value="/resources/css/pages/events.css"/>" />
 </head>
 <body>
 

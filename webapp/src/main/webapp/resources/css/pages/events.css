@@ -382,38 +382,6 @@
     color: var(--color-primary, #4f46e5);
 }
 
-
-
-.attend-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background-color: var(--color-accent, #FF385C);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 20px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-}
-
-.attend-button:hover {
-    background-color: var(--color-accent-dark, #E31C5F);
-    transform: translateY(-2px);
-}
-
-.attend-button:active {
-    transform: translateY(0);
-}
-
-.attend-icon {
-    width: 20px;
-    height: 20px;
-    color: white;
-}
-
 .attending-badge {
     display: flex;
     align-items: center;
