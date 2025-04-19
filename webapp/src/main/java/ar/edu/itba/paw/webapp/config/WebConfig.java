@@ -116,7 +116,7 @@ public class WebConfig implements WebMvcConfigurer {
         dbp.addScript(schemaSql);
         return dbp;
     }
-        @Bean
+    @Bean
     public StandardServletMultipartResolver multipartResolver() {
         return new StandardServletMultipartResolver();
     }

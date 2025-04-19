@@ -7,79 +7,102 @@
     <title><spring:message code="createJourney.title"/></title>
     <!-- Include custom CSS -->
     <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
-
+    <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
+    <link rel="stylesheet" href="<c:url value='/resources/css/form-enhancements.css'/>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
+<jsp:include page="../components/navbar.jsp"/>
 
-<div class="container">
-    <!-- Back Link -->
-    <div class="mb-6">
-        <a href="<c:url value="/journeys"/>" class="back-link">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
-            </svg>
-            <spring:message code="journey.back"/>
-        </a>
-    </div>
-
-    <div class="mx-auto max-w-2xl">
-        <div class="text-center">
-            <h2 class="header">
-                <spring:message code="createJourney.title"/>
-            </h2>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <svg xmlns="http://www.w3.org/2000/svg" class="auth-logo-img" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </div>
+            <h1 class="auth-title"><spring:message code="createJourney.title"/></h1>
+            <p class="auth-subtitle"><spring:message code="createJourney.subtitle" text="Share your academic journey with others"/></p>
         </div>
 
-        <!-- Card -->
-        <div class="card">
-            <c:url var="registerUrl" value="/journeys/create"/>
-            <form:form modelAttribute="createJourneyForm" action="${registerUrl}" method="post">
+        <c:url var="createJourneyUrl" value="/journeys/create"/>
+        <form:form modelAttribute="createJourneyForm" action="${createJourneyUrl}" method="post" class="auth-form" id="journeyForm">
+            <!-- Start Date Field -->
+            <div class="form-group">
+                <form:label path="startDate" cssClass="form-label required-field">
+                    <spring:message code="createJourney.startDate"/>
+                </form:label>
+                <form:input path="startDate" id="startDate" type="date" cssClass="form-input ${not empty errors.getFieldError('startDate') ? 'error' : ''}" required="true" />
+                <form:errors path="startDate" cssClass="error-message" />
+            </div>
 
-                <!-- Start Date Field -->
-                <c:set var="startDateLabel"><spring:message code="createJourney.startDate"/></c:set>
-                <jsp:include page="../components/date-field.jsp">
-                    <jsp:param name="path" value="startDate" />
-                    <jsp:param name="label" value="${startDateLabel}" />
-                    <jsp:param name="isStartDate" value="true" />
-                </jsp:include>
+            <!-- End Date Field -->
+            <div class="form-group">
+                <form:label path="endDate" cssClass="form-label required-field">
+                    <spring:message code="createJourney.endDate"/>
+                </form:label>
+                <form:input path="endDate" id="endDate" type="date" cssClass="form-input ${not empty errors.getFieldError('endDate') ? 'error' : ''}" required="true" />
+                <form:errors path="endDate" cssClass="error-message" />
+            </div>
 
-                <!-- End Date Field -->
-                <c:set var="endDateLabel"><spring:message code="createJourney.endDate"/></c:set>
-                <jsp:include page="../components/date-field.jsp">
-                    <jsp:param name="path" value="endDate" />
-                    <jsp:param name="label" value="${endDateLabel}" />
-                </jsp:include>
+            <!-- Destination University Field with Enhanced Autocomplete -->
+            <div class="form-group">
+                <form:label path="destinationUniversity" cssClass="form-label required-field">
+                    <spring:message code="createJourney.destinationUniversity"/>
+                </form:label>
+                <div class="autocomplete-wrapper">
+                    <form:select path="destinationUniversity" id="destinationUniversity" cssClass="form-select ${not empty errors.getFieldError('destinationUniversity') ? 'error' : ''}" required="true" style="display: none;">
+                        <form:option value=""><spring:message code="createJourney.destinationUniversity.select"/></form:option>
+                        <c:forEach var="item" items="${universities}">
+                            <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
+                        </c:forEach>
+                    </form:select>
+                    <input type="text" id="universitySearch" class="form-input autocomplete-input" placeholder="<spring:message code="createJourney.destinationUniversity.search" text="Type to search university..."/>" />
+                    <div id="universityDropdown" class="autocomplete-dropdown" style="display: none;">
+                        <c:forEach var="item" items="${universities}">
+                            <div class="autocomplete-item" data-value="${item.name}">
+                                <c:out value="${item.name}"/>
+                            </div>
+                        </c:forEach>
+                    </div>
+                    <!-- Container for selected universities -->
+                    <div id="selectedUniversities" class="selected-tags"></div>
+                </div>
+                <form:errors path="destinationUniversity" cssClass="error-message" />
+            </div>
 
-                <!-- Destination University Field -->
-                <c:set var="universityLabel"><spring:message code="createJourney.destinationUniversity"/></c:set>
-                <c:set target="${requestScope}" property="universityItems" value="${universities}" />
-                <jsp:include page="../components/dropdown.jsp">
-                    <jsp:param name="path" value="destinationUniversity" />
-                    <jsp:param name="label" value="${universityLabel}" />
-                    <jsp:param name="items" value="universityItems" />
-                    <jsp:param name="defaultMessageCode" value="createJourney.destinationUniversity.select" />
-                </jsp:include>
+            <!-- Description Field -->
+            <div class="form-group">
+                <form:label path="description" cssClass="form-label required-field">
+                    <spring:message code="createJourney.description"/>
+                </form:label>
 
-                <!-- Description Field -->
-                <c:set var="descriptionLabel"><spring:message code="createJourney.description"/></c:set>
                 <c:set var="descriptionHint"><spring:message code="createJourney.description.hint"/></c:set>
-                <jsp:include page="../components/text-area.jsp">
-                    <jsp:param name="path" value="description" />
-                    <jsp:param name="label" value="${descriptionLabel}" />
-                    <jsp:param name="placeholder" value="${descriptionHint}" />
-                </jsp:include>
+                <form:textarea path="description"
+                               cssClass="form-textarea ${not empty errors.getFieldError('description') ? 'error' : ''}"
+                               placeholder="${descriptionHint}"
+                               required="true" />
+                <form:errors path="description" cssClass="error-message" />
+            </div>
 
+            <button type="submit" class="form-button">
+                <spring:message code="createJourney.submit"/>
+            </button>
+        </form:form>
 
-                <!-- Submit Button -->
-                <c:set var="submitButtonLabel"><spring:message code="createJourney.submit"/></c:set>
-                <jsp:include page="../components/button.jsp">
-                    <jsp:param name="label" value="${submitButtonLabel}" />
-                    <jsp:param name="type" value="submit" />
-                </jsp:include>
-            </form:form>
+        <div class="auth-footer">
+            <a href="<c:url value='/journeys'/>" class="auth-link">
+                <spring:message code="journey.back" text="Back to journeys"/>
+            </a>
         </div>
-        <!-- End Card -->
     </div>
 </div>
 
+<!-- Include modularized JavaScript files -->
+<script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
+<script src="<c:url value='/resources/js/components/file-upload.js'/>"></script>
+<script src="<c:url value='/resources/js/journey-form.js'/>"></script>
 </body>
 </html>
