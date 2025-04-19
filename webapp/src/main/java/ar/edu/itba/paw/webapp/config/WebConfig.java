@@ -86,8 +86,8 @@ public class WebConfig implements WebMvcConfigurer {
     public DataSource dataSource() {
         final SimpleDriverDataSource ds = new SimpleDriverDataSource();
         ds.setDriverClass(org.postgresql.Driver.class);
-        ds.setUrl("jdbc:postgresql://localhost/paw");
-        ds.setUsername("postgres");
+        ds.setUrl("jdbc:postgresql://localhost/paw-2025a-10");
+        ds.setUsername("paw-2025a-10");
         ds.setPassword("<CONFIGURAR_LOCALMENTE>");
         return ds;
     }
@@ -116,7 +116,7 @@ public class WebConfig implements WebMvcConfigurer {
         dbp.addScript(schemaSql);
         return dbp;
     }
-        @Bean
+    @Bean
     public StandardServletMultipartResolver multipartResolver() {
         return new StandardServletMultipartResolver();
     }
