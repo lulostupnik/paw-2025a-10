@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import javax.sql.DataSource;
 
+import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +20,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
-import ar.edu.itba.paw.models.Career;
-import ar.edu.itba.paw.models.City;
-import ar.edu.itba.paw.models.Journey;
-import ar.edu.itba.paw.models.University;
-import ar.edu.itba.paw.models.User;
 
 /*
 
@@ -47,6 +43,9 @@ public class JourneyJdbcDao implements JourneyDao {
 
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
+
+    private static final String ORDER_BY = " ORDER BY j.id ASC ";
+    private static final String CURSOR_CONDITION = " j.id > ? ";
 
     private static final String QUERY = "SELECT \n" +
             "    us.id AS user_id, \n" +
@@ -167,6 +166,22 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
     @Override
+    public CursorPage<Journey, Long> listAll(Long cursor, int size) {
+        LOGGER.debug("Paginated query for all journeys (cursor: {}, size: {})", cursor, size);
+        if(cursor == null){
+            cursor = 0L;
+            // podría hacerlo distinto
+        }
+        List<Journey> journeys = jdbcTemplate.query(QUERY + " WHERE j.id > ? ORDER BY j.id ASC LIMIT ?", JOURNEY_ROW_MAPPER, cursor, size + 1);
+
+        boolean hasNext = journeys.size() > size;
+        if (hasNext) journeys.removeLast();
+
+        Long nextCursor = hasNext ? journeys.getLast().getId() : null;
+        return new CursorPage<>(journeys, nextCursor, hasNext);
+    }
+
+    @Override
     public Optional<Journey> findById(long id) {
         LOGGER.debug("Querying DB for journey {}", id);
         return jdbcTemplate.query(QUERY + " WHERE j.id = ?", JOURNEY_ROW_MAPPER, id).stream().findFirst();
@@ -223,6 +238,59 @@ public class JourneyJdbcDao implements JourneyDao {
         }
 
         return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
+    }
+
+
+    @Override
+    public CursorPage<Journey, Long> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest, Long cursor, int size) {
+        LOGGER.debug("Paginated query for journeys with filters (cursor: {}, size: {})", cursor, size);
+        String query;
+        List<Object> params = new ArrayList<>();
+
+        if (interest != null && !interest.isEmpty()) {
+            query = QUERY_INTEREST;
+        } else {
+            query = QUERY;
+        }
+
+        List<String> filters = new ArrayList<>();
+
+        if (cursor != null) {
+            filters.add(CURSOR_CONDITION);
+            params.add(cursor);
+        }
+
+        if (destination != null && !destination.isEmpty()) {
+            filters.add("ci2.name = ?");
+            params.add(destination);
+        }
+        if (startDate != null) {
+            filters.add("j.start_date <= ?");
+            params.add(startDate);
+        }
+        if (endDate != null) {
+            filters.add("j.end_date >= ?");
+            params.add(endDate);
+        }
+        if (interest != null && !interest.isEmpty()) {
+            filters.add("c.name = ?");
+            params.add(interest);
+        }
+
+        if (!filters.isEmpty()) {
+            query += " WHERE " + String.join(" AND ", filters);
+        }
+
+        query += ORDER_BY + " LIMIT ?";
+        params.add(size + 1);
+
+        List<Journey> journeys = jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
+
+        boolean hasNext = journeys.size() > size;
+        if (hasNext) journeys.removeLast();
+
+        Long nextCursor = hasNext ? journeys.getLast().getId() : null;
+        return new CursorPage<>(journeys, nextCursor,hasNext);
     }
 
 
@@ -346,3 +414,91 @@ public class JourneyJdbcDao implements JourneyDao {
 
 
 }
+/*
+import ar.edu.itba.paw.models.pagination.CursorPage;
+
+
+
+@Override
+public CursorPage<Journey, Long> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest, Long cursor, int size) {
+    LOGGER.debug("Paginated query for journeys with filters (cursor: {}, size: {})", cursor, size);
+    String query;
+    List<Object> params = new ArrayList<>();
+
+    if (interest != null && !interest.isEmpty()) {
+        query = QUERY_INTEREST;
+    } else {
+        query = QUERY;
+    }
+
+    List<String> filters = new ArrayList<>();
+
+    if (cursor != null) {
+        filters.add(CURSOR_CONDITION);
+        params.add(cursor);
+    }
+
+    if (destination != null && !destination.isEmpty()) {
+        filters.add("ci2.name = ?");
+        params.add(destination);
+    }
+    if (startDate != null) {
+        filters.add("j.start_date <= ?");
+        params.add(startDate);
+    }
+    if (endDate != null) {
+        filters.add("j.end_date >= ?");
+        params.add(endDate);
+    }
+    if (interest != null && !interest.isEmpty()) {
+        filters.add("c.name = ?");
+        params.add(interest);
+    }
+
+    if (!filters.isEmpty()) {
+        query += " WHERE " + String.join(" AND ", filters);
+    }
+
+    query += ORDER_BY + " LIMIT ?";
+    params.add(size + 1);
+
+    List<Journey> journeys = jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
+
+    boolean hasNext = journeys.size() > size;
+    if (hasNext) journeys.remove(journeys.size() - 1);
+
+    Long nextCursor = hasNext ? journeys.get(journeys.size() - 1).getId() : null;
+    return new CursorPage<>(journeys, nextCursor);
+}
+
+@Override
+public CursorPage<Journey, Long> getRecommendedJourneys(String email, Long cursor, int size) {
+    LOGGER.debug("Paginated query for recommended journeys for user {} (cursor: {}, size: {})", email, cursor, size);
+
+    String query = QUERY +
+            " WHERE us.email != ? AND j.id NOT IN (" +
+            "   SELECT j2.id FROM journeys j2 JOIN users u2 ON j2.user_id = u2.id WHERE u2.email = ?" +
+            ")";
+
+    List<Object> params = new ArrayList<>();
+    params.add(email);
+    params.add(email);
+
+    if (cursor != null) {
+        query += " AND " + CURSOR_CONDITION;
+        params.add(cursor);
+    }
+
+    query += ORDER_BY + " LIMIT ?";
+    params.add(size + 1);
+
+    List<Journey> journeys = jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
+
+    boolean hasNext = journeys.size() > size;
+    if (hasNext) journeys.remove(journeys.size() - 1);
+
+    Long nextCursor = hasNext ? journeys.get(journeys.size() - 1).getId() : null;
+    return new CursorPage<>(journeys, nextCursor);
+}
+
+ */

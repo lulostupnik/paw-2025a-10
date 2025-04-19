@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.interfaces.persistence;
 
+import ar.edu.itba.paw.models.CursorPage;
 import ar.edu.itba.paw.models.Event;
 import ar.edu.itba.paw.models.User;
 import java.util.List;
@@ -11,4 +12,7 @@ public interface EventAttendanceDao {
     List<User> getAttendees(long eventId);
     int getAttendeesCount(long eventId);
     List<Event> getAttendingEvents(long userId);
+
+    CursorPage<Event, Long> getAttendingEvents(long userId, Long cursor, int limit);
+    CursorPage<User, Long> getAttendees(long eventId, Long cursor, int limit);
 }

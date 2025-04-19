@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +17,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import ar.edu.itba.paw.interfaces.persistence.EventAttendanceDao;
-import ar.edu.itba.paw.models.Career;
-import ar.edu.itba.paw.models.City;
-import ar.edu.itba.paw.models.Event;
-import ar.edu.itba.paw.models.University;
-import ar.edu.itba.paw.models.User;
 
 @Repository
 public class EventAttendanceJdbcDao implements EventAttendanceDao {
@@ -192,42 +188,52 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
         LOGGER.debug("Querying DB for events user {} will attend", userId);
         return jdbcTemplate.query(GET_EVENTS_QUERY, EVENT_ROW_MAPPER, userId);
     }
+
+    @Override
+    public CursorPage<Event, Long> getAttendingEvents(long userId, Long cursor, int limit) {
+        LOGGER.debug("Querying DB for events user {} will attend with cursor {} and limit {}", userId, cursor, limit);
+
+        String sql = GET_EVENTS_QUERY + (cursor != null ? " AND e.id > ? " : "") + " ORDER BY e.id LIMIT ?";
+
+        List<Event> eventList;
+        if (cursor != null) {
+            eventList = jdbcTemplate.query(sql, EVENT_ROW_MAPPER, userId, cursor, limit + 1);
+        } else {
+            eventList = jdbcTemplate.query(sql, EVENT_ROW_MAPPER, userId, limit + 1);
+        }
+
+        boolean hasNext = eventList != null && eventList.size() > limit;
+        Long nextCursor = null;
+
+        if (hasNext) {
+            eventList.removeLast();
+            nextCursor = eventList.getLast().getId();
+        }
+
+        return new CursorPage<>(eventList, nextCursor, hasNext);
+    }
+
+    @Override
+    public CursorPage<User, Long> getAttendees(long eventId, Long cursor, int limit) {
+        LOGGER.debug("Querying DB for attendees for event {} with cursor {} and limit {}", eventId, cursor, limit);
+
+        String sql = GET_ATTENDEES_QUERY + (cursor != null ? " AND u.id > ? " : "") + " ORDER BY u.id LIMIT ? ";
+
+        List<User> attendeeList;
+        if (cursor != null) {
+            attendeeList = jdbcTemplate.query(sql, USER_ROW_MAPPER, eventId, cursor, limit + 1);
+        } else {
+            attendeeList = jdbcTemplate.query(sql, USER_ROW_MAPPER, eventId, limit + 1);
+        }
+
+        boolean hasNext = attendeeList != null && attendeeList.size() > limit;
+        Long nextCursor = null;
+
+        if (hasNext) {
+            attendeeList.removeLast();
+            nextCursor = attendeeList.getLast().getId();
+        }
+
+        return new CursorPage<>(attendeeList, nextCursor, hasNext);
+    }
 }
-
-/*
-    @Override
-    public void cancel(User user, Event event) {
-        jdbcTemplate.update("DELETE FROM events_attendances WHERE user_id = ? AND event_id = ?",
-                user.getId(), event.getId());
-    }
-
-    @Override
-    public boolean isAttending(User user, Event event) {
-        Integer count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM events_attendances WHERE user_id = ? AND event_id = ?",
-                Integer.class, user.getId(), event.getId());
-        return count != null && count > 0;
-    }
-
-    @Override
-    public List<User> getAttendees(Event event) {
-        return jdbcTemplate.query(UserJdbcDao.QUERY +
-                " JOIN events_attendances ea ON u.id = ea.user_id WHERE ea.event_id = ?",
-                UserJdbcDao.USER_ROW_MAPPER, event.getId());
-    }
-
-    @Override
-    public int getAttendeesCount(Event event) {
-        Integer count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM events_attendances WHERE event_id = ?",
-                Integer.class, event.getId());
-        return count != null ? count : 0;
-    }
-
-    @Override
-    public List<Event> getAttendingEvents(User user) {
-        return jdbcTemplate.query(EventJdbcDao.QUERY +
-                " JOIN events_attendances ea ON e.id = ea.event_id WHERE ea.user_id = ?",
-                EventJdbcDao.EVENT_ROW_MAPPER, user.getId());
-    }
- */

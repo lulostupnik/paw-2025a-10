@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.interfaces.persistence;
 
+import ar.edu.itba.paw.models.CursorPage;
 import ar.edu.itba.paw.models.EventResponse;
 import ar.edu.itba.paw.models.JourneyResponse;
 
@@ -11,4 +12,5 @@ public interface EventResponseDao {
     EventResponse create(long userId, String username, long eventId, String message, LocalDateTime dateTime);
     List<EventResponse> listAllFromEvent(long eventId);
 
+    CursorPage<EventResponse, LocalDateTime> getEventsForUser(long eventId, LocalDateTime cursor, int limit);
 }

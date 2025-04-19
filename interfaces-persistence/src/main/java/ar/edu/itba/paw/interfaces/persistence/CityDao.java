@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.interfaces.persistence;
 
 import ar.edu.itba.paw.models.City;
+import ar.edu.itba.paw.models.CursorPage;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,5 +13,11 @@ public interface CityDao {
     List<City> findAllBySubstring(String substring); // method to find all the cities which have substring in their name
     Optional<City> findByName(String name); // method to find a city by its name
     List<City> getAllCities();
+
+    CursorPage<City, Long> findAll(Long cursor, int limit);
+
+    CursorPage<City, Long> findAllBySubstring(String substring, Long cursor, int limit);
+
+    CursorPage<City, Long> findAllByCountry(String country, Long cursor, int limit);
     // add method that finds cities with a "similar" name -> using Levensthein?
 }
