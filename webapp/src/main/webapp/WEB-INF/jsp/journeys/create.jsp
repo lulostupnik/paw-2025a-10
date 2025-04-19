@@ -34,7 +34,7 @@
                 <form:label path="startDate" cssClass="form-label required-field">
                     <spring:message code="createJourney.startDate"/>
                 </form:label>
-                <form:input path="startDate" id="startDate" type="date" cssClass="form-input ${not empty errors.getFieldError('startDate') ? 'error' : ''}" required="true" />
+                <form:input path="startDate" id="startDate" type="date" cssClass="form-input ${not empty errors.getFieldError('startDate') ? 'error' : ''}" />
                 <form:errors path="startDate" cssClass="error-message" />
             </div>
 
@@ -43,7 +43,7 @@
                 <form:label path="endDate" cssClass="form-label required-field">
                     <spring:message code="createJourney.endDate"/>
                 </form:label>
-                <form:input path="endDate" id="endDate" type="date" cssClass="form-input ${not empty errors.getFieldError('endDate') ? 'error' : ''}" required="true" />
+                <form:input path="endDate" id="endDate" type="date" cssClass="form-input ${not empty errors.getFieldError('endDate') ? 'error' : ''}" />
                 <form:errors path="endDate" cssClass="error-message" />
             </div>
 
@@ -53,7 +53,7 @@
                     <spring:message code="createJourney.destinationUniversity"/>
                 </form:label>
                 <div class="autocomplete-wrapper">
-                    <form:select path="destinationUniversity" id="destinationUniversity" cssClass="form-select ${not empty errors.getFieldError('destinationUniversity') ? 'error' : ''}" required="true" style="display: none;">
+                    <form:select path="destinationUniversity" id="destinationUniversity" cssClass="form-select ${not empty errors.getFieldError('destinationUniversity') ? 'error' : ''}" style="display: none;">
                         <form:option value=""><spring:message code="createJourney.destinationUniversity.select"/></form:option>
                         <c:forEach var="item" items="${universities}">
                             <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
@@ -83,7 +83,7 @@
                 <form:textarea path="description"
                                cssClass="form-textarea ${not empty errors.getFieldError('description') ? 'error' : ''}"
                                placeholder="${descriptionHint}"
-                               required="true" />
+                />
                 <form:errors path="description" cssClass="error-message" />
             </div>
 

@@ -49,7 +49,7 @@
                        type="email"
                        placeholder="<spring:message code="login.email.placeholder" text="Enter your email"/>"
                        class="form-input"
-                       required />
+                />
             </div>
 
             <div class="form-group">
@@ -61,7 +61,7 @@
                        type="password"
                        placeholder="<spring:message code="login.password.placeholder" text="Enter your password"/>"
                        class="form-input"
-                       required />
+                />
             </div>
 
             <div class="checkbox-container">

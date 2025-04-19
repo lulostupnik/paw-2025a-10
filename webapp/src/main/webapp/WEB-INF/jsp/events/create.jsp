@@ -38,7 +38,7 @@
                     </form:label>
                     <c:set var="title"><spring:message code="event.name.hint"/></c:set>
                     <form:input path="title" cssClass="form-input ${not empty errors.getFieldError('title') ? 'error' : ''}"
-                                placeholder="${title}" required="true" />
+                                placeholder="${title}" />
                     <form:errors path="title" cssClass="error-message" />
                 </div>
 
@@ -46,7 +46,7 @@
                     <spring:message code="event.city"/>
                 </form:label>
                 <div class="autocomplete-wrapper">
-                    <form:select path="city" id="city" cssClass="form-select ${not empty errors.getFieldError('city') ? 'error' : ''}" required="true" style="display: none;">
+                    <form:select path="city" id="city" cssClass="form-select ${not empty errors.getFieldError('city') ? 'error' : ''}" style="display: none;">
                         <form:option value=""><spring:message code="createJourney.destinationCity.select"/></form:option>
                         <c:forEach var="item" items="${cities}">
                             <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
@@ -71,7 +71,7 @@
                 <form:label path="date" cssClass="form-label required-field">
                     <spring:message code="event.date"/>
                 </form:label>
-                <form:input path="date" type="date" cssClass="form-input ${not empty errors.getFieldError('date') ? 'error' : ''}" required="true" />
+                <form:input path="date" type="date" cssClass="form-input ${not empty errors.getFieldError('date') ? 'error' : ''}" />
                 <form:errors path="date" cssClass="error-message" />
             </div>
 
@@ -84,7 +84,7 @@
                 <form:textarea path="description"
                                cssClass="form-textarea ${not empty errors.getFieldError('description') ? 'error' : ''}"
                                placeholder="${descriptionHint}"
-                               required="true" />
+                               />
                 <form:errors path="description" cssClass="error-message" />
             </div>
 

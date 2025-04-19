@@ -58,7 +58,7 @@
                             <spring:message code="createJourney.userEmail"/>
                         </form:label>
                         <form:input path="email" type="email" cssClass="form-input ${not empty errors.getFieldError('email') ? 'error' : ''}"
-                                    placeholder="example@email.com" required="true" />
+                                    placeholder="example@email.com"  />
                         <form:errors path="email" cssClass="error-message" />
                     </div>
 
@@ -70,7 +70,7 @@
                         <div class="password-field-container">
                             <form:password path="password" id="password"
                                            cssClass="form-input ${not empty errors.getFieldError('password') ? 'error' : ''}"
-                                           placeholder="••••••••" required="true" />
+                                           placeholder="••••••••" />
                             <button type="button" id="togglePassword" class="password-toggle-button" aria-label="Show password">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" id="eyeIcon">
                                     <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
@@ -140,7 +140,7 @@
                         </label>
                         <div class="password-field-container">
                             <input type="password" id="confirmPassword" name="confirmPassword"
-                                   class="form-input" placeholder="••••••••" required />
+                                   class="form-input" placeholder="••••••••"  />
                             <button type="button" id="toggleConfirmPassword" class="password-toggle-button" aria-label="Show password">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" id="confirmEyeIcon">
                                     <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
@@ -162,7 +162,7 @@
                         </form:label>
                         <c:set var="john"><spring:message code="john"/></c:set>
                         <form:input path="firstName" cssClass="form-input ${not empty errors.getFieldError('firstName') ? 'error' : ''}"
-                                    placeholder="${john}" required="true" />
+                                    placeholder="${john}" />
                         <form:errors path="firstName" cssClass="error-message" />
                     </div>
 
@@ -172,7 +172,7 @@
                         </form:label>
                         <c:set var="doe"><spring:message code="doe"/></c:set>
                         <form:input path="lastName" cssClass="form-input ${not empty errors.getFieldError('lastName') ? 'error' : ''}"
-                                    placeholder="${doe}" required="true" />
+                                    placeholder="${doe}" />
                         <form:errors path="lastName" cssClass="error-message" />
                     </div>
                 </div>
@@ -184,7 +184,7 @@
                         </form:label>
                         <c:set var="johnUsername"><spring:message code="john.username"/></c:set>
                         <form:input path="username" cssClass="form-input ${not empty errors.getFieldError('username') ? 'error' : ''}"
-                                    placeholder="${johnUsername}" required="true" />
+                                    placeholder="${johnUsername}" />
                         <form:errors path="username" cssClass="error-message" />
                     </div>
 
@@ -194,7 +194,7 @@
                             <spring:message code="event.career"/>
                         </form:label>
                         <div class="autocomplete-wrapper">
-                            <form:select path="career" id="career" cssClass="form-select ${not empty errors.getFieldError('career') ? 'error' : ''}" required="true" style="display: none;">
+                            <form:select path="career" id="career" cssClass="form-select ${not empty errors.getFieldError('career') ? 'error' : ''}" style="display: none;">
                                 <form:option value=""><spring:message code="event.career.select"/></form:option>
                                 <c:forEach var="item" items="${careers}">
                                     <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
@@ -220,7 +220,7 @@
                             <spring:message code="createJourney.originUniversity"/>
                         </form:label>
                         <div class="autocomplete-wrapper">
-                            <form:select path="originUniversity" id="originUniversity" cssClass="form-select ${not empty errors.getFieldError('originUniversity') ? 'error' : ''}" required="true" style="display: none;">
+                            <form:select path="originUniversity" id="originUniversity" cssClass="form-select ${not empty errors.getFieldError('originUniversity') ? 'error' : ''}" style="display: none;">
                                 <form:option value=""><spring:message code="createJourney.originUniversity.select"/></form:option>
                                 <c:forEach var="item" items="${universities}">
                                     <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
