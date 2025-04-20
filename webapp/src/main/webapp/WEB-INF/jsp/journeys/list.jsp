@@ -7,8 +7,6 @@
 <head>
     <title><spring:message code="journey.page.title"/></title>
     <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
-    <link rel="stylesheet" href="<c:url value='/resources/css/journey-card-styles.css'/>" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
     <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
     <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
     <style>
@@ -258,6 +256,10 @@
                             <jsp:param name="description" value="${journey.description}" />
                             <jsp:param name="profilePictureId" value="${journey.user.profilePictureId}" />
                             <jsp:param name="userName" value="${journey.user.username}" />
+                            <jsp:param name="firstname" value="${journey.user.firstname}" />
+                            <jsp:param name="lastname" value="${journey.user.lastname}"/>
+                            <jsp:param name="country" value="${journey.destinationUniversity.city.country}"/>
+                            <jsp:param name="university" value="${journey.destinationUniversity.name}"/>
                         </jsp:include>
                     </c:forEach>
                     <c:if test="${empty journeys}">

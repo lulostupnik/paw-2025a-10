@@ -34,7 +34,7 @@
                         <span class="university-name" title="${param.university}"><c:out value="${param.university}"/></span>
                     </p>
                     <div class="event-rating">
-                        <span class="user-name"><c:out value="${param.userName}"/></span>
+                        <span class="user-name"><c:out value="${param.firstname} ${param.lastname}"/></span>
                     </div>
                 </div>
 
