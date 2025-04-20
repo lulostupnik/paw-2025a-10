@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="<c:url value='/resources/css/form-enhancements.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/password-strength.css'/>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
+    <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
 </head>
 <body>
 <jsp:include page="../components/navbar.jsp"/>

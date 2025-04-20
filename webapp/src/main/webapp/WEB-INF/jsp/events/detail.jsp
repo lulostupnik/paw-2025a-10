@@ -11,6 +11,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><spring:message code="event.detail.title"/></title>
     <link rel="stylesheet" href="<c:url value="/resources/css/main.css"/>" />
+    <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
+    <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
     <script>
         function toggleComments() {
             const commentsList = document.getElementById('comments-list');
