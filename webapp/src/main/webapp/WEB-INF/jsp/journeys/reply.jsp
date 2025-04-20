@@ -8,7 +8,8 @@
     <title><spring:message code="replyJourney.title"/></title>
     <!-- Include custom CSS -->
     <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
-
+    <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
+    <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
 </head>
 <body>
 
