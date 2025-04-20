@@ -24,7 +24,7 @@
                     <a href="<c:url value='/register'/>" class="btn-primary btn-large">
                         <spring:message code="landing.hero.cta"/>
                     </a>
-                    <a href="<c:url value='/journeys'/>" class="btn-secondary btn-large">
+                    <a href="<c:url value='/journeys'/>" class="btn-explore-journey">
                         <spring:message code="landing.hero.explore"/>
                     </a>
                 </div>
@@ -115,49 +115,49 @@
                 <p class="section-subtitle-landing "><spring:message code="landing.featured.events.subtitle"/></p>
             </div>
             <div class="featured-events">
-                    <c:if test="${empty recommendedEvents}">
-                        <div class="empty-state">
-                            <div class="empty-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="empty-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
-                            </div>
-                            <p class="empty-message">
-                                <spring:message code="dashboard.no.events"/>
-                            </p>
-                            <a href="<c:url value='/events/create'/>" class="empty-action-btn">
-                                <spring:message code="dashboard.create.event"/>
-                            </a>
+                <c:if test="${empty recommendedEvents}">
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="empty-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
                         </div>
-                    </c:if>
+                        <p class="empty-message">
+                            <spring:message code="dashboard.no.events"/>
+                        </p>
+                        <a href="<c:url value='/events/create'/>" class="empty-action-btn">
+                            <spring:message code="dashboard.create.event"/>
+                        </a>
+                    </div>
+                </c:if>
 
-                    <c:if test="${not empty recommendedEvents}">
-                        <c:forEach items="${recommendedEvents}" var="event">
-                            <c:set var="attend" value="false" />
-                            <c:forEach items="${eventsAttended}" var="attendedEvent">
-                                <c:if test="${attendedEvent.id == event.id}">
-                                    <c:set var="attend" value="true" />
-                                </c:if>
-                            </c:forEach>
-                            <jsp:include page="events/event-card.jsp">
-                                <jsp:param name="eventId" value="${event.id}" />
-                                <jsp:param name="city" value="${event.eventCity.name}" />
-                                <jsp:param name="date" value="${event.date}" />
-                                <jsp:param name="description" value="${event.description}" />
-                                <jsp:param name="flyerImageId" value="${event.flyerImageId}" />
-                                <jsp:param name="attend" value="${attend}" />
-                                <jsp:param name="firstname" value="${event.user.firstname}" />
-                                <jsp:param name="lastname" value="${event.user.lastname}"/>
-                                <jsp:param name="title" value="${event.title}"/>
-                            </jsp:include>
+                <c:if test="${not empty recommendedEvents}">
+                    <c:forEach items="${recommendedEvents}" var="event">
+                        <c:set var="attend" value="false" />
+                        <c:forEach items="${eventsAttended}" var="attendedEvent">
+                            <c:if test="${attendedEvent.id == event.id}">
+                                <c:set var="attend" value="true" />
+                            </c:if>
                         </c:forEach>
-                    </c:if>
-            <div class="featured-cta">
-                <a href="<c:url value='/events'/>" class="btn-primary btn-large">
-                    <spring:message code="landing.featured.events.cta"/>
-                </a>
+                        <jsp:include page="events/event-card.jsp">
+                            <jsp:param name="eventId" value="${event.id}" />
+                            <jsp:param name="city" value="${event.eventCity.name}" />
+                            <jsp:param name="date" value="${event.date}" />
+                            <jsp:param name="description" value="${event.description}" />
+                            <jsp:param name="flyerImageId" value="${event.flyerImageId}" />
+                            <jsp:param name="attend" value="${attend}" />
+                            <jsp:param name="firstname" value="${event.user.firstname}" />
+                            <jsp:param name="lastname" value="${event.user.lastname}"/>
+                            <jsp:param name="title" value="${event.title}"/>
+                        </jsp:include>
+                    </c:forEach>
+                </c:if>
+                <div class="featured-cta">
+                    <a href="<c:url value='/events'/>" class="btn-primary btn-large">
+                        <spring:message code="landing.featured.events.cta"/>
+                    </a>
+                </div>
             </div>
-        </div>
         </div>
     </section>
 
