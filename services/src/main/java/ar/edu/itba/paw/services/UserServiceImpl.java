@@ -14,6 +14,7 @@ import ar.edu.itba.paw.models.UserPassword;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,8 +43,9 @@ public class UserServiceImpl implements UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @Transactional
+    // ¿debería hacer el @CachePut? -> para eso tendría que resolver el tema de que createUser retorna un User y no un Optional<User>
     @Override
+    @Transactional
     public User createUser(String email, String username, String firstname, String lastname, String universityName,
                            String careerName, byte[] profilePicture, String[] interests, String password, Locale locale) {
 
@@ -68,37 +70,41 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    @Override
+    @Cacheable(value = "usersByEmail", key = "#email")
     @Transactional(readOnly = true)
     public Optional<User> findByEmail(String email) {
         return userDao.findByEmail(email);
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public Optional<UserPassword> findByEmailWithPass(String email) {
         return userDao.findByEmailWithPass(email);
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Cacheable(value = "usersById", key = "#id")
+    @Transactional(readOnly = true)
     public Optional<User> findById(long id) {
         return userDao.findById(id);
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Cacheable(value = "usersByUsername", key = "#username")
+    @Transactional(readOnly = true)
     public Optional<User> findByUsername(String username) {
         return userDao.findByUsername(username);
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public boolean existsByUsername(String username) {
         return userDao.existsByUsername(username);
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public boolean existsByEmail(String email) {
         return userDao.existsByEmail(email);
     }

@@ -8,6 +8,7 @@ import ar.edu.itba.paw.models.Interest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,7 @@ public class InterestServiceImpl implements InterestService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "interestsById", key = "#id")
     @Override
     public Optional<Interest> findById(Long id) {
         LOGGER.debug("Getting interest {}", id);
@@ -33,6 +35,7 @@ public class InterestServiceImpl implements InterestService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "interests", unless = "#result.size() > 100")
     @Override
     public List<Interest> findAll() {
         LOGGER.debug("Getting all interests");
@@ -47,6 +50,7 @@ public class InterestServiceImpl implements InterestService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "interestsByName", key = "#name")
     @Override
     public Optional<Interest> findByName(String name) {
         LOGGER.debug("Getting interest {}", name);

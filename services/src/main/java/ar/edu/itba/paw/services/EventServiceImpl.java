@@ -9,6 +9,7 @@ import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,6 +82,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "eventsById", key = "#id")
     @Override
     public Optional<Event> getEventById(long id){
         return eventDao.findById(id);
@@ -174,12 +176,14 @@ public class EventServiceImpl implements EventService {
         return eventResponseDao.listAllFromEvent(eventId);
     }
 
+    // FIXME: Agregarle cacheable?
     @Transactional(readOnly = true)
     @Override
     public List<Event> getRecommendedEvents(String email){
         return eventDao.getRecommendedEvents(email);
     }
 
+    // FIXME: ¿Agregarle cacheable?
     @Transactional(readOnly = true)
     @Override
     public List<Event> getTopEvents(){

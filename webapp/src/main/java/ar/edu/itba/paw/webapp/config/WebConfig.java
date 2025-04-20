@@ -1,6 +1,11 @@
 package ar.edu.itba.paw.webapp.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+// import org.springframework.cache.caffeine.CaffeineCacheManager;
+// import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -36,6 +41,7 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
+@EnableCaching
 @EnableTransactionManagement
 @EnableWebMvc
 @EnableAsync
@@ -165,6 +171,40 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     public LocaleResolver localeResolver() {
         return new CustomLocaleResolver();
+    }
+
+    @Bean
+    public CacheManager cacheManager() {
+        // Implementación sencilla para cache:
+        // return new ConcurrentMapCacheManager("cities", "countries", "careers", "universities", "images", "users", "events", "journeys", "interests", "eventResponses", "journeyResponses");
+
+        return new ConcurrentMapCacheManager(
+                "usersById", "usersByEmail", "usersByUsername",
+                "universities", "universitiesById", "universitiesByName", "universitiesByAbbreviation", "universitiesByAny",
+                "journeysById",
+                "interests", "interestsById", "interestsByName",
+                "images",
+                "eventsById",
+                "countries",
+                "citiesByName",
+                "careers", "careersByName", "careersById"
+        );
+
+        // Según lo que entendí, la mejor opción, pero habría que preguntarle al profesor:
+        /*
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager(
+                "cities", "countries", "careers", "universities", "images", "users", "events", "journeys"
+        );
+
+        cacheManager.setCaffeine(Caffeine.newBuilder()
+                .initialCapacity(100)
+                .maximumSize(1000)
+                .expireAfterAccess(30, TimeUnit.MINUTES)
+                .recordStats());
+
+        return cacheManager;
+
+         */
     }
 
 

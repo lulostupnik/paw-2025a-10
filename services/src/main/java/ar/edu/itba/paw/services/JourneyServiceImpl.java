@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +64,7 @@ public class JourneyServiceImpl implements JourneyService {
         }
     }
 
+    // FIXME: ¿CachePut?
     @Transactional
     @Override
     public Journey createJourney(String email, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
@@ -123,6 +126,7 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "journeysById", key = "#id")
     @Override
     public Optional<Journey> getJourneyById(long id) {
         return journeyDao.findById(id);
@@ -143,12 +147,15 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyDao.findByUserId(maybeUser.get().getId()).isPresent();
     }
 
+    // FIXME: Configurar la cache para que guarde los resultados por un tiempo (30min) y después meter acá el @Cacheable
     @Transactional(readOnly = true)
+    // @Cacheable(value = "journeysRecommended", key = "#email")
     @Override
     public List<Journey> getRecommendedJourneys(String email) {
         return journeyDao.getRecommendedJourneys(email);
     }
 
+    // Yo creería que mejor no cachear, pero no estoy seguro
     @Transactional(readOnly = true)
     @Override
     public List<JourneyResponse> getJourneyResponses(long journeyId){
