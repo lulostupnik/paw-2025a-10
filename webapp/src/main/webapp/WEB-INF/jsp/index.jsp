@@ -26,7 +26,7 @@
                     <a href="<c:url value='/register'/>" class="btn-primary">
                         <spring:message code="landing.hero.cta"/>
                     </a>
-                    <a href="<c:url value='/journeys'/>" class="btn-explore">
+                    <a href="<c:url value='/journeys'/>" class="btn-explore-journey">
                         <spring:message code="landing.hero.explore"/>
                     </a>
                 </div>
