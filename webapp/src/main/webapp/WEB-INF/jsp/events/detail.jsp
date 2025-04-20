@@ -72,9 +72,7 @@
                 <div class="event-detail-header">
                     <div class="event-info">
                         <div class="event-title-section">
-                            <h1 class="event-title">
-                                 <spring:message code="event.title.suffix"  arguments="${event.eventCity.name}" />
-                            </h1>
+                            <h1 class="event-title">${event.title}</h1>
                             <div class="event-meta">
                                 <div class="event-location">
                                     <img src="<c:url value='/resources/icons/location.svg'/>" alt="Location" class="icon" />
@@ -88,10 +86,29 @@
                                         <fmt:formatDate value="${event.date}" pattern="MMMM d, yyyy" />
                                     </span>
                                 </div>
+                                <div class="event-date">
+                                    <img src="<c:url value='/resources/icons/time.svg'/>" alt="Time clock" class="icon" />
+                                    <span class="date-text">
+                                        <c:if test="${not empty event.time}">
+                                            <fmt:formatDate value="${event.time}" pattern="HH:MM" />
+                                        </c:if>                                        
+                                        <c:if test="${empty event.time}">
+                                            <span><spring:message code="event.allDayEvent"/></span>
+                                        </c:if>
+                                    </span>
+                                </div>
                             </div>
+                            <c:if test="${not empty event.address}">
+                                <div class="event-meta">
+                                    <div class="event-location">
+                                        <img src="<c:url value='/resources/icons/map.svg'/>" style="filter: saturate(0) brightness(10%)" alt="Map" class="icon" />
+                                        <span class="location-text">
+                                            <c:out value="${event.address}" />
+                                        </span>
+                                    </div>
+                                </div>
+                            </c:if>
                         </div>
-
-
 
                         <!-- Attend Button Section -->
                         <div class="attendance-control">
@@ -159,7 +176,12 @@
                         <h2 class="section-title">
                             <img src="<c:url value='/resources/icons/users.svg'/>" alt="Attendees" class="icon" />
                             <spring:message code="event.attendees" />
-                            <span class="attendees-count">(<c:out value="${fn:length(attendees)}" />)</span>
+                            <c:if test="${event.attendeesLimit > 0}">
+                                <span class="attendees-count">(<c:out value="${fn:length(attendees)}"/> / <c:out value="${event.attendeesLimit}"/>)</span>
+                            </c:if>
+                            <c:if test="${event.attendeesLimit == 0}">
+                                <span class="attendees-count">(<c:out value="${fn:length(attendees)}"/> / <spring:message code="event.noAttendeesLimit"/>)</span>
+                            </c:if>
                         </h2>
                         <c:if test="${isEventOwner}">
                             <button onclick="toggleAttendees()" class="toggle-attendees-btn" aria-label="Toggle attendees">

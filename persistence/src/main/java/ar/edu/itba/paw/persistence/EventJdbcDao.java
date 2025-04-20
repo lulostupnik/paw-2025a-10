@@ -1,5 +1,5 @@
 package ar.edu.itba.paw.persistence;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -59,7 +59,11 @@ public class EventJdbcDao implements EventDao {
                     rs.getString("city_name"), // Va a tener conflicto con el nombre de la universidad
                     rs.getString("country_name"),
                     rs.getLong("city_id")),
-            rs.getString("event_title")
+            rs.getString("event_title"),
+            rs.getTime("event_time") != null ? rs.getTime("event_time").toLocalTime() : null,
+            rs.getString("event_address"),
+            rs.getInt("event_attendees_limit")
+            
     );
 
     private static final String QUERY = "SELECT \n" +
@@ -80,6 +84,9 @@ public class EventJdbcDao implements EventDao {
             "    e.description AS event_description, \n" +
             "    e.flyer_image_id AS event_flyer_image_id, \n" +
             "    e.title AS event_title, \n" +
+            "    e.event_time AS event_time, \n" +
+            "    e.address AS event_address, \n" +
+            "    e.attendees_limit AS event_attendees_limit, \n" +
             "\n" +
             "    un.id AS university_id, \n" +
             "    un.name AS university_name, \n" +
@@ -119,7 +126,7 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public Event create(User user, City city, Date date, String description, long flyerImageId, String title) {
+    public Event create(User user, City city, Date date, String description, long flyerImageId, String title, LocalTime time, String address, int attendeesLimit) {
         LOGGER.debug("Registering new event for user {} in {} on {} ({}) with image {}", user, city, date, description, flyerImageId);
         final Map<String, Object> parameters = Map.of(
                 "user_id", user.getId(),
@@ -131,7 +138,7 @@ public class EventJdbcDao implements EventDao {
                 );
         final Number keys = jdbcInsert.executeAndReturnKey(parameters);
         LOGGER.debug("Successfully registered event {}", keys.longValue());
-        return new Event(keys.longValue(), user, date, description, flyerImageId, city, title);
+        return new Event(keys.longValue(), user, date, description, flyerImageId, city, title, time, address, attendeesLimit);
     }
 
     // FIXME
@@ -205,7 +212,9 @@ public class EventJdbcDao implements EventDao {
             e.description AS event_description, 
             e.flyer_image_id AS event_flyer_image_id, 
             e.title AS event_title,
-            
+            e.event_time AS event_time,
+            e.address AS event_address,
+            e.attendees_limit AS event_attendees_limit,
             un.id AS university_id, 
             un.name AS university_name, 
             un.abbreviation AS university_abbreviation, 
@@ -241,7 +250,10 @@ public class EventJdbcDao implements EventDao {
             e.event_date AS event_date, 
             e.description AS event_description, 
             e.flyer_image_id AS event_flyer_image_id, 
-            e.title AS event_title,
+            e.title AS event_title,\
+            e.event_time AS event_time,
+            e.address AS event_address,
+            e.attendees_limit AS event_attendees_limit,
                 
             us.id AS user_id, 
             us.email AS user_email, 
@@ -329,6 +341,15 @@ public class EventJdbcDao implements EventDao {
         }
 
         return new CursorPage<>(eventList, nextCursor, hasNext);
+    }
+
+    public int getEventAttendanceLimit(long eventId) {
+        LOGGER.debug("Querying DB for attendance limit of event {}", eventId);
+        Optional<Event> event = findById(eventId);
+        if (event.isPresent()){
+            return event.get().getAttendeesLimit();
+        }
+        return 0;
     }
 
 

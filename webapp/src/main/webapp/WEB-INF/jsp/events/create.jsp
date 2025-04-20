@@ -17,6 +17,42 @@
 </head>
 <body>
 <jsp:include page="../components/navbar.jsp"/>
+<script>
+    // Password toggle functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const attendeesLimit = document.getElementById('attendeesLimit');
+        const noAttendeesLimit = document.getElementsByName('noAttendeesLimit').item(0);
+        if (attendeesLimit && noAttendeesLimit) {
+            noAttendeesLimit.addEventListener('change', function() {
+                if (noAttendeesLimit.checked == true) {
+                    attendeesLimit.setAttribute("disabled", "true");
+                    attendeesLimit.setAttribute("value", "0");
+                    attendeesLimit.classList.add("form-disabled");
+                } else {
+                    attendeesLimit.removeAttribute("disabled");
+                    attendeesLimit.setAttribute("value", "0");
+                    attendeesLimit.classList.remove("form-disabled");
+                }
+            })
+        }
+
+        const timeInput = document.getElementById('time');
+        const allDayEvent = document.getElementsByName('allDayEvent').item(0);
+        if (timeInput && allDayEvent) {
+            allDayEvent.addEventListener('change', function() {
+                if (allDayEvent.checked == true) {
+                    timeInput.setAttribute("disabled", "true");
+                    timeInput.setAttribute("value", "");
+                    timeInput.classList.add("form-disabled");
+                } else {
+                    timeInput.removeAttribute("disabled");
+                    timeInput.setAttribute("value", "00:00");
+                    timeInput.classList.remove("form-disabled");
+                }
+            })
+        }
+    });
+</script>
 
 <div class="auth-container">
     <div class="auth-card">
@@ -32,18 +68,20 @@
 
         <c:url var="createEventUrl" value="/events/create"/>
         <form:form modelAttribute="createEventForm" action="${createEventUrl}" method="post" enctype="multipart/form-data" class="auth-form">
+            
+            <!-- Title Field -->
+            <div class="form-group">
+                <form:label path="title" cssClass="form-label required-field">
+                    <spring:message code="event.name"/>
+                </form:label>
+                <c:set var="title"><spring:message code="event.name.hint"/></c:set>
+                <form:input path="title" cssClass="form-input ${not empty errors.getFieldError('title') ? 'error' : ''}"
+                            placeholder="${title}" />
+                <form:errors path="title" cssClass="error-message" />
+            </div>
+
             <!-- City Field with Enhanced Autocomplete -->
             <div class="form-group">
-                <div class="form-group">
-                    <form:label path="title" cssClass="form-label required-field">
-                        <spring:message code="event.name"/>
-                    </form:label>
-                    <c:set var="title"><spring:message code="event.name.hint"/></c:set>
-                    <form:input path="title" cssClass="form-input ${not empty errors.getFieldError('title') ? 'error' : ''}"
-                                placeholder="${title}" />
-                    <form:errors path="title" cssClass="error-message" />
-                </div>
-
                 <form:label path="city" cssClass="form-label required-field">
                     <spring:message code="event.city"/>
                 </form:label>
@@ -68,26 +106,79 @@
                 <form:errors path="city" cssClass="error-message" />
             </div>
 
-            <!-- Date Field -->
-            <div class="form-group">
-                <form:label path="date" cssClass="form-label required-field">
-                    <spring:message code="event.date"/>
-                </form:label>
-                <form:input path="date" type="date" cssClass="form-input ${not empty errors.getFieldError('date') ? 'error' : ''}" />
-                <form:errors path="date" cssClass="error-message" />
+            <div class="form-row">
+                <!-- Date Field -->
+                <div class="form-group" style="width: 50%;">
+                    <form:label path="date" cssClass="form-label required-field">
+                        <spring:message code="event.date"/>
+                    </form:label>
+                    <form:input path="date" type="date" cssClass="form-input ${not empty errors.getFieldError('date') ? 'error' : ''}" />
+                    <form:errors path="date" cssClass="error-message" />
+                </div>
+
+                <div class="form-row" style="width: 50%;">
+                    <!-- Time Field -->
+                    <div class="form-group">
+                        <form:label path="time" cssClass="form-label">
+                            <spring:message code="event.time"/>
+                        </form:label>
+                        <form:input path="time" type="time" cssClass="form-input ${not empty errors.getFieldError('time') ? 'error' : ''}" />
+                        <form:errors path="time" cssClass="error-message" />
+                    </div>
+                    <div class="checkbox-container">
+                        <label class="checkbox-label">
+                            <form:checkbox name="allDayEvent"
+                                class="checkbox-custom" 
+                                path="allDayEvent"/>
+                        </label>
+                        <span><spring:message code="event.allDayEvent"/></span>
+                        <form:errors path="allDayEvent" cssClass="error-message" />
+                    </div>
+                </div>
             </div>
 
             <!-- Description Field -->
             <div class="form-group">
-                <form:label path="description" cssClass="form-label required-field">
+                <form:label path="description" cssClass="form-label">
                     <spring:message code="event.description"/>
                 </form:label>
                 <c:set var="descriptionHint"><spring:message code="event.description.hint"/></c:set>
                 <form:textarea path="description"
-                               cssClass="form-textarea ${not empty errors.getFieldError('description') ? 'error' : ''}"
-                               placeholder="${descriptionHint}"
-                               />
+                            cssClass="form-textarea ${not empty errors.getFieldError('description') ? 'error' : ''}"
+                            placeholder="${descriptionHint}"
+                            />
                 <form:errors path="description" cssClass="error-message" />
+            </div>
+
+            <!-- Address Field -->
+            <div class="form-group">
+                <form:label path="address" cssClass="form-label">
+                    <spring:message code="event.address"/>
+                </form:label>
+                <c:set var="addressHint"><spring:message code="event.address.hint"/></c:set>
+                <form:input path="address" cssClass="form-input ${not empty errors.getFieldError('address') ? 'error' : ''}"
+                            placeholder="${addressHint}" />
+                <form:errors path="address" cssClass="error-message" />
+            </div>
+
+            <!-- Attendees limit Field -->
+            <div class="form-row">
+                <div class="form-group">
+                    <form:label path="attendeesLimit" cssClass="form-label">
+                        <spring:message code="event.attendeesLimit"/>
+                    </form:label>
+                    <form:input type="number" path="attendeesLimit" cssClass="form-input ${not empty errors.getFieldError('attendeesLimit') ? 'error' : ''}"/>
+                    <form:errors path="attendeesLimit" cssClass="error-message" />
+                </div>
+                <div class="checkbox-container">
+                    <label class="checkbox-label">
+                        <form:checkbox name="noAttendeesLimit"
+                               class="checkbox-custom" 
+                               path="noAttendeesLimit"/>
+                        <span><spring:message code="event.noAttendeesLimit"/></span>
+                        <form:errors path="noAttendeesLimit" cssClass="error-message" />
+                    </label>
+                </div>
             </div>
 
             <!-- Enhanced file upload area for Flyer -->

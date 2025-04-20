@@ -94,7 +94,10 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                     rs.getString("country_name"),
                     rs.getLong("city_id")
             ),
-            rs.getString("event_title") // Assuming you have a title field in the events table
+            rs.getString("event_title"), // Assuming you have a title field in the events table
+            rs.getTime("event_time") != null ? rs.getTime("event_time").toLocalTime() : null,
+            rs.getString("event_address"),
+            rs.getInt("event_attendees_limit")
     );
 
     private final static String GET_EVENTS_QUERY = "SELECT \n" +
@@ -115,6 +118,9 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
             "    e.description AS event_description, \n" +
             "    e.flyer_image_id AS event_flyer_image_id, \n" +
             "    e.title AS event_title, \n" +
+            "    e.event_time AS event_time, \n" +
+            "    e.address AS event_address, \n" +
+            "    e.attendees_limit AS event_attendees_limit, \n" +
             "\n" +
             "    un.id AS university_id, \n" +
             "    un.name AS university_name, \n" +

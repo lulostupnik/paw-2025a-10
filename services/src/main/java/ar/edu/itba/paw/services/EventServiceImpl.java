@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 @Service
@@ -40,7 +41,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public Event createEvent(String email, String cityName, Date date, byte[] flyer, String description, String title) {
+    public Event createEvent(String email, String cityName, Date date, byte[] flyer, String description, String title, LocalTime time, String address, int attendeesLimit) {
         LOGGER.debug("Creating event for user {}", email);
 
         LOGGER.debug("Looking for city {}", cityName);
@@ -53,7 +54,7 @@ public class EventServiceImpl implements EventService {
         long flyerImageId = imageDao.saveImage(flyer);
 
         LOGGER.info("Event data is valid, commiting new event to persistance");
-        return eventDao.create(user, city, date, description, flyerImageId, title);
+        return eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit);
     }
 
     @Transactional
@@ -96,6 +97,11 @@ public class EventServiceImpl implements EventService {
     public void attendEvent(long userId, long eventId) {
         if(eventAttendanceDao.isAttending(userId, eventId)){
             LOGGER.debug("User {} is already attending event {}", userId, eventId);
+            return;
+        }
+        int limit = eventDao.getEventAttendanceLimit(eventId);
+        if (limit == 0 || eventAttendanceDao.getAttendeesCount(eventId) >= limit) {
+            LOGGER.debug("Event attendance limit of {} reached", limit);
             return;
         }
         eventAttendanceDao.attend(userId, eventId);
