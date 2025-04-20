@@ -63,15 +63,14 @@
         </div>
 
         <div class="error-code">
-            <fmt:message key="error.${errorType}.code" />
-        <%--            <c:choose>--%>
-<%--                <c:when test="${not empty statusCode}">--%>
-<%--                    ${statusCode}--%>
-<%--                </c:when>--%>
-<%--                <c:otherwise>--%>
-<%--                    <fmt:message key="error.${errorType}.code" />--%>
-<%--                </c:otherwise>--%>
-<%--            </c:choose>--%>
+            <c:choose>
+                <c:when test="${not empty statusCode}">
+                    ${statusCode}
+                </c:when>
+                <c:otherwise>
+                    <fmt:message key="error.${errorType}.code" />
+                </c:otherwise>
+            </c:choose>
         </div>
 
         <h1 class="error-title">
@@ -165,10 +164,10 @@
         <div class="error-actions">
 
             <a href="<c:url value='/explore'/>" class="primary-action">
-                <%--                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">--%
-                <%--                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>--%>
-<%--                    <polyline points="9 22 9 12 15 12 15 22"></polyline>--%>
-<%--                </svg>--%>
+               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                   <polyline points="9 22 9 12 15 12 15 22"></polyline>
+               </svg>
 
                 <fmt:message key="error.action.home" />
             </a>
@@ -203,17 +202,17 @@
         </div>
 
         <%-- Display exception details in development mode --%>
-        <c:if test="${not empty param.debug && not empty exception}">
-            <div class="exception-details">
-                <h3 class="exception-title">Exception Details:</h3>
-                <p class="exception-message">${exception.message}</p>
-                <pre class="exception-stack-trace">
-                    <c:forEach var="stackTraceElement" items="${exception.stackTrace}">
-                        ${stackTraceElement}
-                    </c:forEach>
-                </pre>
-            </div>
-        </c:if>
+<%--        <c:if test="${not empty param.debug && not empty exception}">--%>
+<%--            <div class="exception-details">--%>
+<%--                <h3 class="exception-title">Exception Details:</h3>--%>
+<%--                <p class="exception-message">${exception.message}</p>--%>
+<%--                <pre class="exception-stack-trace">--%>
+<%--                    <c:forEach var="stackTraceElement" items="${exception.stackTrace}">--%>
+<%--                        ${stackTraceElement}--%>
+<%--                    </c:forEach>--%>
+<%--                </pre>--%>
+<%--            </div>--%>
+<%--        </c:if>--%>
     </div>
 </div>
 
