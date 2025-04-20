@@ -161,54 +161,58 @@
                             <spring:message code="event.attendees" />
                             <span class="attendees-count">(<c:out value="${fn:length(attendees)}" />)</span>
                         </h2>
-                        <button onclick="toggleAttendees()" class="toggle-attendees-btn" aria-label="Toggle attendees">
-                            <span id="attendees-collapse-icon">
-                                <img src="<c:url value='/resources/icons/collapse.svg'/>" alt="Collapse" class="icon" />
-                            </span>
-                            <span id="attendees-expand-icon" style="display: none;">
-                                <img src="<c:url value='/resources/icons/expand.svg'/>" alt="Expand" class="icon" />
-                            </span>
-                        </button>
+                        <c:if test="${isEventOwner}">
+                            <button onclick="toggleAttendees()" class="toggle-attendees-btn" aria-label="Toggle attendees">
+                                <span id="attendees-collapse-icon">
+                                    <img src="<c:url value='/resources/icons/collapse.svg'/>" alt="Collapse" class="icon" />
+                                </span>
+                                <span id="attendees-expand-icon" style="display: none;">
+                                    <img src="<c:url value='/resources/icons/expand.svg'/>" alt="Expand" class="icon" />
+                                </span>
+                            </button>
+                        </c:if>
                     </div>
 
                     <!-- Attendees List -->
-                    <div id="attendees-list" class="section-content attendees-grid">
-                        <c:if test="${empty attendees}">
-                            <div class="empty-state">
-                                <div class="empty-icon">
-                                    <img src="<c:url value='/resources/icons/users-empty.svg'/>" alt="No Attendees" class="empty-icon-img" />
+                    <c:if test="${isEventOwner}">
+                        <div id="attendees-list" class="section-content attendees-grid">
+                            <c:if test="${empty attendees}">
+                                <div class="empty-state">
+                                    <div class="empty-icon">
+                                        <img src="<c:url value='/resources/icons/users-empty.svg'/>" alt="No Attendees" class="empty-icon-img" />
+                                    </div>
+                                    <p class="empty-message">
+                                        <spring:message code="event.no.attendees" />
+                                    </p>
                                 </div>
-                                <p class="empty-message">
-                                    <spring:message code="event.no.attendees" />
-                                </p>
-                            </div>
-                        </c:if>
+                            </c:if>
 
-                        <c:if test="${not empty attendees}">
-                            <c:forEach var="attendee" items="${attendees}">
-                                <div class="attendee-card">
-                                    <div class="attendee-avatar">
-                                        <c:if test="${not empty attendee.profilePictureId}">
-                                            <img src="<c:url value='/images/${attendee.profilePictureId}'/>" alt="Profile" class="avatar-img">
-                                        </c:if>
-                                        <c:if test="${empty attendee.profilePictureId}">
-                                            <div class="avatar-placeholder">
-                                                <c:out value="${fn:substring(attendee.firstname, 0, 1)}${fn:substring(attendee.lastname, 0, 1)}" />
-                                            </div>
-                                        </c:if>
+                            <c:if test="${not empty attendees}">
+                                <c:forEach var="attendee" items="${attendees}">
+                                    <div class="attendee-card">
+                                        <div class="attendee-avatar">
+                                            <c:if test="${not empty attendee.profilePictureId}">
+                                                <img src="<c:url value='/images/${attendee.profilePictureId}'/>" alt="Profile" class="avatar-img">
+                                            </c:if>
+                                            <c:if test="${empty attendee.profilePictureId}">
+                                                <div class="avatar-placeholder">
+                                                    <c:out value="${fn:substring(attendee.firstname, 0, 1)}${fn:substring(attendee.lastname, 0, 1)}" />
+                                                </div>
+                                            </c:if>
+                                        </div>
+                                        <div class="attendee-info">
+                                            <h3 class="attendee-name">
+                                                <c:out value="${attendee.firstname} ${attendee.lastname}" />
+                                            </h3>
+                                            <p class="attendee-email">
+                                                <c:out value="${attendee.email}" />
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div class="attendee-info">
-                                        <h3 class="attendee-name">
-                                            <c:out value="${attendee.firstname} ${attendee.lastname}" />
-                                        </h3>
-                                        <p class="attendee-email">
-                                            <c:out value="${attendee.email}" />
-                                        </p>
-                                    </div>
-                                </div>
-                            </c:forEach>
-                        </c:if>
-                    </div>
+                                </c:forEach>
+                            </c:if>
+                        </div>
+                    </c:if>
                 </section>
 
                 <!-- Event Responses Section -->

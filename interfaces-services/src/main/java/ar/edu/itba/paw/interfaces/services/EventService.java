@@ -25,6 +25,8 @@ public interface EventService {
     List<EventResponse> getEventResponses(long eventId);
     List<Event> getRecommendedEvents(String email);
     List<Event> getTopEvents();
+    Boolean isEventOwnedByUser(String email, long eventID);
+
 
     CursorPage<EventResponse, LocalDateTime> getEventResponses(long eventId, LocalDateTime cursor, int limit);
 

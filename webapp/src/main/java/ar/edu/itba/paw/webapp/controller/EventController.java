@@ -133,11 +133,14 @@ public class EventController {
         LOGGER.debug("Got event attendees {}", attendees);
 
         boolean isAttending = false;
+        boolean isEventOwner = false;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal())) {
             isAttending = eventService.isUserAttending(SecurityContextHolder.getContext().getAuthentication().getName(), id);
+            isEventOwner = eventService.isEventOwnedByUser(SecurityContextHolder.getContext().getAuthentication().getName(), id);
         }
         LOGGER.debug("User attending event {}", isAttending);
+        LOGGER.debug("User is event owner {}", isEventOwner);
 
         ModelAndView mav = new ModelAndView("events/detail");
         mav.addObject("event", event);
@@ -145,6 +148,7 @@ public class EventController {
         mav.addObject("attend", isAttending);
         mav.addObject("eventResponses", eventResponses);
         mav.addObject("replyEventForm", form);
+        mav.addObject("isEventOwner", isEventOwner);
         return mav;
     }
 

@@ -56,7 +56,6 @@ public class EventServiceImpl implements EventService {
         return eventDao.create(user, city, date, description, flyerImageId, title);
     }
 
-    //@TODO agregar que mande mail
     @Transactional
     @Override
     public void replyToEvent(String email, long eventId, String message) {
@@ -215,4 +214,11 @@ public class EventServiceImpl implements EventService {
         return getUserAttendingEvents(userId, cursor, limit);
     }
 
+    @Transactional(readOnly=true)
+    @Override
+    public Boolean isEventOwnedByUser(String email, long eventID) {
+        LOGGER.debug("Checking for event ownership of event {} by user {}", eventID, email);
+        Optional<Event> event = eventDao.findById(eventID);
+        return event.isPresent() && event.get().getUser().getEmail().equals(email);
+    }
 }
