@@ -152,7 +152,14 @@ public class JourneyServiceImpl implements JourneyService {
     // @Cacheable(value = "journeysRecommended", key = "#email")
     @Override
     public List<Journey> getRecommendedJourneys(String email) {
-        return journeyDao.getRecommendedJourneys(email);
+        if(userHasJourney(email)){
+            return journeyDao.getRecommendedJourneys(email);
+        }
+        Optional<User> maybeUser = userService.findByEmail(email);
+        if(maybeUser.isEmpty()){
+            return journeyDao.listAll();
+        }
+        return journeyDao.findByOriginCity(maybeUser.get().getUniversity().getCity().getId());
     }
 
     // Yo creería que mejor no cachear, pero no estoy seguro

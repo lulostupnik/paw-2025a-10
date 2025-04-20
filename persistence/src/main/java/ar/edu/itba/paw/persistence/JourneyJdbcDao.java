@@ -293,6 +293,16 @@ public class JourneyJdbcDao implements JourneyDao {
         return new CursorPage<>(journeys, nextCursor,hasNext);
     }
 
+    @Override
+    public List<Journey> findByOriginCity(long originCityId) {
+        return jdbcTemplate.query(QUERY + " WHERE ci1.id = ?", JOURNEY_ROW_MAPPER, originCityId);
+    }
+
+    @Override
+    public List<Journey> findByOriginUniversity(long originUniversityId) {
+        return jdbcTemplate.query(QUERY + " WHERE un1.id = ?", JOURNEY_ROW_MAPPER, originUniversityId);
+    }
+
 
     @Override
     public Optional<Journey> findByUserId(long userId) {
