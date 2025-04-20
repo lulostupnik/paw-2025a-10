@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <html>
 <head>
@@ -41,7 +42,7 @@
         </c:if>
 
         <c:url value="/login" var="loginUrl" />
-        <form action="${loginUrl}" method="post" enctype="application/x-www-form-urlencoded" class="auth-form">
+        <form:form action="${loginUrl}" method="post" enctype="application/x-www-form-urlencoded" class="auth-form">
             <div class="form-group">
                 <label for="j_username" class="form-label required-field">
                     <spring:message code="login.email" text="Email"/>
@@ -90,7 +91,7 @@
             <button type="submit" class="form-button">
                 <spring:message code="login.submit" text="Sign In"/>
             </button>
-        </form>
+        </form:form>
 
         <div class="auth-footer">
             <spring:message code="login.no.account" text="Don't have an account?"/>
