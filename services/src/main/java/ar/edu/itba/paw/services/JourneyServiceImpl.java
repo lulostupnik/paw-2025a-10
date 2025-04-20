@@ -112,7 +112,8 @@ public class JourneyServiceImpl implements JourneyService {
         emailService.answerJourneyMail( email, receiver.getEmail() , user.getFirstname(), user.getLastname(),
                 user.getUsername(), user.getCareer().getName(),
                 user.getUniversity().getName(), message , user.getLocale(),
-                imageService.getImage(user.getProfilePictureId()).orElseThrow(()->new RuntimeException("Image not found")).getData());
+                imageService.getImage(user.getProfilePictureId()).orElseThrow(()->new RuntimeException("Image not found")).getData(),
+                journeyId);
     }
 
     @Transactional(readOnly = true)

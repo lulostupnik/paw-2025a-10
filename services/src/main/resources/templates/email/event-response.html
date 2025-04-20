@@ -5,42 +5,47 @@
     <meta charset="UTF-8">
     <title th:text="#{email.event.reply.title}">Event Reply</title>
 </head>
-<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; color: #333;">
-
-<!-- Header with Logo -->
+<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; color: #333; margin: 0;">
 <div style="text-align: center; margin-bottom: 30px;">
-    <h1 style="font-size: 28px; font-weight: bold; color: #000000; margin: 0;">
-        Go<span style="color: #3366ff;">Together</span>
-    </h1>
-    <h2 th:text="#{email.event.reply.heading}">Response to Event</h2>
-</div>
-
-<!-- Message content -->
-<div style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: #333;">
-    <p><strong th:text="#{email.label.email}">Email:</strong> <span th:text="${email}">lstupnik@itba.edu.ar</span></p>
-    <p><strong th:text="#{email.label.firstname}">Nombre:</strong> <span th:text="${firstname}">Tu nombre</span></p>
-    <p><strong th:text="#{email.label.lastname}">Apellido:</strong> <span th:text="${lastname}">Tu apellido</span></p>
-    <p><strong th:text="#{email.label.username}">Nombre de Usuario:</strong> <span th:text="${username}">usuario123</span></p>
-    <p><strong th:text="#{email.label.university}">Universidad de Origen:</strong> <span th:text="${university}">ITBA</span></p>
-    <p><strong th:text="#{email.label.career}">Carrera:</strong> <span th:text="${career}">Ingeniería</span></p>
-    <p>
-        <strong th:text="#{email.label.message}">Tu Mensaje:</strong>
-        <span th:text="${message}" style="display: inline; color: #333;"></span>
-    </p>
-    <div th:if="${hasProfileImage}" style="text-align: center; margin: 30px 0;">
-        <p style="margin-bottom: 10px; font-weight: bold;" th:text="#{email.label.profilePicture}">Profile picture:</p>
-        <img th:src="'cid:profileImage'" alt="Profile Picture"
-             style="max-width: 150px; border-radius: 50%; box-shadow: 0 0 6px rgba(0,0,0,0.2);" />
-    </div>
-</div>
-
-<!-- Call to action -->
-<div style="text-align: center; margin-top: 40px;">
-    <a th:href="@{http://pawserver.it.itba.edu.ar/paw-2025a-10}"
-       style="display: inline-block; background-color: #3366ff; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;"
-       th:text="#{email.event.reply.cta}">
-        Visita GoToguether
+    <a href="http://pawserver.it.itba.edu.ar/paw-2025a-10/" style="text-decoration: none;">
+        <h1 style="font-size: 28px; font-weight: bold; color: #000000; margin: 0;">
+            Go<span style="color: #3366ff;">Together</span>
+        </h1>
     </a>
+    <h2 th:text="#{email.event.reply.comment.received}">You got a comment in your event</h2>
+</div>
+<div style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: #333;">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 20px;">
+        <tr>
+            <td width="70" valign="top" th:if="${hasProfileImage}" style="padding-right: 15px;">
+                <img th:src="'cid:profileImage'" alt="Profile Picture"
+                     style="width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 0 6px rgba(0,0,0,0.2); object-fit: cover;" />
+            </td>
+            <td valign="top">
+                <h3 style="margin: 0; font-size: 18px;">
+                <span th:text="#{email.event.reply.has.commented(${firstname}, ${lastname})}"</span>
+                </h3>
+
+                <p style="margin: 5px 0 0 0; color: #666;">
+                    <span th:text="${username}">username</span> •
+                    <span th:text="${university}">University</span> •
+                    <span th:text="${career}">Career</span>
+                </p>
+            </td>
+        </tr>
+    </table>
+
+    <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #3366ff;">
+        <p style="margin: 0; font-style: italic; color: #333;" th:text="${message}">Comment message goes here</p>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px;">
+        <a th:href="@{http://pawserver.it.itba.edu.ar/paw-2025a-10/events/{eventId}(eventId=${eventId})}"
+           style="display: inline-block; background-color: #3366ff; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;"
+           th:text="#{email.event.reply.cta.view.comments}">
+            Go to your event comments!
+        </a>
+    </div>
 </div>
 
 </body>

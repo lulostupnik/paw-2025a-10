@@ -82,60 +82,33 @@ public class EmailServiceImpl implements EmailService {
 
 
 
-
-    @Override
-    public void answerJourneyMail(String from, String to,
-                                  String firstName, String lastName,
-                                  String username, String career,
-                                  String originUniversity, String message,
-                                  Locale locale, byte[] profilePicture) {
-
-
-
-        Map<String, Object> variables = Map.of(
-                "email", from,                 // quien está respondiendo
-                "firstname", firstName,
-                "lastname", lastName,
-                "username", username,
-                "career", career,
-                "university", originUniversity,
-                "message", message,
-                "hasProfileImage", profilePicture != null && profilePicture.length > 0
-        );
-
-        sendHtmlMessage(
-                to,
-                new String[] {from},
-                "email.journey.reply.subject",
-                new Object[]{},
-                "journey-response",
-                variables,
-                locale,
-                profilePicture
-        );
-    }
     @Override
     public void answerEventMail(String from, String to,
                                 String firstName, String lastName,
                                 String username, String career,
                                 String originUniversity, String message,
-                                Locale locale, byte[] profilePicture) {
-
+                                Locale locale, byte[] profilePicture,
+                                long eventId) {
+        if(from.equals(to)){
+            return;
+        }
         Map<String, Object> variables = Map.of(
-                "email", from,
+//                "email", from,
                 "firstname", firstName,
                 "lastname", lastName,
                 "username", username,
                 "career", career,
                 "university", originUniversity,
                 "message", message,
-                "hasProfileImage", profilePicture != null && profilePicture.length > 0
+                "hasProfileImage", profilePicture != null && profilePicture.length > 0,
+                "eventId", eventId
         );
 
         sendHtmlMessage(
                 to,
-                new String[] {from},
-                "email.event.reply.title",
+//                new String[] {from},
+                null
+                , "email.event.reply.title",
                 new Object[]{},
                 "event-response",
                 variables,
@@ -144,40 +117,42 @@ public class EmailServiceImpl implements EmailService {
         );
     }
 
-
-
-
-    /*
     @Override
-    public void sendSimpleMessage(String to, String subject, String text) {
-        try{
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(to);
-            message.setSubject(subject);
-            message.setText(text);
-            emailSender.send(message);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to send email", e);
+    public void answerJourneyMail(String from, String to,
+                                  String firstName, String lastName,
+                                  String username, String career,
+                                  String originUniversity, String message,
+                                  Locale locale, byte[] profilePicture, long journeyId) {
+
+
+        if(from.equals(to)){
+            return;
         }
+
+        Map<String, Object> variables = Map.of(
+//                "email", from,
+                "firstname", firstName,
+                "lastname", lastName,
+                "username", username,
+                "career", career,
+                "university", originUniversity,
+                "message", message,
+                "hasProfileImage", profilePicture != null && profilePicture.length > 0,
+                "journeyId", journeyId
+        );
+
+        sendHtmlMessage(
+                to,
+//                new String[] {from},
+                null,
+                "email.journey.reply.subject",
+                new Object[]{},
+                "journey-response",
+                variables,
+                locale,
+                profilePicture
+        );
     }
-    @Override
-    public void sendHtmlMessage(String to, String subject, String templateName, Map<String, Object> variables) {
-        try {
-            MimeMessage message = emailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            Context context = new Context();
-            context.setVariables(variables);
-            String htmlContent = templateEngine.process(templateName, context);
-            helper.setFrom(fromEmail);
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
-            emailSender.send(message);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to send email", e);
-        }
-    }*/
 
 
 }

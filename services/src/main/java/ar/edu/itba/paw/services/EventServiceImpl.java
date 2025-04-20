@@ -73,11 +73,11 @@ public class EventServiceImpl implements EventService {
         eventResponseDao.create(user.getId(), user.getUsername(),eventId, message, LocalDateTime.now());
 
         LOGGER.info("Sending email notification to event owner");
-        //@TODO cambiar locale
         emailService.answerEventMail(email,event.getUser().getEmail(), user.getFirstname(),
                 user.getLastname(),user.getUsername(),user.getCareer().getName(), user.getUniversity().getName(),
                 message, user.getLocale(),
-                imageDao.getImageById(user.getProfilePictureId()).orElseThrow(() -> new RuntimeException("Image not found")).getData());
+                imageDao.getImageById(user.getProfilePictureId()).orElseThrow(() -> new RuntimeException("Image not found")).getData(),
+                eventId);
     }
 
     @Transactional(readOnly = true)

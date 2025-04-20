@@ -10,12 +10,12 @@ public interface EmailService {
                                   String firstName, String lastName,
                                   String username, String career,
                                   String originUniversity, String message,
-                                  Locale locale,byte[] imageBytes);
+                                  Locale locale,byte[] imageBytes, long journeyId);
 
     void answerEventMail(String from, String to,
                                 String firstName, String lastName,
                                 String username, String career,
                                 String originUniversity, String message,
-                                Locale locale, byte[] imageBytes);
+                                Locale locale, byte[] imageBytes, long eventId);
 
 }
