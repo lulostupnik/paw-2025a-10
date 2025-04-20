@@ -334,10 +334,14 @@
     font-weight: 500;
     transition: color 0.2s;
     padding: 8px 0;
+    border: none;
+    background-color: transparent;
 }
 
 .back-link:hover {
     color: var(--color-primary-dark, #4338ca);
+    border: none;
+    background-color: transparent;
 }
 
 /* No journeys message */

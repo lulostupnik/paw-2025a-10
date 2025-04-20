@@ -58,10 +58,10 @@
         <div class="content-container">
             <!-- Back to Events Button -->
             <div class="back-navigation">
-                <a href="<c:url value='/events'/>" class="back-link">
+                <button type="button" name="back" class="back-link" onClick="history.back()">
                     <img src="<c:url value='/resources/icons/back.svg'/>" alt="Back" class="icon" />
                     <spring:message code="event.detail.back.to.list" />
-                </a>
+                </button>
             </div>
 
             <!-- Event Detail Card -->

@@ -7,10 +7,14 @@
     color: #2563eb;
     text-decoration: none;
     margin-bottom: 1.5rem;
+    border: none;
+    background-color: transparent;
 }
 
 .back-link:hover {
     text-decoration: underline;
+    border: none;
+    background-color: transparent;
 }
 
 .back-link svg {

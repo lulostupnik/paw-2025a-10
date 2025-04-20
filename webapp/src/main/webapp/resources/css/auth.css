@@ -341,11 +341,15 @@
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s ease;
+    border: none;
+    background-color: transparent;
 }
 
 .auth-link:hover {
     color: var(--primary-dark);
     text-decoration: underline;
+    border: none;
+    background-color: transparent;
 }
 
 /* File Upload */
@@ -534,10 +538,14 @@
     font-weight: 500;
     margin-bottom: 1.5rem;
     transition: color 0.2s ease;
+    border: none;
+    background-color: transparent;
 }
 
 .back-link:hover {
     color: var(--text-color);
+    border: none;
+    background-color: transparent;
 }
 
 .back-link-icon {

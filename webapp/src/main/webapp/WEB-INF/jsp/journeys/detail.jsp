@@ -42,10 +42,10 @@
         <div class="content-container">
             <!-- Back to Journeys Button -->
             <div class="back-navigation">
-                <a href="<c:url value='/journeys'/>" class="back-link">
+                <button type="button" name="back" class="back-link" onClick="history.back()">
                     <img src="<c:url value='/resources/icons/back.svg'/>" alt="Back" class="icon" />
                     <spring:message code="journey.detail.back.to.list" />
-                </a>
+                </button>
             </div>
 
             <!-- Journey Detail Card -->
