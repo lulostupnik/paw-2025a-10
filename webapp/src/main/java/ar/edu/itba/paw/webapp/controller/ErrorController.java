@@ -24,7 +24,7 @@ public class ErrorController {
     public ModelAndView error404() {
         ModelAndView mav = new ModelAndView("errors/error");
         mav.addObject("errorType", "404");
-        mav.addObject("errorIcon", "file-search");
+//        mav.addObject("errorIcon", "file-search");
         return mav;
     }
 
@@ -33,15 +33,17 @@ public class ErrorController {
     public ModelAndView error500() {
         ModelAndView mav = new ModelAndView("errors/error");
         mav.addObject("errorType", "500");
-        mav.addObject("errorIcon", "server-off");
+//        mav.addObject("errorIcon", "server-off");
         return mav;
     }
+
+
 
     @RequestMapping("/general")
     public ModelAndView errorGeneral() {
         ModelAndView mav = new ModelAndView("errors/error");
         mav.addObject("errorType", "general");
-        mav.addObject("errorIcon", "alert-circle");
+//        mav.addObject("errorIcon", "alert-circle");
         return mav;
     }
 }

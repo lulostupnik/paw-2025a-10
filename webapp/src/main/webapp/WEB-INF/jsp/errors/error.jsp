@@ -3,7 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%-- Set the locale based on the session language --%>
-<fmt:setLocale value="${sessionScope.lang}" />
+<%--<fmt:setLocale value="${sessionScope.lang}" />--%>
 <fmt:setBundle basename="i18n.messages" />
 
 <!DOCTYPE html>
@@ -103,6 +103,8 @@
                     </li>
                 </c:if>
 
+
+
                 <c:if test="${errorType == '403'}">
                     <li class="help-item">
                         <svg class="help-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -133,6 +135,24 @@
                     </li>
                 </c:if>
 
+                <c:if test="${errorType == '415'}">
+                    <li class="help-item">
+                        <svg class="help-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m9 18 6-6-6-6"></path>
+                        </svg>
+                        <span><fmt:message key="error.415.help.1" /></span>
+                    </li>
+                </c:if>
+
+                <c:if test="${errorType == '405'}">
+                    <li class="help-item">
+                        <svg class="help-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m9 18 6-6-6-6"></path>
+                        </svg>
+                        <span><fmt:message key="error.405.help.1" /></span>
+                    </li>
+                </c:if>
+
                 <li class="help-item">
                     <svg class="help-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="m9 18 6-6-6-6"></path>
@@ -143,11 +163,13 @@
         </div>
 
         <div class="error-actions">
+
             <a href="<c:url value='/explore'/>" class="primary-action">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                </svg>
+                <%--                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">--%
+                <%--                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>--%>
+<%--                    <polyline points="9 22 9 12 15 12 15 22"></polyline>--%>
+<%--                </svg>--%>
+
                 <fmt:message key="error.action.home" />
             </a>
         </div>
@@ -195,18 +217,18 @@
     </div>
 </div>
 
-<!-- JavaScript for language switching -->
-<script>
-    function changeLanguage(lang) {
-        // Get current URL
-        let url = new URL(window.location.href);
+<%--<!-- JavaScript for language switching -->--%>
+<%--<script>--%>
+<%--    function changeLanguage(lang) {--%>
+<%--        // Get current URL--%>
+<%--        let url = new URL(window.location.href);--%>
 
-        // Set the lang parameter
-        url.searchParams.set('lang', lang);
+<%--        // Set the lang parameter--%>
+<%--        url.searchParams.set('lang', lang);--%>
 
-        // Redirect to the new URL
-        window.location.href = url.toString();
-    }
-</script>
+<%--        // Redirect to the new URL--%>
+<%--        window.location.href = url.toString();--%>
+<%--    }--%>
+<%--</script>--%>
 </body>
 </html>
