@@ -170,13 +170,13 @@
                 <fmt:message key="nav.events" />
             </a>
 
-            <a href="mailto:support@example.com" class="secondary-action-link">
-                <svg class="secondary-action-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21.5 12H16c-.7 2-2 3-4 3s-3.3-1-4-3H2.5"></path>
-                    <path d="M5.5 5.1L2 12v6c0 1.1.9 2 2 2h16a2 2 0 0 0 2-2v-6l-3.4-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0-1.8 1.1z"></path>
-                </svg>
-                <fmt:message key="error.action.contact" />
-            </a>
+<%--            <a href="mailto:support@example.com" class="secondary-action-link">--%>
+<%--                <svg class="secondary-action-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">--%>
+<%--                    <path d="M21.5 12H16c-.7 2-2 3-4 3s-3.3-1-4-3H2.5"></path>--%>
+<%--                    <path d="M5.5 5.1L2 12v6c0 1.1.9 2 2 2h16a2 2 0 0 0 2-2v-6l-3.4-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0-1.8 1.1z"></path>--%>
+<%--                </svg>--%>
+<%--                <fmt:message key="error.action.contact" />--%>
+<%--            </a>--%>
         </div>
 
         <%-- Display exception details in development mode --%>
