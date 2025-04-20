@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/landing.css'/>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
+    <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
 </head>
 <body>
 <div class="landing-page">
@@ -21,10 +23,10 @@
                 <h1 class="hero-title"><spring:message code="landing.hero.title"/></h1>
                 <p class="hero-subtitle"><spring:message code="landing.hero.subtitle"/></p>
                 <div class="hero-cta">
-                    <a href="<c:url value='/register'/>" class="btn-primary btn-large">
+                    <a href="<c:url value='/register'/>" class="btn-primary">
                         <spring:message code="landing.hero.cta"/>
                     </a>
-                    <a href="<c:url value='/journeys'/>" class="btn-explore-journey">
+                    <a href="<c:url value='/journeys'/>" class="btn-explore">
                         <spring:message code="landing.hero.explore"/>
                     </a>
                 </div>
@@ -153,7 +155,7 @@
                     </c:forEach>
                 </c:if>
                 <div class="featured-cta">
-                    <a href="<c:url value='/events'/>" class="btn-primary btn-large">
+                    <a href="<c:url value='/events'/>" class="btn-primary">
                         <spring:message code="landing.featured.events.cta"/>
                     </a>
                 </div>
