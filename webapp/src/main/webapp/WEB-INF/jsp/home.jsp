@@ -62,9 +62,11 @@
                             <p class="empty-message">
                                 <spring:message code="dashboard.no.journeys"/>
                             </p>
-                            <a href="<c:url value='/journeys/create'/>" class="empty-action-btn">
-                                <spring:message code="dashboard.create.journey" />
-                            </a>
+                            <c:if test="${hasJourney == false}">
+                                <a href="<c:url value='/journeys/create'/>" class="empty-action-btn">
+                                    <spring:message code="dashboard.create.journey" />
+                                </a>
+                            </c:if>
                         </div>
                     </c:if>
 

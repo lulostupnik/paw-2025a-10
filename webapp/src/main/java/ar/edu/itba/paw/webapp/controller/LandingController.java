@@ -68,6 +68,9 @@ public class LandingController {
         LOGGER.debug("Journeys: {}", journeys);
         mav.addObject("journeys", journeys);
 
+        Boolean hasJourney = journeyService.userHasJourney(authentication.getName());
+        LOGGER.debug("User has journey {}", hasJourney);
+        mav.addObject("hasJourney", hasJourney);
         return mav;
     }
 

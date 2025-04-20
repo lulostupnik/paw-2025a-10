@@ -57,6 +57,9 @@ public class JourneyController {
                                             @RequestParam(required = false) String interest) {
         LOGGER.debug("Getting journeys with filters: {destination: \"{}\", startDate: \"{}\", endDate: \"{}\", interest: \"{}\"}", destination, startDate, endDate, interest);
         
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        LOGGER.debug("Auth provided for user {}", authentication);
+
         final ModelAndView mav = new ModelAndView("journeys/list");
         List<Journey> journeys = js.getFilteredJourneys(destination, startDate, endDate, interest);
         LOGGER.debug("Found journeys {}", journeys);
@@ -74,10 +77,14 @@ public class JourneyController {
         List<Interest> interests = interestService.findAll();
         LOGGER.debug("Interests: {}", interests);
 
+        Boolean hasJourney = js.userHasJourney(authentication.getName());
+        LOGGER.debug("User has journey {}", hasJourney);
+
         mav.addObject("cities", cities);
         mav.addObject("interests", interests);
         mav.addObject("filterJourneyForm", filterJourneyForm);
         mav.addObject("journeys", journeys);
+        mav.addObject("hasJourney", hasJourney);
         return mav;
     }
 

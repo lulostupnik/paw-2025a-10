@@ -149,10 +149,12 @@
                         <i class="fas fa-filter btn-icon"></i>
                         <spring:message code="journey.filter.toggle"/>
                     </button>
-                    <a href="<c:url value="/journeys/create"/>" class="btn btn-primary btn-with-icon">
-                        <i class="fas fa-plus btn-icon"></i>
-                        <spring:message code="journey.create.button"/>
-                    </a>
+                    <c:if test="${hasJourney == false}">
+                        <a href="<c:url value="/journeys/create"/>" class="btn btn-primary btn-with-icon">
+                            <i class="fas fa-plus btn-icon"></i>
+                            <spring:message code="journey.create.button"/>
+                        </a>
+                    </c:if>
                 </div>
             </div>
 
