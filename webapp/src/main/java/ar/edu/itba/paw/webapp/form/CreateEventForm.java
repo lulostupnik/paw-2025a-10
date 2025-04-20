@@ -33,7 +33,7 @@ public class CreateEventForm {
     @Size(min = 2, max = 200)
     private String description;
 
-    @DateTimeFormat(pattern = "HH:MM")
+    @DateTimeFormat(pattern = "HH:mm")
     private LocalTime time;
 
     @Size(max=255)

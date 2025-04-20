@@ -127,14 +127,17 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public Event create(User user, City city, Date date, String description, long flyerImageId, String title, LocalTime time, String address, int attendeesLimit) {
-        LOGGER.debug("Registering new event for user {} in {} on {} ({}) with image {}", user, city, date, description, flyerImageId);
+        LOGGER.debug("Registering new event for user {} in {} ({}) on {} {} ({}) with image {}, title {}, limit {}", user, city, address, date, time, description, flyerImageId, attendeesLimit);
         final Map<String, Object> parameters = Map.of(
                 "user_id", user.getId(),
                 "city_id", city.getId(),
                 "event_date", date,
                 "description", description,
                 "flyer_image_id", flyerImageId,
-                "title", title
+                "title", title,
+                "event_time", time,
+                "address", address,
+                "attendees_limit", attendeesLimit
                 );
         final Number keys = jdbcInsert.executeAndReturnKey(parameters);
         LOGGER.debug("Successfully registered event {}", keys.longValue());

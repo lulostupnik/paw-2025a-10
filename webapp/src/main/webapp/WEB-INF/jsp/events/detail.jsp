@@ -90,7 +90,7 @@
                                     <img src="<c:url value='/resources/icons/time.svg'/>" alt="Time clock" class="icon" />
                                     <span class="date-text">
                                         <c:if test="${not empty event.time}">
-                                            <fmt:formatDate value="${event.time}" pattern="HH:MM" />
+                                            <c:out value="${event.time}"/>
                                         </c:if>                                        
                                         <c:if test="${empty event.time}">
                                             <span><spring:message code="event.allDayEvent"/></span>
