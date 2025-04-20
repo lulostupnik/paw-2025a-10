@@ -362,6 +362,8 @@
     color: var(--error-purple);
 }
 
+
+
 .error-type-403 .help-icon {
     color: var(--error-amber);
 }
