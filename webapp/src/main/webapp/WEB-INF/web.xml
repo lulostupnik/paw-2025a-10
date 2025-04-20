@@ -98,6 +98,16 @@
     <location>/errors/general</location>
   </error-page>
 
+  <error-page>
+    <error-code>415</error-code>
+    <location>/errors/general</location>
+  </error-page>
+
+  <error-page>
+    <error-code>405</error-code>
+    <location>/errors/general</location>
+  </error-page>
+
   <!-- Exception type mappings -->
   <error-page>
     <exception-type>java.lang.Throwable</exception-type>

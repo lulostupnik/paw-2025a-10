@@ -63,14 +63,15 @@
         </div>
 
         <div class="error-code">
-            <c:choose>
-                <c:when test="${not empty statusCode}">
-                    ${statusCode}
-                </c:when>
-                <c:otherwise>
-                    <fmt:message key="error.${errorType}.code" />
-                </c:otherwise>
-            </c:choose>
+            <fmt:message key="error.${errorType}.code" />
+        <%--            <c:choose>--%>
+<%--                <c:when test="${not empty statusCode}">--%>
+<%--                    ${statusCode}--%>
+<%--                </c:when>--%>
+<%--                <c:otherwise>--%>
+<%--                    <fmt:message key="error.${errorType}.code" />--%>
+<%--                </c:otherwise>--%>
+<%--            </c:choose>--%>
         </div>
 
         <h1 class="error-title">
