@@ -3,13 +3,13 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<c:url var="homeUrl" value="explore" />
-<c:url var="journeysUrl" value="journeys" />
-<c:url var="eventsUrl" value="events" />
-<c:url var="exploreUrl" value="explore" />
-<c:url var="loginUrl" value="login" />
-<c:url var="registerUrl" value="register" />
-<c:url var="logoutUrl" value="logout" />
+<c:url var="homeUrl" value="/explore" />
+<c:url var="journeysUrl" value="/journeys" />
+<c:url var="eventsUrl" value="/events" />
+<c:url var="exploreUrl" value="/explore" />
+<c:url var="loginUrl" value="/login" />
+<c:url var="registerUrl" value="/register" />
+<c:url var="logoutUrl" value="/logout" />
 <c:url var="profileUrl" value="profile" />
 <c:set var="uri" value="${requestScope['javax.servlet.forward.request_uri'] != null
                           ? requestScope['javax.servlet.forward.request_uri']
@@ -110,10 +110,10 @@
                 <c:otherwise>
                     <!-- User is not logged in - show login/register buttons -->
                     <div class="auth-buttons">
-                        <a href="<c:url value='${loginUrl}'/>" class="btn-secondary">
+                        <a href="<c:out value='${loginUrl}'/>" class="btn-secondary">
                             <spring:message code="auth.login"/>
                         </a>
-                        <a href="<c:url value='${registerUrl}'/>" class="btn-outline">
+                        <a href="<c:out value='${registerUrl}'/>" class="btn-outline">
                             <spring:message code="auth.register"/>
                         </a>
                     </div>

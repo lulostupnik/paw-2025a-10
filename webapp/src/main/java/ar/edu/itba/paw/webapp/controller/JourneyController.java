@@ -141,7 +141,7 @@ public class JourneyController {
         return mav;
     }
 
-    @RequestMapping(value = "/{id}/reply", method = POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value = "/{id}/reply", method = POST)
     public ModelAndView replyToJourney(@PathVariable int id, @Valid @ModelAttribute("replyJourneyForm") final ReplyJourneyForm rjf, final BindingResult errors) {
         LOGGER.debug("Replying to journey {} from form {}", id, rjf);
 
@@ -155,7 +155,7 @@ public class JourneyController {
 
         js.replyToJourney(authentication.getName(), id, rjf.getMessage());
 
-        return getJourney(id, new ReplyJourneyForm());
+        return new ModelAndView("redirect:/journeys/" + id);
     }
 
 //    @RequestMapping(value = "/{id}/reply")

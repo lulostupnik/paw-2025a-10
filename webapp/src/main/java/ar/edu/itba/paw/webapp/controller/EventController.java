@@ -203,8 +203,8 @@ public class EventController {
         LOGGER.debug("Auth provided for: {}", authentication.getPrincipal());
 
         eventService.replyToEvent(authentication.getName(), id, form.getMessage());
-//        return new ModelAndView("redirect:/events");
-        return getEvent(id, new ReplyEventForm());
+        return new ModelAndView("redirect:/events/{id}", "id", id);
+//        return getEvent(id, new ReplyEventForm());
     }
 
     @RequestMapping(value="/{id}/attend",method = POST,produces = "application/json")

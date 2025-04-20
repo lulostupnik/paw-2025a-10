@@ -100,7 +100,11 @@ public class EventServiceImpl implements EventService {
             return;
         }
         int limit = eventDao.getEventAttendanceLimit(eventId);
-        if (limit == 0 || eventAttendanceDao.getAttendeesCount(eventId) >= limit) {
+        if(limit == 0){
+            eventAttendanceDao.attend(userId, eventId);
+            return;
+        }
+        if (eventAttendanceDao.getAttendeesCount(eventId) >= limit) {
             LOGGER.debug("Event attendance limit of {} reached", limit);
             return;
         }
