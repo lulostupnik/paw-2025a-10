@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 //import java.util.Date;
@@ -61,6 +62,7 @@ public class JourneyServiceImpl implements JourneyService {
         }
     }
 
+    @Transactional
     @Override
     public Journey createJourney(String email, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
         LOGGER.debug("Creating journey for {}", email);
@@ -77,15 +79,15 @@ public class JourneyServiceImpl implements JourneyService {
             LOGGER.info("User has an overlapping journey");
             throw new RuntimeException("There's already a journey registered in this time period");
         }
-        //if(journeyDao.findByUserId(user.getId()).isPresent()) {
-        //    throw new RuntimeException("User already has a journey");
-        //}
+        if(journeyDao.findByUserId(user.getId()).isPresent()) {
+            throw new RuntimeException("User already has a journey");
+        }
 
         LOGGER.info("Journey data is valid, commiting new event to persistance");
         return journeyDao.create(user, destination, startDate, endDate, description); // FIXME
     }
 
-
+    @Transactional
     @Override
     public void replyToJourney(String email, long journeyId, String message) {
         LOGGER.debug("Replying to journey {}", journeyId);
@@ -113,20 +115,24 @@ public class JourneyServiceImpl implements JourneyService {
                 imageService.getImage(user.getProfilePictureId()).orElseThrow(()->new RuntimeException("Image not found")).getData());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Journey> getAllJourneys() {
         return journeyDao.listAll();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<Journey> getJourneyById(long id) {
         return journeyDao.findById(id);
     }
 
+    @Transactional(readOnly = true)
     public List<Journey> getFilteredJourneys(String destination, LocalDate startDate, LocalDate endDate, String interest) {
         return journeyDao.findByFilters(destination, startDate,endDate, interest);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Boolean userHasJourney(String email) {
         Optional<User> maybeUser = userService.findByEmail(email);
@@ -136,25 +142,31 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyDao.findByUserId(maybeUser.get().getId()).isPresent();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Journey> getRecommendedJourneys(String email) {
         return journeyDao.getRecommendedJourneys(email);
     }
+
+    @Transactional(readOnly = true)
     @Override
     public List<JourneyResponse> getJourneyResponses(long journeyId){
         return journeyResponseDao.listAllFromJourney(journeyId);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CursorPage<JourneyResponse, LocalDateTime> listFromJourneyAfter(long journeyId, LocalDateTime cursor, int limit) {
         return journeyResponseDao.listFromJourneyAfter(journeyId, cursor, limit);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CursorPage<Journey, Long> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest, Long cursor, int pageSize) {
         return journeyDao.findByFilters(destination, startDate, endDate, interest, cursor, pageSize);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CursorPage<Journey, Long> listAll(Long cursor, int pageSize) {
         return journeyDao.listAll(cursor, pageSize);

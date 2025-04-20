@@ -3,17 +3,18 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.models.City;
-
 import ar.edu.itba.paw.models.CursorPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class CityServiceImpl implements CityService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CityServiceImpl.class);
 
