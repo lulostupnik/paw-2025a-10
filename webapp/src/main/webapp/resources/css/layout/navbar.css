@@ -7,12 +7,13 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     width: 100%;
     padding: 1rem 0;
+    line-height: normal;
 }
 
 .topbar-container {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     padding: 0.75rem 1.5rem;
     max-width: 1400px;
     margin: 0 auto;
@@ -21,6 +22,11 @@
 .topbar-left {
     display: flex;
     align-items: center;
+    justify-items: left;
+    width: auto;
+    flex-grow: 1;
+    justify-self: flex-start;
+    flex-basis: 0;
 }
 
 .topbar-logo a {
@@ -39,12 +45,14 @@
 
 .logo-text {
     font-size: 1.125rem;
+    line-height: normal;
 }
 
 /* Main Navigation */
 .topbar-nav {
     display: flex;
     margin-left: 2rem;
+    line-height: normal;
 }
 
 .topbar-nav-container {
@@ -83,6 +91,12 @@
 .topbar-auth {
     display: flex;
     align-items: center;
+    width: auto;
+    justify-content: right;
+    height: 44px;
+    flex-grow: 1;
+    justify-self: flex-end;
+    flex-basis: 0;
 }
 
 .auth-buttons {
@@ -142,7 +156,7 @@
 .profile-name {
     font-weight: 500;
     color: #1f2937;
-    max-width: 120px;
+    max-width: 250px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
