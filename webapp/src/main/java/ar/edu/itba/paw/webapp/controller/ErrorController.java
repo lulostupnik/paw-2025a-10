@@ -13,11 +13,35 @@ public class ErrorController {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @RequestMapping("/403")
     public ModelAndView error403() {
-        return new ModelAndView("errors/error");
+        ModelAndView mav = new ModelAndView("errors/error");
+        mav.addObject("errorType", "403");
+        mav.addObject("errorIcon", "shield-off");
+        return mav;
     }
+
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @RequestMapping("/404")
     public ModelAndView error404() {
-        return new ModelAndView("errors/error");
+        ModelAndView mav = new ModelAndView("errors/error");
+        mav.addObject("errorType", "404");
+        mav.addObject("errorIcon", "file-search");
+        return mav;
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @RequestMapping("/500")
+    public ModelAndView error500() {
+        ModelAndView mav = new ModelAndView("errors/error");
+        mav.addObject("errorType", "500");
+        mav.addObject("errorIcon", "server-off");
+        return mav;
+    }
+
+    @RequestMapping("/general")
+    public ModelAndView errorGeneral() {
+        ModelAndView mav = new ModelAndView("errors/error");
+        mav.addObject("errorType", "general");
+        mav.addObject("errorIcon", "alert-circle");
+        return mav;
     }
 }

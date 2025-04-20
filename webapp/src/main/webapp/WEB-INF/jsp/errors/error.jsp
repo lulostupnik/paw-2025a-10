@@ -2,43 +2,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<%
-    // Get the exception
-    Throwable throwable = (Throwable) request.getAttribute("javax.servlet.error.exception");
-    Integer statusCode = (Integer) request.getAttribute("javax.servlet.error.status_code");
-    String errorType = "general";
-    String errorIcon = "alert-circle"; // Default icon
-
-    if (statusCode != null) {
-        if (statusCode == 404) {
-            errorType = "404";
-            errorIcon = "file-search";
-        } else if (statusCode == 500) {
-            errorType = "500";
-            errorIcon = "server-off";
-        } else if (statusCode == 403) {
-            errorType = "403";
-            errorIcon = "shield-off";
-        }
-    } else if (throwable != null) {
-        // Determine error type based on exception class
-        if (throwable instanceof java.io.FileNotFoundException) {
-            errorType = "404";
-            errorIcon = "file-search";
-        } else if (throwable instanceof java.lang.SecurityException) {
-            errorType = "403";
-            errorIcon = "shield-off";
-        } else {
-            errorType = "500";
-            errorIcon = "server-off";
-        }
-    }
-
-    request.setAttribute("errorType", errorType);
-    request.setAttribute("errorIcon", errorIcon);
-
-%>
-
 <%-- Set the locale based on the session language --%>
 <fmt:setLocale value="${sessionScope.lang}" />
 <fmt:setBundle basename="i18n.messages" />
@@ -184,7 +147,6 @@
                 </svg>
                 <fmt:message key="error.action.home" />
             </a>
-
         </div>
 
         <div class="secondary-actions">
@@ -216,15 +178,15 @@
         </div>
 
         <%-- Display exception details in development mode --%>
-        <c:if test="${not empty param.debug && not empty throwable}">
+        <c:if test="${not empty param.debug && not empty exception}">
             <div class="exception-details">
                 <h3 class="exception-title">Exception Details:</h3>
-                <p class="exception-message">${throwable.message}</p>
+                <p class="exception-message">${exception.message}</p>
                 <pre class="exception-stack-trace">
-                        <c:forEach var="stackTraceElement" items="${throwable.stackTrace}">
-                            ${stackTraceElement}
-                        </c:forEach>
-                    </pre>
+                    <c:forEach var="stackTraceElement" items="${exception.stackTrace}">
+                        ${stackTraceElement}
+                    </c:forEach>
+                </pre>
             </div>
         </c:if>
     </div>
