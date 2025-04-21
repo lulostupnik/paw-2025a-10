@@ -1,10 +1,11 @@
 package ar.edu.itba.paw.persistence;
+import java.sql.Time;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.sql.DataSource;
@@ -127,18 +128,21 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public Event create(User user, City city, Date date, String description, long flyerImageId, String title, LocalTime time, String address, int attendeesLimit) {
-        LOGGER.debug("Registering new event for user {} in {} ({}) on {} {} ({}) with image {}, title {}, limit {}", user, city, address, date, time, description, flyerImageId, attendeesLimit);
-        final Map<String, Object> parameters = Map.of(
-                "user_id", user.getId(),
-                "city_id", city.getId(),
-                "event_date", date,
-                "description", description,
-                "flyer_image_id", flyerImageId,
-                "title", title,
-                "event_time", time,
-                "address", address,
-                "attendees_limit", attendeesLimit
-                );
+        LOGGER.debug("Registering new event for user {} in {} (addr {}) on {} {} ( {} ) with image {}, title {}, limit {}", user, city, address, date, time, description, flyerImageId, title, attendeesLimit);
+        HashMap<String, Object> parameters = new HashMap<>();
+        parameters.put("user_id", user.getId());
+        parameters.put("city_id", city.getId());
+        parameters.put("event_date", date);
+        parameters.put("description", description);
+        parameters.put("flyer_image_id", flyerImageId);
+        parameters.put("title", title);
+        parameters.put("address", address);
+        if (time != null) {
+            parameters.put("event_time", Time.valueOf(time));
+        }
+        if (attendeesLimit != 0) {
+            parameters.put("attendees_limit", attendeesLimit);
+        }
         final Number keys = jdbcInsert.executeAndReturnKey(parameters);
         LOGGER.debug("Successfully registered event {}", keys.longValue());
         return new Event(keys.longValue(), user, date, description, flyerImageId, city, title, time, address, attendeesLimit);
