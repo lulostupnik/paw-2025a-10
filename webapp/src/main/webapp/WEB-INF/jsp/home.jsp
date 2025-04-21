@@ -21,6 +21,10 @@
     <div class="main-content">
         <jsp:include page="components/navbar.jsp" />
         <div class="content-container">
+            <div class="header-container">
+                <h2 class="page-title"><spring:message code="nav.explore"/></h2>
+            </div>
+
 <%--            <!-- Hero Section -->--%>
 <%--            <div class="hero-section">--%>
 <%--                <div class="hero-content">--%>

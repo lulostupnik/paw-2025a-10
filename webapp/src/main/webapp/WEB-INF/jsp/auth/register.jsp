@@ -62,7 +62,7 @@
                         <form:label path="email" cssClass="form-label required-field">
                             <spring:message code="createJourney.userEmail"/>
                         </form:label>
-                        <form:input path="email" type="email" cssClass="form-input ${not empty errors.getFieldError('email') ? 'error' : ''}"
+                        <form:input path="email" id="register-email" cssClass="form-input ${not empty errors.getFieldError('email') ? 'error' : ''}"
                                     placeholder="example@email.com"  />
                         <form:errors path="email" cssClass="error-message" />
                     </div>

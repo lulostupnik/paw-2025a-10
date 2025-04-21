@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
             })
 
             // Validate email format
-            const emailField = form.querySelector('input[type="email"]')
+            const emailField = form.querySelector('input[id="register-email"]')
             if (emailField && emailField.value.trim()) {
                 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
                 if (!emailPattern.test(emailField.value)) {
