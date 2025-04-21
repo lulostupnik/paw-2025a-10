@@ -85,7 +85,8 @@
                                 <div class="event-date">
                                     <img src="<c:url value='/resources/icons/calendar_black.svg'/>" alt="Calendar" class="icon" />
                                     <span class="date-text">
-                                        <fmt:formatDate value="${event.date}" pattern="MMMM d, yyyy" />
+                                         <c:out value="${event.date}" />
+<%--                                        <fmt:formatDate value="${event.date}" pattern="MMMM d, yyyy" />--%>
                                     </span>
                                 </div>
                                 <div class="event-date">
