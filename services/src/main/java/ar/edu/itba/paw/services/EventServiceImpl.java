@@ -235,4 +235,15 @@ public class EventServiceImpl implements EventService {
         Optional<Event> event = eventDao.findById(eventID);
         return event.isPresent() && event.get().getUser().getEmail().equals(email);
     }
+
+    @Transactional(readOnly=true)
+    @Override
+    public boolean isEventFull(long eventId) {
+        return eventAttendanceDao.getAttendeesCount(eventId) >= eventDao.getEventAttendanceLimit(eventId);
+    }
+
+    @Override
+    public List<Event> getFullEvents() {
+        return eventDao.getFullEvents();
+    }
 }

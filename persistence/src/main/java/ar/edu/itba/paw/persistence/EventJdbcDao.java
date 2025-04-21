@@ -359,5 +359,10 @@ public class EventJdbcDao implements EventDao {
         return 0;
     }
 
+    @Override
+    public List<Event> getFullEvents() {
+        return List.of();
+    }
+
 
 }

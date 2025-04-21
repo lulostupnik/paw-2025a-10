@@ -17,6 +17,7 @@ public interface EventDao {
     List<Event> getRecommendedEvents(String email);
     List<Event> getTopEvents();
     int getEventAttendanceLimit(long eventId);
+    List<Event> getFullEvents();
 
     CursorPage<Event, Long> listAll(Long cursor, int limit);
     CursorPage<Event, Long> listByCity(City city, Long cursor, int limit);
