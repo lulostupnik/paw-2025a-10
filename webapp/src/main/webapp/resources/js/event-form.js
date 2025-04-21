@@ -69,7 +69,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         errorMsg.className = "error-message"
                         field.parentNode.appendChild(errorMsg)
                     }
-                    errorMsg.textContent = "This field is required"
+                    errorMsg.textContent =  errorMsg.textContent = document.getElementById("i18n-required-field")
+                        ? document.getElementById("i18n-required-field").value
+                        : "This field is required"
                 } else {
                     field.classList.remove("error")
                     const errorMsg = field.parentNode.querySelector(".error-message")
@@ -95,7 +97,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         errorMsg.className = "error-message"
                         eventDate.parentNode.appendChild(errorMsg)
                     }
-                    errorMsg.textContent = "Event date cannot be in the past"
+                    errorMsg.textContent =   errorMsg.textContent = document.getElementById("i18n-past-date-error")
+                        ? document.getElementById("i18n-past-date-error").value
+                        : "Date can not be in the past"
+
                 }
             }
 

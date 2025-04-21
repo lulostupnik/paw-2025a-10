@@ -112,7 +112,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         errorMsg.className = "error-message"
                         field.parentNode.appendChild(errorMsg)
                     }
-                    errorMsg.textContent = "This field is required"
+                    errorMsg.textContent = document.getElementById("i18n-required-field")
+                        ? document.getElementById("i18n-required-field").value
+                        : "This field is required"
+                    // errorMsg.textContent = "This field is required"
                 } else {
                     field.classList.remove("error")
                     const errorMsg = field.parentNode.querySelector(".error-message")
@@ -136,7 +139,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         errorMsg.className = "error-message"
                         endDate.parentNode.appendChild(errorMsg)
                     }
-                    errorMsg.textContent = "End date must be after start date"
+                    errorMsg.textContent =      errorMsg.textContent = document.getElementById("i18n-valid-date-error")
+                        ? document.getElementById("i18n-valid-date-error").value
+                        : "End date must be after start date"
                 }
             }
 
@@ -157,7 +162,9 @@ document.addEventListener("DOMContentLoaded", () => {
                             errorMsg.className = "error-message"
                             container.appendChild(errorMsg)
                         }
-                        errorMsg.textContent = "Please select a university"
+                        errorMsg.textContent = document.getElementById("i18n-university-none-error")
+                            ? document.getElementById("i18n-university-none-error").value
+                            : "Please select a university"
                     }
                 }
             }

@@ -126,7 +126,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         errorMsg.className = "error-message"
                         field.parentNode.appendChild(errorMsg)
                     }
-                    errorMsg.textContent = "This field is required"
+                    errorMsg.textContent = document.getElementById("i18n-required-field")
+                        ? document.getElementById("i18n-required-field").value
+                        : "This field is required"
+                    // errorMsg.textContent = "This field is required"
                 } else {
                     field.classList.remove("error")
                     const errorMsg = field.parentNode.querySelector(".error-message")
@@ -151,7 +154,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         errorMsg.className = "error-message"
                         emailField.parentNode.appendChild(errorMsg)
                     }
-                    errorMsg.textContent = "Please enter a valid email address"
+                    errorMsg.textContent = document.getElementById("i18n-email-error")
+                        ? document.getElementById("i18n-email-error").value
+                        : "Please enter a valid email"
                 }
             }
 
