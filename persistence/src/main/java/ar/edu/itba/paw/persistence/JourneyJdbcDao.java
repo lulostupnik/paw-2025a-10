@@ -212,8 +212,8 @@ public class JourneyJdbcDao implements JourneyDao {
 
         if (destination != null && !destination.isEmpty()) {
             LOGGER.debug("Filter added: destination {}", destination);
-            filters.add("ci2.name = ?");
-            params.add(destination);
+            filters.add("ci2.id = ?");
+            params.add(Integer.parseInt(destination));
         }
         if (startDate != null) {
             LOGGER.debug("Filter added: start date {}", startDate);
@@ -227,8 +227,8 @@ public class JourneyJdbcDao implements JourneyDao {
         }
         if (interest != null && !interest.isEmpty()) {
             LOGGER.debug("Filter added: interest {}", interest);
-            filters.add("c.name = ?");
-            params.add(interest);
+            filters.add("c.id = ?");
+            params.add(Integer.parseInt( interest));
         }
 
         // Solo agregamos WHERE si hay filtros

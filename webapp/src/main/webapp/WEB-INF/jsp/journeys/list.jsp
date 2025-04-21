@@ -207,12 +207,12 @@
                                 <select id="city" name="destination" class="hidden-select">
                                     <option value=""></option>
                                     <c:forEach var="city" items="${cities}">
-                                        <option value="${city.id}" ${param.destination == city.id ? 'selected' : ''}>${city.name}</option>
+                                        <option value="${city.id}" ${param.destination == city.id ? 'selected' : ''}><c:out value="${city.name}"/></option>
                                     </c:forEach>
                                 </select>
                                 <div id="cityDropdown" class="autocomplete-dropdown">
                                     <c:forEach var="city" items="${cities}">
-                                        <div class="autocomplete-item" data-value="${city.id}">${city.name}</div>
+                                        <div class="autocomplete-item" data-value="${city.id}"><c:out value="${city.name}"/></div>
                                     </c:forEach>
                                 </div>
                                 <div id="citySelectedContainer" class="selected-items-container"></div>
@@ -246,12 +246,12 @@
                                 <select id="interest-select" name="interest" class="hidden-select">
                                     <option value=""></option>
                                     <c:forEach var="interest" items="${interests}">
-                                        <option value="${interest.id}" ${param.interest == interest.id ? 'selected' : ''}>${interest.name}</option>
+                                        <option value="${interest.id}" ${param.interest == interest.id ? 'selected' : ''}><c:out value="${interest.name}"/></option>
                                     </c:forEach>
                                 </select>
                                 <div id="interest-dropdown" class="autocomplete-dropdown">
                                     <c:forEach var="interest" items="${interests}">
-                                        <div class="autocomplete-item" data-value="${interest.id}">${interest.name}</div>
+                                        <div class="autocomplete-item" data-value="${interest.id}"><c:out value="${interest.name}"/></div>
                                     </c:forEach>
                                 </div>
                                 <div id="interestSelectedContainer" class="selected-items-container"></div>
