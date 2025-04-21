@@ -11,6 +11,7 @@ public interface UniversityDao {
     Optional<University> findByAny(String search);
     List<University> getAllUniversities();
     List<University> searchBySubstring(String substring);
+    Optional<University> findById(long id);
 
     CursorPage<University, Long> getAllUniversitiesAfter(Long cursor, int limit);
     CursorPage<University, Long> searchBySubstringAfter(String substring, Long cursor, int limit);

@@ -4,10 +4,10 @@ import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.models.CursorPage;
 import ar.edu.itba.paw.models.University;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,13 +27,20 @@ public class UniversityServiceImpl implements UniversityService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "universitiesByName", key = "#name")
     @Override
     public Optional<University> findByName(String name) {
         LOGGER.debug("Getting university with name {}", name);
         return universityDao.findByName(name);
     }
 
+    @Override
+    public Optional<University> findById(Long id) {
+        return universityDao.findById(id);
+    }
+
     @Transactional(readOnly = true)
+    @Cacheable(value = "universitiesByAbbreviation", key = "#abbreviation")
     @Override
     public Optional<University> findByAbbreviation(String abbreviation) {
         LOGGER.debug("Getting university with abbreviation {}", abbreviation);
@@ -41,13 +48,16 @@ public class UniversityServiceImpl implements UniversityService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "universitiesByAny", key = "#queryString")
     @Override    
     public Optional<University> findByAny(String queryString){
         LOGGER.debug("Getting university like {}", queryString);
         return universityDao.findByAny(queryString);
     }
 
+    // FIXME: ¿debería ser @Cacheable?
     @Transactional(readOnly = true)
+    @Cacheable(value = "universities")
     @Override
     public List<University> getAllUniversities() {
         LOGGER.debug("Getting all universities");

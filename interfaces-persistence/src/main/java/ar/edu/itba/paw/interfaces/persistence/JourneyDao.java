@@ -19,9 +19,15 @@ public interface JourneyDao {
     List<Journey> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest);
     CursorPage<Journey, Long> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest, Long cursor, int pageSize);
 
+    List<Journey> findByOriginCity(long originCityId);
+    List<Journey> findByOriginUniversity(long originUniversityId);
+
     Optional<Journey> findByUserId(long userId);
     List<Journey> getRecommendedJourneys(String email);
 
+    void updateDates(long journeyId, LocalDate startDate, LocalDate endDate);
+    void updateDescription(long journeyId, String description);
+    void updateDestinationUniversity(long journeyId, long universityId);
 }
 
     // CursorPage<Journey, Long> getRecommendedJourneys(String email, Long cursor, int pageSize);

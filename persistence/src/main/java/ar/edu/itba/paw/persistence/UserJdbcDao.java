@@ -168,5 +168,177 @@ public class UserJdbcDao implements UserDao {
         return new User(id.longValue(), email, username, firstname, lastname, university/*.toString()*/, career, profilePictureId, locale);
     }
 
+    @Override
+    public void update(long userId, String firstname, String lastname, String username,
+                       Long universityId, Long careerId, Locale locale) {
+        LOGGER.debug("Updating user with ID: {}", userId);
+
+        StringBuilder queryBuilder = new StringBuilder("UPDATE users SET ");
+        List<Object> parameters = new ArrayList<>();
+        boolean hasUpdates = false;
+
+        if (firstname != null) {
+            queryBuilder.append("firstname = ?");
+            parameters.add(firstname);
+            hasUpdates = true;
+        }
+
+        if (lastname != null) {
+            if (hasUpdates) queryBuilder.append(", ");
+            queryBuilder.append("lastname = ?");
+            parameters.add(lastname);
+            hasUpdates = true;
+        }
+
+        if (username != null) {
+            if (hasUpdates) queryBuilder.append(", ");
+            queryBuilder.append("username = ?");
+            parameters.add(username);
+            hasUpdates = true;
+        }
+
+        if (universityId != null) {
+            if (hasUpdates) queryBuilder.append(", ");
+            queryBuilder.append("university = ?");
+            parameters.add(universityId);
+            hasUpdates = true;
+        }
+
+        if (careerId != null) {
+            if (hasUpdates) queryBuilder.append(", ");
+            queryBuilder.append("career_id = ?");
+            parameters.add(careerId);
+            hasUpdates = true;
+        }
+
+        if (locale != null) {
+            if (hasUpdates) queryBuilder.append(", ");
+            queryBuilder.append("language = ?");
+            parameters.add(locale.getLanguage());
+            hasUpdates = true;
+        }
+
+        if (!hasUpdates) {
+            LOGGER.warn("No updates provided for user with ID: {}", userId);
+            return;
+        }
+
+        queryBuilder.append(" WHERE id = ?");
+        parameters.add(userId);
+
+        int rowsAffected = jdbcTemplate.update(queryBuilder.toString(), parameters.toArray());
+
+        if (rowsAffected == 0) {
+            LOGGER.warn("User update failed: User with ID {} not found", userId);
+        }
+
+    }
+
+    @Override
+    public void updateProfilePicture(long userId, long profilePictureId) {
+        LOGGER.debug("Updating profile picture for user ID: {} to image ID: {}", userId, profilePictureId);
+
+        int rowsAffected = jdbcTemplate.update(
+                "UPDATE users SET profile_picture_id = ? WHERE id = ?",
+                profilePictureId,
+                userId
+        );
+
+        if (rowsAffected == 0) {
+            LOGGER.warn("Profile picture update failed: User with ID {} not found", userId);
+        }
+    }
+
+    @Override
+    public void updateProfileInfo(long userId, String firstname, String lastname, String username) {
+        LOGGER.debug("Updating profile info for user ID: {}", userId);
+
+        StringBuilder queryBuilder = new StringBuilder("UPDATE users SET ");
+        List<Object> parameters = new ArrayList<>();
+        boolean hasUpdates = false;
+
+        if (firstname != null) {
+            queryBuilder.append("firstname = ?");
+            parameters.add(firstname);
+            hasUpdates = true;
+        }
+
+        if (lastname != null) {
+            if (hasUpdates) queryBuilder.append(", ");
+            queryBuilder.append("lastname = ?");
+            parameters.add(lastname);
+            hasUpdates = true;
+        }
+
+        if (username != null) {
+            if (hasUpdates) queryBuilder.append(", ");
+            queryBuilder.append("username = ?");
+            parameters.add(username);
+            hasUpdates = true;
+        }
+
+        if (!hasUpdates) {
+            LOGGER.warn("No profile info updates provided for user with ID: {}", userId);
+            return;
+        }
+
+        queryBuilder.append(" WHERE id = ?");
+        parameters.add(userId);
+
+        int rowsAffected = jdbcTemplate.update(queryBuilder.toString(), parameters.toArray());
+        if (rowsAffected == 0) {
+            LOGGER.warn("User profile info update failed: User with ID {} not found", userId);
+        }
+    }
+
+    @Override
+    public void updateLocale(long userId, Locale locale) {
+        LOGGER.debug("Updating locale for user ID: {} to {}", userId, locale);
+
+        if (locale == null) {
+            LOGGER.warn("Locale update skipped: null locale for user ID {}", userId);
+            return;
+        }
+
+        int rowsAffected = jdbcTemplate.update(
+                "UPDATE users SET language = ? WHERE id = ?",
+                locale.getLanguage(),
+                userId
+        );
+
+        if (rowsAffected == 0) {
+            LOGGER.warn("Locale update failed: User with ID {} not found", userId);
+        }
+    }
+
+    @Override
+    public void updateUniversity(long userId, long universityId) {
+        LOGGER.debug("Updating university for user ID: {} to university ID: {}", userId, universityId);
+
+        int rowsAffected = jdbcTemplate.update(
+                "UPDATE users SET university = ? WHERE id = ?",
+                universityId,
+                userId
+        );
+
+        if (rowsAffected == 0) {
+            LOGGER.warn("University update failed: User with ID {} not found", userId);
+        }
+    }
+
+    @Override
+    public void updateCareer(long userId, long careerId) {
+        LOGGER.debug("Updating career for user ID: {} to career ID: {}", userId, careerId);
+
+        int rowsAffected = jdbcTemplate.update(
+                "UPDATE users SET career_id = ? WHERE id = ?",
+                careerId,
+                userId
+        );
+
+        if (rowsAffected == 0) {
+            LOGGER.warn("Career update failed: User with ID {} not found", userId);
+        }
+    }
 
 }

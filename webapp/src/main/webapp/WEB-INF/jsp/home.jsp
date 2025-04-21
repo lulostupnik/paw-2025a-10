@@ -72,50 +72,19 @@
 
                     <c:if test="${not empty journeys}">
                         <c:forEach var="journey" items="${journeys}" varStatus="status">
-                            <div class="card journey-card">
-                                <div class="card-header">
-                                    <div class="card-avatar">
-                                        <c:if test="${not empty journey.user.profilePictureId}">
-                                            <img src="<c:url value='/images/${journey.user.profilePictureId}'/>" alt="Profile" class="avatar-img">
-                                        </c:if>
-                                        <c:if test="${empty journey.user.profilePictureId}">
-                                            <div class="avatar-placeholder">
-                                                    ${fn:substring(journey.user.firstname, 0, 1)}${fn:substring(journey.user.lastname, 0, 1)}
-                                            </div>
-                                        </c:if>
-                                    </div>
-                                    <div class="card-meta">
-                                        <h3 class="card-title">
-                                            <c:out value="${journey.user.firstname} ${journey.user.lastname}" />
-                                        </h3>
-                                        <p class="card-subtitle">
-                                            <c:out value="${journey.destinationUniversity.city}" /> -
-                                            <c:out value="${journey.destinationUniversity.name}" />
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="card-dates">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="card-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                        <span class="card-date-range">
-                                            <c:out value="${journey.startDate}" /> → <c:out value="${journey.endDate}" />
-                                        </span>
-                                    </div>
-                                    <p class="card-description">
-                                        <c:out value="${journey.description}" />
-                                    </p>
-                                </div>
-                                <div class="card-footer">
-                                    <a href="<c:url value='/journeys/${journey.id}'/>" class="card-btn">
-                                        <spring:message code="dashboard.details"/>
-                                        <svg class="card-btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                        </svg>
-                                    </a>
-                                </div>
-                            </div>
+                            <jsp:include page="journeys/journey-card.jsp">
+                                <jsp:param name="journeyId" value="${journey.id}" />
+                                <jsp:param name="city" value="${journey.destinationUniversity.city.name}" />
+                                <jsp:param name="startDate" value="${journey.startDate}" />
+                                <jsp:param name="endDate" value="${journey.endDate}" />
+                                <jsp:param name="description" value="${journey.description}" />
+                                <jsp:param name="profilePictureId" value="${journey.user.profilePictureId}" />
+                                <jsp:param name="userName" value="${journey.user.username}" />
+                                <jsp:param name="firstname" value="${journey.user.firstname}" />
+                                <jsp:param name="lastname" value="${journey.user.lastname}"/>
+                                <jsp:param name="country" value="${journey.destinationUniversity.city.country}"/>
+                                <jsp:param name="university" value="${journey.destinationUniversity.name}"/>
+                            </jsp:include>
                         </c:forEach>
                     </c:if>
                 </div>

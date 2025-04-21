@@ -129,6 +129,35 @@
         .btn-icon {
             font-size: 0.875rem;
         }
+        /* SVG icon styling for color inheritance */
+        .btn-with-icon img.btn-icon {
+            height: 1em;
+            width: 1em;
+            filter: invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
+        }
+
+        /* Apply specific filters for different button types */
+        .btn-primary img.btn-icon {
+            /* For white icons on primary buttons */
+            filter: brightness(0) invert(1);
+        }
+
+        .btn-secondary img.btn-icon {
+            /* For darker icons on secondary buttons */
+            filter: brightness(0) saturate(100%);
+        }
+
+        .btn-danger img.btn-icon {
+            /* For white icons on danger buttons */
+            filter: brightness(0) invert(1);
+        }
+
+        /* For tag remove buttons */
+        .tag-remove img {
+            height: 0.75em;
+            width: 0.75em;
+            filter: brightness(0) saturate(100%) invert(24%) sepia(90%) saturate(1960%) hue-rotate(235deg) brightness(97%) contrast(96%);
+        }
     </style>
 </head>
 <body>
@@ -144,12 +173,12 @@
                 </h2>
                 <div class="journeys-actions">
                     <button id="filterToggleBtn" class="btn-secondary btn-with-icon">
-                        <i class="fas fa-filter btn-icon"></i>
+                        <img src="<c:url value='/resources/icons/filter.svg'/>" alt="<spring:message code="journey.filter.toggle"/>" class="btn-icon" />
                         <spring:message code="journey.filter.toggle"/>
                     </button>
                     <c:if test="${hasJourney == false}">
                         <a href="<c:url value="/journeys/create"/>" class="btn btn-primary btn-with-icon">
-                            <i class="fas fa-plus btn-icon"></i>
+                            <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="journey.create.button"/>" class="btn-icon" />
                             <spring:message code="journey.create.button"/>
                         </a>
                     </c:if>
@@ -178,12 +207,12 @@
                                 <select id="city" name="destination" class="hidden-select">
                                     <option value=""></option>
                                     <c:forEach var="city" items="${cities}">
-                                        <option value="${city.id}" ${param.destination == city.id ? 'selected' : ''}>${city.name}</option>
+                                        <option value="${city.id}" ${param.destination == city.id ? 'selected' : ''}><c:out value="${city.name}"/></option>
                                     </c:forEach>
                                 </select>
                                 <div id="cityDropdown" class="autocomplete-dropdown">
                                     <c:forEach var="city" items="${cities}">
-                                        <div class="autocomplete-item" data-value="${city.id}">${city.name}</div>
+                                        <div class="autocomplete-item" data-value="${city.id}"><c:out value="${city.name}"/></div>
                                     </c:forEach>
                                 </div>
                                 <div id="citySelectedContainer" class="selected-items-container"></div>
@@ -217,12 +246,12 @@
                                 <select id="interest-select" name="interest" class="hidden-select">
                                     <option value=""></option>
                                     <c:forEach var="interest" items="${interests}">
-                                        <option value="${interest.id}" ${param.interest == interest.id ? 'selected' : ''}>${interest.name}</option>
+                                        <option value="${interest.id}" ${param.interest == interest.id ? 'selected' : ''}><c:out value="${interest.name}"/></option>
                                     </c:forEach>
                                 </select>
                                 <div id="interest-dropdown" class="autocomplete-dropdown">
                                     <c:forEach var="interest" items="${interests}">
-                                        <div class="autocomplete-item" data-value="${interest.id}">${interest.name}</div>
+                                        <div class="autocomplete-item" data-value="${interest.id}"><c:out value="${interest.name}"/></div>
                                     </c:forEach>
                                 </div>
                                 <div id="interestSelectedContainer" class="selected-items-container"></div>
@@ -233,11 +262,11 @@
 
                     <div class="filter-actions">
                         <button type="button" id="resetFiltersBtn" class="btn-danger btn-with-icon">
-                            <i class="fas fa-times btn-icon"></i>
+                            <img src="<c:url value='/resources/icons/x.svg'/>" alt="<spring:message code="journey.filter.reset"/>" class="btn-icon" />
                             <spring:message code="journey.filter.reset"/>
                         </button>
-                        <button type="submit" class="btn-primary btn-with-icon">
-                            <i class="fas fa-filter btn-icon"></i>
+                        <button type="submit" class="btn-secondary btn-with-icon">
+                            <img src="<c:url value='/resources/icons/filter.svg'/>" alt="<spring:message code="journey.filter.button"/>" class="btn-icon" />
                             <spring:message code="journey.filter.button"/>
                         </button>
                     </div>
@@ -407,7 +436,7 @@
                     const removeBtn = document.createElement('button');
                     removeBtn.type = 'button';
                     removeBtn.className = 'tag-remove';
-                    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    removeBtn.innerHTML = '<img src="<c:url value='/resources/icons/x.svg'/>"/>';
                     removeBtn.addEventListener('click', function() {
                         // Deselect the option
                         Array.from(select.options).forEach(opt => {
@@ -475,7 +504,7 @@
                     const removeBtn = document.createElement('button');
                     removeBtn.type = 'button';
                     removeBtn.className = 'tag-remove';
-                    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    removeBtn.innerHTML = '<img src="<c:url value='/resources/icons/x.svg'/>"/>';
                     removeBtn.addEventListener('click', function() {
                         selectedOption.selected = false;
                         tag.remove();
@@ -500,7 +529,7 @@
                     const removeBtn = document.createElement('button');
                     removeBtn.type = 'button';
                     removeBtn.className = 'tag-remove';
-                    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    removeBtn.innerHTML = '<img src="<c:url value='/resources/icons/x.svg'/>"/>';
                     removeBtn.addEventListener('click', function() {
                         selectedOption.selected = false;
                         tag.remove();

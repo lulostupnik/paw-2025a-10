@@ -80,6 +80,12 @@ public class UniversityJdbcDao implements UniversityDao {
     }
 
     @Override
+    public Optional<University> findById(long id) {
+        LOGGER.debug("Querying DB for university with id {}", id);
+        return jdbcTemplate.query(QUERY + " WHERE un.id = ?", UNIVERSITY_ROW_MAPPER, id).stream().findFirst();
+    }
+
+    @Override
     public CursorPage<University, Long> getAllUniversitiesAfter(Long cursor, int limit) {
         final String sql = QUERY +
                 (cursor != null ? " WHERE un.id > ? " : "") +

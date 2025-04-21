@@ -118,7 +118,7 @@ public class EventController {
             eventForm.getTitle(), 
             eventForm.getAllDayEvent() ? null : eventForm.getTime(), 
             eventForm.getAddress(), 
-            eventForm.getNoAttendeesLimit() ? null : eventForm.getAttendeesLimit()
+            eventForm.getNoAttendeesLimit() ? 0 : eventForm.getAttendeesLimit()
         );
         LOGGER.info("Successfully created event {}", event);
         return new ModelAndView("redirect:/events/{id}", "id", event.getId());

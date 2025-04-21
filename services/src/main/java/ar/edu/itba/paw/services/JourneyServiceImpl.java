@@ -10,6 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +65,7 @@ public class JourneyServiceImpl implements JourneyService {
         }
     }
 
+    // FIXME: ¿CachePut?
     @Transactional
     @Override
     public Journey createJourney(String email, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
@@ -123,6 +127,7 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "journeysById", key = "#id")
     @Override
     public Optional<Journey> getJourneyById(long id) {
         return journeyDao.findById(id);
@@ -143,12 +148,22 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyDao.findByUserId(maybeUser.get().getId()).isPresent();
     }
 
+    // FIXME: Configurar la cache para que guarde los resultados por un tiempo (30min) y después meter acá el @Cacheable
     @Transactional(readOnly = true)
+    // @Cacheable(value = "journeysRecommended", key = "#email")
     @Override
     public List<Journey> getRecommendedJourneys(String email) {
-        return journeyDao.getRecommendedJourneys(email);
+        if(userHasJourney(email)){
+            return journeyDao.getRecommendedJourneys(email);
+        }
+        Optional<User> maybeUser = userService.findByEmail(email);
+        if(maybeUser.isEmpty()){
+            return journeyDao.listAll();
+        }
+        return journeyDao.findByOriginCity(maybeUser.get().getUniversity().getCity().getId());
     }
 
+    // Yo creería que mejor no cachear, pero no estoy seguro
     @Transactional(readOnly = true)
     @Override
     public List<JourneyResponse> getJourneyResponses(long journeyId){
@@ -171,6 +186,80 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     public CursorPage<Journey, Long> listAll(Long cursor, int pageSize) {
         return journeyDao.listAll(cursor, pageSize);
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = "journeysById", key = "#journeyId")
+    public void updateJourneyDates(long journeyId, LocalDate startDate, LocalDate endDate) {
+        LOGGER.debug("Updating dates for journey {}: start={}, end={}", journeyId, startDate, endDate);
+
+        checkDates(startDate, endDate);
+
+        Journey journey = journeyDao.findById(journeyId)
+                .orElseThrow(() -> {
+                    LOGGER.warn("Journey not found with ID: {}", journeyId);
+                    return new IllegalArgumentException("Journey not found");
+                });
+
+        Optional<Journey> overlapping = journeyDao.findOverlappingJourney(journey.getUser().getId(), startDate, endDate);
+        if (overlapping.isPresent() && overlapping.get().getId() != journeyId) {
+            LOGGER.warn("User has an overlapping journey");
+            throw new RuntimeException("There's already a journey registered in this time period");
+        }
+
+        journeyDao.updateDates(journeyId, startDate, endDate);
+        LOGGER.info("Successfully updated dates for journey {}", journeyId);
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = "journeysById", key = "#journeyId")
+    public void updateJourneyDescription(long journeyId, String description) {
+        LOGGER.debug("Updating description for journey {}", journeyId);
+
+        // Verify journey exists
+        journeyDao.findById(journeyId)
+                .orElseThrow(() -> {
+                    LOGGER.warn("Journey not found with ID: {}", journeyId);
+                    return new IllegalArgumentException("Journey not found");
+                });
+
+        journeyDao.updateDescription(journeyId, description);
+        LOGGER.info("Successfully updated description for journey {}", journeyId);
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = "journeysById", key = "#journeyId")
+    public void updateJourneyDestination(long journeyId, String universityName) {
+        LOGGER.debug("Updating destination for journey {} to {}", journeyId, universityName);
+
+        University university = universityService.findByName(universityName)
+                .orElseThrow(() -> {
+                    LOGGER.warn("University not found: {}", universityName);
+                    return new IllegalArgumentException("University not found");
+                });
+
+        journeyDao.updateDestinationUniversity(journeyId, university.getId());
+        LOGGER.info("Successfully updated destination for journey {} to {}", journeyId, universityName);
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = "journeysById", key = "#journeyId")
+    public void updateJourneyDestination(long journeyId, long universityId) {
+        LOGGER.debug("Updating destination for journey {} to university ID {}", journeyId, universityId);
+
+        // Validate that university exists
+        universityService.findById(universityId)
+                .orElseThrow(() -> {
+                    LOGGER.warn("University not found with ID: {}", universityId);
+                    return new IllegalArgumentException("University not found");
+                });
+
+        journeyDao.updateDestinationUniversity(journeyId, universityId);
+        LOGGER.info("Successfully updated destination for journey {} to university ID {}", journeyId, universityId);
     }
 
 }
