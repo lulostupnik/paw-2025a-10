@@ -26,11 +26,11 @@
             noAttendeesLimit.addEventListener('change', function() {
                 if (noAttendeesLimit.checked == true) {
                     attendeesLimit.setAttribute("disabled", "true");
-                    attendeesLimit.setAttribute("value", "0");
+                    attendeesLimit.value = "0";
                     attendeesLimit.classList.add("form-disabled");
                 } else {
                     attendeesLimit.removeAttribute("disabled");
-                    attendeesLimit.setAttribute("value", "0");
+                    attendeesLimit.value = "0";
                     attendeesLimit.classList.remove("form-disabled");
                 }
             })
@@ -42,11 +42,11 @@
             allDayEvent.addEventListener('change', function() {
                 if (allDayEvent.checked == true) {
                     timeInput.setAttribute("disabled", "true");
-                    timeInput.setAttribute("value", "");
+                    timeInput.value = "";
                     timeInput.classList.add("form-disabled");
                 } else {
                     timeInput.removeAttribute("disabled");
-                    timeInput.setAttribute("value", "00:00");
+                    timeInput.value = "00:00";
                     timeInput.classList.remove("form-disabled");
                 }
             })
