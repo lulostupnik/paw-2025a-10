@@ -36,7 +36,7 @@
                 </svg>
                 <div class="alert-content">
                     <h3 class="alert-title"><spring:message code="login.error.title" text="Authentication Failed"/></h3>
-                    <p class="alert-message"><spring:message code="login.error" text="Invalid username or password"/></p>
+                    <p class="alert-message"><spring:message code="login.error.description" text="Invalid username or password"/></p>
                 </div>
             </div>
         </c:if>

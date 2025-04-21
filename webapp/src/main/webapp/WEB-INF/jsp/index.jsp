@@ -112,17 +112,21 @@
     <!-- Featured Journeys Section -->
     <section class="featured-section ">
         <div class="container">
-            <div class="section-header">
-                <div class="section-header-landing">
-                    <h2 class="section-title-landing "><spring:message code="landing.featured.events.title"/></h2>
-                    <p class="section-subtitle-landing "><spring:message code="landing.featured.events.subtitle"/></p>
+            <div class="section-header-landing">
+                <div class="section-header-landing-row">
+                    <div class="section-header-landing-row-first"></div>
+                    <div class="section-header-landing-row-center">
+                        <h2 class="section-title-landing "><spring:message code="landing.featured.events.title"/></h2>
+                        <p class="section-subtitle-landing "><spring:message code="landing.featured.events.subtitle"/></p>
+                    </div>
+                    <div class="section-header-landing-row-last">
+                        <a href="<c:url value='/events'/>" class="back-btn">
+                            <spring:message code="landing.featured.events.cta"/>
+                        </a>
+                    </div>
                 </div>
-            <a href="<c:url value='/events'/>" class="view-all-link">
-                <spring:message code="dashboard.view.all" />
-                <svg xmlns="http://www.w3.org/2000/svg" class="view-all-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-            </a>
+            </div>
+            <div class="featured-cta">
             </div>
             <div class="featured-events">
                 <c:if test="${empty recommendedEvents}">
