@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
             debounceTime: 300,
             emptyMessage: "No city selected",
             multiSelect: false, // Single-select mode
+            error: document.getElementById("city.errors") !== null,
         })
         console.log("City autocomplete component initialized")
     } catch (error) {

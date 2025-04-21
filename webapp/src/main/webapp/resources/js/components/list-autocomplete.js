@@ -16,6 +16,7 @@ let ListAutocomplete = (() => {
             dropdownId: "",
             selectedContainerId: "",
             emptyMessage: "No items selected",
+            error:false,
             onSelect: null,
             onRemove: null,
             multiSelect: true, // New parameter to control single/multi select behavior
@@ -216,7 +217,6 @@ let ListAutocomplete = (() => {
             // Hide dropdown after selection
             dropdownContainer.style.display = "none"
 
-            console.log("Selection complete, current values:", selectedValues)
         }
 
         /**
@@ -277,10 +277,12 @@ let ListAutocomplete = (() => {
 
             options.forEach((option) => {
                 if (option.selected) {
-                    selectedValues.push({
-                        value: option.value,
-                        text: option.textContent.trim(),
-                    })
+                    if (option.selected && option.value !== "") {
+                        selectedValues.push({
+                            value: option.value,
+                            text: option.textContent.trim(),
+                        })
+                    }
                 }
             })
 
@@ -364,12 +366,17 @@ let ListAutocomplete = (() => {
             // Clear existing tags
             selectedContainer.innerHTML = ""
 
-            if (selectedValues.length === 0) {
+            if (selectedValues.length === 0 && !config.error) {
                 const emptyState = document.createElement("div")
                 emptyState.className = "empty-interests"
                 emptyState.textContent = config.emptyMessage
                 selectedContainer.appendChild(emptyState)
                 return
+            }
+            if (config.error) {
+                selectedContainer.classList.add("hidden")
+            } else {
+                selectedContainer.classList.remove("hidden")
             }
 
             // Create tags for each selected value

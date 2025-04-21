@@ -290,7 +290,7 @@
                                 <span class="file-upload-hint">
                                     <spring:message code="upload_picture.hint" text="JPG or PNG, max 5MB"/>
                                 </span>
-                                <form:input path="profilePicture" type="file" cssClass="file-upload-input" accept="image/png, image/jpeg" required="true" />
+                                <form:input path="profilePicture" type="file" cssClass="file-upload-input" accept="image/png, image/jpeg" />
                             </label>
                         </div>
                         <div id="filePreview" class="file-preview" style="display: none;">

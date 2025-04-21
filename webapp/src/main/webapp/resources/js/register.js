@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
             debounceTime: 300,
             emptyMessage: "No career selected",
             multiSelect: false, // Set to single-select mode
+            error: document.getElementById("career.errors") !== null,
         })
 
         console.log("Career autocomplete component initialized")
@@ -53,6 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
             debounceTime: 300,
             emptyMessage: "No university selected",
             multiSelect: false, // Set to single-select mode
+            error: document.getElementById("originUniversity.errors") !== null,
         })
 
         console.log("University autocomplete component initialized")
@@ -76,6 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
             debounceTime: 300,
             emptyMessage: emptyMessage,
             multiSelect: true, // Keep multi-select mode for interests
+            error: document.getElementById("interests.errors") !== null,
         })
         console.log("Interests list autocomplete component initialized")
     } catch (error) {

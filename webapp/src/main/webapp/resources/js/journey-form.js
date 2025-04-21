@@ -76,6 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
             onRemove: (value) => {
                 console.log(`Removed university: ${value}`)
             },
+            error: document.getElementById("destinationUniversity.errors") !== null,
         })
         console.log("University autocomplete component initialized")
 

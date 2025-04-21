@@ -19,7 +19,7 @@ public class ValidInterestValidator implements ConstraintValidator<ValidInterest
     @Override
     public boolean isValid(String[] interests, ConstraintValidatorContext context) {
         if (interests == null || interests.length == 0) {
-            return true; // Dejamos que @Email maneje esto
+            return false;
         }
         try {
             for(String interest : interests) {
