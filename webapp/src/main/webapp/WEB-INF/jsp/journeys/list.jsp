@@ -75,39 +75,6 @@
             margin-top: 8px;
         }
 
-        .selected-tag {
-            display: flex;
-            align-items: center;
-            background-color: #ede9fe;
-            color: #4f46e5;
-            border-radius: 0.375rem;
-            padding: 0.25rem 0.75rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .tag-remove {
-            background: none;
-            border: none;
-            cursor: pointer;
-            margin-left: 8px;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            color: #4f46e5;
-        }
-
-        .hidden-select {
-            display: none;
-        }
-
-        .empty-message {
-            color: #6b7280;
-            font-style: italic;
-            font-size: 0.875rem;
-            padding: 0.5rem 0;
-        }
-
         .hidden {
             display: none !important;
         }
