@@ -117,7 +117,7 @@ public class UserServiceImpl implements UserService {
         LOGGER.debug("Updating profile picture for user {}", userId);
         long profilePictureId = imageDao.saveImage(profilePicture);
         userDao.updateProfilePicture(userId, profilePictureId);
-        LOGGER.info("Successfully updated profile picture for user {}", userId)
+        LOGGER.info("Successfully updated profile picture for user {}", userId);
     }
 
     @Override
