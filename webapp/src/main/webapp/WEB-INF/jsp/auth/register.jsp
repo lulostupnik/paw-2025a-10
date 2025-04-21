@@ -248,7 +248,7 @@
                         </form:label>
 
                         <!-- Hidden select that will hold the actual form data -->
-                        <form:select path="interests" multiple="true" id="interestsSelect" style="display: none;" required="true">
+                        <form:select path="interests" multiple="true" id="interestsSelect" style="display: none;" >
                             <c:forEach var="item" items="${interests}">
                                 <option value="${item.name}"><c:out value="${item.name}"/></option>
                             </c:forEach>
