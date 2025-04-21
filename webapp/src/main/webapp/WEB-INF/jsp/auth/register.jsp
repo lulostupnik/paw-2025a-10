@@ -47,7 +47,11 @@
         <input type="hidden" id="i18n-password-mismatch" value="<spring:message code="password.mismatch" text="Passwords do not match"/>" />
         <input type="hidden" id="i18n-password-show" value="<spring:message code="password.show" text="Show password"/>" />
         <input type="hidden" id="i18n-password-hide" value="<spring:message code="password.hide" text="Hide password"/>" />
-        <input type="hidden" id="i18n-interests-none" value="<spring:message code="interests.none.selected" text="No interests selected"/>" />
+
+        <jsp:include page="../components/i18n-hidden-inputs.jsp"/>
+
+
+
 
         <c:url var="registerUrl" value="/register"/>
         <form:form modelAttribute="createUserForm" action="${registerUrl}" method="post" enctype="multipart/form-data" class="auth-form">

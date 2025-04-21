@@ -52,13 +52,16 @@ document.addEventListener("DOMContentLoaded", () => {
         if (selectedContainer) {
             selectedContainer.classList.add("selected-tags")
         }
+        const emptyMessage = document.getElementById("i18n-university-none")
+            ? document.getElementById("i18n-university-none").value
+            : "No university selected"
 
         window.universityAutocomplete = ListAutocomplete.init({
             selectId: "destinationUniversity",
             searchId: "universitySearch",
             dropdownId: "universityDropdown",
             selectedContainerId: "selectedUniversities",
-            emptyMessage: "No university selected",
+            emptyMessage: emptyMessage,
             multiSelect: false, // Single-select mode
             onSelect: (value, text) => {
                 console.log(`Selected university: ${text} (${value})`)

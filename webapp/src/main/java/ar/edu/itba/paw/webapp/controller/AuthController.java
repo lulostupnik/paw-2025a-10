@@ -79,6 +79,17 @@ public class AuthController {
         return mav;
     }
 
+    private ModelAndView registerForm(CreateUserForm form, BindingResult errors) {
+        ModelAndView mav = new ModelAndView("auth/register");
+        mav.addObject("createUserForm", form);
+        if (errors != null && errors.hasErrors()) {
+            mav.addObject("org.springframework.validation.BindingResult.createUserForm", errors);
+        }
+        mav.addObject("careers", careerService.findAll());
+        mav.addObject("universities", universityService.getAllUniversities());
+        mav.addObject("interests", interestService.findAll());
+        return mav;
+    }
 
     @RequestMapping(value = "/register", method = {RequestMethod.POST})
     public ModelAndView registerSubmit(@Valid @ModelAttribute("createUserForm") final CreateUserForm form, final BindingResult errors) {
@@ -86,9 +97,14 @@ public class AuthController {
         Locale currentLocale = LocaleContextHolder.getLocale();
 
         LOGGER.info("CREATING USER FROM USERFORM {}", form);
+//        if (errors.hasErrors()) {
+//            LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
+//            return registerForm(form);
+//        }
+
         if (errors.hasErrors()) {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
-            return registerForm(form);
+            return registerForm(form, errors);
         }
 
         byte[] profilePicture = null;

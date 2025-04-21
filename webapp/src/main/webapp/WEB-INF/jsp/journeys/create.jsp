@@ -15,6 +15,7 @@
 </head>
 <body>
 <jsp:include page="../components/navbar.jsp"/>
+<jsp:include page="../components/i18n-hidden-inputs.jsp"/>
 
 <div class="auth-container">
     <div class="auth-card">

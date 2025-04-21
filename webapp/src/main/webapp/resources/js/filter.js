@@ -250,12 +250,18 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initialize ListAutocomplete for city (destination)
     if (document.getElementById("citySearch")) {
         console.log("Initializing city autocomplete with ListAutocomplete")
+
+        const emptyMessage = document.getElementById("i18n-destination-none")
+            ? document.getElementById("i18n-destination-none").value
+            : "No destination selected"
+
+
         const cityAutocomplete = ListAutocomplete.init({
             selectId: "city",
             searchId: "citySearch",
             dropdownId: "cityDropdown",
             selectedContainerId: "citySelectedContainer",
-            emptyMessage: "No destination selected",
+            emptyMessage: emptyMessage,
             multiSelect: false, // Important: limit to single selection
             onSelect: (value, text) => {
                 console.log("City selected:", value, text)
@@ -276,12 +282,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initialize ListAutocomplete for interest
     if (document.getElementById("interest-search")) {
         console.log("Initializing interest autocomplete with ListAutocomplete")
+        const emptyMessage = document.getElementById("i18n-interesets-none")
+            ? document.getElementById("i18n-interests-none").value
+            : "No interests selected"
+
         const interestAutocomplete = ListAutocomplete.init({
             selectId: "interest-select",
             searchId: "interest-search",
             dropdownId: "interest-dropdown",
             selectedContainerId: "interestSelectedContainer",
-            emptyMessage: "No interest selected",
+            emptyMessage: emptyMessage,
             multiSelect: false, // Important: limit to single selection
             onSelect: (value, text) => {
                 console.log("Interest selected:", value, text)

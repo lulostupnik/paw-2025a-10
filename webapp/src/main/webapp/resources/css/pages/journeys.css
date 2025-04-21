@@ -470,3 +470,9 @@
         min-height: 80px;
     }
 }
+
+.empty-interests {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-style: italic;
+}

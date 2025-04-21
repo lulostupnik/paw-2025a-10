@@ -8,14 +8,20 @@ let ListAutocomplete = (() => {
      * Initialize list autocomplete component
      * @param {Object} options Configuration options
      */
+    
     function init(options = {}) {
         // Default configuration
+
+        const emptyMessage = document.getElementById("i18n-items-none")
+            ? document.getElementById("i18n-items-none").value
+            : "No items selected"
+
         const config = {
             selectId: "",
             searchId: "",
             dropdownId: "",
             selectedContainerId: "",
-            emptyMessage: "No items selected",
+            emptyMessage: emptyMessage,
             onSelect: null,
             onRemove: null,
             multiSelect: true, // New parameter to control single/multi select behavior
@@ -367,6 +373,7 @@ let ListAutocomplete = (() => {
             if (selectedValues.length === 0) {
                 const emptyState = document.createElement("div")
                 emptyState.className = "empty-interests"
+                // emptyState.className = "error-message"
                 emptyState.textContent = config.emptyMessage
                 selectedContainer.appendChild(emptyState)
                 return
