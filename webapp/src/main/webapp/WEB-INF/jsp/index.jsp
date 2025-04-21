@@ -112,9 +112,21 @@
     <!-- Featured Journeys Section -->
     <section class="featured-section ">
         <div class="container">
-            <div class="section-header-landing ">
-                <h2 class="section-title-landing "><spring:message code="landing.featured.events.title"/></h2>
-                <p class="section-subtitle-landing "><spring:message code="landing.featured.events.subtitle"/></p>
+            <div class="section-header-landing">
+                <div class="section-header-landing-row">
+                    <div class="section-header-landing-row-first"></div>
+                    <div class="section-header-landing-row-center">
+                        <h2 class="section-title-landing "><spring:message code="landing.featured.events.title"/></h2>
+                        <p class="section-subtitle-landing "><spring:message code="landing.featured.events.subtitle"/></p>
+                    </div>
+                    <div class="section-header-landing-row-last">
+                        <a href="<c:url value='/events'/>" class="back-btn">
+                            <spring:message code="landing.featured.events.cta"/>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="featured-cta">
             </div>
             <div class="featured-events">
                 <c:if test="${empty recommendedEvents}">
@@ -154,11 +166,6 @@
                         </jsp:include>
                     </c:forEach>
                 </c:if>
-                <div class="featured-cta">
-                    <a href="<c:url value='/events'/>" class="btn-primary">
-                        <spring:message code="landing.featured.events.cta"/>
-                    </a>
-                </div>
             </div>
         </div>
     </section>
