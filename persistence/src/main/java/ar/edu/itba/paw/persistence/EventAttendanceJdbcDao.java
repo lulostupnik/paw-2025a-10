@@ -86,7 +86,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                     rs.getLong("user_profile_picture_id"),
                     Locale.of(rs.getString("user_language"))
             ),
-            rs.getDate("event_date"),
+            rs.getDate("event_date").toLocalDate(),
             rs.getString("event_description"),
             rs.getLong( "event_flyer_image_id"),
             new City(

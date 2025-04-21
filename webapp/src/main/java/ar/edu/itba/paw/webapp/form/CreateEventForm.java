@@ -1,14 +1,13 @@
 package ar.edu.itba.paw.webapp.form;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Date;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import javax.validation.constraints.*;
 //import javax.validation.constraints.Pattern;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
+import ar.edu.itba.paw.webapp.validation.FutureDate;
 import ar.edu.itba.paw.webapp.validation.ImageSize;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,10 +20,13 @@ public class CreateEventForm {
 
     @Size(max = 100)
     @NotNull
+    @NotEmpty
     private String title;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date date;
+    @NotNull
+    @FutureDate
+    private LocalDate date;
 
     @NotNull
     @ImageSize() // 2MB
@@ -54,11 +56,11 @@ public class CreateEventForm {
         this.city = city;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

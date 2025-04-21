@@ -146,28 +146,27 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             // Validate university selection
-            if (window.universityAutocomplete) {
-                const selectedUniversity = window.universityAutocomplete.getSelectedValue()
-                if (!selectedUniversity) {
-                    isValid = false
-                    const universitySearch = document.getElementById("universitySearch")
-                    if (universitySearch) {
-                        universitySearch.classList.add("error")
+            // if (window.universityAutocomplete) {
+            //     const selectedUniversity = window.universityAutocomplete.getSelectedValue()
+            //     if (!selectedUniversity) {
+            //         isValid = false
+            //         const universitySearch = document.getElementById("universitySearch")
+            //         if (universitySearch) {
+            //             universitySearch.classList.add("error")
 
-                        // Create error message if it doesn't exist
-                        const container = universitySearch.closest(".autocomplete-wrapper")
-                        let errorMsg = container.querySelector(".error-message")
-                        if (!errorMsg) {
-                            errorMsg = document.createElement("div")
-                            errorMsg.className = "error-message"
-                            container.appendChild(errorMsg)
-                        }
-                        errorMsg.textContent = document.getElementById("i18n-university-none-error")
-                            ? document.getElementById("i18n-university-none-error").value
-                            : "Please select a university"
-                    }
-                }
-            }
+            //             // Create error message if it doesn't exist
+            //             const container = universitySearch.closest(".autocomplete-wrapper")
+            //             let errorMsg = container.querySelector(".error-message")
+            //             if (!errorMsg) {
+            //                 errorMsg = document.createElement("div")
+            //                 errorMsg.className = "error-message"
+            //                 container.appendChild(errorMsg)
+            //             }
+            //             errorMsg.textContent = document.getElementById("i18n-university-none-error")
+            //             ? document.getElementById("i18n-university-none-error").value
+            //             : "Please select a university"                    }
+            //     }
+            // }
 
             if (!isValid) {
                 e.preventDefault()

@@ -1,8 +1,8 @@
 package ar.edu.itba.paw.persistence;
 import java.sql.Time;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -53,7 +53,7 @@ public class EventJdbcDao implements EventDao {
                     rs.getLong("user_profile_picture_id"),
                     Locale.of(rs.getString("user_language"))
             ),
-            rs.getDate("event_date"),
+            rs.getDate("event_date").toLocalDate(),
             rs.getString("event_description"),
             rs.getLong( "event_flyer_image_id"),
             new City(
@@ -127,7 +127,7 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public Event create(User user, City city, Date date, String description, long flyerImageId, String title, LocalTime time, String address, int attendeesLimit) {
+    public Event create(User user, City city, LocalDate date, String description, long flyerImageId, String title, LocalTime time, String address, int attendeesLimit) {
         LOGGER.debug("Registering new event for user {} in {} (addr {}) on {} {} ( {} ) with image {}, title {}, limit {}", user, city, address, date, time, description, flyerImageId, title, attendeesLimit);
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("user_id", user.getId());
@@ -150,7 +150,7 @@ public class EventJdbcDao implements EventDao {
 
     // FIXME
     @Override
-    public List<Event> listByQuery(Long cityId, Date date) {
+    public List<Event> listByQuery(Long cityId, LocalDate date) {
         LOGGER.debug("Querying DB for event");
 
         StringBuilder sqlBuilder = new StringBuilder(QUERY);

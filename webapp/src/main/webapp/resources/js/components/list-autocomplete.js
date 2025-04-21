@@ -76,6 +76,11 @@ let ListAutocomplete = (() => {
         // Initialize with any pre-selected values
         initializeSelectedValues()
         updateSelectedTags()
+        if (config.error) {
+            selectedContainer.classList.add("hidden")
+        } else {
+            selectedContainer.classList.remove("hidden")
+        }
 
         // Show dropdown on focus
         searchInput.addEventListener("focus", function () {
@@ -380,11 +385,8 @@ let ListAutocomplete = (() => {
                 return
             }
             if (config.error) {
-                selectedContainer.classList.add("hidden")
-            } else {
                 selectedContainer.classList.remove("hidden")
             }
-
             // Create tags for each selected value
             selectedValues.forEach((item) => {
                 // Create tag container
