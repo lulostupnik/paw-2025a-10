@@ -142,6 +142,8 @@ public class EventController {
         List<User> attendees = eventService.getEventAttendees(id);
         LOGGER.debug("Got event attendees {}", attendees);
 
+
+        Boolean isFull = eventService.isEventFull(id);
         boolean isAttending = false;
         boolean isEventOwner = false;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -159,6 +161,7 @@ public class EventController {
         mav.addObject("eventResponses", eventResponses);
         mav.addObject("replyEventForm", form);
         mav.addObject("isEventOwner", isEventOwner);
+        mav.addObject("isFull", isFull);
         return mav;
     }
 

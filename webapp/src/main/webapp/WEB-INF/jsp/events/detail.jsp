@@ -71,10 +71,15 @@
                 <!-- Event Flyer Banner -->
 
                 <!-- Event Detail Header -->
-                <div class="event-detail-header">
+                <div class="event-detail-header${isFull ? ' is-full' : ''}">
                     <div class="event-info">
                         <div class="event-title-section">
-                            <h1 class="event-title">${event.title}</h1>
+                            <h1 class="event-title">
+                                ${event.title}
+                                <c:if test="${isFull}">
+                                    <span class="event-full-tag">FULL</span>
+                                </c:if>
+                            </h1>
                             <div class="event-meta">
                                 <div class="event-location">
                                     <img src="<c:url value='/resources/icons/location.svg'/>" alt="Location" class="icon" />
@@ -94,7 +99,7 @@
                                     <span class="date-text">
                                         <c:if test="${not empty event.time}">
                                             <c:out value="${event.time}"/>
-                                        </c:if>                                        
+                                        </c:if>
                                         <c:if test="${empty event.time}">
                                             <span><spring:message code="event.allDayEvent"/></span>
                                         </c:if>
@@ -129,16 +134,25 @@
                                         </form>
                                     </div>
                                 </c:when>
-                                <c:otherwise>
+
+                                <c:when test="${not empty username and not attend and not isFull}">
                                     <form action="<c:url value='/events/${event.id}/attend'/>" method="post">
                                         <button type="submit" class="btn-attendance btn-attend">
                                             <img src="<c:url value='/resources/icons/calendar-plus.svg'/>" alt="<spring:message code='event.attend'/>" class="btn-icon" />
                                             <span class="btn-text"><spring:message code="event.attend" text="Attend" /></span>
                                         </button>
                                     </form>
-                                </c:otherwise>
+                                </c:when>
+
+                                <c:when test="${not empty username and not attend and isFull}">
+                                    <div class="event-full-status">
+                                        <img src="<c:url value='/resources/icons/alert-circle.svg'/>" alt="Alert" class="icon" />
+                                        <span><spring:message code="event.full" text="Event full" /></span>
+                                    </div>
+                                </c:when>
                             </c:choose>
                         </div>
+
 
                     </div>
                 </div>
@@ -158,12 +172,12 @@
 
                 <!-- Event Description Section -->
                 <section class="content-section">
-<%--                    <div class="section-header">--%>
-<%--                        <h2 class="section-title">--%>
-<%--                            <img src="<c:url value='/resources/icons/description.svg'/>" alt="Description" class="icon" />--%>
-<%--                            <spring:message code="event.description" />--%>
-<%--                        </h2>--%>
-<%--                    </div>--%>
+                    <%--                    <div class="section-header">--%>
+                    <%--                        <h2 class="section-title">--%>
+                    <%--                            <img src="<c:url value='/resources/icons/description.svg'/>" alt="Description" class="icon" />--%>
+                    <%--                            <spring:message code="event.description" />--%>
+                    <%--                        </h2>--%>
+                    <%--                    </div>--%>
                     <div class="section-content">
                         <div class="event-description-card">
                             <p class="event-description-text">
@@ -302,7 +316,7 @@
                             </c:forEach>
                         </c:if>
                     </div>
-<%--                    Leave a comment section--%>
+                    <%--                    Leave a comment section--%>
 
                     <div class="section-content">
                         <div class="reply-form-container">
