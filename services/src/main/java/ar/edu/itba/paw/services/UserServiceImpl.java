@@ -14,6 +14,7 @@ import ar.edu.itba.paw.models.UserPassword;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -107,5 +108,110 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public boolean existsByEmail(String email) {
         return userDao.existsByEmail(email);
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = {"usersById", "usersByEmail", "usersByUsername"}, key = "#userId")
+    public void updateProfilePicture(long userId, byte[] profilePicture) {
+        LOGGER.debug("Updating profile picture for user {}", userId);
+        long profilePictureId = imageDao.saveImage(profilePicture);
+        userDao.updateProfilePicture(userId, profilePictureId);
+        LOGGER.info("Successfully updated profile picture for user {}", userId)
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = {"usersById", "usersByEmail", "usersByUsername"}, key = "#userId")
+    public void updateProfileInfo(long userId, String firstname, String lastname, String username) {
+        LOGGER.debug("Updating profile info for user {}: firstname={}, lastname={}, username={}",
+                userId, firstname, lastname, username);
+
+        // Validate that username is not already taken (if changed)
+        Optional<User> existingUser = findById(userId);
+        if (existingUser.isPresent() && !existingUser.get().getUsername().equals(username)) {
+            if (existsByUsername(username)) {
+                LOGGER.warn("Username {} is already taken", username);
+                throw new IllegalArgumentException("Username is already taken");
+            }
+        }
+
+        userDao.updateProfileInfo(userId, firstname, lastname, username);
+        LOGGER.info("Successfully updated profile info for user {}", userId);
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = {"usersById", "usersByEmail", "usersByUsername"}, key = "#userId")
+    public void updateLocale(long userId, Locale locale) {
+        LOGGER.debug("Updating locale for user {} to {}", userId, locale);
+        userDao.updateLocale(userId, locale);
+        LOGGER.info("Successfully updated locale for user {}", userId);
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = {"usersById", "usersByEmail", "usersByUsername"}, key = "#userId")
+    public void updateUniversity(long userId, String newUniversityName) {
+        LOGGER.debug("Updating university for user {} to {}", userId, newUniversityName);
+
+        University university = universityService.findByName(newUniversityName)
+                .orElseThrow(() -> {
+                    LOGGER.warn("University not found: {}", newUniversityName);
+                    return new IllegalArgumentException("University not found");
+                });
+
+        userDao.updateUniversity(userId, university.getId());
+        LOGGER.info("Successfully updated university for user {} to {}", userId, newUniversityName);
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = {"usersById", "usersByEmail", "usersByUsername"}, key = "#userId")
+    public void updateUniversity(long userId, long universityId) {
+        LOGGER.debug("Updating university for user {} to university ID {}", userId, universityId);
+
+        // Validate that university exists
+        universityService.findById(universityId)
+                .orElseThrow(() -> {
+                    LOGGER.warn("University not found with ID: {}", universityId);
+                    return new IllegalArgumentException("University not found");
+                });
+
+        userDao.updateUniversity(userId, universityId);
+        LOGGER.info("Successfully updated university for user {} to university ID {}", userId, universityId);
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = {"usersById", "usersByEmail", "usersByUsername"}, key = "#userId")
+    public void updateCareer(long userId, String newCareerName) {
+        LOGGER.debug("Updating career for user {} to {}", userId, newCareerName);
+
+        Career career = careerService.findByName(newCareerName)
+                .orElseThrow(() -> {
+                    LOGGER.warn("Career not found: {}", newCareerName);
+                    return new IllegalArgumentException("Career not found");
+                });
+
+        userDao.updateCareer(userId, career.getId());
+        LOGGER.info("Successfully updated career for user {} to {}", userId, newCareerName);
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = {"usersById", "usersByEmail", "usersByUsername"}, key = "#userId")
+    public void updateCareer(long userId, long careerId) {
+        LOGGER.debug("Updating career for user {} to career ID {}", userId, careerId);
+
+        // Validate that career exists
+        careerService.findById(careerId)
+                .orElseThrow(() -> {
+                    LOGGER.warn("Career not found with ID: {}", careerId);
+                    return new IllegalArgumentException("Career not found");
+                });
+
+        userDao.updateCareer(userId, careerId);
+        LOGGER.info("Successfully updated career for user {} to career ID {}", userId, careerId);
     }
 }

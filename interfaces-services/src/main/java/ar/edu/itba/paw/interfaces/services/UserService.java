@@ -17,4 +17,17 @@ public interface UserService {
     Optional<User> findByUsername(String username);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
+
+    void updateProfilePicture(long userId, byte[] profilePicture);
+
+    void updateProfileInfo(long userId, String firstname, String lastname, String username);
+
+    void updateLocale(long userId, Locale locale);
+
+    void updateUniversity(long userId, String newUniversityName);
+    void updateUniversity(long userId, long universityId);
+
+    void updateCareer(long userId, String newCareerName);
+    void updateCareer(long userId, long careerId);
+
 }

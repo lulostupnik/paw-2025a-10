@@ -34,6 +34,11 @@ public class UniversityServiceImpl implements UniversityService {
         return universityDao.findByName(name);
     }
 
+    @Override
+    public Optional<University> findById(Long id) {
+        return universityDao.findById(id);
+    }
+
     @Transactional(readOnly = true)
     @Cacheable(value = "universitiesByAbbreviation", key = "#abbreviation")
     @Override
