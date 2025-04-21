@@ -265,11 +265,11 @@ public class JourneyJdbcDao implements JourneyDao {
             params.add(destination);
         }
         if (startDate != null) {
-            filters.add("j.start_date <= ?");
+            filters.add("j.end_date >= ?");  // Journey ends on or after startDate
             params.add(startDate);
         }
         if (endDate != null) {
-            filters.add("j.end_date >= ?");
+            filters.add("j.start_date <= ?"); // Journey starts on or before endDate
             params.add(endDate);
         }
         if (interest != null && !interest.isEmpty()) {
