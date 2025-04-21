@@ -24,6 +24,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Initialize career autocomplete with API endpoint using ListAutocomplete in single-select mode
     try {
+
+        const emptyMessage = document.getElementById("i18n-career-none")
+            ? document.getElementById("i18n-career-none").value
+            : "No career selected"
+
         window.careerAutocomplete = ListAutocomplete.init({
             selectId: "career",
             searchId: "careerSearch",
@@ -32,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
             apiEndpoint: "/api/careers/search",
             minChars: 2,
             debounceTime: 300,
-            emptyMessage: "No career selected",
+            emptyMessage: emptyMessage,
             multiSelect: false, // Set to single-select mode
             error: document.getElementById("career.errors") !== null,
         })
@@ -44,6 +49,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Initialize university autocomplete with API endpoint using ListAutocomplete in single-select mode
     try {
+        const emptyMessage = document.getElementById("i18n-university-none")
+            ? document.getElementById("i18n-university-none").value
+            : "No university selected"
+
         window.universityAutocomplete = ListAutocomplete.init({
             selectId: "originUniversity",
             searchId: "universitySearch",
@@ -52,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
             apiEndpoint: "/api/universities/search",
             minChars: 2,
             debounceTime: 300,
-            emptyMessage: "No university selected",
+            emptyMessage: emptyMessage,
             multiSelect: false, // Set to single-select mode
             error: document.getElementById("originUniversity.errors") !== null,
         })

@@ -17,6 +17,7 @@
 </head>
 <body>
 <jsp:include page="../components/navbar.jsp"/>
+<jsp:include page="../components/i18n-hidden-inputs.jsp"/>
 <script>
     // Password toggle functionality
     document.addEventListener('DOMContentLoaded', function() {

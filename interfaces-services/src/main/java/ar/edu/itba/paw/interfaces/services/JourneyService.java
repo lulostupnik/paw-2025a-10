@@ -28,6 +28,14 @@ public interface JourneyService {
 
     List<JourneyResponse> getJourneyResponses(long journeyId);
 
+    void updateJourneyDates(long journeyId, LocalDate startDate, LocalDate endDate);
+
+    void updateJourneyDescription(long journeyId, String description);
+
+    void updateJourneyDestination(long journeyId, String universityName);
+
+    void updateJourneyDestination(long journeyId, long universityId);
+
     CursorPage<JourneyResponse, LocalDateTime> listFromJourneyAfter(long journeyId, LocalDateTime cursor, int limit);
 
     CursorPage<Journey, Long> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest, Long cursor, int pageSize);

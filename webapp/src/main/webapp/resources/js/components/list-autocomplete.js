@@ -8,8 +8,14 @@ let ListAutocomplete = (() => {
      * Initialize list autocomplete component
      * @param {Object} options Configuration options
      */
+
     function init(options = {}) {
         // Default configuration
+
+        const emptyMessage = document.getElementById("i18n-items-none")
+            ? document.getElementById("i18n-items-none").value
+            : "No items selected"
+
         const config = {
             selectId: "",
             searchId: "",
@@ -217,6 +223,7 @@ let ListAutocomplete = (() => {
             // Hide dropdown after selection
             dropdownContainer.style.display = "none"
 
+            console.log("Selection complete, current values:", selectedValues)
         }
 
         /**
@@ -276,14 +283,12 @@ let ListAutocomplete = (() => {
             const options = selectElement.querySelectorAll("option")
 
             options.forEach((option) => {
-                if (option.selected) {
                     if (option.selected && option.value !== "") {
                         selectedValues.push({
                             value: option.value,
                             text: option.textContent.trim(),
                         })
                     }
-                }
             })
 
             console.log("Initialized selected values:", selectedValues)
@@ -369,6 +374,7 @@ let ListAutocomplete = (() => {
             if (selectedValues.length === 0 && !config.error) {
                 const emptyState = document.createElement("div")
                 emptyState.className = "empty-interests"
+                // emptyState.className = "error-message"
                 emptyState.textContent = config.emptyMessage
                 selectedContainer.appendChild(emptyState)
                 return

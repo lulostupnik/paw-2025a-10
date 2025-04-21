@@ -11,6 +11,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const FileUpload = window.FileUpload || {}
 
     // Initialize city autocomplete with single-select mode
+    const emptyMessage = document.getElementById("i18n-city-none")
+        ? document.getElementById("i18n-city-none").value
+        : "No city selected"
+
     try {
         window.eventCityAutocomplete = ListAutocomplete.init({
             selectId: "city",
@@ -20,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
             apiEndpoint: "/api/cities/search", // Add API endpoint if available
             minChars: 2,
             debounceTime: 300,
-            emptyMessage: "No city selected",
+            emptyMessage: emptyMessage,
             multiSelect: false, // Single-select mode
             error: document.getElementById("city.errors") !== null,
         })
