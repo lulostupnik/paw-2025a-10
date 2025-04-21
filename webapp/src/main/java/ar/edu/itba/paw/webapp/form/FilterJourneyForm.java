@@ -9,10 +9,8 @@ import java.time.LocalDate;
 @ValidFilterDateRange
 public class FilterJourneyForm {
 
-    @Size(min = 2, max = 100)
     private String destination;
 
-    @Size(min = 2, max = 100)
     private String interests;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")

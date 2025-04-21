@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
     <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
     <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
+    <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
     <style>
         /* Autocomplete styling to match existing components */
         .autocomplete-wrapper {
@@ -199,17 +200,17 @@
                         <!-- Destination filter with autocomplete -->
                         <div class="filter-item">
                             <c:set var="destinationLabel"><spring:message code="createJourney.destinationUniversity"/></c:set>
-                            <label for="citySearch" class="form-label">${destinationLabel}</label>
+                            <form:label for="citySearch" class="form-label" path="destination">${destinationLabel}</form:label>
                             <div class="autocomplete-wrapper">
                                 <input type="text" id="citySearch" class="autocomplete-input"
                                        placeholder="<spring:message code='journey.filter.destination.placeholder'/>"
                                        value="${param.destinationName}" />
-                                <select id="city" name="destination" class="hidden-select">
+                                <form:select id="city" name="destination" class="hidden-select" path="destination">
                                     <option value=""></option>
                                     <c:forEach var="city" items="${cities}">
                                         <option value="${city.id}" ${param.destination == city.id ? 'selected' : ''}><c:out value="${city.name}"/></option>
                                     </c:forEach>
-                                </select>
+                                </form:select>
                                 <div id="cityDropdown" class="autocomplete-dropdown">
                                     <c:forEach var="city" items="${cities}">
                                         <div class="autocomplete-item" data-value="${city.id}"><c:out value="${city.name}"/></div>
@@ -217,6 +218,7 @@
                                 </div>
                                 <div id="citySelectedContainer" class="selected-items-container"></div>
                             </div>
+                            <form:errors path="destination" cssClass="error-message" />
                         </div>
 
                         <div class="filter-item">
@@ -233,22 +235,23 @@
                                 <jsp:param name="path" value="endDate"/>
                                 <jsp:param name="label" value="${endDateFilter}"/>
                             </jsp:include>
+                            <form:errors path="" cssClass="error-message" />
                         </div>
 
                         <!-- Interest filter with autocomplete -->
                         <div class="filter-item">
                             <c:set var="interestsLabel"><spring:message code="journey.filter.interest"/></c:set>
-                            <label for="interest-search" class="form-label">${interestsLabel}</label>
+                            <form:label for="interest-search" class="form-label" path="interests">${interestsLabel}</form:label>
                             <div class="autocomplete-wrapper">
                                 <input type="text" id="interest-search" class="autocomplete-input"
                                        placeholder="<spring:message code='journey.filter.interest.placeholder'/>"
                                        value="${param.interestName}" />
-                                <select id="interest-select" name="interest" class="hidden-select">
+                                <form:select path="interests" id="interest-select" name="interest" class="hidden-select">
                                     <option value=""></option>
                                     <c:forEach var="interest" items="${interests}">
                                         <option value="${interest.id}" ${param.interest == interest.id ? 'selected' : ''}><c:out value="${interest.name}"/></option>
                                     </c:forEach>
-                                </select>
+                                </form:select>
                                 <div id="interest-dropdown" class="autocomplete-dropdown">
                                     <c:forEach var="interest" items="${interests}">
                                         <div class="autocomplete-item" data-value="${interest.id}"><c:out value="${interest.name}"/></div>
@@ -256,6 +259,7 @@
                                 </div>
                                 <div id="interestSelectedContainer" class="selected-items-container"></div>
                             </div>
+                            <form:errors path="interests" cssClass="error-message" />
                         </div>
 
                     </div>

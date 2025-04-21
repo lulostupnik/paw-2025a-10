@@ -53,25 +53,15 @@ public class JourneyController {
     }
 
     @RequestMapping
-    public ModelAndView getJourneys(        @RequestParam(required = false) String destination,
-                                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-                                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-                                            @RequestParam(required = false) String interest) {
-        LOGGER.debug("Getting journeys with filters: {destination: \"{}\", startDate: \"{}\", endDate: \"{}\", interest: \"{}\"}", destination, startDate, endDate, interest);
-        
+    public ModelAndView getJourneys(@Valid @ModelAttribute FilterJourneyForm fjf, final BindingResult errors) {
+        LOGGER.debug("Getting journeys with filters: {destination: \"{}\", startDate: \"{}\", endDate: \"{}\", interest: \"{}\"}",fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterest());
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         LOGGER.debug("Auth provided for user {}", authentication);
 
         final ModelAndView mav = new ModelAndView("journeys/list");
-        List<Journey> journeys = js.getFilteredJourneys(destination, startDate, endDate, interest);
+        List<Journey> journeys = js.getFilteredJourneys(fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterest());
         LOGGER.debug("Found journeys {}", journeys);
-
-        FilterJourneyForm filterJourneyForm = new FilterJourneyForm();
-        filterJourneyForm.setDestination(destination);
-        filterJourneyForm.setStartDate(startDate);
-        filterJourneyForm.setEndDate(endDate);
-        filterJourneyForm.setInterests(interest);
-        LOGGER.debug("Filter form created: {}", filterJourneyForm);
 
         List<City> cities = cityService.getAllCities();
         LOGGER.debug("Cities: {}", cities);
@@ -84,7 +74,6 @@ public class JourneyController {
 
         mav.addObject("cities", cities);
         mav.addObject("interests", interests);
-        mav.addObject("filterJourneyForm", filterJourneyForm);
         mav.addObject("journeys", journeys);
         mav.addObject("hasJourney", hasJourney);
         return mav;
@@ -168,31 +157,6 @@ public class JourneyController {
         return new ModelAndView("redirect:/journeys/" + id);
     }
 
-//    @RequestMapping(value = "/{id}/reply")
-//    public ModelAndView replyToJourneyForm(@PathVariable int id, @ModelAttribute("replyJourneyForm") final ReplyJourneyForm rjf) {
-//        LOGGER.debug("Getting journey reply form for journey {}", id);
-//
-//        ModelAndView mav = new ModelAndView("journeys/reply");
-//        Optional<Journey> journey = js.getJourneyById(id);
-//
-//        if(journey.isEmpty()){
-//            LOGGER.debug("Journey {} not found, redirecting to journey list", id);
-//            return getJourneys(null,null, null, null);
-//        }
-//        LOGGER.debug("Journey found: {}", journey.get());
-//
-//        List<University> universities = universityService.getAllUniversities();
-//        LOGGER.debug("Universities: {}", universities);
-//
-//        List<Career> careers = carreerService.findAll();
-//        LOGGER.debug("Careers: {}", careers);
-//
-//        mav.addObject("careers", careers);
-//        mav.addObject("universities", universities);
-//        mav.addObject("journey", journey.get());
-//        mav.addObject("replyJourneyForm", rjf);
-//        return mav;
-//    }
 
     @RequestMapping(value ="/filter", method = POST)
     public ModelAndView filterJourney(@ModelAttribute("filterJourneyForm") final FilterJourneyForm form, final BindingResult errors) {
