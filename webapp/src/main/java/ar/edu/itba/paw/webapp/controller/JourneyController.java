@@ -40,14 +40,16 @@ public class JourneyController {
     private final UniversityService universityService;
     private final CareerService carreerService;
     private final InterestService interestService;
+    private final JourneyService journeyService;
 
     @Autowired
-    public JourneyController(final JourneyService js, CityService cityService, UniversityService universityService, CareerService carreerService, InterestService interestService){
+    public JourneyController(final JourneyService js, CityService cityService, UniversityService universityService, CareerService carreerService, InterestService interestService, JourneyService journeyService){
         this.js = js;
         this.cityService = cityService;
         this.universityService = universityService;
         this.carreerService = carreerService;
         this.interestService = interestService;
+        this.journeyService = journeyService;
     }
 
     @RequestMapping
@@ -110,7 +112,15 @@ public class JourneyController {
 
     @RequestMapping(value = "/create")
     public ModelAndView createJourneyForm(@ModelAttribute("createJourneyForm") final CreateJourneyForm jf) {
-        LOGGER.debug("Getting journey creation form");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication == null || authentication.getName() == null) {
+            LOGGER.debug("User not authenticated, redirecting to login");
+            return new ModelAndView("redirect:/login");
+        }
+        if(journeyService.userHasJourney(authentication.getName())) {
+            LOGGER.debug("User already has a journey, redirecting to journey list");
+            return new ModelAndView("redirect:/journeys");
+        }
         final ModelAndView mav = new ModelAndView("journeys/create");
 
         List<University> universities = universityService.getAllUniversities();

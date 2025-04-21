@@ -110,7 +110,7 @@
                 <c:otherwise>
                     <!-- User is not logged in - show login/register buttons -->
                     <div class="auth-buttons">
-                        <a href="<c:out value='${loginUrl}'/>" class="btn-secondary">
+                        <a href="<c:out value='${loginUrl}'/>" class="btn-primary">
                             <spring:message code="auth.login"/>
                         </a>
                         <a href="<c:out value='${registerUrl}'/>" class="btn-outline">
@@ -192,7 +192,7 @@
                 </c:when>
                 <c:otherwise>
                     <div class="mobile-auth-buttons">
-                        <a href="<c:url value='${loginUrl}'/>" class="btn-secondary mobile-btn">
+                        <a href="<c:url value='${loginUrl}'/>" class="btn-primary mobile-btn">
                             <spring:message code="auth.login"/>
                         </a>
                         <a href="<c:url value='${registerUrl}'/>" class="btn-outline mobile-btn">
