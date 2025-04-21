@@ -23,36 +23,52 @@
     document.addEventListener('DOMContentLoaded', function() {
         const attendeesLimit = document.getElementById('attendeesLimit');
         const noAttendeesLimit = document.getElementsByName('noAttendeesLimit').item(0);
+        const attendeesLabel = document.getElementsByName("attendees-label").item(0);
+
         if (attendeesLimit && noAttendeesLimit) {
             noAttendeesLimit.addEventListener('change', function() {
-                if (noAttendeesLimit.checked == true) {
-                    attendeesLimit.setAttribute("disabled", "true");
-                    attendeesLimit.value = "0";
-                    attendeesLimit.classList.add("form-disabled");
-                } else {
-                    attendeesLimit.removeAttribute("disabled");
-                    attendeesLimit.value = "0";
-                    attendeesLimit.classList.remove("form-disabled");
-                }
-            })
+                setAttendeesForm(attendeesLimit, noAttendeesLimit, attendeesLabel);
+            });
+            setAttendeesForm(attendeesLimit, noAttendeesLimit, attendeesLabel);
         }
 
         const timeInput = document.getElementById('time');
         const allDayEvent = document.getElementsByName('allDayEvent').item(0);
+        const timeLabel = document.getElementsByName("time-label").item(0);
         if (timeInput && allDayEvent) {
             allDayEvent.addEventListener('change', function() {
-                if (allDayEvent.checked == true) {
-                    timeInput.setAttribute("disabled", "true");
-                    timeInput.value = "";
-                    timeInput.classList.add("form-disabled");
-                } else {
-                    timeInput.removeAttribute("disabled");
-                    timeInput.value = "00:00";
-                    timeInput.classList.remove("form-disabled");
-                }
-            })
+                setTimeForm(timeInput, allDayEvent, timeLabel);
+            });
+            setTimeForm(timeInput, allDayEvent, timeLabel);
         }
     });
+
+    function setTimeForm(timeInput, allDayEvent, timeLabel) {
+        if (allDayEvent.checked == true) {
+            timeInput.setAttribute("disabled", "true");
+            timeInput.value = "";
+            timeInput.classList.add("form-disabled");
+            timeLabel.classList.remove("required-field");
+        } else {
+            timeInput.removeAttribute("disabled");
+            timeInput.value = "00:00";
+            timeInput.classList.remove("form-disabled");
+            timeLabel.classList.add("required-field");
+        }
+    }
+    function setAttendeesForm(attendeesLimit, noAttendeesLimit, attendeesLabel) {
+        if (noAttendeesLimit.checked == true) {
+            attendeesLimit.setAttribute("disabled", "true");
+            attendeesLimit.value = "0";
+            attendeesLimit.classList.add("form-disabled");
+            attendeesLabel.classList.remove("required-field");
+        } else {
+            attendeesLimit.removeAttribute("disabled");
+            attendeesLimit.value = "0";
+            attendeesLimit.classList.remove("form-disabled");
+            attendeesLabel.classList.add("required-field");
+        }
+    }
 </script>
 
 <div class="auth-container">
@@ -120,7 +136,7 @@
                 <div class="form-row" style="width: 50%;">
                     <!-- Time Field -->
                     <div class="form-group">
-                        <form:label path="time" cssClass="form-label">
+                        <form:label path="time" name="time-label" cssClass="form-label required-field">
                             <spring:message code="event.time"/>
                         </form:label>
                         <form:input path="time" type="time" cssClass="form-input ${not empty errors.getFieldError('time') ? 'error' : ''}" />
@@ -133,14 +149,13 @@
                                 path="allDayEvent"/>
                         </label>
                         <span><spring:message code="event.allDayEvent"/></span>
-                        <form:errors path="allDayEvent" cssClass="error-message" />
                     </div>
                 </div>
             </div>
 
             <!-- Description Field -->
             <div class="form-group">
-                <form:label path="description" cssClass="form-label">
+                <form:label path="description" cssClass="form-label required-field">
                     <spring:message code="event.description"/>
                 </form:label>
                 <c:set var="descriptionHint"><spring:message code="event.description.hint"/></c:set>
@@ -165,7 +180,7 @@
             <!-- Attendees limit Field -->
             <div class="form-row">
                 <div class="form-group">
-                    <form:label path="attendeesLimit" cssClass="form-label">
+                    <form:label path="attendeesLimit" name="attendees-label" cssClass="form-label required-field">
                         <spring:message code="event.attendeesLimit"/>
                     </form:label>
                     <form:input type="number" path="attendeesLimit" cssClass="form-input ${not empty errors.getFieldError('attendeesLimit') ? 'error' : ''}"/>
@@ -177,14 +192,13 @@
                                class="checkbox-custom" 
                                path="noAttendeesLimit"/>
                         <span><spring:message code="event.noAttendeesLimit"/></span>
-                        <form:errors path="noAttendeesLimit" cssClass="error-message" />
                     </label>
                 </div>
             </div>
 
             <!-- Enhanced file upload area for Flyer -->
             <div class="form-group">
-                <form:label path="flyer" cssClass="form-label">
+                <form:label path="flyer" cssClass="form-label required-field">
                     <spring:message code="event.flyer"/>
                 </form:label>
                 <div class="file-upload">
