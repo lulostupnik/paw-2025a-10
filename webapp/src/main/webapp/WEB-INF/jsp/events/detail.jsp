@@ -98,10 +98,10 @@
                                 <div class="event-date">
                                     <img src="<c:url value='/resources/icons/time.svg'/>" alt="Time clock" class="icon" />
                                     <span class="date-text">
-                                        <c:if test="${not empty event.time}">
-                                            <c:out value="${event.time}"/>
+                                        <c:if test="${event.time.isPresent()}">
+                                            <c:out value="${event.time.get()}"/>
                                         </c:if>
-                                        <c:if test="${empty event.time}">
+                                        <c:if test="${event.time.isEmpty()}">
                                             <span><spring:message code="event.allDayEvent"/></span>
                                         </c:if>
                                     </span>
@@ -192,11 +192,11 @@
                         <h2 class="section-title">
                             <img src="<c:url value='/resources/icons/users.svg'/>" alt="Attendees" class="icon" />
                             <spring:message code="event.attendees" />
-                            <c:if test="${event.attendeesLimit > 0}">
+                            <c:if test="${event.attendeesLimit.isPresent()}">
 <%--                                @TODO change to more efficient--%>
-                                <span class="attendees-count">(<c:out value="${event.attendeesCount}"/> / <c:out value="${event.attendeesLimit}"/>)</span>
+                                <span class="attendees-count">(<c:out value="${event.attendeesCount}"/> / <c:out value="${event.attendeesLimit.get()}"/>)</span>
                             </c:if>
-                            <c:if test="${event.attendeesLimit == 0}">
+                            <c:if test="${event.attendeesLimit.isEmpty()}">
                                 <span class="attendees-count">(<c:out value="${event.attendeesCount}"/> / <spring:message code="event.noAttendeesLimit"/>)</span>
                             </c:if>
                         </h2>
@@ -316,7 +316,7 @@
                             </c:forEach>
                         </c:if>
                     </div>
-                    <%--                    Leave a comment section--%>
+                    <%--Leave a comment section--%>
 
                     <div class="section-content">
                         <div class="reply-form-container">

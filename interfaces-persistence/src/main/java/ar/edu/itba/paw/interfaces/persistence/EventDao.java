@@ -4,13 +4,12 @@ import ar.edu.itba.paw.models.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 public interface EventDao {
 
-    Event create(User user, City city, LocalDate date, String description, long flyerImageId, String title, LocalTime time, String address, int attendeesLimit);
+    Event create(User user, City city, LocalDate date, String description, long flyerImageId, String title, LocalTime time, String address, Integer attendeesLimit);
     List<Event> listByQuery(Long cityId, LocalDate date);
     //Optional<Event> findByUserId(long userId);
     Optional<Event> findById(long eventId);
@@ -18,7 +17,7 @@ public interface EventDao {
     List<Event> getEvents(String email);
     List<Event> getRecommendedEvents(String email);
     List<Event> getTopEvents();
-    int getEventAttendanceLimit(long eventId);
+    Optional<Integer> getEventAttendanceLimit(long eventId);
     List<Event> getFullEvents();
 
     CursorPage<Event, Long> listAll(Long cursor, int limit);

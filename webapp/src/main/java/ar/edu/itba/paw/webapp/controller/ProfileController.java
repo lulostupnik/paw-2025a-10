@@ -40,6 +40,7 @@ public class ProfileController {
         String userEmail = authentication.getName();
         Optional<User> user = userService.findByEmail(userEmail);
 
+        LOGGER.debug("userEvents in profile: {}", eventService.getAllEvents(userEmail));
         mav.addObject("user", user);
         mav.addObject("userJourneys", journeyService.getJourneysByUser(userEmail));
         mav.addObject("userEvents", eventService.getAllEvents(userEmail));

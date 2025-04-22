@@ -26,18 +26,30 @@
                 <!-- Attend Button -->
                 <c:if test="${not empty username && isOwner == false}">
                     <div class="attend-button-container">
+                        <!-- Add this inside the attend-button-container div, after the existing button -->
+                        <c:if test="${ param.isFull && !param.attend}">
+                            <div class="event-full-badge">
+                                <spring:message code="event.full" />
+                            </div>
+                        </c:if>
+                        <c:set var="fullEvent"><spring:message code="event.full" /></c:set>
+                        <c:set var="attendEvent"><spring:message code="event.attend" /></c:set>
+                        <c:set var="attendingEvent"><spring:message code="event.attending" /></c:set>
+
+                        <!-- Modify the attend button to be disabled when the event is full -->
                         <button type="button"
-                                class="attend-button ${param.attend ? 'attended' : ''}"
+                                class="attend-button ${param.attend ? 'attended' : ''} ${param.isFull && !param.attend ? 'disabled' : ''}"
                                 data-event-id="<c:out value="${param.eventId}"/>"
                                 data-event-title="<c:out value="${param.title}"/>"
                                 data-is-attending="${param.attend}"
-                                onclick="openAttendanceModal(event, this)"
-                                aria-label="<spring:message code='event.attend'/>">
+                                data-is-full="${param.isFull}"
+                                onclick="${param.isFull && !param.attend ? 'showFullEventMessage(event)' : 'openAttendanceModal(event, this)'}"
+                                aria-label="${param.isFull && !param.attend ? fullEvent : param.attend ? attendingEvent : attendEvent}">
                             <c:if test="${param.attend}">
                                 <img src="<c:url value='/resources/icons/check.svg'/>" alt="<spring:message code='event.attending'/>" class="btn-icon" />
                             </c:if>
                             <c:if test="${not param.attend}">
-                                <img src="<c:url value='/resources/icons/calendar-plus.svg'/>" alt="<spring:message code='event.attend'/>" class="btn-icon" />
+                                <img src="<c:url value='/resources/icons/calendar-plus.svg'/>" alt="${param.isFull ? fullEvent : attendEvent}" class="btn-icon" />
                             </c:if>
                         </button>
                     </div>
@@ -144,6 +156,30 @@
             confirmButton.classList.add('btn-primary');
             confirmButton.textContent = '<spring:message code="event.attend.confirm" />';
         }
+
+        // Show the modal
+        modal.classList.add('active');
+
+        // Prevent scrolling on the body
+        document.body.style.overflow = 'hidden';
+    }
+    // Add this function to your existing JavaScript
+    function showFullEventMessage(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const modal = document.getElementById('attendanceModal');
+        const titleElement = document.getElementById('attendanceModalTitle');
+        const messageElement = document.getElementById('attendanceModalMessage');
+        const form = document.getElementById('attendanceForm');
+        const confirmButton = document.getElementById('confirmAttendanceBtn');
+
+        // Hide the form and confirm button
+        form.style.display = 'none';
+
+        // Set the modal content
+        titleElement.textContent = '<spring:message code="event.full.title" />';
+        messageElement.textContent = '<spring:message code="event.full.message" />';
 
         // Show the modal
         modal.classList.add('active');

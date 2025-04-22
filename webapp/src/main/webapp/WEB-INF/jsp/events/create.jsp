@@ -29,7 +29,19 @@
             noAttendeesLimit.addEventListener('change', function() {
                 setAttendeesForm(attendeesLimit, noAttendeesLimit, attendeesLabel);
             });
-            setAttendeesForm(attendeesLimit, noAttendeesLimit, attendeesLabel);
+            console.log(attendeesLimit.value)
+            if (attendeesLimit.value == null || attendeesLimit.value == "" || attendeesLimit.value == "0") {
+                attendeesLimit.setAttribute("disabled", "true");
+                attendeesLimit.value = "";
+                attendeesLimit.classList.add("form-disabled");
+                attendeesLabel.classList.remove("required-field");
+                noAttendeesLimit.checked = true;
+            } else {
+                attendeesLimit.removeAttribute("disabled");
+                attendeesLimit.classList.remove("form-disabled");
+                attendeesLabel.classList.add("required-field");
+                noAttendeesLimit.checked = false;
+            }        
         }
 
         const timeInput = document.getElementById('time');
@@ -39,7 +51,19 @@
             allDayEvent.addEventListener('change', function() {
                 setTimeForm(timeInput, allDayEvent, timeLabel);
             });
-            setTimeForm(timeInput, allDayEvent, timeLabel);
+            console.log(attendeesLimit.value)
+            if (timeInput.value == null || timeInput.value == "") {
+                timeInput.setAttribute("disabled", "true");
+                timeInput.value = "";
+                timeInput.classList.add("form-disabled");
+                timeLabel.classList.remove("required-field");
+                allDayEvent.checked = true;
+            } else {
+                timeInput.removeAttribute("disabled");
+                timeInput.classList.remove("form-disabled");
+                timeLabel.classList.add("required-field");
+                allDayEvent.checked = false;
+            }        
         }
     });
 
@@ -49,24 +73,28 @@
             timeInput.value = "";
             timeInput.classList.add("form-disabled");
             timeLabel.classList.remove("required-field");
+            allDayEvent.checked = true;
         } else {
             timeInput.removeAttribute("disabled");
             timeInput.value = "00:00";
             timeInput.classList.remove("form-disabled");
             timeLabel.classList.add("required-field");
+            allDayEvent.checked = false;
         }
     }
     function setAttendeesForm(attendeesLimit, noAttendeesLimit, attendeesLabel) {
         if (noAttendeesLimit.checked == true) {
             attendeesLimit.setAttribute("disabled", "true");
-            attendeesLimit.value = "0";
+            attendeesLimit.value = "";
             attendeesLimit.classList.add("form-disabled");
             attendeesLabel.classList.remove("required-field");
+            noAttendeesLimit.checked = true;
         } else {
             attendeesLimit.removeAttribute("disabled");
             attendeesLimit.value = "0";
             attendeesLimit.classList.remove("form-disabled");
             attendeesLabel.classList.add("required-field");
+            noAttendeesLimit.checked = false;
         }
     }
 </script>
@@ -144,9 +172,8 @@
                     </div>
                     <div class="checkbox-container">
                         <label class="checkbox-label">
-                            <form:checkbox name="allDayEvent"
-                                class="checkbox-custom" 
-                                path="allDayEvent"/>
+                            <input type="checkbox" name="allDayEvent"
+                                class="checkbox-custom" />
                         </label>
                         <span><spring:message code="event.allDayEvent"/></span>
                     </div>
@@ -188,11 +215,10 @@
                 </div>
                 <div class="checkbox-container">
                     <label class="checkbox-label">
-                        <form:checkbox name="noAttendeesLimit"
-                               class="checkbox-custom" 
-                               path="noAttendeesLimit"/>
-                        <span><spring:message code="event.noAttendeesLimit"/></span>
+                        <input type="checkbox" name="noAttendeesLimit"
+                               class="checkbox-custom"/>
                     </label>
+                    <span><spring:message code="event.noAttendeesLimit"/></span>
                 </div>
             </div>
 

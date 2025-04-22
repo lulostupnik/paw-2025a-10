@@ -163,6 +163,31 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+/* Event full badge */
+.event-full-badge {
+    position: absolute;
+    bottom: 12px;
+    right: 60px; /* Position next to the attend button */
+    background-color: #aaaaaa;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    z-index: 2;
+}
+
+/* Disabled attend button */
+.attend-button.disabled {
+    background-color: #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.attend-button.disabled:hover {
+    transform: none;
+}
 
 .event-icon {
     width: 1rem;

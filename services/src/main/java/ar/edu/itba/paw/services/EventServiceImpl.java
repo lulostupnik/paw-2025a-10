@@ -45,7 +45,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public Event createEvent(String email, String cityName, LocalDate date, byte[] flyer, String description, String title, LocalTime time, String address, int attendeesLimit) {
+    public Event createEvent(String email, String cityName, LocalDate date, byte[] flyer, String description, String title, LocalTime time, String address, Integer attendeesLimit) {
         LOGGER.debug("Creating event for user {}", email);
 
         LOGGER.debug("Looking for city {}", cityName);
@@ -58,7 +58,13 @@ public class EventServiceImpl implements EventService {
         long flyerImageId = imageDao.saveImage(flyer);
 
         LOGGER.info("Event data is valid, commiting new event to persistance");
-        return eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit);
+        Event event = eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit);
+
+        // Automatically add the creator to the attendees list
+        LOGGER.debug("Adding event creator to attendees list");
+        eventAttendanceDao.attend(user.getId(), event.getId());
+
+        return event;
     }
 
     @Transactional
@@ -111,13 +117,13 @@ public class EventServiceImpl implements EventService {
             LOGGER.debug("User {} is already attending event {}", userId, eventId);
             return;
         }
-        int limit = eventDao.getEventAttendanceLimit(eventId);
-        if(limit == 0){
+        Optional<Integer> limit = eventDao.getEventAttendanceLimit(eventId);
+        if(limit.isEmpty()){
             eventAttendanceDao.attend(userId, eventId);
             return;
         }
-        if (eventAttendanceDao.getAttendeesCount(eventId) >= limit) {
-            LOGGER.debug("Event attendance limit of {} reached", limit);
+        if (eventAttendanceDao.getAttendeesCount(eventId) >= limit.get()) {
+            LOGGER.debug("Event attendance limit of {} reached", limit.get());
             return;
         }
         eventAttendanceDao.attend(userId, eventId);
@@ -253,8 +259,8 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly=true)
     @Override
     public boolean isEventFull(long eventId) {
-        int limit = eventDao.getEventAttendanceLimit(eventId);
-        return limit != 0 && eventAttendanceDao.getAttendeesCount(eventId) >= limit;
+        Optional<Integer> limit = eventDao.getEventAttendanceLimit(eventId);
+        return limit.isPresent() && eventAttendanceDao.getAttendeesCount(eventId) >= limit.get();
     }
 
     @Transactional(readOnly = true)
@@ -270,7 +276,6 @@ public class EventServiceImpl implements EventService {
         return eventDao.getEventsWithAttendanceStatus(userId)
                 .stream().map(result -> new EventCreatorDTO(
                         result.getEvent(),
-                        result.getEvent().getUser().getId() == userId,
                         result.isAttending()
                 ))
                 .toList();

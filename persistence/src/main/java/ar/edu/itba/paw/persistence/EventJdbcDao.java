@@ -61,9 +61,9 @@ public class EventJdbcDao implements EventDao {
                     rs.getString("country_name"),
                     rs.getLong("city_id")),
             rs.getString("event_title"),
-            rs.getTime("event_time") != null ? rs.getTime("event_time").toLocalTime() : null,
+            Optional.ofNullable(rs.getTime("event_time") != null ? rs.getTime("event_time").toLocalTime() : null),
             rs.getString("event_address"),
-            rs.getInt("event_attendees_limit"),
+            Optional.ofNullable(rs.getInt("event_attendees_limit") == 0 ? null : rs.getInt("event_attendees_limit")),
             rs.getInt("event_attendees_count")
             
     );
@@ -129,7 +129,7 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public Event create(User user, City city, LocalDate date, String description, long flyerImageId, String title, LocalTime time, String address, int attendeesLimit) {
+    public Event create(User user, City city, LocalDate date, String description, long flyerImageId, String title, LocalTime time, String address, Integer attendeesLimit) {
         LOGGER.debug("Registering new event for user {} in {} (addr {}) on {} {} ( {} ) with image {}, title {}, limit {}", user, city, address, date, time, description, flyerImageId, title, attendeesLimit);
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("user_id", user.getId());
@@ -143,12 +143,12 @@ public class EventJdbcDao implements EventDao {
         if (time != null) {
             parameters.put("event_time", Time.valueOf(time));
         }
-        if (attendeesLimit != 0) {
+        if (attendeesLimit != null) {
             parameters.put("attendees_limit", attendeesLimit);
         }
         final Number keys = jdbcInsert.executeAndReturnKey(parameters);
         LOGGER.debug("Successfully registered event {}", keys.longValue());
-        return new Event(keys.longValue(), user, date, description, flyerImageId, city, title, time, address, attendeesLimit, 0);
+        return new Event(keys.longValue(), user, date, description, flyerImageId, city, title, Optional.ofNullable(time), address, Optional.ofNullable(attendeesLimit), 0);
     }
 
     // FIXME
@@ -254,7 +254,8 @@ public class EventJdbcDao implements EventDao {
         JOIN countries co ON c.country_id = co.id
         JOIN user_data ud ON ud.city_id = e.city_id
         WHERE e.event_date >= CURRENT_DATE
-    """, EVENT_ROW_MAPPER, email);
+        AND us.email != ?
+    """, EVENT_ROW_MAPPER, email, email);
     }
 
     public List<Event> getTopEvents(){
@@ -360,13 +361,13 @@ public class EventJdbcDao implements EventDao {
         return new CursorPage<>(eventList, nextCursor, hasNext);
     }
 
-    public int getEventAttendanceLimit(long eventId) {
+    public Optional<Integer> getEventAttendanceLimit(long eventId) {
         LOGGER.debug("Querying DB for attendance limit of event {}", eventId);
         Optional<Event> event = findById(eventId);
         if (event.isPresent()){
             return event.get().getAttendeesLimit();
         }
-        return 0;
+        return Optional.of(null);
     }
 
     @Override
@@ -388,13 +389,12 @@ public class EventJdbcDao implements EventDao {
                 EVENT_ROW_MAPPER, userId);
     }
 
+    /*
     @Override
     public List<EventWithAttendanceStatus> getEventsWithAttendanceStatus(long userId) {
-        LOGGER.debug("Querying DB for all events with attendance status for user {}", userId);
+        LOGGER.debug("Querying DB for events with attendance status for user {} (excluding events created by this user)", userId);
 
-        String sql = QUERY +
-                "LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ? " +
-                "ORDER BY e.event_date DESC";
+        String sql = QUERY + "LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?  WHERE e.user_id != ?  ORDER BY e.event_date DESC";
 
         return jdbcTemplate.query(
                 sql,
@@ -403,7 +403,28 @@ public class EventJdbcDao implements EventDao {
                     boolean isAttending = rs.getObject("user_id", Long.class) != null;
                     return new EventWithAttendanceStatus(event, isAttending);
                 },
-                userId
+                userId, userId
+        );
+    }
+    */
+
+    @Override
+    public List<EventWithAttendanceStatus> getEventsWithAttendanceStatus(long userId) {
+        LOGGER.debug("Querying DB for events with attendance status for user {} (excluding events created by this user)", userId);
+
+        String sql = QUERY.replace("SELECT ", "SELECT (ea.user_id IS NOT NULL) AS is_attending, ") +
+                "LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ? " +
+                "WHERE e.user_id != ? " +
+                "ORDER BY e.event_date DESC";
+
+        return jdbcTemplate.query(
+                sql,
+                (rs, rowNum) -> {
+                    Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
+                    boolean isAttending = rs.getBoolean("is_attending");
+                    return new EventWithAttendanceStatus(event, isAttending);
+                },
+                userId, userId
         );
     }
 

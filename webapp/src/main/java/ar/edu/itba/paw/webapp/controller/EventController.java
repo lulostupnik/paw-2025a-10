@@ -23,7 +23,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,20 +52,14 @@ public class EventController {
     public ModelAndView getEvents() {
         LOGGER.debug("Loading events...");
         ModelAndView mav = new ModelAndView("events/list");
-        List<Event> events = eventService.getAllEvents();
-        LOGGER.debug("Events found: {}", events);
-        mav.addObject("events", events);
-        /*
-        mav.addObject("eventsAttended", eventService.getUserAttendingEvents(SecurityContextHolder.getContext().getAuthentication().getName()));
-        */
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        List<Event> eventsAttended = Collections.emptyList();
 
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
-            eventsAttended = eventService.getUserAttendingEvents(auth.getName());
+            mav.addObject("eventsWithAttendance", eventService.getEventsWithAttendanceStatus(auth.getName()));
+        } else{
+            mav.addObject("events",eventService.getAllEvents());
         }
-
-        mav.addObject("eventsAttended", eventsAttended);
         return mav;
     }
 
@@ -116,9 +109,9 @@ public class EventController {
             flyerBytes, 
             eventForm.getDescription(), 
             eventForm.getTitle(), 
-            eventForm.getAllDayEvent() ? null : eventForm.getTime(), 
+            eventForm.getTime(), 
             eventForm.getAddress(), 
-            eventForm.getNoAttendeesLimit() ? 0 : eventForm.getAttendeesLimit()
+            eventForm.getAttendeesLimit()
         );
         LOGGER.info("Successfully created event {}", event);
         return new ModelAndView("redirect:/events/{id}", "id", event.getId());
@@ -141,7 +134,6 @@ public class EventController {
 
         List<User> attendees = eventService.getEventAttendees(id);
         LOGGER.debug("Got event attendees {}", attendees);
-
 
         Boolean isFull = eventService.isEventFull(id);
         boolean isAttending = false;
