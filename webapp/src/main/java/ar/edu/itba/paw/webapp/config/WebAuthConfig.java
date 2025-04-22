@@ -31,7 +31,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private PawUserDetailsService userDetailsService;
 
-    @Value("${AUTH_KEY}")
+    @Value("${auth.key}")
     private String authKey;
 
     @Bean
@@ -73,7 +73,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                     .rememberMeParameter("j_rememberme")
                     .userDetailsService(userDetailsService)
                     //TODO Move key to a separate file
-                    .key("niasdnfrufajsdnfirasdjfnaorfnjdsfnaor")
+                    .key(authKey)
                     .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(30))
                 .and().logout()
                     .logoutUrl("/logout")

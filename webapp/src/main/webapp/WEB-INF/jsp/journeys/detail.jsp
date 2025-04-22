@@ -67,7 +67,7 @@
                         </div>
                         <div class="user-details">
                             <h1 class="journey-title">
-                                <c:out value="${journey.user.firstname} ${journey.user.lastname}'s Journey" />
+                                <spring:message arguments="${journey.user.firstname},${journey.user.lastname}" code="journey.detail.section.title" />
                             </h1>
                             <div class="journey-meta">
                                 <div class="journey-destination">
