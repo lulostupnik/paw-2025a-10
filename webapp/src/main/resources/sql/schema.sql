@@ -116,12 +116,16 @@ CREATE TABLE IF NOT EXISTS journey_responses (
 
 
 CREATE TABLE IF NOT EXISTS events (
-                                     id SERIAL PRIMARY KEY,
-                                     user_id INTEGER NOT NULL,
-                                     city_id INTEGER NOT NULL,
-                                     event_date DATE NOT NULL,
-                                     description VARCHAR(2047),
-    flyer_image_id INTEGER,
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        city_id INTEGER NOT NULL,
+        event_date DATE NOT NULL,
+        description VARCHAR(2047),
+        event_time TIME,
+        attendees_limit INT,
+        address VARCHAR(255),
+        flyer_image_id INTEGER,
+        attendees_count INTEGER DEFAULT 0,
 
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT,
     FOREIGN KEY (city_id) REFERENCES cities(id) ON DELETE RESTRICT,
@@ -204,3 +208,13 @@ ALTER TABLE events ADD COLUMN IF NOT EXISTS event_time TIME;
 ALTER TABLE events ADD COLUMN IF NOT EXISTS attendees_limit INT;
 ALTER TABLE events ADD COLUMN IF NOT EXISTS address VARCHAR(255);
 COMMIT;
+
+-- Add attendees_count column to events table with a default value of 0
+ALTER TABLE events ADD COLUMN IF NOT EXISTS attendees_count INTEGER NOT NULL DEFAULT 0;
+
+--
+-- UPDATE events e SET attendees_count = (
+--     SELECT COUNT(*)
+--     FROM event_attendances ea
+--     WHERE ea.event_id = e.id
+-- );
