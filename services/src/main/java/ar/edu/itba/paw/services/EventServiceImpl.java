@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class EventServiceImpl implements EventService {
@@ -251,5 +252,17 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<Event> getFullEvents() {
         return eventDao.getFullEvents();
+    }
+
+    @Override
+    public List<EventCreatorDTO> getEventsWithAttendanceStatus(long userId) {
+
+        return eventDao.getEventsWithAttendanceStatus(userId)
+                .stream().map(result -> new EventCreatorDTO(
+                        result.getEvent(),
+                        result.getEvent().getUser().getId() == userId,
+                        result.isAttending()
+                ))
+                .toList();
     }
 }

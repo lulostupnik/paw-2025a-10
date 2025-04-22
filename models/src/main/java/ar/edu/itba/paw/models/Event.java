@@ -19,6 +19,7 @@ public class Event {
     private final LocalTime time;
     private final String address;
     private final int attendeesLimit;
+    private final int attendeesCount;
 
     @Override
     public String toString() {

@@ -63,7 +63,8 @@ public class EventJdbcDao implements EventDao {
             rs.getString("event_title"),
             rs.getTime("event_time") != null ? rs.getTime("event_time").toLocalTime() : null,
             rs.getString("event_address"),
-            rs.getInt("event_attendees_limit")
+            rs.getInt("event_attendees_limit"),
+            rs.getInt("event_attendees_count")
             
     );
 
@@ -88,6 +89,7 @@ public class EventJdbcDao implements EventDao {
             "    e.event_time AS event_time, \n" +
             "    e.address AS event_address, \n" +
             "    e.attendees_limit AS event_attendees_limit, \n" +
+            "    e.attendees_count AS event_attendees_count, \n" +
             "\n" +
             "    un.id AS university_id, \n" +
             "    un.name AS university_name, \n" +
@@ -137,6 +139,7 @@ public class EventJdbcDao implements EventDao {
         parameters.put("flyer_image_id", flyerImageId);
         parameters.put("title", title);
         parameters.put("address", address);
+        parameters.put("attendees_count", 0);
         if (time != null) {
             parameters.put("event_time", Time.valueOf(time));
         }
@@ -145,7 +148,7 @@ public class EventJdbcDao implements EventDao {
         }
         final Number keys = jdbcInsert.executeAndReturnKey(parameters);
         LOGGER.debug("Successfully registered event {}", keys.longValue());
-        return new Event(keys.longValue(), user, date, description, flyerImageId, city, title, time, address, attendeesLimit);
+        return new Event(keys.longValue(), user, date, description, flyerImageId, city, title, time, address, attendeesLimit, 0);
     }
 
     // FIXME
@@ -227,6 +230,7 @@ public class EventJdbcDao implements EventDao {
             e.event_time AS event_time,
             e.address AS event_address,
             e.attendees_limit AS event_attendees_limit,
+            e.attendees_count AS event_attendees_count,
             un.id AS university_id, 
             un.name AS university_name, 
             un.abbreviation AS university_abbreviation, 
@@ -266,6 +270,7 @@ public class EventJdbcDao implements EventDao {
             e.event_time AS event_time,
             e.address AS event_address,
             e.attendees_limit AS event_attendees_limit,
+            e.attendees_count AS event_attendees_count,
                 
             us.id AS user_id, 
             us.email AS user_email, 
@@ -383,5 +388,23 @@ public class EventJdbcDao implements EventDao {
                 EVENT_ROW_MAPPER, userId);
     }
 
+    @Override
+    public List<EventWithAttendanceStatus> getEventsWithAttendanceStatus(long userId) {
+        LOGGER.debug("Querying DB for all events with attendance status for user {}", userId);
+
+        String sql = QUERY +
+                "LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ? " +
+                "ORDER BY e.event_date DESC";
+
+        return jdbcTemplate.query(
+                sql,
+                (rs, rowNum) -> {
+                    Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
+                    boolean isAttending = rs.getObject("user_id", Long.class) != null;
+                    return new EventWithAttendanceStatus(event, isAttending);
+                },
+                userId
+        );
+    }
 
 }

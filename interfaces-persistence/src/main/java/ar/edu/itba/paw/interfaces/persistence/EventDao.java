@@ -26,4 +26,6 @@ public interface EventDao {
 
     List<Event> getMyEvents(long userId);
     List<Event> getOthersEvents(long userId);
+
+    List<EventWithAttendanceStatus> getEventsWithAttendanceStatus(long userId);
 }

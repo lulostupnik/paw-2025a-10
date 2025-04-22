@@ -97,7 +97,8 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
             rs.getString("event_title"), // Assuming you have a title field in the events table
             rs.getTime("event_time") != null ? rs.getTime("event_time").toLocalTime() : null,
             rs.getString("event_address"),
-            rs.getInt("event_attendees_limit")
+            rs.getInt("event_attendees_limit"),
+            rs.getInt("event_attendees_count")
     );
 
     private final static String GET_EVENTS_QUERY = "SELECT \n" +
@@ -121,6 +122,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
             "    e.event_time AS event_time, \n" +
             "    e.address AS event_address, \n" +
             "    e.attendees_limit AS event_attendees_limit, \n" +
+            "    e.attendees_count AS event_attendees_count, \n" +
             "\n" +
             "    un.id AS university_id, \n" +
             "    un.name AS university_name, \n" +
@@ -160,12 +162,14 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
         params.put("user_id", userId);
         params.put("event_id", eventId);
         jdbcInsert.execute(params);
+        jdbcTemplate.update("UPDATE events SET attendees_count = attendees_count + 1 WHERE id = ?", eventId);
     }
 
     @Override
     public void cancel(long userId, long eventId) {
         LOGGER.debug("Registering user {} will cancel attendance to event {}", userId, eventId);
         jdbcTemplate.update("DELETE FROM event_attendances WHERE user_id = ? AND event_id = ?", userId, eventId);
+        jdbcTemplate.update("UPDATE events SET attendees_count = attendees_count - 1 WHERE id = ?", eventId);
     }
 
 
@@ -186,9 +190,8 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
     @Override
     public int getAttendeesCount(long eventId) {
         LOGGER.debug("Querying DB for attendee count for event {}", eventId);
-        return jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM event_attendances WHERE event_id = ?",
-                Integer.class, eventId);
+        return jdbcTemplate.query("SELECT attendees_count FROM events WHERE id = ?", (rs, rowNum) -> rs.getInt("attendees_count"), eventId).stream().findFirst().orElse(0);
+        // return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM event_attendances WHERE event_id = ?",  Integer.class, eventId);
     }
 
     @Override
