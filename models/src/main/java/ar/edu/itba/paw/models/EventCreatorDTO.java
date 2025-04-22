@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EventCreatorDTO {
     private final Event event;
-    private final boolean isCreator;
     private final boolean isAttending;
     // private final boolean limitReached; ¿?
 }

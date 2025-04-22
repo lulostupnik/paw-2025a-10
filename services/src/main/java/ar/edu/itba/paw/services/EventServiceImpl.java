@@ -270,7 +270,6 @@ public class EventServiceImpl implements EventService {
         return eventDao.getEventsWithAttendanceStatus(userId)
                 .stream().map(result -> new EventCreatorDTO(
                         result.getEvent(),
-                        result.getEvent().getUser().getId() == userId,
                         result.isAttending()
                 ))
                 .toList();
