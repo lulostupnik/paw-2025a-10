@@ -3,7 +3,7 @@
 /* Variables */
 :root {
     --profile-primary: #3b82f6;
-    --profile-primary-light: #93c5fd;
+    --profile-primary-light: #E3c5fd;
     --profile-primary-dark: #2563eb;
     --profile-bg: #ffffff;
     --profile-bg-alt: #f9fafb;
@@ -38,7 +38,7 @@
     left: 0;
     right: 0;
     height: 100%;
-    background: linear-gradient(135deg, var(--profile-primary-light) 0%, var(--profile-primary) 100%);
+    background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
     opacity: 0.1;
     z-index: -1;
 }
@@ -49,8 +49,8 @@
     align-items: center;
     text-align: center;
     padding: 1.5rem;
-    background-color: var(--profile-bg);
-    border-radius: var(--profile-radius);
+    background-color: var(--color-background);
+    border-radius: var(--radius);
     box-shadow: var(--profile-shadow);
 }
 
@@ -58,9 +58,9 @@
     margin-bottom: 1.5rem;
 }
 
-.profile-avatar {
-    width: 120px;
-    height: 120px;
+.profiles-avatar {
+    width: 5rem;
+    height: 5rem;
     border-radius: 50%;
     overflow: hidden;
     background-color: var(--profile-bg-alt);
@@ -72,7 +72,7 @@
     transition: transform 0.3s ease;
 }
 
-.profile-avatar:hover {
+.profiles-avatar:hover {
     transform: scale(1.05);
 }
 
@@ -88,8 +88,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--profile-primary-light);
-    color: var(--profile-primary-dark);
+    background-color: var(--color-primary-light);
+    color: var(--color-primary-dark);
     font-size: 2.5rem;
     font-weight: 600;
 }
@@ -123,7 +123,7 @@
     padding: 0.625rem 1.25rem;
     border: 1px solid var(--profile-border);
     border-radius: var(--profile-radius-sm);
-    background-color: var(--profile-bg);
+    background-color: var(--color-background);
     color: var(--profile-text);
     font-size: 0.875rem;
     font-weight: 500;
@@ -147,7 +147,7 @@
 .profile-tabs-container {
     position: sticky;
     top: 0;
-    background-color: var(--profile-bg);
+    background-color: var(--color-background);
     z-index: 10;
     padding: 0.5rem 0;
     margin-bottom: 2rem;
@@ -186,8 +186,8 @@
 }
 
 .profile-tab.active {
-    color: var(--profile-primary);
-    border-bottom-color: var(--profile-primary);
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
 }
 
 .tab-icon {
@@ -216,7 +216,7 @@
 }
 
 .profile-card {
-    background-color: var(--profile-bg);
+    background-color: var(--color-background);
     border-radius: var(--profile-radius);
     padding: 2rem;
     box-shadow: var(--profile-shadow);
@@ -244,7 +244,7 @@
     left: 0;
     width: 3rem;
     height: 3px;
-    background-color: var(--profile-primary);
+    background-color: var(--color-primary);
     border-radius: 3px;
 }
 
@@ -271,7 +271,7 @@
 
 .info-item {
     padding: 1rem;
-    border-radius: var(--profile-radius-sm);
+    border-radius: var(--radius-sm);
     background-color: var(--profile-bg-alt);
     transition: var(--profile-transition);
 }
@@ -284,7 +284,7 @@
 .info-label {
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--profile-primary);
+    color: var(--color-primary);
     margin: 0 0 0.5rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -295,28 +295,6 @@
     color: var(--profile-text);
     margin: 0;
     word-break: break-word;
-}
-
-/* Create Button */
-.btn-create {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1.25rem;
-    background-color: var(--profile-primary);
-    color: white;
-    border-radius: var(--profile-radius-sm);
-    font-size: 0.875rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: var(--profile-transition);
-    box-shadow: var(--profile-shadow-sm);
-}
-
-.btn-create:hover {
-    background-color: var(--profile-primary-dark);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
 }
 
 /* Cards Grid */
@@ -331,7 +309,7 @@
 .empty-state {
     text-align: center;
     padding: 3rem 2rem;
-    background-color: var(--profile-bg);
+    background-color: var(--color-background);
     border: 1px dashed var(--profile-border);
     border-radius: var(--profile-radius);
     grid-column: 1 / -1;
@@ -339,7 +317,7 @@
 }
 
 .empty-state:hover {
-    border-color: var(--profile-primary-light);
+    border-color: var(--color-primary-light);
     background-color: rgba(59, 130, 246, 0.02);
 }
 
@@ -352,7 +330,7 @@
 .empty-svg {
     width: 64px;
     height: 64px;
-    color: var(--profile-primary-light);
+    color: var(--color-primary-light);
 }
 
 .empty-message {
@@ -365,18 +343,18 @@
     display: inline-flex;
     align-items: center;
     padding: 0.625rem 1.25rem;
-    background-color: var(--profile-primary);
+    background-color: var(--color-primary);
     color: white;
     font-size: 0.875rem;
     font-weight: 600;
-    border-radius: var(--profile-radius-sm);
+    border-radius: var(--radius-sm);
     text-decoration: none;
     transition: var(--profile-transition);
     box-shadow: var(--profile-shadow-sm);
 }
 
 .empty-action-btn:hover {
-    background-color: var(--profile-primary-dark);
+    background-color: var(--color-primary-dark);
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
 }
@@ -414,8 +392,8 @@
 }
 
 .events-tab.active {
-    color: var(--profile-primary);
-    border-bottom-color: var(--profile-primary);
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
 }
 
 .events-tab-content {
@@ -431,30 +409,11 @@
 .error-container {
     text-align: center;
     padding: 3rem 1.5rem;
-    background-color: var(--profile-bg);
+    background-color: var(--color-background);
     border-radius: var(--profile-radius);
     box-shadow: var(--profile-shadow);
 }
 
-.btn-primary {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.625rem 1.25rem;
-    background-color: var(--profile-primary);
-    color: white;
-    font-size: 0.875rem;
-    font-weight: 600;
-    border-radius: var(--profile-radius-sm);
-    text-decoration: none;
-    transition: var(--profile-transition);
-    box-shadow: var(--profile-shadow-sm);
-}
-
-.btn-primary:hover {
-    background-color: var(--profile-primary-dark);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
-}
 
 /* Responsive adjustments */
 @media (min-width: 768px) {

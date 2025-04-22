@@ -29,7 +29,7 @@
         <div class="content-container">
           <div class="profile-header">
             <div class="profile-avatar-container">
-              <div class="profile-avatar">
+              <div class="profiles-avatar">
                 <c:choose>
                   <c:when test="${not empty userObj.profilePictureId && userObj.profilePictureId > 0}">
                     <img src="<c:url value='/images/${userObj.profilePictureId}'/>" alt="${userObj.username}" class="avatar-image" />
@@ -141,7 +141,7 @@
           <div class="profile-section" id="journeys-section">
             <div class="section-actions">
               <c:if test="${empty userJourneys}">
-                <a href="<c:url value='/journeys/create'/>" class="btn-create">
+                <a href="<c:url value='/journeys/create'/>" class="btn-primary">
                   <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -193,7 +193,7 @@
           <!-- User Events Tab -->
           <div class="profile-section" id="events-section">
             <div class="section-actions">
-              <a href="<c:url value='/events/create'/>" class="btn-create">
+              <a href="<c:url value='/events/create'/>" class="btn-primary">
                 <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>

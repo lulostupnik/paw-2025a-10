@@ -23,6 +23,7 @@
           <spring:message code="event.list.title"/>
         </h2>
         <a href="<c:url value="/events/create"/>" class="btn btn-primary">
+          <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="journey.create.button"/>" class="btn-icon" />
           <spring:message code="event.create.button"/>
         </a>
       </div>
