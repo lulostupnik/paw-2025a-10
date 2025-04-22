@@ -55,13 +55,20 @@ public class JourneyController {
     @RequestMapping
     public ModelAndView getJourneys(@Valid @ModelAttribute FilterJourneyForm fjf, final BindingResult errors) {
         LOGGER.debug("Getting journeys with filters: {destination: \"{}\", startDate: \"{}\", endDate: \"{}\", interest: \"{}\"}",fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterest());
-
+        List<Journey> journeys;
+        boolean hasJourney = false;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         LOGGER.debug("Auth provided for user {}", authentication);
 
         final ModelAndView mav = new ModelAndView("journeys/list");
-        List<Journey> journeys = js.getFilteredJourneys(fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterest());
-        LOGGER.debug("Found journeys {}", journeys);
+        if(authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal())) {
+            hasJourney = js.userHasJourney(authentication.getName());
+            LOGGER.debug("User has journey {}", hasJourney);
+            journeys = js.getFilteredJourneys(authentication.getName(), fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterest());
+        } else{
+            journeys = js.getFilteredJourneys(fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterest());
+            LOGGER.debug("Found journeys {}", journeys);
+        }
 
         List<City> cities = cityService.getAllCities();
         LOGGER.debug("Cities: {}", cities);
@@ -69,8 +76,6 @@ public class JourneyController {
         List<Interest> interests = interestService.findAll();
         LOGGER.debug("Interests: {}", interests);
 
-        Boolean hasJourney = js.userHasJourney(authentication.getName());
-        LOGGER.debug("User has journey {}", hasJourney);
 
         mav.addObject("cities", cities);
         mav.addObject("interests", interests);
@@ -95,14 +100,13 @@ public class JourneyController {
                 jf.getDestinationUniversity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription());
 
         LOGGER.info("Successfully created journey {}", journey);
-        ReplyJourneyForm rjf = new ReplyJourneyForm();  //@TODO tiene sentido??
-        return getJourney(journey.getId(), rjf);
+        return new ModelAndView("redirect:/journeys/" + journey.getId());
     }
 
     @RequestMapping(value = "/create")
     public ModelAndView createJourneyForm(@ModelAttribute("createJourneyForm") final CreateJourneyForm jf) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication == null || authentication.getName() == null) {
+        if(authentication == null || authentication.getName() == null || ! authentication.isAuthenticated()) {
             LOGGER.debug("User not authenticated, redirecting to login");
             return new ModelAndView("redirect:/login");
         }
