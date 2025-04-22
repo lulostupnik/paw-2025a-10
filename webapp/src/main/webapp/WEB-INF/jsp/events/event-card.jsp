@@ -30,6 +30,9 @@
                                 <spring:message code="event.full" />
                             </div>
                         </c:if>
+                        <c:set var="fullEvent"><spring:message code="event.full" /></c:set>
+                        <c:set var="attendEvent"><spring:message code="event.attend" /></c:set>
+                        <c:set var="attendingEvent"><spring:message code="event.attending" /></c:set>
 
                         <!-- Modify the attend button to be disabled when the event is full -->
                         <button type="button"
@@ -39,12 +42,12 @@
                                 data-is-attending="${param.attend}"
                                 data-is-full="${param.isFull}"
                                 onclick="${param.isFull && !param.attend ? 'showFullEventMessage(event)' : 'openAttendanceModal(event, this)'}"
-                                aria-label="${param.isFull && !param.attend ? '<spring:message code="event.full" />' : param.attend ? '<spring:message code="event.attending" />' : '<spring:message code="event.attend" />'}">
+                                aria-label="${param.isFull && !param.attend ? fullEvent : param.attend ? attendingEvent : attendEvent}">
                             <c:if test="${param.attend}">
                                 <img src="<c:url value='/resources/icons/check.svg'/>" alt="<spring:message code='event.attending'/>" class="btn-icon" />
                             </c:if>
                             <c:if test="${not param.attend}">
-                                <img src="<c:url value='/resources/icons/calendar-plus.svg'/>" alt="${param.isFull ? '<spring:message code="event.full" />' : '<spring:message code="event.attend" />'}" class="btn-icon" />
+                                <img src="<c:url value='/resources/icons/calendar-plus.svg'/>" alt="${param.isFull ? fullEvent : attendEvent}" class="btn-icon" />
                             </c:if>
                         </button>
                     </div>

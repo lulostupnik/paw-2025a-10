@@ -400,7 +400,7 @@ public class EventJdbcDao implements EventDao {
                 sql,
                 (rs, rowNum) -> {
                     Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
-                    boolean isAttending = rs.getObject("user_id", Long.class) != null;
+                    boolean isAttending = rs.getObject("user_id", long.class) != null;
                     return new EventWithAttendanceStatus(event, isAttending);
                 },
                 userId
