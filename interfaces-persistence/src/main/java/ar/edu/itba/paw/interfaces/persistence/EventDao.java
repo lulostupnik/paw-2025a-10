@@ -22,4 +22,7 @@ public interface EventDao {
 
     CursorPage<Event, Long> listAll(Long cursor, int limit);
     CursorPage<Event, Long> listByCity(City city, Long cursor, int limit);
+
+    List<Event> getMyEvents(long userId);
+    List<Event> getOthersEvents(long userId);
 }

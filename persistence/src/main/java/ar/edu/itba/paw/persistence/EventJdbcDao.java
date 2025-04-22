@@ -364,5 +364,19 @@ public class EventJdbcDao implements EventDao {
         return List.of();
     }
 
+    @Override
+    public List<Event> getMyEvents(long userId) {
+        LOGGER.debug("Querying DB for events created by user {}", userId);
+        return jdbcTemplate.query(QUERY + "WHERE e.user_id = ? ORDER BY e.event_date DESC",
+                EVENT_ROW_MAPPER, userId);
+    }
+
+    @Override
+    public List<Event> getOthersEvents(long userId) {
+        LOGGER.debug("Querying DB for events not created by user {}", userId);
+        return jdbcTemplate.query(QUERY + "WHERE e.user_id != ? AND e.event_date >= CURRENT_DATE ORDER BY e.event_date",
+                EVENT_ROW_MAPPER, userId);
+    }
+
 
 }
