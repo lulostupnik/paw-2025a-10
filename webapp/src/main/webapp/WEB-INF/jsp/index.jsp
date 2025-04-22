@@ -152,6 +152,7 @@
                             <c:if test="${attendedEvent.id == event.id}">
                                 <c:set var="attend" value="true" />
                             </c:if>
+
                         </c:forEach>
                         <jsp:include page="events/event-card.jsp">
                             <jsp:param name="eventId" value="${event.id}" />
@@ -163,6 +164,7 @@
                             <jsp:param name="firstname" value="${event.user.firstname}" />
                             <jsp:param name="lastname" value="${event.user.lastname}"/>
                             <jsp:param name="title" value="${event.title}"/>
+                            <jsp:param name="isFull" value="${event.attendeesLimit!=0 && event.attendeesLimit <= event.attendeesCount}"/>
                         </jsp:include>
                     </c:forEach>
                 </c:if>

@@ -316,7 +316,7 @@
                             </c:forEach>
                         </c:if>
                     </div>
-                    <%--                    Leave a comment section--%>
+                    <%--Leave a comment section--%>
 
                     <div class="section-content">
                         <div class="reply-form-container">

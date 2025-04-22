@@ -53,20 +53,14 @@ public class EventController {
     public ModelAndView getEvents() {
         LOGGER.debug("Loading events...");
         ModelAndView mav = new ModelAndView("events/list");
-        List<Event> events = eventService.getAllEvents();
-        LOGGER.debug("Events found: {}", events);
-        mav.addObject("events", events);
-        /*
-        mav.addObject("eventsAttended", eventService.getUserAttendingEvents(SecurityContextHolder.getContext().getAuthentication().getName()));
-        */
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        List<Event> eventsAttended = Collections.emptyList();
 
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
-            eventsAttended = eventService.getUserAttendingEvents(auth.getName());
+            mav.addObject("eventsWithAttendance", eventService.getEventsWithAttendanceStatus(auth.getName()));
+        } else{
+            mav.addObject("events",eventService.getAllEvents());
         }
-
-        mav.addObject("eventsAttended", eventsAttended);
         return mav;
     }
 
