@@ -162,7 +162,7 @@
                 <span><spring:message code="nav.events"/></span>
             </a>
 
-            <c:if test="${not empty username}">
+<%--            <c:if test="${not empty username}">--%>
                 <%--                <a href="<c:out value='${profileUrl}'/>"--%>
                 <%--                   class="mobile-nav-item ${fn:startsWith(uri, profileUrl) ? 'active' : ''}">--%>
                 <%--                    <svg xmlns="http://www.w3.org/2000/svg" class="mobile-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">--%>
@@ -170,7 +170,7 @@
                 <%--                    </svg>--%>
                 <%--                    <span><spring:message code="nav.profile"/></span>--%>
                 <%--                </a>--%>
-            </c:if>
+<%--            </c:if>--%>
         </div>
 <%--        <div class="mobile-nav-footer">--%>
 <%--            <c:choose>--%>

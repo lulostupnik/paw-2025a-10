@@ -20,4 +20,3 @@ Parameters:
                  cssClass="form-input" placeholder="${escapedPlaceholder}" />
   <form:errors path="${param.path}" cssClass="error-message" />
 </div>
-

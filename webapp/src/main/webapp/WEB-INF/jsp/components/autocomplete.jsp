@@ -20,7 +20,7 @@ Parameters:
   <!-- Hidden select that will hold the actual form data -->
   <form:select path="${param.path}" multiple="true" id="interestsSelect" style="display: none;">
     <c:forEach var="item" items="${requestScope[param.items]}">
-      <option value="${item.name}"><c:out value="${item.name}"/></option>
+      <option value="<c:out value="${item.name}"/>"><c:out value="${item.name}"/></option>
     </c:forEach>
   </form:select>
 
@@ -28,13 +28,13 @@ Parameters:
   <div class="interests-container">
     <!-- Search input -->
     <input type="text" id="interestSearch" class="interests-search"
-           placeholder="${param.searchPlaceholder}" />
+           placeholder="<c:out value="${param.searchPlaceholder}"/>" />
 
     <!-- Dropdown for search results -->
     <div id="interestDropdown" class="interests-dropdown hidden">
       <ul>
         <c:forEach var="item" items="${requestScope[param.items]}">
-          <li class="interest-option" data-value="${item.name}">
+          <li class="interest-option" data-value="<c:out value="${item.name}"/>">
             <c:out value="${item.name}"/>
           </li>
         </c:forEach>
@@ -46,7 +46,7 @@ Parameters:
   <div id="selectedInterests" class="selected-interests"></div>
 
   <div class="interests-help-text">
-    ${param.helpText}
+    <c:out value="${param.helpText}" />
   </div>
 
   <form:errors path="${param.path}" cssClass="error-message" />

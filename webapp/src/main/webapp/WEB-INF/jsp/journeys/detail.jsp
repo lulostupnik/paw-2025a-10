@@ -1,5 +1,3 @@
-
-
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
@@ -38,7 +36,7 @@
     <!-- Include the sidebar component -->
     <!-- Main Content -->
     <div class="main-content">
-<%--        <jsp:include page="../components/navbar.jsp" />--%>
+        <%--        <jsp:include page="../components/navbar.jsp" />--%>
         <div class="content-container">
             <!-- Back to Journeys Button -->
 
@@ -67,14 +65,13 @@
                         </div>
                         <div class="user-details">
                             <h1 class="journey-title">
-                                <c:out value="<spring:message arguments='${journey.user.firstname},${journey.user.lastname}' code='journey.detail.section.title' />"/>
-<%--                                <spring:message arguments="${journey.user.firstname},${journey.user.lastname}" code="journey.detail.section.title" />--%>
+                                <spring:message arguments="${journey.user.firstname},${journey.user.lastname}" code="journey.detail.section.title" />
                             </h1>
                             <div class="journey-meta">
                                 <div class="journey-destination">
                                     <img src="<c:url value='/resources/icons/location.svg'/>" alt="Location" class="icon" />
                                     <span class="destination-text">
-                                        <c:out value="${journey.destinationUniversity.city}" /> -
+                                        <c:out value="${journey.destinationUniversity.city.name}" /> -
                                         <c:out value="${journey.destinationUniversity.name}" />
                                     </span>
                                 </div>
@@ -91,12 +88,12 @@
 
                 <!-- Journey Description Section -->
                 <section class="content-section">
-<%--                    <div class="section-header">--%>
-<%--                        <h2 class="section-title">--%>
-<%--                            <img src="<c:url value='/resources/icons/description.svg'/>" alt="Description" class="icon" />--%>
-<%--                            <spring:message code="journey.description" />--%>
-<%--                        </h2>--%>
-<%--                    </div>--%>
+                    <%--                    <div class="section-header">--%>
+                    <%--                        <h2 class="section-title">--%>
+                    <%--                            <img src="<c:url value='/resources/icons/description.svg'/>" alt="Description" class="icon" />--%>
+                    <%--                            <spring:message code="journey.description" />--%>
+                    <%--                        </h2>--%>
+                    <%--                    </div>--%>
                     <div class="section-content">
                         <div class="journey-description-card">
                             <p class="journey-description-text">
@@ -170,7 +167,7 @@
                     </div>
 
 
-<%--                    Leave a comment div--%>
+                    <%--                    Leave a comment div--%>
                     <div class="section-content">
                         <div class="reply-form-container">
                             <c:url var="replyUrl" value="/journeys/${journey.id}/reply"/>
@@ -198,38 +195,38 @@
                 </section>
 
                 <!-- Reply Form Section -->
-<%--                <section class="content-section">--%>
-<%--                    <div class="section-header">--%>
-<%--                        <h2 class="section-title">--%>
-<%--                            <img src="<c:url value='/resources/icons/reply.svg'/>" alt="Reply" class="icon" />--%>
-<%--                            <spring:message code="journey.detail.leave.reply" />--%>
-<%--                        </h2>--%>
-<%--                    </div>--%>
-<%--                    <div class="section-content">--%>
-<%--                        <div class="reply-form-container">--%>
-<%--                            <c:url var="replyUrl" value="/journeys/${journey.id}/reply"/>--%>
-<%--                            <form:form modelAttribute="replyJourneyForm" action="${replyUrl}" method="post" enctype="multipart/form-data" cssClass="reply-form">--%>
-<%--                                <!-- Message Field -->--%>
-<%--                                <c:set var="messageLabel"><spring:message code="reply.message"/></c:set>--%>
-<%--                                <c:set var="messageHint"><spring:message code="reply.message.hint"/></c:set>--%>
-<%--                                <jsp:include page="../components/text-area.jsp">--%>
-<%--                                    <jsp:param name="path" value="message" />--%>
-<%--                                    <jsp:param name="label" value="${messageLabel}" />--%>
-<%--                                    <jsp:param name="placeholder" value="${messageHint}" />--%>
-<%--                                </jsp:include>--%>
+                <%--                <section class="content-section">--%>
+                <%--                    <div class="section-header">--%>
+                <%--                        <h2 class="section-title">--%>
+                <%--                            <img src="<c:url value='/resources/icons/reply.svg'/>" alt="Reply" class="icon" />--%>
+                <%--                            <spring:message code="journey.detail.leave.reply" />--%>
+                <%--                        </h2>--%>
+                <%--                    </div>--%>
+                <%--                    <div class="section-content">--%>
+                <%--                        <div class="reply-form-container">--%>
+                <%--                            <c:url var="replyUrl" value="/journeys/${journey.id}/reply"/>--%>
+                <%--                            <form:form modelAttribute="replyJourneyForm" action="${replyUrl}" method="post" enctype="multipart/form-data" cssClass="reply-form">--%>
+                <%--                                <!-- Message Field -->--%>
+                <%--                                <c:set var="messageLabel"><spring:message code="reply.message"/></c:set>--%>
+                <%--                                <c:set var="messageHint"><spring:message code="reply.message.hint"/></c:set>--%>
+                <%--                                <jsp:include page="../components/text-area.jsp">--%>
+                <%--                                    <jsp:param name="path" value="message" />--%>
+                <%--                                    <jsp:param name="label" value="${messageLabel}" />--%>
+                <%--                                    <jsp:param name="placeholder" value="${messageHint}" />--%>
+                <%--                                </jsp:include>--%>
 
-<%--                                <!-- Submit Button -->--%>
-<%--                                <div class="form-actions">--%>
-<%--                                    <c:set var="submitButtonLabel"><spring:message code="reply.submit"/></c:set>--%>
-<%--                                    <jsp:include page="../components/button.jsp">--%>
-<%--                                        <jsp:param name="label" value="${submitButtonLabel}" />--%>
-<%--                                        <jsp:param name="type" value="submit" />--%>
-<%--                                    </jsp:include>--%>
-<%--                                </div>--%>
-<%--                            </form:form>--%>
-<%--                        </div>--%>
-<%--                    </div>--%>
-<%--                </section>--%>
+                <%--                                <!-- Submit Button -->--%>
+                <%--                                <div class="form-actions">--%>
+                <%--                                    <c:set var="submitButtonLabel"><spring:message code="reply.submit"/></c:set>--%>
+                <%--                                    <jsp:include page="../components/button.jsp">--%>
+                <%--                                        <jsp:param name="label" value="${submitButtonLabel}" />--%>
+                <%--                                        <jsp:param name="type" value="submit" />--%>
+                <%--                                    </jsp:include>--%>
+                <%--                                </div>--%>
+                <%--                            </form:form>--%>
+                <%--                        </div>--%>
+                <%--                    </div>--%>
+                <%--                </section>--%>
             </div>
         </div>
     </div>

@@ -8,7 +8,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><spring:message code="profile.page.title"/></title>
+  <title><c:out value="${pageContext.request.contextPath}"/><spring:message code="profile.page.title"/></title>
   <link rel="stylesheet" href="<c:url value="/resources/css/main.css"/>" />
   <link rel="stylesheet" href="<c:url value="/resources/css/pages/profile.css"/>" />
   <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
@@ -43,8 +43,8 @@
               </div>
             </div>
             <div class="profile-info">
-              <h1 class="profile-name">${userObj.firstname} ${userObj.lastname}</h1>
-              <p class="profile-username">@${userObj.username}</p>
+              <h1 class="profile-name"><c:out value="${userObj.firstname} ${userObj.lastname}"/></h1>
+              <p class="profile-username">@<c:out value="${userObj.username}"/></p>
             </div>
               <%--            <div class="profile-actions">--%>
               <%--              <a href="<c:url value='/profile/edit'/>" class="btn-edit-profile">--%>
@@ -100,37 +100,37 @@
               <div class="info-list">
                 <div class="info-item">
                   <h3 class="info-label"><spring:message code="profile.email"/></h3>
-                  <p class="info-value">${userObj.email}</p>
+                  <p class="info-value"><c:out value="${userObj.email}"/></p>
                 </div>
 
                 <div class="info-item">
                   <h3 class="info-label"><spring:message code="profile.firstname"/></h3>
-                  <p class="info-value">${userObj.firstname}</p>
+                  <p class="info-value"><c:out value="${userObj.firstname}"/></p>
                 </div>
 
                 <div class="info-item">
                   <h3 class="info-label"><spring:message code="profile.lastname"/></h3>
-                  <p class="info-value">${userObj.lastname}</p>
+                  <p class="info-value"><c:out value="${userObj.lastname}"/></p>
                 </div>
 
                 <c:if test="${not empty userObj.university}">
                   <div class="info-item">
                     <h3 class="info-label"><spring:message code="profile.home.university"/></h3>
-                    <p class="info-value">${userObj.university.name}</p>
+                    <p class="info-value"><c:out value="${userObj.university.name}"/></p>
                   </div>
                 </c:if>
 
                 <c:if test="${not empty userObj.career}">
                   <div class="info-item">
                     <h3 class="info-label"><spring:message code="profile.career"/></h3>
-                    <p class="info-value">${userObj.career.name}</p>
+                    <p class="info-value"><c:out value="${userObj.career.name}"/></p>
                   </div>
                 </c:if>
 
                 <c:if test="${not empty userObj.locale}">
                   <div class="info-item">
                     <h3 class="info-label"><spring:message code="profile.language"/></h3>
-                    <p class="info-value">${userObj.locale.displayLanguage}</p>
+                    <p class="info-value"><c:out value="${userObj.locale.displayLanguage}"/></p>
                   </div>
                 </c:if>
               </div>

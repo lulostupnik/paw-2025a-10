@@ -18,8 +18,8 @@ Parameters:
   <form:select path="${param.path}" cssClass="form-select">
     <form:option value=""><spring:message code="${param.defaultMessageCode}"/></form:option>
     <c:forEach var="item" items="${requestScope[param.items]}">
-        <c:set var="optionValue"><c:out value = "${item[empty param.itemValue ? 'name' : param.itemValue]}"/></c:set>
-        <form:option value="${optionValue}"><c:out value="${item[empty param.itemLabel ? 'name' : param.itemLabel]}"/></form:option>
+      <c:set var="optionValue"><c:out value="${item[empty param.itemValue ? 'name' : param.itemValue]}"/></c:set>
+      <form:option value="${optionValue}"><c:out value="${item[empty param.itemLabel ? 'name' : param.itemLabel]}"/></form:option>
     </c:forEach>
   </form:select>
   <form:errors path="${param.path}" cssClass="error-message" />
