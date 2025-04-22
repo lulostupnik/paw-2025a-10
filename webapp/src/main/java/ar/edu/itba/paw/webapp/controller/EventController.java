@@ -156,7 +156,9 @@ public class EventController {
 
         ModelAndView mav = new ModelAndView("events/detail");
         mav.addObject("event", event);
-        mav.addObject("attendees", attendees);
+        if(isEventOwner){  //@todo preguntar si es necesario este if
+            mav.addObject("attendees", attendees);
+        }
         mav.addObject("attend", isAttending);
         mav.addObject("eventResponses", eventResponses);
         mav.addObject("replyEventForm", form);
