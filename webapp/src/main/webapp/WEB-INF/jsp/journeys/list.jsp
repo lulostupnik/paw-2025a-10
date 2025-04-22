@@ -173,7 +173,8 @@
                 </h2>
                 <div class="journeys-actions">
                     <button id="filterToggleBtn" class="btn-secondary btn-with-icon">
-                        <img src="<c:url value='/resources/icons/filter.svg'/>" alt="<spring:message code="journey.filter.toggle"/>" class="btn-icon" />
+                        <img src="<c:url value='/resources/icons/filter.svg'/>" alt="<spring:message code="journey.filter.toggle"/>" class="btn-icon filter-icon" />
+                        <img src="<c:url value='/resources/icons/x.svg'/>" alt="<spring:message code="journey.filter.close"/>" class="btn-icon close-icon" style="display: none;" />
                         <spring:message code="journey.filter.toggle"/>
                     </button>
                     <c:if test="${hasJourney == false}">
@@ -316,6 +317,8 @@
         const filterToggleBtn = document.getElementById('filterToggleBtn');
         const filterSection = document.getElementById('filterSection');
         const filterForm = document.getElementById('journeyFilterForm');
+        const filterIcon = filterToggleBtn.querySelector('.filter-icon');
+        const closeIcon = filterToggleBtn.querySelector('.close-icon');
 
         // Check if there are any filter parameters in the URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -323,11 +326,24 @@
             urlParams.has('endDate') || urlParams.has('interest')) {
             // Show filter section if filters are applied
             filterSection.classList.remove('hidden');
+            // Update icons
+            filterIcon.style.display = 'none';
+            closeIcon.style.display = 'inline';
         }
 
         // Toggle filter section visibility
         filterToggleBtn.addEventListener('click', function() {
             filterSection.classList.toggle('hidden');
+
+            // Toggle icons
+            if (filterSection.classList.contains('hidden')) {
+                filterIcon.style.display = 'inline';
+                closeIcon.style.display = 'none';
+            } else {
+                filterIcon.style.display = 'none';
+                closeIcon.style.display = 'inline';
+            }
+
             // Optional: Animate the toggle button
             this.classList.toggle('active');
         });
