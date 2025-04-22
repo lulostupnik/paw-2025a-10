@@ -17,7 +17,10 @@ public interface JourneyDao {
     Optional<Journey> findById(long id);
     Optional<Journey> findOverlappingJourney(long id, LocalDate startDate, LocalDate endDate);
     List<Journey> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest);
+    List<Journey> findByFilters(long userId, String destination, LocalDate startDate, LocalDate endDate, String interest);
+
     CursorPage<Journey, Long> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest, Long cursor, int pageSize);
+
 
     List<Journey> findByOriginCity(long originCityId);
     List<Journey> findByOriginUniversity(long originUniversityId);

@@ -254,7 +254,8 @@ public class EventJdbcDao implements EventDao {
         JOIN countries co ON c.country_id = co.id
         JOIN user_data ud ON ud.city_id = e.city_id
         WHERE e.event_date >= CURRENT_DATE
-    """, EVENT_ROW_MAPPER, email);
+        AND us.email != ?
+    """, EVENT_ROW_MAPPER, email, email);
     }
 
     public List<Event> getTopEvents(){
