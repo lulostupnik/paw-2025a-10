@@ -196,8 +196,8 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
 
     @Override
     public List<Event> getAttendingEvents(long userId) {
-        LOGGER.debug("Querying DB for events user {} will attend", userId);
-        return jdbcTemplate.query(GET_EVENTS_QUERY, EVENT_ROW_MAPPER, userId);
+        LOGGER.debug("Querying DB for events user {} will attend (excluding events created by user)", userId);
+        return jdbcTemplate.query(GET_EVENTS_QUERY + " AND e.user_id != ?", EVENT_ROW_MAPPER, userId, userId);
     }
 
     @Override

@@ -17,19 +17,17 @@
             width: 100%;
         }
 
+        /* Improved autocomplete styling to match Career field */
         .autocomplete-input {
-            display: block;
             width: 100%;
             padding: 0.75rem 1rem;
             font-size: 0.875rem;
             line-height: 1.5;
             color: #1f2937;
             background-color: #fff;
-            background-clip: padding-box;
             border: 1px solid #e5e7eb;
             border-radius: 0.5rem;
             transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-            box-sizing: border-box;
         }
 
         .autocomplete-input:focus {
@@ -68,15 +66,49 @@
             background-color: #f9fafb;
         }
 
-        .selected-items-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 8px;
+        .selected-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            background-color: #eef2ff;
+            color: #4f46e5;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
         }
 
-        .hidden {
+        .tag-remove {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            background-color: rgba(79, 70, 229, 0.2);
+            color: #4f46e5;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+            transition: all 0.2s ease;
+        }
+
+        .tag-remove:hover {
+            background-color: rgba(79, 70, 229, 0.3);
+            transform: scale(1.1);
+        }
+
+        .hidden-select {
             display: none !important;
+        }
+
+        .selected-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            min-height: 2rem;
         }
 
         /* Filter grid styling */
@@ -141,7 +173,8 @@
                 </h2>
                 <div class="journeys-actions">
                     <button id="filterToggleBtn" class="btn-secondary btn-with-icon">
-                        <img src="<c:url value='/resources/icons/filter.svg'/>" alt="<spring:message code="journey.filter.toggle"/>" class="btn-icon" />
+                        <img src="<c:url value='/resources/icons/filter.svg'/>" alt="<spring:message code="journey.filter.toggle"/>" class="btn-icon filter-icon" />
+                        <img src="<c:url value='/resources/icons/x.svg'/>" alt="<spring:message code="journey.filter.close"/>" class="btn-icon close-icon" style="display: none;" />
                         <spring:message code="journey.filter.toggle"/>
                     </button>
                     <c:if test="${hasJourney == false}">
@@ -172,18 +205,18 @@
                                 <input type="text" id="citySearch" class="autocomplete-input"
                                        placeholder="<spring:message code='journey.filter.destination.placeholder'/>"
                                        value="${param.destinationName}" />
-                                <form:select id="city" name="destination" class="hidden-select" path="destination">
+                                <form:select id="city" name="destination" class="hidden-select" path="destination" style="display: none;">
                                     <option value=""></option>
                                     <c:forEach var="city" items="${cities}">
                                         <option value="${city.id}" ${param.destination == city.id ? 'selected' : ''}><c:out value="${city.name}"/></option>
                                     </c:forEach>
                                 </form:select>
-                                <div id="cityDropdown" class="autocomplete-dropdown">
+                                <div id="cityDropdown" class="autocomplete-dropdown" style="display: none;">
                                     <c:forEach var="city" items="${cities}">
                                         <div class="autocomplete-item" data-value="${city.id}"><c:out value="${city.name}"/></div>
                                     </c:forEach>
                                 </div>
-                                <div id="citySelectedContainer" class="selected-items-container"></div>
+                                <div id="citySelectedContainer" class="selected-tags"></div>
                             </div>
                             <form:errors path="destination" cssClass="error-message" />
                         </div>
@@ -202,7 +235,7 @@
                                 <jsp:param name="path" value="endDate"/>
                                 <jsp:param name="label" value="${endDateFilter}"/>
                             </jsp:include>
-                            <form:errors path="" cssClass="error-message" />
+<%--                            <form:errors path="" cssClass="error-message" />--%>
                         </div>
 
                         <!-- Interest filter with autocomplete -->
@@ -213,18 +246,18 @@
                                 <input type="text" id="interest-search" class="autocomplete-input"
                                        placeholder="<spring:message code='journey.filter.interest.placeholder'/>"
                                        value="${param.interestName}" />
-                                <form:select path="interests" id="interest-select" name="interest" class="hidden-select">
+                                <form:select path="interests" id="interest-select" name="interest" class="hidden-select" style="display: none;">
                                     <option value=""></option>
                                     <c:forEach var="interest" items="${interests}">
                                         <option value="${interest.id}" ${param.interest == interest.id ? 'selected' : ''}><c:out value="${interest.name}"/></option>
                                     </c:forEach>
                                 </form:select>
-                                <div id="interest-dropdown" class="autocomplete-dropdown">
+                                <div id="interest-dropdown" class="autocomplete-dropdown" style="display: none;">
                                     <c:forEach var="interest" items="${interests}">
                                         <div class="autocomplete-item" data-value="${interest.id}"><c:out value="${interest.name}"/></div>
                                     </c:forEach>
                                 </div>
-                                <div id="interestSelectedContainer" class="selected-items-container"></div>
+                                <div id="interestSelectedContainer" class="selected-tags"></div>
                             </div>
                             <form:errors path="interests" cssClass="error-message" />
                         </div>
@@ -284,6 +317,8 @@
         const filterToggleBtn = document.getElementById('filterToggleBtn');
         const filterSection = document.getElementById('filterSection');
         const filterForm = document.getElementById('journeyFilterForm');
+        const filterIcon = filterToggleBtn.querySelector('.filter-icon');
+        const closeIcon = filterToggleBtn.querySelector('.close-icon');
 
         // Check if there are any filter parameters in the URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -291,11 +326,24 @@
             urlParams.has('endDate') || urlParams.has('interest')) {
             // Show filter section if filters are applied
             filterSection.classList.remove('hidden');
+            // Update icons
+            filterIcon.style.display = 'none';
+            closeIcon.style.display = 'inline';
         }
 
         // Toggle filter section visibility
         filterToggleBtn.addEventListener('click', function() {
             filterSection.classList.toggle('hidden');
+
+            // Toggle icons
+            if (filterSection.classList.contains('hidden')) {
+                filterIcon.style.display = 'inline';
+                closeIcon.style.display = 'none';
+            } else {
+                filterIcon.style.display = 'none';
+                closeIcon.style.display = 'inline';
+            }
+
             // Optional: Animate the toggle button
             this.classList.toggle('active');
         });
@@ -358,6 +406,13 @@
                 filterOptions(this.value);
             });
 
+            // Show dropdown when clicking on input
+            input.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdown.style.display = 'block';
+                filterOptions(this.value);
+            });
+
             // Hide dropdown when clicking outside
             document.addEventListener('click', function(e) {
                 if (!input.contains(e.target) && !dropdown.contains(e.target)) {
@@ -407,7 +462,7 @@
                     const removeBtn = document.createElement('button');
                     removeBtn.type = 'button';
                     removeBtn.className = 'tag-remove';
-                    removeBtn.innerHTML = '<img src="<c:url value='/resources/icons/x.svg'/>"/>';
+                    removeBtn.innerHTML = '<img src="<c:url value='/resources/icons/x.svg'/>" width="12" height="12"/>';
                     removeBtn.addEventListener('click', function() {
                         // Deselect the option
                         Array.from(select.options).forEach(opt => {
@@ -444,12 +499,12 @@
                 });
 
                 // Show no results message if needed
-                let noResultsMsg = dropdown.querySelector('.empty-message');
+                let noResultsMsg = dropdown.querySelector('.no-results');
                 if (!hasResults) {
                     if (!noResultsMsg) {
                         noResultsMsg = document.createElement('div');
-                        noResultsMsg.className = 'empty-message';
-                        noResultsMsg.textContent = 'No results found';
+                        noResultsMsg.className = 'autocomplete-item no-results';
+                        noResultsMsg.textContent = 'No matching results found';
                         dropdown.appendChild(noResultsMsg);
                     }
                     noResultsMsg.style.display = '';

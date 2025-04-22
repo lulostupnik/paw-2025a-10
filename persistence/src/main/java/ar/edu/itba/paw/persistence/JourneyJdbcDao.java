@@ -427,7 +427,11 @@ public class JourneyJdbcDao implements JourneyDao {
         return jdbcTemplate.query(QUERY + " WHERE us.email = ?", JOURNEY_ROW_MAPPER, email);
     }
 
-    ;
+    @Override
+    public List<Journey> getOthersJourneys(long userId) {
+        LOGGER.debug("Querying DB for journeys from users other than user ID: {}", userId);
+        return jdbcTemplate.query(QUERY + " WHERE us.id != ? ", JOURNEY_ROW_MAPPER, userId);
+    }
 
     @Override
     public void updateDates(long journeyId, LocalDate startDate, LocalDate endDate) {

@@ -75,10 +75,11 @@
                     <div class="event-info">
                         <div class="event-title-section">
                             <h1 class="event-title">
-                                ${event.title}
-                                <c:if test="${isFull}">
-                                    <span class="event-full-tag">FULL</span>
-                                </c:if>
+                                <c:out value="${event.title}" />
+
+<%--                                <c:if test="${isFull}">--%>
+<%--                                    <span class="event-full-tag">FULL</span>--%>
+<%--                                </c:if>--%>
                             </h1>
                             <div class="event-meta">
                                 <div class="event-location">
@@ -162,8 +163,6 @@
                     </c:if>
                     <c:if test="${empty event.flyerImageId}">
                         <div class="event-flyer-placeholder">
-                                <%--                            @TODO CHECK THIS--%>
-                                <%--                            <img src="<c:url value='/resources/icons/event-placeholder.svg'/>" alt="No Flyer" class="event-placeholder-icon" />--%>
                             <p class="event-placeholder-text"><spring:message code="event.no.flyer" /></p>
                         </div>
                     </c:if>
@@ -194,10 +193,11 @@
                             <img src="<c:url value='/resources/icons/users.svg'/>" alt="Attendees" class="icon" />
                             <spring:message code="event.attendees" />
                             <c:if test="${event.attendeesLimit > 0}">
-                                <span class="attendees-count">(<c:out value="${fn:length(attendees)}"/> / <c:out value="${event.attendeesLimit}"/>)</span>
+<%--                                @TODO change to more efficient--%>
+                                <span class="attendees-count">(<c:out value="${event.attendeesCount}"/> / <c:out value="${event.attendeesLimit}"/>)</span>
                             </c:if>
                             <c:if test="${event.attendeesLimit == 0}">
-                                <span class="attendees-count">(<c:out value="${fn:length(attendees)}"/> / <spring:message code="event.noAttendeesLimit"/>)</span>
+                                <span class="attendees-count">(<c:out value="${event.attendeesCount}"/> / <spring:message code="event.noAttendeesLimit"/>)</span>
                             </c:if>
                         </h2>
                         <c:if test="${isEventOwner}">

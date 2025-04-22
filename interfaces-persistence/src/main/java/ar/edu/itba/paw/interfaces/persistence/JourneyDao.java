@@ -25,6 +25,7 @@ public interface JourneyDao {
     Optional<Journey> findByUserId(long userId);
     List<Journey> getRecommendedJourneys(String email);
     List<Journey> getJourneysByUser(String email);
+    List<Journey> getOthersJourneys(long userId);
     void updateDates(long journeyId, LocalDate startDate, LocalDate endDate);
     void updateDescription(long journeyId, String description);
     void updateDestinationUniversity(long journeyId, long universityId);

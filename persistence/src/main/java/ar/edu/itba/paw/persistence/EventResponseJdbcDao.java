@@ -65,7 +65,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
     @Override
     public List<EventResponse> listAllFromEvent(long eventId){
         LOGGER.debug("Querying DB for replies to event {}", eventId);
-        return jdbcTemplate.query(QUERY_BY_EVENT_ID, EVENT_RESPONSE_ROW_MAPPER, eventId);
+        return jdbcTemplate.query(QUERY_BY_EVENT_ID + " ORDER BY date_time DESC ", EVENT_RESPONSE_ROW_MAPPER, eventId);
     }
 
     @Override

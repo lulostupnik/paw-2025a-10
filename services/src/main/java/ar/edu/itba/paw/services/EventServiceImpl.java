@@ -58,7 +58,13 @@ public class EventServiceImpl implements EventService {
         long flyerImageId = imageDao.saveImage(flyer);
 
         LOGGER.info("Event data is valid, commiting new event to persistance");
-        return eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit);
+        Event event = eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit);
+
+        // Automatically add the creator to the attendees list
+        LOGGER.debug("Adding event creator to attendees list");
+        eventAttendanceDao.attend(user.getId(), event.getId());
+
+        return event;
     }
 
     @Transactional
@@ -104,6 +110,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Transactional
+    @CacheEvict(value = "eventsById", key = "#eventId")
     @Override
     public void attendEvent(long userId, long eventId) {
         if(eventAttendanceDao.isAttending(userId, eventId)){
@@ -131,12 +138,14 @@ public class EventServiceImpl implements EventService {
     }
 
     @Transactional
+    @CacheEvict(value = "eventsById", key = "#eventId")
     @Override
     public void cancelAttendance(long userId, long eventId) {
         eventAttendanceDao.cancel(userId, eventId);
     }
 
     @Transactional
+    @CacheEvict(value = "eventsById", key = "#eventId")
     @Override
     public void cancelAttendance(String email, long eventId) {
         long userId = userService.findByEmail(email).orElseThrow().getId();
@@ -267,7 +276,6 @@ public class EventServiceImpl implements EventService {
         return eventDao.getEventsWithAttendanceStatus(userId)
                 .stream().map(result -> new EventCreatorDTO(
                         result.getEvent(),
-                        result.getEvent().getUser().getId() == userId,
                         result.isAttending()
                 ))
                 .toList();

@@ -390,20 +390,18 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public List<EventWithAttendanceStatus> getEventsWithAttendanceStatus(long userId) {
-        LOGGER.debug("Querying DB for all events with attendance status for user {}", userId);
+        LOGGER.debug("Querying DB for events with attendance status for user {} (excluding events created by this user)", userId);
 
-        String sql = QUERY +
-                "LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ? " +
-                "ORDER BY e.event_date DESC";
+        String sql = QUERY + "LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?  WHERE e.user_id != ?  ORDER BY e.event_date DESC";
 
         return jdbcTemplate.query(
                 sql,
                 (rs, rowNum) -> {
                     Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
-                    boolean isAttending = rs.getObject("user_id", long.class) != null;
+                    boolean isAttending = rs.getObject("user_id", Long.class) != null;
                     return new EventWithAttendanceStatus(event, isAttending);
                 },
-                userId
+                userId, userId
         );
     }
 
