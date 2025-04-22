@@ -65,7 +65,7 @@
                     <input type="text" id="universitySearch" class="form-input autocomplete-input" placeholder="<spring:message code="createJourney.destinationUniversity.search" text="Type to search university..."/>" />
                     <div id="universityDropdown" class="autocomplete-dropdown" style="display: none;">
                         <c:forEach var="item" items="${universities}">
-                            <div class="autocomplete-item" data-value="${item.name}">
+                            <div class="autocomplete-item" data-value="<c:out value="${item.name}"/>">
                                 <c:out value="${item.name}"/>
                             </div>
                         </c:forEach>

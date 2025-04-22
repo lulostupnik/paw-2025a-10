@@ -41,7 +41,7 @@
                 attendeesLimit.classList.remove("form-disabled");
                 attendeesLabel.classList.add("required-field");
                 noAttendeesLimit.checked = false;
-            }        
+            }
         }
 
         const timeInput = document.getElementById('time');
@@ -63,7 +63,7 @@
                 timeInput.classList.remove("form-disabled");
                 timeLabel.classList.add("required-field");
                 allDayEvent.checked = false;
-            }        
+            }
         }
     });
 
@@ -113,7 +113,7 @@
 
         <c:url var="createEventUrl" value="/events/create"/>
         <form:form modelAttribute="createEventForm" action="${createEventUrl}" method="post" enctype="multipart/form-data" class="auth-form">
-            
+
             <!-- Title Field -->
             <div class="form-group">
                 <form:label path="title" cssClass="form-label required-field">
@@ -140,7 +140,7 @@
                     <input type="text" id="citySearch" class="autocomplete-input" placeholder="<spring:message code="event.city.search" text="Type to search city..."/>" />
                     <div id="cityDropdown" class="autocomplete-dropdown" style="display: none;">
                         <c:forEach var="item" items="${cities}">
-                            <div class="autocomplete-item" data-value="${item.name}">
+                            <div class="autocomplete-item" data-value="<c:out value="${item.name}"/>">
                                 <c:out value="${item.name}"/>
                             </div>
                         </c:forEach>
@@ -173,7 +173,7 @@
                     <div class="checkbox-container">
                         <label class="checkbox-label">
                             <input type="checkbox" name="allDayEvent"
-                                class="checkbox-custom" />
+                                   class="checkbox-custom" />
                         </label>
                         <span><spring:message code="event.allDayEvent"/></span>
                     </div>
@@ -187,9 +187,9 @@
                 </form:label>
                 <c:set var="descriptionHint"><spring:message code="event.description.hint"/></c:set>
                 <form:textarea path="description"
-                            cssClass="form-textarea ${not empty errors.getFieldError('description') ? 'error' : ''}"
-                            placeholder="${descriptionHint}"
-                            />
+                               cssClass="form-textarea ${not empty errors.getFieldError('description') ? 'error' : ''}"
+                               placeholder="${descriptionHint}"
+                />
                 <form:errors path="description" cssClass="error-message" />
             </div>
 
