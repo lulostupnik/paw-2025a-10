@@ -248,7 +248,8 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly=true)
     @Override
     public boolean isEventFull(long eventId) {
-        return eventAttendanceDao.getAttendeesCount(eventId) >= eventDao.getEventAttendanceLimit(eventId);
+        int limit = eventDao.getEventAttendanceLimit(eventId);
+        return limit != 0 && eventAttendanceDao.getAttendeesCount(eventId) >= limit;
     }
 
     @Transactional(readOnly = true)
