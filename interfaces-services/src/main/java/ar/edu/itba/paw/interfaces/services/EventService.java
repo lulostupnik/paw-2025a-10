@@ -14,6 +14,7 @@ public interface EventService {
     void replyToEvent(String email,long eventId, String message);
     Optional<Event> getEventById(long id);
     List<Event> getAllEvents();
+    List<Event> getAllEvents(String email);
     void attendEvent(String email, long eventId);
     void attendEvent(long userId, long eventId);
     void cancelAttendance(String email, long eventId);

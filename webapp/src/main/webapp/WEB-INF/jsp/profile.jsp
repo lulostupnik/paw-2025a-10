@@ -46,15 +46,15 @@
               <h1 class="profile-name">${userObj.firstname} ${userObj.lastname}</h1>
               <p class="profile-username">@${userObj.username}</p>
             </div>
-<%--            <div class="profile-actions">--%>
-<%--              <a href="<c:url value='/profile/edit'/>" class="btn-edit-profile">--%>
-<%--                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">--%>
-<%--                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>--%>
-<%--                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>--%>
-<%--                </svg>--%>
-<%--                <spring:message code="profile.edit"/>--%>
-<%--              </a>--%>
-<%--            </div>--%>
+              <%--            <div class="profile-actions">--%>
+              <%--              <a href="<c:url value='/profile/edit'/>" class="btn-edit-profile">--%>
+              <%--                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">--%>
+              <%--                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>--%>
+              <%--                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>--%>
+              <%--                </svg>--%>
+              <%--                <spring:message code="profile.edit"/>--%>
+              <%--              </a>--%>
+              <%--            </div>--%>
           </div>
         </div>
       </div>
@@ -214,38 +214,74 @@
             <!-- Created Events -->
             <div class="events-tab-content active" id="created-events">
               <div class="cards-grid">
-                <div class="empty-state">
-                  <div class="empty-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="empty-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
+                <c:if test="${empty userEvents}">
+                  <div class="empty-state">
+                    <div class="empty-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="empty-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <p class="empty-message">
+                      <spring:message code="profile.no.created.events"/>
+                    </p>
+                    <a href="<c:url value='/events/create'/>" class="empty-action-btn">
+                      <spring:message code="event.create.button"/>
+                    </a>
                   </div>
-                  <p class="empty-message">
-                    <spring:message code="profile.no.created.events"/>
-                  </p>
-                  <a href="<c:url value='/events/create'/>" class="empty-action-btn">
-                    <spring:message code="event.create.button"/>
-                  </a>
-                </div>
+                </c:if>
+
+                <c:if test="${not empty userEvents}">
+                  <c:forEach items="${userEvents}" var="event">
+                    <jsp:include page="./events/event-card.jsp">
+                      <jsp:param name="eventId" value="${event.id}" />
+                      <jsp:param name="city" value="${event.eventCity.name}" />
+                      <jsp:param name="date" value="${event.date}" />
+                      <jsp:param name="description" value="${event.description}" />
+                      <jsp:param name="flyerImageId" value="${event.flyerImageId}" />
+                      <jsp:param name="attend" value="false" />
+                      <jsp:param name="firstname" value="${event.user.firstname}" />
+                      <jsp:param name="lastname" value="${event.user.lastname}"/>
+                      <jsp:param name="title" value="${event.title}"/>
+                    </jsp:include>
+                  </c:forEach>
+                </c:if>
               </div>
             </div>
 
             <!-- Attending Events -->
             <div class="events-tab-content" id="attending-events">
               <div class="cards-grid">
-                <div class="empty-state">
-                  <div class="empty-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="empty-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
+                <c:if test="${empty userAttendingEvents}">
+                  <div class="empty-state">
+                    <div class="empty-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="empty-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <p class="empty-message">
+                      <spring:message code="profile.no.attending.events"/>
+                    </p>
+                    <a href="<c:url value='/events'/>" class="empty-action-btn">
+                      <spring:message code="profile.explore.events"/>
+                    </a>
                   </div>
-                  <p class="empty-message">
-                    <spring:message code="profile.no.attending.events"/>
-                  </p>
-                  <a href="<c:url value='/events'/>" class="empty-action-btn">
-                    <spring:message code="profile.explore.events"/>
-                  </a>
-                </div>
+                </c:if>
+
+                <c:if test="${not empty userAttendingEvents}">
+                  <c:forEach items="${userAttendingEvents}" var="event">
+                    <jsp:include page="./events/event-card.jsp">
+                      <jsp:param name="eventId" value="${event.id}" />
+                      <jsp:param name="city" value="${event.eventCity.name}" />
+                      <jsp:param name="date" value="${event.date}" />
+                      <jsp:param name="description" value="${event.description}" />
+                      <jsp:param name="flyerImageId" value="${event.flyerImageId}" />
+                      <jsp:param name="attend" value="true" />
+                      <jsp:param name="firstname" value="${event.user.firstname}" />
+                      <jsp:param name="lastname" value="${event.user.lastname}"/>
+                      <jsp:param name="title" value="${event.title}"/>
+                    </jsp:include>
+                  </c:forEach>
+                </c:if>
               </div>
             </div>
           </div>

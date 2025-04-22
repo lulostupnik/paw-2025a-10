@@ -95,6 +95,11 @@ public class EventServiceImpl implements EventService {
         return eventDao.listAll();
     }
 
+    @Override
+    public List<Event> getAllEvents(String email) {
+        return eventDao.getEvents(email);
+    }
+
     @Transactional
     @Override
     public void attendEvent(long userId, long eventId) {

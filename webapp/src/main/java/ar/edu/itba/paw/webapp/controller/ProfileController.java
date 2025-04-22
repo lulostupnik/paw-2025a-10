@@ -41,31 +41,27 @@ public class ProfileController {
         Optional<User> user = userService.findByEmail(userEmail);
 
         mav.addObject("user", user);
-
-        if (user.isPresent()) {
-            mav.addObject("userJourneys", journeyService.getJourneysByUser(userEmail));
-            // These will be implemented when you add event functionality
-            // mav.addObject("userEvents", eventService.getEventsByUser(userEmail));
-            // mav.addObject("eventsAttending", eventService.getEventsAttendingByUser(userEmail));
-        }
+        mav.addObject("userJourneys", journeyService.getJourneysByUser(userEmail));
+        mav.addObject("userEvents", eventService.getAllEvents(userEmail));
+        mav.addObject("userAttendingEvents", eventService.getUserAttendingEvents(userEmail));
 
         return mav;
     }
-
-    @RequestMapping(value = "/profile/edit", method = RequestMethod.GET)
-    public ModelAndView getEditProfile() {
-        ModelAndView mav = new ModelAndView("profile/edit-profile");
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userEmail = authentication.getName();
-        Optional<User> user = userService.findByEmail(userEmail);
-
-        if (user.isPresent()) {
-            mav.addObject("user", user.get());
-        } else {
-            return new ModelAndView("redirect:/");
-        }
-
-        return mav;
-    }
+//
+//    @RequestMapping(value = "/profile/edit", method = RequestMethod.GET)
+//    public ModelAndView getEditProfile() {
+//        ModelAndView mav = new ModelAndView("profile/edit-profile");
+//
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        String userEmail = authentication.getName();
+//        Optional<User> user = userService.findByEmail(userEmail);
+//
+//        if (user.isPresent()) {
+//            mav.addObject("user", user.get());
+//        } else {
+//            return new ModelAndView("redirect:/");
+//        }
+//
+//        return mav;
+//    }
 }

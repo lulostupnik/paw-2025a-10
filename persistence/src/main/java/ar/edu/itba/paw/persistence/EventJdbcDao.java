@@ -191,6 +191,11 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
+    public List<Event> getEvents(String email) {
+        return jdbcTemplate.query(QUERY + "WHERE us.email = ?", EVENT_ROW_MAPPER, email);
+    }
+
+    @Override
     public List<Event> getRecommendedEvents(String email) {
         LOGGER.debug("Querying DB for recommended events for usermail {}", email);
         return jdbcTemplate.query("""
