@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="<c:url value="/resources/css/main.css"/>" />
   <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
   <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
+    <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
 </head>
 <body>
 
@@ -22,7 +23,7 @@
         <h2 class="page-title">
           <spring:message code="event.list.title"/>
         </h2>
-        <a href="<c:url value="/events/create"/>" class="btn btn-primary">
+        <a href="<c:url value="/events/create"/>" class="btn btn-primary btn-with-icon">
           <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="journey.create.button"/>" class="btn-icon" />
           <spring:message code="event.create.button"/>
         </a>
