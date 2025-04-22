@@ -220,3 +220,12 @@ ALTER TABLE events ADD COLUMN IF NOT EXISTS attendees_count INTEGER NOT NULL DEF
 --     WHERE ea.event_id = e.id
 -- );
 -- COMMIT;
+--
+-- INSERT INTO event_attendance (user_id, event_id)
+-- SELECT e.user_id, e.id
+-- FROM events e
+-- WHERE NOT EXISTS (
+--     SELECT 1
+--     FROM event_attendance ea
+--     WHERE ea.event_id = e.id AND ea.user_id = e.user_id
+-- );
