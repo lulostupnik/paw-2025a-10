@@ -58,7 +58,13 @@ public class EventServiceImpl implements EventService {
         long flyerImageId = imageDao.saveImage(flyer);
 
         LOGGER.info("Event data is valid, commiting new event to persistance");
-        return eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit);
+        Event event = eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit);
+
+        // Automatically add the creator to the attendees list
+        LOGGER.debug("Adding event creator to attendees list");
+        eventAttendanceDao.attend(user.getId(), event.getId());
+
+        return event;
     }
 
     @Transactional
