@@ -104,6 +104,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Transactional
+    @CacheEvict(value = "eventsById", key = "#eventId")
     @Override
     public void attendEvent(long userId, long eventId) {
         if(eventAttendanceDao.isAttending(userId, eventId)){
@@ -131,12 +132,14 @@ public class EventServiceImpl implements EventService {
     }
 
     @Transactional
+    @CacheEvict(value = "eventsById", key = "#eventId")
     @Override
     public void cancelAttendance(long userId, long eventId) {
         eventAttendanceDao.cancel(userId, eventId);
     }
 
     @Transactional
+    @CacheEvict(value = "eventsById", key = "#eventId")
     @Override
     public void cancelAttendance(String email, long eventId) {
         long userId = userService.findByEmail(email).orElseThrow().getId();
