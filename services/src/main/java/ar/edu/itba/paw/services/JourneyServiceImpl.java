@@ -177,6 +177,19 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyResponseDao.listAllFromJourney(journeyId);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Journey> getOthersJourneys(long userId) {
+        return journeyDao.getOthersJourneys(userId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Journey> getOthersJourneys(String email) {
+        long userId = userService.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found")).getId();
+        return getOthersJourneys(userId);
+    }
+
     @Transactional(readOnly = true)
     @Override
     public CursorPage<JourneyResponse, LocalDateTime> listFromJourneyAfter(long journeyId, LocalDateTime cursor, int limit) {

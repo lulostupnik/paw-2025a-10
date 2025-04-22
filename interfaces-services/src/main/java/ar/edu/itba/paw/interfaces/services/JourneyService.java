@@ -30,6 +30,10 @@ public interface JourneyService {
 
     List<JourneyResponse> getJourneyResponses(long journeyId);
 
+    List<Journey> getOthersJourneys(long userId);
+
+    List<Journey> getOthersJourneys(String email);
+
     void updateJourneyDates(long journeyId, LocalDate startDate, LocalDate endDate);
 
     void updateJourneyDescription(long journeyId, String description);
