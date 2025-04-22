@@ -153,13 +153,26 @@
     font-weight: 600;
 }
 
+/* Modify the profile name in navbar to make it smaller */
 .profile-name {
     font-weight: 500;
     color: #1f2937;
-    max-width: 250px;
+    max-width: 120px; /* Reduced from 150px */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 0.8125rem; /* Smaller font size */
+}
+
+/* Add this new style for email truncation in the navbar */
+.profile-email {
+    font-weight: 500;
+    color: #1f2937;
+    max-width: 180px; /* Control the width before truncation */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.8125rem;
 }
 
 .dropdown-arrow {
@@ -377,7 +390,6 @@
     width: 100%;
     text-align: center;
 }
-
 
 .btn-outline {
     display: inline-flex;

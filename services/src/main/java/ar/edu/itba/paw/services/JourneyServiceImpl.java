@@ -163,6 +163,11 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyDao.findByOriginCity(maybeUser.get().getUniversity().getCity().getId());
     }
 
+    @Override
+    public List<Journey> getJourneysByUser(String email) {
+        return journeyDao.getJourneysByUser(email);
+    }
+
     // Yo creería que mejor no cachear, pero no estoy seguro
     @Transactional(readOnly = true)
     @Override
