@@ -64,8 +64,10 @@
                             </c:if>
                         </div>
                         <div class="user-details">
+                            <c:set var="escapedFirstname"><c:out value="${journey.user.firstname}"/></c:set>
+                            <c:set var="escapedLastname"><c:out value="${journey.user.lastname}"/></c:set>
                             <h1 class="journey-title">
-                                <spring:message arguments='${journey.user.firstname},${journey.user.lastname}' code="journey.detail.section.title" />
+                                <spring:message arguments="${escapedFirstname},${escapedLastname}" code="journey.detail.section.title" />
                             </h1>
                             <div class="journey-meta">
                                 <div class="journey-destination">
