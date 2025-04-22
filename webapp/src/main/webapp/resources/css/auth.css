@@ -135,6 +135,11 @@
     background-color: var(--error-light);
 }
 
+.autocomplete-input.error {
+    border-color: var(--error-color);
+    background-color: var(--error-light);
+}
+
 .form-input.success {
     border-color: var(--success-color);
     background-color: var(--success-light);
