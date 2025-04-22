@@ -133,6 +133,7 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyDao.findById(id);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<Journey> getFilteredJourneys(String destination, LocalDate startDate, LocalDate endDate, String interest) {
         return journeyDao.findByFilters(destination, startDate,endDate, interest);
@@ -164,6 +165,7 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Journey> getJourneysByUser(String email) {
         return journeyDao.getJourneysByUser(email);
     }

@@ -96,6 +96,7 @@ public class EventServiceImpl implements EventService {
         return eventDao.listAll();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Event> getAllEvents(String email) {
         return eventDao.getEvents(email);
@@ -179,6 +180,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Transactional(readOnly = true)
+    @Override
     public List<EventResponse> getEventResponses(long eventId){
         return eventResponseDao.listAllFromEvent(eventId);
     }
@@ -249,11 +251,13 @@ public class EventServiceImpl implements EventService {
         return eventAttendanceDao.getAttendeesCount(eventId) >= eventDao.getEventAttendanceLimit(eventId);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Event> getFullEvents() {
         return eventDao.getFullEvents();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<EventCreatorDTO> getEventsWithAttendanceStatus(long userId) {
 
@@ -265,7 +269,8 @@ public class EventServiceImpl implements EventService {
                 ))
                 .toList();
     }
-    
+
+    @Transactional(readOnly = true)
     @Override
     public List<EventCreatorDTO> getEventsWithAttendanceStatus(String email) {
         long userId = userService.findByEmail(email).orElseThrow().getId();
