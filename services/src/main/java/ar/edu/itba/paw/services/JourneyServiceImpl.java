@@ -139,6 +139,19 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyDao.findByFilters(destination, startDate,endDate, interest);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Journey> getFilteredJourneys(String email, String destination, LocalDate startDate, LocalDate endDate, String interest) {
+        LOGGER.debug("Getting filtered journeys excluding user {}", email);
+
+        User user = userService.findByEmail(email).orElseThrow(() -> {
+            LOGGER.warn("User not found with email: {}", email);
+            return new RuntimeException("User not found");
+        });
+
+        return journeyDao.findByFilters(user.getId(), destination, startDate, endDate, interest);
+    }
+
     @Transactional(readOnly = true)
     @Override
     public Boolean userHasJourney(String email) {

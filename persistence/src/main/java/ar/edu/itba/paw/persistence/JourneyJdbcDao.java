@@ -240,6 +240,54 @@ public class JourneyJdbcDao implements JourneyDao {
         return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
     }
 
+    @Override
+    public List<Journey> findByFilters(long userId, String destination, LocalDate startDate, LocalDate endDate, String interest) {
+        LOGGER.debug("Querying DB for journeys with filters excluding user {}", userId);
+
+        String query;
+
+        if (interest != null && !interest.isEmpty()) {
+            LOGGER.debug("Interest present, using interest query");
+            query = QUERY_INTEREST;
+        } else {
+            LOGGER.debug("Interest not present, using regular query");
+            query = QUERY;
+        }
+
+        List<String> filters = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+
+        // Add filter to exclude user's journeys
+        filters.add("us.id != ?");
+        params.add(userId);
+
+        if (destination != null && !destination.isEmpty()) {
+            LOGGER.debug("Filter added: destination {}", destination);
+            filters.add("ci2.id = ?");
+            params.add(Integer.parseInt(destination));
+        }
+        if (startDate != null) {
+            LOGGER.debug("Filter added: start date {}", startDate);
+            filters.add("j.start_date <= ?");
+            params.add(endDate);
+        }
+        if (endDate != null) {
+            LOGGER.debug("Filter added: end date {}", endDate);
+            filters.add("j.end_date >= ?");
+            params.add(startDate);
+        }
+        if (interest != null && !interest.isEmpty()) {
+            LOGGER.debug("Filter added: interest {}", interest);
+            filters.add("c.id = ?");
+            params.add(Integer.parseInt(interest));
+        }
+
+        // Add WHERE clause with all filters
+        query += " WHERE " + String.join(" AND ", filters);
+
+        return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
+    }
+
 
     @Override
     public CursorPage<Journey, Long> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest, Long cursor, int size) {
