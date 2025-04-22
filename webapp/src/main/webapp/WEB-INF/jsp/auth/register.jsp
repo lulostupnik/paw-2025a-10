@@ -62,7 +62,7 @@
                         <form:label path="email" cssClass="form-label required-field">
                             <spring:message code="createJourney.userEmail"/>
                         </form:label>
-                        <form:input path="email" id="register-email" cssClass="form-input ${not empty errors.getFieldError('email') ? 'error' : ''}"
+                        <form:input path="email" id="register-email" cssClass="required form-input ${not empty errors.getFieldError('email') ? 'error' : ''}"
                                     placeholder="example@email.com"  />
                         <form:errors path="email" cssClass="error-message" />
                     </div>
@@ -74,7 +74,7 @@
                         </form:label>
                         <div class="password-field-container">
                             <form:password path="password" id="password"
-                                           cssClass="form-input ${not empty errors.getFieldError('password') ? 'error' : ''}"
+                                           cssClass="form-input required ${not empty errors.getFieldError('password') ? 'error' : ''}"
                                            placeholder="••••••••" />
                             <button type="button" id="togglePassword" class="password-toggle-button" aria-label="Show password">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" id="eyeIcon">
@@ -145,7 +145,7 @@
                         </label>
                         <div class="password-field-container">
                             <input type="password" id="confirmPassword" name="confirmPassword"
-                                   class="form-input" placeholder="••••••••"  />
+                                   class="form-input required" placeholder="••••••••"/>
                             <button type="button" id="toggleConfirmPassword" class="password-toggle-button" aria-label="Show password">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" id="confirmEyeIcon">
                                     <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
@@ -166,8 +166,8 @@
                             <spring:message code="createJourney.firstName"/>
                         </form:label>
                         <c:set var="john"><spring:message code="john"/></c:set>
-                        <form:input path="firstName" cssClass="form-input ${not empty errors.getFieldError('firstName') ? 'error' : ''}"
-                                    placeholder="${john}" />
+                        <form:input path="firstName" cssClass="form-input required ${not empty errors.getFieldError('firstName') ? 'error' : ''}"
+                                    placeholder="${john}"/>
                         <form:errors path="firstName" cssClass="error-message" />
                     </div>
 
@@ -176,8 +176,8 @@
                             <spring:message code="createJourney.lastName"/>
                         </form:label>
                         <c:set var="doe"><spring:message code="doe"/></c:set>
-                        <form:input path="lastName" cssClass="form-input ${not empty errors.getFieldError('lastName') ? 'error' : ''}"
-                                    placeholder="${doe}" />
+                        <form:input path="lastName" cssClass="form-input required ${not empty errors.getFieldError('lastName') ? 'error' : ''}"
+                                    placeholder="${doe}"/>
                         <form:errors path="lastName" cssClass="error-message" />
                     </div>
                 </div>
@@ -188,7 +188,7 @@
                             <spring:message code="createJourney.username"/>
                         </form:label>
                         <c:set var="johnUsername"><spring:message code="john.username"/></c:set>
-                        <form:input path="username" cssClass="form-input ${not empty errors.getFieldError('username') ? 'error' : ''}"
+                        <form:input path="username" cssClass="form-input required ${not empty errors.getFieldError('username') ? 'error' : ''}"
                                     placeholder="${johnUsername}" />
                         <form:errors path="username" cssClass="error-message" />
                     </div>
@@ -205,7 +205,7 @@
                                     <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
                                 </c:forEach>
                             </form:select>
-                            <input type="text" id="careerSearch" class="autocomplete-input" placeholder="<spring:message code="event.career.search" text="Type to search..."/>" />
+                            <input type="text" id="careerSearch" class="autocomplete-input ${not empty errors.getFieldError('career') ? 'error' : ''}" placeholder="<spring:message code="event.career.search" text="Type to search..."/>" />
                             <div id="careerDropdown" class="autocomplete-dropdown" style="display: none;">
                                 <c:forEach var="item" items="${careers}">
                                     <div class="autocomplete-item" data-value="${item.name}">
@@ -214,7 +214,7 @@
                                 </c:forEach>
                             </div>
                             <!-- Container for selected career tag -->
-                            <div id="selectedCareer" class="selected-tags"></div>
+                            <div id="selectedCareer" class="selected-tags required-selected-tags"></div>
                         </div>
                         <form:errors path="career" cssClass="error-message" />
                     </div>
@@ -231,7 +231,7 @@
                                     <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
                                 </c:forEach>
                             </form:select>
-                            <input type="text" id="universitySearch" class="autocomplete-input" placeholder="<spring:message code="createJourney.originUniversity.search" text="Type to search..."/>" />
+                            <input type="text" id="universitySearch" class="autocomplete-input ${not empty errors.getFieldError('originUniversity') ? 'error' : ''}" placeholder="<spring:message code="createJourney.originUniversity.search" text="Type to search..."/>" />
                             <div id="universityDropdown" class="autocomplete-dropdown" style="display: none;">
                                 <c:forEach var="item" items="${universities}">
                                     <div class="autocomplete-item" data-value="${item.name}">
@@ -240,7 +240,7 @@
                                 </c:forEach>
                             </div>
                             <!-- Container for selected university tag -->
-                            <div id="selectedUniversity" class="selected-tags"></div>
+                            <div id="selectedUniversity" class="selected-tags required-selected-tags"></div>
                         </div>
                         <form:errors path="originUniversity" cssClass="error-message" />
                     </div>
@@ -260,7 +260,7 @@
 
                         <!-- Custom UI for interests selection -->
                         <div class="autocomplete-wrapper">
-                            <input type="text" id="interestSearch" class="autocomplete-input"
+                            <input type="text" id="interestSearch" class="autocomplete-input ${not empty errors.getFieldError('interests') ? 'error' : ''}"
                                    placeholder="<spring:message code="event.interest.search" text="Search interests..."/>" />
 
                             <div id="interestDropdown" class="autocomplete-dropdown" style="display: none;">
@@ -270,12 +270,11 @@
                                     </div>
                                 </c:forEach>
                             </div>
+                            <!-- Selected interests will appear here as tags -->
+                            <div id="selectedInterests" class="selected-tags required-selected-tags"></div>
+
+                            <form:errors path="interests" cssClass="error-message" />
                         </div>
-
-                        <!-- Selected interests will appear here as tags -->
-                        <div id="selectedInterests" class="selected-tags"></div>
-
-                        <form:errors path="interests" cssClass="error-message" />
                     </div>
 
                     <!-- Enhanced file upload area -->

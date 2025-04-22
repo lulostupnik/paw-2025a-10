@@ -113,11 +113,12 @@ document.addEventListener("DOMContentLoaded", () => {
             let isValid = true
 
             // Validate required fields
-            const requiredFields = form.querySelectorAll("[required]")
+            const requiredFields = form.querySelectorAll("input.required")
+            console.log(requiredFields);
             requiredFields.forEach((field) => {
                 if (!field.value.trim()) {
                     isValid = false
-                    field.classList.add("error")
+                    //field.classList.add("error")
 
                     // Create error message if it doesn't exist
                     let errorMsg = field.parentNode.querySelector(".error-message")
@@ -131,7 +132,34 @@ document.addEventListener("DOMContentLoaded", () => {
                         : "This field is required"
                     // errorMsg.textContent = "This field is required"
                 } else {
-                    field.classList.remove("error")
+                    //field.classList.remove("error")
+                    const errorMsg = field.parentNode.querySelector(".error-message")
+                    if (errorMsg) {
+                        errorMsg.remove()
+                    }
+                }
+            })
+
+            // Validate required tag fields
+            const requiredTagFields = form.querySelectorAll(".required-selected-tags")
+            console.log(requiredTagFields);
+            requiredTagFields.forEach((field) => {
+                if (field.querySelectorAll("div.selected-tag").length == 0) {
+                    isValid = false
+                    //field.parentNode.querySelectorAll("input").item(0).classList.add("error")
+
+                    // Create error message if it doesn't exist
+                    let errorMsg = field.parentNode.querySelector(".error-message")
+                    if (!errorMsg) {
+                        errorMsg = document.createElement("div")
+                        errorMsg.className = "error-message"
+                        field.parentNode.appendChild(errorMsg)
+                    }
+                    errorMsg.textContent = document.getElementById("i18n-required-field")
+                        ? document.getElementById("i18n-required-field").value
+                        : "This field is required"
+                } else {
+                    //field.parentNode.querySelectorAll("input").item(0).classList.remove("error")
                     const errorMsg = field.parentNode.querySelector(".error-message")
                     if (errorMsg) {
                         errorMsg.remove()
@@ -141,11 +169,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Validate email format
             const emailField = form.querySelector('input[id="register-email"]')
+
             if (emailField && emailField.value.trim()) {
                 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
                 if (!emailPattern.test(emailField.value)) {
                     isValid = false
-                    emailField.classList.add("error")
+                    //emailField.classList.add("error")
 
                     // Create error message if it doesn't exist
                     let errorMsg = emailField.parentNode.querySelector(".error-message")
@@ -159,6 +188,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         : "Please enter a valid email"
                 }
             }
+
+            //validate password 
+            isValid = isValid && window.PasswordStrength.isValid();
 
             if (!isValid) {
                 e.preventDefault()

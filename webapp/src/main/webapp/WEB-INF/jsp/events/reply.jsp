@@ -30,7 +30,8 @@
         <spring:message code="replyEvent.title" />
       </h2>
       <p class="event-subtitle">
-        <spring:message code="replyEvent.subtitle" arguments="${event.eventCity.name},${event.date}" />
+        <c:set var="eventDate"><c:out value="${event.date}"/></c:set>
+        <spring:message code="replyEvent.subtitle" arguments="<${event.eventCity.name},${eventDate}" />
       </p>
     </div>
 

@@ -287,3 +287,83 @@
         height: 32px;
     }
 }
+
+/* Event Full Status Styles - MINIMIZED VERSION */
+.event-full-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background-color: #fee2e2;
+    color: #b91c1c;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #fecaca;
+}
+
+.event-full-status img,
+.event-full-status svg {
+    width: 12px !important;
+    height: 12px !important;
+}
+
+.event-full-message {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-left: 0.5rem;
+}
+
+/* Subtle full indicator for event header */
+.event-detail-header.is-full {
+    position: relative;
+}
+
+.event-detail-header.is-full::after {
+    content: "FULL";
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #ef4444;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.15rem 0.35rem;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+}
+
+/* Attendance control with full status */
+.attendance-control {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* Inline capacity indicator */
+.capacity-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.capacity-text {
+    white-space: nowrap;
+}
+
+/* Full event tag - extremely minimal */
+.event-full-tag {
+    display: inline-flex;
+    align-items: center;
+    background-color: #fee2e2;
+    color: #b91c1c;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.15rem 0.35rem;
+    border-radius: 3px;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+}
