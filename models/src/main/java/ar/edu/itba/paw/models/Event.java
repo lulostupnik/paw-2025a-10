@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Optional;
 
 @Getter
 @RequiredArgsConstructor
@@ -16,9 +17,9 @@ public class Event {
     private final long flyerImageId;
     private final City eventCity;
     private final String title;
-    private final LocalTime time;
+    private final Optional<LocalTime> time;
     private final String address;
-    private final int attendeesLimit;
+    private final Optional<Integer> attendeesLimit;
     private final int attendeesCount;
 
     @Override

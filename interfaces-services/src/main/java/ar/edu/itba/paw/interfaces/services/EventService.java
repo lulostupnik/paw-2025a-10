@@ -5,12 +5,11 @@ import ar.edu.itba.paw.models.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 public interface EventService {
-    Event createEvent(String email, String cityName, LocalDate date, byte[] flyer, String description, String title, LocalTime time, String address, int attendeesLimit);
+    Event createEvent(String email, String cityName, LocalDate date, byte[] flyer, String description, String title, LocalTime time, String address, Integer attendeesLimit);
     void replyToEvent(String email,long eventId, String message);
     Optional<Event> getEventById(long id);
     List<Event> getAllEvents();

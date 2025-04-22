@@ -23,7 +23,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -110,9 +109,9 @@ public class EventController {
             flyerBytes, 
             eventForm.getDescription(), 
             eventForm.getTitle(), 
-            eventForm.getAllDayEvent() ? null : eventForm.getTime(), 
+            eventForm.getTime(), 
             eventForm.getAddress(), 
-            eventForm.getNoAttendeesLimit() ? 0 : eventForm.getAttendeesLimit()
+            eventForm.getAttendeesLimit()
         );
         LOGGER.info("Successfully created event {}", event);
         return new ModelAndView("redirect:/events/{id}", "id", event.getId());
@@ -135,7 +134,6 @@ public class EventController {
 
         List<User> attendees = eventService.getEventAttendees(id);
         LOGGER.debug("Got event attendees {}", attendees);
-
 
         Boolean isFull = eventService.isEventFull(id);
         boolean isAttending = false;

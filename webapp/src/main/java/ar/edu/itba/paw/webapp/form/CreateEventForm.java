@@ -2,13 +2,14 @@ package ar.edu.itba.paw.webapp.form;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Date;
+import java.util.Optional;
 
 import javax.validation.constraints.*;
 //import javax.validation.constraints.Pattern;
 
 import ar.edu.itba.paw.webapp.validation.FutureDate;
 import ar.edu.itba.paw.webapp.validation.ImageSize;
+import ar.edu.itba.paw.webapp.validation.ValidAttendeesLimit;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,12 +42,8 @@ public class CreateEventForm {
     @Size(max=255)
     private String address;
 
-    @Min(0)
-    @Max(1000000)
-    private int attendeesLimit;
-
-    private boolean noAttendeesLimit;
-    private boolean allDayEvent;
+    @ValidAttendeesLimit
+    private Integer attendeesLimit;
 
     public String getCity() {
         return city;
@@ -102,19 +99,7 @@ public class CreateEventForm {
     }
     public void setAttendeesLimit(Integer attendeesLimit) {
         this.attendeesLimit = attendeesLimit;
-    }
-    public boolean getNoAttendeesLimit(){
-        return noAttendeesLimit;
-    }    
-    public void setNoAttendeesLimit(boolean noAttendeesLimit){
-        this.noAttendeesLimit = noAttendeesLimit;
-    }
-    public boolean getAllDayEvent(){
-        return allDayEvent;
-    }    
-    public void setAllDayEvent(boolean allDayEvent){
-        this.allDayEvent = allDayEvent;
-    }    
+    }  
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
@@ -123,7 +108,7 @@ public class CreateEventForm {
         sb.append("\", date: \"");
         sb.append(date);
         sb.append("\", time: \"");
-        sb.append(allDayEvent ? "All-day" : time);
+        sb.append(time == null ? "All-day" : time);
         sb.append("\", description: \"");
         sb.append(description);
         sb.append("\", profilePictureSize: ");
@@ -133,7 +118,7 @@ public class CreateEventForm {
         sb.append("\", address: \"");
         sb.append(address);
         sb.append("\", attendeesLimit: ");
-        sb.append(noAttendeesLimit ? "\"No limit\"" : attendeesLimit);
+        sb.append(attendeesLimit != null ? attendeesLimit : "\"No limit\"");
         sb.append("}");
         return sb.toString();
     }

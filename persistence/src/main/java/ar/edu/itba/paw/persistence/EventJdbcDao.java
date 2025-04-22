@@ -61,9 +61,9 @@ public class EventJdbcDao implements EventDao {
                     rs.getString("country_name"),
                     rs.getLong("city_id")),
             rs.getString("event_title"),
-            rs.getTime("event_time") != null ? rs.getTime("event_time").toLocalTime() : null,
+            Optional.ofNullable(rs.getTime("event_time") != null ? rs.getTime("event_time").toLocalTime() : null),
             rs.getString("event_address"),
-            rs.getInt("event_attendees_limit"),
+            Optional.ofNullable(rs.getInt("event_attendees_limit") == 0 ? null : rs.getInt("event_attendees_limit")),
             rs.getInt("event_attendees_count")
             
     );
@@ -129,7 +129,7 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public Event create(User user, City city, LocalDate date, String description, long flyerImageId, String title, LocalTime time, String address, int attendeesLimit) {
+    public Event create(User user, City city, LocalDate date, String description, long flyerImageId, String title, LocalTime time, String address, Integer attendeesLimit) {
         LOGGER.debug("Registering new event for user {} in {} (addr {}) on {} {} ( {} ) with image {}, title {}, limit {}", user, city, address, date, time, description, flyerImageId, title, attendeesLimit);
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("user_id", user.getId());
@@ -143,12 +143,12 @@ public class EventJdbcDao implements EventDao {
         if (time != null) {
             parameters.put("event_time", Time.valueOf(time));
         }
-        if (attendeesLimit != 0) {
+        if (attendeesLimit != null) {
             parameters.put("attendees_limit", attendeesLimit);
         }
         final Number keys = jdbcInsert.executeAndReturnKey(parameters);
         LOGGER.debug("Successfully registered event {}", keys.longValue());
-        return new Event(keys.longValue(), user, date, description, flyerImageId, city, title, time, address, attendeesLimit, 0);
+        return new Event(keys.longValue(), user, date, description, flyerImageId, city, title, Optional.ofNullable(time), address, Optional.ofNullable(attendeesLimit), 0);
     }
 
     // FIXME
@@ -360,13 +360,13 @@ public class EventJdbcDao implements EventDao {
         return new CursorPage<>(eventList, nextCursor, hasNext);
     }
 
-    public int getEventAttendanceLimit(long eventId) {
+    public Optional<Integer> getEventAttendanceLimit(long eventId) {
         LOGGER.debug("Querying DB for attendance limit of event {}", eventId);
         Optional<Event> event = findById(eventId);
         if (event.isPresent()){
             return event.get().getAttendeesLimit();
         }
-        return 0;
+        return Optional.of(null);
     }
 
     @Override

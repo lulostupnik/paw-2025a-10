@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.sql.DataSource;
 
@@ -95,9 +96,9 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                     rs.getLong("city_id")
             ),
             rs.getString("event_title"), // Assuming you have a title field in the events table
-            rs.getTime("event_time") != null ? rs.getTime("event_time").toLocalTime() : null,
+            Optional.ofNullable(rs.getTime("event_time") != null ? rs.getTime("event_time").toLocalTime() : null),
             rs.getString("event_address"),
-            rs.getInt("event_attendees_limit"),
+            Optional.ofNullable(rs.getInt("event_attendees_limit") == 0 ? null : rs.getInt("event_attendees_limit")),
             rs.getInt("event_attendees_count")
     );
 
