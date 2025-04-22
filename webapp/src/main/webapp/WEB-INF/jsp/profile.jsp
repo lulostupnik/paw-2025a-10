@@ -242,6 +242,7 @@
                       <jsp:param name="firstname" value="${event.user.firstname}" />
                       <jsp:param name="lastname" value="${event.user.lastname}"/>
                       <jsp:param name="title" value="${event.title}"/>
+                      <jsp:param name="isOwner" value="true" />
                     </jsp:include>
                   </c:forEach>
                 </c:if>
@@ -279,6 +280,7 @@
                       <jsp:param name="firstname" value="${event.user.firstname}" />
                       <jsp:param name="lastname" value="${event.user.lastname}"/>
                       <jsp:param name="title" value="${event.title}"/>
+                      <jsp:param name="isOwner" value="true" />
                     </jsp:include>
                   </c:forEach>
                 </c:if>

@@ -4,6 +4,8 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
+
+<c:set var="isOwner" value="${param.isOwner == 'true'}"/>
 <div class="event-card-wrapper">
     <a href="<c:url value="/events/${param.eventId}"/>" class="event-card-link">
         <div class="featured-event-card">
@@ -22,7 +24,7 @@
                 </c:if>
 
                 <!-- Attend Button -->
-                <c:if test="${not empty username}">
+                <c:if test="${not empty username && isOwner == false}">
                     <div class="attend-button-container">
                         <button type="button"
                                 class="attend-button ${param.attend ? 'attended' : ''}"
@@ -67,32 +69,34 @@
 </div>
 
 <!-- Attendance Modal -->
-<div id="attendanceModal" class="attendance-modal">
-    <div class="attendance-modal-content">
-        <div class="attendance-modal-header">
-            <h3 id="attendanceModalTitle" class="attendance-modal-title"></h3>
-            <button type="button" class="attendance-modal-close" onclick="closeAttendanceModal()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="modal-close-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-        <div class="attendance-modal-body">
-            <p id="attendanceModalMessage"></p>
-        </div>
-        <div class="attendance-modal-footer">
-            <button type="button" class="btn-secondary" onclick="closeAttendanceModal()">
-                <spring:message code="event.cancel" />
-            </button>
-            <form id="attendanceForm" method="post" action="">
-                <input type="hidden" name="eventId" id="eventIdInput" value="" />
-                <button type="submit" id="confirmAttendanceBtn" class="btn-primary">
-                    <spring:message code="event.confirm" />
+<c:if test="${isOwner == false}">
+    <div id="attendanceModal" class="attendance-modal">
+        <div class="attendance-modal-content">
+            <div class="attendance-modal-header">
+                <h3 id="attendanceModalTitle" class="attendance-modal-title"></h3>
+                <button type="button" class="attendance-modal-close" onclick="closeAttendanceModal()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="modal-close-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                 </button>
-            </form>
+            </div>
+            <div class="attendance-modal-body">
+                <p id="attendanceModalMessage"></p>
+            </div>
+            <div class="attendance-modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeAttendanceModal()">
+                    <spring:message code="event.cancel" />
+                </button>
+                <form id="attendanceForm" method="post" action="">
+                    <input type="hidden" name="eventId" id="eventIdInput" value="" />
+                    <button type="submit" id="confirmAttendanceBtn" class="btn-primary">
+                        <spring:message code="event.confirm" />
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
-</div>
+</c:if>
 
 <script>
     // Prevent the event card link from triggering when clicking the attend button
