@@ -26,6 +26,8 @@ public interface JourneyService {
 
     List<Journey> getRecommendedJourneys(String email);
 
+    List<Journey> getJourneysByUser(String email);
+
     List<JourneyResponse> getJourneyResponses(long journeyId);
 
     void updateJourneyDates(long journeyId, LocalDate startDate, LocalDate endDate);

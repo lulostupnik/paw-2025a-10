@@ -420,7 +420,14 @@ public class JourneyJdbcDao implements JourneyDao {
                    (university_match_score + city_match_score + interest_match_score + timing_match_score) DESC
             """;
         return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, email);
-    };
+    }
+
+    @Override
+    public List<Journey> getJourneysByUser(String email) {
+        return jdbcTemplate.query(QUERY + " WHERE us.email = ?", JOURNEY_ROW_MAPPER, email);
+    }
+
+    ;
 
     @Override
     public void updateDates(long journeyId, LocalDate startDate, LocalDate endDate) {
