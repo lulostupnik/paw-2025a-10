@@ -43,4 +43,5 @@ public interface EventService {
     CursorPage<Event, Long> listByCity(City city, Long cursor, int limit);
 
     List<EventCreatorDTO> getEventsWithAttendanceStatus(long userId);
+    List<EventCreatorDTO> getEventsWithAttendanceStatus(String email);
 }

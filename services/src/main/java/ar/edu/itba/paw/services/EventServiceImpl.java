@@ -265,4 +265,10 @@ public class EventServiceImpl implements EventService {
                 ))
                 .toList();
     }
+    
+    @Override
+    public List<EventCreatorDTO> getEventsWithAttendanceStatus(String email) {
+        long userId = userService.findByEmail(email).orElseThrow().getId();
+        return getEventsWithAttendanceStatus(userId);
+    }
 }
