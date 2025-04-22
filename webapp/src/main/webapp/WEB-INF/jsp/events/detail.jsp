@@ -77,9 +77,9 @@
                             <h1 class="event-title">
                                 <c:out value="${event.title}" />
 
-<%--                                <c:if test="${isFull}">--%>
-<%--                                    <span class="event-full-tag">FULL</span>--%>
-<%--                                </c:if>--%>
+                                <%--                                <c:if test="${isFull}">--%>
+                                <%--                                    <span class="event-full-tag">FULL</span>--%>
+                                <%--                                </c:if>--%>
                             </h1>
                             <div class="event-meta">
                                 <div class="event-location">
@@ -99,7 +99,7 @@
                                     <img src="<c:url value='/resources/icons/time.svg'/>" alt="Time clock" class="icon" />
                                     <span class="date-text">
                                         <c:if test="${event.time.isPresent()}">
-                                            <c:out value="${event.time.get()}"/>
+                                            <c:out value="${event.time.get()}" />
                                         </c:if>
                                         <c:if test="${event.time.isEmpty()}">
                                             <span><spring:message code="event.allDayEvent"/></span>
@@ -193,11 +193,11 @@
                             <img src="<c:url value='/resources/icons/users.svg'/>" alt="Attendees" class="icon" />
                             <spring:message code="event.attendees" />
                             <c:if test="${event.attendeesLimit.isPresent()}">
-<%--                                @TODO change to more efficient--%>
-                                <span class="attendees-count">(<c:out value="${event.attendeesCount}"/> / <c:out value="${event.attendeesLimit.get()}"/>)</span>
+                                <%--                                @TODO change to more efficient--%>
+                                <span class="attendees-count">(<c:out value="${event.attendeesCount}" /> / <c:out value="${event.attendeesLimit.get()}" />)</span>
                             </c:if>
                             <c:if test="${event.attendeesLimit.isEmpty()}">
-                                <span class="attendees-count">(<c:out value="${event.attendeesCount}"/> / <spring:message code="event.noAttendeesLimit"/>)</span>
+                                <span class="attendees-count">(<c:out value="${event.attendeesCount}" /> / <spring:message code="event.noAttendeesLimit"/>)</span>
                             </c:if>
                         </h2>
                         <c:if test="${isEventOwner}">

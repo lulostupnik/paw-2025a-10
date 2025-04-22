@@ -65,13 +65,13 @@
                         </div>
                         <div class="user-details">
                             <h1 class="journey-title">
-                                <spring:message arguments="${journey.user.firstname},${journey.user.lastname}" code="journey.detail.section.title" />
+                                <spring:message arguments='${journey.user.firstname},${journey.user.lastname}' code="journey.detail.section.title" />
                             </h1>
                             <div class="journey-meta">
                                 <div class="journey-destination">
                                     <img src="<c:url value='/resources/icons/location.svg'/>" alt="Location" class="icon" />
                                     <span class="destination-text">
-                                        <c:out value="${journey.destinationUniversity.city.name}" /> -
+                                        <c:out value="${journey.destinationUniversity.city}" /> -
                                         <c:out value="${journey.destinationUniversity.name}" />
                                     </span>
                                 </div>
