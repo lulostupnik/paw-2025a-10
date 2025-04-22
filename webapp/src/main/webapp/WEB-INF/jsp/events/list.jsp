@@ -54,7 +54,6 @@
           </c:if>
           <c:if test="${not empty eventsWithAttendance and empty events}">
             <c:forEach items="${eventsWithAttendance}" var="eventAttendance">
-              <c:if test="${not eventAttendance.creator}">
               <jsp:include page="event-card.jsp">
                 <jsp:param name="eventId" value="${eventAttendance.event.id}" />
                 <jsp:param name="city" value="${eventAttendance.event.eventCity.name}" />
@@ -67,7 +66,6 @@
                 <jsp:param name="title" value="${eventAttendance.event.title}"/>
                 <jsp:param name="isFull" value="${eventAttendance.event.attendeesLimit!=0 && eventAttendance.event.attendeesLimit <= eventAttendance.event.attendeesCount}"/>
               </jsp:include>
-              </c:if>
             </c:forEach>
           </c:if>
         </div>
