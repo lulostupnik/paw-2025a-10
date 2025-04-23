@@ -310,7 +310,7 @@
 .empty-icon {
     display: flex;
     justify-content: center;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem; /* Increased from 1rem to create more space */
 }
 
 .empty-svg {
@@ -322,7 +322,7 @@
 .empty-message {
     font-size: 1rem;
     color: #6b7280;
-    margin: 0 0 1.5rem;
+    margin: 0 0 2rem; /* Increased from 1.5rem to create more space before the button */
 }
 
 .empty-action-btn {
@@ -347,6 +347,10 @@
 /* Quick Actions Section */
 .quick-actions-section {
     margin-bottom: 3rem;
+}
+
+.quick-actions-section .section-title {
+    margin-bottom: 1.5rem; /* Added margin-bottom to create space between title and grid */
 }
 
 .quick-actions-grid {
