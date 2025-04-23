@@ -117,7 +117,6 @@
                                     </div>
                                 </div>
                             </c:if>
-                        </div>
 
                         <!-- Attend Button Section -->
                         <div class="attendance-control">
@@ -153,8 +152,7 @@
                                 </c:when>
                             </c:choose>
                         </div>
-
-
+                        </div>
                     </div>
                 </div>
                 <div class="event-flyer-container">
