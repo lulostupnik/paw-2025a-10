@@ -209,10 +209,9 @@ ALTER TABLE events ADD COLUMN IF NOT EXISTS attendees_limit INT;
 ALTER TABLE events ADD COLUMN IF NOT EXISTS address VARCHAR(255);
 COMMIT;
 
--- Add attendees_count column to events table with a default value of 0
--- BEGIN;
-ALTER TABLE events ADD COLUMN IF NOT EXISTS attendees_count INTEGER NOT NULL DEFAULT 0;
 
+-- BEGIN;
+-- ALTER TABLE events ADD COLUMN IF NOT EXISTS attendees_count INTEGER NOT NULL DEFAULT 0;
 --
 -- UPDATE events e SET attendees_count = (
 --     SELECT COUNT(*)
@@ -220,7 +219,8 @@ ALTER TABLE events ADD COLUMN IF NOT EXISTS attendees_count INTEGER NOT NULL DEF
 --     WHERE ea.event_id = e.id
 -- );
 -- COMMIT;
---
+
+
 -- INSERT INTO event_attendance (user_id, event_id)
 -- SELECT e.user_id, e.id
 -- FROM events e

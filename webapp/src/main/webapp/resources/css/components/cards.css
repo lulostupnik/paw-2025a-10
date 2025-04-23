@@ -1068,3 +1068,49 @@
     display: flex;
     gap: 1rem;
 }
+
+/* Modificaciones para el contenedor de imágenes */
+.event-image-container {
+    position: relative;
+    width: 100%;
+    padding-top: 100%; /* Cambiado de 56.25% (16:9) a 100% (1:1) para fotos de perfil */
+    overflow: hidden;
+    border-radius: 8px; /* Bordes redondeados para contenedor de imagen */
+}
+
+/* Ajuste para imagen de perfil */
+.profile-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Mantiene la relación de aspecto */
+    object-position: center top; /* Prioriza mostrar la parte superior (cara) */
+}
+
+/* Modificaciones para la tarjeta para compensar la imagen más grande */
+.event-card-content {
+    padding: 1rem; /* Reducido de 1.5rem */
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Ajustes para el texto para compensar espacio reducido */
+.event-card-description {
+    font-size: 0.85rem; /* Ligeramente más pequeño */
+    line-height: 1.4;
+    max-height: 3.5em; /* Reducido un poco */
+}
+
+/* Ajustar el tamaño del contenido para mantener el balance */
+.event-card-header {
+    margin-bottom: 0.75rem; /* Reducido de 1rem */
+}
+
+/* Ajustar espacio en footer */
+.card-dates {
+    margin-top: 0.5rem;
+}
