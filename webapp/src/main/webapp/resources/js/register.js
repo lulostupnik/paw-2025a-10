@@ -24,7 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Initialize career autocomplete with API endpoint using ListAutocomplete in single-select mode
     try {
-
         const emptyMessage = document.getElementById("i18n-career-none")
             ? document.getElementById("i18n-career-none").value
             : "No career selected"
@@ -34,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
             searchId: "careerSearch",
             dropdownId: "careerDropdown",
             selectedContainerId: "selectedCareer",
+            apiEndpoint: "/api/careers/search",
             minChars: 2,
             debounceTime: 300,
             emptyMessage: emptyMessage,
@@ -57,6 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
             searchId: "universitySearch",
             dropdownId: "universityDropdown",
             selectedContainerId: "selectedUniversity",
+            apiEndpoint: "/api/universities/search",
             minChars: 2,
             debounceTime: 300,
             emptyMessage: emptyMessage,
@@ -80,6 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
             searchId: "interestSearch",
             dropdownId: "interestDropdown",
             selectedContainerId: "selectedInterests",
+            apiEndpoint: "/api/interests/search",
             minChars: 2,
             debounceTime: 300,
             emptyMessage: emptyMessage,
@@ -108,14 +110,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (form) {
         form.addEventListener("submit", (e) => {
             let isValid = true
+            let firstErrorField = null
 
             // Validate required fields
             const requiredFields = form.querySelectorAll("input.required")
-            console.log(requiredFields);
+            console.log(requiredFields)
             requiredFields.forEach((field) => {
                 if (!field.value.trim()) {
                     isValid = false
                     //field.classList.add("error")
+
+                    // Store the first error field for focusing later
+                    if (!firstErrorField) {
+                        firstErrorField = field
+                    }
 
                     // Create error message if it doesn't exist
                     let errorMsg = field.parentNode.querySelector(".error-message")
@@ -139,10 +147,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Validate required tag fields
             const requiredTagFields = form.querySelectorAll(".required-selected-tags")
-            console.log(requiredTagFields);
+            console.log(requiredTagFields)
             requiredTagFields.forEach((field) => {
                 if (field.querySelectorAll("div.selected-tag").length == 0) {
                     isValid = false
+                    const inputField = field.parentNode.querySelector("input")
+
+                    // Store the first error field for focusing later
+                    if (!firstErrorField && inputField) {
+                        firstErrorField = inputField
+                    }
+
                     // field.parentNode.querySelectorAll("input").item(0).classList.add("error")
 
                     // Create error message if it doesn't exist
@@ -171,6 +186,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
                 if (!emailPattern.test(emailField.value)) {
                     isValid = false
+
+                    // Store the first error field for focusing later
+                    if (!firstErrorField) {
+                        firstErrorField = emailField
+                    }
+
                     //emailField.classList.add("error")
 
                     // Create error message if it doesn't exist
@@ -186,16 +207,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
-            //validate password 
-            isValid = isValid && window.PasswordStrength.isValid();
+            // Validate password
+            const passwordValid = window.PasswordStrength.isValid()
+            isValid = isValid && passwordValid
+
+            // If password validation failed, set password field as first error field
+            if (!passwordValid && !firstErrorField) {
+                firstErrorField = document.getElementById("password")
+            }
 
             if (!isValid) {
                 e.preventDefault()
-                // Scroll to the first error
-                const firstError = form.querySelector(".error")
-                if (firstError) {
-                    firstError.scrollIntoView({ behavior: "smooth", block: "center" })
-                    firstError.focus()
+
+                // Focus the first error field
+                if (firstErrorField) {
+                    firstErrorField.scrollIntoView({ behavior: "smooth", block: "center" })
+                    setTimeout(() => {
+                        firstErrorField.focus()
+                    }, 500) // Small delay to ensure smooth scrolling completes
                 }
             }
         })
