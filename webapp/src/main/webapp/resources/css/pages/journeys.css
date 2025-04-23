@@ -53,8 +53,12 @@
 
 .user-details {
     flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
 }
-
 .journey-title {
     font-size: 2rem;
     font-weight: 700;
@@ -126,6 +130,10 @@
     color: var(--color-text, #4b5563);
     white-space: pre-line;
     font-size: 1rem;
+    overflow: hidden;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
 }
 
 /* Responses */
