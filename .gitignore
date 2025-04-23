@@ -55,3 +55,6 @@ Thumbs.db
 
 # Custom scripts
 *.sh
+
+#Database backups
+*.pg_dump
