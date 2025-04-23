@@ -7,6 +7,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Import necessary modules
     const ListAutocomplete = window.ListAutocomplete || {}
     const FileUpload = window.FileUpload || {}
+    const DateValidation = window.DateValidation || {}
+
+    const dateField = document.getElementById("date")
 
     // Add novalidate attribute to the form to disable browser's native validation
     const form = document.querySelector(".auth-form")
@@ -53,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Enhanced date input handling
-    setupDateInput()
+    DateValidation.init(dateField)
 
     // Form validation
     if (form) {
@@ -85,58 +88,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /**
-     * Sets up enhanced date input handling
-     */
-    function setupDateInput() {
-        const dateField = document.getElementById("date")
-        if (dateField) {
-            // Create a hidden input to store the actual date value
-            const hiddenDateInput = document.createElement("input")
-            hiddenDateInput.type = "hidden"
-            hiddenDateInput.name = dateField.name
-            hiddenDateInput.id = `${dateField.id}_hidden`
-            dateField.parentNode.appendChild(hiddenDateInput)
-
-            // Remove the name attribute from the visible date field to prevent it from being submitted
-            // This ensures only our validated value gets submitted
-            const originalName = dateField.name
-            dateField.removeAttribute("name")
-
-            // Set min attribute to today to prevent selecting past dates in the date picker
-            // (This is just a UI enhancement, we'll still validate it in JavaScript)
-            const today = new Date()
-            const yyyy = today.getFullYear()
-            const mm = String(today.getMonth() + 1).padStart(2, '0')
-            const dd = String(today.getDate()).padStart(2, '0')
-            const todayString = `${yyyy}-${mm}-${dd}`
-            dateField.setAttribute("min", todayString)
-
-            // Handle date changes
-            dateField.addEventListener("change", () => {
-                if (dateField.value) {
-                    // Validate the date
-                    const isValid = validateDateField(dateField)
-                    if (isValid) {
-                        // If valid, update the hidden input
-                        hiddenDateInput.value = dateField.value
-                    } else {
-                        // If invalid, clear the hidden input
-                        hiddenDateInput.value = ""
-                    }
-                } else {
-                    // If empty, clear the hidden input
-                    hiddenDateInput.value = ""
-                }
-            })
-
-            // Initialize with current value if any
-            if (dateField.value) {
-                hiddenDateInput.value = dateField.value
-            }
-        }
-    }
-
-    /**
      * Validates all form fields and returns an array of errors
      * @returns {Array} Array of error objects with field and message properties
      */
@@ -161,50 +112,13 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         })
 
-        // Validate date is not in the past
-        const dateField = document.getElementById("date")
-        if (dateField) {
-            if (!dateField.value.trim()) {
-                // Check if date is required
-                const dateLabel = document.querySelector(`label[for="${dateField.id}"]`)
-                if (dateLabel && dateLabel.classList.contains("required-field")) {
-                    errors.push({
-                        field: dateField,
-                        message: document.getElementById("i18n-required-field")
-                            ? document.getElementById("i18n-required-field").value
-                            : "This field is required",
-                    })
-                }
-            } else {
-                // Validate date format and value
-                const dateValue = dateField.value
-                const dateRegex = /^\d{4}-\d{2}-\d{2}$/
-
-                if (!dateRegex.test(dateValue)) {
-                    errors.push({
-                        field: dateField,
-                        message: document.getElementById("i18n-invalid-date-format")
-                            ? document.getElementById("i18n-invalid-date-format").value
-                            : "Please enter a valid date in YYYY-MM-DD format",
-                    })
-                } else {
-                    // Check if date is in the past
-                    const selectedDate = new Date(dateValue)
-                    selectedDate.setHours(0, 0, 0, 0)
-
-                    const today = new Date()
-                    today.setHours(0, 0, 0, 0)
-
-                    if (selectedDate < today) {
-                        errors.push({
-                            field: dateField,
-                            message: document.getElementById("i18n-past-date-error")
-                                ? document.getElementById("i18n-past-date-error").value
-                                : "Date cannot be in the past",
-                        })
-                    }
-                }
-            }
+        // Validate date
+        const dateValidation = new DateValidation.isValid(dateField)
+        if (!dateValidation.isValid) {
+            errors.push({
+                field: dateField,
+                message: dateValidation.error
+            })
         }
 
         // Validate attendees limit is a positive number
@@ -296,19 +210,6 @@ document.addEventListener("DOMContentLoaded", () => {
      * Sets up real-time validation for date and number fields
      */
     function setupRealTimeValidation() {
-        // Real-time validation for date field
-        const dateField = document.getElementById("date")
-        if (dateField) {
-            dateField.addEventListener("change", () => {
-                validateDateField(dateField)
-            })
-
-            // Also validate on blur to catch manual edits
-            dateField.addEventListener("blur", () => {
-                validateDateField(dateField)
-            })
-        }
-
         // Real-time validation for attendees limit field
         const attendeesLimitField = document.getElementById("attendeesLimit")
         if (attendeesLimitField) {
@@ -316,61 +217,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 validateAttendeesLimitField(attendeesLimitField)
             })
         }
-    }
-
-    /**
-     * Validates the date field in real-time
-     * @param {HTMLElement} dateField The date input field
-     * @returns {boolean} Whether the date is valid
-     */
-    function validateDateField(dateField) {
-        // Remove previous error
-        const existingError = dateField.parentNode.querySelector(".error-message")
-        if (existingError) {
-            existingError.remove()
-        }
-
-        // If empty, no validation needed
-        if (!dateField.value.trim()) {
-            return true
-        }
-
-        // Validate date format
-        const dateValue = dateField.value
-        const dateRegex = /^\d{4}-\d{2}-\d{2}$/
-
-        // if (!dateRegex.test(dateValue)) {
-        //
-        //     const errorMsg = document.createElement("div")
-        //     errorMsg.className = "error-message"
-        //     errorMsg.textContent = document.getElementById("i18n-invalid-date-format")
-        //         ? document.getElementById("i18n-invalid-date-format").value
-        //         : "Please enter a valid date in YYYY-MM-DD format"
-        //
-        //     dateField.parentNode.appendChild(errorMsg)
-        //     return false
-        // }
-
-        // Validate date is not in the past
-        const selectedDate = new Date(dateValue)
-        selectedDate.setHours(0, 0, 0, 0)
-
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-
-        if (selectedDate < today) {
-
-            const errorMsg = document.createElement("div")
-            errorMsg.className = "error-message"
-            errorMsg.textContent = document.getElementById("i18n-past-date-error")
-                ? document.getElementById("i18n-past-date-error").value
-                : "Date cannot be in the past"
-
-            dateField.parentNode.appendChild(errorMsg)
-            return false
-        }
-
-        return true
     }
 
     /**

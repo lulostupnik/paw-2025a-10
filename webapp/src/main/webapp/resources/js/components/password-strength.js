@@ -14,6 +14,8 @@ let PasswordStrength = (() => {
     var passwordMessage
     var passwordMatchMessage
     var messages
+    var requirementElements = {}
+
     function init(options = {}) {
         // Default configuration
         const config = {
@@ -46,7 +48,7 @@ let PasswordStrength = (() => {
         passwordMatchMessage = document.getElementById(config.matchMessageId)
 
         // Get requirement elements
-        const requirementElements = {}
+        requirementElements = {}
         for (const [key, id] of Object.entries(config.requirementIds)) {
             requirementElements[key] = document.getElementById(id)
         }
@@ -76,6 +78,15 @@ let PasswordStrength = (() => {
             if (confirmPasswordField && confirmPasswordField.value) {
                 checkPasswordsMatch()
             }
+        })
+
+        // Add event listener for password field focus
+        passwordField.addEventListener("focus", function () {
+            // Remove error highlighting when user starts typing again
+            passwordField.classList.remove("password-error")
+
+            // Update UI based on current value
+            updatePasswordStrengthUI(this.value)
         })
 
         // Initialize on page load if password has a value
@@ -175,55 +186,57 @@ let PasswordStrength = (() => {
                     passwordStrengthLabel.className = "password-label text-very-weak"
                     passwordStrengthLabel.textContent = messages.veryWeak
                 }
-                if (passwordMessage){
+                if (passwordMessage) {
                     passwordMessage.textContent = messages.addMoreStrength
-                    passwordMessage.classList.add("error-message");
-                } 
+                    passwordMessage.classList.add("error-message")
+                }
             } else if (score < 50) {
                 passwordStrengthBar.className = "password-bar strength-weak"
                 if (passwordStrengthLabel) {
                     passwordStrengthLabel.className = "password-label text-weak"
                     passwordStrengthLabel.textContent = messages.weak
                 }
-                if (passwordMessage){
+                if (passwordMessage) {
                     passwordMessage.textContent = messages.addMoreStrength
-                    passwordMessage.classList.add("errpr-message");
-                } 
+                    passwordMessage.classList.add("error-message")
+                }
             } else if (score < 75) {
                 passwordStrengthBar.className = "password-bar strength-medium"
                 if (passwordStrengthLabel) {
                     passwordStrengthLabel.className = "password-label text-medium"
                     passwordStrengthLabel.textContent = messages.medium
                 }
-                if (passwordMessage){
+                if (passwordMessage) {
                     passwordMessage.textContent = messages.addMoreStrength
-                    passwordMessage.classList.add("error-message");
-                } 
+                    passwordMessage.classList.add("error-message")
+                }
             } else if (score < 90) {
                 passwordStrengthBar.className = "password-bar strength-strong"
                 if (passwordStrengthLabel) {
                     passwordStrengthLabel.className = "password-label text-strong"
                     passwordStrengthLabel.textContent = messages.strong
                 }
-                if (passwordMessage){
+                if (passwordMessage) {
                     passwordMessage.textContent = messages.goodPassword
-                    passwordMessage.classList.remove("error-message");
-                } 
+                    passwordMessage.classList.remove("error-message")
+                }
             } else {
                 passwordStrengthBar.className = "password-bar strength-very-strong"
                 if (passwordStrengthLabel) {
                     passwordStrengthLabel.className = "password-label text-very-strong"
                     passwordStrengthLabel.textContent = messages.veryStrong
                 }
-                if (passwordMessage){
+                if (passwordMessage) {
                     passwordMessage.textContent = messages.goodPassword
-                    passwordMessage.classList.remove("error-message");
-                } 
+                    passwordMessage.classList.remove("error-message")
+                }
             }
 
             // Update requirement status
             for (const [key, element] of Object.entries(requirementElements)) {
                 if (element) {
+                    // Remove any previous error highlighting
+                    element.classList.remove("highlight-error")
                     element.className = `requirement-item ${requirements[key] ? "requirement-met" : "requirement-unmet"}`
                 }
             }
@@ -255,39 +268,62 @@ let PasswordStrength = (() => {
         }
     }
 
-            /**
-         * Evaluate password strength
-         */
-            function evaluatePasswordStrength(password) {
-                if (!password) return { score: 0, requirements: {} }
-    
-                const requirements = {
-                    length: password.length >= 8,
-                    lowercase: /[a-z]/.test(password),
-                    uppercase: /[A-Z]/.test(password),
-                    number: /[0-9]/.test(password),
-                    special: /[^A-Za-z0-9]/.test(password),
-                }
-    
-                // Calculate strength score (0-100)
-                let score = 0
-                if (password.length > 0) {
-                    // Base score from requirements met (60%)
-                    const reqCount = Object.values(requirements).filter(Boolean).length
-                    score = (reqCount / 5) * 60
-    
-                    // Additional score for length (40%)
-                    if (password.length >= 8) score += 10
-                    if (password.length >= 10) score += 10
-                    if (password.length >= 12) score += 10
-                    if (password.length >= 14) score += 10
-                }
-    
-                return {
-                    score: Math.min(score, 100),
-                    requirements,
-                }
+    /**
+     * Evaluate password strength
+     */
+    function evaluatePasswordStrength(password) {
+        if (!password) return { score: 0, requirements: {} }
+
+        const requirements = {
+            length: password.length >= 8,
+            lowercase: /[a-z]/.test(password),
+            uppercase: /[A-Z]/.test(password),
+            number: /[0-9]/.test(password),
+            special: /[^A-Za-z0-9]/.test(password),
+        }
+
+        // Calculate strength score (0-100)
+        let score = 0
+        if (password.length > 0) {
+            // Base score from requirements met (60%)
+            const reqCount = Object.values(requirements).filter(Boolean).length
+            score = (reqCount / 5) * 60
+
+            // Additional score for length (40%)
+            if (password.length >= 8) score += 10
+            if (password.length >= 10) score += 10
+            if (password.length >= 12) score += 10
+            if (password.length >= 14) score += 10
+        }
+
+        return {
+            score: Math.min(score, 100),
+            requirements,
+        }
+    }
+
+    /**
+     * Highlight unmet requirements in red
+     */
+    function highlightUnmetRequirements() {
+        if (!passwordField) return false
+
+        const { requirements } = evaluatePasswordStrength(passwordField.value)
+        let allMet = true
+
+        // Add error class to password field
+        passwordField.classList.add("password-error")
+
+        // Highlight unmet requirements in red
+        for (const [key, element] of Object.entries(requirementElements)) {
+            if (element && !requirements[key]) {
+                element.classList.add("highlight-error")
+                allMet = false
             }
+        }
+
+        return allMet
+    }
 
     /**
      * Validation
@@ -295,28 +331,45 @@ let PasswordStrength = (() => {
     function isValid() {
         const password = passwordField.value
         const confirmPassword = confirmPasswordField.value
+
+        // Check if passwords match
         if (password !== confirmPassword) {
             passwordMatchMessage.textContent = messages.passwordsDontMatch
             passwordMatchMessage.className = "password-match-message mismatch"
             confirmPasswordField.classList.add("error")
-            return false;
+            return false
         }
-        const { score, requirements } = evaluatePasswordStrength(password);
-        if (requirements.length && requirements.lowercase && requirements.number && requirements.special && requirements.uppercase) {
-            if (score < 75) {
-                passwordMessage.textContent = messages.addMoreStrength
-                passwordField.classList.add("error")
-                return false
-            }
-            return true;
-        }
-        return false;
 
+        // Check password requirements
+        const { score, requirements } = evaluatePasswordStrength(password)
+        const allRequirementsMet =
+            requirements.length &&
+            requirements.lowercase &&
+            requirements.number &&
+            requirements.special &&
+            requirements.uppercase
+
+        if (!allRequirementsMet) {
+            // Highlight unmet requirements
+            highlightUnmetRequirements()
+            return false
+        }
+
+        if (score < 75) {
+            passwordMessage.textContent = messages.addMoreStrength
+            passwordField.classList.add("error")
+            highlightUnmetRequirements()
+            return false
+        }
+
+        return true
     }
+
     // Public API
     return {
         init: init,
-        isValid: isValid
+        isValid: isValid,
+        highlightUnmetRequirements: highlightUnmetRequirements,
     }
 })()
 
