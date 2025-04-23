@@ -108,11 +108,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Show no results message if needed
             let noResults = cityDropdown.querySelector(".no-results")
+
+            const noResultsTxt = document.getElementById("i18n-cities-match-none")
+                ? document.getElementById("i18n-cities-match-none").value
+                : "No matching cities found"
+
+
             if (!hasMatches) {
                 if (!noResults) {
                     noResults = document.createElement("div")
                     noResults.className = "autocomplete-item no-results"
-                    noResults.textContent = "No matching cities found"
+                    noResults.textContent = noResultsTxt
                     cityDropdown.appendChild(noResults)
                 }
             } else if (noResults) {
@@ -188,12 +194,16 @@ document.addEventListener("DOMContentLoaded", () => {
             })
 
             // Show no results message if needed
+            const noResultsTxt = document.getElementById("i18n-interests-match-none")
+                ? document.getElementById("i18n-interests-match-none").value
+                : "No matching interests found"
+
             let noResults = interestDropdown.querySelector(".no-results")
             if (!hasMatches) {
                 if (!noResults) {
                     noResults = document.createElement("div")
                     noResults.className = "autocomplete-item no-results"
-                    noResults.textContent = "No matching interests found"
+                    noResults.textContent = noResultsTxt
                     interestDropdown.appendChild(noResults)
                 }
             } else if (noResults) {

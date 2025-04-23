@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
 </head>
 <body>
+<jsp:include page="../components/i18n-hidden-inputs.jsp"/>
 
 <div class="layout-container">
     <!-- Main Content -->
@@ -349,13 +350,18 @@
                     }
                 });
 
+
+                const noResultsTxt = document.getElementById("i18n-results-match-none")
+                    ? document.getElementById("i18n-results-match-none").value
+                    : "No matching results found"
+
                 // Show no results message if needed
                 let noResultsMsg = dropdown.querySelector('.no-results');
                 if (!hasResults) {
                     if (!noResultsMsg) {
                         noResultsMsg = document.createElement('div');
                         noResultsMsg.className = 'autocomplete-item no-results';
-                        noResultsMsg.textContent = 'No matching results found';
+                        noResultsMsg.textContent = noResultsTxt;
                         dropdown.appendChild(noResultsMsg);
                     }
                     noResultsMsg.style.display = '';
