@@ -112,7 +112,7 @@
         </div>
 
         <c:url var="createEventUrl" value="/events/create"/>
-        <form:form modelAttribute="createEventForm" action="${createEventUrl}" method="post" enctype="multipart/form-data" class="auth-form">
+        <form:form modelAttribute="createEventForm" action="${createEventUrl}" method="post" enctype="multipart/form-data" class="auth-form" novalidate="true">
 
             <!-- Title Field -->
             <div class="form-group">

@@ -31,7 +31,7 @@
         </div>
 
         <c:url var="createJourneyUrl" value="/journeys/create"/>
-        <form:form modelAttribute="createJourneyForm" action="${createJourneyUrl}" method="post" class="auth-form" id="journeyForm">
+        <form:form modelAttribute="createJourneyForm" action="${createJourneyUrl}" method="post" class="auth-form" id="journeyForm" novalidate="true">
             <!-- Start Date Field -->
             <div class="form-group">
                 <form:label path="startDate" cssClass="form-label required-field">
