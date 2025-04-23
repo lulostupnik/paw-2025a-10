@@ -74,7 +74,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     @Override
     public List<JourneyResponse> listAllFromJourney(long journeyId){
         LOGGER.debug("Querying DB for replies to journey {}", journeyId);
-        return jdbcTemplate.query(QUERY_BY_JOURNEY_ID + " ORDER BY jr.date_time DESC ", JOURNEY_RESPONSE_ROW_MAPPER, journeyId);
+        return jdbcTemplate.query(QUERY_BY_JOURNEY_ID + " ORDER BY jr.date_time ", JOURNEY_RESPONSE_ROW_MAPPER, journeyId);
     }
 
     @Override
