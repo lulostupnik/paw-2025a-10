@@ -495,7 +495,6 @@
     gap: 0.5rem;
     margin-top: 0.75rem;
 }
-
 .selected-tag {
     display: inline-flex;
     align-items: center;
@@ -506,6 +505,7 @@
     border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 500;
+    animation: tagAppear 0.2s ease-in-out;
 }
 
 .tag-remove {
@@ -801,14 +801,6 @@
     background-color: #f9fafb;
 }
 
-
-.selected-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-    min-height: 2rem;
-}
 
 /* Filter grid styling */
 .filter-grid {
