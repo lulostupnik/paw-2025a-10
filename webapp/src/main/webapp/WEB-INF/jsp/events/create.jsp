@@ -269,6 +269,7 @@
 <!-- Include modularized JavaScript files -->
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/components/file-upload.js'/>"></script>
+<script src="<c:url value='/resources/js/components/date-validation.js'/>"></script>
 <script src="<c:url value='/resources/js/event-form.js'/>"></script>
 </body>
 </html>
