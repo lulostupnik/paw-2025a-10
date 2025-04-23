@@ -13,6 +13,7 @@ import ar.edu.itba.paw.webapp.validation.ImageSize;
 import ar.edu.itba.paw.webapp.validation.ValidAttendeesLimit;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.NumberFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -45,6 +46,7 @@ public class CreateEventForm {
     private String address;
 
     @ValidAttendeesLimit
+    @NumberFormat
     private Integer attendeesLimit;
 
     public String getCity() {

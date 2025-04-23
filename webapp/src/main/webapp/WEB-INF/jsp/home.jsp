@@ -138,6 +138,7 @@
                                 </c:if>
                             </c:forEach>
                             <jsp:include page="events/event-card.jsp">
+                                <jsp:param name="username" value="${event.user.username}"/>
                                 <jsp:param name="eventId" value="${event.id}" />
                                 <jsp:param name="city" value="${event.eventCity.name}" />
                                 <jsp:param name="date" value="${event.date}" />

@@ -161,6 +161,7 @@
                             <jsp:param name="description" value="${event.description}" />
                             <jsp:param name="flyerImageId" value="${event.flyerImageId}" />
                             <jsp:param name="attend" value="${attend}" />
+                            <jsp:param name="username" value="${event.user.username}"/>
                             <jsp:param name="firstname" value="${event.user.firstname}" />
                             <jsp:param name="lastname" value="${event.user.lastname}"/>
                             <jsp:param name="title" value="${event.title}"/>

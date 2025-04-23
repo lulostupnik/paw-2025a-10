@@ -157,7 +157,7 @@
                     <form:label path="date" cssClass="form-label required-field">
                         <spring:message code="event.date"/>
                     </form:label>
-                    <form:input path="date" type="date" cssClass="form-input ${not empty errors.getFieldError('date') ? 'error' : ''}" />
+                    <form:input path="date" type="date" id="date" cssClass="form-input ${not empty errors.getFieldError('date') ? 'error' : ''}" />
                     <form:errors path="date" cssClass="error-message" />
                 </div>
 
@@ -210,7 +210,7 @@
                     <form:label path="attendeesLimit" name="attendees-label" cssClass="form-label required-field">
                         <spring:message code="event.attendeesLimit"/>
                     </form:label>
-                    <form:input type="number" path="attendeesLimit" cssClass="form-input ${not empty errors.getFieldError('attendeesLimit') ? 'error' : ''}"/>
+                    <form:input path="attendeesLimit" cssClass="form-input ${not empty errors.getFieldError('attendeesLimit') ? 'error' : ''}"/>
                     <form:errors path="attendeesLimit" cssClass="error-message" />
                 </div>
                 <div class="checkbox-container">
