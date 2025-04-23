@@ -1,9 +1,6 @@
 package ar.edu.itba.paw.webapp.form;
 
-import ar.edu.itba.paw.webapp.validation.EmailNotInUse;
-import ar.edu.itba.paw.webapp.validation.ImageSize;
-import ar.edu.itba.paw.webapp.validation.UsernameNotInUse;
-import ar.edu.itba.paw.webapp.validation.ValidInterest;
+import ar.edu.itba.paw.webapp.validation.*;
 import org.springframework.web.multipart.MultipartFile;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
@@ -34,9 +31,12 @@ public class CreateUserForm {
 
     @Size(min = 2, max = 100)
     private String lastName;
+
     @NotNull
     @ImageSize() // 2MB
+    @ContentType({"image/jpeg", "image/jpg", "image/png"})
     private MultipartFile profilePicture;
+
     @Size(min = 2, max = 100)
     private String originUniversity;
     @NotNull

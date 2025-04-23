@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.validation.constraints.*;
 //import javax.validation.constraints.Pattern;
 
+import ar.edu.itba.paw.webapp.validation.ContentType;
 import ar.edu.itba.paw.webapp.validation.FutureDate;
 import ar.edu.itba.paw.webapp.validation.ImageSize;
 import ar.edu.itba.paw.webapp.validation.ValidAttendeesLimit;
@@ -31,6 +32,7 @@ public class CreateEventForm {
 
     @NotNull
     @ImageSize() // 2MB
+    @ContentType({"image/jpeg", "image/jpg", "image/png"})
     private MultipartFile flyer;
 
     @Size(min = 2, max = 200)
