@@ -174,7 +174,11 @@ public class JourneyServiceImpl implements JourneyService {
         if(maybeUser.isEmpty()){
             return journeyDao.listAll();
         }
-        return journeyDao.findByOriginCity(maybeUser.get().getUniversity().getCity().getId());
+        List<Journey> journeys = journeyDao.findByOriginCity(maybeUser.get().getUniversity().getCity().getId());
+        if(journeys.isEmpty()){
+            return journeyDao.listAll();
+        }
+        return journeys ;
     }
 
     @Override

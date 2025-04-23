@@ -200,7 +200,11 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly = true)
     @Override
     public List<Event> getRecommendedEvents(String email){
-        return eventDao.getRecommendedEvents(email);
+        List<Event> events = eventDao.getRecommendedEvents(email);
+        if(events.isEmpty()){
+            return eventDao.getTopEvents();
+        }
+        return events;
     }
 
     // FIXME: ¿Agregarle cacheable?
