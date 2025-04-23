@@ -32,16 +32,15 @@ let DateValidation = (() => {
             }
 
             // Handle date changes
-            dateField.addEventListener("change", () => {
-                // Remove previous error
-                const existingError = dateField.parentNode.querySelector(".error-message")
-                if (existingError) {
-                    existingError.remove()
-                }
-
-                if (dateField.value) {
-                    // Validate the date
+            ["change", "blur"].forEach( event => 
+                dateField.addEventListener(event, () => {
+                    // Remove previous error
+                    const existingError = dateField.parentNode.querySelector(".error-message")
+                    if (existingError) {
+                        existingError.remove()
+                    }
                     const {isValid, error} = validateDateField(dateField)
+                    // Validate the date
                     if (isValid) {
                         // If valid, update the hidden input
                         hiddenDateInput.value = dateField.value
@@ -63,11 +62,8 @@ let DateValidation = (() => {
                             parent.appendChild(errorMsg)
                         }
                     }
-                } else {
-                    // If empty, clear the hidden input
-                    hiddenDateInput.value = ""
-                }
-            })
+                }) 
+            )
         }
     }
         
@@ -77,6 +73,11 @@ let DateValidation = (() => {
      * @returns {(boolean, string)} Whether the date is valid, plus error message
      */
     function validateDateField(dateField) {
+        if (dateField.validity.badInput) {
+            return {isValid: false, error: document.getElementById("i18n-invalid-date-format")
+                ? document.getElementById("i18n-invalid-date-format").value
+                : "Please enter a valid date in YYYY-MM-DD format"}
+        }
         // If empty and is required
         if (!dateField.value.trim()) {
             // Check if date is required
