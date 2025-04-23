@@ -50,7 +50,7 @@
                     <div class="filter-grid">
                         <!-- Destination filter with autocomplete -->
                         <div class="filter-item">
-                            <c:set var="destinationLabel"><spring:message code="createJourney.destinationUniversity"/></c:set>
+                            <c:set var="destinationLabel"><spring:message code="createJourney.destinationCity"/></c:set>
                             <form:label for="citySearch" class="form-label" path="destination">${destinationLabel}</form:label>
                             <div class="autocomplete-wrapper">
                                 <input type="text" id="citySearch" class="autocomplete-input"
@@ -100,7 +100,7 @@
                                 <form:select path="interests" id="interest-select" name="interest" class="hidden-select" style="display: none;">
                                     <option value=""></option>
                                     <c:forEach var="interest" items="${interests}">
-                                        <option value="${interest.id}" ${param.interest == interest.id ? 'selected' : ''}><c:out value="${interest.name}"/></option>
+                                        <option value="${interest.id}" ${param.interests == interest.id ? 'selected' : ''}><c:out value="${interest.name}"/></option>
                                     </c:forEach>
                                 </form:select>
                                 <div id="interest-dropdown" class="autocomplete-dropdown" style="display: none;">

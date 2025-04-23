@@ -54,7 +54,7 @@ public class JourneyController {
 
     @RequestMapping
     public ModelAndView getJourneys(@Valid @ModelAttribute FilterJourneyForm fjf, final BindingResult errors) {
-        LOGGER.debug("Getting journeys with filters: {destination: \"{}\", startDate: \"{}\", endDate: \"{}\", interest: \"{}\"}",fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterest());
+        LOGGER.debug("Getting journeys with filters: {destination: \"{}\", startDate: \"{}\", endDate: \"{}\", interest: \"{}\"}",fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
         List<Journey> journeys;
         boolean hasJourney = false;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -64,9 +64,9 @@ public class JourneyController {
         if(authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal())) {
             hasJourney = js.userHasJourney(authentication.getName());
             LOGGER.debug("User has journey {}", hasJourney);
-            journeys = js.getFilteredJourneys(authentication.getName(), fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterest());
+            journeys = js.getFilteredJourneys(authentication.getName(), fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
         } else{
-            journeys = js.getFilteredJourneys(fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterest());
+            journeys = js.getFilteredJourneys(fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
             LOGGER.debug("Found journeys {}", journeys);
         }
 
@@ -172,7 +172,7 @@ public class JourneyController {
         }
 
         final ModelAndView mav = new ModelAndView("journeys/list");
-        List<Journey> journeys = js.getFilteredJourneys(form.getDestination(), form.getStartDate(), form.getEndDate(), form.getInterest());
+        List<Journey> journeys = js.getFilteredJourneys(form.getDestination(), form.getStartDate(), form.getEndDate(), form.getInterests());
         LOGGER.debug("Journeys found: {}", journeys);
 
         mav.addObject("journeys", journeys);

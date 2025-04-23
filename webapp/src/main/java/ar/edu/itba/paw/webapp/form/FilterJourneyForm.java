@@ -54,10 +54,6 @@ public class FilterJourneyForm {
     }
 
 
-    public String getInterest() {
-        return interests;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
