@@ -61,7 +61,6 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-
 /* Profile image - IMPROVED to show full face */
 .profile-image {
     position: absolute;
@@ -69,8 +68,8 @@
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: fill; /* Ensures image covers area without stretching */
-    object-position: center top; /* Prioritizes showing the top portion (face) */
+    object-fit: cover; /* Changed from 'fill' to 'cover' to maintain aspect ratio */
+    object-position: center; /* Changed to center to ensure balanced image display */
 }
 
 .image-placeholder {
@@ -86,7 +85,6 @@
     color: #9ca3af;
     font-size: 2rem;
 }
-
 
 .event-location h3 {
     font-size: 1.125rem;
@@ -128,6 +126,8 @@
     gap: 0.5rem;
     font-size: 0.875rem;
     color: var(--color-primary);
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .event-card-content {
@@ -205,13 +205,13 @@
 /* Add responsive adjustments */
 @media (min-width: 640px) {
     .organizer-name {
-        max-width: 150px; /* Allow more space on larger screens */
+        max-width: 120px; /* Reduced from 150px to ensure text fits better */
     }
 }
 
 @media (min-width: 768px) {
     .organizer-name {
-        max-width: 180px; /* Allow even more space on larger screens */
+        max-width: 140px; /* Reduced from 180px */
     }
 }
 
@@ -438,7 +438,6 @@
     }
 }
 
-
 /* Favorite Badge */
 .favorite-badge {
     position: absolute;
@@ -472,7 +471,7 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     transition: transform 0.2s, background-color 0.2s;
 }
-.attended{
+.attended {
     background-color: #059669 !important;
     color: white;
 }
@@ -482,7 +481,7 @@
 }
 
 .attend-button.active {
-    background-color: #FF385C;
+    background-color: #ff385c;
     color: white;
 }
 
@@ -501,11 +500,9 @@
     margin-bottom: 0.5rem;
 }
 
-
 .event-rating i {
     color: #222222;
 }
-
 
 .event-name p {
     font-size: 0.875rem;
@@ -678,6 +675,7 @@
     width: 100%;
     padding-top: 56.25%; /* 16:9 aspect ratio */
     overflow: hidden;
+    border-radius: 8px 8px 0 0; /* Rounded corners only at the top */
 }
 
 .event-card:hover {
@@ -800,7 +798,6 @@
         width: 100%;
     }
 }
-
 
 /* Card grid layout - NEW */
 .card-grid {
@@ -1073,9 +1070,9 @@
 .event-image-container {
     position: relative;
     width: 100%;
-    padding-top: 100%; /* Cambiado de 56.25% (16:9) a 100% (1:1) para fotos de perfil */
+    padding-top: 56.25%; /* 16:9 aspect ratio */
     overflow: hidden;
-    border-radius: 8px; /* Bordes redondeados para contenedor de imagen */
+    border-radius: 8px 8px 0 0; /* Rounded corners only at the top */
 }
 
 /* Ajuste para imagen de perfil */
@@ -1085,32 +1082,6 @@
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Mantiene la relación de aspecto */
-    object-position: center top; /* Prioriza mostrar la parte superior (cara) */
-}
-
-/* Modificaciones para la tarjeta para compensar la imagen más grande */
-.event-card-content {
-    padding: 1rem; /* Reducido de 1.5rem */
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    overflow: hidden;
-}
-
-/* Ajustes para el texto para compensar espacio reducido */
-.event-card-description {
-    font-size: 0.85rem; /* Ligeramente más pequeño */
-    line-height: 1.4;
-    max-height: 3.5em; /* Reducido un poco */
-}
-
-/* Ajustar el tamaño del contenido para mantener el balance */
-.event-card-header {
-    margin-bottom: 0.75rem; /* Reducido de 1rem */
-}
-
-/* Ajustar espacio en footer */
-.card-dates {
-    margin-top: 0.5rem;
+    object-fit: cover; /* Changed from 'fill' to 'cover' to maintain aspect ratio */
+    object-position: center; /* Changed to center to ensure balanced image display */
 }
