@@ -105,7 +105,7 @@
     position: relative;
 }
 .event-title-section > h1:first-child {
-    margin-right: 220px; /* dejar espacio para attendance-control */
+    margin-right: 120px; /* dejar espacio para attendance-control */
 }
 
 .event-meta {
