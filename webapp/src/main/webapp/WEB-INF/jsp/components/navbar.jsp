@@ -9,7 +9,7 @@
 <c:url var="loginUrl" value="/login" />
 <c:url var="registerUrl" value="/register" />
 <c:url var="logoutUrl" value="/logout" />
-<c:url var="profileUrl" value="profile" />
+<c:url var="profileUrl" value="/profile" />
 <c:set var="uri" value="${requestScope['javax.servlet.forward.request_uri'] != null
                           ? requestScope['javax.servlet.forward.request_uri']
                           : request.requestURI}" />
