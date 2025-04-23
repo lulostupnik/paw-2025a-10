@@ -6,7 +6,7 @@
 /* Event page specific styles */
 .events-container {
     width: 100%;
-    padding: 0 1rem;
+    padding: 0 0;
 }
 
 .events-grid {
