@@ -86,7 +86,7 @@
                                 <jsp:param name="path" value="endDate"/>
                                 <jsp:param name="label" value="${endDateFilter}"/>
                             </jsp:include>
-<%--                            <form:errors path="" cssClass="error-message" />--%>
+                            <form:errors path="" cssClass="error-message" />
                         </div>
 
                         <!-- Interest filter with autocomplete -->
