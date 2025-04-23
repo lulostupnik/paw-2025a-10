@@ -4,7 +4,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
-
+<script src="<c:url value='/resources/js/detect-overflow.js'/>"></script>
 <c:set var="isOwner" value="${param.isOwner == 'true'}"/>
 <div class="event-card-wrapper">
     <a href="<c:url value="/events/${param.eventId}"/>" class="event-card-link">

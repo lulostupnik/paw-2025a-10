@@ -3,6 +3,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="sprng" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<script src="<c:url value='/resources/js/detect-overflow.js'/>"></script>
 
 <div class="event-card-wrapper">
     <a href="<c:url value="/journeys/${param.journeyId}"/>" class="event-card-link">

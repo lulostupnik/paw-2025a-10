@@ -281,8 +281,8 @@
 }
 
 /* Add ellipsis at the end of truncated text */
-.event-card-description::after {
-    content: "...";
+.event-card-description.has-overflow::after {
+    content: "..."; /* This was missing in your CSS */
     position: absolute;
     bottom: 0;
     right: 0;
