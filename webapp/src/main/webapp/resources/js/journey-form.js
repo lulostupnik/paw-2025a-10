@@ -8,6 +8,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Import necessary modules
     const ListAutocomplete = window.ListAutocomplete || {}
+    const DateValidation = window.DateValidation || {}
+
+    const startDateField = document.getElementById("startDate");
+    const endDateField = document.getElementById("endDate");
 
     // Initialize university autocomplete with single-select mode
     try {
@@ -91,6 +95,12 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
         console.error("Failed to initialize university autocomplete component:", error)
     }
+    try {
+        DateValidation.init(startDateField);
+        DateValidation.init(endDateField);
+    } catch (error) {
+        console.error("Failed to initialize date validation component:", error)
+    }
 
     // Form validation
         const form = document.getElementById("journeyForm");
@@ -136,10 +146,33 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             // Validate date range
-            const startDate = document.getElementById("startDate");
-            const endDate = document.getElementById("endDate");
+
+            const startDateValidation = new DateValidation.isValid(startDateField)
+            if (!startDateValidation.isValid) {
+                errors.push({
+                    field: startDateField,
+                    message: startDateValidation.error
+                });
+            }
+
+            const endDateValidation = new DateValidation.isValid(endDateField)
+            if (!endDateValidation.isValid) {
+                errors.push({
+                    field: endDateField,
+                    message: endDateValidation.error
+                });
+            }
+
+            if (!startDateValidation.isValid || !endDateValidation.isValid){
+                return errors;
+            }
+
+            //Selecting again to ensure actual value if date validator used
+            const startDate = document.getElementsByName("startDate").item(0);
+            const endDate = document.getElementsByName("endDate").item(0);
+
             if (startDate && endDate && startDate.value && endDate.value) {
-                if (new Date(startDate.value) > new Date(endDate.value)) {
+                if (new Date(startDate.value) >= new Date(endDate.value)) {
                     errors.push({
                         field: endDate,
                         message: document.getElementById("i18n-valid-date-error")
