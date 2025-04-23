@@ -20,3 +20,9 @@
 <input type="hidden" id="i18n-city-required" value="<spring:message code='validation.city.required' text='Please select a city'/>" />
 <input type="hidden" id="i18n-city-none" value="<spring:message code='validation.city.none' text='No city selected'/>" />
 <input type="hidden" id="i18n-invalid-date-format" value="<spring:message code='validation.date.format' text='Please enter a valid date in YYYY-MM-DD format'/>" />
+<input type="hidden" id="i18n-cities-match-none" value="<spring:message code='match.cities.none' text='No matching cities found'/>" />
+<input type="hidden" id="i18n-items-match-none" value="<spring:message code='match.items.none' text='No matching items found'/>" />
+<input type="hidden" id="i18n-interests-match-none" value="<spring:message code='match.interests.none' text='No matching interests found'/>" />
+<input type="hidden" id="i18n-results-match-none" value="<spring:message code='match.results.none' text='No matching results found'/>" />
+
+

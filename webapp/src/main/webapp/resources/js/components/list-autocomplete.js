@@ -242,11 +242,14 @@ let ListAutocomplete = (() => {
                 dropdownContainer.removeChild(dropdownContainer.firstChild)
             }
 
+            const noResultsTxt = document.getElementById("i18n-items-match-none")
+                ? document.getElementById("i18n-items-match-none").value
+                : "No matching items found"
             // If no results, show message
             if (!data || data.length === 0) {
                 const noResults = document.createElement("div")
                 noResults.className = "autocomplete-item no-results"
-                noResults.textContent = "No matching items found"
+                noResults.textContent = noResultsTxt
                 dropdownContainer.appendChild(noResults)
                 return
             }
@@ -358,11 +361,14 @@ let ListAutocomplete = (() => {
                 }
             })
 
+            const noResultsTxt = document.getElementById("i18n-items-match-none")
+                ? document.getElementById("i18n-items-match-none").value
+                : "No matching items found"
             // Show "no results" message if needed
             if (visibleCount === 0) {
                 const msg = document.createElement("div")
                 msg.className = "autocomplete-item no-results"
-                msg.textContent = "No matching items found"
+                msg.textContent = noResultsTxt
                 dropdownContainer.appendChild(msg)
             }
         }
