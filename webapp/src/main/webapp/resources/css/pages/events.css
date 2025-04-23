@@ -88,8 +88,6 @@
 }
 
 .event-info {
-    display: flex;
-    justify-content: space-between;
     align-items: flex-start;
     gap: 20px;
 }
@@ -102,15 +100,8 @@
 
 .event-title-section {
     flex-grow: 1;
-}
-
-.event-title {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 12px;
-    color: var(--color-text-dark, #1f2937);
-}
-
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .event-meta {
@@ -122,8 +113,6 @@
 
 .event-location,
 .event-date {
-    display: flex;
-    align-items: center;
     gap: 8px;
     color: var(--color-text-muted, #6b7280);
     font-size: 1rem;
@@ -471,9 +460,6 @@
         padding: 20px 24px;
     }
 
-    .event-info {
-        flex-direction: column;
-    }
 
     .attend-button-container {
         flex-shrink: 0;

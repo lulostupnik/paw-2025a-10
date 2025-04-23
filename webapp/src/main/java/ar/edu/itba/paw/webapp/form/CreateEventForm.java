@@ -21,7 +21,7 @@ public class CreateEventForm {
     @Size(min = 2, max = 100)
     private String city;
 
-    @Size(max = 100)
+    @Size(max = 50)
     @NotNull
     @NotEmpty
     private String title;
