@@ -12,7 +12,7 @@
 .events-grid {
     display: grid;
     grid-template-columns: repeat(1, 1fr);
-    gap: 2rem;
+    gap: 1.5rem;
     margin-top: 1.5rem;
 }
 
@@ -102,6 +102,10 @@
     flex-grow: 1;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    position: relative;
+}
+.event-title-section > h1:first-child {
+    margin-right: 220px; /* dejar espacio para attendance-control */
 }
 
 .event-meta {
@@ -497,6 +501,9 @@
 
 /* Modern Attendance Button Styles */
 .attendance-control {
+    position: absolute;
+    top: 0;
+    right: 0;
     margin-top: 8px;
 }
 
