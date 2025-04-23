@@ -93,92 +93,98 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Form validation
-    const form = document.getElementById("journeyForm")
-    if (form) {
-        form.addEventListener("submit", (e) => {
-            let isValid = true
+        const form = document.getElementById("journeyForm");
+        if (form) {
+            form.addEventListener("submit", (e) => {
+                e.preventDefault(); // Prevent default form submission
+
+                const errors = validateAllFields();
+
+                if (errors.length > 0) {
+                    displayErrors(errors);
+
+                    // Scroll to the first error
+                    const firstErrorField = errors[0].field;
+                    firstErrorField.scrollIntoView({ behavior: "smooth", block: "center" });
+                    firstErrorField.focus();
+                } else {
+                    form.submit(); // Submit the form if no errors
+                }
+            });
+        }
+
+        /**
+         * Validates all form fields and returns an array of errors
+         * @returns {Array} Array of error objects with field and message properties
+         */
+        function validateAllFields() {
+            const errors = [];
 
             // Validate required fields
-            const requiredFields = form.querySelectorAll("[required]")
+            const requiredFields = form.querySelectorAll(
+                "[required], .required-field + .form-input, .required-field + .form-textarea, .required-field + .autocomplete-wrapper select"
+            );
             requiredFields.forEach((field) => {
                 if (!field.value.trim()) {
-                    isValid = false
-                    field.classList.add("error")
-
-                    // Create error message if it doesn't exist
-                    let errorMsg = field.parentNode.querySelector(".error-message")
-                    if (!errorMsg) {
-                        errorMsg = document.createElement("div")
-                        errorMsg.className = "error-message"
-                        field.parentNode.appendChild(errorMsg)
-                    }
-                    errorMsg.textContent = document.getElementById("i18n-required-field")
-                        ? document.getElementById("i18n-required-field").value
-                        : "This field is required"
-                    // errorMsg.textContent = "This field is required"
-                } else {
-                    field.classList.remove("error")
-                    const errorMsg = field.parentNode.querySelector(".error-message")
-                    if (errorMsg) {
-                        errorMsg.remove()
-                    }
+                    errors.push({
+                        field: field,
+                        message: document.getElementById("i18n-required-field")
+                            ? document.getElementById("i18n-required-field").value
+                            : "This field is required",
+                    });
                 }
-            })
+            });
 
             // Validate date range
-            const startDate = document.getElementById("startDate")
-            const endDate = document.getElementById("endDate")
+            const startDate = document.getElementById("startDate");
+            const endDate = document.getElementById("endDate");
             if (startDate && endDate && startDate.value && endDate.value) {
                 if (new Date(startDate.value) > new Date(endDate.value)) {
-                    isValid = false
-                    endDate.classList.add("error")
-
-                    let errorMsg = endDate.parentNode.querySelector(".error-message")
-                    if (!errorMsg) {
-                        errorMsg = document.createElement("div")
-                        errorMsg.className = "error-message"
-                        endDate.parentNode.appendChild(errorMsg)
-                    }
-                    errorMsg.textContent =      errorMsg.textContent = document.getElementById("i18n-valid-date-error")
-                        ? document.getElementById("i18n-valid-date-error").value
-                        : "End date must be after start date"
+                    errors.push({
+                        field: endDate,
+                        message: document.getElementById("i18n-valid-date-error")
+                            ? document.getElementById("i18n-valid-date-error").value
+                            : "End date must be after start date",
+                    });
                 }
             }
 
-            // Validate university selection
-            // if (window.universityAutocomplete) {
-            //     const selectedUniversity = window.universityAutocomplete.getSelectedValue()
-            //     if (!selectedUniversity) {
-            //         isValid = false
-            //         const universitySearch = document.getElementById("universitySearch")
-            //         if (universitySearch) {
-            //             universitySearch.classList.add("error")
+            return errors;
+        }
 
-            //             // Create error message if it doesn't exist
-            //             const container = universitySearch.closest(".autocomplete-wrapper")
-            //             let errorMsg = container.querySelector(".error-message")
-            //             if (!errorMsg) {
-            //                 errorMsg = document.createElement("div")
-            //                 errorMsg.className = "error-message"
-            //                 container.appendChild(errorMsg)
-            //             }
-            //             errorMsg.textContent = document.getElementById("i18n-university-none-error")
-            //             ? document.getElementById("i18n-university-none-error").value
-            //             : "Please select a university"                    }
-            //     }
-            // }
+        /**
+         * Displays all validation errors
+         * @param {Array} errors Array of error objects with field and message properties
+         */
+        function displayErrors(errors) {
+            // Clear previous error messages
+            clearErrorMessages();
 
-            if (!isValid) {
-                e.preventDefault()
-                // Scroll to the first error
-                const firstError = form.querySelector(".error")
-                if (firstError) {
-                    firstError.scrollIntoView({ behavior: "smooth", block: "center" })
-                    firstError.focus()
+            // Display new error messages
+            errors.forEach((error) => {
+                const field = error.field;
+                const message = error.message;
+
+                // Create error message element
+                const errorMsg = document.createElement("div");
+                errorMsg.className = "error-message";
+                errorMsg.textContent = message;
+
+                // Append error message to the field's parent container
+                const parent = field.parentNode;
+                if (!parent.querySelector(".error-message")) {
+                    parent.appendChild(errorMsg);
                 }
-            }
-        })
-    }
+            });
+        }
 
-    console.log("Journey creation form initialization complete")
-})
+        /**
+         * Clears all error messages
+         */
+        function clearErrorMessages() {
+            const errorMessages = document.querySelectorAll(".error-message");
+            errorMessages.forEach((msg) => msg.remove());
+        }
+
+        console.log("Journey creation form initialization complete");
+    });
