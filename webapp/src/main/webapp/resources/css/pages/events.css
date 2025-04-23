@@ -111,18 +111,25 @@
     color: var(--color-text-dark, #1f2937);
 }
 
+}
+
 .event-meta {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
+    max-width: 100%;
 }
 
-.event-location, .event-date {
+.event-location,
+.event-date {
     display: flex;
     align-items: center;
     gap: 8px;
     color: var(--color-text-muted, #6b7280);
     font-size: 1rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
 }
 
 .icon {
@@ -188,9 +195,12 @@
 .event-description-text {
     line-height: 1.7;
     color: var(--color-text, #4b5563);
-    white-space: pre-line;
+    white-space: pre-wrap; /* Changed from pre-line to pre-wrap */
     font-size: 1rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
+
 
 /* Attendees */
 .attendees-count {
@@ -477,7 +487,16 @@
     }
 
     .event-title {
-        font-size: 1.5rem;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: var(--color-text-dark, #1f2937);
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        hyphens: auto;
+        max-width: 100%;
+        display: block;
     }
 
     .event-meta {
