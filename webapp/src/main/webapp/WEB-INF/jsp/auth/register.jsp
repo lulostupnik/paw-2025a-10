@@ -51,8 +51,6 @@
         <jsp:include page="../components/i18n-hidden-inputs.jsp"/>
 
 
-
-
         <c:url var="registerUrl" value="/register"/>
         <form:form modelAttribute="createUserForm" action="${registerUrl}" method="post" enctype="multipart/form-data" class="auth-form">
             <div class="auth-columns">

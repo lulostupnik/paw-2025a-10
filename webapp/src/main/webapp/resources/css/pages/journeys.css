@@ -435,11 +435,8 @@
 
 /* Improve the submit button styling */
 .form-actions button {
-    background-color: #3b82f6;
     color: white;
     border: none;
-    border-radius: 6px;
-    padding: 8px 16px;
     font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;

@@ -134,7 +134,8 @@
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
+    flex: 1;
+    overflow: hidden;
 }
 
 .event-card-header {
@@ -145,6 +146,10 @@
     font-weight: 700;
     margin: 0 0 0.25rem;
     color: #1f2937;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .event-card-subtitle {
@@ -156,12 +161,14 @@
 .event-card-description {
     color: #4b5563;
     margin-bottom: 1.5rem;
-    line-height: 1.6;
     flex-grow: 1;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 4.5em; /* Approximately 3 lines of text */
+    line-height: 1.5;
 }
 /* Event full badge */
 .event-full-badge {
@@ -194,12 +201,6 @@
     height: 1rem;
     flex-shrink: 0;
 }
-.organizer-name {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 120px; /* Limit width of organizer name */
-}
 
 /* Add responsive adjustments */
 @media (min-width: 640px) {
@@ -230,6 +231,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    max-height: 450px; /* Set a maximum height for cards */
 }
 
 .featured-event-card:hover {
@@ -237,6 +239,153 @@
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
+/* Username/name truncation */
+.event-card-wrapper,
+.journey-card-wrapper {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Ensure featured event cards don't grow beyond their container */
+.featured-event-card {
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: 450px;
+    overflow: hidden;
+}
+
+/* Fix for event card content */
+.event-card-content {
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Description text wrapping fix - ensure text wraps properly */
+.event-card-description {
+    display: block; /* Changed from -webkit-box to ensure proper wrapping */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word; /* Allow breaking words if needed */
+    hyphens: auto;
+    max-height: 4.5em; /* Approximately 3 lines of text */
+    overflow: hidden;
+    position: relative;
+    line-height: 1.5;
+}
+
+/* Add ellipsis at the end of truncated text */
+.event-card-description::after {
+    content: "...";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding-left: 1rem;
+    background: linear-gradient(to right, transparent, white 50%);
+}
+
+/* Username/name truncation */
+.user-name,
+.organizer-name,
+.university-name {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
+
+/* Event title truncation */
+.event-card-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* Journey location truncation */
+.event-location h3 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* Ensure card footer stays at bottom */
+.event-card-footer {
+    margin-top: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .user-name,
+    .organizer-name,
+    .university-name {
+        max-width: 150px;
+    }
+
+    .featured-event-card {
+        max-height: 400px;
+    }
+}
+
+@media (max-width: 480px) {
+    .user-name,
+    .organizer-name,
+    .university-name {
+        max-width: 120px;
+    }
+}
+
+.user-name,
+.organizer-name,
+.university-name {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
+
+/* Journey location truncation */
+.event-location h3 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* Ensure card footer stays at bottom */
+.event-card-footer {
+    margin-top: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .user-name,
+    .organizer-name,
+    .university-name {
+        max-width: 150px;
+    }
+
+    .featured-event-card {
+        max-height: 400px;
+    }
+}
+
+@media (max-width: 480px) {
+    .user-name,
+    .organizer-name,
+    .university-name {
+        max-width: 120px;
+    }
+}
 
 /* Date range styling - IMPROVED */
 .date-range {

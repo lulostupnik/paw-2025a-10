@@ -115,58 +115,58 @@ let ListAutocomplete = (() => {
             }
         })
 
-        // Filter options as user types
-        searchInput.addEventListener("input", function () {
-            console.log("Search input changed:", this.value)
-            dropdownContainer.style.display = "block"
-            positionDropdown()
+        // // Filter options as user types
+        // searchInput.addEventListener("input", function () {
+        //     console.log("Search input changed:", this.value)
+        //     dropdownContainer.style.display = "block"
+        //     positionDropdown()
+        //
+        //     const searchText = this.value.trim()
 
-            const searchText = this.value.trim()
-
-            // If API endpoint is provided and we have enough characters, fetch from API
-            if (config.apiEndpoint && searchText.length >= config.minChars) {
-                // Clear any existing timeout
-                if (debounceTimeout) {
-                    clearTimeout(debounceTimeout)
-                }
-
-                // Set new timeout for debouncing
-                debounceTimeout = setTimeout(() => {
-                    // Check if we already have cached results
-                    if (apiCache[searchText]) {
-                        updateDropdownFromResults(apiCache[searchText])
-                    } else {
-                        // Show loading indicator
-                        showLoadingIndicator()
-
-                        // Fetch from API
-                        fetch(`${config.apiEndpoint}?q=${encodeURIComponent(searchText)}`)
-                            .then((response) => {
-                                if (!response.ok) {
-                                    throw new Error("Network response was not ok")
-                                }
-                                return response.json()
-                            })
-                            .then((data) => {
-                                // Cache the results
-                                apiCache[searchText] = data
-
-                                // Update dropdown with results
-                                updateDropdownFromResults(data)
-                            })
-                            .catch((error) => {
-                                console.error("Error fetching autocomplete data:", error)
-                                // Fall back to client-side filtering
-                                hideLoadingIndicator()
-                                filterOptions(searchText)
-                            })
-                    }
-                }, config.debounceTime)
-            } else {
-                // Use client-side filtering for short queries or when no API is provided
-                filterOptions(searchText)
-            }
-        })
+        //     // If API endpoint is provided and we have enough characters, fetch from API
+        //     if (config.apiEndpoint && searchText.length >= config.minChars) {
+        //         // Clear any existing timeout
+        //         if (debounceTimeout) {
+        //             clearTimeout(debounceTimeout)
+        //         }
+        //
+        //         // Set new timeout for debouncing
+        //         debounceTimeout = setTimeout(() => {
+        //             // Check if we already have cached results
+        //             if (apiCache[searchText]) {
+        //                 updateDropdownFromResults(apiCache[searchText])
+        //             } else {
+        //                 // Show loading indicator
+        //                 showLoadingIndicator()
+        //
+        //                 // Fetch from API
+        //                 fetch(`${config.apiEndpoint}?q=${encodeURIComponent(searchText)}`)
+        //                     .then((response) => {
+        //                         if (!response.ok) {
+        //                             throw new Error("Network response was not ok")
+        //                         }
+        //                         return response.json()
+        //                     })
+        //                     .then((data) => {
+        //                         // Cache the results
+        //                         apiCache[searchText] = data
+        //
+        //                         // Update dropdown with results
+        //                         updateDropdownFromResults(data)
+        //                     })
+        //                     .catch((error) => {
+        //                         console.error("Error fetching autocomplete data:", error)
+        //                         // Fall back to client-side filtering
+        //                         hideLoadingIndicator()
+        //                         filterOptions(searchText)
+        //                     })
+        //             }
+        //         }, config.debounceTime)
+        //     } else {
+        //         // Use client-side filtering for short queries or when no API is provided
+        //         filterOptions(searchText)
+        //     }
+        // })
 
         /**
          * Show loading indicator in dropdown

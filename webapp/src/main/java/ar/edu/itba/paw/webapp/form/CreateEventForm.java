@@ -33,7 +33,7 @@ public class CreateEventForm {
     @ImageSize() // 2MB
     private MultipartFile flyer;
 
-    @Size(min = 2, max = 200)
+    @Size(min = 2, max = 2047)
     private String description;
 
     @DateTimeFormat(pattern = "HH:mm")

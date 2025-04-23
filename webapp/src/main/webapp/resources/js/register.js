@@ -146,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
             requiredTagFields.forEach((field) => {
                 if (field.querySelectorAll("div.selected-tag").length == 0) {
                     isValid = false
-                    //field.parentNode.querySelectorAll("input").item(0).classList.add("error")
+                    field.parentNode.querySelectorAll("input").item(0).classList.add("error")
 
                     // Create error message if it doesn't exist
                     let errorMsg = field.parentNode.querySelector(".error-message")
