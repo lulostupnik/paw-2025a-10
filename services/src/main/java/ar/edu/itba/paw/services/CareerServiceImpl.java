@@ -47,14 +47,4 @@ public class CareerServiceImpl implements CareerService {
         return careerDao.findByName(name);
     }
 
-    @Override
-    public CursorPage<Career, Long> findAll(Long cursor, int limit) {
-        return careerDao.findAll(cursor, limit);
-    }
-
-    @Override
-    public CursorPage<Career, Long> findBySubstring(String substring, Long cursor, int limit) {
-        return careerDao.findBySubstring(substring, cursor, limit);
-    }
-
 }

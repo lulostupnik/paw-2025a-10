@@ -9,6 +9,4 @@ public interface CountryService {
     List<Country> getAllCountries();
     Boolean existsByName(String name);
 
-    CursorPage<Country, Long> getAllCountries(Long cursor, int limit);
-    CursorPage<Country, Long> getCountriesBySubstring(String substring, Long cursor, int limit);
 }

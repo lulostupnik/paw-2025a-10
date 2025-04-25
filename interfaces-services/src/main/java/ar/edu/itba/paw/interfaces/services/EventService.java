@@ -31,16 +31,6 @@ public interface EventService {
     boolean isEventFull(long eventId);
     List<Event> getFullEvents();
 
-    CursorPage<EventResponse, LocalDateTime> getEventResponses(long eventId, LocalDateTime cursor, int limit);
-
-    CursorPage<User, Long> getEventAttendees(long eventId, Long cursor, int limit);
-
-    CursorPage<Event, Long> getUserAttendingEvents(long userId, Long cursor, int limit);
-    CursorPage<Event, Long> getUserAttendingEvents(String userEmail, Long cursor, int limit);
-
-    CursorPage<Event, Long> getAllEvents(Long cursor, int limit);
-    CursorPage<Event, Long> listByCity(City city, Long cursor, int limit);
-
     List<EventCreatorDTO> getEventsWithAttendanceStatus(long userId);
     List<EventCreatorDTO> getEventsWithAttendanceStatus(String email);
 }

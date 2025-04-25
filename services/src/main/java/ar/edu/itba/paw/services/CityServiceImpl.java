@@ -57,24 +57,4 @@ public class CityServiceImpl implements CityService {
         return cityDao.getAllCities();
     }
 
-    @Override
-    public CursorPage<City, Long> findAll(Long cursor, int limit) {
-        return cityDao.findAll(cursor, limit);
-    }
-
-    @Override
-    public CursorPage<City, Long> findBySubstring(String substring, Long cursor, int limit) {
-        return cityDao.findAllBySubstring(substring, cursor, limit);
-    }
-
-    @Override
-    public CursorPage<City, Long> findByCountry(String country, Long cursor, int limit) {
-        return cityDao.findAllByCountry(country, cursor, limit);
-    }
-
-    @Override
-    public CursorPage<City, Long> getAllCities(Long cursor, int limit) {
-        return findAll(cursor, limit);
-    }
-
 }

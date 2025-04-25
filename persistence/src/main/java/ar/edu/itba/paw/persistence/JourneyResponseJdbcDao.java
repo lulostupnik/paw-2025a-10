@@ -76,20 +76,6 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
         return jdbcTemplate.query(QUERY_BY_JOURNEY_ID + " ORDER BY jr.date_time ", JOURNEY_RESPONSE_ROW_MAPPER, journeyId);
     }
 
-    @Override
-    public CursorPage<JourneyResponse, LocalDateTime> listFromJourneyAfter(long journeyId, LocalDateTime cursor, int limit) {
-        final String sql = QUERY_BY_JOURNEY_ID + (cursor != null ? " AND jr.date_time < ? " : "") + " ORDER BY jr.date_time DESC LIMIT ?";
-
-        final List<JourneyResponse> responses = cursor != null
-                ? jdbcTemplate.query(sql, JOURNEY_RESPONSE_ROW_MAPPER, journeyId, Timestamp.valueOf(cursor), limit + 1)
-                : jdbcTemplate.query(sql, JOURNEY_RESPONSE_ROW_MAPPER, journeyId, limit + 1);
-
-        boolean hasNext = responses.size() > limit;
-        List<JourneyResponse> page = hasNext ? responses.subList(0, limit) : responses;
-        LocalDateTime nextCursor = hasNext ? page.getLast().getDateTime() : null;
-
-        return new CursorPage<>(page, nextCursor, hasNext);
-    }
 
 
 }

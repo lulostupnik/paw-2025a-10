@@ -9,7 +9,6 @@ public interface JourneyResponseDao {
     JourneyResponse create(long userId, String username, long journeyId, String message, LocalDateTime dateTime);
     List<JourneyResponse> listAllFromJourney(long journeyId);
 
-    CursorPage<JourneyResponse, LocalDateTime> listFromJourneyAfter(long journeyId, LocalDateTime cursor, int limit);
 
 }
 

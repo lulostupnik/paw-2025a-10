@@ -13,6 +13,4 @@ public interface UniversityService {
     Optional<University> findByAny(String queryString);
     List<University> getAllUniversities();
     List<University> searchBySubstring(String substring);
-    CursorPage<University, Long> getAllUniversitiesAfter(Long cursor, int limit);
-    CursorPage<University, Long> searchBySubstringAfter(String substring, Long cursor, int limit);
 }

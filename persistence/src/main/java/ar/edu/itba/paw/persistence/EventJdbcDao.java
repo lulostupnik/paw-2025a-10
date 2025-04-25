@@ -321,49 +321,6 @@ public class EventJdbcDao implements EventDao {
     """, EVENT_ROW_MAPPER);
     }
 
-    @Override
-    public CursorPage<Event, Long> listAll(Long cursor, int limit) {
-        String sql = QUERY + (cursor != null ? " WHERE e.id > ? " :"") + " ORDER BY e.id LIMIT ?";
-        List<Event> eventList;
-        if(cursor != null) {
-            eventList = jdbcTemplate.query(sql, EVENT_ROW_MAPPER, cursor, limit + 1);
-        } else {
-            eventList = jdbcTemplate.query(sql, EVENT_ROW_MAPPER, limit + 1);
-        }
-        Long nextCursor = null;
-        boolean hasNext = eventList != null && eventList.size() > limit;
-        if(hasNext){
-            eventList.removeLast();
-            nextCursor = eventList.getLast().getId();
-        }
-        return new CursorPage<>(eventList, nextCursor, hasNext);
-
-    }
-
-    @Override
-    public CursorPage<Event, Long> listByCity(City city, Long cursor, int limit) {
-        LOGGER.debug("Querying DB for events in city {} with cursor {} and limit {}", city, cursor, limit);
-
-        String sql = QUERY + " WHERE e.city_id = ? " + (cursor != null ? " AND e.id > ? " : "") + " ORDER BY e.id LIMIT ?";
-
-        List<Event> eventList;
-        if (cursor != null) {
-            eventList = jdbcTemplate.query(sql, EVENT_ROW_MAPPER, city.getId(), cursor, limit + 1);
-        } else {
-            eventList = jdbcTemplate.query(sql, EVENT_ROW_MAPPER, city.getId(), limit + 1);
-        }
-
-        boolean hasNext = eventList != null && eventList.size() > limit;
-        Long nextCursor = null;
-
-        if (hasNext) {
-            eventList.removeLast();
-            nextCursor = eventList.getLast().getId();
-        }
-
-        return new CursorPage<>(eventList, nextCursor, hasNext);
-    }
-
     public Optional<Integer> getEventAttendanceLimit(long eventId) {
         LOGGER.debug("Querying DB for attendance limit of event {}", eventId);
         Optional<Event> event = findById(eventId);

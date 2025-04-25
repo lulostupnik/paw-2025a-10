@@ -44,10 +44,4 @@ public interface JourneyService {
 
     void updateJourneyDestination(long journeyId, long universityId);
 
-    CursorPage<JourneyResponse, LocalDateTime> listFromJourneyAfter(long journeyId, LocalDateTime cursor, int limit);
-
-    CursorPage<Journey, Long> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest, Long cursor, int pageSize);
-
-    CursorPage<Journey, Long> listAll(Long cursor, int pageSize);
-
 }

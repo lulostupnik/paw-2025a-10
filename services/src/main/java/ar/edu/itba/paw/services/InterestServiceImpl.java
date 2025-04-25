@@ -94,11 +94,5 @@ public class InterestServiceImpl implements InterestService {
 
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public CursorPage<Interest, Long> findAll(Long cursor, int limit){
-        LOGGER.debug("Getting all interests");
-        return interestDao.findAll(cursor, limit);
-    }
 
 }

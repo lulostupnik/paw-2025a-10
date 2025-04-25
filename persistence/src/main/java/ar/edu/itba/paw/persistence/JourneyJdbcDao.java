@@ -140,21 +140,6 @@ public class JourneyJdbcDao implements JourneyDao {
         return jdbcTemplate.query(QUERY, JOURNEY_ROW_MAPPER);
     }
 
-    @Override
-    public CursorPage<Journey, Long> listAll(Long cursor, int size) {
-        LOGGER.debug("Paginated query for all journeys (cursor: {}, size: {})", cursor, size);
-        if(cursor == null){
-            cursor = 0L;
-            // podría hacerlo distinto
-        }
-        List<Journey> journeys = jdbcTemplate.query(QUERY + " WHERE j.id > ? ORDER BY j.id ASC LIMIT ?", JOURNEY_ROW_MAPPER, cursor, size + 1);
-
-        boolean hasNext = journeys.size() > size;
-        if (hasNext) journeys.removeLast();
-
-        Long nextCursor = hasNext ? journeys.getLast().getId() : null;
-        return new CursorPage<>(journeys, nextCursor, hasNext);
-    }
 
     @Override
     public Optional<Journey> findById(long id) {
@@ -263,58 +248,6 @@ public class JourneyJdbcDao implements JourneyDao {
         return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
     }
 
-
-    @Override
-    public CursorPage<Journey, Long> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest, Long cursor, int size) {
-        LOGGER.debug("Paginated query for journeys with filters (cursor: {}, size: {})", cursor, size);
-        String query;
-        List<Object> params = new ArrayList<>();
-
-        if (interest != null && !interest.isEmpty()) {
-            query = QUERY_INTEREST;
-        } else {
-            query = QUERY;
-        }
-
-        List<String> filters = new ArrayList<>();
-
-        if (cursor != null) {
-            filters.add(CURSOR_CONDITION);
-            params.add(cursor);
-        }
-
-        if (destination != null && !destination.isEmpty()) {
-            filters.add("ci2.name = ?");
-            params.add(destination);
-        }
-        if (startDate != null) {
-            filters.add("j.end_date >= ?");  // Journey ends on or after startDate
-            params.add(startDate);
-        }
-        if (endDate != null) {
-            filters.add("j.start_date <= ?"); // Journey starts on or before endDate
-            params.add(endDate);
-        }
-        if (interest != null && !interest.isEmpty()) {
-            filters.add("c.name = ?");
-            params.add(interest);
-        }
-
-        if (!filters.isEmpty()) {
-            query += " WHERE " + String.join(" AND ", filters);
-        }
-
-        query += ORDER_BY + " LIMIT ?";
-        params.add(size + 1);
-
-        List<Journey> journeys = jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
-
-        boolean hasNext = journeys.size() > size;
-        if (hasNext) journeys.removeLast();
-
-        Long nextCursor = hasNext ? journeys.getLast().getId() : null;
-        return new CursorPage<>(journeys, nextCursor,hasNext);
-    }
 
     @Override
     public List<Journey> findByOriginCity(long originCityId) {

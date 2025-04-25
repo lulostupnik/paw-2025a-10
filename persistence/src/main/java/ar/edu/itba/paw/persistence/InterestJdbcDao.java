@@ -123,19 +123,6 @@ public class InterestJdbcDao implements InterestDao {
         }
     }
 
-    @Override
-    public CursorPage<Interest, Long> findAll(Long cursor, int limit) {
-        LOGGER.debug("Querying DB for all interests (paginated), cursor={}, limit={}", cursor, limit);
-        String query = QUERY + " WHERE c.id > ? ORDER BY c.id ASC LIMIT ?";
-        List<Interest> results = jdbcTemplate.query(query, INTEREST_ROW_MAPPER, cursor != null ? cursor : 0, limit + 1);
-
-        boolean hasNext = results.size() > limit;
-        List<Interest> pageItems = hasNext ? results.subList(0, limit) : results;
-        Long nextCursor = hasNext ? pageItems.getLast().getId() : null;
-
-        return new CursorPage<>(pageItems, nextCursor, hasNext);
-    }
-
 
 
 }
