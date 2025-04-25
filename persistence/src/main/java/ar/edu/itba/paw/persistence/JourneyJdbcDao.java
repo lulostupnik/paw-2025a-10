@@ -69,6 +69,49 @@ public class JourneyJdbcDao implements JourneyDao {
             JOIN countries co2 ON ci2.country_id = co2.id
             """;
 
+    private static final String PAGE_QUERY = """
+        SELECT
+            us.id AS user_id,
+            us.email AS user_email,
+            us.firstname AS user_firstname,
+            us.lastname AS user_lastname,
+            us.username AS user_username,
+            us.university AS user_university,
+            us.profile_picture_id AS user_profile_picture_id,
+            us.language AS user_language,
+            ca.id AS career_id,
+            ca.name AS career_name,
+            j.id AS journey_id,
+            j.user_id AS journey_user_id,
+            j.destination_university_id AS journey_destination_university_id,
+            j.start_date AS journey_start_date,
+            j.end_date AS journey_end_date,
+            j.description AS journey_description,
+            ci1.id AS city_id,
+            co1.name AS country_name,
+            ci1.name AS city_name,
+            ci2.id AS destination_city_id,
+            co2.name AS destination_country_name,
+            ci2.name AS destination_city_name,
+            un1.id AS university_id,
+            un1.name AS university_name,
+            un1.abbreviation AS university_abbreviation,
+            un2.id AS destination_university_id,
+            un2.name AS destination_university_name,
+            un2.abbreviation AS destination_university_abbreviation
+        FROM (
+            SELECT * FROM journeys ORDER BY id ASC LIMIT ? OFFSET ?
+        ) AS j
+        JOIN users us ON j.user_id = us.id
+        JOIN careers ca ON us.career_id = ca.id
+        JOIN universities un1 ON us.university = un1.id
+        JOIN cities ci1 ON un1.city_id = ci1.id
+        JOIN countries co1 ON ci1.country_id = co1.id
+        JOIN universities un2 ON j.destination_university_id = un2.id
+        JOIN cities ci2 ON un2.city_id = ci2.id
+        JOIN countries co2 ON ci2.country_id = co2.id
+        """;
+
     private final static String QUERY_INTEREST = QUERY + " JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id \n";
 
     private final static RowMapper<Journey> JOURNEY_ROW_MAPPER = (rs, rowNum) -> new Journey(
