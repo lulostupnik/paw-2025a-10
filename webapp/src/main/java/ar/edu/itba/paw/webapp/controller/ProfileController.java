@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
@@ -31,20 +32,15 @@ public class ProfileController {
     }
 
     @RequestMapping(value = "/profile", method = RequestMethod.GET)
-    public ModelAndView getProfile() {
+    public ModelAndView getProfile(@ModelAttribute("username") String username) {
         ModelAndView mav = new ModelAndView("profile");
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        LOGGER.debug("Auth provided for: {}", authentication.getPrincipal());
+        Optional<User> user = userService.findByEmail(username);
 
-        String userEmail = authentication.getName();
-        Optional<User> user = userService.findByEmail(userEmail);
-
-        LOGGER.debug("userEvents in profile: {}", eventService.getAllEvents(userEmail));
         mav.addObject("user", user);
-        mav.addObject("userJourneys", journeyService.getJourneysByUser(userEmail));
-        mav.addObject("userEvents", eventService.getAllEvents(userEmail));
-        mav.addObject("userAttendingEvents", eventService.getUserAttendingEvents(userEmail));
+        mav.addObject("userJourneys", journeyService.getJourneysByUser(username));
+        mav.addObject("userEvents", eventService.getAllEvents(username));
+        mav.addObject("userAttendingEvents", eventService.getUserAttendingEvents(username));
 
         return mav;
     }

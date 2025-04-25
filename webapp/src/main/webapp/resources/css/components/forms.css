@@ -52,12 +52,24 @@
     min-height: 8rem;
     resize: vertical;
 }
-
+/* Error Message */
 .error-message {
-    display: block;
-    margin-top: 0.25rem;
-    font-size: 0.875rem;
-    color: #ef4444;
+    display: flex;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--color-error);
+    margin-top: 0.5rem;
+}
+
+.error-message::before {
+    content: "";
+    display: inline-block;
+    width: 0.75rem;
+    height: 0.75rem;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23ef4444'%3e%3cpath fill-rule='evenodd' d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z' clip-rule='evenodd' /%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+    margin-right: 0.375rem;
 }
 
 /* Form container - UPDATED */

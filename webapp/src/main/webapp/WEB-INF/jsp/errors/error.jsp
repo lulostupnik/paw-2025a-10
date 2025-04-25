@@ -77,7 +77,7 @@
             <fmt:message key="error.${errorType}.title" />
         </h1>
 
-        <p class="error-message">
+        <p class="error-page-message">
             <fmt:message key="error.${errorType}.message" />
         </p>
 

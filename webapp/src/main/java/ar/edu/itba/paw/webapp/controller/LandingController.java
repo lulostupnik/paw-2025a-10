@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -31,46 +32,44 @@ public class LandingController {
     }
 
     @RequestMapping("/")
-    public ModelAndView landing() {
+    public ModelAndView landing(@ModelAttribute("username") String username) {
         LOGGER.debug("Loading landing page");
         ModelAndView mav = new ModelAndView("index");
 
         List<Event> recommendedEvents = eventService.getTopEvents();
-        LOGGER.debug("Found events {}", recommendedEvents);
+
         mav.addObject("recommendedEvents", recommendedEvents);
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         List<Event> eventsAttended = Collections.emptyList();
 
-        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
-            eventsAttended = eventService.getUserAttendingEvents(auth.getName());
+        if (username != null ) {
+            eventsAttended = eventService.getUserAttendingEvents(username);//@TODO: change to MAP?
         }
 
         mav.addObject("eventsAttended", eventsAttended);
         return mav;
     }
-
-    @RequestMapping("/explore")
-    public ModelAndView index() {
-        LOGGER.debug("Getting dashboard page...");
-
-        ModelAndView mav = new ModelAndView("home");
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        LOGGER.debug("Auth provided for: {}", authentication.getPrincipal());
-
-        List<Event> events = eventService.getRecommendedEvents(authentication.getName());
+    private void populateHomePage(ModelAndView mav, String username) {
+        List<Event> events = eventService.getRecommendedEvents(username); //@TODO: change to UserEvents
         LOGGER.debug("Events: {}", events);
         mav.addObject("events", events);
-        mav.addObject("eventsAttended", eventService.getUserAttendingEvents(
-                SecurityContextHolder.getContext().getAuthentication().getName()));
+        mav.addObject("eventsAttended", eventService.getUserAttendingEvents( username));
 
-        List<Journey> journeys = journeyService.getRecommendedJourneys(authentication.getName());
+        List<Journey> journeys = journeyService.getRecommendedJourneys(username);
         LOGGER.debug("Journeys: {}", journeys);
         mav.addObject("journeys", journeys);
 
-        Boolean hasJourney = journeyService.userHasJourney(authentication.getName());
+        Boolean hasJourney = journeyService.userHasJourney(username);
         LOGGER.debug("User has journey {}", hasJourney);
         mav.addObject("hasJourney", hasJourney);
+    }
+
+    @RequestMapping("/explore")
+    public ModelAndView index(@ModelAttribute("username") String username) {
+        LOGGER.debug("Getting dashboard page...");
+
+        ModelAndView mav = new ModelAndView("home");
+        populateHomePage(mav, username);
+
         return mav;
     }
 

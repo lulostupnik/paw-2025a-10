@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
@@ -49,61 +51,43 @@ public class EventController {
     }
 
     @RequestMapping
-    public ModelAndView getEvents() {
-        LOGGER.debug("Loading events...");
+    public ModelAndView getEvents(@ModelAttribute("username") String username) {
         ModelAndView mav = new ModelAndView("events/list");
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
-            mav.addObject("eventsWithAttendance", eventService.getEventsWithAttendanceStatus(auth.getName()));
+        if (username != null ) {
+            mav.addObject("eventsWithAttendance", eventService.getEventsWithAttendanceStatus(username));
         } else{
             mav.addObject("events",eventService.getAllEvents());
         }
         return mav;
     }
 
+    private void addDropdownAttributes(ModelAndView mav) {
+        mav.addObject("careers", careerService.findAll());
+        mav.addObject("universities", universityService.getAllUniversities());
+        mav.addObject("cities", cityService.getAllCities());
+    }
+
     @RequestMapping(value = "/create", method = GET)
     public ModelAndView createEventForm(@ModelAttribute("createEventForm") final CreateEventForm form) {
         LOGGER.debug("Getting event creation form");
         ModelAndView mav = new ModelAndView("events/create");
-        List<City> cities = cityService.getAllCities();
-        LOGGER.debug("Cities: {}", cities);
-        List<University> universities = universityService.getAllUniversities();
-        LOGGER.debug("Universities: {}", universities);
-        List<Career> careers = careerService.findAll();
-        LOGGER.debug("Careers: {}", careers);
-        mav.addObject("careers", careers);
-        mav.addObject("universities", universities);
-        mav.addObject("cities", cities);
+        addDropdownAttributes(mav);
         return mav;
     }
 
     @RequestMapping(path = "/create", method = POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ModelAndView createEvent(@Valid @ModelAttribute("createEventForm") final CreateEventForm eventForm,
-                                    final BindingResult errors) {
+                                    final BindingResult errors, @ModelAttribute("username") String username) {
 
         LOGGER.debug("CREATING EVENT FROM FORM {}", eventForm);
-                                
         if (errors.hasErrors()) {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
             return createEventForm(eventForm);
         }
-        Event event;
-        byte[] flyerBytes;
-        try {
-            flyerBytes = eventForm.getFlyer().getBytes();
-            LOGGER.debug("User picture loaded successfully");
-        } catch (IOException e) {
-            //TODO: Display error to user in a friendly way
-            LOGGER.error("Error getting submitted image: {}", e.getMessage(), new RuntimeException("Error reading flyer file", e));
-            throw new RuntimeException("Error reading flyer file", e);
-        }
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        LOGGER.debug("Auth provided for: {}", authentication.getPrincipal());
-        
-        event = eventService.createEvent(
-            authentication.getName(),
+        byte[] flyerBytes = getBytes(eventForm.getFlyer());
+
+        Event event = eventService.createEvent(
+            username,
             eventForm.getCity(), 
             eventForm.getDate(), 
             flyerBytes, 
@@ -117,8 +101,37 @@ public class EventController {
         return new ModelAndView("redirect:/events/{id}", "id", event.getId());
     }
 
+    private ModelAndView populateEventDetails( Event event, long id, String username) {
+        ModelAndView mav = new ModelAndView("events/detail");
+        mav.addObject("event", event);
+        LOGGER.info("Found event {}", event);
+        mav.addObject("attendees", eventService.getEventAttendees(event.getId()));
+        mav.addObject("eventResponses", eventService.getEventResponses(event.getId()));
+
+        Boolean isFull = eventService.isEventFull(id);
+
+        boolean isAttending = false;
+        boolean isEventOwner = false;
+
+        if(username != null) {
+            isAttending = eventService.isUserAttending(SecurityContextHolder.getContext().getAuthentication().getName(), id);
+            isEventOwner = eventService.isEventOwnedByUser(SecurityContextHolder.getContext().getAuthentication().getName(), id);
+        }
+
+        LOGGER.debug("User attending event {}", isAttending);
+        LOGGER.debug("User is event owner {}", isEventOwner);
+
+        if(isEventOwner){  //@todo preguntar si es necesario este if
+            mav.addObject("attendees", eventService.getEventAttendees(id));
+        }
+        mav.addObject("attend", isAttending);
+        mav.addObject("isEventOwner", isEventOwner);
+        mav.addObject("isFull", isFull);
+        return mav;
+    }
+
     @RequestMapping("/{id}")
-    public ModelAndView getEvent(@PathVariable long id,  @ModelAttribute("replyEventForm") final ReplyEventForm form) {
+    public ModelAndView getEvent(@PathVariable long id, @Valid @ModelAttribute("replyEventForm") final ReplyEventForm form, final BindingResult errors, @ModelAttribute("username") String username) {
         LOGGER.debug("Getting info for event {}", id);
         Optional<Event> maybeEvent = eventService.getEventById(id);
         if (maybeEvent.isEmpty()) {
@@ -126,108 +139,50 @@ public class EventController {
             return new ModelAndView("events/not_found");
         }
 
-        Event event = maybeEvent.get();
-        LOGGER.info("Found event {}", event);
-
-        List<EventResponse> eventResponses = eventService.getEventResponses(event.getId());
-        LOGGER.debug("Got event responses {}", eventResponses);
-
-        List<User> attendees = eventService.getEventAttendees(id);
-        LOGGER.debug("Got event attendees {}", attendees);
-
-        Boolean isFull = eventService.isEventFull(id);
-        boolean isAttending = false;
-        boolean isEventOwner = false;
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal())) {
-            isAttending = eventService.isUserAttending(SecurityContextHolder.getContext().getAuthentication().getName(), id);
-            isEventOwner = eventService.isEventOwnedByUser(SecurityContextHolder.getContext().getAuthentication().getName(), id);
-        }
-        LOGGER.debug("User attending event {}", isAttending);
-        LOGGER.debug("User is event owner {}", isEventOwner);
-
-        ModelAndView mav = new ModelAndView("events/detail");
-        mav.addObject("event", event);
-        if(isEventOwner){  //@todo preguntar si es necesario este if
-            mav.addObject("attendees", attendees);
-        }
-        mav.addObject("attend", isAttending);
-        mav.addObject("eventResponses", eventResponses);
-        mav.addObject("replyEventForm", form);
-        mav.addObject("isEventOwner", isEventOwner);
-        mav.addObject("isFull", isFull);
-        return mav;
+        return populateEventDetails(maybeEvent.get(), id, username);
     }
 
-    private ModelAndView getReplyFormWithEvent(int id, ReplyEventForm form) {
-        ModelAndView mav = new ModelAndView("events/reply");
-        Optional<Event> event = eventService.getEventById(id);
-        if(event.isEmpty()){
-            LOGGER.debug("Event {} not found", id);
-            return getEvent(id, form);
-        }
-        LOGGER.debug("Event found: {}", event.get());
-
-        List<Career> careers = careerService.findAll();
-        LOGGER.debug("Found careers {}", careers);
-
-        List<University> universities = universityService.getAllUniversities();
-        LOGGER.debug("Found universities {}", universities);
-
-        mav.addObject("careers", careers);
-        mav.addObject("universities", universities);
-        mav.addObject("event", event.get());
-        mav.addObject("replyEventForm", form);
-        return mav;
-    }
-
-    @RequestMapping(value = "/{id}/reply")
-    public ModelAndView createReplyEventForm(@PathVariable int id, @ModelAttribute("replyEventForm") final ReplyEventForm form) {
-        LOGGER.debug("Getting event reply form for event {}", id);
-        return getReplyFormWithEvent(id,form);
-    }
 
     @RequestMapping(value = "/{id}/reply", method = POST)
-    public ModelAndView reply(@PathVariable int id, @Valid @ModelAttribute("replyEventForm") final ReplyEventForm form, BindingResult errors) {
+    public ModelAndView reply(@PathVariable int id, @Valid @ModelAttribute("replyEventForm") final ReplyEventForm form,
+                              final BindingResult errors, @ModelAttribute("username") String username, RedirectAttributes redirectAttributes) {
         LOGGER.debug("Replying to event {} from form {}", id, form);
 
         if (errors.hasErrors()) {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
-            return getReplyFormWithEvent(id, form);
+            redirectAttributes.addFlashAttribute("errors", errors);
+            redirectAttributes.addFlashAttribute("replyEventForm", form);
+            return new ModelAndView("redirect:/events/{id}", "id", id);
         }
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        LOGGER.debug("Auth provided for: {}", authentication.getPrincipal());
-
-        eventService.replyToEvent(authentication.getName(), id, form.getMessage());
+        eventService.replyToEvent(username, id, form.getMessage());
         return new ModelAndView("redirect:/events/{id}", "id", id);
-//        return getEvent(id, new ReplyEventForm());
     }
 
     @RequestMapping(value="/{id}/attend",method = POST,produces = "application/json")
-    public ModelAndView attendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer) {
-                LOGGER.debug("Attending event {}", id);
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                eventService.attendEvent(authentication.getName(), id);
+    public ModelAndView attendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer,
+                                    @ModelAttribute("username") String username) {
+        LOGGER.debug("Attending event {}", id);
+        eventService.attendEvent(username, id);
+
         if (referer != null && !referer.isEmpty()) {
-            return new ModelAndView("redirect:" + referer);
+            return new ModelAndView("redirect:" + referer);// @TODO  history.back()
         } else {
             return new ModelAndView("redirect:/events/{id}");
         }
     }
 
     @RequestMapping(value="/{id}/dont-attend",method = POST,produces = "application/json")
-    public ModelAndView dontAttendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer) {
+    public ModelAndView dontAttendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer,
+                                        @ModelAttribute("username") String username) {
         LOGGER.debug("Attending event {}", id);
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        eventService.cancelAttendance(authentication.getName(), id);
+
+        eventService.cancelAttendance(username, id);
         if (referer != null && !referer.isEmpty()) {
-            return new ModelAndView("redirect:" + referer);
+            return new ModelAndView("redirect:" + referer); //@TODO preguntar si es lícito
         } else {
             return new ModelAndView("redirect:/events/{id}");
         }
     }
-
-
     
 }

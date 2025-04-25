@@ -28,6 +28,8 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Locale;
 
+import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
+
 @Controller
 public class AuthController {
 
@@ -49,15 +51,11 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
     @RequestMapping("/login")
-    public ModelAndView loginForm(Authentication authentication) {
+    public ModelAndView loginForm( @ModelAttribute("username") String username) {
         LOGGER.debug("Loading login form");
-        if (authentication != null
-                && authentication.isAuthenticated()
-                && !(authentication instanceof AnonymousAuthenticationToken)) {
+        if (username != null) {// @TODO chequear si este redirect es lícito
             return new ModelAndView("redirect:/explore");
-
         }
-
         return new ModelAndView("auth/login");
     }
 
@@ -79,49 +77,29 @@ public class AuthController {
         return mav;
     }
 
-    private ModelAndView registerForm(CreateUserForm form, BindingResult errors) {
-        ModelAndView mav = new ModelAndView("auth/register");
-        mav.addObject("createUserForm", form);
-        if (errors != null && errors.hasErrors()) {
-            mav.addObject("org.springframework.validation.BindingResult.createUserForm", errors);
-        }
-        mav.addObject("careers", careerService.findAll());
-        mav.addObject("universities", universityService.getAllUniversities());
-        mav.addObject("interests", interestService.findAll());
-        return mav;
-    }
-
     @RequestMapping(value = "/register", method = {RequestMethod.POST})
     public ModelAndView registerSubmit(@Valid @ModelAttribute("createUserForm") final CreateUserForm form, final BindingResult errors) {
 
-        Locale currentLocale = LocaleContextHolder.getLocale();
-
         LOGGER.info("CREATING USER FROM USERFORM {}", form);
-//        if (errors.hasErrors()) {
-//            LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
-//            return registerForm(form);
-//        }
-
         if (errors.hasErrors()) {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
-            return registerForm(form, errors);
+            return registerForm(form);
         }
 
-        byte[] profilePicture = null;
-        try {
-            profilePicture = form.getProfilePicture().getBytes();
-            LOGGER.debug("User picture loaded successfully");
-        } catch (Exception e) {
-            LOGGER.error("Error getting submitted image: {}", e.getMessage());
-        }
+        byte[] profilePicture = getBytes(form.getProfilePicture());
 
         userService.createUser(form.getEmail(), form.getUsername(), form.getFirstName(),
-                form.getLastName(), form.getOriginUniversity(), form.getCareer(), profilePicture, form.getInterests(), form.getPassword(), currentLocale);
-        Authentication authToken = new UsernamePasswordAuthenticationToken(form.getEmail(), form.getPassword());
-        Authentication authentication = authenticationManager.authenticate(authToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+                form.getLastName(), form.getOriginUniversity(), form.getCareer(), profilePicture,
+                form.getInterests(), form.getPassword(), LocaleContextHolder.getLocale());
 
+        setAuth(form.getEmail(), form.getPassword());
 
         return new ModelAndView("redirect:login");
+    }
+
+    private void setAuth(String email, String password) {
+        Authentication authToken = new UsernamePasswordAuthenticationToken(email, password);
+        Authentication authentication = authenticationManager.authenticate(authToken);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

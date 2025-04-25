@@ -30,11 +30,7 @@ public class PawUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         final UserPassword user = us.findByEmailWithPass(username).orElseThrow(() ->
                 new UsernameNotFoundException("No user by the name " + username));
-//        if(!BCRYPT_PATTERN.matcher(user.getPassword()).matches()) {
-//            //TODO: update password with hashed version
-//            return loadUserByUsername(username);
-//        }
-        final Collection<? extends GrantedAuthority> authorities = Arrays.asList(
+        final Collection<? extends GrantedAuthority> authorities = Arrays.asList( //@TODO check this
                 new SimpleGrantedAuthority("ROLE_USER"),
                 new SimpleGrantedAuthority("ROLE_ADMIN")
         );

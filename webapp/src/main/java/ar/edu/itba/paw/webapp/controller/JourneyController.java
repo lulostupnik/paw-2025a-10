@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -38,65 +39,64 @@ public class JourneyController {
     private final JourneyService js;
     private final CityService cityService;
     private final UniversityService universityService;
-    private final CareerService carreerService;
     private final InterestService interestService;
     private final JourneyService journeyService;
 
     @Autowired
-    public JourneyController(final JourneyService js, CityService cityService, UniversityService universityService, CareerService carreerService, InterestService interestService, JourneyService journeyService){
+    public JourneyController(final JourneyService js, CityService cityService, UniversityService universityService, InterestService interestService, JourneyService journeyService){
         this.js = js;
         this.cityService = cityService;
         this.universityService = universityService;
-        this.carreerService = carreerService;
         this.interestService = interestService;
         this.journeyService = journeyService;
     }
 
     @RequestMapping
-    public ModelAndView getJourneys(@Valid @ModelAttribute FilterJourneyForm fjf, final BindingResult errors) {
+    public ModelAndView getJourneys(@Valid @ModelAttribute FilterJourneyForm fjf, final BindingResult errors,
+                                    @RequestParam(value = "username", required = false) String username) {
         LOGGER.debug("Getting journeys with filters: {destination: \"{}\", startDate: \"{}\", endDate: \"{}\", interest: \"{}\"}",fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
         List<Journey> journeys;
         boolean hasJourney = false;
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        LOGGER.debug("Auth provided for user {}", authentication);
 
         final ModelAndView mav = new ModelAndView("journeys/list");
-        if(authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal())) {
-            hasJourney = js.userHasJourney(authentication.getName());
+        if(username != null) {
+            hasJourney = js.userHasJourney(username);
             LOGGER.debug("User has journey {}", hasJourney);
-            journeys = js.getFilteredJourneys(authentication.getName(), fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
+            journeys = js.getFilteredJourneys(username, fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
         } else{
             journeys = js.getFilteredJourneys(fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
             LOGGER.debug("Found journeys {}", journeys);
         }
 
-        List<City> cities = cityService.getAllCities();
-        LOGGER.debug("Cities: {}", cities);
-
-        List<Interest> interests = interestService.findAll();
-        LOGGER.debug("Interests: {}", interests);
-
-
-        mav.addObject("cities", cities);
-        mav.addObject("interests", interests);
         mav.addObject("journeys", journeys);
         mav.addObject("hasJourney", hasJourney);
+
+       populateDropdownAttributes(mav);
+
         return mav;
     }
 
+    private void populateDropdownAttributes(ModelAndView mav) {
+        List<City> cities = cityService.getAllCities();
+        LOGGER.debug("Cities: {}", cities);
+        mav.addObject("cities", cities);
+
+        List<Interest> interests = interestService.findAll();
+        LOGGER.debug("Interests: {}", interests);
+        mav.addObject("interests", interests);
+    }
+
     @RequestMapping(value = "/create", method = POST)
-    public ModelAndView createJourney(@Valid @ModelAttribute("createJourneyForm") final CreateJourneyForm jf, final BindingResult errors) {
+    public ModelAndView createJourney(@Valid @ModelAttribute("createJourneyForm") final CreateJourneyForm jf,
+                                      final BindingResult errors, @ModelAttribute("username") String username) {
         LOGGER.debug("Creating journey from form: {}", jf);
 
         if (errors.hasErrors()) {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
-            return createJourneyForm(jf);
+            return createJourneyForm(jf, username);
         }
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        LOGGER.debug("Auth provided for: {}", authentication.getPrincipal());
-
-        final Journey journey = js.createJourney(authentication.getName(), // Devuelve el username
+        final Journey journey = js.createJourney(username, // Devuelve el username
                 jf.getDestinationUniversity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription());
 
         LOGGER.info("Successfully created journey {}", journey);
@@ -104,27 +104,20 @@ public class JourneyController {
     }
 
     @RequestMapping(value = "/create")
-    public ModelAndView createJourneyForm(@ModelAttribute("createJourneyForm") final CreateJourneyForm jf) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication == null || authentication.getName() == null || ! authentication.isAuthenticated()) {
-            LOGGER.debug("User not authenticated, redirecting to login");
-            return new ModelAndView("redirect:/login");
-        }
-        if(journeyService.userHasJourney(authentication.getName())) {
+    public ModelAndView createJourneyForm(@ModelAttribute("createJourneyForm") final CreateJourneyForm jf, @ModelAttribute("username") String username) {
+
+        if(journeyService.userHasJourney(username)) {
             LOGGER.debug("User already has a journey, redirecting to journey list");
             return new ModelAndView("redirect:/journeys");
         }
-        final ModelAndView mav = new ModelAndView("journeys/create");
 
-        List<University> universities = universityService.getAllUniversities();
-        LOGGER.debug("Universities: {}", universities);
-        mav.addObject("universities", universities);
-
-        return mav;
+        return new ModelAndView("journeys/create")
+                .addObject("universities",  universityService.getAllUniversities());
     }
 
     @RequestMapping(value = "/{id}")
-    public ModelAndView getJourney(@PathVariable long id, @ModelAttribute("replyJourneyForm") final ReplyJourneyForm rjf) {
+    public ModelAndView getJourney(@PathVariable long id,@Valid @ModelAttribute("replyJourneyForm") final ReplyJourneyForm rjf,
+                                   BindingResult errors) {
         LOGGER.debug("Getting info for journey {}", id);
 
         Optional<Journey> journey = js.getJourneyById(id);
@@ -133,57 +126,28 @@ public class JourneyController {
             LOGGER.debug("Journey {} not found", id);
             return new ModelAndView("journeys/not_found");
         }
-
         List<JourneyResponse> journeyResponses = js.getJourneyResponses(journey.get().getId());
 
         final ModelAndView mav = new ModelAndView("journeys/detail");
-        LOGGER.debug("Journey found: {}", journey.get());
         mav.addObject("journey", journey.get());
         mav.addObject("journeyResponses", journeyResponses);
-        mav.addObject("replyJourneyForm", rjf);
         return mav;
     }
 
     @RequestMapping(value = "/{id}/reply", method = POST)
-    public ModelAndView replyToJourney(@PathVariable int id, @Valid @ModelAttribute("replyJourneyForm") final ReplyJourneyForm rjf, final BindingResult errors) {
-        LOGGER.debug("Replying to journey {} from form {}", id, rjf);
+    public ModelAndView replyToJourney(@PathVariable int id, @Valid @ModelAttribute("replyJourneyForm") final ReplyJourneyForm rjf,
+                                       final BindingResult errors, final RedirectAttributes redirectAttributes,
+                                       @ModelAttribute("username") String username) {
 
+        LOGGER.debug("Replying to journey {} from form {}", id, rjf);
         if (errors.hasErrors()) {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
-//            return replyToJourneyForm(id, rjf);
-            return getJourney(id, rjf);
+            redirectAttributes.addFlashAttribute("errors", errors);
+            redirectAttributes.addFlashAttribute("replyJourneyForm", rjf);
+            return new ModelAndView("redirect:/journeys/" + id);
         }
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        LOGGER.debug("Auth provided for: {}", authentication.getPrincipal());
-
-        js.replyToJourney(authentication.getName(), id, rjf.getMessage());
+        js.replyToJourney(username, id, rjf.getMessage());
 
         return new ModelAndView("redirect:/journeys/" + id);
     }
-
-
-    @RequestMapping(value ="/filter", method = POST)
-    public ModelAndView filterJourney(@ModelAttribute("filterJourneyForm") final FilterJourneyForm form, final BindingResult errors) {
-        LOGGER.debug("Filtering journeys from form {}", form);
-
-        if(errors.hasErrors()) {
-            LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
-            return createJourneyForm(form);
-        }
-
-        final ModelAndView mav = new ModelAndView("journeys/list");
-        List<Journey> journeys = js.getFilteredJourneys(form.getDestination(), form.getStartDate(), form.getEndDate(), form.getInterests());
-        LOGGER.debug("Journeys found: {}", journeys);
-
-        mav.addObject("journeys", journeys);
-        return new ModelAndView("journeys/list");
-    }
-
-    @RequestMapping(value ="/filter")
-    public ModelAndView createJourneyForm(@ModelAttribute("filterJourneyForm") final FilterJourneyForm form) {
-        LOGGER.debug("Getting journey filter form");
-        return new ModelAndView("journeys/list");
-    }
-
-
 }

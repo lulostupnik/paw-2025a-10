@@ -113,7 +113,7 @@
     margin-bottom: 1rem;
 }
 
-.error-message {
+.error-page-message {
     color: var(--text-muted);
     margin-bottom: 1.5rem;
     max-width: 30rem;
