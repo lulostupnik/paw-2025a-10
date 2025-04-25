@@ -13,9 +13,4 @@ public interface CityService {
     List<City> findAllBySubstring(String substring);
     List<City> getAllCities();
 
-    CursorPage<City, Long> findAll(Long cursor, int limit);
-    CursorPage<City, Long> findBySubstring(String substring, Long cursor, int limit);
-    CursorPage<City, Long> findByCountry(String country, Long cursor, int limit);
-    CursorPage<City, Long> getAllCities(Long cursor, int limit);
-
 }

@@ -45,51 +45,54 @@ public class UserJdbcDao implements UserDao {
             rs.getString("user_password"),
             Locale.of(rs.getString("user_language")));
 
-    private final static String QUERY = "SELECT \n" +
-            "    u.id AS user_id,\n" +
-            "    u.email AS user_email,\n" +
-            "    u.firstname AS user_firstname,\n" +
-            "    u.lastname AS user_lastname,\n" +
-            "    u.username AS user_username,\n" +
-            "    u.university AS user_university,\n" +
-            "    u.language AS user_language,\n" +
-            "    c.name AS career_name,\n" +
-            "    c.id AS career_id,\n" +
-            "    u.profile_picture_id AS user_profile_picture_id,\n" +
-            "    un.name AS university_name,\n" +
-            "    un.abbreviation AS university_abbreviation, \n" +
-            "    ci.id AS city_id, \n" +
-            "    ci.name AS city_name, \n" +
-            "    co.name AS country_name\n" +
-            "FROM users u\n" +
-            "JOIN universities un ON u.university = un.id\n" +
-            "JOIN careers c ON c.id = u.career_id\n" +
-            "JOIN cities ci ON ci.id = un.city_id\n" +
-            "JOIN countries co ON co.id = ci.country_id\n";
+    private final static String QUERY = """
+            SELECT\s
+                u.id AS user_id,\s
+                u.email AS user_email,\s
+                u.firstname AS user_firstname,\s
+                u.lastname AS user_lastname,\s
+                u.username AS user_username,\s
+                u.university AS user_university,\s
+                u.language AS user_language,\s
+                c.name AS career_name,\s
+                c.id AS career_id,\s
+                u.profile_picture_id AS user_profile_picture_id,\s
+                un.name AS university_name,\s
+                un.abbreviation AS university_abbreviation,\s
+                ci.id AS city_id,\s
+                ci.name AS city_name,\s
+                co.name AS country_name\s
+            FROM users u\s
+            JOIN universities un ON u.university = un.id\s
+            JOIN careers c ON c.id = u.career_id\s
+            JOIN cities ci ON ci.id = un.city_id\s
+            JOIN countries co ON co.id = ci.country_id
+            """;
 
 
-    private final static String PASSWORD_QUERY = "SELECT \n" +
-            "    u.id AS user_id,\n" +
-            "    u.email AS user_email,\n" +
-            "    u.firstname AS user_firstname,\n" +
-            "    u.lastname AS user_lastname,\n" +
-            "    u.username AS user_username,\n" +
-            "    u.university AS user_university,\n" +
-            "    u.language AS user_language,\n" +
-            "    c.name AS career_name,\n" +
-            "    c.id AS career_id,\n" +
-            "    u.profile_picture_id AS user_profile_picture_id,\n" +
-            "    un.name AS university_name,\n" +
-            "    un.abbreviation AS university_abbreviation, \n" +
-            "    ci.id AS city_id, \n" +
-            "    ci.name AS city_name, \n" +
-            "    co.name AS country_name,\n" +
-            "    u.password AS user_password\n" +
-            "FROM users u\n" +
-            "JOIN universities un ON u.university = un.id\n" +
-            "JOIN careers c ON c.id = u.career_id\n" +
-            "JOIN cities ci ON ci.id = un.city_id\n" +
-            "JOIN countries co ON co.id = ci.country_id";
+    private final static String PASSWORD_QUERY = """
+            SELECT\s
+                u.id AS user_id,\s
+                u.email AS user_email,\s
+                u.firstname AS user_firstname,\s
+                u.lastname AS user_lastname,\s
+                u.username AS user_username,\s
+                u.university AS user_university,\s
+                u.language AS user_language,\s
+                c.name AS career_name,\s
+                c.id AS career_id,\s
+                u.profile_picture_id AS user_profile_picture_id,\s
+                un.name AS university_name,\s
+                un.abbreviation AS university_abbreviation,\s
+                ci.id AS city_id,\s
+                ci.name AS city_name,\s
+                co.name AS country_name,\s
+                u.password AS user_password\s
+            FROM users u\s
+            JOIN universities un ON u.university = un.id\s
+            JOIN careers c ON c.id = u.career_id\s
+            JOIN cities ci ON ci.id = un.city_id\s
+            JOIN countries co ON co.id = ci.country_id""";
 
     @Autowired
     public UserJdbcDao(DataSource dataSource) {
@@ -130,7 +133,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public void changePassword(String email, String password) {
-        LOGGER.debug("Updating password for user email {} (has password {})", email, password.length() > 0);
+        LOGGER.debug("Updating password for user email {} (has password {})", email, !password.isEmpty());
         int rows = jdbcTemplate.update("UPDATE users SET password = ? WHERE email = ?", password, email);
         if (rows == 0) {
             LOGGER.warn("Password change failed: User not found");

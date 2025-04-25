@@ -13,6 +13,4 @@ public interface EventAttendanceDao {
     int getAttendeesCount(long eventId);
     List<Event> getAttendingEvents(long userId);
 
-    CursorPage<Event, Long> getAttendingEvents(long userId, Long cursor, int limit);
-    CursorPage<User, Long> getAttendees(long eventId, Long cursor, int limit);
 }

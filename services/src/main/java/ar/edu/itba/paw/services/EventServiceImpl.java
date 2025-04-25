@@ -5,7 +5,6 @@ import ar.edu.itba.paw.interfaces.services.EmailService;
 import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -212,43 +210,6 @@ public class EventServiceImpl implements EventService {
     public List<Event> getTopEvents(){
         LOGGER.debug("Getting top events");
         return eventDao.getTopEvents();
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public CursorPage<EventResponse, LocalDateTime> getEventResponses(long eventId, LocalDateTime cursor, int limit) {
-        return eventResponseDao.getEventsForUser(eventId, cursor, limit);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public CursorPage<Event, Long> getAllEvents(Long cursor, int limit) {
-        return eventDao.listAll(cursor, limit);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public CursorPage<Event, Long> listByCity(City city, Long cursor, int limit) {
-        return eventDao.listByCity(city, cursor, limit);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public CursorPage<User, Long> getEventAttendees(long eventId, Long cursor, int limit) {
-        return eventAttendanceDao.getAttendees(eventId, cursor, limit);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public CursorPage<Event, Long> getUserAttendingEvents(long userId, Long cursor, int limit) {
-        return eventAttendanceDao.getAttendingEvents(userId, cursor, limit);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public CursorPage<Event, Long> getUserAttendingEvents(String userEmail, Long cursor, int limit) {
-        long userId = userService.findByEmail(userEmail).orElseThrow().getId();
-        return getUserAttendingEvents(userId, cursor, limit);
     }
 
     @Transactional(readOnly=true)

@@ -33,20 +33,19 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
             rs.getString("message"),
             rs.getTimestamp("date_time").toLocalDateTime()
     );
-    private static final String QUERY_BY_JOURNEY_ID =
-            "SELECT jr.user_id, us.username as username, jr.journey_id, jr.message, jr.date_time " +
-                    "FROM journey_responses jr " +
-                    "JOIN users us " +
-                    "ON jr.user_id = us.id " +
-                    "WHERE jr.journey_id = ?";
+    private static final String QUERY_BY_JOURNEY_ID = """
+            SELECT jr.user_id, us.username AS username, jr.journey_id, jr.message, jr.date_time\s
+            FROM journey_responses jr\s
+            JOIN users us\s
+            ON jr.user_id = us.id\s
+            WHERE jr.journey_id = ?""";
+
     @Autowired
     public JourneyResponseJdbcDao(DataSource dataSource){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("journey_responses")
                 .usingGeneratedKeyColumns("id");
-
-//        this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("journey_responses");
     }
 
     @Override
@@ -77,20 +76,6 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
         return jdbcTemplate.query(QUERY_BY_JOURNEY_ID + " ORDER BY jr.date_time ", JOURNEY_RESPONSE_ROW_MAPPER, journeyId);
     }
 
-    @Override
-    public CursorPage<JourneyResponse, LocalDateTime> listFromJourneyAfter(long journeyId, LocalDateTime cursor, int limit) {
-        final String sql = QUERY_BY_JOURNEY_ID + (cursor != null ? " AND jr.date_time < ? " : "") + " ORDER BY jr.date_time DESC LIMIT ?";
-
-        final List<JourneyResponse> responses = cursor != null
-                ? jdbcTemplate.query(sql, JOURNEY_RESPONSE_ROW_MAPPER, journeyId, Timestamp.valueOf(cursor), limit + 1)
-                : jdbcTemplate.query(sql, JOURNEY_RESPONSE_ROW_MAPPER, journeyId, limit + 1);
-
-        boolean hasNext = responses.size() > limit;
-        List<JourneyResponse> page = hasNext ? responses.subList(0, limit) : responses;
-        LocalDateTime nextCursor = hasNext ? page.get(page.size() - 1).getDateTime() : null;
-
-        return new CursorPage<>(page, nextCursor, hasNext);
-    }
 
 
 }

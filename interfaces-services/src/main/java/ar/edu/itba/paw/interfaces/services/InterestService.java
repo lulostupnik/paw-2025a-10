@@ -17,6 +17,4 @@ public interface InterestService {
     void updateScoreByInterest(Interest interest, Long userId);
     void updateScoreByInterests(List<Interest> interests, Long userId);
 
-    public CursorPage<Interest, Long> findAll(Long cursor, int limit);
-
 }

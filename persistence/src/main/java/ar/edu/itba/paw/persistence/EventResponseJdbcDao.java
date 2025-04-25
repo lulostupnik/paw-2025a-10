@@ -33,12 +33,13 @@ public class EventResponseJdbcDao implements EventResponseDao {
             rs.getString("message"),
             rs.getTimestamp("date_time").toLocalDateTime()
     );
-    private static final String QUERY_BY_EVENT_ID =
-            "SELECT er.user_id, us.username as username, er.event_id, er.message, er.date_time " +
-                    "FROM event_responses er " +
-                    "JOIN users us " +
-                    "ON er.user_id = us.id " +
-                    "WHERE er.event_id = ?";
+
+    private static final String QUERY_BY_EVENT_ID = """
+        SELECT er.user_id, us.username as username, er.event_id, er.message, er.date_time\s
+        FROM event_responses er\s
+        JOIN users us\s
+        ON er.user_id = us.id\s
+        WHERE er.event_id = ?""";
 
     @Autowired
     public EventResponseJdbcDao(DataSource dataSource){
@@ -68,21 +69,4 @@ public class EventResponseJdbcDao implements EventResponseDao {
         return jdbcTemplate.query(QUERY_BY_EVENT_ID + " ORDER BY date_time ", EVENT_RESPONSE_ROW_MAPPER, eventId);
     }
 
-    @Override
-    public CursorPage<EventResponse, LocalDateTime> getEventsForUser(long eventId, LocalDateTime cursor, int limit) {
-        String sql = QUERY_BY_EVENT_ID + (cursor != null ? " AND date_time < ?" : "") + " ORDER BY date_time DESC LIMIT ?";
-        List<EventResponse> responseList;
-        if(cursor != null) {
-            responseList = jdbcTemplate.query(sql, EVENT_RESPONSE_ROW_MAPPER, eventId, limit + 1);
-        } else {
-            responseList = jdbcTemplate.query(sql, EVENT_RESPONSE_ROW_MAPPER, limit + 1);
-        }
-        LocalDateTime nextCursor = null;
-        boolean hasNext = responseList != null && responseList.size() > limit;
-        if(hasNext){
-            responseList.removeLast();
-            nextCursor = responseList.getLast().getDateTime();
-        }
-        return new CursorPage<>(responseList, nextCursor, hasNext);
-    }
 }

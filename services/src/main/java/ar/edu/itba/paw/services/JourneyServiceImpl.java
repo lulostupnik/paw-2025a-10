@@ -207,24 +207,6 @@ public class JourneyServiceImpl implements JourneyService {
         return getOthersJourneys(userId);
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public CursorPage<JourneyResponse, LocalDateTime> listFromJourneyAfter(long journeyId, LocalDateTime cursor, int limit) {
-        return journeyResponseDao.listFromJourneyAfter(journeyId, cursor, limit);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public CursorPage<Journey, Long> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest, Long cursor, int pageSize) {
-        return journeyDao.findByFilters(destination, startDate, endDate, interest, cursor, pageSize);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public CursorPage<Journey, Long> listAll(Long cursor, int pageSize) {
-        return journeyDao.listAll(cursor, pageSize);
-    }
-
     @Override
     @Transactional
     @CacheEvict(value = "journeysById", key = "#journeyId")

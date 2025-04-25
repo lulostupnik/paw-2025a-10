@@ -9,6 +9,4 @@ public interface CountryDao {
     List<Country> findAll();
     Boolean existsByName(String name);
 
-    CursorPage<Country, Long> findAll(Long cursor, int limit);
-    CursorPage<Country, Long> findBySubstring(String substring, Long cursor, int limit);
 }

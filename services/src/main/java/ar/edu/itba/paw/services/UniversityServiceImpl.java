@@ -70,16 +70,5 @@ public class UniversityServiceImpl implements UniversityService {
         return universityDao.searchBySubstring(substring);
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public CursorPage<University, Long> getAllUniversitiesAfter(Long cursor, int limit) {
-        return universityDao.getAllUniversitiesAfter(cursor, limit);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public CursorPage<University, Long> searchBySubstringAfter(String substring, Long cursor, int limit) {
-        return universityDao.searchBySubstringAfter(substring, cursor, limit);
-    }
 
 }

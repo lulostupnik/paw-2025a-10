@@ -18,6 +18,5 @@ public interface InterestDao {
      void updateScoreByInterest(Interest interest, Long userId);
      void updateScoreByInterests(List<Interest> interests, Long userId);
 
-     CursorPage<Interest, Long> findAll(Long cursor, int limit);
 
 }

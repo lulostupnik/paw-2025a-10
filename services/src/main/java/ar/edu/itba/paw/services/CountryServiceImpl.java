@@ -35,13 +35,4 @@ public class CountryServiceImpl implements CountryService {
         return countryDao.existsByName(name);
     }
 
-    @Override
-    public CursorPage<Country, Long> getAllCountries(Long cursor, int limit) {
-        return countryDao.findAll(cursor, limit);
-    }
-
-    @Override
-    public CursorPage<Country, Long> getCountriesBySubstring(String substring, Long cursor, int limit) {
-        return countryDao.findBySubstring(substring, cursor, limit);
-    }
 }

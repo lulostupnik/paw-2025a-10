@@ -20,8 +20,6 @@ public interface EventDao {
     Optional<Integer> getEventAttendanceLimit(long eventId);
     List<Event> getFullEvents();
 
-    CursorPage<Event, Long> listAll(Long cursor, int limit);
-    CursorPage<Event, Long> listByCity(City city, Long cursor, int limit);
 
     List<Event> getMyEvents(long userId);
     List<Event> getOthersEvents(long userId);

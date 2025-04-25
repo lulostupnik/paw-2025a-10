@@ -10,7 +10,4 @@ public interface CareerDao {
     Optional<Career> findById(long id);
     List<Career> findAll();
     Optional<Career> findByName(String name);
-
-    CursorPage<Career, Long> findAll(Long cursor, int limit);
-    CursorPage<Career, Long> findBySubstring(String substring, Long cursor, int limit);
 }

@@ -7,9 +7,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-
 import javax.sql.DataSource;
-
 import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,24 +16,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
-
-/*
-
-
-        user_id INTEGER NOT NULL,
-        destination_university_id INTEGER NOT NULL,
-        city VARCHAR(100) NOT NULL,
-        start_date DATE NOT NULL,
-        end_date DATE NOT NULL,
-        description VARCHAR(2047),
-
-        FOREIGN KEY (destination_university_id) REFERENCES university ON DELETE RESTRICT,
-        FOREIGN KEY (user_id) REFERENCES "user" ON DELETE RESTRICT
-        -- FOREIGN KEY (city_id) REFERENCES city
-);
- */
 
 @Repository
 public class JourneyJdbcDao implements JourneyDao {
@@ -47,54 +28,91 @@ public class JourneyJdbcDao implements JourneyDao {
     private static final String ORDER_BY = " ORDER BY j.id ASC ";
     private static final String CURSOR_CONDITION = " j.id > ? ";
 
-    private static final String QUERY = "SELECT \n" +
-            "    us.id AS user_id, \n" +
-            "    us.email AS user_email, \n" +
-            "    us.firstname AS user_firstname, \n" +
-            "    us.lastname AS user_lastname, \n" +
-            "    us.username AS user_username, \n" +
-            "    us.university AS user_university, \n" +
-            "    us.profile_picture_id AS user_profile_picture_id, \n" +
-            "\n" +
-            "    us.language AS user_language,\n" +
-            "    ca.id AS career_id, \n" +
-            "    ca.name AS career_name, \n" +
-            "\n" +
-            "    j.id AS journey_id, \n" +
-            "    j.user_id AS journey_user_id, \n" +
-            "    j.destination_university_id AS journey_destination_university_id, \n" +
-            "    j.start_date AS journey_start_date, \n" +
-            "    j.end_date AS journey_end_date, \n" +
-            "    j.description AS journey_description, \n" +
-            "\n" +
-            "   ci1.id AS city_id, \n" +
-            "   co1.name AS country_name, \n" +
-            "   ci1.name AS city_name, \n" +
-            "\n" +
-            "   ci2.id AS destination_city_id, \n" +
-            "   co2.name AS destination_country_name, \n" +
-            "   ci2.name AS destination_city_name, \n" +
-            "\n" +
-            "    un1.id AS university_id, \n" +
-            "    un1.name AS university_name, \n" +
-            "    un1.abbreviation AS university_abbreviation, \n" +
-            "\n" +
-            "    un2.id AS destination_university_id, \n" +
-            "    un2.name AS destination_university_name, \n" +
-            "    un2.abbreviation AS destination_university_abbreviation \n" +
-            "\n" +
-            "FROM users us \n" +
-            "JOIN journeys j ON j.user_id = us.id\n" +
-            "JOIN careers ca ON us.career_id = ca.id\n" +
-            "JOIN universities un1 ON us.university = un1.id\n" +
-            "JOIN cities ci1 ON un1.city_id = ci1.id\n" +
-            "JOIN countries co1 ON ci1.country_id = co1.id\n" +
-            "JOIN universities un2 ON j.destination_university_id = un2.id\n" +
-            "JOIN cities ci2 ON un2.city_id = ci2.id\n" +
-            "JOIN countries co2 ON ci2.country_id = co2.id\n";
+    private static final String QUERY = """
+            SELECT\s
+                us.id AS user_id,\s
+                us.email AS user_email,\s
+                us.firstname AS user_firstname,\s
+                us.lastname AS user_lastname,\s
+                us.username AS user_username,\s
+                us.university AS user_university,\s
+                us.profile_picture_id AS user_profile_picture_id,\s
+                us.language AS user_language,
+                ca.id AS career_id,\s
+                ca.name AS career_name,\s
+                j.id AS journey_id,\s
+                j.user_id AS journey_user_id,\s
+                j.destination_university_id AS journey_destination_university_id,\s
+                j.start_date AS journey_start_date,\s
+                j.end_date AS journey_end_date,\s
+                j.description AS journey_description,\s
+                ci1.id AS city_id,\s
+                co1.name AS country_name,\s
+                ci1.name AS city_name,\s
+                ci2.id AS destination_city_id,\s
+                co2.name AS destination_country_name,\s
+                ci2.name AS destination_city_name,\s
+                un1.id AS university_id,\s
+                un1.name AS university_name,\s
+                un1.abbreviation AS university_abbreviation,\s
+                un2.id AS destination_university_id,\s
+                un2.name AS destination_university_name,\s
+                un2.abbreviation AS destination_university_abbreviation\s
+            FROM users us\s
+            JOIN journeys j ON j.user_id = us.id
+            JOIN careers ca ON us.career_id = ca.id
+            JOIN universities un1 ON us.university = un1.id
+            JOIN cities ci1 ON un1.city_id = ci1.id
+            JOIN countries co1 ON ci1.country_id = co1.id
+            JOIN universities un2 ON j.destination_university_id = un2.id
+            JOIN cities ci2 ON un2.city_id = ci2.id
+            JOIN countries co2 ON ci2.country_id = co2.id
+            """;
 
-    private final static String QUERY_INTEREST = QUERY + " JOIN user_interest ui ON us.id = ui.user_id\n" +
-            "JOIN category c ON ui.category_id = c.id\n";
+    private static final String PAGE_QUERY = """
+        SELECT
+            us.id AS user_id,
+            us.email AS user_email,
+            us.firstname AS user_firstname,
+            us.lastname AS user_lastname,
+            us.username AS user_username,
+            us.university AS user_university,
+            us.profile_picture_id AS user_profile_picture_id,
+            us.language AS user_language,
+            ca.id AS career_id,
+            ca.name AS career_name,
+            j.id AS journey_id,
+            j.user_id AS journey_user_id,
+            j.destination_university_id AS journey_destination_university_id,
+            j.start_date AS journey_start_date,
+            j.end_date AS journey_end_date,
+            j.description AS journey_description,
+            ci1.id AS city_id,
+            co1.name AS country_name,
+            ci1.name AS city_name,
+            ci2.id AS destination_city_id,
+            co2.name AS destination_country_name,
+            ci2.name AS destination_city_name,
+            un1.id AS university_id,
+            un1.name AS university_name,
+            un1.abbreviation AS university_abbreviation,
+            un2.id AS destination_university_id,
+            un2.name AS destination_university_name,
+            un2.abbreviation AS destination_university_abbreviation
+        FROM (
+            SELECT * FROM journeys ORDER BY id ASC LIMIT ? OFFSET ?
+        ) AS j
+        JOIN users us ON j.user_id = us.id
+        JOIN careers ca ON us.career_id = ca.id
+        JOIN universities un1 ON us.university = un1.id
+        JOIN cities ci1 ON un1.city_id = ci1.id
+        JOIN countries co1 ON ci1.country_id = co1.id
+        JOIN universities un2 ON j.destination_university_id = un2.id
+        JOIN cities ci2 ON un2.city_id = ci2.id
+        JOIN countries co2 ON ci2.country_id = co2.id
+        """;
+
+    private final static String QUERY_INTEREST = QUERY + " JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id \n";
 
     private final static RowMapper<Journey> JOURNEY_ROW_MAPPER = (rs, rowNum) -> new Journey(
             rs.getLong("journey_id"),
@@ -165,21 +183,6 @@ public class JourneyJdbcDao implements JourneyDao {
         return jdbcTemplate.query(QUERY, JOURNEY_ROW_MAPPER);
     }
 
-    @Override
-    public CursorPage<Journey, Long> listAll(Long cursor, int size) {
-        LOGGER.debug("Paginated query for all journeys (cursor: {}, size: {})", cursor, size);
-        if(cursor == null){
-            cursor = 0L;
-            // podría hacerlo distinto
-        }
-        List<Journey> journeys = jdbcTemplate.query(QUERY + " WHERE j.id > ? ORDER BY j.id ASC LIMIT ?", JOURNEY_ROW_MAPPER, cursor, size + 1);
-
-        boolean hasNext = journeys.size() > size;
-        if (hasNext) journeys.removeLast();
-
-        Long nextCursor = hasNext ? journeys.getLast().getId() : null;
-        return new CursorPage<>(journeys, nextCursor, hasNext);
-    }
 
     @Override
     public Optional<Journey> findById(long id) {
@@ -288,58 +291,6 @@ public class JourneyJdbcDao implements JourneyDao {
         return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
     }
 
-
-    @Override
-    public CursorPage<Journey, Long> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest, Long cursor, int size) {
-        LOGGER.debug("Paginated query for journeys with filters (cursor: {}, size: {})", cursor, size);
-        String query;
-        List<Object> params = new ArrayList<>();
-
-        if (interest != null && !interest.isEmpty()) {
-            query = QUERY_INTEREST;
-        } else {
-            query = QUERY;
-        }
-
-        List<String> filters = new ArrayList<>();
-
-        if (cursor != null) {
-            filters.add(CURSOR_CONDITION);
-            params.add(cursor);
-        }
-
-        if (destination != null && !destination.isEmpty()) {
-            filters.add("ci2.name = ?");
-            params.add(destination);
-        }
-        if (startDate != null) {
-            filters.add("j.end_date >= ?");  // Journey ends on or after startDate
-            params.add(startDate);
-        }
-        if (endDate != null) {
-            filters.add("j.start_date <= ?"); // Journey starts on or before endDate
-            params.add(endDate);
-        }
-        if (interest != null && !interest.isEmpty()) {
-            filters.add("c.name = ?");
-            params.add(interest);
-        }
-
-        if (!filters.isEmpty()) {
-            query += " WHERE " + String.join(" AND ", filters);
-        }
-
-        query += ORDER_BY + " LIMIT ?";
-        params.add(size + 1);
-
-        List<Journey> journeys = jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
-
-        boolean hasNext = journeys.size() > size;
-        if (hasNext) journeys.removeLast();
-
-        Long nextCursor = hasNext ? journeys.getLast().getId() : null;
-        return new CursorPage<>(journeys, nextCursor,hasNext);
-    }
 
     @Override
     public List<Journey> findByOriginCity(long originCityId) {

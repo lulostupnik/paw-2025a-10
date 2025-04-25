@@ -5,9 +5,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-
 import javax.sql.DataSource;
-
 import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,41 +36,42 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
             Locale.of(rs.getString("user_language")));
 
     private final static String GET_ATTENDEES_QUERY =
-            "SELECT \n" +
-                    "    u.id AS user_id,\n" +
-                    "    u.email AS user_email,\n" +
-                    "    u.firstname AS user_firstname,\n" +
-                    "    u.lastname AS user_lastname,\n" +
-                    "    u.username AS user_username,\n" +
-                    "    u.university AS user_university,\n" +
-                    "    u.language AS user_language,\n" +
-                    "    c.name AS career_name,\n" +
-                    "    c.id AS career_id,\n" +
-                    "    u.profile_picture_id AS user_profile_picture_id,\n" +
-                    "    un.name AS university_name,\n" +
-                    "    un.abbreviation AS university_abbreviation, \n" +
-                    "    ci.id AS city_id, \n" +
-                    "    ci.name AS city_name, \n" +
-                    "    co.name AS country_name\n" +
-                    "FROM users u\n" +
-                    "JOIN universities un ON u.university = un.id\n" +
-                    "JOIN careers c ON c.id = u.career_id\n" +
-                    "JOIN cities ci ON ci.id = un.city_id\n" +
-                    "JOIN countries co ON co.id = ci.country_id\n" +
-                    "JOIN event_attendances ea ON u.id = ea.user_id WHERE ea.event_id = ? ";
+            """
+                    SELECT\s
+                        u.id AS user_id,\s
+                        u.email AS user_email,\s
+                        u.firstname AS user_firstname,\s
+                        u.lastname AS user_lastname,\s
+                        u.username AS user_username,\s
+                        u.university AS user_university,\s
+                        u.language AS user_language,\s
+                        c.name AS career_name,\s
+                        c.id AS career_id,\s
+                        u.profile_picture_id AS user_profile_picture_id,\s
+                        un.name AS university_name,\s
+                        un.abbreviation AS university_abbreviation,\s
+                        ci.id AS city_id,\s
+                        ci.name AS city_name,\s
+                        co.name AS country_name\s
+                    FROM users u\s
+                    JOIN universities un ON u.university = un.id\s
+                    JOIN careers c ON c.id = u.career_id\s
+                    JOIN cities ci ON ci.id = un.city_id\s
+                    JOIN countries co ON co.id = ci.country_id\s
+                    JOIN event_attendances ea ON u.id = ea.user_id WHERE ea.event_id = ?\s""";
 
 
     private static final RowMapper<Event> EVENT_ROW_MAPPER = (rs, rowNum) -> new Event(
-            rs.getLong("event_id"), // Event ID from `events` table
+            rs.getLong("event_id"),
             new User(
                     rs.getLong("user_id"),
-                    rs.getString("user_email"), // Correct field from `users`
+                    rs.getString("user_email"),
                     rs.getString("user_username"),
                     rs.getString("user_firstname"),
                     rs.getString("user_lastname"),
                     new University(
                             rs.getLong("university_id"),
-                            rs.getString("university_name"), // University name
+                            rs.getString("university_name"),
                             rs.getString("university_abbreviation"),
                             new City(
                                     rs.getString("origin_city_name"),
@@ -91,62 +90,64 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
             rs.getString("event_description"),
             rs.getLong( "event_flyer_image_id"),
             new City(
-                    rs.getString("city_name"), // Va a tener conflicto con el nombre de la universidad
+                    rs.getString("city_name"),
                     rs.getString("country_name"),
                     rs.getLong("city_id")
             ),
-            rs.getString("event_title"), // Assuming you have a title field in the events table
+            rs.getString("event_title"),
             Optional.ofNullable(rs.getTime("event_time") != null ? rs.getTime("event_time").toLocalTime() : null),
             rs.getString("event_address"),
             Optional.ofNullable(rs.getInt("event_attendees_limit") == 0 ? null : rs.getInt("event_attendees_limit")),
             rs.getInt("event_attendees_count")
     );
 
-    private final static String GET_EVENTS_QUERY = "SELECT \n" +
-            "    us.id AS user_id, \n" +
-            "    us.email AS user_email, \n" +
-            "    us.firstname AS user_firstname, \n" +
-            "    us.lastname AS user_lastname, \n" +
-            "    us.username AS user_username, \n" +
-            "    us.university AS user_university, \n" +
-            "    us.profile_picture_id AS user_profile_picture_id, \n" +
-            "    us.language AS user_language,\n" +
-            "\n" +
-            "    ca.id AS career_id, \n" +
-            "    ca.name AS career_name, \n" +
-            "\n" +
-            "    e.id AS event_id, \n" +
-            "    e.event_date AS event_date, \n" +
-            "    e.description AS event_description, \n" +
-            "    e.flyer_image_id AS event_flyer_image_id, \n" +
-            "    e.title AS event_title, \n" +
-            "    e.event_time AS event_time, \n" +
-            "    e.address AS event_address, \n" +
-            "    e.attendees_limit AS event_attendees_limit, \n" +
-            "    e.attendees_count AS event_attendees_count, \n" +
-            "\n" +
-            "    un.id AS university_id, \n" +
-            "    un.name AS university_name, \n" +
-            "    un.abbreviation AS university_abbreviation, \n" +
-            "\n" +
-            "   c.id AS city_id, \n" +
-            "   c.name AS city_name, \n" +
-            "\n" +
-            "   co.name AS country_name, \n" +
-            "\n" +
-            "   ci2.id AS origin_city_id, \n" +
-            "   ci2.name AS origin_city_name, \n" +
-            "\n" +
-            "   co2.name AS origin_country_name\n" +
-            "FROM events e\n" +
-            "JOIN users us ON e.user_id = us.id\n" +
-            "JOIN careers ca ON ca.id = us.career_id\n" +
-            "JOIN universities un ON us.university = un.id\n" +
-            "JOIN cities ci2 ON un.city_id = ci2.id \n" +
-            "JOIN countries co2 ON co2.id = ci2.country_id\n" +
-            "JOIN cities c ON e.city_id = c.id \n" +
-            "JOIN countries co ON c.country_id = co.id \n" +
-            "JOIN event_attendances ea ON e.id = ea.event_id WHERE ea.user_id = ?";
+    private final static String GET_EVENTS_QUERY =
+            """
+                    SELECT\s
+                        us.id AS user_id,\s
+                        us.email AS user_email,\s
+                        us.firstname AS user_firstname,\s
+                        us.lastname AS user_lastname,\s
+                        us.username AS user_username,\s
+                        us.university AS user_university,\s
+                        us.profile_picture_id AS user_profile_picture_id,\s
+                        us.language AS user_language,
+                    
+                        ca.id AS career_id,\s
+                        ca.name AS career_name,\s
+                    
+                        e.id AS event_id,\s
+                        e.event_date AS event_date,\s
+                        e.description AS event_description,\s
+                        e.flyer_image_id AS event_flyer_image_id,\s
+                        e.title AS event_title,\s
+                        e.event_time AS event_time,\s
+                        e.address AS event_address,\s
+                        e.attendees_limit AS event_attendees_limit,\s
+                        e.attendees_count AS event_attendees_count,\s
+                    
+                        un.id AS university_id,\s
+                        un.name AS university_name,\s
+                        un.abbreviation AS university_abbreviation,\s
+                    
+                       c.id AS city_id,\s
+                       c.name AS city_name,\s
+                    
+                       co.name AS country_name,\s
+                    
+                       ci2.id AS origin_city_id,\s
+                       ci2.name AS origin_city_name,\s
+                    
+                       co2.name AS origin_country_name
+                    FROM events e
+                    JOIN users us ON e.user_id = us.id
+                    JOIN careers ca ON ca.id = us.career_id
+                    JOIN universities un ON us.university = un.id
+                    JOIN cities ci2 ON un.city_id = ci2.id\s
+                    JOIN countries co2 ON co2.id = ci2.country_id
+                    JOIN cities c ON e.city_id = c.id\s
+                    JOIN countries co ON c.country_id = co.id\s
+                    JOIN event_attendances ea ON e.id = ea.event_id WHERE ea.user_id = ?""";
 
 
     @Autowired
@@ -201,51 +202,4 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
         return jdbcTemplate.query(GET_EVENTS_QUERY + " AND e.user_id != ?", EVENT_ROW_MAPPER, userId, userId);
     }
 
-    @Override
-    public CursorPage<Event, Long> getAttendingEvents(long userId, Long cursor, int limit) {
-        LOGGER.debug("Querying DB for events user {} will attend with cursor {} and limit {}", userId, cursor, limit);
-
-        String sql = GET_EVENTS_QUERY + (cursor != null ? " AND e.id > ? " : "") + " ORDER BY e.id LIMIT ?";
-
-        List<Event> eventList;
-        if (cursor != null) {
-            eventList = jdbcTemplate.query(sql, EVENT_ROW_MAPPER, userId, cursor, limit + 1);
-        } else {
-            eventList = jdbcTemplate.query(sql, EVENT_ROW_MAPPER, userId, limit + 1);
-        }
-
-        boolean hasNext = eventList != null && eventList.size() > limit;
-        Long nextCursor = null;
-
-        if (hasNext) {
-            eventList.removeLast();
-            nextCursor = eventList.getLast().getId();
-        }
-
-        return new CursorPage<>(eventList, nextCursor, hasNext);
-    }
-
-    @Override
-    public CursorPage<User, Long> getAttendees(long eventId, Long cursor, int limit) {
-        LOGGER.debug("Querying DB for attendees for event {} with cursor {} and limit {}", eventId, cursor, limit);
-
-        String sql = GET_ATTENDEES_QUERY + (cursor != null ? " AND u.id > ? " : "") + " ORDER BY u.id LIMIT ? ";
-
-        List<User> attendeeList;
-        if (cursor != null) {
-            attendeeList = jdbcTemplate.query(sql, USER_ROW_MAPPER, eventId, cursor, limit + 1);
-        } else {
-            attendeeList = jdbcTemplate.query(sql, USER_ROW_MAPPER, eventId, limit + 1);
-        }
-
-        boolean hasNext = attendeeList != null && attendeeList.size() > limit;
-        Long nextCursor = null;
-
-        if (hasNext) {
-            attendeeList.removeLast();
-            nextCursor = attendeeList.getLast().getId();
-        }
-
-        return new CursorPage<>(attendeeList, nextCursor, hasNext);
-    }
 }

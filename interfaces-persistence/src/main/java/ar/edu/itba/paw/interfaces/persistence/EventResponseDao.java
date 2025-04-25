@@ -12,5 +12,4 @@ public interface EventResponseDao {
     EventResponse create(long userId, String username, long eventId, String message, LocalDateTime dateTime);
     List<EventResponse> listAllFromEvent(long eventId);
 
-    CursorPage<EventResponse, LocalDateTime> getEventsForUser(long eventId, LocalDateTime cursor, int limit);
 }
