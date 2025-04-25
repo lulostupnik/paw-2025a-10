@@ -237,12 +237,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<UserEvent> getEventsWithAttendanceStatus(long userId) {
 
-        return eventDao.getEventsWithAttendanceStatus(userId)
-                .stream().map(result -> new UserEvent(
-                        result.getEvent(),
-                        result.isAttending()
-                ))
-                .toList();
+        return eventDao.getEventsWithAttendanceStatus(userId);
     }
 
     @Transactional(readOnly = true)

@@ -369,7 +369,7 @@ public class EventJdbcDao implements EventDao {
     */
 
     @Override
-    public List<EventWithAttendanceStatus> getEventsWithAttendanceStatus(long userId) {
+    public List<UserEvent> getEventsWithAttendanceStatus(long userId) {
         LOGGER.debug("Querying DB for events with attendance status for user {} (excluding events created by this user)", userId);
 
         String sql = QUERY.replace("SELECT ", "SELECT (ea.user_id IS NOT NULL) AS is_attending, ") +
@@ -380,7 +380,7 @@ public class EventJdbcDao implements EventDao {
                 (rs, rowNum) -> {
                     Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
                     boolean isAttending = rs.getBoolean("is_attending");
-                    return new EventWithAttendanceStatus(event, isAttending);
+                    return new UserEvent(event, isAttending);
                 },
                 userId, userId
         );

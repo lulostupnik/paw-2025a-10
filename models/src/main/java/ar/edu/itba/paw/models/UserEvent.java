@@ -8,5 +8,4 @@ import lombok.RequiredArgsConstructor;
 public class UserEvent {
     private final Event event;
     private final boolean isAttending;
-    // private final boolean limitReached; ¿?
 }
