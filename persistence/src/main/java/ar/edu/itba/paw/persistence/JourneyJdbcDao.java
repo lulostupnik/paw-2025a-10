@@ -7,9 +7,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-
 import javax.sql.DataSource;
-
 import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,24 +16,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
-
-/*
-
-
-        user_id INTEGER NOT NULL,
-        destination_university_id INTEGER NOT NULL,
-        city VARCHAR(100) NOT NULL,
-        start_date DATE NOT NULL,
-        end_date DATE NOT NULL,
-        description VARCHAR(2047),
-
-        FOREIGN KEY (destination_university_id) REFERENCES university ON DELETE RESTRICT,
-        FOREIGN KEY (user_id) REFERENCES "user" ON DELETE RESTRICT
-        -- FOREIGN KEY (city_id) REFERENCES city
-);
- */
 
 @Repository
 public class JourneyJdbcDao implements JourneyDao {
@@ -56,34 +37,27 @@ public class JourneyJdbcDao implements JourneyDao {
                 us.username AS user_username,\s
                 us.university AS user_university,\s
                 us.profile_picture_id AS user_profile_picture_id,\s
-            
                 us.language AS user_language,
                 ca.id AS career_id,\s
                 ca.name AS career_name,\s
-            
                 j.id AS journey_id,\s
                 j.user_id AS journey_user_id,\s
                 j.destination_university_id AS journey_destination_university_id,\s
                 j.start_date AS journey_start_date,\s
                 j.end_date AS journey_end_date,\s
                 j.description AS journey_description,\s
-            
-               ci1.id AS city_id,\s
-               co1.name AS country_name,\s
-               ci1.name AS city_name,\s
-            
-               ci2.id AS destination_city_id,\s
-               co2.name AS destination_country_name,\s
-               ci2.name AS destination_city_name,\s
-            
+                ci1.id AS city_id,\s
+                co1.name AS country_name,\s
+                ci1.name AS city_name,\s
+                ci2.id AS destination_city_id,\s
+                co2.name AS destination_country_name,\s
+                ci2.name AS destination_city_name,\s
                 un1.id AS university_id,\s
                 un1.name AS university_name,\s
                 un1.abbreviation AS university_abbreviation,\s
-            
                 un2.id AS destination_university_id,\s
                 un2.name AS destination_university_name,\s
                 un2.abbreviation AS destination_university_abbreviation\s
-            
             FROM users us\s
             JOIN journeys j ON j.user_id = us.id
             JOIN careers ca ON us.career_id = ca.id
