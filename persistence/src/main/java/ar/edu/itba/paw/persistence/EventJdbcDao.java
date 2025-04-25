@@ -68,50 +68,53 @@ public class EventJdbcDao implements EventDao {
             
     );
 
-    private static final String QUERY = "SELECT \n" +
-            "    us.id AS user_id, \n" +
-            "    us.email AS user_email, \n" +
-            "    us.firstname AS user_firstname, \n" +
-            "    us.lastname AS user_lastname, \n" +
-            "    us.username AS user_username, \n" +
-            "    us.university AS user_university, \n" +
-            "    us.profile_picture_id AS user_profile_picture_id, \n" +
-            "    us.language AS user_language,\n" +
-            "\n" +
-            "    ca.id AS career_id, \n" +
-            "    ca.name AS career_name, \n" +
-            "\n" +
-            "    e.id AS event_id, \n" +
-            "    e.event_date AS event_date, \n" +
-            "    e.description AS event_description, \n" +
-            "    e.flyer_image_id AS event_flyer_image_id, \n" +
-            "    e.title AS event_title, \n" +
-            "    e.event_time AS event_time, \n" +
-            "    e.address AS event_address, \n" +
-            "    e.attendees_limit AS event_attendees_limit, \n" +
-            "    e.attendees_count AS event_attendees_count, \n" +
-            "\n" +
-            "    un.id AS university_id, \n" +
-            "    un.name AS university_name, \n" +
-            "    un.abbreviation AS university_abbreviation, \n" +
-            "\n" +
-            "   c.id AS city_id, \n" +
-            "   c.name AS city_name, \n" +
-            "\n" +
-            "   co.name AS country_name, \n" +
-            "\n" +
-            "   ci2.id AS origin_city_id, \n" +
-            "   ci2.name AS origin_city_name, \n" +
-            "\n" +
-            "   co2.name AS origin_country_name\n" +
-            "FROM events e\n" +
-            "JOIN users us ON e.user_id = us.id\n" +
-            "JOIN careers ca ON ca.id = us.career_id\n" +
-            "JOIN universities un ON us.university = un.id\n" +
-            "JOIN cities ci2 ON un.city_id = ci2.id \n" +
-            "JOIN countries co2 ON co2.id = ci2.country_id\n" +
-            "JOIN cities c ON e.city_id = c.id \n" +
-            "JOIN countries co ON c.country_id = co.id \n";
+    private static final String QUERY =
+            """
+                    SELECT\s
+                        us.id AS user_id,\s
+                        us.email AS user_email,\s
+                        us.firstname AS user_firstname,\s
+                        us.lastname AS user_lastname,\s
+                        us.username AS user_username,\s
+                        us.university AS user_university,\s
+                        us.profile_picture_id AS user_profile_picture_id,\s
+                        us.language AS user_language,
+                    
+                        ca.id AS career_id,\s
+                        ca.name AS career_name,\s
+                    
+                        e.id AS event_id,\s
+                        e.event_date AS event_date,\s
+                        e.description AS event_description,\s
+                        e.flyer_image_id AS event_flyer_image_id,\s
+                        e.title AS event_title,\s
+                        e.event_time AS event_time,\s
+                        e.address AS event_address,\s
+                        e.attendees_limit AS event_attendees_limit,\s
+                        e.attendees_count AS event_attendees_count,\s
+                    
+                        un.id AS university_id,\s
+                        un.name AS university_name,\s
+                        un.abbreviation AS university_abbreviation,\s
+                    
+                       c.id AS city_id,\s
+                       c.name AS city_name,\s
+                    
+                       co.name AS country_name,\s
+                    
+                       ci2.id AS origin_city_id,\s
+                       ci2.name AS origin_city_name,\s
+                    
+                       co2.name AS origin_country_name
+                    FROM events e
+                    JOIN users us ON e.user_id = us.id
+                    JOIN careers ca ON ca.id = us.career_id
+                    JOIN universities un ON us.university = un.id
+                    JOIN cities ci2 ON un.city_id = ci2.id\s
+                    JOIN countries co2 ON co2.id = ci2.country_id
+                    JOIN cities c ON e.city_id = c.id\s
+                    JOIN countries co ON c.country_id = co.id\s
+                    """;
 
 
 
@@ -413,9 +416,7 @@ public class EventJdbcDao implements EventDao {
         LOGGER.debug("Querying DB for events with attendance status for user {} (excluding events created by this user)", userId);
 
         String sql = QUERY.replace("SELECT ", "SELECT (ea.user_id IS NOT NULL) AS is_attending, ") +
-                "LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ? " +
-                "WHERE e.user_id != ? " +
-                "ORDER BY e.event_date DESC";
+                "LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?  WHERE e.user_id != ?  ORDER BY e.event_date DESC";
 
         return jdbcTemplate.query(
                 sql,
