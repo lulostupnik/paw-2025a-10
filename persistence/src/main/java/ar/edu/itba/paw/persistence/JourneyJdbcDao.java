@@ -47,54 +47,55 @@ public class JourneyJdbcDao implements JourneyDao {
     private static final String ORDER_BY = " ORDER BY j.id ASC ";
     private static final String CURSOR_CONDITION = " j.id > ? ";
 
-    private static final String QUERY = "SELECT \n" +
-            "    us.id AS user_id, \n" +
-            "    us.email AS user_email, \n" +
-            "    us.firstname AS user_firstname, \n" +
-            "    us.lastname AS user_lastname, \n" +
-            "    us.username AS user_username, \n" +
-            "    us.university AS user_university, \n" +
-            "    us.profile_picture_id AS user_profile_picture_id, \n" +
-            "\n" +
-            "    us.language AS user_language,\n" +
-            "    ca.id AS career_id, \n" +
-            "    ca.name AS career_name, \n" +
-            "\n" +
-            "    j.id AS journey_id, \n" +
-            "    j.user_id AS journey_user_id, \n" +
-            "    j.destination_university_id AS journey_destination_university_id, \n" +
-            "    j.start_date AS journey_start_date, \n" +
-            "    j.end_date AS journey_end_date, \n" +
-            "    j.description AS journey_description, \n" +
-            "\n" +
-            "   ci1.id AS city_id, \n" +
-            "   co1.name AS country_name, \n" +
-            "   ci1.name AS city_name, \n" +
-            "\n" +
-            "   ci2.id AS destination_city_id, \n" +
-            "   co2.name AS destination_country_name, \n" +
-            "   ci2.name AS destination_city_name, \n" +
-            "\n" +
-            "    un1.id AS university_id, \n" +
-            "    un1.name AS university_name, \n" +
-            "    un1.abbreviation AS university_abbreviation, \n" +
-            "\n" +
-            "    un2.id AS destination_university_id, \n" +
-            "    un2.name AS destination_university_name, \n" +
-            "    un2.abbreviation AS destination_university_abbreviation \n" +
-            "\n" +
-            "FROM users us \n" +
-            "JOIN journeys j ON j.user_id = us.id\n" +
-            "JOIN careers ca ON us.career_id = ca.id\n" +
-            "JOIN universities un1 ON us.university = un1.id\n" +
-            "JOIN cities ci1 ON un1.city_id = ci1.id\n" +
-            "JOIN countries co1 ON ci1.country_id = co1.id\n" +
-            "JOIN universities un2 ON j.destination_university_id = un2.id\n" +
-            "JOIN cities ci2 ON un2.city_id = ci2.id\n" +
-            "JOIN countries co2 ON ci2.country_id = co2.id\n";
+    private static final String QUERY = """
+            SELECT\s
+                us.id AS user_id,\s
+                us.email AS user_email,\s
+                us.firstname AS user_firstname,\s
+                us.lastname AS user_lastname,\s
+                us.username AS user_username,\s
+                us.university AS user_university,\s
+                us.profile_picture_id AS user_profile_picture_id,\s
+            
+                us.language AS user_language,
+                ca.id AS career_id,\s
+                ca.name AS career_name,\s
+            
+                j.id AS journey_id,\s
+                j.user_id AS journey_user_id,\s
+                j.destination_university_id AS journey_destination_university_id,\s
+                j.start_date AS journey_start_date,\s
+                j.end_date AS journey_end_date,\s
+                j.description AS journey_description,\s
+            
+               ci1.id AS city_id,\s
+               co1.name AS country_name,\s
+               ci1.name AS city_name,\s
+            
+               ci2.id AS destination_city_id,\s
+               co2.name AS destination_country_name,\s
+               ci2.name AS destination_city_name,\s
+            
+                un1.id AS university_id,\s
+                un1.name AS university_name,\s
+                un1.abbreviation AS university_abbreviation,\s
+            
+                un2.id AS destination_university_id,\s
+                un2.name AS destination_university_name,\s
+                un2.abbreviation AS destination_university_abbreviation\s
+            
+            FROM users us\s
+            JOIN journeys j ON j.user_id = us.id
+            JOIN careers ca ON us.career_id = ca.id
+            JOIN universities un1 ON us.university = un1.id
+            JOIN cities ci1 ON un1.city_id = ci1.id
+            JOIN countries co1 ON ci1.country_id = co1.id
+            JOIN universities un2 ON j.destination_university_id = un2.id
+            JOIN cities ci2 ON un2.city_id = ci2.id
+            JOIN countries co2 ON ci2.country_id = co2.id
+            """;
 
-    private final static String QUERY_INTEREST = QUERY + " JOIN user_interest ui ON us.id = ui.user_id\n" +
-            "JOIN category c ON ui.category_id = c.id\n";
+    private final static String QUERY_INTEREST = QUERY + " JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id \n";
 
     private final static RowMapper<Journey> JOURNEY_ROW_MAPPER = (rs, rowNum) -> new Journey(
             rs.getLong("journey_id"),

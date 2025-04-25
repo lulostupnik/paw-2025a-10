@@ -33,20 +33,19 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
             rs.getString("message"),
             rs.getTimestamp("date_time").toLocalDateTime()
     );
-    private static final String QUERY_BY_JOURNEY_ID =
-            "SELECT jr.user_id, us.username as username, jr.journey_id, jr.message, jr.date_time " +
-                    "FROM journey_responses jr " +
-                    "JOIN users us " +
-                    "ON jr.user_id = us.id " +
-                    "WHERE jr.journey_id = ?";
+    private static final String QUERY_BY_JOURNEY_ID = """
+            SELECT jr.user_id, us.username AS username, jr.journey_id, jr.message, jr.date_time\s
+            FROM journey_responses jr\s
+            JOIN users us\s
+            ON jr.user_id = us.id\s
+            WHERE jr.journey_id = ?""";
+
     @Autowired
     public JourneyResponseJdbcDao(DataSource dataSource){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("journey_responses")
                 .usingGeneratedKeyColumns("id");
-
-//        this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("journey_responses");
     }
 
     @Override
@@ -87,7 +86,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
 
         boolean hasNext = responses.size() > limit;
         List<JourneyResponse> page = hasNext ? responses.subList(0, limit) : responses;
-        LocalDateTime nextCursor = hasNext ? page.get(page.size() - 1).getDateTime() : null;
+        LocalDateTime nextCursor = hasNext ? page.getLast().getDateTime() : null;
 
         return new CursorPage<>(page, nextCursor, hasNext);
     }

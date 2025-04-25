@@ -33,12 +33,13 @@ public class EventResponseJdbcDao implements EventResponseDao {
             rs.getString("message"),
             rs.getTimestamp("date_time").toLocalDateTime()
     );
-    private static final String QUERY_BY_EVENT_ID =
-            "SELECT er.user_id, us.username as username, er.event_id, er.message, er.date_time " +
-                    "FROM event_responses er " +
-                    "JOIN users us " +
-                    "ON er.user_id = us.id " +
-                    "WHERE er.event_id = ?";
+
+    private static final String QUERY_BY_EVENT_ID = """
+        SELECT er.user_id, us.username as username, er.event_id, er.message, er.date_time\s
+        FROM event_responses er\s
+        JOIN users us\s
+        ON er.user_id = us.id\s
+        WHERE er.event_id = ?""";
 
     @Autowired
     public EventResponseJdbcDao(DataSource dataSource){

@@ -30,16 +30,17 @@ public class UniversityJdbcDao implements UniversityDao {
             new University(rs.getLong("university_id"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id")));
 
     private final static String QUERY =
-                    "SELECT " +
-                    "un.name AS university_name, \n" +
-                    "un.abbreviation AS university_abbreviation, \n" +
-                    "un.id AS university_id, \n" +
-                    "ci.id AS city_id, \n" +
-                    "ci.name AS city_name, \n" +
-                    "co.name AS country_name \n" +
-                    "FROM universities un \n" +
-                    "JOIN cities ci ON un.city_id = ci.id \n" +
-                    "JOIN countries co ON ci.country_id = co.id ";
+            """
+                    SELECT\s
+                    un.name AS university_name,\s
+                    un.abbreviation AS university_abbreviation,\s
+                    un.id AS university_id,\s
+                    ci.id AS city_id,\s
+                    ci.name AS city_name,\s
+                    co.name AS country_name\s
+                    FROM universities un\s
+                    JOIN cities ci ON un.city_id = ci.id\s
+                    JOIN countries co ON ci.country_id = co.id\s""";
 
     @Autowired
     public UniversityJdbcDao(final DataSource dataSource){
