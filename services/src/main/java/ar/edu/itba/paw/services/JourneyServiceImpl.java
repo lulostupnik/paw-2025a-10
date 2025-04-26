@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 //import java.util.Date;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -114,11 +115,24 @@ public class JourneyServiceImpl implements JourneyService {
 
         LOGGER.info("Sending email notification to journey owner");
         User receiver = journey.getUser();
+        byte[] userProfile =  imageService.getImage(user.getProfilePictureId()).orElseThrow(()->new RuntimeException("Image not found")).getData();
+
         emailService.answerJourneyMail( email, receiver.getEmail() , user.getFirstname(), user.getLastname(),
                 user.getUsername(), user.getCareer().getName(),
-                user.getUniversity().getName(), message , user.getLocale(),
-                imageService.getImage(user.getProfilePictureId()).orElseThrow(()->new RuntimeException("Image not found")).getData(),
+                user.getUniversity().getName(), message , user.getLocale(), userProfile,
                 journeyId);
+
+        LOGGER.info("Notifying all commenters in event about a new comment");
+
+
+        emailService.answerJourneyRespondersNotification(journeyResponseDao.listAllEmailsRespondersMinusUsers(journeyId, new ArrayList<>(List.of(user.getId(), journey.getUser().getId())))
+                , user.getFirstname(),
+                user.getLastname(),user.getUsername(),user.getCareer().getName(), user.getUniversity().getName(),
+                message, user.getLocale(),
+                userProfile,
+                journeyId );
+
+
     }
 
     @Transactional(readOnly = true)

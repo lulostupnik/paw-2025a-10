@@ -81,7 +81,9 @@ public class EventServiceImpl implements EventService {
 
         LOGGER.info("Sending email notification to event owner");
 
-        byte[] userProfile = imageDao.getImageById(user.getProfilePictureId()).orElseThrow(() -> new RuntimeException("Image not found")).getData();
+        byte[] userProfile = imageDao.getImageById(user.getProfilePictureId()).orElseThrow(() -> new RuntimeException("Image not found")).getData(); //@todo podria esta en el service esto no?
+
+
 
         emailService.answerEventMail(email,event.getUser().getEmail(), user.getFirstname(),
                 user.getLastname(),user.getUsername(),user.getCareer().getName(), user.getUniversity().getName(),
@@ -207,12 +209,12 @@ public class EventServiceImpl implements EventService {
     public List<EventResponse> getEventResponses(long eventId){
         return eventResponseDao.listAllFromEvent(eventId);
     }
-    //@TODO cache ?
-    @Transactional(readOnly = true)
-    @Override
-    public List<User> getEventResponders(long eventId){
-        return eventResponseDao.listAllUsersResponders(eventId);
-    }
+//    //@TODO cache ?
+//    @Transactional(readOnly = true)
+//    @Override
+//    public List<User> getEventResponders(long eventId){
+//        return eventResponseDao.listAllUsersResponders(eventId);
+//    }
 
 
     // FIXME: Agregarle cacheable?

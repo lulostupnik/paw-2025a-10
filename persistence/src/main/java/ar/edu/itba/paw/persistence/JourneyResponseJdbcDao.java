@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +75,30 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     public List<JourneyResponse> listAllFromJourney(long journeyId){
         LOGGER.debug("Querying DB for replies to journey {}", journeyId);
         return jdbcTemplate.query(QUERY_BY_JOURNEY_ID + " ORDER BY jr.date_time ", JOURNEY_RESPONSE_ROW_MAPPER, journeyId);
+    }
+
+    @Override
+    public String[] listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds) {
+        StringBuilder query = new StringBuilder("""
+        SELECT DISTINCT us.email
+        FROM journey_responses jr
+        JOIN users us ON jr.user_id = us.id
+        WHERE jr.journey_id = ?
+    """);
+
+        List<Object> params = new ArrayList<>();
+        params.add(eventId);
+
+        if (userIds != null && !userIds.isEmpty()) {
+            query.append(" AND jr.user_id NOT IN (");
+            query.append("?,".repeat(userIds.size()));
+            query.setLength(query.length() - 1); // Remove last comma
+            query.append(")");
+            params.addAll(userIds);
+        }
+
+        List<String> emails = jdbcTemplate.queryForList(query.toString(), String.class, params.toArray());
+        return emails.toArray(new String[0]);
     }
 
 

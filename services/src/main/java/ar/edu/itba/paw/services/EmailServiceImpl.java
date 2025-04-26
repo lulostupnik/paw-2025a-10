@@ -36,7 +36,6 @@ public class EmailServiceImpl implements EmailService {
         this.messageSource = messageSource;
     }
 
-//    @TODO preguntar que pasa con la excepcion
 
 
 
@@ -93,9 +92,7 @@ public class EmailServiceImpl implements EmailService {
                                 String originUniversity, String message,
                                 Locale locale, byte[] profilePicture,
                                 String subjectKey,Object[] subjectArgs, String temapleName, String idKey, long id) {
-//        if(from.equals(to)){
-//            return;
-//        }
+
         Map<String, Object> variables = Map.of(
                 "firstname", firstName,
                 "lastname", lastName,
@@ -134,6 +131,21 @@ public class EmailServiceImpl implements EmailService {
                 "event-new-comment", "eventId", eventId);
     }
 
+
+    @Override
+    public void answerJourneyRespondersNotification( String[] bcc,
+                                                   String firstName, String lastName,
+                                                   String username, String career,
+                                                   String originUniversity, String message,
+                                                   Locale locale, byte[] profilePicture,
+                                                   long journeyId) {
+        if(bcc == null || bcc.length == 0){
+            return;
+        }
+        answerEventMailHelper(null,null, bcc, firstName,lastName,username,career,
+                originUniversity,message,locale,profilePicture,"email.journey.comment.notification.title", new Object[]{},
+                "journey-new-comment", "journeyId", journeyId);
+    }
     @Override
     public void answerEventMail(String from, String to,
                                 String firstName, String lastName,
@@ -146,33 +158,7 @@ public class EmailServiceImpl implements EmailService {
         }
        answerEventMailHelper(to,null, null, firstName,lastName,username,career,
                originUniversity,message,locale,profilePicture,"email.event.reply.title", new Object[]{},
-               "event-response", "eventId", eventId);
-    /*
-        Map<String, Object> variables = Map.of(
-//                "email", from,
-                "firstname", firstName,
-                "lastname", lastName,
-                "username", username,
-                "career", career,
-                "university", originUniversity,
-                "message", message,
-                "hasProfileImage", profilePicture != null && profilePicture.length > 0,
-                "eventId", eventId
-        );
-
-        sendHtmlMessage(
-                to,
-//                new String[] {from},
-                null ,//@TODO no deberia estar null creo,
-                null,
-                "email.event.reply.title",
-                new Object[]{},
-                "event-response",
-                variables,
-                locale,
-                profilePicture
-        );*/
-    }
+               "event-response", "eventId", eventId);}
 
     @Override
     public void answerJourneyMail(String from, String to,
@@ -186,37 +172,7 @@ public class EmailServiceImpl implements EmailService {
         }
         answerEventMailHelper(to,null,null,firstName,lastName,username,career,
                 originUniversity,message,locale,profilePicture,"email.journey.reply.subject", new Object[]{},
-                "journey-response", "journeyId", journeyId);
-/*
-        if(from.equals(to)){
-            return;
-        }
-
-        Map<String, Object> variables = Map.of(
-//                "email", from,
-                "firstname", firstName,
-                "lastname", lastName,
-                "username", username,
-                "career", career,
-                "university", originUniversity,
-                "message", message,
-                "hasProfileImage", profilePicture != null && profilePicture.length > 0,
-                "journeyId", journeyId
-        );
-
-        sendHtmlMessage(
-                to,
-//                new String[] {from},
-                null,
-                null,
-                "email.journey.reply.subject",
-                new Object[]{},
-                "journey-response",
-                variables,
-                locale,
-                profilePicture
-        );*/
-    }
+                "journey-response", "journeyId", journeyId);}
 
 
 }

@@ -25,4 +25,11 @@ public interface EmailService {
                                                   Locale locale, byte[] profilePicture,
                                                   long eventId);
 
+    void answerJourneyRespondersNotification( String[] bcc,
+                                                     String firstName, String lastName,
+                                                     String username, String career,
+                                                     String originUniversity, String message,
+                                                     Locale locale, byte[] profilePicture,
+                                                     long journeyId);
+
 }

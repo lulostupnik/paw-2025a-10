@@ -30,7 +30,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
             rs.getString("message"),
             rs.getTimestamp("date_time").toLocalDateTime()
     );
-
+/*
     private static final RowMapper<User> EVENT_USER_RESPONDERS_ROW_MAPPER = (rs, rowNum) -> new User(
             rs.getLong("user_id"),
             rs.getString("email"),
@@ -42,7 +42,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
             new Career(rs.getLong("career_id"), rs.getString("career_name")),
             rs.getLong("profile_picture_id"),
             Locale.of(rs.getString("language"))
-    );
+    );*/
 
     private static final String QUERY_BY_EVENT_ID = """
         SELECT er.user_id, us.username as username, er.event_id, er.message, er.date_time\s
@@ -51,7 +51,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
         ON er.user_id = us.id\s
         WHERE er.event_id = ?""";
 
-    private static final String QUERY_BY_EVENT_ID_GET_USERS = """
+   /* private static final String QUERY_BY_EVENT_ID_GET_USERS = """
             SELECT distinct er.user_id as user_id, us.email, us.username, us.firstname, us.lastname, us.username, us.career_id, us.profile_picture_id, us.language
                 , uni.id as university_id , uni.name as university_name, uni.abbreviation,
                ci.id as city_id, ci.name as city_name,
@@ -70,7 +70,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
                         on co.id = ci.country_id
         WHERE er.event_id = ?""";
 
-
+*/
 
 
     @Autowired
@@ -101,11 +101,11 @@ public class EventResponseJdbcDao implements EventResponseDao {
         return jdbcTemplate.query(QUERY_BY_EVENT_ID + " ORDER BY date_time ", EVENT_RESPONSE_ROW_MAPPER, eventId);
     }
 
-    @Override
+   /* @Override
     public List<User> listAllUsersResponders(long eventId){
         LOGGER.debug("Querying DB for list of users that replied to event {}", eventId);
         return jdbcTemplate.query(QUERY_BY_EVENT_ID_GET_USERS, EVENT_USER_RESPONDERS_ROW_MAPPER, eventId);
-    }
+    }*/
 
 //    @Override
 //    public List<User> listAllUsersRespondersMinusUsers(long eventId, List<Long> user_ids){

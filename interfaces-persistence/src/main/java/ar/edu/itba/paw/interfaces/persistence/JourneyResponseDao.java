@@ -9,6 +9,6 @@ public interface JourneyResponseDao {
     JourneyResponse create(long userId, String username, long journeyId, String message, LocalDateTime dateTime);
     List<JourneyResponse> listAllFromJourney(long journeyId);
 
-
+    String[] listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds);
 }
 
