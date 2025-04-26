@@ -128,7 +128,7 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "journeysById", key = "#id")
+    // @Cacheable(value = "journeysById", key = "#id") -> por ahora no cacheo porque cuando cambio un user tengo que invalidar esta cache y para eso tengo que encontrar este journey asociado a ese user
     @Override
     public Optional<Journey> getJourneyById(long id) {
         return journeyDao.findById(id);
@@ -220,7 +220,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "journeysById", key = "#journeyId")
+    // @CacheEvict(value = "journeysById", key = "#journeyId")
     public void updateJourneyDates(long journeyId, LocalDate startDate, LocalDate endDate) {
         LOGGER.debug("Updating dates for journey {}: start={}, end={}", journeyId, startDate, endDate);
 
@@ -244,7 +244,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "journeysById", key = "#journeyId")
+    // @CacheEvict(value = "journeysById", key = "#journeyId")
     public void updateJourneyDescription(long journeyId, String description) {
         LOGGER.debug("Updating description for journey {}", journeyId);
 
@@ -261,7 +261,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "journeysById", key = "#journeyId")
+    // @CacheEvict(value = "journeysById", key = "#journeyId")
     public void updateJourneyDestination(long journeyId, String universityName) {
         LOGGER.debug("Updating destination for journey {} to {}", journeyId, universityName);
 
@@ -277,7 +277,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "journeysById", key = "#journeyId")
+    // @CacheEvict(value = "journeysById", key = "#journeyId")
     public void updateJourneyDestination(long journeyId, long universityId) {
         LOGGER.debug("Updating destination for journey {} to university ID {}", journeyId, universityId);
 
