@@ -20,6 +20,8 @@ public interface JourneyService {
 
     Optional<Journey> getJourneyById(long id);
 
+    Optional<Journey> getJourneyByEmail(String email);
+
     List<Journey> getFilteredJourneys(String destination, LocalDate startDate, LocalDate endDate, String interest);
 
     List<Journey> getFilteredJourneys(String email, String destination, LocalDate startDate, LocalDate endDate, String interest);

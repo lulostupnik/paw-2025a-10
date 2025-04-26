@@ -3,6 +3,7 @@ package ar.edu.itba.paw.services;
 //import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
+import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 
@@ -131,6 +132,16 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     public Optional<Journey> getJourneyById(long id) {
         return journeyDao.findById(id);
+    }
+
+    // Por ahora no es cacheable porque no se como hacer el CacheEvict cuando en el update no se retorna nada.
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<Journey> getJourneyByEmail(String email) {
+        long userId = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found")).getId();
+        return journeyDao.findByUserId(userId);
+        // ó deberíamos hacer lo siguiente?
+        // return journeyDao.findByUserEmail(email); ¿? -> Acá no estaríamos verificando si existe el usuario
     }
 
     @Override
