@@ -1,6 +1,8 @@
 package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.services.EmailService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.FileSystemResource;
@@ -26,6 +28,7 @@ public class EmailServiceImpl implements EmailService {
     private final TemplateEngine templateEngine;
     private final MessageSource messageSource;
     private final static String fromEmail = "paw.2025a.10@gmail.com";
+    private static Logger LOGGER = LoggerFactory.getLogger(EmailServiceImpl.class);
 
     @Autowired
     public EmailServiceImpl(JavaMailSender emailSender,
@@ -82,7 +85,7 @@ public class EmailServiceImpl implements EmailService {
             emailSender.send(message);
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to send email", e);
+            LOGGER.error("Failed to send email", e);
         }
     }
 
