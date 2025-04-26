@@ -1,10 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import javax.sql.DataSource;
 
@@ -119,7 +116,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
 //        return jdbcTemplate.query(query.toString(), EVENT_USER_RESPONDERS_ROW_MAPPER, eventId);
 //    }
 
-    @Override
+    /*@Override
     public String[] listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds) {
         StringBuilder query = new StringBuilder("""
             SELECT DISTINCT us.email
@@ -134,7 +131,31 @@ public class EventResponseJdbcDao implements EventResponseDao {
 
         List<String> emails = jdbcTemplate.queryForList(query.toString(), String.class, eventId);
         return emails.toArray(new String[0]);
+    }*/
+    @Override
+    public String[] listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds) {
+        StringBuilder query = new StringBuilder("""
+        SELECT DISTINCT us.email
+        FROM event_responses er
+        JOIN users us ON er.user_id = us.id
+        WHERE er.event_id = ?
+    """);
+
+        List<Object> params = new ArrayList<>();
+        params.add(eventId);
+
+        if (userIds != null && !userIds.isEmpty()) {
+            query.append(" AND er.user_id NOT IN (");
+            query.append("?,".repeat(userIds.size()));
+            query.setLength(query.length() - 1); // Remove last comma
+            query.append(")");
+            params.addAll(userIds);
+        }
+
+        List<String> emails = jdbcTemplate.queryForList(query.toString(), String.class, params.toArray());
+        return emails.toArray(new String[0]);
     }
+
 
 
 }
