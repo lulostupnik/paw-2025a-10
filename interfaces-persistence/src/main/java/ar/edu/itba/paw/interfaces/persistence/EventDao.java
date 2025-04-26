@@ -15,7 +15,7 @@ public interface EventDao {
     Optional<Event> findById(long eventId);
     List<Event> listAll();
     List<Event> getEvents(String email);
-    List<Event> getRecommendedEvents(String email);
+    List<UserEvent> getRecommendedEvents(String email);
     List<Event> getTopEvents();
     Optional<Integer> getEventAttendanceLimit(long eventId);
     List<Event> getFullEvents();

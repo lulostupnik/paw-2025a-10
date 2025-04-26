@@ -202,7 +202,7 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public List<Event> getRecommendedEvents(String email) {
+    public List<UserEvent> getRecommendedEvents(String email) {
         LOGGER.debug("Querying DB for recommended events for usermail {}", email);
         return jdbcTemplate.query("""
                WITH user_data AS (
@@ -213,6 +213,7 @@ public class EventJdbcDao implements EventDao {
             WHERE u.email = ?
         )
         SELECT 
+            (ea.user_id IS NOT NULL) AS is_attending,
             us.id AS user_id, 
             us.email AS user_email, 
             us.firstname AS user_firstname, 
@@ -256,9 +257,14 @@ public class EventJdbcDao implements EventDao {
         JOIN cities c ON e.city_id = c.id 
         JOIN countries co ON c.country_id = co.id
         JOIN user_data ud ON ud.city_id = e.city_id
+        LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ud.id
         WHERE e.event_date >= CURRENT_DATE
         AND us.email != ?
-    """, EVENT_ROW_MAPPER, email, email);
+    """,  (rs, rowNum) -> {
+            Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
+            boolean isAttending = rs.getBoolean("is_attending");
+            return new UserEvent(event, isAttending);
+        }, email, email);
     }
 
     public List<Event> getTopEvents(){
