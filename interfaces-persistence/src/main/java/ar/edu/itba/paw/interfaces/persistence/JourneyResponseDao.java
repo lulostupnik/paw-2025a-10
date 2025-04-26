@@ -10,5 +10,6 @@ public interface JourneyResponseDao {
     List<JourneyResponse> listAllFromJourney(long journeyId);
 
     String[] listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds);
+    void delete(long id);
 }
 

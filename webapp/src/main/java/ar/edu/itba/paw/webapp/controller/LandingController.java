@@ -43,14 +43,15 @@ public class LandingController {
         List<Event> eventsAttended = Collections.emptyList();
 
         if (username != null ) {
-            eventsAttended = eventService.getUserAttendingEvents(username);//@TODO: change to MAP?
+            eventsAttended = eventService.getUserAttendingEvents(username);
         }
 
         mav.addObject("eventsAttended", eventsAttended);
         return mav;
     }
+
     private void populateHomePage(ModelAndView mav, String username) {
-        List<UserEvent> events = eventService.getRecommendedEvents(username); //@TODO: change to UserEvents
+        List<UserEvent> events = eventService.getRecommendedEvents(username);
         LOGGER.debug("Events: {}", events);
         mav.addObject("events", events);
 
@@ -64,7 +65,7 @@ public class LandingController {
     }
 
     @RequestMapping("/explore")
-    public ModelAndView index(@ModelAttribute("username") String username) {
+    public ModelAndView explore(@ModelAttribute("username") String username) {
         LOGGER.debug("Getting dashboard page...");
 
         ModelAndView mav = new ModelAndView("home");

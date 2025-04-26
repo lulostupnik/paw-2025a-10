@@ -41,6 +41,8 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
             ON jr.user_id = us.id\s
             WHERE jr.journey_id = ?""";
 
+    private static final String NOT_DELETED = " AND jr.deleted = FALSE";
+
     @Autowired
     public JourneyResponseJdbcDao(DataSource dataSource){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
@@ -74,7 +76,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     @Override
     public List<JourneyResponse> listAllFromJourney(long journeyId){
         LOGGER.debug("Querying DB for replies to journey {}", journeyId);
-        return jdbcTemplate.query(QUERY_BY_JOURNEY_ID + " ORDER BY jr.date_time ", JOURNEY_RESPONSE_ROW_MAPPER, journeyId);
+        return jdbcTemplate.query(QUERY_BY_JOURNEY_ID + NOT_DELETED + " ORDER BY jr.date_time ", JOURNEY_RESPONSE_ROW_MAPPER, journeyId);
     }
 
     @Override
@@ -100,7 +102,16 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
         List<String> emails = jdbcTemplate.queryForList(query.toString(), String.class, params.toArray());
         return emails.toArray(new String[0]);
     }
+    @Override
+    public void delete(long id) {
+        final String query = "UPDATE journey_responses SET deleted = TRUE WHERE id = ?;";
+        int updatedRows = jdbcTemplate.update(query, id);
 
+        if (updatedRows == 0) {
+            // Optionally log or throw an exception if no rows were updated
+            LOGGER.warn("No journey_response found with id {}", id);
+        }
+    }
 
 
 }

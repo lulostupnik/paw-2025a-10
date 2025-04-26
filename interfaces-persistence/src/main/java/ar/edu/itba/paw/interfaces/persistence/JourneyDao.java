@@ -45,5 +45,7 @@ public interface JourneyDao {
     // ELIMINAR o reemplazar
     Optional<Journey> findOverlappingJourney(long id, LocalDate startDate, LocalDate endDate);
     List<Journey> getJourneysByUser(String email);
+
+    void delete(long id);
 }
 

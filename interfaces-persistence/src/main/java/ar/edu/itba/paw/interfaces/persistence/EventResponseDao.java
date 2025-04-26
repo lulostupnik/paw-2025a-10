@@ -15,4 +15,5 @@ public interface EventResponseDao {
 //    List<User> listAllUsersResponders(long eventId); //@todo no se usa el final, podria borrar
 //    List<User> listAllUsersRespondersMinusUsers(long eventId, List<Long> user_ids);
     String[] listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds);
+    void delete(long id);
 }

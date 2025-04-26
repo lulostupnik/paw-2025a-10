@@ -51,6 +51,8 @@ public class EventResponseJdbcDao implements EventResponseDao {
         ON er.user_id = us.id\s
         WHERE er.event_id = ?""";
 
+    private static final String NOT_DELETED = " AND er.deleted = FALSE";
+
    /* private static final String QUERY_BY_EVENT_ID_GET_USERS = """
             SELECT distinct er.user_id as user_id, us.email, us.username, us.firstname, us.lastname, us.username, us.career_id, us.profile_picture_id, us.language
                 , uni.id as university_id , uni.name as university_name, uni.abbreviation,
@@ -98,7 +100,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
     @Override
     public List<EventResponse> listAllFromEvent(long eventId){
         LOGGER.debug("Querying DB for replies to event {}", eventId);
-        return jdbcTemplate.query(QUERY_BY_EVENT_ID + " ORDER BY date_time ", EVENT_RESPONSE_ROW_MAPPER, eventId);
+        return jdbcTemplate.query(QUERY_BY_EVENT_ID + NOT_DELETED+ " ORDER BY date_time ", EVENT_RESPONSE_ROW_MAPPER, eventId);
     }
 
    /* @Override
@@ -156,6 +158,16 @@ public class EventResponseJdbcDao implements EventResponseDao {
         return emails.toArray(new String[0]);
     }
 
+    @Override
+    public void delete(long id) {
+        final String query = "UPDATE event_responses SET deleted = TRUE WHERE id = ?;";
+        int updatedRows = jdbcTemplate.update(query, id);
+
+        if (updatedRows == 0) {
+            // Optionally log or throw an exception if no rows were updated
+            LOGGER.warn("No journey_response found with id {}", id);
+        }
+    }
 
 
 }

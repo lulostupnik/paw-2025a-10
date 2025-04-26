@@ -46,4 +46,8 @@ public interface JourneyService {
 
     void updateJourneyDestination(long journeyId, long universityId);
 
+    void deleteJourney(long id);
+
+    void deleteJourneyResponse(long id);
+
 }

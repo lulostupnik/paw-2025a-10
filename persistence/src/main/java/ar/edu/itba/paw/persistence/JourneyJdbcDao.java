@@ -72,7 +72,7 @@ public class JourneyJdbcDao implements JourneyDao {
             JOIN cities ci2 ON un2.city_id = ci2.id
             JOIN countries co2 ON ci2.country_id = co2.id
             """;
-
+    private static final String NOT_DELETED = " WHERE j.deleted = FALSE";
     private static final String PAGE_QUERY = SELECT_CLAUSE +
         """
         FROM (
@@ -161,6 +161,7 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public Journey create(User user, University destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
         LOGGER.debug("Registering new journey of {} to {} from {} to {} ({})", user, destinationUniversity, startDate, endDate, description);
+        Optional<Journey> journey = findByUserEmail(user.getEmail());
         final Map<String, Object> args = new HashMap<>();
         args.put("user_id", user.getId());
         args.put("destination_university_id", destinationUniversity.getId());
@@ -175,7 +176,7 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public List<Journey> listAll() {
         LOGGER.debug("Querying DB for all journeys");
-        return jdbcTemplate.query(QUERY, JOURNEY_ROW_MAPPER);
+        return jdbcTemplate.query(QUERY + NOT_DELETED, JOURNEY_ROW_MAPPER);
     }
 
 
@@ -188,7 +189,7 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public Optional<Journey> findOverlappingJourney(long userId, LocalDate startDate, LocalDate endDate) {
         LOGGER.debug("Querying DB for overlapping journeys for user {} from {} to {}", userId, startDate, endDate);
-        return jdbcTemplate.query(QUERY + " WHERE user_id = ? AND start_date >= ? AND end_date <= ?", JOURNEY_ROW_MAPPER, userId, startDate, endDate).stream().findFirst();
+        return jdbcTemplate.query(QUERY + NOT_DELETED+  " AND user_id = ? AND start_date >= ? AND end_date <= ?", JOURNEY_ROW_MAPPER, userId, startDate, endDate).stream().findFirst();
     }
 
     @Override
@@ -199,10 +200,10 @@ public class JourneyJdbcDao implements JourneyDao {
 
         if (interest != null && !interest.isEmpty()) {
             LOGGER.debug("Interest present, using interest query");
-            query = QUERY_INTEREST;
+            query = QUERY_INTEREST + NOT_DELETED;
         } else {
             LOGGER.debug("Interest not present, using regular query");
-            query = QUERY;
+            query = QUERY + NOT_DELETED;
         }
 
         List<String> filters = new ArrayList<>();
@@ -232,7 +233,7 @@ public class JourneyJdbcDao implements JourneyDao {
         // Solo agregamos WHERE si hay filtros
         if (!filters.isEmpty()) {
             LOGGER.debug("Filters present, adding to query");
-            query += " WHERE " + String.join(" AND ", filters);
+            query += " AND " + String.join(" AND ", filters);
         }
 
         return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
@@ -246,10 +247,10 @@ public class JourneyJdbcDao implements JourneyDao {
 
         if (interest != null && !interest.isEmpty()) {
             LOGGER.debug("Interest present, using interest query");
-            query = QUERY_INTEREST;
+            query = QUERY_INTEREST + NOT_DELETED;
         } else {
             LOGGER.debug("Interest not present, using regular query");
-            query = QUERY;
+            query = QUERY + NOT_DELETED;
         }
 
         List<String> filters = new ArrayList<>();
@@ -281,7 +282,7 @@ public class JourneyJdbcDao implements JourneyDao {
         }
 
         // Add WHERE clause with all filters
-        query += " WHERE " + String.join(" AND ", filters);
+        query += " AND " + String.join(" AND ", filters);
 
         return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
     }
@@ -289,17 +290,22 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public List<Journey> findByOriginCity(long originCityId) {
-        return jdbcTemplate.query(QUERY + " WHERE ci1.id = ?", JOURNEY_ROW_MAPPER, originCityId);
+        return jdbcTemplate.query(QUERY + NOT_DELETED+ " AND ci1.id = ?", JOURNEY_ROW_MAPPER, originCityId);
     }
 
     @Override
     public List<Journey> findByOriginUniversity(long originUniversityId) {
-        return jdbcTemplate.query(QUERY + " WHERE un1.id = ?", JOURNEY_ROW_MAPPER, originUniversityId);
+        return jdbcTemplate.query(QUERY + NOT_DELETED+ " AND un1.id = ?", JOURNEY_ROW_MAPPER, originUniversityId);
     }
 
 
     @Override
     public Optional<Journey> findByUserId(long userId) {
+        LOGGER.debug("Querying DB for journeys from user {}", userId);
+        return jdbcTemplate.query(QUERY + NOT_DELETED+ " AND us.id = ?", JOURNEY_ROW_MAPPER, userId).stream().findFirst();
+    }
+
+    private Optional<Journey> findByUserIdDeleted(long userId) {
         LOGGER.debug("Querying DB for journeys from user {}", userId);
         return jdbcTemplate.query(QUERY + " WHERE us.id = ?", JOURNEY_ROW_MAPPER, userId).stream().findFirst();
     }
@@ -308,7 +314,7 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public Optional<Journey> findByUserEmail(String email) {
         LOGGER.debug("Querying DB for journeys from user {}", email);
-        return jdbcTemplate.query(QUERY + " WHERE us.email = ?", JOURNEY_ROW_MAPPER, email).stream().findFirst();
+        return jdbcTemplate.query(QUERY + NOT_DELETED+ " AND us.email = ?", JOURNEY_ROW_MAPPER, email).stream().findFirst();
     }
 
     @Override
@@ -335,6 +341,7 @@ public class JourneyJdbcDao implements JourneyDao {
                         FROM journeys j
                                  JOIN universities univ ON j.destination_university_id = univ.id
                                  JOIN user_data ud ON ud.id = j.user_id
+                                     WHERE j.deleted = false
                         LIMIT 1
                     ),
                     journey_scores AS (
@@ -425,13 +432,23 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public List<Journey> getJourneysByUser(String email) {
-        return jdbcTemplate.query(QUERY + " WHERE us.email = ?", JOURNEY_ROW_MAPPER, email);
+        return jdbcTemplate.query(QUERY + NOT_DELETED+ " AND us.email = ?", JOURNEY_ROW_MAPPER, email);
+    }
+    @Override
+    public void delete(long id) {
+        final String query = "UPDATE journeys SET deleted = TRUE WHERE id = ?;";
+        int updatedRows = jdbcTemplate.update(query, id);
+
+        if (updatedRows == 0) {
+            // Optionally log or throw an exception if no rows were updated
+            LOGGER.warn("No journey_response found with id {}", id);
+        }
     }
 
     @Override
     public List<Journey> getOthersJourneys(long userId) {
         LOGGER.debug("Querying DB for journeys from users other than user ID: {}", userId);
-        return jdbcTemplate.query(QUERY + " WHERE us.id != ? ", JOURNEY_ROW_MAPPER, userId);
+        return jdbcTemplate.query(QUERY + NOT_DELETED+ " AND us.id != ? ", JOURNEY_ROW_MAPPER, userId);
     }
 
     @Override
@@ -541,7 +558,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public Page<Journey> findByOriginCity(long originCityId, int page, int size) {
-        List<Journey> list = jdbcTemplate.query(QUERY + "WHERE ci1.id = ? ORDER BY j.id ASC LIMIT ? OFFSET ?", JOURNEY_ROW_MAPPER, originCityId, size, page * size);
+        List<Journey> list = jdbcTemplate.query(QUERY + NOT_DELETED + "AND ci1.id = ? ORDER BY j.id ASC LIMIT ? OFFSET ?", JOURNEY_ROW_MAPPER, originCityId, size, page * size);
         return new Page<>(list, page);
     }
 

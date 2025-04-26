@@ -121,7 +121,7 @@ public class EventController {
         LOGGER.debug("User attending event {}", isAttending);
         LOGGER.debug("User is event owner {}", isEventOwner);
 
-        if(isEventOwner){  //@todo preguntar si es necesario este if
+        if(isEventOwner){
             mav.addObject("attendees", eventService.getEventAttendees(id));
         }
         mav.addObject("attend", isAttending);
@@ -166,7 +166,7 @@ public class EventController {
         eventService.attendEvent(username, id);
 
         if (referer != null && !referer.isEmpty()) {
-            return new ModelAndView("redirect:" + referer);// @TODO  history.back()
+            return new ModelAndView("redirect:" + referer); // @TODO history.back()
         } else {
             return new ModelAndView("redirect:/events/{id}");
         }

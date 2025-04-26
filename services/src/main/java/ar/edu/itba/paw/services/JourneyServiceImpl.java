@@ -306,4 +306,14 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.info("Successfully updated destination for journey {} to university ID {}", journeyId, universityId);
     }
 
+    @Override
+    public void deleteJourney(long id) {
+        journeyDao.delete(id);
+    }
+
+    @Override
+    public void deleteJourneyResponse(long id) {
+        journeyResponseDao.delete(id);
+    }
+
 }

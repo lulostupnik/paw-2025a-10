@@ -229,3 +229,10 @@ COMMIT;
 --     FROM event_attendance ea
 --     WHERE ea.event_id = e.id AND ea.user_id = e.user_id
 -- );
+
+BEGIN;
+ALTER TABLE events ADD COLUMN IF NOT EXISTS deleted BOOLEAN DEFAULT FALSE;
+ALTER TABLE journeys ADD COLUMN IF NOT EXISTS deleted BOOLEAN DEFAULT FALSE;
+ALTER TABLE journey_responses ADD COLUMN IF NOT EXISTS deleted BOOLEAN DEFAULT FALSE;
+ALTER TABLE event_responses ADD COLUMN IF NOT EXISTS deleted BOOLEAN DEFAULT FALSE;
+COMMIT;

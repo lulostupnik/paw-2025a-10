@@ -20,6 +20,7 @@ public interface EventDao {
     Optional<Integer> getEventAttendanceLimit(long eventId);
     List<Event> getFullEvents();
 
+    void delete(long id);
 
     List<Event> getMyEvents(long userId);
     List<Event> getOthersEvents(long userId);

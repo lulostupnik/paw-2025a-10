@@ -273,4 +273,16 @@ public class EventServiceImpl implements EventService {
         long userId = userService.findByEmail(email).orElseThrow().getId();
         return getEventsWithAttendanceStatus(userId);
     }
+
+    @Transactional
+    @Override
+    public void deleteEvent(long id) {
+        eventDao.delete(id);
+    }
+
+    @Transactional
+    @Override
+    public void deleteEventResponse(long id) {
+        eventResponseDao.delete(id);
+    }
 }

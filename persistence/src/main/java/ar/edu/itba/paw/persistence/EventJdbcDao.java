@@ -115,7 +115,7 @@ public class EventJdbcDao implements EventDao {
                     JOIN cities c ON e.city_id = c.id\s
                     JOIN countries co ON c.country_id = co.id\s
                     """;
-
+    private static final String NOT_DELETED = " AND e.deleted = FALSE";
 
 
     @Autowired
@@ -160,19 +160,17 @@ public class EventJdbcDao implements EventDao {
         LOGGER.debug("Querying DB for event");
 
         StringBuilder sqlBuilder = new StringBuilder(QUERY);
+        sqlBuilder.append(NOT_DELETED);
         List<Object> params = new ArrayList<>();
-        boolean firstCondition = true;
         if (cityId != null) {
             LOGGER.debug("Event condition: in city {}");
-            sqlBuilder.append("WHERE city_id = ?");
+            sqlBuilder.append("AND city_id = ?");
             params.add(cityId);
-            firstCondition = false;
         }
 
         if (date != null) {
             LOGGER.debug("Event condition: date after {}");
-            sqlBuilder.append(firstCondition ? " WHERE" : " AND")
-                    .append(" event_date AFTER ?");
+            sqlBuilder.append("AND event_date AFTER ?");
             params.add(date);
         }
 
@@ -193,12 +191,12 @@ public class EventJdbcDao implements EventDao {
     @Override
     public List<Event> listAll() {
         LOGGER.debug("Querying DB for all events");
-        return jdbcTemplate.query(QUERY, EVENT_ROW_MAPPER);
+        return jdbcTemplate.query(QUERY + NOT_DELETED, EVENT_ROW_MAPPER);
     }
 
     @Override
     public List<Event> getEvents(String email) {
-        return jdbcTemplate.query(QUERY + "WHERE us.email = ?", EVENT_ROW_MAPPER, email);
+        return jdbcTemplate.query(QUERY + NOT_DELETED + "AND us.email = ?", EVENT_ROW_MAPPER, email);
     }
 
     @Override
@@ -260,6 +258,7 @@ public class EventJdbcDao implements EventDao {
         LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ud.id
         WHERE e.event_date >= CURRENT_DATE
         AND us.email != ?
+        AND e.deleted = FALSE
     """,  (rs, rowNum) -> {
             Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
             boolean isAttending = rs.getBoolean("is_attending");
@@ -320,6 +319,7 @@ public class EventJdbcDao implements EventDao {
         JOIN countries co ON c.country_id = co.id
         LEFT JOIN event_attendances ea ON ea.event_id = e.id
         WHERE e.event_date >= CURRENT_DATE
+        AND e.deleted = FALSE
         GROUP BY(e.id, us.id, ca.id, un.id, c.id, co.name, ci2.id, co2.name)
         ORDER BY(COUNT(ea.user_id), e.event_date) DESC
         LIMIT 3
@@ -342,16 +342,27 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
+    public void delete(long id) {
+        final String query = "UPDATE events SET deleted = TRUE WHERE id = ?;";
+        int updatedRows = jdbcTemplate.update(query, id);
+
+        if (updatedRows == 0) {
+            // Optionally log or throw an exception if no rows were updated
+            LOGGER.warn("No journey_response found with id {}", id);
+        }
+    }
+
+    @Override
     public List<Event> getMyEvents(long userId) {
         LOGGER.debug("Querying DB for events created by user {}", userId);
-        return jdbcTemplate.query(QUERY + "WHERE e.user_id = ? ORDER BY e.event_date DESC",
+        return jdbcTemplate.query(QUERY + NOT_DELETED+ "AND e.user_id = ? ORDER BY e.event_date DESC",
                 EVENT_ROW_MAPPER, userId);
     }
 
     @Override
     public List<Event> getOthersEvents(long userId) {
         LOGGER.debug("Querying DB for events not created by user {}", userId);
-        return jdbcTemplate.query(QUERY + "WHERE e.user_id != ? AND e.event_date >= CURRENT_DATE ORDER BY e.event_date",
+        return jdbcTemplate.query(QUERY + NOT_DELETED + "AND e.user_id != ? AND e.event_date >= CURRENT_DATE ORDER BY e.event_date",
                 EVENT_ROW_MAPPER, userId);
     }
 
@@ -379,7 +390,7 @@ public class EventJdbcDao implements EventDao {
         LOGGER.debug("Querying DB for events with attendance status for user {} (excluding events created by this user)", userId);
 
         String sql = QUERY.replace("SELECT ", "SELECT (ea.user_id IS NOT NULL) AS is_attending, ") +
-                "LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?  WHERE e.user_id != ?  ORDER BY e.event_date DESC";
+                "LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?  WHERE e.user_id != ? AND e.deleted = FALSE  ORDER BY e.event_date DESC";
 
         return jdbcTemplate.query(
                 sql,
