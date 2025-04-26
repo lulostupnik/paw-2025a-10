@@ -18,4 +18,11 @@ public interface EmailService {
                                 String originUniversity, String message,
                                 Locale locale, byte[] imageBytes, long eventId);
 
+    void answerEventRespondersNotification( String[] bcc,
+                                                  String firstName, String lastName,
+                                                  String username, String career,
+                                                  String originUniversity, String message,
+                                                  Locale locale, byte[] profilePicture,
+                                                  long eventId);
+
 }

@@ -80,11 +80,26 @@ public class EventServiceImpl implements EventService {
         eventResponseDao.create(user.getId(), user.getUsername(),eventId, message, LocalDateTime.now());
 
         LOGGER.info("Sending email notification to event owner");
+
+        byte[] userProfile = imageDao.getImageById(user.getProfilePictureId()).orElseThrow(() -> new RuntimeException("Image not found")).getData();
+
         emailService.answerEventMail(email,event.getUser().getEmail(), user.getFirstname(),
                 user.getLastname(),user.getUsername(),user.getCareer().getName(), user.getUniversity().getName(),
                 message, user.getLocale(),
-                imageDao.getImageById(user.getProfilePictureId()).orElseThrow(() -> new RuntimeException("Image not found")).getData(),
+                userProfile,
                 eventId);
+
+        LOGGER.info("Notifying all commenters in event about a new comment");
+
+
+        emailService.answerEventRespondersNotification(eventResponseDao.listAllEmailsRespondersMinusUsers(eventId, new ArrayList<>(List.of(user.getId(), event.getUser().getId())))
+                , user.getFirstname(),
+                user.getLastname(),user.getUsername(),user.getCareer().getName(), user.getUniversity().getName(),
+                message, user.getLocale(),
+                userProfile,
+                eventId );
+
+
     }
 
     @Transactional(readOnly = true)
@@ -192,6 +207,13 @@ public class EventServiceImpl implements EventService {
     public List<EventResponse> getEventResponses(long eventId){
         return eventResponseDao.listAllFromEvent(eventId);
     }
+    //@TODO cache ?
+    @Transactional(readOnly = true)
+    @Override
+    public List<User> getEventResponders(long eventId){
+        return eventResponseDao.listAllUsersResponders(eventId);
+    }
+
 
     // FIXME: Agregarle cacheable?
     @Transactional(readOnly = true)

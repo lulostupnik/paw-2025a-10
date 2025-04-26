@@ -3,11 +3,12 @@ package ar.edu.itba.paw.persistence;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.sql.DataSource;
 
-import ar.edu.itba.paw.models.CursorPage;
+import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import ar.edu.itba.paw.interfaces.persistence.EventResponseDao;
-import ar.edu.itba.paw.models.EventResponse;
 
 @Repository
 public class EventResponseJdbcDao implements EventResponseDao {
@@ -34,12 +34,47 @@ public class EventResponseJdbcDao implements EventResponseDao {
             rs.getTimestamp("date_time").toLocalDateTime()
     );
 
+    private static final RowMapper<User> EVENT_USER_RESPONDERS_ROW_MAPPER = (rs, rowNum) -> new User(
+            rs.getLong("user_id"),
+            rs.getString("email"),
+            rs.getString("username"),
+            rs.getString("firstname"),
+            rs.getString("lastname"),
+            new University(rs.getLong("university_id"), rs.getString("university_name"), rs.getString("abbreviation"),
+                                new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id"))),
+            new Career(rs.getLong("career_id"), rs.getString("career_name")),
+            rs.getLong("profile_picture_id"),
+            Locale.of(rs.getString("language"))
+    );
+
     private static final String QUERY_BY_EVENT_ID = """
         SELECT er.user_id, us.username as username, er.event_id, er.message, er.date_time\s
         FROM event_responses er\s
         JOIN users us\s
         ON er.user_id = us.id\s
         WHERE er.event_id = ?""";
+
+    private static final String QUERY_BY_EVENT_ID_GET_USERS = """
+            SELECT distinct er.user_id as user_id, us.email, us.username, us.firstname, us.lastname, us.username, us.career_id, us.profile_picture_id, us.language
+                , uni.id as university_id , uni.name as university_name, uni.abbreviation,
+               ci.id as city_id, ci.name as city_name,
+               ci.country_id as country_id, co.name as country_name,
+               ca.id as career_id, ca.name as career_name
+        FROM event_responses er
+                 JOIN users us
+                      ON er.user_id = us.id
+                 JOIN universities as uni
+                      on us.university = uni.id
+                 JOIN cities as ci
+                      on uni.city_id = ci.id
+                 JOIN careers as ca
+                      on ca.id = us.career_id
+                 JOIN countries as co
+                        on co.id = ci.country_id
+        WHERE er.event_id = ?""";
+
+
+
 
     @Autowired
     public EventResponseJdbcDao(DataSource dataSource){
@@ -68,5 +103,38 @@ public class EventResponseJdbcDao implements EventResponseDao {
         LOGGER.debug("Querying DB for replies to event {}", eventId);
         return jdbcTemplate.query(QUERY_BY_EVENT_ID + " ORDER BY date_time ", EVENT_RESPONSE_ROW_MAPPER, eventId);
     }
+
+    @Override
+    public List<User> listAllUsersResponders(long eventId){
+        LOGGER.debug("Querying DB for list of users that replied to event {}", eventId);
+        return jdbcTemplate.query(QUERY_BY_EVENT_ID_GET_USERS, EVENT_USER_RESPONDERS_ROW_MAPPER, eventId);
+    }
+
+//    @Override
+//    public List<User> listAllUsersRespondersMinusUsers(long eventId, List<Long> user_ids){
+//        StringBuilder query = new StringBuilder(QUERY_BY_EVENT_ID_GET_USERS);
+//        for(int i=0; i<user_ids.size(); i++){
+//            query.append(" and er.user_id !=").append(user_ids.get(i));
+//        }
+//        return jdbcTemplate.query(query.toString(), EVENT_USER_RESPONDERS_ROW_MAPPER, eventId);
+//    }
+
+    @Override
+    public String[] listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds) {
+        StringBuilder query = new StringBuilder("""
+            SELECT DISTINCT us.email
+            FROM event_responses er
+                     JOIN users us ON er.user_id = us.id
+            WHERE er.event_id = ?
+        """);
+
+        for (Long userId : userIds) {
+            query.append(" AND er.user_id != ").append(userId);
+        }
+
+        List<String> emails = jdbcTemplate.queryForList(query.toString(), String.class, eventId);
+        return emails.toArray(new String[0]);
+    }
+
 
 }

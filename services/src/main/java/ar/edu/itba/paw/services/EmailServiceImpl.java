@@ -42,6 +42,7 @@ public class EmailServiceImpl implements EmailService {
 
     protected void sendHtmlMessage(String to,
                                    String[] cc,
+                                   String[] bcc,
                                    String subjectKey,
                                    Object[] subjectArgs,
                                    String templateName,
@@ -59,9 +60,16 @@ public class EmailServiceImpl implements EmailService {
             String htmlContent = templateEngine.process(templateName, context);
 
             helper.setFrom(fromEmail);
+            if(to==null || to.isEmpty()){
+                to = fromEmail; //asi puedo mandar BCC/CC
+            }
             helper.setTo(to);
+
             if (cc != null && cc.length > 0) {
                 helper.setCc(cc);
+            }
+            if (bcc != null && bcc.length > 0) {
+                helper.setBcc(bcc);
             }
 
             helper.setSubject(subject);
@@ -79,8 +87,52 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    private void answerEventMailHelper( String to, String[] cc, String[] bcc,
+                                String firstName, String lastName,
+                                String username, String career,
+                                String originUniversity, String message,
+                                Locale locale, byte[] profilePicture,
+                                String subjectKey,Object[] subjectArgs, String temapleName, String idKey, long id) {
+//        if(from.equals(to)){
+//            return;
+//        }
+        Map<String, Object> variables = Map.of(
+                "firstname", firstName,
+                "lastname", lastName,
+                "username", username,
+                "career", career,
+                "university", originUniversity,
+                "message", message,
+                "hasProfileImage", profilePicture != null && profilePicture.length > 0,
+                idKey, id
+        );
 
-
+        sendHtmlMessage(
+                to,
+                cc,
+                bcc,
+                subjectKey,
+                subjectArgs,
+                temapleName,
+                variables,
+                locale,
+                profilePicture
+        );
+    }
+    @Override
+    public void answerEventRespondersNotification( String[] bcc,
+                                String firstName, String lastName,
+                                String username, String career,
+                                String originUniversity, String message,
+                                Locale locale, byte[] profilePicture,
+                                long eventId) {
+        if(bcc == null || bcc.length == 0){
+            return;
+        }
+        answerEventMailHelper(null,null, bcc, firstName,lastName,username,career,
+                originUniversity,message,locale,profilePicture,"email.event.comment.notification.title", new Object[]{},
+                "event-new-comment", "eventId", eventId);
+    }
 
     @Override
     public void answerEventMail(String from, String to,
@@ -92,6 +144,10 @@ public class EmailServiceImpl implements EmailService {
         if(from.equals(to)){
             return;
         }
+       answerEventMailHelper(to,null, null, firstName,lastName,username,career,
+               originUniversity,message,locale,profilePicture,"email.event.reply.title", new Object[]{},
+               "event-response", "eventId", eventId);
+    /*
         Map<String, Object> variables = Map.of(
 //                "email", from,
                 "firstname", firstName,
@@ -107,14 +163,15 @@ public class EmailServiceImpl implements EmailService {
         sendHtmlMessage(
                 to,
 //                new String[] {from},
-                null
-                , "email.event.reply.title",
+                null ,//@TODO no deberia estar null creo,
+                null,
+                "email.event.reply.title",
                 new Object[]{},
                 "event-response",
                 variables,
                 locale,
                 profilePicture
-        );
+        );*/
     }
 
     @Override
@@ -124,7 +181,13 @@ public class EmailServiceImpl implements EmailService {
                                   String originUniversity, String message,
                                   Locale locale, byte[] profilePicture, long journeyId) {
 
-
+        if(from.equals(to)){
+            return;
+        }
+        answerEventMailHelper(to,null,null,firstName,lastName,username,career,
+                originUniversity,message,locale,profilePicture,"email.journey.reply.subject", new Object[]{},
+                "journey-response", "journeyId", journeyId);
+/*
         if(from.equals(to)){
             return;
         }
@@ -145,13 +208,14 @@ public class EmailServiceImpl implements EmailService {
                 to,
 //                new String[] {from},
                 null,
+                null,
                 "email.journey.reply.subject",
                 new Object[]{},
                 "journey-response",
                 variables,
                 locale,
                 profilePicture
-        );
+        );*/
     }
 
 
