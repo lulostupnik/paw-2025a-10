@@ -3,7 +3,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="<c:url value="/resources/css/main.css"/>" />
     <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
     <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
+    <script src="<c:url value='/resources/js/confirm-delete.js'/>"></script>
     <script>
         function toggleComments() {
             const commentsList = document.getElementById('comments-list');
@@ -119,7 +120,17 @@
                             </c:if>
 
                         <!-- Attend Button Section -->
-                        <div class="attendance-control">
+<div class="attendance-control">
+    <sec:authorize access="hasRole('ADMIN')">
+        <form id="delete-form" action="<c:url value='/events/${event.id}/delete'/>" method="post">
+            <button type="button" class="btn-attendance btn-danger" onclick="openDeleteModal()">
+                <img src="<c:url value='/resources/icons/x.svg'/>" alt="<spring:message code='event.attend'/>" class="btn-icon" />
+                <span class="btn-text"><spring:message code="event.delete" text="Delete" /></span>
+            </button>
+        </form>
+    </sec:authorize>
+
+    <sec:authorize access="!hasRole('ADMIN')">
                             <c:choose>
                                 <c:when test="${not empty username and attend}">
                                     <div class="attendance-status-container">
@@ -151,6 +162,7 @@
                                     </div>
                                 </c:when>
                             </c:choose>
+    </sec:authorize>
                         </div>
                         </div>
                     </div>
@@ -344,6 +356,30 @@
 
 
             </div>
+        </div>
+    </div>
+</div>
+
+<div id="delete-modal" class="attendance-modal">
+    <div class="attendance-modal-content">
+        <div class="attendance-modal-header">
+            <h3 class="attendance-modal-title"><spring:message code="event.confirmDelete"/></h3>
+            <button type="button" class="attendance-modal-close" onclick="closeAttendanceModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="modal-close-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="attendance-modal-body">
+            <p><spring:message code="event.deleteWarning"/></p>
+        </div>
+        <div class="attendance-modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeAttendanceModal()">
+                <spring:message code="event.confirm.delete.reject" />
+            </button>
+                <button type="submit" class="btn-danger">
+                    <spring:message code="event.confirm.delete.accept" />
+                </button
         </div>
     </div>
 </div>

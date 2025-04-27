@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.regex.Pattern;
 
 @Component
@@ -30,9 +31,10 @@ public class PawUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         final UserPassword user = us.findByEmailWithPass(username).orElseThrow(() ->
                 new UsernameNotFoundException("No user by the name " + username));
-        final Collection<? extends GrantedAuthority> authorities = Arrays.asList( //@TODO check this
-                new SimpleGrantedAuthority("ROLE_USER"),
-                new SimpleGrantedAuthority("ROLE_ADMIN")
+        //new SimpleGrantedAuthority("ROLE_ADMIN")
+
+        final Collection<? extends GrantedAuthority> authorities = List.of( //@TODO check this
+                new SimpleGrantedAuthority("ROLE_USER")
         );
         return new org.springframework.security.core.userdetails.User(username, user.getPassword(), authorities);
     }

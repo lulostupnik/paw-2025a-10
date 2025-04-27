@@ -14,10 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -140,6 +137,12 @@ public class EventController {
         }
 
         return populateEventDetails(maybeEvent.get(), id, username);
+    }
+    @PostMapping("/{id}/delete")
+    public ModelAndView deleteEvent(@PathVariable int id) {
+        LOGGER.debug("Deleting event {}", id);
+        eventService.deleteEvent(id);
+        return new ModelAndView("redirect:/events");
     }
 
 

@@ -236,3 +236,10 @@ ALTER TABLE journeys ADD COLUMN IF NOT EXISTS deleted BOOLEAN DEFAULT FALSE;
 ALTER TABLE journey_responses ADD COLUMN IF NOT EXISTS deleted BOOLEAN DEFAULT FALSE;
 ALTER TABLE event_responses ADD COLUMN IF NOT EXISTS deleted BOOLEAN DEFAULT FALSE;
 COMMIT;
+
+CREATE TABLE IF NOT EXISTS admins (
+                                     id SERIAL PRIMARY KEY,
+                                     email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(100) NOT NULL,
+    language VARCHAR(2) NOT NULL DEFAULT 'en' CHECK (language IN ('en', 'es'))
+    );

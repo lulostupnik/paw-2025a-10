@@ -16,10 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
@@ -84,6 +81,12 @@ public class JourneyController {
         List<Interest> interests = interestService.findAll();
         LOGGER.debug("Interests: {}", interests);
         mav.addObject("interests", interests);
+    }
+    @PostMapping(value = "/{id}/delete")
+    public ModelAndView deleteJourney(@PathVariable long id) {
+        LOGGER.debug("Deleting journey {}", id);
+        js.deleteJourney(id);
+        return new ModelAndView("redirect:/journeys");
     }
 
     @RequestMapping(value = "/create", method = POST)
