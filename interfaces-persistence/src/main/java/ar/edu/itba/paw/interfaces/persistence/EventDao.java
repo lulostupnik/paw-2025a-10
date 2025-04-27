@@ -23,6 +23,6 @@ public interface EventDao {
 
     List<Event> getMyEvents(long userId);
     List<Event> getOthersEvents(long userId);
-
+//    List<Event> getRecommendedEvents(String email);
     List<UserEvent> getEventsWithAttendanceStatus(long userId);
 }
