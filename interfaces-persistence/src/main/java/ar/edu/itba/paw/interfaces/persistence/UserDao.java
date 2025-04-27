@@ -33,7 +33,7 @@ public interface UserDao {
 
     void update(long userId, String firstname, String lastname, String username, Long universityId, Long careerId, Locale locale);
 
-
+    List<User> getAllUsers();
 
     // podríamos generalizar en findBy(String field, String value) o algo por el estilo
 

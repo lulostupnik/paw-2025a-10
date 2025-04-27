@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -222,6 +223,11 @@ public class UserServiceImpl implements UserService {
     public byte[] getProfilePictureData(User user) {
         return imageDao.getImageById(user.getProfilePictureId()).orElseThrow(() -> new IllegalStateException("User does not have a profile picture"))
                 .getData();
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return userDao.getAllUsers();
     }
 
 }
