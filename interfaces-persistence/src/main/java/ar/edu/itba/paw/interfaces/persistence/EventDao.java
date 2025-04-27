@@ -9,20 +9,34 @@ import java.util.Optional;
 
 public interface EventDao {
 
+    //CREATE
     Event create(User user, City city, LocalDate date, String description, long flyerImageId, String title, LocalTime time, String address, Integer attendeesLimit);
-    List<Event> listByQuery(Long cityId, LocalDate date);
-    //Optional<Event> findByUserId(long userId);
+
+
+    //UPDATE
+
+
+    //GET (ONE)
     Optional<Event> findById(long eventId);
+    //Optional<Event> findByUserId(long userId);
+    Optional<Integer> getEventAttendanceLimit(long eventId);
+
+
+
+    //LIST
+    List<Event> listByQuery(Long cityId, LocalDate date);
     List<Event> listAll();
     List<Event> getEvents(String email);
     List<UserEvent> getRecommendedEvents(String email);
     List<Event> getTopEvents();
-    Optional<Integer> getEventAttendanceLimit(long eventId);
     List<Event> getFullEvents();
-
-
     List<Event> getMyEvents(long userId);
     List<Event> getOthersEvents(long userId);
-
     List<UserEvent> getEventsWithAttendanceStatus(long userId);
+
+    //PAGE
+    Page<Event> getOthersEvents(long userId, int page, int size);
+    Page<Event> getMyEvents(long userId, int page, int size);
+    Page<Event> getEvents(String email, int page, int size);
+    Page<Event> listAll(int page, int size);
 }
