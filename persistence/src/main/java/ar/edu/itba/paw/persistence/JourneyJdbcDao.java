@@ -495,7 +495,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public Page<Journey> listAll(int page, int size) {
-        List<Journey> list = jdbcTemplate.query(PAGE_QUERY, JOURNEY_ROW_MAPPER, size, page * size);
+        List<Journey> list = jdbcTemplate.query(PAGE_QUERY + NOT_DELETED, JOURNEY_ROW_MAPPER, size, page * size);
         return new Page<>(list, page);
     }
 
@@ -506,7 +506,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public Page<Journey> getOthersJourneys(long userId, int page, int size) {
-        List<Journey> list = jdbcTemplate.query(PAGE_JOURNEY_BY_NOT_USER_ID, JOURNEY_ROW_MAPPER, userId, size, page * size);
+        List<Journey> list = jdbcTemplate.query(PAGE_JOURNEY_BY_NOT_USER_ID + NOT_DELETED, JOURNEY_ROW_MAPPER, userId, size, page * size);
         return new Page<>(list, page);    }
 
     @Override
@@ -537,16 +537,16 @@ public class JourneyJdbcDao implements JourneyDao {
         }
 
         if (interest != null) {
-            query = QUERY_INTEREST;
+            query = QUERY_INTEREST + NOT_DELETED;
             filters.add("c.id = ?");
             params.add(interest);
         } else {
-            query = QUERY;
+            query = QUERY+ NOT_DELETED;
         }
 
 
         if (!filters.isEmpty()) {
-            query += " WHERE " + String.join(" AND ", filters);
+            query += "AND " + String.join(" AND ", filters);
         }
 
         query += " ORDER BY j.id ASC LIMIT ? OFFSET ?";

@@ -129,9 +129,9 @@ public class EventJdbcDao implements EventDao {
                 JOIN users us ON e.user_id = us.id
                 JOIN careers ca ON ca.id = us.career_id
                 JOIN universities un ON us.university = un.id
-                JOIN cities ci2 ON un.city_id = ci2.id 
+                JOIN cities ci2 ON un.city_id = ci2.id
                 JOIN countries co2 ON co2.id = ci2.country_id
-                JOIN cities c ON e.city_id = c.id 
+                JOIN cities c ON e.city_id = c.id
                 JOIN countries co ON c.country_id = co.id
                 """;
     }
@@ -220,7 +220,7 @@ public class EventJdbcDao implements EventDao {
         int offset = (page - 1) * size;
         String whereClause = "";
         String orderByClause = "ORDER BY e.event_date DESC ";
-        return new Page<>(jdbcTemplate.query(QUERY, EVENT_ROW_MAPPER,page,offset),page);
+        return new Page<>(jdbcTemplate.query(QUERY + NOT_DELETED, EVENT_ROW_MAPPER,page,offset),page);
     }
 
 
@@ -233,7 +233,7 @@ public class EventJdbcDao implements EventDao {
     public Page<Event> getEvents(String email, int page, int size) {
         LOGGER.debug("Querying DB for events for usermail {}", email);
         int offset = (page - 1) * size;
-        String whereClause = "WHERE us.email = ? ";
+        String whereClause = NOT_DELETED + "AND us.email = ? ";
         String orderByClause = "ORDER BY e.event_date DESC ";
         return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPageQuery(whereClause,orderByClause), EVENT_ROW_MAPPER, email,page,offset),page);
     }
@@ -373,7 +373,7 @@ public class EventJdbcDao implements EventDao {
         if (event.isPresent()){
             return event.get().getAttendeesLimit();
         }
-        return Optional.of(null);
+        return Optional.empty();
     }
 
     @Override
@@ -402,7 +402,7 @@ public class EventJdbcDao implements EventDao {
     public Page<Event> getMyEvents(long userId, int page, int size) {
         LOGGER.debug("Querying DB for events created by user {}", userId);
         int offset = (page - 1) * size;
-        String whereClause = "WHERE e.user_id = ? ";
+        String whereClause = NOT_DELETED+ "AND e.user_id = ? ";
         String orderByClause = "ORDER BY e.event_date DESC ";
         return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPageQuery(whereClause, orderByClause),
                 EVENT_ROW_MAPPER, userId,page,offset),page);
@@ -420,7 +420,7 @@ public class EventJdbcDao implements EventDao {
     public Page<Event> getOthersEvents(long userId, int page, int size) {
         LOGGER.debug("Querying DB for events not created by user {}", userId);
         int offset = (page - 1) * size;
-        String whereClause = "WHERE e.user_id != ? AND e.event_date >= CURRENT_DATE ";
+        String whereClause = NOT_DELETED + "AND e.user_id != ? AND e.event_date >= CURRENT_DATE ";
         String orderByClause = "ORDER BY e.event_date DESC ";
         return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPageQuery(whereClause, orderByClause), EVENT_ROW_MAPPER, userId,page,offset),page);
     }

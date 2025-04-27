@@ -27,7 +27,7 @@ public interface EventDao {
     List<Event> listByQuery(Long cityId, LocalDate date);
     List<Event> listAll();
     List<Event> getEvents(String email);
-//    List<UserEvent> getRecommendedEvents(String email);
+    List<UserEvent> getRecommendedEvents(String email);
     List<Event> getTopEvents();
     List<Event> getFullEvents();
 
