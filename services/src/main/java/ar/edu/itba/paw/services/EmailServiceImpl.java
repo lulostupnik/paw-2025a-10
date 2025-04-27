@@ -1,12 +1,18 @@
 package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.services.EmailService;
+import ar.edu.itba.paw.interfaces.services.UserService;
+import ar.edu.itba.paw.models.Event;
+import ar.edu.itba.paw.models.Journey;
+import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.valueObjects.EmailContent;
+import ar.edu.itba.paw.models.valueObjects.EmailRecipient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -17,86 +23,65 @@ import org.thymeleaf.context.Context;
 import javax.activation.DataSource;
 import javax.mail.internet.MimeMessage;
 import javax.mail.util.ByteArrayDataSource;
-import java.io.File;
-import java.util.Locale;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-@Async
+
 @Service
+@Async
 public class EmailServiceImpl implements EmailService {
+
     private final JavaMailSender emailSender;
     private final TemplateEngine templateEngine;
     private final MessageSource messageSource;
-    private final static String fromEmail = "paw.2025a.10@gmail.com";
-    private static Logger LOGGER = LoggerFactory.getLogger(EmailServiceImpl.class);
+
+    private final UserService userService;
+    @Value("${email.from}")
+    private String fromEmail;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmailServiceImpl.class);
 
     @Autowired
     public EmailServiceImpl(JavaMailSender emailSender,
-                            TemplateEngine emailTemplateEngine,
-                            MessageSource messageSource) {
+                            TemplateEngine templateEngine,
+                            MessageSource messageSource,
+                            UserService userService) {
         this.emailSender = emailSender;
-        this.templateEngine = emailTemplateEngine;
+        this.templateEngine = templateEngine;
         this.messageSource = messageSource;
+        this.userService = userService; //@TODO preguntar.
     }
 
-
-
-
-    protected void sendHtmlMessage(String to,
-                                   String[] cc,
-                                   String[] bcc,
-                                   String subjectKey,
-                                   Object[] subjectArgs,
-                                   String templateName,
-                                   Map<String, Object> variables,
-                                   Locale locale,
-                                   byte[] imageBytes) {
-
+    private void sendHtmlMessage(byte[] image, EmailRecipient emailRecipient, EmailContent emailContent, String templateName, Map<String, Object> variables, String subjectKey, Object[] subjectArgs) {
         try {
-            String subject = messageSource.getMessage(subjectKey, subjectArgs, locale);
+            String subject = messageSource.getMessage(
+                    subjectKey,
+                    subjectArgs,
+                    emailRecipient.getLocale()
+            );
+
             MimeMessage message = emailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-            Context context = new Context(locale);
+            Context context = new Context(emailRecipient.getLocale());
             context.setVariables(variables);
             String htmlContent = templateEngine.process(templateName, context);
-
             helper.setFrom(fromEmail);
-            if(to==null || to.isEmpty()){
-                to = fromEmail; //asi puedo mandar BCC/CC
-            }
-            helper.setTo(to);
-
-            if (cc != null && cc.length > 0) {
-                helper.setCc(cc);
-            }
-            if (bcc != null && bcc.length > 0) {
-                helper.setBcc(bcc);
-            }
-
+            helper.setTo(emailRecipient.getToEmail());
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
-
-            if (imageBytes != null) {
-                DataSource imageSource = new ByteArrayDataSource(imageBytes, "image/jpeg"); // or image/png
-                helper.addInline("profileImage", imageSource);
-            }
-
+            DataSource imageSource = new ByteArrayDataSource(image, "image/jpeg");  //Preguntar: no lo valido porque emailMessage hace que el byteArray sea notNull.
+            helper.addInline("profileImage", imageSource);
             emailSender.send(message);
-
         } catch (Exception e) {
             LOGGER.error("Failed to send email", e);
         }
     }
 
-    private void answerEventMailHelper( String to, String[] cc, String[] bcc,
-                                String firstName, String lastName,
-                                String username, String career,
-                                String originUniversity, String message,
-                                Locale locale, byte[] profilePicture,
-                                String subjectKey,Object[] subjectArgs, String temapleName, String idKey, long id) {
-
-        Map<String, Object> variables = Map.of(
+    private Map<String, Object> buildVariables(String firstName, String lastName, String username,
+                                               String career, String originUniversity, String message,
+                                               byte[] profilePicture, String idKey, long id) {
+        return Map.of(
                 "firstname", firstName,
                 "lastname", lastName,
                 "username", username,
@@ -106,77 +91,95 @@ public class EmailServiceImpl implements EmailService {
                 "hasProfileImage", profilePicture != null && profilePicture.length > 0,
                 idKey, id
         );
-
-        sendHtmlMessage(
-                to,
-                cc,
-                bcc,
-                subjectKey,
-                subjectArgs,
-                temapleName,
-                variables,
-                locale,
-                profilePicture
-        );
-    }
-    @Override
-    public void answerEventRespondersNotification( String[] bcc,
-                                String firstName, String lastName,
-                                String username, String career,
-                                String originUniversity, String message,
-                                Locale locale, byte[] profilePicture,
-                                long eventId) {
-        if(bcc == null || bcc.length == 0){
-            return;
-        }
-        answerEventMailHelper(null,null, bcc, firstName,lastName,username,career,
-                originUniversity,message,locale,profilePicture,"email.event.comment.notification.title", new Object[]{},
-                "event-new-comment", "eventId", eventId);
     }
 
 
+
     @Override
-    public void answerJourneyRespondersNotification( String[] bcc,
-                                                   String firstName, String lastName,
-                                                   String username, String career,
-                                                   String originUniversity, String message,
-                                                   Locale locale, byte[] profilePicture,
-                                                   long journeyId) {
-        if(bcc == null || bcc.length == 0){
-            return;
+    public void answerEventRespondersNotification(List<EmailRecipient> emailRecipients, EmailContent emailContent, User commenter, Event event) {
+        User eventUser = event.getUser();
+
+        byte[] profilePictureData = userService.getProfilePictureData(commenter);
+//        try {  @TODO preguntar. no deberia fallar nunca ya que es non null en la bd.
+//            profilePictureData = userService.getProfilePictureData(commenter);
+//        }catch (Exception e){
+//                LOGGER.error("Failed to retrieve profile picture for commenter with id {}", commenter.getId(), e);
+//        }
+
+
+            Map<String, Object> variables = buildVariables(
+                commenter.getFirstname(), commenter.getLastname(),
+                commenter.getUsername(), commenter.getCareer().getName(),
+                commenter.getUniversity().getName(),emailContent.getMessage(),
+                profilePictureData, "eventId", event.getId());
+
+        for(EmailRecipient recipient : emailRecipients){
+            if(recipient.getToEmail().isEmpty() || recipient.getToEmail().equals(eventUser.getEmail()) || recipient.getToEmail().equals(commenter.getEmail())){
+                continue;  //no se si es buen estilo // o hace falta
+            }
+            sendHtmlMessage(profilePictureData, recipient, emailContent,"event-new-comment", variables, "email.event.comment.notification.title", new Object[]{});
         }
-        answerEventMailHelper(null,null, bcc, firstName,lastName,username,career,
-                originUniversity,message,locale,profilePicture,"email.journey.comment.notification.title", new Object[]{},
-                "journey-new-comment", "journeyId", journeyId);
     }
-    @Override
-    public void answerEventMail(String from, String to,
-                                String firstName, String lastName,
-                                String username, String career,
-                                String originUniversity, String message,
-                                Locale locale, byte[] profilePicture,
-                                long eventId) {
-        if(from.equals(to)){
-            return;
-        }
-       answerEventMailHelper(to,null, null, firstName,lastName,username,career,
-               originUniversity,message,locale,profilePicture,"email.event.reply.title", new Object[]{},
-               "event-response", "eventId", eventId);}
 
     @Override
-    public void answerJourneyMail(String from, String to,
-                                  String firstName, String lastName,
-                                  String username, String career,
-                                  String originUniversity, String message,
-                                  Locale locale, byte[] profilePicture, long journeyId) {
+    public void answerJourneyRespondersNotification(List<EmailRecipient> emailRecipients, EmailContent emailContent, User commenter, Journey journey) {
+        User journeyUser = journey.getUser();
+        byte[] profilePictureData = userService.getProfilePictureData(commenter);
 
-        if(from.equals(to)){
+
+
+        Map<String, Object> variables = buildVariables(
+                commenter.getFirstname(), commenter.getLastname(),
+                commenter.getUsername(), commenter.getCareer().getName(),
+                commenter.getUniversity().getName(),emailContent.getMessage(),
+                profilePictureData, "journeyId", journey.getId());
+
+
+
+        for(EmailRecipient recipient: emailRecipients){
+            if(recipient.getToEmail().isEmpty() || recipient.getToEmail().equals(journeyUser.getEmail()) || recipient.getToEmail().equals(commenter.getEmail())){
+                continue;  //no se si es buen estilo // o hace falta
+            }
+            sendHtmlMessage(profilePictureData,recipient, emailContent,"journey-new-comment", variables, "email.journey.comment.notification.title", new Object[]{});
+        }
+    }
+
+
+    @Override
+    public void answerEventMail(EmailRecipient emailRecipient, EmailContent emailContent, User commenter, Event event) {
+        User eventUser = event.getUser();
+        if(emailRecipient.getToEmail().isEmpty() || emailRecipient.getToEmail().equals(commenter.getEmail())){
             return;
         }
-        answerEventMailHelper(to,null,null,firstName,lastName,username,career,
-                originUniversity,message,locale,profilePicture,"email.journey.reply.subject", new Object[]{},
-                "journey-response", "journeyId", journeyId);}
+        byte[] profilePictureData = userService.getProfilePictureData(commenter);
 
 
+        Map<String, Object> variables = buildVariables(
+                commenter.getFirstname(), commenter.getLastname(),
+                commenter.getUsername(), commenter.getCareer().getName(),
+                commenter.getUniversity().getName(),emailContent.getMessage(),
+                profilePictureData, "eventId", event.getId());
+
+
+        sendHtmlMessage(profilePictureData,emailRecipient, emailContent,"event-response", variables, "email.event.reply.title", new Object[]{});
+    }
+
+    @Override
+    public void answerJourneyMail(EmailRecipient emailRecipient,EmailContent emailContent, User commenter, Journey journey) {
+        User journeyUser = journey.getUser();
+        if(emailRecipient.getToEmail().isEmpty() || emailRecipient.getToEmail().equals(commenter.getEmail())){
+            return;
+        }
+        byte[] profilePictureData = userService.getProfilePictureData(commenter);
+
+        Map<String, Object> variables = buildVariables(
+                commenter.getFirstname(), commenter.getLastname(),
+                commenter.getUsername(), commenter.getCareer().getName(),
+                commenter.getUniversity().getName(),emailContent.getMessage(),
+                userService.getProfilePictureData(commenter), "journeyId", journey.getId());
+
+
+        sendHtmlMessage(profilePictureData, emailRecipient, emailContent, "journey-response", variables, "email.journey.reply.subject", new Object[]{});
+    }
 }
 

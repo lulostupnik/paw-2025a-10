@@ -5,6 +5,8 @@ import ar.edu.itba.paw.interfaces.services.EmailService;
 import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.valueObjects.EmailContent;
+import ar.edu.itba.paw.models.valueObjects.EmailRecipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,27 +83,27 @@ public class EventServiceImpl implements EventService {
 
         LOGGER.info("Sending email notification to event owner");
 
-        byte[] userProfile = imageDao.getImageById(user.getProfilePictureId()).orElseThrow(() -> new RuntimeException("Image not found")).getData(); //@todo podria esta en el service esto no?
+        EmailContent emailContent = EmailContent.builder().
+                message(message).
+                build();
 
-
-
-        emailService.answerEventMail(email,event.getUser().getEmail(), user.getFirstname(),
-                user.getLastname(),user.getUsername(),user.getCareer().getName(), user.getUniversity().getName(),
-                message, user.getLocale(),
-                userProfile,
-                eventId);
+        emailService.answerEventMail(
+                EmailRecipient.builder().
+                        toEmail(event.getUser().getEmail()).
+                        locale(event.getUser().getLocale()).build(),
+                emailContent,
+                user,
+                event
+                );
 
         LOGGER.info("Notifying all commenters in event about a new comment");
 
-
-        emailService.answerEventRespondersNotification(eventResponseDao.listAllEmailsRespondersMinusUsers(eventId, new ArrayList<>(List.of(user.getId(), event.getUser().getId())))
-                , user.getFirstname(),
-                user.getLastname(),user.getUsername(),user.getCareer().getName(), user.getUniversity().getName(),
-                message, user.getLocale(),
-                userProfile,
-                eventId );
-
-
+        emailService.answerEventRespondersNotification(
+                eventResponseDao.listAllEmailsRespondersMinusUsers(eventId, new ArrayList<>(List.of(user.getId(), event.getUser().getId()))),
+                emailContent,
+                user,
+                event
+                );
     }
 
     @Transactional(readOnly = true)

@@ -6,6 +6,8 @@ import java.util.*;
 import javax.sql.DataSource;
 
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.valueObjects.EmailContent;
+import ar.edu.itba.paw.models.valueObjects.EmailRecipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,10 @@ public class EventResponseJdbcDao implements EventResponseDao {
             rs.getString("message"),
             rs.getTimestamp("date_time").toLocalDateTime()
     );
+
+    private static final RowMapper<EmailRecipient> EMAIL_RECIPIENT_ROW_MAPPER = (rs, rowNum) -> EmailRecipient.builder().toEmail(rs.getString("email")).locale(  Locale.of(rs.getString("language"))).build();
+
+
 /*
     private static final RowMapper<User> EVENT_USER_RESPONDERS_ROW_MAPPER = (rs, rowNum) -> new User(
             rs.getLong("user_id"),
@@ -134,10 +140,35 @@ public class EventResponseJdbcDao implements EventResponseDao {
         List<String> emails = jdbcTemplate.queryForList(query.toString(), String.class, eventId);
         return emails.toArray(new String[0]);
     }*/
+//    @Override
+//    public String[] listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds) {
+//        StringBuilder query = new StringBuilder("""
+//        SELECT DISTINCT us.email
+//        FROM event_responses er
+//        JOIN users us ON er.user_id = us.id
+//        WHERE er.event_id = ?
+//    """);
+//
+//        List<Object> params = new ArrayList<>();
+//        params.add(eventId);
+//
+//        if (userIds != null && !userIds.isEmpty()) {
+//            query.append(" AND er.user_id NOT IN (");
+//            query.append("?,".repeat(userIds.size()));
+//            query.setLength(query.length() - 1); // Remove last comma
+//            query.append(")");
+//            params.addAll(userIds);
+//        }
+//
+//        List<String> emails = jdbcTemplate.queryForList(query.toString(), String.class, params.toArray());
+//        return emails.toArray(new String[0]);
+//    }
+
+
     @Override
-    public String[] listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds) {
+    public List<EmailRecipient> listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds) {
         StringBuilder query = new StringBuilder("""
-        SELECT DISTINCT us.email
+        SELECT DISTINCT us.email, us.language
         FROM event_responses er
         JOIN users us ON er.user_id = us.id
         WHERE er.event_id = ?
@@ -154,8 +185,8 @@ public class EventResponseJdbcDao implements EventResponseDao {
             params.addAll(userIds);
         }
 
-        List<String> emails = jdbcTemplate.queryForList(query.toString(), String.class, params.toArray());
-        return emails.toArray(new String[0]);
+        List<EmailRecipient> emails = jdbcTemplate.query(query.toString(),EMAIL_RECIPIENT_ROW_MAPPER, params.toArray());
+        return emails;
     }
 
     @Override
@@ -168,6 +199,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
             LOGGER.warn("No journey_response found with id {}", id);
         }
     }
+
 
 
 }

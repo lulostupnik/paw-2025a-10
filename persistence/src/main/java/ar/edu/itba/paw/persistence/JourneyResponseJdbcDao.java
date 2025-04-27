@@ -3,6 +3,7 @@ package ar.edu.itba.paw.persistence;
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
 import ar.edu.itba.paw.models.CursorPage;
 import ar.edu.itba.paw.models.JourneyResponse;
+import ar.edu.itba.paw.models.valueObjects.EmailRecipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +14,7 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
 
 
 //@TODO sort them in query by date
@@ -42,6 +39,8 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
             WHERE jr.journey_id = ?""";
 
     private static final String NOT_DELETED = " AND jr.deleted = FALSE";
+
+    private static final RowMapper<EmailRecipient> EMAIL_RECIPIENT_ROW_MAPPER = (rs, rowNum) -> EmailRecipient.builder().toEmail(rs.getString("email")).locale(  Locale.of(rs.getString("language"))).build();
 
     @Autowired
     public JourneyResponseJdbcDao(DataSource dataSource){
@@ -78,11 +77,36 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
         LOGGER.debug("Querying DB for replies to journey {}", journeyId);
         return jdbcTemplate.query(QUERY_BY_JOURNEY_ID + NOT_DELETED + " ORDER BY jr.date_time ", JOURNEY_RESPONSE_ROW_MAPPER, journeyId);
     }
+//
+//    @Override
+//    public String[] listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds) {
+//        StringBuilder query = new StringBuilder("""
+//        SELECT DISTINCT us.email
+//        FROM journey_responses jr
+//        JOIN users us ON jr.user_id = us.id
+//        WHERE jr.journey_id = ?
+//    """);
+//
+//        List<Object> params = new ArrayList<>();
+//        params.add(eventId);
+//
+//        if (userIds != null && !userIds.isEmpty()) {
+//            query.append(" AND jr.user_id NOT IN (");
+//            query.append("?,".repeat(userIds.size()));
+//            query.setLength(query.length() - 1); // Remove last comma
+//            query.append(")");
+//            params.addAll(userIds);
+//        }
+//
+//        List<String> emails = jdbcTemplate.query(query.toString(), String.class, params.toArray());
+//        return emails.toArray(new String[0]);
+//    }
+
 
     @Override
-    public String[] listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds) {
+    public List<EmailRecipient> listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds) {
         StringBuilder query = new StringBuilder("""
-        SELECT DISTINCT us.email
+        SELECT DISTINCT us.email, us.language
         FROM journey_responses jr
         JOIN users us ON jr.user_id = us.id
         WHERE jr.journey_id = ?
@@ -99,13 +123,13 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
             params.addAll(userIds);
         }
 
-        List<String> emails = jdbcTemplate.queryForList(query.toString(), String.class, params.toArray());
-        return emails.toArray(new String[0]);
+       return jdbcTemplate.query(query.toString(),EMAIL_RECIPIENT_ROW_MAPPER, params.toArray());
     }
     @Override
     public void delete(long id) {
         final String query = "UPDATE journey_responses SET deleted = TRUE WHERE id = ?;";
         int updatedRows = jdbcTemplate.update(query, id);
+
 
         if (updatedRows == 0) {
             // Optionally log or throw an exception if no rows were updated

@@ -7,6 +7,8 @@ import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 
+import ar.edu.itba.paw.models.valueObjects.EmailContent;
+import ar.edu.itba.paw.models.valueObjects.EmailRecipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,23 +116,28 @@ public class JourneyServiceImpl implements JourneyService {
         interestService.updateScoreByInterests(interests, user.getId());
 
         LOGGER.info("Sending email notification to journey owner");
-        User receiver = journey.getUser();
-        byte[] userProfile =  imageService.getImage(user.getProfilePictureId()).orElseThrow(()->new RuntimeException("Image not found")).getData();
 
-        emailService.answerJourneyMail( email, receiver.getEmail() , user.getFirstname(), user.getLastname(),
-                user.getUsername(), user.getCareer().getName(),
-                user.getUniversity().getName(), message , user.getLocale(), userProfile,
-                journeyId);
+        EmailContent emailContent = EmailContent.builder().
+                message(message).
+                build();
 
-        LOGGER.info("Notifying all commenters in event about a new comment");
+        emailService.answerJourneyMail(
+                EmailRecipient.builder().
+                        toEmail(journey.getUser().getEmail()).
+                        locale(journey.getUser().getLocale()).build(),
+                emailContent,
+                user,
+                journey
+        );
 
+        LOGGER.info("Notifying all commenters in journey about a new comment");
 
-        emailService.answerJourneyRespondersNotification(journeyResponseDao.listAllEmailsRespondersMinusUsers(journeyId, new ArrayList<>(List.of(user.getId(), journey.getUser().getId())))
-                , user.getFirstname(),
-                user.getLastname(),user.getUsername(),user.getCareer().getName(), user.getUniversity().getName(),
-                message, user.getLocale(),
-                userProfile,
-                journeyId );
+        emailService.answerJourneyRespondersNotification(
+                journeyResponseDao.listAllEmailsRespondersMinusUsers(journeyId, new ArrayList<>(List.of(user.getId(), journey.getUser().getId()))),
+                emailContent,
+                user,
+                journey
+        );
 
 
     }
