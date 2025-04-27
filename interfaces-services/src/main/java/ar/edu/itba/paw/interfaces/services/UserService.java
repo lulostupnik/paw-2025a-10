@@ -29,5 +29,6 @@ public interface UserService {
 
     void updateCareer(long userId, String newCareerName);
     void updateCareer(long userId, long careerId);
+    byte[] getProfilePictureData(User user);
 
 }
