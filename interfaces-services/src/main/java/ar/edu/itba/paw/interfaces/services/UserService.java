@@ -2,6 +2,7 @@ package ar.edu.itba.paw.interfaces.services;
 
 import ar.edu.itba.paw.models.User;
 
+import java.util.List;
 import java.util.Locale;
 import ar.edu.itba.paw.models.UserPassword;
 
@@ -31,4 +32,5 @@ public interface UserService {
     void updateCareer(long userId, long careerId);
     byte[] getProfilePictureData(User user);
 
+    List<User> getAllUsers();
 }

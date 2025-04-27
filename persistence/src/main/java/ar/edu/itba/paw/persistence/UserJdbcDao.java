@@ -238,6 +238,11 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
+    public List<User> getAllUsers() {
+        return jdbcTemplate.query(QUERY, USER_ROW_MAPPER);
+    }
+
+    @Override
     public void updateProfilePicture(long userId, long profilePictureId) {
         LOGGER.debug("Updating profile picture for user ID: {} to image ID: {}", userId, profilePictureId);
 

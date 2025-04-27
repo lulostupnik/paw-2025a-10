@@ -1,0 +1,222 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><spring:message code="admin.dashboard.title" /></title>
+
+  <!-- Include existing CSS files -->
+  <link rel="stylesheet" href="<c:url value='/resources/css/main.css' />">
+
+  <!-- Dashboard specific CSS -->
+  <link rel="stylesheet" href="<c:url value='/resources/css/pages/dashboard.css' />">
+</head>
+<body>
+<div class="dashboard-container">
+  <header class="dashboard-header">
+    <h1 class="dashboard-title"><spring:message code="admin.dashboard.heading" /></h1>
+    <div class="user-info">
+      <span class="logged-in-text"><spring:message code="admin.logged.in.as" /> <spring:message code="admin.role" /></span>
+      <span class="admin-badge"><spring:message code="admin.role" /></span>
+    </div>
+  </header>
+
+  <div class="dashboard-tabs">
+    <button class="tab-button" data-tab="journeys"><spring:message code="admin.tab.journeys" /></button>
+    <button class="tab-button" data-tab="users"><spring:message code="admin.tab.users" /></button>
+    <button class="tab-button" data-tab="events"><spring:message code="admin.tab.events" /></button>
+  </div>
+
+  <!-- Journeys Tab Content -->
+  <div class="tab-content" id="journeys-tab">
+    <div class="content-header">
+      <h2><spring:message code="admin.manage.journeys" /></h2>
+      <div class="action-bar">
+        <div class="search-container">
+          <input type="text" class="search-input" placeholder="<spring:message code='admin.search.journeys' />">
+          <button class="filter-button"><i class="filter-icon"></i></button>
+        </div>
+        <button class="add-button"><i class="add-icon"></i> <spring:message code="admin.add.journey" /></button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+        <tr>
+          <th><spring:message code="admin.column.id" /></th>
+          <th><spring:message code="admin.column.user" /></th>
+          <th><spring:message code="admin.column.destination" /></th>
+          <th><spring:message code="admin.column.university" /></th>
+          <th><spring:message code="admin.column.start.date" /></th>
+          <th><spring:message code="admin.column.end.date" /></th>
+          <th><spring:message code="admin.column.status" /></th>
+          <th><spring:message code="admin.column.actions" /></th>
+        </tr>
+        </thead>
+        <tbody>
+        <c:forEach items="${journeys}" var="journey">
+          <tr>
+            <td>${journey.id}</td>
+            <td>${journey.user.firstname}</td>
+            <td>${journey.destinationUniversity.city}</td>
+            <td>${journey.destinationUniversity}</td>
+            <td><fmt:formatDate value="${journey.startDate}" pattern="yyyy-MM-dd" /></td>
+            <td><fmt:formatDate value="${journey.endDate}" pattern="yyyy-MM-dd" /></td>
+            <td>
+<%--                                    <span class="status-badge status-${journey.status.toLowerCase()}">--%>
+<%--                                        <spring:message code="admin.status.${journey.status.toLowerCase()}" />--%>
+<%--                                    </span>--%>
+            </td>
+            <td>
+              <button class="action-button" data-id="${journey.id}">
+                <i class="more-icon"></i>
+              </button>
+            </td>
+          </tr>
+        </c:forEach>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Users Tab Content -->
+  <div class="tab-content" id="users-tab">
+    <div class="content-header">
+      <h2><spring:message code="admin.manage.users" /></h2>
+      <div class="action-bar">
+        <div class="search-container">
+          <input type="text" class="search-input" placeholder="<spring:message code='admin.search.users' />">
+          <button class="filter-button"><i class="filter-icon"></i></button>
+        </div>
+        <button class="add-button"><i class="add-icon"></i> <spring:message code="admin.add.user" /></button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+        <tr>
+          <th><spring:message code="admin.column.id" /></th>
+          <th><spring:message code="admin.column.name" /></th>
+          <th><spring:message code="admin.column.email" /></th>
+          <th><spring:message code="admin.column.university" /></th>
+          <th><spring:message code="admin.column.role" /></th>
+          <th><spring:message code="admin.column.status" /></th>
+          <th><spring:message code="admin.column.actions" /></th>
+        </tr>
+        </thead>
+        <tbody>
+        <c:forEach items="${users}" var="user">
+          <tr>
+            <td>${user.id}</td>
+            <td>${user.firstname}</td>
+            <td>${user.email}</td>
+            <td>${user.university}</td>
+            <td>
+<%--                                    <span class="role-badge role-${user.role.toLowerCase()}">--%>
+<%--                                        <spring:message code="admin.role.${user.role.toLowerCase()}" />--%>
+<%--                                    </span>--%>
+            </td>
+            <td>
+<%--                                    <span class="status-badge status-${user.status.toLowerCase()}">--%>
+<%--                                        <spring:message code="admin.status.${user.status.toLowerCase()}" />--%>
+<%--                                    </span>--%>
+            </td>
+            <td>
+              <button class="action-button" data-id="${user.id}">
+                <i class="more-icon"></i>
+              </button>
+            </td>
+          </tr>
+        </c:forEach>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Events Tab Content -->
+  <div class="tab-content" id="events-tab">
+    <div class="content-header">
+      <h2><spring:message code="admin.manage.events" /></h2>
+      <div class="action-bar">
+        <div class="search-container">
+          <input type="text" class="search-input" placeholder="<spring:message code='admin.search.events' />">
+          <button class="filter-button"><i class="filter-icon"></i></button>
+        </div>
+        <button class="add-button"><i class="add-icon"></i> <spring:message code="admin.add.event" /></button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+        <tr>
+          <th><spring:message code="admin.column.id" /></th>
+          <th><spring:message code="admin.column.title" /></th>
+          <th><spring:message code="admin.column.organizer" /></th>
+          <th><spring:message code="admin.column.location" /></th>
+          <th><spring:message code="admin.column.date" /></th>
+          <th><spring:message code="admin.column.attendees" /></th>
+          <th><spring:message code="admin.column.status" /></th>
+          <th><spring:message code="admin.column.actions" /></th>
+        </tr>
+        </thead>
+        <tbody>
+        <c:forEach items="${events}" var="event">
+          <tr>
+            <td>${event.id}</td>
+            <td>${event.title}</td>
+            <td>${event.user.username}</td>
+            <td>${event.eventCity}</td>
+            <td><fmt:formatDate value="${event.date}" pattern="yyyy-MM-dd" /></td>
+            <td>
+              <div class="attendee-progress">
+                <span class="attendee-count">${event.attendeesCount}/${event.attendeesLimit}</span>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: ${(event.attendeesCount / event.attendeesLimit) * 100}%"></div>
+                </div>
+              </div>
+            </td>
+            <td>
+<%--                                    <span class="status-badge status-${event.status.toLowerCase()}">--%>
+<%--                                        <spring:message code="admin.status.${event.status.toLowerCase()}" />--%>
+<%--                                    </span>--%>
+            </td>
+            <td>
+              <button class="action-button" data-id="${event.id}">
+                <i class="more-icon"></i>
+              </button>
+            </td>
+          </tr>
+        </c:forEach>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Action Dropdown Menu Template -->
+  <div class="dropdown-menu" id="action-dropdown-template" style="display: none;">
+    <ul>
+      <li class="dropdown-item edit-item">
+        <i class="edit-icon"></i> <spring:message code="admin.action.edit" />
+      </li>
+      <li class="dropdown-item manage-attendees-item">
+        <i class="attendees-icon"></i> <spring:message code="admin.action.manage.attendees" />
+      </li>
+      <li class="dropdown-item delete-item">
+        <i class="delete-icon"></i> <spring:message code="admin.action.delete" />
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Include JavaScript files -->
+<script src="<c:url value='/resources/js/dashboard.js' />"></script>
+</body>
+</html>
