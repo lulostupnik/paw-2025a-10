@@ -68,7 +68,7 @@ public class EventJdbcDao implements EventDao {
             
     );
 
-    private static final String QUERY =
+    private static final String SELECT_CLAUSE =
             """
                     SELECT\s
                         us.id AS user_id,\s
@@ -106,15 +106,47 @@ public class EventJdbcDao implements EventDao {
                        ci2.name AS origin_city_name,\s
                     
                        co2.name AS origin_country_name
+                    """;
+
+    private static final String QUERY = SELECT_CLAUSE +
+            """
                     FROM events e
                     JOIN users us ON e.user_id = us.id
                     JOIN careers ca ON ca.id = us.career_id
                     JOIN universities un ON us.university = un.id
-                    JOIN cities ci2 ON un.city_id = ci2.id\s
+                    JOIN cities ci2 ON un.city_id = ci2.id 
                     JOIN countries co2 ON co2.id = ci2.country_id
-                    JOIN cities c ON e.city_id = c.id\s
-                    JOIN countries co ON c.country_id = co.id\s
-                    """;
+                    JOIN cities c ON e.city_id = c.id 
+                    JOIN countries co ON c.country_id = co.id
+            """;
+
+    private static final String PAGE_QUERY = SELECT_CLAUSE +
+            """
+                    FROM (
+                        SELECT * FROM events e ORDER BY e.event_date DESC LIMIT ? OFFSET ?
+                    ) AS e
+                    JOIN users us ON e.user_id = us.id
+                    JOIN careers ca ON ca.id = us.career_id
+                    JOIN universities un ON us.university = un.id
+                    JOIN cities ci2 ON un.city_id = ci2.id 
+                    JOIN countries co2 ON co2.id = ci2.country_id
+                    JOIN cities c ON e.city_id = c.id 
+                    JOIN countries co ON c.country_id = co.id
+            """;
+
+    private static final String PAGE_QUERY_BY_NOT_USER_ID = SELECT_CLAUSE +
+            """
+                    FROM (
+                        SELECT * FROM events e WHERE e.user_id != ? ORDER BY e.event_date DESC LIMIT ? OFFSET ?
+                    ) AS e
+                    JOIN users us ON e.user_id = us.id
+                    JOIN careers ca ON ca.id = us.career_id
+                    JOIN universities un ON us.university = un.id
+                    JOIN cities ci2 ON un.city_id = ci2.id 
+                    JOIN countries co2 ON co2.id = ci2.country_id
+                    JOIN cities c ON e.city_id = c.id 
+                    JOIN countries co ON c.country_id = co.id
+            """;
 
 
 
@@ -202,7 +234,7 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public List<Event> getRecommendedEvents(String email) {
+    public List<UserEvent> getRecommendedEvents(String email) {
         LOGGER.debug("Querying DB for recommended events for usermail {}", email);
         return jdbcTemplate.query("""
                WITH user_data AS (
@@ -213,6 +245,7 @@ public class EventJdbcDao implements EventDao {
             WHERE u.email = ?
         )
         SELECT 
+            (ea.user_id IS NOT NULL) AS is_attending,
             us.id AS user_id, 
             us.email AS user_email, 
             us.firstname AS user_firstname, 
@@ -256,9 +289,14 @@ public class EventJdbcDao implements EventDao {
         JOIN cities c ON e.city_id = c.id 
         JOIN countries co ON c.country_id = co.id
         JOIN user_data ud ON ud.city_id = e.city_id
+        LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ud.id
         WHERE e.event_date >= CURRENT_DATE
         AND us.email != ?
-    """, EVENT_ROW_MAPPER, email, email);
+    """,  (rs, rowNum) -> {
+            Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
+            boolean isAttending = rs.getBoolean("is_attending");
+            return new UserEvent(event, isAttending);
+        }, email, email);
     }
 
     public List<Event> getTopEvents(){

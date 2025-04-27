@@ -5,6 +5,7 @@ import java.util.List;
 
 import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.models.Journey;
+import ar.edu.itba.paw.models.UserEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,10 +50,9 @@ public class LandingController {
         return mav;
     }
     private void populateHomePage(ModelAndView mav, String username) {
-        List<Event> events = eventService.getRecommendedEvents(username); //@TODO: change to UserEvents
+        List<UserEvent> events = eventService.getRecommendedEvents(username); //@TODO: change to UserEvents
         LOGGER.debug("Events: {}", events);
         mav.addObject("events", events);
-        mav.addObject("eventsAttended", eventService.getUserAttendingEvents( username));
 
         List<Journey> journeys = journeyService.getRecommendedJourneys(username);
         LOGGER.debug("Journeys: {}", journeys);

@@ -143,13 +143,13 @@ public class UserJdbcDao implements UserDao {
     @Override
     public boolean existsByUsername(String username) {
         LOGGER.debug("Querying DB for existance of username {}", username);
-        return jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)", Boolean.class, username);
+        return jdbcTemplate.queryForObject("SELECT COUNT(1) FROM users WHERE username = ?", Boolean.class, username);
     }
 
     @Override
     public boolean existsByEmail(String email) {
         LOGGER.debug("Querying DB for existance of user with email {}", email);
-        return jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)", Boolean.class, email);
+        return jdbcTemplate.queryForObject("SELECT COUNT(1) FROM users WHERE email = ?", Boolean.class, email);
     }
 
 

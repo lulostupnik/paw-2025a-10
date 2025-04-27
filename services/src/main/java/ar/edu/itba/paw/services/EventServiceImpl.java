@@ -222,10 +222,13 @@ public class EventServiceImpl implements EventService {
     // FIXME: Agregarle cacheable?
     @Transactional(readOnly = true)
     @Override
-    public List<Event> getRecommendedEvents(String email){
-        List<Event> events = eventDao.getRecommendedEvents(email);
+    public List<UserEvent> getRecommendedEvents(String email){
+        List<UserEvent> events = eventDao.getRecommendedEvents(email);
         if(events.isEmpty()){
-            return eventDao.getTopEvents();
+            eventDao.getTopEvents().forEach((event)->{
+                UserEvent ue = new UserEvent(event,false);
+                events.add(ue);
+            });
         }
         return events;
     }
