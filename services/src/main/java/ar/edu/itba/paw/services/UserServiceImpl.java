@@ -71,6 +71,8 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+
+
     @Override
     @Cacheable(value = "usersByEmail", key = "#email")
     @Transactional(readOnly = true)
@@ -214,4 +216,12 @@ public class UserServiceImpl implements UserService {
         userDao.updateCareer(userId, careerId);
         LOGGER.info("Successfully updated career for user {} to career ID {}", userId, careerId);
     }
+
+
+    //@TODO ask (exception?). @TODO add cache?
+    public byte[] getProfilePictureData(User user) {
+        return imageDao.getImageById(user.getProfilePictureId()).orElseThrow(() -> new IllegalStateException("User does not have a profile picture"))
+                .getData();
+    }
+
 }

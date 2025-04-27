@@ -2,6 +2,7 @@ package ar.edu.itba.paw.models.valueObjects;
 
 
 import ar.edu.itba.paw.models.Image;
+import ar.edu.itba.paw.models.User;
 import lombok.Builder;
 import lombok.Value;
 import lombok.NonNull;
@@ -17,13 +18,14 @@ public class EmailContent {
     @NonNull
     String message;
 
-    @NonNull
-    String subjectKey;
 
-    @NonNull
-    Object[] subjectArgs;
+//    @NonNull
+//    String subjectKey;   @SOTUYO: estaria bien ponerlo aca o tiene que ir en el email-service?
 
-    @NonNull
-    Image image;
+//    @NonNull
+//    Object[] subjectArgs;
+//
+//    @NonNull
+//    Image image;
 
 }
