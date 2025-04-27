@@ -122,9 +122,8 @@ public class EventJdbcDao implements EventDao {
 
 
     private String getPageQuery(String whereClause, String orderByClause) {
-        return """
-                FROM
-                (SELECT * FROM events e " + whereClause + orderByClause + " LIMIT ? OFFSET ?)
+        return "FROM (SELECT * FROM events e " + whereClause + orderByClause + " LIMIT ? OFFSET ?)" +
+                """ 
                 AS e
                 JOIN users us ON e.user_id = us.id
                 JOIN careers ca ON ca.id = us.career_id
