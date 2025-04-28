@@ -30,7 +30,7 @@ public class AdminController {
             @RequestParam(value = "journeyPage", defaultValue = "1") int journeyPage,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
 
-        ModelAndView mav = new ModelAndView("admin/dashboard");
+        ModelAndView mav = new ModelAndView("/admin/dashboard");
         mav.addObject("pagedEvents", eventService.getAllEvents(eventPage, pageSize));
         mav.addObject("pagedUsers", userService.getAllUsers(userPage, pageSize));
         mav.addObject("pagedJourneys", journeyService.getAllJourneys(journeyPage, pageSize));

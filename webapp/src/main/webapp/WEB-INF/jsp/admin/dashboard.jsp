@@ -59,16 +59,17 @@
         </tr>
         </thead>
         <tbody>
-        <c:forEach items="${pagedJourneys}" var="pagedJourney">
+        <c:set var="journeys" value="${pagedJourneys.content}" />
+        <c:forEach items="${journeys}" var="pagedJourney">
           <tr>
-            <td><c:out value="${pagedJourney.journey.id}"/></td>
-            <td><c:out value="${pagedJourney.journey.user.firstname}"/></td>
-            <td><c:out value="${pagedJourney.journey.destinationUniversity.city}"/></td>
-            <td><c:out value="${pagedJourney.journey.destinationUniversity}"/></td>
-            <td><fmt:parseDate value="${pagedJourney.journey.startDate}" pattern="yyyy-MM-dd" /></td>
-            <td><fmt:parseDate value="${pagedJourney.journey.endDate}" pattern="yyyy-MM-dd" /></td>
+            <td><c:out value="${pagedJourney.id}"/></td>
+            <td><c:out value="${pagedJourney.user.firstname}"/></td>
+            <td><c:out value="${pagedJourney.destinationUniversity.city}"/></td>
+            <td><c:out value="${pagedJourney.destinationUniversity}"/></td>
+            <td><fmt:parseDate value="${pagedJourney.startDate}" pattern="yyyy-MM-dd" /></td>
+            <td><fmt:parseDate value="${pagedJourney.endDate}" pattern="yyyy-MM-dd" /></td>
             <td>
-              <button class="action-button" data-id=<c:out value="${pagedJourney.journey.id}"/> >
+              <button class="action-button" data-id=<c:out value="${pagedJourney.id}"/> >
                 <i class="more-icon"></i>
               </button>
             </td>
@@ -107,14 +108,15 @@
         </tr>
         </thead>
         <tbody>
-        <c:forEach items="${pagedUsers}" var="pagedUser">
+        <c:set var="users" value="${pagedUsers.content}" />
+        <c:forEach items="${users}" var="pagedUser">
           <tr>
-            <td><c:out value="${pagedUser.user.id}"/></td>
-            <td><c:out value="${pagedUser.user.firstname}"/></td>
-            <td><c:out value="${pagedUser.user.email}"/></td>
-            <td><c:out value="${pagedUser.user.university}"/></td>
+            <td><c:out value="${pagedUser.id}"/></td>
+            <td><c:out value="${pagedUser.firstname}"/></td>
+            <td><c:out value="${pagedUser.email}"/></td>
+            <td><c:out value="${pagedUser.university}"/></td>
             <td>
-              <button class="action-button" data-id=<c:out value="${pagedUser.user.id}"/> >
+              <button class="action-button" data-id=<c:out value="${pagedUser.id}"/> >
                 <i class="more-icon"></i>
               </button>
             </td>
@@ -155,20 +157,21 @@
         </tr>
         </thead>
         <tbody>
-        <c:forEach items="${pagedEvents}" var="pagedEvent">
+        <c:set var="events" value="${pagedEvents.content}" />
+        <c:forEach items="${events}" var="pagedEvent">
           <tr>
-            <td><c:out value="${pagedEvent.event.id}"/></td>
-            <td><c:out value="${pagedEvent.event.title}"/></td>
-            <td><c:out value="${pagedEvent.event.user.username}"/></td>
-            <td><c:out value="${pagedEvent.event.eventCity}"/></td>
-            <td><fmt:parseDate value="${pagedEvent.event.date}" pattern="yyyy-MM-dd" /></td>
+            <td><c:out value="${pagedEvent.id}"/></td>
+            <td><c:out value="${pagedEvent.title}"/></td>
+            <td><c:out value="${pagedEvent.user.username}"/></td>
+            <td><c:out value="${pagedEvent.eventCity}"/></td>
+            <td><fmt:parseDate value="${pagedEvent.date}" pattern="yyyy-MM-dd" /></td>
             <td>
               <c:choose>
-                <c:when test="${pagedEvent.event.attendeesLimit.isPresent() && pagedEvent.event.attendeesLimit.get() != 0}">
+                <c:when test="${pagedEvent.attendeesLimit.isPresent() && pagedEvent.attendeesLimit.get() != 0}">
                   <div class="attendee-progress">
-                    <span class="attendee-count"><c:out value="${pagedEvent.event.attendeesCount}"/>/<c:out value="${pagedEvent.event.attendeesLimit.get()}"/></span>
+                    <span class="attendee-count"><c:out value="${pagedEvent.attendeesCount}"/>/<c:out value="${pagedEvent.attendeesLimit.get()}"/></span>
                     <div class="progress-bar">
-                      <div class="progress-fill" style="width: <c:out value="${(pagedEvent.event.attendeesCount * 100 / pagedEvent.event.attendeesLimit.get())}"/>%"></div>
+                      <div class="progress-fill" style="width: <c:out value="${(pagedEvent.attendeesCount * 100 / pagedEvent.attendeesLimit.get())}"/>%"></div>
                     </div>
                   </div>
                 </c:when>
@@ -178,7 +181,7 @@
               </c:choose>
             </td>
             <td>
-              <button class="action-button" data-id=<c:out value="${pagedEvent.event.id}"/>>
+              <button class="action-button" data-id=<c:out value="${pagedEvent.id}"/>>
                 <i class="more-icon"></i>
               </button>
             </td>

@@ -119,10 +119,10 @@ public class EventJdbcDao implements EventDao {
                     JOIN cities c ON e.city_id = c.id
                     JOIN countries co ON c.country_id = co.id
                     """;
-    private static final String NOT_DELETED = " AND e.deleted = FALSE";
+    private static final String NOT_DELETED = "WHERE e.deleted = FALSE";
 
     private String getPageQuery(String whereClause, String orderByClause) {
-        return "FROM (SELECT * FROM events e " + whereClause + orderByClause + " LIMIT ? OFFSET ?)" +
+        return "FROM (SELECT * FROM events e " + whereClause +" "+ orderByClause + " LIMIT ? OFFSET ?)" +
                 """ 
                 AS e
                 JOIN users us ON e.user_id = us.id
@@ -218,9 +218,9 @@ public class EventJdbcDao implements EventDao {
     public Page<Event> listAll(int page, int size) {
         LOGGER.debug("Querying DB for all events");
         int offset = (page - 1) * size;
-        String whereClause = "";
+        String whereClause = NOT_DELETED;
         String orderByClause = "ORDER BY e.event_date DESC ";
-        return new Page<>(jdbcTemplate.query(QUERY + NOT_DELETED, EVENT_ROW_MAPPER,page,offset),page);
+        return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPageQuery(whereClause,orderByClause) , EVENT_ROW_MAPPER,page,offset),page);
     }
 
 
@@ -395,14 +395,14 @@ public class EventJdbcDao implements EventDao {
     @Override
     public List<Event> getMyEvents(long userId) {
         LOGGER.debug("Querying DB for events created by user {}", userId);
-        return jdbcTemplate.query(QUERY + NOT_DELETED+ "AND e.user_id = ? ORDER BY e.event_date DESC",
+        return jdbcTemplate.query(QUERY + NOT_DELETED + " AND e.user_id = ? ORDER BY e.event_date DESC",
                 EVENT_ROW_MAPPER, userId);
     }
     @Override
     public Page<Event> getMyEvents(long userId, int page, int size) {
         LOGGER.debug("Querying DB for events created by user {}", userId);
         int offset = (page - 1) * size;
-        String whereClause = NOT_DELETED+ "AND e.user_id = ? ";
+        String whereClause = NOT_DELETED + " AND e.user_id = ? ";
         String orderByClause = "ORDER BY e.event_date DESC ";
         return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPageQuery(whereClause, orderByClause),
                 EVENT_ROW_MAPPER, userId,page,offset),page);
@@ -411,7 +411,7 @@ public class EventJdbcDao implements EventDao {
     @Override
     public List<Event> getOthersEvents(long userId) {
         LOGGER.debug("Querying DB for events not created by user {}", userId);
-        return jdbcTemplate.query(QUERY + NOT_DELETED + "AND e.user_id != ? AND e.event_date >= CURRENT_DATE ORDER BY e.event_date",
+        return jdbcTemplate.query(QUERY + NOT_DELETED + " AND e.user_id != ? AND e.event_date >= CURRENT_DATE ORDER BY e.event_date",
                 EVENT_ROW_MAPPER, userId);
     }
 
@@ -420,7 +420,7 @@ public class EventJdbcDao implements EventDao {
     public Page<Event> getOthersEvents(long userId, int page, int size) {
         LOGGER.debug("Querying DB for events not created by user {}", userId);
         int offset = (page - 1) * size;
-        String whereClause = NOT_DELETED + "AND e.user_id != ? AND e.event_date >= CURRENT_DATE ";
+        String whereClause = NOT_DELETED + " AND e.user_id != ? AND e.event_date >= CURRENT_DATE ";
         String orderByClause = "ORDER BY e.event_date DESC ";
         return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPageQuery(whereClause, orderByClause), EVENT_ROW_MAPPER, userId,page,offset),page);
     }
