@@ -280,7 +280,6 @@ public class EventServiceImpl implements EventService {
     @Override
     public void deleteEvent(long id, String message) {
         LOGGER.debug("Deleting event {}", id);
-        eventDao
         //emailService.deleteEmail()
         eventDao.delete(id);
     }
