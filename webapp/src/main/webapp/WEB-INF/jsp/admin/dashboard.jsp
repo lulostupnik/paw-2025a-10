@@ -18,7 +18,7 @@
 </head>
 <body>
 <jsp:include page="../components/navbar.jsp" />
-<div class="dashboard-container">
+<div class="content-container">
   <header class="header">
     <h1 class="page-title"><spring:message code="admin.dashboard.heading" /></h1>
     <div class="user-info">
@@ -58,7 +58,6 @@
           <th><spring:message code="admin.column.university" /></th>
           <th><spring:message code="admin.column.start.date" /></th>
           <th><spring:message code="admin.column.end.date" /></th>
-          <th><spring:message code="admin.column.status" /></th>
           <th><spring:message code="admin.column.actions" /></th>
         </tr>
         </thead>
@@ -71,11 +70,6 @@
             <td><c:out value="${journey.destinationUniversity}"/></td>
             <td><fmt:parseDate value="${journey.startDate}" pattern="yyyy-MM-dd" /></td>
             <td><fmt:parseDate value="${journey.endDate}" pattern="yyyy-MM-dd" /></td>
-            <td>
-<%--                                    <span class="status-badge status-${journey.status.toLowerCase()}">--%>
-<%--                                        <spring:message code="admin.status.${journey.status.toLowerCase()}" />--%>
-<%--                                    </span>--%>
-            </td>
             <td>
               <button class="action-button" data-id=<c:out value="${journey.id}"/> >
                 <i class="more-icon"></i>
@@ -112,8 +106,6 @@
           <th><spring:message code="admin.column.name" /></th>
           <th><spring:message code="admin.column.email" /></th>
           <th><spring:message code="admin.column.university" /></th>
-          <th><spring:message code="admin.column.role" /></th>
-          <th><spring:message code="admin.column.status" /></th>
           <th><spring:message code="admin.column.actions" /></th>
         </tr>
         </thead>
@@ -124,16 +116,6 @@
             <td><c:out value="${user.firstname}"/></td>
             <td><c:out value="${user.email}"/></td>
             <td><c:out value="${user.university}"/></td>
-            <td>
-<%--                                    <span class="role-badge role-${user.role.toLowerCase()}">--%>
-<%--                                        <spring:message code="admin.role.${user.role.toLowerCase()}" />--%>
-<%--                                    </span>--%>
-            </td>
-            <td>
-<%--                                    <span class="status-badge status-${user.status.toLowerCase()}">--%>
-<%--                                        <spring:message code="admin.status.${user.status.toLowerCase()}" />--%>
-<%--                                    </span>--%>
-            </td>
             <td>
               <button class="action-button" data-id=<c:out value="${user.id}"/> >
                 <i class="more-icon"></i>
@@ -172,7 +154,6 @@
           <th><spring:message code="admin.column.location" /></th>
           <th><spring:message code="admin.column.date" /></th>
           <th><spring:message code="admin.column.attendees" /></th>
-          <th><spring:message code="admin.column.status" /></th>
           <th><spring:message code="admin.column.actions" /></th>
         </tr>
         </thead>
@@ -198,11 +179,6 @@
                   <span class="unlimited-attendees"><spring:message code="admin.unlimited.attendees" /></span>
                 </c:otherwise>
               </c:choose>
-            </td>
-            <td>
-<%--                                    <span class="status-badge status-${event.status.toLowerCase()}">--%>
-<%--                                        <spring:message code="admin.status.${event.status.toLowerCase()}" />--%>
-<%--                                    </span>--%>
             </td>
             <td>
               <button class="action-button" data-id=<c:out value="${event.id}"/>>
