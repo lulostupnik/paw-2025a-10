@@ -189,6 +189,16 @@
         </c:forEach>
         </tbody>
       </table>
+      <%--      include pagination--%>
+      <c:set var="currentPage" value="${param.eventPage != null ? param.eventPage : 1}" />
+      <c:set var="itemsPerPage" value="${param.pageSize != null ? param.pageSize : 10}" />
+      <c:set var="currentUrl" value="${pageContext.request.contextPath}/admin/dashboard" />
+      <c:set var="view" value="${param.view != null ? param.view : 'events'}" />
+      <jsp:include page="../components/pagination-controls.jsp">
+        <jsp:param name="currentPage" value="${currentPage}" />
+        <jsp:param name="itemsPerPage" value="${itemsPerPage}" />
+        <jsp:param name="currentUrl" value="${currentUrl}" />
+      </jsp:include>
     </div>
   </div>
 
@@ -210,5 +220,6 @@
 
 <!-- Include JavaScript files -->
 <script src="<c:url value='/resources/js/dashboard.js' />"></script>
+<script src="<c:url value='/resources/js/pagination.js' />"></script>
 </body>
 </html>

@@ -17,6 +17,7 @@
 @import "components/navigation.css";
 @import "components/tags.css";
 @import "components/checbox.css";
+@import "components/pagination.css";
 
 /* 4. Page-specific Styles */
 @import "pages/home.css";
