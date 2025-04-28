@@ -13,6 +13,7 @@ import java.util.Locale;
 @Getter
 @RequiredArgsConstructor
 public class EventResponse {
+    private final long id;
     private final long userId;
     private final String username;
     private final long eventId;

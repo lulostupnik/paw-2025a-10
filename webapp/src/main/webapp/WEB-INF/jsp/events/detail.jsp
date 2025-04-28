@@ -121,16 +121,6 @@
 
                         <!-- Attend Button Section -->
 <div class="attendance-control">
-    <sec:authorize access="hasRole('ADMIN')">
-        <form id="delete-form" action="<c:url value='/events/${event.id}/delete'/>" method="post">
-            <button type="button" class="btn-attendance btn-danger" onclick="openDeleteModal()">
-                <img src="<c:url value='/resources/icons/x.svg'/>" alt="<spring:message code='event.attend'/>" class="btn-icon" />
-                <span class="btn-text"><spring:message code="event.delete" text="Delete" /></span>
-            </button>
-        </form>
-    </sec:authorize>
-
-    <sec:authorize access="!hasRole('ADMIN')">
                             <c:choose>
                                 <c:when test="${not empty username and attend}">
                                     <div class="attendance-status-container">
@@ -162,7 +152,6 @@
                                     </div>
                                 </c:when>
                             </c:choose>
-    </sec:authorize>
                         </div>
                         </div>
                     </div>
@@ -194,6 +183,14 @@
                             </p>
                         </div>
                     </div>
+                        <sec:authorize access="hasRole('ADMIN')">
+                            <form id="delete-form" action="<c:url value='/events/${event.id}/delete'/>" method="post">
+                                <button type="button" class="btn-attendance btn-danger" onclick="openDeleteModal()">
+                                    <img src="<c:url value='/resources/icons/x.svg'/>" alt="<spring:message code='event.delete'/>" class="btn-icon" />
+                                    <span class="btn-text"><spring:message code="event.delete" text="Delete" /></span>
+                                </button>
+                            </form>
+                        </sec:authorize>
                 </section>
 
                 <!-- Event Attendees Section -->
@@ -359,29 +356,9 @@
         </div>
     </div>
 </div>
-
-<div id="delete-modal" class="attendance-modal">
-    <div class="attendance-modal-content">
-        <div class="attendance-modal-header">
-            <h3 class="attendance-modal-title"><spring:message code="event.confirmDelete"/></h3>
-            <button type="button" class="attendance-modal-close" onclick="closeAttendanceModal()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="modal-close-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-        <div class="attendance-modal-body">
-            <p><spring:message code="event.deleteWarning"/></p>
-        </div>
-        <div class="attendance-modal-footer">
-            <button type="button" class="btn-secondary" onclick="closeAttendanceModal()">
-                <spring:message code="event.confirm.delete.reject" />
-            </button>
-                <button type="submit" class="btn-danger">
-                    <spring:message code="event.confirm.delete.accept" />
-                </button
-        </div>
-    </div>
-</div>
+<c:set var="warning"><spring:message code="event.deleteWarning"/></c:set>
+<jsp:include page="../components/delete-modal.jsp">
+    <jsp:param name="warning" value="${warning}"/>
+</jsp:include>
 </body>
 </html>

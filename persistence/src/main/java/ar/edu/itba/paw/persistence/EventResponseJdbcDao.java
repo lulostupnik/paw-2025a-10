@@ -26,6 +26,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
     private final SimpleJdbcInsert jdbcInsert;
 
     private static final RowMapper<EventResponse> EVENT_RESPONSE_ROW_MAPPER = (rs, rowNum) -> new EventResponse(
+            rs.getLong("id"), // ID from `event_responses` table
             rs.getLong("user_id"), // Event ID from `events` table
             rs.getString("username"),
             rs.getLong("event_id"),
@@ -51,7 +52,8 @@ public class EventResponseJdbcDao implements EventResponseDao {
     );*/
 
     private static final String QUERY_BY_EVENT_ID = """
-        SELECT er.user_id, us.username as username, er.event_id, er.message, er.date_time\s
+        SELECT  er.id as id,
+ er.user_id, us.username as username, er.event_id, er.message, er.date_time\s
         FROM event_responses er\s
         JOIN users us\s
         ON er.user_id = us.id\s
@@ -98,9 +100,9 @@ public class EventResponseJdbcDao implements EventResponseDao {
         args.put("message", message);
         args.put("date_time", dateTime);
 
-        jdbcInsert.execute(args);
+        final Number keys = jdbcInsert.executeAndReturnKey(args);
         LOGGER.debug("Successfully registered event response");
-        return new EventResponse(userId, username, eventId, message, dateTime);
+        return new EventResponse(keys.longValue(), userId, username, eventId, message, dateTime);
     }
 
     @Override

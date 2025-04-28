@@ -25,6 +25,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
     private static final RowMapper<JourneyResponse> JOURNEY_RESPONSE_ROW_MAPPER = (rs, rowNum) -> new JourneyResponse(
+            rs.getLong("id"), // ID from `journey_responses` table
             rs.getLong("user_id"), // Event ID from `events` table
             rs.getString("username"),
             rs.getLong("journey_id"),
@@ -32,7 +33,8 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
             rs.getTimestamp("date_time").toLocalDateTime()
     );
     private static final String QUERY_BY_JOURNEY_ID = """
-            SELECT jr.user_id, us.username AS username, jr.journey_id, jr.message, jr.date_time\s
+            SELECT jr.id as id,
+                   jr.user_id, us.username AS username, jr.journey_id, jr.message, jr.date_time\s
             FROM journey_responses jr\s
             JOIN users us\s
             ON jr.user_id = us.id\s
@@ -54,12 +56,13 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     public JourneyResponse create(long userId, String username, long journeyId, String message, LocalDateTime dateTime) {
         LOGGER.debug("Registering new journey response to journey {} from user {} ({}) saying '{}' on {}", journeyId, userId, username, message, dateTime);
         final Map<String, Object> args = new HashMap<>();
+
         args.put("user_id", userId);
         args.put("journey_id", journeyId);
         args.put("message", message);
         args.put("date_time", dateTime);
 
-        jdbcInsert.execute(args);
+        final Number keys = jdbcInsert.executeAndReturnKey(args);
         // handlear excepción?
         /*
         try {
@@ -69,7 +72,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
             throw new ResponseAlreadyExistsException("User " + userId + " has already responded to journey " + journeyId);
         }
         */
-        return new JourneyResponse(userId, username, journeyId, message, dateTime);
+        return new JourneyResponse(keys.longValue(), userId, username, journeyId, message, dateTime);
     }
 
     @Override
