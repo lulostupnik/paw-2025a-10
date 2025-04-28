@@ -62,10 +62,10 @@
         <tbody>
         <c:forEach items="${journeys}" var="journey">
           <tr>
-            <td>${journey.id}</td>
-            <td>${journey.user.firstname}</td>
-            <td>${journey.destinationUniversity.city}</td>
-            <td>${journey.destinationUniversity}</td>
+            <td><c:out value="${journey.id}"/></td>
+            <td><c:out value="${journey.user.firstname}"/></td>
+            <td><c:out value="${journey.destinationUniversity.city}"/></td>
+            <td><c:out value="${journey.destinationUniversity}"/></td>
             <td><fmt:parseDate value="${journey.startDate}" pattern="yyyy-MM-dd" /></td>
             <td><fmt:parseDate value="${journey.endDate}" pattern="yyyy-MM-dd" /></td>
             <td>
@@ -74,7 +74,7 @@
 <%--                                    </span>--%>
             </td>
             <td>
-              <button class="action-button" data-id="${journey.id}">
+              <button class="action-button" data-id=<c:out value="${journey.id}"/> >
                 <i class="more-icon"></i>
               </button>
             </td>
@@ -114,10 +114,10 @@
         <tbody>
         <c:forEach items="${users}" var="user">
           <tr>
-            <td>${user.id}</td>
-            <td>${user.firstname}</td>
-            <td>${user.email}</td>
-            <td>${user.university}</td>
+            <td><c:out value="${user.id}"/></td>
+            <td><c:out value="${user.firstname}"/></td>
+            <td><c:out value="${user.email}"/></td>
+            <td><c:out value="${user.university}"/></td>
             <td>
 <%--                                    <span class="role-badge role-${user.role.toLowerCase()}">--%>
 <%--                                        <spring:message code="admin.role.${user.role.toLowerCase()}" />--%>
@@ -129,7 +129,7 @@
 <%--                                    </span>--%>
             </td>
             <td>
-              <button class="action-button" data-id="${user.id}">
+              <button class="action-button" data-id=<c:out value="${user.id}"/> >
                 <i class="more-icon"></i>
               </button>
             </td>
@@ -170,20 +170,25 @@
         <tbody>
         <c:forEach items="${events}" var="event">
           <tr>
-            <td>${event.id}</td>
-            <td>${event.title}</td>
-            <td>${event.user.username}</td>
-            <td>${event.eventCity}</td>
+            <td><c:out value="${event.id}"/></td>
+            <td><c:out value="${event.title}"/></td>
+            <td><c:out value="${event.user.username}"/></td>
+            <td><c:out value="${event.eventCity}"/></td>
             <td><fmt:parseDate value="${event.date}" pattern="yyyy-MM-dd" /></td>
             <td>
-              <c:if test="${event.attendeesLimit.isPresent()}">
-              <div class="attendee-progress">
-                <span class="attendee-count">${event.attendeesCount}/${event.attendeesLimit.get()}</span>
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width: ${(event.attendeesCount / event.attendeesLimit.get()) * 100}%"></div>
-                </div>
-              </div>
-              </c:if>
+              <c:choose>
+                <c:when test="${event.attendeesLimit.isPresent() && event.attendeesLimit.get() != 0}">
+                  <div class="attendee-progress">
+                    <span class="attendee-count"><c:out value="${event.attendeesCount}"/>/<c:out value="${event.attendeesLimit.get()}"/></span>
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: <c:out value="${(event.attendeesCount * 100 / event.attendeesLimit.get())}"/>%"></div>
+                    </div>
+                  </div>
+                </c:when>
+                <c:otherwise>
+                  <span class="unlimited-attendees"><spring:message code="admin.unlimited.attendees" /></span>
+                </c:otherwise>
+              </c:choose>
             </td>
             <td>
 <%--                                    <span class="status-badge status-${event.status.toLowerCase()}">--%>
@@ -191,7 +196,7 @@
 <%--                                    </span>--%>
             </td>
             <td>
-              <button class="action-button" data-id="${event.id}">
+              <button class="action-button" data-id=<c:out value="${event.id}"/>>
                 <i class="more-icon"></i>
               </button>
             </td>
