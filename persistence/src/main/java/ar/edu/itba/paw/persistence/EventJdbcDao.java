@@ -20,6 +20,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import ar.edu.itba.paw.interfaces.persistence.EventDao;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class EventJdbcDao implements EventDao {
@@ -450,34 +451,33 @@ public class EventJdbcDao implements EventDao {
         );
     }
 
-    //@SOTUYO : deberia esto borrar el flyer_image anterior?
-    //creo que deberia actualizar en la otra tabla no id
-    @Override
-    public boolean update(Event updatedEvent) {
-        return jdbcTemplate.update("""
+//@LULO dos queries?
+@Override
+public boolean updateData(long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId/*, long userId*/) {
+    int rowsUpdated = jdbcTemplate.update("""
         UPDATE events
            SET city_id = ?,
                event_date = ?,
                description = ?,
-               flyer_image_id = ?,
                title = ?,
                event_time = ?,
                address = ?,
                attendees_limit = ?
-         WHERE id = ? and user_id = ?
+         WHERE id = ?
          """,
-                updatedEvent.getEventCity().getId(),
-                updatedEvent.getDate(),
-                updatedEvent.getDescription(),
-                updatedEvent.getFlyerImageId(),
-                updatedEvent.getTitle(),
-                updatedEvent.getTime().orElse(null),
-                updatedEvent.getAddress(),
-                updatedEvent.getAttendeesLimit().orElse(null),
-                updatedEvent.getId(),
-                updatedEvent.getUser().getId()
-        ) > 0;
-    }
+            cityId,
+            date,
+            description,
+            title,
+            (time != null) ? Time.valueOf(time) : null,
+            address,
+            attendeesLimit,
+            eventId
+    );
+
+    return rowsUpdated > 0;
+}
+
 
 
 

@@ -14,16 +14,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -200,7 +199,7 @@ public class EventController {
 
         Event event = maybeEvent.get();
 
-        //@SOTUYO -- no quiero que un user haga el get si no es el owner. esta mal esto? logica de negocios?
+        //@LULO -- no quiero que un user haga el get si no es el owner. esta mal esto? logica de negocios?
         if (!event.getUser().getEmail().equals(username)) {
             LOGGER.warn("User {} is not owner of event {}", username, eventId);
             return new ModelAndView("errors/403"); // Forbidden page
@@ -223,6 +222,63 @@ public class EventController {
         mav.addObject("eventId", eventId); // pass event id for form action
         return mav;
     }
+
+    //OBS para checkear. no se porque me deja subir una imagen vacia si uso el create event form.
+    @RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
+    public ModelAndView updateEvent(@PathVariable("id") int eventId,
+                                    @ModelAttribute("username") String username,
+                                    @ModelAttribute("createEventForm") CreateEventForm form) {
+
+        LOGGER.debug("User {} submitted update for event {}", username, eventId);
+
+        // 1. Validate event existence and ownership
+        Optional<Event> maybeEvent = eventService.getEventById(eventId);
+        if (maybeEvent.isEmpty()) {
+            LOGGER.warn("Event {} not found", eventId);
+            return new ModelAndView("events/not_found");
+        }
+
+        Event event = maybeEvent.get();
+        if (!event.getUser().getUsername().equals(username)) {
+            LOGGER.warn("User {} is not owner of event {}", username, eventId);
+            return new ModelAndView("errors/403"); // Forbidden
+        }
+
+        // 2. Extract flyer content of a new flyer is uploaded
+        Optional<byte[]> flyerContent = Optional.empty();
+        if (form.getFlyer() != null && !form.getFlyer().isEmpty()) {
+            try {
+                flyerContent = Optional.of(form.getFlyer().getBytes());
+            } catch (IOException e) {
+                LOGGER.error("Failed to read flyer file", e);
+                // Optional: add error message to ModelAndView and return to edit page
+                ModelAndView mav = new ModelAndView("events/edit");
+                mav.addObject("createEventForm", form);
+                mav.addObject("eventId", eventId);
+                mav.addObject("errorMessage", "Failed to process uploaded flyer");
+                addDropdownAttributes(mav);
+                return mav;
+            }
+        }
+
+        eventService.editEvent(
+                eventId,
+                form.getCity(),
+                form.getDate(),
+                flyerContent,
+                form.getDescription(),
+                form.getTitle(),
+                form.getTime(),
+                form.getAddress(),
+                form.getAttendeesLimit()
+        );
+
+        LOGGER.info("Event {} updated successfully", eventId);
+
+        // 5. Redirect to the event detail page (or somewhere you want)
+        return new ModelAndView("redirect:/events/" + eventId);
+    }
+
 
 
 

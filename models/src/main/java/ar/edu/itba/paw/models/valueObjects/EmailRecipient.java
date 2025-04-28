@@ -8,7 +8,7 @@ import lombok.NonNull;
 import java.util.Locale;
 
 
-//@SOTUYO-PREGUNTAR: tecnicamente los [] son mutables, pero CREO que no pasa nada
+//@LULO-PREGUNTAR: tecnicamente los [] son mutables, pero CREO que no pasa nada
 
 @Value
 @Builder

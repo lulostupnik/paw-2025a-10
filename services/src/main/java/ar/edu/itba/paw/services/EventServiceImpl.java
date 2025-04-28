@@ -3,6 +3,7 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.*;
 import ar.edu.itba.paw.interfaces.services.EmailService;
 import ar.edu.itba.paw.interfaces.services.EventService;
+import ar.edu.itba.paw.interfaces.services.ImageService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.valueObjects.EmailContent;
@@ -12,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
@@ -28,11 +31,12 @@ public class EventServiceImpl implements EventService {
     private final EmailService emailService;
     private final EventDao eventDao;
     private final ImageDao imageDao;
+    private final ImageService imageService;
     private final CityDao cityDao;
     private final EventAttendanceDao eventAttendanceDao;
 
     @Autowired
-    public EventServiceImpl(UserService userService, EventResponseDao eventResponseDao, EventDao eventDao, EmailService emailService, ImageDao imageDao, CityDao cityDao, EventAttendanceDao eventAttendanceDao) {
+    public EventServiceImpl(UserService userService, EventResponseDao eventResponseDao, EventDao eventDao, EmailService emailService, ImageDao imageDao, CityDao cityDao, EventAttendanceDao eventAttendanceDao, ImageService imageService) {
         this.userService = userService;
         this.eventResponseDao = eventResponseDao;
         this.eventDao = eventDao;
@@ -40,6 +44,7 @@ public class EventServiceImpl implements EventService {
         this.imageDao = imageDao;
         this.cityDao = cityDao;
         this.eventAttendanceDao = eventAttendanceDao;
+        this.imageService = imageService;
     }
 
     @Transactional
@@ -276,12 +281,56 @@ public class EventServiceImpl implements EventService {
         return getEventsWithAttendanceStatus(userId);
     }
 
-    //@Todo no se si esta bien la @CacheEvict
-    /*
+
+    //@TODO checkear cache
+    //@LULO : esta bien que me manden el userId, y hacer el throw new AccesDenied? Esta bien el optional?
+    //CHECKEAR: hay unos argumentos que estan bien en null (atendeesLimit, description).  medio que no tiene sentido/poco claro.
     @Transactional
-    @CacheEvict(value = "eventsById", key = "#event.id")
-    public void editEvent(Event event) {
-        eventDao.update(event);
-    }*/
+    @CacheEvict(value = "eventsById", key = "#eventId")
+    @Override
+    public void editEvent(long eventId,
+                          String cityName,
+                          LocalDate date,
+                          Optional<byte[]> flyer,
+                          String description,
+                          String title,
+                          LocalTime time,
+                          String address,
+                          Integer attendeesLimit) {
+
+        // 1. Load the existing event
+        Event currentEvent = eventDao.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("Event not found"));
+
+        /*
+        // @LULO esto es necesario aca? solo en controller?
+        if (!currentEvent.getUser().getUsername().equals(username)) {
+            throw new AccessDeniedException("User does not own the event");
+        }*/
+
+        // 3. Resolve final values
+        long resolvedCityId = cityDao.findByName(cityName).orElseThrow(() -> new RuntimeException("City not found")).getId();
+
+       eventDao.updateData(
+                resolvedCityId,
+                date,
+                description,
+                title,
+                time,
+                address,
+                attendeesLimit,
+                eventId
+        );/*){
+        @LULO : deberia hacer un throw si no anda? O sea, si 0 columnas fueron cambiadas. Mismo para el flyer?
+            throw new RuntimeException("Could not update data");
+        }*/
+
+        flyer.ifPresent(content -> {
+            imageService.updateImage(currentEvent.getFlyerImageId(), content);
+        });
+    }
+
+
+
 
 }
