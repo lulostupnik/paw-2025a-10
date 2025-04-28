@@ -32,6 +32,11 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
             rs.getString("message"),
             rs.getTimestamp("date_time").toLocalDateTime()
     );
+    private static final RowMapper<Long> JOURNEY_ID_ROW_MAPPER = (rs, rowNum) -> rs.getLong("journey_id");
+    private static final String JOURNEY_ID_BY_RESPONSE_ID_QUERY = """
+            SELECT jr.journey_id
+            FROM journey_responses jr
+            WHERE jr.id = ?""";
     private static final String QUERY_BY_JOURNEY_ID = """
             SELECT jr.id as id,
                    jr.user_id, us.username AS username, jr.journey_id, jr.message, jr.date_time\s
@@ -61,6 +66,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
         args.put("journey_id", journeyId);
         args.put("message", message);
         args.put("date_time", dateTime);
+        args.put("deleted", false);  // Establecer el valor de 'deleted' como 'false'
 
         final Number keys = jdbcInsert.executeAndReturnKey(args);
         // handlear excepción?
@@ -138,6 +144,11 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
             // Optionally log or throw an exception if no rows were updated
             LOGGER.warn("No journey_response found with id {}", id);
         }
+    }
+
+    @Override
+    public long getJourneyIdByResponseId(long journeyResponseId) {
+        return jdbcTemplate.query(JOURNEY_ID_BY_RESPONSE_ID_QUERY, JOURNEY_ID_ROW_MAPPER, journeyResponseId).getFirst();
     }
 
 

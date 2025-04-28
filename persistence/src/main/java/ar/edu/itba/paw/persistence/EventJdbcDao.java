@@ -168,6 +168,7 @@ public class EventJdbcDao implements EventDao {
         if (attendeesLimit != null) {
             parameters.put("attendees_limit", attendeesLimit);
         }
+        parameters.put("deleted", false);  // Establecer el valor de 'deleted' como 'false'
         final Number keys = jdbcInsert.executeAndReturnKey(parameters);
         LOGGER.debug("Successfully registered event {}", keys.longValue());
         return new Event(keys.longValue(), user, date, description, flyerImageId, city, title, Optional.ofNullable(time), address, Optional.ofNullable(attendeesLimit), 0);

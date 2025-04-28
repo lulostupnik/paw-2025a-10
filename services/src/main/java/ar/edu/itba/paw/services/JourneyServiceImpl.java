@@ -314,13 +314,20 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
-    public void deleteJourney(long id) {
+    public void deleteJourney(long id, String message) {
         journeyDao.delete(id);
     }
 
     @Override
-    public void deleteJourneyResponse(long id) {
+    public void deleteJourneyResponse(long id, String message) {
         journeyResponseDao.delete(id);
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(value = "journeysByResponseId", key = "#journeyResponseId")
+    @Override
+    public long getJourneyIdByResponseId(long journeyResponseId) {
+        return journeyResponseDao.getJourneyIdByResponseId(journeyResponseId);
     }
 
 }

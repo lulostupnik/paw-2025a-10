@@ -1,9 +1,6 @@
 package ar.edu.itba.paw.interfaces.persistence;
 
-import ar.edu.itba.paw.models.CursorPage;
-import ar.edu.itba.paw.models.EventResponse;
-import ar.edu.itba.paw.models.JourneyResponse;
-import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.valueObjects.EmailRecipient;
 
 import java.time.LocalDate;
@@ -17,4 +14,5 @@ public interface EventResponseDao {
 //    List<User> listAllUsersRespondersMinusUsers(long eventId, List<Long> user_ids);
     void delete(long id);
     List<EmailRecipient> listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds);
+    long getEventIdByResponseId(long eventId);
 }
