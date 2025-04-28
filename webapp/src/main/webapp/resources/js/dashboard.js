@@ -24,12 +24,55 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Action button dropdown functionality
     const actionButtons = document.querySelectorAll(".action-button")
-    const dropdownTemplate = document.getElementById("action-dropdown-template")
+
+    // Debug - Check if action buttons are found
+    console.log("Action buttons found:", actionButtons.length)
+
+    // Instead of using a template, create the dropdown directly
+    function createDropdown(itemId) {
+        const dropdown = document.createElement('div')
+        dropdown.className = 'dropdown-menu'
+        dropdown.style.display = 'block'
+        dropdown.style.zIndex = '1000'
+
+        dropdown.innerHTML = `
+            <ul>
+                <li class="dropdown-item edit-item">
+                    <i class="edit-icon"></i> Edit
+                </li>
+                <li class="dropdown-item manage-attendees-item">
+                    <i class="attendees-icon"></i> Manage Attendees
+                </li>
+                <li class="dropdown-item delete-item">
+                    <i class="delete-icon"></i> Delete
+                </li>
+            </ul>
+        `
+
+        // Add event listeners
+        dropdown.querySelector(".edit-item").addEventListener("click", () => {
+            handleEdit(itemId)
+        })
+
+        dropdown.querySelector(".manage-attendees-item").addEventListener("click", () => {
+            handleManageAttendees(itemId)
+        })
+
+        dropdown.querySelector(".delete-item").addEventListener("click", () => {
+            handleDelete(itemId)
+        })
+
+        return dropdown
+    }
+
     let activeDropdown = null
 
     actionButtons.forEach((button) => {
         button.addEventListener("click", function (e) {
+            e.preventDefault()
             e.stopPropagation()
+
+            console.log("Action button clicked")
 
             // Close any open dropdown
             if (activeDropdown) {
@@ -37,40 +80,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 activeDropdown = null
             }
 
+            // Get the item ID
+            const itemId = this.getAttribute("data-id")
+            console.log("Item ID:", itemId)
+
             // Create new dropdown
-            const dropdown = dropdownTemplate.cloneNode(true)
-            dropdown.id = ""
-            dropdown.style.display = "block"
+            const dropdown = createDropdown(itemId)
 
             // Position dropdown
             const rect = this.getBoundingClientRect()
+            dropdown.style.position = 'absolute'
             dropdown.style.top = `${rect.bottom + window.scrollY}px`
             dropdown.style.left = `${rect.left + window.scrollX - 180 + rect.width}px`
 
-            // Get the item ID
-            const itemId = this.getAttribute("data-id")
-
-            // Add event listeners to dropdown items
-            const editItem = dropdown.querySelector(".edit-item")
-            if (editItem) {
-                editItem.addEventListener("click", () => {
-                    handleEdit(itemId)
-                })
-            }
-
-            const manageAttendeesItem = dropdown.querySelector(".manage-attendees-item")
-            if (manageAttendeesItem) {
-                manageAttendeesItem.addEventListener("click", () => {
-                    handleManageAttendees(itemId)
-                })
-            }
-
-            const deleteItem = dropdown.querySelector(".delete-item")
-            if (deleteItem) {
-                deleteItem.addEventListener("click", () => {
-                    handleDelete(itemId)
-                })
-            }
+            console.log("Dropdown position:", dropdown.style.top, dropdown.style.left)
 
             // Add dropdown to the page
             document.body.appendChild(dropdown)
@@ -79,8 +102,8 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 
     // Close dropdown when clicking outside
-    document.addEventListener("click", () => {
-        if (activeDropdown) {
+    document.addEventListener("click", (e) => {
+        if (activeDropdown && !e.target.closest('.action-button')) {
             activeDropdown.remove()
             activeDropdown = null
         }

@@ -1,9 +1,6 @@
 package ar.edu.itba.paw.interfaces.services;
 
-import ar.edu.itba.paw.models.CursorPage;
-import ar.edu.itba.paw.models.EventResponse;
-import ar.edu.itba.paw.models.Journey;
-import ar.edu.itba.paw.models.JourneyResponse;
+import ar.edu.itba.paw.models.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,6 +14,8 @@ public interface JourneyService {
     void replyToJourney(String email, long journeyId, String message);
 
     List<Journey> getAllJourneys();
+
+    Page<Journey> getAllJourneys(int page, int size);
 
     Optional<Journey> getJourneyById(long id);
 

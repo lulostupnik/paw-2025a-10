@@ -24,11 +24,16 @@ public class AdminController {
     }
 
     @RequestMapping("/dashboard")
-    public ModelAndView dashboard() {
+    public ModelAndView dashboard(
+            @RequestParam(value = "eventPage", defaultValue = "1") int eventPage,
+            @RequestParam(value = "userPage", defaultValue = "1") int userPage,
+            @RequestParam(value = "journeyPage", defaultValue = "1") int journeyPage,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+
         ModelAndView mav = new ModelAndView("admin/dashboard");
-        mav.addObject("events", eventService.getAllEvents());
-        mav.addObject("users", userService.getAllUsers());
-        mav.addObject("journeys", journeyService.getAllJourneys());
+        mav.addObject("pagedEvents", eventService.getAllEvents(eventPage, pageSize));
+        mav.addObject("pagedUsers", userService.getAllUsers(userPage, pageSize));
+        mav.addObject("pagedJourneys", journeyService.getAllJourneys(journeyPage, pageSize));
         return mav;
     }
 

@@ -119,6 +119,11 @@ public class EventServiceImpl implements EventService {
         return eventDao.listAll();
     }
 
+    @Override
+    public Page<Event> getAllEvents(int page, int size) {
+        return eventDao.listAll(page, size);
+    }
+
     @Transactional(readOnly = true)
     @Override
     public List<Event> getAllEvents(String email) {

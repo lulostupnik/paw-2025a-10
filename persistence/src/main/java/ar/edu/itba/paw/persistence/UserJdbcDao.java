@@ -46,23 +46,26 @@ public class UserJdbcDao implements UserDao {
             Locale.of(rs.getString("user_language")),
             rs.getString("user_role"));
 
-    private final static String QUERY = """
-            SELECT\s
-                u.id AS user_id,\s
-                u.email AS user_email,\s
-                u.firstname AS user_firstname,\s
-                u.lastname AS user_lastname,\s
-                u.username AS user_username,\s
-                u.university AS user_university,\s
-                u.language AS user_language,\s
-                c.name AS career_name,\s
-                c.id AS career_id,\s
-                u.profile_picture_id AS user_profile_picture_id,\s
-                un.name AS university_name,\s
-                un.abbreviation AS university_abbreviation,\s
-                ci.id AS city_id,\s
-                ci.name AS city_name,\s
-                co.name AS country_name\s
+    private final static String SELECT_CLAUSE = """
+        SELECT\s
+                    u.id AS user_id,\s
+                    u.email AS user_email,\s
+                    u.firstname AS user_firstname,\s
+                    u.lastname AS user_lastname,\s
+                    u.username AS user_username,\s
+                    u.university AS user_university,\s
+                    u.language AS user_language,\s
+                    c.name AS career_name,\s
+                    c.id AS career_id,\s
+                    u.profile_picture_id AS user_profile_picture_id,\s
+                    un.name AS university_name,\s
+                    un.abbreviation AS university_abbreviation,\s
+                    ci.id AS city_id,\s
+                    ci.name AS city_name,\s
+                    co.name AS country_name\s
+""";
+
+    private final static String QUERY = SELECT_CLAUSE + """
             FROM users u\s
             JOIN universities un ON u.university = un.id\s
             JOIN careers c ON c.id = u.career_id\s
@@ -71,30 +74,25 @@ public class UserJdbcDao implements UserDao {
             """;
 
 
-    private final static String PASSWORD_QUERY = """
-            SELECT\s
-                u.id AS user_id,\s
-                u.email AS user_email,\s
-                u.firstname AS user_firstname,\s
-                u.lastname AS user_lastname,\s
-                u.username AS user_username,\s
-                u.university AS user_university,\s
-                u.language AS user_language,\s
-                u.roles AS user_role,\s
-                c.name AS career_name,\s
-                c.id AS career_id,\s
-                u.profile_picture_id AS user_profile_picture_id,\s
-                un.name AS university_name,\s
-                un.abbreviation AS university_abbreviation,\s
-                ci.id AS city_id,\s
-                ci.name AS city_name,\s
-                co.name AS country_name,\s
-                u.password AS user_password\s
+    private final static String PASSWORD_QUERY = SELECT_CLAUSE + """
+            u.password AS user_password\s
             FROM users u\s
             JOIN universities un ON u.university = un.id\s
             JOIN careers c ON c.id = u.career_id\s
             JOIN cities ci ON ci.id = un.city_id\s
             JOIN countries co ON co.id = ci.country_id""";
+
+    private String getPagedQuery(String whereClause, String orderByClause) {
+        return  "FROM (SELECT * FROM users u " + whereClause + orderByClause + " LIMIT ? OFFSET ?)" +
+                """ 
+                AS u
+                JOIN universities un ON u.university = un.id
+                JOIN careers c ON c.id = u.career_id
+                JOIN cities ci ON ci.id = un.city_id
+                JOIN countries co ON co.id = ci.country_id
+                """;
+    }
+
 
     @Autowired
     public UserJdbcDao(DataSource dataSource) {
@@ -242,6 +240,15 @@ public class UserJdbcDao implements UserDao {
     @Override
     public List<User> getAllUsers() {
         return jdbcTemplate.query(QUERY, USER_ROW_MAPPER);
+    }
+
+    @Override
+    public Page<User> getAllUsers(int page, int size) {
+        LOGGER.debug("Querying DB for all users with pagination: page {}, size {}", page, size);
+        int offset = (page - 1) * size;
+        String whereClause = " WHERE 1=1";
+        String orderByClause = " ORDER BY u.id ASC";
+        return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPagedQuery(whereClause,orderByClause),USER_ROW_MAPPER,page,offset),page);
     }
 
     @Override

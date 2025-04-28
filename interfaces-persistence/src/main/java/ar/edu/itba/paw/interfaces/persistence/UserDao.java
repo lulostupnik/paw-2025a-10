@@ -35,6 +35,7 @@ public interface UserDao {
 
     List<User> getAllUsers();
 
+    Page<User> getAllUsers(int page, int size);
     // podríamos generalizar en findBy(String field, String value) o algo por el estilo
 
 }

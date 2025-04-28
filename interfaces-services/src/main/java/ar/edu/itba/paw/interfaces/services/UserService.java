@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.interfaces.services;
 
+import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.User;
 
 import java.util.List;
@@ -33,4 +34,5 @@ public interface UserService {
     byte[] getProfilePictureData(User user);
 
     List<User> getAllUsers();
+    Page<User> getAllUsers(int page, int size);
 }

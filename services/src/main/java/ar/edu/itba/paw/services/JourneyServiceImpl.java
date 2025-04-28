@@ -148,6 +148,11 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyDao.listAll();
     }
 
+    @Override
+    public Page<Journey> getAllJourneys(int page, int size) {
+        return journeyDao.listAll(page,size);
+    }
+
     @Transactional(readOnly = true)
     // @Cacheable(value = "journeysById", key = "#id") -> por ahora no cacheo porque cuando cambio un user tengo que invalidar esta cache y para eso tengo que encontrar este journey asociado a ese user
     @Override

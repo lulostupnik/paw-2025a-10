@@ -6,11 +6,8 @@ import ar.edu.itba.paw.interfaces.services.CareerService;
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.interfaces.services.UserService;
-import ar.edu.itba.paw.models.Career;
-import ar.edu.itba.paw.models.University;
-import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.*;
 
-import ar.edu.itba.paw.models.UserPassword;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -228,6 +225,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getAllUsers() {
         return userDao.getAllUsers();
+    }
+
+    @Override
+    public Page<User> getAllUsers(int page, int size) {
+        return userDao.getAllUsers(page,size);
     }
 
 }
