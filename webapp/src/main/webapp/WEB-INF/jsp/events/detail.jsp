@@ -50,9 +50,6 @@
 </head>
 
 <body>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-
-<!-- Hidden elements to store i18n messages for JavaScript -->
 <div style="display: none;">
     <!-- Event deletion messages -->
     <span id="i18n-event.confirmDelete" data-message="<spring:message code='event.confirmDelete' />"></span>
@@ -322,6 +319,7 @@
                                 <div class="response-card flex flex-row justify-between items-center">
                                     <div class="flex flex-col">
                                         <div class="response-header">
+                                            <div class="response-user">
                                             <div class="response-user">
                                                 <div class="response-avatar">
                                                     <div class="avatar-placeholder">

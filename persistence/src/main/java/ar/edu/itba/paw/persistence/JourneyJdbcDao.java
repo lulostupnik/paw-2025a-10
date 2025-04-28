@@ -496,7 +496,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public Page<Journey> listAll(int page, int size) {
-        List<Journey> list = jdbcTemplate.query(PAGE_QUERY + NOT_DELETED, JOURNEY_ROW_MAPPER, size, page * size);
+        List<Journey> list = jdbcTemplate.query(PAGE_QUERY + NOT_DELETED, JOURNEY_ROW_MAPPER, size, (page-1) * size);
         return new Page<>(list, page);
     }
 

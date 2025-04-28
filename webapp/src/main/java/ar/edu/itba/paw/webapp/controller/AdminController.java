@@ -32,6 +32,9 @@ public class AdminController {
         ModelAndView mav = new ModelAndView("/admin/dashboard");
 
         mav.addObject("currentView", view);
+        mav.addObject("pagedUsers", userService.getAllUsers(page, pageSize));
+        mav.addObject("pagedJourneys", journeyService.getAllJourneys(page, pageSize));
+        mav.addObject("pagedEvents", eventService.getAllEvents(page, pageSize));
 
         switch (view) {
             case "users":

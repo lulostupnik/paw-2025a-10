@@ -218,9 +218,8 @@ public class EventJdbcDao implements EventDao {
     public Page<Event> listAll(int page, int size) {
         LOGGER.debug("Querying DB for all events");
         int offset = (page - 1) * size;
-        String whereClause = NOT_DELETED;
         String orderByClause = "ORDER BY e.event_date DESC ";
-        return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPageQuery(whereClause,orderByClause) , EVENT_ROW_MAPPER,page,offset),page);
+        return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPageQuery(NOT_DELETED,orderByClause) , EVENT_ROW_MAPPER,size,offset),page);
     }
 
 

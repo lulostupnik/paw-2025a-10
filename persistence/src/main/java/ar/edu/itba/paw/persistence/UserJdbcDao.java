@@ -75,7 +75,8 @@ public class UserJdbcDao implements UserDao {
 
 
     private final static String PASSWORD_QUERY = SELECT_CLAUSE + """
-            u.password AS user_password\s
+            , u.password AS user_password\s,
+              u.roles AS user_role
             FROM users u\s
             JOIN universities un ON u.university = un.id\s
             JOIN careers c ON c.id = u.career_id\s
@@ -83,7 +84,7 @@ public class UserJdbcDao implements UserDao {
             JOIN countries co ON co.id = ci.country_id""";
 
     private String getPagedQuery(String whereClause, String orderByClause) {
-        return  "FROM (SELECT * FROM users u " + whereClause + orderByClause + " LIMIT ? OFFSET ?)" +
+        return  "FROM (SELECT * FROM users u " + whereClause + orderByClause + " LIMIT ? OFFSET ?) " +
                 """ 
                 AS u
                 JOIN universities un ON u.university = un.id
@@ -248,7 +249,7 @@ public class UserJdbcDao implements UserDao {
         int offset = (page - 1) * size;
         String whereClause = " WHERE 1=1";
         String orderByClause = " ORDER BY u.id ASC";
-        return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPagedQuery(whereClause,orderByClause),USER_ROW_MAPPER,page,offset),page);
+        return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPagedQuery(whereClause,orderByClause),USER_ROW_MAPPER,size,offset),page);
     }
 
     @Override
