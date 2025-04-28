@@ -44,7 +44,7 @@ public class CountryJdbcDao implements CountryDao {
         @Override
         public Boolean existsByName(String name) {
             LOGGER.debug("Querying DB for country {}", name);
-            return jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM countries WHERE name = ?)", Boolean.class, name);
+            return jdbcTemplate.queryForObject("SELECT COUNT(1) FROM countries WHERE name = ?", Boolean.class, name);
         }
 
 
