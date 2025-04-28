@@ -43,7 +43,8 @@ public class UserJdbcDao implements UserDao {
             new Career(rs.getLong("career_id"), rs.getString("career_name")),
             rs.getLong("user_profile_picture_id"),
             rs.getString("user_password"),
-            Locale.of(rs.getString("user_language")));
+            Locale.of(rs.getString("user_language")),
+            rs.getString("user_role"));
 
     private final static String QUERY = """
             SELECT\s
@@ -79,6 +80,7 @@ public class UserJdbcDao implements UserDao {
                 u.username AS user_username,\s
                 u.university AS user_university,\s
                 u.language AS user_language,\s
+                u.roles AS user_role,\s
                 c.name AS career_name,\s
                 c.id AS career_id,\s
                 u.profile_picture_id AS user_profile_picture_id,\s

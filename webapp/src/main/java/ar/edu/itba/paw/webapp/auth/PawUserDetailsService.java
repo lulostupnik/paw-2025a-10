@@ -31,11 +31,14 @@ public class PawUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         final UserPassword user = us.findByEmailWithPass(username).orElseThrow(() ->
                 new UsernameNotFoundException("No user by the name " + username));
-        //new SimpleGrantedAuthority("ROLE_ADMIN")
+        Collection<? extends GrantedAuthority> authorities;
 
-        final Collection<? extends GrantedAuthority> authorities = List.of( //@TODO check this
-                new SimpleGrantedAuthority("ROLE_USER")
-        );
+        if(user.getRole().equals("admin")) {
+            authorities = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        } else{
+            authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        }
+
         return new org.springframework.security.core.userdetails.User(username, user.getPassword(), authorities);
     }
 }

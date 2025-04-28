@@ -237,9 +237,4 @@ ALTER TABLE journey_responses ADD COLUMN IF NOT EXISTS deleted BOOLEAN DEFAULT F
 ALTER TABLE event_responses ADD COLUMN IF NOT EXISTS deleted BOOLEAN DEFAULT FALSE;
 COMMIT;
 
-CREATE TABLE IF NOT EXISTS admins (
-                                     id SERIAL PRIMARY KEY,
-                                     email VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(100) NOT NULL,
-    language VARCHAR(2) NOT NULL DEFAULT 'en' CHECK (language IN ('en', 'es'))
-    );
+ALTER TABLE users ADD COLUMN IF NOT EXISTS roles VARCHAR(50) DEFAULT 'user' CHECK (roles IN ('user', 'admin'));

@@ -66,8 +66,8 @@
             <td>${journey.user.firstname}</td>
             <td>${journey.destinationUniversity.city}</td>
             <td>${journey.destinationUniversity}</td>
-            <td><fmt:formatDate value="${journey.startDate}" pattern="yyyy-MM-dd" /></td>
-            <td><fmt:formatDate value="${journey.endDate}" pattern="yyyy-MM-dd" /></td>
+            <td><fmt:parseDate value="${journey.startDate}" pattern="yyyy-MM-dd" /></td>
+            <td><fmt:parseDate value="${journey.endDate}" pattern="yyyy-MM-dd" /></td>
             <td>
 <%--                                    <span class="status-badge status-${journey.status.toLowerCase()}">--%>
 <%--                                        <spring:message code="admin.status.${journey.status.toLowerCase()}" />--%>
@@ -174,14 +174,16 @@
             <td>${event.title}</td>
             <td>${event.user.username}</td>
             <td>${event.eventCity}</td>
-            <td><fmt:formatDate value="${event.date}" pattern="yyyy-MM-dd" /></td>
+            <td><fmt:parseDate value="${event.date}" pattern="yyyy-MM-dd" /></td>
             <td>
+              <c:if test="${event.attendeesLimit.isPresent()}">
               <div class="attendee-progress">
-                <span class="attendee-count">${event.attendeesCount}/${event.attendeesLimit}</span>
+                <span class="attendee-count">${event.attendeesCount}/${event.attendeesLimit.get()}</span>
                 <div class="progress-bar">
-                  <div class="progress-fill" style="width: ${(event.attendeesCount / event.attendeesLimit) * 100}%"></div>
+                  <div class="progress-fill" style="width: ${(event.attendeesCount / event.attendeesLimit.get()) * 100}%"></div>
                 </div>
               </div>
+              </c:if>
             </td>
             <td>
 <%--                                    <span class="status-badge status-${event.status.toLowerCase()}">--%>

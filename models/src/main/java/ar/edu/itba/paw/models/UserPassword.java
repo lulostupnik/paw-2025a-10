@@ -5,15 +5,17 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Locale;
 
+
+@Getter
 public class UserPassword extends User{
     private final String password;
+    private final String role;
 
-    public UserPassword(long id, String email, String username ,String firstname, String lastname,University university,Career career,long profilePictureId , String password, Locale locale) {
+    public UserPassword(long id, String email, String username ,String firstname, String lastname,University university,Career career,long profilePictureId,
+                        String password, Locale locale, String role) {
         super(id, email, username, firstname, lastname, university, career, profilePictureId, locale);
         this.password = password;
-    }
-    public String getPassword(){
-        return this.password;
+        this.role = role;
     }
 
 

@@ -190,7 +190,8 @@ public class UserJdbcDaoTest {
             "career_id", CAREER.getId(),
             "profile_picture_id", PROFILEPICID,
             "password", PASSWORD,
-            "language", LOCALE);
+            "language", LOCALE,
+        "roles", "user");
         insert.execute(params);
 
         final Optional<User> maybeUser = userDao.findByEmail(USERMAIL);
