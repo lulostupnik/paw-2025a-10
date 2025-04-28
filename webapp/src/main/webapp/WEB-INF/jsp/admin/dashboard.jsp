@@ -24,183 +24,215 @@
   </header>
 
   <div class="dashboard-tabs">
-    <button class="tab-button" data-tab="journeys"><spring:message code="admin.tab.journeys" /></button>
-    <button class="tab-button" data-tab="users"><spring:message code="admin.tab.users" /></button>
-    <button class="tab-button" data-tab="events"><spring:message code="admin.tab.events" /></button>
+    <a href="<c:url value='/dashboard/journeys'/>" class="tab-button ${pagedJourneys != null ? 'active' : ''}">
+      <spring:message code="admin.tab.journeys" />
+    </a>
+    <a href="<c:url value='/dashboard/users'/>" class="tab-button ${pagedUsers != null ? 'active' : ''}">
+      <spring:message code="admin.tab.users" />
+    </a>
+    <a href="<c:url value='/dashboard/events'/>" class="tab-button ${pagedEvents != null ? 'active' : ''}">
+      <spring:message code="admin.tab.events" />
+    </a>
   </div>
 
   <!-- Journeys Tab Content -->
-  <div class="tab-content" id="journeys-tab">
-    <div class="content-header">
-      <h2><spring:message code="admin.manage.journeys" /></h2>
-      <div class="action-bar">
-        <div class="actions-container">
-          <input type="text" class="search-input" placeholder="<spring:message code='admin.search.journeys' />">
-          <button class="filter-button"><i class="filter-icon"></i></button>
-          <a href="<c:url value="/journeys/create"/>" class="add-button">
-            <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="journey.create.button"/>" class="btn-icon" />
-            <spring:message code="journey.create.button"/>
-          </a>
+  <c:if test="${pagedJourneys != null}">
+    <div class="tab-content active" id="journeys-tab">
+      <div class="content-header">
+        <h2><spring:message code="admin.manage.journeys" /></h2>
+        <div class="action-bar">
+          <div class="actions-container">
+            <input type="text" class="search-input" placeholder="<spring:message code='admin.search.journeys' />">
+            <button class="filter-button"><i class="filter-icon"></i></button>
+            <a href="<c:url value="/journeys/create"/>" class="add-button">
+              <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="journey.create.button"/>" class="btn-icon" />
+              <spring:message code="journey.create.button"/>
+            </a>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="table-container">
-      <table class="data-table">
-        <thead>
-        <tr>
-          <th><spring:message code="admin.column.id" /></th>
-          <th><spring:message code="admin.column.user" /></th>
-          <th><spring:message code="admin.column.destination" /></th>
-          <th><spring:message code="admin.column.university" /></th>
-          <th><spring:message code="admin.column.start.date" /></th>
-          <th><spring:message code="admin.column.end.date" /></th>
-          <th><spring:message code="admin.column.actions" /></th>
-        </tr>
-        </thead>
-        <tbody>
-        <c:set var="journeys" value="${pagedJourneys.content}" />
-        <c:forEach items="${journeys}" var="pagedJourney">
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
           <tr>
-            <td><c:out value="${pagedJourney.id}"/></td>
-            <td><c:out value="${pagedJourney.user.firstname}"/></td>
-            <td><c:out value="${pagedJourney.destinationUniversity.city}"/></td>
-            <td><c:out value="${pagedJourney.destinationUniversity}"/></td>
-            <td><fmt:parseDate value="${pagedJourney.startDate}" pattern="yyyy-MM-dd" /></td>
-            <td><fmt:parseDate value="${pagedJourney.endDate}" pattern="yyyy-MM-dd" /></td>
-            <td>
-              <button class="action-button" data-id=<c:out value="${pagedJourney.id}"/> >
-                <i class="more-icon"></i>
-              </button>
-            </td>
+            <th><spring:message code="admin.column.id" /></th>
+            <th><spring:message code="admin.column.user" /></th>
+            <th><spring:message code="admin.column.destination" /></th>
+            <th><spring:message code="admin.column.university" /></th>
+            <th><spring:message code="admin.column.start.date" /></th>
+            <th><spring:message code="admin.column.end.date" /></th>
+            <th><spring:message code="admin.column.actions" /></th>
           </tr>
-        </c:forEach>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+          <c:set var="journeys" value="${pagedJourneys.content}" />
+          <c:forEach items="${journeys}" var="pagedJourney">
+            <tr>
+              <td><c:out value="${pagedJourney.id}"/></td>
+              <td><c:out value="${pagedJourney.user.username}"/></td>
+              <td><c:out value="${pagedJourney.destinationUniversity.city}"/></td>
+              <td><c:out value="${pagedJourney.destinationUniversity}"/></td>
+              <td><fmt:formatDate value="${pagedJourney.startDate}" pattern="yyyy-MM-dd" /></td>
+              <td><fmt:formatDate value="${pagedJourney.endDate}" pattern="yyyy-MM-dd" /></td>
+              <td>
+                <button class="action-button" data-id="<c:out value="${pagedJourney.id}"/>">
+                  <i class="more-icon"></i>
+                </button>
+              </td>
+            </tr>
+          </c:forEach>
+          </tbody>
+        </table>
+
+        <c:set var="currentPage" value="${param.page != null ? param.page : 1}" />
+        <c:set var="itemsPerPage" value="${param.pageSize != null ? param.pageSize : 10}" />
+        <c:set var="currentUrl" value="${pageContext.request.contextPath}/dashboard/journeys" />
+        <jsp:include page="../components/pagination-controls.jsp">
+          <jsp:param name="currentPage" value="${currentPage}" />
+          <jsp:param name="itemsPerPage" value="${itemsPerPage}" />
+          <jsp:param name="totalPages" value="${pagedJourneys.totalPages}" />
+          <jsp:param name="currentUrl" value="${currentUrl}" />
+        </jsp:include>
+      </div>
     </div>
-  </div>
+  </c:if>
 
   <!-- Users Tab Content -->
-  <div class="tab-content" id="users-tab">
-    <div class="content-header">
-      <h2><spring:message code="admin.manage.users" /></h2>
-      <div class="action-bar">
-        <div class="actions-container">
-          <input type="text" class="search-input" placeholder="<spring:message code='admin.search.users' />">
-          <button class="filter-button"><i class="filter-icon"></i></button>
-          <a href="<c:url value="/users/create"/>" class="add-button">
-          <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="admin.add.user"/>" class="btn-icon" />
-          <spring:message code="admin.add.user"/>
-          </a>
+  <c:if test="${pagedUsers != null}">
+    <div class="tab-content active" id="users-tab">
+      <div class="content-header">
+        <h2><spring:message code="admin.manage.users" /></h2>
+        <div class="action-bar">
+          <div class="actions-container">
+            <input type="text" class="search-input" placeholder="<spring:message code='admin.search.users' />">
+            <button class="filter-button"><i class="filter-icon"></i></button>
+            <a href="<c:url value="/users/create"/>" class="add-button">
+              <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="admin.add.user"/>" class="btn-icon" />
+              <spring:message code="admin.add.user"/>
+            </a>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="table-container">
-      <table class="data-table">
-        <thead>
-        <tr>
-          <th><spring:message code="admin.column.id" /></th>
-          <th><spring:message code="admin.column.name" /></th>
-          <th><spring:message code="admin.column.email" /></th>
-          <th><spring:message code="admin.column.university" /></th>
-          <th><spring:message code="admin.column.actions" /></th>
-        </tr>
-        </thead>
-        <tbody>
-        <c:set var="users" value="${pagedUsers.content}" />
-        <c:forEach items="${users}" var="pagedUser">
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
           <tr>
-            <td><c:out value="${pagedUser.id}"/></td>
-            <td><c:out value="${pagedUser.firstname}"/></td>
-            <td><c:out value="${pagedUser.email}"/></td>
-            <td><c:out value="${pagedUser.university}"/></td>
-            <td>
-              <button class="action-button" data-id=<c:out value="${pagedUser.id}"/> >
-                <i class="more-icon"></i>
-              </button>
-            </td>
+            <th><spring:message code="admin.column.id" /></th>
+            <th><spring:message code="admin.column.name" /></th>
+            <th><spring:message code="admin.column.email" /></th>
+            <th><spring:message code="admin.column.university" /></th>
+            <th><spring:message code="admin.column.actions" /></th>
           </tr>
-        </c:forEach>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+          <c:set var="users" value="${pagedUsers.content}" />
+          <c:forEach items="${users}" var="pagedUser">
+            <tr>
+              <td><c:out value="${pagedUser.id}"/></td>
+              <td><c:out value="${pagedUser.firstname}"/></td>
+              <td><c:out value="${pagedUser.email}"/></td>
+              <td><c:out value="${pagedUser.university}"/></td>
+              <td>
+                <button class="action-button" data-id="<c:out value="${pagedUser.id}"/>">
+                  <i class="more-icon"></i>
+                </button>
+              </td>
+            </tr>
+          </c:forEach>
+          </tbody>
+        </table>
+
+        <c:set var="currentPage" value="${param.page != null ? param.page : 1}" />
+        <c:set var="itemsPerPage" value="${param.pageSize != null ? param.pageSize : 10}" />
+        <c:set var="currentUrl" value="${pageContext.request.contextPath}/dashboard/users" />
+        <jsp:include page="../components/pagination-controls.jsp">
+          <jsp:param name="currentPage" value="${currentPage}" />
+          <jsp:param name="itemsPerPage" value="${itemsPerPage}" />
+          <jsp:param name="totalPages" value="${pagedUsers.totalPages}" />
+          <jsp:param name="currentUrl" value="${currentUrl}" />
+        </jsp:include>
+      </div>
     </div>
-  </div>
+  </c:if>
 
   <!-- Events Tab Content -->
-  <div class="tab-content" id="events-tab">
-    <div class="content-header">
-      <h2><spring:message code="admin.manage.events" /></h2>
-      <div class="action-bar">
-        <div class="actions-container">
-          <input type="text" class="search-input" placeholder="<spring:message code='admin.search.events' />">
-          <button class="filter-button"><i class="filter-icon"></i></button><a href="<c:url value="/events/create"/>" class="add-button">
-          <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="journey.create.button"/>" class="btn-icon" />
-          <spring:message code="event.create.button"/>
-        </a>
+  <c:if test="${pagedEvents != null}">
+    <div class="tab-content active" id="events-tab">
+      <div class="content-header">
+        <h2><spring:message code="admin.manage.events" /></h2>
+        <div class="action-bar">
+          <div class="actions-container">
+            <input type="text" class="search-input" placeholder="<spring:message code='admin.search.events' />">
+            <button class="filter-button"><i class="filter-icon"></i></button>
+            <a href="<c:url value="/events/create"/>" class="add-button">
+              <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="event.create.button"/>" class="btn-icon" />
+              <spring:message code="event.create.button"/>
+            </a>
+          </div>
         </div>
+      </div>
 
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+          <tr>
+            <th><spring:message code="admin.column.id" /></th>
+            <th><spring:message code="admin.column.title" /></th>
+            <th><spring:message code="admin.column.organizer" /></th>
+            <th><spring:message code="admin.column.location" /></th>
+            <th><spring:message code="admin.column.date" /></th>
+            <th><spring:message code="admin.column.attendees" /></th>
+            <th><spring:message code="admin.column.actions" /></th>
+          </tr>
+          </thead>
+          <tbody>
+          <c:set var="events" value="${pagedEvents.content}" />
+          <c:forEach items="${events}" var="pagedEvent">
+            <tr>
+              <td><c:out value="${pagedEvent.id}"/></td>
+              <td><c:out value="${pagedEvent.title}"/></td>
+              <td><c:out value="${pagedEvent.user.username}"/></td>
+              <td><c:out value="${pagedEvent.eventCity}"/></td>
+              <td><fmt:formatDate value="${pagedEvent.date}" pattern="yyyy-MM-dd" /></td>
+              <td>
+                <c:choose>
+                  <c:when test="${pagedEvent.attendeesLimit.isPresent() && pagedEvent.attendeesLimit.get() != 0}">
+                    <div class="attendee-progress">
+                      <span class="attendee-count"><c:out value="${pagedEvent.attendeesCount}"/>/<c:out value="${pagedEvent.attendeesLimit.get()}"/></span>
+                      <div class="progress-bar">
+                        <div class="progress-fill" style="width: <c:out value="${(pagedEvent.attendeesCount * 100 / pagedEvent.attendeesLimit.get())}"/>%"></div>
+                      </div>
+                    </div>
+                  </c:when>
+                  <c:otherwise>
+                    <span class="unlimited-attendees"><spring:message code="admin.unlimited.attendees" /></span>
+                  </c:otherwise>
+                </c:choose>
+              </td>
+              <td>
+                <button class="action-button" data-id="<c:out value="${pagedEvent.id}"/>">
+                  <i class="more-icon"></i>
+                </button>
+              </td>
+            </tr>
+          </c:forEach>
+          </tbody>
+        </table>
+
+        <c:set var="currentPage" value="${param.page != null ? param.page : 1}" />
+        <c:set var="itemsPerPage" value="${param.pageSize != null ? param.pageSize : 10}" />
+        <c:set var="currentUrl" value="${pageContext.request.contextPath}/dashboard/events" />
+        <jsp:include page="../components/pagination-controls.jsp">
+          <jsp:param name="currentPage" value="${currentPage}" />
+          <jsp:param name="itemsPerPage" value="${itemsPerPage}" />
+          <jsp:param name="totalPages" value="${pagedEvents.totalPages}" />
+          <jsp:param name="currentUrl" value="${currentUrl}" />
+        </jsp:include>
       </div>
     </div>
-
-    <div class="table-container">
-      <table class="data-table">
-        <thead>
-        <tr>
-          <th><spring:message code="admin.column.id" /></th>
-          <th><spring:message code="admin.column.title" /></th>
-          <th><spring:message code="admin.column.organizer" /></th>
-          <th><spring:message code="admin.column.location" /></th>
-          <th><spring:message code="admin.column.date" /></th>
-          <th><spring:message code="admin.column.attendees" /></th>
-          <th><spring:message code="admin.column.actions" /></th>
-        </tr>
-        </thead>
-        <tbody>
-        <c:set var="events" value="${pagedEvents.content}" />
-        <c:forEach items="${events}" var="pagedEvent">
-          <tr>
-            <td><c:out value="${pagedEvent.id}"/></td>
-            <td><c:out value="${pagedEvent.title}"/></td>
-            <td><c:out value="${pagedEvent.user.username}"/></td>
-            <td><c:out value="${pagedEvent.eventCity}"/></td>
-            <td><fmt:parseDate value="${pagedEvent.date}" pattern="yyyy-MM-dd" /></td>
-            <td>
-              <c:choose>
-                <c:when test="${pagedEvent.attendeesLimit.isPresent() && pagedEvent.attendeesLimit.get() != 0}">
-                  <div class="attendee-progress">
-                    <span class="attendee-count"><c:out value="${pagedEvent.attendeesCount}"/>/<c:out value="${pagedEvent.attendeesLimit.get()}"/></span>
-                    <div class="progress-bar">
-                      <div class="progress-fill" style="width: <c:out value="${(pagedEvent.attendeesCount * 100 / pagedEvent.attendeesLimit.get())}"/>%"></div>
-                    </div>
-                  </div>
-                </c:when>
-                <c:otherwise>
-                  <span class="unlimited-attendees"><spring:message code="admin.unlimited.attendees" /></span>
-                </c:otherwise>
-              </c:choose>
-            </td>
-            <td>
-              <button class="action-button" data-id=<c:out value="${pagedEvent.id}"/>>
-                <i class="more-icon"></i>
-              </button>
-            </td>
-          </tr>
-        </c:forEach>
-        </tbody>
-      </table>
-      <%--      include pagination--%>
-      <c:set var="currentPage" value="${param.eventPage != null ? param.eventPage : 1}" />
-      <c:set var="itemsPerPage" value="${param.pageSize != null ? param.pageSize : 10}" />
-      <c:set var="currentUrl" value="${pageContext.request.contextPath}/admin/dashboard" />
-      <c:set var="view" value="${param.view != null ? param.view : 'events'}" />
-      <jsp:include page="../components/pagination-controls.jsp">
-        <jsp:param name="currentPage" value="${currentPage}" />
-        <jsp:param name="itemsPerPage" value="${itemsPerPage}" />
-        <jsp:param name="currentUrl" value="${currentUrl}" />
-      </jsp:include>
-    </div>
-  </div>
+  </c:if>
 
   <!-- Action Dropdown Menu Template -->
   <div class="dropdown-menu" id="action-dropdown-template" style="display: none;">
@@ -220,6 +252,5 @@
 
 <!-- Include JavaScript files -->
 <script src="<c:url value='/resources/js/dashboard.js' />"></script>
-<script src="<c:url value='/resources/js/pagination.js' />"></script>
 </body>
 </html>

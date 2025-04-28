@@ -11,7 +11,7 @@
 <c:url var="registerUrl" value="/register" />
 <c:url var="logoutUrl" value="/logout" />
 <c:url var="profileUrl" value="/profile" />
-<c:url var="dashboardUrl" value="/dashboard" />
+<c:url var="dashboardUrl" value="/dashboard/journeys" />
 <c:set var="uri" value="${requestScope['javax.servlet.forward.request_uri'] != null
                           ? requestScope['javax.servlet.forward.request_uri']
                           : request.requestURI}" />

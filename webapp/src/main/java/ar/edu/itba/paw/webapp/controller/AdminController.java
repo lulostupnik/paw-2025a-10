@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
+@RequestMapping("/dashboard")
 public class AdminController {
 
     private final EventService eventService;
-
     private final UserService userService;
-
     private final JourneyService journeyService;
+
     @Autowired
     public AdminController(EventService eventService, UserService userService, JourneyService journeyService) {
         this.eventService = eventService;
@@ -23,33 +23,34 @@ public class AdminController {
         this.journeyService = journeyService;
     }
 
-    @RequestMapping("/dashboard")
-    public ModelAndView dashboard(
-            @RequestParam(value = "view", defaultValue = "events") String view,
+
+    @RequestMapping("/events")
+    public ModelAndView dashboardEvents(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
 
         ModelAndView mav = new ModelAndView("/admin/dashboard");
-
-        mav.addObject("currentView", view);
-        mav.addObject("pagedUsers", userService.getAllUsers(page, pageSize));
-        mav.addObject("pagedJourneys", journeyService.getAllJourneys(page, pageSize));
         mav.addObject("pagedEvents", eventService.getAllEvents(page, pageSize));
-
-        switch (view) {
-            case "users":
-                mav.addObject("pagedUsers", userService.getAllUsers(page, pageSize));
-                break;
-            case "journeys":
-                mav.addObject("pagedJourneys", journeyService.getAllJourneys(page, pageSize));
-                break;
-            case "events":
-            default:
-                mav.addObject("pagedEvents", eventService.getAllEvents(page, pageSize));
-                break;
-        }
-
         return mav;
     }
 
+    @RequestMapping("/users")
+    public ModelAndView dashboardUsers(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+
+        ModelAndView mav = new ModelAndView("/admin/dashboard");
+        mav.addObject("pagedUsers", userService.getAllUsers(page, pageSize));
+        return mav;
+    }
+
+    @RequestMapping("/journeys")
+    public ModelAndView dashboardJourneys(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+
+        ModelAndView mav = new ModelAndView("/admin/dashboard");
+        mav.addObject("pagedJourneys", journeyService.getAllJourneys(page, pageSize));
+        return mav;
+    }
 }
