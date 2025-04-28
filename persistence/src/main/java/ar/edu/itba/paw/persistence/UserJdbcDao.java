@@ -133,7 +133,8 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public void changePassword(String email, String password) {
-        LOGGER.debug("Updating password for user email {} (has password {})", email, !password.isEmpty());
+        LOGGER.debug("Updating password for user email {} (has password {})", email, password != null && !password.isEmpty());
+        if (password == null || password.isEmpty()) return;
         int rows = jdbcTemplate.update("UPDATE users SET password = ? WHERE email = ?", password, email);
         if (rows == 0) {
             LOGGER.warn("Password change failed: User not found");

@@ -46,7 +46,7 @@ public class CityJdbcDao implements CityDao {
 
         queryBuilder.append(QUERY);
 
-        if (id > 0) {
+        if (id != null && id > 0) {
             LOGGER.debug("Search parameter city ID: {}", id);
             queryBuilder.append("AND ci.id = ? ");
             params.add(id);
