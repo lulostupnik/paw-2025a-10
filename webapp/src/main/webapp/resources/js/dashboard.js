@@ -1,9 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // No need to handle tab switching with JavaScript anymore
-    // as we're using server-side navigation with links
-
     // Handle action buttons
     setupActionButtons()
+
+    // Setup filter buttons
+    setupFilterButtons()
 })
 
 function setupActionButtons() {
@@ -63,22 +63,17 @@ function setupActionButtons() {
 function setupDropdownItems(dropdown, itemId) {
     // Determine which tab we're in
     let editUrl, deleteUrl, manageAttendeesUrl
+    let isEventsTab = false
 
     if (document.getElementById("journeys-tab") && document.getElementById("journeys-tab").classList.contains("active")) {
         editUrl = `/journeys/edit/${itemId}`
         deleteUrl = `/journeys/delete/${itemId}`
-        // Hide manage attendees for journeys
-        const manageAttendeesItem = dropdown.querySelector(".manage-attendees-item")
-        if (manageAttendeesItem) manageAttendeesItem.style.display = "none"
     } else if (
         document.getElementById("users-tab") &&
         document.getElementById("users-tab").classList.contains("active")
     ) {
         editUrl = `/users/edit/${itemId}`
         deleteUrl = `/users/delete/${itemId}`
-        // Hide manage attendees for users
-        const manageAttendeesItem = dropdown.querySelector(".manage-attendees-item")
-        if (manageAttendeesItem) manageAttendeesItem.style.display = "none"
     } else if (
         document.getElementById("events-tab") &&
         document.getElementById("events-tab").classList.contains("active")
@@ -86,6 +81,7 @@ function setupDropdownItems(dropdown, itemId) {
         editUrl = `/events/edit/${itemId}`
         deleteUrl = `/events/delete/${itemId}`
         manageAttendeesUrl = `/events/${itemId}/attendees`
+        isEventsTab = true
     }
 
     // Set up edit action
@@ -106,11 +102,26 @@ function setupDropdownItems(dropdown, itemId) {
         })
     }
 
-    // Set up manage attendees action
+    // Set up manage attendees action (only for events)
     const manageAttendeesItem = dropdown.querySelector(".manage-attendees-item")
-    if (manageAttendeesItem && manageAttendeesUrl) {
-        manageAttendeesItem.addEventListener("click", () => {
-            window.location.href = manageAttendeesUrl
-        })
+    if (manageAttendeesItem) {
+        if (!isEventsTab) {
+            manageAttendeesItem.style.display = "none"
+        } else {
+            manageAttendeesItem.addEventListener("click", () => {
+                window.location.href = manageAttendeesUrl
+            })
+        }
     }
+}
+
+function setupFilterButtons() {
+    // Setup filter buttons
+    const filterButtons = document.querySelectorAll(".filter-button")
+    filterButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            // In a real application, this would open a filter modal or dropdown
+            alert("Filter functionality would be implemented here")
+        })
+    })
 }
