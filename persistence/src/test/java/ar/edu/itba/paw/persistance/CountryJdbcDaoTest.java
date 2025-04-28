@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.sql.DataSource;
 
@@ -24,8 +23,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import ar.edu.itba.paw.interfaces.persistence.CountryDao;
 import ar.edu.itba.paw.models.Country;
+import ar.edu.itba.paw.persistence.CountryJdbcDao;
 
 @Sql(scripts = "classpath:schema.sql")
 @Transactional
@@ -46,7 +45,7 @@ public class CountryJdbcDaoTest {
     private DataSource ds;
 
     @Autowired
-    private CountryDao countryDao;
+    private CountryJdbcDao countryDao;
 
     private JdbcTemplate jdbcTemplate;
     private SimpleJdbcInsert insert;
