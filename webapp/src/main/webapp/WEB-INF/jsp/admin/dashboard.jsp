@@ -17,11 +17,11 @@
   <link rel="stylesheet" href="<c:url value='/resources/css/pages/dashboard.css' />">
 </head>
 <body>
+<jsp:include page="../components/navbar.jsp" />
 <div class="dashboard-container">
-  <header class="dashboard-header">
-    <h1 class="dashboard-title"><spring:message code="admin.dashboard.heading" /></h1>
+  <header class="header">
+    <h1 class="page-title"><spring:message code="admin.dashboard.heading" /></h1>
     <div class="user-info">
-      <span class="logged-in-text"><spring:message code="admin.logged.in.as" /> <spring:message code="admin.role" /></span>
       <span class="admin-badge"><spring:message code="admin.role" /></span>
     </div>
   </header>
@@ -41,7 +41,10 @@
           <input type="text" class="search-input" placeholder="<spring:message code='admin.search.journeys' />">
           <button class="filter-button"><i class="filter-icon"></i></button>
         </div>
-        <button class="add-button"><i class="add-icon"></i> <spring:message code="admin.add.journey" /></button>
+        <a href="<c:url value="/journeys/create"/>" class="btn btn-primary btn-with-icon">
+          <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="journey.create.button"/>" class="btn-icon" />
+          <spring:message code="journey.create.button"/>
+        </a>
       </div>
     </div>
 
@@ -94,7 +97,10 @@
           <input type="text" class="search-input" placeholder="<spring:message code='admin.search.users' />">
           <button class="filter-button"><i class="filter-icon"></i></button>
         </div>
-        <button class="add-button"><i class="add-icon"></i> <spring:message code="admin.add.user" /></button>
+        <a href="<c:url value="/users/create"/>" class="btn btn-primary btn-with-icon">
+          <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="admin.add.user"/>" class="btn-icon" />
+          <spring:message code="admin.add.user"/>
+        </a>
       </div>
     </div>
 
@@ -149,7 +155,10 @@
           <input type="text" class="search-input" placeholder="<spring:message code='admin.search.events' />">
           <button class="filter-button"><i class="filter-icon"></i></button>
         </div>
-        <button class="add-button"><i class="add-icon"></i> <spring:message code="admin.add.event" /></button>
+        <a href="<c:url value="/events/create"/>" class="btn btn-primary btn-with-icon">
+          <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="journey.create.button"/>" class="btn-icon" />
+          <spring:message code="event.create.button"/>
+        </a>
       </div>
     </div>
 
