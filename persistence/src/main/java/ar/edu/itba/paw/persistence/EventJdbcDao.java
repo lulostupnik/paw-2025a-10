@@ -451,6 +451,7 @@ public class EventJdbcDao implements EventDao {
     }
 
     //@SOTUYO : deberia esto borrar el flyer_image anterior?
+    //creo que deberia actualizar en la otra tabla no id
     @Override
     public boolean update(Event updatedEvent) {
         return jdbcTemplate.update("""
