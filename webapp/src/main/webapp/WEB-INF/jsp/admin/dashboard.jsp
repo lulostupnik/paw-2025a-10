@@ -21,9 +21,6 @@
 <div class="content-container">
   <header class="header">
     <h1 class="page-title"><spring:message code="admin.dashboard.heading" /></h1>
-    <div class="user-info">
-      <span class="admin-badge"><spring:message code="admin.role" /></span>
-    </div>
   </header>
 
   <div class="dashboard-tabs">
