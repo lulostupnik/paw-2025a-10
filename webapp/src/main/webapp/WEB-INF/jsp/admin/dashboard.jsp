@@ -34,14 +34,14 @@
     <div class="content-header">
       <h2><spring:message code="admin.manage.journeys" /></h2>
       <div class="action-bar">
-        <div class="search-container">
+        <div class="actions-container">
           <input type="text" class="search-input" placeholder="<spring:message code='admin.search.journeys' />">
           <button class="filter-button"><i class="filter-icon"></i></button>
+          <a href="<c:url value="/journeys/create"/>" class="add-button">
+            <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="journey.create.button"/>" class="btn-icon" />
+            <spring:message code="journey.create.button"/>
+          </a>
         </div>
-        <a href="<c:url value="/journeys/create"/>" class="btn btn-primary btn-with-icon">
-          <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="journey.create.button"/>" class="btn-icon" />
-          <spring:message code="journey.create.button"/>
-        </a>
       </div>
     </div>
 
@@ -84,14 +84,14 @@
     <div class="content-header">
       <h2><spring:message code="admin.manage.users" /></h2>
       <div class="action-bar">
-        <div class="search-container">
+        <div class="actions-container">
           <input type="text" class="search-input" placeholder="<spring:message code='admin.search.users' />">
           <button class="filter-button"><i class="filter-icon"></i></button>
-        </div>
-        <a href="<c:url value="/users/create"/>" class="btn btn-primary btn-with-icon">
+          <a href="<c:url value="/users/create"/>" class="add-button">
           <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="admin.add.user"/>" class="btn-icon" />
           <spring:message code="admin.add.user"/>
-        </a>
+          </a>
+        </div>
       </div>
     </div>
 
@@ -130,14 +130,14 @@
     <div class="content-header">
       <h2><spring:message code="admin.manage.events" /></h2>
       <div class="action-bar">
-        <div class="search-container">
+        <div class="actions-container">
           <input type="text" class="search-input" placeholder="<spring:message code='admin.search.events' />">
-          <button class="filter-button"><i class="filter-icon"></i></button>
-        </div>
-        <a href="<c:url value="/events/create"/>" class="btn btn-primary btn-with-icon">
+          <button class="filter-button"><i class="filter-icon"></i></button><a href="<c:url value="/events/create"/>" class="add-button">
           <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="journey.create.button"/>" class="btn-icon" />
           <spring:message code="event.create.button"/>
         </a>
+        </div>
+
       </div>
     </div>
 
