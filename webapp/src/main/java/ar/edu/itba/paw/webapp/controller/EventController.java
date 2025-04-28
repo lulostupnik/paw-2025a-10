@@ -184,5 +184,46 @@ public class EventController {
             return new ModelAndView("redirect:/events/{id}");
         }
     }
-    
+
+    @RequestMapping(value = "/{id}/update", method = GET)
+    public ModelAndView showUpdateEventForm(@PathVariable("id") int eventId,
+                                            @ModelAttribute("username") String username) {
+
+        LOGGER.debug("User {} requested to update event {}", username, eventId);
+
+        // 1. Load the event
+        Optional<Event> maybeEvent = eventService.getEventById(eventId);
+        if (maybeEvent.isEmpty()) {
+            LOGGER.warn("Event {} not found", eventId);
+            return new ModelAndView("events/not_found");
+        }
+
+        Event event = maybeEvent.get();
+
+        //@SOTUYO -- no quiero que un user haga el get si no es el owner. esta mal esto? logica de negocios?
+        if (!event.getUser().getEmail().equals(username)) {
+            LOGGER.warn("User {} is not owner of event {}", username, eventId);
+            return new ModelAndView("errors/403"); // Forbidden page
+        }
+
+        // 3. Prefill a CreateEventForm with existing event data
+        CreateEventForm form = new CreateEventForm();
+        form.setCity(event.getEventCity().getName());
+        form.setDate(event.getDate());
+        form.setDescription(event.getDescription());
+        form.setTitle(event.getTitle());
+        form.setTime(event.getTime().orElse(null));
+        form.setAddress(event.getAddress());
+        form.setAttendeesLimit(event.getAttendeesLimit().orElse(null));
+
+        // 4. Build the response
+        ModelAndView mav = new ModelAndView("events/edit"); // you create events/edit.jsp
+        mav.addObject("createEventForm", form);
+        addDropdownAttributes(mav); // reuse this helper you already have
+        mav.addObject("eventId", eventId); // pass event id for form action
+        return mav;
+    }
+
+
+
 }

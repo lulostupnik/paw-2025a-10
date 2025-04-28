@@ -275,4 +275,13 @@ public class EventServiceImpl implements EventService {
         long userId = userService.findByEmail(email).orElseThrow().getId();
         return getEventsWithAttendanceStatus(userId);
     }
+
+    //@Todo no se si esta bien la @CacheEvict
+    /*
+    @Transactional
+    @CacheEvict(value = "eventsById", key = "#event.id")
+    public void editEvent(Event event) {
+        eventDao.update(event);
+    }*/
+
 }

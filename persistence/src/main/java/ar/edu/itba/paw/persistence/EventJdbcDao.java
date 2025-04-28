@@ -450,4 +450,34 @@ public class EventJdbcDao implements EventDao {
         );
     }
 
+    //@SOTUYO : deberia esto borrar el flyer_image anterior?
+    @Override
+    public boolean update(Event updatedEvent) {
+        return jdbcTemplate.update("""
+        UPDATE events
+           SET city_id = ?,
+               event_date = ?,
+               description = ?,
+               flyer_image_id = ?,
+               title = ?,
+               event_time = ?,
+               address = ?,
+               attendees_limit = ?
+         WHERE id = ? and user_id = ?
+         """,
+                updatedEvent.getEventCity().getId(),
+                updatedEvent.getDate(),
+                updatedEvent.getDescription(),
+                updatedEvent.getFlyerImageId(),
+                updatedEvent.getTitle(),
+                updatedEvent.getTime().orElse(null),
+                updatedEvent.getAddress(),
+                updatedEvent.getAttendeesLimit().orElse(null),
+                updatedEvent.getId(),
+                updatedEvent.getUser().getId()
+        ) > 0;
+    }
+
+
+
 }
