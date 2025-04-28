@@ -451,9 +451,8 @@ public class EventJdbcDao implements EventDao {
         );
     }
 
-//@LULO dos queries?
 @Override
-public boolean updateData(long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId/*, long userId*/) {
+public void updateData(long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId/*, long userId*/) {
     int rowsUpdated = jdbcTemplate.update("""
         UPDATE events
            SET city_id = ?,
@@ -475,7 +474,6 @@ public boolean updateData(long cityId, LocalDate date, String description, Strin
             eventId
     );
 
-    return rowsUpdated > 0;
 }
 
 

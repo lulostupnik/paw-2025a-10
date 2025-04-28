@@ -165,7 +165,7 @@ public class EventController {
         eventService.attendEvent(username, id);
 
         if (referer != null && !referer.isEmpty()) {
-            return new ModelAndView("redirect:" + referer);// @TODO  history.back()
+            return new ModelAndView("redirect:" + referer);//
         } else {
             return new ModelAndView("redirect:/events/{id}");
         }
@@ -183,23 +183,22 @@ public class EventController {
             return new ModelAndView("redirect:/events/{id}");
         }
     }
-
+    //@TODO cambiar a spring security
     @RequestMapping(value = "/{id}/update", method = GET)
     public ModelAndView showUpdateEventForm(@PathVariable("id") int eventId,
                                             @ModelAttribute("username") String username) {
 
         LOGGER.debug("User {} requested to update event {}", username, eventId);
 
-        // 1. Load the event
         Optional<Event> maybeEvent = eventService.getEventById(eventId);
         if (maybeEvent.isEmpty()) {
             LOGGER.warn("Event {} not found", eventId);
-            return new ModelAndView("events/not_found");
+            return new ModelAndView("events/not_found"); //DEBERIA TIRAR UN error 404
         }
 
         Event event = maybeEvent.get();
 
-        //@LULO -- no quiero que un user haga el get si no es el owner. esta mal esto? logica de negocios?
+
         if (!event.getUser().getEmail().equals(username)) {
             LOGGER.warn("User {} is not owner of event {}", username, eventId);
             return new ModelAndView("errors/403"); // Forbidden page
@@ -216,10 +215,10 @@ public class EventController {
         form.setAttendeesLimit(event.getAttendeesLimit().orElse(null));
 
         // 4. Build the response
-        ModelAndView mav = new ModelAndView("events/edit"); // you create events/edit.jsp
+        ModelAndView mav = new ModelAndView("events/edit");
         mav.addObject("createEventForm", form);
-        addDropdownAttributes(mav); // reuse this helper you already have
-        mav.addObject("eventId", eventId); // pass event id for form action
+        addDropdownAttributes(mav);
+        mav.addObject("eventId", eventId);
         return mav;
     }
 
@@ -233,13 +232,13 @@ public class EventController {
 
         // 1. Validate event existence and ownership
         Optional<Event> maybeEvent = eventService.getEventById(eventId);
-        if (maybeEvent.isEmpty()) {
+        if (maybeEvent.isEmpty()) {  //mejor tirar una excepcion y tener un exception handler. AOP
             LOGGER.warn("Event {} not found", eventId);
             return new ModelAndView("events/not_found");
         }
 
         Event event = maybeEvent.get();
-        if (!event.getUser().getUsername().equals(username)) {
+        if (!event.getUser().getUsername().equals(username)) {   //@TODO mover a spring security.  usar metodo access
             LOGGER.warn("User {} is not owner of event {}", username, eventId);
             return new ModelAndView("errors/403"); // Forbidden
         }

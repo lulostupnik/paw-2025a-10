@@ -37,4 +37,7 @@ public interface UserDao {
 
     // podríamos generalizar en findBy(String field, String value) o algo por el estilo
 
+    List<User> listJourneyRespondersMinusUsers(long journeyId/*, List<Long> userIds*/);
+    List<User> listEventRespondersMinusUsers(long eventId/*, List<Long> userIds*/);
+
 }

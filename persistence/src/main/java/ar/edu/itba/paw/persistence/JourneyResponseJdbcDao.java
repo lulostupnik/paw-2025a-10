@@ -1,9 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
-import ar.edu.itba.paw.models.CursorPage;
 import ar.edu.itba.paw.models.JourneyResponse;
-import ar.edu.itba.paw.models.valueObjects.EmailRecipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +10,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -31,6 +28,8 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
             rs.getString("message"),
             rs.getTimestamp("date_time").toLocalDateTime()
     );
+
+
     private static final String QUERY_BY_JOURNEY_ID = """
             SELECT jr.user_id, us.username AS username, jr.journey_id, jr.message, jr.date_time\s
             FROM journey_responses jr\s
@@ -38,7 +37,6 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
             ON jr.user_id = us.id\s
             WHERE jr.journey_id = ?""";
 
-    private static final RowMapper<EmailRecipient> EMAIL_RECIPIENT_ROW_MAPPER = (rs, rowNum) -> EmailRecipient.builder().toEmail(rs.getString("email")).locale(  Locale.of(rs.getString("language"))).build();
 
     @Autowired
     public JourneyResponseJdbcDao(DataSource dataSource){
@@ -58,15 +56,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
         args.put("date_time", dateTime);
 
         jdbcInsert.execute(args);
-        // handlear excepción?
-        /*
-        try {
-            jdbcInsert.execute(args);
-            return new JourneyResponse(userId, journeyId, message);
-        } catch (DuplicateKeyException e) {
-            throw new ResponseAlreadyExistsException("User " + userId + " has already responded to journey " + journeyId);
-        }
-        */
+
         return new JourneyResponse(userId, username, journeyId, message, dateTime);
     }
 
@@ -75,33 +65,11 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
         LOGGER.debug("Querying DB for replies to journey {}", journeyId);
         return jdbcTemplate.query(QUERY_BY_JOURNEY_ID + " ORDER BY jr.date_time ", JOURNEY_RESPONSE_ROW_MAPPER, journeyId);
     }
-//
-//    @Override
-//    public String[] listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds) {
-//        StringBuilder query = new StringBuilder("""
-//        SELECT DISTINCT us.email
-//        FROM journey_responses jr
-//        JOIN users us ON jr.user_id = us.id
-//        WHERE jr.journey_id = ?
-//    """);
-//
-//        List<Object> params = new ArrayList<>();
-//        params.add(eventId);
-//
-//        if (userIds != null && !userIds.isEmpty()) {
-//            query.append(" AND jr.user_id NOT IN (");
-//            query.append("?,".repeat(userIds.size()));
-//            query.setLength(query.length() - 1); // Remove last comma
-//            query.append(")");
-//            params.addAll(userIds);
-//        }
-//
-//        List<String> emails = jdbcTemplate.query(query.toString(), String.class, params.toArray());
-//        return emails.toArray(new String[0]);
-//    }
 
 
-    @Override
+
+    //@ans devolver USERS - dao de users.
+    /*@Override
     public List<EmailRecipient> listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds) {
         StringBuilder query = new StringBuilder("""
         SELECT DISTINCT us.email, us.language
@@ -123,6 +91,6 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
 
        return jdbcTemplate.query(query.toString(),EMAIL_RECIPIENT_ROW_MAPPER, params.toArray());
 
-    }
+    }*/
 
 }

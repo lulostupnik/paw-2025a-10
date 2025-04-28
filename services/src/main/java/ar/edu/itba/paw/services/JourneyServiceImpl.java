@@ -7,15 +7,10 @@ import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 
-import ar.edu.itba.paw.models.valueObjects.EmailContent;
-import ar.edu.itba.paw.models.valueObjects.EmailRecipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +19,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -40,9 +34,10 @@ public class JourneyServiceImpl implements JourneyService {
     //private final InterestService interestService;
     private final ImageService imageService;
     private final InterestService interestService;
+    private final UserDao userDao;
 
     @Autowired
-    public JourneyServiceImpl(JourneyDao journeyDao, UserService userService, ImageService imageService,
+    public JourneyServiceImpl(JourneyDao journeyDao, UserService userService, UserDao userDao, ImageService imageService,
                               UniversityService universityService, JourneyResponseDao journeyResponseDao, EmailService emailService, CityService cityService, InterestService interestService) {
         this.journeyDao = journeyDao;
         this.userService = userService;
@@ -52,6 +47,7 @@ public class JourneyServiceImpl implements JourneyService {
         //this.cityService = cityService;
         this.interestService = interestService;
         this.imageService = imageService;
+        this.userDao = userDao;
     }
 
     private void checkDates(LocalDate startDate, LocalDate endDate) {
@@ -117,15 +113,10 @@ public class JourneyServiceImpl implements JourneyService {
 
         LOGGER.info("Sending email notification to journey owner");
 
-        EmailContent emailContent = EmailContent.builder().
-                message(message).
-                build();
 
         emailService.answerJourneyMail(
-                EmailRecipient.builder().
-                        toEmail(journey.getUser().getEmail()).
-                        locale(journey.getUser().getLocale()).build(),
-                emailContent,
+                journey.getUser(),
+                message,
                 user,
                 journey
         );
@@ -133,8 +124,8 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.info("Notifying all commenters in journey about a new comment");
 
         emailService.answerJourneyRespondersNotification(
-                journeyResponseDao.listAllEmailsRespondersMinusUsers(journeyId, new ArrayList<>(List.of(user.getId(), journey.getUser().getId()))),
-                emailContent,
+                userDao.listJourneyRespondersMinusUsers(journeyId/*, new ArrayList<>(List.of(user.getId(), journey.getUser().getId()))*/),
+                message,
                 user,
                 journey
         );

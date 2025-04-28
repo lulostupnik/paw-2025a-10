@@ -4,23 +4,19 @@ package ar.edu.itba.paw.interfaces.services;
 import ar.edu.itba.paw.models.Event;
 import ar.edu.itba.paw.models.Journey;
 import ar.edu.itba.paw.models.User;
-import ar.edu.itba.paw.models.valueObjects.EmailContent;
-import ar.edu.itba.paw.models.valueObjects.EmailRecipient;
 
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 
 public interface EmailService {
 
-    void answerJourneyMail(EmailRecipient emailRecipient, EmailContent emailContent, User commenter, Journey journey);
+    void answerJourneyMail(User emailRecipient, String message, User commenter, Journey journey);
 
-    void answerEventMail(EmailRecipient emailRecipient, EmailContent emailContent, User commenter, Event event);
+    void answerEventMail(User emailRecipient, String message, User commenter, Event event);
 
-    void answerEventRespondersNotification(List<EmailRecipient> emailRecipients, EmailContent emailContent, User commenter, Event event );
+    void answerEventRespondersNotification(List<User> userRecipients, String message, User commenter, Event event );
 
-    void answerJourneyRespondersNotification(List<EmailRecipient> emailRecipients, EmailContent emailContent, User commenter, Journey journey  );
+    void answerJourneyRespondersNotification(List<User> userRecipients, String message, User commenter, Journey journey  );
 
 }
 

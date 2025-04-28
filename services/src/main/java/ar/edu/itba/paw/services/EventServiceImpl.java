@@ -6,15 +6,11 @@ import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.ImageService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.*;
-import ar.edu.itba.paw.models.valueObjects.EmailContent;
-import ar.edu.itba.paw.models.valueObjects.EmailRecipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
@@ -34,9 +30,11 @@ public class EventServiceImpl implements EventService {
     private final ImageService imageService;
     private final CityDao cityDao;
     private final EventAttendanceDao eventAttendanceDao;
+    private final UserDao userDao;
 
     @Autowired
-    public EventServiceImpl(UserService userService, EventResponseDao eventResponseDao, EventDao eventDao, EmailService emailService, ImageDao imageDao, CityDao cityDao, EventAttendanceDao eventAttendanceDao, ImageService imageService) {
+    public EventServiceImpl(UserService userService,UserDao userDao, EventResponseDao eventResponseDao, EventDao eventDao, EmailService emailService, ImageDao imageDao, CityDao cityDao, EventAttendanceDao eventAttendanceDao, ImageService imageService) {
+        this.userDao = userDao;
         this.userService = userService;
         this.eventResponseDao = eventResponseDao;
         this.eventDao = eventDao;
@@ -88,24 +86,18 @@ public class EventServiceImpl implements EventService {
 
         LOGGER.info("Sending email notification to event owner");
 
-        EmailContent emailContent = EmailContent.builder().
-                message(message).
-                build();
-
         emailService.answerEventMail(
-                EmailRecipient.builder().
-                        toEmail(event.getUser().getEmail()).
-                        locale(event.getUser().getLocale()).build(),
-                emailContent,
+                event.getUser(),
+                message,
                 user,
                 event
-                );
+        );
 
         LOGGER.info("Notifying all commenters in event about a new comment");
 
         emailService.answerEventRespondersNotification(
-                eventResponseDao.listAllEmailsRespondersMinusUsers(eventId, new ArrayList<>(List.of(user.getId(), event.getUser().getId()))),
-                emailContent,
+                userDao.listEventRespondersMinusUsers(eventId/*, new ArrayList<>(List.of(user.getId(), event.getUser().getId()))*/),
+                message,
                 user,
                 event
                 );
@@ -283,8 +275,7 @@ public class EventServiceImpl implements EventService {
 
 
     //@TODO checkear cache
-    //@LULO : esta bien que me manden el userId, y hacer el throw new AccesDenied? Esta bien el optional?
-    //CHECKEAR: hay unos argumentos que estan bien en null (atendeesLimit, description).  medio que no tiene sentido/poco claro.
+    //@TODO CHECKEAR: hay unos argumentos que estan bien en null (atendeesLimit, description).  medio que no tiene sentido/poco claro.
     @Transactional
     @CacheEvict(value = "eventsById", key = "#eventId")
     @Override
@@ -302,12 +293,6 @@ public class EventServiceImpl implements EventService {
         Event currentEvent = eventDao.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Event not found"));
 
-        /*
-        // @LULO esto es necesario aca? solo en controller?
-        if (!currentEvent.getUser().getUsername().equals(username)) {
-            throw new AccessDeniedException("User does not own the event");
-        }*/
-
         // 3. Resolve final values
         long resolvedCityId = cityDao.findByName(cityName).orElseThrow(() -> new RuntimeException("City not found")).getId();
 
@@ -319,11 +304,8 @@ public class EventServiceImpl implements EventService {
                 time,
                 address,
                 attendeesLimit,
-                eventId
-        );/*){
-        @LULO : deberia hacer un throw si no anda? O sea, si 0 columnas fueron cambiadas. Mismo para el flyer?
-            throw new RuntimeException("Could not update data");
-        }*/
+                eventId //hacer void
+        );
 
         flyer.ifPresent(content -> {
             imageService.updateImage(currentEvent.getFlyerImageId(), content);
