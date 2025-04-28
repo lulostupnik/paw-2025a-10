@@ -33,6 +33,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
             rs.getString("message"),
             rs.getTimestamp("date_time").toLocalDateTime()
     );
+    private static final RowMapper<Long> EVENT_ID_ROW_MAPPER = (rs, rowNum) -> rs.getLong("event_id");
 
     private static final RowMapper<EmailRecipient> EMAIL_RECIPIENT_ROW_MAPPER = (rs, rowNum) -> EmailRecipient.builder().toEmail(rs.getString("email")).locale(  Locale.of(rs.getString("language"))).build();
 
@@ -61,7 +62,13 @@ public class EventResponseJdbcDao implements EventResponseDao {
 
     private static final String NOT_DELETED = " AND er.deleted = FALSE";
 
-   /* private static final String QUERY_BY_EVENT_ID_GET_USERS = """
+    private static final String QUERY_BY_RESPONSE_ID= """
+        SELECT  er.event_id as event_id
+        FROM event_responses er\s
+        WHERE er.id = ?""";
+        
+        /* private static final String QUERY_BY_EVENT_ID_GET_USERS = """
+
             SELECT distinct er.user_id as user_id, us.email, us.username, us.firstname, us.lastname, us.username, us.career_id, us.profile_picture_id, us.language
                 , uni.id as university_id , uni.name as university_name, uni.abbreviation,
                ci.id as city_id, ci.name as city_name,
@@ -99,6 +106,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
         args.put("event_id", eventId);
         args.put("message", message);
         args.put("date_time", dateTime);
+        args.put("deleted", false);  // Establecer el valor de 'deleted' como 'false'
 
         final Number keys = jdbcInsert.executeAndReturnKey(args);
         LOGGER.debug("Successfully registered event response");
@@ -189,6 +197,11 @@ public class EventResponseJdbcDao implements EventResponseDao {
 
         List<EmailRecipient> emails = jdbcTemplate.query(query.toString(),EMAIL_RECIPIENT_ROW_MAPPER, params.toArray());
         return emails;
+    }
+
+    @Override
+    public long getEventIdByResponseId(long eventId) {
+        return jdbcTemplate.query(QUERY_BY_RESPONSE_ID + " ORDER BY date_time ", EVENT_ID_ROW_MAPPER, eventId).getFirst();
     }
 
     @Override

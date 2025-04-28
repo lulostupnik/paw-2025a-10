@@ -35,7 +35,9 @@ public interface EventService {
     List<UserEvent> getEventsWithAttendanceStatus(long userId);
     List<UserEvent> getEventsWithAttendanceStatus(String email);
 
-    void deleteEvent(long id);
+    void deleteEvent(long id, String message);
 
-    void deleteEventResponse(long id);
+    void deleteEventResponse(long id, String message);
+
+    long getEventIdByResponseId(long eventResponseId);
 }

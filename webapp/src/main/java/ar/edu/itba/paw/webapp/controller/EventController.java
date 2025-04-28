@@ -4,13 +4,12 @@ import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.webapp.form.CreateEventForm;
 
-import ar.edu.itba.paw.webapp.form.ReplyEventForm;
+import ar.edu.itba.paw.webapp.form.ReplyForm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -20,8 +19,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
-import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
@@ -98,9 +95,25 @@ public class EventController {
         return new ModelAndView("redirect:/events/{id}", "id", event.getId());
     }
 
-    private ModelAndView populateEventDetails( Event event, long id, String username) {
+    private ModelAndView populateEventDetails( Event event, long id, String username,
+                                              BindingResult deleteErrors, BindingResult deleteReplyErrors,
+                                              Long replyId) {
         ModelAndView mav = new ModelAndView("events/detail");
         mav.addObject("event", event);
+
+        // Check if there are errors in the delete forms
+        if (deleteErrors.hasErrors()) {
+            // Add attributes to indicate there was an error in the journey delete form
+            mav.addObject("deleteFormHasErrors", true);
+            mav.addObject("deleteFormType", "event");
+            mav.addObject("deleteFormId", "delete-event-form");
+        } else if (deleteReplyErrors.hasErrors()) {
+
+            // Add attributes to indicate there was an error in a journey response delete form
+            mav.addObject("deleteFormHasErrors", true);
+            mav.addObject("deleteFormType", "eventResponse");
+            mav.addObject("deleteFormId", "delete-event-response-form-" + replyId);
+        }
         LOGGER.info("Found event {}", event);
         mav.addObject("attendees", eventService.getEventAttendees(event.getId()));
         mav.addObject("eventResponses", eventService.getEventResponses(event.getId()));
@@ -128,7 +141,13 @@ public class EventController {
     }
 
     @RequestMapping("/{id}")
-    public ModelAndView getEvent(@PathVariable long id, @Valid @ModelAttribute("replyEventForm") final ReplyEventForm form, final BindingResult errors, @ModelAttribute("username") String username) {
+    public ModelAndView getEvent(@PathVariable long id, @Valid @ModelAttribute("replyEventForm") final ReplyForm form, final BindingResult errors,
+                                 @ModelAttribute("username") String username,
+                                 @Valid @ModelAttribute("deleteForm") final ReplyForm deleteForm, final BindingResult deleteErrors,
+                                 @Valid @ModelAttribute("deleteReplyForm") final ReplyForm deleteReplyForm, final BindingResult deleteReplyErrors,
+                                 @RequestParam(value = "replyId", required = false) Long replyId) {
+
+
         LOGGER.debug("Getting info for event {}", id);
         Optional<Event> maybeEvent = eventService.getEventById(id);
         if (maybeEvent.isEmpty()) {
@@ -136,18 +155,25 @@ public class EventController {
             return new ModelAndView("events/not_found");
         }
 
-        return populateEventDetails(maybeEvent.get(), id, username);
+        return populateEventDetails(maybeEvent.get(), id, username, deleteErrors, deleteReplyErrors, replyId);
     }
     @PostMapping("/{id}/delete")
-    public ModelAndView deleteEvent(@PathVariable int id) {
+    public ModelAndView deleteEvent(@PathVariable int id, @Valid @ModelAttribute("deleteForm") final ReplyForm form,
+                                    final BindingResult errors, RedirectAttributes redirectAttributes) {
         LOGGER.debug("Deleting event {}", id);
-        eventService.deleteEvent(id);
+        if (errors.hasErrors()) {
+            LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
+            redirectAttributes.addFlashAttribute("deleteErrors", errors);
+            redirectAttributes.addFlashAttribute("deleteForm", form);
+            return new ModelAndView("redirect:/events/{id}", "id", id);
+        }
+        eventService.deleteEvent(id, form.getMessage());
         return new ModelAndView("redirect:/events");
     }
 
 
     @RequestMapping(value = "/{id}/reply", method = POST)
-    public ModelAndView reply(@PathVariable int id, @Valid @ModelAttribute("replyEventForm") final ReplyEventForm form,
+    public ModelAndView reply(@PathVariable int id, @Valid @ModelAttribute("replyEventForm") final ReplyForm form,
                               final BindingResult errors, @ModelAttribute("username") String username, RedirectAttributes redirectAttributes) {
         LOGGER.debug("Replying to event {} from form {}", id, form);
 

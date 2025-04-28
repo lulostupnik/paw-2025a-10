@@ -50,6 +50,19 @@
 </head>
 
 <body>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+
+<!-- Hidden elements to store i18n messages for JavaScript -->
+<div style="display: none;">
+    <!-- Event deletion messages -->
+    <span id="i18n-event.confirmDelete" data-message="<spring:message code='event.confirmDelete' />"></span>
+    <span id="i18n-event.deleteWarning" data-message="<spring:message code='event.deleteWarning' />"></span>
+
+    <!-- Event response deletion messages -->
+    <span id="i18n-eventResponse.confirmDelete" data-message="<spring:message code='eventResponse.confirmDelete' />"></span>
+    <span id="i18n-eventResponse.deleteWarning" data-message="<spring:message code='eventResponse.deleteWarning' />"></span>
+
+  </div>
 <div class="layout-container">
     <!-- Include the sidebar component -->
     <jsp:include page="../components/sidebar.jsp" />
@@ -183,13 +196,23 @@
                             </p>
                         </div>
                     </div>
+                        <!-- Replace the existing delete button with this -->
                         <sec:authorize access="hasRole('ADMIN')">
-                            <form id="delete-form" action="<c:url value='/events/${event.id}/delete'/>" method="post">
-                                <button type="button" class="btn-attendance btn-danger" onclick="openDeleteModal()">
-                                    <img src="<c:url value='/resources/icons/x.svg'/>" alt="<spring:message code='event.delete'/>" class="btn-icon" />
-                                    <span class="btn-text"><spring:message code="event.delete" text="Delete" /></span>
-                                </button>
-                            </form>
+                            <c:url var="deleteUrl" value='/events/${event.id}/delete'/>
+                            <form:form modelAttribute="deleteForm" id="delete-event-form" action="${deleteUrl}" method="post" style="display: none;">
+                                <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
+                                <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
+                                <jsp:include page="../components/text-area.jsp">
+                                    <jsp:param name="path" value="message" />
+                                    <jsp:param name="label" value="${messageLabel}" />
+                                    <jsp:param name="placeholder" value="${messagePlaceholder}" />
+                                </jsp:include>
+                            </form:form>
+
+                            <button type="button" class="btn-attendance btn-danger" onclick="openDeleteModal('delete-event-form', 'event')">
+                                <img src="<c:url value='/resources/icons/x.svg'/>" alt="<spring:message code='event.delete'/>" class="btn-icon" />
+                                <span class="btn-text"><spring:message code="event.delete" text="Delete" /></span>
+                            </button>
                         </sec:authorize>
                 </section>
 
@@ -296,29 +319,51 @@
                             <!-- Sort responses by date (newest first) -->
                             <c:set var="sortedResponses" value="${eventResponses}" />
                             <c:forEach var="response" items="${sortedResponses}">
-                                <div class="response-card">
-                                    <div class="response-header">
-                                        <div class="response-user">
-                                            <div class="response-avatar">
-                                                <div class="avatar-placeholder">
-                                                    <c:out value="${fn:substring(response.username, 0, 1)}" />
+                                <div class="response-card flex flex-row justify-between items-center">
+                                    <div class="flex flex-col">
+                                        <div class="response-header">
+                                            <div class="response-user">
+                                                <div class="response-avatar">
+                                                    <div class="avatar-placeholder">
+                                                        <c:out value="${fn:substring(response.username, 0, 1)}" />
+                                                    </div>
+                                                </div>
+                                                <div class="response-user-info">
+                                                    <h3 class="response-username">
+                                                        <c:out value="${response.username}" />
+                                                    </h3>
+                                                    <p class="response-date">
+                                                        <c:out value="${response.formattedDate}" />
+                                                    </p>
                                                 </div>
                                             </div>
-                                            <div class="response-user-info">
-                                                <h3 class="response-username">
-                                                    <c:out value="${response.username}" />
-                                                </h3>
-                                                <p class="response-date">
-                                                    <c:out value="${response.formattedDate}" />
-                                                </p>
-                                            </div>
+                                        </div>
+                                        <div class="response-body">
+                                            <p class="response-message">
+                                                <c:out value="${response.message}" />
+                                            </p>
                                         </div>
                                     </div>
-                                    <div class="response-body">
-                                        <p class="response-message">
-                                            <c:out value="${response.message}" />
-                                        </p>
-                                    </div>
+
+                                    <sec:authorize access="hasRole('ADMIN')">
+                                        <div class="flex">
+                                            <c:url var="deleteReplyUrl" value='/event-replies/${response.id}/delete'/>
+                                            <form:form modelAttribute="deleteReplyForm" id="delete-event-response-form-${response.id}" action="${deleteReplyUrl}" method="post" style="display: none;">
+                                                <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
+                                                <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
+                                                <jsp:include page="../components/text-area.jsp">
+                                                    <jsp:param name="path" value="message" />
+                                                    <jsp:param name="label" value="${messageLabel}" />
+                                                    <jsp:param name="placeholder" value="${messagePlaceholder}" />
+                                                </jsp:include>
+                                            </form:form>
+
+                                            <button type="button" class="btn-attendance btn-danger" onclick="openDeleteModal('delete-event-response-form-${response.id}', 'eventResponse')">
+                                                <img src="<c:url value='/resources/icons/x.svg'/>" alt="<spring:message code='event.delete'/>" class="btn-icon" />
+                                                <span class="btn-text"><spring:message code="event.delete" text="Delete" /></span>
+                                            </button>
+                                        </div>
+                                    </sec:authorize>
                                 </div>
                             </c:forEach>
                         </c:if>
@@ -360,5 +405,14 @@
 <jsp:include page="../components/delete-modal.jsp">
     <jsp:param name="warning" value="${warning}"/>
 </jsp:include>
+<!-- Add this before the closing body tag -->
+<c:if test="${deleteFormHasErrors}">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Open the modal with the form that has errors
+            openDeleteModal('${deleteFormId}', '${deleteFormType}');
+        });
+    </script>
+</c:if>
 </body>
 </html>

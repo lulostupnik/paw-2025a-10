@@ -74,7 +74,6 @@ public class EventServiceImpl implements EventService {
         LOGGER.debug("Looking for event {}", eventId);
         Event event = eventDao.findById(eventId).orElseThrow(() -> new RuntimeException("Event not found"));
 
-        //parche temporal buscar por username
         LOGGER.debug("Looking for user {}", email);
         User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
 
@@ -112,6 +111,7 @@ public class EventServiceImpl implements EventService {
     public Optional<Event> getEventById(long id){
         return eventDao.findById(id);
     }
+
 
     @Transactional(readOnly = true)
     @Override
@@ -278,13 +278,23 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public void deleteEvent(long id) {
+    public void deleteEvent(long id, String message) {
+        LOGGER.debug("Deleting event {}", id);
+        //emailService.deleteEmail()
         eventDao.delete(id);
     }
 
     @Transactional
     @Override
-    public void deleteEventResponse(long id) {
+    public void deleteEventResponse(long id, String message) {
         eventResponseDao.delete(id);
+    }
+
+
+    @Transactional(readOnly = true)
+    @Cacheable(value = "eventsByResponseId", key = "#eventResponseId")
+    @Override
+    public long getEventIdByResponseId(long eventResponseId) {
+        return eventResponseDao.getEventIdByResponseId(eventResponseId);
     }
 }

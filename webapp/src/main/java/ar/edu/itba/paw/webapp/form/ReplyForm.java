@@ -1,7 +1,7 @@
 package ar.edu.itba.paw.webapp.form;
 import javax.validation.constraints.Size;
 
-public class ReplyEventForm {
+public class ReplyForm {
 
         @Size(min = 2, max = 2047)
         private String message;

@@ -168,6 +168,7 @@ public class JourneyJdbcDao implements JourneyDao {
         args.put("start_date", startDate);
         args.put("end_date", endDate);
         args.put("description", description);
+        args.put("deleted", false);  // Establecer el valor de 'deleted' como 'false'
         final Number id = jdbcInsert.executeAndReturnKey(args);
         LOGGER.info("Successfully registered journey {}", id.longValue());
         return new Journey(id.longValue(), user, startDate, endDate, destinationUniversity, description);

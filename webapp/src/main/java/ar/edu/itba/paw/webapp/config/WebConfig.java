@@ -193,7 +193,9 @@ public class WebConfig implements WebMvcConfigurer {
                 "eventsById",
                 "countries",
                 "citiesByName",
-                "careers", "careersByName", "careersById"
+                "careers", "careersByName", "careersById",
+                "journeysByResponseId",
+                "eventsByResponseId"
         );
 
         // Según lo que entendí, la mejor opción, pero habría que preguntarle al profesor:
