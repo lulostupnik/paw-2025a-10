@@ -17,13 +17,10 @@
   <link rel="stylesheet" href="<c:url value='/resources/css/pages/dashboard.css' />">
 </head>
 <body>
-<div class="dashboard-container">
-  <header class="dashboard-header">
-    <h1 class="dashboard-title"><spring:message code="admin.dashboard.heading" /></h1>
-    <div class="user-info">
-      <span class="logged-in-text"><spring:message code="admin.logged.in.as" /> <spring:message code="admin.role" /></span>
-      <span class="admin-badge"><spring:message code="admin.role" /></span>
-    </div>
+<jsp:include page="../components/navbar.jsp" />
+<div class="content-container">
+  <header class="header">
+    <h1 class="page-title"><spring:message code="admin.dashboard.heading" /></h1>
   </header>
 
   <div class="dashboard-tabs">
@@ -37,11 +34,14 @@
     <div class="content-header">
       <h2><spring:message code="admin.manage.journeys" /></h2>
       <div class="action-bar">
-        <div class="search-container">
+        <div class="actions-container">
           <input type="text" class="search-input" placeholder="<spring:message code='admin.search.journeys' />">
           <button class="filter-button"><i class="filter-icon"></i></button>
+          <a href="<c:url value="/journeys/create"/>" class="add-button">
+            <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="journey.create.button"/>" class="btn-icon" />
+            <spring:message code="journey.create.button"/>
+          </a>
         </div>
-        <button class="add-button"><i class="add-icon"></i> <spring:message code="admin.add.journey" /></button>
       </div>
     </div>
 
@@ -55,26 +55,20 @@
           <th><spring:message code="admin.column.university" /></th>
           <th><spring:message code="admin.column.start.date" /></th>
           <th><spring:message code="admin.column.end.date" /></th>
-          <th><spring:message code="admin.column.status" /></th>
           <th><spring:message code="admin.column.actions" /></th>
         </tr>
         </thead>
         <tbody>
         <c:forEach items="${journeys}" var="journey">
           <tr>
-            <td>${journey.id}</td>
-            <td>${journey.user.firstname}</td>
-            <td>${journey.destinationUniversity.city}</td>
-            <td>${journey.destinationUniversity}</td>
+            <td><c:out value="${journey.id}"/></td>
+            <td><c:out value="${journey.user.firstname}"/></td>
+            <td><c:out value="${journey.destinationUniversity.city}"/></td>
+            <td><c:out value="${journey.destinationUniversity}"/></td>
             <td><fmt:parseDate value="${journey.startDate}" pattern="yyyy-MM-dd" /></td>
             <td><fmt:parseDate value="${journey.endDate}" pattern="yyyy-MM-dd" /></td>
             <td>
-<%--                                    <span class="status-badge status-${journey.status.toLowerCase()}">--%>
-<%--                                        <spring:message code="admin.status.${journey.status.toLowerCase()}" />--%>
-<%--                                    </span>--%>
-            </td>
-            <td>
-              <button class="action-button" data-id="${journey.id}">
+              <button class="action-button" data-id=<c:out value="${journey.id}"/> >
                 <i class="more-icon"></i>
               </button>
             </td>
@@ -90,11 +84,14 @@
     <div class="content-header">
       <h2><spring:message code="admin.manage.users" /></h2>
       <div class="action-bar">
-        <div class="search-container">
+        <div class="actions-container">
           <input type="text" class="search-input" placeholder="<spring:message code='admin.search.users' />">
           <button class="filter-button"><i class="filter-icon"></i></button>
+          <a href="<c:url value="/users/create"/>" class="add-button">
+          <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="admin.add.user"/>" class="btn-icon" />
+          <spring:message code="admin.add.user"/>
+          </a>
         </div>
-        <button class="add-button"><i class="add-icon"></i> <spring:message code="admin.add.user" /></button>
       </div>
     </div>
 
@@ -106,30 +103,18 @@
           <th><spring:message code="admin.column.name" /></th>
           <th><spring:message code="admin.column.email" /></th>
           <th><spring:message code="admin.column.university" /></th>
-          <th><spring:message code="admin.column.role" /></th>
-          <th><spring:message code="admin.column.status" /></th>
           <th><spring:message code="admin.column.actions" /></th>
         </tr>
         </thead>
         <tbody>
         <c:forEach items="${users}" var="user">
           <tr>
-            <td>${user.id}</td>
-            <td>${user.firstname}</td>
-            <td>${user.email}</td>
-            <td>${user.university}</td>
+            <td><c:out value="${user.id}"/></td>
+            <td><c:out value="${user.firstname}"/></td>
+            <td><c:out value="${user.email}"/></td>
+            <td><c:out value="${user.university}"/></td>
             <td>
-<%--                                    <span class="role-badge role-${user.role.toLowerCase()}">--%>
-<%--                                        <spring:message code="admin.role.${user.role.toLowerCase()}" />--%>
-<%--                                    </span>--%>
-            </td>
-            <td>
-<%--                                    <span class="status-badge status-${user.status.toLowerCase()}">--%>
-<%--                                        <spring:message code="admin.status.${user.status.toLowerCase()}" />--%>
-<%--                                    </span>--%>
-            </td>
-            <td>
-              <button class="action-button" data-id="${user.id}">
+              <button class="action-button" data-id=<c:out value="${user.id}"/> >
                 <i class="more-icon"></i>
               </button>
             </td>
@@ -145,11 +130,14 @@
     <div class="content-header">
       <h2><spring:message code="admin.manage.events" /></h2>
       <div class="action-bar">
-        <div class="search-container">
+        <div class="actions-container">
           <input type="text" class="search-input" placeholder="<spring:message code='admin.search.events' />">
-          <button class="filter-button"><i class="filter-icon"></i></button>
+          <button class="filter-button"><i class="filter-icon"></i></button><a href="<c:url value="/events/create"/>" class="add-button">
+          <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="journey.create.button"/>" class="btn-icon" />
+          <spring:message code="event.create.button"/>
+        </a>
         </div>
-        <button class="add-button"><i class="add-icon"></i> <spring:message code="admin.add.event" /></button>
+
       </div>
     </div>
 
@@ -163,35 +151,34 @@
           <th><spring:message code="admin.column.location" /></th>
           <th><spring:message code="admin.column.date" /></th>
           <th><spring:message code="admin.column.attendees" /></th>
-          <th><spring:message code="admin.column.status" /></th>
           <th><spring:message code="admin.column.actions" /></th>
         </tr>
         </thead>
         <tbody>
         <c:forEach items="${events}" var="event">
           <tr>
-            <td>${event.id}</td>
-            <td>${event.title}</td>
-            <td>${event.user.username}</td>
-            <td>${event.eventCity}</td>
+            <td><c:out value="${event.id}"/></td>
+            <td><c:out value="${event.title}"/></td>
+            <td><c:out value="${event.user.username}"/></td>
+            <td><c:out value="${event.eventCity}"/></td>
             <td><fmt:parseDate value="${event.date}" pattern="yyyy-MM-dd" /></td>
             <td>
-              <c:if test="${event.attendeesLimit.isPresent()}">
-              <div class="attendee-progress">
-                <span class="attendee-count">${event.attendeesCount}/${event.attendeesLimit.get()}</span>
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width: ${(event.attendeesCount / event.attendeesLimit.get()) * 100}%"></div>
-                </div>
-              </div>
-              </c:if>
+              <c:choose>
+                <c:when test="${event.attendeesLimit.isPresent() && event.attendeesLimit.get() != 0}">
+                  <div class="attendee-progress">
+                    <span class="attendee-count"><c:out value="${event.attendeesCount}"/>/<c:out value="${event.attendeesLimit.get()}"/></span>
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: <c:out value="${(event.attendeesCount * 100 / event.attendeesLimit.get())}"/>%"></div>
+                    </div>
+                  </div>
+                </c:when>
+                <c:otherwise>
+                  <span class="unlimited-attendees"><spring:message code="admin.unlimited.attendees" /></span>
+                </c:otherwise>
+              </c:choose>
             </td>
             <td>
-<%--                                    <span class="status-badge status-${event.status.toLowerCase()}">--%>
-<%--                                        <spring:message code="admin.status.${event.status.toLowerCase()}" />--%>
-<%--                                    </span>--%>
-            </td>
-            <td>
-              <button class="action-button" data-id="${event.id}">
+              <button class="action-button" data-id=<c:out value="${event.id}"/>>
                 <i class="more-icon"></i>
               </button>
             </td>
