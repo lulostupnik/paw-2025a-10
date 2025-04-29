@@ -193,6 +193,7 @@ public class UserJdbcDao implements UserDao {
         args.put("profile_picture_id", profilePictureId);
         args.put("password", password);
         args.put("language", locale);
+        args.put("roles", "user");
         final Number id = jdbcInsert.executeAndReturnKey(args);
         return new User(id.longValue(), email, username, firstname, lastname, university/*.toString()*/, career, profilePictureId, locale);
     }
