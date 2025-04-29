@@ -110,7 +110,7 @@ public class JourneyJdbcDao implements JourneyDao {
     private final static String QUERY_INTEREST = QUERY + " JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id \n";
 
     private String getPagedQuery(String whereClause, String orderByClause) {
-        return "FROM (SELECT journey j" + whereClause + orderByClause + " LIMIT ? OFFSET ?) AS j " +
+        return "FROM (SELECT * FROM journeys j" + whereClause + orderByClause + " LIMIT ? OFFSET ?) AS j " +
                 "JOIN users us ON j.user_id = us.id " +
                 "JOIN careers ca ON us.career_id = ca.id " +
                 "JOIN universities un1 ON us.university = un1.id " +
