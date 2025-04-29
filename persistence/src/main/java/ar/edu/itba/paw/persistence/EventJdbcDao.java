@@ -120,7 +120,7 @@ public class EventJdbcDao implements EventDao {
                     JOIN cities c ON e.city_id = c.id
                     JOIN countries co ON c.country_id = co.id
                     """;
-    private static final String NOT_DELETED = "WHERE e.deleted = FALSE";
+    private static final String NOT_DELETED = " WHERE e.deleted = FALSE ";
 
     private String getPageQuery(String whereClause, String orderByClause) {
         return "FROM (SELECT * FROM events e " + whereClause +" "+ orderByClause + " LIMIT ? OFFSET ?)" +

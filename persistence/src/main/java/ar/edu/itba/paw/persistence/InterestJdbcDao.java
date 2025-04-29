@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.InterestDao;
-import ar.edu.itba.paw.models.CursorPage;
 import ar.edu.itba.paw.models.Interest;
 
 import org.slf4j.Logger;
@@ -9,12 +8,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @Repository
@@ -22,17 +20,22 @@ public class InterestJdbcDao implements InterestDao {
     private static Logger LOGGER = LoggerFactory.getLogger(InterestJdbcDao.class);
 
     private final JdbcTemplate jdbcTemplate;
+    private final SimpleJdbcInsert jdbcInsert;
 
     private final static RowMapper<Interest> INTEREST_ROW_MAPPER = (rs, rowNum) -> new Interest(
             rs.getLong("id"),
             rs.getString("name")
     );
 
-    private final static String QUERY = "SELECT c.id AS id, c.name AS name FROM category c ";
+    private final static String QUERY = "SELECT c.id AS id, c.name_en AS name FROM category c ";
 
     @Autowired
-    public InterestJdbcDao(DataSource dataSource) {
+    public InterestJdbcDao(DataSource dataSource)
+    {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("category")
+                .usingGeneratedKeyColumns("id");
     }
 
     @Override
@@ -93,19 +96,20 @@ public class InterestJdbcDao implements InterestDao {
     }
 
     @Override
-    public Optional<Interest> createUserInterest(Interest interest, Long userId) {
-        LOGGER.debug("Registering to DB new interest {} for user {}", interest, userId);
-        return Optional.empty();
+    public Interest createUserInterest(String interestEn, String interestEs) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("name_en", interestEn);
+        params.put("name_es", interestEs);
+        final Number keys = jdbcInsert.execute(params);
+        return new Interest(keys.longValue(), interestEn);
     }
 
     @Override
-    public List<Interest> createUserInterests(String[] interests, Long userId) {
+    public void saveUserInterests(long[] interests, Long userId) {
         LOGGER.debug("Registering to DB new interests for user {}...", userId);
-        List<Interest> interestList = findIdByName(interests);
-        for (Interest interest : interestList) {
-            jdbcTemplate.update("INSERT INTO user_interest (user_id, category_id) VALUES (?, ?)", userId, interest.getId());
+        for (long interest : interests) {
+            jdbcTemplate.update("INSERT INTO user_interest (user_id, category_id) VALUES (?, ?)", userId, interest);
         }
-        return interestList;
     }
 
     @Override

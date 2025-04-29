@@ -39,9 +39,10 @@ public class CreateUserForm {
 
     @Size(min = 2, max = 100)
     private String originUniversity;
+
     @NotNull
     @ValidInterest
-    private String[] interests;
+    private long[] interests;
 
     public String getEmail() {
         return email;
@@ -107,11 +108,11 @@ public class CreateUserForm {
         this.originUniversity = originUniversity;
     }
 
-    public String[] getInterests() {
+    public long[] getInterests() {
         return interests;
     }
 
-    public void setInterests(String[] interests) {
+    public void setInterests(long[] interests) {
         this.interests = interests;
     }
     public String getPassword() {

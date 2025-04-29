@@ -94,7 +94,7 @@ public class AuthController {
 
         setAuth(form.getEmail(), form.getPassword());
 
-        return new ModelAndView("redirect:login");
+        return new ModelAndView("redirect:explore");
     }
 
     private void setAuth(String email, String password) {
