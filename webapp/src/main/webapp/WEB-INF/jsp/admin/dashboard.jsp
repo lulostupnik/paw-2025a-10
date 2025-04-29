@@ -95,10 +95,10 @@
         </c:if>
 
         <jsp:include page="../components/pagination-controls.jsp">
-          <jsp:param name="currentPage" value="${pagedJourneys.currentPage + 1}" />
+          <jsp:param name="currentPage" value="${pagedJourneys.currentPage}" />
           <jsp:param name="itemsPerPage" value="10" />
           <jsp:param name="totalPages" value="200" />
-          <jsp:param name="currentUrl" value="${pageContext.request.contextPath}/dashboard/journeys" />
+          <jsp:param name="currentUrl" value="/dashboard/journeys" />
         </jsp:include>
       </div>
     </div>
@@ -162,10 +162,10 @@
         </c:if>
 
         <jsp:include page="../components/pagination-controls.jsp">
-          <jsp:param name="currentPage" value="${pagedUsers.currentPage + 1}" />
+          <jsp:param name="currentPage" value="${pagedUsers.currentPage}" />
           <jsp:param name="itemsPerPage" value="10" />
           <jsp:param name="totalPages" value="200" />
-          <jsp:param name="currentUrl" value="${pageContext.request.contextPath}/dashboard/users" />
+          <jsp:param name="currentUrl" value="/dashboard/users" />
         </jsp:include>
       </div>
     </div>
@@ -217,11 +217,11 @@
               <td><c:out value="${event.date}"/></td>
               <td>
                 <c:choose>
-                  <c:when test="${event.attendeesLimit != null && event.attendeesLimit > 0}">
+                  <c:when test="${!empty event.attendeesLimit && event.attendeesLimit.isPresent() && event.attendeesLimit.get() > 0}">
                     <div class="attendee-progress">
-                      <span class="attendee-count"><c:out value="${event.attendeesCount}"/>/<c:out value="${event.attendeesLimit}"/></span>
+                      <span class="attendee-count"><c:out value="${event.attendeesCount}"/>/<c:out value="${event.attendeesLimit.get()}"/></span>
                       <div class="progress-bar">
-                        <div class="progress-fill" style="width: <c:out value="${(event.attendeesCount * 100 / event.attendeesLimit)}"/>%"></div>
+                        <div class="progress-fill" style="width: <c:out value="${(event.attendeesCount * 100 / event.attendeesLimit.get())}"/>%"></div>
                       </div>
                     </div>
                   </c:when>
@@ -247,10 +247,10 @@
         </c:if>
 
         <jsp:include page="../components/pagination-controls.jsp">
-          <jsp:param name="currentPage" value="${pagedEvents.currentPage + 1}" />
+          <jsp:param name="currentPage" value="${pagedEvents.currentPage}" />
           <jsp:param name="itemsPerPage" value="10" />
           <jsp:param name="totalPages" value="200" />
-          <jsp:param name="currentUrl" value="${pageContext.request.contextPath}/dashboard/events" />
+          <jsp:param name="currentUrl" value="/dashboard/events" />
         </jsp:include>
       </div>
     </div>
