@@ -202,4 +202,44 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
         return jdbcTemplate.query(GET_EVENTS_QUERY + " AND e.user_id != ?", EVENT_ROW_MAPPER, userId, userId);
     }
 
+    @Override
+    public Page<User> getAttendees(long eventId, int pageNumber, int pageSize) {
+        LOGGER.debug("Querying DB for paginated attendees for event {}", eventId);
+
+        String countQuery = "SELECT COUNT(*) FROM event_attendances WHERE event_id = ?";
+        int totalItems = jdbcTemplate.queryForObject(countQuery, Integer.class, eventId);
+        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+
+        int offset = (pageNumber - 1) * pageSize;
+
+        String paginatedQuery = GET_ATTENDEES_QUERY + " LIMIT ? OFFSET ?";
+        List<User> attendees = jdbcTemplate.query(
+                paginatedQuery,
+                USER_ROW_MAPPER,
+                eventId, pageSize, offset
+        );
+
+        return new Page<>(attendees, pageNumber, totalPages);
+    }
+
+    @Override
+    public Page<Event> getAttendingEvents(long userId, int pageNumber, int pageSize) {
+        LOGGER.debug("Querying DB for paginated events user {} will attend", userId);
+
+        String countQuery = "SELECT COUNT(*) FROM event_attendances ea JOIN events e ON ea.event_id = e.id WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE";
+        int totalItems = jdbcTemplate.queryForObject(countQuery, Integer.class, userId, userId);
+        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+
+        int offset = (pageNumber - 1) * pageSize;
+
+        String paginatedQuery = GET_EVENTS_QUERY + " AND e.user_id != ? AND e.deleted = FALSE ORDER BY e.event_date DESC LIMIT ? OFFSET ?";
+        List<Event> events = jdbcTemplate.query(
+                paginatedQuery,
+                EVENT_ROW_MAPPER,
+                userId, userId, pageSize, offset
+        );
+
+        return new Page<>(events, pageNumber, totalPages);
+    }
+
 }
