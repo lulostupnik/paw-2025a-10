@@ -17,6 +17,8 @@ public interface JourneyService {
 
     Page<Journey> getAllJourneys(int page, int size);
 
+    Page<Journey> searchJourneys(String search, int page, int size);
+
     Optional<Journey> getJourneyById(long id);
 
     Optional<Journey> getJourneyByEmail(String email);

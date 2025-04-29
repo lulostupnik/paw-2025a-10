@@ -40,7 +40,7 @@ public interface JourneyDao {
     Page<Journey> findByFilters(Long userId, Long cityId, LocalDate startDate, LocalDate endDate, Long interest, int page, int size);
     Page<Journey> findByOriginCity(long originCityId, int page, int size);
     // Page<Journey> getRecommendedJourneys(Long userId, int page, int size);
-
+    Page<Journey> searchJourneys(String search, int page, int size);
 
     // ELIMINAR o reemplazar
     Optional<Journey> findOverlappingJourney(long id, LocalDate startDate, LocalDate endDate);

@@ -14,6 +14,7 @@ public interface EventService {
     Optional<Event> getEventById(long id);
     List<Event> getAllEvents();
     Page<Event> getAllEvents(int page, int size);
+    Page<Event> searchEvents(String search, int page, int size);
     List<Event> getAllEvents(String email);
     void attendEvent(String email, long eventId);
     void attendEvent(long userId, long eventId);
