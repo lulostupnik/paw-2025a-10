@@ -36,6 +36,15 @@ public interface EventService {
 
     List<UserEvent> getEventsWithAttendanceStatus(long userId);
     List<UserEvent> getEventsWithAttendanceStatus(String email);
+    void editEvent(long eventId,
+                          String cityName,
+                          LocalDate date,
+                          Optional<byte[]> flyer,
+                          String description,
+                          String title,
+                          LocalTime time,
+                          String address,
+                          Integer attendeesLimit);
 
     void delete(long id, String message);
 }

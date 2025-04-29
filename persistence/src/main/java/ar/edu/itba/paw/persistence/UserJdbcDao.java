@@ -73,6 +73,30 @@ public class UserJdbcDao implements UserDao {
             JOIN countries co ON co.id = ci.country_id
             """;
 
+    private final static String QUERY_DISTINCT = """
+            SELECT DISTINCT\s
+                u.id AS user_id,\s
+                u.email AS user_email,\s
+                u.firstname AS user_firstname,\s
+                u.lastname AS user_lastname,\s
+                u.username AS user_username,\s
+                u.university AS user_university,\s
+                u.language AS user_language,\s
+                c.name AS career_name,\s
+                c.id AS career_id,\s
+                u.profile_picture_id AS user_profile_picture_id,\s
+                un.name AS university_name,\s
+                un.abbreviation AS university_abbreviation,\s
+                ci.id AS city_id,\s
+                ci.name AS city_name,\s
+                co.name AS country_name\s
+            FROM users u\s
+            JOIN universities un ON u.university = un.id\s
+            JOIN careers c ON c.id = u.career_id\s
+            JOIN cities ci ON ci.id = un.city_id\s
+            JOIN countries co ON co.id = ci.country_id
+            """;
+
 
     private final static String PASSWORD_QUERY = SELECT_CLAUSE + """
             , u.password AS user_password\s,
@@ -134,7 +158,8 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public void changePassword(String email, String password) {
-        LOGGER.debug("Updating password for user email {} (has password {})", email, !password.isEmpty());
+        LOGGER.debug("Updating password for user email {} (has password {})", email, password != null && !password.isEmpty());
+        if (password == null || password.isEmpty()) return;
         int rows = jdbcTemplate.update("UPDATE users SET password = ? WHERE email = ?", password, email);
         if (rows == 0) {
             LOGGER.warn("Password change failed: User not found");
@@ -374,6 +399,25 @@ public class UserJdbcDao implements UserDao {
         if (rowsAffected == 0) {
             LOGGER.warn("Career update failed: User with ID {} not found", userId);
         }
+    }
+
+    @Override
+    public List<User> listJourneyRespondersMinusUsers(long journeyId/*, List<Long> userIds*/) {
+        String query = QUERY_DISTINCT + "JOIN journey_responses jr ON jr.user_id = u.id WHERE jr.journey_id = ?";
+        List<Object> params = new ArrayList<>();
+        params.add(journeyId);
+
+        return jdbcTemplate.query(query,USER_ROW_MAPPER, params.toArray());
+    }
+
+    @Override
+    public List<User> listEventRespondersMinusUsers(long eventId) {
+        String query = QUERY_DISTINCT + "JOIN event_responses er ON er.user_id = u.id WHERE er.event_id = ?";
+        List<Object> params = new ArrayList<>();
+        params.add(eventId);
+
+
+        return jdbcTemplate.query(query,USER_ROW_MAPPER, params.toArray());
     }
 
 }

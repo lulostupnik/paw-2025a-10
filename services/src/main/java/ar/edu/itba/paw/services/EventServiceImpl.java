@@ -2,9 +2,11 @@ package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.persistence.*;
 import ar.edu.itba.paw.interfaces.services.*;
+import ar.edu.itba.paw.interfaces.services.EmailService;
+import ar.edu.itba.paw.interfaces.services.EventService;
+import ar.edu.itba.paw.interfaces.services.ImageService;
+import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.*;
-import ar.edu.itba.paw.models.valueObjects.EmailContent;
-import ar.edu.itba.paw.models.valueObjects.EmailRecipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +30,13 @@ public class EventServiceImpl implements EventService {
     private final ImageService imageService;
     private final CityService cityService;
     private final EventAttendanceDao eventAttendanceDao;
+    private final UserDao userDao;
 
     @Autowired
     public EventServiceImpl(UserService userService, EventResponseService eventResponseService,
                             EventDao eventDao, EmailService emailService, ImageService imageService,
-                            CityService cityService, EventAttendanceDao eventAttendanceDao) {
+                            CityService cityService, EventAttendanceDao eventAttendanceDao, UserDao userDao) {
+        this.userDao = userDao;
         this.userService = userService;
         this.eventResponseService = eventResponseService;
         this.eventDao = eventDao;
@@ -82,24 +86,18 @@ public class EventServiceImpl implements EventService {
 
         LOGGER.info("Sending email notification to event owner");
 
-        EmailContent emailContent = EmailContent.builder().
-                message(message).
-                build();
+//        emailService.answerEventMail(
+//                event.getUser(),
+//                message,
+//                user,
+//                event
+//        );
+//        //hago copia de la lista y un add.
+//        LOGGER.info("Notifying all commenters in event about a new comment");
 
-        emailService.answerEventMail(
-                EmailRecipient.builder().
-                        toEmail(event.getUser().getEmail()).
-                        locale(event.getUser().getLocale()).build(),
-                emailContent,
-                user,
-                event
-                );
-
-        LOGGER.info("Notifying all commenters in event about a new comment");
-
-        emailService.answerEventRespondersNotification(
-                eventResponseService.listAllEmailsRespondersMinusUsers(eventId, new ArrayList<>(List.of(user.getId(), event.getUser().getId()))),
-                emailContent,
+        emailService.answerEventNotification(
+                userDao.listEventRespondersMinusUsers(eventId/*, new ArrayList<>(List.of(user.getId(), event.getUser().getId()))*/),
+                message,
                 user,
                 event
                 );
@@ -285,6 +283,49 @@ public class EventServiceImpl implements EventService {
         long userId = userService.findByEmail(email).orElseThrow().getId();
         return getEventsWithAttendanceStatus(userId);
     }
+
+
+    //@TODO checkear cache
+    //@TODO CHECKEAR: hay unos argumentos que estan bien en null (atendeesLimit, description).  medio que no tiene sentido/poco claro.
+    @Transactional
+    @CacheEvict(value = "eventsById", key = "#eventId")
+    @Override
+    public void editEvent(long eventId,
+                          String cityName,
+                          LocalDate date,
+                          Optional<byte[]> flyer,
+                          String description,
+                          String title,
+                          LocalTime time,
+                          String address,
+                          Integer attendeesLimit) {
+
+        // 1. Load the existing event
+        Event currentEvent = eventDao.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("Event not found"));
+
+        // 3. Resolve final values
+        long resolvedCityId = cityDao.findByName(cityName).orElseThrow(() -> new RuntimeException("City not found")).getId();
+
+       eventDao.updateData(
+                resolvedCityId,
+                date,
+                description,
+                title,
+                time,
+                address,
+                attendeesLimit,
+                eventId //hacer void
+        );
+
+        flyer.ifPresent(content -> {
+            imageService.updateImage(currentEvent.getFlyerImageId(), content);
+        });
+    }
+
+
+
+
 
     @Transactional
     @Override

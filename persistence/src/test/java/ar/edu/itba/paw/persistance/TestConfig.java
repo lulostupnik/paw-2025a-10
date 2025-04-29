@@ -4,12 +4,14 @@ import javax.sql.DataSource;
 
 import org.hsqldb.jdbc.JDBCDriver;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
+@ComponentScan({"ar.edu.itba.paw.persistence"})
 public class TestConfig {
     @Bean
     public DataSource dataSource() {

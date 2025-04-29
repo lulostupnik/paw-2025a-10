@@ -5,6 +5,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -40,6 +42,9 @@ import ar.edu.itba.paw.persistence.UserJdbcDao;
 public class UserJdbcDaoTest {
 
     private static final String USER_TABLE = "users";
+    private static final String IMAGES_TABLE = "images";
+    private static final String UNIVERSITIES_TABLE = "universities";
+    private static final String CAREERS_TABLE = "careers";
     private static final String USERNAME = "newUser";
     private static final String FIRSTNAME = "New";
     private static final String LASTNAME = "User";
@@ -50,9 +55,18 @@ public class UserJdbcDaoTest {
     private static Career CAREER;
     private static long PROFILEPICID;
 
+    private static final String FAKEEMAIL = "totallyRealEmail@legitEmailService.com";
+    private static final String FAKEUSERNAME = "totallyLegitUser";
+    private static final String FAKEPASSWORD = "wrongPassword";
+    private static final String FAKEFIRSTNAME = "fake";
+    private static final String FAKELASTNAME = "name";
+    private static final String FAKELOCALE = "en";
+    private static final String WRONGLOCALE = "jp";
+    
     @Autowired
     private DataSource ds;
 
+    @Autowired
     private UserJdbcDao userDao;
 
     private JdbcTemplate jdbcTemplate;
@@ -69,10 +83,45 @@ public class UserJdbcDaoTest {
         new Career(rs.getLong("career_id"), null), 
         rs.getLong("profile_picture_id"), Locale.of(rs.getString("language")));
 
+    private void assertEqualsUser(User user){
+        assertNotNull(user);
+        assertEquals(USERMAIL, user.getEmail());
+        assertEquals(USERNAME, user.getUsername());
+        assertEquals(FIRSTNAME, user.getFirstname());
+        assertEquals(LASTNAME, user.getLastname());
+        assertEquals(Locale.of(LOCALE), user.getLocale());
+        assertEquals(CAREER.getId(), user.getCareer().getId());
+        assertEquals(UNIVERSITY.getId(), user.getUniversity().getId());
+        assertEquals(PROFILEPICID, user.getProfilePictureId());
+    }
+
+    private void assertEqualsMaybeUser(Optional<User> maybeUser){
+        assertNotNull(maybeUser);
+        assertTrue(maybeUser.isPresent());
+        final User user = maybeUser.get();
+        assertEqualsUser(user); 
+    }
+
+    private long insertUserGeneric(){
+        return insertUserOverride(Map.of());
+    }
+    private long insertUserOverride(Map<String, Object> overrideParams){
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("email", overrideParams.getOrDefault("email", USERMAIL));
+        params.put("username", overrideParams.getOrDefault("username", USERNAME));
+        params.put("firstname", overrideParams.getOrDefault("firstname", FIRSTNAME));
+        params.put("lastname", overrideParams.getOrDefault("lastname", LASTNAME));
+        params.put("password", overrideParams.getOrDefault("password", PASSWORD));
+        params.put("language", overrideParams.getOrDefault("locale", LOCALE));
+        params.put("university", overrideParams.getOrDefault("university", UNIVERSITY.getId()));
+        params.put("career_id", overrideParams.getOrDefault("career", CAREER.getId()));
+        params.put("profile_picture_id", overrideParams.getOrDefault("profilepic", PROFILEPICID));
+        return insert.executeAndReturnKey(params).longValue();
+    }
+
     @Before
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
-        userDao = new UserJdbcDao(ds);
         insert = new SimpleJdbcInsert(ds).withTableName(USER_TABLE).usingGeneratedKeyColumns("id");
 
         jdbcTemplate.execute("INSERT INTO images(content) VALUES('ffffffffff')");
@@ -86,23 +135,11 @@ public class UserJdbcDaoTest {
         PROFILEPICID = jdbcTemplate.query("SELECT id FROM images LIMIT 1", (rs, rowNum) -> rs.getLong("id")).stream().findFirst().get();
     }
 
-    private void assertEqualsUser(User user){
-        assertEquals(USERMAIL, user.getEmail());
-        assertEquals(USERNAME, user.getUsername());
-        assertEquals(FIRSTNAME, user.getFirstname());
-        assertEquals(LASTNAME, user.getLastname());
-        assertEquals(Locale.of(LOCALE), user.getLocale());
-        assertEquals(CAREER.getId(), user.getCareer().getId());
-        assertEquals(UNIVERSITY.getId(), user.getUniversity().getId());
-        assertEquals(PROFILEPICID, user.getProfilePictureId());
-    }
-
     @Test
     public void testCreateUser(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, "journeys", USER_TABLE); //journeys included due to deletion constraints
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, USER_TABLE);
         final User user = userDao.create(USERMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, PROFILEPICID, PASSWORD, Locale.of(LOCALE));
 
-        assertNotNull(user);
         assertEqualsUser(user);
         assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, USER_TABLE));
     }
@@ -154,24 +191,9 @@ public class UserJdbcDaoTest {
 
     @Test
     public void testFindUserById(){
-        final Map<String, Object> params = Map.of(
-            "username", USERNAME,
-            "email", USERMAIL,
-            "firstname", FIRSTNAME,
-            "lastname", LASTNAME,
-            "university", UNIVERSITY.getId(),
-            "career_id", CAREER.getId(),
-            "profile_picture_id", PROFILEPICID,
-            "password", PASSWORD,
-            "language", LOCALE);
-        final long id = insert.executeAndReturnKey(params).longValue();
+        final long id = insertUserGeneric();
 
-        final Optional<User> maybeUser = userDao.findById(id);
-
-        assertNotNull(maybeUser);
-        assertTrue(maybeUser.isPresent());
-        final User user = maybeUser.get();
-        assertEqualsUser(user);
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst());
     }
     @Test
     public void testFindUserByIdMissing(){
@@ -181,120 +203,81 @@ public class UserJdbcDaoTest {
     }
     @Test
     public void testFindUserByEmail(){
-        final Map<String, Object> params = Map.of(
-            "username", USERNAME,
-            "email", USERMAIL,
-            "firstname", FIRSTNAME,
-            "lastname", LASTNAME,
-            "university", UNIVERSITY.getId(),
-            "career_id", CAREER.getId(),
-            "profile_picture_id", PROFILEPICID,
-            "password", PASSWORD,
-            "language", LOCALE,
-        "roles", "user");
-        insert.execute(params);
+        insertUserGeneric();
 
         final Optional<User> maybeUser = userDao.findByEmail(USERMAIL);
 
-        assertNotNull(maybeUser);
-        assertTrue(maybeUser.isPresent());
-        final User user = maybeUser.get();
-        assertEqualsUser(user);
+        assertEqualsMaybeUser(maybeUser);
     }
     @Test
     public void testFindUserByEmailMissing(){
-        final Optional<User> maybeUser = userDao.findByEmail("totallyRealEmail@legitEmailService.com");
+        final Optional<User> maybeUser = userDao.findByEmail(FAKEEMAIL);
         assertNotNull(maybeUser);
         assertFalse(maybeUser.isPresent());
     }
     @Test
     public void testFindUserByEmailWithPassword(){
-        final Map<String, Object> params = Map.of(
-            "username", USERNAME,
-            "email", USERMAIL,
-            "firstname", FIRSTNAME,
-            "lastname", LASTNAME,
-            "university", UNIVERSITY.getId(),
-            "career_id", CAREER.getId(),
-            "profile_picture_id", PROFILEPICID,
-            "password", PASSWORD,
-            "language", LOCALE);
-        insert.execute(params);
+        insertUserGeneric();
 
         final Optional<UserPassword> maybeUser = userDao.findByEmailWithPass(USERMAIL);
 
         assertNotNull(maybeUser);
         assertTrue(maybeUser.isPresent());
-        final User user = maybeUser.get();
+        final UserPassword user = maybeUser.get();
+        assertEquals(PASSWORD, user.getPassword());
         assertEqualsUser(user);
     }
     @Test
     public void testFindUserByEmailWithPasswordMissing(){
-        final Optional<UserPassword> maybeUser = userDao.findByEmailWithPass("totallyRealEmail@legitEmailService.com");
+        final Optional<UserPassword> maybeUser = userDao.findByEmailWithPass(FAKEEMAIL);
         assertNotNull(maybeUser);
         assertFalse(maybeUser.isPresent());
     }
     @Test
     public void testFindUserByUsername(){
-        final Map<String, Object> params = Map.of(
-            "username", USERNAME,
-            "email", USERMAIL,
-            "firstname", FIRSTNAME,
-            "lastname", LASTNAME,
-            "university", UNIVERSITY.getId(),
-            "career_id", CAREER.getId(),
-            "profile_picture_id", PROFILEPICID,
-            "password", PASSWORD,
-            "language", LOCALE);
-        insert.execute(params);
+        insertUserGeneric();
 
         final Optional<User> maybeUser = userDao.findByUsername(USERNAME);
-
-        assertNotNull(maybeUser);
-        assertTrue(maybeUser.isPresent());
-        final User user = maybeUser.get();
-        assertEqualsUser(user);
+        assertEqualsMaybeUser(maybeUser);
     }
     @Test
     public void testFindUserByUsernameMissing(){
-        final Optional<User> maybeUser = userDao.findByUsername("totallyLegitUser");
+        final Optional<User> maybeUser = userDao.findByUsername(FAKEUSERNAME);
         assertFalse(maybeUser.isPresent());
     }
+
     @Test
     public void testChangePassword(){
-        final Map<String, Object> params = Map.of(
-            "username", USERNAME,
-            "email", USERMAIL,
-            "firstname", FIRSTNAME,
-            "lastname", LASTNAME,
-            "university", UNIVERSITY.getId(),
-            "career_id", CAREER.getId(),
-            "profile_picture_id", PROFILEPICID,
-            "password", "wrongPassword",
-            "language", LOCALE);
-        insert.execute(params);
+        final long id = insertUserOverride(Map.of("password", FAKEPASSWORD));
 
         userDao.changePassword(USERMAIL, PASSWORD);
 
-        final Optional<String> newPassword = jdbcTemplate.query("SELECT PASSWORD FROM users WHERE email = ?", (rs, rowNum) -> rs.getString("password"), USERMAIL).stream().findFirst();
-        assertNotNull(newPassword);
-        assertTrue(newPassword.isPresent());
-        assertEquals(PASSWORD, newPassword.get());
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst());
+    }
+    @Test
+    public void testChangePasswordMissingUser(){
+        userDao.changePassword(USERMAIL, PASSWORD);
+    }
+    @Test
+    public void testChangePasswordMissingPassword(){
+        final long id = insertUserOverride(Map.of("password", PASSWORD));
+
+        userDao.changePassword(USERMAIL, null);
+
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst());
+    }
+    @Test
+    public void testChangePasswordEmptyPassword(){
+        final long id = insertUserOverride(Map.of("password", PASSWORD));
+
+        userDao.changePassword(USERMAIL, "");
+
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst());
     }
 
     @Test
     public void testExistsByUsernameDoesExist(){
-        final Map<String, Object> params = Map.of(
-            "username", USERNAME,
-            "email", USERMAIL,
-            "firstname", FIRSTNAME,
-            "lastname", LASTNAME,
-            "university", UNIVERSITY.getId(),
-            "career_id", CAREER.getId(),
-            "profile_picture_id", PROFILEPICID,
-            "password", PASSWORD,
-            "language", LOCALE);
-        insert.execute(params);
+        insertUserGeneric();
 
         final boolean exists = userDao.existsByUsername(USERNAME);
 
@@ -302,23 +285,13 @@ public class UserJdbcDaoTest {
     }
     @Test
     public void testExistsByUsernameDoesNotExist(){
-        final boolean exists = userDao.existsByUsername("totallyLegitUser");
+        final boolean exists = userDao.existsByUsername(FAKEUSERNAME);
 
         assertFalse(exists);
     }
     @Test
     public void testExistsByEmailDoesExist(){
-        final Map<String, Object> params = Map.of(
-            "username", USERNAME,
-            "email", USERMAIL,
-            "firstname", FIRSTNAME,
-            "lastname", LASTNAME,
-            "university", UNIVERSITY.getId(),
-            "career_id", CAREER.getId(),
-            "profile_picture_id", PROFILEPICID,
-            "password", PASSWORD,
-            "language", LOCALE);
-        insert.execute(params);
+        insertUserGeneric();
 
         final boolean exists = userDao.existsByEmail(USERMAIL);
 
@@ -326,163 +299,245 @@ public class UserJdbcDaoTest {
     }
     @Test
     public void testExistsByEmailDoesNotExist(){
-        final boolean exists = userDao.existsByEmail("totallyRealEmail@legitEmailService.com");
+        final boolean exists = userDao.existsByEmail(FAKEEMAIL);
 
         assertFalse(exists);
     }
 
     @Test
     public void testUpdateProfileInfo(){
-        final Map<String, Object> params = Map.of(
-            "username", "wrongUsername",
-            "email", USERMAIL,
-            "firstname", "wrongFirstname",
-            "lastname", "WrongLastName",
-            "university", UNIVERSITY.getId(),
-            "career_id", CAREER.getId(),
-            "profile_picture_id", PROFILEPICID,
-            "password", PASSWORD,
-            "language", LOCALE);
-        final long id = insert.executeAndReturnKey(params).longValue();
+        final long id = insertUserOverride(Map.of("username", FAKEUSERNAME, "firstname", FAKEFIRSTNAME, "lastname", FAKELASTNAME));
 
         userDao.updateProfileInfo(id, FIRSTNAME, LASTNAME, USERNAME);
 
-        final Optional<User> maybeUser = jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst();
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst());
+    }
+    @Test
+    public void testUpdateProfileInfoUsername(){
+        final long id = insertUserOverride(Map.of("username", FAKEUSERNAME, "firstname", FIRSTNAME, "lastname", LASTNAME));
 
-        assertNotNull(maybeUser);
-        assertTrue(maybeUser.isPresent());
-        final User user = maybeUser.get();
-        assertEqualsUser(user);    
+        userDao.updateProfileInfo(id, null, null, USERNAME);
+
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst());
+    }
+    @Test
+    public void testUpdateProfileInfoFirstName(){
+        final long id = insertUserOverride(Map.of("username", USERNAME, "firstname", FAKEFIRSTNAME, "lastname", LASTNAME));
+
+        userDao.updateProfileInfo(id, FIRSTNAME, null, null);
+
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst());
+    }
+    @Test
+    public void testUpdateProfileInfoLastName(){
+        final long id = insertUserOverride(Map.of("username", USERNAME, "firstname", FIRSTNAME, "lastname", FAKELASTNAME));
+
+        userDao.updateProfileInfo(id, null, LASTNAME, null);
+
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst());
     }
     @Test(expected = DataAccessException.class)
     public void testUpdateProfileInfoDuplicatedUsername(){
-        final Map<String, Object> params = Map.of(
-            "username", USERNAME,
-            "email", "anotherMail@gmail.com",
-            "firstname", "wrongFirstname",
-            "lastname", "WrongLastName",
-            "university", UNIVERSITY.getId(),
-            "career_id", CAREER.getId(),
-            "profile_picture_id", PROFILEPICID,
-            "password", PASSWORD,
-            "language", LOCALE);
-        insert.execute(params);
-        final Map<String, Object> params2 = Map.of(
-            "username", "wrongUsername",
-            "email", USERMAIL,
-            "firstname", "wrongFirstname",
-            "lastname", "WrongLastName",
-            "university", UNIVERSITY.getId(),
-            "career_id", CAREER.getId(),
-            "profile_picture_id", PROFILEPICID,
-            "password", PASSWORD,
-            "language", LOCALE);
-        final long id = insert.executeAndReturnKey(params2).longValue();
+        insertUserOverride(Map.of("email", FAKEEMAIL, "firstname", FAKEFIRSTNAME, "lastname", FAKELASTNAME));
+        final long id = insertUserOverride(Map.of("username", FAKEUSERNAME));
 
         userDao.updateProfileInfo(id, FIRSTNAME, LASTNAME, USERNAME);
     }
     @Test
     public void testUpdateProfileInfoNoParams(){
-        final Map<String, Object> params2 = Map.of(
-            "username", USERNAME,
-            "email", USERMAIL,
-            "firstname", FIRSTNAME,
-            "lastname", LASTNAME,
-            "university", UNIVERSITY.getId(),
-            "career_id", CAREER.getId(),
-            "profile_picture_id", PROFILEPICID,
-            "password", PASSWORD,
-            "language", LOCALE);
-        final long id = insert.executeAndReturnKey(params2).longValue();
+        final long id = insertUserGeneric();
 
         userDao.updateProfileInfo(id, null, null, null);
 
-        final Optional<User> maybeUser = jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst();
-
-        assertNotNull(maybeUser);
-        assertTrue(maybeUser.isPresent());
-        final User user = maybeUser.get();
-        assertEqualsUser(user);   
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst()); 
     }
     @Test
     public void testUpdateProfileInfoMissingUser(){
-        userDao.updateProfileInfo(123123, null, null, null);  
+        userDao.updateProfileInfo(123123, FIRSTNAME, LASTNAME, USERNAME);  
         //No checks needed, if it tried to update the empty DB, we'd get an exception and fail automatically.
     }
 
     @Test
     public void testUpdateLocale(){
-        final Map<String, Object> params2 = Map.of(
-            "username", USERNAME,
-            "email", USERMAIL,
-            "firstname", FIRSTNAME,
-            "lastname", LASTNAME,
-            "university", UNIVERSITY.getId(),
-            "career_id", CAREER.getId(),
-            "profile_picture_id", PROFILEPICID,
-            "password", PASSWORD,
-            "language", "en");
-        final long id = insert.executeAndReturnKey(params2).longValue();
+        final long id = insertUserOverride(Map.of("locale", FAKELOCALE));
 
         userDao.updateLocale(id, Locale.of(LOCALE));
 
-        final Optional<User> maybeUser = jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst();
-
-        assertNotNull(maybeUser);
-        assertTrue(maybeUser.isPresent());
-        final User user = maybeUser.get();
-        assertEqualsUser(user);   
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst()); 
     }
     @Test(expected = DataAccessException.class)
     public void testUpdateLocaleWrongLocale(){
-        final Map<String, Object> params2 = Map.of(
-            "username", USERNAME,
-            "email", USERMAIL,
-            "firstname", FIRSTNAME,
-            "lastname", LASTNAME,
-            "university", UNIVERSITY.getId(),
-            "career_id", CAREER.getId(),
-            "profile_picture_id", PROFILEPICID,
-            "password", PASSWORD,
-            "language", "en");
-        final long id = insert.executeAndReturnKey(params2).longValue();
+        final long id = insertUserGeneric();
 
-        userDao.updateLocale(id, Locale.of("jp"));  
+        userDao.updateLocale(id, Locale.of(WRONGLOCALE));  
     }
     @Test
     public void testUpdateLocaleMissingLocale(){
-        final Map<String, Object> params2 = Map.of(
-            "username", USERNAME,
-            "email", USERMAIL,
-            "firstname", FIRSTNAME,
-            "lastname", LASTNAME,
-            "university", UNIVERSITY.getId(),
-            "career_id", CAREER.getId(),
-            "profile_picture_id", PROFILEPICID,
-            "password", PASSWORD,
-            "language", LOCALE);
-        final long id = insert.executeAndReturnKey(params2).longValue();
+        final long id = insertUserGeneric();
 
         userDao.updateLocale(id, null);
 
-        final Optional<User> maybeUser = jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst();
-
-        assertNotNull(maybeUser);
-        assertTrue(maybeUser.isPresent());
-        final User user = maybeUser.get();
-        assertEqualsUser(user);   
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst());   
     }
     @Test
     public void testUpdateLocaleMissingUser(){
         userDao.updateLocale(1321423, Locale.of(LOCALE));  
     }
 
-    // // Academic affiliations
-    // void updateUniversity(long userId, long universityId);
-    // void updateCareer(long userId, long careerId);
+    @Test
+    public void testUpdateProfilePicture(){
+        final long imageId = new SimpleJdbcInsert(ds).withTableName(IMAGES_TABLE).usingGeneratedKeyColumns("id")
+            .executeAndReturnKey(Map.of("content", FAKEEMAIL.getBytes())).longValue();
+        final long userid = insertUserOverride(Map.of("profilepic", imageId));
+        
+        userDao.updateProfilePicture(userid, PROFILEPICID);
+        
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+    }
+    @Test(expected = DataAccessException.class)
+    public void testUpdateProfilePictureWrongPicture(){
+        final long userid = insertUserGeneric();
 
-    // // Profile picture
-    // void updateProfilePicture(long userId, long profilePictureId);
+        userDao.updateProfilePicture(userid, 123411234);
+    }
+    @Test
+    public void testUpdateProfilePictureWrongUser(){
+        userDao.updateProfilePicture(1234, PROFILEPICID);
+    }
 
-    // void update(long userId, String firstname, String lastname, String username, Long universityId, Long careerId, Locale locale);
+    @Test
+    public void testUpdateUniversity(){
+        final long universityId = new SimpleJdbcInsert(ds).withTableName(UNIVERSITIES_TABLE).usingGeneratedKeyColumns("id")
+            .executeAndReturnKey(Map.of(
+                "name", "Universidad de muy largo", 
+                "abbreviation", "UBA", 
+                "city_id", jdbcTemplate.queryForObject("SELECT id FROM cities LIMIT 1", Long.class)
+            )).longValue();
+        final long userid = insertUserOverride(Map.of("university", universityId));
+
+        userDao.updateUniversity(userid, UNIVERSITY.getId());
+
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+    }
+    @Test(expected = DataAccessException.class)
+    public void testUpdateUniversityWrongUniversity(){
+        final long userid = insertUserGeneric();
+
+        userDao.updateUniversity(userid, 12341234);
+    }
+    @Test
+    public void testUpdateUniversityWrongUser(){
+        userDao.updateUniversity(13241234, 12341234);
+    }
+
+    @Test
+    public void testUpdateCareer(){
+        final long careerId = new SimpleJdbcInsert(ds).withTableName(CAREERS_TABLE).usingGeneratedKeyColumns("id")
+            .executeAndReturnKey(Map.of("name", "Abogacia")).longValue();
+        final long userid = insertUserOverride(Map.of("career", careerId));
+
+        userDao.updateCareer(userid, CAREER.getId());
+
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+    }
+    @Test(expected = DataAccessException.class)
+    public void testUpdateCareerWrongCareer(){
+        final long userid = insertUserGeneric();
+
+        userDao.updateCareer(userid, 12341234);
+    }
+    @Test
+    public void testUpdateCareerWrongUser(){
+        userDao.updateCareer(13241234, 12341234);
+    }
+
+    @Test
+    public void testUpdateGeneric(){
+        final long userid = insertUserGeneric();
+
+        userDao.update(userid, FIRSTNAME, LASTNAME, USERNAME, UNIVERSITY.getId(), CAREER.getId(), Locale.of(LOCALE));
+        
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+    }
+    @Test
+    public void testUpdateFirstname(){
+        final long userid = insertUserGeneric();
+
+        userDao.update(userid, FIRSTNAME, null, null, null, null, null);
+        
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+    }
+    @Test
+    public void testUpdateLastname(){
+        final long userid = insertUserGeneric();
+
+        userDao.update(userid, null, LASTNAME, null, null, null, null);
+        
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+    }
+    @Test
+    public void testUpdateUsername(){
+        final long userid = insertUserGeneric();
+
+        userDao.update(userid, null, null, USERNAME, null, null, null);
+        
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+    }
+    @Test
+    public void testUpdateGenericUniversity(){
+        final long userid = insertUserGeneric();
+
+        userDao.update(userid, null, null, null, UNIVERSITY.getId(), null, null);
+        
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+    }
+    @Test
+    public void testUpdateCareerGeneric(){
+        final long userid = insertUserGeneric();
+
+        userDao.update(userid, null, null, null, null, CAREER.getId(), null);
+        
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+    }
+    @Test
+    public void testUpdateLocaleGeneric(){
+        final long userid = insertUserGeneric();
+
+        userDao.update(userid, null, null, null, null, null, Locale.of(LOCALE));
+        
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+    }
+    @Test
+    public void testUpdateWrongUser(){
+        userDao.update(12341234, FIRSTNAME, LASTNAME, USERNAME, UNIVERSITY.getId(), CAREER.getId(), Locale.of(LOCALE));
+    }
+    @Test
+    public void testUpdateNoArguments(){
+        final long userid = insertUserGeneric();
+
+        userDao.update(userid, null, null, null, null, null, null);
+        
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());    
+    }
+
+    @Test
+    public void testGetAllUsers(){
+        insertUserGeneric();
+
+        List<User> users = userDao.getAllUsers();
+
+        assertNotNull(users);
+        assertEquals(1, users.size());
+        assertEqualsUser(users.getFirst());
+    }
+    @Test 
+    public void testGetAllUsersNoUsers(){
+        List<User> users = userDao.getAllUsers();
+
+        assertNotNull(users);
+        assertEquals(0, users.size());
+    }
+
+    //    public List<User> getAllUsers() {
+
 }   

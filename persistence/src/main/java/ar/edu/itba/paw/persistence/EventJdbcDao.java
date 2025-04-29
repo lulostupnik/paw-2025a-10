@@ -20,6 +20,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import ar.edu.itba.paw.interfaces.persistence.EventDao;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class EventJdbcDao implements EventDao {
@@ -488,5 +489,33 @@ public class EventJdbcDao implements EventDao {
                 userId, userId
         );
     }
+
+@Override
+public void updateData(long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId/*, long userId*/) {
+    int rowsUpdated = jdbcTemplate.update("""
+        UPDATE events
+           SET city_id = ?,
+               event_date = ?,
+               description = ?,
+               title = ?,
+               event_time = ?,
+               address = ?,
+               attendees_limit = ?
+         WHERE id = ?
+         """,
+            cityId,
+            date,
+            description,
+            title,
+            (time != null) ? Time.valueOf(time) : null,
+            address,
+            attendeesLimit,
+            eventId
+    );
+
+}
+
+
+
 
 }

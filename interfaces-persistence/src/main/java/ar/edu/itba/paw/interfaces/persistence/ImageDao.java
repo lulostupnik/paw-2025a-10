@@ -7,4 +7,6 @@ public interface ImageDao {
     long saveImage(byte[] imageData);
     Optional<Image> getImageById(long id);
     void deleteImage(long id);
+
+    public void updateImage(long id, byte[] newContent);
 }

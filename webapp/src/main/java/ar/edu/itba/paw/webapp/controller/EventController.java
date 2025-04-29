@@ -19,6 +19,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
@@ -213,5 +217,102 @@ public class EventController {
             return new ModelAndView("redirect:/events/{id}");
         }
     }
-    
+    //@TODO cambiar a spring security
+    @RequestMapping(value = "/{id}/update", method = GET)
+    public ModelAndView showUpdateEventForm(@PathVariable("id") int eventId,
+                                            @ModelAttribute("username") String username) {
+
+        LOGGER.debug("User {} requested to update event {}", username, eventId);
+
+        Optional<Event> maybeEvent = eventService.getEventById(eventId);
+        if (maybeEvent.isEmpty()) {
+            LOGGER.warn("Event {} not found", eventId);
+            return new ModelAndView("events/not_found"); //DEBERIA TIRAR UN error 404
+        }
+
+        Event event = maybeEvent.get();
+
+
+        if (!event.getUser().getEmail().equals(username)) {
+            LOGGER.warn("User {} is not owner of event {}", username, eventId);
+            return new ModelAndView("errors/403"); // Forbidden page
+        }
+
+        // 3. Prefill a CreateEventForm with existing event data
+        CreateEventForm form = new CreateEventForm();
+        form.setCity(event.getEventCity().getName());
+        form.setDate(event.getDate());
+        form.setDescription(event.getDescription());
+        form.setTitle(event.getTitle());
+        form.setTime(event.getTime().orElse(null));
+        form.setAddress(event.getAddress());
+        form.setAttendeesLimit(event.getAttendeesLimit().orElse(null));
+
+        // 4. Build the response
+        ModelAndView mav = new ModelAndView("events/edit");
+        mav.addObject("createEventForm", form);
+        addDropdownAttributes(mav);
+        mav.addObject("eventId", eventId);
+        return mav;
+    }
+
+    //OBS para checkear. no se porque me deja subir una imagen vacia si uso el create event form.
+    @RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
+    public ModelAndView updateEvent(@PathVariable("id") int eventId,
+                                    @ModelAttribute("username") String username,
+                                    @ModelAttribute("createEventForm") CreateEventForm form) {
+
+        LOGGER.debug("User {} submitted update for event {}", username, eventId);
+
+        // 1. Validate event existence and ownership
+        Optional<Event> maybeEvent = eventService.getEventById(eventId);
+        if (maybeEvent.isEmpty()) {  //mejor tirar una excepcion y tener un exception handler. AOP
+            LOGGER.warn("Event {} not found", eventId);
+            return new ModelAndView("events/not_found");
+        }
+
+        Event event = maybeEvent.get();
+        if (!event.getUser().getUsername().equals(username)) {   //@TODO mover a spring security.  usar metodo access
+            LOGGER.warn("User {} is not owner of event {}", username, eventId);
+            return new ModelAndView("errors/403"); // Forbidden
+        }
+
+        // 2. Extract flyer content of a new flyer is uploaded
+        Optional<byte[]> flyerContent = Optional.empty();
+        if (form.getFlyer() != null && !form.getFlyer().isEmpty()) {
+            try {
+                flyerContent = Optional.of(form.getFlyer().getBytes());
+            } catch (IOException e) {
+                LOGGER.error("Failed to read flyer file", e);
+                // Optional: add error message to ModelAndView and return to edit page
+                ModelAndView mav = new ModelAndView("events/edit");
+                mav.addObject("createEventForm", form);
+                mav.addObject("eventId", eventId);
+                mav.addObject("errorMessage", "Failed to process uploaded flyer");
+                addDropdownAttributes(mav);
+                return mav;
+            }
+        }
+
+        eventService.editEvent(
+                eventId,
+                form.getCity(),
+                form.getDate(),
+                flyerContent,
+                form.getDescription(),
+                form.getTitle(),
+                form.getTime(),
+                form.getAddress(),
+                form.getAttendeesLimit()
+        );
+
+        LOGGER.info("Event {} updated successfully", eventId);
+
+        // 5. Redirect to the event detail page (or somewhere you want)
+        return new ModelAndView("redirect:/events/" + eventId);
+    }
+
+
+
+
 }

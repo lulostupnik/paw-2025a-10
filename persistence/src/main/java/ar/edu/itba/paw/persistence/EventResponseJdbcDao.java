@@ -6,8 +6,6 @@ import java.util.*;
 import javax.sql.DataSource;
 
 import ar.edu.itba.paw.models.*;
-import ar.edu.itba.paw.models.valueObjects.EmailContent;
-import ar.edu.itba.paw.models.valueObjects.EmailRecipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +33,6 @@ public class EventResponseJdbcDao implements EventResponseDao {
     );
     private static final RowMapper<Long> EVENT_ID_ROW_MAPPER = (rs, rowNum) -> rs.getLong("event_id");
 
-    private static final RowMapper<EmailRecipient> EMAIL_RECIPIENT_ROW_MAPPER = (rs, rowNum) -> EmailRecipient.builder().toEmail(rs.getString("email")).locale(  Locale.of(rs.getString("language"))).build();
 
 
 /*
@@ -175,7 +172,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
 //    }
 
 
-    @Override
+    /*@Override
     public List<EmailRecipient> listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds) {
         StringBuilder query = new StringBuilder("""
         SELECT DISTINCT us.email, us.language
@@ -197,7 +194,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
 
         List<EmailRecipient> emails = jdbcTemplate.query(query.toString(),EMAIL_RECIPIENT_ROW_MAPPER, params.toArray());
         return emails;
-    }
+    }*/
 
     @Override
     public long getEventIdByResponseId(long eventId) {

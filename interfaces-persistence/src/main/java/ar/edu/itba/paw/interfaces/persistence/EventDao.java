@@ -18,30 +18,44 @@ public interface EventDao {
 
     //GET (ONE)
     Optional<Event> findById(long eventId);
+
     //Optional<Event> findByUserId(long userId);
     Optional<Integer> getEventAttendanceLimit(long eventId);
 
 
-
     //LIST
     List<Event> listByQuery(Long cityId, LocalDate date);
+
     List<Event> listAll();
+
     List<Event> getEvents(String email);
+
     List<UserEvent> getRecommendedEvents(String email);
+
     List<Event> getTopEvents();
+
     List<Event> getFullEvents();
 
     void delete(long id);
+
     void deletionMessage(long id, String message);
 
     List<Event> getMyEvents(long userId);
+
     List<Event> getOthersEvents(long userId);
+
     List<UserEvent> getEventsWithAttendanceStatus(long userId);
 
     //PAGE
     Page<Event> getOthersEvents(long userId, int page, int size);
+
     Page<Event> getMyEvents(long userId, int page, int size);
+
     Page<Event> getEvents(String email, int page, int size);
+
     Page<Event> listAll(int page, int size);
+
+    void updateData(long cityid, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId/*, long userId*/);
+
     Page<Event> searchEvents(String search, int page, int size);
 }
