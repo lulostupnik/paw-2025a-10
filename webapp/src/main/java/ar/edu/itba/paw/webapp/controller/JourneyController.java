@@ -123,6 +123,7 @@ public class JourneyController {
 
     @RequestMapping(value = "/{id}")
     public ModelAndView getJourney(@PathVariable long id,
+                                      @ModelAttribute("username") String username,
                                    @Valid @ModelAttribute("replyJourneyForm") final ReplyForm rjf,
                                    BindingResult errors,
                                    @Valid @ModelAttribute("deleteForm") final ReplyForm deleteForm,
@@ -135,7 +136,7 @@ public class JourneyController {
 
         Optional<Journey> journey = js.getJourneyById(id);
 
-        if(journey.isEmpty()){
+        if(journey.isEmpty()){ //cambiar con exception controllerAdvice
             LOGGER.debug("Journey {} not found", id);
             return new ModelAndView("journeys/not_found");
         }
@@ -144,6 +145,7 @@ public class JourneyController {
         final ModelAndView mav = new ModelAndView("journeys/detail");
         mav.addObject("journey", journey.get());
         mav.addObject("journeyResponses", journeyResponses);
+        mav.addObject("isOwner", js.isJourneyOwnedByUser(username,journey.get().getId()));
 
         // Check if there are errors in the delete forms
         if (deleteErrors.hasErrors()) {

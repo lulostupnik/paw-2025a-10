@@ -157,7 +157,7 @@ public class EventController {
 
         LOGGER.debug("Getting info for event {}", id);
         Optional<Event> maybeEvent = eventService.getEventById(id);
-        if (maybeEvent.isEmpty()) {
+        if (maybeEvent.isEmpty()) { // error ControllerAdvice
             LOGGER.warn("Event {} not found", id);
             return new ModelAndView("events/not_found");
         }

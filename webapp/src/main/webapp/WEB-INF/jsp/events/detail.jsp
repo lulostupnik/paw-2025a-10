@@ -70,10 +70,18 @@
             <!-- Back to Events Button -->
 
             <div class="back-navigation">
-                <a href="<c:url value='/events' />" class="back-link">
-                    <img src="<c:url value='/resources/icons/back.svg'/>" alt="Back" class="icon" />
-                    <spring:message code="event.detail.back.to.list" />
-                </a>
+                <c:if test="${not isEventOwner}">
+                    <a href="<c:url value='/events' />" class="back-link">
+                        <img src="<c:url value='/resources/icons/back.svg'/>" alt="Back" class="icon" />
+                        <spring:message code="event.detail.back.to.list" />
+                    </a>
+                </c:if>
+                <c:if test="${isEventOwner}">
+                    <a href="<c:url value='/profile' />" class="back-link">
+                        <img src="<c:url value='/resources/icons/back.svg'/>" alt="Back" class="icon" />
+                        <spring:message code="event.detail.back.to.profile" />
+                    </a>
+                </c:if>
             </div>
 
 
@@ -130,7 +138,8 @@
                             </c:if>
 
                         <!-- Attend Button Section -->
-<div class="attendance-control">
+                            <c:if test="${not isEventOwner}">
+                                <div class="attendance-control">
                             <c:choose>
                                 <c:when test="${not empty username and attend}">
                                     <div class="attendance-status-container">
@@ -163,6 +172,7 @@
                                 </c:when>
                             </c:choose>
                         </div>
+                            </c:if>
                         </div>
                     </div>
                 </div>
