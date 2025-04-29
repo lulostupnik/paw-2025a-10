@@ -167,8 +167,8 @@ public class EmailServiceImpl implements EmailService {
         variables.put("eventId", event.getId());
         variables.put("adminMessage", adminMessage);
 
-        sendHtmlMessage(Optional.empty(),Optional.empty(), eventOwner, "event-deletion-notification", variables,
-                "email.event.deletion.title",Optional.empty());
+        sendHtmlMessage(Optional.empty(),Optional.empty(), eventOwner, "event-deletion", variables,
+                "email.event.deletion.title",Optional.of(new Object[]{event.getTitle()}));
     }
 
     @Override
@@ -177,7 +177,7 @@ public class EmailServiceImpl implements EmailService {
         variables.put("journeyId", journey.getId());
         variables.put("adminMessage", adminMessage);
 
-        sendHtmlMessage(Optional.empty(),Optional.empty(), journeyOwner, "journey-deletion-notification", variables,
+        sendHtmlMessage(Optional.empty(),Optional.empty(), journeyOwner, "journey-deletion", variables,
                 "email.journey.deletion.title", Optional.empty());
     }
 
@@ -188,8 +188,8 @@ public class EmailServiceImpl implements EmailService {
         variables.put("eventId", event.getId());
         variables.put("adminMessage", adminMessage);
 
-        sendHtmlMessage(Optional.empty(),Optional.empty(), eventOwner, "event-modification-notification", variables,
-                "email.event.modification.title", Optional.empty());
+        sendHtmlMessage(Optional.empty(),Optional.empty(), eventOwner, "event-modified", variables,
+                "email.event.modification.title", Optional.of(new Object[]{event.getTitle()}));
     }
 
     @Override
@@ -198,7 +198,7 @@ public class EmailServiceImpl implements EmailService {
         variables.put("journeyId", journey.getId());
         variables.put("adminMessage", adminMessage);
 
-        sendHtmlMessage(Optional.empty(),Optional.empty(), journeyOwner, "journey-modification-notification", variables,
+        sendHtmlMessage(Optional.empty(),Optional.empty(), journeyOwner, "journey-modified", variables,
                 "email.journey.modification.title", Optional.empty());
     }
 }

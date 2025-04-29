@@ -73,7 +73,6 @@ public class EventServiceImpl implements EventService {
     @Override
     public void replyToEvent(String email, long eventId, String message) {
         LOGGER.debug("Replying to event {}", eventId);
-
         LOGGER.debug("Looking for event {}", eventId);
         Event event = eventDao.findById(eventId).orElseThrow(() -> new RuntimeException("Event not found"));
 
@@ -84,19 +83,10 @@ public class EventServiceImpl implements EventService {
         LOGGER.info("Event reply is valid, commiting new reply to persistence");
         eventResponseDao.create(user.getId(), user.getUsername(),eventId, message, LocalDateTime.now());
 
-        LOGGER.info("Sending email notification to event owner");
-
-//        emailService.answerEventMail(
-//                event.getUser(),
-//                message,
-//                user,
-//                event
-//        );
-//        //hago copia de la lista y un add.
-//        LOGGER.info("Notifying all commenters in event about a new comment");
+        LOGGER.info("Sending email notification for the event"); //@TODO mejorar
 
         emailService.answerEventNotification(
-                userDao.listEventRespondersMinusUsers(eventId/*, new ArrayList<>(List.of(user.getId(), event.getUser().getId()))*/),
+                userDao.listEventRespondersMinusUsers(eventId),
                 message,
                 user,
                 event
