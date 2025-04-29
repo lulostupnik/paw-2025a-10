@@ -3,7 +3,6 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.EventResponseDao;
 import ar.edu.itba.paw.interfaces.services.EventResponseService;
 import ar.edu.itba.paw.models.EventResponse;
-import ar.edu.itba.paw.models.valueObjects.EmailRecipient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -34,11 +33,6 @@ public class EventResponseServiceImpl implements EventResponseService {
         eventResponseDao.delete(id);
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public List<EmailRecipient> listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds) {
-        return eventResponseDao.listAllEmailsRespondersMinusUsers(eventId, userIds);
-    }
 
     @Transactional(readOnly = true)
     @Cacheable(value = "eventsByResponseId", key = "#eventResponseId")

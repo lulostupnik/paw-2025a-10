@@ -3,7 +3,6 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
 import ar.edu.itba.paw.interfaces.services.JourneyResponseService;
 import ar.edu.itba.paw.models.JourneyResponse;
-import ar.edu.itba.paw.models.valueObjects.EmailRecipient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -31,12 +30,6 @@ public class JourneyResponseServiceImpl implements JourneyResponseService {
     @Override
     public List<JourneyResponse> listAllFromJourney(long journeyId) {
         return journeyResponseDao.listAllFromJourney(journeyId);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<EmailRecipient> listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds) {
-        return journeyResponseDao.listAllEmailsRespondersMinusUsers(eventId, userIds);
     }
 
     @Transactional

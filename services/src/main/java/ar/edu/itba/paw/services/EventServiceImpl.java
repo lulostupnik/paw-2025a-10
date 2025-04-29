@@ -305,7 +305,7 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new IllegalArgumentException("Event not found"));
 
         // 3. Resolve final values
-        long resolvedCityId = cityDao.findByName(cityName).orElseThrow(() -> new RuntimeException("City not found")).getId();
+        long resolvedCityId = cityService.findByName(cityName).orElseThrow(() -> new RuntimeException("City not found")).getId();
 
        eventDao.updateData(
                 resolvedCityId,
