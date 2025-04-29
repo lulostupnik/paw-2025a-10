@@ -32,16 +32,17 @@ function setupActionButtons() {
             dropdown.id = ""
             dropdown.style.display = "block"
 
-            // Position the dropdown
-            const rect = this.getBoundingClientRect()
-            dropdown.style.position = "absolute"
-            dropdown.style.top = `${rect.bottom}px`
-            dropdown.style.left = `${rect.left}px`
-            dropdown.style.zIndex = "1000"
+            // Set the dropdown position
+            const rect = button.getBoundingClientRect();
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+
+            // Calculate the position to align top-right of dropdown with bottom-right of button
+            dropdown.style.top = `${rect.bottom + scrollTop}px`;
+            dropdown.style.left = `${rect.left + scrollLeft}px`;
 
             // Add the dropdown to the DOM
-            document.body.appendChild(dropdown)
-
+            button.parentNode.insertBefore(dropdown, button.nextSibling)
             // Store the active dropdown
             activeDropdown = dropdown
 
@@ -67,19 +68,19 @@ function setupDropdownItems(dropdown, itemId) {
 
     if (document.getElementById("journeys-tab") && document.getElementById("journeys-tab").classList.contains("active")) {
         editUrl = `/journeys/edit/${itemId}`
-        deleteUrl = `/journeys/delete/${itemId}`
+        deleteUrl = `/journeys/${itemId}/delete`
     } else if (
         document.getElementById("users-tab") &&
         document.getElementById("users-tab").classList.contains("active")
     ) {
         editUrl = `/users/edit/${itemId}`
-        deleteUrl = `/users/delete/${itemId}`
+        deleteUrl = `/users/${itemId}/delete`
     } else if (
         document.getElementById("events-tab") &&
         document.getElementById("events-tab").classList.contains("active")
     ) {
         editUrl = `/events/edit/${itemId}`
-        deleteUrl = `/events/delete/${itemId}`
+        deleteUrl = `/events/${itemId}/delete`
         manageAttendeesUrl = `/events/${itemId}/attendees`
         isEventsTab = true
     }
