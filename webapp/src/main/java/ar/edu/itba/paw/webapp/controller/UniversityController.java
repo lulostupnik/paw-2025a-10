@@ -56,5 +56,11 @@ public class UniversityController {
         );
         return new ModelAndView("redirect:/universities/{id}", "id", uni.getId());
     }
+    @RequestMapping(value= "/{id}", method = GET)
+    public ModelAndView getUniversity(@ModelAttribute("university") final University university) {
+        ModelAndView mav = new ModelAndView("universities/detail");
+        mav.addObject("university", university);
+        return mav;
+    }
 
 }
