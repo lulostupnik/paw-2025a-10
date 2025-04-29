@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
+import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
 import ar.edu.itba.paw.models.*;
 
@@ -25,6 +26,7 @@ import java.util.Optional;
 public class UniversityJdbcDao implements UniversityDao {
     private static Logger LOGGER = LoggerFactory.getLogger(UniversityJdbcDao.class);
 
+    private final CityDao cityDao;
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert simpleJdbcInsert;
 
@@ -49,7 +51,8 @@ public class UniversityJdbcDao implements UniversityDao {
                     JOIN countries co ON ci.country_id = co.id\s""";
 
     @Autowired
-    public UniversityJdbcDao(final DataSource dataSource, SimpleJdbcInsert simpleJdbcInsert){
+    public UniversityJdbcDao(CityDao cityDao, final DataSource dataSource, SimpleJdbcInsert simpleJdbcInsert){
+        this.cityDao = cityDao;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.simpleJdbcInsert = simpleJdbcInsert;
     }
@@ -114,7 +117,7 @@ public class UniversityJdbcDao implements UniversityDao {
         parameters.put("deleted", false);  // Establecer el valor de 'deleted' como 'false'
         final Number keys = simpleJdbcInsert.executeAndReturnKey(parameters);
         LOGGER.debug("Successfully created uni {}", keys.longValue());
-        return new University(keys.longValue(), name, abbreviation, new City(city, null, 0));
+        return new University(keys.longValue(), name, abbreviation, cityDao.findByName(city).get());
     }
 
 }
