@@ -40,7 +40,7 @@ function setupActionButtons() {
             dropdown.style.zIndex = "1000"
 
             // Add the dropdown to the DOM
-            this.parentNode.insertBefore(dropdown, this.nextSibling)
+            document.body.appendChild(dropdown)
 
             // Store the active dropdown
             activeDropdown = dropdown

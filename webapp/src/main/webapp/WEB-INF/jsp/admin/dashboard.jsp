@@ -256,7 +256,7 @@
   </c:if>
 
   <!-- Action Dropdown Menu Template -->
-  <div class="dropdown-menu" id="action-dropdown-template" style="display: none;">
+  <div class="dropdown-menu-dashboard" id="action-dropdown-template" style="display: none;">
     <ul>
       <li class="dropdown-item edit-item">
         <i class="edit-icon"></i> <spring:message code="admin.action.edit" />
