@@ -86,16 +86,16 @@ public class EventServiceImpl implements EventService {
 
         LOGGER.info("Sending email notification to event owner");
 
-        emailService.answerEventMail(
-                event.getUser(),
-                message,
-                user,
-                event
-        );
+//        emailService.answerEventMail(
+//                event.getUser(),
+//                message,
+//                user,
+//                event
+//        );
+//        //hago copia de la lista y un add.
+//        LOGGER.info("Notifying all commenters in event about a new comment");
 
-        LOGGER.info("Notifying all commenters in event about a new comment");
-
-        emailService.answerEventRespondersNotification(
+        emailService.answerEventNotification(
                 userDao.listEventRespondersMinusUsers(eventId/*, new ArrayList<>(List.of(user.getId(), event.getUser().getId()))*/),
                 message,
                 user,

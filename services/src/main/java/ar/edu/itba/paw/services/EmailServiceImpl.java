@@ -93,27 +93,31 @@ public class EmailServiceImpl implements EmailService {
 
 
     @Override
-    public void answerEventRespondersNotification(List<User> emailRecipients, String message, User commenter, Event event) {
+    public void answerEventNotification(List<User> oldRepliers, String message, User commenter, Event event) {
         User eventUser = event.getUser();
 
         byte[] profilePictureData = userService.getProfilePictureData(commenter);
 
-            Map<String, Object> variables = buildVariables(
+        Map<String, Object> variables = buildVariables(
                 commenter.getFirstname(), commenter.getLastname(),
                 commenter.getUsername(), commenter.getCareer().getName(),
                 commenter.getUniversity().getName(),message,
                 profilePictureData, "eventId", event.getId());
 
-        for(User recipient : emailRecipients){
+        for(User recipient : oldRepliers){
             if(recipient.getEmail().equals(eventUser.getEmail()) || recipient.getEmail().equals(commenter.getEmail())){
                 continue;  //no se si es buen estilo // o hace falta
             }
             sendHtmlMessage(profilePictureData, recipient,"event-new-comment", variables, "email.event.comment.notification.title", new Object[]{});
         }
+        if(!commenter.getUsername().equals(eventUser.getUsername())){
+            sendHtmlMessage(profilePictureData,eventUser, "event-response", variables, "email.event.reply.title", new Object[]{});
+        }
+
     }
 
     @Override
-    public void answerJourneyRespondersNotification(List<User> emailRecipients, String message, User commenter, Journey journey) {
+    public void answerJourneyNotification(List<User> oldRepliers, String message, User commenter, Journey journey) {
         User journeyUser = journey.getUser();
         byte[] profilePictureData = userService.getProfilePictureData(commenter);
 
@@ -127,15 +131,19 @@ public class EmailServiceImpl implements EmailService {
 
 
 
-        for(User recipient: emailRecipients){
+        for(User recipient: oldRepliers){
             if(recipient.getEmail().equals(journeyUser.getEmail()) || recipient.getEmail().equals(commenter.getEmail())){
-                continue;  //LULO no se si es buen estilo // o hace falta
+                continue;
             }
             sendHtmlMessage(profilePictureData,recipient, "journey-new-comment", variables, "email.journey.comment.notification.title", new Object[]{});
         }
+        if(!commenter.getUsername().equals(journeyUser.getUsername())){
+            sendHtmlMessage(profilePictureData, journeyUser, "journey-response", variables, "email.journey.reply.subject", new Object[]{});
+        }
+
     }
 
-
+/*
     @Override
     public void answerEventMail(User emailRecipient, String message, User commenter, Event event){
         User eventUser = event.getUser();
@@ -172,6 +180,6 @@ public class EmailServiceImpl implements EmailService {
 
 
         sendHtmlMessage(profilePictureData, emailRecipient, "journey-response", variables, "email.journey.reply.subject", new Object[]{});
-    }
+    }*/
 }
 

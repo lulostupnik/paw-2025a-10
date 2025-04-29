@@ -381,29 +381,16 @@ public class UserJdbcDao implements UserDao {
         List<Object> params = new ArrayList<>();
         params.add(journeyId);
 
-       /* if (userIds != null && !userIds.isEmpty()) {
-            query.append(" AND jr.user_id NOT IN (");
-            query.append("?,".repeat(userIds.size()));
-            query.setLength(query.length() - 1); // Remove last comma
-            query.append(")");
-            params.addAll(userIds);
-        }*/
         return jdbcTemplate.query(query,USER_ROW_MAPPER, params.toArray());
     }
 
     @Override
-    public List<User> listEventRespondersMinusUsers(long eventId/*, List<Long> userIds*/) {
+    public List<User> listEventRespondersMinusUsers(long eventId) {
         String query = QUERY_DISTINCT + "JOIN event_responses er ON er.user_id = u.id WHERE er.event_id = ?";
         List<Object> params = new ArrayList<>();
         params.add(eventId);
 
-        /*if (userIds != null && !userIds.isEmpty()) {
-            query.append(" AND er.user_id NOT IN (");
-            query.append("?,".repeat(userIds.size()));
-            query.setLength(query.length() - 1); // Remove last comma
-            query.append(")");
-            params.addAll(userIds);
-        }*/
+
         return jdbcTemplate.query(query,USER_ROW_MAPPER, params.toArray());
     }
 

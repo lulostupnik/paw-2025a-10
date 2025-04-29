@@ -111,19 +111,18 @@ public class JourneyServiceImpl implements JourneyService {
         List<Interest> interests = interestService.findByUserId(journey.getUser().getId());
         interestService.updateScoreByInterests(interests, user.getId());
 
-        LOGGER.info("Sending email notification to journey owner");
 
+//
+//        emailService.answerJourneyMail(
+//                journey.getUser(),
+//                message,
+//                user,
+//                journey
+//        );
 
-        emailService.answerJourneyMail(
-                journey.getUser(),
-                message,
-                user,
-                journey
-        );
+//        LOGGER.info("Notifying all commenters in journey about a new comment");
 
-        LOGGER.info("Notifying all commenters in journey about a new comment");
-
-        emailService.answerJourneyRespondersNotification(
+        emailService.answerJourneyNotification(
                 userDao.listJourneyRespondersMinusUsers(journeyId/*, new ArrayList<>(List.of(user.getId(), journey.getUser().getId()))*/),
                 message,
                 user,
