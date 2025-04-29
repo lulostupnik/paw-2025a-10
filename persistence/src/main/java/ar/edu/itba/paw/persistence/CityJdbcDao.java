@@ -3,6 +3,7 @@ import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.models.City;
 
 import ar.edu.itba.paw.models.CursorPage;
+import ar.edu.itba.paw.models.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,8 @@ public class CityJdbcDao implements CityDao {
             rs.getLong("city_id")
     );
 
-    private final static String QUERY = "SELECT ci.name as city_name, ci.id as city_id, co.name as country_name FROM cities ci, countries co WHERE ci.country_id = co.id ";
+    private final static String SELECT_CLAUSE = "SELECT ci.name as city_name, ci.id as city_id, co.name as country_name";
+    private final static String QUERY = SELECT_CLAUSE + " FROM cities ci, countries co WHERE ci.country_id = co.id ";
 
     // private static final RowMapper<City> SIMPLE_CITY_ROW_MAPPER = (rs, rowNum) -> new City(rs.getString("name"), rs.getString("country"), rs.getLong("id"));
 
@@ -93,6 +95,14 @@ public class CityJdbcDao implements CityDao {
     public List<City> getAllCities() {
         LOGGER.debug("Querying DB for all cities");
         return jdbcTemplate.query(QUERY + " ORDER BY city_name", CITY_ROW_MAPPER);
+    }
+
+    @Override
+    public Page<City> getAllCities(int page, int pageSize) {
+        int offset = (page - 1) * pageSize;
+        StringBuilder query = new StringBuilder(SELECT_CLAUSE);
+        query.append(" FROM (SELECT * FROM cities ci LIMIT ? OFFSET ?) as ci, countries co WHERE ci.country_id = co.id ");
+        return new Page<>(jdbcTemplate.query(query.toString(),CITY_ROW_MAPPER,page,offset),page);
     }
 
     @Override

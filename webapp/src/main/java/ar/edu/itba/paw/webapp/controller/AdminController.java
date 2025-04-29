@@ -15,14 +15,18 @@ public class AdminController {
     private final JourneyService journeyService;
     private final UniversityService universityService;
     private final InterestService interestService;
+    private final CityService cityService;
+    private final CareerService careerService;
 
     @Autowired
-    public AdminController(EventService eventService, UserService userService, JourneyService journeyService, UniversityService universityService, InterestService interestService) {
+    public AdminController(EventService eventService, UserService userService, JourneyService journeyService, UniversityService universityService, InterestService interestService, CityService cityService, CareerService careerService) {
         this.eventService = eventService;
         this.userService = userService;
         this.journeyService = journeyService;
         this.universityService = universityService;
         this.interestService = interestService;
+        this.cityService = cityService;
+        this.careerService = careerService;
     }
 
     @RequestMapping("/events")
@@ -75,23 +79,24 @@ public class AdminController {
 
         return mav;
     }
-//
-//    @RequestMapping("/careers")
-//    public ModelAndView dashboardCareers(
-//            @RequestParam(value = "page", defaultValue = "1") int page,
-//            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-//            @RequestParam(value = "search", required = false) String search) {
-//
-//        ModelAndView mav = new ModelAndView("/admin/dashboard");
-//
-//        if (search != null && !search.isEmpty()) {
+
+    @RequestMapping("/careers")
+    public ModelAndView dashboardCareers(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(value = "search", required = false) String search) {
+
+        ModelAndView mav = new ModelAndView("/admin/dashboard");
+
+        if (search != null && !search.isEmpty()) {
 //            mav.addObject("pagedCareers", userService.searchCareers(search, page, pageSize));
-//        } else {
-//            mav.addObject("pagedCareers", userService.getAllCareers(page, pageSize));
-//        }
-//
-//        return mav;
-//    }
+        } else {
+            mav.addObject("pagedCareers", careerService.getAllCareers(page, pageSize));
+        }
+
+        return mav;
+    }
+
     @RequestMapping("/universities")
     public ModelAndView dashboardUniversities(
             @RequestParam(value = "page", defaultValue = "1") int page,
@@ -125,5 +130,23 @@ public class AdminController {
 
         return mav;
     }
+
+    @RequestMapping("/cities")
+    public ModelAndView dashboardCities(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(value = "search", required = false) String search) {
+
+        ModelAndView mav = new ModelAndView("/admin/dashboard");
+
+        if (search != null && !search.isEmpty()) {
+//            mav.addObject("pagedInterests", userService.searchInterests(search, page, pageSize));
+        } else {
+            mav.addObject("pagedCities", cityService.getAllCities(page, pageSize));
+        }
+
+        return mav;
+    }
+
 }
 

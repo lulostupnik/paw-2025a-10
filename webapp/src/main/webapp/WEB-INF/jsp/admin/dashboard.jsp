@@ -37,6 +37,12 @@
     <a href="<c:url value='/dashboard/interests'/>" class="tab-button ${pagedInterests != null ? 'active' : ''}">
       <spring:message code="admin.tab.interests" />
     </a>
+    <a href="<c:url value='/dashboard/cities'/>" class="tab-button ${pagedCities != null ? 'active' : ''}">
+      <spring:message code="admin.tab.cities" />
+    </a>
+    <a href="<c:url value='/dashboard/careers'/>" class="tab-button ${pagedCareers != null ? 'active' : ''}">
+      <spring:message code="admin.tab.careers" />
+    </a>
   </div>
 
   <!-- Include the appropriate tab content based on which tab is active -->
@@ -58,6 +64,14 @@
 
   <c:if test="${pagedInterests != null}">
     <jsp:include page="tabs/interests-tab.jsp" />
+  </c:if>
+
+  <c:if test="${pagedCities != null}">
+    <jsp:include page="tabs/cities-tab.jsp" />
+  </c:if>
+
+  <c:if test="${pagedCareers != null}">
+    <jsp:include page="tabs/career-tab.jsp" />
   </c:if>
 </div>
 
