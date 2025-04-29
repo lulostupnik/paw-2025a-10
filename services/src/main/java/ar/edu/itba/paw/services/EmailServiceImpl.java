@@ -21,8 +21,10 @@ import org.thymeleaf.context.Context;
 import javax.activation.DataSource;
 import javax.mail.internet.MimeMessage;
 import javax.mail.util.ByteArrayDataSource;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 @Service
@@ -50,11 +52,11 @@ public class EmailServiceImpl implements EmailService {
         this.userService = userService;
     }
 
-    private void sendHtmlMessage(byte[] image, User emailRecipient, String templateName, Map<String, Object> variables, String subjectKey, Object[] subjectArgs) {
+    private void sendHtmlMessage(Optional<byte[]> maybeImage,Optional<String> maybeImageCid, User emailRecipient, String templateName, Map<String, Object> variables, String subjectKey, Optional<Object[]> maybeSubjectArgs) {
         try {
             String subject = messageSource.getMessage(
                     subjectKey,
-                    subjectArgs,
+                    maybeSubjectArgs.orElse(null),
                     emailRecipient.getLocale()
             );
 
@@ -67,8 +69,11 @@ public class EmailServiceImpl implements EmailService {
             helper.setTo(emailRecipient.getEmail());
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
-            DataSource imageSource = new ByteArrayDataSource(image, "image/jpeg");  //Preguntar: no lo valido porque emailMessage hace que el byteArray sea notNull.
-            helper.addInline("profileImage", imageSource);
+            if(maybeImageCid.isPresent() && maybeImage.isPresent() && maybeImage.get().length > 0){
+                DataSource imageSource = new ByteArrayDataSource(maybeImage.get(), "image/jpeg");
+                helper.addInline(maybeImageCid.get(), imageSource);
+//                helper.addInline("profileImage", imageSource);
+            }
             emailSender.send(message);
         } catch (Exception e) {
             LOGGER.error("Failed to send email", e);
@@ -104,14 +109,17 @@ public class EmailServiceImpl implements EmailService {
                 commenter.getUniversity().getName(),message,
                 profilePictureData, "eventId", event.getId());
 
+        Optional<byte[]> profileImageOptional = Optional.of(profilePictureData);
+        Optional<String> profileCidOptional = Optional.of("profileImage");
+
         for(User recipient : oldRepliers){
             if(recipient.getEmail().equals(eventUser.getEmail()) || recipient.getEmail().equals(commenter.getEmail())){
-                continue;  //no se si es buen estilo // o hace falta
+                continue;
             }
-            sendHtmlMessage(profilePictureData, recipient,"event-new-comment", variables, "email.event.comment.notification.title", new Object[]{});
+            sendHtmlMessage(profileImageOptional,profileCidOptional ,recipient,"event-new-comment", variables, "email.event.comment.notification.title", Optional.empty());
         }
         if(!commenter.getUsername().equals(eventUser.getUsername())){
-            sendHtmlMessage(profilePictureData,eventUser, "event-response", variables, "email.event.reply.title", new Object[]{});
+            sendHtmlMessage(profileImageOptional,profileCidOptional,eventUser, "event-response", variables, "email.event.reply.title", Optional.empty());
         }
 
     }
@@ -130,56 +138,60 @@ public class EmailServiceImpl implements EmailService {
                 profilePictureData, "journeyId", journey.getId());
 
 
+        Optional<byte[]> profileImageOptional = Optional.of(profilePictureData);
+        Optional<String> profileCidOptional = Optional.of("profileImage");
 
         for(User recipient: oldRepliers){
             if(recipient.getEmail().equals(journeyUser.getEmail()) || recipient.getEmail().equals(commenter.getEmail())){
                 continue;
             }
-            sendHtmlMessage(profilePictureData,recipient, "journey-new-comment", variables, "email.journey.comment.notification.title", new Object[]{});
+            sendHtmlMessage(profileImageOptional, profileCidOptional,recipient, "journey-new-comment", variables, "email.journey.comment.notification.title", Optional.empty());
         }
         if(!commenter.getUsername().equals(journeyUser.getUsername())){
-            sendHtmlMessage(profilePictureData, journeyUser, "journey-response", variables, "email.journey.reply.subject", new Object[]{});
+            sendHtmlMessage(profileImageOptional,  profileCidOptional,journeyUser, "journey-response", variables, "email.journey.reply.subject", Optional.empty());
         }
 
     }
-
-/*
     @Override
-    public void answerEventMail(User emailRecipient, String message, User commenter, Event event){
-        User eventUser = event.getUser();
-        if(emailRecipient.getEmail().equals(commenter.getEmail())){
-            return;
-        }
-        byte[] profilePictureData = userService.getProfilePictureData(commenter);
+    public void sendEventDeletionNotification(User eventOwner, Event event, String adminMessage) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("eventTitle", event.getTitle());
+        variables.put("eventId", event.getId());
+        variables.put("adminMessage", adminMessage);
 
-
-        Map<String, Object> variables = buildVariables(
-                commenter.getFirstname(), commenter.getLastname(),
-                commenter.getUsername(), commenter.getCareer().getName(),
-                commenter.getUniversity().getName(),message,
-                profilePictureData, "eventId", event.getId());
-
-
-        sendHtmlMessage(profilePictureData,emailRecipient, "event-response", variables, "email.event.reply.title", new Object[]{});
+        sendHtmlMessage(Optional.empty(),Optional.empty(), eventOwner, "event-deletion-notification", variables,
+                "email.event.deletion.title",Optional.empty());
     }
 
     @Override
-    public void answerJourneyMail(User emailRecipient, String message, User commenter, Journey journey){
+    public void sendJourneyDeletionNotification(User journeyOwner, Journey journey, String adminMessage) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("journeyId", journey.getId());
+        variables.put("adminMessage", adminMessage);
 
-        User journeyUser = journey.getUser();
-        if(emailRecipient.getEmail().equals(commenter.getEmail())){
-            return;
-        }
-        byte[] profilePictureData = userService.getProfilePictureData(commenter);
+        sendHtmlMessage(Optional.empty(),Optional.empty(), journeyOwner, "journey-deletion-notification", variables,
+                "email.journey.deletion.title", Optional.empty());
+    }
 
-        Map<String, Object> variables = buildVariables(
-                commenter.getFirstname(), commenter.getLastname(),
-                commenter.getUsername(), commenter.getCareer().getName(),
-                commenter.getUniversity().getName(),message,
-                userService.getProfilePictureData(commenter), "journeyId", journey.getId());
+    @Override
+    public void sendEventModificationNotification(User eventOwner, Event event, String adminMessage) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("eventTitle", event.getTitle());
+        variables.put("eventId", event.getId());
+        variables.put("adminMessage", adminMessage);
 
+        sendHtmlMessage(Optional.empty(),Optional.empty(), eventOwner, "event-modification-notification", variables,
+                "email.event.modification.title", Optional.empty());
+    }
 
-        sendHtmlMessage(profilePictureData, emailRecipient, "journey-response", variables, "email.journey.reply.subject", new Object[]{});
-    }*/
+    @Override
+    public void sendJourneyModificationNotification(User journeyOwner, Journey journey, String adminMessage) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("journeyId", journey.getId());
+        variables.put("adminMessage", adminMessage);
+
+        sendHtmlMessage(Optional.empty(),Optional.empty(), journeyOwner, "journey-modification-notification", variables,
+                "email.journey.modification.title", Optional.empty());
+    }
 }
 
