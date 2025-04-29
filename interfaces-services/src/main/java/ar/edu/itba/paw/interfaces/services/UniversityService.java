@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.interfaces.services;
 
 import ar.edu.itba.paw.models.CursorPage;
+import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.University;
 
 import java.util.List;
@@ -13,4 +14,5 @@ public interface UniversityService {
     Optional<University> findByAny(String queryString);
     List<University> getAllUniversities();
     List<University> searchBySubstring(String substring);
+    Page<University> getAllUniversities(int page, int size);
 }

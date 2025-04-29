@@ -3,6 +3,7 @@ package ar.edu.itba.paw.persistence;
 import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
 import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.CursorPage;
+import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.University;
 
 import org.slf4j.Logger;
@@ -29,15 +30,19 @@ public class UniversityJdbcDao implements UniversityDao {
     private final static RowMapper<University> UNIVERSITY_ROW_MAPPER = (rs, rowNum) ->
             new University(rs.getLong("university_id"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id")));
 
-    private final static String QUERY =
+    private final static String SELECT_CLAUSE = """
+            SELECT 
+                                un.name AS university_name,
+                                un.abbreviation AS university_abbreviation,
+                                un.id AS university_id,
+                                ci.id AS city_id,
+                                ci.name AS city_name,
+                                co.name AS country_name
+                                """;
+
+    private final static String QUERY = SELECT_CLAUSE +
+
             """
-                    SELECT\s
-                    un.name AS university_name,\s
-                    un.abbreviation AS university_abbreviation,\s
-                    un.id AS university_id,\s
-                    ci.id AS city_id,\s
-                    ci.name AS city_name,\s
-                    co.name AS country_name\s
                     FROM universities un\s
                     JOIN cities ci ON un.city_id = ci.id\s
                     JOIN countries co ON ci.country_id = co.id\s""";
@@ -80,10 +85,22 @@ public class UniversityJdbcDao implements UniversityDao {
         return jdbcTemplate.query(sql, UNIVERSITY_ROW_MAPPER, like, like);
     }
 
+
+
     @Override
     public Optional<University> findById(long id) {
         LOGGER.debug("Querying DB for university with id {}", id);
         return jdbcTemplate.query(QUERY + " WHERE un.id = ?", UNIVERSITY_ROW_MAPPER, id).stream().findFirst();
+    }
+
+    @Override
+    public Page<University> getAllUniversities(int page, int size) {
+        int offset = (page - 1) * size;
+        StringBuilder query = new StringBuilder(SELECT_CLAUSE);
+        query.append(" FROM (SELECT * FROM universities LIMIT ? OFFSET ?) un")
+                .append(" JOIN cities ci ON un.city_id = ci.id")
+                .append(" JOIN countries co ON ci.country_id = co.id");
+        return new Page<>(jdbcTemplate.query(query.toString(), UNIVERSITY_ROW_MAPPER, size, offset), page);
     }
 
 }

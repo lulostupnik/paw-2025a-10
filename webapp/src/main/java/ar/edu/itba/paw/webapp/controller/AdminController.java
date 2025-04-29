@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
+import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,12 +16,14 @@ public class AdminController {
     private final EventService eventService;
     private final UserService userService;
     private final JourneyService journeyService;
+    private final UniversityService universityService;
 
     @Autowired
-    public AdminController(EventService eventService, UserService userService, JourneyService journeyService) {
+    public AdminController(EventService eventService, UserService userService, JourneyService journeyService, UniversityService universityService) {
         this.eventService = eventService;
         this.userService = userService;
         this.journeyService = journeyService;
+        this.universityService = universityService;
     }
 
     @RequestMapping("/events")
@@ -90,22 +93,22 @@ public class AdminController {
 //
 //        return mav;
 //    }
-//    @RequestMapping("/universities")
-//    public ModelAndView dashboardUniversities(
-//            @RequestParam(value = "page", defaultValue = "1") int page,
-//            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-//            @RequestParam(value = "search", required = false) String search) {
-//
-//        ModelAndView mav = new ModelAndView("/admin/dashboard");
-//
-//        if (search != null && !search.isEmpty()) {
+    @RequestMapping("/universities")
+    public ModelAndView dashboardUniversities(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(value = "search", required = false) String search) {
+
+        ModelAndView mav = new ModelAndView("/admin/dashboard");
+
+        if (search != null && !search.isEmpty()) {
 //            mav.addObject("pagedUniversities", userService.searchUniversities(search, page, pageSize));
-//        } else {
-//            mav.addObject("pagedUniversities", userService.getAllUniversities(page, pageSize));
-//        }
-//
-//        return mav;
-//    }
+        } else {
+            mav.addObject("pagedUniversities", universityService.getAllUniversities(page, pageSize));
+        }
+
+        return mav;
+    }
 //
 //    @RequestMapping("/interests")
 //    public ModelAndView dashboardInterests(
