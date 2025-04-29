@@ -55,7 +55,7 @@ public interface EventDao {
 
     Page<Event> listAll(int page, int size);
 
-    void updateData(long cityid, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId/*, long userId*/);
+    void updateData(long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId/*, long userId*/);
 
     Page<Event> searchEvents(String search, int page, int size);
 }

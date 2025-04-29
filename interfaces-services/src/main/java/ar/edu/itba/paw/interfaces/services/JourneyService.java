@@ -51,5 +51,6 @@ public interface JourneyService {
 
     boolean isJourneyOwnedByUser(String email, long journeyID);
 
+    void editJourney(long journeyId, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
 
 }

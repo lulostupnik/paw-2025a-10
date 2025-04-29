@@ -181,7 +181,6 @@ public class JourneyController {
     }
 
 
-//-----------------------------Work in progress
     @RequestMapping(value = "/{id}/update", method = GET)
     public ModelAndView showUpdateJourneyForm(@PathVariable("id") long journeyId,
                                               @ModelAttribute("username") String username,
@@ -203,7 +202,6 @@ public class JourneyController {
         }
 
         ModelAndView mav = new ModelAndView("journeys/edit");
-//        mav.addObject("createJourneyForm", form);
         mav.addObject("universities", universityService.getAllUniversities());
         mav.addObject("journeyId", journeyId);
         return mav;
@@ -220,12 +218,12 @@ public class JourneyController {
         if (errors.hasErrors()) {
             return showUpdateJourneyForm(journeyId, username, form, errors);
         }
-//
-//        js.editJourney(journeyId,
-//                form.getDestinationUniversity(),
-//                form.getStartDate(),
-//                form.getEndDate(),
-//                form.getDescription());
+
+        js.editJourney(journeyId,
+                form.getDestinationUniversity(),
+                form.getStartDate(),
+                form.getEndDate(),
+                form.getDescription());
 
         LOGGER.info("Journey {} updated successfully", journeyId);
         return new ModelAndView("redirect:/journeys/" + journeyId);

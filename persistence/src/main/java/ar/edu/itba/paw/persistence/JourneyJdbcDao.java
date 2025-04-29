@@ -1,6 +1,8 @@
 package ar.edu.itba.paw.persistence;
 
+import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -601,6 +603,25 @@ public class JourneyJdbcDao implements JourneyDao {
                     offset
             ), page);
         }
+
+    @Override
+    public void updateData(long journeyId, University destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
+        jdbcTemplate.update("""
+        UPDATE journeys
+           SET destination_university_id = ?,
+               start_date = ?,
+               end_date = ?,
+               description = ?
+         WHERE id = ?
+         """,
+                destinationUniversity.getId(),
+                startDate,
+                endDate,
+                description,
+                journeyId
+        );
+
+    }
 
 
 }
