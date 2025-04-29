@@ -15,4 +15,5 @@ public interface UniversityService {
     List<University> getAllUniversities();
     List<University> searchBySubstring(String substring);
     Page<University> getAllUniversities(int page, int size);
+    University createUniversity(String name, String abbreviation, String city);
 }

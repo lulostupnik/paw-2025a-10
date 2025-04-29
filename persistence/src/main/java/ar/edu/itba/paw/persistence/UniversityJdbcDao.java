@@ -1,10 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
-import ar.edu.itba.paw.models.City;
-import ar.edu.itba.paw.models.CursorPage;
-import ar.edu.itba.paw.models.Page;
-import ar.edu.itba.paw.models.University;
+import ar.edu.itba.paw.models.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +13,9 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 
+import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +26,7 @@ public class UniversityJdbcDao implements UniversityDao {
     private static Logger LOGGER = LoggerFactory.getLogger(UniversityJdbcDao.class);
 
     private final JdbcTemplate jdbcTemplate;
+    private final SimpleJdbcInsert simpleJdbcInsert;
 
     private final static RowMapper<University> UNIVERSITY_ROW_MAPPER = (rs, rowNum) ->
             new University(rs.getLong("university_id"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id")));
@@ -48,8 +49,9 @@ public class UniversityJdbcDao implements UniversityDao {
                     JOIN countries co ON ci.country_id = co.id\s""";
 
     @Autowired
-    public UniversityJdbcDao(final DataSource dataSource){
+    public UniversityJdbcDao(final DataSource dataSource, SimpleJdbcInsert simpleJdbcInsert){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.simpleJdbcInsert = simpleJdbcInsert;
     }
 
     @Override
@@ -103,4 +105,17 @@ public class UniversityJdbcDao implements UniversityDao {
         return new Page<>(jdbcTemplate.query(query.toString(), UNIVERSITY_ROW_MAPPER, size, offset), page);
     }
 
+    @Override
+    public University createUniversity(String name, String abbreviation, String city) {
+        HashMap<String, Object> parameters = new HashMap<>();
+        parameters.put("name", name);
+        parameters.put("abbreviation", abbreviation);
+        parameters.put("city", city);
+        parameters.put("deleted", false);  // Establecer el valor de 'deleted' como 'false'
+        final Number keys = simpleJdbcInsert.executeAndReturnKey(parameters);
+        LOGGER.debug("Successfully created uni {}", keys.longValue());
+        return new University(keys.longValue(), name, abbreviation, new City(city, null, 0));
+    }
+
 }
+
