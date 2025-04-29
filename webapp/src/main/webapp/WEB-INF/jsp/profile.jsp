@@ -185,6 +185,7 @@
                     <jsp:param name="lastname" value="${journey.user.lastname}"/>
                     <jsp:param name="country" value="${journey.destinationUniversity.city.country}"/>
                     <jsp:param name="university" value="${journey.destinationUniversity.name}"/>
+                    <jsp:param name="isOwner" value="true"/>
                   </jsp:include>
                 </c:forEach>
               </c:if>
