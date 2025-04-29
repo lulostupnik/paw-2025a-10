@@ -13,4 +13,5 @@ public interface UniversityService {
     Optional<University> findByAny(String queryString);
     List<University> getAllUniversities();
     List<University> searchBySubstring(String substring);
+    void createUniversity(String nameEn,String nameEs, String abbreviation, long cityId);
 }

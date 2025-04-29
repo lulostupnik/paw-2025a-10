@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
+import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.models.CursorPage;
 import ar.edu.itba.paw.models.University;
@@ -20,10 +21,13 @@ public class UniversityServiceImpl implements UniversityService {
 
 
     private final UniversityDao universityDao;
+    private final CityService cityService;
 
     @Autowired
-    public UniversityServiceImpl(UniversityDao universityDao) {
+    public UniversityServiceImpl(UniversityDao universityDao, CityService cityService) {
+
         this.universityDao = universityDao;
+        this.cityService = cityService;
     }
 
     @Transactional(readOnly = true)
@@ -68,6 +72,11 @@ public class UniversityServiceImpl implements UniversityService {
     @Override
     public List<University> searchBySubstring(String substring) {
         return universityDao.searchBySubstring(substring);
+    }
+
+    @Override
+    public void createUniversity(String nameEn, String nameEs, String abbreviation, long cityId) {
+        universityDao.createUniversity(nameEn, nameEs, abbreviation, cityId);
     }
 
 
