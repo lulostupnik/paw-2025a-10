@@ -12,7 +12,7 @@
 
   <!-- Include CSS files -->
   <link rel="stylesheet" href="<c:url value='/resources/css/main.css' />">
-  <link rel="stylesheet" href="<c:url value='/resources/css/dashboard.css' />">
+  <link rel="stylesheet" href="<c:url value='/resources/css/pages/dashboard.css' />">
 </head>
 <body>
 <jsp:include page="../components/navbar.jsp" />
