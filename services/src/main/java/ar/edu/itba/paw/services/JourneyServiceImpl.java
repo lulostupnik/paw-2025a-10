@@ -319,4 +319,10 @@ public class JourneyServiceImpl implements JourneyService {
         journeyDao.delete(id);
     }
 
+    @Override
+    public boolean isJourneyOwnedByUser(String email, long journeyID) {
+        Optional<Journey> journey = journeyDao.findById(journeyID);
+        return journey.isPresent() && journey.get().getUser().getEmail().equals(email);
+    }
+
 }

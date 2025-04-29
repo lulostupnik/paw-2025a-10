@@ -49,5 +49,7 @@ public interface JourneyService {
 
     void delete(long id, String message);
 
+    boolean isJourneyOwnedByUser(String email, long journeyID);
+
 
 }

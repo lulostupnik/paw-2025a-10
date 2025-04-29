@@ -19,6 +19,7 @@ import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
@@ -181,35 +182,31 @@ public class JourneyController {
 //-----------------------------Work in progress
     @RequestMapping(value = "/{id}/update", method = GET)
     public ModelAndView showUpdateJourneyForm(@PathVariable("id") long journeyId,
-                                              @ModelAttribute("username") String username) {
+                                              @ModelAttribute("username") String username,
+                                              @ModelAttribute("createJourneyForm") CreateJourneyForm form,
+                                              BindingResult errors) {
         LOGGER.debug("User {} requested to update journey {}", username, journeyId);
 
-        Optional<Journey> maybeJourney = js.getJourneyById(journeyId);
+        Journey journey = journeyService.getJourneyById(journeyId)
+                .orElseThrow(() -> {
+                    LOGGER.warn("Journey {} not found", journeyId);
+                    return new IllegalArgumentException("Journey not found");
+                });
 
-        //@TODO CAMBIAR A SPRING SECUTIRY
-        if (maybeJourney.isEmpty()) {
-            LOGGER.warn("Journey {} not found", journeyId);
-            return new ModelAndView("journeys/not_found");
+        if(!errors.hasErrors()) {
+            form.setStartDate(journey.getStartDate());
+            form.setEndDate(journey.getEndDate());
+            form.setDestinationUniversity(journey.getDestinationUniversity().getName());
+            form.setDescription(journey.getDescription());
         }
-        Journey journey = maybeJourney.get();
-        if (!journey.getUser().getUsername().equals(username)) {
-            LOGGER.warn("User {} is not owner of journey {}", username, journeyId);
-            return new ModelAndView("errors/403");
-        }
-
-        CreateJourneyForm form = new CreateJourneyForm();
-        form.setStartDate(journey.getStartDate());
-        form.setEndDate(journey.getEndDate());
-        form.setDestinationUniversity(journey.getDestinationUniversity().getName());
-        form.setDescription(journey.getDescription());
 
         ModelAndView mav = new ModelAndView("journeys/edit");
-        mav.addObject("createJourneyForm", form);
+//        mav.addObject("createJourneyForm", form);
         mav.addObject("universities", universityService.getAllUniversities());
         mav.addObject("journeyId", journeyId);
         return mav;
     }
-/*
+
     @RequestMapping(value = "/{id}/update", method = POST)
     public ModelAndView updateJourney(@PathVariable("id") long journeyId,
                                       @ModelAttribute("username") String username,
@@ -218,37 +215,20 @@ public class JourneyController {
 
         LOGGER.debug("User {} submitted update for journey {}", username, journeyId);
 
-        //CAMBIAR A SPRING SECURITY
-        Optional<Journey> maybeJourney = js.getJourneyById(journeyId);
-        if (maybeJourney.isEmpty()) {
-            LOGGER.warn("Journey {} not found", journeyId);
-            return new ModelAndView("journeys/not_found");
-        }
-        Journey journey = maybeJourney.get();
-        if (!journey.getUser().getUsername().equals(username)) {
-            LOGGER.warn("User {} is not owner of journey {}", username, journeyId);
-            return new ModelAndView("errors/403");
-        }
-
         if (errors.hasErrors()) {
-            LOGGER.debug("Found {} validation errors in update form", errors.getErrorCount());
-            ModelAndView mav = new ModelAndView("journeys/edit");
-            mav.addObject("createJourneyForm", form);
-            mav.addObject("universities", universityService.getAllUniversities());
-            mav.addObject("journeyId", journeyId);
-            return mav;
+            return showUpdateJourneyForm(journeyId, username, form, errors);
         }
-
-        js.editJourney(journeyId,
-                form.getDestinationUniversity(),
-                form.getStartDate(),
-                form.getEndDate(),
-                form.getDescription());
+//
+//        js.editJourney(journeyId,
+//                form.getDestinationUniversity(),
+//                form.getStartDate(),
+//                form.getEndDate(),
+//                form.getDescription());
 
         LOGGER.info("Journey {} updated successfully", journeyId);
         return new ModelAndView("redirect:/journeys/" + journeyId);
     }
-*/
+
 
 
 

@@ -39,7 +39,7 @@ public interface EventService {
     void editEvent(long eventId,
                           String cityName,
                           LocalDate date,
-                          Optional<byte[]> flyer,
+                          byte[] flyer,
                           String description,
                           String title,
                           LocalTime time,
