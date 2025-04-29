@@ -2,10 +2,7 @@ package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.persistence.ImageDao;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
-import ar.edu.itba.paw.interfaces.services.CareerService;
-import ar.edu.itba.paw.interfaces.services.InterestService;
-import ar.edu.itba.paw.interfaces.services.UniversityService;
-import ar.edu.itba.paw.interfaces.services.UserService;
+import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 
 import org.slf4j.Logger;
@@ -27,16 +24,16 @@ public class UserServiceImpl implements UserService {
 
     private final UniversityService universityService;
     private final UserDao userDao;
-    private final ImageDao imageDao;
+    private final ImageService imageService;
     private final CareerService careerService;
     private final InterestService interestService;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UniversityService universityService, UserDao userDao, ImageDao imageDao, CareerService careerService, InterestService interestService, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UniversityService universityService, UserDao userDao, ImageService imageService, CareerService careerService, InterestService interestService, PasswordEncoder passwordEncoder) {
         this.universityService = universityService;
         this.userDao = userDao;
-        this.imageDao = imageDao;
+        this.imageService = imageService;
         this.careerService = careerService;
         this.interestService = interestService;
         this.passwordEncoder = passwordEncoder;
@@ -57,10 +54,11 @@ public class UserServiceImpl implements UserService {
         Career career = careerService.findByName(careerName).orElseThrow(() -> new RuntimeException("Career not found"));
 
         LOGGER.debug("Saving profile picture");
-        long profilePictureId = imageDao.saveImage(profilePicture);
+        long profilePictureId = imageService.storeImage(profilePicture);
 
         LOGGER.info("User data is valid, commiting new user to persistance", universityName);
-        User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId, passwordEncoder.encode(password), locale);
+        User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId,
+                passwordEncoder.encode(password), locale);
 
         LOGGER.debug("Saving user interests {}", interests.toString());
         interestService.createUserInterests(interests, user.getId());
@@ -115,7 +113,7 @@ public class UserServiceImpl implements UserService {
     @CacheEvict(value = {"usersById", "usersByEmail", "usersByUsername"}, key = "#userId")
     public void updateProfilePicture(long userId, byte[] profilePicture) {
         LOGGER.debug("Updating profile picture for user {}", userId);
-        long profilePictureId = imageDao.saveImage(profilePicture);
+        long profilePictureId = imageService.storeImage(profilePicture);
         userDao.updateProfilePicture(userId, profilePictureId);
         LOGGER.info("Successfully updated profile picture for user {}", userId);
     }
@@ -218,7 +216,7 @@ public class UserServiceImpl implements UserService {
 
     //@TODO ask (exception?). @TODO add cache?
     public byte[] getProfilePictureData(User user) {
-        return imageDao.getImageById(user.getProfilePictureId()).orElseThrow(() -> new IllegalStateException("User does not have a profile picture"))
+        return imageService.getImage(user.getProfilePictureId()).orElseThrow(() -> new IllegalStateException("User does not have a profile picture"))
                 .getData();
     }
 

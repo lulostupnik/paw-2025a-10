@@ -37,7 +37,7 @@ public class ImageServiceImpl implements ImageService {
         long imageId = imageDao.saveImage(imageData);
 
         Image image = new Image(imageId, imageData);
-        Cache cache = cacheManager.getCache("images");
+        Cache cache = cacheManager.getCache("images"); //TODO: preguntar si es buena practica
         if (cache != null) {
             cache.put(imageId, Optional.of(image));
         } else {
