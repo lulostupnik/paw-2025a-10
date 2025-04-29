@@ -45,9 +45,7 @@ public interface JourneyService {
 
     void updateJourneyDestination(long journeyId, long universityId);
 
-    void deleteJourney(long id, String message);
+    void delete(long id, String message);
 
-    void deleteJourneyResponse(long id, String message);
 
-    long getJourneyIdByResponseId(long journeyResponseId);
 }

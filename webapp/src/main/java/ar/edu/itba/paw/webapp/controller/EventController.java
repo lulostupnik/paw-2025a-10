@@ -167,7 +167,7 @@ public class EventController {
             redirectAttributes.addFlashAttribute("deleteForm", form);
             return new ModelAndView("redirect:/events/{id}", "id", id);
         }
-        eventService.deleteEvent(id, form.getMessage());
+        eventService.delete(id, form.getMessage());
         return new ModelAndView("redirect:/events");
     }
 

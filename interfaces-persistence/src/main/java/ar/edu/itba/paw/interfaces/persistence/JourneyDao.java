@@ -47,5 +47,6 @@ public interface JourneyDao {
     List<Journey> getJourneysByUser(String email);
 
     void delete(long id);
+    void deletionMessage(long id, String message);
 }
 

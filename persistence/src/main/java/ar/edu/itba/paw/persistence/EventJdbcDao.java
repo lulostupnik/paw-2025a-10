@@ -392,6 +392,17 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
+    public void deletionMessage(long id, String message) {
+        final String query = "UPDATE events SET deleted_message = ? WHERE id = ?;";
+        int updatedRows = jdbcTemplate.update(query, message, id);
+        if (updatedRows == 0) {
+            // Optionally log or throw an exception if no rows were updated
+            LOGGER.warn("No journey_response found with id {}", id);
+        }
+
+    }
+
+    @Override
     public List<Event> getMyEvents(long userId) {
         LOGGER.debug("Querying DB for events created by user {}", userId);
         return jdbcTemplate.query(QUERY + NOT_DELETED + " AND e.user_id = ? ORDER BY e.event_date DESC",

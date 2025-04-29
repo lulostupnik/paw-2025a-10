@@ -151,5 +151,15 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
         return jdbcTemplate.query(JOURNEY_ID_BY_RESPONSE_ID_QUERY, JOURNEY_ID_ROW_MAPPER, journeyResponseId).getFirst();
     }
 
+    @Override
+    public void deletionMessage(long id, String message) {
+        final String query = "UPDATE journey_responses SET deleted_message = ? WHERE id = ?;";
+        int updatedRows = jdbcTemplate.update(query, message, id);
+        if (updatedRows == 0) {
+            // Optionally log or throw an exception if no rows were updated
+            LOGGER.warn("No journey_response found with id {}", id);
+        }
+    }
+
 
 }

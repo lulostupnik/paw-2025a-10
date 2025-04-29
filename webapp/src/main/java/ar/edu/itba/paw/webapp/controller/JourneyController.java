@@ -87,7 +87,7 @@ public class JourneyController {
             redirectAttributes.addFlashAttribute("deleteForm", form);
             return new ModelAndView("redirect:/journeys/" + id);
         }
-        js.deleteJourney(id, form.getMessage());
+        js.delete(id, form.getMessage());
         return new ModelAndView("redirect:/journeys");
     }
 

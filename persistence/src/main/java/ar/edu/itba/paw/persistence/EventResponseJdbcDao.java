@@ -205,6 +205,16 @@ public class EventResponseJdbcDao implements EventResponseDao {
     }
 
     @Override
+    public void deletionMessage(long id, String message) {
+        final String query = "UPDATE event_responses SET deleted_message = ? WHERE id = ?;";
+        int updatedRows = jdbcTemplate.update(query, message, id);
+        if (updatedRows == 0) {
+            // Optionally log or throw an exception if no rows were updated
+            LOGGER.warn("No event_response found with id {}", id);
+        }
+    }
+
+    @Override
     public void delete(long id) {
         final String query = "UPDATE event_responses SET deleted = TRUE WHERE id = ?;";
         int updatedRows = jdbcTemplate.update(query, id);

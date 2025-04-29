@@ -447,6 +447,17 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
     @Override
+    public void deletionMessage(long id, String message) {
+        final String query = "UPDATE journeys SET deleted_message = ? WHERE id = ?;";
+        int updatedRows = jdbcTemplate.update(query, message, id);
+        if (updatedRows == 0) {
+            // Optionally log or throw an exception if no rows were updated
+            LOGGER.warn("No journey_response found with id {}", id);
+        }
+
+    }
+
+    @Override
     public List<Journey> getOthersJourneys(long userId) {
         LOGGER.debug("Querying DB for journeys from users other than user ID: {}", userId);
         return jdbcTemplate.query(QUERY + NOT_DELETED+ " AND us.id != ? ", JOURNEY_ROW_MAPPER, userId);

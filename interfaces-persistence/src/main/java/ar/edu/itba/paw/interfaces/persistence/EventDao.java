@@ -32,6 +32,7 @@ public interface EventDao {
     List<Event> getFullEvents();
 
     void delete(long id);
+    void deletionMessage(long id, String message);
 
     List<Event> getMyEvents(long userId);
     List<Event> getOthersEvents(long userId);

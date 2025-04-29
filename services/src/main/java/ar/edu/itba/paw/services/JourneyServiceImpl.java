@@ -35,7 +35,7 @@ public class JourneyServiceImpl implements JourneyService {
     private final UserService userService;
     private final EmailService emailService;
     private final UniversityService universityService;
-    private final JourneyResponseDao journeyResponseDao;
+    private final JourneyResponseService journeyResponseService;
     //private final CityService cityService;
     //private final InterestService interestService;
     private final ImageService imageService;
@@ -43,11 +43,11 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Autowired
     public JourneyServiceImpl(JourneyDao journeyDao, UserService userService, ImageService imageService,
-                              UniversityService universityService, JourneyResponseDao journeyResponseDao, EmailService emailService, CityService cityService, InterestService interestService) {
+                              UniversityService universityService, JourneyResponseService journeyResponseService, EmailService emailService, CityService cityService, InterestService interestService) {
         this.journeyDao = journeyDao;
         this.userService = userService;
         this.universityService = universityService;
-        this.journeyResponseDao = journeyResponseDao;
+        this.journeyResponseService = journeyResponseService;
         this.emailService = emailService;
         //this.cityService = cityService;
         this.interestService = interestService;
@@ -108,7 +108,7 @@ public class JourneyServiceImpl implements JourneyService {
         User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
 
         LOGGER.info("Journey reply is valid, commiting new reply to persistance");
-        journeyResponseDao.create(user.getId(), user.getUsername() ,journeyId, message, LocalDateTime.now());
+        journeyResponseService.create(user.getId(), user.getUsername() ,journeyId, message, LocalDateTime.now());
 
 
         LOGGER.info("Updating interest score");
@@ -133,7 +133,7 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.info("Notifying all commenters in journey about a new comment");
 
         emailService.answerJourneyRespondersNotification(
-                journeyResponseDao.listAllEmailsRespondersMinusUsers(journeyId, new ArrayList<>(List.of(user.getId(), journey.getUser().getId()))),
+                journeyResponseService.listAllEmailsRespondersMinusUsers(journeyId, new ArrayList<>(List.of(user.getId(), journey.getUser().getId()))),
                 emailContent,
                 user,
                 journey
@@ -228,7 +228,7 @@ public class JourneyServiceImpl implements JourneyService {
     @Transactional(readOnly = true)
     @Override
     public List<JourneyResponse> getJourneyResponses(long journeyId){
-        return journeyResponseDao.listAllFromJourney(journeyId);
+        return journeyResponseService.listAllFromJourney(journeyId);
     }
 
     @Override
@@ -319,20 +319,9 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
-    public void deleteJourney(long id, String message) {
+    public void delete(long id, String message) {
+        journeyDao.deletionMessage(id, message);
         journeyDao.delete(id);
-    }
-
-    @Override
-    public void deleteJourneyResponse(long id, String message) {
-        journeyResponseDao.delete(id);
-    }
-
-    @Transactional(readOnly = true)
-    @Cacheable(value = "journeysByResponseId", key = "#journeyResponseId")
-    @Override
-    public long getJourneyIdByResponseId(long journeyResponseId) {
-        return journeyResponseDao.getJourneyIdByResponseId(journeyResponseId);
     }
 
 }
