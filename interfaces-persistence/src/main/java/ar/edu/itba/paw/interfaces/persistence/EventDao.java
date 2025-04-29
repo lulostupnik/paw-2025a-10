@@ -43,4 +43,5 @@ public interface EventDao {
     Page<Event> getMyEvents(long userId, int page, int size);
     Page<Event> getEvents(String email, int page, int size);
     Page<Event> listAll(int page, int size);
+    Page<Event> searchEvents(String search, int page, int size);
 }

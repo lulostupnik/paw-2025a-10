@@ -10,7 +10,7 @@
 
 <div class="pagination-container">
   <div class="pagination-info">
-    <spring:message code="pagination.page" /> ${currentPage} <spring:message code="pagination.of" /> ${totalPages}
+    <spring:message code="pagination.page" /> <c:out value="${currentPage}"/> <spring:message code="pagination.of" /> <c:out value="${totalPages}"/>
   </div>
   <div class="pagination-controls">
     <%-- Previous button --%>

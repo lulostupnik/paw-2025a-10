@@ -47,10 +47,6 @@
               <button type="submit" class="search-button"><spring:message code="admin.search.button" /></button>
             </form>
             <button class="filter-button"><i class="filter-icon"></i></button>
-            <a href="<c:url value="/journeys/create"/>" class="add-button">
-              <i class="plus-icon"></i>
-              <spring:message code="journey.create.button"/>
-            </a>
           </div>
         </div>
       </div>
@@ -98,6 +94,7 @@
           <jsp:param name="currentPage" value="${pagedJourneys.currentPage}" />
           <jsp:param name="itemsPerPage" value="10" />
           <jsp:param name="totalPages" value="200" />
+          <jsp:param name="search" value="${param.search}" />
           <jsp:param name="currentUrl" value="/dashboard/journeys" />
         </jsp:include>
       </div>
@@ -165,6 +162,7 @@
           <jsp:param name="currentPage" value="${pagedUsers.currentPage}" />
           <jsp:param name="itemsPerPage" value="10" />
           <jsp:param name="totalPages" value="200" />
+          <jsp:param name="search" value="${param.search}" />
           <jsp:param name="currentUrl" value="/dashboard/users" />
         </jsp:include>
       </div>
@@ -250,6 +248,7 @@
           <jsp:param name="currentPage" value="${pagedEvents.currentPage}" />
           <jsp:param name="itemsPerPage" value="10" />
           <jsp:param name="totalPages" value="200" />
+          <jsp:param name="search" value="${param.search}" />
           <jsp:param name="currentUrl" value="/dashboard/events" />
         </jsp:include>
       </div>

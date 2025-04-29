@@ -222,6 +222,23 @@ public class EventJdbcDao implements EventDao {
         return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPageQuery(NOT_DELETED,orderByClause) , EVENT_ROW_MAPPER,size,offset),page);
     }
 
+    @Override
+    public Page<Event> searchEvents(String search, int page, int size) {
+        LOGGER.debug("Querying DB for events with search {}", search);
+        int offset = (page - 1) * size;
+        String whereClause = NOT_DELETED + " AND (LOWER(e.title) LIKE LOWER(?))";
+        String searchPattern = "%" + search + "%";
+        String orderByClause = "ORDER BY e.event_date DESC ";
+
+        return new Page<>(jdbcTemplate.query(
+                SELECT_CLAUSE + getPageQuery(whereClause, orderByClause),
+                EVENT_ROW_MAPPER,
+                searchPattern,
+                size,
+                offset
+        ), page);
+    }
+
 
     @Override
     public List<Event> getEvents(String email) {

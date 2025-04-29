@@ -247,9 +247,26 @@ public class UserJdbcDao implements UserDao {
     public Page<User> getAllUsers(int page, int size) {
         LOGGER.debug("Querying DB for all users with pagination: page {}, size {}", page, size);
         int offset = (page - 1) * size;
-        String whereClause = " WHERE 1=1";
+        String whereClause = "";
         String orderByClause = " ORDER BY u.id ASC";
         return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPagedQuery(whereClause,orderByClause),USER_ROW_MAPPER,size,offset),page);
+    }
+
+    @Override
+    public Page<User> searchUsers(String search, int page, int size) {
+            LOGGER.debug("Querying DB for events with search {}", search);
+            int offset = (page - 1) * size;
+            String whereClause = " WHERE (LOWER(u.firstname) LIKE LOWER(?))";
+            String searchPattern = "%" + search + "%";
+            String orderByClause = "ORDER BY u.firstname DESC ";
+
+            return new Page<>(jdbcTemplate.query(
+                    SELECT_CLAUSE + getPagedQuery(whereClause, orderByClause),
+                    USER_ROW_MAPPER,
+                    searchPattern,
+                    size,
+                    offset
+            ), page);
     }
 
     @Override

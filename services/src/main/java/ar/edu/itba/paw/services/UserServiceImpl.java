@@ -232,4 +232,9 @@ public class UserServiceImpl implements UserService {
         return userDao.getAllUsers(page,size);
     }
 
+    @Override
+    public Page<User> searchUsers(String search, int page, int size) {
+        return userDao.searchUsers(search, page, size);
+    }
+
 }

@@ -109,6 +109,17 @@ public class JourneyJdbcDao implements JourneyDao {
 
     private final static String QUERY_INTEREST = QUERY + " JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id \n";
 
+    private String getPagedQuery(String whereClause, String orderByClause) {
+        return "FROM (SELECT * FROM journeys j" + whereClause + orderByClause + " LIMIT ? OFFSET ?) AS j " +
+                "JOIN users us ON j.user_id = us.id " +
+                "JOIN careers ca ON us.career_id = ca.id " +
+                "JOIN universities un1 ON us.university = un1.id " +
+                "JOIN cities ci1 ON un1.city_id = ci1.id " +
+                "JOIN countries co1 ON ci1.country_id = co1.id " +
+                "JOIN universities un2 ON j.destination_university_id = un2.id " +
+                "JOIN cities ci2 ON un2.city_id = ci2.id " +
+                "JOIN countries co2 ON ci2.country_id = co2.id ";
+    }
     private final static RowMapper<Journey> JOURNEY_ROW_MAPPER = (rs, rowNum) -> new Journey(
             rs.getLong("journey_id"),
             new User(
@@ -573,5 +584,23 @@ public class JourneyJdbcDao implements JourneyDao {
         List<Journey> list = jdbcTemplate.query(QUERY + NOT_DELETED + "AND ci1.id = ? ORDER BY j.id ASC LIMIT ? OFFSET ?", JOURNEY_ROW_MAPPER, originCityId, size, page * size);
         return new Page<>(list, page);
     }
+
+    @Override
+    public Page<Journey> searchJourneys(String search, int page, int size) {
+        LOGGER.debug("Querying DB for events with search {}", search);
+        int offset = (page - 1) * size;
+        String whereClause = NOT_DELETED + " AND j.user_id IN (SELECT id FROM users WHERE LOWER(username) LIKE LOWER(?)) ";
+        String searchPattern = "%" + search + "%";
+        String orderByClause = "ORDER BY j.user_id DESC ";
+
+            return new Page<>(jdbcTemplate.query(
+                    SELECT_CLAUSE + getPagedQuery(whereClause, orderByClause),
+                    JOURNEY_ROW_MAPPER,
+                    searchPattern,
+                    size,
+                    offset
+            ), page);
+        }
+
 
 }

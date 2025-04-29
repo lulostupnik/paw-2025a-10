@@ -32,7 +32,7 @@ public class AdminController {
         ModelAndView mav = new ModelAndView("/admin/dashboard");
 
         if (search != null && !search.isEmpty()) {
-//            mav.addObject("pagedEvents", eventService.searchEvents(search, page, pageSize));
+            mav.addObject("pagedEvents", eventService.searchEvents(search, page, pageSize));
         } else {
             mav.addObject("pagedEvents", eventService.getAllEvents(page, pageSize));
         }
@@ -49,7 +49,7 @@ public class AdminController {
         ModelAndView mav = new ModelAndView("/admin/dashboard");
 
         if (search != null && !search.isEmpty()) {
-//            mav.addObject("pagedUsers", userService.searchUsers(search, page, pageSize));
+            mav.addObject("pagedUsers", userService.searchUsers(search, page, pageSize));
         } else {
             mav.addObject("pagedUsers", userService.getAllUsers(page, pageSize));
         }
@@ -66,7 +66,7 @@ public class AdminController {
         ModelAndView mav = new ModelAndView("/admin/dashboard");
 
         if (search != null && !search.isEmpty()) {
-//            mav.addObject("pagedJourneys", journeyService.searchJourneys(search, page, pageSize));
+            mav.addObject("pagedJourneys", journeyService.searchJourneys(search, page, pageSize));
         } else {
             mav.addObject("pagedJourneys", journeyService.getAllJourneys(page, pageSize));
         }
