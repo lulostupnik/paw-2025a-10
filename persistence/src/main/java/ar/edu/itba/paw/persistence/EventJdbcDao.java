@@ -120,7 +120,7 @@ public class EventJdbcDao implements EventDao {
                     JOIN cities c ON e.city_id = c.id
                     JOIN countries co ON c.country_id = co.id
                     """;
-    private static final String NOT_DELETED = "WHERE e.deleted = FALSE";
+    private static final String NOT_DELETED = " WHERE e.deleted = FALSE ";
 
     private String getPageQuery(String whereClause, String orderByClause) {
         return "FROM (SELECT * FROM events e " + whereClause +" "+ orderByClause + " LIMIT ? OFFSET ?)" +
@@ -216,45 +216,9 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public Page<Event> listAll(int page, int size) {
-        LOGGER.debug("Querying DB for all events");
-        int offset = (page - 1) * size;
-        String orderByClause = "ORDER BY e.event_date DESC ";
-        return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPageQuery(NOT_DELETED,orderByClause) , EVENT_ROW_MAPPER,size,offset),page);
-    }
-
-    @Override
-    public Page<Event> searchEvents(String search, int page, int size) {
-        LOGGER.debug("Querying DB for events with search {}", search);
-        int offset = (page - 1) * size;
-        String whereClause = NOT_DELETED + " AND (LOWER(e.title) LIKE LOWER(?))";
-        String searchPattern = "%" + search + "%";
-        String orderByClause = "ORDER BY e.event_date DESC ";
-
-        return new Page<>(jdbcTemplate.query(
-                SELECT_CLAUSE + getPageQuery(whereClause, orderByClause),
-                EVENT_ROW_MAPPER,
-                searchPattern,
-                size,
-                offset
-        ), page);
-    }
-
-
-    @Override
     public List<Event> getEvents(String email) {
         return jdbcTemplate.query(QUERY + NOT_DELETED + "AND us.email = ?", EVENT_ROW_MAPPER, email);
     }
-
-    @Override
-    public Page<Event> getEvents(String email, int page, int size) {
-        LOGGER.debug("Querying DB for events for usermail {}", email);
-        int offset = (page - 1) * size;
-        String whereClause = NOT_DELETED + "AND us.email = ? ";
-        String orderByClause = "ORDER BY e.event_date DESC ";
-        return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPageQuery(whereClause,orderByClause), EVENT_ROW_MAPPER, email,page,offset),page);
-    }
-
 
     @Override
     public List<UserEvent> getRecommendedEvents(String email) {
@@ -426,15 +390,7 @@ public class EventJdbcDao implements EventDao {
         return jdbcTemplate.query(QUERY + NOT_DELETED + " AND e.user_id = ? ORDER BY e.event_date DESC",
                 EVENT_ROW_MAPPER, userId);
     }
-    @Override
-    public Page<Event> getMyEvents(long userId, int page, int size) {
-        LOGGER.debug("Querying DB for events created by user {}", userId);
-        int offset = (page - 1) * size;
-        String whereClause = NOT_DELETED + " AND e.user_id = ? ";
-        String orderByClause = "ORDER BY e.event_date DESC ";
-        return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPageQuery(whereClause, orderByClause),
-                EVENT_ROW_MAPPER, userId,page,offset),page);
-    }
+
 
     @Override
     public List<Event> getOthersEvents(long userId) {
@@ -443,14 +399,115 @@ public class EventJdbcDao implements EventDao {
                 EVENT_ROW_MAPPER, userId);
     }
 
+    private int calculateTotalPages(int totalItems, int pageSize) {
+        return (int) Math.ceil((double) totalItems / pageSize);
+    }
+
+    private int getTotalCount(String countQuery, Object... params) {
+        return jdbcTemplate.queryForObject(countQuery, Integer.class, params);
+    }
 
     @Override
     public Page<Event> getOthersEvents(long userId, int page, int size) {
         LOGGER.debug("Querying DB for events not created by user {}", userId);
+
+        String countQuery = "SELECT COUNT(*) FROM events e WHERE e.deleted = FALSE " +
+                "AND e.user_id != ? AND e.event_date >= CURRENT_DATE";
+        int totalItems = getTotalCount(countQuery, userId);
+        int totalPages = calculateTotalPages(totalItems, size);
+
         int offset = (page - 1) * size;
         String whereClause = NOT_DELETED + " AND e.user_id != ? AND e.event_date >= CURRENT_DATE ";
         String orderByClause = "ORDER BY e.event_date DESC ";
-        return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPageQuery(whereClause, orderByClause), EVENT_ROW_MAPPER, userId,page,offset),page);
+
+        List<Event> events = jdbcTemplate.query(
+                SELECT_CLAUSE + getPageQuery(whereClause, orderByClause),
+                EVENT_ROW_MAPPER,
+                userId, size, offset);
+
+        return new Page<>(events, page, totalPages);
+    }
+
+    @Override
+    public Page<Event> getMyEvents(long userId, int page, int size) {
+        LOGGER.debug("Querying DB for events created by user {}", userId);
+
+        String countQuery = "SELECT COUNT(*) FROM events e WHERE e.deleted = FALSE AND e.user_id = ?";
+        int totalItems = getTotalCount(countQuery, userId);
+        int totalPages = calculateTotalPages(totalItems, size);
+
+        int offset = (page - 1) * size;
+        String whereClause = NOT_DELETED + " AND e.user_id = ? ";
+        String orderByClause = "ORDER BY e.event_date DESC ";
+
+        List<Event> events = jdbcTemplate.query(
+                SELECT_CLAUSE + getPageQuery(whereClause, orderByClause),
+                EVENT_ROW_MAPPER,
+                userId, size, offset);
+
+        return new Page<>(events, page, totalPages);
+    }
+
+    @Override
+    public Page<Event> getEvents(String email, int page, int size) {
+        LOGGER.debug("Querying DB for events for usermail {}", email);
+
+        String countQuery = "SELECT COUNT(*) FROM events e JOIN users us ON e.user_id = us.id WHERE e.deleted = FALSE AND us.email = ?";
+        int totalItems = getTotalCount(countQuery, email);
+        int totalPages = calculateTotalPages(totalItems, size);
+
+        int offset = (page - 1) * size;
+        String whereClause = NOT_DELETED + " AND us.email = ? ";
+        String orderByClause = "ORDER BY e.event_date DESC ";
+
+        List<Event> events = jdbcTemplate.query(
+                SELECT_CLAUSE + getPageQuery(whereClause, orderByClause),
+                EVENT_ROW_MAPPER,
+                email, size, offset);
+
+        return new Page<>(events, page, totalPages);
+    }
+
+    @Override
+    public Page<Event> listAll(int page, int size) {
+        LOGGER.debug("Querying DB for all events");
+
+        String countQuery = "SELECT COUNT(*) FROM events e WHERE e.deleted = FALSE";
+        int totalItems = getTotalCount(countQuery);
+        int totalPages = calculateTotalPages(totalItems, size);
+
+        int offset = (page - 1) * size;
+        String orderByClause = "ORDER BY e.event_date DESC ";
+
+        List<Event> events = jdbcTemplate.query(
+                SELECT_CLAUSE + getPageQuery(NOT_DELETED, orderByClause),
+                EVENT_ROW_MAPPER,
+                size, offset);
+
+        return new Page<>(events, page, totalPages);
+    }
+
+    @Override
+    public Page<Event> searchEvents(String search, int page, int size) {
+        LOGGER.debug("Querying DB for events with search {}", search);
+
+        String searchPattern = "%" + search + "%";
+        String countQuery = "SELECT COUNT(*) FROM events e WHERE e.deleted = FALSE  AND (LOWER(e.title) LIKE LOWER(?))";
+        int totalItems = getTotalCount(countQuery, searchPattern);
+        int totalPages = calculateTotalPages(totalItems, size);
+
+        int offset = (page - 1) * size;
+        String whereClause = NOT_DELETED + " AND (LOWER(e.title) LIKE LOWER(?))";
+        String orderByClause = "ORDER BY e.event_date DESC ";
+
+        List<Event> events = jdbcTemplate.query(
+                SELECT_CLAUSE + getPageQuery(whereClause, orderByClause),
+                EVENT_ROW_MAPPER,
+                searchPattern,
+                size,
+                offset);
+
+        return new Page<>(events, page, totalPages);
     }
 
     /*
@@ -512,6 +569,8 @@ public void updateData(long cityId, LocalDate date, String description, String t
             attendeesLimit,
             eventId
     );
+
+
 
 }
 

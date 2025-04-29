@@ -11,7 +11,6 @@ public interface JourneyResponseDao {
     List<JourneyResponse> listAllFromJourney(long journeyId);
 
     Page<JourneyResponse> listAllFromJourney(long journeyId, int page, int pageSize);
-    long responsePagesCountFromJourney(long journeyId, int pageSize);
 
    // List<EmailRecipient> listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds);
     void delete(long id);

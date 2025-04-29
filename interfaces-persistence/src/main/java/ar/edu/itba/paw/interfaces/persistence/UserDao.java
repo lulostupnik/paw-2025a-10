@@ -36,9 +36,7 @@ public interface UserDao {
     List<User> getAllUsers();
 
     Page<User> getAllUsers(int page, int size);
-    long getAllUsersPageCount(int pageSize);
     Page<User> searchUsers(String search, int page, int size);
-    long searchUsersPageCount(String search, int pageSize);
     // podríamos generalizar en findBy(String field, String value) o algo por el estilo
 
     List<User> listJourneyRespondersMinusUsers(long journeyId/*, List<Long> userIds*/);

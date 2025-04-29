@@ -88,14 +88,12 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     @Override
     public Page<JourneyResponse> listAllFromJourney(long journeyId, int pageNumber, int pageSize) {
         LOGGER.debug("Querying DB for replies to journey {} with pagination", journeyId);
-        final List<JourneyResponse> responses = jdbcTemplate.query(PAGE_QUERY_BY_JOURNEY_ID, JOURNEY_RESPONSE_ROW_MAPPER, journeyId, pageSize, (pageNumber - 1) * pageSize);
-        return new Page<>(responses, pageNumber);
-    }
-
-    @Override
-    public long responsePagesCountFromJourney(long journeyId, int pageSize) {
         long totalCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journey_responses WHERE journey_id = ? AND deleted = FALSE", Long.class, journeyId);
-        return (long) Math.ceil((double) totalCount / pageSize);
+        int totalPages = (int) Math.ceil((double) totalCount / pageSize);
+
+        final List<JourneyResponse> responses = jdbcTemplate.query(PAGE_QUERY_BY_JOURNEY_ID, JOURNEY_RESPONSE_ROW_MAPPER, journeyId, pageSize, (pageNumber - 1) * pageSize);
+
+        return new Page<>(responses, pageNumber, totalPages);
     }
 
 
