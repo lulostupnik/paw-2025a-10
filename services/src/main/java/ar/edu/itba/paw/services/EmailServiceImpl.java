@@ -72,13 +72,21 @@ public class EmailServiceImpl implements EmailService {
             if(maybeImageCid.isPresent() && maybeImage.isPresent() && maybeImage.get().length > 0){
                 DataSource imageSource = new ByteArrayDataSource(maybeImage.get(), "image/jpeg");
                 helper.addInline(maybeImageCid.get(), imageSource);
-//                helper.addInline("profileImage", imageSource);
             }
             emailSender.send(message);
         } catch (Exception e) {
             LOGGER.error("Failed to send email", e);
         }
     }
+
+    /*
+    //* Podria usar los siguientes metodos?
+    private void sendHtmlMessage(User emailRecipient, String templateName, Map<String, Object> variables, String subjectKey, Optional<Object[]> maybeSubjectArgs) {
+        sendHtmlMessage(Optional.empty(), Optional.empty(), emailRecipient, templateName, variables, subjectKey, maybeSubjectArgs);
+    }
+    private void sendHtmlMessage(User emailRecipient, String templateName, Map<String, Object> variables, String subjectKey) {
+        sendHtmlMessage(Optional.empty(), Optional.empty(), emailRecipient, templateName, variables, subjectKey, Optional.empty());
+    }*/
 
     private Map<String, Object> buildVariables(String firstName, String lastName, String username,
                                                String career, String originUniversity, String message,
