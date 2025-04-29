@@ -278,6 +278,12 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
+    public long getAllUsersPageCount(int pageSize) {
+        LOGGER.debug("Querying DB for all users page count with page size {}", pageSize);
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Long.class);
+    }
+
+    @Override
     public Page<User> searchUsers(String search, int page, int size) {
             LOGGER.debug("Querying DB for events with search {}", search);
             int offset = (page - 1) * size;
@@ -292,6 +298,14 @@ public class UserJdbcDao implements UserDao {
                     size,
                     offset
             ), page);
+    }
+
+    @Override
+    public long searchUsersPageCount(String search, int pageSize) {
+        LOGGER.debug("Querying DB for events page count with search {}", search);
+        String whereClause = " WHERE (LOWER(u.firstname) LIKE LOWER(?))";
+        String searchPattern = "%" + search + "%";
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users" + whereClause, Long.class, searchPattern);
     }
 
     @Override
