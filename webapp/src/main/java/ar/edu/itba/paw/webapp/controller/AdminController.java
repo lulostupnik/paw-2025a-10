@@ -1,9 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.interfaces.services.EventService;
-import ar.edu.itba.paw.interfaces.services.JourneyService;
-import ar.edu.itba.paw.interfaces.services.UniversityService;
-import ar.edu.itba.paw.interfaces.services.UserService;
+import ar.edu.itba.paw.interfaces.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -17,13 +14,15 @@ public class AdminController {
     private final UserService userService;
     private final JourneyService journeyService;
     private final UniversityService universityService;
+    private final InterestService interestService;
 
     @Autowired
-    public AdminController(EventService eventService, UserService userService, JourneyService journeyService, UniversityService universityService) {
+    public AdminController(EventService eventService, UserService userService, JourneyService journeyService, UniversityService universityService, InterestService interestService) {
         this.eventService = eventService;
         this.userService = userService;
         this.journeyService = journeyService;
         this.universityService = universityService;
+        this.interestService = interestService;
     }
 
     @RequestMapping("/events")
@@ -109,22 +108,22 @@ public class AdminController {
 
         return mav;
     }
-//
-//    @RequestMapping("/interests")
-//    public ModelAndView dashboardInterests(
-//            @RequestParam(value = "page", defaultValue = "1") int page,
-//            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-//            @RequestParam(value = "search", required = false) String search) {
-//
-//        ModelAndView mav = new ModelAndView("/admin/dashboard");
-//
-//        if (search != null && !search.isEmpty()) {
+
+    @RequestMapping("/interests")
+    public ModelAndView dashboardInterests(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(value = "search", required = false) String search) {
+
+        ModelAndView mav = new ModelAndView("/admin/dashboard");
+
+        if (search != null && !search.isEmpty()) {
 //            mav.addObject("pagedInterests", userService.searchInterests(search, page, pageSize));
-//        } else {
-//            mav.addObject("pagedInterests", userService.getAllInterests(page, pageSize));
-//        }
-//
-//        return mav;
-//    }
+        } else {
+            mav.addObject("pagedInterests", interestService.getAllInterests(page, pageSize));
+        }
+
+        return mav;
+    }
 }
 

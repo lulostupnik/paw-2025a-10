@@ -2,6 +2,7 @@ package ar.edu.itba.paw.interfaces.services;
 
 import ar.edu.itba.paw.models.CursorPage;
 import ar.edu.itba.paw.models.Interest;
+import ar.edu.itba.paw.models.Page;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,5 +17,5 @@ public interface InterestService {
     List<Interest> createUserInterests(String[] interests, Long userId);
     void updateScoreByInterest(Interest interest, Long userId);
     void updateScoreByInterests(List<Interest> interests, Long userId);
-
+    Page<Interest> getAllInterests(int page, int pageSize);
 }
