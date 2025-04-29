@@ -10,7 +10,7 @@
 
 <div class="pagination-container">
   <div class="pagination-info">
-    <spring:message code="pagination.page" /> <c:url value="${currentPage}"/> <spring:message code="pagination.of" /> ${totalPages}
+    <spring:message code="pagination.page" /> ${currentPage} <spring:message code="pagination.of" /> ${totalPages}
   </div>
   <div class="pagination-controls">
     <%-- Previous button --%>
@@ -22,14 +22,13 @@
         </span>
       </c:when>
       <c:otherwise>
-        <c:url var="prevPageUrl" value="${pageUrl}">
-          <c:param name="page" value="${currentPage - 1}" />
-          <c:param name="pageSize" value="${itemsPerPage}" />
-          <c:if test="${not empty param.search}">
-            <c:param name="search" value="${param.search}" />
-          </c:if>
-        </c:url>
-        <a href="${prevPageUrl}" class="pagination-button prev-button">
+        <a href="<c:url value="${pageUrl}">
+                  <c:param name="page" value="${currentPage - 1}" />
+                  <c:param name="pageSize" value="${itemsPerPage}" />
+                  <c:if test="${not empty param.search}">
+                    <c:param name="search" value="${param.search}" />
+                  </c:if>
+                </c:url>" class="pagination-button prev-button">
           <i class="chevron-left-icon"></i>
           <spring:message code="pagination.previous"/>
         </a>
@@ -45,14 +44,13 @@
         </span>
       </c:when>
       <c:otherwise>
-        <c:url var="nextPageUrl" value="${pageUrl}">
-          <c:param name="page" value="${currentPage + 1}" />
-          <c:param name="pageSize" value="${itemsPerPage}" />
-          <c:if test="${not empty param.search}">
-            <c:param name="search" value="${param.search}" />
-          </c:if>
-        </c:url>
-        <a href="${nextPageUrl}" class="pagination-button next-button">
+        <a href="<c:url value="${pageUrl}">
+                  <c:param name="page" value="${currentPage + 1}" />
+                  <c:param name="pageSize" value="${itemsPerPage}" />
+                  <c:if test="${not empty param.search}">
+                    <c:param name="search" value="${param.search}" />
+                  </c:if>
+                </c:url>" class="pagination-button next-button">
           <spring:message code="pagination.next"/>
           <i class="chevron-right-icon"></i>
         </a>

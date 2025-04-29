@@ -98,7 +98,7 @@
           <jsp:param name="currentPage" value="${pagedJourneys.currentPage}" />
           <jsp:param name="itemsPerPage" value="10" />
           <jsp:param name="totalPages" value="200" />
-          <jsp:param name="currentUrl" value="${pageContext.request.contextPath}/dashboard/journeys" />
+          <jsp:param name="currentUrl" value="/dashboard/journeys" />
         </jsp:include>
       </div>
     </div>
@@ -165,7 +165,7 @@
           <jsp:param name="currentPage" value="${pagedUsers.currentPage}" />
           <jsp:param name="itemsPerPage" value="10" />
           <jsp:param name="totalPages" value="200" />
-          <jsp:param name="currentUrl" value="${pageContext.request.contextPath}/dashboard/users" />
+          <jsp:param name="currentUrl" value="/dashboard/users" />
         </jsp:include>
       </div>
     </div>
@@ -250,7 +250,7 @@
           <jsp:param name="currentPage" value="${pagedEvents.currentPage}" />
           <jsp:param name="itemsPerPage" value="10" />
           <jsp:param name="totalPages" value="200" />
-          <jsp:param name="currentUrl" value="${pageContext.request.contextPath}/dashboard/events" />
+          <jsp:param name="currentUrl" value="/dashboard/events" />
         </jsp:include>
       </div>
     </div>
