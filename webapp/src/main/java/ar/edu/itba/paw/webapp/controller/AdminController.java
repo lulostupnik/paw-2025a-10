@@ -73,4 +73,55 @@ public class AdminController {
 
         return mav;
     }
+//
+//    @RequestMapping("/careers")
+//    public ModelAndView dashboardCareers(
+//            @RequestParam(value = "page", defaultValue = "1") int page,
+//            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+//            @RequestParam(value = "search", required = false) String search) {
+//
+//        ModelAndView mav = new ModelAndView("/admin/dashboard");
+//
+//        if (search != null && !search.isEmpty()) {
+//            mav.addObject("pagedCareers", userService.searchCareers(search, page, pageSize));
+//        } else {
+//            mav.addObject("pagedCareers", userService.getAllCareers(page, pageSize));
+//        }
+//
+//        return mav;
+//    }
+//    @RequestMapping("/universities")
+//    public ModelAndView dashboardUniversities(
+//            @RequestParam(value = "page", defaultValue = "1") int page,
+//            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+//            @RequestParam(value = "search", required = false) String search) {
+//
+//        ModelAndView mav = new ModelAndView("/admin/dashboard");
+//
+//        if (search != null && !search.isEmpty()) {
+//            mav.addObject("pagedUniversities", userService.searchUniversities(search, page, pageSize));
+//        } else {
+//            mav.addObject("pagedUniversities", userService.getAllUniversities(page, pageSize));
+//        }
+//
+//        return mav;
+//    }
+//
+//    @RequestMapping("/interests")
+//    public ModelAndView dashboardInterests(
+//            @RequestParam(value = "page", defaultValue = "1") int page,
+//            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+//            @RequestParam(value = "search", required = false) String search) {
+//
+//        ModelAndView mav = new ModelAndView("/admin/dashboard");
+//
+//        if (search != null && !search.isEmpty()) {
+//            mav.addObject("pagedInterests", userService.searchInterests(search, page, pageSize));
+//        } else {
+//            mav.addObject("pagedInterests", userService.getAllInterests(page, pageSize));
+//        }
+//
+//        return mav;
+//    }
 }
+

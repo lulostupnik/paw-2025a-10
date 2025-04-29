@@ -61,24 +61,18 @@
             <th><spring:message code="admin.column.university" /></th>
             <th><spring:message code="admin.column.start.date" /></th>
             <th><spring:message code="admin.column.end.date" /></th>
-            <th><spring:message code="admin.column.actions" /></th>
           </tr>
           </thead>
           <tbody>
           <c:set var="journeys" value="${pagedJourneys.content}" />
           <c:forEach items="${journeys}" var="journey">
-            <tr>
-              <td><c:out value="${journey.id}"/></td>
+            <tr class="clickable-row" data-href="<c:url value="../journeys/${journey.id}"/>" >
+            <td><c:out value="${journey.id}"/></td>
               <td><c:out value="${journey.user.username}"/></td>
               <td><c:out value="${journey.destinationUniversity.city}"/></td>
               <td><c:out value="${journey.destinationUniversity.name}"/></td>
               <td><c:out value="${journey.startDate}"/></td>
               <td><c:out value="${journey.endDate}"/></td>
-              <td>
-                <button class="action-button" data-id="<c:out value="${journey.id}"/>">
-                  <i class="more-icon"></i>
-                </button>
-              </td>
             </tr>
           </c:forEach>
           </tbody>
@@ -131,7 +125,6 @@
             <th><spring:message code="admin.column.name" /></th>
             <th><spring:message code="admin.column.email" /></th>
             <th><spring:message code="admin.column.university" /></th>
-            <th><spring:message code="admin.column.actions" /></th>
           </tr>
           </thead>
           <tbody>
@@ -142,11 +135,6 @@
               <td><c:out value="${user.firstname}"/></td>
               <td><c:out value="${user.email}"/></td>
               <td><c:out value="${user.university}"/></td>
-              <td>
-                <button class="action-button" data-id="<c:out value="${user.id}"/>">
-                  <i class="more-icon"></i>
-                </button>
-              </td>
             </tr>
           </c:forEach>
           </tbody>
@@ -201,13 +189,13 @@
             <th><spring:message code="admin.column.location" /></th>
             <th><spring:message code="admin.column.date" /></th>
             <th><spring:message code="admin.column.attendees" /></th>
-            <th><spring:message code="admin.column.actions" /></th>
           </tr>
           </thead>
           <tbody>
           <c:set var="events" value="${pagedEvents.content}" />
           <c:forEach items="${events}" var="event">
-            <tr>
+
+            <tr class="clickable-row" data-href="<c:url value="../events/${event.id}"/>" >
               <td><c:out value="${event.id}"/></td>
               <td><c:out value="${event.title}"/></td>
               <td><c:out value="${event.user.username}"/></td>
@@ -227,11 +215,6 @@
                     <span class="unlimited-attendees"><spring:message code="admin.unlimited.attendees" /></span>
                   </c:otherwise>
                 </c:choose>
-              </td>
-              <td>
-                <button class="action-button" data-id="<c:out value="${event.id}"/>">
-                  <i class="more-icon"></i>
-                </button>
               </td>
             </tr>
           </c:forEach>
@@ -254,25 +237,21 @@
       </div>
     </div>
   </c:if>
-
-  <!-- Action Dropdown Menu Template -->
-  <div class="dropdown-menu-dashboard" id="action-dropdown-template" style="display: none;">
-    <ul>
-      <li class="dropdown-item edit-item">
-        <i class="edit-icon"></i> <spring:message code="admin.action.edit" />
-      </li>
-      <li class="dropdown-item manage-attendees-item">
-        <i class="attendees-icon"></i> <spring:message code="admin.action.manage.attendees" />
-      </li>
-      <li class="dropdown-item delete-item">
-        <i class="delete-icon"></i> <spring:message code="admin.action.delete" />
-      </li>
-    </ul>
-  </div>
 </div>
 
 <!-- Include JavaScript files -->
 <script src="<c:url value='/resources/js/dashboard.js' />"></script>
 <script src="<c:url value='/resources/js/pagination.js' />"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const rows = document.querySelectorAll(".clickable-row");
+    rows.forEach(row => {
+      row.addEventListener("click", () => {
+        window.location.href = row.getAttribute("data-href");
+      });
+    });
+  });
+</script>
+
 </body>
 </html>
