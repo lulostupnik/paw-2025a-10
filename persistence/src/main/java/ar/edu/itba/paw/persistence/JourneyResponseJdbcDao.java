@@ -2,6 +2,7 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
 import ar.edu.itba.paw.models.JourneyResponse;
+import ar.edu.itba.paw.models.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
             SELECT jr.journey_id
             FROM journey_responses jr
             WHERE jr.id = ?""";
+
     private static final String QUERY_BY_JOURNEY_ID = """
             SELECT jr.id as id,
                    jr.user_id, us.username AS username, jr.journey_id, jr.message, jr.date_time\s
@@ -43,6 +45,13 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
             JOIN users us\s
             ON jr.user_id = us.id\s
             WHERE jr.journey_id = ?""";
+
+    private static final String PAGE_QUERY_BY_JOURNEY_ID = """
+            SELECT *
+            FROM (SELECT * FROM journey_responses WHERE journey_id = ? AND deleted = FALSE ORDER BY date_time LIMIT ? OFFSET ?) AS jr
+            JOIN users us
+            ON jr.user_id = us.id
+            """;
 
     private static final String NOT_DELETED = " AND jr.deleted = FALSE";
 
@@ -76,6 +85,18 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
         return jdbcTemplate.query(QUERY_BY_JOURNEY_ID + NOT_DELETED + " ORDER BY jr.date_time ", JOURNEY_RESPONSE_ROW_MAPPER, journeyId);
     }
 
+    @Override
+    public Page<JourneyResponse> listAllFromJourney(long journeyId, int pageNumber, int pageSize) {
+        LOGGER.debug("Querying DB for replies to journey {} with pagination", journeyId);
+        final List<JourneyResponse> responses = jdbcTemplate.query(PAGE_QUERY_BY_JOURNEY_ID, JOURNEY_RESPONSE_ROW_MAPPER, journeyId, pageSize, (pageNumber - 1) * pageSize);
+        return new Page<>(responses, pageNumber);
+    }
+
+    @Override
+    public long responsePagesCountFromJourney(long journeyId, int pageSize) {
+        long totalCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journey_responses WHERE journey_id = ? AND deleted = FALSE", Long.class, journeyId);
+        return (long) Math.ceil((double) totalCount / pageSize);
+    }
 
 
     //@ans devolver USERS - dao de users.
