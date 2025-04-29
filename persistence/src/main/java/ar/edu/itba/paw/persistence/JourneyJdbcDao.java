@@ -576,11 +576,11 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public Page<Journey> searchJourneys(String search, int page, int size) {
-            LOGGER.debug("Querying DB for events with search {}", search);
-            int offset = (page - 1) * size;
-            String whereClause = NOT_DELETED + " AND (LOWER(j.title) LIKE LOWER(?))";
-            String searchPattern = "%" + search + "%";
-            String orderByClause = "ORDER BY j.title DESC ";
+        LOGGER.debug("Querying DB for events with search {}", search);
+        int offset = (page - 1) * size;
+        String whereClause = NOT_DELETED + " AND j.user_id IN (SELECT id FROM users WHERE LOWER(username) LIKE LOWER(?)) ";
+        String searchPattern = "%" + search + "%";
+        String orderByClause = "ORDER BY j.user_id DESC ";
 
             return new Page<>(jdbcTemplate.query(
                     SELECT_CLAUSE + getPagedQuery(whereClause, orderByClause),

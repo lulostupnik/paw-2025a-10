@@ -47,10 +47,6 @@
               <button type="submit" class="search-button"><spring:message code="admin.search.button" /></button>
             </form>
             <button class="filter-button"><i class="filter-icon"></i></button>
-            <a href="<c:url value="/journeys/create"/>" class="add-button">
-              <i class="plus-icon"></i>
-              <spring:message code="journey.create.button"/>
-            </a>
           </div>
         </div>
       </div>
