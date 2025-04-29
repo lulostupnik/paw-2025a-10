@@ -1,10 +1,16 @@
 package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.services.EmailService;
+import ar.edu.itba.paw.interfaces.services.UserService;
+import ar.edu.itba.paw.models.Event;
+import ar.edu.itba.paw.models.Journey;
+import ar.edu.itba.paw.models.User;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -15,85 +21,77 @@ import org.thymeleaf.context.Context;
 import javax.activation.DataSource;
 import javax.mail.internet.MimeMessage;
 import javax.mail.util.ByteArrayDataSource;
-import java.io.File;
-import java.util.Locale;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-@Async
+
 @Service
+@Async
 public class EmailServiceImpl implements EmailService {
+
     private final JavaMailSender emailSender;
     private final TemplateEngine templateEngine;
     private final MessageSource messageSource;
-    private final static String fromEmail = "paw.2025a.10@gmail.com";
+
+    private final UserService userService;
+    @Value("${email.from}")
+    private String fromEmail;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmailServiceImpl.class);
 
     @Autowired
     public EmailServiceImpl(JavaMailSender emailSender,
-                            TemplateEngine emailTemplateEngine,
-                            MessageSource messageSource) {
+                            TemplateEngine templateEngine,
+                            MessageSource messageSource,
+                            UserService userService) {
         this.emailSender = emailSender;
-        this.templateEngine = emailTemplateEngine;
+        this.templateEngine = templateEngine;
         this.messageSource = messageSource;
+        this.userService = userService;
     }
 
-//    @TODO preguntar que pasa con la excepcion
-
-
-
-    protected void sendHtmlMessage(String to,
-                                   String[] cc,
-                                   String subjectKey,
-                                   Object[] subjectArgs,
-                                   String templateName,
-                                   Map<String, Object> variables,
-                                   Locale locale,
-                                   byte[] imageBytes) {
-
+    private void sendHtmlMessage(Optional<byte[]> maybeImage,Optional<String> maybeImageCid, User emailRecipient, String templateName, Map<String, Object> variables, String subjectKey, Optional<Object[]> maybeSubjectArgs) {
         try {
-            String subject = messageSource.getMessage(subjectKey, subjectArgs, locale);
+            String subject = messageSource.getMessage(
+                    subjectKey,
+                    maybeSubjectArgs.orElse(null),
+                    emailRecipient.getLocale()
+            );
+
             MimeMessage message = emailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-            Context context = new Context(locale);
+            Context context = new Context(emailRecipient.getLocale());
             context.setVariables(variables);
             String htmlContent = templateEngine.process(templateName, context);
-
             helper.setFrom(fromEmail);
-            helper.setTo(to);
-            if (cc != null && cc.length > 0) {
-                helper.setCc(cc);
-            }
-
+            helper.setTo(emailRecipient.getEmail());
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
-
-            if (imageBytes != null) {
-                DataSource imageSource = new ByteArrayDataSource(imageBytes, "image/jpeg"); // or image/png
-                helper.addInline("profileImage", imageSource);
+            if(maybeImageCid.isPresent() && maybeImage.isPresent() && maybeImage.get().length > 0){
+                DataSource imageSource = new ByteArrayDataSource(maybeImage.get(), "image/jpeg");
+                helper.addInline(maybeImageCid.get(), imageSource);
             }
-
             emailSender.send(message);
-
         } catch (Exception e) {
-            throw new RuntimeException("Failed to send email", e);
+            LOGGER.error("Failed to send email", e);
         }
     }
 
+    /*
+    //* Podria usar los siguientes metodos?
+    private void sendHtmlMessage(User emailRecipient, String templateName, Map<String, Object> variables, String subjectKey, Optional<Object[]> maybeSubjectArgs) {
+        sendHtmlMessage(Optional.empty(), Optional.empty(), emailRecipient, templateName, variables, subjectKey, maybeSubjectArgs);
+    }
+    private void sendHtmlMessage(User emailRecipient, String templateName, Map<String, Object> variables, String subjectKey) {
+        sendHtmlMessage(Optional.empty(), Optional.empty(), emailRecipient, templateName, variables, subjectKey, Optional.empty());
+    }*/
 
-
-
-    @Override
-    public void answerEventMail(String from, String to,
-                                String firstName, String lastName,
-                                String username, String career,
-                                String originUniversity, String message,
-                                Locale locale, byte[] profilePicture,
-                                long eventId) {
-        if(from.equals(to)){
-            return;
-        }
-        Map<String, Object> variables = Map.of(
-//                "email", from,
+    private Map<String, Object> buildVariables(String firstName, String lastName, String username,
+                                               String career, String originUniversity, String message,
+                                               byte[] profilePicture, String idKey, long id) {
+        return Map.of(
                 "firstname", firstName,
                 "lastname", lastName,
                 "username", username,
@@ -101,59 +99,107 @@ public class EmailServiceImpl implements EmailService {
                 "university", originUniversity,
                 "message", message,
                 "hasProfileImage", profilePicture != null && profilePicture.length > 0,
-                "eventId", eventId
+                idKey, id
         );
+    }
 
-        sendHtmlMessage(
-                to,
-//                new String[] {from},
-                null
-                , "email.event.reply.title",
-                new Object[]{},
-                "event-response",
-                variables,
-                locale,
-                profilePicture
-        );
+
+
+    @Override
+    public void answerEventNotification(List<User> oldRepliers, String message, User commenter, Event event) {
+        User eventUser = event.getUser();
+
+        byte[] profilePictureData = userService.getProfilePictureData(commenter);
+
+        Map<String, Object> variables = buildVariables(
+                commenter.getFirstname(), commenter.getLastname(),
+                commenter.getUsername(), commenter.getCareer().getName(),
+                commenter.getUniversity().getName(),message,
+                profilePictureData, "eventId", event.getId());
+
+        Optional<byte[]> profileImageOptional = Optional.of(profilePictureData);
+        Optional<String> profileCidOptional = Optional.of("profileImage");
+
+        for(User recipient : oldRepliers){
+            if(recipient.getEmail().equals(eventUser.getEmail()) || recipient.getEmail().equals(commenter.getEmail())){
+                continue;
+            }
+            sendHtmlMessage(profileImageOptional,profileCidOptional ,recipient,"event-new-comment", variables, "email.event.comment.notification.title", Optional.empty());
+        }
+        if(!commenter.getUsername().equals(eventUser.getUsername())){
+            sendHtmlMessage(profileImageOptional,profileCidOptional,eventUser, "event-response", variables, "email.event.reply.title", Optional.empty());
+        }
+
     }
 
     @Override
-    public void answerJourneyMail(String from, String to,
-                                  String firstName, String lastName,
-                                  String username, String career,
-                                  String originUniversity, String message,
-                                  Locale locale, byte[] profilePicture, long journeyId) {
+    public void answerJourneyNotification(List<User> oldRepliers, String message, User commenter, Journey journey) {
+        User journeyUser = journey.getUser();
+        byte[] profilePictureData = userService.getProfilePictureData(commenter);
 
 
-        if(from.equals(to)){
-            return;
+
+        Map<String, Object> variables = buildVariables(
+                commenter.getFirstname(), commenter.getLastname(),
+                commenter.getUsername(), commenter.getCareer().getName(),
+                commenter.getUniversity().getName(),message,
+                profilePictureData, "journeyId", journey.getId());
+
+
+        Optional<byte[]> profileImageOptional = Optional.of(profilePictureData);
+        Optional<String> profileCidOptional = Optional.of("profileImage");
+
+        for(User recipient: oldRepliers){
+            if(recipient.getEmail().equals(journeyUser.getEmail()) || recipient.getEmail().equals(commenter.getEmail())){
+                continue;
+            }
+            sendHtmlMessage(profileImageOptional, profileCidOptional,recipient, "journey-new-comment", variables, "email.journey.comment.notification.title", Optional.empty());
+        }
+        if(!commenter.getUsername().equals(journeyUser.getUsername())){
+            sendHtmlMessage(profileImageOptional,  profileCidOptional,journeyUser, "journey-response", variables, "email.journey.reply.subject", Optional.empty());
         }
 
-        Map<String, Object> variables = Map.of(
-//                "email", from,
-                "firstname", firstName,
-                "lastname", lastName,
-                "username", username,
-                "career", career,
-                "university", originUniversity,
-                "message", message,
-                "hasProfileImage", profilePicture != null && profilePicture.length > 0,
-                "journeyId", journeyId
-        );
+    }
+    @Override
+    public void sendEventDeletionNotification(User eventOwner, Event event, String adminMessage) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("eventTitle", event.getTitle());
+        variables.put("eventId", event.getId());
+        variables.put("adminMessage", adminMessage);
 
-        sendHtmlMessage(
-                to,
-//                new String[] {from},
-                null,
-                "email.journey.reply.subject",
-                new Object[]{},
-                "journey-response",
-                variables,
-                locale,
-                profilePicture
-        );
+        sendHtmlMessage(Optional.empty(),Optional.empty(), eventOwner, "event-deletion", variables,
+                "email.event.deletion.title",Optional.of(new Object[]{event.getTitle()}));
     }
 
+    @Override
+    public void sendJourneyDeletionNotification(User journeyOwner, Journey journey, String adminMessage) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("journeyId", journey.getId());
+        variables.put("adminMessage", adminMessage);
 
+        sendHtmlMessage(Optional.empty(),Optional.empty(), journeyOwner, "journey-deletion", variables,
+                "email.journey.deletion.title", Optional.empty());
+    }
+
+    @Override
+    public void sendEventModificationNotification(User eventOwner, Event event, String adminMessage) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("eventTitle", event.getTitle());
+        variables.put("eventId", event.getId());
+        variables.put("adminMessage", adminMessage);
+
+        sendHtmlMessage(Optional.empty(),Optional.empty(), eventOwner, "event-modified", variables,
+                "email.event.modification.title", Optional.of(new Object[]{event.getTitle()}));
+    }
+
+    @Override
+    public void sendJourneyModificationNotification(User journeyOwner, Journey journey, String adminMessage) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("journeyId", journey.getId());
+        variables.put("adminMessage", adminMessage);
+
+        sendHtmlMessage(Optional.empty(),Optional.empty(), journeyOwner, "journey-modified", variables,
+                "email.journey.modification.title", Optional.empty());
+    }
 }
 

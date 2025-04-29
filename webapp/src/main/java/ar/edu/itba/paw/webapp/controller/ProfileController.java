@@ -38,7 +38,7 @@ public class ProfileController {
         Optional<User> user = userService.findByEmail(username);
 
         mav.addObject("user", user);
-        mav.addObject("userJourneys", journeyService.getJourneysByUser(username));
+        mav.addObject("userJourneys", journeyService.getJourneysByUser(username)); // FIXME: cambiar y usar Optional<Journey> getJourneyByEmail
         mav.addObject("userEvents", eventService.getAllEvents(username));
         mav.addObject("userAttendingEvents", eventService.getUserAttendingEvents(username));
 

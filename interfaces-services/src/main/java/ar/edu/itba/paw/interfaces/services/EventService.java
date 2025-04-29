@@ -13,6 +13,8 @@ public interface EventService {
     void replyToEvent(String email,long eventId, String message);
     Optional<Event> getEventById(long id);
     List<Event> getAllEvents();
+    Page<Event> getAllEvents(int page, int size);
+    Page<Event> searchEvents(String search, int page, int size);
     List<Event> getAllEvents(String email);
     void attendEvent(String email, long eventId);
     void attendEvent(long userId, long eventId);
@@ -25,7 +27,8 @@ public interface EventService {
     List<Event> getUserAttendingEvents(String userEmail);
     List<Event> getUserAttendingEvents(long userId);
     List<EventResponse> getEventResponses(long eventId);
-    List<Event> getRecommendedEvents(String email);
+//    List<User> getEventResponders(long eventId);
+    List<UserEvent> getRecommendedEvents(String email);
     List<Event> getTopEvents();
     Boolean isEventOwnedByUser(String email, long eventID);
     boolean isEventFull(long eventId);
@@ -33,4 +36,15 @@ public interface EventService {
 
     List<UserEvent> getEventsWithAttendanceStatus(long userId);
     List<UserEvent> getEventsWithAttendanceStatus(String email);
+    void editEvent(long eventId,
+                          String cityName,
+                          LocalDate date,
+                          Optional<byte[]> flyer,
+                          String description,
+                          String title,
+                          LocalTime time,
+                          String address,
+                          Integer attendeesLimit);
+
+    void delete(long id, String message);
 }

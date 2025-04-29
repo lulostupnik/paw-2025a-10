@@ -33,8 +33,13 @@ public interface UserDao {
 
     void update(long userId, String firstname, String lastname, String username, Long universityId, Long careerId, Locale locale);
 
+    List<User> getAllUsers();
 
-
+    Page<User> getAllUsers(int page, int size);
+    Page<User> searchUsers(String search, int page, int size);
     // podríamos generalizar en findBy(String field, String value) o algo por el estilo
+
+    List<User> listJourneyRespondersMinusUsers(long journeyId/*, List<Long> userIds*/);
+    List<User> listEventRespondersMinusUsers(long eventId/*, List<Long> userIds*/);
 
 }

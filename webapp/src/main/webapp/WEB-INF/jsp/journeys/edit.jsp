@@ -1,0 +1,275 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<html>
+<head>
+    <title><spring:message code="journey.edit.title"/></title>
+    <!-- Include custom CSS -->
+    <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
+    <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
+    <link rel="stylesheet" href="<c:url value='/resources/css/form-enhancements.css'/>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
+    <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
+</head>
+<body>
+<jsp:include page="../components/navbar.jsp"/>
+<jsp:include page="../components/i18n-hidden-inputs.jsp"/>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <svg xmlns="http://www.w3.org/2000/svg" class="auth-logo-img" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </div>
+            <h1 class="auth-title"><spring:message code="journey.edit.title"/></h1>
+            <p class="auth-subtitle"><spring:message code="journey.edit.subtitle" text="Update your academic journey details"/></p>
+        </div>
+
+        <c:url var="updateJourneyUrl" value="/journeys/${journeyId}/update"/>
+        <form:form modelAttribute="createJourneyForm" action="${updateJourneyUrl}" method="post" class="auth-form" id="journeyForm" novalidate="true">
+            <!-- Start Date Field -->
+            <div class="form-group">
+                <form:label path="startDate" cssClass="form-label required-field">
+                    <spring:message code="createJourney.startDate"/>
+                </form:label>
+                <form:input path="startDate" id="startDate" type="date" cssClass="form-input ${not empty errors.getFieldError('startDate') ? 'error' : ''}" />
+                <form:errors path="startDate" cssClass="error-message" />
+            </div>
+
+            <!-- End Date Field -->
+            <div class="form-group">
+                <form:label path="endDate" cssClass="form-label required-field">
+                    <spring:message code="createJourney.endDate"/>
+                </form:label>
+                <form:input path="endDate" id="endDate" type="date" cssClass="form-input ${not empty errors.getFieldError('endDate') ? 'error' : ''}" />
+                <form:errors path="endDate" cssClass="error-message" />
+            </div>
+
+            <!-- Destination University Field with Enhanced Autocomplete -->
+            <div class="form-group">
+                <form:label path="destinationUniversity" cssClass="form-label required-field">
+                    <spring:message code="createJourney.destinationUniversity"/>
+                </form:label>
+                <div class="autocomplete-wrapper">
+                    <form:select path="destinationUniversity" id="destinationUniversity" cssClass="form-select ${not empty errors.getFieldError('destinationUniversity') ? 'error' : ''}" style="display: none;">
+                        <form:option value=""><spring:message code="createJourney.destinationUniversity.select"/></form:option>
+                        <c:forEach var="item" items="${universities}">
+                            <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
+                        </c:forEach>
+                    </form:select>
+                    <input type="text" id="universitySearch" class="form-input autocomplete-input" placeholder="<spring:message code="createJourney.destinationUniversity.search" text="Type to search university..."/>" />
+                    <div id="universityDropdown" class="autocomplete-dropdown" style="display: none;">
+                        <c:forEach var="item" items="${universities}">
+                            <div class="autocomplete-item" data-value="<c:out value="${item.name}"/>">
+                                <c:out value="${item.name}"/>
+                            </div>
+                        </c:forEach>
+                    </div>
+                    <!-- Container for selected universities -->
+                    <div id="selectedUniversities" class="selected-tags"></div>
+                </div>
+                <form:errors path="destinationUniversity" cssClass="error-message" />
+            </div>
+
+            <!-- Description Field -->
+            <div class="form-group">
+                <form:label path="description" cssClass="form-label required-field">
+                    <spring:message code="createJourney.description"/>
+                </form:label>
+
+                <c:set var="descriptionHint"><spring:message code="createJourney.description.hint"/></c:set>
+                <form:textarea path="description"
+                               cssClass="form-textarea ${not empty errors.getFieldError('description') ? 'error' : ''}"
+                               placeholder="${descriptionHint}"
+                />
+                <form:errors path="description" cssClass="error-message" />
+            </div>
+
+            <button type="submit" class="form-button">
+                <spring:message code="journey.edit.submit"/>
+            </button>
+        </form:form>
+
+        <div class="auth-footer">
+            <a href="<c:url value='/profile' />" class="auth-link">
+                <spring:message code="journey.back" text="Back to journeys"/>
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<!-- Include modularized JavaScript files -->
+<script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
+<script src="<c:url value='/resources/js/components/date-validation.js'/>"></script>
+<script src="<c:url value='/resources/js/journey-form.js'/>"></script>
+
+<script>
+    // Initialize the university autocomplete with the pre-selected value
+    document.addEventListener('DOMContentLoaded', function() {
+        // University autocomplete initialization
+        initializeUniversityAutocomplete();
+
+        // Date validation
+        initializeDateValidation();
+    });
+
+    function initializeUniversityAutocomplete() {
+        const universitySelect = document.getElementById('destinationUniversity');
+        const universitySearch = document.getElementById('universitySearch');
+        const selectedUniversities = document.getElementById('selectedUniversities');
+        const universityDropdown = document.getElementById('universityDropdown');
+
+        // Check if there's a pre-selected university
+        if (universitySelect && universitySelect.value) {
+            // Clear any existing tags
+            selectedUniversities.innerHTML = '';
+
+            // Create a tag for the pre-selected university
+            const selectedValue = universitySelect.value;
+
+            // Create and append the tag
+            const tag = document.createElement('div');
+            tag.className = 'selected-tag';
+            tag.innerHTML = `
+                ${selectedValue}
+                <button type="button" class="remove-tag" aria-label="Remove ${selectedValue}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </button>
+            `;
+            selectedUniversities.appendChild(tag);
+
+            // Add event listener to the remove button
+            tag.querySelector('.remove-tag').addEventListener('click', function() {
+                tag.remove();
+                universitySelect.value = '';
+                universitySearch.disabled = false;
+                universitySearch.focus();
+            });
+
+            // Disable the search input when a university is selected
+            universitySearch.disabled = true;
+        }
+
+        // Set up the search functionality
+        universitySearch.addEventListener('input', function() {
+            const searchValue = this.value.toLowerCase();
+            let hasMatches = false;
+
+            // Show the dropdown
+            universityDropdown.style.display = 'block';
+
+            // Filter the dropdown items
+            const items = universityDropdown.querySelectorAll('.autocomplete-item');
+            items.forEach(function(item) {
+                const itemValue = item.getAttribute('data-value').toLowerCase();
+                if (itemValue.includes(searchValue)) {
+                    item.style.display = 'block';
+                    hasMatches = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Hide dropdown if no matches
+            if (!hasMatches) {
+                universityDropdown.style.display = 'none';
+            }
+        });
+
+        // Handle clicking on dropdown items
+        universityDropdown.querySelectorAll('.autocomplete-item').forEach(function(item) {
+            item.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                universitySelect.value = value;
+                universitySearch.value = '';
+                universitySearch.disabled = true;
+                universityDropdown.style.display = 'none';
+
+                // Clear existing tags
+                selectedUniversities.innerHTML = '';
+
+                // Create a new tag
+                const tag = document.createElement('div');
+                tag.className = 'selected-tag';
+                tag.innerHTML = `
+                    ${value}
+                    <button type="button" class="remove-tag" aria-label="Remove ${value}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                        </svg>
+                    </button>
+                `;
+                selectedUniversities.appendChild(tag);
+
+                // Add event listener to the remove button
+                tag.querySelector('.remove-tag').addEventListener('click', function() {
+                    tag.remove();
+                    universitySelect.value = '';
+                    universitySearch.disabled = false;
+                    universitySearch.focus();
+                });
+            });
+        });
+
+        // Show dropdown when clicking on the search input
+        universitySearch.addEventListener('focus', function() {
+            if (this.value === '') {
+                universityDropdown.style.display = 'block';
+            }
+        });
+
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!universitySearch.contains(e.target) && !universityDropdown.contains(e.target)) {
+                universityDropdown.style.display = 'none';
+            }
+        });
+    }
+
+    function initializeDateValidation() {
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+
+        if (startDateInput && endDateInput) {
+            // Ensure end date is after start date
+            endDateInput.addEventListener('change', function() {
+                if (startDateInput.value && endDateInput.value) {
+                    const startDate = new Date(startDateInput.value);
+                    const endDate = new Date(endDateInput.value);
+
+                    if (endDate < startDate) {
+                        endDateInput.setCustomValidity('End date must be after start date');
+                        endDateInput.reportValidity();
+                    } else {
+                        endDateInput.setCustomValidity('');
+                    }
+                }
+            });
+
+            startDateInput.addEventListener('change', function() {
+                if (startDateInput.value && endDateInput.value) {
+                    const startDate = new Date(startDateInput.value);
+                    const endDate = new Date(endDateInput.value);
+
+                    if (endDate < startDate) {
+                        startDateInput.setCustomValidity('Start date must be before end date');
+                        startDateInput.reportValidity();
+                    } else {
+                        startDateInput.setCustomValidity('');
+                    }
+                }
+            });
+        }
+    }
+</script>
+
+</body>
+</html>

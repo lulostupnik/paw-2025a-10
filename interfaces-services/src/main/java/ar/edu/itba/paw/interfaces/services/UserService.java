@@ -1,7 +1,9 @@
 package ar.edu.itba.paw.interfaces.services;
 
+import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.User;
 
+import java.util.List;
 import java.util.Locale;
 import ar.edu.itba.paw.models.UserPassword;
 
@@ -9,7 +11,7 @@ import ar.edu.itba.paw.models.UserPassword;
 import java.util.Optional;
 
 public interface UserService {
-    User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, byte[] profilePicture, String[] interests, String password, Locale locale);
+    User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, byte[] profilePicture, long[] interests, String password, Locale locale);
 
     Optional<User> findByEmail(String email);
     Optional<UserPassword> findByEmailWithPass(String email);
@@ -29,5 +31,9 @@ public interface UserService {
 
     void updateCareer(long userId, String newCareerName);
     void updateCareer(long userId, long careerId);
+    byte[] getProfilePictureData(User user);
 
+    List<User> getAllUsers();
+    Page<User> getAllUsers(int page, int size);
+    Page<User> searchUsers(String search, int page, int size);
 }

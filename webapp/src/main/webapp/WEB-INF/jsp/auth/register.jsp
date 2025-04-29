@@ -252,9 +252,9 @@
                         <!-- Hidden select that will hold the actual form data -->
                         <form:select path="interests" multiple="true" id="interestsSelect" style="display: none;" >
 <%--                            <c:forEach var="item" items="${interests}">--%>
-<%--                                <option value="${item.name}"><c:out value="${item.name}"/></option>--%>
+<%--                            <option value="${interest.id}" ${param.interests == interest.id ? 'selected' : ''}><c:out value="${interest.name}"/></option>--%>
 <%--                            </c:forEach>--%>
-                            <form:options items="${interests}" itemValue="name" itemLabel="name"/>
+                            <form:options items="${interests}" itemValue="id" itemLabel="name"/>
 <%--@NOTE : si interests no se carga en alguna, hacer el fix de arriba ^--%>
                         </form:select>
 

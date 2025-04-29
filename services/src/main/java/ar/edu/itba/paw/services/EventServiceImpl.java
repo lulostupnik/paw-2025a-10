@@ -1,8 +1,10 @@
 package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.persistence.*;
+import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.interfaces.services.EmailService;
 import ar.edu.itba.paw.interfaces.services.EventService;
+import ar.edu.itba.paw.interfaces.services.ImageService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
@@ -22,21 +24,25 @@ public class EventServiceImpl implements EventService {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventServiceImpl.class);
 
     private final UserService userService;
-    private final EventResponseDao eventResponseDao;
+    private final EventResponseService eventResponseService;
     private final EmailService emailService;
     private final EventDao eventDao;
-    private final ImageDao imageDao;
-    private final CityDao cityDao;
+    private final ImageService imageService;
+    private final CityService cityService;
     private final EventAttendanceDao eventAttendanceDao;
+    private final UserDao userDao;
 
     @Autowired
-    public EventServiceImpl(UserService userService, EventResponseDao eventResponseDao, EventDao eventDao, EmailService emailService, ImageDao imageDao, CityDao cityDao, EventAttendanceDao eventAttendanceDao) {
+    public EventServiceImpl(UserService userService, EventResponseService eventResponseService,
+                            EventDao eventDao, EmailService emailService, ImageService imageService,
+                            CityService cityService, EventAttendanceDao eventAttendanceDao, UserDao userDao) {
+        this.userDao = userDao;
         this.userService = userService;
-        this.eventResponseDao = eventResponseDao;
+        this.eventResponseService = eventResponseService;
         this.eventDao = eventDao;
         this.emailService = emailService;
-        this.imageDao = imageDao;
-        this.cityDao = cityDao;
+        this.imageService = imageService;
+        this.cityService = cityService;
         this.eventAttendanceDao = eventAttendanceDao;
     }
 
@@ -46,13 +52,13 @@ public class EventServiceImpl implements EventService {
         LOGGER.debug("Creating event for user {}", email);
 
         LOGGER.debug("Looking for city {}", cityName);
-        City city = cityDao.findByName(cityName).orElseThrow(() -> new RuntimeException("City not found"));
+        City city = cityService.findByName(cityName).orElseThrow(() -> new RuntimeException("City not found"));
 
         LOGGER.debug("Looking for user {}", email);
         User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
 
         LOGGER.debug("Saving event image");
-        long flyerImageId = imageDao.saveImage(flyer);
+        long flyerImageId = imageService.storeImage(flyer);
 
         LOGGER.info("Event data is valid, commiting new event to persistance");
         Event event = eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit);
@@ -68,23 +74,23 @@ public class EventServiceImpl implements EventService {
     @Override
     public void replyToEvent(String email, long eventId, String message) {
         LOGGER.debug("Replying to event {}", eventId);
-
         LOGGER.debug("Looking for event {}", eventId);
         Event event = eventDao.findById(eventId).orElseThrow(() -> new RuntimeException("Event not found"));
 
-        //parche temporal buscar por username
         LOGGER.debug("Looking for user {}", email);
         User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
 
         LOGGER.info("Event reply is valid, commiting new reply to persistence");
-        eventResponseDao.create(user.getId(), user.getUsername(),eventId, message, LocalDateTime.now());
+        eventResponseService.create(user.getId(), user.getUsername(),eventId, message, LocalDateTime.now());
 
-        LOGGER.info("Sending email notification to event owner");
-        emailService.answerEventMail(email,event.getUser().getEmail(), user.getFirstname(),
-                user.getLastname(),user.getUsername(),user.getCareer().getName(), user.getUniversity().getName(),
-                message, user.getLocale(),
-                imageDao.getImageById(user.getProfilePictureId()).orElseThrow(() -> new RuntimeException("Image not found")).getData(),
-                eventId);
+        LOGGER.info("Sending email notification for the event"); //@TODO mejorar
+
+        emailService.answerEventNotification(
+                userDao.listEventRespondersMinusUsers(eventId),
+                message,
+                user,
+                event
+                );
     }
 
     @Transactional(readOnly = true)
@@ -94,10 +100,21 @@ public class EventServiceImpl implements EventService {
         return eventDao.findById(id);
     }
 
+
     @Transactional(readOnly = true)
     @Override
     public List<Event> getAllEvents() {
         return eventDao.listAll();
+    }
+
+    @Override
+    public Page<Event> getAllEvents(int page, int size) {
+        return eventDao.listAll(page, size);
+    }
+
+    @Override
+    public Page<Event> searchEvents(String search, int page, int size) {
+        return eventDao.searchEvents(search, page, size);
     }
 
     @Transactional(readOnly = true)
@@ -190,16 +207,26 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly = true)
     @Override
     public List<EventResponse> getEventResponses(long eventId){
-        return eventResponseDao.listAllFromEvent(eventId);
+        return eventResponseService.listAllFromEvent(eventId);
     }
+//    //@TODO cache ?
+//    @Transactional(readOnly = true)
+//    @Override
+//    public List<User> getEventResponders(long eventId){
+//        return eventResponseDao.listAllUsersResponders(eventId);
+//    }
+
 
     // FIXME: Agregarle cacheable?
     @Transactional(readOnly = true)
     @Override
-    public List<Event> getRecommendedEvents(String email){
-        List<Event> events = eventDao.getRecommendedEvents(email);
+    public List<UserEvent> getRecommendedEvents(String email){
+        List<UserEvent> events = eventDao.getRecommendedEvents(email);
         if(events.isEmpty()){
-            return eventDao.getTopEvents();
+            eventDao.getTopEvents().forEach((event)->{
+                UserEvent ue = new UserEvent(event,false);
+                events.add(ue);
+            });
         }
         return events;
     }
@@ -246,4 +273,57 @@ public class EventServiceImpl implements EventService {
         long userId = userService.findByEmail(email).orElseThrow().getId();
         return getEventsWithAttendanceStatus(userId);
     }
+
+
+    //@TODO checkear cache
+    //@TODO CHECKEAR: hay unos argumentos que estan bien en null (atendeesLimit, description).  medio que no tiene sentido/poco claro.
+    @Transactional
+    @CacheEvict(value = "eventsById", key = "#eventId")
+    @Override
+    public void editEvent(long eventId,
+                          String cityName,
+                          LocalDate date,
+                          Optional<byte[]> flyer,
+                          String description,
+                          String title,
+                          LocalTime time,
+                          String address,
+                          Integer attendeesLimit) {
+
+        // 1. Load the existing event
+        Event currentEvent = eventDao.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("Event not found"));
+
+        // 3. Resolve final values
+        long resolvedCityId = cityService.findByName(cityName).orElseThrow(() -> new RuntimeException("City not found")).getId();
+
+       eventDao.updateData(
+                resolvedCityId,
+                date,
+                description,
+                title,
+                time,
+                address,
+                attendeesLimit,
+                eventId //hacer void
+        );
+
+        flyer.ifPresent(content -> {
+            imageService.updateImage(currentEvent.getFlyerImageId(), content);
+        });
+    }
+
+
+
+
+
+    @Transactional
+    @Override
+    public void delete(long id, String message) {
+        LOGGER.debug("Deleting event {}", id);
+        eventDao.deletionMessage(id, message);
+        //emailService.deleteEmail()
+        eventDao.delete(id);
+    }
+
 }

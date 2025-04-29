@@ -28,7 +28,7 @@ public class JourneyJdbcDao implements JourneyDao {
     private static final String ORDER_BY = " ORDER BY j.id ASC ";
     private static final String CURSOR_CONDITION = " j.id > ? ";
 
-    private static final String QUERY = """
+    private static final String SELECT_CLAUSE = """
             SELECT\s
                 us.id AS user_id,\s
                 us.email AS user_email,\s
@@ -58,6 +58,10 @@ public class JourneyJdbcDao implements JourneyDao {
                 un2.id AS destination_university_id,\s
                 un2.name AS destination_university_name,\s
                 un2.abbreviation AS destination_university_abbreviation\s
+            """;
+
+    private static final String QUERY = SELECT_CLAUSE +
+            """
             FROM users us\s
             JOIN journeys j ON j.user_id = us.id
             JOIN careers ca ON us.career_id = ca.id
@@ -68,37 +72,9 @@ public class JourneyJdbcDao implements JourneyDao {
             JOIN cities ci2 ON un2.city_id = ci2.id
             JOIN countries co2 ON ci2.country_id = co2.id
             """;
-
-    private static final String PAGE_QUERY = """
-        SELECT
-            us.id AS user_id,
-            us.email AS user_email,
-            us.firstname AS user_firstname,
-            us.lastname AS user_lastname,
-            us.username AS user_username,
-            us.university AS user_university,
-            us.profile_picture_id AS user_profile_picture_id,
-            us.language AS user_language,
-            ca.id AS career_id,
-            ca.name AS career_name,
-            j.id AS journey_id,
-            j.user_id AS journey_user_id,
-            j.destination_university_id AS journey_destination_university_id,
-            j.start_date AS journey_start_date,
-            j.end_date AS journey_end_date,
-            j.description AS journey_description,
-            ci1.id AS city_id,
-            co1.name AS country_name,
-            ci1.name AS city_name,
-            ci2.id AS destination_city_id,
-            co2.name AS destination_country_name,
-            ci2.name AS destination_city_name,
-            un1.id AS university_id,
-            un1.name AS university_name,
-            un1.abbreviation AS university_abbreviation,
-            un2.id AS destination_university_id,
-            un2.name AS destination_university_name,
-            un2.abbreviation AS destination_university_abbreviation
+    private static final String NOT_DELETED = " WHERE j.deleted = FALSE";
+    private static final String PAGE_QUERY = SELECT_CLAUSE +
+        """
         FROM (
             SELECT * FROM journeys ORDER BY id ASC LIMIT ? OFFSET ?
         ) AS j
@@ -112,8 +88,38 @@ public class JourneyJdbcDao implements JourneyDao {
         JOIN countries co2 ON ci2.country_id = co2.id
         """;
 
+
+    private static final String PAGE_JOURNEY_BY_NOT_USER_ID = SELECT_CLAUSE +
+            """
+            FROM (\s
+                SELECT *\s
+                FROM journeys\s
+                WHERE user_id != ? \s
+                ORDER BY id ASC LIMIT ? OFFSET ?\s
+            ) AS j\s
+            JOIN users us ON j.user_id = us.id\s
+            JOIN careers ca ON us.career_id = ca.id\s
+            JOIN universities un1 ON us.university = un1.id\s
+            JOIN cities ci1 ON un1.city_id = ci1.id\s
+            JOIN countries co1 ON ci1.country_id = co1.id\s
+            JOIN universities un2 ON j.destination_university_id = un2.id\s
+            JOIN cities ci2 ON un2.city_id = ci2.id\s
+            JOIN countries co2 ON ci2.country_id = co2.id\s
+            """;
+
     private final static String QUERY_INTEREST = QUERY + " JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id \n";
 
+    private String getPagedQuery(String whereClause, String orderByClause) {
+        return "FROM (SELECT * FROM journeys j" + whereClause + orderByClause + " LIMIT ? OFFSET ?) AS j " +
+                "JOIN users us ON j.user_id = us.id " +
+                "JOIN careers ca ON us.career_id = ca.id " +
+                "JOIN universities un1 ON us.university = un1.id " +
+                "JOIN cities ci1 ON un1.city_id = ci1.id " +
+                "JOIN countries co1 ON ci1.country_id = co1.id " +
+                "JOIN universities un2 ON j.destination_university_id = un2.id " +
+                "JOIN cities ci2 ON un2.city_id = ci2.id " +
+                "JOIN countries co2 ON ci2.country_id = co2.id ";
+    }
     private final static RowMapper<Journey> JOURNEY_ROW_MAPPER = (rs, rowNum) -> new Journey(
             rs.getLong("journey_id"),
             new User(
@@ -166,12 +172,14 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public Journey create(User user, University destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
         LOGGER.debug("Registering new journey of {} to {} from {} to {} ({})", user, destinationUniversity, startDate, endDate, description);
+        Optional<Journey> journey = findByUserEmail(user.getEmail());
         final Map<String, Object> args = new HashMap<>();
         args.put("user_id", user.getId());
         args.put("destination_university_id", destinationUniversity.getId());
         args.put("start_date", startDate);
         args.put("end_date", endDate);
         args.put("description", description);
+        args.put("deleted", false);  // Establecer el valor de 'deleted' como 'false'
         final Number id = jdbcInsert.executeAndReturnKey(args);
         LOGGER.info("Successfully registered journey {}", id.longValue());
         return new Journey(id.longValue(), user, startDate, endDate, destinationUniversity, description);
@@ -180,7 +188,7 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public List<Journey> listAll() {
         LOGGER.debug("Querying DB for all journeys");
-        return jdbcTemplate.query(QUERY, JOURNEY_ROW_MAPPER);
+        return jdbcTemplate.query(QUERY + NOT_DELETED, JOURNEY_ROW_MAPPER);
     }
 
 
@@ -193,7 +201,7 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public Optional<Journey> findOverlappingJourney(long userId, LocalDate startDate, LocalDate endDate) {
         LOGGER.debug("Querying DB for overlapping journeys for user {} from {} to {}", userId, startDate, endDate);
-        return jdbcTemplate.query(QUERY + " WHERE user_id = ? AND start_date >= ? AND end_date <= ?", JOURNEY_ROW_MAPPER, userId, startDate, endDate).stream().findFirst();
+        return jdbcTemplate.query(QUERY + NOT_DELETED+  " AND user_id = ? AND start_date >= ? AND end_date <= ?", JOURNEY_ROW_MAPPER, userId, startDate, endDate).stream().findFirst();
     }
 
     @Override
@@ -204,10 +212,10 @@ public class JourneyJdbcDao implements JourneyDao {
 
         if (interest != null && !interest.isEmpty()) {
             LOGGER.debug("Interest present, using interest query");
-            query = QUERY_INTEREST;
+            query = QUERY_INTEREST + NOT_DELETED;
         } else {
             LOGGER.debug("Interest not present, using regular query");
-            query = QUERY;
+            query = QUERY + NOT_DELETED;
         }
 
         List<String> filters = new ArrayList<>();
@@ -237,7 +245,7 @@ public class JourneyJdbcDao implements JourneyDao {
         // Solo agregamos WHERE si hay filtros
         if (!filters.isEmpty()) {
             LOGGER.debug("Filters present, adding to query");
-            query += " WHERE " + String.join(" AND ", filters);
+            query += " AND " + String.join(" AND ", filters);
         }
 
         return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
@@ -251,10 +259,10 @@ public class JourneyJdbcDao implements JourneyDao {
 
         if (interest != null && !interest.isEmpty()) {
             LOGGER.debug("Interest present, using interest query");
-            query = QUERY_INTEREST;
+            query = QUERY_INTEREST + NOT_DELETED;
         } else {
             LOGGER.debug("Interest not present, using regular query");
-            query = QUERY;
+            query = QUERY + NOT_DELETED;
         }
 
         List<String> filters = new ArrayList<>();
@@ -286,7 +294,7 @@ public class JourneyJdbcDao implements JourneyDao {
         }
 
         // Add WHERE clause with all filters
-        query += " WHERE " + String.join(" AND ", filters);
+        query += " AND " + String.join(" AND ", filters);
 
         return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
     }
@@ -294,19 +302,31 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public List<Journey> findByOriginCity(long originCityId) {
-        return jdbcTemplate.query(QUERY + " WHERE ci1.id = ?", JOURNEY_ROW_MAPPER, originCityId);
+        return jdbcTemplate.query(QUERY + NOT_DELETED+ " AND ci1.id = ?", JOURNEY_ROW_MAPPER, originCityId);
     }
 
     @Override
     public List<Journey> findByOriginUniversity(long originUniversityId) {
-        return jdbcTemplate.query(QUERY + " WHERE un1.id = ?", JOURNEY_ROW_MAPPER, originUniversityId);
+        return jdbcTemplate.query(QUERY + NOT_DELETED+ " AND un1.id = ?", JOURNEY_ROW_MAPPER, originUniversityId);
     }
 
 
     @Override
     public Optional<Journey> findByUserId(long userId) {
         LOGGER.debug("Querying DB for journeys from user {}", userId);
+        return jdbcTemplate.query(QUERY + NOT_DELETED+ " AND us.id = ?", JOURNEY_ROW_MAPPER, userId).stream().findFirst();
+    }
+
+    private Optional<Journey> findByUserIdDeleted(long userId) {
+        LOGGER.debug("Querying DB for journeys from user {}", userId);
         return jdbcTemplate.query(QUERY + " WHERE us.id = ?", JOURNEY_ROW_MAPPER, userId).stream().findFirst();
+    }
+
+
+    @Override
+    public Optional<Journey> findByUserEmail(String email) {
+        LOGGER.debug("Querying DB for journeys from user {}", email);
+        return jdbcTemplate.query(QUERY + NOT_DELETED+ " AND us.email = ?", JOURNEY_ROW_MAPPER, email).stream().findFirst();
     }
 
     @Override
@@ -333,6 +353,7 @@ public class JourneyJdbcDao implements JourneyDao {
                         FROM journeys j
                                  JOIN universities univ ON j.destination_university_id = univ.id
                                  JOIN user_data ud ON ud.id = j.user_id
+                                     WHERE j.deleted = false
                         LIMIT 1
                     ),
                     journey_scores AS (
@@ -423,13 +444,34 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public List<Journey> getJourneysByUser(String email) {
-        return jdbcTemplate.query(QUERY + " WHERE us.email = ?", JOURNEY_ROW_MAPPER, email);
+        return jdbcTemplate.query(QUERY + NOT_DELETED+ " AND us.email = ?", JOURNEY_ROW_MAPPER, email);
+    }
+    @Override
+    public void delete(long id) {
+        final String query = "UPDATE journeys SET deleted = TRUE WHERE id = ?;";
+        int updatedRows = jdbcTemplate.update(query, id);
+
+        if (updatedRows == 0) {
+            // Optionally log or throw an exception if no rows were updated
+            LOGGER.warn("No journey_response found with id {}", id);
+        }
+    }
+
+    @Override
+    public void deletionMessage(long id, String message) {
+        final String query = "UPDATE journeys SET deleted_message = ? WHERE id = ?;";
+        int updatedRows = jdbcTemplate.update(query, message, id);
+        if (updatedRows == 0) {
+            // Optionally log or throw an exception if no rows were updated
+            LOGGER.warn("No journey_response found with id {}", id);
+        }
+
     }
 
     @Override
     public List<Journey> getOthersJourneys(long userId) {
         LOGGER.debug("Querying DB for journeys from users other than user ID: {}", userId);
-        return jdbcTemplate.query(QUERY + " WHERE us.id != ? ", JOURNEY_ROW_MAPPER, userId);
+        return jdbcTemplate.query(QUERY + NOT_DELETED+ " AND us.id != ? ", JOURNEY_ROW_MAPPER, userId);
     }
 
     @Override
@@ -473,5 +515,92 @@ public class JourneyJdbcDao implements JourneyDao {
             LOGGER.warn("Journey destination update failed: Journey with ID {} not found", journeyId);
         }
     }
+
+    @Override
+    public Page<Journey> listAll(int page, int size) {
+        List<Journey> list = jdbcTemplate.query(PAGE_QUERY + NOT_DELETED, JOURNEY_ROW_MAPPER, size, (page-1) * size);
+        return new Page<>(list, page);
+    }
+
+        // SELECT_CLAUSE +
+        // FROM ( SELECT * FROM
+        // innerClause +
+        // outerClause
+
+    @Override
+    public Page<Journey> getOthersJourneys(long userId, int page, int size) {
+        List<Journey> list = jdbcTemplate.query(PAGE_JOURNEY_BY_NOT_USER_ID + NOT_DELETED, JOURNEY_ROW_MAPPER, userId, size, page * size);
+        return new Page<>(list, page);    }
+
+    @Override
+    public Page<Journey> findByFilters(Long userId, Long cityId, LocalDate startDate, LocalDate endDate, Long interest, int page, int size) {
+        String query;
+
+        List<String> filters = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+
+        if (userId != null) {
+            filters.add("us.id = ?");
+            params.add(userId);
+        }
+
+        if (cityId != null) {
+            filters.add("ci2.id = ?");
+            params.add(cityId);
+        }
+
+        if (endDate != null) {
+            filters.add("j.start_date <= ?");
+            params.add(endDate);
+        }
+
+        if (startDate != null) {
+            filters.add("j.end_date >= ?");
+            params.add(startDate);
+        }
+
+        if (interest != null) {
+            query = QUERY_INTEREST + NOT_DELETED;
+            filters.add("c.id = ?");
+            params.add(interest);
+        } else {
+            query = QUERY+ NOT_DELETED;
+        }
+
+
+        if (!filters.isEmpty()) {
+            query += "AND " + String.join(" AND ", filters);
+        }
+
+        query += " ORDER BY j.id ASC LIMIT ? OFFSET ?";
+        params.add(size);
+        params.add(page * size);
+
+        return new Page<>(jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray()), page);
+    }
+
+    @Override
+    public Page<Journey> findByOriginCity(long originCityId, int page, int size) {
+        List<Journey> list = jdbcTemplate.query(QUERY + NOT_DELETED + "AND ci1.id = ? ORDER BY j.id ASC LIMIT ? OFFSET ?", JOURNEY_ROW_MAPPER, originCityId, size, page * size);
+        return new Page<>(list, page);
+    }
+
+    @Override
+    public Page<Journey> searchJourneys(String search, int page, int size) {
+        LOGGER.debug("Querying DB for events with search {}", search);
+        int offset = (page - 1) * size;
+        String whereClause = NOT_DELETED + " AND j.user_id IN (SELECT id FROM users WHERE LOWER(username) LIKE LOWER(?)) ";
+        String searchPattern = "%" + search + "%";
+        String orderByClause = "ORDER BY j.user_id DESC ";
+
+            return new Page<>(jdbcTemplate.query(
+                    SELECT_CLAUSE + getPagedQuery(whereClause, orderByClause),
+                    JOURNEY_ROW_MAPPER,
+                    searchPattern,
+                    size,
+                    offset
+            ), page);
+        }
+
 
 }

@@ -5,27 +5,19 @@ import javax.validation.Valid;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.webapp.form.FilterJourneyForm;
-import ar.edu.itba.paw.webapp.form.ReplyJourneyForm;
+import ar.edu.itba.paw.webapp.form.ReplyForm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,7 +44,7 @@ public class JourneyController {
     }
 
     @RequestMapping
-    public ModelAndView getJourneys(@Valid @ModelAttribute FilterJourneyForm fjf, final BindingResult errors,
+    public ModelAndView getJourneys(@Valid @ModelAttribute("filterJourneyForm") FilterJourneyForm fjf, final BindingResult errors,
                                     @RequestParam(value = "username", required = false) String username) {
         LOGGER.debug("Getting journeys with filters: {destination: \"{}\", startDate: \"{}\", endDate: \"{}\", interest: \"{}\"}",fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
         List<Journey> journeys;
@@ -85,6 +77,19 @@ public class JourneyController {
         LOGGER.debug("Interests: {}", interests);
         mav.addObject("interests", interests);
     }
+    @PostMapping(value = "/{id}/delete")
+    public ModelAndView deleteJourney(@PathVariable long id, @Valid @ModelAttribute("deleteForm") final ReplyForm form,
+                                      final BindingResult errors, final RedirectAttributes redirectAttributes) {
+        LOGGER.debug("Deleting journey {}", id);
+        if(errors.hasErrors()) {
+            LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
+            redirectAttributes.addFlashAttribute("deleteErrors", errors);
+            redirectAttributes.addFlashAttribute("deleteForm", form);
+            return new ModelAndView("redirect:/journeys/" + id);
+        }
+        js.delete(id, form.getMessage());
+        return new ModelAndView("redirect:/journeys");
+    }
 
     @RequestMapping(value = "/create", method = POST)
     public ModelAndView createJourney(@Valid @ModelAttribute("createJourneyForm") final CreateJourneyForm jf,
@@ -106,18 +111,25 @@ public class JourneyController {
     @RequestMapping(value = "/create")
     public ModelAndView createJourneyForm(@ModelAttribute("createJourneyForm") final CreateJourneyForm jf, @ModelAttribute("username") String username) {
 
-        if(journeyService.userHasJourney(username)) {
+        if (journeyService.userHasJourney(username)) {
             LOGGER.debug("User already has a journey, redirecting to journey list");
             return new ModelAndView("redirect:/journeys");
         }
 
         return new ModelAndView("journeys/create")
-                .addObject("universities",  universityService.getAllUniversities());
+                .addObject("universities", universityService.getAllUniversities());
     }
 
     @RequestMapping(value = "/{id}")
-    public ModelAndView getJourney(@PathVariable long id,@Valid @ModelAttribute("replyJourneyForm") final ReplyJourneyForm rjf,
-                                   BindingResult errors) {
+    public ModelAndView getJourney(@PathVariable long id,
+                                   @Valid @ModelAttribute("replyJourneyForm") final ReplyForm rjf,
+                                   BindingResult errors,
+                                   @Valid @ModelAttribute("deleteForm") final ReplyForm deleteForm,
+                                   final BindingResult deleteErrors,
+                                   @Valid @ModelAttribute("deleteReplyForm") final ReplyForm deleteReplyForm,
+                                   final BindingResult deleteReplyErrors,
+                                   @RequestParam(value = "replyId", required = false) Long replyId){
+
         LOGGER.debug("Getting info for journey {}", id);
 
         Optional<Journey> journey = js.getJourneyById(id);
@@ -131,11 +143,25 @@ public class JourneyController {
         final ModelAndView mav = new ModelAndView("journeys/detail");
         mav.addObject("journey", journey.get());
         mav.addObject("journeyResponses", journeyResponses);
+
+        // Check if there are errors in the delete forms
+        if (deleteErrors.hasErrors()) {
+            // Add attributes to indicate there was an error in the journey delete form
+            mav.addObject("deleteFormHasErrors", true);
+            mav.addObject("deleteFormType", "journey");
+            mav.addObject("deleteFormId", "delete-journey-form");
+        } else if (deleteReplyErrors.hasErrors()) {
+
+            // Add attributes to indicate there was an error in a journey response delete form
+            mav.addObject("deleteFormHasErrors", true);
+            mav.addObject("deleteFormType", "journeyResponse");
+            mav.addObject("deleteFormId", "delete-journey-response-form-" + replyId);
+        }
         return mav;
     }
 
     @RequestMapping(value = "/{id}/reply", method = POST)
-    public ModelAndView replyToJourney(@PathVariable int id, @Valid @ModelAttribute("replyJourneyForm") final ReplyJourneyForm rjf,
+    public ModelAndView replyToJourney(@PathVariable int id, @Valid @ModelAttribute("replyJourneyForm") final ReplyForm rjf,
                                        final BindingResult errors, final RedirectAttributes redirectAttributes,
                                        @ModelAttribute("username") String username) {
 
@@ -150,4 +176,81 @@ public class JourneyController {
 
         return new ModelAndView("redirect:/journeys/" + id);
     }
+
+
+//-----------------------------Work in progress
+    @RequestMapping(value = "/{id}/update", method = GET)
+    public ModelAndView showUpdateJourneyForm(@PathVariable("id") long journeyId,
+                                              @ModelAttribute("username") String username) {
+        LOGGER.debug("User {} requested to update journey {}", username, journeyId);
+
+        Optional<Journey> maybeJourney = js.getJourneyById(journeyId);
+
+        //@TODO CAMBIAR A SPRING SECUTIRY
+        if (maybeJourney.isEmpty()) {
+            LOGGER.warn("Journey {} not found", journeyId);
+            return new ModelAndView("journeys/not_found");
+        }
+        Journey journey = maybeJourney.get();
+        if (!journey.getUser().getUsername().equals(username)) {
+            LOGGER.warn("User {} is not owner of journey {}", username, journeyId);
+            return new ModelAndView("errors/403");
+        }
+
+        CreateJourneyForm form = new CreateJourneyForm();
+        form.setStartDate(journey.getStartDate());
+        form.setEndDate(journey.getEndDate());
+        form.setDestinationUniversity(journey.getDestinationUniversity().getName());
+        form.setDescription(journey.getDescription());
+
+        ModelAndView mav = new ModelAndView("journeys/edit");
+        mav.addObject("createJourneyForm", form);
+        mav.addObject("universities", universityService.getAllUniversities());
+        mav.addObject("journeyId", journeyId);
+        return mav;
+    }
+/*
+    @RequestMapping(value = "/{id}/update", method = POST)
+    public ModelAndView updateJourney(@PathVariable("id") long journeyId,
+                                      @ModelAttribute("username") String username,
+                                      @Valid @ModelAttribute("createJourneyForm") CreateJourneyForm form,
+                                      BindingResult errors) {
+
+        LOGGER.debug("User {} submitted update for journey {}", username, journeyId);
+
+        //CAMBIAR A SPRING SECURITY
+        Optional<Journey> maybeJourney = js.getJourneyById(journeyId);
+        if (maybeJourney.isEmpty()) {
+            LOGGER.warn("Journey {} not found", journeyId);
+            return new ModelAndView("journeys/not_found");
+        }
+        Journey journey = maybeJourney.get();
+        if (!journey.getUser().getUsername().equals(username)) {
+            LOGGER.warn("User {} is not owner of journey {}", username, journeyId);
+            return new ModelAndView("errors/403");
+        }
+
+        if (errors.hasErrors()) {
+            LOGGER.debug("Found {} validation errors in update form", errors.getErrorCount());
+            ModelAndView mav = new ModelAndView("journeys/edit");
+            mav.addObject("createJourneyForm", form);
+            mav.addObject("universities", universityService.getAllUniversities());
+            mav.addObject("journeyId", journeyId);
+            return mav;
+        }
+
+        js.editJourney(journeyId,
+                form.getDestinationUniversity(),
+                form.getStartDate(),
+                form.getEndDate(),
+                form.getDescription());
+
+        LOGGER.info("Journey {} updated successfully", journeyId);
+        return new ModelAndView("redirect:/journeys/" + journeyId);
+    }
+*/
+
+
+
+
 }

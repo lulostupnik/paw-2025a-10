@@ -3,6 +3,7 @@ package ar.edu.itba.paw.services;
 //import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
+import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 
@@ -10,17 +11,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 //import java.util.Date;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -31,23 +29,25 @@ public class JourneyServiceImpl implements JourneyService {
     private final UserService userService;
     private final EmailService emailService;
     private final UniversityService universityService;
-    private final JourneyResponseDao journeyResponseDao;
+    private final JourneyResponseService journeyResponseService;
     //private final CityService cityService;
     //private final InterestService interestService;
     private final ImageService imageService;
     private final InterestService interestService;
+    private final UserDao userDao;
 
     @Autowired
-    public JourneyServiceImpl(JourneyDao journeyDao, UserService userService, ImageService imageService,
-                              UniversityService universityService, JourneyResponseDao journeyResponseDao, EmailService emailService, CityService cityService, InterestService interestService) {
+    public JourneyServiceImpl(JourneyDao journeyDao, UserService userService,UserDao userDao, ImageService imageService,
+                              UniversityService universityService, JourneyResponseService journeyResponseService, EmailService emailService, CityService cityService, InterestService interestService) {
         this.journeyDao = journeyDao;
         this.userService = userService;
         this.universityService = universityService;
-        this.journeyResponseDao = journeyResponseDao;
+        this.journeyResponseService = journeyResponseService;
         this.emailService = emailService;
         //this.cityService = cityService;
         this.interestService = interestService;
         this.imageService = imageService;
+        this.userDao = userDao;
     }
 
     private void checkDates(LocalDate startDate, LocalDate endDate) {
@@ -104,20 +104,32 @@ public class JourneyServiceImpl implements JourneyService {
         User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
 
         LOGGER.info("Journey reply is valid, commiting new reply to persistance");
-        journeyResponseDao.create(user.getId(), user.getUsername() ,journeyId, message, LocalDateTime.now());
+        journeyResponseService.create(user.getId(), user.getUsername() ,journeyId, message, LocalDateTime.now());
 
 
         LOGGER.info("Updating interest score");
         List<Interest> interests = interestService.findByUserId(journey.getUser().getId());
         interestService.updateScoreByInterests(interests, user.getId());
 
-        LOGGER.info("Sending email notification to journey owner");
-        User receiver = journey.getUser();
-        emailService.answerJourneyMail( email, receiver.getEmail() , user.getFirstname(), user.getLastname(),
-                user.getUsername(), user.getCareer().getName(),
-                user.getUniversity().getName(), message , user.getLocale(),
-                imageService.getImage(user.getProfilePictureId()).orElseThrow(()->new RuntimeException("Image not found")).getData(),
-                journeyId);
+
+//
+//        emailService.answerJourneyMail(
+//                journey.getUser(),
+//                message,
+//                user,
+//                journey
+//        );
+
+//        LOGGER.info("Notifying all commenters in journey about a new comment");
+
+        emailService.answerJourneyNotification(
+                userDao.listJourneyRespondersMinusUsers(journeyId/*, new ArrayList<>(List.of(user.getId(), journey.getUser().getId()))*/),
+                message,
+                user,
+                journey
+        );
+
+
     }
 
     @Transactional(readOnly = true)
@@ -126,11 +138,31 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyDao.listAll();
     }
 
+    @Override
+    public Page<Journey> getAllJourneys(int page, int size) {
+        return journeyDao.listAll(page,size);
+    }
+
+    @Override
+    public Page<Journey> searchJourneys(String search, int page, int size) {
+        return journeyDao.searchJourneys(search, page, size);
+    }
+
     @Transactional(readOnly = true)
-    @Cacheable(value = "journeysById", key = "#id")
+    // @Cacheable(value = "journeysById", key = "#id") -> por ahora no cacheo porque cuando cambio un user tengo que invalidar esta cache y para eso tengo que encontrar este journey asociado a ese user
     @Override
     public Optional<Journey> getJourneyById(long id) {
         return journeyDao.findById(id);
+    }
+
+    // Por ahora no es cacheable porque no se como hacer el CacheEvict cuando en el update no se retorna nada.
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<Journey> getJourneyByEmail(String email) {
+        long userId = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found")).getId();
+        return journeyDao.findByUserId(userId);
+        // ó deberíamos hacer lo siguiente?
+        // return journeyDao.findByUserEmail(email); ¿? -> Acá no estaríamos verificando si existe el usuario
     }
 
     @Override
@@ -191,7 +223,7 @@ public class JourneyServiceImpl implements JourneyService {
     @Transactional(readOnly = true)
     @Override
     public List<JourneyResponse> getJourneyResponses(long journeyId){
-        return journeyResponseDao.listAllFromJourney(journeyId);
+        return journeyResponseService.listAllFromJourney(journeyId);
     }
 
     @Override
@@ -209,7 +241,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "journeysById", key = "#journeyId")
+    // @CacheEvict(value = "journeysById", key = "#journeyId")
     public void updateJourneyDates(long journeyId, LocalDate startDate, LocalDate endDate) {
         LOGGER.debug("Updating dates for journey {}: start={}, end={}", journeyId, startDate, endDate);
 
@@ -233,7 +265,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "journeysById", key = "#journeyId")
+    // @CacheEvict(value = "journeysById", key = "#journeyId")
     public void updateJourneyDescription(long journeyId, String description) {
         LOGGER.debug("Updating description for journey {}", journeyId);
 
@@ -250,7 +282,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "journeysById", key = "#journeyId")
+    // @CacheEvict(value = "journeysById", key = "#journeyId")
     public void updateJourneyDestination(long journeyId, String universityName) {
         LOGGER.debug("Updating destination for journey {} to {}", journeyId, universityName);
 
@@ -266,7 +298,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "journeysById", key = "#journeyId")
+    // @CacheEvict(value = "journeysById", key = "#journeyId")
     public void updateJourneyDestination(long journeyId, long universityId) {
         LOGGER.debug("Updating destination for journey {} to university ID {}", journeyId, universityId);
 
@@ -279,6 +311,12 @@ public class JourneyServiceImpl implements JourneyService {
 
         journeyDao.updateDestinationUniversity(journeyId, universityId);
         LOGGER.info("Successfully updated destination for journey {} to university ID {}", journeyId, universityId);
+    }
+
+    @Override
+    public void delete(long id, String message) {
+        journeyDao.deletionMessage(id, message);
+        journeyDao.delete(id);
     }
 
 }

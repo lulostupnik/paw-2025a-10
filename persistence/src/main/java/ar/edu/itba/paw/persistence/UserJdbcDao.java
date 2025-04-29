@@ -43,10 +43,38 @@ public class UserJdbcDao implements UserDao {
             new Career(rs.getLong("career_id"), rs.getString("career_name")),
             rs.getLong("user_profile_picture_id"),
             rs.getString("user_password"),
-            Locale.of(rs.getString("user_language")));
+            Locale.of(rs.getString("user_language")),
+            rs.getString("user_role"));
 
-    private final static String QUERY = """
-            SELECT\s
+    private final static String SELECT_CLAUSE = """
+        SELECT\s
+                    u.id AS user_id,\s
+                    u.email AS user_email,\s
+                    u.firstname AS user_firstname,\s
+                    u.lastname AS user_lastname,\s
+                    u.username AS user_username,\s
+                    u.university AS user_university,\s
+                    u.language AS user_language,\s
+                    c.name AS career_name,\s
+                    c.id AS career_id,\s
+                    u.profile_picture_id AS user_profile_picture_id,\s
+                    un.name AS university_name,\s
+                    un.abbreviation AS university_abbreviation,\s
+                    ci.id AS city_id,\s
+                    ci.name AS city_name,\s
+                    co.name AS country_name\s
+""";
+
+    private final static String QUERY = SELECT_CLAUSE + """
+            FROM users u\s
+            JOIN universities un ON u.university = un.id\s
+            JOIN careers c ON c.id = u.career_id\s
+            JOIN cities ci ON ci.id = un.city_id\s
+            JOIN countries co ON co.id = ci.country_id
+            """;
+
+    private final static String QUERY_DISTINCT = """
+            SELECT DISTINCT\s
                 u.id AS user_id,\s
                 u.email AS user_email,\s
                 u.firstname AS user_firstname,\s
@@ -70,29 +98,26 @@ public class UserJdbcDao implements UserDao {
             """;
 
 
-    private final static String PASSWORD_QUERY = """
-            SELECT\s
-                u.id AS user_id,\s
-                u.email AS user_email,\s
-                u.firstname AS user_firstname,\s
-                u.lastname AS user_lastname,\s
-                u.username AS user_username,\s
-                u.university AS user_university,\s
-                u.language AS user_language,\s
-                c.name AS career_name,\s
-                c.id AS career_id,\s
-                u.profile_picture_id AS user_profile_picture_id,\s
-                un.name AS university_name,\s
-                un.abbreviation AS university_abbreviation,\s
-                ci.id AS city_id,\s
-                ci.name AS city_name,\s
-                co.name AS country_name,\s
-                u.password AS user_password\s
+    private final static String PASSWORD_QUERY = SELECT_CLAUSE + """
+            , u.password AS user_password\s,
+              u.roles AS user_role
             FROM users u\s
             JOIN universities un ON u.university = un.id\s
             JOIN careers c ON c.id = u.career_id\s
             JOIN cities ci ON ci.id = un.city_id\s
             JOIN countries co ON co.id = ci.country_id""";
+
+    private String getPagedQuery(String whereClause, String orderByClause) {
+        return  "FROM (SELECT * FROM users u " + whereClause + orderByClause + " LIMIT ? OFFSET ?) " +
+                """ 
+                AS u
+                JOIN universities un ON u.university = un.id
+                JOIN careers c ON c.id = u.career_id
+                JOIN cities ci ON ci.id = un.city_id
+                JOIN countries co ON co.id = ci.country_id
+                """;
+    }
+
 
     @Autowired
     public UserJdbcDao(DataSource dataSource) {
@@ -133,7 +158,8 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public void changePassword(String email, String password) {
-        LOGGER.debug("Updating password for user email {} (has password {})", email, !password.isEmpty());
+        LOGGER.debug("Updating password for user email {} (has password {})", email, password != null && !password.isEmpty());
+        if (password == null || password.isEmpty()) return;
         int rows = jdbcTemplate.update("UPDATE users SET password = ? WHERE email = ?", password, email);
         if (rows == 0) {
             LOGGER.warn("Password change failed: User not found");
@@ -143,13 +169,13 @@ public class UserJdbcDao implements UserDao {
     @Override
     public boolean existsByUsername(String username) {
         LOGGER.debug("Querying DB for existance of username {}", username);
-        return jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)", Boolean.class, username);
+        return jdbcTemplate.queryForObject("SELECT COUNT(1) FROM users WHERE username = ?", Boolean.class, username);
     }
 
     @Override
     public boolean existsByEmail(String email) {
         LOGGER.debug("Querying DB for existance of user with email {}", email);
-        return jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)", Boolean.class, email);
+        return jdbcTemplate.queryForObject("SELECT COUNT(1) FROM users WHERE email = ?", Boolean.class, email);
     }
 
 
@@ -167,6 +193,7 @@ public class UserJdbcDao implements UserDao {
         args.put("profile_picture_id", profilePictureId);
         args.put("password", password);
         args.put("language", locale);
+        args.put("roles", "user");
         final Number id = jdbcInsert.executeAndReturnKey(args);
         return new User(id.longValue(), email, username, firstname, lastname, university/*.toString()*/, career, profilePictureId, locale);
     }
@@ -235,6 +262,37 @@ public class UserJdbcDao implements UserDao {
             LOGGER.warn("User update failed: User with ID {} not found", userId);
         }
 
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return jdbcTemplate.query(QUERY, USER_ROW_MAPPER);
+    }
+
+    @Override
+    public Page<User> getAllUsers(int page, int size) {
+        LOGGER.debug("Querying DB for all users with pagination: page {}, size {}", page, size);
+        int offset = (page - 1) * size;
+        String whereClause = "";
+        String orderByClause = " ORDER BY u.id ASC";
+        return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPagedQuery(whereClause,orderByClause),USER_ROW_MAPPER,size,offset),page);
+    }
+
+    @Override
+    public Page<User> searchUsers(String search, int page, int size) {
+            LOGGER.debug("Querying DB for events with search {}", search);
+            int offset = (page - 1) * size;
+            String whereClause = " WHERE (LOWER(u.firstname) LIKE LOWER(?))";
+            String searchPattern = "%" + search + "%";
+            String orderByClause = "ORDER BY u.firstname DESC ";
+
+            return new Page<>(jdbcTemplate.query(
+                    SELECT_CLAUSE + getPagedQuery(whereClause, orderByClause),
+                    USER_ROW_MAPPER,
+                    searchPattern,
+                    size,
+                    offset
+            ), page);
     }
 
     @Override
@@ -342,6 +400,25 @@ public class UserJdbcDao implements UserDao {
         if (rowsAffected == 0) {
             LOGGER.warn("Career update failed: User with ID {} not found", userId);
         }
+    }
+
+    @Override
+    public List<User> listJourneyRespondersMinusUsers(long journeyId/*, List<Long> userIds*/) {
+        String query = QUERY_DISTINCT + "JOIN journey_responses jr ON jr.user_id = u.id WHERE jr.journey_id = ?";
+        List<Object> params = new ArrayList<>();
+        params.add(journeyId);
+
+        return jdbcTemplate.query(query,USER_ROW_MAPPER, params.toArray());
+    }
+
+    @Override
+    public List<User> listEventRespondersMinusUsers(long eventId) {
+        String query = QUERY_DISTINCT + "JOIN event_responses er ON er.user_id = u.id WHERE er.event_id = ?";
+        List<Object> params = new ArrayList<>();
+        params.add(eventId);
+
+
+        return jdbcTemplate.query(query,USER_ROW_MAPPER, params.toArray());
     }
 
 }

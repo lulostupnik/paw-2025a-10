@@ -7,6 +7,8 @@
 <script src="<c:url value='/resources/js/detect-overflow.js'/>"></script>
 <c:set var="isOwner" value="${param.isOwner == 'true'}"/>
 <div class="event-card-wrapper">
+
+
     <a href="<c:url value="/events/${param.eventId}"/>" class="event-card-link">
         <div class="featured-event-card">
             <div class="event-image-container">
@@ -22,6 +24,8 @@
                         </svg>
                     </div>
                 </c:if>
+
+
 
                 <!-- Attend Button -->
                 <c:if test="${not empty username && isOwner == false}">
@@ -54,6 +58,20 @@
                         </button>
                     </div>
                 </c:if>
+                <%--                Edit event button:--%>
+                <%--@TODO Las clases son las de attend-button que es medio confuso, pero tiene el mismo CSS --%>
+                <c:if test="${ isOwner == true}">
+                    <div class="attend-button-container">
+                        <button type="button"
+                                class="attend-button"
+                                onclick="redirectToUpdate(<c:out value='${param.eventId}'/>)"
+                                aria-label="<spring:message code='event.edit'/>">
+                            <img src="<c:url value='/resources/icons/edit.svg'/>" alt="<spring:message code='event.edit'/>" class="btn-icon" />
+                        </button>
+                    </div>
+                </c:if>
+
+
             </div>
             <div class="event-card-content">
                 <div class="event-card-header">
@@ -195,4 +213,9 @@
         // Re-enable scrolling on the body
         document.body.style.overflow = '';
     }
+    function redirectToUpdate(eventId) {
+        const baseUrl = '<c:url value="/" />';
+        window.location.href = baseUrl + 'events/' + eventId + '/update';
+    }
+
 </script>

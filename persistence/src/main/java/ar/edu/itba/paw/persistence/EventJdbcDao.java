@@ -20,6 +20,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import ar.edu.itba.paw.interfaces.persistence.EventDao;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class EventJdbcDao implements EventDao {
@@ -68,7 +69,7 @@ public class EventJdbcDao implements EventDao {
             
     );
 
-    private static final String QUERY =
+    private static final String SELECT_CLAUSE =
             """
                     SELECT\s
                         us.id AS user_id,\s
@@ -106,15 +107,34 @@ public class EventJdbcDao implements EventDao {
                        ci2.name AS origin_city_name,\s
                     
                        co2.name AS origin_country_name
+                    """;
+
+    private static final String QUERY = SELECT_CLAUSE +
+            """
                     FROM events e
                     JOIN users us ON e.user_id = us.id
                     JOIN careers ca ON ca.id = us.career_id
                     JOIN universities un ON us.university = un.id
-                    JOIN cities ci2 ON un.city_id = ci2.id\s
+                    JOIN cities ci2 ON un.city_id = ci2.id 
                     JOIN countries co2 ON co2.id = ci2.country_id
-                    JOIN cities c ON e.city_id = c.id\s
-                    JOIN countries co ON c.country_id = co.id\s
+                    JOIN cities c ON e.city_id = c.id
+                    JOIN countries co ON c.country_id = co.id
                     """;
+    private static final String NOT_DELETED = " WHERE e.deleted = FALSE ";
+
+    private String getPageQuery(String whereClause, String orderByClause) {
+        return "FROM (SELECT * FROM events e " + whereClause +" "+ orderByClause + " LIMIT ? OFFSET ?)" +
+                """ 
+                AS e
+                JOIN users us ON e.user_id = us.id
+                JOIN careers ca ON ca.id = us.career_id
+                JOIN universities un ON us.university = un.id
+                JOIN cities ci2 ON un.city_id = ci2.id
+                JOIN countries co2 ON co2.id = ci2.country_id
+                JOIN cities c ON e.city_id = c.id
+                JOIN countries co ON c.country_id = co.id
+                """;
+    }
 
 
 
@@ -149,6 +169,7 @@ public class EventJdbcDao implements EventDao {
         if (attendeesLimit != null) {
             parameters.put("attendees_limit", attendeesLimit);
         }
+        parameters.put("deleted", false);  // Establecer el valor de 'deleted' como 'false'
         final Number keys = jdbcInsert.executeAndReturnKey(parameters);
         LOGGER.debug("Successfully registered event {}", keys.longValue());
         return new Event(keys.longValue(), user, date, description, flyerImageId, city, title, Optional.ofNullable(time), address, Optional.ofNullable(attendeesLimit), 0);
@@ -160,19 +181,17 @@ public class EventJdbcDao implements EventDao {
         LOGGER.debug("Querying DB for event");
 
         StringBuilder sqlBuilder = new StringBuilder(QUERY);
+        sqlBuilder.append(NOT_DELETED);
         List<Object> params = new ArrayList<>();
-        boolean firstCondition = true;
         if (cityId != null) {
             LOGGER.debug("Event condition: in city {}");
-            sqlBuilder.append("WHERE city_id = ?");
+            sqlBuilder.append("AND city_id = ?");
             params.add(cityId);
-            firstCondition = false;
         }
 
         if (date != null) {
             LOGGER.debug("Event condition: date after {}");
-            sqlBuilder.append(firstCondition ? " WHERE" : " AND")
-                    .append(" event_date AFTER ?");
+            sqlBuilder.append("AND event_date AFTER ?");
             params.add(date);
         }
 
@@ -193,16 +212,52 @@ public class EventJdbcDao implements EventDao {
     @Override
     public List<Event> listAll() {
         LOGGER.debug("Querying DB for all events");
-        return jdbcTemplate.query(QUERY, EVENT_ROW_MAPPER);
+        return jdbcTemplate.query(QUERY + NOT_DELETED, EVENT_ROW_MAPPER);
     }
+
+    @Override
+    public Page<Event> listAll(int page, int size) {
+        LOGGER.debug("Querying DB for all events");
+        int offset = (page - 1) * size;
+        String orderByClause = "ORDER BY e.event_date DESC ";
+        return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPageQuery(NOT_DELETED,orderByClause) , EVENT_ROW_MAPPER,size,offset),page);
+    }
+
+    @Override
+    public Page<Event> searchEvents(String search, int page, int size) {
+        LOGGER.debug("Querying DB for events with search {}", search);
+        int offset = (page - 1) * size;
+        String whereClause = NOT_DELETED + " AND (LOWER(e.title) LIKE LOWER(?))";
+        String searchPattern = "%" + search + "%";
+        String orderByClause = "ORDER BY e.event_date DESC ";
+
+        return new Page<>(jdbcTemplate.query(
+                SELECT_CLAUSE + getPageQuery(whereClause, orderByClause),
+                EVENT_ROW_MAPPER,
+                searchPattern,
+                size,
+                offset
+        ), page);
+    }
+
 
     @Override
     public List<Event> getEvents(String email) {
-        return jdbcTemplate.query(QUERY + "WHERE us.email = ?", EVENT_ROW_MAPPER, email);
+        return jdbcTemplate.query(QUERY + NOT_DELETED + "AND us.email = ?", EVENT_ROW_MAPPER, email);
     }
 
     @Override
-    public List<Event> getRecommendedEvents(String email) {
+    public Page<Event> getEvents(String email, int page, int size) {
+        LOGGER.debug("Querying DB for events for usermail {}", email);
+        int offset = (page - 1) * size;
+        String whereClause = NOT_DELETED + "AND us.email = ? ";
+        String orderByClause = "ORDER BY e.event_date DESC ";
+        return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPageQuery(whereClause,orderByClause), EVENT_ROW_MAPPER, email,page,offset),page);
+    }
+
+
+    @Override
+    public List<UserEvent> getRecommendedEvents(String email) {
         LOGGER.debug("Querying DB for recommended events for usermail {}", email);
         return jdbcTemplate.query("""
                WITH user_data AS (
@@ -213,6 +268,7 @@ public class EventJdbcDao implements EventDao {
             WHERE u.email = ?
         )
         SELECT 
+            (ea.user_id IS NOT NULL) AS is_attending,
             us.id AS user_id, 
             us.email AS user_email, 
             us.firstname AS user_firstname, 
@@ -256,9 +312,15 @@ public class EventJdbcDao implements EventDao {
         JOIN cities c ON e.city_id = c.id 
         JOIN countries co ON c.country_id = co.id
         JOIN user_data ud ON ud.city_id = e.city_id
+        LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ud.id
         WHERE e.event_date >= CURRENT_DATE
         AND us.email != ?
-    """, EVENT_ROW_MAPPER, email, email);
+        AND e.deleted = FALSE
+    """,  (rs, rowNum) -> {
+            Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
+            boolean isAttending = rs.getBoolean("is_attending");
+            return new UserEvent(event, isAttending);
+        }, email, email);
     }
 
     public List<Event> getTopEvents(){
@@ -314,6 +376,7 @@ public class EventJdbcDao implements EventDao {
         JOIN countries co ON c.country_id = co.id
         LEFT JOIN event_attendances ea ON ea.event_id = e.id
         WHERE e.event_date >= CURRENT_DATE
+        AND e.deleted = FALSE
         GROUP BY(e.id, us.id, ca.id, un.id, c.id, co.name, ci2.id, co2.name)
         ORDER BY(COUNT(ea.user_id), e.event_date) DESC
         LIMIT 3
@@ -327,7 +390,7 @@ public class EventJdbcDao implements EventDao {
         if (event.isPresent()){
             return event.get().getAttendeesLimit();
         }
-        return Optional.of(null);
+        return Optional.empty();
     }
 
     @Override
@@ -336,17 +399,58 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
+    public void delete(long id) {
+        final String query = "UPDATE events SET deleted = TRUE WHERE id = ?;";
+        int updatedRows = jdbcTemplate.update(query, id);
+
+        if (updatedRows == 0) {
+            // Optionally log or throw an exception if no rows were updated
+            LOGGER.warn("No journey_response found with id {}", id);
+        }
+    }
+
+    @Override
+    public void deletionMessage(long id, String message) {
+        final String query = "UPDATE events SET deleted_message = ? WHERE id = ?;";
+        int updatedRows = jdbcTemplate.update(query, message, id);
+        if (updatedRows == 0) {
+            // Optionally log or throw an exception if no rows were updated
+            LOGGER.warn("No journey_response found with id {}", id);
+        }
+
+    }
+
+    @Override
     public List<Event> getMyEvents(long userId) {
         LOGGER.debug("Querying DB for events created by user {}", userId);
-        return jdbcTemplate.query(QUERY + "WHERE e.user_id = ? ORDER BY e.event_date DESC",
+        return jdbcTemplate.query(QUERY + NOT_DELETED + " AND e.user_id = ? ORDER BY e.event_date DESC",
                 EVENT_ROW_MAPPER, userId);
+    }
+    @Override
+    public Page<Event> getMyEvents(long userId, int page, int size) {
+        LOGGER.debug("Querying DB for events created by user {}", userId);
+        int offset = (page - 1) * size;
+        String whereClause = NOT_DELETED + " AND e.user_id = ? ";
+        String orderByClause = "ORDER BY e.event_date DESC ";
+        return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPageQuery(whereClause, orderByClause),
+                EVENT_ROW_MAPPER, userId,page,offset),page);
     }
 
     @Override
     public List<Event> getOthersEvents(long userId) {
         LOGGER.debug("Querying DB for events not created by user {}", userId);
-        return jdbcTemplate.query(QUERY + "WHERE e.user_id != ? AND e.event_date >= CURRENT_DATE ORDER BY e.event_date",
+        return jdbcTemplate.query(QUERY + NOT_DELETED + " AND e.user_id != ? AND e.event_date >= CURRENT_DATE ORDER BY e.event_date",
                 EVENT_ROW_MAPPER, userId);
+    }
+
+
+    @Override
+    public Page<Event> getOthersEvents(long userId, int page, int size) {
+        LOGGER.debug("Querying DB for events not created by user {}", userId);
+        int offset = (page - 1) * size;
+        String whereClause = NOT_DELETED + " AND e.user_id != ? AND e.event_date >= CURRENT_DATE ";
+        String orderByClause = "ORDER BY e.event_date DESC ";
+        return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPageQuery(whereClause, orderByClause), EVENT_ROW_MAPPER, userId,page,offset),page);
     }
 
     /*
@@ -373,7 +477,7 @@ public class EventJdbcDao implements EventDao {
         LOGGER.debug("Querying DB for events with attendance status for user {} (excluding events created by this user)", userId);
 
         String sql = QUERY.replace("SELECT ", "SELECT (ea.user_id IS NOT NULL) AS is_attending, ") +
-                "LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?  WHERE e.user_id != ?  ORDER BY e.event_date DESC";
+                "LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?  WHERE e.user_id != ? AND e.deleted = FALSE  ORDER BY e.event_date DESC";
 
         return jdbcTemplate.query(
                 sql,
@@ -385,5 +489,33 @@ public class EventJdbcDao implements EventDao {
                 userId, userId
         );
     }
+
+@Override
+public void updateData(long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId/*, long userId*/) {
+    int rowsUpdated = jdbcTemplate.update("""
+        UPDATE events
+           SET city_id = ?,
+               event_date = ?,
+               description = ?,
+               title = ?,
+               event_time = ?,
+               address = ?,
+               attendees_limit = ?
+         WHERE id = ?
+         """,
+            cityId,
+            date,
+            description,
+            title,
+            (time != null) ? Time.valueOf(time) : null,
+            address,
+            attendeesLimit,
+            eventId
+    );
+
+}
+
+
+
 
 }

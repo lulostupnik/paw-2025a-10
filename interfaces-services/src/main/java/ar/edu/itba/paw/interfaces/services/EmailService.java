@@ -1,21 +1,26 @@
 package ar.edu.itba.paw.interfaces.services;
 
 
-import java.util.Locale;
-import java.util.Map;
+import ar.edu.itba.paw.models.Event;
+import ar.edu.itba.paw.models.Journey;
+import ar.edu.itba.paw.models.User;
+
+import java.util.List;
+
 
 public interface EmailService {
 
-    void answerJourneyMail(String from, String to,
-                                  String firstName, String lastName,
-                                  String username, String career,
-                                  String originUniversity, String message,
-                                  Locale locale,byte[] imageBytes, long journeyId);
+    void answerEventNotification(List<User> oldRepliers, String message, User commenter, Event event );
 
-    void answerEventMail(String from, String to,
-                                String firstName, String lastName,
-                                String username, String career,
-                                String originUniversity, String message,
-                                Locale locale, byte[] imageBytes, long eventId);
+    void answerJourneyNotification(List<User> oldRepliers, String message, User commenter, Journey journey  );
+
+
+    void sendEventDeletionNotification(User eventOwner, Event event, String adminMessage);
+
+    void sendJourneyDeletionNotification(User journeyOwner, Journey journey, String adminMessage);
+
+    void sendEventModificationNotification(User eventOwner, Event event, String adminMessage);
+
+    void sendJourneyModificationNotification(User journeyOwner, Journey journey, String adminMessage);
 
 }

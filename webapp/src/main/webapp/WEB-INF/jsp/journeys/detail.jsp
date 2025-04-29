@@ -3,6 +3,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,6 +33,16 @@
 </head>
 
 <body>
+<!-- Hidden elements to store i18n messages for JavaScript -->
+<div style="display: none;">
+    <!-- Journey deletion messages -->
+    <span id="i18n-journey.confirmDelete" data-message="<spring:message code='journey.confirmDelete' />"></span>
+    <span id="i18n-journey.deleteWarning" data-message="<spring:message code='journey.deleteWarning' />"></span>
+
+    <!-- Journey response deletion messages -->
+    <span id="i18n-journeyResponse.confirmDelete" data-message="<spring:message code='journeyResponse.confirmDelete' />"></span>
+    <span id="i18n-journeyResponse.deleteWarning" data-message="<spring:message code='journeyResponse.deleteWarning' />"></span>
+</div>
 <div class="layout-container">
     <!-- Include the sidebar component -->
     <!-- Main Content -->
@@ -103,6 +114,23 @@
                             </p>
                         </div>
                     </div>
+                        <sec:authorize access="hasRole('ADMIN')">
+                            <c:url var="deleteUrl" value='/journeys/${journey.id}/delete'/>
+                            <form:form modelAttribute="deleteForm" id="delete-journey-form" action="${deleteUrl}" method="post" style="display: none;">
+                                <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
+                                <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
+                                <jsp:include page="../components/text-area.jsp">
+                                    <jsp:param name="path" value="message" />
+                                    <jsp:param name="label" value="${messageLabel}" />
+                                    <jsp:param name="placeholder" value="${messagePlaceholder}" />
+                                </jsp:include>
+                            </form:form>
+
+                            <button type="button" class="btn-attendance btn-danger" onclick="openDeleteModal('delete-journey-form', 'journey')">
+                                <img src="<c:url value='/resources/icons/x.svg'/>" alt="<spring:message code='event.delete'/>" class="btn-icon" />
+                                <span class="btn-text"><spring:message code="event.delete" text="Delete" /></span>
+                            </button>
+                        </sec:authorize>
                 </section>
 
                 <!-- Journey Responses Section -->
@@ -140,8 +168,9 @@
                             <!-- Sort responses by date (newest first) -->
                             <c:set var="sortedResponses" value="${journeyResponses}" />
                             <c:forEach var="response" items="${sortedResponses}">
-                                <div class="response-card">
-                                    <div class="response-header">
+                                <div class="response-card flex flex-row justify-between items-center">
+                                    <div class="flex flex-col">
+                                        <div class="response-header">
                                         <div class="response-user">
                                             <div class="response-avatar">
                                                 <div class="avatar-placeholder">
@@ -163,6 +192,26 @@
                                             <c:out value="${response.message}" />
                                         </p>
                                     </div>
+                                </div>
+                                    <sec:authorize access="hasRole('ADMIN')">
+                                        <div class="flex">
+                                            <c:url var="deleteReplyUrl" value='/journey-replies/${response.id}/delete'/>
+                                            <form:form modelAttribute="deleteReplyForm" id="delete-journey-response-form-${response.id}" action="${deleteReplyUrl}" method="post" style="display: none;">
+                                                <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
+                                                <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
+                                                <jsp:include page="../components/text-area.jsp">
+                                                    <jsp:param name="path" value="message" />
+                                                    <jsp:param name="label" value="${messageLabel}" />
+                                                    <jsp:param name="placeholder" value="${messagePlaceholder}" />
+                                                </jsp:include>
+                                            </form:form>
+
+                                            <button type="button" class="btn-attendance btn-danger" onclick="openDeleteModal('delete-journey-response-form-${response.id}', 'journeyResponse')">
+                                                <img src="<c:url value='/resources/icons/x.svg'/>" alt="<spring:message code='event.delete'/>" class="btn-icon" />
+                                                <span class="btn-text"><spring:message code="event.delete" text="Delete" /></span>
+                                            </button>
+                                        </div>
+                                    </sec:authorize>
                                 </div>
                             </c:forEach>
                         </c:if>
@@ -196,42 +245,23 @@
                     </div>
                 </section>
 
-                <!-- Reply Form Section -->
-                <%--                <section class="content-section">--%>
-                <%--                    <div class="section-header">--%>
-                <%--                        <h2 class="section-title">--%>
-                <%--                            <img src="<c:url value='/resources/icons/reply.svg'/>" alt="Reply" class="icon" />--%>
-                <%--                            <spring:message code="journey.detail.leave.reply" />--%>
-                <%--                        </h2>--%>
-                <%--                    </div>--%>
-                <%--                    <div class="section-content">--%>
-                <%--                        <div class="reply-form-container">--%>
-                <%--                            <c:url var="replyUrl" value="/journeys/${journey.id}/reply"/>--%>
-                <%--                            <form:form modelAttribute="replyJourneyForm" action="${replyUrl}" method="post" enctype="multipart/form-data" cssClass="reply-form">--%>
-                <%--                                <!-- Message Field -->--%>
-                <%--                                <c:set var="messageLabel"><spring:message code="reply.message"/></c:set>--%>
-                <%--                                <c:set var="messageHint"><spring:message code="reply.message.hint"/></c:set>--%>
-                <%--                                <jsp:include page="../components/text-area.jsp">--%>
-                <%--                                    <jsp:param name="path" value="message" />--%>
-                <%--                                    <jsp:param name="label" value="${messageLabel}" />--%>
-                <%--                                    <jsp:param name="placeholder" value="${messageHint}" />--%>
-                <%--                                </jsp:include>--%>
 
-                <%--                                <!-- Submit Button -->--%>
-                <%--                                <div class="form-actions">--%>
-                <%--                                    <c:set var="submitButtonLabel"><spring:message code="reply.submit"/></c:set>--%>
-                <%--                                    <jsp:include page="../components/button.jsp">--%>
-                <%--                                        <jsp:param name="label" value="${submitButtonLabel}" />--%>
-                <%--                                        <jsp:param name="type" value="submit" />--%>
-                <%--                                    </jsp:include>--%>
-                <%--                                </div>--%>
-                <%--                            </form:form>--%>
-                <%--                        </div>--%>
-                <%--                    </div>--%>
-                <%--                </section>--%>
             </div>
         </div>
     </div>
 </div>
+<c:set var="warning"><spring:message code="event.deleteWarning"/></c:set>
+<jsp:include page="../components/delete-modal.jsp">
+    <jsp:param name="warning" value="${warning}"/>
+</jsp:include>
+<!-- Add this before the closing body tag -->
+<c:if test="${deleteFormHasErrors}">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Open the modal with the form that has errors
+            openDeleteModal('${deleteFormId}', '${deleteFormType}');
+        });
+    </script>
+</c:if>
 </body>
 </html>

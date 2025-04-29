@@ -62,7 +62,7 @@ public class UniversityJdbcDao implements UniversityDao {
     @Override
     public Optional<University> findByAny(String searchString) {
         LOGGER.debug("Querying DB for university like {}", searchString);
-        return jdbcTemplate.query(QUERY + " WHERE un.abbreviation LIKE ? OR un.name LIKE ?", UNIVERSITY_ROW_MAPPER, searchString, searchString).stream().findFirst();
+        return jdbcTemplate.query(QUERY + " WHERE un.abbreviation LIKE ? OR un.name LIKE ?", UNIVERSITY_ROW_MAPPER, "%"+searchString+"%", "%"+searchString+"%").stream().findFirst();
     }
 
     @Override
@@ -75,7 +75,7 @@ public class UniversityJdbcDao implements UniversityDao {
     public List<University> searchBySubstring(String substring) {
         final String like = "%" + substring + "%";
 
-        final String sql = QUERY + " WHERE (un.name ILIKE ? OR un.abbreviation ILIKE ?) ";
+        final String sql = QUERY + " WHERE LOWER(un.name) LIKE LOWER(?) OR LOWER(un.abbreviation) LIKE LOWER(?) ";
 
         return jdbcTemplate.query(sql, UNIVERSITY_ROW_MAPPER, like, like);
     }

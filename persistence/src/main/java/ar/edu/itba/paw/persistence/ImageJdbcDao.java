@@ -58,4 +58,10 @@ public class ImageJdbcDao implements ImageDao {
         jdbcTemplate.update("DELETE FROM images WHERE id = ?", id);
     }
 
+    @Override
+    public void updateImage(long id, byte[] newContent) {
+        LOGGER.debug("Updating image {} with new content of size {}", id, newContent.length);
+        jdbcTemplate.update("UPDATE images SET content = ? WHERE id = ?", newContent, id);
+    }
+
 }

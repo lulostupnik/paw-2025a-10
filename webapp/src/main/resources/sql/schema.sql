@@ -229,3 +229,18 @@ COMMIT;
 --     FROM event_attendance ea
 --     WHERE ea.event_id = e.id AND ea.user_id = e.user_id
 -- );
+
+BEGIN;
+ALTER TABLE events ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE journeys ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE journey_responses ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE event_responses ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE events ADD COLUMN IF NOT EXISTS deleted_message VARCHAR(1000);
+ALTER TABLE journeys ADD COLUMN IF NOT EXISTS deleted_message VARCHAR(1000);
+ALTER TABLE journey_responses ADD COLUMN IF NOT EXISTS deleted_message VARCHAR(1000);
+ALTER TABLE event_responses ADD COLUMN IF NOT EXISTS deleted_message VARCHAR(1000);
+COMMIT;
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS roles VARCHAR(50) DEFAULT 'user' CHECK (roles IN ('user', 'admin'));
+-- Renombrar el campo name de category como name_en o name_es segun el idioma que estes usando. Crear la columna que falta
+-- Agregar traducciones a la tabla category para cada categoria de interes. Una vez hecho esto hacer el campo not null
