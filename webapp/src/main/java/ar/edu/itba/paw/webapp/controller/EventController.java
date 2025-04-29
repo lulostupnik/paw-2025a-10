@@ -195,7 +195,7 @@ public class EventController {
         eventService.attendEvent(username, id);
 
         if (referer != null && !referer.isEmpty()) {
-            return new ModelAndView("redirect:" + referer); // @TODO history.back()
+            return new ModelAndView("redirect:" + referer);
         } else {
             return new ModelAndView("redirect:/events/{id}");
         }
