@@ -49,5 +49,8 @@ public interface JourneyService {
 
     void delete(long id, String message);
 
+    boolean isJourneyOwnedByUser(String email, long journeyID);
+
+    void editJourney(long journeyId, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
 
 }

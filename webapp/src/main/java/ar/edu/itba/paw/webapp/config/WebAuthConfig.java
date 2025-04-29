@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.webapp.config;
 
+import ar.edu.itba.paw.webapp.auth.AccessHelper;
 import ar.edu.itba.paw.webapp.auth.PawUserDetailsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,9 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private PawUserDetailsService userDetailsService;
 
+    @Autowired
+    private AccessHelper accessHelper;
+
     @Value("${auth.key}")
     private String authKey;
 
@@ -61,7 +65,8 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/events/{id}/delete", "/journeys/{id}/delete", "journey-replies/{id}/delete", "event-replies/{id}/delete").hasRole("ADMIN")
                     .antMatchers("/admin/**").hasRole("ADMIN")
                     .antMatchers("/dashboard/**").hasRole("ADMIN")
-//                    .antMatchers("/events/**", "/journeys/**").permitAll()
+                .antMatchers("/journeys/{id}/update").access("@accessHelper.isUserJourneyOwner(#id)")
+                    .antMatchers("/events/{id}/update").access("@accessHelper.isUserEventOwner(#id)")
                     .antMatchers("/events/create", "/journeys/create").authenticated()
                     .antMatchers("/events/*/reply", "/journeys/*/reply", "/events/*/attend").authenticated()
                     .antMatchers(HttpMethod.GET,"/events", "/", "/events/{id}", "/journeys", "/journeys/{id}", "/images/{id}").permitAll()
