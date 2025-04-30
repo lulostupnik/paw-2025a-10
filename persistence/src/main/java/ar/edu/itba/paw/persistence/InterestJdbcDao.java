@@ -136,7 +136,9 @@ public class InterestJdbcDao implements InterestDao {
         StringBuilder query = new StringBuilder(SELECT_CLAUSE);
         query.append(" FROM category c ");
         query.append(" ORDER BY c.name ASC LIMIT ? OFFSET ?");
-        return new Page<>(jdbcTemplate.query(query.toString(),INTEREST_ROW_MAPPER,page,offset),page);
+        int totalInterests = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM universities", Integer.class);
+        int totalPages = (int) Math.ceil((double) totalInterests / pageSize);
+        return new Page<>(jdbcTemplate.query(query.toString(),INTEREST_ROW_MAPPER,page,offset),page,totalPages);
     }
 
 

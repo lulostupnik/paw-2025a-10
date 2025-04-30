@@ -76,9 +76,9 @@ public class UniversityServiceImpl implements UniversityService {
         return universityDao.getAllUniversities(page, size);
     }
 
-    @Override
-    public University createUniversity(String name, String abbreviation, String city) {
-        return universityDao.createUniversity(name, abbreviation, city);
-    }
+//    @Override
+//    public University createUniversity(String name, String abbreviation, String city) {
+//        return universityDao.createUniversity(name, abbreviation, city);
+//    }
 
 }

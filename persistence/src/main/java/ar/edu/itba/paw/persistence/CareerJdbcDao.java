@@ -56,7 +56,9 @@ public class CareerJdbcDao implements CareerDao {
     @Override
     public Page<Career> getAllCareers(int page, int pageSize) {
         int offset = (page - 1) * pageSize;
-        return new Page<>(jdbcTemplate.query("SELECT * FROM careers LIMIT ? OFFSET ?", CAREER_ROW_MAPPER, page, offset),page);
+        int totalCareers = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM universities", Integer.class);
+        int totalPages = (int) Math.ceil((double) totalCareers / pageSize);
+        return new Page<>(jdbcTemplate.query("SELECT * FROM careers LIMIT ? OFFSET ?", CAREER_ROW_MAPPER, page, offset),page,totalPages);
 
     }
 

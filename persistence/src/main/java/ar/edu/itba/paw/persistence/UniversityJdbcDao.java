@@ -105,20 +105,22 @@ public class UniversityJdbcDao implements UniversityDao {
         query.append(" FROM (SELECT * FROM universities LIMIT ? OFFSET ?) un")
                 .append(" JOIN cities ci ON un.city_id = ci.id")
                 .append(" JOIN countries co ON ci.country_id = co.id");
-        return new Page<>(jdbcTemplate.query(query.toString(), UNIVERSITY_ROW_MAPPER, size, offset), page);
+        int totalUniversities = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM universities", Integer.class);
+        int totalPages = (int) Math.ceil((double) totalUniversities / size);
+        return new Page<>(jdbcTemplate.query(query.toString(), UNIVERSITY_ROW_MAPPER, size, offset),page,totalPages);
     }
 
-    @Override
-    public University createUniversity(String name, String abbreviation, String city) {
-        HashMap<String, Object> parameters = new HashMap<>();
-        parameters.put("name", name);
-        parameters.put("abbreviation", abbreviation);
-        parameters.put("city", city);
-        parameters.put("deleted", false);  // Establecer el valor de 'deleted' como 'false'
-        final Number keys = simpleJdbcInsert.executeAndReturnKey(parameters);
-        LOGGER.debug("Successfully created uni {}", keys.longValue());
-        return new University(keys.longValue(), name, abbreviation, cityDao.findByName(city).get());
-    }
+//    @Override
+//    public University createUniversity(String name, String abbreviation, String city) {
+//        HashMap<String, Object> parameters = new HashMap<>();
+//        parameters.put("name", name);
+//        parameters.put("abbreviation", abbreviation);
+//        parameters.put("city", city);
+//        parameters.put("deleted", false);  // Establecer el valor de 'deleted' como 'false'
+//        final Number keys = simpleJdbcInsert.executeAndReturnKey(parameters);
+//        LOGGER.debug("Successfully created uni {}", keys.longValue());
+//        return new University(keys.longValue(), name, abbreviation, cityDao.findByName(city).get());
+//    }
 
 }
 

@@ -16,9 +16,5 @@ public interface InterestService {
     void saveUserInterests(long[] interests, long userId);
     void updateScoreByInterest(Interest interest, long userId);
     void updateScoreByInterests(List<Interest> interests, long userId);
-
-    Optional<Interest> createUserInterest(Interest interest, Long userId);
-    void updateScoreByInterest(Interest interest, Long userId);
-    void updateScoreByInterests(List<Interest> interests, Long userId);
     Page<Interest> getAllInterests(int page, int pageSize);
 }

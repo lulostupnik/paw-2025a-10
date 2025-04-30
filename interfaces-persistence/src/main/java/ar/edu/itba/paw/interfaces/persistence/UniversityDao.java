@@ -14,6 +14,6 @@ public interface UniversityDao {
     List<University> searchBySubstring(String substring);
     Optional<University> findById(long id);
     Page<University> getAllUniversities(int page, int size);
-    University createUniversity(String name, String abbreviation, String city);
+//    University createUniversity(String name, String abbreviation, String city);
 
 }
