@@ -28,7 +28,7 @@ public class UniversityJdbcDao implements UniversityDao {
 
     private final CityDao cityDao;
     private final JdbcTemplate jdbcTemplate;
-    private final SimpleJdbcInsert simpleJdbcInsert;
+//    private final SimpleJdbcInsert simpleJdbcInsert;
 
     private final static RowMapper<University> UNIVERSITY_ROW_MAPPER = (rs, rowNum) ->
             new University(rs.getLong("university_id"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id")));
@@ -51,10 +51,10 @@ public class UniversityJdbcDao implements UniversityDao {
                     JOIN countries co ON ci.country_id = co.id\s""";
 
     @Autowired
-    public UniversityJdbcDao(CityDao cityDao, final DataSource dataSource, SimpleJdbcInsert simpleJdbcInsert){
+    public UniversityJdbcDao(CityDao cityDao, final DataSource dataSource){
         this.cityDao = cityDao;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.simpleJdbcInsert = simpleJdbcInsert;
+//        this.simpleJdbcInsert = simpleJdbcInsert;
     }
 
     @Override
