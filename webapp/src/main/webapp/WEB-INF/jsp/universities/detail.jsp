@@ -20,8 +20,8 @@
     <div class="featured-journey-card">
       <div class="journey-card-content">
         <div class="journey-card-header">
-          <h1 class="journey-card-title"><c:out value="${university.name}"/></h1>
-          <p class="journey-card-subtitle"><c:out value="${university.abbreviation}"/></p>
+          <h1 class="journey-card-title"><c:out value="${university.get().name}"/></h1>
+          <p class="journey-card-subtitle"><c:out value="${university.get().abbreviation}"/></p>
         </div>
 
         <div class="detail-content">
@@ -30,22 +30,22 @@
           <div class="features-grid">
             <div class="feature-card">
               <h3 class="feature-title"><spring:message code="university.detail.id"/></h3>
-              <p class="feature-description"><c:out value="${university.id}"/></p>
+              <p class="feature-description"><c:out value="${university.get().id}"/></p>
             </div>
 
             <div class="feature-card">
               <h3 class="feature-title"><spring:message code="university.detail.name"/></h3>
-              <p class="feature-description"><c:out value="${university.name}"/></p>
+              <p class="feature-description"><c:out value="${university.get().name}"/></p>
             </div>
 
             <div class="feature-card">
               <h3 class="feature-title"><spring:message code="university.detail.abbreviation"/></h3>
-              <p class="feature-description"><c:out value="${university.abbreviation}"/></p>
+              <p class="feature-description"><c:out value="${university.get().abbreviation}"/></p>
             </div>
 
             <div class="feature-card">
               <h3 class="feature-title"><spring:message code="university.detail.city"/></h3>
-              <p class="feature-description"><c:out value="${university.city.name}"/></p>
+              <p class="feature-description"><c:out value="${university.get().city.name}"/></p>
             </div>
           </div>
         </div>
@@ -55,7 +55,7 @@
             <spring:message code="university.back" text="Back to universities"/>
           </a>
           <div class="hero-cta">
-            <a href="<c:url value='/universities/${university.id}/edit'/>" class="cta-button primary">
+            <a href="<c:url value='/universities/${university.get().id}/edit'/>" class="cta-button primary">
               <spring:message code="university.detail.edit"/>
             </a>
             <button type="button" class="cta-button delete-button" id="deleteUniversityBtn">
@@ -83,7 +83,7 @@
       <button type="button" class="cta-button secondary" id="cancelDeleteBtn">
         <spring:message code="university.delete.cancel"/>
       </button>
-      <form action="<c:url value='/universities/${university.id}/delete'/>" method="post" id="deleteUniversityForm">
+      <form action="<c:url value='/universities/${university.get().id}/delete'/>" method="post" id="deleteUniversityForm">
         <input type="hidden" name="_method" value="DELETE">
         <button type="submit" class="cta-button delete-button">
           <spring:message code="university.delete.confirm"/>
