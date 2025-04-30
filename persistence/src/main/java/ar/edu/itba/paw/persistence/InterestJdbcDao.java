@@ -102,7 +102,7 @@ public class InterestJdbcDao implements InterestDao {
         Map<String, Object> params = new HashMap<>();
         params.put("name_en", interestEn);
         params.put("name_es", interestEs);
-        final Number keys = jdbcInsert.execute(params);
+        final Number keys = jdbcInsert.executeAndReturnKey(params);
         return new Interest(keys.longValue(), interestEn);
     }
 
@@ -151,7 +151,7 @@ public class InterestJdbcDao implements InterestDao {
         query.append(" ORDER BY c.name_en ASC LIMIT ? OFFSET ?");
         int totalInterests = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category", Integer.class);
         int totalPages = (int) Math.ceil((double) totalInterests / pageSize);
-        return new Page<>(jdbcTemplate.query(query.toString(),INTEREST_ROW_MAPPER,page,offset),page,totalPages);
+        return new Page<>(jdbcTemplate.query(query.toString(),INTEREST_ROW_MAPPER,pageSize,offset),page,totalPages);
     }
 
 
