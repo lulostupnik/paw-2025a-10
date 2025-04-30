@@ -102,7 +102,7 @@ public class CityJdbcDao implements CityDao {
         int offset = (page - 1) * pageSize;
         StringBuilder query = new StringBuilder(SELECT_CLAUSE);
         query.append(" FROM (SELECT * FROM cities ci LIMIT ? OFFSET ?) as ci, countries co WHERE ci.country_id = co.id ");
-        int totalCities = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM universities", Integer.class);
+        int totalCities = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities", Integer.class);
         int totalPages = (int) Math.ceil((double) totalCities / pageSize);
         return new Page<>(jdbcTemplate.query(query.toString(),CITY_ROW_MAPPER,page,offset),page,totalPages);
     }
