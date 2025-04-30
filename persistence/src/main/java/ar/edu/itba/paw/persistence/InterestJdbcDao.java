@@ -3,6 +3,7 @@ package ar.edu.itba.paw.persistence;
 import ar.edu.itba.paw.interfaces.persistence.InterestDao;
 import ar.edu.itba.paw.models.Interest;
 
+import ar.edu.itba.paw.models.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,8 @@ public class InterestJdbcDao implements InterestDao {
             rs.getString("name")
     );
 
-    private final static String QUERY = "SELECT c.id AS id, c.name_en AS name FROM category c ";
+    private final static String SELECT_CLAUSE = "SELECT c.id AS id, c.name_en AS name";
+    private final static String QUERY = SELECT_CLAUSE + "FROM category c ";
 
     @Autowired
     public InterestJdbcDao(DataSource dataSource)
@@ -127,6 +129,17 @@ public class InterestJdbcDao implements InterestDao {
         }
     }
 
+    @Override
+    public Page<Interest> getAllInterests(int page, int pageSize) {
+        LOGGER.debug("Querying DB for all interests");
+        int offset = (page - 1) * pageSize;
+        StringBuilder query = new StringBuilder(SELECT_CLAUSE);
+        query.append(" FROM category c ");
+        query.append(" ORDER BY c.name_en ASC LIMIT ? OFFSET ?");
+        int totalInterests = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category", Integer.class);
+        int totalPages = (int) Math.ceil((double) totalInterests / pageSize);
+        return new Page<>(jdbcTemplate.query(query.toString(),INTEREST_ROW_MAPPER,page,offset),page,totalPages);
+    }
 
 
 }

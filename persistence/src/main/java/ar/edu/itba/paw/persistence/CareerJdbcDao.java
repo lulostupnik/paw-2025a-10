@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.sql.DataSource;
 import ar.edu.itba.paw.models.CursorPage;
+import ar.edu.itba.paw.models.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,15 @@ public class CareerJdbcDao implements CareerDao {
         LOGGER.debug("Querying DB for carreer {}", name);
         return jdbcTemplate.query("SELECT * FROM careers WHERE name = ?",
                 CAREER_ROW_MAPPER, name).stream().findFirst();
+    }
+
+    @Override
+    public Page<Career> getAllCareers(int page, int pageSize) {
+        int offset = (page - 1) * pageSize;
+        int totalCareers = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM careers", Integer.class);
+        int totalPages = (int) Math.ceil((double) totalCareers / pageSize);
+        return new Page<>(jdbcTemplate.query("SELECT * FROM careers LIMIT ? OFFSET ?", CAREER_ROW_MAPPER, page, offset),page,totalPages);
+
     }
 
 }

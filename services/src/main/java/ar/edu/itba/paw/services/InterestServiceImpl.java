@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.persistence.InterestDao;
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.models.Interest;
 
+import ar.edu.itba.paw.models.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,6 +90,11 @@ public class InterestServiceImpl implements InterestService {
         LOGGER.debug("Increasing score of interests {} for user {}", interests, userId);
         interestDao.updateScoreByInterests(interests, userId);
 
+    }
+
+    @Override
+    public Page<Interest> getAllInterests(int page, int pageSize) {
+        return interestDao.getAllInterests(page, pageSize);
     }
 
 

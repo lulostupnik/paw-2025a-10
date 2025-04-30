@@ -2,6 +2,7 @@ package ar.edu.itba.paw.interfaces.services;
 
 import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.CursorPage;
+import ar.edu.itba.paw.models.Page;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,5 +13,6 @@ public interface CityService {
     List<City> findAllByCountry(String country);
     List<City> findAllBySubstring(String substring);
     List<City> getAllCities();
+    Page<City> getAllCities(int page, int pageSize);
 
 }
