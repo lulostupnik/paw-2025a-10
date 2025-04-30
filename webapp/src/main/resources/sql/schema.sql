@@ -250,8 +250,8 @@ BEGIN;
 -- Renombrar el campo name de category como name_en o name_es segun el idioma que estes usando. Crear la columna que falta
 -- Agregar traducciones a la tabla category para cada categoria de interes. Una vez hecho esto hacer el campo not null
 -- BEGIN;
--- ALTER TABLE category RENAME COLUMN name TO name_en; --hacer una sola vez
--- ALTER TABLE category ADD COLUMN IF NOT EXISTS name_es VARCHAR(100) NOT NULL;
+-- ALTER TABLE cities RENAME COLUMN name TO name_en; --hacer una sola vez
+-- ALTER TABLE cities ADD COLUMN IF NOT EXISTS name_es VARCHAR(100) NOT NULL;
 -- COMMIT;
 -- Renombrar el campo name de category como name_en o name_es segun el idioma que estes usando. Crear la columna que falta
 -- Agregar traducciones a la tabla category para cada categoria de interes. Una vez hecho esto hacer el campo not null

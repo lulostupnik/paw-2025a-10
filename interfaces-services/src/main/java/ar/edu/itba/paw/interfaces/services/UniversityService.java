@@ -16,4 +16,6 @@ public interface UniversityService {
     List<University> searchBySubstring(String substring);
     Page<University> getAllUniversities(int page, int size);
 //    University createUniversity(String name, String abbreviation, String city);
+    void createUniversity(String name, String abbreviation, long cityId);
+    void updateUniversity(long id, String name, String abbreviation, long cityId);
 }
