@@ -136,7 +136,7 @@
                         <!-- Action Controls - FIXED POSITIONING -->
                         <div class="action-controls">
                             <!-- Attendance Control for non-event owners -->
-                            <c:if test="${not isEventOwner and not empty username}">
+                            <c:if test="${not isEventOwner and not empty user}">
                                 <c:choose>
                                     <c:when test="${attend}">
                                         <div class="attendance-status">

@@ -21,8 +21,8 @@
   <div class="main-content">
     <jsp:include page="./components/navbar.jsp" />
 
-    <c:if test="${user.present}">
-      <c:set var="userObj" value="${user.get()}" />
+    <c:if test="${not empty user}">
+      <c:set var="userObj" value="${user}" />
 
       <!-- Profile Header Section -->
       <div class="profile-header-wrapper">
