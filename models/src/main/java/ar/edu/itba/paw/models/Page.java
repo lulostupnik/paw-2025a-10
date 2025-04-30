@@ -11,6 +11,5 @@ public class Page<T> {
 
     private final List<T> content;
     private final int currentPage;
-    // private final int pageSize; // Esto ya lo tiene List, no?
-    // private final int totalPages;
+    private final int totalPages;
 }

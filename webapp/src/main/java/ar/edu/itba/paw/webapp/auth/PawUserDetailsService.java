@@ -25,8 +25,6 @@ public class PawUserDetailsService implements UserDetailsService {
         this.us = userService;
     }
 
-    private final Pattern BCRYPT_PATTERN = Pattern.compile("\\A\\$2(a|y|b)?\\$(\\d\\d)\\$[./0-9A-Za-z]{53}");
-
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         final UserPassword user = us.findByEmailWithPass(username).orElseThrow(() ->

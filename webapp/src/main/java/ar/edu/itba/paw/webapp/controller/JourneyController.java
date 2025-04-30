@@ -44,7 +44,7 @@ public class JourneyController {
     }
 
     @RequestMapping
-    public ModelAndView getJourneys(@Valid @ModelAttribute FilterJourneyForm fjf, final BindingResult errors,
+    public ModelAndView getJourneys(@Valid @ModelAttribute("filterJourneyForm") FilterJourneyForm fjf, final BindingResult errors,
                                     @RequestParam(value = "username", required = false) String username) {
         LOGGER.debug("Getting journeys with filters: {destination: \"{}\", startDate: \"{}\", endDate: \"{}\", interest: \"{}\"}",fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
         List<Journey> journeys;
