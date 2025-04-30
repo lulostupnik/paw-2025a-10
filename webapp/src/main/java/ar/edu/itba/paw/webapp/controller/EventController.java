@@ -181,7 +181,7 @@ public class EventController {
 
     @RequestMapping(value = "/{id}/reply", method = POST)
     public ModelAndView reply(@PathVariable int id, @Valid @ModelAttribute("replyEventForm") final ReplyForm form,
-                              final BindingResult errors, @ModelAttribute("username") String username, RedirectAttributes redirectAttributes) {
+                              final BindingResult errors, @ModelAttribute("user") User user, RedirectAttributes redirectAttributes) {
         LOGGER.debug("Replying to event {} from form {}", id, form);
 
         if (errors.hasErrors()) {
@@ -191,7 +191,7 @@ public class EventController {
             return new ModelAndView("redirect:/events/{id}", "id", id);
         }
 
-        eventService.replyToEvent(username, id, form.getMessage());
+        eventService.replyToEvent(user.getEmail(), id, form.getMessage());
         return new ModelAndView("redirect:/events/{id}", "id", id);
     }
 

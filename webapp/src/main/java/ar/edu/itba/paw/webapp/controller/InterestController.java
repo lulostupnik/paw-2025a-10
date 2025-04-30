@@ -6,6 +6,7 @@ import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.models.Event;
 import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.University;
+import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.form.CreateEventForm;
 import ar.edu.itba.paw.webapp.form.CreateInterestForm;
 import ar.edu.itba.paw.webapp.form.CreateUniversityForm;
@@ -49,7 +50,7 @@ public class InterestController {
 
     @RequestMapping(path = "/create", method = POST)
     public ModelAndView createInterests(@Valid @ModelAttribute("createInterestForm") final CreateInterestForm intForm,
-                                    final BindingResult errors, @ModelAttribute("username") String username) {
+                                    final BindingResult errors,@ModelAttribute("user") User user) {
 
         if (errors.hasErrors()) {
             return createInterestsForm(intForm);

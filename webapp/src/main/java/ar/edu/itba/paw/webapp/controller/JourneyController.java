@@ -183,10 +183,10 @@ public class JourneyController {
 
     @RequestMapping(value = "/{id}/update", method = GET)
     public ModelAndView showUpdateJourneyForm(@PathVariable("id") long journeyId,
-                                              @ModelAttribute("username") String username,
+                                              @ModelAttribute("user") User user,
                                               @ModelAttribute("createJourneyForm") CreateJourneyForm form,
                                               BindingResult errors) {
-        LOGGER.debug("User {} requested to update journey {}", username, journeyId);
+        LOGGER.debug("User {} requested to update journey {}", user, journeyId);
 
         Journey journey = journeyService.getJourneyById(journeyId)
                 .orElseThrow(() -> {
@@ -209,14 +209,14 @@ public class JourneyController {
 
     @RequestMapping(value = "/{id}/update", method = POST)
     public ModelAndView updateJourney(@PathVariable("id") long journeyId,
-                                      @ModelAttribute("username") String username,
+                                      @ModelAttribute("user") User user,
                                       @Valid @ModelAttribute("createJourneyForm") CreateJourneyForm form,
                                       BindingResult errors) {
 
-        LOGGER.debug("User {} submitted update for journey {}", username, journeyId);
+        LOGGER.debug("User {} submitted update for journey {}", user.getEmail(), journeyId);
 
         if (errors.hasErrors()) {
-            return showUpdateJourneyForm(journeyId, username, form, errors);
+            return showUpdateJourneyForm(journeyId, user, form, errors);
         }
 
         js.editJourney(journeyId,
