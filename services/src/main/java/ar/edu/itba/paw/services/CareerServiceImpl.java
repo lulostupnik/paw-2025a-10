@@ -53,4 +53,14 @@ public class CareerServiceImpl implements CareerService {
         return careerDao.getAllCareers(page, pageSize);
     }
 
+    @Override
+    public Career create(String name) {
+        return careerDao.create(name);
+    }
+
+    @Override
+    public Career update(String oldName, String newName) {
+        return careerDao.update(oldName, newName);
+    }
+
 }

@@ -10,6 +10,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -33,6 +34,11 @@ public class CountryServiceImpl implements CountryService {
     public Boolean existsByName(String name) {
         LOGGER.debug("Checking if country {} exists", name);
         return countryDao.existsByName(name);
+    }
+
+    @Override
+    public Optional<Country> findByName(String name) {
+        return countryDao.findByName(name);
     }
 
 }
