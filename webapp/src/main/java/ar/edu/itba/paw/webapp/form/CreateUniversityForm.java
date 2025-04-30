@@ -30,11 +30,11 @@ public class CreateUniversityForm {
         this.abbreviation = abbreviation;
     }
 
-    public String getCityName() {
+    public String getCity() {
         return cityName;
     }
 
-    public void setCityName(String cityName) {
+    public void setCity(String cityName) {
         this.cityName = cityName;
     }
 }
