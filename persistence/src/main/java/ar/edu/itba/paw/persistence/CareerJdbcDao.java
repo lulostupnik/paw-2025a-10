@@ -1,18 +1,21 @@
 package ar.edu.itba.paw.persistence;
 
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.sql.DataSource;
-import ar.edu.itba.paw.models.CursorPage;
-import ar.edu.itba.paw.models.Page;
+
+import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ar.edu.itba.paw.interfaces.persistence.CareerDao;
-import ar.edu.itba.paw.models.Career;
 
 
 @Repository
@@ -21,6 +24,7 @@ public class CareerJdbcDao implements CareerDao {
     private static Logger LOGGER = LoggerFactory.getLogger(CareerJdbcDao.class);
 
     private final JdbcTemplate jdbcTemplate;
+    private final SimpleJdbcInsert jdbcInsert;
 
     private final static RowMapper<Career> CAREER_ROW_MAPPER = (rs, rowNum) -> new Career(
             rs.getLong("id"),
@@ -30,6 +34,9 @@ public class CareerJdbcDao implements CareerDao {
     @Autowired
     public CareerJdbcDao(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.jdbcInsert = new SimpleJdbcInsert(dataSource)
+                .withTableName("careers")
+                .usingGeneratedKeyColumns("id");
     }
 
     @Override
@@ -60,6 +67,26 @@ public class CareerJdbcDao implements CareerDao {
         int totalPages = (int) Math.ceil((double) totalCareers / pageSize);
         return new Page<>(jdbcTemplate.query("SELECT * FROM careers LIMIT ? OFFSET ?", CAREER_ROW_MAPPER, page, offset),page,totalPages);
 
+    }
+
+    @Override
+    public Career create(String name) {
+        LOGGER.debug("Creating new career with name: {}", name);
+
+        final Map<String, Object> args = new HashMap<>();
+        args.put("name", name);
+
+        final Number key = jdbcInsert.executeAndReturnKey(args);
+
+        LOGGER.debug("Created career with id: {}", key);
+        return new Career(key.longValue(), name);
+    }
+
+    @Override
+    public Career update(String oldName, String newName) {
+        LOGGER.debug("Updating career name from '{}' to '{}'", oldName, newName);
+        return jdbcTemplate.query("UPDATE careers SET name = ? WHERE name = ? RETURNING id, name", CAREER_ROW_MAPPER, newName, oldName)
+                .stream().findFirst().orElseThrow(() -> new IllegalArgumentException("Career not found"));
     }
 
 }
