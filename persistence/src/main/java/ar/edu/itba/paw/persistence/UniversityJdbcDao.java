@@ -28,7 +28,7 @@ public class UniversityJdbcDao implements UniversityDao {
 
     private final CityDao cityDao;
     private final JdbcTemplate jdbcTemplate;
-//    private final SimpleJdbcInsert simpleJdbcInsert;
+    private final SimpleJdbcInsert simpleJdbcInsert;
 
     private final static RowMapper<University> UNIVERSITY_ROW_MAPPER = (rs, rowNum) ->
             new University(rs.getLong("university_id"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id")));
@@ -54,7 +54,9 @@ public class UniversityJdbcDao implements UniversityDao {
     public UniversityJdbcDao(CityDao cityDao, final DataSource dataSource){
         this.cityDao = cityDao;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-//        this.simpleJdbcInsert = simpleJdbcInsert;
+        this.simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("universities")
+                .usingGeneratedKeyColumns("id");
     }
 
     @Override
@@ -110,17 +112,22 @@ public class UniversityJdbcDao implements UniversityDao {
         return new Page<>(jdbcTemplate.query(query.toString(), UNIVERSITY_ROW_MAPPER, size, offset),page,totalPages);
     }
 
-//    @Override
-//    public University createUniversity(String name, String abbreviation, String city) {
-//        HashMap<String, Object> parameters = new HashMap<>();
-//        parameters.put("name", name);
-//        parameters.put("abbreviation", abbreviation);
-//        parameters.put("city", city);
-//        parameters.put("deleted", false);  // Establecer el valor de 'deleted' como 'false'
-//        final Number keys = simpleJdbcInsert.executeAndReturnKey(parameters);
-//        LOGGER.debug("Successfully created uni {}", keys.longValue());
-//        return new University(keys.longValue(), name, abbreviation, cityDao.findByName(city).get());
-//    }
+    @Override
+    public void createUniversity(String name, String abbreviation, long cityId) {
+        HashMap<String, Object> parameters = new HashMap<>();
+        parameters.put("name", name);
+        parameters.put("abbreviation", abbreviation);
+        parameters.put("city_id", cityId);
+       Number keys = simpleJdbcInsert.executeAndReturnKey(parameters);
+        LOGGER.debug("Successfully created uni {}", keys.longValue());
+    }
+
+    @Override
+    public void updateUniversity(long id, String name, String abbreviation, long cityId) {
+        String sql = "UPDATE universities SET name = ?, abbreviation = ?, city_id = ? WHERE id = ? ";
+        jdbcTemplate.update(sql, name, abbreviation, cityId, id);
+        LOGGER.debug("Successfully updated uni {}", id);
+    }
 
 }
 
