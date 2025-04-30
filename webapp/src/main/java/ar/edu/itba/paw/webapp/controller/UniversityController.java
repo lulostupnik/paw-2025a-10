@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.models.Event;
 import ar.edu.itba.paw.models.University;
+import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.form.CreateEventForm;
 import ar.edu.itba.paw.webapp.form.CreateUniversityForm;
 import org.slf4j.Logger;
@@ -43,7 +44,7 @@ public class UniversityController {
 
     @RequestMapping(path = "/create", method = POST)
     public ModelAndView createEvent(@Valid @ModelAttribute("createUniversityForm") final CreateUniversityForm uniForm,
-                                    final BindingResult errors, @ModelAttribute("username") String username) {
+                                    final BindingResult errors, @ModelAttribute("user") User user) {
 
         if (errors.hasErrors()) {
             return createUniversityForm(uniForm);

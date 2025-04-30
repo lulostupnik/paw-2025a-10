@@ -94,15 +94,15 @@ public class JourneyController {
 
     @RequestMapping(value = "/create", method = POST)
     public ModelAndView createJourney(@Valid @ModelAttribute("createJourneyForm") final CreateJourneyForm jf,
-                                      final BindingResult errors, @ModelAttribute("username") String username) {
+                                      final BindingResult errors, @ModelAttribute("user") User user) {
         LOGGER.debug("Creating journey from form: {}", jf);
 
         if (errors.hasErrors()) {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
-            return createJourneyForm(jf, username);
+            return createJourneyForm(jf, user);
         }
 
-        final Journey journey = js.createJourney(username, // Devuelve el username
+        final Journey journey = js.createJourney(user, // Devuelve el username
                 jf.getDestinationUniversity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription());
 
         LOGGER.info("Successfully created journey {}", journey);
@@ -110,9 +110,9 @@ public class JourneyController {
     }
 
     @RequestMapping(value = "/create")
-    public ModelAndView createJourneyForm(@ModelAttribute("createJourneyForm") final CreateJourneyForm jf, @ModelAttribute("username") String username) {
+    public ModelAndView createJourneyForm(@ModelAttribute("createJourneyForm") final CreateJourneyForm jf, @ModelAttribute("user") User user) {
 
-        if (journeyService.userHasJourney(username)) {
+        if (journeyService.userHasJourney(user.getEmail())) {
             LOGGER.debug("User already has a journey, redirecting to journey list");
             return new ModelAndView("redirect:/journeys");
         }
@@ -123,7 +123,7 @@ public class JourneyController {
 
     @RequestMapping(value = "/{id}")
     public ModelAndView getJourney(@PathVariable long id,
-                                      @ModelAttribute("username") String username,
+                                      @ModelAttribute("user") User user,
                                    @Valid @ModelAttribute("replyJourneyForm") final ReplyForm rjf,
                                    BindingResult errors,
                                    @Valid @ModelAttribute("deleteForm") final ReplyForm deleteForm,
@@ -145,7 +145,7 @@ public class JourneyController {
         final ModelAndView mav = new ModelAndView("journeys/detail");
         mav.addObject("journey", journey.get());
         mav.addObject("journeyResponses", journeyResponses);
-        mav.addObject("isOwner", js.isJourneyOwnedByUser(username,journey.get().getId()));
+        mav.addObject("isOwner", js.isJourneyOwnedByUser(user.getEmail(),journey.get().getId()));
 
         // Check if there are errors in the delete forms
         if (deleteErrors.hasErrors()) {
@@ -166,7 +166,7 @@ public class JourneyController {
     @RequestMapping(value = "/{id}/reply", method = POST)
     public ModelAndView replyToJourney(@PathVariable int id, @Valid @ModelAttribute("replyJourneyForm") final ReplyForm rjf,
                                        final BindingResult errors, final RedirectAttributes redirectAttributes,
-                                       @ModelAttribute("username") String username) {
+                                       @ModelAttribute("user") User user) {
 
         LOGGER.debug("Replying to journey {} from form {}", id, rjf);
         if (errors.hasErrors()) {
@@ -175,7 +175,7 @@ public class JourneyController {
             redirectAttributes.addFlashAttribute("replyJourneyForm", rjf);
             return new ModelAndView("redirect:/journeys/" + id);
         }
-        js.replyToJourney(username, id, rjf.getMessage());
+        js.replyToJourney(user.getEmail(), id, rjf.getMessage());
 
         return new ModelAndView("redirect:/journeys/" + id);
     }

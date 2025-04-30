@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface JourneyService {
 
-    Journey createJourney(String email, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
+    Journey createJourney(User user, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
 
     void replyToJourney(String email, long journeyId, String message);
 
