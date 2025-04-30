@@ -106,7 +106,7 @@ public class AdminController {
         ModelAndView mav = new ModelAndView("/admin/dashboard");
 
         if (search != null && !search.isEmpty()) {
-//            mav.addObject("pagedUniversities", userService.searchUniversities(search, page, pageSize));
+            mav.addObject("pagedUniversities", universityService.searchUniversities(search, page, pageSize));
         } else {
             mav.addObject("pagedUniversities", universityService.getAllUniversities(page, pageSize));
         }

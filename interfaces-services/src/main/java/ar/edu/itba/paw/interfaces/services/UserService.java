@@ -36,4 +36,5 @@ public interface UserService {
     List<User> getAllUsers();
     Page<User> getAllUsers(int page, int size);
     Page<User> searchUsers(String search, int page, int size);
+
 }
