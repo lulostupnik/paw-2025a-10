@@ -59,7 +59,7 @@
         <jsp:include page="../../components/pagination-controls.jsp">
             <jsp:param name="currentPage" value="${pagedInterests.currentPage}" />
             <jsp:param name="itemsPerPage" value="10" />
-            <jsp:param name="totalPages" value="200" />
+            <jsp:param name="totalPages" value="${pagedInterests.totalPages}" />
             <jsp:param name="search" value="${param.search}" />
             <jsp:param name="currentUrl" value="/dashboard/interests" />
         </jsp:include>
