@@ -53,11 +53,13 @@ public class CareerServiceImpl implements CareerService {
         return careerDao.getAllCareers(page, pageSize);
     }
 
+    @Transactional(readOnly = false)
     @Override
     public Career create(String name) {
         return careerDao.create(name);
     }
 
+    @Transactional(readOnly = false)
     @Override
     public Career update(String oldName, String newName) {
         return careerDao.update(oldName, newName);
