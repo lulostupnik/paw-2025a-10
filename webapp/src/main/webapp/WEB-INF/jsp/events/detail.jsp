@@ -360,7 +360,8 @@
                                     </button>
                                 </div>
 
-                                <!-- Attendees List - Now visible to all users -->
+                                <!-- Attendees List  -->
+                                <c:if test="${isEventOwner}">
                                 <div id="attendees-list" class="attendees-grid">
                                     <c:if test="${empty attendees}">
                                         <div class="empty-state">
@@ -404,6 +405,7 @@
                                         </c:forEach>
                                     </c:if>
                                 </div>
+                                </c:if>
                             </div>
                         </div>
 
