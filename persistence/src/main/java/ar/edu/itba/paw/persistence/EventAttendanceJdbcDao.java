@@ -51,7 +51,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                         un.name AS university_name,\s
                         un.abbreviation AS university_abbreviation,\s
                         ci.id AS city_id,\s
-                        ci.name AS city_name,\s
+                        ci.name_en AS city_name,\s
                         co.name AS country_name\s
                     FROM users u\s
                     JOIN universities un ON u.university = un.id\s
@@ -131,12 +131,12 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                         un.abbreviation AS university_abbreviation,\s
                     
                        c.id AS city_id,\s
-                       c.name AS city_name,\s
+                       c.name_en AS city_name,\s
                     
                        co.name AS country_name,\s
                     
                        ci2.id AS origin_city_id,\s
-                       ci2.name AS origin_city_name,\s
+                       ci2.name_en AS origin_city_name,\s
                     
                        co2.name AS origin_country_name
                     FROM events e

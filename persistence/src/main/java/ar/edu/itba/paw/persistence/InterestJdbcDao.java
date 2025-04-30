@@ -28,8 +28,8 @@ public class InterestJdbcDao implements InterestDao {
             rs.getString("name")
     );
 
-    private final static String SELECT_CLAUSE = "SELECT c.id AS id, c.name_en AS name";
-    private final static String QUERY = SELECT_CLAUSE + "FROM category c ";
+    private final static String SELECT_CLAUSE = "SELECT c.id AS id, c.name_en AS name ";
+    private final static String QUERY = SELECT_CLAUSE + " FROM category c ";
 
     @Autowired
     public InterestJdbcDao(DataSource dataSource)
@@ -104,6 +104,19 @@ public class InterestJdbcDao implements InterestDao {
         params.put("name_es", interestEs);
         final Number keys = jdbcInsert.execute(params);
         return new Interest(keys.longValue(), interestEn);
+    }
+
+    @Override
+    public void deleteUserInterest(long id) {
+        String sql = "DELETE FROM user_interest WHERE id = ?";
+        jdbcTemplate.update(sql, id);
+    }
+
+    @Override
+    public void editUserInterest(long id, String interestEn, String interestEs) {
+        LOGGER.debug("Editing interest {} to {} and {}", id, interestEn, interestEs);
+        String sql = "UPDATE category SET name_en = ?, name_es = ? WHERE id = ?";
+        jdbcTemplate.update(sql, interestEn, interestEs, id);
     }
 
     @Override

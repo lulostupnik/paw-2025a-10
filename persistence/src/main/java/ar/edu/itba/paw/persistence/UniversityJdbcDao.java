@@ -39,7 +39,7 @@ public class UniversityJdbcDao implements UniversityDao {
                                 un.abbreviation AS university_abbreviation,
                                 un.id AS university_id,
                                 ci.id AS city_id,
-                                ci.name AS city_name,
+                                ci.name_en AS city_name,
                                 co.name AS country_name
                                 """;
 
