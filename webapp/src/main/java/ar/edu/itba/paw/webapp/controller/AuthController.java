@@ -51,9 +51,9 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
     @RequestMapping("/login")
-    public ModelAndView loginForm( @ModelAttribute("username") String username) {
+    public ModelAndView loginForm( @ModelAttribute("user") User user) {
         LOGGER.debug("Loading login form");
-        if (username != null) {// @TODO chequear si este redirect es lícito
+        if (user != null) {
             return new ModelAndView("redirect:/explore");
         }
         return new ModelAndView("auth/login");

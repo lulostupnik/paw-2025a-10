@@ -46,16 +46,16 @@ public class JourneyController {
 
     @RequestMapping
     public ModelAndView getJourneys(@Valid @ModelAttribute("filterJourneyForm") FilterJourneyForm fjf, final BindingResult errors,
-                                    @RequestParam(value = "username", required = false) String username) {
+                                    @ModelAttribute("user") User user) {
         LOGGER.debug("Getting journeys with filters: {destination: \"{}\", startDate: \"{}\", endDate: \"{}\", interest: \"{}\"}",fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
         List<Journey> journeys;
         boolean hasJourney = false;
 
         final ModelAndView mav = new ModelAndView("journeys/list");
-        if(username != null) {
-            hasJourney = js.userHasJourney(username);
+        if(user != null) {
+            hasJourney = js.userHasJourney(user.getEmail());
             LOGGER.debug("User has journey {}", hasJourney);
-            journeys = js.getFilteredJourneys(username, fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
+            journeys = js.getFilteredJourneys(user.getEmail(), fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
         } else{
             journeys = js.getFilteredJourneys(fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
             LOGGER.debug("Found journeys {}", journeys);

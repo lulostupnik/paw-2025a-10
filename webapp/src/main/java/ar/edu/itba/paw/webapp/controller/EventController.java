@@ -52,10 +52,10 @@ public class EventController {
     }
 
     @RequestMapping
-    public ModelAndView getEvents(@ModelAttribute("username") String username) {
+    public ModelAndView getEvents(@ModelAttribute("user") User user) {
         ModelAndView mav = new ModelAndView("events/list");
-        if (username != null ) {
-            mav.addObject("eventsWithAttendance", eventService.getEventsWithAttendanceStatus(username));
+        if (user != null ) {
+            mav.addObject("eventsWithAttendance", eventService.getEventsWithAttendanceStatus(user.getEmail()));
         } else{
             mav.addObject("events",eventService.getAllEvents());
         }
@@ -78,7 +78,7 @@ public class EventController {
 
     @RequestMapping(path = "/create", method = POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ModelAndView createEvent(@Valid @ModelAttribute("createEventForm") final CreateEventForm eventForm,
-                                    final BindingResult errors, @ModelAttribute("username") String username) {
+                                    final BindingResult errors, @ModelAttribute("user") User user) {
 
         LOGGER.debug("CREATING EVENT FROM FORM {}", eventForm);
         if (errors.hasErrors()) {
@@ -88,7 +88,7 @@ public class EventController {
         byte[] flyerBytes = getBytes(eventForm.getFlyer());
 
         Event event = eventService.createEvent(
-            username,
+            user.getEmail(),
             eventForm.getCity(), 
             eventForm.getDate(), 
             flyerBytes, 
@@ -149,7 +149,7 @@ public class EventController {
 
     @RequestMapping("/{id}")
     public ModelAndView getEvent(@PathVariable long id, @Valid @ModelAttribute("replyEventForm") final ReplyForm form, final BindingResult errors,
-                                 @ModelAttribute("username") String username,
+                                 @ModelAttribute("user") User user,
                                  @Valid @ModelAttribute("deleteForm") final ReplyForm deleteForm, final BindingResult deleteErrors,
                                  @Valid @ModelAttribute("deleteReplyForm") final ReplyForm deleteReplyForm, final BindingResult deleteReplyErrors,
                                  @RequestParam(value = "replyId", required = false) Long replyId) {
@@ -162,7 +162,7 @@ public class EventController {
             return new ModelAndView("events/not_found");
         }
 
-        return populateEventDetails(maybeEvent.get(), id, username, deleteErrors, deleteReplyErrors, replyId);
+        return populateEventDetails(maybeEvent.get(), id, user.getEmail(), deleteErrors, deleteReplyErrors, replyId);
     }
     @PostMapping("/{id}/delete")
     public ModelAndView deleteEvent(@PathVariable int id, @Valid @ModelAttribute("deleteForm") final ReplyForm form,
