@@ -133,14 +133,14 @@
                     <div class="event-header">
                         <h1 class="event-title"><c:out value="${event.title}" /></h1>
 
-                        <!-- Action Controls -->
+                        <!-- Action Controls - FIXED POSITIONING -->
                         <div class="action-controls">
                             <!-- Attendance Control for non-event owners -->
                             <c:if test="${not isEventOwner and not empty username}">
                                 <c:choose>
                                     <c:when test="${attend}">
                                         <div class="attendance-status">
-                                            <div class="attending-badge">
+                                            <div class="attending-detail-badge">
                                                 <!-- Check icon SVG -->
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <polyline points="20 6 9 17 4 12"></polyline>
@@ -158,33 +158,35 @@
                                             </form>
                                         </div>
                                     </c:when>
-                                    <c:when test="${not attend and not isFull}">
-                                        <form action="<c:url value='/events/${event.id}/attend'/>" method="post">
-                                            <button type="submit" class="attend-button">
-                                                <!-- Calendar plus icon SVG -->
+                                    <c:otherwise>
+                                        <c:if test="${not isFull}">
+                                            <form action="<c:url value='/events/${event.id}/attend'/>" method="post">
+                                                <button type="submit" class="attend-detail-button">
+                                                    <!-- Calendar plus icon SVG -->
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M21 14V6a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h8"></path>
+                                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                                        <line x1="19" y1="15" x2="19" y2="21"></line>
+                                                        <line x1="16" y1="18" x2="22" y2="18"></line>
+                                                    </svg>
+                                                    <span><spring:message code="event.attend" text="Attend" /></span>
+                                                </button>
+                                            </form>
+                                        </c:if>
+                                        <c:if test="${isFull}">
+                                            <div class="event-full">
+                                                <!-- Alert icon SVG -->
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M21 14V6a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h8"></path>
-                                                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                                                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                                                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                                                    <line x1="19" y1="15" x2="19" y2="21"></line>
-                                                    <line x1="16" y1="18" x2="22" y2="18"></line>
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                                                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
                                                 </svg>
-                                                <span><spring:message code="event.attend" text="Attend" /></span>
-                                            </button>
-                                        </form>
-                                    </c:when>
-                                    <c:when test="${not attend and isFull}">
-                                        <div class="event-full">
-                                            <!-- Alert icon SVG -->
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <circle cx="12" cy="12" r="10"></circle>
-                                                <line x1="12" y1="8" x2="12" y2="12"></line>
-                                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                                            </svg>
-                                            <span><spring:message code="event.full" text="Event full" /></span>
-                                        </div>
-                                    </c:when>
+                                                <span><spring:message code="event.full" text="Event full" /></span>
+                                            </div>
+                                        </c:if>
+                                    </c:otherwise>
                                 </c:choose>
                             </c:if>
 

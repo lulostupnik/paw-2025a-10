@@ -54,7 +54,7 @@
     max-width: 80%;
 }
 
-/* Action Controls - Updated */
+/* Action Controls - Updated for consistent button positioning */
 .action-controls {
     display: flex;
     align-items: center;
@@ -62,6 +62,91 @@
     flex-shrink: 0;
 }
 
+/* Attendance Control - Standardized styles for both states */
+.attendance-status,
+form[action*="/attend-detail"] {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.attending-detail-badge,
+.attend-detail-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border: none;
+    cursor: pointer;
+}
+
+.attending-detail-badge {
+    background-color: #10b981;
+    color: white;
+    transition: padding-right 0.3s ease;
+}
+
+.attend-detail-button {
+    background-color: #3b82f6;
+    color: white;
+    box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
+    
+}
+
+.attend-detail-button:hover {
+    background-color: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+}
+
+.attendance-status:hover .attending-detail-badge {
+    padding-right: 3rem;
+}
+
+.cancel-attendance {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+}
+
+.attendance-status:hover .cancel-attendance {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.cancel-button {
+    height: 100%;
+    width: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.event-full {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #f3f4f6;
+    color: #6b7280;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Delete button */
 .delete-button {
     display: flex;
     align-items: center;
@@ -74,6 +159,7 @@
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .delete-button:hover {
@@ -167,91 +253,6 @@
     margin: 0;
     white-space: pre-wrap;
     word-wrap: break-word;
-}
-
-/* Attendance Control */
-.attendance-status {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    overflow: hidden;
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.attendance-status:hover .cancel-attendance {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-.attending-badge {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background-color: #10b981;
-    color: white;
-    padding: 0.75rem 1.25rem;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    transition: padding-right 0.3s ease;
-}
-
-.attendance-status:hover .attending-badge {
-    padding-right: 3rem;
-}
-
-.cancel-attendance {
-    position: absolute;
-    right: 0;
-    top: 0;
-    height: 100%;
-    opacity: 0;
-    transform: translateX(100%);
-    transition: all 0.3s ease;
-}
-
-.cancel-button {
-    height: 100%;
-    width: 3rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #ef4444;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-.attend-button {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 0.5rem;
-    padding: 0.75rem 1.25rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
-}
-
-.attend-button:hover {
-    background-color: #2563eb;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
-}
-
-.event-full {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background-color: #f3f4f6;
-    color: #6b7280;
-    border-radius: 0.5rem;
-    padding: 0.75rem 1.25rem;
-    font-weight: 500;
 }
 
 /* Tabs Container */
