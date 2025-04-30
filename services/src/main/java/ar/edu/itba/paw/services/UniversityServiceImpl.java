@@ -71,8 +71,8 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<University> searchBySubstring(String substring) {
-        return universityDao.searchBySubstring(substring);
+    public Page<University> searchBySubstring(String substring, int page, int size) {
+        return universityDao.searchBySubstring(substring, page, size);
     }
 
     @Override
@@ -92,6 +92,11 @@ public class UniversityServiceImpl implements UniversityService {
     @Override
     public void updateUniversity(long id, String name, String abbreviation, long cityId) {
         universityDao.updateUniversity(id, name, abbreviation, cityId);
+    }
+
+    @Override
+    public Page<University> searchUniversities(String search, int page, int size) {
+        return universityDao.searchBySubstring(search, page, size);
     }
 
 

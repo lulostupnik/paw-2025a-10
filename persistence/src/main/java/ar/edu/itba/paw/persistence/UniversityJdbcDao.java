@@ -84,12 +84,14 @@ public class UniversityJdbcDao implements UniversityDao {
     }
 
     @Override
-    public List<University> searchBySubstring(String substring) {
+    public Page<University> searchBySubstring(String substring, int page, int size) {
         final String like = "%" + substring + "%";
+        int offset = (page - 1) * size;
 
-        final String sql = QUERY + " WHERE LOWER(un.name) LIKE LOWER(?) OR LOWER(un.abbreviation) LIKE LOWER(?) ";
-
-        return jdbcTemplate.query(sql, UNIVERSITY_ROW_MAPPER, like, like);
+        final String sql = QUERY + " WHERE LOWER(un.name) LIKE LOWER(?) OR LOWER(un.abbreviation) LIKE LOWER(?) LIMIT ? OFFSET ?";
+        int totalUniversities = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM universities WHERE LOWER(name) LIKE LOWER(?) OR LOWER(abbreviation) LIKE LOWER(?)", Integer.class, like, like);
+        int totaPages = (int) Math.ceil((double) totalUniversities / size);
+        return new Page<>(jdbcTemplate.query(sql, UNIVERSITY_ROW_MAPPER, like, like, size, offset), page, totaPages);
     }
 
 
@@ -129,5 +131,5 @@ public class UniversityJdbcDao implements UniversityDao {
         LOGGER.debug("Successfully updated uni {}", id);
     }
 
-}
 
+}
