@@ -34,6 +34,104 @@ public class EventResponseJdbcDao implements EventResponseDao {
     private static final RowMapper<Long> EVENT_ID_ROW_MAPPER = (rs, rowNum) -> rs.getLong("event_id");
 
 
+    private static final String QUERY_BY_EVENT_ID = """
+        SELECT  er.id as id,
+         er.user_id, us.username as username, er.event_id, er.message, er.date_time\s
+        FROM event_responses er\s
+        JOIN users us\s
+        ON er.user_id = us.id\s
+        WHERE er.event_id = ?""";
+
+    private static final String NOT_DELETED = " AND er.deleted = FALSE";
+
+    private static final String QUERY_BY_RESPONSE_ID=
+        """
+        SELECT  er.event_id as event_id
+        FROM event_responses er\s
+        WHERE er.id = ?""";
+
+
+    @Autowired
+    public EventResponseJdbcDao(DataSource dataSource){
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("event_responses")
+                                                            .usingGeneratedKeyColumns("id");
+    }
+
+    @Override
+    public EventResponse create(long userId, String username, long eventId, String message, LocalDateTime dateTime) {
+        LOGGER.debug("Registering new event response for event {} by user {} ({}) who says {} on {}", eventId, userId, username, message, dateTime);
+        final Map<String, Object> args = new HashMap<>();
+        args.put("user_id", userId);
+        args.put("event_id", eventId);
+        args.put("message", message);
+        args.put("date_time", dateTime);
+        args.put("deleted", false);  // Establecer el valor de 'deleted' como 'false'
+
+        final Number keys = jdbcInsert.executeAndReturnKey(args);
+        LOGGER.debug("Successfully registered event response");
+        return new EventResponse(keys.longValue(), userId, username, eventId, message, dateTime);
+    }
+
+    @Override
+    public List<EventResponse> listAllFromEvent(long eventId){
+        LOGGER.debug("Querying DB for replies to event {}", eventId);
+        return jdbcTemplate.query(QUERY_BY_EVENT_ID + NOT_DELETED+ " ORDER BY date_time ", EVENT_RESPONSE_ROW_MAPPER, eventId);
+    }
+
+    @Override
+    public long getEventIdByResponseId(long eventId) {
+        return jdbcTemplate.query(QUERY_BY_RESPONSE_ID + " ORDER BY date_time ", EVENT_ID_ROW_MAPPER, eventId).getFirst();
+    }
+
+    @Override
+    public void deletionMessage(long id, String message) {
+        final String query = "UPDATE event_responses SET deleted_message = ? WHERE id = ?;";
+        int updatedRows = jdbcTemplate.update(query, message, id);
+        if (updatedRows == 0) {
+            // Optionally log or throw an exception if no rows were updated
+            LOGGER.warn("No event_response found with id {}", id);
+        }
+    }
+
+    @Override
+    public void delete(long id) {
+        final String query = "UPDATE event_responses SET deleted = TRUE WHERE id = ?;";
+        int updatedRows = jdbcTemplate.update(query, id);
+
+        if (updatedRows == 0) {
+            // Optionally log or throw an exception if no rows were updated
+            LOGGER.warn("No journey_response found with id {}", id);
+        }
+    }
+
+    private int calculateTotalPages(int totalItems, int pageSize) {
+        return (int) Math.ceil((double) totalItems / pageSize);
+    }
+
+    private int getTotalCount(String countQuery, Object... params) {
+        return jdbcTemplate.queryForObject(countQuery, Integer.class, params);
+    }
+
+
+    @Override
+    public Page<EventResponse> listAllFromEvent(long eventId, int page, int size) {
+        LOGGER.debug("Querying DB for paginated replies to event {} (page {}, size {})", eventId, page, size);
+
+        int totalItems = getTotalCount("SELECT COUNT(*) FROM event_responses WHERE event_id = ? AND deleted = FALSE", eventId);
+        int totalPages = calculateTotalPages(totalItems, size);
+
+        List<EventResponse> responses = jdbcTemplate.query(
+                QUERY_BY_EVENT_ID + NOT_DELETED + " ORDER BY date_time LIMIT ? OFFSET ?",
+                EVENT_RESPONSE_ROW_MAPPER,
+                eventId, size, (page - 1) * size
+        );
+
+        return new Page<>(responses, page, totalPages);
+    }
+
+}
+
 
 /*
     private static final RowMapper<User> EVENT_USER_RESPONDERS_ROW_MAPPER = (rs, rowNum) -> new User(
@@ -49,21 +147,8 @@ public class EventResponseJdbcDao implements EventResponseDao {
             Locale.of(rs.getString("language"))
     );*/
 
-    private static final String QUERY_BY_EVENT_ID = """
-        SELECT  er.id as id,
- er.user_id, us.username as username, er.event_id, er.message, er.date_time\s
-        FROM event_responses er\s
-        JOIN users us\s
-        ON er.user_id = us.id\s
-        WHERE er.event_id = ?""";
 
-    private static final String NOT_DELETED = " AND er.deleted = FALSE";
 
-    private static final String QUERY_BY_RESPONSE_ID= """
-        SELECT  er.event_id as event_id
-        FROM event_responses er\s
-        WHERE er.id = ?""";
-        
         /* private static final String QUERY_BY_EVENT_ID_GET_USERS = """
 
             SELECT distinct er.user_id as user_id, us.email, us.username, us.firstname, us.lastname, us.username, us.career_id, us.profile_picture_id, us.language
@@ -86,35 +171,6 @@ public class EventResponseJdbcDao implements EventResponseDao {
 
 */
 
-
-    @Autowired
-    public EventResponseJdbcDao(DataSource dataSource){
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("event_responses")
-                                                            .usingGeneratedKeyColumns("id");
-    }
-
-
-    @Override
-    public EventResponse create(long userId, String username, long eventId, String message, LocalDateTime dateTime) {
-        LOGGER.debug("Registering new event response for event {} by user {} ({}) who says {} on {}", eventId, userId, username, message, dateTime);
-        final Map<String, Object> args = new HashMap<>();
-        args.put("user_id", userId);
-        args.put("event_id", eventId);
-        args.put("message", message);
-        args.put("date_time", dateTime);
-        args.put("deleted", false);  // Establecer el valor de 'deleted' como 'false'
-
-        final Number keys = jdbcInsert.executeAndReturnKey(args);
-        LOGGER.debug("Successfully registered event response");
-        return new EventResponse(keys.longValue(), userId, username, eventId, message, dateTime);
-    }
-
-    @Override
-    public List<EventResponse> listAllFromEvent(long eventId){
-        LOGGER.debug("Querying DB for replies to event {}", eventId);
-        return jdbcTemplate.query(QUERY_BY_EVENT_ID + NOT_DELETED+ " ORDER BY date_time ", EVENT_RESPONSE_ROW_MAPPER, eventId);
-    }
 
    /* @Override
     public List<User> listAllUsersResponders(long eventId){
@@ -195,33 +251,3 @@ public class EventResponseJdbcDao implements EventResponseDao {
         List<EmailRecipient> emails = jdbcTemplate.query(query.toString(),EMAIL_RECIPIENT_ROW_MAPPER, params.toArray());
         return emails;
     }*/
-
-    @Override
-    public long getEventIdByResponseId(long eventId) {
-        return jdbcTemplate.query(QUERY_BY_RESPONSE_ID + " ORDER BY date_time ", EVENT_ID_ROW_MAPPER, eventId).getFirst();
-    }
-
-    @Override
-    public void deletionMessage(long id, String message) {
-        final String query = "UPDATE event_responses SET deleted_message = ? WHERE id = ?;";
-        int updatedRows = jdbcTemplate.update(query, message, id);
-        if (updatedRows == 0) {
-            // Optionally log or throw an exception if no rows were updated
-            LOGGER.warn("No event_response found with id {}", id);
-        }
-    }
-
-    @Override
-    public void delete(long id) {
-        final String query = "UPDATE event_responses SET deleted = TRUE WHERE id = ?;";
-        int updatedRows = jdbcTemplate.update(query, id);
-
-        if (updatedRows == 0) {
-            // Optionally log or throw an exception if no rows were updated
-            LOGGER.warn("No journey_response found with id {}", id);
-        }
-    }
-
-
-
-}

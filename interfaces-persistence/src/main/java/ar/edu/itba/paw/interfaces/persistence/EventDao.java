@@ -47,15 +47,15 @@ public interface EventDao {
     List<UserEvent> getEventsWithAttendanceStatus(long userId);
 
     //PAGE
-    Page<Event> getOthersEvents(long userId, int page, int size);
+    Page<Event> getOthersEvents(long userId, int pageNumber, int pageSize);
 
-    Page<Event> getMyEvents(long userId, int page, int size);
+    Page<Event> getMyEvents(long userId, int pageNumber, int pageSize);
 
-    Page<Event> getEvents(String email, int page, int size);
+    Page<Event> getEvents(String email, int pageNumber, int pageSize);
 
-    Page<Event> listAll(int page, int size);
+    Page<Event> listAll(int pageNumber, int pageSize);
 
-    void updateData(long cityid, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId/*, long userId*/);
+    void updateData(long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId/*, long userId*/);
 
-    Page<Event> searchEvents(String search, int page, int size);
+    Page<Event> searchEvents(String search, int pageNumber, int pageSize);
 }

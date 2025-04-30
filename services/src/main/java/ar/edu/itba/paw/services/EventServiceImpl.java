@@ -283,7 +283,7 @@ public class EventServiceImpl implements EventService {
     public void editEvent(long eventId,
                           String cityName,
                           LocalDate date,
-                          Optional<byte[]> flyer,
+                          byte[] flyer,
                           String description,
                           String title,
                           LocalTime time,
@@ -308,9 +308,7 @@ public class EventServiceImpl implements EventService {
                 eventId //hacer void
         );
 
-        flyer.ifPresent(content -> {
-            imageService.updateImage(currentEvent.getFlyerImageId(), content);
-        });
+            imageService.updateImage(currentEvent.getFlyerImageId(), flyer);
     }
 
 

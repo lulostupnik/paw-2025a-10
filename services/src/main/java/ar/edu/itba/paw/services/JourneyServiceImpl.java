@@ -313,10 +313,28 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.info("Successfully updated destination for journey {} to university ID {}", journeyId, universityId);
     }
 
+    @Transactional
     @Override
     public void delete(long id, String message) {
         journeyDao.deletionMessage(id, message);
         journeyDao.delete(id);
+    }
+
+    @Override
+    public boolean isJourneyOwnedByUser(String email, long journeyID) {
+        Optional<Journey> journey = journeyDao.findById(journeyID);
+        return journey.isPresent() && journey.get().getUser().getEmail().equals(email);
+    }
+
+    @Transactional
+    @Override
+    public void editJourney(long journeyId, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
+        University university = universityService.findByName(destinationUniversity)
+                .orElseThrow(() -> {
+                    LOGGER.warn("University not found: {}", destinationUniversity);
+                    return new IllegalArgumentException("University not found");
+                });
+        journeyDao.updateData(journeyId, university, startDate, endDate, description);
     }
 
 }

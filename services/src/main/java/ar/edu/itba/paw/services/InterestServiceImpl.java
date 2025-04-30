@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.persistence.InterestDao;
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.models.Interest;
 
+import ar.edu.itba.paw.models.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,18 @@ public class InterestServiceImpl implements InterestService {
 
     @Transactional
     @Override
+    public void deleteUserInterest(long id) {
+        interestDao.deleteUserInterest(id);
+    }
+
+    @Transactional
+    @Override
+    public void editUserInterest(long id, String interestEn, String interestEs) {
+        interestDao.editUserInterest(id, interestEn, interestEs);
+    }
+
+    @Transactional
+    @Override
     public void saveUserInterests(long[] interests, long userId) {
         LOGGER.debug("Adding interest list to user {}", userId);
         interestDao.saveUserInterests(interests, userId);
@@ -89,6 +102,11 @@ public class InterestServiceImpl implements InterestService {
         LOGGER.debug("Increasing score of interests {} for user {}", interests, userId);
         interestDao.updateScoreByInterests(interests, userId);
 
+    }
+
+    @Override
+    public Page<Interest> getAllInterests(int page, int pageSize) {
+        return interestDao.getAllInterests(page, pageSize);
     }
 
 

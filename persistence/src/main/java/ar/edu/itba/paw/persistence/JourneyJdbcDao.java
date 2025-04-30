@@ -1,6 +1,8 @@
 package ar.edu.itba.paw.persistence;
 
+import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,10 +50,10 @@ public class JourneyJdbcDao implements JourneyDao {
                 j.description AS journey_description,\s
                 ci1.id AS city_id,\s
                 co1.name AS country_name,\s
-                ci1.name AS city_name,\s
+                ci1.name_en AS city_name,\s
                 ci2.id AS destination_city_id,\s
                 co2.name AS destination_country_name,\s
-                ci2.name AS destination_city_name,\s
+                ci2.name_en AS destination_city_name,\s
                 un1.id AS university_id,\s
                 un1.name AS university_name,\s
                 un1.abbreviation AS university_abbreviation,\s
@@ -76,7 +78,7 @@ public class JourneyJdbcDao implements JourneyDao {
     private static final String PAGE_QUERY = SELECT_CLAUSE +
         """
         FROM (
-            SELECT * FROM journeys ORDER BY id ASC LIMIT ? OFFSET ?
+            SELECT * FROM journeys WHERE deleted = FALSE ORDER BY id ASC LIMIT ? OFFSET ?
         ) AS j
         JOIN users us ON j.user_id = us.id
         JOIN careers ca ON us.career_id = ca.id
@@ -94,7 +96,7 @@ public class JourneyJdbcDao implements JourneyDao {
             FROM (\s
                 SELECT *\s
                 FROM journeys\s
-                WHERE user_id != ? \s
+                WHERE user_id != ? AND deleted = FALSE\s
                 ORDER BY id ASC LIMIT ? OFFSET ?\s
             ) AS j\s
             JOIN users us ON j.user_id = us.id\s
@@ -368,7 +370,7 @@ public class JourneyJdbcDao implements JourneyDao {
                             uu.id AS user_university,
                             uu.name AS university_name,
                             uu.abbreviation AS university_abbreviation,
-                            uc.name AS city_name,
+                            uc.name_en AS city_name,
                             co.name AS country_name,
                             uc.id AS city_id,
                             c.id AS career_id,
@@ -379,7 +381,7 @@ public class JourneyJdbcDao implements JourneyDao {
                             dest_univ.id AS destination_university_id,
                             dest_univ.name AS destination_university_name,
                             dest_univ.abbreviation AS destination_university_abbreviation,
-                            dest_city.name AS destination_city_name,
+                            dest_city.name_en AS destination_city_name,
                             dest_country.name AS destination_country_name,
                             dest_city.id AS destination_city_id,
                             j.description AS journey_description,
@@ -516,28 +518,76 @@ public class JourneyJdbcDao implements JourneyDao {
         }
     }
 
-    @Override
-    public Page<Journey> listAll(int page, int size) {
-        List<Journey> list = jdbcTemplate.query(PAGE_QUERY + NOT_DELETED, JOURNEY_ROW_MAPPER, size, (page-1) * size);
-        return new Page<>(list, page);
+    private int calculateTotalPages(int totalItems, int pageSize) {
+        return (int) Math.ceil((double) totalItems / pageSize);
     }
 
-        // SELECT_CLAUSE +
-        // FROM ( SELECT * FROM
-        // innerClause +
-        // outerClause
+    private int getTotalCount(String countQuery, Object... params) {
+        return jdbcTemplate.queryForObject(countQuery, Integer.class, params);
+    }
+
+    @Override
+    public Page<Journey> listAll(int page, int size) {
+        String countQuery = "SELECT COUNT(*) FROM journeys j WHERE j.deleted = FALSE";
+        int totalItems = getTotalCount(countQuery);
+        int totalPages = calculateTotalPages(totalItems, size);
+
+        List<Journey> list = jdbcTemplate.query(PAGE_QUERY, JOURNEY_ROW_MAPPER, size, (page-1) * size);
+        return new Page<>(list, page, totalPages);
+    }
 
     @Override
     public Page<Journey> getOthersJourneys(long userId, int page, int size) {
-        List<Journey> list = jdbcTemplate.query(PAGE_JOURNEY_BY_NOT_USER_ID + NOT_DELETED, JOURNEY_ROW_MAPPER, userId, size, page * size);
-        return new Page<>(list, page);    }
+        String countQuery = "SELECT COUNT(*) FROM journeys j WHERE j.deleted = FALSE AND j.user_id != ?";
+        int totalItems = getTotalCount(countQuery, userId);
+        int totalPages = calculateTotalPages(totalItems, size);
+
+        List<Journey> list = jdbcTemplate.query(PAGE_JOURNEY_BY_NOT_USER_ID, JOURNEY_ROW_MAPPER, userId, size, (page - 1) * size);
+        return new Page<>(list, page, totalPages);
+    }
 
     @Override
     public Page<Journey> findByFilters(Long userId, Long cityId, LocalDate startDate, LocalDate endDate, Long interest, int page, int size) {
-        String query;
-
+        StringBuilder countQueryBuilder = new StringBuilder("SELECT COUNT(*) FROM journeys j");
         List<String> filters = new ArrayList<>();
         List<Object> params = new ArrayList<>();
+
+        if (interest != null) {
+            countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id");
+            filters.add("ui.category_id = ?");
+            params.add(interest);
+        }
+
+        filters.add("j.deleted = FALSE");
+
+        if (userId != null) {
+            filters.add("j.user_id = ?");
+            params.add(userId);
+        }
+
+        if (cityId != null) {
+            countQueryBuilder.append(" JOIN universities un ON j.destination_university_id = un.id JOIN cities c ON un.city_id = c.id");
+            filters.add("c.id = ?");
+            params.add(cityId);
+        }
+
+        if (endDate != null) {
+            filters.add("j.start_date <= ?");
+            params.add(endDate);
+        }
+
+        if (startDate != null) {
+            filters.add("j.end_date >= ?");
+            params.add(startDate);
+        }
+
+        countQueryBuilder.append(" WHERE ").append(String.join(" AND ", filters));
+        int totalItems = getTotalCount(countQueryBuilder.toString(), params.toArray());
+        int totalPages = calculateTotalPages(totalItems, size);
+
+        String query;
+        filters = new ArrayList<>();
+        params = new ArrayList<>();
 
         if (userId != null) {
             filters.add("us.id = ?");
@@ -564,9 +614,8 @@ public class JourneyJdbcDao implements JourneyDao {
             filters.add("c.id = ?");
             params.add(interest);
         } else {
-            query = QUERY+ NOT_DELETED;
+            query = QUERY + NOT_DELETED;
         }
-
 
         if (!filters.isEmpty()) {
             query += "AND " + String.join(" AND ", filters);
@@ -574,33 +623,68 @@ public class JourneyJdbcDao implements JourneyDao {
 
         query += " ORDER BY j.id ASC LIMIT ? OFFSET ?";
         params.add(size);
-        params.add(page * size);
+        params.add((page - 1) * size);
 
-        return new Page<>(jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray()), page);
+        return new Page<>(jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray()), page, totalPages);
     }
 
     @Override
     public Page<Journey> findByOriginCity(long originCityId, int page, int size) {
-        List<Journey> list = jdbcTemplate.query(QUERY + NOT_DELETED + "AND ci1.id = ? ORDER BY j.id ASC LIMIT ? OFFSET ?", JOURNEY_ROW_MAPPER, originCityId, size, page * size);
-        return new Page<>(list, page);
+        String countQuery =
+                """
+                SELECT COUNT(*) FROM journeys j JOIN users u ON j.user_id = u.id
+                JOIN universities un ON u.university = un.id
+                JOIN cities c ON un.city_id = c.id
+                WHERE j.deleted = FALSE AND c.id = ?
+                """;
+        int totalItems = getTotalCount(countQuery, originCityId);
+        int totalPages = calculateTotalPages(totalItems, size);
+
+        List<Journey> list = jdbcTemplate.query(QUERY + NOT_DELETED + " AND ci1.id = ? ORDER BY j.id ASC LIMIT ? OFFSET ?", JOURNEY_ROW_MAPPER, originCityId, size, (page - 1) * size);
+        return new Page<>(list, page, totalPages);
     }
 
     @Override
     public Page<Journey> searchJourneys(String search, int page, int size) {
         LOGGER.debug("Querying DB for events with search {}", search);
+        String searchPattern = "%" + search + "%";
+
+        String countQuery = "SELECT COUNT(*) FROM journeys j WHERE j.deleted = FALSE " +
+                "AND j.user_id IN (SELECT id FROM users WHERE LOWER(username) LIKE LOWER(?))";
+        int totalItems = getTotalCount(countQuery, searchPattern);
+        int totalPages = calculateTotalPages(totalItems, size);
+
         int offset = (page - 1) * size;
         String whereClause = NOT_DELETED + " AND j.user_id IN (SELECT id FROM users WHERE LOWER(username) LIKE LOWER(?)) ";
-        String searchPattern = "%" + search + "%";
         String orderByClause = "ORDER BY j.user_id DESC ";
 
-            return new Page<>(jdbcTemplate.query(
-                    SELECT_CLAUSE + getPagedQuery(whereClause, orderByClause),
-                    JOURNEY_ROW_MAPPER,
-                    searchPattern,
-                    size,
-                    offset
-            ), page);
-        }
+        return new Page<>(jdbcTemplate.query(
+                SELECT_CLAUSE + getPagedQuery(whereClause, orderByClause),
+                JOURNEY_ROW_MAPPER,
+                searchPattern,
+                size,
+                offset
+        ), page, totalPages);
+    }
+
+    @Override
+    public void updateData(long journeyId, University destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
+        jdbcTemplate.update("""
+        UPDATE journeys
+           SET destination_university_id = ?,
+               start_date = ?,
+               end_date = ?,
+               description = ?
+         WHERE id = ?
+         """,
+                destinationUniversity.getId(),
+                startDate,
+                endDate,
+                description,
+                journeyId
+        );
+
+    }
 
 
 }

@@ -61,7 +61,7 @@ public class UserJdbcDao implements UserDao {
                     un.name AS university_name,\s
                     un.abbreviation AS university_abbreviation,\s
                     ci.id AS city_id,\s
-                    ci.name AS city_name,\s
+                    ci.name_en AS city_name,\s
                     co.name AS country_name\s
 """;
 
@@ -88,7 +88,7 @@ public class UserJdbcDao implements UserDao {
                 un.name AS university_name,\s
                 un.abbreviation AS university_abbreviation,\s
                 ci.id AS city_id,\s
-                ci.name AS city_name,\s
+                ci.name_en AS city_name,\s
                 co.name AS country_name\s
             FROM users u\s
             JOIN universities un ON u.university = un.id\s
@@ -275,8 +275,11 @@ public class UserJdbcDao implements UserDao {
         int offset = (page - 1) * size;
         String whereClause = "";
         String orderByClause = " ORDER BY u.id ASC";
-        return new Page<>(jdbcTemplate.query(SELECT_CLAUSE + getPagedQuery(whereClause,orderByClause),USER_ROW_MAPPER,size,offset),page);
+        List<User> list = jdbcTemplate.query(SELECT_CLAUSE + getPagedQuery(whereClause, orderByClause), USER_ROW_MAPPER, size, offset);
+        int elementCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
+        return new Page<>(list, page, (int) Math.ceil((double) elementCount / size));
     }
+
 
     @Override
     public Page<User> searchUsers(String search, int page, int size) {
@@ -285,14 +288,9 @@ public class UserJdbcDao implements UserDao {
             String whereClause = " WHERE (LOWER(u.firstname) LIKE LOWER(?))";
             String searchPattern = "%" + search + "%";
             String orderByClause = "ORDER BY u.firstname DESC ";
-
-            return new Page<>(jdbcTemplate.query(
-                    SELECT_CLAUSE + getPagedQuery(whereClause, orderByClause),
-                    USER_ROW_MAPPER,
-                    searchPattern,
-                    size,
-                    offset
-            ), page);
+            List<User> list = jdbcTemplate.query(SELECT_CLAUSE + getPagedQuery(whereClause, orderByClause), USER_ROW_MAPPER, searchPattern, size, offset);
+            int elementCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users" + whereClause, Integer.class, searchPattern);
+            return new Page<>(list, page, (int) Math.ceil((double) elementCount / size));
     }
 
     @Override

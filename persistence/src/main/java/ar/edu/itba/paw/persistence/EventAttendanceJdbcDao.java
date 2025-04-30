@@ -51,7 +51,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                         un.name AS university_name,\s
                         un.abbreviation AS university_abbreviation,\s
                         ci.id AS city_id,\s
-                        ci.name AS city_name,\s
+                        ci.name_en AS city_name,\s
                         co.name AS country_name\s
                     FROM users u\s
                     JOIN universities un ON u.university = un.id\s
@@ -131,12 +131,12 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                         un.abbreviation AS university_abbreviation,\s
                     
                        c.id AS city_id,\s
-                       c.name AS city_name,\s
+                       c.name_en AS city_name,\s
                     
                        co.name AS country_name,\s
                     
                        ci2.id AS origin_city_id,\s
-                       ci2.name AS origin_city_name,\s
+                       ci2.name_en AS origin_city_name,\s
                     
                        co2.name AS origin_country_name
                     FROM events e
@@ -200,6 +200,46 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
     public List<Event> getAttendingEvents(long userId) {
         LOGGER.debug("Querying DB for events user {} will attend (excluding events created by user)", userId);
         return jdbcTemplate.query(GET_EVENTS_QUERY + " AND e.user_id != ?", EVENT_ROW_MAPPER, userId, userId);
+    }
+
+    @Override
+    public Page<User> getAttendees(long eventId, int pageNumber, int pageSize) {
+        LOGGER.debug("Querying DB for paginated attendees for event {}", eventId);
+
+        String countQuery = "SELECT COUNT(*) FROM event_attendances WHERE event_id = ?";
+        int totalItems = jdbcTemplate.queryForObject(countQuery, Integer.class, eventId);
+        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+
+        int offset = (pageNumber - 1) * pageSize;
+
+        String paginatedQuery = GET_ATTENDEES_QUERY + " LIMIT ? OFFSET ?";
+        List<User> attendees = jdbcTemplate.query(
+                paginatedQuery,
+                USER_ROW_MAPPER,
+                eventId, pageSize, offset
+        );
+
+        return new Page<>(attendees, pageNumber, totalPages);
+    }
+
+    @Override
+    public Page<Event> getAttendingEvents(long userId, int pageNumber, int pageSize) {
+        LOGGER.debug("Querying DB for paginated events user {} will attend", userId);
+
+        String countQuery = "SELECT COUNT(*) FROM event_attendances ea JOIN events e ON ea.event_id = e.id WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE";
+        int totalItems = jdbcTemplate.queryForObject(countQuery, Integer.class, userId, userId);
+        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+
+        int offset = (pageNumber - 1) * pageSize;
+
+        String paginatedQuery = GET_EVENTS_QUERY + " AND e.user_id != ? AND e.deleted = FALSE ORDER BY e.event_date DESC LIMIT ? OFFSET ?";
+        List<Event> events = jdbcTemplate.query(
+                paginatedQuery,
+                EVENT_ROW_MAPPER,
+                userId, userId, pageSize, offset
+        );
+
+        return new Page<>(events, pageNumber, totalPages);
     }
 
 }

@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS images (
 
 CREATE TABLE IF NOT EXISTS category (
         id SERIAL PRIMARY KEY,
-        name varchar(100) NOT NULL UNIQUE
+        name_es varchar(100) NOT NULL UNIQUE,
+        name_en varchar(100) NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS user_interest (
@@ -243,8 +244,14 @@ COMMIT;
 
 ALTER TABLE users ADD COLUMN IF NOT EXISTS roles VARCHAR(50) DEFAULT 'user' CHECK (roles IN ('user', 'admin'));
 BEGIN;
-ALTER TABLE category RENAME COLUMN name TO name_en; --hacer una sola vez
-ALTER TABLE category ADD COLUMN IF NOT EXISTS name_es VARCHAR(100) NOT NULL;
-COMMIT;
+-- ALTER TABLE category RENAME COLUMN name TO name_en; --hacer una sola vez
+-- ALTER TABLE category ADD COLUMN IF NOT EXISTS name_es VARCHAR(100) NOT NULL;
+-- COMMIT;
+-- Renombrar el campo name de category como name_en o name_es segun el idioma que estes usando. Crear la columna que falta
+-- Agregar traducciones a la tabla category para cada categoria de interes. Una vez hecho esto hacer el campo not null
+-- BEGIN;
+-- ALTER TABLE cities RENAME COLUMN name TO name_en; --hacer una sola vez
+-- ALTER TABLE cities ADD COLUMN IF NOT EXISTS name_es VARCHAR(100) NOT NULL;
+-- COMMIT;
 -- Renombrar el campo name de category como name_en o name_es segun el idioma que estes usando. Crear la columna que falta
 -- Agregar traducciones a la tabla category para cada categoria de interes. Una vez hecho esto hacer el campo not null

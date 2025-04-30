@@ -1,7 +1,9 @@
 package ar.edu.itba.paw.interfaces.persistence;
 
 import ar.edu.itba.paw.models.City;
+import ar.edu.itba.paw.models.Country;
 import ar.edu.itba.paw.models.CursorPage;
+import ar.edu.itba.paw.models.Page;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,4 +16,7 @@ public interface CityDao {
     Optional<City> findByName(String name); // method to find a city by its name
     List<City> getAllCities();
     // add method that finds cities with a "similar" name -> using Levensthein?
+    Page<City> getAllCities(int page, int pageSize); // method to get all the cities with pagination
+    void updateCity(long id, String nameEn, String nameEs, Country country); // method to update a city by its id
+    void createCity(String nameEn, String nameEs, Country country); // method to create a city
 }

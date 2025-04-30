@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.persistence.CareerDao;
 import ar.edu.itba.paw.interfaces.services.CareerService;
 import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.CursorPage;
+import ar.edu.itba.paw.models.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,11 @@ public class CareerServiceImpl implements CareerService {
     public Optional<Career> findByName(String name) {
         LOGGER.debug("Getting career by name {}", name);
         return careerDao.findByName(name);
+    }
+
+    @Override
+    public Page<Career> getAllCareers(int page, int pageSize) {
+        return careerDao.getAllCareers(page, pageSize);
     }
 
 }

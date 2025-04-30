@@ -2,8 +2,11 @@ package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.interfaces.services.CityService;
+import ar.edu.itba.paw.interfaces.services.CountryService;
 import ar.edu.itba.paw.models.City;
+import ar.edu.itba.paw.models.Country;
 import ar.edu.itba.paw.models.CursorPage;
+import ar.edu.itba.paw.models.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +23,13 @@ public class CityServiceImpl implements CityService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CityServiceImpl.class);
 
     private final CityDao cityDao;
+    private final CountryService countryService;
 
     @Autowired
-    public CityServiceImpl(CityDao cityDao) {
+    public CityServiceImpl(CityDao cityDao, CountryService countryService) {
+
         this.cityDao = cityDao;
+        this.countryService = countryService;
     }
 
     @Override
@@ -55,6 +61,28 @@ public class CityServiceImpl implements CityService {
     @Override
     public List<City> getAllCities() {
         return cityDao.getAllCities();
+    }
+
+    @Override
+    public Page<City> getAllCities(int page, int pageSize) {
+        return cityDao.getAllCities(page, pageSize);
+    }
+
+
+    @Transactional
+    @Override
+    public void updateCity(long id, String nameEn, String nameEs, String country) {
+        Country country1 = countryService.findByName(country)
+                .orElseThrow(() -> new IllegalArgumentException("Country not found"));
+        cityDao.updateCity(id, nameEn, nameEs, country1);
+    }
+
+    @Transactional
+    @Override
+    public void createCity(String nameEn, String nameEs, String country) {
+        Country country1 = countryService.findByName(country)
+                .orElseThrow(() -> new IllegalArgumentException("Country not found"));
+        cityDao.createCity(nameEn, nameEs, country1);
     }
 
 }

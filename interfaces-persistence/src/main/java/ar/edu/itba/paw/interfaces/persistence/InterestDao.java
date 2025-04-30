@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.interfaces.persistence;
 
 import ar.edu.itba.paw.models.Interest;
+import ar.edu.itba.paw.models.Page;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,9 +14,12 @@ public interface InterestDao {
      Optional<Interest> findByName(String name);
      List<Interest> findIdByName(String[] names);
      Interest createUserInterest(String interestEn, String InterestEs);
+     void deleteUserInterest(long id);
+     void editUserInterest(long id, String interestEn, String interestEs);
      void saveUserInterests(long[] interests, Long userId);
      void updateScoreByInterest(Interest interest, Long userId);
      void updateScoreByInterests(List<Interest> interests, Long userId);
+     Page<Interest> getAllInterests(int page, int pageSize);
 
 
 }
