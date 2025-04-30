@@ -14,6 +14,10 @@
 <c:url var="dashboardJourneysUrl" value="/dashboard/journeys" />
 <c:url var="dashboardEventsUrl" value="/dashboard/events" />
 <c:url var="dashboardUsersUrl" value="/dashboard/users" />
+<c:url var="dashboardInterestsUrl" value="/dashboard/interests" />
+<c:url var="dashboardCitiesUrl" value="/dashboard/cities" />
+<c:url var="dashboardUniversitiesUrl" value="/dashboard/universities" />
+<c:url var="dashboardCareersUrl" value="/dashboard/careers" />
 <c:set var="uri" value="${requestScope['javax.servlet.forward.request_uri'] != null
                           ? requestScope['javax.servlet.forward.request_uri']
                           : request.requestURI}" />
@@ -67,7 +71,7 @@
                 </a>
                 <sec:authorize access="hasRole('ADMIN')">
                     <a href="${dashboardJourneysUrl}"
-                       class="topbar-nav-item ${fn:startsWith(uri, dashboardEventsUrl) or fn:startsWith(uri, dashboardJourneysUrl) or fn:startsWith(uri, dashboardUsersUrl) ? 'active' : ''}">
+                       class="topbar-nav-item ${fn:startsWith(uri, dashboardEventsUrl) or fn:startsWith(uri, dashboardJourneysUrl) or fn:startsWith(uri, dashboardUsersUrl) or fn:startsWith(uri,dashboardCareersUrl) or fn:startsWith(uri,dashboardCitiesUrl) or fn:startsWith(uri,dashboardInterestsUrl) or fn:startsWith(uri,dashboardUniversitiesUrl)? 'active' : ''}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                         </svg>
