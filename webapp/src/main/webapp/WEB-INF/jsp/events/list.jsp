@@ -75,6 +75,23 @@
           </c:if>
         </div>
       </div>
+
+      <c:if test="${eventsPage.totalPages > 1}">
+        <div class="pagination">
+          <c:forEach begin="1" end="${eventsPage.totalPages}" var="pageNum">
+            <c:url var="pageUrl" value="/events">
+              <c:param name="page" value="${pageNum}" />
+              <c:param name="size" value="${pageSize}" />
+            </c:url>
+
+            <a href="${pageUrl}" class="page-link ${pageNum == currentPage ? 'active' : ''}">
+                ${pageNum}
+            </a>
+          </c:forEach>
+        </div>
+      </c:if>
+
+
     </div>
   </div>
 </div>

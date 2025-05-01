@@ -51,7 +51,7 @@ public class EventController {
         this.careerService = careerService;
     }
 
-    @RequestMapping
+    /*@RequestMapping
     public ModelAndView getEvents(@ModelAttribute("user") User user) {
         ModelAndView mav = new ModelAndView("events/list");
         if (user != null ) {
@@ -60,7 +60,29 @@ public class EventController {
             mav.addObject("events",eventService.getAllEvents());
         }
         return mav;
+    }*/
+
+    @RequestMapping
+    public ModelAndView getEvents(@ModelAttribute("user") User user,
+                                  @RequestParam(value = "page", defaultValue = "1") int page,
+                                  @RequestParam(value = "size", defaultValue = "10") int size) {
+        ModelAndView mav = new ModelAndView("events/list");
+
+        if (user != null) {
+            Page<UserEvent> userEventsPage = eventService.getEventsPageWithAttendanceStatus(user.getId(), page, size);
+            mav.addObject("eventsPage", userEventsPage);
+            mav.addObject("eventsWithAttendance", userEventsPage.getContent());
+        } else {
+            Page<Event> eventsPage = eventService.getAllEvents(page, size);
+            mav.addObject("eventsPage", eventsPage);
+            mav.addObject("events", eventsPage.getContent());
+        }
+
+        mav.addObject("currentPage", page);
+        mav.addObject("pageSize", size);
+        return mav;
     }
+
 
     private void addDropdownAttributes(ModelAndView mav) {
         mav.addObject("careers", careerService.findAll());
