@@ -11,8 +11,18 @@ public class DateRangeValidator implements ConstraintValidator<ValidDateRange, C
     @Override
     public boolean isValid(CreateJourneyForm form, ConstraintValidatorContext context) {
         if (form.getStartDate() == null || form.getEndDate() == null) {
-            return true; // Maneja con @NotNull si es necesario
+            return true; // @NotNull should handle nulls
         }
-        return form.getEndDate().isAfter(form.getStartDate());
+
+        if (!form.getEndDate().isAfter(form.getStartDate())) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
+                    .addPropertyNode("endDate")
+                    .addConstraintViolation();
+            return false;
+        }
+
+        return true;
     }
+
 }
