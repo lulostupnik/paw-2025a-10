@@ -13,8 +13,7 @@ public interface EventService {
     void replyToEvent(String email,long eventId, String message);
     Optional<Event> getEventById(long id);
     List<Event> getAllEvents();
-    Page<Event> getAllEvents(int page, int size);
-    Page<Event> searchEvents(String search, int page, int size);
+    Page<Event> getAllEvents(String search,int page, int size);
     List<Event> getAllEvents(String email);
     void attendEvent(String email, long eventId);
     void attendEvent(long userId, long eventId);
@@ -39,7 +38,7 @@ public interface EventService {
     void editEvent(long eventId,
                           String cityName,
                           LocalDate date,
-                          Optional<byte[]> flyer,
+                          byte[] flyer,
                           String description,
                           String title,
                           LocalTime time,

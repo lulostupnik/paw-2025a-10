@@ -1,20 +1,19 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.InterestDao;
-import ar.edu.itba.paw.models.CursorPage;
 import ar.edu.itba.paw.models.Interest;
 
+import ar.edu.itba.paw.models.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @Repository
@@ -22,17 +21,23 @@ public class InterestJdbcDao implements InterestDao {
     private static Logger LOGGER = LoggerFactory.getLogger(InterestJdbcDao.class);
 
     private final JdbcTemplate jdbcTemplate;
+    private final SimpleJdbcInsert jdbcInsert;
 
     private final static RowMapper<Interest> INTEREST_ROW_MAPPER = (rs, rowNum) -> new Interest(
             rs.getLong("id"),
             rs.getString("name")
     );
 
-    private final static String QUERY = "SELECT c.id AS id, c.name AS name FROM category c ";
+    private final static String SELECT_CLAUSE = "SELECT c.id AS id, c.name AS name ";
+    private final static String QUERY = SELECT_CLAUSE + "FROM category c ";
 
     @Autowired
-    public InterestJdbcDao(DataSource dataSource) {
+    public InterestJdbcDao(DataSource dataSource)
+    {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("category")
+                .usingGeneratedKeyColumns("id");
     }
 
     @Override
@@ -93,19 +98,32 @@ public class InterestJdbcDao implements InterestDao {
     }
 
     @Override
-    public Optional<Interest> createUserInterest(Interest interest, Long userId) {
-        LOGGER.debug("Registering to DB new interest {} for user {}", interest, userId);
-        return Optional.empty();
+    public Interest createUserInterest(String interest) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("name", interest);
+        final Number keys = jdbcInsert.execute(params);
+        return new Interest(keys.longValue(), interest);
     }
 
     @Override
-    public List<Interest> createUserInterests(String[] interests, Long userId) {
+    public void deleteUserInterest(long id) {
+        String sql = "DELETE FROM category WHERE id = ?";
+        jdbcTemplate.update(sql, id);
+    }
+
+    @Override
+    public void editUserInterest(long id, String interest) {
+        LOGGER.debug("Editing interest {} to {}", id, interest);
+        String sql = "UPDATE category SET name = ? WHERE id = ?";
+        jdbcTemplate.update(sql, interest ,id);
+    }
+
+    @Override
+    public void saveUserInterests(long[] interests, Long userId) {
         LOGGER.debug("Registering to DB new interests for user {}...", userId);
-        List<Interest> interestList = findIdByName(interests);
-        for (Interest interest : interestList) {
-            jdbcTemplate.update("INSERT INTO user_interest (user_id, category_id) VALUES (?, ?)", userId, interest.getId());
+        for (long interest : interests) {
+            jdbcTemplate.update("INSERT INTO user_interest (user_id, category_id) VALUES (?, ?)", userId, interest);
         }
-        return interestList;
     }
 
     @Override
@@ -123,6 +141,31 @@ public class InterestJdbcDao implements InterestDao {
         }
     }
 
+    @Override
+    public Page<Interest> getAllInterests(int page, int pageSize) {
+        LOGGER.debug("Querying DB for all interests");
+        int offset = (page - 1) * pageSize;
+        StringBuilder query = new StringBuilder(SELECT_CLAUSE);
+        query.append(" FROM category c ");
+        query.append(" ORDER BY c.name ASC LIMIT ? OFFSET ?");
+        int totalInterests = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category", Integer.class);
+        int totalPages = (int) Math.ceil((double) totalInterests / pageSize);
+        return new Page<>(jdbcTemplate.query(query.toString(),INTEREST_ROW_MAPPER,pageSize,offset),page,totalPages);
+    }
+
+    @Override
+    public Page<Interest> searchBySubstring(String search, int page, int pageSize) {
+        LOGGER.debug("Querying DB for interests like {}", search);
+        int offset = (page - 1) * pageSize;
+        StringBuilder query = new StringBuilder(SELECT_CLAUSE);
+        query.append(" FROM category c ");
+        query.append(" WHERE c.name LIKE ? ");
+        query.append(" ORDER BY c.name ASC LIMIT ? OFFSET ?");
+        String like = "%" + search + "%";
+        int totalInterests = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category WHERE name LIKE ?", Integer.class, like);
+        int totalPages = (int) Math.ceil((double) totalInterests / pageSize);
+        return new Page<>(jdbcTemplate.query(query.toString(),INTEREST_ROW_MAPPER, like, pageSize, offset),page,totalPages);
+    }
 
 
 }

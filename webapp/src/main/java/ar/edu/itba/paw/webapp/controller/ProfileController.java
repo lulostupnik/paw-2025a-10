@@ -32,15 +32,14 @@ public class ProfileController {
     }
 
     @RequestMapping(value = "/profile", method = RequestMethod.GET)
-    public ModelAndView getProfile(@ModelAttribute("username") String username) {
+    public ModelAndView getProfile(@ModelAttribute("user") User user) {
         ModelAndView mav = new ModelAndView("profile");
 
-        Optional<User> user = userService.findByEmail(username);
 
         mav.addObject("user", user);
-        mav.addObject("userJourneys", journeyService.getJourneysByUser(username)); // FIXME: cambiar y usar Optional<Journey> getJourneyByEmail
-        mav.addObject("userEvents", eventService.getAllEvents(username));
-        mav.addObject("userAttendingEvents", eventService.getUserAttendingEvents(username));
+        mav.addObject("userJourneys", journeyService.getJourneysByUser(user.getEmail())); // FIXME: cambiar y usar Optional<Journey> getJourneyByEmail
+        mav.addObject("userEvents", eventService.getAllEvents(user.getEmail()));
+        mav.addObject("userAttendingEvents", eventService.getUserAttendingEvents(user.getEmail()));
 
         return mav;
     }

@@ -19,6 +19,7 @@ import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
@@ -44,17 +45,17 @@ public class JourneyController {
     }
 
     @RequestMapping
-    public ModelAndView getJourneys(@Valid @ModelAttribute FilterJourneyForm fjf, final BindingResult errors,
-                                    @RequestParam(value = "username", required = false) String username) {
+    public ModelAndView getJourneys(@Valid @ModelAttribute("filterJourneyForm") FilterJourneyForm fjf, final BindingResult errors,
+                                    @ModelAttribute("user") User user) {
         LOGGER.debug("Getting journeys with filters: {destination: \"{}\", startDate: \"{}\", endDate: \"{}\", interest: \"{}\"}",fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
         List<Journey> journeys;
         boolean hasJourney = false;
 
         final ModelAndView mav = new ModelAndView("journeys/list");
-        if(username != null) {
-            hasJourney = js.userHasJourney(username);
+        if(user != null) {
+            hasJourney = js.userHasJourney(user.getEmail());
             LOGGER.debug("User has journey {}", hasJourney);
-            journeys = js.getFilteredJourneys(username, fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
+            journeys = js.getFilteredJourneys(user.getEmail(), fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
         } else{
             journeys = js.getFilteredJourneys(fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
             LOGGER.debug("Found journeys {}", journeys);
@@ -93,15 +94,15 @@ public class JourneyController {
 
     @RequestMapping(value = "/create", method = POST)
     public ModelAndView createJourney(@Valid @ModelAttribute("createJourneyForm") final CreateJourneyForm jf,
-                                      final BindingResult errors, @ModelAttribute("username") String username) {
+                                      final BindingResult errors, @ModelAttribute("user") User user) {
         LOGGER.debug("Creating journey from form: {}", jf);
 
         if (errors.hasErrors()) {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
-            return createJourneyForm(jf, username);
+            return createJourneyForm(jf, user);
         }
 
-        final Journey journey = js.createJourney(username, // Devuelve el username
+        final Journey journey = js.createJourney(user, // Devuelve el username
                 jf.getDestinationUniversity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription());
 
         LOGGER.info("Successfully created journey {}", journey);
@@ -109,9 +110,9 @@ public class JourneyController {
     }
 
     @RequestMapping(value = "/create")
-    public ModelAndView createJourneyForm(@ModelAttribute("createJourneyForm") final CreateJourneyForm jf, @ModelAttribute("username") String username) {
+    public ModelAndView createJourneyForm(@ModelAttribute("createJourneyForm") final CreateJourneyForm jf, @ModelAttribute("user") User user) {
 
-        if (journeyService.userHasJourney(username)) {
+        if (journeyService.userHasJourney(user.getEmail())) {
             LOGGER.debug("User already has a journey, redirecting to journey list");
             return new ModelAndView("redirect:/journeys");
         }
@@ -122,6 +123,7 @@ public class JourneyController {
 
     @RequestMapping(value = "/{id}")
     public ModelAndView getJourney(@PathVariable long id,
+                                      @ModelAttribute("user") User user,
                                    @Valid @ModelAttribute("replyJourneyForm") final ReplyForm rjf,
                                    BindingResult errors,
                                    @Valid @ModelAttribute("deleteForm") final ReplyForm deleteForm,
@@ -134,7 +136,7 @@ public class JourneyController {
 
         Optional<Journey> journey = js.getJourneyById(id);
 
-        if(journey.isEmpty()){
+        if(journey.isEmpty()){ //cambiar con exception controllerAdvice
             LOGGER.debug("Journey {} not found", id);
             return new ModelAndView("journeys/not_found");
         }
@@ -143,6 +145,7 @@ public class JourneyController {
         final ModelAndView mav = new ModelAndView("journeys/detail");
         mav.addObject("journey", journey.get());
         mav.addObject("journeyResponses", journeyResponses);
+        mav.addObject("isOwner", js.isJourneyOwnedByUser(user.getEmail(),journey.get().getId()));
 
         // Check if there are errors in the delete forms
         if (deleteErrors.hasErrors()) {
@@ -163,7 +166,7 @@ public class JourneyController {
     @RequestMapping(value = "/{id}/reply", method = POST)
     public ModelAndView replyToJourney(@PathVariable int id, @Valid @ModelAttribute("replyJourneyForm") final ReplyForm rjf,
                                        final BindingResult errors, final RedirectAttributes redirectAttributes,
-                                       @ModelAttribute("username") String username) {
+                                       @ModelAttribute("user") User user) {
 
         LOGGER.debug("Replying to journey {} from form {}", id, rjf);
         if (errors.hasErrors()) {
@@ -172,71 +175,48 @@ public class JourneyController {
             redirectAttributes.addFlashAttribute("replyJourneyForm", rjf);
             return new ModelAndView("redirect:/journeys/" + id);
         }
-        js.replyToJourney(username, id, rjf.getMessage());
+        js.replyToJourney(user.getEmail(), id, rjf.getMessage());
 
         return new ModelAndView("redirect:/journeys/" + id);
     }
 
 
-//-----------------------------Work in progress
     @RequestMapping(value = "/{id}/update", method = GET)
     public ModelAndView showUpdateJourneyForm(@PathVariable("id") long journeyId,
-                                              @ModelAttribute("username") String username) {
-        LOGGER.debug("User {} requested to update journey {}", username, journeyId);
+                                              @ModelAttribute("user") User user,
+                                              @ModelAttribute("createJourneyForm") CreateJourneyForm form,
+                                              BindingResult errors) {
+        LOGGER.debug("User {} requested to update journey {}", user, journeyId);
 
-        Optional<Journey> maybeJourney = js.getJourneyById(journeyId);
+        Journey journey = journeyService.getJourneyById(journeyId)
+                .orElseThrow(() -> {
+                    LOGGER.warn("Journey {} not found", journeyId);
+                    return new IllegalArgumentException("Journey not found");
+                });
 
-        //@TODO CAMBIAR A SPRING SECUTIRY
-        if (maybeJourney.isEmpty()) {
-            LOGGER.warn("Journey {} not found", journeyId);
-            return new ModelAndView("journeys/not_found");
+        if(!errors.hasErrors()) {
+            form.setStartDate(journey.getStartDate());
+            form.setEndDate(journey.getEndDate());
+            form.setDestinationUniversity(journey.getDestinationUniversity().getName());
+            form.setDescription(journey.getDescription());
         }
-        Journey journey = maybeJourney.get();
-        if (!journey.getUser().getUsername().equals(username)) {
-            LOGGER.warn("User {} is not owner of journey {}", username, journeyId);
-            return new ModelAndView("errors/403");
-        }
-
-        CreateJourneyForm form = new CreateJourneyForm();
-        form.setStartDate(journey.getStartDate());
-        form.setEndDate(journey.getEndDate());
-        form.setDestinationUniversity(journey.getDestinationUniversity().getName());
-        form.setDescription(journey.getDescription());
 
         ModelAndView mav = new ModelAndView("journeys/edit");
-        mav.addObject("createJourneyForm", form);
         mav.addObject("universities", universityService.getAllUniversities());
         mav.addObject("journeyId", journeyId);
         return mav;
     }
-/*
+
     @RequestMapping(value = "/{id}/update", method = POST)
     public ModelAndView updateJourney(@PathVariable("id") long journeyId,
-                                      @ModelAttribute("username") String username,
+                                      @ModelAttribute("user") User user,
                                       @Valid @ModelAttribute("createJourneyForm") CreateJourneyForm form,
                                       BindingResult errors) {
 
-        LOGGER.debug("User {} submitted update for journey {}", username, journeyId);
-
-        //CAMBIAR A SPRING SECURITY
-        Optional<Journey> maybeJourney = js.getJourneyById(journeyId);
-        if (maybeJourney.isEmpty()) {
-            LOGGER.warn("Journey {} not found", journeyId);
-            return new ModelAndView("journeys/not_found");
-        }
-        Journey journey = maybeJourney.get();
-        if (!journey.getUser().getUsername().equals(username)) {
-            LOGGER.warn("User {} is not owner of journey {}", username, journeyId);
-            return new ModelAndView("errors/403");
-        }
+        LOGGER.debug("User {} submitted update for journey {}", user.getEmail(), journeyId);
 
         if (errors.hasErrors()) {
-            LOGGER.debug("Found {} validation errors in update form", errors.getErrorCount());
-            ModelAndView mav = new ModelAndView("journeys/edit");
-            mav.addObject("createJourneyForm", form);
-            mav.addObject("universities", universityService.getAllUniversities());
-            mav.addObject("journeyId", journeyId);
-            return mav;
+            return showUpdateJourneyForm(journeyId, user, form, errors);
         }
 
         js.editJourney(journeyId,
@@ -248,7 +228,7 @@ public class JourneyController {
         LOGGER.info("Journey {} updated successfully", journeyId);
         return new ModelAndView("redirect:/journeys/" + journeyId);
     }
-*/
+
 
 
 

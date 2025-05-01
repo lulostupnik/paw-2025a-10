@@ -47,4 +47,10 @@ public class JourneyResponseServiceImpl implements JourneyResponseService {
         return journeyResponseDao.getJourneyIdByResponseId(journeyResponseId);
     }
 
+    @Transactional
+    @Override
+    public void deleteByJourneyId(long journeyId) {
+        journeyResponseDao.deleteByJourneyId(journeyId);
+    }
+
 }

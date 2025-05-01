@@ -6,6 +6,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+@PasswordsMatch
 public class CreateUserForm {
 
     @Email
@@ -29,6 +30,9 @@ public class CreateUserForm {
     @Size(min = 8, max = 100)
     private String password;
 
+    @Size(min = 8, max = 100)
+    private String confirmPassword;
+
     @Size(min = 2, max = 100)
     private String lastName;
 
@@ -39,9 +43,10 @@ public class CreateUserForm {
 
     @Size(min = 2, max = 100)
     private String originUniversity;
+
     @NotNull
     @ValidInterest
-    private String[] interests;
+    private long[] interests;
 
     public String getEmail() {
         return email;
@@ -107,18 +112,25 @@ public class CreateUserForm {
         this.originUniversity = originUniversity;
     }
 
-    public String[] getInterests() {
+    public long[] getInterests() {
         return interests;
     }
 
-    public void setInterests(String[] interests) {
+    public void setInterests(long[] interests) {
         this.interests = interests;
     }
     public String getPassword() {
         return password;
     }
+
     public void setPassword(String password) {
         this.password = password;
+    }
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
     }
 
     @Override

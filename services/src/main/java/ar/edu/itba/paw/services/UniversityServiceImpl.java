@@ -1,8 +1,10 @@
 package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
+import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.models.CursorPage;
+import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.University;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +22,13 @@ public class UniversityServiceImpl implements UniversityService {
 
 
     private final UniversityDao universityDao;
+    private final CityService cityService;
 
     @Autowired
-    public UniversityServiceImpl(UniversityDao universityDao) {
+    public UniversityServiceImpl(UniversityDao universityDao, CityService cityService) {
+
         this.universityDao = universityDao;
+        this.cityService = cityService;
     }
 
     @Transactional(readOnly = true)
@@ -64,10 +69,29 @@ public class UniversityServiceImpl implements UniversityService {
         return universityDao.getAllUniversities();
     }
 
-    @Transactional(readOnly = true)
+
     @Override
-    public List<University> searchBySubstring(String substring) {
-        return universityDao.searchBySubstring(substring);
+    public Page<University> getAllUniversities(String search, int page, int size) {
+        LOGGER.debug("Getting all universities with search {}", search);
+        if (search == null || search.isEmpty()) {
+            return universityDao.getAllUniversities(page, size);
+        }
+        return universityDao.searchBySubstring(search,page, size);
+    }
+
+    @Override
+    public University createUniversity(String name, String abbreviation, String city) {
+        return universityDao.createUniversity(name, abbreviation, city);
+    }
+
+    @Override
+    public void updateUniversity(long id, String name, String abbreviation, long cityId) {
+        universityDao.updateUniversity(id, name, abbreviation, cityId);
+    }
+
+    @Override
+    public Page<University> searchUniversities(String search, int page, int size) {
+        return universityDao.searchBySubstring(search, page, size);
     }
 
 

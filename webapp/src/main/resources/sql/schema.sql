@@ -242,3 +242,4 @@ ALTER TABLE event_responses ADD COLUMN IF NOT EXISTS deleted_message VARCHAR(100
 COMMIT;
 
 ALTER TABLE users ADD COLUMN IF NOT EXISTS roles VARCHAR(50) DEFAULT 'user' CHECK (roles IN ('user', 'admin'));
+

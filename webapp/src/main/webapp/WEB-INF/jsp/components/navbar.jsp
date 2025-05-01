@@ -14,6 +14,10 @@
 <c:url var="dashboardJourneysUrl" value="/dashboard/journeys" />
 <c:url var="dashboardEventsUrl" value="/dashboard/events" />
 <c:url var="dashboardUsersUrl" value="/dashboard/users" />
+<c:url var="dashboardInterestsUrl" value="/dashboard/interests" />
+<c:url var="dashboardCitiesUrl" value="/dashboard/cities" />
+<c:url var="dashboardUniversitiesUrl" value="/dashboard/universities" />
+<c:url var="dashboardCareersUrl" value="/dashboard/careers" />
 <c:set var="uri" value="${requestScope['javax.servlet.forward.request_uri'] != null
                           ? requestScope['javax.servlet.forward.request_uri']
                           : request.requestURI}" />
@@ -32,13 +36,21 @@
 
             <!-- Logo -->
             <div class="topbar-logo">
-                <a href="<c:url value='/'/>">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="logo-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span class="logo-text"><spring:message code="app.name"/></span>
-                </a>
+                <c:choose>
+                <c:when test="${not empty user}">
+                <a href="<c:url value='/explore'/>">
+                    </c:when>
+                    <c:otherwise>
+                    <a href="<c:url value='/'/>">
+                        </c:otherwise>
+                        </c:choose>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="logo-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="logo-text"><spring:message code="app.name"/></span>
+                    </a>
             </div>
+
         </div>
 
         <!-- Main Navigation -->
@@ -67,7 +79,7 @@
                 </a>
                 <sec:authorize access="hasRole('ADMIN')">
                     <a href="${dashboardJourneysUrl}"
-                       class="topbar-nav-item ${fn:startsWith(uri, dashboardEventsUrl) or fn:startsWith(uri, dashboardJourneysUrl) or fn:startsWith(uri, dashboardUsersUrl) ? 'active' : ''}">
+                       class="topbar-nav-item ${fn:startsWith(uri, dashboardEventsUrl) or fn:startsWith(uri, dashboardJourneysUrl) or fn:startsWith(uri, dashboardUsersUrl) or fn:startsWith(uri,dashboardCareersUrl) or fn:startsWith(uri,dashboardCitiesUrl) or fn:startsWith(uri,dashboardInterestsUrl) or fn:startsWith(uri,dashboardUniversitiesUrl)? 'active' : ''}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                         </svg>
@@ -80,24 +92,24 @@
         <!-- Auth Section -->
         <div class="topbar-auth">
             <c:choose>
-                <c:when test="${not empty username}">
+                <c:when test="${not empty user}">
                     <!-- User is logged in - show profile -->
                     <div class="topbar-user-profile">
                         <div class="dropdown">
                             <button class="topbar-profile-button" id="profile-dropdown-toggle">
-                                <div class="profile-avatar">
+                                <span class="profile-avatar">
                                     <c:choose>
-                                        <c:when test="${not empty userProfileImage}">
-                                            <img src="${userProfileImage}" alt="${username}" class="avatar-image" />
+                                        <c:when test="${not empty user.profilePictureId && user.profilePictureId > 0}">
+                                            <img src="<c:url value='/images/${user.profilePictureId}'/>" alt="${user.username}" class="avatar-image" />
                                         </c:when>
                                         <c:otherwise>
                                             <div class="avatar-placeholder-navbar">
-                                                    ${fn:substring(username, 0, 1).toUpperCase()}
+                                                    ${fn:substring(user.getUsername(), 0, 1).toUpperCase()}
                                             </div>
                                         </c:otherwise>
                                     </c:choose>
-                                </div>
-                                <span class="profile-name">${username}</span>
+                                </span>
+                                <span class="profile-name">${user.getUsername()}</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>

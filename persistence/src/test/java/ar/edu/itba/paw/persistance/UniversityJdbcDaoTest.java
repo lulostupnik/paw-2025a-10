@@ -11,15 +11,18 @@ import java.util.Optional;
 
 import javax.sql.DataSource;
 
+import ar.edu.itba.paw.models.City;
+import ar.edu.itba.paw.models.Page;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.persistence.UniversityJdbcDao;
 
-@Sql(scripts = "classpath:schema.sql")
 @Transactional
 @Rollback
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -40,13 +42,16 @@ public class UniversityJdbcDaoTest {
     private static final String UNIVERSITY_NAME_1 = "Instituto de muy largo";
     private static final String UNIVERSITY_CODE_1 = "ITBA";    
     private static final String UNIVERSITY_NAME_2 = "Universidad de muy largo";
-    private static final String UNIVERSITY_CODE_2 = "UBA";
+    private static final String UNIVERSITY_CODE_2 = "MIT";    
+    private static final String UNIVERSITY_NAME_3 = "Another one";
+    private static final String UNIVERSITY_CODE_3 = "ONE";
     private static final int TOTAL_UNIVERSITIES = 2;
     private static final String COUNTRY_NAME = "cuntry";
     private static final String COUNTRY_CODE = "aa";
     private static final String CITY_NAME = "citi";
     private static long uniId1;
     private static long uniId2;
+    private static long uniId3;
     private static long countryId;
     private static long cityId;
 
@@ -58,6 +63,8 @@ public class UniversityJdbcDaoTest {
 
     private JdbcTemplate jdbcTemplate;
     private SimpleJdbcInsert insert;
+
+    private RowMapper<University> UNIVERSITY_ROW_MAPPER = (rs, rowNum) -> new University(rs.getLong("id"), rs.getString("name"), rs.getString("abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id")));
 
     @Before
     public void setUp(){
@@ -240,10 +247,13 @@ public class UniversityJdbcDaoTest {
     
     @Test
     public void testSearchBySubstringUsingAbbrSubstring(){
-        List<University> unis = uniDao.searchBySubstring(UNIVERSITY_CODE_1.substring(1, 3));
+        Page<University> unis = uniDao.searchBySubstring(UNIVERSITY_CODE_1.substring(1, 3),1,10);
         assertNotNull(unis);
-        assertEquals(1, unis.size());
-        University uni = unis.getFirst();
+        assertEquals(1, unis.getCurrentPage());
+        assertEquals(1, unis.getTotalPages());
+        assertNotNull(unis.getContent());
+        assertEquals(1, unis.getContent().size());
+        University uni = unis.getContent().getFirst();
         assertEquals(UNIVERSITY_NAME_1, uni.getName());
         assertEquals(UNIVERSITY_CODE_1, uni.getAbbreviation());
         assertEquals(uniId1, uni.getId());
@@ -251,10 +261,13 @@ public class UniversityJdbcDaoTest {
     }
     @Test
     public void testSearchBySubstringUsingNameSubstring(){
-        List<University> unis = uniDao.searchBySubstring(UNIVERSITY_NAME_2.substring(5, 15));
+        Page<University> unis = uniDao.searchBySubstring(UNIVERSITY_NAME_2.substring(5, 15), 1, 2);
         assertNotNull(unis);
-        assertEquals(1, unis.size());
-        University uni = unis.getFirst();
+        assertEquals(1, unis.getCurrentPage());
+        assertEquals(1, unis.getTotalPages());
+        assertNotNull(unis.getContent());
+        assertEquals(1, unis.getContent().size());
+        University uni = unis.getContent().getFirst();
         assertEquals(UNIVERSITY_NAME_2, uni.getName());
         assertEquals(UNIVERSITY_CODE_2, uni.getAbbreviation());
         assertEquals(uniId2, uni.getId());
@@ -262,26 +275,111 @@ public class UniversityJdbcDaoTest {
     }
     @Test
     public void testSearchBySubstringMultipleResults(){
-        List<University> unis = uniDao.searchBySubstring(UNIVERSITY_NAME_1.substring(UNIVERSITY_NAME_1.length() - 5, UNIVERSITY_NAME_1.length()));
+        Page<University> unis = uniDao.searchBySubstring(UNIVERSITY_NAME_1.substring(UNIVERSITY_NAME_1.length() - 5, UNIVERSITY_NAME_1.length()), 1, 10);
         assertNotNull(unis);
-        assertEquals(TOTAL_UNIVERSITIES, unis.size());
+        assertEquals(1, unis.getCurrentPage());
+        assertEquals(1, unis.getTotalPages());
+        assertNotNull(unis.getContent());
+        assertEquals(TOTAL_UNIVERSITIES, unis.getContent().size());
     }
     @Test
     public void testSearchBySubstringWrongQuery(){
-        List<University> unis = uniDao.searchBySubstring("UNIVERSITY_CODE_1");
+        Page<University> unis = uniDao.searchBySubstring("UNIVERSITY_CODE_1", 1, 10);
         assertNotNull(unis);
-        assertEquals(0, unis.size());
+        assertEquals(1, unis.getCurrentPage());
+        assertEquals(0, unis.getTotalPages());
+        assertNotNull(unis.getContent());
+        assertEquals(0, unis.getContent().size());    
     }
     @Test
     public void testSearchBySubstringEmptyQuery(){
-        List<University> unis = uniDao.searchBySubstring("");
+        Page<University> unis = uniDao.searchBySubstring("", 1, 10);
         assertNotNull(unis);
-        assertEquals(TOTAL_UNIVERSITIES, unis.size());
+        assertEquals(1, unis.getCurrentPage());
+        assertEquals(1, unis.getTotalPages());
+        assertNotNull(unis.getContent());
+        assertEquals(TOTAL_UNIVERSITIES, unis.getContent().size());
     }
     @Test
     public void testSearchBySubstringMissingQuery(){
-        List<University> unis = uniDao.searchBySubstring(null);
+        Page<University> unis = uniDao.searchBySubstring(null, 1, 10);
         assertNotNull(unis);
-        assertEquals(0, unis.size());
+        assertEquals(1, unis.getCurrentPage());
+        assertEquals(0, unis.getTotalPages());
+        assertNotNull(unis.getContent());
+        assertEquals(0, unis.getContent().size()); 
     }
+
+    @Test
+    public void testGetAllUniversitiesPaged(){
+        uniId3 = insert.executeAndReturnKey(Map.of("name", UNIVERSITY_NAME_3, "abbreviation", UNIVERSITY_CODE_3, "city_id", cityId)).longValue();
+
+        Page<University> page1 = uniDao.getAllUniversities(1, 2);
+        Page<University> page2 = uniDao.getAllUniversities(2, 2);
+
+        assertNotNull(page1);
+        assertNotNull(page2);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(2, page1.getTotalPages());
+        assertEquals(2, page2.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertNotNull(page2.getContent());
+        assertEquals(2, page1.getContent().size());
+        assertEquals(1, page2.getContent().size());
+        assertEquals(uniId1, page1.getContent().get(0).getId());
+        assertEquals(uniId2, page1.getContent().get(1).getId());
+        assertEquals(uniId3, page2.getContent().get(0).getId());
+    }
+    @Test
+    public void testGetAllUniversitiesPagedNoUniversities(){
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, UNIVERSITY_TABLE);
+        Page<University> page = uniDao.getAllUniversities(1, 2);
+        assertNotNull(page);
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(0, page.getTotalPages());
+        assertNotNull(page.getContent());
+        assertEquals(0, page.getContent().size());
+    }
+
+    @Test
+    public void testUpdateUniversity(){
+        uniDao.updateUniversity(uniId1, UNIVERSITY_NAME_3, UNIVERSITY_CODE_3, cityId);
+
+        Optional<University> maybeUni = jdbcTemplate.query("SELECT uni.id, uni.name, uni.abbreviation, country.name as country_name, city.name as city_name, city.id as city_id FROM universities uni INNER JOIN cities city ON uni.city_id = city.id INNER JOIN countries country ON city.country_id = country.id WHERE uni.id = ?", UNIVERSITY_ROW_MAPPER, uniId1).stream().findFirst();
+
+        assertNotNull(maybeUni);
+        assertTrue(maybeUni.isPresent());
+        University uni = maybeUni.get();
+        assertEquals(uniId1, uni.getId());
+        assertEquals(UNIVERSITY_NAME_3, uni.getName());
+        assertEquals(UNIVERSITY_CODE_3, uni.getAbbreviation());
+        assertEquals(CITY_NAME, uni.getCity().getName());
+        assertEquals(cityId, uni.getCity().getId());
+        assertEquals(COUNTRY_NAME, uni.getCity().getCountry());
+    }
+    @Test(expected = DataAccessException.class)
+    public void testUpdateUniversityDuplicateName(){
+        uniDao.updateUniversity(uniId1, UNIVERSITY_NAME_2, UNIVERSITY_CODE_3, cityId);
+    }
+
+    @Test
+    public void testCreateUniversity(){
+        uniDao.createUniversity(UNIVERSITY_NAME_3, UNIVERSITY_CODE_3, CITY_NAME);
+
+        Optional<University> maybeUni = jdbcTemplate.query("SELECT uni.id, uni.name, uni.abbreviation, country.name as country_name, city.name as city_name, city.id as city_id FROM universities uni INNER JOIN cities city ON uni.city_id = city.id INNER JOIN countries country ON city.country_id = country.id WHERE uni.name = ?", UNIVERSITY_ROW_MAPPER, UNIVERSITY_NAME_3).stream().findFirst();
+        assertNotNull(maybeUni);
+        assertTrue(maybeUni.isPresent());
+        University uni = maybeUni.get();
+        assertEquals(UNIVERSITY_NAME_3, uni.getName());
+        assertEquals(UNIVERSITY_CODE_3, uni.getAbbreviation());
+        assertEquals(CITY_NAME, uni.getCity().getName());
+        assertEquals(cityId, uni.getCity().getId());
+        assertEquals(COUNTRY_NAME, uni.getCity().getCountry());
+    }
+    @Test(expected = DataAccessException.class)
+    public void testCreateUniversityDuplicate(){
+        uniDao.createUniversity(UNIVERSITY_NAME_1, UNIVERSITY_CODE_3, CITY_NAME);
+    }
+    
 }

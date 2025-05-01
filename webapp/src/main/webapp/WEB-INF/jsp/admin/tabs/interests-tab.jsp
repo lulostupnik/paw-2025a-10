@@ -1,0 +1,67 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+
+<div class="tab-content active" id="interests-tab">
+    <c:set var="titleMessageCode" value="admin.manage.interests" scope="request" />
+    <c:set var="searchUrl" value="/dashboard/interests" scope="request" />
+    <c:set var="searchPlaceholderCode" value="admin.search.interests" scope="request" />
+    <c:set var="showAddButton" value="true" scope="request" />
+    <c:set var="addButtonUrl" value="/interests/create" scope="request" />
+    <c:set var="addButtonTextCode" value="interests.create.button" scope="request" />
+
+    <div class="content-header">
+        <h2><spring:message code="${titleMessageCode}" /></h2>
+        <div class="action-bar">
+            <div class="actions-container">
+                <form action="<c:url value='${searchUrl}'/>" method="get" class="search-form">
+                    <input type="text" name="search" class="search-input" placeholder="<spring:message code='${searchPlaceholderCode}' />" value="${param.search}">
+                    <input type="hidden" name="page" value="1">
+                    <input type="hidden" name="pageSize" value="${param.pageSize != null ? param.pageSize : 10}">
+                    <button type="submit" class="search-button"><spring:message code="admin.search.button" /></button>
+                </form>
+                <c:if test="${showAddButton}">
+                    <a href="<c:url value='${addButtonUrl}'/>" class="add-button">
+                        <i class="plus-icon"></i>
+                        <spring:message code="${addButtonTextCode}"/>
+                    </a>
+                </c:if>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th><spring:message code="admin.column.id" /></th>
+                <th><spring:message code="admin.column.name" /></th>
+
+            </tr>
+            </thead>
+            <tbody>
+            <c:set var="interests" value="${pagedInterests.content}" />
+            <c:forEach items="${interests}" var="interest">
+                <tr class="clickable-row" data-href="<c:url value="../interests/${interest.id}"/>" >
+                    <td><c:out value="${interest.id}"/></td>
+                    <td><c:out value="${interest.name}"/></td>
+                </tr>
+            </c:forEach>
+            </tbody>
+        </table>
+
+        <c:if test="${empty interests}">
+            <div class="no-results">
+                <spring:message code="admin.no.results" />
+            </div>
+        </c:if>
+
+        <jsp:include page="../../components/pagination-controls.jsp">
+            <jsp:param name="currentPage" value="${pagedInterests.currentPage}" />
+            <jsp:param name="itemsPerPage" value="10" />
+            <jsp:param name="totalPages" value="${pagedInterests.totalPages}" />
+            <jsp:param name="search" value="${param.search}" />
+            <jsp:param name="currentUrl" value="/dashboard/interests" />
+        </jsp:include>
+    </div>
+</div>

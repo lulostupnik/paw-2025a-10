@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS images(
 
 CREATE TABLE IF NOT EXISTS category(
     id IDENTITY PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE
+    name VARCHAR(100) NOT NULL UNIQUE,
 );
 
 CREATE TABLE IF NOT EXISTS countries(
@@ -45,10 +45,12 @@ CREATE TABLE IF NOT EXISTS users(
     profile_picture_id INTEGER NOT NULL,
     password VARCHAR(100) DEFAULT '$2b$10$KbQiA8xVuOPQkfiYJ0X0FubQbQjEJpTr6QOBD3qL6sYzFoq2nJ8fK' NOT NULL,
     language VARCHAR(2) DEFAULT 'en' NOT NULL,
+    roles VARCHAR(50) DEFAULT 'user' NOT NULL,
     FOREIGN KEY(university) REFERENCES universities ON DELETE RESTRICT,
     FOREIGN KEY(career_id) REFERENCES careers,
     FOREIGN KEY(profile_picture_id) REFERENCES images,
-    CHECK (language IN ('en', 'es'))
+    CHECK (language IN ('en', 'es')),
+    CHECK (roles in ('user', 'admin'))
 );
 
 CREATE TABLE IF NOT EXISTS user_interest(
@@ -67,6 +69,8 @@ CREATE TABLE IF NOT EXISTS journeys(
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     description VARCHAR(2047),
+    deleted BOOLEAN DEFAULT FALSE NOT NULL,
+    deleted_message VARCHAR(1000),
     FOREIGN KEY(user_id) REFERENCES users ON DELETE RESTRICT,
     FOREIGN KEY(destination_university_id) REFERENCES universities ON DELETE RESTRICT
 );
@@ -77,6 +81,8 @@ CREATE TABLE IF NOT EXISTS journey_responses(
     journey_id INTEGER NOT NULL,
     message VARCHAR(1023) NOT NULL,
     date_time TIMESTAMP DEFAULT CURRENT_DATE NOT NULL,
+    deleted BOOLEAN DEFAULT FALSE NOT NULL,
+    deleted_message VARCHAR(1000),
     FOREIGN KEY(user_id) REFERENCES users ON DELETE CASCADE,
     FOREIGN KEY(journey_id) REFERENCES journeys ON DELETE CASCADE,
 )
@@ -93,6 +99,8 @@ CREATE TABLE IF NOT EXISTS events(
     flyer_image_id INTEGER,
     attendees_count INTEGER DEFAULT 0,
     title VARCHAR(255) NOT NULL,
+    deleted BOOLEAN DEFAULT FALSE NOT NULL,
+    deleted_message VARCHAR(1000),
     FOREIGN KEY(user_id) REFERENCES users ON DELETE RESTRICT,
     FOREIGN KEY(city_id) REFERENCES cities ON DELETE RESTRICT,
     FOREIGN KEY(flyer_image_id) REFERENCES images ON DELETE RESTRICT
@@ -104,6 +112,8 @@ CREATE TABLE IF NOT EXISTS event_responses(
     event_id INTEGER NOT NULL,
     message VARCHAR(1023) NOT NULL,
     date_time TIMESTAMP DEFAULT CURRENT_DATE NOT NULL,
+    deleted BOOLEAN DEFAULT FALSE NOT NULL,
+    deleted_message VARCHAR(1000),
     FOREIGN KEY(user_id) REFERENCES users ON DELETE CASCADE,
     FOREIGN KEY(event_id) REFERENCES events ON DELETE CASCADE,
 );

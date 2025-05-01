@@ -1,9 +1,8 @@
 package ar.edu.itba.paw.persistence;
 
+import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
-import ar.edu.itba.paw.models.City;
-import ar.edu.itba.paw.models.CursorPage;
-import ar.edu.itba.paw.models.University;
+import ar.edu.itba.paw.models.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +14,9 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 
+import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,27 +26,37 @@ import java.util.Optional;
 public class UniversityJdbcDao implements UniversityDao {
     private static Logger LOGGER = LoggerFactory.getLogger(UniversityJdbcDao.class);
 
+    private final CityDao cityDao;
     private final JdbcTemplate jdbcTemplate;
+    private final SimpleJdbcInsert simpleJdbcInsert;
 
     private final static RowMapper<University> UNIVERSITY_ROW_MAPPER = (rs, rowNum) ->
             new University(rs.getLong("university_id"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id")));
 
-    private final static String QUERY =
+    private final static String SELECT_CLAUSE = """
+            SELECT 
+                                un.name AS university_name,
+                                un.abbreviation AS university_abbreviation,
+                                un.id AS university_id,
+                                ci.id AS city_id,
+                                ci.name AS city_name,
+                                co.name AS country_name
+                                """;
+
+    private final static String QUERY = SELECT_CLAUSE +
+
             """
-                    SELECT\s
-                    un.name AS university_name,\s
-                    un.abbreviation AS university_abbreviation,\s
-                    un.id AS university_id,\s
-                    ci.id AS city_id,\s
-                    ci.name AS city_name,\s
-                    co.name AS country_name\s
                     FROM universities un\s
                     JOIN cities ci ON un.city_id = ci.id\s
                     JOIN countries co ON ci.country_id = co.id\s""";
 
     @Autowired
-    public UniversityJdbcDao(final DataSource dataSource){
+    public UniversityJdbcDao(CityDao cityDao, final DataSource dataSource){
+        this.cityDao = cityDao;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("universities")
+                .usingGeneratedKeyColumns("id");
     }
 
     @Override
@@ -72,18 +84,55 @@ public class UniversityJdbcDao implements UniversityDao {
     }
 
     @Override
-    public List<University> searchBySubstring(String substring) {
+    public Page<University> searchBySubstring(String substring, int page, int size) {
         final String like = "%" + substring + "%";
+        int offset = (page - 1) * size;
 
-        final String sql = QUERY + " WHERE LOWER(un.name) LIKE LOWER(?) OR LOWER(un.abbreviation) LIKE LOWER(?) ";
-
-        return jdbcTemplate.query(sql, UNIVERSITY_ROW_MAPPER, like, like);
+        final String sql = QUERY + " WHERE LOWER(un.name) LIKE LOWER(?) OR LOWER(un.abbreviation) LIKE LOWER(?) LIMIT ? OFFSET ?";
+        int totalUniversities = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM universities WHERE LOWER(name) LIKE LOWER(?) OR LOWER(abbreviation) LIKE LOWER(?)", Integer.class, like, like);
+        int totaPages = (int) Math.ceil((double) totalUniversities / size);
+        return new Page<>(jdbcTemplate.query(sql, UNIVERSITY_ROW_MAPPER, like, like, size, offset), page, totaPages);
     }
+
+
 
     @Override
     public Optional<University> findById(long id) {
         LOGGER.debug("Querying DB for university with id {}", id);
         return jdbcTemplate.query(QUERY + " WHERE un.id = ?", UNIVERSITY_ROW_MAPPER, id).stream().findFirst();
     }
+
+    @Override
+    public Page<University> getAllUniversities(int page, int size) {
+        int offset = (page - 1) * size;
+        StringBuilder query = new StringBuilder(SELECT_CLAUSE);
+        query.append(" FROM (SELECT * FROM universities LIMIT ? OFFSET ?) un")
+                .append(" JOIN cities ci ON un.city_id = ci.id")
+                .append(" JOIN countries co ON ci.country_id = co.id");
+        int totalUniversities = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM universities", Integer.class);
+        int totalPages = (int) Math.ceil((double) totalUniversities / size);
+        return new Page<>(jdbcTemplate.query(query.toString(), UNIVERSITY_ROW_MAPPER, size, offset),page,totalPages);
+    }
+
+    //REVISAR
+    @Override
+    public University createUniversity(String name, String abbreviation, String city) {
+        HashMap<String, Object> parameters = new HashMap<>();
+        parameters.put("name", name);
+        parameters.put("abbreviation", abbreviation);
+        City newCity = cityDao.findByName(city).get();
+        parameters.put("city_id", newCity.getId());
+       Number keys = simpleJdbcInsert.executeAndReturnKey(parameters);
+        LOGGER.debug("Successfully created uni {}", keys.longValue());
+        return new University(keys.longValue(), name, abbreviation, newCity);
+    }
+
+    @Override
+    public void updateUniversity(long id, String name, String abbreviation, long cityId) {
+        String sql = "UPDATE universities SET name = ?, abbreviation = ?, city_id = ? WHERE id = ? ";
+        jdbcTemplate.update(sql, name, abbreviation, cityId, id);
+        LOGGER.debug("Successfully updated uni {}", id);
+    }
+
 
 }

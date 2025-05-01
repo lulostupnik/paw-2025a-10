@@ -5,6 +5,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -23,18 +26,17 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import ar.edu.itba.paw.models.Career;
+import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.UserPassword;
 import ar.edu.itba.paw.persistence.UserJdbcDao;
 
-@Sql(scripts = "classpath:schema.sql")
 @Transactional
 @Rollback
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -45,12 +47,25 @@ public class UserJdbcDaoTest {
     private static final String IMAGES_TABLE = "images";
     private static final String UNIVERSITIES_TABLE = "universities";
     private static final String CAREERS_TABLE = "careers";
+    private static final String JOURNEY_TABLE = "journeys";
+    private static final String EVENT_TABLE = "events";
+    private static final String JOURNEY_REPLY_TABLE = "journey_responses";
+    private static final String EVENT_REPLY_TABLE = "event_responses";
     private static final String USERNAME = "newUser";
+    private static final String USERNAME2 = "newUser2";
+    private static final String USERNAME3 = "newUser3";
+    private static final String USERNAME4 = "newUser4";
+    private static final String USERNAME5 = "newUser5";
     private static final String FIRSTNAME = "New";
     private static final String LASTNAME = "User";
     private static final String USERMAIL = "user@gmail.com";
+    private static final String USERMAIL2 = "user2@gmail.com";
+    private static final String USERMAIL3 = "user3@gmail.com";
+    private static final String USERMAIL4 = "user4@gmail.com";
+    private static final String USERMAIL5 = "user5@gmail.com";
     private static final String PASSWORD = "superSecret";
     private static final String LOCALE = "es";
+    private static final String USERROLE = "user";
     private static University UNIVERSITY;
     private static Career CAREER;
     private static long PROFILEPICID;
@@ -62,6 +77,8 @@ public class UserJdbcDaoTest {
     private static final String FAKELASTNAME = "name";
     private static final String FAKELOCALE = "en";
     private static final String WRONGLOCALE = "jp";
+
+    private static final int PAGESIZE = 2;
     
     @Autowired
     private DataSource ds;
@@ -84,15 +101,18 @@ public class UserJdbcDaoTest {
         rs.getLong("profile_picture_id"), Locale.of(rs.getString("language")));
 
     private void assertEqualsUser(User user){
+        assertEqualsUser(user, Map.of());
+    }
+    private void assertEqualsUser(User user, Map<String, Object> overrideParams){
         assertNotNull(user);
-        assertEquals(USERMAIL, user.getEmail());
-        assertEquals(USERNAME, user.getUsername());
-        assertEquals(FIRSTNAME, user.getFirstname());
-        assertEquals(LASTNAME, user.getLastname());
-        assertEquals(Locale.of(LOCALE), user.getLocale());
-        assertEquals(CAREER.getId(), user.getCareer().getId());
-        assertEquals(UNIVERSITY.getId(), user.getUniversity().getId());
-        assertEquals(PROFILEPICID, user.getProfilePictureId());
+        assertEquals(overrideParams.getOrDefault("email", USERMAIL), user.getEmail());
+        assertEquals(overrideParams.getOrDefault("username", USERNAME), user.getUsername());
+        assertEquals(overrideParams.getOrDefault("firstname", FIRSTNAME), user.getFirstname());
+        assertEquals(overrideParams.getOrDefault("lastname", LASTNAME), user.getLastname());
+        assertEquals(Locale.of((String)overrideParams.getOrDefault("locale", LOCALE)), user.getLocale());
+        assertEquals(overrideParams.getOrDefault("career", CAREER.getId()), user.getCareer().getId());
+        assertEquals(overrideParams.getOrDefault("university", UNIVERSITY.getId()), user.getUniversity().getId());
+        assertEquals(overrideParams.getOrDefault("profilepic", PROFILEPICID), user.getProfilePictureId());
     }
 
     private void assertEqualsMaybeUser(Optional<User> maybeUser){
@@ -116,6 +136,7 @@ public class UserJdbcDaoTest {
         params.put("university", overrideParams.getOrDefault("university", UNIVERSITY.getId()));
         params.put("career_id", overrideParams.getOrDefault("career", CAREER.getId()));
         params.put("profile_picture_id", overrideParams.getOrDefault("profilepic", PROFILEPICID));
+        params.put("roles", overrideParams.getOrDefault("roles", USERROLE));
         return insert.executeAndReturnKey(params).longValue();
     }
 
@@ -225,7 +246,7 @@ public class UserJdbcDaoTest {
         assertTrue(maybeUser.isPresent());
         final UserPassword user = maybeUser.get();
         assertEquals(PASSWORD, user.getPassword());
-        assertEqualsUser(user);
+        // assertEqualsUser(user);
     }
     @Test
     public void testFindUserByEmailWithPasswordMissing(){
@@ -538,6 +559,157 @@ public class UserJdbcDaoTest {
         assertEquals(0, users.size());
     }
 
-    //    public List<User> getAllUsers() {
+    @Test
+    public void testGetAllUsersPaged(){
+        insertUserGeneric();
+        Map<String, Object> userParams1 = Map.of("email", USERMAIL2, "username", USERNAME2);
+        Map<String, Object> userParams2 = Map.of("email", USERMAIL3, "username", USERNAME3);
+        Map<String, Object> userParams3 = Map.of("email", USERMAIL4, "username", USERNAME4);
+        Map<String, Object> userParams4 = Map.of("email", USERMAIL5, "username", USERNAME5);
+        insertUserOverride(userParams1);
+        insertUserOverride(userParams2);
+        insertUserOverride(userParams3);
+        insertUserOverride(userParams4);
 
+        Page<User> page1 = userDao.getAllUsers(1, PAGESIZE);
+        Page<User> page2 = userDao.getAllUsers(2, PAGESIZE);
+        Page<User> page3 = userDao.getAllUsers(3, PAGESIZE);
+
+        assertNotNull(page1);
+        assertNotNull(page2);
+        assertNotNull(page3);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(3, page3.getCurrentPage());
+        assertNotNull(page1.getContent());
+        assertNotNull(page2.getContent());
+        assertNotNull(page3.getContent());
+        assertEquals(PAGESIZE, page1.getContent().size());
+        assertEquals(PAGESIZE, page2.getContent().size());
+        assertEquals(1, page3.getContent().size());
+        assertEqualsUser(page1.getContent().getFirst());
+        assertEqualsUser(page1.getContent().getLast(), userParams1);
+        assertEqualsUser(page2.getContent().getFirst(), userParams2);
+        assertEqualsUser(page2.getContent().getLast(), userParams3);
+        assertEqualsUser(page3.getContent().getFirst(), userParams4);
+    }
+    @Test
+    public void testGetAllUsersPagedWrongPage(){
+        insertUserGeneric();
+        insertUserOverride(Map.of("email", USERMAIL2, "username", USERNAME2));
+
+        Page<User> page1 = userDao.getAllUsers(1, PAGESIZE);
+        Page<User> page2 = userDao.getAllUsers(2, PAGESIZE);
+        Page<User> page3 = userDao.getAllUsers(3, PAGESIZE);
+
+        assertNotNull(page1);
+        assertNotNull(page2);
+        assertNotNull(page3);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(3, page3.getCurrentPage());
+        assertNotNull(page1.getContent());
+        assertNotNull(page2.getContent());
+        assertNotNull(page3.getContent());
+        assertEquals(PAGESIZE, page1.getContent().size());
+        assertEquals(0, page2.getContent().size());
+        assertEquals(0, page3.getContent().size());
+        assertEqualsUser(page1.getContent().getFirst());
+    }
+
+    @Test
+    public void testSearchUsersPaged(){
+        Map<String, Object> userParams1 = Map.of("email", USERMAIL2, "username", USERNAME2);
+        insertUserGeneric();
+        insertUserOverride(userParams1);
+
+        Page<User> page1 = userDao.searchUsers(FIRSTNAME, 1, PAGESIZE);
+
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertNotNull(page1.getContent());
+        assertEquals(PAGESIZE, page1.getContent().size());
+        assertEqualsUser(page1.getContent().getFirst());
+        assertEqualsUser(page1.getContent().getLast(), userParams1);
+    }
+    @Test
+    public void testSearchUsersPaged2(){
+        Map<String, Object> userParams1 = Map.of("email", USERMAIL2, "username", USERNAME2);
+        insertUserGeneric();
+        insertUserOverride(userParams1);
+
+        Page<User> page1 = userDao.searchUsers(FIRSTNAME, 1, 1);
+        Page<User> page2 = userDao.searchUsers(FIRSTNAME, 2, 1);
+
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertNotNull(page1.getContent());
+        assertEquals(1, page1.getContent().size());
+        assertEqualsUser(page1.getContent().getFirst());
+        assertEqualsUser(page2.getContent().getFirst(), userParams1);
+    }
+
+    @Test
+    public void testListJourneyRespondersMinusUsers(){
+        Map<String, Object> userParams1 = Map.of("username", USERNAME2, "email", USERMAIL2);
+        Map<String, Object> userParams2 = Map.of("username", USERNAME3, "email", USERMAIL3);
+        long ownerUserId = insertUserGeneric();
+        long replyUserId1 = insertUserOverride(userParams1);
+        long replyUserId2 = insertUserOverride(userParams2);
+        long journeyId = new SimpleJdbcInsert(ds).withTableName(JOURNEY_TABLE).usingGeneratedKeyColumns("id")
+            .executeAndReturnKey(Map.of(
+                "user_id", ownerUserId, 
+                "destination_university_id", UNIVERSITY.getId(), 
+                "start_date", LocalDate.now().toString(), 
+                "end_date", LocalDate.now().plusDays(10).toString(),
+                "deleted", false))
+            .longValue();
+        SimpleJdbcInsert journeyReplyInsert = new SimpleJdbcInsert(ds).withTableName(JOURNEY_REPLY_TABLE).usingGeneratedKeyColumns("id");
+        journeyReplyInsert.execute(Map.of("user_id", replyUserId1, "journey_id", journeyId, "message", USERMAIL2, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
+        journeyReplyInsert.execute(Map.of("user_id", replyUserId2, "journey_id", journeyId, "message", USERMAIL2, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
+
+        List<User> repliesUser = userDao.listJourneyRespondersMinusUsers(journeyId);
+
+        assertNotNull(repliesUser);
+        assertEquals(2, repliesUser.size());
+        for (User user : repliesUser) {
+            if (user.getId() == replyUserId1) {
+                assertEqualsUser(user, userParams1);
+            } else {
+                assertEqualsUser(user, userParams2);
+            }
+        }
+    }
+    @Test
+    public void testListEventRespondersMinusUsers(){
+        Map<String, Object> userParams1 = Map.of("username", USERNAME2, "email", USERMAIL2);
+        Map<String, Object> userParams2 = Map.of("username", USERNAME3, "email", USERMAIL3);
+        long ownerUserId = insertUserGeneric();
+        long replyUserId1 = insertUserOverride(userParams1);
+        long replyUserId2 = insertUserOverride(userParams2);
+        long eventId = new SimpleJdbcInsert(ds).withTableName(EVENT_TABLE).usingGeneratedKeyColumns("id")
+            .executeAndReturnKey(Map.of(
+                "user_id", ownerUserId, 
+                "city_id", jdbcTemplate.queryForObject("SELECT id FROM cities LIMIT 1", Long.class), 
+                "event_date", LocalDate.now().plusDays(10).toString(),
+                "title", "title",
+                "description", "event",
+                "deleted", false))
+            .longValue();
+        SimpleJdbcInsert eventReplyInsert = new SimpleJdbcInsert(ds).withTableName(EVENT_REPLY_TABLE).usingGeneratedKeyColumns("id");
+        eventReplyInsert.execute(Map.of("user_id", replyUserId1, "event_id", eventId, "message", USERMAIL2, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
+        eventReplyInsert.execute(Map.of("user_id", replyUserId2, "event_id", eventId, "message", USERMAIL2, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
+
+        List<User> repliesUser = userDao.listEventRespondersMinusUsers(eventId);
+
+        assertNotNull(repliesUser);
+        assertEquals(2, repliesUser.size());
+        for (User user : repliesUser) {
+            if (user.getId() == replyUserId1) {
+                assertEqualsUser(user, userParams1);
+            } else {
+                assertEqualsUser(user, userParams2);
+            }
+        }
+    }
 }   

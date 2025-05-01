@@ -8,15 +8,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Import necessary modules (assuming they are available)
     // If not using modules, ensure these variables are declared globally or loaded via script tags
-    const PasswordStrength = window.PasswordStrength || {}
+    // const PasswordStrength = window.PasswordStrength || {}
     const ListAutocomplete = window.ListAutocomplete || {}
     const FileUpload = window.FileUpload || {}
 
     // Initialize password strength component
     try {
-        window.passwordStrength = PasswordStrength.init({
-            // Using default IDs
-        })
+        window.passwordStrength = PasswordStrength.init({})
         console.log("Password strength component initialized")
     } catch (error) {
         console.error("Failed to initialize password strength component:", error)
@@ -97,8 +95,8 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
         window.fileUpload = FileUpload.init({
             // Using default IDs
-            maxSizeMB: 5,
-            sizeExceededMessage: "File size exceeds 5MB limit",
+            // maxSizeMB: 5,
+            // sizeExceededMessage: "File size exceeds 5MB limit",
         })
         console.log("File upload component initialized")
     } catch (error) {
@@ -107,6 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Additional form validation
     const form = document.querySelector(".auth-form")
+   /* const form = document.querySelector(".auth-form")
     if (form) {
         form.addEventListener("submit", (e) => {
             let isValid = true
@@ -229,6 +228,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         })
     }
-
+    */
     console.log("Registration initialization complete")
 })

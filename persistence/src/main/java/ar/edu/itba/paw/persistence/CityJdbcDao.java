@@ -2,12 +2,15 @@ package ar.edu.itba.paw.persistence;
 import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.models.City;
 
+import ar.edu.itba.paw.models.Country;
 import ar.edu.itba.paw.models.CursorPage;
+import ar.edu.itba.paw.models.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -21,6 +24,7 @@ public class CityJdbcDao implements CityDao {
     private static Logger LOGGER = LoggerFactory.getLogger(CityJdbcDao.class);
 
     private final JdbcTemplate jdbcTemplate;
+    private final SimpleJdbcInsert jdbcInsert;
 
     private final static RowMapper<City> CITY_ROW_MAPPER = (rs, rowNum) -> new City(
             rs.getString("city_name"),
@@ -28,13 +32,18 @@ public class CityJdbcDao implements CityDao {
             rs.getLong("city_id")
     );
 
-    private final static String QUERY = "SELECT ci.name as city_name, ci.id as city_id, co.name as country_name FROM cities ci, countries co WHERE ci.country_id = co.id ";
+    private final static String SELECT_CLAUSE = "SELECT ci.name as city_name, ci.id as city_id, co.name as country_name";
+    private final static String QUERY = SELECT_CLAUSE + " FROM cities ci, countries co WHERE ci.country_id = co.id ";
 
-    // private static final RowMapper<City> SIMPLE_CITY_ROW_MAPPER = (rs, rowNum) -> new City(rs.getString("name"), rs.getString("country"), rs.getLong("id"));
+    // private static final RowMappeFr<City> SIMPLE_CITY_ROW_MAPPER = (rs, rowNum) -> new City(rs.getString("name"), rs.getString("country"), rs.getLong("id"));
 
     @Autowired
     public CityJdbcDao(DataSource dataSource) {
+
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("cities")
+                .usingGeneratedKeyColumns("id");
     }
 
     @Override
@@ -96,6 +105,31 @@ public class CityJdbcDao implements CityDao {
     }
 
     @Override
+    public Page<City> getAllCities(int page, int pageSize) {
+        int offset = (page - 1) * pageSize;
+        StringBuilder query = new StringBuilder(SELECT_CLAUSE);
+        query.append(" FROM (SELECT * FROM cities ci LIMIT ? OFFSET ?) as ci, countries co WHERE ci.country_id = co.id ");
+        int totalCities = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities", Integer.class);
+        int totalPages = (int) Math.ceil((double) totalCities / pageSize);
+        return new Page<>(jdbcTemplate.query(query.toString(),CITY_ROW_MAPPER,pageSize,offset),page,totalPages);
+    }
+
+
+    @Override
+    public void updateCity(long id, String name, Country country) {
+        String sql = "UPDATE cities SET name = ? , country_id = ? WHERE id = ?";
+        jdbcTemplate.update(sql, name, country.getId(), id);
+    }
+
+    @Override
+    public void createCity(String name, Country country) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("name", name);
+        params.put("country_id", country.getId());
+        jdbcInsert.execute(params);
+    }
+
+    @Override
     public List<City> findAll() {
         LOGGER.debug("Querying DB for all cities");
         return jdbcTemplate.query(QUERY, CITY_ROW_MAPPER);
@@ -108,9 +142,12 @@ public class CityJdbcDao implements CityDao {
     }
 
     @Override
-    public List<City> findAllBySubstring(String substring) {
+    public Page<City> searchBySubstring(String substring, int page, int size) {
         LOGGER.debug("Querying DB for cities like {}", substring);
-        return jdbcTemplate.query(QUERY + "AND ci.name LIKE ?", CITY_ROW_MAPPER, "%" + substring + "%");
+        int offset = (page - 1) * size;
+        String like = "%" + substring + "%";
+        return new Page<>(jdbcTemplate.query(QUERY + "AND ci.name LIKE ? LIMIT ? OFFSET ?", CITY_ROW_MAPPER, like, size, offset), page,
+                (int) Math.ceil((double) jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE name LIKE ?", Integer.class, like) / size));
     }
 
 }

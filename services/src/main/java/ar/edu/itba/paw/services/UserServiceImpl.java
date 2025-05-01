@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.services;
 
-import ar.edu.itba.paw.interfaces.persistence.ImageDao;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
@@ -43,7 +42,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User createUser(String email, String username, String firstname, String lastname, String universityName,
-                           String careerName, byte[] profilePicture, String[] interests, String password, Locale locale) {
+                           String careerName, byte[] profilePicture, long[] interests, String password, Locale locale) {
 
         LOGGER.debug("Creating user for {}", email);
 
@@ -61,7 +60,7 @@ public class UserServiceImpl implements UserService {
                 passwordEncoder.encode(password), locale);
 
         LOGGER.debug("Saving user interests {}", interests.toString());
-        interestService.createUserInterests(interests, user.getId());
+        interestService.saveUserInterests(interests, user.getId());
         
         LOGGER.info("Successfully created user {}", user);
         return user;
@@ -226,13 +225,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<User> getAllUsers(int page, int size) {
-        return userDao.getAllUsers(page,size);
-    }
-
-    @Override
-    public Page<User> searchUsers(String search, int page, int size) {
-        return userDao.searchUsers(search, page, size);
+    public Page<User> getAllUsers(String search,int page, int size) {
+        LOGGER.debug("Getting all users with search {}", search);
+        if (search == null || search.isEmpty()) {
+            return userDao.getAllUsers(page, size);
+        }
+        return userDao.searchUsers(search,page,size);
     }
 
 }

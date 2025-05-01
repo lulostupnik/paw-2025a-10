@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -172,12 +173,17 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public Journey create(User user, University destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
         LOGGER.debug("Registering new journey of {} to {} from {} to {} ({})", user, destinationUniversity, startDate, endDate, description);
-        Optional<Journey> journey = findByUserEmail(user.getEmail());
+        Optional<Journey> journey = findByUserIdDeleted(user.getId());
+        if(journey.isPresent()){
+            LOGGER.debug("Journey found");
+            updateData(journey.get().getId(), destinationUniversity, startDate, endDate, description);
+            return findByUserId(journey.get().getUser().getId()).orElseThrow(RuntimeException::new);
+        }
         final Map<String, Object> args = new HashMap<>();
         args.put("user_id", user.getId());
         args.put("destination_university_id", destinationUniversity.getId());
-        args.put("start_date", startDate);
-        args.put("end_date", endDate);
+        args.put("start_date", Date.valueOf(startDate));
+        args.put("end_date", Date.valueOf(endDate));
         args.put("description", description);
         args.put("deleted", false);  // Establecer el valor de 'deleted' como 'false'
         final Number id = jdbcInsert.executeAndReturnKey(args);
@@ -201,8 +207,11 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public Optional<Journey> findOverlappingJourney(long userId, LocalDate startDate, LocalDate endDate) {
         LOGGER.debug("Querying DB for overlapping journeys for user {} from {} to {}", userId, startDate, endDate);
-        return jdbcTemplate.query(QUERY + NOT_DELETED+  " AND user_id = ? AND start_date >= ? AND end_date <= ?", JOURNEY_ROW_MAPPER, userId, startDate, endDate).stream().findFirst();
+        Date newStartDate = Date.valueOf(startDate);
+        Date newEndDate = Date.valueOf(endDate);
+        return jdbcTemplate.query(QUERY + NOT_DELETED+  " AND user_id = ? AND (start_date >= ? AND end_date <= ? OR start_date <= ? AND end_date >= ? OR start_date <= ? AND end_date >= ?)", JOURNEY_ROW_MAPPER, userId, newStartDate, newEndDate, newStartDate, newStartDate, newEndDate, newEndDate).stream().findFirst();
     }
+
 
     @Override
     public List<Journey> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest) {
@@ -226,15 +235,13 @@ public class JourneyJdbcDao implements JourneyDao {
             filters.add("ci2.id = ?");
             params.add(Integer.parseInt(destination));
         }
-        if (startDate != null) {
-            LOGGER.debug("Filter added: start date {}", startDate);
-            filters.add("j.start_date <= ?");
-            params.add(endDate);
-        }
         if (endDate != null) {
-            LOGGER.debug("Filter added: end date {}", endDate);
+            filters.add("j.start_date <= ?");
+            params.add(Date.valueOf(endDate));
+        }
+        if (startDate != null) {
             filters.add("j.end_date >= ?");
-            params.add(startDate);
+            params.add(Date.valueOf(startDate));
         }
         if (interest != null && !interest.isEmpty()) {
             LOGGER.debug("Filter added: interest {}", interest);
@@ -277,15 +284,13 @@ public class JourneyJdbcDao implements JourneyDao {
             filters.add("ci2.id = ?");
             params.add(Integer.parseInt(destination));
         }
-        if (startDate != null) {
-            LOGGER.debug("Filter added: start date {}", startDate);
-            filters.add("j.start_date <= ?");
-            params.add(endDate);
-        }
         if (endDate != null) {
-            LOGGER.debug("Filter added: end date {}", endDate);
+            filters.add("j.start_date <= ?");
+            params.add(Date.valueOf(endDate));
+        }
+        if (startDate != null) {
             filters.add("j.end_date >= ?");
-            params.add(startDate);
+            params.add(Date.valueOf(startDate));
         }
         if (interest != null && !interest.isEmpty()) {
             LOGGER.debug("Filter added: interest {}", interest);
@@ -480,7 +485,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
         int rowsAffected = jdbcTemplate.update(
                 "UPDATE journeys SET start_date = ?, end_date = ? WHERE id = ?",
-                startDate, endDate, journeyId
+                Date.valueOf(startDate), Date.valueOf(endDate), journeyId
         );
 
         if (rowsAffected == 0) {
@@ -571,12 +576,12 @@ public class JourneyJdbcDao implements JourneyDao {
 
         if (endDate != null) {
             filters.add("j.start_date <= ?");
-            params.add(endDate);
+            params.add(Date.valueOf(endDate));
         }
 
         if (startDate != null) {
             filters.add("j.end_date >= ?");
-            params.add(startDate);
+            params.add(Date.valueOf(startDate));
         }
 
         countQueryBuilder.append(" WHERE ").append(String.join(" AND ", filters));
@@ -599,12 +604,12 @@ public class JourneyJdbcDao implements JourneyDao {
 
         if (endDate != null) {
             filters.add("j.start_date <= ?");
-            params.add(endDate);
+            params.add(Date.valueOf(endDate));
         }
 
         if (startDate != null) {
             filters.add("j.end_date >= ?");
-            params.add(startDate);
+            params.add(Date.valueOf(startDate));
         }
 
         if (interest != null) {
@@ -616,7 +621,7 @@ public class JourneyJdbcDao implements JourneyDao {
         }
 
         if (!filters.isEmpty()) {
-            query += "AND " + String.join(" AND ", filters);
+            query += " AND " + String.join(" AND ", filters);
         }
 
         query += " ORDER BY j.id ASC LIMIT ? OFFSET ?";
@@ -663,6 +668,26 @@ public class JourneyJdbcDao implements JourneyDao {
                 size,
                 offset
         ), page, totalPages);
+    }
+
+    @Override
+    public void updateData(long journeyId, University destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
+        jdbcTemplate.update("""
+        UPDATE journeys
+           SET destination_university_id = ?,
+               start_date = ?,
+               end_date = ?,
+               description = ?,
+               deleted = FALSE
+         WHERE id = ?
+         """,
+                destinationUniversity.getId(),
+                Date.valueOf(startDate),
+                Date.valueOf(endDate),
+                description,
+                journeyId
+        );
+
     }
 
 

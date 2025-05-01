@@ -68,16 +68,14 @@ public class JourneyServiceImpl implements JourneyService {
     // FIXME: ¿CachePut?
     @Transactional
     @Override
-    public Journey createJourney(String email, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
-        LOGGER.debug("Creating journey for {}", email);
+    public Journey createJourney(User user, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
+
+        LOGGER.debug("Creating journey for {}", user);
         checkDates(startDate, endDate);
 
         LOGGER.debug("Looking for university {}", destinationUniversity);
         University destination = universityService.findByAny(destinationUniversity).orElseThrow(() -> new RuntimeException("Destination University not found"));
 
-        LOGGER.debug("Looking for user {}", email);
-        //Solo por ahora busco tmbn x username
-        User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
 
         if (journeyDao.findOverlappingJourney(user.getId(), startDate, endDate).isPresent()) {
             LOGGER.info("User has an overlapping journey");
@@ -139,13 +137,12 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
-    public Page<Journey> getAllJourneys(int page, int size) {
-        return journeyDao.listAll(page,size);
-    }
-
-    @Override
-    public Page<Journey> searchJourneys(String search, int page, int size) {
-        return journeyDao.searchJourneys(search, page, size);
+    public Page<Journey> getAllJourneys(String search, int page, int size) {
+        LOGGER.debug("Getting all journeys with search {}", search);
+        if (search == null || search.isEmpty()) {
+            return journeyDao.listAll(page, size);
+        }
+        return journeyDao.searchJourneys(search,page,size);
     }
 
     @Transactional(readOnly = true)
@@ -188,10 +185,7 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     public Boolean userHasJourney(String email) {
         Optional<User> maybeUser = userService.findByEmail(email);
-        if(maybeUser.isEmpty()){
-            return false;
-        }
-        return journeyDao.findByUserId(maybeUser.get().getId()).isPresent();
+        return maybeUser.filter(user -> journeyDao.findByUserId(user.getId()).isPresent()).isPresent();
     }
 
     // FIXME: Configurar la cache para que guarde los resultados por un tiempo (30min) y después meter acá el @Cacheable
@@ -313,10 +307,29 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.info("Successfully updated destination for journey {} to university ID {}", journeyId, universityId);
     }
 
+    @Transactional
     @Override
     public void delete(long id, String message) {
         journeyDao.deletionMessage(id, message);
+        journeyResponseService.deleteByJourneyId(id);
         journeyDao.delete(id);
+    }
+
+    @Override
+    public boolean isJourneyOwnedByUser(String email, long journeyID) {
+        Optional<Journey> journey = journeyDao.findById(journeyID);
+        return journey.isPresent() && journey.get().getUser().getEmail().equals(email);
+    }
+
+    @Transactional
+    @Override
+    public void editJourney(long journeyId, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
+        University university = universityService.findByName(destinationUniversity)
+                .orElseThrow(() -> {
+                    LOGGER.warn("University not found: {}", destinationUniversity);
+                    return new IllegalArgumentException("University not found");
+                });
+        journeyDao.updateData(journeyId, university, startDate, endDate, description);
     }
 
 }

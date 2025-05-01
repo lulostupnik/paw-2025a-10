@@ -9,15 +9,13 @@ import java.util.Optional;
 
 public interface JourneyService {
 
-    Journey createJourney(String email, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
+    Journey createJourney(User user, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
 
     void replyToJourney(String email, long journeyId, String message);
 
     List<Journey> getAllJourneys();
 
-    Page<Journey> getAllJourneys(int page, int size);
-
-    Page<Journey> searchJourneys(String search, int page, int size);
+    Page<Journey> getAllJourneys(String search, int page, int size);
 
     Optional<Journey> getJourneyById(long id);
 
@@ -49,5 +47,8 @@ public interface JourneyService {
 
     void delete(long id, String message);
 
+    boolean isJourneyOwnedByUser(String email, long journeyID);
+
+    void editJourney(long journeyId, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
 
 }

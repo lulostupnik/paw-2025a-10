@@ -27,96 +27,87 @@ public class UserJdbcDao implements UserDao {
             rs.getString("user_username"),
             rs.getString("user_firstname"),
             rs.getString("user_lastname"),
-            new University(rs.getLong("user_university"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id"))),
-            new Career(rs.getLong("career_id"), rs.getString("career_name")),
+            new University(
+                    rs.getLong("user_university"),
+                    rs.getString("university_name"),
+                    rs.getString("university_abbreviation"),
+                    new City(
+                            rs.getString("city_name"),
+                            rs.getString("country_name"),
+                            rs.getLong("city_id")
+                    )
+            ),
+            new Career(
+                    rs.getLong("career_id"),
+                    rs.getString("career_name")
+            ),
             rs.getLong("user_profile_picture_id"),
-            Locale.of(rs.getString("user_language")));
+            Locale.of(rs.getString("user_language"))
+    );
 
 
     private final static RowMapper<UserPassword> USER_PASSWORD_ROW_MAPPER = (rs, rowNum)-> new UserPassword(
-                 rs.getLong("user_id"),
-            rs.getString("user_email"),
-            rs.getString("user_username"),
-            rs.getString("user_firstname"),
-            rs.getString("user_lastname"),
-            new University(rs.getLong("user_university"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id"))),
-            new Career(rs.getLong("career_id"), rs.getString("career_name")),
-            rs.getLong("user_profile_picture_id"),
-            rs.getString("user_password"),
-            Locale.of(rs.getString("user_language")),
-            rs.getString("user_role"));
+            rs.getString("email"),
+            rs.getString("password"),
+            rs.getString("roles")
+    );
 
-    private final static String SELECT_CLAUSE = """
-        SELECT\s
-                    u.id AS user_id,\s
-                    u.email AS user_email,\s
-                    u.firstname AS user_firstname,\s
-                    u.lastname AS user_lastname,\s
-                    u.username AS user_username,\s
-                    u.university AS user_university,\s
-                    u.language AS user_language,\s
-                    c.name AS career_name,\s
-                    c.id AS career_id,\s
-                    u.profile_picture_id AS user_profile_picture_id,\s
-                    un.name AS university_name,\s
-                    un.abbreviation AS university_abbreviation,\s
-                    ci.id AS city_id,\s
-                    ci.name AS city_name,\s
-                    co.name AS country_name\s
-""";
 
-    private final static String QUERY = SELECT_CLAUSE + """
-            FROM users u\s
-            JOIN universities un ON u.university = un.id\s
-            JOIN careers c ON c.id = u.career_id\s
-            JOIN cities ci ON ci.id = un.city_id\s
+    private final static String SQL_SELECT_BASE =
+            """
+            SELECT
+                u.id AS user_id,
+                u.email AS user_email,
+                u.firstname AS user_firstname,
+                u.lastname AS user_lastname,
+                u.username AS user_username,
+                u.university AS user_university,
+                u.language AS user_language,
+                c.name AS career_name,
+                c.id AS career_id,
+                u.profile_picture_id AS user_profile_picture_id,
+                un.name AS university_name,
+                un.abbreviation AS university_abbreviation,
+                ci.id AS city_id,
+                ci.name AS city_name,
+                co.name AS country_name
+            """;
+
+    private final static String SQL_FROM_BASE =
+            """
+            FROM users u
+            JOIN universities un ON u.university = un.id
+            JOIN careers c ON c.id = u.career_id
+            JOIN cities ci ON ci.id = un.city_id
             JOIN countries co ON co.id = ci.country_id
             """;
 
-    private final static String QUERY_DISTINCT = """
-            SELECT DISTINCT\s
-                u.id AS user_id,\s
-                u.email AS user_email,\s
-                u.firstname AS user_firstname,\s
-                u.lastname AS user_lastname,\s
-                u.username AS user_username,\s
-                u.university AS user_university,\s
-                u.language AS user_language,\s
-                c.name AS career_name,\s
-                c.id AS career_id,\s
-                u.profile_picture_id AS user_profile_picture_id,\s
-                un.name AS university_name,\s
-                un.abbreviation AS university_abbreviation,\s
-                ci.id AS city_id,\s
-                ci.name AS city_name,\s
-                co.name AS country_name\s
-            FROM users u\s
-            JOIN universities un ON u.university = un.id\s
-            JOIN careers c ON c.id = u.career_id\s
-            JOIN cities ci ON ci.id = un.city_id\s
-            JOIN countries co ON co.id = ci.country_id
-            """;
+    private final static String SQL_BASE =
+            SQL_SELECT_BASE + SQL_FROM_BASE;
 
+    private final static String SQL_BASE_DISTINCT =
+            "SELECT DISTINCT " + SQL_SELECT_BASE.substring(6) + SQL_FROM_BASE;
 
-    private final static String PASSWORD_QUERY = SELECT_CLAUSE + """
-            , u.password AS user_password\s,
-              u.roles AS user_role
-            FROM users u\s
-            JOIN universities un ON u.university = un.id\s
-            JOIN careers c ON c.id = u.career_id\s
-            JOIN cities ci ON ci.id = un.city_id\s
-            JOIN countries co ON co.id = ci.country_id""";
+    private final static String SQL_FIND_BY_ID =
+            SQL_BASE + " WHERE u.id = ? ";
 
-    private String getPagedQuery(String whereClause, String orderByClause) {
-        return  "FROM (SELECT * FROM users u " + whereClause + orderByClause + " LIMIT ? OFFSET ?) " +
-                """ 
-                AS u
-                JOIN universities un ON u.university = un.id
-                JOIN careers c ON c.id = u.career_id
-                JOIN cities ci ON ci.id = un.city_id
-                JOIN countries co ON co.id = ci.country_id
-                """;
-    }
+    private final static String SQL_FIND_BY_EMAIL =
+            SQL_BASE + " WHERE u.email = ? ";
+
+    private final static String SQL_FIND_BY_USERNAME =
+            SQL_BASE + " WHERE u.username = ? ";
+
+    private final static String SQL_JOIN_JOURNEY_RESPONDERS =
+            SQL_BASE_DISTINCT + " JOIN journey_responses jr ON jr.user_id = u.id WHERE jr.journey_id = ? ";
+
+    private final static String SQL_JOIN_EVENT_RESPONDERS =
+            SQL_BASE_DISTINCT + " JOIN event_responses er ON er.user_id = u.id WHERE er.event_id = ? ";
+
+    private final static String SQL_FIND_ALL_PAGED =
+            SQL_BASE + " ORDER BY u.id ASC LIMIT ? OFFSET ?";
+
+    private final static String SQL_SEARCH_USERS_PAGED = SQL_BASE +
+            "WHERE u.firstname ILIKE ? OR u.lastname ILIKE ? ORDER BY u.id DESC LIMIT ? OFFSET ? ";
 
 
     @Autowired
@@ -129,52 +120,45 @@ public class UserJdbcDao implements UserDao {
 
     // TODO: methods findById, findByEmail and findByUsername are very similar, we should refactor them
     // -> maybe use enum to specify the column to search by
+    // private simpleFindBy(String query, RowMapper<User> rowMapper, Object... args);
+    // -> de hecho creería que el RowMapper mucho sentido no tiene
+    // private Optional<User> simpleFindBy(QUERY, Object... args){
+    //      return jdbcTemplate.query(query, args).stream().findFirst();
+    // }
 
     @Override
     public Optional<User> findById(long id) {
-        LOGGER.debug("Querying DB for user id {}", id);
-        return jdbcTemplate.query(QUERY +
-                " WHERE u.id = ?", USER_ROW_MAPPER, id).stream().findFirst();
+        return jdbcTemplate.query(SQL_FIND_BY_ID, USER_ROW_MAPPER, id).stream().findFirst();
     }
 
     @Override
     public Optional<User> findByEmail(String email) {
-        LOGGER.debug("Querying DB for user mail {}", email);
-        return jdbcTemplate.query(QUERY + " WHERE u.email = ?", USER_ROW_MAPPER, email).stream().findFirst();
+        return jdbcTemplate.query(SQL_FIND_BY_EMAIL, USER_ROW_MAPPER, email).stream().findFirst();
     }
 
     @Override
     public Optional<UserPassword> findByEmailWithPass(String email) {
-        LOGGER.debug("Querying DB for user mail {} (with password)", email);
-        return jdbcTemplate.query(PASSWORD_QUERY + " WHERE u.email = ?",
-                USER_PASSWORD_ROW_MAPPER, email).stream().findFirst();
+        return jdbcTemplate.query("SELECT email, password, roles FROM users WHERE email = ?", USER_PASSWORD_ROW_MAPPER, email).stream().findFirst();
     }
 
     @Override
     public Optional<User> findByUsername(String username) {
-        LOGGER.debug("Querying DB for username {}", username);
-        return jdbcTemplate.query(QUERY + " WHERE u.username = ?", USER_ROW_MAPPER, username).stream().findFirst();
+        return jdbcTemplate.query(SQL_FIND_BY_USERNAME, USER_ROW_MAPPER, username).stream().findFirst();
     }
 
     @Override
     public void changePassword(String email, String password) {
         LOGGER.debug("Updating password for user email {} (has password {})", email, password != null && !password.isEmpty());
-        if (password == null || password.isEmpty()) return;
-        int rows = jdbcTemplate.update("UPDATE users SET password = ? WHERE email = ?", password, email);
-        if (rows == 0) {
-            LOGGER.warn("Password change failed: User not found");
-        }
+        jdbcTemplate.update("UPDATE users SET password = ? WHERE email = ?", password, email);
     }
 
     @Override
     public boolean existsByUsername(String username) {
-        LOGGER.debug("Querying DB for existance of username {}", username);
         return jdbcTemplate.queryForObject("SELECT COUNT(1) FROM users WHERE username = ?", Boolean.class, username);
     }
 
     @Override
     public boolean existsByEmail(String email) {
-        LOGGER.debug("Querying DB for existance of user with email {}", email);
         return jdbcTemplate.queryForObject("SELECT COUNT(1) FROM users WHERE email = ?", Boolean.class, email);
     }
 
@@ -256,56 +240,36 @@ public class UserJdbcDao implements UserDao {
         queryBuilder.append(" WHERE id = ?");
         parameters.add(userId);
 
-        int rowsAffected = jdbcTemplate.update(queryBuilder.toString(), parameters.toArray());
+        jdbcTemplate.update(queryBuilder.toString(), parameters.toArray());
 
-        if (rowsAffected == 0) {
-            LOGGER.warn("User update failed: User with ID {} not found", userId);
-        }
 
     }
 
     @Override
     public List<User> getAllUsers() {
-        return jdbcTemplate.query(QUERY, USER_ROW_MAPPER);
+        return jdbcTemplate.query(SQL_BASE, USER_ROW_MAPPER);
     }
 
     @Override
     public Page<User> getAllUsers(int page, int size) {
-        LOGGER.debug("Querying DB for all users with pagination: page {}, size {}", page, size);
-        int offset = (page - 1) * size;
-        String whereClause = "";
-        String orderByClause = " ORDER BY u.id ASC";
-        List<User> list = jdbcTemplate.query(SELECT_CLAUSE + getPagedQuery(whereClause, orderByClause), USER_ROW_MAPPER, size, offset);
+        List<User> list = jdbcTemplate.query(SQL_FIND_ALL_PAGED, USER_ROW_MAPPER, size, (page - 1) * size);
         int elementCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
         return new Page<>(list, page, (int) Math.ceil((double) elementCount / size));
     }
 
-
     @Override
     public Page<User> searchUsers(String search, int page, int size) {
-            LOGGER.debug("Querying DB for events with search {}", search);
-            int offset = (page - 1) * size;
-            String whereClause = " WHERE (LOWER(u.firstname) LIKE LOWER(?))";
             String searchPattern = "%" + search + "%";
-            String orderByClause = "ORDER BY u.firstname DESC ";
-            List<User> list = jdbcTemplate.query(SELECT_CLAUSE + getPagedQuery(whereClause, orderByClause), USER_ROW_MAPPER, searchPattern, size, offset);
-            int elementCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users" + whereClause, Integer.class, searchPattern);
+            List<User> list = jdbcTemplate.query(SQL_SEARCH_USERS_PAGED, USER_ROW_MAPPER, searchPattern, size, (page - 1) * size);
+            int elementCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users WHERE firstname ILIKE ?", Integer.class, searchPattern);
             return new Page<>(list, page, (int) Math.ceil((double) elementCount / size));
     }
 
     @Override
     public void updateProfilePicture(long userId, long profilePictureId) {
         LOGGER.debug("Updating profile picture for user ID: {} to image ID: {}", userId, profilePictureId);
+        jdbcTemplate.update("UPDATE users SET profile_picture_id = ? WHERE id = ?", profilePictureId, userId);
 
-        int rowsAffected = jdbcTemplate.update(
-                "UPDATE users SET profile_picture_id = ? WHERE id = ?",
-                profilePictureId,
-                userId
-        );
-
-        if (rowsAffected == 0) {
-            LOGGER.warn("Profile picture update failed: User with ID {} not found", userId);
-        }
     }
 
     @Override
@@ -344,79 +308,35 @@ public class UserJdbcDao implements UserDao {
         queryBuilder.append(" WHERE id = ?");
         parameters.add(userId);
 
-        int rowsAffected = jdbcTemplate.update(queryBuilder.toString(), parameters.toArray());
-        if (rowsAffected == 0) {
-            LOGGER.warn("User profile info update failed: User with ID {} not found", userId);
-        }
+        jdbcTemplate.update(queryBuilder.toString(), parameters.toArray());
     }
 
     @Override
     public void updateLocale(long userId, Locale locale) {
         LOGGER.debug("Updating locale for user ID: {} to {}", userId, locale);
-
-        if (locale == null) {
-            LOGGER.warn("Locale update skipped: null locale for user ID {}", userId);
-            return;
-        }
-
-        int rowsAffected = jdbcTemplate.update(
-                "UPDATE users SET language = ? WHERE id = ?",
-                locale.getLanguage(),
-                userId
-        );
-
-        if (rowsAffected == 0) {
-            LOGGER.warn("Locale update failed: User with ID {} not found", userId);
-        }
+        jdbcTemplate.update("UPDATE users SET language = ? WHERE id = ?", locale.getLanguage(), userId);
     }
 
     @Override
     public void updateUniversity(long userId, long universityId) {
         LOGGER.debug("Updating university for user ID: {} to university ID: {}", userId, universityId);
-
-        int rowsAffected = jdbcTemplate.update(
-                "UPDATE users SET university = ? WHERE id = ?",
-                universityId,
-                userId
-        );
-
-        if (rowsAffected == 0) {
-            LOGGER.warn("University update failed: User with ID {} not found", userId);
-        }
+        jdbcTemplate.update("UPDATE users SET university = ? WHERE id = ?", universityId, userId);
     }
 
     @Override
     public void updateCareer(long userId, long careerId) {
         LOGGER.debug("Updating career for user ID: {} to career ID: {}", userId, careerId);
-
-        int rowsAffected = jdbcTemplate.update(
-                "UPDATE users SET career_id = ? WHERE id = ?",
-                careerId,
-                userId
-        );
-
-        if (rowsAffected == 0) {
-            LOGGER.warn("Career update failed: User with ID {} not found", userId);
-        }
+        jdbcTemplate.update("UPDATE users SET career_id = ? WHERE id = ?", careerId, userId);
     }
 
     @Override
     public List<User> listJourneyRespondersMinusUsers(long journeyId/*, List<Long> userIds*/) {
-        String query = QUERY_DISTINCT + "JOIN journey_responses jr ON jr.user_id = u.id WHERE jr.journey_id = ?";
-        List<Object> params = new ArrayList<>();
-        params.add(journeyId);
-
-        return jdbcTemplate.query(query,USER_ROW_MAPPER, params.toArray());
+        return jdbcTemplate.query(SQL_JOIN_JOURNEY_RESPONDERS, USER_ROW_MAPPER, journeyId);
     }
 
     @Override
     public List<User> listEventRespondersMinusUsers(long eventId) {
-        String query = QUERY_DISTINCT + "JOIN event_responses er ON er.user_id = u.id WHERE er.event_id = ?";
-        List<Object> params = new ArrayList<>();
-        params.add(eventId);
-
-
-        return jdbcTemplate.query(query,USER_ROW_MAPPER, params.toArray());
+        return jdbcTemplate.query(SQL_JOIN_EVENT_RESPONDERS, USER_ROW_MAPPER, eventId);
     }
 
 }

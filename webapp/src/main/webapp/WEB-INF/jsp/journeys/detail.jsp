@@ -52,10 +52,18 @@
             <!-- Back to Journeys Button -->
 
             <div class="back-navigation">
-                <a href="<c:url value='/journeys' />" class="back-link">
-                    <img src="<c:url value='/resources/icons/back.svg'/>" alt="Back" class="icon" />
-                    <spring:message code="journey.detail.back.to.list" />
-                </a>
+                <c:if test="${isOwner}">
+                    <a href="<c:url value='/profile'/>" class="back-link">
+                        <img src="<c:url value='/resources/icons/back.svg'/>" alt="Back" class="icon" />
+                        <spring:message code="journey.detail.back.to.list" />
+                    </a>
+                </c:if>
+                <c:if test="${not isOwner}">
+                    <a href="<c:url value='/journeys' />" class="back-link">
+                        <img src="<c:url value='/resources/icons/back.svg'/>" alt="Back" class="icon" />
+                        <spring:message code="journey.detail.back.to.profile" />
+                    </a>
+                </c:if>
             </div>
 
 

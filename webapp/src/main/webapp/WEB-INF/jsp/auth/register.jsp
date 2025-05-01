@@ -138,9 +138,11 @@
 
                     <!-- Password Confirmation Field -->
                     <div class="form-group">
-                        <label for="confirmPassword" class="form-label required-field">
+
+                        <form:label path="confirmPassword" class="form-label required-field">
                             <spring:message code="register.confirmPassword" text="Confirm Password"/>
-                        </label>
+                        </form:label>
+
                         <div class="password-field-container">
                             <input type="password" id="confirmPassword" name="confirmPassword"
                                    class="form-input required" placeholder="••••••••"/>
@@ -157,7 +159,9 @@
                             </button>
                         </div>
                         <div id="passwordMatchMessage" class="password-match-message"></div>
+                        <form:errors path="confirmPassword" cssClass="error-message" />
                     </div>
+
 
                     <div class="form-group">
                         <form:label path="firstName" cssClass="form-label required-field">
@@ -252,9 +256,9 @@
                         <!-- Hidden select that will hold the actual form data -->
                         <form:select path="interests" multiple="true" id="interestsSelect" style="display: none;" >
 <%--                            <c:forEach var="item" items="${interests}">--%>
-<%--                                <option value="${item.name}"><c:out value="${item.name}"/></option>--%>
+<%--                            <option value="${interest.id}" ${param.interests == interest.id ? 'selected' : ''}><c:out value="${interest.name}"/></option>--%>
 <%--                            </c:forEach>--%>
-                            <form:options items="${interests}" itemValue="name" itemLabel="name"/>
+                            <form:options items="${interests}" itemValue="id" itemLabel="name"/>
 <%--@NOTE : si interests no se carga en alguna, hacer el fix de arriba ^--%>
                         </form:select>
 
