@@ -99,7 +99,4 @@ public class CityController {
 
         return new ModelAndView("redirect:/careers/{id}", "id", id);
     }
-
-
-
 }

@@ -5,7 +5,16 @@
 
 <html>
 <head>
-  <title><spring:message code="createCity.title"/></title>
+  <title>
+    <c:choose>
+      <c:when test="${isUpdate}">
+        <spring:message code="editCity.title" text="Edit City"/>
+      </c:when>
+      <c:otherwise>
+        <spring:message code="createCity.title" text="Create City"/>
+      </c:otherwise>
+    </c:choose>
+  </title>
   <!-- Include custom CSS -->
   <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
@@ -26,12 +35,38 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
         </svg>
       </div>
-      <h1 class="auth-title"><spring:message code="createCity.title" text="Create City"/></h1>
-      <p class="auth-subtitle"><spring:message code="createCity.subtitle" text="Add a new city to the system"/></p>
+      <h1 class="auth-title">
+        <c:choose>
+          <c:when test="${isUpdate}">
+            <spring:message code="editCity.title" text="Edit City"/>
+          </c:when>
+          <c:otherwise>
+            <spring:message code="createCity.title" text="Create City"/>
+          </c:otherwise>
+        </c:choose>
+      </h1>
+      <p class="auth-subtitle">
+        <c:choose>
+          <c:when test="${isUpdate}">
+            <spring:message code="editCity.subtitle" text="Update city information"/>
+          </c:when>
+          <c:otherwise>
+            <spring:message code="createCity.subtitle" text="Add a new city to the system"/>
+          </c:otherwise>
+        </c:choose>
+      </p>
     </div>
 
-    <c:url var="createCityUrl" value="/cities/create"/>
-    <form:form modelAttribute="createCityForm" action="${createCityUrl}" method="post" class="auth-form" id="cityForm" novalidate="true">
+    <c:choose>
+      <c:when test="${isUpdate}">
+        <c:url var="formAction" value="/cities/${cityId}/edit"/>
+      </c:when>
+      <c:otherwise>
+        <c:url var="formAction" value="/cities/create"/>
+      </c:otherwise>
+    </c:choose>
+
+    <form:form modelAttribute="createCityForm" action="${formAction}" method="post" class="auth-form" id="cityForm" novalidate="true">
       <!-- City Name Field -->
       <div class="form-group">
         <form:label path="name" cssClass="form-label required-field">
@@ -51,7 +86,14 @@
       </div>
 
       <button type="submit" class="form-button">
-        <spring:message code="createCity.submit" text="Create City"/>
+        <c:choose>
+          <c:when test="${isUpdate}">
+            <spring:message code="editCity.submit" text="Update City"/>
+          </c:when>
+          <c:otherwise>
+            <spring:message code="createCity.submit" text="Create City"/>
+          </c:otherwise>
+        </c:choose>
       </button>
     </form:form>
 
