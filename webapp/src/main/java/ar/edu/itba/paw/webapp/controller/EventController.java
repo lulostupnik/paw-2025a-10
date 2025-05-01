@@ -102,7 +102,7 @@ public class EventController {
         return new ModelAndView("redirect:/events/{id}", "id", event.getId());
     }
 
-    private ModelAndView populateEventDetails( Event event, long id, String username,
+    private ModelAndView populateEventDetails( Event event, long id, User user,
                                               BindingResult deleteErrors, BindingResult deleteReplyErrors,
                                               Long replyId) {
         ModelAndView mav = new ModelAndView("events/detail");
@@ -130,9 +130,9 @@ public class EventController {
         boolean isAttending = false;
         boolean isEventOwner = false;
 
-        if(username != null) {
-            isAttending = eventService.isUserAttending(SecurityContextHolder.getContext().getAuthentication().getName(), id);
-            isEventOwner = eventService.isEventOwnedByUser(SecurityContextHolder.getContext().getAuthentication().getName(), id);
+        if(user != null) {
+            isAttending = eventService.isUserAttending(user.getEmail(), id);
+            isEventOwner = eventService.isEventOwnedByUser(user.getEmail(), id);
         }
 
         LOGGER.debug("User attending event {}", isAttending);
@@ -162,7 +162,7 @@ public class EventController {
             return new ModelAndView("events/not_found");
         }
 
-        return populateEventDetails(maybeEvent.get(), id, user.getEmail(), deleteErrors, deleteReplyErrors, replyId);
+        return populateEventDetails(maybeEvent.get(), id, user, deleteErrors, deleteReplyErrors, replyId);
     }
     @PostMapping("/{id}/delete")
     public ModelAndView deleteEvent(@PathVariable int id, @Valid @ModelAttribute("deleteForm") final ReplyForm form,

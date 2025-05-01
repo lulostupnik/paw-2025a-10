@@ -145,7 +145,12 @@ public class JourneyController {
         final ModelAndView mav = new ModelAndView("journeys/detail");
         mav.addObject("journey", journey.get());
         mav.addObject("journeyResponses", journeyResponses);
-        mav.addObject("isOwner", js.isJourneyOwnedByUser(user.getEmail(),journey.get().getId()));
+
+        if(user != null){
+            mav.addObject("isOwner", js.isJourneyOwnedByUser(user.getEmail(),journey.get().getId()));
+        }else{
+            mav.addObject("isOwner", false);
+        }
 
         // Check if there are errors in the delete forms
         if (deleteErrors.hasErrors()) {
