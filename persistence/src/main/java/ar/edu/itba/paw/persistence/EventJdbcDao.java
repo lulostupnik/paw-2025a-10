@@ -98,12 +98,12 @@ public class EventJdbcDao implements EventDao {
                         un.abbreviation AS university_abbreviation,\s
                     
                        c.id AS city_id,\s
-                       c.name_en AS city_name,\s
+                       c.name AS city_name,\s
                     
                        co.name AS country_name,\s
                     
                        ci2.id AS origin_city_id,\s
-                       ci2.name_en AS origin_city_name,\s
+                       ci2.name AS origin_city_name,\s
                     
                        co2.name AS origin_country_name
                     """;
@@ -258,12 +258,12 @@ public class EventJdbcDao implements EventDao {
             un.abbreviation AS university_abbreviation, 
             
             c.id AS city_id, 
-            c.name_en AS city_name, 
+            c.name AS city_name, 
             
             co.name AS country_name, 
             
             ci2.id AS origin_city_id, 
-            ci2.name_en AS origin_city_name, 
+            ci2.name AS origin_city_name, 
             
             co2.name AS origin_country_name
         FROM events e
@@ -318,12 +318,12 @@ public class EventJdbcDao implements EventDao {
             un.abbreviation AS university_abbreviation, 
                 
             c.id AS city_id, 
-            c.name_en AS city_name, 
+            c.name AS city_name, 
                 
             co.name AS country_name, 
                 
             ci2.id AS origin_city_id, 
-            ci2.name_en AS origin_city_name, 
+            ci2.name AS origin_city_name, 
                 
             co2.name AS origin_country_name,
 

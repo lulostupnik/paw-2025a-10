@@ -50,10 +50,10 @@ public class JourneyJdbcDao implements JourneyDao {
                 j.description AS journey_description,\s
                 ci1.id AS city_id,\s
                 co1.name AS country_name,\s
-                ci1.name_en AS city_name,\s
+                ci1.name AS city_name,\s
                 ci2.id AS destination_city_id,\s
                 co2.name AS destination_country_name,\s
-                ci2.name_en AS destination_city_name,\s
+                ci2.name AS destination_city_name,\s
                 un1.id AS university_id,\s
                 un1.name AS university_name,\s
                 un1.abbreviation AS university_abbreviation,\s
@@ -375,7 +375,7 @@ public class JourneyJdbcDao implements JourneyDao {
                             uu.id AS user_university,
                             uu.name AS university_name,
                             uu.abbreviation AS university_abbreviation,
-                            uc.name_en AS city_name,
+                            uc.name AS city_name,
                             co.name AS country_name,
                             uc.id AS city_id,
                             c.id AS career_id,
@@ -386,7 +386,7 @@ public class JourneyJdbcDao implements JourneyDao {
                             dest_univ.id AS destination_university_id,
                             dest_univ.name AS destination_university_name,
                             dest_univ.abbreviation AS destination_university_abbreviation,
-                            dest_city.name_en AS destination_city_name,
+                            dest_city.name AS destination_city_name,
                             dest_country.name AS destination_country_name,
                             dest_city.id AS destination_city_id,
                             j.description AS journey_description,

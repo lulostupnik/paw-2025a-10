@@ -55,7 +55,7 @@ public class InterestController {
         if (errors.hasErrors()) {
             return createInterestsForm(intForm);
         }
-        Interest interest = interestService.createUserInterest(intForm.getName_en(), intForm.getName_es());
+        Interest interest = interestService.createUserInterest(intForm.getName());
 
         return new ModelAndView("redirect:/interests/{id}", "id", interest.getId());
     }

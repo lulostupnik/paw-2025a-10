@@ -78,8 +78,8 @@ public class InterestServiceImpl implements InterestService {
 
     @Transactional
     @Override
-    public void editUserInterest(long id, String interestEn, String interestEs) {
-        interestDao.editUserInterest(id, interestEn, interestEs);
+    public void editUserInterest(long id, String interest) {
+        interestDao.editUserInterest(id, interest);
     }
 
     @Transactional

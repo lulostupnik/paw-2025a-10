@@ -61,7 +61,7 @@ public class UserJdbcDao implements UserDao {
                     un.name AS university_name,\s
                     un.abbreviation AS university_abbreviation,\s
                     ci.id AS city_id,\s
-                    ci.name_en AS city_name,\s
+                    ci.name AS city_name,\s
                     co.name AS country_name\s
 """;
 
@@ -88,7 +88,7 @@ public class UserJdbcDao implements UserDao {
                 un.name AS university_name,\s
                 un.abbreviation AS university_abbreviation,\s
                 ci.id AS city_id,\s
-                ci.name_en AS city_name,\s
+                ci.name AS city_name,\s
                 co.name AS country_name\s
             FROM users u\s
             JOIN universities un ON u.university = un.id\s

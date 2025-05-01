@@ -32,10 +32,10 @@ public class CityJdbcDao implements CityDao {
             rs.getLong("city_id")
     );
 
-    private final static String SELECT_CLAUSE = "SELECT ci.name_en as city_name, ci.id as city_id, co.name as country_name";
+    private final static String SELECT_CLAUSE = "SELECT ci.name as city_name, ci.id as city_id, co.name as country_name";
     private final static String QUERY = SELECT_CLAUSE + " FROM cities ci, countries co WHERE ci.country_id = co.id ";
 
-    // private static final RowMapper<City> SIMPLE_CITY_ROW_MAPPER = (rs, rowNum) -> new City(rs.getString("name"), rs.getString("country"), rs.getLong("id"));
+    // private static final RowMappeFr<City> SIMPLE_CITY_ROW_MAPPER = (rs, rowNum) -> new City(rs.getString("name"), rs.getString("country"), rs.getLong("id"));
 
     @Autowired
     public CityJdbcDao(DataSource dataSource) {
@@ -116,16 +116,15 @@ public class CityJdbcDao implements CityDao {
 
 
     @Override
-    public void updateCity(long id, String nameEn, String nameEs, Country country) {
-        String sql = "UPDATE cities SET name_en = ? , name_es = ? , country_id = ? WHERE id = ?";
-        jdbcTemplate.update(sql, nameEn, nameEs, country.getId(), id);
+    public void updateCity(long id, String name, Country country) {
+        String sql = "UPDATE cities SET name = ? , country_id = ? WHERE id = ?";
+        jdbcTemplate.update(sql, name, country.getId(), id);
     }
 
     @Override
-    public void createCity(String nameEn, String nameEs, Country country) {
+    public void createCity(String name, Country country) {
         Map<String, Object> params = new HashMap<>();
-        params.put("name_en", nameEn);
-        params.put("name_es", nameEs);
+        params.put("name", name);
         params.put("country_id", country.getId());
         jdbcInsert.execute(params);
     }

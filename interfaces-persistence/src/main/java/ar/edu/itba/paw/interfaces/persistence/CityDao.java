@@ -17,6 +17,6 @@ public interface CityDao {
     List<City> getAllCities();
     // add method that finds cities with a "similar" name -> using Levensthein?
     Page<City> getAllCities(int page, int pageSize); // method to get all the cities with pagination
-    void updateCity(long id, String nameEn, String nameEs, Country country); // method to update a city by its id
-    void createCity(String nameEn, String nameEs, Country country); // method to create a city
+    void updateCity(long id, String name, Country country); // method to update a city by its id
+    void createCity(String nameEn, Country country); // method to create a city
 }

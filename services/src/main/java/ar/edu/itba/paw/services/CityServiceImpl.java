@@ -71,18 +71,18 @@ public class CityServiceImpl implements CityService {
 
     @Transactional
     @Override
-    public void updateCity(long id, String nameEn, String nameEs, String country) {
+    public void updateCity(long id, String name, String country) {
         Country country1 = countryService.findByName(country)
                 .orElseThrow(() -> new IllegalArgumentException("Country not found"));
-        cityDao.updateCity(id, nameEn, nameEs, country1);
+        cityDao.updateCity(id, name, country1);
     }
 
     @Transactional
     @Override
-    public void createCity(String nameEn, String nameEs, String country) {
+    public void createCity(String name, String country) {
         Country country1 = countryService.findByName(country)
                 .orElseThrow(() -> new IllegalArgumentException("Country not found"));
-        cityDao.createCity(nameEn, nameEs, country1);
+        cityDao.createCity(name, country1);
     }
 
 }
