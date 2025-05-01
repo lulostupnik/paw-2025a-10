@@ -509,6 +509,7 @@ public class EventJdbcDao implements EventDao {
         return new Page<>(events, page, totalPages);
     }
 
+
     /*
     @Override
     public List<EventWithAttendanceStatus> getEventsWithAttendanceStatus(long userId) {
@@ -527,6 +528,38 @@ public class EventJdbcDao implements EventDao {
         );
     }
     */
+
+
+    /*@TODO no se si esta bien. revisar. */
+    @Override
+    public Page<UserEvent> getEventsWithAttendanceStatus(long userId, int page, int size) {
+        LOGGER.debug("Querying paginated events with attendance status for user {} (excluding events created by this user)", userId);
+
+        String countQuery = "SELECT COUNT(*) FROM events e WHERE e.deleted = FALSE AND e.user_id != ?";
+        int totalItems = getTotalCount(countQuery, userId);
+        int totalPages = calculateTotalPages(totalItems, size);
+        int offset = (page - 1) * size;
+
+        String whereClause = "WHERE e.user_id != ? AND e.deleted = FALSE ";
+        String orderByClause = "ORDER BY e.event_date DESC ";
+
+        String sql = SELECT_CLAUSE.replace("SELECT ", "SELECT (ea.user_id IS NOT NULL) AS is_attending, ") +
+                getPageQuery(whereClause, orderByClause) +
+                "LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?";
+
+        List<UserEvent> events = jdbcTemplate.query(
+                sql,
+                (rs, rowNum) -> {
+                    Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
+                    boolean isAttending = rs.getBoolean("is_attending");
+                    return new UserEvent(event, isAttending);
+                },
+                userId, size, offset, userId
+        );
+
+        return new Page<>(events, page, totalPages);
+    }
+
 
     @Override
     public List<UserEvent> getEventsWithAttendanceStatus(long userId) {
