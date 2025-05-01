@@ -77,6 +77,7 @@ public class AdminController {
             mav.addObject("pagedJourneys", journeyService.getAllJourneys(page, pageSize));
         }
 
+
         return mav;
     }
 
@@ -87,12 +88,7 @@ public class AdminController {
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView("/admin/dashboard");
-
-        if (search != null && !search.isEmpty()) {
-//            mav.addObject("pagedCareers", userService.searchCareers(search, page, pageSize));
-        } else {
-            mav.addObject("pagedCareers", careerService.getAllCareers(page, pageSize));
-        }
+        mav.addObject("pagedCareers", careerService.getAllCareers(search,page, pageSize));
 
         return mav;
     }
@@ -104,12 +100,7 @@ public class AdminController {
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView("/admin/dashboard");
-
-        if (search != null && !search.isEmpty()) {
-            mav.addObject("pagedUniversities", universityService.searchUniversities(search, page, pageSize));
-        } else {
-            mav.addObject("pagedUniversities", universityService.getAllUniversities(page, pageSize));
-        }
+        mav.addObject("pagedUniversities", universityService.getAllUniversities(search, page, pageSize));
 
         return mav;
     }
@@ -121,12 +112,7 @@ public class AdminController {
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView("/admin/dashboard");
-
-        if (search != null && !search.isEmpty()) {
-//            mav.addObject("pagedInterests", userService.searchInterests(search, page, pageSize));
-        } else {
-            mav.addObject("pagedInterests", interestService.getAllInterests(page, pageSize));
-        }
+        mav.addObject("pagedInterests", interestService.getAllInterests(search, page, pageSize));
 
         return mav;
     }

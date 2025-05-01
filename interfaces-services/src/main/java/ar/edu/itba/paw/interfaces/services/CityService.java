@@ -11,9 +11,9 @@ public interface CityService {
     Optional<City> findByName(String name);
     List<City> findAll();
     List<City> findAllByCountry(String country);
-    List<City> findAllBySubstring(String substring);
     List<City> getAllCities();
     Page<City> getAllCities(String search, int page, int pageSize);
+    Page<City> searchBySubstring(String substring, int page, int size);
     void updateCity(long id, String name, String country);
     void createCity(String name, String country);
 

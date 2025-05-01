@@ -53,12 +53,6 @@ public class CityServiceImpl implements CityService {
     }
 
     @Override
-    public List<City> findAllBySubstring(String substring) {
-        LOGGER.debug("Finding city by substring {}", substring);
-        return cityDao.findAllBySubstring(substring);
-    }
-
-    @Override
     public List<City> getAllCities() {
         return cityDao.getAllCities();
     }
@@ -87,6 +81,10 @@ public class CityServiceImpl implements CityService {
         Country country1 = countryService.findByName(country)
                 .orElseThrow(() -> new IllegalArgumentException("Country not found"));
         cityDao.createCity(name, country1);
+    }
+    @Override
+    public Page<City> searchBySubstring(String substring, int page, int size) {
+        return cityDao.searchBySubstring(substring, page, size);
     }
 
 }

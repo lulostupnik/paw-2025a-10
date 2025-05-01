@@ -153,5 +153,19 @@ public class InterestJdbcDao implements InterestDao {
         return new Page<>(jdbcTemplate.query(query.toString(),INTEREST_ROW_MAPPER,pageSize,offset),page,totalPages);
     }
 
+    @Override
+    public Page<Interest> searchBySubstring(String search, int page, int pageSize) {
+        LOGGER.debug("Querying DB for interests like {}", search);
+        int offset = (page - 1) * pageSize;
+        StringBuilder query = new StringBuilder(SELECT_CLAUSE);
+        query.append(" FROM category c ");
+        query.append(" WHERE c.name LIKE ? ");
+        query.append(" ORDER BY c.name ASC LIMIT ? OFFSET ?");
+        String like = "%" + search + "%";
+        int totalInterests = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category WHERE name LIKE ?", Integer.class, like);
+        int totalPages = (int) Math.ceil((double) totalInterests / pageSize);
+        return new Page<>(jdbcTemplate.query(query.toString(),INTEREST_ROW_MAPPER, like, pageSize, offset),page,totalPages);
+    }
+
 
 }

@@ -105,8 +105,12 @@ public class InterestServiceImpl implements InterestService {
     }
 
     @Override
-    public Page<Interest> getAllInterests(int page, int pageSize) {
-        return interestDao.getAllInterests(page, pageSize);
+    public Page<Interest> getAllInterests(String search, int page, int pageSize) {
+        LOGGER.debug("Finding all interests with search {}", search);
+        if (search == null || search.isEmpty()) {
+            return interestDao.getAllInterests(page, pageSize);
+        }
+        return interestDao.searchBySubstring(search,page, pageSize);
     }
 
 

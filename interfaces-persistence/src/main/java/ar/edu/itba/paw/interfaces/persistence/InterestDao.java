@@ -20,6 +20,7 @@ public interface InterestDao {
      void updateScoreByInterest(Interest interest, Long userId);
      void updateScoreByInterests(List<Interest> interests, Long userId);
      Page<Interest> getAllInterests(int page, int pageSize);
+     Page<Interest> searchBySubstring(String search, int page, int pageSize);
 
 
 }

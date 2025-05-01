@@ -49,8 +49,12 @@ public class CareerServiceImpl implements CareerService {
     }
 
     @Override
-    public Page<Career> getAllCareers(int page, int pageSize) {
-        return careerDao.getAllCareers(page, pageSize);
+    public Page<Career> getAllCareers(String search, int page, int pageSize) {
+        LOGGER.debug("Getting all careers with search {}", search);
+        if (search == null || search.isEmpty()) {
+            return careerDao.getAllCareers(page, pageSize);
+        }
+        return careerDao.searchBySubstring(search,page, pageSize);
     }
 
     @Transactional(readOnly = false)
