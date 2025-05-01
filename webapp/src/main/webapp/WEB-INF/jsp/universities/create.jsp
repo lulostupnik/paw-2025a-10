@@ -4,7 +4,16 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <html>
 <head>
-  <title><spring:message code="createUniversity.title"/></title>
+  <title>
+    <c:choose>
+      <c:when test="${isUpdate}">
+        <spring:message code="updateUniversity.title"/>
+      </c:when>
+      <c:otherwise>
+        <spring:message code="createUniversity.title"/>
+      </c:otherwise>
+    </c:choose>
+  </title>
   <!-- Include custom CSS -->
   <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
@@ -25,12 +34,38 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
         </svg>
       </div>
-      <h1 class="auth-title"><spring:message code="createUniversity.title"/></h1>
-      <p class="auth-subtitle"><spring:message code="createUniversity.subtitle" text="Add a new university to the system"/></p>
+      <h1 class="auth-title">
+        <c:choose>
+          <c:when test="${isUpdate}">
+            <spring:message code="updateUniversity.title" text="Update University"/>
+          </c:when>
+          <c:otherwise>
+            <spring:message code="createUniversity.title"/>
+          </c:otherwise>
+        </c:choose>
+      </h1>
+      <p class="auth-subtitle">
+        <c:choose>
+          <c:when test="${isUpdate}">
+            <spring:message code="updateUniversity.subtitle" text="Update university information"/>
+          </c:when>
+          <c:otherwise>
+            <spring:message code="createUniversity.subtitle" text="Add a new university to the system"/>
+          </c:otherwise>
+        </c:choose>
+      </p>
     </div>
 
-    <c:url var="createUniversityUrl" value="/universities/create"/>
-    <form:form modelAttribute="createUniversityForm" action="${createUniversityUrl}" method="post" class="auth-form" id="universityForm" novalidate="true">
+    <c:choose>
+      <c:when test="${isUpdate}">
+        <c:url var="formAction" value="/universities/${universityId}/update"/>
+      </c:when>
+      <c:otherwise>
+        <c:url var="formAction" value="/universities/create"/>
+      </c:otherwise>
+    </c:choose>
+
+    <form:form modelAttribute="createUniversityForm" action="${formAction}" method="post" class="auth-form" id="universityForm" novalidate="true">
       <!-- Name Field -->
       <div class="form-group">
         <form:label path="name" cssClass="form-label required-field">
@@ -76,7 +111,14 @@
       </div>
 
       <button type="submit" class="form-button">
-        <spring:message code="createUniversity.submit"/>
+        <c:choose>
+          <c:when test="${isUpdate}">
+            <spring:message code="updateUniversity.submit" text="Update University"/>
+          </c:when>
+          <c:otherwise>
+            <spring:message code="createUniversity.submit"/>
+          </c:otherwise>
+        </c:choose>
       </button>
     </form:form>
 
@@ -91,6 +133,39 @@
 <!-- Include modularized JavaScript files -->
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/university-form.js'/>"></script>
+
+<!-- Additional script for update mode -->
+<c:if test="${isUpdate}">
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Pre-select the city in the dropdown
+      const citySelect = document.getElementById('city');
+      const citySearch = document.getElementById('citySearch');
+      const selectedCity = citySelect.value;
+
+      if (selectedCity) {
+        citySearch.value = selectedCity;
+
+        // Add the selected city to the tags area
+        const selectedCities = document.getElementById('selectedCities');
+        if (selectedCities && !selectedCities.querySelector(`[data-value="${selectedCity}"]`)) {
+          const tag = document.createElement('div');
+          tag.className = 'selected-tag';
+          tag.setAttribute('data-value', selectedCity);
+          tag.innerHTML = `<c:out value="${selectedCity}"/> <span class="remove-tag">&times;</span>`;
+          selectedCities.appendChild(tag);
+
+          // Add event listener to remove tag
+          tag.querySelector('.remove-tag').addEventListener('click', function() {
+            tag.remove();
+            citySelect.value = '';
+            citySearch.value = '';
+          });
+        }
+      }
+    });
+  </script>
+</c:if>
 
 </body>
 </html>

@@ -85,8 +85,8 @@ public class UniversityServiceImpl implements UniversityService {
     }
 
     @Override
-    public void updateUniversity(long id, String name, String abbreviation, long cityId) {
-        universityDao.updateUniversity(id, name, abbreviation, cityId);
+    public void updateUniversity(long id, String name, String abbreviation, String city) {
+        universityDao.updateUniversity(id, name, abbreviation, cityService.findByName(city).get().getId());
     }
 
     @Override
