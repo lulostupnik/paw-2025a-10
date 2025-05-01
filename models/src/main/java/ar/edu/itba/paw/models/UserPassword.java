@@ -7,13 +7,25 @@ import java.util.Locale;
 
 
 @Getter
-@RequiredArgsConstructor
-public class UserPassword{
-//    private final long id;
-    private final String email;
-//    private final String username;
-//    private final String firstname;
-//    private final String lastname;
+public class UserPassword extends User{
     private final String password;
     private final String role;
+
+    public UserPassword(long id, String email, String username ,String firstname, String lastname,University university,Career career,long profilePictureId,
+                        String password, Locale locale, String role) {
+        super(id, email, username, firstname, lastname, university, career, profilePictureId, locale);
+        this.password = password;
+        this.role = role;
+    }
+
+
+    @Override
+    public String toString() {
+        return "UserPassword{" +
+                "id=" + getId() +
+                ", name='" + getFirstname() + '\'' +
+                ", lastname='" + getLastname() + '\'' +
+                ", email='" + getEmail() + '\'' +
+                '}';
+    }
 }

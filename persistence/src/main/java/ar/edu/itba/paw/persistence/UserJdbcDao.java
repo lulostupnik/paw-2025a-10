@@ -30,19 +30,21 @@ public class UserJdbcDao implements UserDao {
             new University(rs.getLong("user_university"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id"))),
             new Career(rs.getLong("career_id"), rs.getString("career_name")),
             rs.getLong("user_profile_picture_id"),
-            Locale.of(rs.getString("user_language"))
-    );
+            Locale.of(rs.getString("user_language")));
 
 
     private final static RowMapper<UserPassword> USER_PASSWORD_ROW_MAPPER = (rs, rowNum)-> new UserPassword(
-//          rs.getLong("id"),
-            rs.getString("email"),
-//          rs.getString("username"),
-//          rs.getString("firstname"),
-//          rs.getString("lastname"),
-            rs.getString("password"),
-            rs.getString("roles")
-    );
+                 rs.getLong("user_id"),
+            rs.getString("user_email"),
+            rs.getString("user_username"),
+            rs.getString("user_firstname"),
+            rs.getString("user_lastname"),
+            new University(rs.getLong("user_university"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id"))),
+            new Career(rs.getLong("career_id"), rs.getString("career_name")),
+            rs.getLong("user_profile_picture_id"),
+            rs.getString("user_password"),
+            Locale.of(rs.getString("user_language")),
+            rs.getString("user_role"));
 
 
     private final static String SQL_SELECT_BASE =
@@ -80,11 +82,20 @@ public class UserJdbcDao implements UserDao {
     private final static String SQL_BASE_DISTINCT =
             "SELECT DISTINCT " + SQL_SELECT_BASE.substring(6) + SQL_FROM_BASE;
 
+    private final static String SQL_PASSWORD_BASE =
+            SQL_SELECT_BASE + """
+        , u.password AS user_password,
+          u.roles AS user_role
+        """ + SQL_FROM_BASE;
+
     private final static String SQL_FIND_BY_ID =
             SQL_BASE + " WHERE u.id = ? ";
 
     private final static String SQL_FIND_BY_EMAIL =
             SQL_BASE + " WHERE u.email = ? ";
+
+    private final static String SQL_FIND_BY_EMAIL_WITH_PASS =
+            SQL_PASSWORD_BASE + " WHERE u.email = ? ";
 
     private final static String SQL_FIND_BY_USERNAME =
             SQL_BASE + " WHERE u.username = ? ";
@@ -130,7 +141,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public Optional<UserPassword> findByEmailWithPass(String email) {
-        return jdbcTemplate.query("SELECT email, password, roles FROM users WHERE email = ?", USER_PASSWORD_ROW_MAPPER, email).stream().findFirst();
+        return jdbcTemplate.query(SQL_FIND_BY_EMAIL_WITH_PASS, USER_PASSWORD_ROW_MAPPER, email).stream().findFirst();
     }
 
     @Override
