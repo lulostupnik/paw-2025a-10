@@ -19,7 +19,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ar.edu.itba.paw.models.Image;
 import ar.edu.itba.paw.persistence.ImageJdbcDao;
 
-@Sql(scripts = "classpath:schema.sql")
 @Transactional
 @Rollback
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -60,6 +58,7 @@ public class ImageJdbcDaoTest {
     @Test
     public void testGetImageById(){
         Optional<Image> maybeImage = imageDao.getImageById(id1);
+
         assertNotNull(maybeImage);
         assertTrue(maybeImage.isPresent());
         Image image = maybeImage.get();
@@ -103,5 +102,22 @@ public class ImageJdbcDaoTest {
     public void testDeleteImageWrongImage(){
         imageDao.deleteImage(123123);
         assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, IMAGES_TABLE));
+    }
+
+    @Test 
+    public void testUpdateImage(){
+        imageDao.updateImage(id1, IMAGE_2);
+        Optional<Image> maybeImage = jdbcTemplate.query("SELECT * FROM images WHERE id = ?", ROW_MAPPER, id1).stream().findFirst();
+        assertNotNull(maybeImage);
+        assertTrue(maybeImage.isPresent());
+        Image image = maybeImage.get();
+        assertEquals(IMAGE_2.length, image.getData().length);
+        for (int i = 0; i < image.getData().length; i++) {
+            assertEquals(IMAGE_2[i], image.getData()[i]);
+        }
+    }
+    @Test(expected = NullPointerException.class)
+    public void testUpdateImageMissingContent(){
+        imageDao.updateImage(id1, null);
     }
 }

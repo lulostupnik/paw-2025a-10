@@ -276,6 +276,7 @@ public class UserJdbcDao implements UserDao {
         String whereClause = "";
         String orderByClause = " ORDER BY u.id ASC";
         List<User> list = jdbcTemplate.query(SELECT_CLAUSE + getPagedQuery(whereClause, orderByClause), USER_ROW_MAPPER, size, offset);
+        @SuppressWarnings("null")
         int elementCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
         return new Page<>(list, page, (int) Math.ceil((double) elementCount / size));
     }
@@ -289,7 +290,7 @@ public class UserJdbcDao implements UserDao {
             String searchPattern = "%" + search + "%";
             String orderByClause = "ORDER BY u.firstname DESC ";
             List<User> list = jdbcTemplate.query(SELECT_CLAUSE + getPagedQuery(whereClause, orderByClause), USER_ROW_MAPPER, searchPattern, size, offset);
-            int elementCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users" + whereClause, Integer.class, searchPattern);
+            int elementCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users u" + whereClause, Integer.class, searchPattern);
             return new Page<>(list, page, (int) Math.ceil((double) elementCount / size));
     }
 

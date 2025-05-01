@@ -50,7 +50,7 @@ public class CountryJdbcDao implements CountryDao {
 
     @Override
     public Optional<Country> findByName(String name) {
-        return jdbcTemplate.query("SELECT id FROM countries WHERE name = ?",COUNTRY_ROW_MAPPER, name).stream().findFirst();
+        return jdbcTemplate.query("SELECT * FROM countries WHERE name = ?", COUNTRY_ROW_MAPPER, name).stream().findFirst();
     }
 
 
