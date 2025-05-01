@@ -36,12 +36,7 @@ public class AdminController {
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView("/admin/dashboard");
-
-        if (search != null && !search.isEmpty()) {
-            mav.addObject("pagedEvents", eventService.searchEvents(search, page, pageSize));
-        } else {
-            mav.addObject("pagedEvents", eventService.getAllEvents(page, pageSize));
-        }
+        mav.addObject("pagedEvents", eventService.getAllEvents(search, page, pageSize));
 
         return mav;
     }
@@ -53,12 +48,7 @@ public class AdminController {
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView("/admin/dashboard");
-
-        if (search != null && !search.isEmpty()) {
-            mav.addObject("pagedUsers", userService.searchUsers(search, page, pageSize));
-        } else {
-            mav.addObject("pagedUsers", userService.getAllUsers(page, pageSize));
-        }
+        mav.addObject("pagedUsers", userService.getAllUsers(search, page, pageSize));
 
         return mav;
     }
@@ -70,12 +60,7 @@ public class AdminController {
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView("/admin/dashboard");
-
-        if (search != null && !search.isEmpty()) {
-            mav.addObject("pagedJourneys", journeyService.searchJourneys(search, page, pageSize));
-        } else {
-            mav.addObject("pagedJourneys", journeyService.getAllJourneys(page, pageSize));
-        }
+        mav.addObject("pagedJourneys", journeyService.getAllJourneys(search,page,pageSize));
 
 
         return mav;

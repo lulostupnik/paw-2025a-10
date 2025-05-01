@@ -137,13 +137,12 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
-    public Page<Journey> getAllJourneys(int page, int size) {
-        return journeyDao.listAll(page,size);
-    }
-
-    @Override
-    public Page<Journey> searchJourneys(String search, int page, int size) {
-        return journeyDao.searchJourneys(search, page, size);
+    public Page<Journey> getAllJourneys(String search, int page, int size) {
+        LOGGER.debug("Getting all journeys with search {}", search);
+        if (search == null || search.isEmpty()) {
+            return journeyDao.listAll(page, size);
+        }
+        return journeyDao.searchJourneys(search,page,size);
     }
 
     @Transactional(readOnly = true)
