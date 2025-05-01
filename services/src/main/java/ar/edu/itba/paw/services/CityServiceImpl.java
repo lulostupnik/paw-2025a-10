@@ -64,8 +64,12 @@ public class CityServiceImpl implements CityService {
     }
 
     @Override
-    public Page<City> getAllCities(int page, int pageSize) {
-        return cityDao.getAllCities(page, pageSize);
+    public Page<City> getAllCities(String search, int page, int pageSize) {
+        LOGGER.debug("Finding all cities with search {}", search);
+        if (search == null || search.isEmpty()) {
+            return cityDao.getAllCities(page, pageSize);
+        }
+        return cityDao.searchBySubstring(search,page, pageSize);
     }
 
 
