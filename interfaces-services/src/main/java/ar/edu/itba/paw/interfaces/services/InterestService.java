@@ -18,5 +18,5 @@ public interface InterestService {
     void saveUserInterests(long[] interests, long userId);
     void updateScoreByInterest(Interest interest, long userId);
     void updateScoreByInterests(List<Interest> interests, long userId);
-    Page<Interest> getAllInterests(int page, int pageSize);
+    Page<Interest> getAllInterests(String search, int page, int pageSize);
 }

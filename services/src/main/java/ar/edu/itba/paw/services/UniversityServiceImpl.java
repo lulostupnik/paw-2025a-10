@@ -69,24 +69,19 @@ public class UniversityServiceImpl implements UniversityService {
         return universityDao.getAllUniversities();
     }
 
-    @Transactional(readOnly = true)
+
     @Override
-    public Page<University> searchBySubstring(String substring, int page, int size) {
-        return universityDao.searchBySubstring(substring, page, size);
+    public Page<University> getAllUniversities(String search, int page, int size) {
+        LOGGER.debug("Getting all universities with search {}", search);
+        if (search == null || search.isEmpty()) {
+            return universityDao.getAllUniversities(page, size);
+        }
+        return universityDao.searchBySubstring(search,page, size);
     }
 
     @Override
-    public Page<University> getAllUniversities(int page, int size) {
-        return universityDao.getAllUniversities(page, size);
-    }
-
-//    @Override
-//    public University createUniversity(String name, String abbreviation, String city) {
-//        return universityDao.createUniversity(name, abbreviation, city);
-//    }
-    @Override
-    public void createUniversity(String name, String abbreviation, long cityId) {
-        universityDao.createUniversity(name, abbreviation, cityId);
+    public University createUniversity(String name, String abbreviation, String city) {
+        return universityDao.createUniversity(name, abbreviation, city);
     }
 
     @Override

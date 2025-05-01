@@ -114,14 +114,17 @@ public class UniversityJdbcDao implements UniversityDao {
         return new Page<>(jdbcTemplate.query(query.toString(), UNIVERSITY_ROW_MAPPER, size, offset),page,totalPages);
     }
 
+    //REVISAR
     @Override
-    public void createUniversity(String name, String abbreviation, long cityId) {
+    public University createUniversity(String name, String abbreviation, String city) {
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("name", name);
         parameters.put("abbreviation", abbreviation);
-        parameters.put("city_id", cityId);
+        City newCity = cityDao.findByName(city).get();
+        parameters.put("city_id", newCity.getId());
        Number keys = simpleJdbcInsert.executeAndReturnKey(parameters);
         LOGGER.debug("Successfully created uni {}", keys.longValue());
+        return new University(keys.longValue(), name, abbreviation, newCity);
     }
 
     @Override

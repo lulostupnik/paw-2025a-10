@@ -70,6 +70,16 @@ public class CareerJdbcDao implements CareerDao {
     }
 
     @Override
+    public Page<Career> searchBySubstring(String substring, int page, int size) {
+        final String like = "%" + substring + "%";
+        int offset = (page - 1) * size;
+        final String sql = "SELECT * FROM careers WHERE LOWER(name) LIKE LOWER(?) LIMIT ? OFFSET ?";
+        int totalCareers = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM careers WHERE LOWER(name) LIKE LOWER(?)", Integer.class, like);
+        int totalPages = (int) Math.ceil((double) totalCareers / size);
+        return new Page<>(jdbcTemplate.query(sql, CAREER_ROW_MAPPER, like, size, offset), page, totalPages);
+    }
+
+    @Override
     public Career create(String name) {
         LOGGER.debug("Creating new career with name: {}", name);
 
