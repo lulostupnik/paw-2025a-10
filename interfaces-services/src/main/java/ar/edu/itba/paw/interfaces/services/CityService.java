@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface CityService {
     Optional<City> findByName(String name);
     List<City> findAll();
+    Optional<City> findById(Long id);
     List<City> findAllByCountry(String country);
     List<City> getAllCities();
     Page<City> getAllCities(String search, int page, int pageSize);

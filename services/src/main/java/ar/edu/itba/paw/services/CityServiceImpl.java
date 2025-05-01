@@ -47,6 +47,12 @@ public class CityServiceImpl implements CityService {
     }
 
     @Override
+    public Optional<City> findById(Long id) {
+        LOGGER.debug("Finding city by id {}", id);
+        return cityDao.findBy(id, null, null);
+    }
+
+    @Override
     public List<City> findAllByCountry(String country) {
         LOGGER.debug("Finding city by country name {}", country);
         return cityDao.findAllByCountry(country);

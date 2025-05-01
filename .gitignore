@@ -23,6 +23,8 @@ dist/
 # Package files
 *.jar
 
+.smarttomcat
+webapp.zip
 # Maven
 target/
 dist/

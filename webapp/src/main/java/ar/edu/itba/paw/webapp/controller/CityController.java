@@ -3,6 +3,7 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.models.City;
+import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.form.CreateCityForm;
 import ar.edu.itba.paw.webapp.form.CreateInterestForm;
@@ -11,10 +12,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
+
+import java.util.NoSuchElementException;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -48,7 +52,8 @@ public class CityController {
         return new ModelAndView("redirect:/cities/{id}", "id", 1);
     }
     @RequestMapping(value= "/{id}", method = GET)
-    public ModelAndView getCities(@ModelAttribute("city") final City city) {
+    public ModelAndView getCity(@PathVariable(value = "id") final long id) {
+        City city = cityService.findById(id).orElseThrow(NoSuchElementException::new);
         ModelAndView mav = new ModelAndView("cities/detail");
         mav.addObject("city", city);
         return mav;

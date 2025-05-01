@@ -43,7 +43,7 @@
       <tbody>
       <c:set var="cities" value="${pagedCities.content}" />
       <c:forEach items="${cities}" var="city">
-        <tr>
+        <tr class="clickable-row" data-href="<c:url value="../cities/${city.id}"/>" >
           <td><c:out value="${city.id}"/></td>
           <td><c:out value="${city.name}"/></td>
             <td><c:out value="${city.country}"/></td>
