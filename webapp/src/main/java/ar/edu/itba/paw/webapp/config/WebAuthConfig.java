@@ -64,7 +64,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers( "/register","/login").anonymous()
                 .antMatchers(HttpMethod.POST, "/events/{id}/delete", "/journeys/{id}/delete", "journey-replies/{id}/delete", "event-replies/{id}/delete").hasRole("ADMIN")
                     .antMatchers("/admin/**").hasRole("ADMIN")
-                    .antMatchers("/dashboard/**").hasRole("ADMIN")
+                    .antMatchers("/dashboard/**","interests/**", "careers/**", "/universities/**","cities/**").hasRole("ADMIN")
                 .antMatchers("/journeys/{id}/update").access("@accessHelper.isUserJourneyOwner(#id)")
                     .antMatchers("/events/{id}/update").access("@accessHelper.isUserEventOwner(#id)")
                     .antMatchers("/events/create", "/journeys/create").authenticated()
