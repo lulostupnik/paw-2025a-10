@@ -69,7 +69,7 @@ public class CityController {
         }
         CreateCityForm form = new CreateCityForm();
         form.setName(city.getName());
-        ModelAndView mav = new ModelAndView("careers/create");
+        ModelAndView mav = new ModelAndView("cities/create");
         mav.addObject("createCityForm", form);
         mav.addObject("isUpdate", true);
         mav.addObject("cityId", id);
@@ -77,7 +77,7 @@ public class CityController {
     }
 
     @RequestMapping(value = "/{id}/edit", method = POST)
-    public ModelAndView updateCareer(@PathVariable("id") Long id,
+    public ModelAndView updateCity(@PathVariable("id") Long id,
                                      @Valid @ModelAttribute("createCityForm") final CreateCityForm form,
                                      final BindingResult errors,
                                      @ModelAttribute("user") User user) {
@@ -94,6 +94,6 @@ public class CityController {
                 form.getCountry()
         );
 
-        return new ModelAndView("redirect:/careers/{id}", "id", id);
+        return new ModelAndView("redirect:/cities/{id}", "id", id);
     }
 }
