@@ -28,7 +28,7 @@ public class InterestJdbcDao implements InterestDao {
             rs.getString("name")
     );
 
-    private final static String SELECT_CLAUSE = "SELECT c.id AS id, c.name_en AS name";
+    private final static String SELECT_CLAUSE = "SELECT c.id AS id, c.name AS name ";
     private final static String QUERY = SELECT_CLAUSE + "FROM category c ";
 
     @Autowired
@@ -98,12 +98,11 @@ public class InterestJdbcDao implements InterestDao {
     }
 
     @Override
-    public Interest createUserInterest(String interestEn, String interestEs) {
+    public Interest createUserInterest(String interest) {
         Map<String, Object> params = new HashMap<>();
-        params.put("name_en", interestEn);
-        params.put("name_es", interestEs);
+        params.put("name", interest);
         final Number keys = jdbcInsert.execute(params);
-        return new Interest(keys.longValue(), interestEn);
+        return new Interest(keys.longValue(), interest);
     }
 
     @Override
@@ -135,7 +134,7 @@ public class InterestJdbcDao implements InterestDao {
         int offset = (page - 1) * pageSize;
         StringBuilder query = new StringBuilder(SELECT_CLAUSE);
         query.append(" FROM category c ");
-        query.append(" ORDER BY c.name_en ASC LIMIT ? OFFSET ?");
+        query.append(" ORDER BY c.name ASC LIMIT ? OFFSET ?");
         int totalInterests = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category", Integer.class);
         int totalPages = (int) Math.ceil((double) totalInterests / pageSize);
         return new Page<>(jdbcTemplate.query(query.toString(),INTEREST_ROW_MAPPER,page,offset),page,totalPages);

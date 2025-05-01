@@ -34,21 +34,21 @@
     <form:form modelAttribute="createInterestForm" action="${createInterestUrl}" method="post" class="auth-form" id="interestForm" novalidate="true">
       <!-- English Name Field -->
       <div class="form-group">
-        <form:label path="name_en" cssClass="form-label required-field">
-          <spring:message code="createInterest.name_en" text="English Name"/>
+        <form:label path="name" cssClass="form-label required-field">
+          <spring:message code="createInterest.name" text="English Name"/>
         </form:label>
-        <form:input path="name_en" id="name_en" type="text" cssClass="form-input ${not empty errors.getFieldError('name_en') ? 'error' : ''}" />
-        <form:errors path="name_en" cssClass="error-message" />
+        <form:input path="name" id="name" type="text" cssClass="form-input ${not empty errors.getFieldError('name') ? 'error' : ''}" />
+        <form:errors path="name" cssClass="error-message" />
       </div>
 
       <!-- Spanish Name Field -->
-      <div class="form-group">
-        <form:label path="name_es" cssClass="form-label required-field">
-          <spring:message code="createInterest.name_es" text="Spanish Name"/>
-        </form:label>
-        <form:input path="name_es" id="name_es" type="text" cssClass="form-input ${not empty errors.getFieldError('name_es') ? 'error' : ''}" />
-        <form:errors path="name_es" cssClass="error-message" />
-      </div>
+<%--      <div class="form-group">--%>
+<%--        <form:label path="name_es" cssClass="form-label required-field">--%>
+<%--          <spring:message code="createInterest.name_es" text="Spanish Name"/>--%>
+<%--        </form:label>--%>
+<%--        <form:input path="name_es" id="name_es" type="text" cssClass="form-input ${not empty errors.getFieldError('name_es') ? 'error' : ''}" />--%>
+<%--        <form:errors path="name_es" cssClass="error-message" />--%>
+<%--      </div>--%>
 
       <button type="submit" class="form-button">
         <spring:message code="createInterest.submit" text="Create Interest"/>
@@ -67,8 +67,8 @@
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const interestForm = document.getElementById("interestForm");
-    const nameEnInput = document.getElementById("name_en");
-    const nameEsInput = document.getElementById("name_es");
+    const nameEnInput = document.getElementById("name");
+    // const nameEsInput = document.getElementById("name_es");
 
     // Focus on the first field when the page loads
     nameEnInput.focus();
@@ -86,7 +86,7 @@
     }
 
     capitalizeFirstLetter(nameEnInput);
-    capitalizeFirstLetter(nameEsInput);
+    // capitalizeFirstLetter(nameEsInput);
 
     // Optional: Form validation
     interestForm.addEventListener("submit", (event) => {
@@ -114,7 +114,7 @@
       }
 
       // Validate Spanish name
-      if (!nameEsInput.value.trim()) {
+     /* if (!nameEsInput.value.trim()) {
         const errorElement = document.createElement("div");
         errorElement.className = "error-message";
         errorElement.textContent = "Spanish name is required";
@@ -132,7 +132,7 @@
         if (existingError) {
           existingError.remove();
         }
-      }
+      }*/
 
       if (!isValid) {
         event.preventDefault();

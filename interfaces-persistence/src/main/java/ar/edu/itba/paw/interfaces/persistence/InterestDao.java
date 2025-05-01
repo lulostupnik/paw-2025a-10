@@ -13,7 +13,7 @@ public interface InterestDao {
      List<Interest> findByUserId(Long id);
      Optional<Interest> findByName(String name);
      List<Interest> findIdByName(String[] names);
-     Interest createUserInterest(String interestEn, String InterestEs);
+     Interest createUserInterest(String interest);
      void saveUserInterests(long[] interests, Long userId);
      void updateScoreByInterest(Interest interest, Long userId);
      void updateScoreByInterests(List<Interest> interests, Long userId);

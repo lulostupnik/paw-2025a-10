@@ -66,8 +66,8 @@ public class InterestServiceImpl implements InterestService {
 
     @Transactional
     @Override
-    public Interest createUserInterest(String interestEn, String interestEs) {
-        return interestDao.createUserInterest(interestEn, interestEs);
+    public Interest createUserInterest(String interest) {
+        return interestDao.createUserInterest(interest);
     }
 
     @Transactional
