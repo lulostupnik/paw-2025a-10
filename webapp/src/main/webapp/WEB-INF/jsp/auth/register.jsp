@@ -138,9 +138,11 @@
 
                     <!-- Password Confirmation Field -->
                     <div class="form-group">
-                        <label for="confirmPassword" class="form-label required-field">
+
+                        <form:label path="confirmPassword" class="form-label required-field">
                             <spring:message code="register.confirmPassword" text="Confirm Password"/>
-                        </label>
+                        </form:label>
+
                         <div class="password-field-container">
                             <input type="password" id="confirmPassword" name="confirmPassword"
                                    class="form-input required" placeholder="••••••••"/>
@@ -157,7 +159,9 @@
                             </button>
                         </div>
                         <div id="passwordMatchMessage" class="password-match-message"></div>
+                        <form:errors path="confirmPassword" cssClass="error-message" />
                     </div>
+
 
                     <div class="form-group">
                         <form:label path="firstName" cssClass="form-label required-field">

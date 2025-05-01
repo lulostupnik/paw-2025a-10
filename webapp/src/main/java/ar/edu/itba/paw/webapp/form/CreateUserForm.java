@@ -6,6 +6,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+@PasswordsMatch
 public class CreateUserForm {
 
     @Email
@@ -28,6 +29,9 @@ public class CreateUserForm {
 
     @Size(min = 8, max = 100)
     private String password;
+
+    @Size(min = 8, max = 100)
+    private String confirmPassword;
 
     @Size(min = 2, max = 100)
     private String lastName;
@@ -118,8 +122,15 @@ public class CreateUserForm {
     public String getPassword() {
         return password;
     }
+
     public void setPassword(String password) {
         this.password = password;
+    }
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
     }
 
     @Override

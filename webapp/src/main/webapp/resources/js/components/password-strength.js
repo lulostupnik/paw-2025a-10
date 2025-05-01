@@ -329,38 +329,40 @@ let PasswordStrength = (() => {
      * Validation
      */
     function isValid() {
-        const password = passwordField.value
-        const confirmPassword = confirmPasswordField.value
+        /*
+       const password = passwordField.value
+       const confirmPassword = confirmPasswordField.value
 
-        // Check if passwords match
-        if (password !== confirmPassword) {
-            passwordMatchMessage.textContent = messages.passwordsDontMatch
-            passwordMatchMessage.className = "password-match-message mismatch"
-            confirmPasswordField.classList.add("error")
-            return false
-        }
+       // Check if passwords match
+       if (password !== confirmPassword) {
+           passwordMatchMessage.textContent = messages.passwordsDontMatch
+           passwordMatchMessage.className = "password-match-message mismatch"
+           confirmPasswordField.classList.add("error")
+           return false
+       }
 
-        // Check password requirements
-        const { score, requirements } = evaluatePasswordStrength(password)
-        const allRequirementsMet =
-            requirements.length &&
-            requirements.lowercase &&
-            requirements.number &&
-            requirements.special &&
-            requirements.uppercase
+       // Check password requirements
 
-        if (!allRequirementsMet) {
-            // Highlight unmet requirements
-            highlightUnmetRequirements()
-            return false
-        }
+       const { score, requirements } = evaluatePasswordStrength(password)
+       const allRequirementsMet =
+           requirements.length &&
+           requirements.lowercase &&
+           requirements.number &&
+           requirements.special &&
+           requirements.uppercase
 
-        if (score < 75) {
-            passwordMessage.textContent = messages.addMoreStrength
-            passwordField.classList.add("error")
-            highlightUnmetRequirements()
-            return false
-        }
+       if (!allRequirementsMet) {
+           // Highlight unmet requirements
+           highlightUnmetRequirements()
+           return false
+       }
+
+       if (score < 75) {
+           passwordMessage.textContent = messages.addMoreStrength
+           passwordField.classList.add("error")
+           highlightUnmetRequirements()
+           return false
+       }*/
 
         return true
     }
