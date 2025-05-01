@@ -27,27 +27,19 @@ public class UserJdbcDao implements UserDao {
             rs.getString("user_username"),
             rs.getString("user_firstname"),
             rs.getString("user_lastname"),
-            new University(
-                    rs.getLong("user_university"),
-                    rs.getString("university_name"),
-                    rs.getString("university_abbreviation"),
-                    new City(
-                            rs.getString("city_name"),
-                            rs.getString("country_name"),
-                            rs.getLong("city_id")
-                    )
-            ),
-            new Career(
-                    rs.getLong("career_id"),
-                    rs.getString("career_name")
-            ),
+            new University(rs.getLong("user_university"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id"))),
+            new Career(rs.getLong("career_id"), rs.getString("career_name")),
             rs.getLong("user_profile_picture_id"),
             Locale.of(rs.getString("user_language"))
     );
 
 
     private final static RowMapper<UserPassword> USER_PASSWORD_ROW_MAPPER = (rs, rowNum)-> new UserPassword(
+//          rs.getLong("id"),
             rs.getString("email"),
+//          rs.getString("username"),
+//          rs.getString("firstname"),
+//          rs.getString("lastname"),
             rs.getString("password"),
             rs.getString("roles")
     );
