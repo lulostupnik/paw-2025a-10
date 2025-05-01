@@ -141,6 +141,7 @@ public class InterestJdbcDao implements InterestDao {
         }
     }
 
+
     @Override
     public Page<Interest> getAllInterests(int page, int pageSize) {
         LOGGER.debug("Querying DB for all interests");

@@ -73,10 +73,10 @@ public class CareerController {
         }
 
         // Create and populate form with existing university data
-        CreateUniversityForm form = new CreateUniversityForm();
+        CreateCareerForm form = new CreateCareerForm();
         form.setName(career.getName());
 
-        ModelAndView mav = new ModelAndView("career/create");
+        ModelAndView mav = new ModelAndView("careers/create");
         mav.addObject("createUniversityForm", form);
         mav.addObject("isUpdate", true);
         mav.addObject("careerId", id);

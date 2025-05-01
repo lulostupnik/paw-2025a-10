@@ -11,6 +11,9 @@ public class CreateInterestForm {
     @NotEmpty
     private String name;
 
+    public CreateInterestForm() {
+    }
+
     public CreateInterestForm(String name) {
         this.name = name;
     }
