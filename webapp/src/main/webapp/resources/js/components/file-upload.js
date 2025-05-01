@@ -16,8 +16,8 @@ let FileUpload = (() => {
             previewImageId: "previewImage",
             fileNameId: "fileName",
             removeButtonId: "removeFile",
-            maxSizeMB: 5,
-            sizeExceededMessage: "File size exceeds limit",
+            // maxSizeMB: 5,
+            // sizeExceededMessage: "File size exceeds limit",
             onFileSelected: null,
             onFileRemoved: null,
             ...options,
@@ -66,12 +66,12 @@ let FileUpload = (() => {
                 console.log("FileUpload: File selected:", file.name, "Size:", file.size)
 
                 // Check file size (max 5MB by default)
-                if (file.size > config.maxSizeMB * 1024 * 1024) {
+               /* if (file.size > config.maxSizeMB * 1024 * 1024) {
                     console.error("FileUpload: File size exceeds limit")
                     alert(config.sizeExceededMessage)
                     this.value = ""
                     return
-                }
+                }*/
 
                 // Update file name
                 fileName.textContent = file.name
@@ -94,10 +94,10 @@ let FileUpload = (() => {
                     }
                 }
 
-                reader.onerror = (error) => {
+                /*reader.onerror = (error) => {
                     console.error("FileUpload: Error reading file", error)
                     alert("Error reading file. Please try again.")
-                }
+                }*/
 
                 reader.readAsDataURL(file)
             } else {
