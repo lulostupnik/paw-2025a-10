@@ -138,13 +138,7 @@ public class AdminController {
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView("/admin/dashboard");
-
-        if (search != null && !search.isEmpty()) {
-//            mav.addObject("pagedInterests", userService.searchInterests(search, page, pageSize));
-        } else {
-            mav.addObject("pagedCities", cityService.getAllCities(page, pageSize));
-        }
-
+        mav.addObject("pagedCities", cityService.getAllCities(search, page, pageSize));
         return mav;
     }
 

@@ -142,9 +142,12 @@ public class CityJdbcDao implements CityDao {
     }
 
     @Override
-    public List<City> findAllBySubstring(String substring) {
+    public Page<City> searchBySubstring(String substring, int page, int size) {
         LOGGER.debug("Querying DB for cities like {}", substring);
-        return jdbcTemplate.query(QUERY + "AND ci.name LIKE ?", CITY_ROW_MAPPER, "%" + substring + "%");
+        int offset = (page - 1) * size;
+        String like = "%" + substring + "%";
+        return new Page<>(jdbcTemplate.query(QUERY + "AND ci.name LIKE ? LIMIT ? OFFSET ?", CITY_ROW_MAPPER, like, size, offset), page,
+                (int) Math.ceil((double) jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE name LIKE ?", Integer.class, like) / size));
     }
 
 }
