@@ -15,19 +15,20 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import ar.edu.itba.paw.models.Career;
+import ar.edu.itba.paw.models.Interest;
+import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.persistence.CareerJdbcDao;
 
-@Sql(scripts = "classpath:schema.sql")
 @Transactional
 @Rollback
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -35,9 +36,10 @@ import ar.edu.itba.paw.persistence.CareerJdbcDao;
 public class CarreerJdbcDaoTest {
 
     private static final String CAREER_TABLE = "careers";
-    private static final String CAREER_1 = "1";
-    private static final String CAREER_2 = "2";
-    private static final String CAREER_3 = "3";
+    private static final String CAREER_1 = "career 1";
+    private static final String CAREER_2 = "career 2";
+    private static final String CAREER_3 = "career 3";
+    private static final String CAREER_4 = "career 4";
     private static final int TOTAL_CAREERS = 3;
     private static long id1;
 
@@ -118,5 +120,123 @@ public class CarreerJdbcDaoTest {
 
         assertNotNull(careers);
         assertEquals(0, careers.size());
+    }
+
+    @Test
+    public void testGetAllCareers(){
+        Page<Career> page1 = careerDao.getAllCareers(1, 2);
+        Page<Career> page2 = careerDao.getAllCareers(2, 2);
+
+        assertNotNull(page1);
+        assertNotNull(page2);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(2, page1.getTotalPages());
+        assertEquals(2, page2.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertNotNull(page2.getContent());
+        assertEquals(2, page1.getContent().size());
+        assertEquals(1, page2.getContent().size());
+        assertEquals(CAREER_1, page1.getContent().get(0).getName());
+        assertEquals(id1, page1.getContent().get(0).getId().longValue());
+        assertEquals(CAREER_2, page1.getContent().get(1).getName());
+        assertEquals(CAREER_3, page2.getContent().get(0).getName());
+    }
+    @Test
+    public void testGetAllCareersNoCareers(){
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, CAREER_TABLE);
+
+        Page<Career> page1 = careerDao.getAllCareers(1, 2);
+
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(0, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(0, page1.getContent().size());
+    }
+
+    @Test
+    public void testCreate(){
+        Career career = careerDao.create(CAREER_4);
+        
+        assertNotNull(career);
+        assertEquals(CAREER_4, career.getName());
+        assertTrue(career.getId() != null);
+        assertTrue(career.getId() > 0);
+    }
+    @Test(expected = DataAccessException.class)
+    public void testCreateDuplicate(){
+        careerDao.create(CAREER_1);
+    }
+    @Test(expected = DataAccessException.class)
+    public void testCreateMissing(){
+        careerDao.create(null);
+    }
+
+    @Test
+    public void testUpdate(){
+        Career career = careerDao.update(CAREER_1, CAREER_4);
+
+        assertNotNull(career);
+        assertEquals(CAREER_4, career.getName());
+        assertEquals(id1, career.getId().longValue());
+    }
+    @Test(expected = DataAccessException.class)
+    public void testUpdateDuplicate(){
+        careerDao.update(CAREER_1, CAREER_2);
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testUpdateWrongCareer(){
+        careerDao.update("CAREER_1", CAREER_4);
+    }
+    @Test(expected=DataAccessException.class)
+    public void testUpdateMissingCareer(){
+        careerDao.update(CAREER_1, null);
+    }
+
+    
+    @Test
+    public void testSearchBySubstringNoFiltering(){
+        Page<Career> page1 = careerDao.searchBySubstring(CAREER_1.substring(0, 5), 1, 3);
+
+        assertNotNull(page1);
+        assertEquals(1, page1.getTotalPages());
+        assertEquals(3, page1.getContent().size());
+    }
+    @Test
+    public void testSearchBySubstringFiltering(){
+        Page<Career> page1 = careerDao.searchBySubstring(CAREER_1.substring(CAREER_1.length()-1, CAREER_1.length()), 1, 3);
+
+        assertNotNull(page1);
+        assertEquals(1, page1.getTotalPages());
+        assertEquals(1, page1.getContent().size());
+    }
+    @Test
+    public void testSearchBySubstringEmpty(){
+        Page<Career> page1 = careerDao.searchBySubstring("", 1, 3);
+
+        assertNotNull(page1);
+        assertEquals(1, page1.getTotalPages());
+        assertEquals(3, page1.getContent().size());
+    }
+    @Test
+    public void testSearchBySubstringMissing(){
+        Page<Career> page1 = careerDao.searchBySubstring(null, 1, 3);
+
+        assertNotNull(page1);
+        assertEquals(0, page1.getTotalPages());
+        assertEquals(0, page1.getContent().size());
+    }
+    @Test
+    public void testSearchBySubstringPaging(){
+        Page<Career> page1 = careerDao.searchBySubstring("", 1, 2);
+        Page<Career> page2 = careerDao.searchBySubstring("", 2, 2);
+
+        assertNotNull(page1);
+        assertNotNull(page2);
+        assertEquals(2, page1.getTotalPages());
+        assertEquals(2, page2.getTotalPages());
+        assertEquals(2, page1.getContent().size());
+        assertEquals(1, page2.getContent().size());
     }
 }

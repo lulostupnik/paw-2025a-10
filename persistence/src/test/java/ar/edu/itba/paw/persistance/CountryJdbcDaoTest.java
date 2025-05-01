@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.sql.DataSource;
 
@@ -18,7 +19,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ar.edu.itba.paw.models.Country;
 import ar.edu.itba.paw.persistence.CountryJdbcDao;
 
-@Sql(scripts = "classpath:schema.sql")
 @Transactional
 @Rollback
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -100,5 +99,34 @@ public class CountryJdbcDaoTest {
     public void testExistsByNameMissingName(){
         boolean result = countryDao.existsByName(null);
         assertFalse(result);
+    }
+
+    
+    @Test
+    public void testFindByName(){
+        Optional<Country> result = countryDao.findByName(COUNTRY_NAME_1);
+        assertNotNull(result);
+        assertTrue(result.isPresent());
+        assertEquals(COUNTRY_NAME_1, result.get().getName());
+        assertEquals(COUNTRY_CODE_1, result.get().getCode());
+        assertEquals(id1, result.get().getId());
+    }
+    @Test
+    public void testFindByNameFakeName(){
+        Optional<Country> result = countryDao.findByName("COUNTRY_NAME_1");
+        assertNotNull(result);
+        assertFalse(result.isPresent());    
+    }
+    @Test
+    public void testFindByNameEmptyName(){
+        Optional<Country> result = countryDao.findByName("");
+        assertNotNull(result);
+        assertFalse(result.isPresent()); 
+    }
+    @Test
+    public void testFindByNameMissingName(){
+        Optional<Country> result = countryDao.findByName(null);
+        assertNotNull(result);
+        assertFalse(result.isPresent()); 
     }
 }

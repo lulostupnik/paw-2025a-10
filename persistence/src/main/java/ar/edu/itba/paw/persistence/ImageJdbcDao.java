@@ -44,12 +44,7 @@ public class ImageJdbcDao implements ImageDao {
     @Override
     public Optional<Image> getImageById(long id) {
         LOGGER.debug("Querying DB for image {}", id);
-        try {
-            return jdbcTemplate.query("SELECT * FROM images WHERE id = ?", IMAGE_ROW_MAPPER, id).stream().findFirst();
-        } catch (DataAccessException e) {
-            LOGGER.error("Error accessing image {}", e);
-            throw new RuntimeException("Error while saving image", e);
-        }
+        return jdbcTemplate.query("SELECT * FROM images WHERE id = ?", IMAGE_ROW_MAPPER, id).stream().findFirst();
     }
 
     @Override

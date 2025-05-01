@@ -95,8 +95,8 @@ public class CareerJdbcDao implements CareerDao {
     @Override
     public Career update(String oldName, String newName) {
         LOGGER.debug("Updating career name from '{}' to '{}'", oldName, newName);
-        return jdbcTemplate.query("UPDATE careers SET name = ? WHERE name = ? RETURNING id, name", CAREER_ROW_MAPPER, newName, oldName)
-                .stream().findFirst().orElseThrow(() -> new IllegalArgumentException("Career not found"));
+        jdbcTemplate.update("UPDATE careers SET name = ? WHERE name = ?", newName, oldName);
+        return findByName(newName).orElseThrow(() -> new IllegalArgumentException("Career not found"));
     }
 
 }

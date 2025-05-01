@@ -107,7 +107,7 @@ public class InterestJdbcDao implements InterestDao {
 
     @Override
     public void deleteUserInterest(long id) {
-        String sql = "DELETE FROM user_interest WHERE id = ?";
+        String sql = "DELETE FROM category WHERE id = ?";
         jdbcTemplate.update(sql, id);
     }
 
