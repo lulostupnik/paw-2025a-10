@@ -108,14 +108,14 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Page<Event> getAllEvents(int page, int size) {
-        return eventDao.listAll(page, size);
+    public Page<Event> getAllEvents(String search,int page, int size) {
+        LOGGER.debug("Getting all events with search {}", search);
+        if (search == null || search.isEmpty()) {
+            return eventDao.listAll(page, size);
+        }
+        return eventDao.searchEvents(search,page, size);
     }
 
-    @Override
-    public Page<Event> searchEvents(String search, int page, int size) {
-        return eventDao.searchEvents(search, page, size);
-    }
 
     @Transactional(readOnly = true)
     @Override

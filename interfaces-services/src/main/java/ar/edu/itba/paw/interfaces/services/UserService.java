@@ -34,7 +34,5 @@ public interface UserService {
     byte[] getProfilePictureData(User user);
 
     List<User> getAllUsers();
-    Page<User> getAllUsers(int page, int size);
-    Page<User> searchUsers(String search, int page, int size);
-
+    Page<User> getAllUsers(String search, int page, int size);
 }

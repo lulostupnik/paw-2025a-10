@@ -225,13 +225,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<User> getAllUsers(int page, int size) {
-        return userDao.getAllUsers(page,size);
-    }
-
-    @Override
-    public Page<User> searchUsers(String search, int page, int size) {
-        return userDao.searchUsers(search, page, size);
+    public Page<User> getAllUsers(String search,int page, int size) {
+        LOGGER.debug("Getting all users with search {}", search);
+        if (search == null || search.isEmpty()) {
+            return userDao.getAllUsers(page, size);
+        }
+        return userDao.searchUsers(search,page,size);
     }
 
 }
