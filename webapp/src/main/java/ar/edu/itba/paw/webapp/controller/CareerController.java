@@ -5,9 +5,12 @@ import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.models.Career;
 
+import ar.edu.itba.paw.models.University;
+import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.form.CreateCareerForm;
 import ar.edu.itba.paw.webapp.form.CreateCityForm;
 import ar.edu.itba.paw.webapp.form.CreateInterestForm;
+import ar.edu.itba.paw.webapp.form.CreateUniversityForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -61,6 +64,43 @@ public class CareerController {
         mav.addObject("career", career);
         return mav;
     }
+
+    @RequestMapping(value = "/{id}/edit", method = GET)
+    public ModelAndView updateCareerForm(@PathVariable("id") Long id) {
+        Career career = careerService.findById(id).get();
+        if (career == null) {
+            return new ModelAndView("redirect:/careers");
+        }
+
+        // Create and populate form with existing university data
+        CreateUniversityForm form = new CreateUniversityForm();
+        form.setName(career.getName());
+
+        ModelAndView mav = new ModelAndView("career/create");
+        mav.addObject("createUniversityForm", form);
+        mav.addObject("isUpdate", true);
+        mav.addObject("careerId", id);
+        return mav;
+    }
+
+    @RequestMapping(value = "/{id}/edit", method = POST)
+    public ModelAndView updateCareer(@PathVariable("id") Long id,
+                                         @Valid @ModelAttribute("createCareerForm") final CreateCareerForm form,
+                                         final BindingResult errors,
+                                         @ModelAttribute("user") User user) {
+
+        if (errors.hasErrors()) {
+            ModelAndView mav = new ModelAndView("careers/create");
+            mav.addObject("isUpdate", true);
+            mav.addObject("careerId", id);
+            return mav;
+        }
+
+        careerService.update(id,form.getName());
+
+        return new ModelAndView("redirect:/careers/{id}", "id", id);
+    }
+
 
 
 }

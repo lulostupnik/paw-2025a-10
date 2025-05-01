@@ -5,7 +5,16 @@
 
 <html>
 <head>
-  <title><spring:message code="createCareer.title"/></title>
+  <title>
+    <c:choose>
+      <c:when test="${isUpdate}">
+        <spring:message code="editCareer.title" text="Edit Career"/>
+      </c:when>
+      <c:otherwise>
+        <spring:message code="createCareer.title" text="Create Career"/>
+      </c:otherwise>
+    </c:choose>
+  </title>
   <!-- Include custom CSS -->
   <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
@@ -26,12 +35,38 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
         </svg>
       </div>
-      <h1 class="auth-title"><spring:message code="createCareer.title" text="Create Career"/></h1>
-      <p class="auth-subtitle"><spring:message code="createCareer.subtitle" text="Add a new career to the system"/></p>
+      <h1 class="auth-title">
+        <c:choose>
+          <c:when test="${isUpdate}">
+            <spring:message code="editCareer.title" text="Edit Career"/>
+          </c:when>
+          <c:otherwise>
+            <spring:message code="createCareer.title" text="Create Career"/>
+          </c:otherwise>
+        </c:choose>
+      </h1>
+      <p class="auth-subtitle">
+        <c:choose>
+          <c:when test="${isUpdate}">
+            <spring:message code="editCareer.subtitle" text="Update career information"/>
+          </c:when>
+          <c:otherwise>
+            <spring:message code="createCareer.subtitle" text="Add a new career to the system"/>
+          </c:otherwise>
+        </c:choose>
+      </p>
     </div>
 
-    <c:url var="createCareerUrl" value="/careers/create"/>
-    <form:form modelAttribute="createCareerForm" action="${createCareerUrl}" method="post" class="auth-form" id="careerForm" novalidate="true">
+    <c:choose>
+      <c:when test="${isUpdate}">
+        <c:url var="formAction" value="/careers/${careerId}/edit"/>
+      </c:when>
+      <c:otherwise>
+        <c:url var="formAction" value="/careers/create"/>
+      </c:otherwise>
+    </c:choose>
+
+    <form:form modelAttribute="createCareerForm" action="${formAction}" method="post" class="auth-form" id="careerForm" novalidate="true">
       <!-- Career Name Field -->
       <div class="form-group">
         <form:label path="name" cssClass="form-label required-field">
@@ -42,7 +77,14 @@
       </div>
 
       <button type="submit" class="form-button">
-        <spring:message code="createCareer.submit" text="Create Career"/>
+        <c:choose>
+          <c:when test="${isUpdate}">
+            <spring:message code="editCareer.submit" text="Update Career"/>
+          </c:when>
+          <c:otherwise>
+            <spring:message code="createCareer.submit" text="Create Career"/>
+          </c:otherwise>
+        </c:choose>
       </button>
     </form:form>
 

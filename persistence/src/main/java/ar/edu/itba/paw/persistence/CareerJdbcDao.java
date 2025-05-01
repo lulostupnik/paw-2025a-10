@@ -93,10 +93,10 @@ public class CareerJdbcDao implements CareerDao {
     }
 
     @Override
-    public Career update(String oldName, String newName) {
-        LOGGER.debug("Updating career name from '{}' to '{}'", oldName, newName);
-        jdbcTemplate.update("UPDATE careers SET name = ? WHERE name = ?", newName, oldName);
-        return findByName(newName).orElseThrow(() -> new IllegalArgumentException("Career not found"));
+    public Career update(long id, String name) {
+        LOGGER.debug("Updating career id '{}' and name '{}'",id,name);
+        jdbcTemplate.update("UPDATE careers SET name = ? WHERE id = ?", name, id);
+        return findById(id).orElseThrow(() -> new IllegalArgumentException("Career not found"));
     }
 
 }

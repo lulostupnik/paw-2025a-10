@@ -65,8 +65,8 @@ public class CareerServiceImpl implements CareerService {
 
     @Transactional(readOnly = false)
     @Override
-    public Career update(String oldName, String newName) {
-        return careerDao.update(oldName, newName);
+    public Career update(long id, String name) {
+        return careerDao.update(id, name);
     }
 
 }
