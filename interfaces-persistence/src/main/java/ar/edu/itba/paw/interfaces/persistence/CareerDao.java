@@ -12,4 +12,6 @@ public interface CareerDao {
     List<Career> findAll();
     Optional<Career> findByName(String name);
     Page<Career> getAllCareers(int page, int pageSize);
+    Career create(String name);
+    Career update(String oldName, String newName);
 }

@@ -3,6 +3,7 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.models.City;
+import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.form.CreateCityForm;
 import ar.edu.itba.paw.webapp.form.CreateInterestForm;
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ public class CityController {
 
     @RequestMapping(path = "/create", method = POST)
     public ModelAndView createCities(@Valid @ModelAttribute("createInterestForm") final CreateCityForm cityForm,
-                                        final BindingResult errors, @ModelAttribute("username") String username) {
+                                        final BindingResult errors, @ModelAttribute("user") User user) {
 
         if (errors.hasErrors()) {
             return createCitiesForm(cityForm);

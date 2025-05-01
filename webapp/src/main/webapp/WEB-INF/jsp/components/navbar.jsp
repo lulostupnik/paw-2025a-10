@@ -84,24 +84,24 @@
         <!-- Auth Section -->
         <div class="topbar-auth">
             <c:choose>
-                <c:when test="${not empty username}">
+                <c:when test="${not empty user}">
                     <!-- User is logged in - show profile -->
                     <div class="topbar-user-profile">
                         <div class="dropdown">
                             <button class="topbar-profile-button" id="profile-dropdown-toggle">
-                                <div class="profile-avatar">
+                                <span class="profile-avatar">
                                     <c:choose>
-                                        <c:when test="${not empty userProfileImage}">
-                                            <img src="${userProfileImage}" alt="${username}" class="avatar-image" />
+                                        <c:when test="${not empty user.profilePictureId && user.profilePictureId > 0}">
+                                            <img src="<c:url value='/images/${user.profilePictureId}'/>" alt="${user.username}" class="avatar-image" />
                                         </c:when>
                                         <c:otherwise>
                                             <div class="avatar-placeholder-navbar">
-                                                    ${fn:substring(username, 0, 1).toUpperCase()}
+                                                    ${fn:substring(user.getUsername(), 0, 1).toUpperCase()}
                                             </div>
                                         </c:otherwise>
                                     </c:choose>
-                                </div>
-                                <span class="profile-name">${username}</span>
+                                </span>
+                                <span class="profile-name">${user.getUsername()}</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>

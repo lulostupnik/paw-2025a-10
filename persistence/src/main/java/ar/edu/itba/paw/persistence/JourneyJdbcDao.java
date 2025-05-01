@@ -50,10 +50,10 @@ public class JourneyJdbcDao implements JourneyDao {
                 j.description AS journey_description,\s
                 ci1.id AS city_id,\s
                 co1.name AS country_name,\s
-                ci1.name AS city_name,\s
+                ci1.name_en AS city_name,\s
                 ci2.id AS destination_city_id,\s
                 co2.name AS destination_country_name,\s
-                ci2.name AS destination_city_name,\s
+                ci2.name_en AS destination_city_name,\s
                 un1.id AS university_id,\s
                 un1.name AS university_name,\s
                 un1.abbreviation AS university_abbreviation,\s
@@ -174,7 +174,12 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public Journey create(User user, University destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
         LOGGER.debug("Registering new journey of {} to {} from {} to {} ({})", user, destinationUniversity, startDate, endDate, description);
-        Optional<Journey> journey = findByUserEmail(user.getEmail());
+        Optional<Journey> journey = findByUserIdDeleted(user.getId());
+        if(journey.isPresent()){
+            LOGGER.debug("Journey found");
+            updateData(journey.get().getId(), destinationUniversity, startDate, endDate, description);
+            return findByUserId(journey.get().getUser().getId()).orElseThrow(RuntimeException::new);
+        }
         final Map<String, Object> args = new HashMap<>();
         args.put("user_id", user.getId());
         args.put("destination_university_id", destinationUniversity.getId());
@@ -370,7 +375,7 @@ public class JourneyJdbcDao implements JourneyDao {
                             uu.id AS user_university,
                             uu.name AS university_name,
                             uu.abbreviation AS university_abbreviation,
-                            uc.name AS city_name,
+                            uc.name_en AS city_name,
                             co.name AS country_name,
                             uc.id AS city_id,
                             c.id AS career_id,
@@ -381,7 +386,7 @@ public class JourneyJdbcDao implements JourneyDao {
                             dest_univ.id AS destination_university_id,
                             dest_univ.name AS destination_university_name,
                             dest_univ.abbreviation AS destination_university_abbreviation,
-                            dest_city.name AS destination_city_name,
+                            dest_city.name_en AS destination_city_name,
                             dest_country.name AS destination_country_name,
                             dest_city.id AS destination_city_id,
                             j.description AS journey_description,
@@ -674,7 +679,8 @@ public class JourneyJdbcDao implements JourneyDao {
            SET destination_university_id = ?,
                start_date = ?,
                end_date = ?,
-               description = ?
+               description = ?,
+               deleted = FALSE
          WHERE id = ?
          """,
                 destinationUniversity.getId(),

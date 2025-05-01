@@ -52,10 +52,10 @@ public class EventController {
     }
 
     @RequestMapping
-    public ModelAndView getEvents(@ModelAttribute("username") String username) {
+    public ModelAndView getEvents(@ModelAttribute("user") User user) {
         ModelAndView mav = new ModelAndView("events/list");
-        if (username != null ) {
-            mav.addObject("eventsWithAttendance", eventService.getEventsWithAttendanceStatus(username));
+        if (user != null ) {
+            mav.addObject("eventsWithAttendance", eventService.getEventsWithAttendanceStatus(user.getEmail()));
         } else{
             mav.addObject("events",eventService.getAllEvents());
         }
@@ -78,7 +78,7 @@ public class EventController {
 
     @RequestMapping(path = "/create", method = POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ModelAndView createEvent(@Valid @ModelAttribute("createEventForm") final CreateEventForm eventForm,
-                                    final BindingResult errors, @ModelAttribute("username") String username) {
+                                    final BindingResult errors, @ModelAttribute("user") User user) {
 
         LOGGER.debug("CREATING EVENT FROM FORM {}", eventForm);
         if (errors.hasErrors()) {
@@ -88,7 +88,7 @@ public class EventController {
         byte[] flyerBytes = getBytes(eventForm.getFlyer());
 
         Event event = eventService.createEvent(
-            username,
+            user.getEmail(),
             eventForm.getCity(), 
             eventForm.getDate(), 
             flyerBytes, 
@@ -149,7 +149,7 @@ public class EventController {
 
     @RequestMapping("/{id}")
     public ModelAndView getEvent(@PathVariable long id, @Valid @ModelAttribute("replyEventForm") final ReplyForm form, final BindingResult errors,
-                                 @ModelAttribute("username") String username,
+                                 @ModelAttribute("user") User user,
                                  @Valid @ModelAttribute("deleteForm") final ReplyForm deleteForm, final BindingResult deleteErrors,
                                  @Valid @ModelAttribute("deleteReplyForm") final ReplyForm deleteReplyForm, final BindingResult deleteReplyErrors,
                                  @RequestParam(value = "replyId", required = false) Long replyId) {
@@ -162,7 +162,7 @@ public class EventController {
             return new ModelAndView("events/not_found");
         }
 
-        return populateEventDetails(maybeEvent.get(), id, username, deleteErrors, deleteReplyErrors, replyId);
+        return populateEventDetails(maybeEvent.get(), id, user.getEmail(), deleteErrors, deleteReplyErrors, replyId);
     }
     @PostMapping("/{id}/delete")
     public ModelAndView deleteEvent(@PathVariable int id, @Valid @ModelAttribute("deleteForm") final ReplyForm form,
@@ -181,7 +181,7 @@ public class EventController {
 
     @RequestMapping(value = "/{id}/reply", method = POST)
     public ModelAndView reply(@PathVariable int id, @Valid @ModelAttribute("replyEventForm") final ReplyForm form,
-                              final BindingResult errors, @ModelAttribute("username") String username, RedirectAttributes redirectAttributes) {
+                              final BindingResult errors, @ModelAttribute("user") User user, RedirectAttributes redirectAttributes) {
         LOGGER.debug("Replying to event {} from form {}", id, form);
 
         if (errors.hasErrors()) {
@@ -191,15 +191,15 @@ public class EventController {
             return new ModelAndView("redirect:/events/{id}", "id", id);
         }
 
-        eventService.replyToEvent(username, id, form.getMessage());
+        eventService.replyToEvent(user.getEmail(), id, form.getMessage());
         return new ModelAndView("redirect:/events/{id}", "id", id);
     }
 
     @RequestMapping(value="/{id}/attend",method = POST,produces = "application/json")
     public ModelAndView attendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer,
-                                    @ModelAttribute("username") String username) {
+                                    @ModelAttribute("user") User user) {
         LOGGER.debug("Attending event {}", id);
-        eventService.attendEvent(username, id);
+        eventService.attendEvent(user.getEmail(), id);
 
         if (referer != null && !referer.isEmpty()) {
             return new ModelAndView("redirect:" + referer);
@@ -210,10 +210,10 @@ public class EventController {
 
     @RequestMapping(value="/{id}/dont-attend",method = POST,produces = "application/json")
     public ModelAndView dontAttendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer,
-                                        @ModelAttribute("username") String username) {
+                                        @ModelAttribute("user") User user) {
         LOGGER.debug("Attending event {}", id);
 
-        eventService.cancelAttendance(username, id);
+        eventService.cancelAttendance(user.getEmail(), id);
         if (referer != null && !referer.isEmpty()) {
             return new ModelAndView("redirect:" + referer); //@TODO preguntar si es lícito
         } else {
@@ -223,11 +223,11 @@ public class EventController {
     //@TODO cambiar a spring security
     @RequestMapping(value = "/{id}/update", method = GET)
     public ModelAndView showUpdateEventForm(@PathVariable("id") int eventId,
-                                            @ModelAttribute("username") String username,
+                                            @ModelAttribute("user") User user,
                                             @ModelAttribute("createEventForm") CreateEventForm form,
                                             BindingResult errors) {
 
-        LOGGER.debug("User {} requested to update event {}", username, eventId);
+        LOGGER.debug("User {} requested to update event {}", user.getEmail(), eventId);
 
         Event event = eventService.getEventById(eventId).orElseThrow(NoSuchElementException::new);
         if(!errors.hasErrors()) {
@@ -251,13 +251,13 @@ public class EventController {
     //OBS para checkear. no se porque me deja subir una imagen vacia si uso el create event form.
     @RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
     public ModelAndView updateEvent(@PathVariable("id") int eventId,
-                                    @ModelAttribute("username") String username,
+                                    @ModelAttribute("user") User user,
                                     @Valid @ModelAttribute("createEventForm") CreateEventForm form,
                                     BindingResult errors) {
 
-        LOGGER.debug("User {} submitted update for event {}", username, eventId);
+        LOGGER.debug("User {} submitted update for event {}", user.getEmail(), eventId);
         if(errors.hasErrors()) {
-            return showUpdateEventForm(eventId, username, form, errors);
+            return showUpdateEventForm(eventId, user, form, errors);
         }
 
         byte[] flyerContent = ImageUtils.getBytes(form.getFlyer());

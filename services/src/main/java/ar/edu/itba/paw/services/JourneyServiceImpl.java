@@ -68,16 +68,14 @@ public class JourneyServiceImpl implements JourneyService {
     // FIXME: ¿CachePut?
     @Transactional
     @Override
-    public Journey createJourney(String email, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
-        LOGGER.debug("Creating journey for {}", email);
+    public Journey createJourney(User user, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
+
+        LOGGER.debug("Creating journey for {}", user);
         checkDates(startDate, endDate);
 
         LOGGER.debug("Looking for university {}", destinationUniversity);
         University destination = universityService.findByAny(destinationUniversity).orElseThrow(() -> new RuntimeException("Destination University not found"));
 
-        LOGGER.debug("Looking for user {}", email);
-        //Solo por ahora busco tmbn x username
-        User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
 
         if (journeyDao.findOverlappingJourney(user.getId(), startDate, endDate).isPresent()) {
             LOGGER.info("User has an overlapping journey");
@@ -188,10 +186,7 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     public Boolean userHasJourney(String email) {
         Optional<User> maybeUser = userService.findByEmail(email);
-        if(maybeUser.isEmpty()){
-            return false;
-        }
-        return journeyDao.findByUserId(maybeUser.get().getId()).isPresent();
+        return maybeUser.filter(user -> journeyDao.findByUserId(user.getId()).isPresent()).isPresent();
     }
 
     // FIXME: Configurar la cache para que guarde los resultados por un tiempo (30min) y después meter acá el @Cacheable
@@ -317,6 +312,7 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     public void delete(long id, String message) {
         journeyDao.deletionMessage(id, message);
+        journeyResponseService.deleteByJourneyId(id);
         journeyDao.delete(id);
     }
 

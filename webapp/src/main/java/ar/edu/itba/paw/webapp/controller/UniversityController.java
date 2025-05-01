@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.models.Event;
 import ar.edu.itba.paw.models.University;
+import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.form.CreateEventForm;
 import ar.edu.itba.paw.webapp.form.CreateUniversityForm;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -43,7 +45,7 @@ public class UniversityController {
 
     @RequestMapping(path = "/create", method = POST)
     public ModelAndView createEvent(@Valid @ModelAttribute("createUniversityForm") final CreateUniversityForm uniForm,
-                                    final BindingResult errors, @ModelAttribute("username") String username) {
+                                    final BindingResult errors, @ModelAttribute("user") User user) {
 
         if (errors.hasErrors()) {
             return createUniversityForm(uniForm);
@@ -56,10 +58,11 @@ public class UniversityController {
 //        );
         return new ModelAndView("redirect:/universities/{id}", "id", 1);
     }
+
     @RequestMapping(value= "/{id}", method = GET)
-    public ModelAndView getUniversity(@ModelAttribute("university") final University university) {
+    public ModelAndView getUniversity(@PathVariable("id") Long id) {
         ModelAndView mav = new ModelAndView("universities/detail");
-        mav.addObject("university", university);
+        mav.addObject("university", universityService.findById(id));
         return mav;
     }
 

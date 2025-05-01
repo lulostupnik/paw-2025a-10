@@ -106,6 +106,19 @@ public class InterestJdbcDao implements InterestDao {
     }
 
     @Override
+    public void deleteUserInterest(long id) {
+        String sql = "DELETE FROM user_interest WHERE id = ?";
+        jdbcTemplate.update(sql, id);
+    }
+
+    @Override
+    public void editUserInterest(long id, String interest) {
+        LOGGER.debug("Editing interest {} to {}", id, interest);
+        String sql = "UPDATE category SET name = ? WHERE id = ?";
+        jdbcTemplate.update(sql, interest ,id);
+    }
+
+    @Override
     public void saveUserInterests(long[] interests, Long userId) {
         LOGGER.debug("Registering to DB new interests for user {}...", userId);
         for (long interest : interests) {
@@ -137,7 +150,7 @@ public class InterestJdbcDao implements InterestDao {
         query.append(" ORDER BY c.name ASC LIMIT ? OFFSET ?");
         int totalInterests = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category", Integer.class);
         int totalPages = (int) Math.ceil((double) totalInterests / pageSize);
-        return new Page<>(jdbcTemplate.query(query.toString(),INTEREST_ROW_MAPPER,page,offset),page,totalPages);
+        return new Page<>(jdbcTemplate.query(query.toString(),INTEREST_ROW_MAPPER,pageSize,offset),page,totalPages);
     }
 
 

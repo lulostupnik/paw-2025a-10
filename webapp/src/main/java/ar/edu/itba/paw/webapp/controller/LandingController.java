@@ -5,6 +5,7 @@ import java.util.List;
 
 import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.models.Journey;
+import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.UserEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ public class LandingController {
     }
 
     @RequestMapping("/")
-    public ModelAndView landing(@ModelAttribute("username") String username) {
+    public ModelAndView landing(@ModelAttribute("user") User user) {
         LOGGER.debug("Loading landing page");
         ModelAndView mav = new ModelAndView("index");
 
@@ -42,8 +43,8 @@ public class LandingController {
         mav.addObject("recommendedEvents", recommendedEvents);
         List<Event> eventsAttended = Collections.emptyList();
 
-        if (username != null ) {
-            eventsAttended = eventService.getUserAttendingEvents(username);
+        if (user != null ) {
+            eventsAttended = eventService.getUserAttendingEvents(user.getEmail());
         }
 
         mav.addObject("eventsAttended", eventsAttended);
@@ -65,11 +66,11 @@ public class LandingController {
     }
 
     @RequestMapping("/explore")
-    public ModelAndView explore(@ModelAttribute("username") String username) {
+    public ModelAndView explore(@ModelAttribute("user") User user) {
         LOGGER.debug("Getting dashboard page...");
 
         ModelAndView mav = new ModelAndView("home");
-        populateHomePage(mav, username);
+        populateHomePage(mav, user.getEmail());
 
         return mav;
     }

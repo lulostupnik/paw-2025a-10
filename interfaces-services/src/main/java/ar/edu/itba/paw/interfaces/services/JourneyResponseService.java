@@ -10,4 +10,5 @@ public interface JourneyResponseService {
     List<JourneyResponse> listAllFromJourney(long journeyId);
     void delete(long id, String message);
     long getJourneyIdByResponseId(long journeyId);
+    void deleteByJourneyId(long journeyId);
 }

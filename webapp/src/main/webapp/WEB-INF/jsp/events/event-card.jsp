@@ -28,7 +28,7 @@
 
 
                 <!-- Attend Button -->
-                <c:if test="${not empty username && isOwner == false}">
+                <c:if test="${not empty user && isOwner == false}">
                     <div class="attend-button-container">
                         <!-- Add this inside the attend-button-container div, after the existing button -->
                         <c:if test="${ param.isFull && !param.attend}">

@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.sql.DataSource;
 
@@ -46,6 +47,11 @@ public class CountryJdbcDao implements CountryDao {
             LOGGER.debug("Querying DB for country {}", name);
             return jdbcTemplate.queryForObject("SELECT COUNT(1) FROM countries WHERE name = ?", Boolean.class, name);
         }
+
+    @Override
+    public Optional<Country> findByName(String name) {
+        return jdbcTemplate.query("SELECT id FROM countries WHERE name = ?",COUNTRY_ROW_MAPPER, name).stream().findFirst();
+    }
 
 
 }

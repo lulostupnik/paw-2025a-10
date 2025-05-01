@@ -13,6 +13,8 @@ public interface InterestService {
     Optional<Interest> findByName(String name);
     List<Interest> findIdByName(String[] names);
     Interest createUserInterest(String interest);
+    void deleteUserInterest(long id);
+    void editUserInterest(long id, String interest);
     void saveUserInterests(long[] interests, long userId);
     void updateScoreByInterest(Interest interest, long userId);
     void updateScoreByInterests(List<Interest> interests, long userId);

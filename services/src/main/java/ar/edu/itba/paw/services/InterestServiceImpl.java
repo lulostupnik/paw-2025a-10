@@ -72,6 +72,18 @@ public class InterestServiceImpl implements InterestService {
 
     @Transactional
     @Override
+    public void deleteUserInterest(long id) {
+        interestDao.deleteUserInterest(id);
+    }
+
+    @Transactional
+    @Override
+    public void editUserInterest(long id, String interestEn, String interestEs) {
+        interestDao.editUserInterest(id, interestEn, interestEs);
+    }
+
+    @Transactional
+    @Override
     public void saveUserInterests(long[] interests, long userId) {
         LOGGER.debug("Adding interest list to user {}", userId);
         interestDao.saveUserInterests(interests, userId);
