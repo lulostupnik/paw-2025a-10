@@ -42,7 +42,7 @@
       <tbody>
       <c:set var="careers" value="${pagedCareers.content}" />
       <c:forEach items="${careers}" var="career">
-        <tr>
+        <tr class="clickable-row" data-href="<c:url value="../careers/${career.id}"/>" >
           <td><c:out value="${career.id}"/></td>
           <td><c:out value="${career.name}"/></td>
         </tr>

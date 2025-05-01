@@ -42,7 +42,7 @@
             <tbody>
             <c:set var="interests" value="${pagedInterests.content}" />
             <c:forEach items="${interests}" var="interest">
-                <tr>
+                <tr class="clickable-row" data-href="<c:url value="../interests/${interest.id}"/>" >
                     <td><c:out value="${interest.id}"/></td>
                     <td><c:out value="${interest.name}"/></td>
                 </tr>
