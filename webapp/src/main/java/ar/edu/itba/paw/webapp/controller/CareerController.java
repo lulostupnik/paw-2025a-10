@@ -77,7 +77,7 @@ public class CareerController {
         form.setName(career.getName());
 
         ModelAndView mav = new ModelAndView("careers/create");
-        mav.addObject("createUniversityForm", form);
+        mav.addObject("createCareerForm", form);
         mav.addObject("isUpdate", true);
         mav.addObject("careerId", id);
         return mav;

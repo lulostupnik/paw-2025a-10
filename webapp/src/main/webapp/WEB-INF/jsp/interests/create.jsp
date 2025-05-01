@@ -67,7 +67,6 @@
     </c:choose>
 
     <form:form modelAttribute="createInterestForm" action="${formAction}" method="post" class="auth-form" id="interestForm" novalidate="true">
-      <!-- English Name Field -->
       <div class="form-group">
         <form:label path="name" cssClass="form-label required-field">
           <spring:message code="createInterest.name" text="English Name"/>

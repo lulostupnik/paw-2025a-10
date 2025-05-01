@@ -80,11 +80,12 @@ public class InterestController {
         form.setName(interest.getName());
 
         ModelAndView mav = new ModelAndView("interests/create");
-        mav.addObject("createUniversityForm", form);
+        mav.addObject("createInterestForm", new CreateInterestForm()); // Was "createUniversityForm"
         mav.addObject("isUpdate", true);
         mav.addObject("interestId", id);
         return mav;
     }
+
 
     @RequestMapping(value = "/{id}/edit", method = POST)
     public ModelAndView updateInterest(@PathVariable("id") Long id,

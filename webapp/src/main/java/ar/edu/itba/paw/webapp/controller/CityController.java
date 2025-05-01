@@ -67,11 +67,8 @@ public class CityController {
         if (city == null) {
             return new ModelAndView("redirect:/cities");
         }
-
-        // Create and populate form with existing university data
         CreateCityForm form = new CreateCityForm();
         form.setName(city.getName());
-
         ModelAndView mav = new ModelAndView("careers/create");
         mav.addObject("createCityForm", form);
         mav.addObject("isUpdate", true);

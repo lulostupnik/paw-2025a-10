@@ -66,8 +66,7 @@
       </c:otherwise>
     </c:choose>
 
-    <form:form modelAttribute="createCityForm" action="${formAction}" method="post" class="auth-form" id="cityForm" novalidate="true">
-      <!-- City Name Field -->
+    <form:form modelAttribute="createCityForm" action="${formAction}" method="post" class="auth-form" id="cityForm" novalidate="true">      <!-- City Name Field -->
       <div class="form-group">
         <form:label path="name" cssClass="form-label required-field">
           <spring:message code="createCity.name" text="City Name"/>
