@@ -66,7 +66,8 @@
       </c:otherwise>
     </c:choose>
 
-    <form:form modelAttribute="createCityForm" action="${formAction}" method="post" class="auth-form" id="cityForm" novalidate="true">      <!-- City Name Field -->
+    <form:form modelAttribute="createCityForm" action="${formAction}" method="post" class="auth-form" id="cityForm" novalidate="true">
+      <!-- City Name Field -->
       <div class="form-group">
         <form:label path="name" cssClass="form-label required-field">
           <spring:message code="createCity.name" text="City Name"/>
@@ -75,12 +76,29 @@
         <form:errors path="name" cssClass="error-message" />
       </div>
 
-      <!-- Country Field -->
+      <!-- Country Field with Enhanced Autocomplete -->
       <div class="form-group">
         <form:label path="country" cssClass="form-label required-field">
           <spring:message code="createCity.country" text="Country"/>
         </form:label>
-        <form:input path="country" id="country" type="text" cssClass="form-input ${not empty errors.getFieldError('country') ? 'error' : ''}" />
+        <div class="autocomplete-wrapper">
+          <form:select path="country" id="country" cssClass="form-select ${not empty errors.getFieldError('country') ? 'error' : ''}" style="display: none;">
+            <form:option value=""><spring:message code="createCity.country.select" text="Select a country"/></form:option>
+            <c:forEach var="item" items="${country}">
+              <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
+            </c:forEach>
+          </form:select>
+          <input type="text" id="countrySearch" class="autocomplete-input" placeholder="<spring:message code="createCity.country.search" text="Type to search country..."/>" />
+          <div id="countryDropdown" class="autocomplete-dropdown" style="display: none;">
+            <c:forEach var="item" items="${country}">
+              <div class="autocomplete-item" data-value="<c:out value="${item.name}"/>">
+                <c:out value="${item.name}"/>
+              </div>
+            </c:forEach>
+          </div>
+          <!-- Container for selected country tag -->
+          <div id="selectedCountry" class="selected-tags"></div>
+        </div>
         <form:errors path="country" cssClass="error-message" />
       </div>
 
@@ -110,6 +128,13 @@
     const cityForm = document.getElementById("cityForm");
     const nameInput = document.getElementById("name");
     const countryInput = document.getElementById("country");
+    const countrySearch = document.getElementById("countrySearch");
+    const countryDropdown = document.getElementById("countryDropdown");
+    const selectedCountry = document.getElementById("selectedCountry");
+    const countryItems = document.querySelectorAll("#countryDropdown .autocomplete-item");
+
+    // Check if we're in update mode
+    const isUpdateMode = ${isUpdate != null && isUpdate ? 'true' : 'false'};
 
     // Focus on the first field when the page loads
     nameInput.focus();
@@ -127,7 +152,85 @@
     }
 
     capitalizeFirstLetter(nameInput);
-    capitalizeFirstLetter(countryInput);
+    capitalizeFirstLetter(countrySearch);
+
+    // Initialize country autocomplete
+    function initCountryAutocomplete() {
+      // If there's a selected country (especially in update mode), show it
+      if (countryInput.value) {
+        displaySelectedCountry(countryInput.value);
+      }
+
+      // Show dropdown when focusing on search input
+      countrySearch.addEventListener("focus", function() {
+        countryDropdown.style.display = "block";
+      });
+
+      // Filter countries as user types
+      countrySearch.addEventListener("input", function() {
+        const searchValue = this.value.toLowerCase();
+        let hasVisibleItems = false;
+
+        countryItems.forEach(item => {
+          const countryName = item.getAttribute("data-value").toLowerCase();
+          if (countryName.includes(searchValue)) {
+            item.style.display = "block";
+            hasVisibleItems = true;
+          } else {
+            item.style.display = "none";
+          }
+        });
+
+        countryDropdown.style.display = hasVisibleItems ? "block" : "none";
+      });
+
+      // Handle country selection
+      countryItems.forEach(item => {
+        item.addEventListener("click", function() {
+          const selectedValue = this.getAttribute("data-value");
+          countryInput.value = selectedValue;
+          countrySearch.value = "";
+          countryDropdown.style.display = "none";
+          displaySelectedCountry(selectedValue);
+        });
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener("click", function(e) {
+        if (!countrySearch.contains(e.target) && !countryDropdown.contains(e.target)) {
+          countryDropdown.style.display = "none";
+        }
+      });
+    }
+
+    // Display selected country as a tag
+    function displaySelectedCountry(countryName) {
+      selectedCountry.innerHTML = "";
+
+      if (countryName) {
+        const tag = document.createElement("div");
+        tag.className = "selected-tag";
+
+        const tagText = document.createElement("span");
+        tagText.textContent = countryName;
+
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.className = "remove-tag";
+        removeBtn.innerHTML = "×";
+        removeBtn.addEventListener("click", function() {
+          countryInput.value = "";
+          selectedCountry.innerHTML = "";
+        });
+
+        tag.appendChild(tagText);
+        tag.appendChild(removeBtn);
+        selectedCountry.appendChild(tag);
+      }
+    }
+
+    // Initialize autocomplete
+    initCountryAutocomplete();
 
     // Form validation
     cityForm.addEventListener("submit", (event) => {
@@ -160,16 +263,16 @@
         errorElement.className = "error-message";
         errorElement.textContent = "Country is required";
 
-        const existingError = countryInput.parentNode.querySelector(".error-message");
+        const existingError = countryInput.parentNode.parentNode.querySelector(".error-message");
         if (!existingError) {
-          countryInput.parentNode.appendChild(errorElement);
+          countryInput.parentNode.parentNode.appendChild(errorElement);
         }
 
-        countryInput.classList.add("error");
+        countrySearch.classList.add("error");
         isValid = false;
       } else {
-        countryInput.classList.remove("error");
-        const existingError = countryInput.parentNode.querySelector(".error-message");
+        countrySearch.classList.remove("error");
+        const existingError = countryInput.parentNode.parentNode.querySelector(".error-message");
         if (existingError) {
           existingError.remove();
         }
