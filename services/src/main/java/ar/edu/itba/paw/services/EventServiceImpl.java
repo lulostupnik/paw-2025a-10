@@ -219,6 +219,9 @@ public class EventServiceImpl implements EventService {
     public List<EventResponse> getEventResponses(long eventId){
         return eventResponseService.listAllFromEvent(eventId);
     }
+
+
+
 //    //@TODO cache ?
 //    @Transactional(readOnly = true)
 //    @Override

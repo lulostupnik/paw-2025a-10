@@ -29,7 +29,6 @@ public interface EventService {
     List<Event> getUserAttendingEvents(String userEmail);
     List<Event> getUserAttendingEvents(long userId);
     List<EventResponse> getEventResponses(long eventId);
-//    List<User> getEventResponders(long eventId);
     List<UserEvent> getRecommendedEvents(String email);
     List<Event> getTopEvents();
     Boolean isEventOwnedByUser(String email, long eventID);

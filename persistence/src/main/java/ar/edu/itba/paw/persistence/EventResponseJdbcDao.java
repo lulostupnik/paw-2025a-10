@@ -80,8 +80,8 @@ public class EventResponseJdbcDao implements EventResponseDao {
     }
 
     @Override
-    public long getEventIdByResponseId(long eventId) {
-        return jdbcTemplate.query(QUERY_BY_RESPONSE_ID + " ORDER BY date_time ", EVENT_ID_ROW_MAPPER, eventId).getFirst();
+    public long getEventIdByResponseId(long eventResponseId) {
+        return jdbcTemplate.query(QUERY_BY_RESPONSE_ID + " ORDER BY date_time ", EVENT_ID_ROW_MAPPER, eventResponseId).getFirst();
     }
 
     @Override

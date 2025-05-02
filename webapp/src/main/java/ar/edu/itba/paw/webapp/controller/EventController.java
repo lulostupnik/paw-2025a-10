@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -33,6 +34,7 @@ import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
+
 @Controller
 @RequestMapping("/events")
 public class EventController {
@@ -40,16 +42,18 @@ public class EventController {
 
 
     private final EventService eventService;
+    private final EventResponseService eventResponseService;
     private final CityService cityService;
     private final UniversityService universityService;
     private final CareerService careerService;
 
     @Autowired
-    public EventController(EventService eventService, CityService cityService, UniversityService universityService, CareerService careerService) {
+    public EventController(EventService eventService, CityService cityService, UniversityService universityService, CareerService careerService, EventResponseService eventResponseService) {
         this.eventService = eventService;
         this.cityService = cityService;
         this.universityService = universityService;
         this.careerService = careerService;
+        this.eventResponseService = eventResponseService;
     }
 
     /*@RequestMapping
@@ -65,8 +69,8 @@ public class EventController {
 
     @RequestMapping
     public ModelAndView getEvents(@ModelAttribute("user") User user,
-                                  @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-                                  @RequestParam(value = "size", defaultValue = "10") @Min(1) int size) {
+                                  @RequestParam(value = "page", defaultValue = "1") int page,
+                                  @RequestParam(value = "size", defaultValue = "10") int size) {
         ModelAndView mav = new ModelAndView("events/list");
 
         if (user != null) {
@@ -127,7 +131,7 @@ public class EventController {
 
     private ModelAndView populateEventDetails( Event event, long id, String username,
                                               BindingResult deleteErrors, BindingResult deleteReplyErrors,
-                                              Long replyId) {
+                                              Long replyId, int page, int size) {
         ModelAndView mav = new ModelAndView("events/detail");
         mav.addObject("event", event);
 
@@ -139,14 +143,19 @@ public class EventController {
             mav.addObject("deleteFormId", "delete-event-form");
         } else if (deleteReplyErrors.hasErrors()) {
 
-            // Add attributes to indicate there was an error in a journey response delete form
+            // Add attributes to indicate there was an error in a event response delete form
             mav.addObject("deleteFormHasErrors", true);
             mav.addObject("deleteFormType", "eventResponse");
             mav.addObject("deleteFormId", "delete-event-response-form-" + replyId);
         }
         LOGGER.info("Found event {}", event);
-        mav.addObject("attendees", eventService.getEventAttendees(event.getId()));
-        mav.addObject("eventResponses", eventService.getEventResponses(event.getId()));
+        mav.addObject("attendees", eventService.getEventAttendees(event.getId())); //@TODO paginar. ? O decimos que hay un maximo chico siempre y cambiamos eso.
+//        mav.addObject("eventResponses", eventService.getEventResponses(event.getId()));
+        Page<EventResponse> eventResponsesPage = eventResponseService.listAllFromEvent(event.getId(), page, size);
+        mav.addObject("eventResponsesPage", eventResponsesPage);
+        mav.addObject("currentPage", page);
+        mav.addObject("pageSize", size);
+        mav.addObject("baseUrl", "/events/" + id);
 
         Boolean isFull = eventService.isEventFull(id);
 
@@ -175,17 +184,23 @@ public class EventController {
                                  @ModelAttribute("user") User user,
                                  @Valid @ModelAttribute("deleteForm") final ReplyForm deleteForm, final BindingResult deleteErrors,
                                  @Valid @ModelAttribute("deleteReplyForm") final ReplyForm deleteReplyForm, final BindingResult deleteReplyErrors,
-                                 @RequestParam(value = "replyId", required = false) Long replyId) {
+                                 @RequestParam(value = "replyId", required = false) Long replyId,
+                                 @RequestParam(value = "page", defaultValue = "1") int page,
+                                 @RequestParam(value = "size", defaultValue = "10") int size)
+
+    {
 
 
         LOGGER.debug("Getting info for event {}", id);
+
+        //@Todo, esto podria lanzar una excepcion y que lo agarre un exception handler.
         Optional<Event> maybeEvent = eventService.getEventById(id);
         if (maybeEvent.isEmpty()) { // error ControllerAdvice
             LOGGER.warn("Event {} not found", id);
             return new ModelAndView("events/not_found");
         }
 
-        return populateEventDetails(maybeEvent.get(), id, user.getEmail(), deleteErrors, deleteReplyErrors, replyId);
+        return populateEventDetails(maybeEvent.get(), id, user.getEmail(), deleteErrors, deleteReplyErrors, replyId,page,size);
     }
     @PostMapping("/{id}/delete")
     public ModelAndView deleteEvent(@PathVariable int id, @Valid @ModelAttribute("deleteForm") final ReplyForm form,
