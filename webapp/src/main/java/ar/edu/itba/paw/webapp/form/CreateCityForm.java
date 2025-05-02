@@ -16,6 +16,10 @@ public class CreateCityForm {
     @NotEmpty
     private String country;
 
+    public CreateCityForm(){
+
+    }
+
     public CreateCityForm(String name, String country) {
         this.name = name;
         this.country = country;

@@ -11,5 +11,5 @@ public interface CareerService {
     Optional<Career> findByName(String name);
     Page<Career> getAllCareers(String search, int page, int pageSize);
     Career create(String name);
-    Career update(String oldName, String newName);
+    Career update(long id, String name);
 }

@@ -5,17 +5,19 @@ import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.models.Career;
 
-import ar.edu.itba.paw.webapp.form.CreateCareerForm;
-import ar.edu.itba.paw.webapp.form.CreateCityForm;
-import ar.edu.itba.paw.webapp.form.CreateInterestForm;
+import ar.edu.itba.paw.models.University;
+import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.webapp.form.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
@@ -61,6 +63,45 @@ public class CareerController {
         mav.addObject("career", career);
         return mav;
     }
+
+    @RequestMapping(value = "/{id}/edit", method = GET)
+    public ModelAndView updateCareerForm(@PathVariable("id") Long id) {
+        Career career = careerService.findById(id).get();
+        if (career == null) {
+            return new ModelAndView("redirect:/careers");
+        }
+
+        // Create and populate form with existing university data
+        CreateCareerForm form = new CreateCareerForm();
+        form.setName(career.getName());
+
+        ModelAndView mav = new ModelAndView("careers/create");
+        mav.addObject("createCareerForm", form);
+        mav.addObject("isUpdate", true);
+        mav.addObject("careerId", id);
+        return mav;
+    }
+
+    @RequestMapping(value = "/{id}/edit", method = POST)
+    public ModelAndView updateCareer(@PathVariable("id") Long id,
+                                         @Valid @ModelAttribute("createCareerForm") final CreateCareerForm form,
+                                         final BindingResult errors,
+                                         @ModelAttribute("user") User user) {
+
+        if (errors.hasErrors()) {
+            ModelAndView mav = new ModelAndView("careers/create");
+            mav.addObject("isUpdate", true);
+            mav.addObject("careerId", id);
+            return mav;
+        }
+
+        careerService.update(id,form.getName());
+
+        return new ModelAndView("redirect:/careers/{id}", "id", id);
+    }
+
+
+
 
 
 }

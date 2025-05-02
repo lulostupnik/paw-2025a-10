@@ -4,7 +4,16 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <html>
 <head>
-  <title><spring:message code="createUniversity.title"/></title>
+  <title>
+    <c:choose>
+      <c:when test="${isUpdate}">
+        <spring:message code="updateUniversity.title"/>
+      </c:when>
+      <c:otherwise>
+        <spring:message code="createUniversity.title"/>
+      </c:otherwise>
+    </c:choose>
+  </title>
   <!-- Include custom CSS -->
   <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
@@ -25,12 +34,38 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
         </svg>
       </div>
-      <h1 class="auth-title"><spring:message code="createUniversity.title"/></h1>
-      <p class="auth-subtitle"><spring:message code="createUniversity.subtitle" text="Add a new university to the system"/></p>
+      <h1 class="auth-title">
+        <c:choose>
+          <c:when test="${isUpdate}">
+            <spring:message code="updateUniversity.title" text="Update University"/>
+          </c:when>
+          <c:otherwise>
+            <spring:message code="createUniversity.title"/>
+          </c:otherwise>
+        </c:choose>
+      </h1>
+      <p class="auth-subtitle">
+        <c:choose>
+          <c:when test="${isUpdate}">
+            <spring:message code="updateUniversity.subtitle" text="Update university information"/>
+          </c:when>
+          <c:otherwise>
+            <spring:message code="createUniversity.subtitle" text="Add a new university to the system"/>
+          </c:otherwise>
+        </c:choose>
+      </p>
     </div>
 
-    <c:url var="createUniversityUrl" value="/universities/create"/>
-    <form:form modelAttribute="createUniversityForm" action="${createUniversityUrl}" method="post" class="auth-form" id="universityForm" novalidate="true">
+    <c:choose>
+      <c:when test="${isUpdate}">
+        <c:url var="formAction" value="/universities/${universityId}/edit"/>
+      </c:when>
+      <c:otherwise>
+        <c:url var="formAction" value="/universities/create"/>
+      </c:otherwise>
+    </c:choose>
+
+    <form:form modelAttribute="createUniversityForm" action="${formAction}" method="post" class="auth-form" id="universityForm" novalidate="true">
       <!-- Name Field -->
       <div class="form-group">
         <form:label path="name" cssClass="form-label required-field">
@@ -69,14 +104,21 @@
               </div>
             </c:forEach>
           </div>
-          <!-- Container for selected cities -->
-          <div id="selectedCities" class="selected-tags"></div>
+          <!-- Container for selected city tag -->
+          <div id="selectedCity" class="selected-tags"></div>
         </div>
         <form:errors path="city" cssClass="error-message" />
       </div>
 
       <button type="submit" class="form-button">
-        <spring:message code="createUniversity.submit"/>
+        <c:choose>
+          <c:when test="${isUpdate}">
+            <spring:message code="updateUniversity.submit" text="Update University"/>
+          </c:when>
+          <c:otherwise>
+            <spring:message code="createUniversity.submit"/>
+          </c:otherwise>
+        </c:choose>
       </button>
     </form:form>
 
@@ -88,9 +130,189 @@
   </div>
 </div>
 
-<!-- Include modularized JavaScript files -->
-<script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
-<script src="<c:url value='/resources/js/university-form.js'/>"></script>
+<!-- Include JavaScript files -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const universityForm = document.getElementById("universityForm");
+    const nameInput = document.getElementById("name");
+    const abbreviationInput = document.getElementById("abbreviation");
+    const cityInput = document.getElementById("city");
+    const citySearch = document.getElementById("citySearch");
+    const cityDropdown = document.getElementById("cityDropdown");
+    const selectedCity = document.getElementById("selectedCity");
+    const cityItems = document.querySelectorAll("#cityDropdown .autocomplete-item");
+
+    // Focus on the first field when the page loads
+    nameInput.focus();
+
+    // Auto-capitalize first letter of each word
+    function capitalizeFirstLetter(input) {
+      input.addEventListener("blur", function () {
+        if (this.value) {
+          this.value = this.value
+                  .split(" ")
+                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(" ");
+        }
+      });
+    }
+
+    capitalizeFirstLetter(nameInput);
+    capitalizeFirstLetter(citySearch);
+
+    // Initialize city autocomplete
+    function initCityAutocomplete() {
+      // If there's a selected city value, display it
+      if (cityInput.value && cityInput.value.trim() !== "") {
+        displaySelectedCity(cityInput.value);
+      }
+
+      // Show dropdown when focusing on search input
+      citySearch.addEventListener("focus", function() {
+        cityDropdown.style.display = "block";
+      });
+
+      // Filter cities as user types
+      citySearch.addEventListener("input", function() {
+        const searchValue = this.value.toLowerCase();
+        let hasVisibleItems = false;
+
+        cityItems.forEach(item => {
+          const cityName = item.getAttribute("data-value").toLowerCase();
+          if (cityName.includes(searchValue)) {
+            item.style.display = "block";
+            hasVisibleItems = true;
+          } else {
+            item.style.display = "none";
+          }
+        });
+
+        cityDropdown.style.display = hasVisibleItems ? "block" : "none";
+      });
+
+      // Handle city selection
+      cityItems.forEach(item => {
+        item.addEventListener("click", function() {
+          const selectedValue = this.getAttribute("data-value");
+          cityInput.value = selectedValue;
+          citySearch.value = "";
+          cityDropdown.style.display = "none";
+          displaySelectedCity(selectedValue);
+        });
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener("click", function(e) {
+        if (!citySearch.contains(e.target) && !cityDropdown.contains(e.target) && !selectedCity.contains(e.target)) {
+          cityDropdown.style.display = "none";
+        }
+      });
+    }
+
+    // Display selected city as a tag
+    function displaySelectedCity(cityName) {
+      selectedCity.innerHTML = "";
+
+      if (cityName) {
+        const tag = document.createElement("div");
+        tag.className = "selected-tag";
+
+        const tagText = document.createElement("span");
+        tagText.textContent = cityName;
+
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.className = "remove-tag";
+        removeBtn.innerHTML = "×";
+        removeBtn.addEventListener("click", function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          cityInput.value = "";
+          selectedCity.innerHTML = "";
+        });
+
+        tag.appendChild(tagText);
+        tag.appendChild(removeBtn);
+        selectedCity.appendChild(tag);
+      }
+    }
+
+    // Initialize autocomplete
+    initCityAutocomplete();
+
+    // Form validation
+    universityForm.addEventListener("submit", (event) => {
+      let isValid = true;
+
+      // Validate name
+      if (!nameInput.value.trim()) {
+        const errorElement = document.createElement("div");
+        errorElement.className = "error-message";
+        errorElement.textContent = "University name is required";
+
+        const existingError = nameInput.parentNode.querySelector(".error-message");
+        if (!existingError) {
+          nameInput.parentNode.appendChild(errorElement);
+        }
+
+        nameInput.classList.add("error");
+        isValid = false;
+      } else {
+        nameInput.classList.remove("error");
+        const existingError = nameInput.parentNode.querySelector(".error-message");
+        if (existingError) {
+          existingError.remove();
+        }
+      }
+
+      // Validate abbreviation
+      if (!abbreviationInput.value.trim()) {
+        const errorElement = document.createElement("div");
+        errorElement.className = "error-message";
+        errorElement.textContent = "Abbreviation is required";
+
+        const existingError = abbreviationInput.parentNode.querySelector(".error-message");
+        if (!existingError) {
+          abbreviationInput.parentNode.appendChild(errorElement);
+        }
+
+        abbreviationInput.classList.add("error");
+        isValid = false;
+      } else {
+        abbreviationInput.classList.remove("error");
+        const existingError = abbreviationInput.parentNode.querySelector(".error-message");
+        if (existingError) {
+          existingError.remove();
+        }
+      }
+
+      // Validate city
+      if (!cityInput.value.trim()) {
+        const errorElement = document.createElement("div");
+        errorElement.className = "error-message";
+        errorElement.textContent = "City is required";
+
+        const existingError = document.querySelector(".form-group:nth-child(3) .error-message");
+        if (!existingError) {
+          document.querySelector(".form-group:nth-child(3)").appendChild(errorElement);
+        }
+
+        citySearch.classList.add("error");
+        isValid = false;
+      } else {
+        citySearch.classList.remove("error");
+        const existingError = document.querySelector(".form-group:nth-child(3) .error-message");
+        if (existingError) {
+          existingError.remove();
+        }
+      }
+
+      if (!isValid) {
+        event.preventDefault();
+      }
+    });
+  });
+</script>
 
 </body>
 </html>

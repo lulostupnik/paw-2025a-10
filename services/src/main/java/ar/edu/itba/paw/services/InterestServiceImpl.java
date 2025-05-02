@@ -70,6 +70,7 @@ public class InterestServiceImpl implements InterestService {
         return interestDao.createUserInterest(interest);
     }
 
+
     @Transactional
     @Override
     public void deleteUserInterest(long id) {

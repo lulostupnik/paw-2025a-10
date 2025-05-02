@@ -56,7 +56,6 @@ public class InterestController {
             return createInterestsForm(intForm);
         }
         Interest interest = interestService.createUserInterest(intForm.getName());
-
         return new ModelAndView("redirect:/interests/{id}", "id", interest.getId());
     }
     @RequestMapping(value= "/{id}", method = GET)
@@ -65,6 +64,47 @@ public class InterestController {
         ModelAndView mav = new ModelAndView("interests/detail");
         mav.addObject("interest", interest);
         return mav;
+    }
+
+
+    @RequestMapping(value = "/{id}/edit", method = GET)
+    public ModelAndView updateInterestForm(@PathVariable("id") Long id) {
+        Interest interest = interestService.findById(id).get();
+        if (interest == null) {
+            return new ModelAndView("redirect:/interests");
+        }
+
+        // Create and populate form with existing university data
+        CreateInterestForm form = new CreateInterestForm();
+        form.setName(interest.getName());
+
+        ModelAndView mav = new ModelAndView("interests/create");
+        mav.addObject("createInterestForm",form);
+        mav.addObject("isUpdate", true);
+        mav.addObject("interestId", id);
+        return mav;
+    }
+
+
+    @RequestMapping(value = "/{id}/edit", method = POST)
+    public ModelAndView updateInterest(@PathVariable("id") Long id,
+                                         @Valid @ModelAttribute("createInterestForm") final CreateInterestForm form,
+                                         final BindingResult errors,
+                                         @ModelAttribute("user") User user) {
+
+        if (errors.hasErrors()) {
+            ModelAndView mav = new ModelAndView("interests/create");
+            mav.addObject("isUpdate", true);
+            mav.addObject("interestId", id);
+            return mav;
+        }
+
+        interestService.editUserInterest(
+                id,
+                form.getName()
+        );
+
+        return new ModelAndView("redirect:/interests/{id}", "id", id);
     }
 
 }

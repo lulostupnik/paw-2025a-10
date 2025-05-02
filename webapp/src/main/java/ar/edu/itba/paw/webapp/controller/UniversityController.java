@@ -19,10 +19,11 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 
+import java.util.Optional;
+
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
-
 @Controller
 @RequestMapping("/universities")
 public class UniversityController {
@@ -34,7 +35,6 @@ public class UniversityController {
         this.cityService = cityService;
         this.universityService = universityService;
     }
-
 
     @RequestMapping(value = "/create", method = GET)
     public ModelAndView createUniversityForm(@ModelAttribute("createUniversityForm") final CreateUniversityForm form) {
@@ -51,12 +51,14 @@ public class UniversityController {
             return createUniversityForm(uniForm);
         }
 
-//        University uni = universityService.createUniversity(
-//                uniForm.getName(),
-//                uniForm.getAbbreviation(),
-//                uniForm.getCityName()
-//        );
-        return new ModelAndView("redirect:/universities/{id}", "id", 1);
+        University university = universityService.createUniversity(
+                uniForm.getName(),
+                uniForm.getAbbreviation(),
+                uniForm.getCity()
+        );
+
+        LOGGER.info("Created university: {}", university.getName());
+        return new ModelAndView("redirect:/universities/{id}", "id", university.getId());
     }
 
     @RequestMapping(value= "/{id}", method = GET)
@@ -66,4 +68,48 @@ public class UniversityController {
         return mav;
     }
 
+    @RequestMapping(value = "/{id}/edit", method = GET)
+    public ModelAndView updateUniversityForm(@PathVariable("id") Long id) {
+        University university = universityService.findById(id).get();
+        if (university == null) {
+            return new ModelAndView("redirect:/universities");
+        }
+
+        // Create and populate form with existing university data
+        CreateUniversityForm form = new CreateUniversityForm();
+        form.setName(university.getName());
+        form.setAbbreviation(university.getAbbreviation());
+        form.setCity(university.getCity().getName());
+
+        ModelAndView mav = new ModelAndView("universities/create");
+        mav.addObject("createUniversityForm", form);
+        mav.addObject("cities", cityService.getAllCities());
+        mav.addObject("isUpdate", true);
+        mav.addObject("universityId", id);
+        return mav;
+    }
+
+    @RequestMapping(value = "/{id}/edit", method = POST)
+    public ModelAndView updateUniversity(@PathVariable("id") Long id,
+                                         @Valid @ModelAttribute("createUniversityForm") final CreateUniversityForm form,
+                                         final BindingResult errors,
+                                         @ModelAttribute("user") User user) {
+
+        if (errors.hasErrors()) {
+            ModelAndView mav = new ModelAndView("universities/create");
+            mav.addObject("cities", cityService.getAllCities());
+            mav.addObject("isUpdate", true);
+            mav.addObject("universityId", id);
+            return mav;
+        }
+
+        universityService.updateUniversity(
+                id,
+                form.getName(),
+                form.getAbbreviation(),
+                form.getCity()
+        );
+
+        return new ModelAndView("redirect:/universities/{id}", "id", id);
+    }
 }

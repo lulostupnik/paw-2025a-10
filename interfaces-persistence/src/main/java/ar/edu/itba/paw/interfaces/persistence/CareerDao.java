@@ -14,5 +14,5 @@ public interface CareerDao {
     Page<Career> getAllCareers(int page, int pageSize);
     Page<Career> searchBySubstring(String substring, int page, int size);
     Career create(String name);
-    Career update(String oldName, String newName);
+    Career update(long id, String name);
 }
