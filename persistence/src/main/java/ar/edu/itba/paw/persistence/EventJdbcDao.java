@@ -11,6 +11,7 @@ import java.util.Optional;
 import javax.sql.DataSource;
 
 import ar.edu.itba.paw.models.*;
+import jdk.jfr.Unsigned;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -447,8 +448,9 @@ public class EventJdbcDao implements EventDao {
         return new Page<>(events, page, totalPages);
     }
 
+    //@Todo, habria que meter en el dao una validacion para int page que sea mayor a 0, o dejamos que tire una excepcion?
     @Override
-    public Page<Event> getEvents(String email, int page, int size) {
+        public Page<Event> getEvents(String email, int page, int size) {
         LOGGER.debug("Querying DB for events for usermail {}", email);
 
         String countQuery = "SELECT COUNT(*) FROM events e JOIN users us ON e.user_id = us.id WHERE e.deleted = FALSE AND us.email = ?";

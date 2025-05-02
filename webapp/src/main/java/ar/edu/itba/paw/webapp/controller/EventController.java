@@ -20,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -64,8 +65,8 @@ public class EventController {
 
     @RequestMapping
     public ModelAndView getEvents(@ModelAttribute("user") User user,
-                                  @RequestParam(value = "page", defaultValue = "1") int page,
-                                  @RequestParam(value = "size", defaultValue = "10") int size) {
+                                  @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
+                                  @RequestParam(value = "size", defaultValue = "10") @Min(1) int size) {
         ModelAndView mav = new ModelAndView("events/list");
 
         if (user != null) {
