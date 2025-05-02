@@ -126,10 +126,25 @@ public class CityJdbcDao implements CityDao {
 
     @Override
     public void createCity(String name, Country country) {
+        LOGGER.debug("Creating or reactivating city {} in country {}", name, country.getName());
+
+        int rowsUpdated = jdbcTemplate.update(
+                "UPDATE cities SET deleted = FALSE WHERE name = ? AND country_id = ? AND deleted = TRUE",
+                name, country.getId()
+        );
+
+        if (rowsUpdated > 0) {
+            LOGGER.debug("City {} reactivated", name);
+            return;
+        }
+
         Map<String, Object> params = new HashMap<>();
         params.put("name", name);
         params.put("country_id", country.getId());
+        params.put("deleted", false);
         jdbcInsert.execute(params);
+        LOGGER.debug("City {} created", name);
+
     }
 
     @Override

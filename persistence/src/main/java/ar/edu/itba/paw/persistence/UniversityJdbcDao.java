@@ -114,17 +114,40 @@ public class UniversityJdbcDao implements UniversityDao {
         return new Page<>(jdbcTemplate.query(query.toString(), UNIVERSITY_ROW_MAPPER, size, offset),page,totalPages);
     }
 
-    //FIXME: consultar con los profes
+    //FIXME: consultar con los profes -> ¿debería recibir City city o String city? ¿O que?
+
     @Override
     public University createUniversity(String name, String abbreviation, String city) {
+        LOGGER.debug("Creating or reactivating university {} ({})", name, abbreviation);
+
+        City cityObj = cityDao.findByName(city).orElseThrow(IllegalArgumentException::new);
+
+        int rowsUpdated = jdbcTemplate.update(
+                "UPDATE universities SET deleted = FALSE, abbreviation = ?, city_id = ? WHERE name = ? AND deleted = TRUE",
+                abbreviation, cityObj.getId(), name
+        );
+
+        if (rowsUpdated == 0) {
+            rowsUpdated = jdbcTemplate.update(
+                    "UPDATE universities SET deleted = FALSE, name = ?, city_id = ? WHERE abbreviation = ? AND deleted = TRUE",
+                    name, cityObj.getId(), abbreviation
+            );
+        }
+
+        if (rowsUpdated > 0) {
+            LOGGER.debug("Reactivated existing deleted university");
+            return findByName(name).orElseThrow(() -> new RuntimeException("Failed to retrieve reactivated university")); // FIXME: extra query, use RETURNING in update
+        }
+
+        LOGGER.debug("No deleted university found, creating new university entry");
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("name", name);
         parameters.put("abbreviation", abbreviation);
-        City newCity = cityDao.findByName(city).get();
-        parameters.put("city_id", newCity.getId());
+        parameters.put("city_id", cityObj.getId());
+        parameters.put("deleted", false);
         Number keys = simpleJdbcInsert.executeAndReturnKey(parameters);
-        LOGGER.debug("Successfully created uni {}", keys.longValue());
-        return new University(keys.longValue(), name, abbreviation, newCity);
+        LOGGER.debug("Successfully created university {}", keys.longValue());
+        return new University(keys.longValue(), name, abbreviation, cityObj);
     }
 
     @Override

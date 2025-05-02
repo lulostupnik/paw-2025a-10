@@ -85,13 +85,24 @@ public class CareerJdbcDao implements CareerDao {
 
     @Override
     public Career create(String name) {
-        LOGGER.debug("Creating new career with name: {}", name);
+        LOGGER.debug("Creating or reactivating career with name: {}", name);
+
+        int rowsUpdated = jdbcTemplate.update(
+                "UPDATE careers SET deleted = FALSE WHERE name = ? AND deleted = TRUE",
+                name
+        );
+
+        if (rowsUpdated > 0) {
+            LOGGER.debug("Reactivated existing deleted career");
+            return findByName(name).orElseThrow(() ->
+                    new RuntimeException("Failed to retrieve reactivated career"));
+        }
 
         final Map<String, Object> args = new HashMap<>();
         args.put("name", name);
+        args.put("deleted", false);
 
         final Number key = jdbcInsert.executeAndReturnKey(args);
-
         LOGGER.debug("Created career with id: {}", key);
         return new Career(key.longValue(), name);
     }
