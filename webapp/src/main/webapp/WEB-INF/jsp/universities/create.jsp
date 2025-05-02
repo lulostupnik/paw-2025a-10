@@ -58,7 +58,7 @@
 
     <c:choose>
       <c:when test="${isUpdate}">
-        <c:url var="formAction" value="/universities/${universityId}/update"/>
+        <c:url var="formAction" value="/universities/${universityId}/edit"/>
       </c:when>
       <c:otherwise>
         <c:url var="formAction" value="/universities/create"/>

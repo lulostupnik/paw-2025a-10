@@ -80,7 +80,7 @@ public class InterestController {
         form.setName(interest.getName());
 
         ModelAndView mav = new ModelAndView("interests/create");
-        mav.addObject("createInterestForm", new CreateInterestForm()); // Was "createUniversityForm"
+        mav.addObject("createInterestForm",form);
         mav.addObject("isUpdate", true);
         mav.addObject("interestId", id);
         return mav;
