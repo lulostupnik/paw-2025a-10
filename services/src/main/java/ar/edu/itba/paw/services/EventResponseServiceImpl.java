@@ -36,7 +36,7 @@ public class EventResponseServiceImpl implements EventResponseService {
 
     @Transactional(readOnly = true)
     @Override
-    public long getCount(long eventId){
+    public int getCount(long eventId){
         return eventResponseDao.getCount(eventId);
     }
 

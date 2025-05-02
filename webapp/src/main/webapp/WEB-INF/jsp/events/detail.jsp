@@ -439,7 +439,7 @@
 
                                 <!-- Chat Messages -->
                                 <div id="chat-list" class="chat-list">
-                                    <c:if test="${empty eventResponses}">
+                                    <c:if test="${empty eventResponsesPage.content}">
                                         <div class="empty-state">
                                             <div class="empty-icon">
                                                 <!-- Message icon SVG -->
@@ -453,8 +453,8 @@
                                         </div>
                                     </c:if>
 
-                                    <c:if test="${not empty eventResponses}">
-                                        <c:forEach var="response" items="${eventResponses}">
+                                    <c:if test="${not empty eventResponsesPage.content}">
+                                        <c:forEach var="response" items="${eventResponsesPage.content}">
                                             <div class="chat-message">
                                                 <div class="message-header">
                                                     <div class="message-user">
@@ -508,10 +508,11 @@
 
 
                                 <c:set var="pageObject" value="${eventResponsesPage}" scope="request" />
-                                <c:set var="currentPage" value="${currentPage}" scope="request" />
-                                <c:set var="pageSize" value="${pageSize}" scope="request" />
+                                <c:set var="currentPage" value="${eventResponsesPage.currentPage}" scope="request" />
+                                <c:set var="pageSize" value="${fn:length(eventResponsesPage.content)}" scope="request" />
                                 <c:set var="baseUrl" value="/events/${id}" scope="request" />
                                 <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp" />
+
 
 
                                 <!-- Reply Form -->

@@ -10,7 +10,7 @@ public interface EventResponseService {
     EventResponse create(long userId, String username, long eventId, String message, LocalDateTime dateTime);
     void delete(long id,String message);
     long getEventIdByResponseId(long responseId);
-    long getCount(long eventId);
+    int getCount(long eventId);
     List<EventResponse> listAllFromEvent(long eventId);
     Page<EventResponse> listAllFromEvent(long eventId, int page, int size);
 

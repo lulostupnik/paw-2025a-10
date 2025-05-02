@@ -80,8 +80,9 @@ public class EventResponseJdbcDao implements EventResponseDao {
     }
 
     @Override
-    public long getCount(long eventId) { //@todo modularizar con la otra
-        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM event_responses WHERE event_id = ? AND deleted = FALSE", Long.class, eventId);
+    public int getCount(long eventId) {
+        return getTotalCount("SELECT COUNT(*) FROM event_responses WHERE event_id = ? AND deleted = FALSE", eventId);
+
     }
 
     @Override
@@ -94,7 +95,6 @@ public class EventResponseJdbcDao implements EventResponseDao {
         final String query = "UPDATE event_responses SET deleted_message = ? WHERE id = ?;";
         int updatedRows = jdbcTemplate.update(query, message, id);
         if (updatedRows == 0) {
-            // Optionally log or throw an exception if no rows were updated
             LOGGER.warn("No event_response found with id {}", id);
         }
     }
@@ -105,7 +105,6 @@ public class EventResponseJdbcDao implements EventResponseDao {
         int updatedRows = jdbcTemplate.update(query, id);
 
         if (updatedRows == 0) {
-            // Optionally log or throw an exception if no rows were updated
             LOGGER.warn("No journey_response found with id {}", id);
         }
     }
