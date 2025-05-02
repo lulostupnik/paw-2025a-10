@@ -101,6 +101,21 @@ public class CareerController {
     }
 
 
+    @PostMapping(value = "/{id}/delete")
+    public ModelAndView deleteCareer(@PathVariable long id, @Valid @ModelAttribute("deleteForm") final ReplyForm form,
+                                      final BindingResult errors, final RedirectAttributes redirectAttributes) {
+
+        if(errors.hasErrors()) {
+            LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
+            redirectAttributes.addFlashAttribute("deleteErrors", errors);
+            redirectAttributes.addFlashAttribute("deleteForm", form);
+            return new ModelAndView("redirect:/careers/{id}","id", id);
+        }
+//        careerService.delete(id, form.getMessage());
+        return new ModelAndView("redirect:/dashboard/careers");
+    }
+
+
 
 
 

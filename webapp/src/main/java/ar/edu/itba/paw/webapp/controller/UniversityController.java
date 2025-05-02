@@ -7,6 +7,7 @@ import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.form.CreateEventForm;
 import ar.edu.itba.paw.webapp.form.CreateUniversityForm;
+import ar.edu.itba.paw.webapp.form.ReplyForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -14,8 +15,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
@@ -111,5 +114,18 @@ public class UniversityController {
         );
 
         return new ModelAndView("redirect:/universities/{id}", "id", id);
+    }
+
+    @PostMapping(value = "/{id}/delete")
+    public ModelAndView deleteUniversity(@PathVariable long id, @Valid @ModelAttribute("deleteForm") final ReplyForm form,
+                                   final BindingResult errors, final RedirectAttributes redirectAttributes) {
+
+        if(errors.hasErrors()) {
+            LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
+            redirectAttributes.addFlashAttribute("deleteErrors", errors);
+            redirectAttributes.addFlashAttribute("deleteForm", form);
+            return new ModelAndView("redirect:/universities/{id}","id", id);
+        }
+        return new ModelAndView("redirect:/universities/cities");
     }
 }

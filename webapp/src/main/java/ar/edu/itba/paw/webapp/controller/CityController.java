@@ -10,14 +10,17 @@ import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.form.CreateCareerForm;
 import ar.edu.itba.paw.webapp.form.CreateCityForm;
 import ar.edu.itba.paw.webapp.form.CreateInterestForm;
+import ar.edu.itba.paw.webapp.form.ReplyForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
@@ -47,7 +50,7 @@ public class CityController {
     }
 
     @RequestMapping(path = "/create", method = POST)
-    public ModelAndView createCities(@Valid @ModelAttribute("createInterestForm") final CreateCityForm cityForm,
+    public ModelAndView createCities(@Valid @ModelAttribute("createCityForm") final CreateCityForm cityForm,
                                         final BindingResult errors, @ModelAttribute("user") User user) {
 
         if (errors.hasErrors()) {
@@ -102,4 +105,20 @@ public class CityController {
 
         return new ModelAndView("redirect:/cities/{id}", "id", id);
     }
+
+
+    @PostMapping(value = "/{id}/delete")
+    public ModelAndView deleteCity(@PathVariable long id, @Valid @ModelAttribute("deleteForm") final ReplyForm form,
+                                     final BindingResult errors, final RedirectAttributes redirectAttributes) {
+
+        if(errors.hasErrors()) {
+            LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
+            redirectAttributes.addFlashAttribute("deleteErrors", errors);
+            redirectAttributes.addFlashAttribute("deleteForm", form);
+            return new ModelAndView("redirect:/cities/{id}","id", id);
+        }
+        return new ModelAndView("redirect:/dashboard/cities");
+    }
+
+
 }
