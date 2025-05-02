@@ -37,4 +37,7 @@ public interface UserService {
     Page<User> getAllUsers(int page, int size);
     Page<User> searchUsers(String search, int page, int size);
 
+    void blockUser(long userId);
+    void unblockUser(long userId);
+
 }

@@ -68,6 +68,7 @@ CREATE TABLE IF NOT EXISTS users (
         career_id INTEGER NOT NULL,
         profile_picture_id INTEGER NOT NULL,
         language VARCHAR(2) NOT NULL DEFAULT 'en' CHECK (language IN ('en', 'es')),
+        blocked BOOLEAN NOT NULL DEFAULT FALSE,
 
     FOREIGN KEY (university) REFERENCES universities(id) ON DELETE RESTRICT,
         FOREIGN KEY (career_id) REFERENCES careers(id) ON DELETE RESTRICT
@@ -243,6 +244,7 @@ ALTER TABLE event_responses ADD COLUMN IF NOT EXISTS deleted_message VARCHAR(100
 COMMIT;
 
 ALTER TABLE users ADD COLUMN IF NOT EXISTS roles VARCHAR(50) DEFAULT 'user' CHECK (roles IN ('user', 'admin'));
+ALTER TABLE users add column IF NOT EXISTS blocked BOOLEAN NOT NULL DEFAULT FALSE;
 BEGIN;
 -- ALTER TABLE category RENAME COLUMN name TO name_en; --hacer una sola vez
 -- ALTER TABLE category ADD COLUMN IF NOT EXISTS name_es VARCHAR(100) NOT NULL;

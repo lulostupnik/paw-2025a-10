@@ -10,9 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Optional;
@@ -42,6 +40,28 @@ public class ProfileController {
         mav.addObject("userAttendingEvents", eventService.getUserAttendingEvents(user.getEmail()));
 
         return mav;
+    }
+
+    @RequestMapping(value = "/profile/{id}/block", method = RequestMethod.POST)
+    public ModelAndView blockUser(@PathVariable("id") long id, @RequestHeader(value = "Referer",required = false) String referer) {
+//        ModelAndView mav = new ModelAndView("redirect:/profile/" + id);
+        userService.blockUser(id);
+        if(referer != null) {
+            return new ModelAndView("redirect:" + referer);
+        } else {
+            throw new RuntimeException("Referer header is missing");
+        }
+    }
+
+    @RequestMapping(value = "/profile/{id}/unblock", method = RequestMethod.POST)
+    public ModelAndView unblockUser(@PathVariable("id") long id, @RequestHeader(value = "Referer",required = false) String referer) {
+//        ModelAndView mav = new ModelAndView("redirect:/profile/" + id);
+        userService.unblockUser(id);
+        if(referer != null) {
+            return new ModelAndView("redirect:" + referer);
+        } else {
+            throw new RuntimeException("Referer header is missing");
+        }
     }
 //
 //    @RequestMapping(value = "/profile/edit", method = RequestMethod.GET)

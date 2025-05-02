@@ -33,7 +33,8 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
             new University(rs.getLong("user_university"), rs.getString("university_name"), rs.getString("university_abbreviation"), new City(rs.getString("city_name"), rs.getString("country_name"), rs.getLong("city_id"))),
             new Career(rs.getLong("career_id"), rs.getString("career_name")),
             rs.getLong("user_profile_picture_id"),
-            Locale.of(rs.getString("user_language")));
+            Locale.of(rs.getString("user_language")),
+            rs.getBoolean("user_blocked"));
 
     private final static String GET_ATTENDEES_QUERY =
             """
@@ -45,6 +46,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                         u.username AS user_username,\s
                         u.university AS user_university,\s
                         u.language AS user_language,\s
+                        u.blocked AS user_blocked,\s
                         c.name AS career_name,\s
                         c.id AS career_id,\s
                         u.profile_picture_id AS user_profile_picture_id,\s
@@ -84,7 +86,8 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                             rs.getString("career_name")
                     ),
                     rs.getLong("user_profile_picture_id"),
-                    Locale.of(rs.getString("user_language"))
+                    Locale.of(rs.getString("user_language")),
+                    rs.getBoolean("user_blocked")
             ),
             rs.getDate("event_date").toLocalDate(),
             rs.getString("event_description"),
@@ -111,7 +114,8 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                         us.username AS user_username,\s
                         us.university AS user_university,\s
                         us.profile_picture_id AS user_profile_picture_id,\s
-                        us.language AS user_language,
+                        us.language AS user_language,\s
+                        us.blocked AS user_blocked,
                     
                         ca.id AS career_id,\s
                         ca.name AS career_name,\s

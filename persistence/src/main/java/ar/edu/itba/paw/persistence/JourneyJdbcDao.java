@@ -40,6 +40,7 @@ public class JourneyJdbcDao implements JourneyDao {
                 us.university AS user_university,\s
                 us.profile_picture_id AS user_profile_picture_id,\s
                 us.language AS user_language,
+                us.blocked AS user_blocked,
                 ca.id AS career_id,\s
                 ca.name AS career_name,\s
                 j.id AS journey_id,\s
@@ -145,7 +146,8 @@ public class JourneyJdbcDao implements JourneyDao {
                             rs.getString("career_name")
                     ),
                     rs.getLong("user_profile_picture_id"),
-                    Locale.of(rs.getString("user_language"))
+                    Locale.of(rs.getString("user_language")),
+                    rs.getBoolean("user_blocked")
             ),
             rs.getDate("journey_start_date").toLocalDate(),
             rs.getDate("journey_end_date").toLocalDate(),
@@ -372,6 +374,7 @@ public class JourneyJdbcDao implements JourneyDao {
                             u.username AS user_username,
                             u.firstname AS user_firstname,
                             u.lastname AS user_lastname,
+                            u.blocked AS user_blocked,
                             uu.id AS user_university,
                             uu.name AS university_name,
                             uu.abbreviation AS university_abbreviation,
@@ -424,6 +427,7 @@ public class JourneyJdbcDao implements JourneyDao {
                    user_username,
                    user_firstname,
                    user_lastname,
+                   user_blocked,
                    user_profile_picture_id,
                    user_university,
                    university_name,

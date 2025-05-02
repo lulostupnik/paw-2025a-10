@@ -42,4 +42,7 @@ public interface UserDao {
     List<User> listJourneyRespondersMinusUsers(long journeyId/*, List<Long> userIds*/);
     List<User> listEventRespondersMinusUsers(long eventId/*, List<Long> userIds*/);
 
+    void blockUser(long userId);
+    void unblockUser(long userId);
+
 }
