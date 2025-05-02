@@ -56,7 +56,6 @@ public class InterestController {
             return createInterestsForm(intForm);
         }
         Interest interest = interestService.createUserInterest(intForm.getName());
-
         return new ModelAndView("redirect:/interests/{id}", "id", interest.getId());
     }
     @RequestMapping(value= "/{id}", method = GET)
