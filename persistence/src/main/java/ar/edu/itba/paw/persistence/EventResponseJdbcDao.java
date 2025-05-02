@@ -80,6 +80,11 @@ public class EventResponseJdbcDao implements EventResponseDao {
     }
 
     @Override
+    public long getCount(long eventId) { //@todo modularizar con la otra
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM event_responses WHERE event_id = ? AND deleted = FALSE", Long.class, eventId);
+    }
+
+    @Override
     public long getEventIdByResponseId(long eventResponseId) {
         return jdbcTemplate.query(QUERY_BY_RESPONSE_ID + " ORDER BY date_time ", EVENT_ID_ROW_MAPPER, eventResponseId).getFirst();
     }
@@ -118,7 +123,8 @@ public class EventResponseJdbcDao implements EventResponseDao {
     public Page<EventResponse> listAllFromEvent(long eventId, int page, int size) {
         LOGGER.debug("Querying DB for paginated replies to event {} (page {}, size {})", eventId, page, size);
 
-        int totalItems = getTotalCount("SELECT COUNT(*) FROM event_responses WHERE event_id = ? AND deleted = FALSE", eventId);
+        int totalItems = getTotalCount("SELECT COUNT(*) FROM event_responses WHERE event_id = ? AND deleted = FALSE", eventId); //@Todo cambiar a que use la otra funcion publica, solo q la otra devuelve long
+//        int totalItems = getCount(eventId);
         int totalPages = calculateTotalPages(totalItems, size);
 
         List<EventResponse> responses = jdbcTemplate.query(

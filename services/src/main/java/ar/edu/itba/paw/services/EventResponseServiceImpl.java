@@ -34,6 +34,13 @@ public class EventResponseServiceImpl implements EventResponseService {
         eventResponseDao.delete(id);
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public long getCount(long eventId){
+        return eventResponseDao.getCount(eventId);
+    }
+
+
 
     @Transactional(readOnly = true)
     @Cacheable(value = "eventsByResponseId", key = "#eventResponseId")

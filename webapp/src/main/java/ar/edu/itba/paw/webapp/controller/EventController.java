@@ -156,6 +156,8 @@ public class EventController {
 
         mav.addObject("currentPage", eventResponsesPage.getCurrentPage()); //@TODO esto es necesario? Creo q se podria borrar y hacer desde el jsp.
         mav.addObject("pageSize", size);  //@TODO idem
+        mav.addObject("commentsCount", eventResponseService.getCount(event.getId()));
+
 
         Boolean isFull = eventService.isEventFull(id);
 
@@ -186,11 +188,8 @@ public class EventController {
                                  @Valid @ModelAttribute("deleteReplyForm") final ReplyForm deleteReplyForm, final BindingResult deleteReplyErrors,
                                  @RequestParam(value = "replyId", required = false) Long replyId,
                                  @RequestParam(value = "page", defaultValue = "1") int page,
-                                 @RequestParam(value = "size", defaultValue = "10") int size)
-
+                                 @RequestParam(value = "size", defaultValue = "5") int size)
     {
-
-
         LOGGER.debug("Getting info for event {}", id);
 
         //@Todo, esto podria lanzar una excepcion y que lo agarre un exception handler.

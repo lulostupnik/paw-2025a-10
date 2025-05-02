@@ -419,7 +419,7 @@
                                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                                         </svg>
                                         <spring:message code="event.responses" />
-                                        <span class="count">(<c:out value="${fn:length(eventResponses)}" />)</span>
+                                        <span class="count">(<c:out value="${commentsCount}" />)</span>
                                     </h2>
                                     <button class="toggle-button" data-toggle="chat-list" onclick="toggleSection('chat-list')">
                                             <span class="collapse-icon">
