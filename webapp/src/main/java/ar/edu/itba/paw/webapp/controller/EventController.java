@@ -150,11 +150,12 @@ public class EventController {
         }
         LOGGER.info("Found event {}", event);
         mav.addObject("attendees", eventService.getEventAttendees(event.getId())); //@TODO paginar. ? O decimos que hay un maximo chico siempre y cambiamos eso.
-        mav.addObject("eventResponses", eventService.getEventResponses(event.getId()));
-//        Page<EventResponse> eventResponsesPage = eventResponseService.listAllFromEvent(event.getId(), page, size);
-//        mav.addObject("eventResponsesPage", eventResponsesPage);
-//        mav.addObject("currentPage", page);
-//        mav.addObject("pageSize", size);
+        Page<EventResponse> eventResponsesPage = eventResponseService.listAllFromEvent(event.getId(), page, size);
+        mav.addObject("eventResponsesPage", eventResponsesPage);
+        mav.addObject("eventResponses", eventResponsesPage.getContent()); //@TODO se podria hacer desde el jsp.
+
+        mav.addObject("currentPage", eventResponsesPage.getCurrentPage()); //@TODO esto es necesario? Creo q se podria borrar y hacer desde el jsp.
+        mav.addObject("pageSize", size);  //@TODO idem
 
         Boolean isFull = eventService.isEventFull(id);
 

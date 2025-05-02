@@ -506,6 +506,14 @@
                                     </c:if>
                                 </div>
 
+
+                                <c:set var="pageObject" value="${eventResponsesPage}" scope="request" />
+                                <c:set var="currentPage" value="${currentPage}" scope="request" />
+                                <c:set var="pageSize" value="${pageSize}" scope="request" />
+                                <c:set var="baseUrl" value="/events/${id}" scope="request" />
+                                <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp" />
+
+
                                 <!-- Reply Form -->
                                 <div class="reply-container">
                                     <h3 class="reply-title">
