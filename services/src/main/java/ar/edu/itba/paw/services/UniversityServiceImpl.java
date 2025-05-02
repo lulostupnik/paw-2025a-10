@@ -94,5 +94,10 @@ public class UniversityServiceImpl implements UniversityService {
         return universityDao.searchBySubstring(search, page, size);
     }
 
+    @Override
+    public void delete(long id) {
+        universityDao.delete(id);
+    }
+
 
 }

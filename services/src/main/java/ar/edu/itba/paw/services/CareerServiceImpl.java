@@ -69,4 +69,9 @@ public class CareerServiceImpl implements CareerService {
         return careerDao.update(id, name);
     }
 
+    @Override
+    public void delete(long id) {
+        careerDao.delete(id);
+    }
+
 }

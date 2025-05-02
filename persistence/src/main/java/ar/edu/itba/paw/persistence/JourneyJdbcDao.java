@@ -89,7 +89,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
     private final static String SQL_FIND_BY_ORIGIN_CITY_PAGED = SQL_FIND_BY_ORIGIN_CITY + " ORDER BY j.id ASC LIMIT ? OFFSET ?";
 
-    private final static String SQL_PAGE = " ORDER BY id ASC LIMIT ? OFFSET ? ";
+    private final static String SQL_PAGE = " ORDER BY j.id ASC LIMIT ? OFFSET ? ";
     private final static String SQL_FIND_ALL_PAGED = SQL_BASE + SQL_PAGE;
     private final static String SQL_FIND_OTHERS_PAGED = SQL_BASE + " AND j.user_id != ? " + SQL_PAGE;
     private final static String SQL_BASE_INTEREST = SQL_BASE + " JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id" + SQL_NOT_DELETED;

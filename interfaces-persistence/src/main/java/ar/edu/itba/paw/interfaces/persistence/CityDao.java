@@ -19,4 +19,6 @@ public interface CityDao {
     Page<City> getAllCities(int page, int pageSize);
     void updateCity(long id, String name, Country country); // method to update a city by its id
     void createCity(String nameEn, Country country); // method to create a city
+
+    void delete(long id);
 }

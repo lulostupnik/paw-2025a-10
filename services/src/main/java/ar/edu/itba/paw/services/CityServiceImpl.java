@@ -88,6 +88,12 @@ public class CityServiceImpl implements CityService {
                 .orElseThrow(() -> new IllegalArgumentException("Country not found"));
         cityDao.createCity(name, country1);
     }
+
+    @Override
+    public void delete(long id) {
+        cityDao.delete(id);
+    }
+
     @Override
     public Page<City> searchBySubstring(String substring, int page, int size) {
         return cityDao.searchBySubstring(substring, page, size);

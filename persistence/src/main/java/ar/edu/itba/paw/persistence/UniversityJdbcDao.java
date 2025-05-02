@@ -43,12 +43,12 @@ public class UniversityJdbcDao implements UniversityDao {
                                 co.name AS country_name
                                 """;
 
-    private final static String QUERY = SELECT_CLAUSE +
-
-            """
-                    FROM universities un\s
-                    JOIN cities ci ON un.city_id = ci.id\s
-                    JOIN countries co ON ci.country_id = co.id\s""";
+    private final static String QUERY = SELECT_CLAUSE + """
+                    FROM universities un
+                    JOIN cities ci ON un.city_id = ci.id
+                    JOIN countries co ON ci.country_id = co.id
+                    WHERE un.deleted = FALSE
+                    """;
 
     @Autowired
     public UniversityJdbcDao(CityDao cityDao, final DataSource dataSource){
@@ -62,19 +62,19 @@ public class UniversityJdbcDao implements UniversityDao {
     @Override
     public Optional<University> findByName(String name) {
         LOGGER.debug("Querying DB for university name {}", name);
-        return jdbcTemplate.query(QUERY + " WHERE un.name = ?", UNIVERSITY_ROW_MAPPER, name).stream().findFirst();
+        return jdbcTemplate.query(QUERY + " AND un.name = ?", UNIVERSITY_ROW_MAPPER, name).stream().findFirst();
     }
 
     @Override
     public Optional<University> findByAbbreviation(String abbreviation) {
         LOGGER.debug("Querying DB for university abbreviation {}", abbreviation);
-        return jdbcTemplate.query(QUERY + " WHERE un.abbreviation = ?", UNIVERSITY_ROW_MAPPER, abbreviation).stream().findFirst();
+        return jdbcTemplate.query(QUERY + " AND un.abbreviation = ?", UNIVERSITY_ROW_MAPPER, abbreviation).stream().findFirst();
     }    
     
     @Override
     public Optional<University> findByAny(String searchString) {
         LOGGER.debug("Querying DB for university like {}", searchString);
-        return jdbcTemplate.query(QUERY + " WHERE un.abbreviation LIKE ? OR un.name LIKE ?", UNIVERSITY_ROW_MAPPER, "%"+searchString+"%", "%"+searchString+"%").stream().findFirst();
+        return jdbcTemplate.query(QUERY + " AND un.abbreviation LIKE ? OR un.name LIKE ?", UNIVERSITY_ROW_MAPPER, "%"+searchString+"%", "%"+searchString+"%").stream().findFirst();
     }
 
     @Override
@@ -88,7 +88,7 @@ public class UniversityJdbcDao implements UniversityDao {
         final String like = "%" + substring + "%";
         int offset = (page - 1) * size;
 
-        final String sql = QUERY + " WHERE LOWER(un.name) LIKE LOWER(?) OR LOWER(un.abbreviation) LIKE LOWER(?) LIMIT ? OFFSET ?";
+        final String sql = QUERY + " AND LOWER(un.name) LIKE LOWER(?) OR LOWER(un.abbreviation) LIKE LOWER(?) LIMIT ? OFFSET ?";
         int totalUniversities = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM universities WHERE LOWER(name) LIKE LOWER(?) OR LOWER(abbreviation) LIKE LOWER(?)", Integer.class, like, like);
         int totaPages = (int) Math.ceil((double) totalUniversities / size);
         return new Page<>(jdbcTemplate.query(sql, UNIVERSITY_ROW_MAPPER, like, like, size, offset), page, totaPages);
@@ -99,7 +99,7 @@ public class UniversityJdbcDao implements UniversityDao {
     @Override
     public Optional<University> findById(long id) {
         LOGGER.debug("Querying DB for university with id {}", id);
-        return jdbcTemplate.query(QUERY + " WHERE un.id = ?", UNIVERSITY_ROW_MAPPER, id).stream().findFirst();
+        return jdbcTemplate.query(QUERY + " AND un.id = ?", UNIVERSITY_ROW_MAPPER, id).stream().findFirst();
     }
 
     @Override
@@ -114,7 +114,7 @@ public class UniversityJdbcDao implements UniversityDao {
         return new Page<>(jdbcTemplate.query(query.toString(), UNIVERSITY_ROW_MAPPER, size, offset),page,totalPages);
     }
 
-    //REVISAR
+    //FIXME: consultar con los profes
     @Override
     public University createUniversity(String name, String abbreviation, String city) {
         HashMap<String, Object> parameters = new HashMap<>();
@@ -122,7 +122,7 @@ public class UniversityJdbcDao implements UniversityDao {
         parameters.put("abbreviation", abbreviation);
         City newCity = cityDao.findByName(city).get();
         parameters.put("city_id", newCity.getId());
-       Number keys = simpleJdbcInsert.executeAndReturnKey(parameters);
+        Number keys = simpleJdbcInsert.executeAndReturnKey(parameters);
         LOGGER.debug("Successfully created uni {}", keys.longValue());
         return new University(keys.longValue(), name, abbreviation, newCity);
     }
@@ -134,5 +134,13 @@ public class UniversityJdbcDao implements UniversityDao {
         LOGGER.debug("Successfully updated uni {}", id);
     }
 
+    @Override
+    public void delete(long id) {
+        LOGGER.debug("Marking university with ID: {} as deleted", id);
+        int rowsAffected = jdbcTemplate.update("UPDATE universities SET deleted = TRUE WHERE id = ?", id);
+        if (rowsAffected == 0) {
+            LOGGER.warn("University deletion failed: University with ID {} not found", id);
+        }
+    }
 
 }
