@@ -1,9 +1,8 @@
 package ar.edu.itba.paw.persistence;
+
 import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.models.City;
-
 import ar.edu.itba.paw.models.Country;
-import ar.edu.itba.paw.models.CursorPage;
 import ar.edu.itba.paw.models.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,16 +11,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-
 import javax.sql.DataSource;
 import java.util.*;
-
-//FIXME: Not yet tested
 
 @Repository
 public class CityJdbcDao implements CityDao {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(CityJdbcDao.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(CityJdbcDao.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
@@ -52,8 +48,6 @@ public class CityJdbcDao implements CityDao {
 
     @Override
     public Optional<City> findBy(Long id, String name, String country) {
-        LOGGER.debug("Querying DB for city advanced");
-    
         StringBuilder queryBuilder = new StringBuilder();
         List<Object> params = new ArrayList<>();
 
@@ -93,12 +87,8 @@ public class CityJdbcDao implements CityDao {
 
     @Override
     public Optional<City> findByName(String name) {
-        LOGGER.debug("Querying DB for city entry with name {}", name);
-        return jdbcTemplate.query(
-                QUERY + " AND ci.name = ?",
-                CITY_ROW_MAPPER,
-                name
-        ).stream().findFirst();
+        return jdbcTemplate.query(QUERY + " AND ci.name = ?", CITY_ROW_MAPPER, name)
+                .stream().findFirst();
 
     }
 
@@ -120,8 +110,7 @@ public class CityJdbcDao implements CityDao {
 
     @Override
     public void updateCity(long id, String name, Country country) {
-        String sql = "UPDATE cities SET name = ?, country_id = ? WHERE id = ?";
-        jdbcTemplate.update(sql, name, country.getId(), id);
+        jdbcTemplate.update("UPDATE cities SET name = ?, country_id = ? WHERE id = ?", name, country.getId(), id);
     }
 
     @Override
@@ -163,18 +152,22 @@ public class CityJdbcDao implements CityDao {
 
     @Override
     public List<City> findAllByCountry(String country) {
-        LOGGER.debug("Querying DB for cities in country {}");
         return jdbcTemplate.query(SQL_FIND_BY_COUNTRY, CITY_ROW_MAPPER, country);
     }
 
     @Override
     public Page<City> searchBySubstring(String substring, int page, int size) {
         String searchPattern = "%" + substring + "%";
-        int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE deleted = FALSE AND LOWER(name) LIKE LOWER(?) ", Integer.class, searchPattern);
+        int totalItems = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM cities WHERE deleted = FALSE AND LOWER(name) LIKE LOWER(?) ",
+                Integer.class,
+                searchPattern
+        );
         return new Page<>(
                 jdbcTemplate.query(SQL_SEARCH_PAGED, CITY_ROW_MAPPER, searchPattern, size, (page - 1) * size),
                 page,
-                (int) Math.ceil((double) totalItems / size));
+                (int) Math.ceil((double) totalItems / size)
+        );
     }
 
 }
