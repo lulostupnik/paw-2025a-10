@@ -128,23 +128,22 @@ public class EventJdbcDao implements EventDao {
     private final static String SQL_FIND_BY_ID = SQL_BASE_NOT_DELETED + " AND e.id = ? ";
     private final static String SQL_FIND_BY_EMAIL = SQL_BASE_NOT_DELETED + " AND us.email = ?";
     private final static String SQL_FIND_MY_EVENTS = SQL_BASE_NOT_DELETED + " AND e.user_id = ? "; // "ORDER BY e.event_date DESC"
-    private final static String SQL_FIND_OTHERS_EVENTS = SQL_BASE_NOT_DELETED +
-            " AND e.user_id != ? AND e.event_date >= CURRENT_DATE ORDER BY e.event_date DESC ";
+    private final static String SQL_FIND_OTHERS_EVENTS = SQL_BASE_NOT_DELETED + " AND e.user_id != ? AND e.event_date >= CURRENT_DATE ORDER BY e.event_date DESC ";
 
     private final static String SQL_FIND_ALL_PAGED = SQL_BASE_NOT_DELETED + " ORDER BY e.event_date DESC LIMIT ? OFFSET ? ";
-    private final static String SQL_FIND_OTHERS_PAGED = SQL_BASE_NOT_DELETED +
-            " AND e.user_id != ? AND e.event_date >= CURRENT_DATE ORDER BY e.event_date LIMIT ? OFFSET ?";
-    private final static String SQL_FIND_ALL_BY_USER_PAGED = SQL_BASE_NOT_DELETED +
-                    " AND e.user_id = ? ORDER BY e.event_date DESC LIMIT ? OFFSET ? ";
-    private final static String SQL_FIND_ALL_BY_EMAIL_PAGED = SQL_BASE_NOT_DELETED +
-            " AND us.email = ? ORDER BY e.event_date DESC LIMIT ? OFFSET ? ";
+    private final static String SQL_FIND_OTHERS_PAGED = SQL_FIND_OTHERS_EVENTS + " LIMIT ? OFFSET ?";
+    private final static String SQL_FIND_ALL_BY_USER_PAGED = SQL_FIND_MY_EVENTS + " ORDER BY e.event_date DESC LIMIT ? OFFSET ? ";
+    private final static String SQL_FIND_ALL_BY_EMAIL_PAGED = SQL_FIND_BY_EMAIL + " ORDER BY e.event_date DESC LIMIT ? OFFSET ? ";
     private final static String SQL_SEARCH_PAGED = SQL_NOT_DELETED + " AND (LOWER(e.title) LIKE LOWER(?)) ORDER BY e.event_date DESC LIMIT ? OFFSET ?";
 
     private final static String SQL_SELECT_WITH_ATTENDANCE = "SELECT (ea.user_id IS NOT NULL) AS is_attending, " + SQL_ALIASES;
     private final static String SQL_FIND_EVENTS_WITH_ATTENDANCE = SQL_SELECT_WITH_ATTENDANCE + SQL_FROM_BASE + """
                    LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
-                   WHERE e.user_id != ? AND e.deleted = FALSE ORDER BY e.event_date DESC
+                   WHERE e.user_id != ? AND e.deleted = FALSE AND e.event_date >= CURRENT_DATE ORDER BY e.event_date DESC
                    """;
+
+    private final static String SQL_FIND_WITH_ATTENDANCE_PAGED = SQL_FIND_EVENTS_WITH_ATTENDANCE + " LIMIT ? OFFSET ?";
+
 
     private final static String SQL_RECOMMENDED_EVENTS = """
            WITH user_data AS (
@@ -154,9 +153,9 @@ public class EventJdbcDao implements EventDao {
         JOIN cities c ON un.city_id = c.id
         WHERE u.email = ?
     )
-    SELECT 
+    SELECT
         (ea.user_id IS NOT NULL) AS is_attending,
-        us.id AS user_id, 
+        us.id AS user_id,
         us.email AS user_email, 
         us.firstname AS user_firstname, 
         us.lastname AS user_lastname, 
@@ -472,45 +471,29 @@ public class EventJdbcDao implements EventDao {
         return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));}
 
 
-
-
-    /*@TODO no se si esta bien. revisar. */
     @Override
     public Page<UserEvent> getEventsWithAttendanceStatus(long userId, int page, int size) {
-        LOGGER.debug("Querying paginated events with attendance status for user {} (excluding their own)", userId);
 
-        // 1. Total de eventos válidos para este usuario
-        String countQuery = """
-        SELECT COUNT(*)
-        FROM events e
-        WHERE e.deleted = FALSE AND e.user_id != ? AND e.event_date >= CURRENT_DATE
-    """;
-        int totalItems = getTotalCount(countQuery, userId);
-        int totalPages = calculateTotalPages(totalItems, size);
-        int offset = (page - 1) * size;
-
-        // 2. SQL para traer los eventos + attendance
-        String pagedQuery = SQL_SELECT_WITH_ATTENDANCE + SQL_FROM_BASE + """
-        LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
-        WHERE e.deleted = FALSE AND e.user_id != ? AND e.event_date >= CURRENT_DATE
-        ORDER BY e.event_date DESC
-        LIMIT ? OFFSET ?
-    """;
+        int totalItems = jdbcTemplate.queryForObject("""
+                   SELECT COUNT(*) FROM events e
+                   LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
+                   WHERE e.user_id != ? AND e.deleted = FALSE AND e.event_date >= CURRENT_DATE ORDER BY e.event_date DESC
+                   """,
+                Integer.class,
+                userId
+        );
 
         List<UserEvent> events = jdbcTemplate.query(
-                pagedQuery,
+                SQL_FIND_WITH_ATTENDANCE_PAGED,
                 (rs, rowNum) -> {
                     Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
                     boolean isAttending = rs.getBoolean("is_attending");
                     return new UserEvent(event, isAttending);
                 },
-                userId, // para ea.user_id = ?
-                userId, // para e.user_id != ?
-                size,
-                offset
+                userId, userId, size, (page - 1) * size
         );
 
-        return new Page<>(events, page, totalPages);
+        return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
     }
 
 
