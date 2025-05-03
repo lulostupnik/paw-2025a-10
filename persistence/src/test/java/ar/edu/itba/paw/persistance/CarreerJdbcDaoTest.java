@@ -223,7 +223,7 @@ public class CarreerJdbcDaoTest {
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
-        assertEquals(3, page1.getContent().size());
+        assertEquals(TOTAL_CAREERS, page1.getContent().size());
     }
     @Test
     public void testSearchBySubstringFiltering(){
