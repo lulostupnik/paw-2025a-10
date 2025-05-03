@@ -114,5 +114,10 @@ public class InterestServiceImpl implements InterestService {
         return interestDao.searchBySubstring(search,page, pageSize);
     }
 
+    @Override
+    public void delete(long id) {
+        interestDao.delete(id);
+    }
+
 
 }

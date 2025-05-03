@@ -70,8 +70,8 @@ public class CareerServiceImpl implements CareerService {
     }
 
     @Override
-    public void delete(long id, String message) {
-        careerDao.delete(id, message);
+    public void delete(long id) {
+        careerDao.delete(id);
     }
 
 }

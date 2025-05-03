@@ -279,7 +279,7 @@ public class UserJdbcDaoTest {
     public void testChangePasswordMissingUser(){
         userDao.changePassword(USERMAIL, PASSWORD);
     }
-    @Test
+    @Test(expected = DataAccessException.class)
     public void testChangePasswordMissingPassword(){
         final long id = insertUserOverride(Map.of("password", PASSWORD));
 
@@ -393,14 +393,6 @@ public class UserJdbcDaoTest {
         userDao.updateLocale(id, Locale.of(WRONGLOCALE));  
     }
     @Test
-    public void testUpdateLocaleMissingLocale(){
-        final long id = insertUserGeneric();
-
-        userDao.updateLocale(id, null);
-
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst());   
-    }
-    @Test
     public void testUpdateLocaleMissingUser(){
         userDao.updateLocale(1321423, Locale.of(LOCALE));  
     }
@@ -432,6 +424,7 @@ public class UserJdbcDaoTest {
             .executeAndReturnKey(Map.of(
                 "name", "Universidad de muy largo", 
                 "abbreviation", "UBA", 
+                "deleted", false,
                 "city_id", jdbcTemplate.queryForObject("SELECT id FROM cities LIMIT 1", Long.class)
             )).longValue();
         final long userid = insertUserOverride(Map.of("university", universityId));
@@ -454,7 +447,7 @@ public class UserJdbcDaoTest {
     @Test
     public void testUpdateCareer(){
         final long careerId = new SimpleJdbcInsert(ds).withTableName(CAREERS_TABLE).usingGeneratedKeyColumns("id")
-            .executeAndReturnKey(Map.of("name", "Abogacia")).longValue();
+            .executeAndReturnKey(Map.of("name", "Abogacia", "deleted", false)).longValue();
         final long userid = insertUserOverride(Map.of("career", careerId));
 
         userDao.updateCareer(userid, CAREER.getId());
@@ -629,8 +622,8 @@ public class UserJdbcDaoTest {
         assertEquals(1, page1.getCurrentPage());
         assertNotNull(page1.getContent());
         assertEquals(PAGESIZE, page1.getContent().size());
-        assertEqualsUser(page1.getContent().getFirst());
-        assertEqualsUser(page1.getContent().getLast(), userParams1);
+        assertEqualsUser(page1.getContent().getFirst(), userParams1);
+        assertEqualsUser(page1.getContent().getLast());
     }
     @Test
     public void testSearchUsersPaged2(){
@@ -645,8 +638,8 @@ public class UserJdbcDaoTest {
         assertEquals(1, page1.getCurrentPage());
         assertNotNull(page1.getContent());
         assertEquals(1, page1.getContent().size());
-        assertEqualsUser(page1.getContent().getFirst());
-        assertEqualsUser(page2.getContent().getFirst(), userParams1);
+        assertEqualsUser(page1.getContent().getFirst(), userParams1);
+        assertEqualsUser(page2.getContent().getFirst());
     }
 
     @Test

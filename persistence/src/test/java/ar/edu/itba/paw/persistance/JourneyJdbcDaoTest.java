@@ -18,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -34,6 +35,7 @@ import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.persistence.JourneyJdbcDao;
 
+@SuppressWarnings("null")
 @Transactional
 @Rollback
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -42,20 +44,24 @@ public class JourneyJdbcDaoTest {
 
     private static final String JOURNEY_TABLE = "journeys";
 
-    private static Long DESTINATION_UNI_ID; 
-    private static Long ORIGIN_UNI_ID; 
-    private static Long UNI_3_ID;
-    private static Long USER1_ID;
-    private static Long USER2_ID;
-    private static Long USER3_ID;
+    private static long DESTINATION_UNI_ID; 
+    private static long ORIGIN_UNI_ID; 
+    private static long UNI_3_ID;
+    private static long USER1_ID;
+    private static long USER2_ID;
+    private static long USER3_ID;
     private static final LocalDate START_DATE = LocalDate.now().plusDays(7);
     private static final LocalDate END_DATE = START_DATE.plusMonths(1);
     private static final String DESCRIPTION = "Cool journey";
     private static final String USERMAIL = "user@name.com";
     private static final String USERNAME_1 = "username";
-    private static Long DESTINATION_CITY_ID;
-    private static Long ORIGIN_CITY_ID;
-    private static Long INTEREST_1_ID;
+    private static final String DELETED_USER_MAIL = "deleted@name.com";
+    private static final String DELETED_USER_NAME = "deletedjourney";
+    private static long DESTINATION_CITY_ID;
+    private static long ORIGIN_CITY_ID;
+    private static long INTEREST_1_ID;
+    private static long DELETED_JOURNEY_ID;
+    private static long DELETED_JOURNEY_USER_ID;
 
     @Autowired
     private DataSource ds;
@@ -84,8 +90,10 @@ public class JourneyJdbcDaoTest {
         jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('username', 'user@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
         jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('username2', 'user2@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
         jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('anotherone', 'user3@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
+        jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('deletedjourney', 'deleted@name.com', 'deleted', 'journey', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
         jdbcTemplate.execute("INSERT INTO category(name) VALUES('Programacion')");
         jdbcTemplate.execute("INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = 'username'), (SELECT id FROM category LIMIT 1), 0)");
+        jdbcTemplate.execute("INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = 'deletedjourney'), (SELECT id FROM category LIMIT 1), 0)");
 
         DESTINATION_UNI_ID = jdbcTemplate.queryForObject("SELECT id FROM universities WHERE abbreviation = 'MIT'", Long.class);
         ORIGIN_UNI_ID = jdbcTemplate.queryForObject("SELECT id FROM universities WHERE abbreviation = 'ITBA'", Long.class);
@@ -93,9 +101,11 @@ public class JourneyJdbcDaoTest {
         USER1_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'username'", Long.class);
         USER2_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'username2'", Long.class);
         USER3_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'anotherone'", Long.class);
+        DELETED_JOURNEY_USER_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'deletedjourney'", Long.class);
         DESTINATION_CITY_ID = jdbcTemplate.queryForObject("SELECT id FROM cities WHERE name = 'Massachusetts'", Long.class);
         ORIGIN_CITY_ID = jdbcTemplate.queryForObject("SELECT id FROM cities WHERE name = 'Buenos Aires'", Long.class);
         INTEREST_1_ID = jdbcTemplate.queryForObject("SELECT id FROM category WHERE name = 'Programacion'", Long.class);
+        DELETED_JOURNEY_ID = insertJourneyOverride(Map.of("userId", DELETED_JOURNEY_USER_ID, "deleted", true));
     }
 
     private void assertEqualsJourney(Journey journey){
@@ -134,6 +144,7 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testCreate(){
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, JOURNEY_TABLE);
         Journey journey = journeyDao.create(
             new User(USER1_ID, null, null, null, null, null, null, 0, null),
             new University(DESTINATION_UNI_ID, null,null, null),
@@ -167,6 +178,7 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testCreateDuplicated(){
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, JOURNEY_TABLE);
         long id = insertJourneyGeneric();
 
         journeyDao.create(
@@ -175,16 +187,38 @@ public class JourneyJdbcDaoTest {
             START_DATE, END_DATE, DESCRIPTION
         );
 
+        assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, JOURNEY_TABLE));
         Optional<Journey> maybeJourney = jdbcTemplate.query("SELECT * FROM journeys WHERE id = ?", JOURNEY_ROW_MAPPER, id).stream().findFirst();
         assertNotNull(maybeJourney);
         assertTrue(maybeJourney.isPresent());
         Journey journey = maybeJourney.get();
         assertEquals(id, journey.getId());
         assertEquals(DESCRIPTION, journey.getDescription());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journey.getDestinationUniversity().getId());
+        assertEquals(DESTINATION_UNI_ID, journey.getDestinationUniversity().getId());
         assertEquals(START_DATE, journey.getStartDate());
         assertEquals(END_DATE, journey.getEndDate());
-        assertEquals(USER1_ID.longValue(), journey.getUser().getId()); 
+        assertEquals(USER1_ID, journey.getUser().getId()); 
+    }
+    @Test
+    public void testCreateDeleted(){
+
+        journeyDao.create(
+            new User(DELETED_JOURNEY_USER_ID, null, null, null, null, null, null, 0, null),
+            new University(DESTINATION_UNI_ID, null,null, null),
+            START_DATE, END_DATE, DESCRIPTION
+        );
+
+        assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, JOURNEY_TABLE));
+        Optional<Journey> maybeJourney = jdbcTemplate.query("SELECT * FROM journeys WHERE id = ?", JOURNEY_ROW_MAPPER, DELETED_JOURNEY_ID).stream().findFirst();
+        assertNotNull(maybeJourney);
+        assertTrue(maybeJourney.isPresent());
+        Journey journey = maybeJourney.get();
+        assertEquals(DELETED_JOURNEY_ID, journey.getId());
+        assertEquals(DESCRIPTION, journey.getDescription());
+        assertEquals(DESTINATION_UNI_ID, journey.getDestinationUniversity().getId());
+        assertEquals(START_DATE, journey.getStartDate());
+        assertEquals(END_DATE, journey.getEndDate());
+        assertEquals(DELETED_JOURNEY_USER_ID, journey.getUser().getId()); 
     }
 
     @Test
@@ -228,6 +262,13 @@ public class JourneyJdbcDaoTest {
         insertJourneyOverride(Map.of("userId", USER2_ID));
 
         Optional<Journey> maybeJourney = journeyDao.findById(12341234);
+
+        assertNotNull(maybeJourney);
+        assertFalse(maybeJourney.isPresent());
+    }    
+    @Test
+    public void testFindByIdDeleted(){
+        Optional<Journey> maybeJourney = journeyDao.findById(DELETED_JOURNEY_ID);
 
         assertNotNull(maybeJourney);
         assertFalse(maybeJourney.isPresent());
@@ -293,14 +334,22 @@ public class JourneyJdbcDaoTest {
         assertEquals(START_DATE, journeys.get(0).getStartDate());
         assertEquals(END_DATE, journeys.get(0).getEndDate());
         assertEquals(DESCRIPTION, journeys.get(0).getDescription());
-        assertEquals(USER1_ID.longValue(), journeys.get(0).getUser().getId());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journeys.get(0).getDestinationUniversity().getId());
+        assertEquals(USER1_ID, journeys.get(0).getUser().getId());
+        assertEquals(DESTINATION_UNI_ID, journeys.get(0).getDestinationUniversity().getId());
     }
     @Test
     public void testFindByOriginCityEmpty(){
         insertJourneyGeneric();
 
         List<Journey> journeys = journeyDao.findByOriginCity(DESTINATION_CITY_ID);
+
+        assertNotNull(journeys);
+        assertEquals(0, journeys.size());
+    }
+    @Test
+    public void testFindByOriginCityDeleted(){
+
+        List<Journey> journeys = journeyDao.findByOriginCity(ORIGIN_CITY_ID);
 
         assertNotNull(journeys);
         assertEquals(0, journeys.size());
@@ -317,14 +366,21 @@ public class JourneyJdbcDaoTest {
         assertEquals(START_DATE, journeys.get(0).getStartDate());
         assertEquals(END_DATE, journeys.get(0).getEndDate());
         assertEquals(DESCRIPTION, journeys.get(0).getDescription());
-        assertEquals(USER1_ID.longValue(), journeys.get(0).getUser().getId());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journeys.get(0).getDestinationUniversity().getId());
+        assertEquals(USER1_ID, journeys.get(0).getUser().getId());
+        assertEquals(DESTINATION_UNI_ID, journeys.get(0).getDestinationUniversity().getId());
     }
     @Test
     public void testFindByOriginUniversityEmpty(){
         insertJourneyGeneric();
 
         List<Journey> journeys = journeyDao.findByOriginUniversity(DESTINATION_UNI_ID);
+
+        assertNotNull(journeys);
+        assertEquals(0, journeys.size());
+    }
+    @Test
+    public void testFindByOriginUniversityDeleted(){
+        List<Journey> journeys = journeyDao.findByOriginUniversity(ORIGIN_UNI_ID);
 
         assertNotNull(journeys);
         assertEquals(0, journeys.size());
@@ -342,14 +398,21 @@ public class JourneyJdbcDaoTest {
         assertEquals(START_DATE, journey.getStartDate());
         assertEquals(END_DATE, journey.getEndDate());
         assertEquals(DESCRIPTION, journey.getDescription());
-        assertEquals(USER1_ID.longValue(), journey.getUser().getId());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journey.getDestinationUniversity().getId());    
+        assertEquals(USER1_ID, journey.getUser().getId());
+        assertEquals(DESTINATION_UNI_ID, journey.getDestinationUniversity().getId());    
     }
     @Test
     public void testFindByUserIdWrongId(){
         insertJourneyGeneric();
 
         Optional<Journey> maybeJourney = journeyDao.findByUserId(12341234);
+
+        assertNotNull(maybeJourney);
+        assertFalse(maybeJourney.isPresent());
+    }
+    @Test
+    public void testFindByUserIdDeleted(){
+        Optional<Journey> maybeJourney = journeyDao.findByUserId(DELETED_JOURNEY_USER_ID);
 
         assertNotNull(maybeJourney);
         assertFalse(maybeJourney.isPresent());
@@ -367,8 +430,17 @@ public class JourneyJdbcDaoTest {
         assertEquals(START_DATE, journey.getStartDate());
         assertEquals(END_DATE, journey.getEndDate());
         assertEquals(DESCRIPTION, journey.getDescription());
-        assertEquals(USER1_ID.longValue(), journey.getUser().getId());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journey.getDestinationUniversity().getId());  
+        assertEquals(USER1_ID, journey.getUser().getId());
+        assertEquals(DESTINATION_UNI_ID, journey.getDestinationUniversity().getId());  
+    }
+    @Test
+    public void testFindByUserEmailDeleted(){
+        insertJourneyGeneric();
+
+        Optional<Journey> maybeJourney = journeyDao.findByUserEmail(DELETED_USER_MAIL);
+
+        assertNotNull(maybeJourney);
+        assertFalse(maybeJourney.isPresent());
     }
 
     @Test
@@ -386,10 +458,10 @@ public class JourneyJdbcDaoTest {
         assertEquals(1, journeys.size());
         assertEquals(id, journeys.get(0).getId());
         assertEquals(DESCRIPTION, journeys.get(0).getDescription());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journeys.get(0).getDestinationUniversity().getId());
+        assertEquals(DESTINATION_UNI_ID, journeys.get(0).getDestinationUniversity().getId());
         assertEquals(START_DATE, journeys.get(0).getStartDate());
         assertEquals(END_DATE, journeys.get(0).getEndDate());
-        assertEquals(USER1_ID.longValue(), journeys.get(0).getUser().getId());
+        assertEquals(USER1_ID, journeys.get(0).getUser().getId());
     }
     @Test
     public void testGetJourneysByUserWrongUser(){
@@ -400,9 +472,19 @@ public class JourneyJdbcDaoTest {
         assertNotNull(journeys);
         assertEquals(0, journeys.size());
     }
+    @Test
+    public void testGetJourneysByUserDeleted(){
+        insertJourneyGeneric();
+
+        List<Journey> journeys = journeyDao.getJourneysByUser(DELETED_USER_MAIL);
+
+        assertNotNull(journeys);
+        assertEquals(0, journeys.size());
+    }
 
     @Test
     public void testDelete(){
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, JOURNEY_TABLE);
         long id = insertJourneyGeneric();
 
         journeyDao.delete(id);
@@ -412,6 +494,7 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testDeleteWrongId(){
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, JOURNEY_TABLE);
         long id = insertJourneyGeneric();
 
         journeyDao.delete(12341243);
@@ -419,9 +502,20 @@ public class JourneyJdbcDaoTest {
         assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, JOURNEY_TABLE));
         assertFalse(jdbcTemplate.queryForObject("SELECT deleted FROM journeys WHERE id = ?", Boolean.class, id));
     }
+    @Test
+    public void testDeleteDeleted(){
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, JOURNEY_TABLE);
+        long id = insertJourneyGeneric();
+
+        journeyDao.delete(DELETED_JOURNEY_ID);
+
+        assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, JOURNEY_TABLE));
+        assertFalse(jdbcTemplate.queryForObject("SELECT deleted FROM journeys WHERE id = ?", Boolean.class, id));
+    }
 
     @Test
     public void testDeletionMessage(){
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, JOURNEY_TABLE);
         long id = insertJourneyGeneric();
 
         journeyDao.deletionMessage(id, "WRONG");
@@ -432,6 +526,7 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testDeletionMessageWrongId(){
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, JOURNEY_TABLE);
         long id = insertJourneyGeneric();
 
         journeyDao.deletionMessage(12341243, "WRONG");
@@ -450,10 +545,10 @@ public class JourneyJdbcDaoTest {
         assertNotNull(journeys);
         assertEquals(1, journeys.size());
         assertEquals(DESCRIPTION, journeys.get(0).getDescription());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journeys.get(0).getDestinationUniversity().getId());
+        assertEquals(DESTINATION_UNI_ID, journeys.get(0).getDestinationUniversity().getId());
         assertEquals(START_DATE, journeys.get(0).getStartDate());
         assertEquals(END_DATE, journeys.get(0).getEndDate());
-        assertEquals(USER1_ID.longValue(), journeys.get(0).getUser().getId());    
+        assertEquals(USER1_ID, journeys.get(0).getUser().getId());    
     }
 
     @Test
@@ -468,10 +563,10 @@ public class JourneyJdbcDaoTest {
         Journey journey = maybeJourney.get();
         assertEquals(id, journey.getId());
         assertEquals(DESCRIPTION, journey.getDescription());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journey.getDestinationUniversity().getId());
+        assertEquals(DESTINATION_UNI_ID, journey.getDestinationUniversity().getId());
         assertEquals(START_DATE, journey.getStartDate());
         assertEquals(END_DATE, journey.getEndDate());
-        assertEquals(USER1_ID.longValue(), journey.getUser().getId());    
+        assertEquals(USER1_ID, journey.getUser().getId());    
     }
     @Test(expected=NullPointerException.class)
     public void testUpdateDatesMissingDate(){
@@ -491,10 +586,10 @@ public class JourneyJdbcDaoTest {
         Journey journey = maybeJourney.get();
         assertEquals(id, journey.getId());
         assertEquals(DESCRIPTION, journey.getDescription());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journey.getDestinationUniversity().getId());
+        assertEquals(DESTINATION_UNI_ID, journey.getDestinationUniversity().getId());
         assertEquals(START_DATE, journey.getStartDate());
         assertEquals(END_DATE, journey.getEndDate());
-        assertEquals(USER1_ID.longValue(), journey.getUser().getId());       
+        assertEquals(USER1_ID, journey.getUser().getId());       
     }
 
     @Test
@@ -508,10 +603,10 @@ public class JourneyJdbcDaoTest {
         Journey journey = maybeJourney.get();
         assertEquals(id, journey.getId());
         assertEquals("NEW DESCRIPTION", journey.getDescription());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journey.getDestinationUniversity().getId());
+        assertEquals(DESTINATION_UNI_ID, journey.getDestinationUniversity().getId());
         assertEquals(START_DATE, journey.getStartDate());
         assertEquals(END_DATE, journey.getEndDate());
-        assertEquals(USER1_ID.longValue(), journey.getUser().getId());    
+        assertEquals(USER1_ID, journey.getUser().getId());    
     }
     @Test
     public void testUpdateDescriptionWrongId(){
@@ -524,10 +619,10 @@ public class JourneyJdbcDaoTest {
         Journey journey = maybeJourney.get();
         assertEquals(id, journey.getId());
         assertEquals(DESCRIPTION, journey.getDescription());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journey.getDestinationUniversity().getId());
+        assertEquals(DESTINATION_UNI_ID, journey.getDestinationUniversity().getId());
         assertEquals(START_DATE, journey.getStartDate());
         assertEquals(END_DATE, journey.getEndDate());
-        assertEquals(USER1_ID.longValue(), journey.getUser().getId());    
+        assertEquals(USER1_ID, journey.getUser().getId());    
     }
     
     @Test
@@ -542,10 +637,10 @@ public class JourneyJdbcDaoTest {
         Journey journey = maybeJourney.get();
         assertEquals(id, journey.getId());
         assertEquals(DESCRIPTION, journey.getDescription());
-        assertEquals(UNI_3_ID.longValue(), journey.getDestinationUniversity().getId());
+        assertEquals(UNI_3_ID, journey.getDestinationUniversity().getId());
         assertEquals(START_DATE, journey.getStartDate());
         assertEquals(END_DATE, journey.getEndDate());
-        assertEquals(USER1_ID.longValue(), journey.getUser().getId()); 
+        assertEquals(USER1_ID, journey.getUser().getId()); 
     }
     @Test(expected = DataAccessException.class)
     public void testUpdateDestinationUniversityInvalidId(){
@@ -565,10 +660,10 @@ public class JourneyJdbcDaoTest {
         Journey journey = maybeJourney.get();
         assertEquals(id, journey.getId());
         assertEquals(DESCRIPTION, journey.getDescription());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journey.getDestinationUniversity().getId());
+        assertEquals(DESTINATION_UNI_ID, journey.getDestinationUniversity().getId());
         assertEquals(START_DATE, journey.getStartDate());
         assertEquals(END_DATE, journey.getEndDate());
-        assertEquals(USER1_ID.longValue(), journey.getUser().getId()); 
+        assertEquals(USER1_ID, journey.getUser().getId()); 
     }
 
     @Test
@@ -668,10 +763,27 @@ public class JourneyJdbcDaoTest {
         Journey journey = maybeJourney.get();
         assertEquals(id, journey.getId());
         assertEquals("New description", journey.getDescription());
-        assertEquals(UNI_3_ID.longValue(), journey.getDestinationUniversity().getId());
+        assertEquals(UNI_3_ID, journey.getDestinationUniversity().getId());
         assertEquals(START_DATE.plusDays(10), journey.getStartDate());
         assertEquals(END_DATE.plusDays(10), journey.getEndDate());
-        assertEquals(USER1_ID.longValue(), journey.getUser().getId());   
+        assertEquals(USER1_ID, journey.getUser().getId());   
+    }
+    @Test
+    public void testUpdateDataDeleted(){
+
+        journeyDao.updateData(DELETED_JOURNEY_ID, new University(UNI_3_ID, null, null, null), START_DATE.plusDays(10), END_DATE.plusDays(10), "New description");
+
+        assertFalse(jdbcTemplate.queryForObject("SELECT deleted FROM journeys WHERE id = ?", Boolean.class, DELETED_JOURNEY_ID));
+        Optional<Journey> maybeJourney = jdbcTemplate.query("SELECT * FROM journeys WHERE id = ?", JOURNEY_ROW_MAPPER, DELETED_JOURNEY_ID).stream().findFirst();
+        assertNotNull(maybeJourney);
+        assertTrue(maybeJourney.isPresent());
+        Journey journey = maybeJourney.get();
+        assertEquals(DELETED_JOURNEY_ID, journey.getId());
+        assertEquals("New description", journey.getDescription());
+        assertEquals(UNI_3_ID, journey.getDestinationUniversity().getId());
+        assertEquals(START_DATE.plusDays(10), journey.getStartDate());
+        assertEquals(END_DATE.plusDays(10), journey.getEndDate());
+        assertEquals(DELETED_JOURNEY_USER_ID, journey.getUser().getId());   
     }
 
     @Test
@@ -698,6 +810,16 @@ public class JourneyJdbcDaoTest {
         assertNotNull(page.getContent());
         assertEquals(0, page.getContent().size());
     }
+    @Test
+    public void testSearchJourneysDeleted(){
+        Page<Journey> page = journeyDao.searchJourneys(DELETED_USER_NAME, 1, 5);
+
+        assertNotNull(page);
+        assertEquals(1,page.getCurrentPage());
+        assertEquals(0,page.getTotalPages());
+        assertNotNull(page.getContent());
+        assertEquals(0, page.getContent().size());
+    }
 
     @Test
     public void testFindByFiltersDestination(){
@@ -711,14 +833,14 @@ public class JourneyJdbcDaoTest {
         assertEquals(2, journeys.size());
         for (Journey j : journeys){
             assertEquals(DESCRIPTION, j.getDescription());
-            assertEquals(DESTINATION_UNI_ID.longValue(), j.getDestinationUniversity().getId());
+            assertEquals(DESTINATION_UNI_ID, j.getDestinationUniversity().getId());
             assertEquals(START_DATE, j.getStartDate());
             assertEquals(END_DATE, j.getEndDate());
             if (j.getId() == id1) {
-                assertEquals(USER1_ID.longValue(), j.getUser().getId());
+                assertEquals(USER1_ID, j.getUser().getId());
             } else {
                 assertEquals(id2, j.getId());
-                assertEquals(USER2_ID.longValue(), j.getUser().getId());
+                assertEquals(USER2_ID, j.getUser().getId());
             }
         }
     }
@@ -734,14 +856,14 @@ public class JourneyJdbcDaoTest {
         assertEquals(2, journeys.size());
         for (Journey j : journeys){
             assertEquals(DESCRIPTION, j.getDescription());
-            assertEquals(DESTINATION_UNI_ID.longValue(), j.getDestinationUniversity().getId());
+            assertEquals(DESTINATION_UNI_ID, j.getDestinationUniversity().getId());
             assertEquals(START_DATE, j.getStartDate());
             assertEquals(END_DATE, j.getEndDate());
             if (j.getId() == id1) {
-                assertEquals(USER1_ID.longValue(), j.getUser().getId());
+                assertEquals(USER1_ID, j.getUser().getId());
             } else {
                 assertEquals(id2, j.getId());
-                assertEquals(USER2_ID.longValue(), j.getUser().getId());
+                assertEquals(USER2_ID, j.getUser().getId());
             }
         }
     }
@@ -757,14 +879,14 @@ public class JourneyJdbcDaoTest {
         assertEquals(2, journeys.size());
         for (Journey j : journeys){
             assertEquals(DESCRIPTION, j.getDescription());
-            assertEquals(DESTINATION_UNI_ID.longValue(), j.getDestinationUniversity().getId());
+            assertEquals(DESTINATION_UNI_ID, j.getDestinationUniversity().getId());
             assertEquals(START_DATE, j.getStartDate());
             assertEquals(END_DATE, j.getEndDate());
             if (j.getId() == id1) {
-                assertEquals(USER1_ID.longValue(), j.getUser().getId());
+                assertEquals(USER1_ID, j.getUser().getId());
             } else {
                 assertEquals(id2, j.getId());
-                assertEquals(USER2_ID.longValue(), j.getUser().getId());
+                assertEquals(USER2_ID, j.getUser().getId());
             }
         }
     }
@@ -780,14 +902,14 @@ public class JourneyJdbcDaoTest {
         assertEquals(2, journeys.size());
         for (Journey j : journeys){
             assertEquals(DESCRIPTION, j.getDescription());
-            assertEquals(DESTINATION_UNI_ID.longValue(), j.getDestinationUniversity().getId());
+            assertEquals(DESTINATION_UNI_ID, j.getDestinationUniversity().getId());
             assertEquals(START_DATE, j.getStartDate());
             assertEquals(END_DATE, j.getEndDate());
             if (j.getId() == id1) {
-                assertEquals(USER1_ID.longValue(), j.getUser().getId());
+                assertEquals(USER1_ID, j.getUser().getId());
             } else {
                 assertEquals(id2, j.getId());
-                assertEquals(USER2_ID.longValue(), j.getUser().getId());
+                assertEquals(USER2_ID, j.getUser().getId());
             }
         }
     }
@@ -802,10 +924,10 @@ public class JourneyJdbcDaoTest {
         assertNotNull(journeys);
         assertEquals(1, journeys.size());
         assertEquals(DESCRIPTION, journeys.getFirst().getDescription());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journeys.getFirst().getDestinationUniversity().getId());
+        assertEquals(DESTINATION_UNI_ID, journeys.getFirst().getDestinationUniversity().getId());
         assertEquals(START_DATE, journeys.getFirst().getStartDate());
         assertEquals(END_DATE, journeys.getFirst().getEndDate());
-        assertEquals(USER1_ID.longValue(), journeys.getFirst().getUser().getId());
+        assertEquals(USER1_ID, journeys.getFirst().getUser().getId());
         assertEquals(id1, journeys.getFirst().getId());
     }
     @Test
@@ -830,10 +952,10 @@ public class JourneyJdbcDaoTest {
         assertNotNull(journeys);
         assertEquals(1, journeys.size());
         assertEquals(DESCRIPTION, journeys.getFirst().getDescription());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journeys.getFirst().getDestinationUniversity().getId());
+        assertEquals(DESTINATION_UNI_ID, journeys.getFirst().getDestinationUniversity().getId());
         assertEquals(START_DATE, journeys.getFirst().getStartDate());
         assertEquals(END_DATE, journeys.getFirst().getEndDate());
-        assertEquals(USER1_ID.longValue(), journeys.getFirst().getUser().getId());
+        assertEquals(USER1_ID, journeys.getFirst().getUser().getId());
         assertEquals(id1, journeys.getFirst().getId());
     }
     @Test
@@ -847,10 +969,10 @@ public class JourneyJdbcDaoTest {
         assertNotNull(journeys);
         assertEquals(1, journeys.size());
         assertEquals(DESCRIPTION, journeys.getFirst().getDescription());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journeys.getFirst().getDestinationUniversity().getId());
+        assertEquals(DESTINATION_UNI_ID, journeys.getFirst().getDestinationUniversity().getId());
         assertEquals(START_DATE, journeys.getFirst().getStartDate());
         assertEquals(END_DATE, journeys.getFirst().getEndDate());
-        assertEquals(USER1_ID.longValue(), journeys.getFirst().getUser().getId());
+        assertEquals(USER1_ID, journeys.getFirst().getUser().getId());
         assertEquals(id1, journeys.getFirst().getId());
     }
 
@@ -865,11 +987,11 @@ public class JourneyJdbcDaoTest {
         assertNotNull(journeys);
         assertEquals(1, journeys.size());
         assertEquals(DESCRIPTION, journeys.getFirst().getDescription());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journeys.getFirst().getDestinationUniversity().getId());
+        assertEquals(DESTINATION_UNI_ID, journeys.getFirst().getDestinationUniversity().getId());
         assertEquals(START_DATE, journeys.getFirst().getStartDate());
         assertEquals(END_DATE, journeys.getFirst().getEndDate());
         assertEquals(id2, journeys.getFirst().getId());
-        assertEquals(USER2_ID.longValue(), journeys.getFirst().getUser().getId());
+        assertEquals(USER2_ID, journeys.getFirst().getUser().getId());
     }
     @Test
     public void testFindByFiltersStartDateExcluding(){
@@ -882,11 +1004,11 @@ public class JourneyJdbcDaoTest {
         assertNotNull(journeys);
         assertEquals(1, journeys.size());
         assertEquals(DESCRIPTION, journeys.getFirst().getDescription());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journeys.getFirst().getDestinationUniversity().getId());
+        assertEquals(DESTINATION_UNI_ID, journeys.getFirst().getDestinationUniversity().getId());
         assertEquals(START_DATE, journeys.getFirst().getStartDate());
         assertEquals(END_DATE, journeys.getFirst().getEndDate());
         assertEquals(id2, journeys.getFirst().getId());
-        assertEquals(USER2_ID.longValue(), journeys.getFirst().getUser().getId());
+        assertEquals(USER2_ID, journeys.getFirst().getUser().getId());
     }
     @Test
     public void testFindByFiltersStartDateAndEmptyDestinationExcluding(){
@@ -899,11 +1021,11 @@ public class JourneyJdbcDaoTest {
         assertNotNull(journeys);
         assertEquals(1, journeys.size());
         assertEquals(DESCRIPTION, journeys.getFirst().getDescription());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journeys.getFirst().getDestinationUniversity().getId());
+        assertEquals(DESTINATION_UNI_ID, journeys.getFirst().getDestinationUniversity().getId());
         assertEquals(START_DATE, journeys.getFirst().getStartDate());
         assertEquals(END_DATE, journeys.getFirst().getEndDate());
         assertEquals(id2, journeys.getFirst().getId());
-        assertEquals(USER2_ID.longValue(), journeys.getFirst().getUser().getId());
+        assertEquals(USER2_ID, journeys.getFirst().getUser().getId());
     }
     @Test
     public void testFindByFiltersEndDateExcluding(){
@@ -916,11 +1038,11 @@ public class JourneyJdbcDaoTest {
         assertNotNull(journeys);
         assertEquals(1, journeys.size());
         assertEquals(DESCRIPTION, journeys.getFirst().getDescription());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journeys.getFirst().getDestinationUniversity().getId());
+        assertEquals(DESTINATION_UNI_ID, journeys.getFirst().getDestinationUniversity().getId());
         assertEquals(START_DATE, journeys.getFirst().getStartDate());
         assertEquals(END_DATE, journeys.getFirst().getEndDate());
         assertEquals(id2, journeys.getFirst().getId());
-        assertEquals(USER2_ID.longValue(), journeys.getFirst().getUser().getId());
+        assertEquals(USER2_ID, journeys.getFirst().getUser().getId());
     }
     @Test
     public void testFindByFiltersInterestsExcluding(){
@@ -978,11 +1100,11 @@ public class JourneyJdbcDaoTest {
         assertNotNull(journeys);
         assertEquals(1, journeys.getContent().size());
         assertEquals(DESCRIPTION, journeys.getContent().getFirst().getDescription());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journeys.getContent().getFirst().getDestinationUniversity().getId());
+        assertEquals(DESTINATION_UNI_ID, journeys.getContent().getFirst().getDestinationUniversity().getId());
         assertEquals(START_DATE, journeys.getContent().getFirst().getStartDate());
         assertEquals(END_DATE, journeys.getContent().getFirst().getEndDate());
         assertEquals(id2, journeys.getContent().getFirst().getId());
-        assertEquals(USER2_ID.longValue(), journeys.getContent().getFirst().getUser().getId());
+        assertEquals(USER2_ID, journeys.getContent().getFirst().getUser().getId());
     }
     @Test
     public void testFindByFiltersStartDatePaged(){
@@ -995,11 +1117,11 @@ public class JourneyJdbcDaoTest {
         assertNotNull(journeys);
         assertEquals(1, journeys.getContent().size());
         assertEquals(DESCRIPTION, journeys.getContent().getFirst().getDescription());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journeys.getContent().getFirst().getDestinationUniversity().getId());
+        assertEquals(DESTINATION_UNI_ID, journeys.getContent().getFirst().getDestinationUniversity().getId());
         assertEquals(START_DATE, journeys.getContent().getFirst().getStartDate());
         assertEquals(END_DATE, journeys.getContent().getFirst().getEndDate());
         assertEquals(id2, journeys.getContent().getFirst().getId());
-        assertEquals(USER2_ID.longValue(), journeys.getContent().getFirst().getUser().getId());
+        assertEquals(USER2_ID, journeys.getContent().getFirst().getUser().getId());
     }
     @Test
     public void testFindByFiltersEndDatePaged(){
@@ -1012,11 +1134,11 @@ public class JourneyJdbcDaoTest {
         assertNotNull(journeys);
         assertEquals(1, journeys.getContent().size());
         assertEquals(DESCRIPTION, journeys.getContent().getFirst().getDescription());
-        assertEquals(DESTINATION_UNI_ID.longValue(), journeys.getContent().getFirst().getDestinationUniversity().getId());
+        assertEquals(DESTINATION_UNI_ID, journeys.getContent().getFirst().getDestinationUniversity().getId());
         assertEquals(START_DATE, journeys.getContent().getFirst().getStartDate());
         assertEquals(END_DATE, journeys.getContent().getFirst().getEndDate());
         assertEquals(id2, journeys.getContent().getFirst().getId());
-        assertEquals(USER2_ID.longValue(), journeys.getContent().getFirst().getUser().getId());
+        assertEquals(USER2_ID, journeys.getContent().getFirst().getUser().getId());
     }
     @Test
     public void testFindByFiltersInterestsPaged(){

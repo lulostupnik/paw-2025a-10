@@ -16,4 +16,5 @@ public interface UniversityDao {
     Page<University> getAllUniversities(int page, int size);
     University createUniversity(String name, String abbreviation, String city);
     void updateUniversity(long id, String name, String abbreviation, long cityId);
+    void delete(long id);
 }

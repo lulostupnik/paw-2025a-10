@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.form.CreateEventForm;
 
 import ar.edu.itba.paw.webapp.form.ReplyForm;
@@ -14,19 +15,13 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
+
 
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -102,7 +97,7 @@ public class EventController {
         return new ModelAndView("redirect:/events/{id}", "id", event.getId());
     }
 
-    private ModelAndView populateEventDetails( Event event, long id, String username,
+    private ModelAndView populateEventDetails( Event event, long id, User user,
                                               BindingResult deleteErrors, BindingResult deleteReplyErrors,
                                               Long replyId) {
         ModelAndView mav = new ModelAndView("events/detail");
@@ -130,9 +125,9 @@ public class EventController {
         boolean isAttending = false;
         boolean isEventOwner = false;
 
-        if(username != null) {
-            isAttending = eventService.isUserAttending(SecurityContextHolder.getContext().getAuthentication().getName(), id);
-            isEventOwner = eventService.isEventOwnedByUser(SecurityContextHolder.getContext().getAuthentication().getName(), id);
+        if(user != null) {
+            isAttending = eventService.isUserAttending(user.getEmail(), id);
+            isEventOwner = eventService.isEventOwnedByUser(user.getEmail(), id);
         }
 
         LOGGER.debug("User attending event {}", isAttending);
@@ -156,13 +151,9 @@ public class EventController {
 
 
         LOGGER.debug("Getting info for event {}", id);
-        Optional<Event> maybeEvent = eventService.getEventById(id);
-        if (maybeEvent.isEmpty()) { // error ControllerAdvice
-            LOGGER.warn("Event {} not found", id);
-            return new ModelAndView("events/not_found");
-        }
 
-        return populateEventDetails(maybeEvent.get(), id, user.getEmail(), deleteErrors, deleteReplyErrors, replyId);
+        return populateEventDetails(eventService.getEventById(id).orElseThrow(() -> new EventNotFoundException("Event not found")),
+                id, user, deleteErrors, deleteReplyErrors, replyId);
     }
     @PostMapping("/{id}/delete")
     public ModelAndView deleteEvent(@PathVariable int id, @Valid @ModelAttribute("deleteForm") final ReplyForm form,
@@ -215,12 +206,11 @@ public class EventController {
 
         eventService.cancelAttendance(user.getEmail(), id);
         if (referer != null && !referer.isEmpty()) {
-            return new ModelAndView("redirect:" + referer); //@TODO preguntar si es lícito
+            return new ModelAndView("redirect:" + referer);
         } else {
             return new ModelAndView("redirect:/events/{id}");
         }
     }
-    //@TODO cambiar a spring security
     @RequestMapping(value = "/{id}/update", method = GET)
     public ModelAndView showUpdateEventForm(@PathVariable("id") int eventId,
                                             @ModelAttribute("user") User user,
@@ -241,7 +231,6 @@ public class EventController {
             form.setAttendeesLimit(event.getAttendeesLimit().orElse(null));
         }
 
-        // 4. Build the response
         ModelAndView mav = new ModelAndView("events/edit");
         addDropdownAttributes(mav);
         mav.addObject("eventId", eventId);

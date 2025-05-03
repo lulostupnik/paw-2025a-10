@@ -168,5 +168,14 @@ public class InterestJdbcDao implements InterestDao {
         return new Page<>(jdbcTemplate.query(query.toString(),INTEREST_ROW_MAPPER, like, pageSize, offset),page,totalPages);
     }
 
+    @Override
+    public void delete(long id) {
+        LOGGER.debug("Deleting interest with ID: {}", id);
+        int rowsAffected = jdbcTemplate.update("DELETE FROM category WHERE id = ?", id);
+        if (rowsAffected == 0) {
+            LOGGER.warn("Interest delete failed: Interest with ID {} not found", id);
+        }
+    }
+
 
 }

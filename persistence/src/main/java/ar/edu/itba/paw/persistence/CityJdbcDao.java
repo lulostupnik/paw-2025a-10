@@ -33,7 +33,11 @@ public class CityJdbcDao implements CityDao {
     );
 
     private final static String SELECT_CLAUSE = "SELECT ci.name as city_name, ci.id as city_id, co.name as country_name";
-    private final static String QUERY = SELECT_CLAUSE + " FROM cities ci, countries co WHERE ci.country_id = co.id ";
+    private final static String QUERY = SELECT_CLAUSE + " FROM cities ci, countries co WHERE ci.country_id = co.id AND ci.deleted = FALSE ";
+
+    private final static String SQL_FIND_ALL_PAGED = QUERY + " ORDER BY ci.name LIMIT ? OFFSET ?";
+    private final static String SQL_FIND_BY_COUNTRY = QUERY + "AND co.name = ?";
+    private final static String SQL_SEARCH_PAGED = QUERY + " AND LOWER(ci.name) LIKE LOWER(?) LIMIT ? OFFSET ? ";
 
     // private static final RowMappeFr<City> SIMPLE_CITY_ROW_MAPPER = (rs, rowNum) -> new City(rs.getString("name"), rs.getString("country"), rs.getLong("id"));
 
@@ -91,7 +95,7 @@ public class CityJdbcDao implements CityDao {
     public Optional<City> findByName(String name) {
         LOGGER.debug("Querying DB for city entry with name {}", name);
         return jdbcTemplate.query(
-                QUERY + "AND ci.name = ?",
+                QUERY + " AND ci.name = ?",
                 CITY_ROW_MAPPER,
                 name
         ).stream().findFirst();
@@ -100,54 +104,77 @@ public class CityJdbcDao implements CityDao {
 
     @Override
     public List<City> getAllCities() {
-        LOGGER.debug("Querying DB for all cities");
-        return jdbcTemplate.query(QUERY + " ORDER BY city_name", CITY_ROW_MAPPER);
+        return jdbcTemplate.query(QUERY + " ORDER BY city_name ", CITY_ROW_MAPPER);
     }
 
     @Override
     public Page<City> getAllCities(int page, int pageSize) {
-        int offset = (page - 1) * pageSize;
-        StringBuilder query = new StringBuilder(SELECT_CLAUSE);
-        query.append(" FROM (SELECT * FROM cities ci LIMIT ? OFFSET ?) as ci, countries co WHERE ci.country_id = co.id ");
-        int totalCities = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities", Integer.class);
-        int totalPages = (int) Math.ceil((double) totalCities / pageSize);
-        return new Page<>(jdbcTemplate.query(query.toString(),CITY_ROW_MAPPER,pageSize,offset),page,totalPages);
+        int totalCities = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE deleted = FALSE ", Integer.class);
+        return new Page<>(
+                jdbcTemplate.query(SQL_FIND_ALL_PAGED, CITY_ROW_MAPPER, pageSize, (page - 1) * pageSize),
+                page,
+                (int) Math.ceil((double) totalCities / pageSize)
+        );
     }
 
 
     @Override
     public void updateCity(long id, String name, Country country) {
-        String sql = "UPDATE cities SET name = ? , country_id = ? WHERE id = ?";
+        String sql = "UPDATE cities SET name = ?, country_id = ? WHERE id = ?";
         jdbcTemplate.update(sql, name, country.getId(), id);
     }
 
     @Override
     public void createCity(String name, Country country) {
+        LOGGER.debug("Creating or reactivating city {} in country {}", name, country.getName());
+
+        int rowsUpdated = jdbcTemplate.update(
+                "UPDATE cities SET deleted = FALSE WHERE name = ? AND country_id = ? AND deleted = TRUE",
+                name, country.getId()
+        );
+
+        if (rowsUpdated > 0) {
+            LOGGER.debug("City {} reactivated", name);
+            return;
+        }
+
         Map<String, Object> params = new HashMap<>();
         params.put("name", name);
         params.put("country_id", country.getId());
+        params.put("deleted", false);
         jdbcInsert.execute(params);
+        LOGGER.debug("City {} created", name);
+
+    }
+
+    @Override
+    public void delete(long id) {
+        LOGGER.debug("Marking city with ID: {} as deleted", id);
+        int rowsAffected = jdbcTemplate.update("UPDATE cities SET deleted = TRUE WHERE id = ?", id);
+        if (rowsAffected == 0) {
+            LOGGER.warn("City deletion failed: City with ID {} not found", id);
+        }
     }
 
     @Override
     public List<City> findAll() {
-        LOGGER.debug("Querying DB for all cities");
         return jdbcTemplate.query(QUERY, CITY_ROW_MAPPER);
     }
 
     @Override
     public List<City> findAllByCountry(String country) {
         LOGGER.debug("Querying DB for cities in country {}");
-        return jdbcTemplate.query(QUERY + "AND co.name = ?", CITY_ROW_MAPPER, country);
+        return jdbcTemplate.query(SQL_FIND_BY_COUNTRY, CITY_ROW_MAPPER, country);
     }
 
     @Override
     public Page<City> searchBySubstring(String substring, int page, int size) {
-        LOGGER.debug("Querying DB for cities like {}", substring);
-        int offset = (page - 1) * size;
-        String like = "%" + substring + "%";
-        return new Page<>(jdbcTemplate.query(QUERY + "AND ci.name LIKE ? LIMIT ? OFFSET ?", CITY_ROW_MAPPER, like, size, offset), page,
-                (int) Math.ceil((double) jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE name LIKE ?", Integer.class, like) / size));
+        String searchPattern = "%" + substring + "%";
+        int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE deleted = FALSE AND LOWER(name) LIKE LOWER(?) ", Integer.class, searchPattern);
+        return new Page<>(
+                jdbcTemplate.query(SQL_SEARCH_PAGED, CITY_ROW_MAPPER, searchPattern, size, (page - 1) * size),
+                page,
+                (int) Math.ceil((double) totalItems / size));
     }
 
 }

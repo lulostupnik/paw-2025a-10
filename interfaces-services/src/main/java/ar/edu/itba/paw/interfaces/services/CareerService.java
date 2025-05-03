@@ -12,5 +12,5 @@ public interface CareerService {
     Page<Career> getAllCareers(String search, int page, int pageSize);
     Career create(String name);
     Career update(long id, String name);
-    void delete(long id, String message);
+    void delete(long id);
 }

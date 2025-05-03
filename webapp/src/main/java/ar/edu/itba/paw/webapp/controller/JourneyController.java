@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import javax.validation.Valid;
 
+import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.webapp.form.FilterJourneyForm;
@@ -19,8 +20,6 @@ import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
@@ -134,18 +133,19 @@ public class JourneyController {
 
         LOGGER.debug("Getting info for journey {}", id);
 
-        Optional<Journey> journey = js.getJourneyById(id);
+        Journey journey = js.getJourneyById(id).orElseThrow(()-> new JourneyNotFoundException("Journey not found"));
 
-        if(journey.isEmpty()){ //cambiar con exception controllerAdvice
-            LOGGER.debug("Journey {} not found", id);
-            return new ModelAndView("journeys/not_found");
-        }
-        List<JourneyResponse> journeyResponses = js.getJourneyResponses(journey.get().getId());
+        List<JourneyResponse> journeyResponses = js.getJourneyResponses(journey.getId());
 
         final ModelAndView mav = new ModelAndView("journeys/detail");
-        mav.addObject("journey", journey.get());
+        mav.addObject("journey", journey);
         mav.addObject("journeyResponses", journeyResponses);
-        mav.addObject("isOwner", js.isJourneyOwnedByUser(user.getEmail(),journey.get().getId()));
+
+        if(user != null){
+            mav.addObject("isOwner", js.isJourneyOwnedByUser(user.getEmail(),journey.getId()));
+        }else{
+            mav.addObject("isOwner", false);
+        }
 
         // Check if there are errors in the delete forms
         if (deleteErrors.hasErrors()) {

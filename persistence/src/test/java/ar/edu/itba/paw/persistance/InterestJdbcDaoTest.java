@@ -33,7 +33,7 @@ import ar.edu.itba.paw.persistence.InterestJdbcDao;
 @Rollback
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
-public class InterestsJdbcDaoTest {
+public class InterestJdbcDaoTest {
 
     private static final String INTEREST_TABLE = "category";
     private static final String USER_INTEREST_TABLE = "user_interest";
@@ -521,6 +521,28 @@ public class InterestsJdbcDaoTest {
         assertEquals(2, page2.getTotalPages());
         assertEquals(2, page1.getContent().size());
         assertEquals(1, page2.getContent().size());
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    public void testDelete(){
+        insertInterest.executeAndReturnKey(Map.of("name", INTEREST_1));
+        insertInterest.executeAndReturnKey(Map.of("name", INTEREST_2));
+        long idToDelete = insertInterest.executeAndReturnKey(Map.of("name", INTEREST_3)).longValue();
+
+        interestDao.delete(idToDelete);
+
+        assertEquals(2, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category",Integer.class).intValue());
+    }
+    @SuppressWarnings("null")
+    @Test
+    public void testDeleteWrongInterest(){
+        insertInterest.executeAndReturnKey(Map.of("name", INTEREST_1));
+        insertInterest.executeAndReturnKey(Map.of("name", INTEREST_2));
+
+        interestDao.delete(12341234);
+
+        assertEquals(2, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category",Integer.class).intValue());
     }
 
 }

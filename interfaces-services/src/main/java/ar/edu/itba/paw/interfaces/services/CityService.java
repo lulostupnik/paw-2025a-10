@@ -18,4 +18,5 @@ public interface CityService {
     void updateCity(long id, String name, String country);
     void createCity(String name, String country);
 
+    void delete(long id);
 }
