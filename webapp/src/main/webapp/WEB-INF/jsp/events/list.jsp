@@ -2,6 +2,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
+
+
+
 <html>
 <head>
   <title><spring:message code="event.page.title"/></title>
@@ -74,7 +77,17 @@
             </c:forEach>
           </c:if>
         </div>
+        <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
+          <jsp:param name="pageObjectTotalPages" value="${eventsPage.totalPages}" />
+          <jsp:param name="currentPage" value="${currentPage}" />
+          <jsp:param name="pageSize" value="${pageSize}" />
+          <jsp:param name="baseUrl" value="/events" />
+        </jsp:include>
+
       </div>
+
+
+
     </div>
   </div>
 </div>

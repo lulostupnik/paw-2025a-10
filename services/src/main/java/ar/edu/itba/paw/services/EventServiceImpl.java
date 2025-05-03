@@ -107,6 +107,15 @@ public class EventServiceImpl implements EventService {
         return eventDao.listAll();
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public Page<Event> getAllEvents(int page, int size){
+        return eventDao.listAll(page, size);
+    }
+
+
+
+    @Transactional(readOnly = true)
     @Override
     public Page<Event> getAllEvents(String search,int page, int size) {
         LOGGER.debug("Getting all events with search {}", search);
@@ -115,6 +124,7 @@ public class EventServiceImpl implements EventService {
         }
         return eventDao.searchEvents(search,page, size);
     }
+
 
 
     @Transactional(readOnly = true)
@@ -187,6 +197,11 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
+    public Page<User> getEventAttendees(long eventId, int page, int size) {
+        return eventAttendanceDao.getAttendees(eventId, page, size);
+    }
+    @Transactional(readOnly = true)
+    @Override
     public int getEventAttendeesCount(long eventId) {
         return eventAttendanceDao.getAttendeesCount(eventId);
     }
@@ -209,6 +224,9 @@ public class EventServiceImpl implements EventService {
     public List<EventResponse> getEventResponses(long eventId){
         return eventResponseService.listAllFromEvent(eventId);
     }
+
+
+
 //    //@TODO cache ?
 //    @Transactional(readOnly = true)
 //    @Override
@@ -260,6 +278,13 @@ public class EventServiceImpl implements EventService {
         return eventDao.getFullEvents();
     }
 
+
+    @Transactional(readOnly = true)
+    @Override
+    public Page<UserEvent> getEventsPageWithAttendanceStatus(long userId, int page, int size) {
+
+        return eventDao.getEventsWithAttendanceStatus(userId, page,size);
+    }
     @Transactional(readOnly = true)
     @Override
     public List<UserEvent> getEventsWithAttendanceStatus(long userId) {

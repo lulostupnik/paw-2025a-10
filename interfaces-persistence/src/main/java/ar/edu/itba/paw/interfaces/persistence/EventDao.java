@@ -46,6 +46,8 @@ public interface EventDao {
 
     List<UserEvent> getEventsWithAttendanceStatus(long userId);
 
+    Page<UserEvent> getEventsWithAttendanceStatus(long userId, int page, int size);
+
     //PAGE
     Page<Event> getOthersEvents(long userId, int pageNumber, int pageSize);
 
