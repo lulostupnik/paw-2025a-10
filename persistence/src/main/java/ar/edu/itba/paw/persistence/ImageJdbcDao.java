@@ -2,11 +2,9 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.ImageDao;
 import ar.edu.itba.paw.models.Image;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -36,9 +34,9 @@ public class ImageJdbcDao implements ImageDao {
     @Override
     public long saveImage(byte[] imageData) {
         LOGGER.debug("Registering new image of size {}", imageData.length);
-        Number key = jdbcInsert.executeAndReturnKey(Map.of("content", imageData)).longValue();
-        LOGGER.debug("Successfully registered image {}", key.longValue());
-        return key.longValue();
+        long id = jdbcInsert.executeAndReturnKey(Map.of("content", imageData)).longValue();
+        LOGGER.debug("Successfully registered image {}", id);
+        return id;
     }
 
     @Override
@@ -53,6 +51,7 @@ public class ImageJdbcDao implements ImageDao {
         jdbcTemplate.update("DELETE FROM images WHERE id = ?", id);
     }
 
+    // FIXME: creo que no se usa, o no se debería usar
     @Override
     public void updateImage(long id, byte[] newContent) {
         LOGGER.debug("Updating image {} with new content of size {}", id, newContent.length);
