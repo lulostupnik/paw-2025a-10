@@ -37,7 +37,7 @@ public class CityJdbcDao implements CityDao {
 
     private final static String SQL_FIND_ALL_PAGED = QUERY + " ORDER BY ci.name LIMIT ? OFFSET ?";
     private final static String SQL_FIND_BY_COUNTRY = QUERY + "AND co.name = ?";
-    private final static String SQL_SEARCH_PAGED = QUERY + " AND ci.name ILIKE ? LIMIT ? OFFSET ? ";
+    private final static String SQL_SEARCH_PAGED = QUERY + " AND LOWER(ci.name) LIKE LOWER(?) LIMIT ? OFFSET ? ";
 
     // private static final RowMappeFr<City> SIMPLE_CITY_ROW_MAPPER = (rs, rowNum) -> new City(rs.getString("name"), rs.getString("country"), rs.getLong("id"));
 
@@ -170,7 +170,7 @@ public class CityJdbcDao implements CityDao {
     @Override
     public Page<City> searchBySubstring(String substring, int page, int size) {
         String searchPattern = "%" + substring + "%";
-        int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE deleted = FALSE AND name ILIKE ? ", Integer.class, searchPattern);
+        int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE deleted = FALSE AND LOWER(name) LIKE LOWER(?) ", Integer.class, searchPattern);
         return new Page<>(
                 jdbcTemplate.query(SQL_SEARCH_PAGED, CITY_ROW_MAPPER, searchPattern, size, (page - 1) * size),
                 page,

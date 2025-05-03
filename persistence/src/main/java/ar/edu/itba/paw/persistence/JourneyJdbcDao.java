@@ -92,10 +92,9 @@ public class JourneyJdbcDao implements JourneyDao {
     private final static String SQL_PAGE = " ORDER BY j.id ASC LIMIT ? OFFSET ? ";
     private final static String SQL_FIND_ALL_PAGED = SQL_BASE + SQL_PAGE;
     private final static String SQL_FIND_OTHERS_PAGED = SQL_BASE + " AND j.user_id != ? " + SQL_PAGE;
-    private final static String SQL_BASE_INTEREST = SQL_BASE + " JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id" + SQL_NOT_DELETED;
-    private final static String QUERY_INTEREST = SQL_SELECT_BASE + SQL_FROM_BASE + " JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id \n";
+    private final static String SQL_BASE_INTEREST = SQL_SELECT_BASE + SQL_FROM_BASE + " JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id" + SQL_NOT_DELETED;
 
-    private final static String SQL_SEARCH_PAGED = SQL_BASE + " AND us.username ILIKE ? ORDER BY j.id ASC LIMIT ? OFFSET ?";
+    private final static String SQL_SEARCH_PAGED = SQL_BASE + " AND LOWER(us.username) LIKE LOWER(?) ORDER BY j.id ASC LIMIT ? OFFSET ?";
 
     private final static RowMapper<Journey> JOURNEY_ROW_MAPPER = (rs, rowNum) -> new Journey(
             rs.getLong("journey_id"),
@@ -408,13 +407,13 @@ public class JourneyJdbcDao implements JourneyDao {
         if (endDate != null) {
             countFilters.add("j.start_date <= ?");
             queryFilters.add("j.start_date <= ?");
-            params.add(endDate);
+            params.add(Date.valueOf(endDate));
         }
 
         if (startDate != null) {
             countFilters.add("j.end_date >= ?");
             queryFilters.add("j.end_date >= ?");
-            params.add(startDate);
+            params.add(Date.valueOf(startDate));
         }
 
         countQueryBuilder.append(" WHERE ").append(String.join(" AND ", countFilters));

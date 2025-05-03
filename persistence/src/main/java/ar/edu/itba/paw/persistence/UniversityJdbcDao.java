@@ -74,7 +74,7 @@ public class UniversityJdbcDao implements UniversityDao {
     @Override
     public Optional<University> findByAny(String searchString) {
         LOGGER.debug("Querying DB for university like {}", searchString);
-        return jdbcTemplate.query(QUERY + " AND un.abbreviation LIKE ? OR un.name LIKE ?", UNIVERSITY_ROW_MAPPER, "%"+searchString+"%", "%"+searchString+"%").stream().findFirst();
+        return jdbcTemplate.query(QUERY + " AND (un.abbreviation LIKE ? OR un.name LIKE ?)", UNIVERSITY_ROW_MAPPER, "%"+searchString+"%", "%"+searchString+"%").stream().findFirst();
     }
 
     @Override
@@ -88,8 +88,8 @@ public class UniversityJdbcDao implements UniversityDao {
         final String like = "%" + substring + "%";
         int offset = (page - 1) * size;
 
-        final String sql = QUERY + " AND LOWER(un.name) LIKE LOWER(?) OR LOWER(un.abbreviation) LIKE LOWER(?) LIMIT ? OFFSET ?";
-        int totalUniversities = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM universities WHERE LOWER(name) LIKE LOWER(?) OR LOWER(abbreviation) LIKE LOWER(?)", Integer.class, like, like);
+        final String sql = QUERY + " AND (LOWER(un.name) LIKE LOWER(?) OR LOWER(un.abbreviation) LIKE LOWER(?)) LIMIT ? OFFSET ?";
+        int totalUniversities = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM universities WHERE deleted = FALSE AND (LOWER(name) LIKE LOWER(?) OR LOWER(abbreviation) LIKE LOWER(?))", Integer.class, like, like);
         int totaPages = (int) Math.ceil((double) totalUniversities / size);
         return new Page<>(jdbcTemplate.query(sql, UNIVERSITY_ROW_MAPPER, like, like, size, offset), page, totaPages);
     }
@@ -106,10 +106,10 @@ public class UniversityJdbcDao implements UniversityDao {
     public Page<University> getAllUniversities(int page, int size) {
         int offset = (page - 1) * size;
         StringBuilder query = new StringBuilder(SELECT_CLAUSE);
-        query.append(" FROM (SELECT * FROM universities LIMIT ? OFFSET ?) un")
+        query.append(" FROM (SELECT * FROM universities WHERE deleted = FALSE LIMIT ? OFFSET ?) un")
                 .append(" JOIN cities ci ON un.city_id = ci.id")
                 .append(" JOIN countries co ON ci.country_id = co.id");
-        int totalUniversities = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM universities", Integer.class);
+        int totalUniversities = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM universities WHERE deleted = FALSE", Integer.class);
         int totalPages = (int) Math.ceil((double) totalUniversities / size);
         return new Page<>(jdbcTemplate.query(query.toString(), UNIVERSITY_ROW_MAPPER, size, offset),page,totalPages);
     }
@@ -136,7 +136,8 @@ public class UniversityJdbcDao implements UniversityDao {
 
         if (rowsUpdated > 0) {
             LOGGER.debug("Reactivated existing deleted university");
-            return findByName(name).orElseThrow(() -> new RuntimeException("Failed to retrieve reactivated university")); // FIXME: extra query, use RETURNING in update
+            return findByName(name).orElseThrow(() -> new RuntimeException("Failed to retrieve reactivated university")); 
+            // FIXME: extra query, use RETURNING in update -> That'll break testing because hsql doesn't like it
         }
 
         LOGGER.debug("No deleted university found, creating new university entry");

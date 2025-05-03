@@ -107,7 +107,7 @@ public class UserJdbcDao implements UserDao {
             SQL_BASE + " ORDER BY u.id ASC LIMIT ? OFFSET ?";
 
     private final static String SQL_SEARCH_USERS_PAGED = SQL_BASE +
-            "WHERE u.firstname ILIKE ? OR u.lastname ILIKE ? ORDER BY u.id DESC LIMIT ? OFFSET ? ";
+            "WHERE LOWER(u.firstname) LIKE LOWER(?) OR LOWER(u.lastname) LIKE LOWER(?) ORDER BY u.id DESC LIMIT ? OFFSET ? ";
 
 
     @Autowired
@@ -260,8 +260,8 @@ public class UserJdbcDao implements UserDao {
     @Override
     public Page<User> searchUsers(String search, int page, int size) {
             String searchPattern = "%" + search + "%";
-            List<User> list = jdbcTemplate.query(SQL_SEARCH_USERS_PAGED, USER_ROW_MAPPER, searchPattern, size, (page - 1) * size);
-            int elementCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users WHERE firstname ILIKE ?", Integer.class, searchPattern);
+            List<User> list = jdbcTemplate.query(SQL_SEARCH_USERS_PAGED, USER_ROW_MAPPER, searchPattern, searchPattern, size, (page - 1) * size);
+            int elementCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users WHERE LOWER(firstname) LIKE LOWER(?)", Integer.class, searchPattern);
             return new Page<>(list, page, (int) Math.ceil((double) elementCount / size));
     }
 
