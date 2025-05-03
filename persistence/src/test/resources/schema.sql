@@ -49,6 +49,7 @@ CREATE TABLE IF NOT EXISTS users(
     password VARCHAR(100) DEFAULT '$2b$10$KbQiA8xVuOPQkfiYJ0X0FubQbQjEJpTr6QOBD3qL6sYzFoq2nJ8fK' NOT NULL,
     language VARCHAR(2) DEFAULT 'en' NOT NULL,
     roles VARCHAR(50) DEFAULT 'user' NOT NULL,
+    blocked BOOLEAN DEFAULT FALSE NOT NULL,
     FOREIGN KEY(university) REFERENCES universities ON DELETE RESTRICT,
     FOREIGN KEY(career_id) REFERENCES careers,
     FOREIGN KEY(profile_picture_id) REFERENCES images,
