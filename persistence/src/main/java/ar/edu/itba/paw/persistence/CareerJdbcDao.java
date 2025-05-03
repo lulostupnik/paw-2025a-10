@@ -1,12 +1,10 @@
 package ar.edu.itba.paw.persistence;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.sql.DataSource;
-
 import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +19,7 @@ import ar.edu.itba.paw.interfaces.persistence.CareerDao;
 @Repository
 public class CareerJdbcDao implements CareerDao {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(CareerJdbcDao.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(CareerJdbcDao.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
@@ -41,33 +39,30 @@ public class CareerJdbcDao implements CareerDao {
 
     @Override
     public Optional<Career> findById(long id) {
-        LOGGER.debug("Querying DB for career {}", id);
         return jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE AND id = ? ",
                 CAREER_ROW_MAPPER, id).stream().findFirst();
     }
 
     @Override
     public List<Career> findAll() {
-        LOGGER.debug("Querying DB for all careers");
         return jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE",
                 CAREER_ROW_MAPPER);
     }
 
     @Override
     public Optional<Career> findByName(String name) {
-        LOGGER.debug("Querying DB for carreer {}", name);
-        return jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE AND name = ?",
-                CAREER_ROW_MAPPER, name).stream().findFirst();
+        return jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE AND name = ?", CAREER_ROW_MAPPER, name)
+                .stream().findFirst();
     }
 
     @Override
     public Page<Career> getAllCareers(int page, int pageSize) {
-        int totalCareers = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM careers WHERE deleted = FALSE", Integer.class);
+        int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM careers WHERE deleted = FALSE", Integer.class);
 
         return new Page<>(
                 jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE LIMIT ? OFFSET ?", CAREER_ROW_MAPPER, pageSize, (page - 1) * pageSize),
                 page,
-                (int) Math.ceil((double) totalCareers / pageSize)
+                (int) Math.ceil((double) totalItems / pageSize)
         );
 
     }
@@ -94,8 +89,7 @@ public class CareerJdbcDao implements CareerDao {
 
         if (rowsUpdated > 0) {
             LOGGER.debug("Reactivated existing deleted career");
-            return findByName(name).orElseThrow(() ->
-                    new RuntimeException("Failed to retrieve reactivated career"));
+            return findByName(name).orElseThrow(() -> new RuntimeException("Failed to retrieve reactivated career"));
         }
 
         final Map<String, Object> args = new HashMap<>();
