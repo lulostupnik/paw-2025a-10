@@ -82,29 +82,17 @@ public class UserJdbcDao implements UserDao {
             JOIN countries co ON co.id = ci.country_id
             """;
 
-    private final static String SQL_BASE =
-            SQL_SELECT_BASE + SQL_FROM_BASE;
+    private final static String SQL_BASE = SQL_SELECT_BASE + SQL_FROM_BASE;
+    private final static String SQL_BASE_DISTINCT = "SELECT DISTINCT " + SQL_SELECT_BASE.substring(6) + SQL_FROM_BASE;
 
-    private final static String SQL_BASE_DISTINCT =
-            "SELECT DISTINCT " + SQL_SELECT_BASE.substring(6) + SQL_FROM_BASE;
+    private final static String SQL_FIND_BY_ID = SQL_BASE + " WHERE u.id = ? ";
+    private final static String SQL_FIND_BY_EMAIL = SQL_BASE + " WHERE u.email = ? ";
+    private final static String SQL_FIND_BY_USERNAME = SQL_BASE + " WHERE u.username = ? ";
 
-    private final static String SQL_FIND_BY_ID =
-            SQL_BASE + " WHERE u.id = ? ";
+    private final static String SQL_JOIN_JOURNEY_RESPONDERS = SQL_BASE_DISTINCT + " JOIN journey_responses jr ON jr.user_id = u.id WHERE jr.journey_id = ? ";
+    private final static String SQL_JOIN_EVENT_RESPONDERS = SQL_BASE_DISTINCT + " JOIN event_responses er ON er.user_id = u.id WHERE er.event_id = ? ";
 
-    private final static String SQL_FIND_BY_EMAIL =
-            SQL_BASE + " WHERE u.email = ? ";
-
-    private final static String SQL_FIND_BY_USERNAME =
-            SQL_BASE + " WHERE u.username = ? ";
-
-    private final static String SQL_JOIN_JOURNEY_RESPONDERS =
-            SQL_BASE_DISTINCT + " JOIN journey_responses jr ON jr.user_id = u.id WHERE jr.journey_id = ? ";
-
-    private final static String SQL_JOIN_EVENT_RESPONDERS =
-            SQL_BASE_DISTINCT + " JOIN event_responses er ON er.user_id = u.id WHERE er.event_id = ? ";
-
-    private final static String SQL_FIND_ALL_PAGED =
-            SQL_BASE + " ORDER BY u.id ASC LIMIT ? OFFSET ?";
+    private final static String SQL_FIND_ALL_PAGED = SQL_BASE + " ORDER BY u.id ASC LIMIT ? OFFSET ?";
 
     private final static String SQL_SEARCH_USERS_PAGED = SQL_BASE +
             "WHERE LOWER(u.firstname) LIKE LOWER(?) OR LOWER(u.lastname) LIKE LOWER(?) ORDER BY u.id DESC LIMIT ? OFFSET ? ";
@@ -180,7 +168,7 @@ public class UserJdbcDao implements UserDao {
         args.put("roles", "user");
         args.put("blocked", false);
         final Number id = jdbcInsert.executeAndReturnKey(args);
-        return new User(id.longValue(), email, username, firstname, lastname, university/*.toString()*/, career, profilePictureId, locale,false );
+        return new User(id.longValue(), email, username, firstname, lastname, university, career, profilePictureId, locale,false );
     }
 
     @Override
@@ -310,24 +298,28 @@ public class UserJdbcDao implements UserDao {
         parameters.add(userId);
 
         jdbcTemplate.update(queryBuilder.toString(), parameters.toArray());
+        // return update(userId, firstname, lastname, username, null, null, null);
     }
 
     @Override
     public void updateLocale(long userId, Locale locale) {
         LOGGER.debug("Updating locale for user ID: {} to {}", userId, locale);
         jdbcTemplate.update("UPDATE users SET language = ? WHERE id = ?", locale.getLanguage(), userId);
+        // return update(userId, null, null, null, null, null, locale);
     }
 
     @Override
     public void updateUniversity(long userId, long universityId) {
         LOGGER.debug("Updating university for user ID: {} to university ID: {}", userId, universityId);
         jdbcTemplate.update("UPDATE users SET university = ? WHERE id = ?", universityId, userId);
+        // return update(userId, null, null, null, universityId, null, null);
     }
 
     @Override
     public void updateCareer(long userId, long careerId) {
         LOGGER.debug("Updating career for user ID: {} to career ID: {}", userId, careerId);
         jdbcTemplate.update("UPDATE users SET career_id = ? WHERE id = ?", careerId, userId);
+        // return update(userId, null, null, null, null, careerId, null);
     }
 
     @Override
