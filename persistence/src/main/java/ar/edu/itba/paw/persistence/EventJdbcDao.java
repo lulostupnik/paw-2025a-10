@@ -21,22 +21,22 @@ import ar.edu.itba.paw.interfaces.persistence.EventDao;
 
 @Repository
 public class EventJdbcDao implements EventDao {
-    private static Logger LOGGER = LoggerFactory.getLogger(EventJdbcDao.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(EventJdbcDao.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
 
     private static final RowMapper<Event> EVENT_ROW_MAPPER = (rs, rowNum) -> new Event(
-            rs.getLong("event_id"), // Event ID from `events` table
+            rs.getLong("event_id"),
             new User(
                     rs.getLong("user_id"),
-                    rs.getString("user_email"), // Correct field from `users`
+                    rs.getString("user_email"),
                     rs.getString("user_username"),
                     rs.getString("user_firstname"),
                     rs.getString("user_lastname"),
                     new University(
                             rs.getLong("university_id"),
-                            rs.getString("university_name"), // University name
+                            rs.getString("university_name"),
                             rs.getString("university_abbreviation"),
                             new City(
                                     rs.getString("origin_city_name"),
@@ -56,7 +56,7 @@ public class EventJdbcDao implements EventDao {
             rs.getString("event_description"),
             rs.getLong( "event_flyer_image_id"),
             new City(
-                    rs.getString("city_name"), // Va a tener conflicto con el nombre de la universidad
+                    rs.getString("city_name"),
                     rs.getString("country_name"),
                     rs.getLong("city_id")),
             rs.getString("event_title"),
@@ -121,9 +121,7 @@ public class EventJdbcDao implements EventDao {
             """;
 
     private final static String SQL_NOT_DELETED = " WHERE e.deleted = FALSE ";
-
     private final static String SQL_BASE = SQL_SELECT_BASE + SQL_FROM_BASE; // + SQL_NOT_DELETED;
-
     private static final String SQL_BASE_NOT_DELETED = SQL_BASE + SQL_NOT_DELETED;
 
     private final static String SQL_FIND_BY_ID = SQL_BASE_NOT_DELETED + " AND e.id = ? ";
@@ -261,26 +259,6 @@ public class EventJdbcDao implements EventDao {
         ORDER BY(COUNT(ea.user_id), e.event_date) DESC
         LIMIT 3
         """;
-
-/*
-
-    private String getPageQuery(String whereClause, String orderByClause) {
-        return """
-                events e
-                JOIN users us ON e.user_id = us.id
-                JOIN careers ca ON ca.id = us.career_id
-                JOIN universities un ON us.university = un.id
-                JOIN cities ci2 ON un.city_id = ci2.id
-                JOIN countries co2 ON co2.id = ci2.country_id
-                JOIN cities c ON e.city_id = c.id
-                JOIN countries co ON c.country_id = co.id
-                """
-                + whereClause + orderByClause + " LIMIT ? OFFSET ?"
-                ;
-    }
- */
-
-
 
     @Autowired
     public EventJdbcDao(DataSource dataSource) {
@@ -504,34 +482,27 @@ public class EventJdbcDao implements EventDao {
         );
     }
 
-@Override
-public void updateData(long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId/*, long userId*/) {
-    jdbcTemplate.update("""
-        UPDATE events
-           SET city_id = ?,
-               event_date = ?,
-               description = ?,
-               title = ?,
-               event_time = ?,
-               address = ?,
-               attendees_limit = ?
-         WHERE id = ?
-         """,
-            cityId,
-            date,
-            description,
-            title,
-            (time != null) ? Time.valueOf(time) : null,
-            address,
-            attendeesLimit,
-            eventId
-    );
-
-
-
-}
-
-
-
-
+    @Override
+    public void updateData(long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId/*, long userId*/) {
+        jdbcTemplate.update("""
+            UPDATE events
+               SET city_id = ?,
+                   event_date = ?,
+                   description = ?,
+                   title = ?,
+                   event_time = ?,
+                   address = ?,
+                   attendees_limit = ?
+             WHERE id = ?
+             """,
+                cityId,
+                date,
+                description,
+                title,
+                (time != null) ? Time.valueOf(time) : null,
+                address,
+                attendeesLimit,
+                eventId
+        );
+    }
 }
