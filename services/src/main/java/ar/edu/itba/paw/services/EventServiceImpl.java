@@ -197,6 +197,11 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
+    public Page<User> getEventAttendees(long eventId, int page, int size) {
+        return eventAttendanceDao.getAttendees(eventId, page, size);
+    }
+    @Transactional(readOnly = true)
+    @Override
     public int getEventAttendeesCount(long eventId) {
         return eventAttendanceDao.getAttendeesCount(eventId);
     }

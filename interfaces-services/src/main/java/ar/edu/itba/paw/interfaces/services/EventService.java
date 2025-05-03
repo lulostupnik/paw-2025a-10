@@ -25,6 +25,7 @@ public interface EventService {
     boolean isUserAttending(String email, long eventId);
     boolean isUserAttending(long userId, long eventId);
     List<User> getEventAttendees(long eventId);
+    Page<User> getEventAttendees(long eventId, int page, int size);
     int getEventAttendeesCount(long eventId);
     List<Event> getUserAttendingEvents(String userEmail);
     List<Event> getUserAttendingEvents(long userId);

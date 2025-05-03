@@ -363,7 +363,7 @@
                                 <!-- Attendees List  -->
                                 <c:if test="${isEventOwner}">
                                 <div id="attendees-list" class="attendees-grid">
-                                    <c:if test="${empty attendees}">
+                                    <c:if test="${empty attendeesPage.content}">
                                         <div class="empty-state">
                                             <div class="empty-icon">
                                                 <!-- Users icon SVG -->
@@ -380,8 +380,8 @@
                                         </div>
                                     </c:if>
 
-                                    <c:if test="${not empty attendees}">
-                                        <c:forEach var="attendee" items="${attendees}">
+                                    <c:if test="${not empty attendeesPage.content}">
+                                        <c:forEach var="attendee" items="${attendeesPage.content}">
                                             <div class="attendee-card">
                                                 <div class="attendee-avatar">
                                                     <c:if test="${not empty attendee.profilePictureId}">

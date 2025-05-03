@@ -149,7 +149,8 @@ public class EventController {
             mav.addObject("deleteFormId", "delete-event-response-form-" + replyId);
         }
         LOGGER.info("Found event {}", event);
-        mav.addObject("attendees", eventService.getEventAttendees(event.getId())); //@TODO paginar. ? O decimos que hay un maximo chico siempre y cambiamos eso.
+        mav.addObject("attendeesPage", eventService.getEventAttendees(event.getId(), page, size));
+        mav.addObject("attendeesCount", eventService.getEventAttendeesCount(event.getId()));
         Page<EventResponse> eventResponsesPage = eventResponseService.listAllFromEvent(event.getId(), page, size);
         mav.addObject("eventResponsesPage", eventResponsesPage);
         mav.addObject("commentsCount", eventResponseService.getCount(event.getId()));
