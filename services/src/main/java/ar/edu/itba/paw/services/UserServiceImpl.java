@@ -233,4 +233,14 @@ public class UserServiceImpl implements UserService {
         return userDao.searchUsers(search,page,size);
     }
 
+    @Override
+    public void blockUser(long userId) {
+        userDao.blockUser(userId);
+    }
+
+    @Override
+    public void unblockUser(long userId) {
+        userDao.unblockUser(userId);
+    }
+
 }

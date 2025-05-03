@@ -51,7 +51,8 @@ public class EventJdbcDao implements EventDao {
                             rs.getString("career_name")
                     ),
                     rs.getLong("user_profile_picture_id"),
-                    Locale.of(rs.getString("user_language"))
+                    Locale.of(rs.getString("user_language")),
+                    rs.getBoolean("user_blocked")
             ),
             rs.getDate("event_date").toLocalDate(),
             rs.getString("event_description"),
@@ -78,7 +79,8 @@ public class EventJdbcDao implements EventDao {
                         us.username AS user_username,\s
                         us.university AS user_university,\s
                         us.profile_picture_id AS user_profile_picture_id,\s
-                        us.language AS user_language,
+                        us.language AS user_language,\s
+                        us.blocked AS user_blocked,\s
                     
                         ca.id AS career_id,\s
                         ca.name AS career_name,\s
@@ -240,6 +242,7 @@ public class EventJdbcDao implements EventDao {
             us.university AS user_university, 
             us.profile_picture_id AS user_profile_picture_id, 
             us.language AS user_language,
+            us.blocked AS user_blocked,
             
             ca.id AS career_id, 
             ca.name AS career_name, 
@@ -309,6 +312,7 @@ public class EventJdbcDao implements EventDao {
             us.university AS user_university, 
             us.profile_picture_id AS user_profile_picture_id, 
             us.language AS user_language,
+            us.blocked AS user_blocked,
                 
             ca.id AS career_id, 
             ca.name AS career_name, 

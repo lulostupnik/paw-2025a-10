@@ -42,14 +42,15 @@ public class UserJdbcDao implements UserDao {
                     rs.getString("career_name")
             ),
             rs.getLong("user_profile_picture_id"),
-            Locale.of(rs.getString("user_language"))
-    );
+            Locale.of(rs.getString("user_language")),
+            rs.getBoolean("user_blocked"));
 
 
     private final static RowMapper<UserPassword> USER_PASSWORD_ROW_MAPPER = (rs, rowNum)-> new UserPassword(
             rs.getString("email"),
             rs.getString("password"),
-            rs.getString("roles")
+            rs.getString("roles"),
+            rs.getBoolean("blocked")
     );
 
 
@@ -63,6 +64,7 @@ public class UserJdbcDao implements UserDao {
                 u.username AS user_username,
                 u.university AS user_university,
                 u.language AS user_language,
+                u.blocked AS user_blocked,
                 c.name AS career_name,
                 c.id AS career_id,
                 u.profile_picture_id AS user_profile_picture_id,
@@ -138,7 +140,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public Optional<UserPassword> findByEmailWithPass(String email) {
-        return jdbcTemplate.query("SELECT email, password, roles FROM users WHERE email = ?", USER_PASSWORD_ROW_MAPPER, email).stream().findFirst();
+        return jdbcTemplate.query("SELECT email, password, roles, blocked FROM users WHERE email = ?", USER_PASSWORD_ROW_MAPPER, email).stream().findFirst();
     }
 
     @Override
@@ -178,8 +180,9 @@ public class UserJdbcDao implements UserDao {
         args.put("password", password);
         args.put("language", locale);
         args.put("roles", "user");
+        args.put("blocked", false);
         final Number id = jdbcInsert.executeAndReturnKey(args);
-        return new User(id.longValue(), email, username, firstname, lastname, university/*.toString()*/, career, profilePictureId, locale);
+        return new User(id.longValue(), email, username, firstname, lastname, university/*.toString()*/, career, profilePictureId, locale,false );
     }
 
     @Override
@@ -337,6 +340,31 @@ public class UserJdbcDao implements UserDao {
     @Override
     public List<User> listEventRespondersMinusUsers(long eventId) {
         return jdbcTemplate.query(SQL_JOIN_EVENT_RESPONDERS, USER_ROW_MAPPER, eventId);
+    }
+
+    @Override
+    public void blockUser(long userId){
+        LOGGER.debug("Blocking user with ID: {}", userId);
+        int rowsAffected = jdbcTemplate.update(
+                "UPDATE users SET blocked = TRUE WHERE id = ?",
+                userId
+        );
+
+        if (rowsAffected == 0) {
+            LOGGER.warn("User block failed: User with ID {} not found", userId);
+        }
+    }
+    @Override
+    public void unblockUser(long userId){
+        LOGGER.debug("Unblocking user with ID: {}", userId);
+        int rowsAffected = jdbcTemplate.update(
+                "UPDATE users SET blocked = FALSE WHERE id = ?",
+                userId
+        );
+
+        if (rowsAffected == 0) {
+            LOGGER.warn("User unblock failed: User with ID {} not found", userId);
+        }
     }
 
 }

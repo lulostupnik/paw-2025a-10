@@ -98,7 +98,8 @@ public class UserJdbcDaoTest {
         rs.getString("lastname"), 
         new University(rs.getLong("university"), null, null, null), 
         new Career(rs.getLong("career_id"), null), 
-        rs.getLong("profile_picture_id"), Locale.of(rs.getString("language")));
+        rs.getLong("profile_picture_id"), Locale.of(rs.getString("language")),
+            rs.getBoolean("blocked"));
 
     private void assertEqualsUser(User user){
         assertEqualsUser(user, Map.of());

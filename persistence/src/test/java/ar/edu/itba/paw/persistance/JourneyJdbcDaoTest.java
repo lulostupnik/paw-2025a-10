@@ -71,7 +71,7 @@ public class JourneyJdbcDaoTest {
 
     private JdbcTemplate jdbcTemplate;
     private SimpleJdbcInsert insert;
-    RowMapper<Journey> JOURNEY_ROW_MAPPER = (rs, rowNum) -> new Journey(rs.getLong("id"), new User(rs.getLong("user_id"), null, null, null, null, null, null, 0, null), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate(), new University(rs.getLong("destination_university_id"), null, null, null), rs.getString("description"));
+    RowMapper<Journey> JOURNEY_ROW_MAPPER = (rs, rowNum) -> new Journey(rs.getLong("id"), new User(rs.getLong("user_id"), null, null, null, null, null, null, 0, null, rs.getBoolean("blocked")), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate(), new University(rs.getLong("destination_university_id"), null, null, null), rs.getString("description"));
 
     @Before
     public void setUp(){
@@ -146,7 +146,7 @@ public class JourneyJdbcDaoTest {
     public void testCreate(){
         JdbcTestUtils.deleteFromTables(jdbcTemplate, JOURNEY_TABLE);
         Journey journey = journeyDao.create(
-            new User(USER1_ID, null, null, null, null, null, null, 0, null),
+            new User(USER1_ID, null, null, null, null, null, null, 0, null, false),
             new University(DESTINATION_UNI_ID, null,null, null),
             START_DATE, END_DATE, DESCRIPTION
         );
@@ -157,7 +157,7 @@ public class JourneyJdbcDaoTest {
     @Test(expected = DataAccessException.class)
     public void testCreateInvalidUser(){
         Journey journey = journeyDao.create(
-            new User(12341234, null, null, null, null, null, null, 0, null),
+            new User(12341234, null, null, null, null, null, null, 0, null, false),
             new University(DESTINATION_UNI_ID, null,null, null),
             START_DATE, END_DATE, DESCRIPTION
         );
@@ -168,7 +168,7 @@ public class JourneyJdbcDaoTest {
     @Test(expected = DataAccessException.class)
     public void testCreateInvalidUni(){
         Journey journey = journeyDao.create(
-            new User(USER1_ID, null, null, null, null, null, null, 0, null),
+            new User(USER1_ID, null, null, null, null, null, null, 0, null, false),
             new University(12431234, null,null, null),
             START_DATE, END_DATE, DESCRIPTION
         );
@@ -182,7 +182,7 @@ public class JourneyJdbcDaoTest {
         long id = insertJourneyGeneric();
 
         journeyDao.create(
-            new User(USER1_ID, null, null, null, null, null, null, 0, null),
+            new User(USER1_ID, null, null, null, null, null, null, 0, null, false),
             new University(DESTINATION_UNI_ID, null,null, null),
             START_DATE, END_DATE, DESCRIPTION
         );
@@ -203,7 +203,7 @@ public class JourneyJdbcDaoTest {
     public void testCreateDeleted(){
 
         journeyDao.create(
-            new User(DELETED_JOURNEY_USER_ID, null, null, null, null, null, null, 0, null),
+            new User(DELETED_JOURNEY_USER_ID, null, null, null, null, null, null, 0, null, false),
             new University(DESTINATION_UNI_ID, null,null, null),
             START_DATE, END_DATE, DESCRIPTION
         );

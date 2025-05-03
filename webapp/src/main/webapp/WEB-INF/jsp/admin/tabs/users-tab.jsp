@@ -47,6 +47,25 @@
           <td><c:out value="${user.firstname}"/></td>
           <td><c:out value="${user.email}"/></td>
           <td><c:out value="${user.university}"/></td>
+          <c:set var="blockUrl" value="/profile/${user.id}/block/"/>
+            <c:set var="unblockUrl" value="/profile/${user.id}/unblock/"/>
+          <td>
+            <c:if test="${! user.blocked}">
+              <form action="<c:url value='${blockUrl}'/>"  method="post">
+                <button type="submit" class="btn-danger btn-with-icon">
+                  <img class="btn-icon" alt="<spring:message code="user.block"/>" src="<c:url value="/resources/icons/block.svg"/>"/>
+                </button>
+              </form>
+            </c:if>
+            <c:if test="${user.blocked}">
+              <form action="<c:url value='${unblockUrl}'/>"  method="post">
+                <button type="submit" class="btn-primary btn-with-icon">
+                  <img class="btn-icon" alt="<spring:message code="user.block"/>" src="<c:url value="/resources/icons/block.svg"/>"/>
+                </button>
+              </form>
+            </c:if>
+          </td>
+
         </tr>
       </c:forEach>
       </tbody>
