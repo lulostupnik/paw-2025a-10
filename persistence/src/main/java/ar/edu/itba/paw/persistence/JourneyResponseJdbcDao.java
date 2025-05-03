@@ -11,7 +11,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
-
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -19,7 +18,7 @@ import java.util.*;
 //@TODO sort them in query by date
 @Repository
 public class JourneyResponseJdbcDao implements JourneyResponseDao {
-    private static Logger LOGGER = LoggerFactory.getLogger(JourneyResponseJdbcDao.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(JourneyResponseJdbcDao.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;

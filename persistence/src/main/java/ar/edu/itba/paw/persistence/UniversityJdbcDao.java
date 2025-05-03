@@ -3,7 +3,6 @@ package ar.edu.itba.paw.persistence;
 import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
 import ar.edu.itba.paw.models.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,20 +10,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-
 import javax.sql.DataSource;
-
-import java.sql.Time;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Repository
 public class UniversityJdbcDao implements UniversityDao {
-    private static Logger LOGGER = LoggerFactory.getLogger(UniversityJdbcDao.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(UniversityJdbcDao.class);
 
     private final CityDao cityDao;
     private final JdbcTemplate jdbcTemplate;

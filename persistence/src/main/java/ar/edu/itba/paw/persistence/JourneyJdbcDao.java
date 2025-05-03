@@ -21,7 +21,7 @@ import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 
 @Repository
 public class JourneyJdbcDao implements JourneyDao {
-    private static Logger LOGGER = LoggerFactory.getLogger(JourneyJdbcDao.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(JourneyJdbcDao.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;

@@ -14,12 +14,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-
 import ar.edu.itba.paw.interfaces.persistence.EventAttendanceDao;
 
 @Repository
 public class EventAttendanceJdbcDao implements EventAttendanceDao {
-    private static Logger LOGGER = LoggerFactory.getLogger(EventAttendanceJdbcDao.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(EventAttendanceJdbcDao.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
