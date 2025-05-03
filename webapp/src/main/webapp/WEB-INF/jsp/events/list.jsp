@@ -77,11 +77,13 @@
             </c:forEach>
           </c:if>
         </div>
-        <c:set var="pageObject" value="${eventsPage}" scope="request" />
-        <c:set var="currentPage" value="${currentPage}" scope="request" />
-        <c:set var="pageSize" value="${pageSize}" scope="request" />
-        <c:set var="baseUrl" value="/events" scope="request" />
-        <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp" />
+        <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
+          <jsp:param name="pageObjectTotalPages" value="${eventsPage.totalPages}" />
+          <jsp:param name="currentPage" value="${currentPage}" />
+          <jsp:param name="pageSize" value="${pageSize}" />
+          <jsp:param name="baseUrl" value="/events" />
+        </jsp:include>
+
       </div>
 
 

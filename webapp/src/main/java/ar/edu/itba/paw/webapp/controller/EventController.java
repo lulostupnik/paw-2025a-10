@@ -131,7 +131,7 @@ public class EventController {
 
     private ModelAndView populateEventDetails( Event event, long id, String username,
                                               BindingResult deleteErrors, BindingResult deleteReplyErrors,
-                                              Long replyId, int page, int size) {
+                                              Long replyId, int page, int size, int attendeesPage, int attendeesSize) {
         ModelAndView mav = new ModelAndView("events/detail");
         mav.addObject("event", event);
 
@@ -149,7 +149,7 @@ public class EventController {
             mav.addObject("deleteFormId", "delete-event-response-form-" + replyId);
         }
         LOGGER.info("Found event {}", event);
-        mav.addObject("attendeesPage", eventService.getEventAttendees(event.getId(), page, size));
+        mav.addObject("attendeesPage", eventService.getEventAttendees(event.getId(), attendeesPage, attendeesSize));
         mav.addObject("attendeesCount", eventService.getEventAttendeesCount(event.getId()));
         Page<EventResponse> eventResponsesPage = eventResponseService.listAllFromEvent(event.getId(), page, size);
         mav.addObject("eventResponsesPage", eventResponsesPage);
@@ -185,7 +185,9 @@ public class EventController {
                                  @Valid @ModelAttribute("deleteReplyForm") final ReplyForm deleteReplyForm, final BindingResult deleteReplyErrors,
                                  @RequestParam(value = "replyId", required = false) Long replyId,
                                  @RequestParam(value = "page", defaultValue = "1") int page,
-                                 @RequestParam(value = "size", defaultValue = "5") int size)
+                                 @RequestParam(value = "size", defaultValue = "5") int size,
+                                 @RequestParam(value = "attendeesPage", defaultValue = "1") int attendeesPage,
+                                 @RequestParam(value = "attendeesSize", defaultValue = "5") int attendeesSize)
     {
         LOGGER.debug("Getting info for event {}", id);
 
@@ -196,7 +198,7 @@ public class EventController {
             return new ModelAndView("events/not_found");
         }
 
-        return populateEventDetails(maybeEvent.get(), id, user.getEmail(), deleteErrors, deleteReplyErrors, replyId,page,size);
+        return populateEventDetails(maybeEvent.get(), id, user.getEmail(), deleteErrors, deleteReplyErrors, replyId,page,size, attendeesPage, attendeesSize);
     }
     @PostMapping("/{id}/delete")
     public ModelAndView deleteEvent(@PathVariable int id, @Valid @ModelAttribute("deleteForm") final ReplyForm form,

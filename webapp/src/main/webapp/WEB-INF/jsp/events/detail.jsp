@@ -403,8 +403,17 @@
                                                 </div>
                                             </div>
                                         </c:forEach>
+
                                     </c:if>
                                 </div>
+                                    <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
+                                        <jsp:param name="pageObjectTotalPages" value="${attendeesPage.totalPages}" />
+                                        <jsp:param name="currentPage" value="${attendeesPage.currentPage}" />
+                                        <jsp:param name="pageSize" value="4" />
+                                        <jsp:param name="baseUrl" value="/events/${event.id}" />
+                                        <jsp:param name="paramName" value="attendeesPage" />
+                                        <jsp:param name="sizeParamName" value="attendeesSize" />
+                                    </jsp:include>
                                 </c:if>
                             </div>
                         </div>
@@ -504,15 +513,15 @@
                                             </div>
                                         </c:forEach>
                                     </c:if>
+                                    <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
+                                        <jsp:param name="pageObjectTotalPages" value="${eventResponsesPage.totalPages}" />
+                                        <jsp:param name="currentPage" value="${eventResponsesPage.currentPage}" />
+                                        <jsp:param name="pageSize" value="4" />
+                                        <jsp:param name="baseUrl" value="/events/${id}" />
+                                    </jsp:include>
+
+
                                 </div>
-
-
-                                <c:set var="pageObject" value="${eventResponsesPage}" scope="request" />
-                                <c:set var="currentPage" value="${eventResponsesPage.currentPage}" scope="request" />
-                                <c:set var="pageSize" value="${fn:length(eventResponsesPage.content)}" scope="request" />
-                                <c:set var="baseUrl" value="/events/${id}" scope="request" />
-                                <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp" />
-
 
 
                                 <!-- Reply Form -->
