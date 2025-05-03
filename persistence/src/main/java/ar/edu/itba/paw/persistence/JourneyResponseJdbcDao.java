@@ -11,6 +11,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
+
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -71,7 +73,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
         args.put("user_id", userId);
         args.put("journey_id", journeyId);
         args.put("message", message);
-        args.put("date_time", dateTime);
+        args.put("date_time", Timestamp.valueOf(dateTime));
         args.put("deleted", false);
 
         final Number keys = jdbcInsert.executeAndReturnKey(args);

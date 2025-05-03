@@ -18,7 +18,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -50,6 +49,10 @@ public class JourneyJdbcDaoTest {
     private static long USER1_ID;
     private static long USER2_ID;
     private static long USER3_ID;
+    private static long USER_ANOTHER_ID;
+    private static long USER_1_COMMON_INTEREST_ID;
+    private static long USER_2_COMMON_INTEREST_ID;
+    private static long USER_3_COMMON_INTEREST_ID;
     private static final LocalDate START_DATE = LocalDate.now().plusDays(7);
     private static final LocalDate END_DATE = START_DATE.plusMonths(1);
     private static final String DESCRIPTION = "Cool journey";
@@ -71,7 +74,7 @@ public class JourneyJdbcDaoTest {
 
     private JdbcTemplate jdbcTemplate;
     private SimpleJdbcInsert insert;
-    RowMapper<Journey> JOURNEY_ROW_MAPPER = (rs, rowNum) -> new Journey(rs.getLong("id"), new User(rs.getLong("user_id"), null, null, null, null, null, null, 0, null, rs.getBoolean("blocked")), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate(), new University(rs.getLong("destination_university_id"), null, null, null), rs.getString("description"));
+    RowMapper<Journey> JOURNEY_ROW_MAPPER = (rs, rowNum) -> new Journey(rs.getLong("id"), new User(rs.getLong("user_id"), null, null, null, null, null, null, 0, null, false), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate(), new University(rs.getLong("destination_university_id"), null, null, null), rs.getString("description"));
 
     @Before
     public void setUp(){
@@ -89,22 +92,40 @@ public class JourneyJdbcDaoTest {
         jdbcTemplate.execute("INSERT INTO universities(name, abbreviation, city_id) VALUES('Otra mas', 'MAS', (SELECT id FROM cities WHERE name = 'Massachusetts'))");
         jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('username', 'user@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
         jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('username2', 'user2@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
-        jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('anotherone', 'user3@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
+        jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('username3', 'user3@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
+        jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('anotherOne', 'anotherone@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'MIT'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
+        jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('1interest', '1interest@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
+        jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('2interest', '2interest@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
+        jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('3interest', '3interest@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
         jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('deletedjourney', 'deleted@name.com', 'deleted', 'journey', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
-        jdbcTemplate.execute("INSERT INTO category(name) VALUES('Programacion')");
-        jdbcTemplate.execute("INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = 'username'), (SELECT id FROM category LIMIT 1), 0)");
-        jdbcTemplate.execute("INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = 'deletedjourney'), (SELECT id FROM category LIMIT 1), 0)");
+        jdbcTemplate.execute("INSERT INTO category(name) VALUES('Programming')");
+        jdbcTemplate.execute("INSERT INTO category(name) VALUES('Sleeping')");
+        jdbcTemplate.execute("INSERT INTO category(name) VALUES('Repeating')");
+        jdbcTemplate.execute("INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = 'username'), (SELECT id FROM category WHERE name = 'Programming'), 4)");
+        jdbcTemplate.execute("INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = 'username'), (SELECT id FROM category WHERE name = 'Sleeping'), 2)");
+        jdbcTemplate.execute("INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = 'username'), (SELECT id FROM category WHERE name = 'Repeating'), 1)");
+        jdbcTemplate.execute("INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = '1interest'), (SELECT id FROM category WHERE name = 'Programming'), 1)");
+        jdbcTemplate.execute("INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = '2interest'), (SELECT id FROM category WHERE name = 'Sleeping'), 1)");
+        jdbcTemplate.execute("INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = '2interest'), (SELECT id FROM category WHERE name = 'Programming'), 1)");
+        jdbcTemplate.execute("INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = '3interest'), (SELECT id FROM category WHERE name = 'Programming'), 1)");
+        jdbcTemplate.execute("INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = '3interest'), (SELECT id FROM category WHERE name = 'Sleeping'), 1)");
+        jdbcTemplate.execute("INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = '3interest'), (SELECT id FROM category WHERE name = 'Repeating'), 1)");
+        jdbcTemplate.execute("INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = 'deletedjourney'), (SELECT id FROM category WHERE name = 'Programming'), 1)");
 
         DESTINATION_UNI_ID = jdbcTemplate.queryForObject("SELECT id FROM universities WHERE abbreviation = 'MIT'", Long.class);
         ORIGIN_UNI_ID = jdbcTemplate.queryForObject("SELECT id FROM universities WHERE abbreviation = 'ITBA'", Long.class);
         UNI_3_ID = jdbcTemplate.queryForObject("SELECT id FROM universities WHERE abbreviation = 'MAS'", Long.class);
         USER1_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'username'", Long.class);
         USER2_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'username2'", Long.class);
-        USER3_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'anotherone'", Long.class);
+        USER3_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'username3'", Long.class);
+        USER_ANOTHER_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'anotherOne'", Long.class);
+        USER_1_COMMON_INTEREST_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = '1interest'", Long.class);
+        USER_2_COMMON_INTEREST_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = '2interest'", Long.class);
+        USER_3_COMMON_INTEREST_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = '3interest'", Long.class);
         DELETED_JOURNEY_USER_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'deletedjourney'", Long.class);
         DESTINATION_CITY_ID = jdbcTemplate.queryForObject("SELECT id FROM cities WHERE name = 'Massachusetts'", Long.class);
         ORIGIN_CITY_ID = jdbcTemplate.queryForObject("SELECT id FROM cities WHERE name = 'Buenos Aires'", Long.class);
-        INTEREST_1_ID = jdbcTemplate.queryForObject("SELECT id FROM category WHERE name = 'Programacion'", Long.class);
+        INTEREST_1_ID = jdbcTemplate.queryForObject("SELECT id FROM category WHERE name = 'Programming'", Long.class);
         DELETED_JOURNEY_ID = insertJourneyOverride(Map.of("userId", DELETED_JOURNEY_USER_ID, "deleted", true));
     }
 
@@ -139,6 +160,7 @@ public class JourneyJdbcDaoTest {
         params.put("end_date", Date.valueOf((LocalDate)overrideParams.getOrDefault("endDate", END_DATE)));
         params.put("description", overrideParams.getOrDefault("description", DESCRIPTION));
         params.put("deleted", overrideParams.getOrDefault("deleted", false));
+        params.put("deleted_message", overrideParams.getOrDefault("deletedMessage", null));
         return insert.executeAndReturnKey(params).longValue();
     }
 
@@ -441,11 +463,6 @@ public class JourneyJdbcDaoTest {
 
         assertNotNull(maybeJourney);
         assertFalse(maybeJourney.isPresent());
-    }
-
-    @Test
-    public void testGetRecommendedJourneys(){
-        //TODO implement later
     }
 
     @Test
@@ -790,7 +807,7 @@ public class JourneyJdbcDaoTest {
     public void testSearchJourneys(){
         insertJourneyGeneric();
         insertJourneyOverride(Map.of("userId", USER2_ID));
-        insertJourneyOverride(Map.of("userId", USER3_ID));
+        insertJourneyOverride(Map.of("userId", USER_ANOTHER_ID));
 
         Page<Journey> page = journeyDao.searchJourneys(USERNAME_1.substring(0, 6), 1, 5);
 
@@ -1183,5 +1200,97 @@ public class JourneyJdbcDaoTest {
 
         assertNotNull(journeys);
         assertEquals(0, journeys.getContent().size());
+    }
+
+    @Test
+    public void testRecommendedJourneysBasic(){
+        //get recs for user1
+        insertJourneyGeneric();
+        //should have internal score of 95 (30 match city, 50 match uni, 15 overlap)
+        long id1 = insertJourneyOverride(Map.of("userId", USER2_ID));
+        //should have internal score of 80 (30 match city, 50 match uni)
+        long id2 = insertJourneyOverride(Map.of("userId", USER3_ID, "startDate", END_DATE.plusDays(2), "endDate", END_DATE.plusDays(40)));
+
+        List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL);
+
+        assertNotNull(recommended);
+        assertEquals(2, recommended.size());
+        assertEquals(id1, recommended.get(0).getId());
+        assertEquals(id2, recommended.get(1).getId());
+    }
+    @Test
+    public void testRecommendedJourneysNoJourneys(){
+        insertJourneyGeneric();
+
+        List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL);
+
+        assertNotNull(recommended);
+        assertEquals(0, recommended.size());
+    }
+    @Test
+    public void testRecommendedJourneysGoingToMyCity(){
+        //get recs for user1
+        insertJourneyGeneric();
+        //should have internal score of 80 (30 match origin city while there, 50 match origin uni while there)
+        long id1 = insertJourneyOverride(Map.of("userId", USER2_ID, "destinationId", ORIGIN_UNI_ID, "startDate", END_DATE.plusDays(-5), "endDate", END_DATE.plusDays(20)));
+        //should have an internal score of 15 (date overlap only)
+        long id2 = insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "startDate", END_DATE.plusDays(-10), "endDate", END_DATE.plusDays(-2)));
+
+        List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL);
+
+        assertNotNull(recommended);
+        assertEquals(2, recommended.size());
+        assertEquals(id1, recommended.get(0).getId());
+        assertEquals(id2, recommended.get(1).getId());
+    }
+    @Test
+    public void testRecommendedJourneysWithInterests(){
+        //get recs for user1
+        insertJourneyGeneric();
+        //should have internal score of 107 (50 + 30 match dest uni, 15 overlap, 12 interest match)
+        long id1 = insertJourneyOverride(Map.of("userId", USER_1_COMMON_INTEREST_ID));
+        //should have internal score of 113 (50 + 30 match dest uni, 15 overlap, 18 interest match)
+        long id2 = insertJourneyOverride(Map.of("userId", USER_2_COMMON_INTEREST_ID));
+        //should have internal score of 116 (50 + 30 match dest uni, 15 overlap, 21 interest match)
+        long id3 = insertJourneyOverride(Map.of("userId", USER_3_COMMON_INTEREST_ID));
+        //should have internal score of 95 (50 + 30 match dest uni, 15 overlap)
+        long id4 = insertJourneyOverride(Map.of("userId", USER2_ID));
+
+        List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL);
+
+        assertNotNull(recommended);
+        assertEquals(4, recommended.size());
+        assertEquals(id3, recommended.get(0).getId());
+        assertEquals(id2, recommended.get(1).getId());
+        assertEquals(id1, recommended.get(2).getId());
+        assertEquals(id4, recommended.get(3).getId());
+    }
+    @Test
+    public void testRecommendedJourneysWithInterestsComplex(){
+        //get recs for user1
+        insertJourneyGeneric();
+        //should have internal score of 107 (50 + 30 match dest uni, 15 overlap, 12 interest match)
+        long id1 = insertJourneyOverride(Map.of("userId", USER_1_COMMON_INTEREST_ID));
+        //should have internal score of 98 (50 + 30 match origin uni, 18 interest match)
+        long id2 = insertJourneyOverride(Map.of("userId", USER_2_COMMON_INTEREST_ID, "destinationId", ORIGIN_UNI_ID, "startDate", END_DATE.plusDays(2), "endDate", END_DATE.plusDays(30)));
+        //should have internal score of 36 (15 overlap, 21 interest match)
+        long id3 = insertJourneyOverride(Map.of("userId", USER_3_COMMON_INTEREST_ID, "destinationId", ORIGIN_UNI_ID, "startDate", END_DATE.plusDays(-7), "endDate", END_DATE.plusDays(-3)));
+        //should have internal score of 95 (50 + 30 match dest uni, 15 overlap)
+        long id4 = insertJourneyOverride(Map.of("userId", USER2_ID));
+        //should have internal score of 80 (50 + 30 match dest uni)
+        long id5 = insertJourneyOverride(Map.of("userId", USER3_ID, "startDate", END_DATE.plusDays(2), "endDate", END_DATE.plusDays(20)));
+        //should have internal score of 45 (30 city match, 15 overlap)
+        long id6 = insertJourneyOverride(Map.of("userId", USER_ANOTHER_ID, "destinationId", UNI_3_ID));
+
+        List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL);
+
+        assertNotNull(recommended);
+        assertEquals(6, recommended.size());
+        assertEquals(id1, recommended.get(0).getId());
+        assertEquals(id2, recommended.get(1).getId());
+        assertEquals(id4, recommended.get(2).getId());
+        assertEquals(id5, recommended.get(3).getId());   
+        assertEquals(id6, recommended.get(4).getId());
+        assertEquals(id3, recommended.get(5).getId());
     }
 }

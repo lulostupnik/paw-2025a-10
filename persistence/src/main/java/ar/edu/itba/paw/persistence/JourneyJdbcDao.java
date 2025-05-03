@@ -552,7 +552,9 @@ public class JourneyJdbcDao implements JourneyDao {
                                                   JOIN user_interests ui ON ui.category_id = journey_ui.category_id
                                          WHERE journey_ui.user_id = j.user_id
                                      ), 0) AS interest_match_score,
-                            CASE WHEN (j.start_date, j.end_date) OVERLAPS (uj.user_start, uj.user_end) THEN 15 ELSE 0 END AS timing_match_score
+                            CASE WHEN (j.start_date, j.end_date) OVERLAPS (uj.user_start, uj.user_end) THEN 15 ELSE 0 END AS timing_match_score,
+                            CASE WHEN j.destination_university_id = ud.university AND (uj.user_start = NULL OR NOT (j.start_date, j.end_date) OVERLAPS (uj.user_start, uj.user_end)) THEN 50 ELSE 0 END AS origin_uni_match_off_travel_score,
+                            CASE WHEN dest_univ.city_id = (SELECT city_id FROM universities WHERE id = ud.university) AND (uj.user_start = NULL OR NOT (j.start_date, j.end_date) OVERLAPS (uj.user_start, uj.user_end)) THEN 30 ELSE 0 END AS origin_city_match_off_travel_score
                         FROM journeys j
                                  JOIN users u ON j.user_id = u.id
                                  JOIN universities dest_univ ON j.destination_university_id = dest_univ.id
@@ -564,7 +566,7 @@ public class JourneyJdbcDao implements JourneyDao {
                                  LEFT JOIN careers c ON u.career_id = c.id
                                  CROSS JOIN user_journey uj
                                  CROSS JOIN user_data ud
-                        WHERE j.user_id != ud.id
+                        WHERE j.user_id != ud.id AND j.deleted = FALSE
                     )
                
                SELECT
@@ -595,8 +597,9 @@ public class JourneyJdbcDao implements JourneyDao {
                    destination_city_id,
                    journey_description
                FROM journey_scores
+               WHERE (university_match_score + city_match_score + interest_match_score + timing_match_score + origin_uni_match_off_travel_score + origin_city_match_off_travel_score) > 0
                ORDER BY
-                   (university_match_score + city_match_score + interest_match_score + timing_match_score) DESC
+                   (university_match_score + city_match_score + interest_match_score + timing_match_score + origin_uni_match_off_travel_score + origin_city_match_off_travel_score) DESC;
             """;
         return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, email);
     }
