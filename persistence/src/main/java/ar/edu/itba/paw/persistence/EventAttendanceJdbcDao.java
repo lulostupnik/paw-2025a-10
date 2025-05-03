@@ -36,31 +36,31 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
             Locale.of(rs.getString("user_language")),
             rs.getBoolean("user_blocked"));
 
-    private final static String GET_ATTENDEES_QUERY =
-            """
-                    SELECT\s
-                        u.id AS user_id,\s
-                        u.email AS user_email,\s
-                        u.firstname AS user_firstname,\s
-                        u.lastname AS user_lastname,\s
-                        u.username AS user_username,\s
-                        u.university AS user_university,\s
-                        u.language AS user_language,\s
-                        u.blocked AS user_blocked,\s
-                        c.name AS career_name,\s
-                        c.id AS career_id,\s
-                        u.profile_picture_id AS user_profile_picture_id,\s
-                        un.name AS university_name,\s
-                        un.abbreviation AS university_abbreviation,\s
-                        ci.id AS city_id,\s
-                        ci.name AS city_name,\s
-                        co.name AS country_name\s
-                    FROM users u\s
-                    JOIN universities un ON u.university = un.id\s
-                    JOIN careers c ON c.id = u.career_id\s
-                    JOIN cities ci ON ci.id = un.city_id\s
-                    JOIN countries co ON co.id = ci.country_id\s
-                    JOIN event_attendances ea ON u.id = ea.user_id WHERE ea.event_id = ?\s""";
+    private final static String GET_ATTENDEES_QUERY = """
+                    SELECT
+                        u.id AS user_id,
+                        u.email AS user_email,
+                        u.firstname AS user_firstname,
+                        u.lastname AS user_lastname,
+                        u.username AS user_username,
+                        u.university AS user_university,
+                        u.language AS user_language,
+                        u.blocked AS user_blocked,
+                        c.name AS career_name,
+                        c.id AS career_id,
+                        u.profile_picture_id AS user_profile_picture_id,
+                        un.name AS university_name,
+                        un.abbreviation AS university_abbreviation,
+                        ci.id AS city_id,
+                        ci.name AS city_name,
+                        co.name AS country_name
+                    FROM users u
+                    JOIN universities un ON u.university = un.id
+                    JOIN careers c ON c.id = u.career_id
+                    JOIN cities ci ON ci.id = un.city_id
+                    JOIN countries co ON co.id = ci.country_id
+                    JOIN event_attendances ea ON u.id = ea.user_id WHERE ea.event_id = ?
+                    """;
 
 
     private static final RowMapper<Event> EVENT_ROW_MAPPER = (rs, rowNum) -> new Event(
@@ -104,54 +104,54 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
             rs.getInt("event_attendees_count")
     );
 
-    private final static String GET_EVENTS_QUERY =
-            """
-                    SELECT\s
-                        us.id AS user_id,\s
-                        us.email AS user_email,\s
-                        us.firstname AS user_firstname,\s
-                        us.lastname AS user_lastname,\s
-                        us.username AS user_username,\s
-                        us.university AS user_university,\s
-                        us.profile_picture_id AS user_profile_picture_id,\s
-                        us.language AS user_language,\s
+    private final static String GET_EVENTS_QUERY = """
+                    SELECT
+                        us.id AS user_id,
+                        us.email AS user_email,
+                        us.firstname AS user_firstname,
+                        us.lastname AS user_lastname,
+                        us.username AS user_username,
+                        us.university AS user_university,
+                        us.profile_picture_id AS user_profile_picture_id,
+                        us.language AS user_language,
                         us.blocked AS user_blocked,
                     
-                        ca.id AS career_id,\s
-                        ca.name AS career_name,\s
+                        ca.id AS career_id,
+                        ca.name AS career_name,
                     
-                        e.id AS event_id,\s
-                        e.event_date AS event_date,\s
-                        e.description AS event_description,\s
-                        e.flyer_image_id AS event_flyer_image_id,\s
-                        e.title AS event_title,\s
-                        e.event_time AS event_time,\s
-                        e.address AS event_address,\s
-                        e.attendees_limit AS event_attendees_limit,\s
-                        e.attendees_count AS event_attendees_count,\s
+                        e.id AS event_id,
+                        e.event_date AS event_date,
+                        e.description AS event_description,
+                        e.flyer_image_id AS event_flyer_image_id,
+                        e.title AS event_title,
+                        e.event_time AS event_time,
+                        e.address AS event_address,
+                        e.attendees_limit AS event_attendees_limit,
+                        e.attendees_count AS event_attendees_count,
                     
-                        un.id AS university_id,\s
-                        un.name AS university_name,\s
-                        un.abbreviation AS university_abbreviation,\s
+                        un.id AS university_id,
+                        un.name AS university_name,
+                        un.abbreviation AS university_abbreviation,
                     
-                       c.id AS city_id,\s
-                       c.name AS city_name,\s
+                       c.id AS city_id,
+                       c.name AS city_name,
                     
-                       co.name AS country_name,\s
+                       co.name AS country_name,
                     
-                       ci2.id AS origin_city_id,\s
-                       ci2.name AS origin_city_name,\s
+                       ci2.id AS origin_city_id,
+                       ci2.name AS origin_city_name,
                     
                        co2.name AS origin_country_name
                     FROM events e
                     JOIN users us ON e.user_id = us.id
                     JOIN careers ca ON ca.id = us.career_id
                     JOIN universities un ON us.university = un.id
-                    JOIN cities ci2 ON un.city_id = ci2.id\s
+                    JOIN cities ci2 ON un.city_id = ci2.id
                     JOIN countries co2 ON co2.id = ci2.country_id
-                    JOIN cities c ON e.city_id = c.id\s
-                    JOIN countries co ON c.country_id = co.id\s
-                    JOIN event_attendances ea ON e.id = ea.event_id WHERE ea.user_id = ?""";
+                    JOIN cities c ON e.city_id = c.id
+                    JOIN countries co ON c.country_id = co.id
+                    JOIN event_attendances ea ON e.id = ea.event_id WHERE ea.user_id = ?
+                    """;
 
 
     @Autowired
@@ -181,7 +181,6 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
 
     @Override
     public boolean isAttending(long userId, long eventId) {
-        LOGGER.debug("Querying DB for user {} attending event {}", userId, eventId);
         return jdbcTemplate.queryForObject(
                 "SELECT EXISTS(SELECT 1 FROM event_attendances WHERE user_id = ? AND event_id = ?)",
                 Boolean.class, userId, eventId);
@@ -189,61 +188,52 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
 
     @Override
     public List<User> getAttendees(long eventId) {
-        LOGGER.debug("Querying DB for attendees for event {}", eventId);
         return jdbcTemplate.query(GET_ATTENDEES_QUERY, USER_ROW_MAPPER, eventId);
     }
 
     @Override
     public int getAttendeesCount(long eventId) {
-        LOGGER.debug("Querying DB for attendee count for event {}", eventId);
         return jdbcTemplate.query("SELECT attendees_count FROM events WHERE id = ?", (rs, rowNum) -> rs.getInt("attendees_count"), eventId).stream().findFirst().orElse(0);
         // return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM event_attendances WHERE event_id = ?",  Integer.class, eventId);
     }
 
     @Override
     public List<Event> getAttendingEvents(long userId) {
-        LOGGER.debug("Querying DB for events user {} will attend (excluding events created by user)", userId);
         return jdbcTemplate.query(GET_EVENTS_QUERY + " AND e.user_id != ?", EVENT_ROW_MAPPER, userId, userId);
     }
 
     @Override
     public Page<User> getAttendees(long eventId, int pageNumber, int pageSize) {
-        LOGGER.debug("Querying DB for paginated attendees for event {}", eventId);
-
-        String countQuery = "SELECT COUNT(*) FROM event_attendances WHERE event_id = ?";
-        int totalItems = jdbcTemplate.queryForObject(countQuery, Integer.class, eventId);
-        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
-
-        int offset = (pageNumber - 1) * pageSize;
-
-        String paginatedQuery = GET_ATTENDEES_QUERY + " LIMIT ? OFFSET ?";
-        List<User> attendees = jdbcTemplate.query(
-                paginatedQuery,
-                USER_ROW_MAPPER,
-                eventId, pageSize, offset
+        int totalItems = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM event_attendances WHERE event_id = ?",
+                Integer.class,
+                eventId
         );
 
-        return new Page<>(attendees, pageNumber, totalPages);
+        String paginatedQuery = GET_ATTENDEES_QUERY + " LIMIT ? OFFSET ?";
+
+        return new Page<>(
+                jdbcTemplate.query(paginatedQuery, USER_ROW_MAPPER, eventId, pageSize, (pageNumber - 1) * pageSize),
+                pageNumber,
+                (int) Math.ceil((double) totalItems / pageSize)
+        );
     }
 
     @Override
     public Page<Event> getAttendingEvents(long userId, int pageNumber, int pageSize) {
-        LOGGER.debug("Querying DB for paginated events user {} will attend", userId);
-
-        String countQuery = "SELECT COUNT(*) FROM event_attendances ea JOIN events e ON ea.event_id = e.id WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE";
-        int totalItems = jdbcTemplate.queryForObject(countQuery, Integer.class, userId, userId);
-        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
-
-        int offset = (pageNumber - 1) * pageSize;
-
-        String paginatedQuery = GET_EVENTS_QUERY + " AND e.user_id != ? AND e.deleted = FALSE ORDER BY e.event_date DESC LIMIT ? OFFSET ?";
-        List<Event> events = jdbcTemplate.query(
-                paginatedQuery,
-                EVENT_ROW_MAPPER,
-                userId, userId, pageSize, offset
+        int totalItems = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM event_attendances ea JOIN events e ON ea.event_id = e.id WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE",
+                Integer.class,
+                userId, userId
         );
+        
+        String paginatedQuery = GET_EVENTS_QUERY + " AND e.user_id != ? AND e.deleted = FALSE ORDER BY e.event_date DESC LIMIT ? OFFSET ?";
 
-        return new Page<>(events, pageNumber, totalPages);
+        return new Page<>(
+                jdbcTemplate.query(paginatedQuery, EVENT_ROW_MAPPER, userId, userId, pageSize, (pageNumber - 1) * pageSize),
+                pageNumber,
+                (int) Math.ceil((double) totalItems / pageSize)
+        );
     }
 
 }
