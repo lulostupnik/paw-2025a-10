@@ -14,7 +14,6 @@ import javax.sql.DataSource;
 import java.time.LocalDateTime;
 import java.util.*;
 
-
 //@TODO sort them in query by date
 @Repository
 public class JourneyResponseJdbcDao implements JourneyResponseDao {
@@ -23,8 +22,8 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
     private static final RowMapper<JourneyResponse> JOURNEY_RESPONSE_ROW_MAPPER = (rs, rowNum) -> new JourneyResponse(
-            rs.getLong("id"), // ID from `journey_responses` table
-            rs.getLong("user_id"), // Event ID from `events` table
+            rs.getLong("id"),
+            rs.getLong("user_id"),
             rs.getString("username"),
             rs.getLong("journey_id"),
             rs.getString("message"),
