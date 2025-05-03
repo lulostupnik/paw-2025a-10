@@ -425,15 +425,7 @@ public class EventJdbcDao implements EventDao {
 
     //@Todo, habria que meter en el dao una validacion para int page que sea mayor a 0, o dejamos que tire una excepcion?
     @Override
-<<<<<<< HEAD
     public Page<Event> getEvents(String email, int page, int size) {
-        int totalItems = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM events e JOIN users us ON e.user_id = us.id WHERE e.deleted = FALSE AND us.email = ? ",
-                Integer.class,
-                email
-        );
-=======
-        public Page<Event> getEvents(String email, int page, int size) {
         LOGGER.debug("Querying DB for events for usermail {}", email);
 
         String countQuery = "SELECT COUNT(*) FROM events e JOIN users us ON e.user_id = us.id WHERE e.deleted = FALSE AND us.email = ?";
@@ -441,9 +433,6 @@ public class EventJdbcDao implements EventDao {
         int totalPages = calculateTotalPages(totalItems, size);
 
         int offset = (page - 1) * size;
-        String whereClause = NOT_DELETED + " AND us.email = ? ";
-        String orderByClause = "ORDER BY e.event_date DESC ";
->>>>>>> feature/pagination
 
         List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_BY_EMAIL_PAGED, EVENT_ROW_MAPPER, email, size, (page - 1) * size);
 
@@ -483,53 +472,42 @@ public class EventJdbcDao implements EventDao {
         return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));}
 
 
-    /*
-    @Override
-    public List<EventWithAttendanceStatus> getEventsWithAttendanceStatus(long userId) {
-        LOGGER.debug("Querying DB for events with attendance status for user {} (excluding events created by this user)", userId);
-
-        String sql = QUERY + "LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?  WHERE e.user_id != ?  ORDER BY e.event_date DESC";
-
-        return jdbcTemplate.query(
-                sql,
-                (rs, rowNum) -> {
-                    Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
-                    boolean isAttending = rs.getObject("user_id", Long.class) != null;
-                    return new EventWithAttendanceStatus(event, isAttending);
-                },
-                userId, userId
->>>>>>> feature/pagination
-        );
-
-        return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
-    }
 
 
     /*@TODO no se si esta bien. revisar. */
     @Override
     public Page<UserEvent> getEventsWithAttendanceStatus(long userId, int page, int size) {
-        LOGGER.debug("Querying paginated events with attendance status for user {} (excluding events created by this user)", userId);
+        LOGGER.debug("Querying paginated events with attendance status for user {} (excluding their own)", userId);
 
-        String countQuery = "SELECT COUNT(*) FROM events e WHERE e.deleted = FALSE AND e.user_id != ?";
+        // 1. Total de eventos válidos para este usuario
+        String countQuery = """
+        SELECT COUNT(*)
+        FROM events e
+        WHERE e.deleted = FALSE AND e.user_id != ? AND e.event_date >= CURRENT_DATE
+    """;
         int totalItems = getTotalCount(countQuery, userId);
         int totalPages = calculateTotalPages(totalItems, size);
         int offset = (page - 1) * size;
 
-        String whereClause = "WHERE e.user_id != ? AND e.deleted = FALSE ";
-        String orderByClause = "ORDER BY e.event_date DESC ";
-
-        String sql = SELECT_CLAUSE.replace("SELECT ", "SELECT (ea.user_id IS NOT NULL) AS is_attending, ") +
-                getPageQuery(whereClause, orderByClause) +
-                "LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?";
+        // 2. SQL para traer los eventos + attendance
+        String pagedQuery = SQL_SELECT_WITH_ATTENDANCE + SQL_FROM_BASE + """
+        LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
+        WHERE e.deleted = FALSE AND e.user_id != ? AND e.event_date >= CURRENT_DATE
+        ORDER BY e.event_date DESC
+        LIMIT ? OFFSET ?
+    """;
 
         List<UserEvent> events = jdbcTemplate.query(
-                sql,
+                pagedQuery,
                 (rs, rowNum) -> {
                     Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
                     boolean isAttending = rs.getBoolean("is_attending");
                     return new UserEvent(event, isAttending);
                 },
-                userId, size, offset, userId
+                userId, // para ea.user_id = ?
+                userId, // para e.user_id != ?
+                size,
+                offset
         );
 
         return new Page<>(events, page, totalPages);
