@@ -42,35 +42,30 @@ public class InterestJdbcDao implements InterestDao {
 
     @Override
     public Optional<Interest> findById(Long id) {
-        LOGGER.debug("Querying DB for interest {}", id);
         return jdbcTemplate.query(QUERY + "WHERE id = ?",
                 INTEREST_ROW_MAPPER, id).stream().findFirst();
     }
 
     @Override
     public List<Interest> findAll() {
-        LOGGER.debug("Querying DB for all interests");
         return jdbcTemplate.query(QUERY, INTEREST_ROW_MAPPER);
     }
 
     @Override
     public List<Interest> findByUserId(Long id) {
-        LOGGER.debug("Querying DB for interests of user {}", id);
         return jdbcTemplate.query(QUERY + " WHERE id IN (SELECT category_id FROM user_interest WHERE user_id = ?)",
                 INTEREST_ROW_MAPPER, id);
     }
 
     @Override
     public Optional<Interest> findByName(String name) {
-        LOGGER.debug("Querying DB for interest {}", name);
         return jdbcTemplate.query(QUERY + " WHERE name = ?",
                 INTEREST_ROW_MAPPER, name).stream().findFirst();
     }
 
+    // FIXME: No se si esto se está usando en algún lado o no.
     @Override
     public List<Interest> findIdByName(String[] names) {
-        LOGGER.debug("Looking for IDs of interests");
-        //Boolean spanishOrEnglish = true;
         if(names == null || names.length == 0) {
             return new ArrayList<>();
         }
@@ -107,15 +102,14 @@ public class InterestJdbcDao implements InterestDao {
 
     @Override
     public void deleteUserInterest(long id) {
-        String sql = "DELETE FROM category WHERE id = ?";
-        jdbcTemplate.update(sql, id);
+        LOGGER.debug("Deleting interest with id {}", id);
+        jdbcTemplate.update("DELETE FROM category WHERE id = ?", id);
     }
 
     @Override
     public void editUserInterest(long id, String interest) {
         LOGGER.debug("Editing interest {} to {}", id, interest);
-        String sql = "UPDATE category SET name = ? WHERE id = ?";
-        jdbcTemplate.update(sql, interest ,id);
+        jdbcTemplate.update("UPDATE category SET name = ? WHERE id = ?", interest ,id);
     }
 
     @Override
@@ -141,31 +135,33 @@ public class InterestJdbcDao implements InterestDao {
         }
     }
 
-
     @Override
     public Page<Interest> getAllInterests(int page, int pageSize) {
-        LOGGER.debug("Querying DB for all interests");
-        int offset = (page - 1) * pageSize;
         StringBuilder query = new StringBuilder(SELECT_CLAUSE);
         query.append(" FROM category c ");
         query.append(" ORDER BY c.name ASC LIMIT ? OFFSET ?");
         int totalInterests = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category", Integer.class);
-        int totalPages = (int) Math.ceil((double) totalInterests / pageSize);
-        return new Page<>(jdbcTemplate.query(query.toString(),INTEREST_ROW_MAPPER,pageSize,offset),page,totalPages);
+        return new Page<>(
+                jdbcTemplate.query(query.toString(), INTEREST_ROW_MAPPER, pageSize, (page - 1) * pageSize),
+                page,
+                (int) Math.ceil((double) totalInterests / pageSize)
+        );
     }
 
     @Override
     public Page<Interest> searchBySubstring(String search, int page, int pageSize) {
-        LOGGER.debug("Querying DB for interests like {}", search);
-        int offset = (page - 1) * pageSize;
         StringBuilder query = new StringBuilder(SELECT_CLAUSE);
         query.append(" FROM category c ");
         query.append(" WHERE c.name LIKE ? ");
         query.append(" ORDER BY c.name ASC LIMIT ? OFFSET ?");
         String like = "%" + search + "%";
-        int totalInterests = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category WHERE name LIKE ?", Integer.class, like);
-        int totalPages = (int) Math.ceil((double) totalInterests / pageSize);
-        return new Page<>(jdbcTemplate.query(query.toString(),INTEREST_ROW_MAPPER, like, pageSize, offset),page,totalPages);
+        int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category WHERE name LIKE ?", Integer.class, like);
+
+        return new Page<>(
+                jdbcTemplate.query(query.toString(),INTEREST_ROW_MAPPER, like, pageSize, (page - 1) * pageSize),
+                page,
+                (int) Math.ceil((double) totalItems / pageSize)
+        );
     }
 
     @Override
