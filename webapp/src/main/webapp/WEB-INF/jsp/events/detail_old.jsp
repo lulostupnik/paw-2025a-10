@@ -17,71 +17,51 @@
     <script src="<c:url value='/resources/js/confirm-delete.js'/>"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Only initialize tabs if they exist (for event owners)
-            if (document.querySelector('.tabs-header')) {
-                // Check if there's an active tab stored in session storage
-                const activeTab = sessionStorage.getItem('activeTab') || 'details';
+            // Check if there's an active tab stored in session storage
+            const activeTab = sessionStorage.getItem('activeTab') || 'details';
 
-                // Set the active tab
-                document.getElementById(activeTab + '-tab').classList.add('active');
-                document.getElementById(activeTab + '-content').style.display = 'block';
+            // Set the active tab
+            document.getElementById(activeTab + '-tab').classList.add('active');
+            document.getElementById(activeTab + '-content').style.display = 'block';
 
-                // Add event listeners to tab buttons
-                document.querySelectorAll('.tab-btn').forEach(function(btn) {
-                    btn.addEventListener('click', function() {
-                        // Get the tab id
-                        const tabId = this.getAttribute('data-tab');
+            // Add event listeners to tab buttons
+            document.querySelectorAll('.tab-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    // Get the tab id
+                    const tabId = this.getAttribute('data-tab');
 
-                        // Store the active tab in session storage
-                        sessionStorage.setItem('activeTab', tabId);
+                    // Store the active tab in session storage
+                    sessionStorage.setItem('activeTab', tabId);
 
-                        // Remove active class from all tabs
-                        document.querySelectorAll('.tab-btn').forEach(function(tab) {
-                            tab.classList.remove('active');
-                        });
-
-                        // Hide all tab contents
-                        document.querySelectorAll('.tab-content').forEach(function(content) {
-                            content.style.display = 'none';
-                        });
-
-                        // Add active class to clicked tab
-                        this.classList.add('active');
-
-                        // Show corresponding tab content
-                        document.getElementById(tabId + '-content').style.display = 'block';
-
-                        // Update the hidden field in the reply form
-                        const activeTabInput = document.getElementById('active-tab-input');
-                        if (activeTabInput) {
-                            activeTabInput.value = tabId;
-                        }
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.tab-btn').forEach(function(tab) {
+                        tab.classList.remove('active');
                     });
+
+                    // Hide all tab contents
+                    document.querySelectorAll('.tab-content').forEach(function(content) {
+                        content.style.display = 'none';
+                    });
+
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+
+                    // Show corresponding tab content
+                    document.getElementById(tabId + '-content').style.display = 'block';
+
+                    // Update the hidden field in the reply form
+                    const activeTabInput = document.getElementById('active-tab-input');
+                    if (activeTabInput) {
+                        activeTabInput.value = tabId;
+                    }
                 });
-
-                // Set the active tab in the hidden field on page load
-                const activeTabInput = document.getElementById('active-tab-input');
-                if (activeTabInput) {
-                    activeTabInput.value = activeTab;
-                }
-            }
-
-            // Initialize all toggle sections
-            document.querySelectorAll('.toggle-button').forEach(function(button) {
-                const sectionId = button.getAttribute('data-toggle');
-                const section = document.getElementById(sectionId);
-                const expandIcon = button.querySelector('.expand-icon');
-                const collapseIcon = button.querySelector('.collapse-icon');
-
-                // Set initial state
-                if (section.classList.contains('collapsed')) {
-                    expandIcon.style.display = 'inline-block';
-                    collapseIcon.style.display = 'none';
-                } else {
-                    expandIcon.style.display = 'none';
-                    collapseIcon.style.display = 'inline-block';
-                }
             });
+
+            // Set the active tab in the hidden field on page load
+            const activeTabInput = document.getElementById('active-tab-input');
+            if (activeTabInput) {
+                activeTabInput.value = activeTab;
+            }
         });
 
         function toggleSection(sectionId) {
@@ -263,13 +243,13 @@
                                 <polyline points="12 6 12 12 16 14"></polyline>
                             </svg>
                             <span>
-                                <c:if test="${event.time.isPresent()}">
-                                    <c:out value="${event.time.get()}" />
-                                </c:if>
-                                <c:if test="${event.time.isEmpty()}">
-                                    <spring:message code="event.allDayEvent"/>
-                                </c:if>
-                            </span>
+                                    <c:if test="${event.time.isPresent()}">
+                                        <c:out value="${event.time.get()}" />
+                                    </c:if>
+                                    <c:if test="${event.time.isEmpty()}">
+                                        <spring:message code="event.allDayEvent"/>
+                                    </c:if>
+                                </span>
                         </div>
                         <c:if test="${not empty event.address}">
                             <div class="meta-item">
@@ -319,271 +299,33 @@
                     </div>
                 </div>
 
-                <!-- Different layouts for event owner vs non-owner -->
-                <c:choose>
-                    <c:when test="${isEventOwner}">
-                        <!-- Tab Navigation for event owners -->
-                        <div class="tabs-container">
-                            <div class="tabs-header">
-                                <button id="details-tab" class="tab-btn" data-tab="details">
-                                    <!-- Users icon SVG -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                        <circle cx="9" cy="7" r="4"></circle>
-                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                    </svg>
-                                    <span><spring:message code="event.details" text="Details" /></span>
-                                </button>
-                                <button id="chat-tab" class="tab-btn" data-tab="chat">
-                                    <!-- Message icon SVG -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                                    </svg>
-                                    <span><spring:message code="event.chat" text="Chat" /></span>
-                                </button>
-                            </div>
+                <!-- Tab Navigation -->
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button id="details-tab" class="tab-btn" data-tab="details">
+                            <!-- Users icon SVG -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            <span><spring:message code="event.details" text="Details" /></span>
+                        </button>
+                        <button id="chat-tab" class="tab-btn" data-tab="chat">
+                            <!-- Message icon SVG -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            <span><spring:message code="event.chat" text="Chat" /></span>
+                        </button>
+                    </div>
 
-                            <!-- Tab Contents -->
-                            <div class="tabs-content">
-                                <!-- Details Tab Content -->
-                                <div id="details-content" class="tab-content">
-                                    <!-- Attendees Section -->
-                                    <div class="content-section">
-                                        <div class="section-header">
-                                            <h2 class="section-title">
-                                                <!-- Users icon SVG -->
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                                    <circle cx="9" cy="7" r="4"></circle>
-                                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                                </svg>
-                                                <spring:message code="event.attendees" />
-                                                <c:if test="${event.attendeesLimit.isPresent()}">
-                                                    <span class="count">(<c:out value="${event.attendeesCount}" /> / <c:out value="${event.attendeesLimit.get()}" />)</span>
-                                                </c:if>
-                                                <c:if test="${event.attendeesLimit.isEmpty()}">
-                                                    <span class="count">(<c:out value="${event.attendeesCount}" /> / <spring:message code="event.noAttendeesLimit"/>)</span>
-                                                </c:if>
-                                            </h2>
-                                            <button class="toggle-button" data-toggle="attendees-list" onclick="toggleSection('attendees-list')">
-                                                <span class="collapse-icon">
-                                                    <!-- Chevron up icon SVG -->
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <polyline points="18 15 12 9 6 15"></polyline>
-                                                    </svg>
-                                                </span>
-                                                <span class="expand-icon" style="display: none;">
-                                                    <!-- Chevron down icon SVG -->
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <polyline points="6 9 12 15 18 9"></polyline>
-                                                    </svg>
-                                                </span>
-                                            </button>
-                                        </div>
-
-                                        <!-- Attendees List  -->
-                                        <div id="attendees-list" class="attendees-grid">
-                                            <c:if test="${empty attendeesPage.content}">
-                                                <div class="empty-state">
-                                                    <div class="empty-icon">
-                                                        <!-- Users icon SVG -->
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                                            <circle cx="9" cy="7" r="4"></circle>
-                                                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                                        </svg>
-                                                    </div>
-                                                    <p class="empty-message">
-                                                        <spring:message code="event.no.attendees" />
-                                                    </p>
-                                                </div>
-                                            </c:if>
-
-                                            <c:if test="${not empty attendeesPage.content}">
-                                                <c:forEach var="attendee" items="${attendeesPage.content}">
-                                                    <div class="attendee-card">
-                                                        <div class="attendee-avatar">
-                                                            <c:if test="${not empty attendee.profilePictureId}">
-                                                                <img src="<c:url value='/images/${attendee.profilePictureId}'/>" alt="Profile" class="avatar-img">
-                                                            </c:if>
-                                                            <c:if test="${empty attendee.profilePictureId}">
-                                                                <div class="avatar-placeholder">
-                                                                    <c:out value="${fn:substring(attendee.firstname, 0, 1)}${fn:substring(attendee.lastname, 0, 1)}" />
-                                                                </div>
-                                                            </c:if>
-                                                        </div>
-                                                        <div class="attendee-info">
-                                                            <h3 class="attendee-name">
-                                                                <c:out value="${attendee.firstname} ${attendee.lastname}" />
-                                                            </h3>
-                                                            <p class="attendee-email">
-                                                                <c:out value="${attendee.email}" />
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </c:forEach>
-                                            </c:if>
-                                        </div>
-                                        <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
-                                            <jsp:param name="pageObjectTotalPages" value="${attendeesPage.totalPages}" />
-                                            <jsp:param name="currentPage" value="${attendeesPage.currentPage}" />
-                                            <jsp:param name="pageSize" value="4" />
-                                            <jsp:param name="baseUrl" value="/events/${event.id}" />
-                                            <jsp:param name="paramName" value="attendeesPage" />
-                                            <jsp:param name="sizeParamName" value="attendeesSize" />
-                                        </jsp:include>
-                                    </div>
-                                </div>
-
-                                <!-- Chat Tab Content -->
-                                <div id="chat-content" class="tab-content">
-                                    <div class="content-section">
-                                        <div class="section-header">
-                                            <h2 class="section-title">
-                                                <!-- Message icon SVG -->
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                                                </svg>
-                                                <spring:message code="event.responses" />
-                                                <span class="count">(<c:out value="${commentsCount}" />)</span>
-                                            </h2>
-                                            <button class="toggle-button" data-toggle="chat-list" onclick="toggleSection('chat-list')">
-                                                <span class="collapse-icon">
-                                                    <!-- Chevron up icon SVG -->
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <polyline points="18 15 12 9 6 15"></polyline>
-                                                    </svg>
-                                                </span>
-                                                <span class="expand-icon" style="display: none;">
-                                                    <!-- Chevron down icon SVG -->
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <polyline points="6 9 12 15 18 9"></polyline>
-                                                    </svg>
-                                                </span>
-                                            </button>
-                                        </div>
-
-                                        <!-- Chat Messages -->
-                                        <div id="chat-list" class="chat-list">
-                                            <c:if test="${empty eventResponsesPage.content}">
-                                                <div class="empty-state">
-                                                    <div class="empty-icon">
-                                                        <!-- Message icon SVG -->
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                                                        </svg>
-                                                    </div>
-                                                    <p class="empty-message">
-                                                        <spring:message code="event.no.responses" />
-                                                    </p>
-                                                </div>
-                                            </c:if>
-
-                                            <c:if test="${not empty eventResponsesPage.content}">
-                                                <c:forEach var="response" items="${eventResponsesPage.content}">
-                                                    <div class="chat-message">
-                                                        <div class="message-header">
-                                                            <div class="message-user">
-                                                                <div class="message-avatar">
-                                                                    <div class="avatar-placeholder">
-                                                                        <c:out value="${fn:substring(response.username, 0, 1)}" />
-                                                                    </div>
-                                                                </div>
-                                                                <div class="message-user-info">
-                                                                    <h3 class="message-username">
-                                                                        <c:out value="${response.username}" />
-                                                                    </h3>
-                                                                    <p class="message-date">
-                                                                        <c:out value="${response.formattedDate}" />
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-
-                                                            <sec:authorize access="hasRole('ADMIN')">
-                                                                <div class="message-actions">
-                                                                    <c:url var="deleteReplyUrl" value='/event-replies/${response.id}/delete'/>
-                                                                    <form:form modelAttribute="deleteReplyForm" id="delete-event-response-form-${response.id}" action="${deleteReplyUrl}" method="post" style="display: none;">
-                                                                        <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
-                                                                        <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
-                                                                        <jsp:include page="../components/text-area.jsp">
-                                                                            <jsp:param name="path" value="message" />
-                                                                            <jsp:param name="label" value="${messageLabel}" />
-                                                                            <jsp:param name="placeholder" value="${messagePlaceholder}" />
-                                                                        </jsp:include>
-                                                                    </form:form>
-
-                                                                    <button type="button" class="delete-message-button" onclick="openDeleteModal('delete-event-response-form-${response.id}', 'eventResponse')">
-                                                                        <!-- Trash icon SVG -->
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                                            <polyline points="3 6 5 6 21 6"></polyline>
-                                                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                                        </svg>
-                                                                    </button>
-                                                                </div>
-                                                            </sec:authorize>
-                                                        </div>
-                                                        <div class="message-content">
-                                                            <p class="message-text">
-                                                                <c:out value="${response.message}" />
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </c:forEach>
-                                            </c:if>
-                                            <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
-                                                <jsp:param name="pageObjectTotalPages" value="${eventResponsesPage.totalPages}" />
-                                                <jsp:param name="currentPage" value="${eventResponsesPage.currentPage}" />
-                                                <jsp:param name="pageSize" value="4" />
-                                                <jsp:param name="baseUrl" value="/events/${id}" />
-                                            </jsp:include>
-                                        </div>
-
-                                        <!-- Reply Form -->
-                                        <div class="reply-container">
-                                            <h3 class="reply-title">
-                                                <!-- Edit icon SVG -->
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                                </svg>
-                                                <spring:message code="reply.message" text="Leave a comment" />
-                                            </h3>
-                                            <c:url var="replyUrl" value="/events/${event.id}/reply"/>
-                                            <form:form modelAttribute="replyEventForm" action="${replyUrl}" method="post" enctype="multipart/form-data" cssClass="reply-form">
-                                                <!-- Hidden field to track active tab -->
-                                                <input type="hidden" name="activeTab" id="active-tab-input" value="chat" />
-
-                                                <!-- Message Field -->
-                                                <c:set var="messageLabel"><spring:message code="reply.message"/></c:set>
-                                                <c:set var="messageHint"><spring:message code="reply.message.hint"/></c:set>
-                                                <jsp:include page="../components/text-area.jsp">
-                                                    <jsp:param name="path" value="message" />
-                                                    <jsp:param name="label" value="${messageLabel}" />
-                                                    <jsp:param name="placeholder" value="${messageHint}" />
-                                                </jsp:include>
-
-                                                <!-- Submit Button -->
-                                                <div class="form-actions">
-                                                    <c:set var="submitButtonLabel"><spring:message code="reply.submit"/></c:set>
-                                                    <jsp:include page="../components/button.jsp">
-                                                        <jsp:param name="label" value="${submitButtonLabel}" />
-                                                        <jsp:param name="type" value="submit" />
-                                                    </jsp:include>
-                                                </div>
-                                            </form:form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </c:when>
-                    <c:otherwise>
-                        <!-- Simplified layout for non-owners -->
-                        <div class="non-owner-content">
-                            <!-- Attendees Count Section -->
+                    <!-- Tab Contents -->
+                    <div class="tabs-content">
+                        <!-- Details Tab Content -->
+                        <div id="details-content" class="tab-content">
+                            <!-- Attendees Section -->
                             <div class="content-section">
                                 <div class="section-header">
                                     <h2 class="section-title">
@@ -602,10 +344,82 @@
                                             <span class="count">(<c:out value="${event.attendeesCount}" /> / <spring:message code="event.noAttendeesLimit"/>)</span>
                                         </c:if>
                                     </h2>
+                                    <button class="toggle-button" data-toggle="attendees-list" onclick="toggleSection('attendees-list')">
+                                            <span class="collapse-icon">
+                                                <!-- Chevron up icon SVG -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="18 15 12 9 6 15"></polyline>
+                                                </svg>
+                                            </span>
+                                        <span class="expand-icon" style="display: none;">
+                                                <!-- Chevron down icon SVG -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                                </svg>
+                                            </span>
+                                    </button>
                                 </div>
-                            </div>
 
-                            <!-- Chat Section -->
+                                <!-- Attendees List  -->
+                                <c:if test="${isEventOwner}">
+                                <div id="attendees-list" class="attendees-grid">
+                                    <c:if test="${empty attendeesPage.content}">
+                                        <div class="empty-state">
+                                            <div class="empty-icon">
+                                                <!-- Users icon SVG -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                                    <circle cx="9" cy="7" r="4"></circle>
+                                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                                </svg>
+                                            </div>
+                                            <p class="empty-message">
+                                                <spring:message code="event.no.attendees" />
+                                            </p>
+                                        </div>
+                                    </c:if>
+
+                                    <c:if test="${not empty attendeesPage.content}">
+                                        <c:forEach var="attendee" items="${attendeesPage.content}">
+                                            <div class="attendee-card">
+                                                <div class="attendee-avatar">
+                                                    <c:if test="${not empty attendee.profilePictureId}">
+                                                        <img src="<c:url value='/images/${attendee.profilePictureId}'/>" alt="Profile" class="avatar-img">
+                                                    </c:if>
+                                                    <c:if test="${empty attendee.profilePictureId}">
+                                                        <div class="avatar-placeholder">
+                                                            <c:out value="${fn:substring(attendee.firstname, 0, 1)}${fn:substring(attendee.lastname, 0, 1)}" />
+                                                        </div>
+                                                    </c:if>
+                                                </div>
+                                                <div class="attendee-info">
+                                                    <h3 class="attendee-name">
+                                                        <c:out value="${attendee.firstname} ${attendee.lastname}" />
+                                                    </h3>
+                                                    <p class="attendee-email">
+                                                        <c:out value="${attendee.email}" />
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </c:forEach>
+
+                                    </c:if>
+                                </div>
+                                    <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
+                                        <jsp:param name="pageObjectTotalPages" value="${attendeesPage.totalPages}" />
+                                        <jsp:param name="currentPage" value="${attendeesPage.currentPage}" />
+                                        <jsp:param name="pageSize" value="4" />
+                                        <jsp:param name="baseUrl" value="/events/${event.id}" />
+                                        <jsp:param name="paramName" value="attendeesPage" />
+                                        <jsp:param name="sizeParamName" value="attendeesSize" />
+                                    </jsp:include>
+                                </c:if>
+                            </div>
+                        </div>
+
+                        <!-- Chat Tab Content -->
+                        <div id="chat-content" class="tab-content">
                             <div class="content-section">
                                 <div class="section-header">
                                     <h2 class="section-title">
@@ -616,24 +430,24 @@
                                         <spring:message code="event.responses" />
                                         <span class="count">(<c:out value="${commentsCount}" />)</span>
                                     </h2>
-                                    <button class="toggle-button" data-toggle="chat-list-non-owner" onclick="toggleSection('chat-list-non-owner')">
-                                        <span class="collapse-icon">
-                                            <!-- Chevron up icon SVG -->
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <polyline points="18 15 12 9 6 15"></polyline>
-                                            </svg>
-                                        </span>
+                                    <button class="toggle-button" data-toggle="chat-list" onclick="toggleSection('chat-list')">
+                                            <span class="collapse-icon">
+                                                <!-- Chevron up icon SVG -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="18 15 12 9 6 15"></polyline>
+                                                </svg>
+                                            </span>
                                         <span class="expand-icon" style="display: none;">
-                                            <!-- Chevron down icon SVG -->
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <polyline points="6 9 12 15 18 9"></polyline>
-                                            </svg>
-                                        </span>
+                                                <!-- Chevron down icon SVG -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                                </svg>
+                                            </span>
                                     </button>
                                 </div>
 
                                 <!-- Chat Messages -->
-                                <div id="chat-list-non-owner" class="chat-list">
+                                <div id="chat-list" class="chat-list">
                                     <c:if test="${empty eventResponsesPage.content}">
                                         <div class="empty-state">
                                             <div class="empty-icon">
@@ -705,7 +519,10 @@
                                         <jsp:param name="pageSize" value="4" />
                                         <jsp:param name="baseUrl" value="/events/${id}" />
                                     </jsp:include>
+
+
                                 </div>
+
 
                                 <!-- Reply Form -->
                                 <div class="reply-container">
@@ -719,6 +536,9 @@
                                     </h3>
                                     <c:url var="replyUrl" value="/events/${event.id}/reply"/>
                                     <form:form modelAttribute="replyEventForm" action="${replyUrl}" method="post" enctype="multipart/form-data" cssClass="reply-form">
+                                        <!-- Hidden field to track active tab -->
+                                        <input type="hidden" name="activeTab" id="active-tab-input" value="chat" />
+
                                         <!-- Message Field -->
                                         <c:set var="messageLabel"><spring:message code="reply.message"/></c:set>
                                         <c:set var="messageHint"><spring:message code="reply.message.hint"/></c:set>
@@ -740,8 +560,8 @@
                                 </div>
                             </div>
                         </div>
-                    </c:otherwise>
-                </c:choose>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -771,10 +591,7 @@
             sessionStorage.setItem('activeTab', tabId);
 
             // Trigger a click on the tab
-            const tabElement = document.getElementById(tabId + '-tab');
-            if (tabElement) {
-                tabElement.click();
-            }
+            document.getElementById(tabId + '-tab').click();
         });
     </script>
 </c:if>
