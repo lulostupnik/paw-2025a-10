@@ -37,7 +37,13 @@
 
     <!-- Reply Form Card -->
     <div class="card">
-      <c:url var="replyUrl" value="/events/${event.id}/reply"/>
+<%--      <c:url var="replyUrl" value="/events/${event.id}/reply"/>--%>
+      <c:url var="replyUrl" value="/events/${event.id}/reply">
+        <c:param name="page" value="${param.page}" />
+        <c:param name="size" value="${param.size}" />
+        <c:param name="attendeesPage" value="${param.attendeesPage}" />
+        <c:param name="attendeesSize" value="${param.attendeesSize}" />
+      </c:url>
       <form:form modelAttribute="replyEventForm" action="${replyUrl}" method="post" enctype="multipart/form-data">
 
         <!-- Message Field -->

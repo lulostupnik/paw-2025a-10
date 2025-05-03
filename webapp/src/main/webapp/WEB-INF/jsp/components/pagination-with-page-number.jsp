@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <link rel="stylesheet" href="<c:url value="/resources/css/components/pagination-with-page-number.css"/>" />
 
@@ -38,12 +39,6 @@ Expected Request Parameters:
         <!-- Previous -->
         <c:if test="${currentPage > 1}">
             <c:url var="prevUrl" value="${baseUrl}">
-                <!-- Preserve all existing request parameters -->
-                <c:forEach var="p" items="${param}">
-                    <c:if test="${p.key != paramName && p.key != 'pageObjectTotalPages' && p.key != 'currentPage' && p.key != 'pageSize' && p.key != 'baseUrl' && p.key != 'paramName' && p.key != 'sizeParamName'}">
-                        <c:param name="${p.key}" value="${p.value}" />
-                    </c:if>
-                </c:forEach>
                 <!-- Add/update the page parameter -->
                 <c:param name="${paramName}" value="${currentPage - 1}" />
                 <c:param name="${sizeParamName}" value="${pageSize}" />
@@ -57,12 +52,6 @@ Expected Request Parameters:
         <!-- First page + ellipsis -->
         <c:if test="${start > 1}">
             <c:url var="firstPageUrl" value="${baseUrl}">
-                <!-- Preserve all existing request parameters -->
-                <c:forEach var="p" items="${param}">
-                    <c:if test="${p.key != paramName && p.key != 'pageObjectTotalPages' && p.key != 'currentPage' && p.key != 'pageSize' && p.key != 'baseUrl' && p.key != 'paramName' && p.key != 'sizeParamName'}">
-                        <c:param name="${p.key}" value="${p.value}" />
-                    </c:if>
-                </c:forEach>
                 <!-- Add/update the page parameter -->
                 <c:param name="${paramName}" value="1" />
                 <c:param name="${sizeParamName}" value="${pageSize}" />
@@ -74,12 +63,6 @@ Expected Request Parameters:
         <!-- Page numbers -->
         <c:forEach begin="${start}" end="${end}" var="pageNum">
             <c:url var="pageUrl" value="${baseUrl}">
-                <!-- Preserve all existing request parameters -->
-                <c:forEach var="p" items="${param}">
-                    <c:if test="${p.key != paramName && p.key != 'pageObjectTotalPages' && p.key != 'currentPage' && p.key != 'pageSize' && p.key != 'baseUrl' && p.key != 'paramName' && p.key != 'sizeParamName'}">
-                        <c:param name="${p.key}" value="${p.value}" />
-                    </c:if>
-                </c:forEach>
                 <!-- Add/update the page parameter -->
                 <c:param name="${paramName}" value="${pageNum}" />
                 <c:param name="${sizeParamName}" value="${pageSize}" />
@@ -107,15 +90,7 @@ Expected Request Parameters:
         <!-- Next -->
         <c:if test="${currentPage < totalPages}">
             <c:url var="nextUrl" value="${baseUrl}">
-                <!-- Preserve all existing request parameters -->
-                <c:forEach var="p" items="${param}">
-                    <c:if test="${p.key != paramName && p.key != 'pageObjectTotalPages' && p.key != 'currentPage' && p.key != 'pageSize' && p.key != 'baseUrl' && p.key != 'paramName' && p.key != 'sizeParamName'}">
-                        <c:param name="${p.key}" value="${p.value}" />
-                    </c:if>
-                </c:forEach>
-                <!-- Add/update the page parameter -->
-                <c:param name="${paramName}" value="${currentPage + 1}" />
-                <c:param name="${sizeParamName}" value="${pageSize}" />
+
             </c:url>
             <a href="${nextUrl}" class="page-link">Next &raquo;</a>
         </c:if>

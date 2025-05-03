@@ -14,19 +14,12 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
 
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -132,7 +125,7 @@ public class EventController {
     private ModelAndView populateEventDetails( Event event, long id, String username,
                                               BindingResult deleteErrors, BindingResult deleteReplyErrors,
                                               Long replyId, int page, int size, int attendeesPage, int attendeesSize) {
-        ModelAndView mav = new ModelAndView("events/detail");
+        ModelAndView mav = new ModelAndView("events/detail/detail");
         mav.addObject("event", event);
 
         // Check if there are errors in the delete forms

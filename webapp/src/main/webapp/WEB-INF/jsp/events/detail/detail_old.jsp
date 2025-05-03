@@ -96,7 +96,7 @@
 
 <div class="layout-container">
     <!-- Include the sidebar component -->
-    <jsp:include page="../components/sidebar.jsp" />
+    <jsp:include page="../../components/sidebar.jsp" />
 
     <!-- Main Content -->
     <div class="main-content">
@@ -195,7 +195,7 @@
                                 <form:form modelAttribute="deleteForm" id="delete-event-form" action="${deleteUrl}" method="post" style="display: none;">
                                     <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
                                     <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
-                                    <jsp:include page="../components/text-area.jsp">
+                                    <jsp:include page="../../components/text-area.jsp">
                                         <jsp:param name="path" value="message" />
                                         <jsp:param name="label" value="${messageLabel}" />
                                         <jsp:param name="placeholder" value="${messagePlaceholder}" />
@@ -488,7 +488,7 @@
                                                             <form:form modelAttribute="deleteReplyForm" id="delete-event-response-form-${response.id}" action="${deleteReplyUrl}" method="post" style="display: none;">
                                                                 <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
                                                                 <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
-                                                                <jsp:include page="../components/text-area.jsp">
+                                                                <jsp:include page="../../components/text-area.jsp">
                                                                     <jsp:param name="path" value="message" />
                                                                     <jsp:param name="label" value="${messageLabel}" />
                                                                     <jsp:param name="placeholder" value="${messagePlaceholder}" />
@@ -542,7 +542,7 @@
                                         <!-- Message Field -->
                                         <c:set var="messageLabel"><spring:message code="reply.message"/></c:set>
                                         <c:set var="messageHint"><spring:message code="reply.message.hint"/></c:set>
-                                        <jsp:include page="../components/text-area.jsp">
+                                        <jsp:include page="../../components/text-area.jsp">
                                             <jsp:param name="path" value="message" />
                                             <jsp:param name="label" value="${messageLabel}" />
                                             <jsp:param name="placeholder" value="${messageHint}" />
@@ -551,7 +551,7 @@
                                         <!-- Submit Button -->
                                         <div class="form-actions">
                                             <c:set var="submitButtonLabel"><spring:message code="reply.submit"/></c:set>
-                                            <jsp:include page="../components/button.jsp">
+                                            <jsp:include page="../../components/button.jsp">
                                                 <jsp:param name="label" value="${submitButtonLabel}" />
                                                 <jsp:param name="type" value="submit" />
                                             </jsp:include>
@@ -568,7 +568,7 @@
 </div>
 
 <c:set var="warning"><spring:message code="event.deleteWarning"/></c:set>
-<jsp:include page="../components/delete-modal.jsp">
+<jsp:include page="../../components/delete-modal.jsp">
     <jsp:param name="warning" value="${warning}"/>
 </jsp:include>
 
