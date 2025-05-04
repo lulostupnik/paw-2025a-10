@@ -43,7 +43,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
 
 
     @Autowired
-    public EventResponseJdbcDao(DataSource dataSource){
+    public EventResponseJdbcDao(final DataSource dataSource){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("event_responses")
@@ -51,7 +51,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
     }
 
     @Override
-    public EventResponse create(long userId, String username, long eventId, String message, LocalDateTime dateTime) {
+    public EventResponse create(final long userId, final String username, final long eventId, final String message, final LocalDateTime dateTime) {
         LOGGER.debug("Registering new event response for event {} by user {} ({}) who says {} on {}", eventId, userId, username, message, dateTime);
         final Map<String, Object> args = new HashMap<>();
         args.put("user_id", userId);
@@ -66,12 +66,12 @@ public class EventResponseJdbcDao implements EventResponseDao {
     }
 
     @Override
-    public List<EventResponse> listAllFromEvent(long eventId){
+    public List<EventResponse> listAllFromEvent(final long eventId){
         return jdbcTemplate.query(SQL_LIST_ALL_BY_EVENT, EVENT_RESPONSE_ROW_MAPPER, eventId);
     }
 
     @Override
-    public int getCount(long eventId) {
+    public int getCount(final long eventId) {
         return jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM event_responses WHERE event_id = ? AND deleted = FALSE",
                 Integer.class,
@@ -80,7 +80,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
     }
 
     @Override
-    public long getEventIdByResponseId(long eventResponseId) {
+    public long getEventIdByResponseId(final long eventResponseId) {
         return jdbcTemplate.query(
                 "SELECT event_id FROM event_responses WHERE id = ? ORDER BY date_time ",
                 (rs, rowNum) -> rs.getLong("event_id"),
@@ -89,25 +89,25 @@ public class EventResponseJdbcDao implements EventResponseDao {
     }
 
     @Override
-    public void deletionMessage(long id, String message) {
-        int updatedRows = jdbcTemplate.update("UPDATE event_responses SET deleted_message = ? WHERE id = ?;", message, id);
+    public void deletionMessage(final long id, final String message) {
+        final int updatedRows = jdbcTemplate.update("UPDATE event_responses SET deleted_message = ? WHERE id = ?;", message, id);
         if (updatedRows == 0) {
             LOGGER.warn("No event_response found with id {}", id);
         }
     }
 
     @Override
-    public void delete(long id) {
-        int updatedRows = jdbcTemplate.update("UPDATE event_responses SET deleted = TRUE WHERE id = ?;", id);
+    public void delete(final long id) {
+        final int updatedRows = jdbcTemplate.update("UPDATE event_responses SET deleted = TRUE WHERE id = ?;", id);
         if (updatedRows == 0) {
             LOGGER.warn("No journey_response found with id {}", id);
         }
     }
 
     @Override
-    public Page<EventResponse> listAllFromEvent(long eventId, int page, int size) {
+    public Page<EventResponse> listAllFromEvent(final long eventId, final int page, final int size) {
 
-        int totalItems = jdbcTemplate.queryForObject(
+        final int totalItems = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM event_responses WHERE event_id = ? AND deleted = FALSE",
                 Integer.class,
                 eventId

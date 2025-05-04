@@ -78,10 +78,10 @@ public class EventJdbcDao implements EventDao {
                 us.profile_picture_id AS user_profile_picture_id,
                 us.language AS user_language,
                 us.blocked AS user_blocked,
-                
+            
                 ca.id AS career_id,
                 ca.name AS career_name,
-                
+            
                 e.id AS event_id,
                 e.event_date AS event_date,
                 e.description AS event_description,
@@ -91,19 +91,19 @@ public class EventJdbcDao implements EventDao {
                 e.address AS event_address,
                 e.attendees_limit AS event_attendees_limit,
                 e.attendees_count AS event_attendees_count,
-                
+            
                 un.id AS university_id,
                 un.name AS university_name,
                 un.abbreviation AS university_abbreviation,
-                
+            
                 c.id AS city_id,
                 c.name AS city_name,
-                
+            
                 co.name AS country_name,
-                
+            
                 ci2.id AS origin_city_id,
                 ci2.name AS origin_city_name,
-                
+            
                 co2.name AS origin_country_name
             """;
 
@@ -156,47 +156,47 @@ public class EventJdbcDao implements EventDao {
     SELECT
         (ea.user_id IS NOT NULL) AS is_attending,
         us.id AS user_id,
-        us.email AS user_email, 
-        us.firstname AS user_firstname, 
-        us.lastname AS user_lastname, 
-        us.username AS user_username, 
-        us.university AS user_university, 
-        us.profile_picture_id AS user_profile_picture_id, 
+        us.email AS user_email,
+        us.firstname AS user_firstname,
+        us.lastname AS user_lastname,
+        us.username AS user_username,
+        us.university AS user_university,
+        us.profile_picture_id AS user_profile_picture_id,
         us.language AS user_language,
         us.blocked AS user_blocked,
-        
-        ca.id AS career_id, 
-        ca.name AS career_name, 
-        
-        e.id AS event_id, 
-        e.event_date AS event_date, 
-        e.description AS event_description, 
-        e.flyer_image_id AS event_flyer_image_id, 
+    
+        ca.id AS career_id,
+        ca.name AS career_name,
+    
+        e.id AS event_id,
+        e.event_date AS event_date,
+        e.description AS event_description,
+        e.flyer_image_id AS event_flyer_image_id,
         e.title AS event_title,
         e.event_time AS event_time,
         e.address AS event_address,
         e.attendees_limit AS event_attendees_limit,
         e.attendees_count AS event_attendees_count,
-        un.id AS university_id, 
-        un.name AS university_name, 
-        un.abbreviation AS university_abbreviation, 
-        
-        c.id AS city_id, 
-        c.name AS city_name, 
-        
-        co.name AS country_name, 
-        
-        ci2.id AS origin_city_id, 
-        ci2.name AS origin_city_name, 
-        
+        un.id AS university_id,
+        un.name AS university_name,
+        un.abbreviation AS university_abbreviation,
+    
+        c.id AS city_id,
+        c.name AS city_name,
+    
+        co.name AS country_name,
+    
+        ci2.id AS origin_city_id,
+        ci2.name AS origin_city_name,
+    
         co2.name AS origin_country_name
     FROM events e
     JOIN users us ON e.user_id = us.id
     JOIN careers ca ON ca.id = us.career_id
     JOIN universities un ON us.university = un.id
-    JOIN cities ci2 ON un.city_id = ci2.id 
+    JOIN cities ci2 ON un.city_id = ci2.id
     JOIN countries co2 ON co2.id = ci2.country_id
-    JOIN cities c ON e.city_id = c.id 
+    JOIN cities c ON e.city_id = c.id
     JOIN countries co ON c.country_id = co.id
     JOIN user_data ud ON ud.city_id = e.city_id
     LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ud.id
@@ -208,60 +208,60 @@ public class EventJdbcDao implements EventDao {
     private final static String SQL_TOP_EVENTS = """
         WITH event_attendees as (SELECT COUNT(user_id) AS attendees, event_id FROM event_attendances GROUP BY event_id)
         SELECT
-            e.id AS event_id, 
-            e.event_date AS event_date, 
-            e.description AS event_description, 
-            e.flyer_image_id AS event_flyer_image_id, 
+            e.id AS event_id,
+            e.event_date AS event_date,
+            e.description AS event_description,
+            e.flyer_image_id AS event_flyer_image_id,
             e.title AS event_title,
             e.event_time AS event_time,
             e.address AS event_address,
             e.attendees_limit AS event_attendees_limit,
             e.attendees_count AS event_attendees_count,
-                
-            us.id AS user_id, 
-            us.email AS user_email, 
-            us.firstname AS user_firstname, 
-            us.lastname AS user_lastname, 
-            us.username AS user_username, 
-            us.university AS user_university, 
-            us.profile_picture_id AS user_profile_picture_id, 
+        
+            us.id AS user_id,
+            us.email AS user_email,
+            us.firstname AS user_firstname,
+            us.lastname AS user_lastname,
+            us.username AS user_username,
+            us.university AS user_university,
+            us.profile_picture_id AS user_profile_picture_id,
             us.language AS user_language,
             us.blocked AS user_blocked,
-                
-            ca.id AS career_id, 
-            ca.name AS career_name, 
-                
-            un.id AS university_id, 
-            un.name AS university_name, 
-            un.abbreviation AS university_abbreviation, 
-                
-            c.id AS city_id, 
-            c.name AS city_name, 
-                
-            co.name AS country_name, 
-                
-            ci2.id AS origin_city_id, 
-            ci2.name AS origin_city_name, 
-                
+        
+            ca.id AS career_id,
+            ca.name AS career_name,
+        
+            un.id AS university_id,
+            un.name AS university_name,
+            un.abbreviation AS university_abbreviation,
+        
+            c.id AS city_id,
+            c.name AS city_name,
+        
+            co.name AS country_name,
+        
+            ci2.id AS origin_city_id,
+            ci2.name AS origin_city_name,
+        
             co2.name AS origin_country_name
 
         FROM events e
         JOIN users us ON e.user_id = us.id
         JOIN careers ca ON ca.id = us.career_id
         JOIN universities un ON us.university = un.id
-        JOIN cities ci2 ON un.city_id = ci2.id 
+        JOIN cities ci2 ON un.city_id = ci2.id
         JOIN countries co2 ON co2.id = ci2.country_id
-        JOIN cities c ON e.city_id = c.id 
+        JOIN cities c ON e.city_id = c.id
         JOIN countries co ON c.country_id = co.id
         LEFT JOIN event_attendees a ON a.event_id = e.id
         WHERE e.event_date >= CURRENT_DATE
         AND e.deleted = FALSE
-        ORDER BY COALESCE(a.attendees, 0) DESC, e.event_date ASC
+        ORDER BY COALESCE(a.attendees, 0) DESC, e.event_date
         LIMIT 3
         """;
 
     @Autowired
-    public EventJdbcDao(DataSource dataSource) {
+    public EventJdbcDao(final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("events")
@@ -269,9 +269,9 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public Event create(User user, City city, LocalDate date, String description, long flyerImageId, String title, LocalTime time, String address, Integer attendeesLimit) {
+    public Event create(final User user, final City city, final LocalDate date, final String description, final long flyerImageId, final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
         LOGGER.debug("Registering new event for user {} in {} (addr {}) on {} {} ( {} ) with image {}, title {}, limit {}", user, city, address, date, time, description, flyerImageId, title, attendeesLimit);
-        HashMap<String, Object> parameters = new HashMap<>();
+        final HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("user_id", user.getId());
         parameters.put("city_id", city.getId());
         parameters.put("event_date", Date.valueOf(date));
@@ -294,10 +294,10 @@ public class EventJdbcDao implements EventDao {
 
     // FIXME
     @Override
-    public List<Event> listByQuery(Long cityId, LocalDate date) {
+    public List<Event> listByQuery(final Long cityId, final LocalDate date) {
 
-        StringBuilder sqlBuilder = new StringBuilder(SQL_BASE_NOT_DELETED);
-        List<Object> params = new ArrayList<>();
+        final StringBuilder sqlBuilder = new StringBuilder(SQL_BASE_NOT_DELETED);
+        final List<Object> params = new ArrayList<>();
 
         if (cityId != null) {
             sqlBuilder.append(" AND city_id = ? ");
@@ -317,7 +317,7 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public Optional<Event> findById(long eventId) {
+    public Optional<Event> findById(final long eventId) {
         return jdbcTemplate.query(SQL_FIND_BY_ID, EVENT_ROW_MAPPER, eventId).stream().findFirst();
     }
 
@@ -327,12 +327,12 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public List<Event> getEvents(String email) {
+    public List<Event> getEvents(final String email) {
         return jdbcTemplate.query(SQL_FIND_BY_EMAIL, EVENT_ROW_MAPPER, email);
     }
 
     @Override
-    public List<UserEvent> getRecommendedEvents(String email) {
+    public List<UserEvent> getRecommendedEvents(final String email) {
         return jdbcTemplate.query(SQL_RECOMMENDED_EVENTS,  (rs, rowNum) -> {
             Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
             boolean isAttending = rs.getBoolean("is_attending");
@@ -344,7 +344,7 @@ public class EventJdbcDao implements EventDao {
         return jdbcTemplate.query(SQL_TOP_EVENTS, EVENT_ROW_MAPPER);
     }
 
-    public Optional<Integer> getEventAttendanceLimit(long eventId) {
+    public Optional<Integer> getEventAttendanceLimit(final long eventId) {
         return Optional.ofNullable(jdbcTemplate.queryForObject("SELECT attendees_limit FROM events WHERE id = ?", Integer.class, eventId));
 
     }
@@ -357,105 +357,102 @@ public class EventJdbcDao implements EventDao {
 
     // FIXME: ¿Los siguientes dos métodos no deberían estar en uno solo?
     @Override
-    public void delete(long id) {
+    public void delete(final long id) {
         LOGGER.debug("Marking event {} as deleted", id);
-        int updatedRows = jdbcTemplate.update("UPDATE events SET deleted = TRUE WHERE id = ?;", id);
+        final int updatedRows = jdbcTemplate.update("UPDATE events SET deleted = TRUE WHERE id = ?;", id);
         if (updatedRows == 0) {
             LOGGER.warn("No journey_response found with id {}", id); // TODO: ¿hace falta esto?
         }
     }
     @Override
-    public void deletionMessage(long id, String message) {
-        int updatedRows = jdbcTemplate.update("UPDATE events SET deleted_message = ? WHERE id = ?;", message, id);
+    public void deletionMessage(final long id, final String message) {
+        final int updatedRows = jdbcTemplate.update("UPDATE events SET deleted_message = ? WHERE id = ?;", message, id);
         if (updatedRows == 0) {
             LOGGER.warn("No journey_response found with id {}", id);
         }
     }
 
     @Override
-    public List<Event> getMyEvents(long userId) {
+    public List<Event> getMyEvents(final long userId) {
         return jdbcTemplate.query(SQL_FIND_MY_EVENTS, EVENT_ROW_MAPPER, userId);
     }
 
 
     @Override
-    public List<Event> getOthersEvents(long userId) {
+    public List<Event> getOthersEvents(final long userId) {
         return jdbcTemplate.query(SQL_FIND_OTHERS_EVENTS, EVENT_ROW_MAPPER, userId);
     }
 
-    private int calculateTotalPages(int totalItems, int pageSize) {
+    private int calculateTotalPages(final int totalItems, final int pageSize) {
         return (int) Math.ceil((double) totalItems / pageSize);
     }
 
-    private int getTotalCount(String countQuery, Object... params) {
+    private int getTotalCount(final String countQuery, final Object... params) {
         return jdbcTemplate.queryForObject(countQuery, Integer.class, params);
     }
 
     @Override
-    public Page<Event> getOthersEvents(long userId, int page, int size) {
-        int totalItems = jdbcTemplate.queryForObject(
+    public Page<Event> getOthersEvents(final long userId, final int page, final int size) {
+        final int totalItems = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM events e WHERE e.deleted = FALSE AND e.user_id != ? AND e.event_date >= CURRENT_DATE",
                 Integer.class,
                 userId
         );
 
-        List<Event> events = jdbcTemplate.query(SQL_FIND_OTHERS_PAGED, EVENT_ROW_MAPPER, userId, size, (page - 1) * size);
+        final List<Event> events = jdbcTemplate.query(SQL_FIND_OTHERS_PAGED, EVENT_ROW_MAPPER, userId, size, (page - 1) * size);
 
         return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
     }
 
     @Override
-    public Page<Event> getMyEvents(long userId, int page, int size) {
-        int totalItems = jdbcTemplate.queryForObject(
+    public Page<Event> getMyEvents(final long userId, final int page, final int size) {
+        final int totalItems = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM events e WHERE e.deleted = FALSE AND e.user_id = ? ",
                 Integer.class,
                 userId
         );
 
-        List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_BY_USER_PAGED, EVENT_ROW_MAPPER, userId, size, (page - 1) * size);
+        final List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_BY_USER_PAGED, EVENT_ROW_MAPPER, userId, size, (page - 1) * size);
 
         return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
     }
 
     //@Todo, habria que meter en el dao una validacion para int page que sea mayor a 0, o dejamos que tire una excepcion?
     @Override
-    public Page<Event> getEvents(String email, int page, int size) {
+    public Page<Event> getEvents(final String email, final int page, final int size) {
         LOGGER.debug("Querying DB for events for usermail {}", email);
 
-        String countQuery = "SELECT COUNT(*) FROM events e JOIN users us ON e.user_id = us.id WHERE e.deleted = FALSE AND us.email = ?";
-        int totalItems = getTotalCount(countQuery, email);
-        int totalPages = calculateTotalPages(totalItems, size);
+        final String countQuery = "SELECT COUNT(*) FROM events e JOIN users us ON e.user_id = us.id WHERE e.deleted = FALSE AND us.email = ?";
+        final int totalItems = getTotalCount(countQuery, email);
 
-        int offset = (page - 1) * size;
-
-        List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_BY_EMAIL_PAGED, EVENT_ROW_MAPPER, email, size, (page - 1) * size);
+        final List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_BY_EMAIL_PAGED, EVENT_ROW_MAPPER, email, size, (page - 1) * size);
 
         return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
     }
 
     @Override
-    public Page<Event> listAll(int page, int size) {
+    public Page<Event> listAll(final int page, final int size) {
 
-        int totalItems = jdbcTemplate.queryForObject(
+        final int totalItems = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM events WHERE deleted = FALSE ",
                 Integer.class
         );
 
-        List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_PAGED, EVENT_ROW_MAPPER, size, (page - 1) * size);
+        final List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_PAGED, EVENT_ROW_MAPPER, size, (page - 1) * size);
 
         return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
     }
 
     @Override
-    public Page<Event> searchEvents(String search, int page, int size) {
-        String searchPattern = "%" + search + "%";
-        int totalItems = jdbcTemplate.queryForObject(
+    public Page<Event> searchEvents(final String search, final int page, final int size) {
+        final String searchPattern = "%" + search + "%";
+        final int totalItems = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM events e WHERE e.deleted = FALSE  AND (LOWER(e.title) LIKE LOWER(?))",
                 Integer.class,
                 searchPattern
         );
 
-        List<Event> events = jdbcTemplate.query(
+        final List<Event> events = jdbcTemplate.query(
                 SQL_SEARCH_PAGED,
                 EVENT_ROW_MAPPER,
                 searchPattern,
@@ -467,9 +464,9 @@ public class EventJdbcDao implements EventDao {
 
 
     @Override
-    public Page<UserEvent> getEventsWithAttendanceStatus(long userId, int page, int size) {
+    public Page<UserEvent> getEventsWithAttendanceStatus(final long userId, final int page, final int size) {
 
-        int totalItems = jdbcTemplate.queryForObject("""
+        final int totalItems = jdbcTemplate.queryForObject("""
                    SELECT COUNT(*) FROM events e
                    LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
                    WHERE e.user_id != ? AND e.deleted = FALSE AND e.event_date >= CURRENT_DATE
@@ -478,7 +475,7 @@ public class EventJdbcDao implements EventDao {
                 userId, userId
         );
 
-        List<UserEvent> events = jdbcTemplate.query(
+        final List<UserEvent> events = jdbcTemplate.query(
                 SQL_FIND_WITH_ATTENDANCE_PAGED,
                 (rs, rowNum) -> {
                     Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
@@ -493,7 +490,7 @@ public class EventJdbcDao implements EventDao {
 
 
     @Override
-    public List<UserEvent> getEventsWithAttendanceStatus(long userId) {
+    public List<UserEvent> getEventsWithAttendanceStatus(final long userId) {
 
         return jdbcTemplate.query(
                 SQL_FIND_EVENTS_WITH_ATTENDANCE,
@@ -507,7 +504,7 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public void updateData(long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId/*, long userId*/) {
+    public void updateData(final long cityId, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit, final long eventId/*, long userId*/) {
         jdbcTemplate.update("""
             UPDATE events
                SET city_id = ?,

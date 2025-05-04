@@ -170,9 +170,9 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
     }
 
     @Override
-    public void attend(long userId, long eventId) {
+    public void attend(final long userId, final long eventId) {
         LOGGER.debug("Registering user {} will attend event {}", userId, eventId);
-        Map<String, Object> params = new HashMap<>();
+        final Map<String, Object> params = new HashMap<>();
         params.put("user_id", userId);
         params.put("event_id", eventId);
         jdbcInsert.execute(params);
@@ -180,7 +180,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
     }
 
     @Override
-    public void cancel(long userId, long eventId) {
+    public void cancel(final long userId, final long eventId) {
         LOGGER.debug("Registering user {} will cancel attendance to event {}", userId, eventId);
         jdbcTemplate.update("DELETE FROM event_attendances WHERE user_id = ? AND event_id = ?", userId, eventId);
         jdbcTemplate.update("UPDATE events SET attendees_count = attendees_count - 1 WHERE id = ?", eventId);
@@ -188,31 +188,31 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
 
 
     @Override
-    public boolean isAttending(long userId, long eventId) {
+    public boolean isAttending(final long userId, final long eventId) {
         return jdbcTemplate.queryForObject(
                 "SELECT COUNT(1) FROM event_attendances WHERE user_id = ? AND event_id = ?",
                 Boolean.class, userId, eventId);
     }
 
     @Override
-    public List<User> getAttendees(long eventId) {
+    public List<User> getAttendees(final long eventId) {
         return jdbcTemplate.query(SQL_LIST_ALL_BY_EVENT, USER_ROW_MAPPER, eventId);
     }
 
     @Override
-    public int getAttendeesCount(long eventId) {
+    public int getAttendeesCount(final long eventId) {
         return jdbcTemplate.query("SELECT attendees_count FROM events WHERE id = ?", (rs, rowNum) -> rs.getInt("attendees_count"), eventId).stream().findFirst().orElse(0);
         // return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM event_attendances WHERE event_id = ?",  Integer.class, eventId);
     }
 
     @Override
-    public List<Event> getAttendingEvents(long userId) {
+    public List<Event> getAttendingEvents(final long userId) {
         return jdbcTemplate.query(SQL_LIST_ALL_BY_USER, EVENT_ROW_MAPPER, userId, userId);
     }
 
     @Override
-    public Page<User> getAttendees(long eventId, int pageNumber, int pageSize) {
-        int totalItems = jdbcTemplate.queryForObject(
+    public Page<User> getAttendees(final long eventId, final int pageNumber, final int pageSize) {
+        final int totalItems = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM event_attendances WHERE event_id = ?",
                 Integer.class,
                 eventId
@@ -227,8 +227,8 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
     }
 
     @Override
-    public Page<Event> getAttendingEvents(long userId, int pageNumber, int pageSize) {
-        int totalItems = jdbcTemplate.queryForObject(
+    public Page<Event> getAttendingEvents(final long userId, final int pageNumber, final int pageSize) {
+        final int totalItems = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM event_attendances ea JOIN events e ON ea.event_id = e.id WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE",
                 Integer.class,
                 userId, userId
