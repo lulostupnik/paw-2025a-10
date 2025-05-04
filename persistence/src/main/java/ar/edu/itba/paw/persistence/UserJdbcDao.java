@@ -99,7 +99,7 @@ public class UserJdbcDao implements UserDao {
 
 
     @Autowired
-    public UserJdbcDao(DataSource dataSource) {
+    public UserJdbcDao(final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("users")
@@ -115,45 +115,45 @@ public class UserJdbcDao implements UserDao {
     // }
 
     @Override
-    public Optional<User> findById(long id) {
+    public Optional<User> findById(final long id) {
         return jdbcTemplate.query(SQL_FIND_BY_ID, USER_ROW_MAPPER, id).stream().findFirst();
     }
 
     @Override
-    public Optional<User> findByEmail(String email) {
+    public Optional<User> findByEmail(final String email) {
         return jdbcTemplate.query(SQL_FIND_BY_EMAIL, USER_ROW_MAPPER, email).stream().findFirst();
     }
 
     @Override
-    public Optional<UserPassword> findByEmailWithPass(String email) {
+    public Optional<UserPassword> findByEmailWithPass(final String email) {
         return jdbcTemplate.query("SELECT email, password, roles, blocked FROM users WHERE email = ?", USER_PASSWORD_ROW_MAPPER, email).stream().findFirst();
     }
 
     @Override
-    public Optional<User> findByUsername(String username) {
+    public Optional<User> findByUsername(final String username) {
         return jdbcTemplate.query(SQL_FIND_BY_USERNAME, USER_ROW_MAPPER, username).stream().findFirst();
     }
 
     @Override
-    public void changePassword(String email, String password) {
+    public void changePassword(final String email, final String password) {
         LOGGER.debug("Updating password for user email {} (has password {})", email, password != null && !password.isEmpty());
         jdbcTemplate.update("UPDATE users SET password = ? WHERE email = ?", password, email);
     }
 
     @Override
-    public boolean existsByUsername(String username) {
+    public boolean existsByUsername(final String username) {
         return jdbcTemplate.queryForObject("SELECT COUNT(1) FROM users WHERE username = ?", Boolean.class, username);
     }
 
     @Override
-    public boolean existsByEmail(String email) {
+    public boolean existsByEmail(final String email) {
         return jdbcTemplate.queryForObject("SELECT COUNT(1) FROM users WHERE email = ?", Boolean.class, email);
     }
 
 
     @Override
-    public User create(String email, String username, String firstname, String lastname, University university,
-                       Career career, long profilePictureId, String password, Locale locale) {
+    public User create(final String email, final String username, final String firstname, final String lastname, final University university,
+                       final Career career, final long profilePictureId, final String password, final Locale locale) {
         LOGGER.debug("Registering new user to DB");
         final Map<String, Object> args = new HashMap<>();
         args.put("email", email);
@@ -172,12 +172,12 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public void update(long userId, String firstname, String lastname, String username,
-                       Long universityId, Long careerId, Locale locale) {
+    public void update(final long userId, final String firstname, final String lastname, final String username,
+                       final Long universityId, final Long careerId, final Locale locale) {
         LOGGER.debug("Updating user with ID: {}", userId);
 
-        StringBuilder queryBuilder = new StringBuilder("UPDATE users SET ");
-        List<Object> parameters = new ArrayList<>();
+        final StringBuilder queryBuilder = new StringBuilder("UPDATE users SET ");
+        final List<Object> parameters = new ArrayList<>();
         boolean hasUpdates = false;
 
         if (firstname != null) {
@@ -240,18 +240,18 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public Page<User> getAllUsers(int page, int size) {
-        List<User> list = jdbcTemplate.query(SQL_FIND_ALL_PAGED, USER_ROW_MAPPER, size, (page - 1) * size);
-        int elementCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
+    public Page<User> getAllUsers(final int page, final int size) {
+        final List<User> list = jdbcTemplate.query(SQL_FIND_ALL_PAGED, USER_ROW_MAPPER, size, (page - 1) * size);
+        final int elementCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
         return new Page<>(list, page, (int) Math.ceil((double) elementCount / size));
     }
 
     @Override
-    public Page<User> searchUsers(String search, int page, int size) {
-            String searchPattern = "%" + search + "%";
-            List<User> list = jdbcTemplate.query(SQL_SEARCH_USERS_PAGED, USER_ROW_MAPPER, searchPattern, searchPattern, size, (page - 1) * size);
-            int elementCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users WHERE LOWER(firstname) LIKE LOWER(?)", Integer.class, searchPattern);
-            return new Page<>(list, page, (int) Math.ceil((double) elementCount / size));
+    public Page<User> searchUsers(final String search, final int page, final int size) {
+        final String searchPattern = "%" + search + "%";
+        final List<User> list = jdbcTemplate.query(SQL_SEARCH_USERS_PAGED, USER_ROW_MAPPER, searchPattern, searchPattern, size, (page - 1) * size);
+        final int elementCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users WHERE LOWER(firstname) LIKE LOWER(?)", Integer.class, searchPattern);
+        return new Page<>(list, page, (int) Math.ceil((double) elementCount / size));
     }
 
     @Override
@@ -262,11 +262,11 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public void updateProfileInfo(long userId, String firstname, String lastname, String username) {
+    public void updateProfileInfo(final long userId, final String firstname, final String lastname, final String username) {
         LOGGER.debug("Updating profile info for user ID: {}", userId);
 
-        StringBuilder queryBuilder = new StringBuilder("UPDATE users SET ");
-        List<Object> parameters = new ArrayList<>();
+        final StringBuilder queryBuilder = new StringBuilder("UPDATE users SET ");
+        final List<Object> parameters = new ArrayList<>();
         boolean hasUpdates = false;
 
         if (firstname != null) {
@@ -302,40 +302,40 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public void updateLocale(long userId, Locale locale) {
+    public void updateLocale(final long userId, final Locale locale) {
         LOGGER.debug("Updating locale for user ID: {} to {}", userId, locale);
         jdbcTemplate.update("UPDATE users SET language = ? WHERE id = ?", locale.getLanguage(), userId);
         // return update(userId, null, null, null, null, null, locale);
     }
 
     @Override
-    public void updateUniversity(long userId, long universityId) {
+    public void updateUniversity(final long userId, final long universityId) {
         LOGGER.debug("Updating university for user ID: {} to university ID: {}", userId, universityId);
         jdbcTemplate.update("UPDATE users SET university = ? WHERE id = ?", universityId, userId);
         // return update(userId, null, null, null, universityId, null, null);
     }
 
     @Override
-    public void updateCareer(long userId, long careerId) {
+    public void updateCareer(final long userId, final long careerId) {
         LOGGER.debug("Updating career for user ID: {} to career ID: {}", userId, careerId);
         jdbcTemplate.update("UPDATE users SET career_id = ? WHERE id = ?", careerId, userId);
         // return update(userId, null, null, null, null, careerId, null);
     }
 
     @Override
-    public List<User> listJourneyRespondersMinusUsers(long journeyId/*, List<Long> userIds*/) {
+    public List<User> listJourneyRespondersMinusUsers(final long journeyId/*, List<Long> userIds*/) {
         return jdbcTemplate.query(SQL_JOIN_JOURNEY_RESPONDERS, USER_ROW_MAPPER, journeyId);
     }
 
     @Override
-    public List<User> listEventRespondersMinusUsers(long eventId) {
+    public List<User> listEventRespondersMinusUsers(final long eventId) {
         return jdbcTemplate.query(SQL_JOIN_EVENT_RESPONDERS, USER_ROW_MAPPER, eventId);
     }
 
     @Override
-    public void blockUser(long userId){
+    public void blockUser(final long userId){
         LOGGER.debug("Blocking user with ID: {}", userId);
-        int rowsAffected = jdbcTemplate.update(
+        final int rowsAffected = jdbcTemplate.update(
                 "UPDATE users SET blocked = TRUE WHERE id = ?",
                 userId
         );
@@ -345,9 +345,9 @@ public class UserJdbcDao implements UserDao {
         }
     }
     @Override
-    public void unblockUser(long userId){
+    public void unblockUser(final long userId){
         LOGGER.debug("Unblocking user with ID: {}", userId);
-        int rowsAffected = jdbcTemplate.update(
+        final int rowsAffected = jdbcTemplate.update(
                 "UPDATE users SET blocked = FALSE WHERE id = ?",
                 userId
         );

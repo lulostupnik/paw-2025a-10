@@ -23,7 +23,7 @@ public class ImageJdbcDao implements ImageDao {
     private final static RowMapper<Image> IMAGE_ROW_MAPPER = (rs, rowNum) ->  new Image(rs.getLong("id"), rs.getBytes("content"));
 
     @Autowired
-    public ImageJdbcDao(DataSource dataSource) {
+    public ImageJdbcDao(final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("images")
@@ -31,28 +31,28 @@ public class ImageJdbcDao implements ImageDao {
     }
 
     @Override
-    public long saveImage(byte[] imageData) {
+    public long saveImage(final byte[] imageData) {
         LOGGER.debug("Registering new image of size {}", imageData.length);
-        long id = jdbcInsert.executeAndReturnKey(Map.of("content", imageData)).longValue();
+        final long id = jdbcInsert.executeAndReturnKey(Map.of("content", imageData)).longValue();
         LOGGER.debug("Successfully registered image {}", id);
         return id;
     }
 
     @Override
-    public Optional<Image> getImageById(long id) {
+    public Optional<Image> getImageById(final long id) {
         LOGGER.debug("Querying DB for image {}", id);
         return jdbcTemplate.query("SELECT * FROM images WHERE id = ?", IMAGE_ROW_MAPPER, id).stream().findFirst();
     }
 
     @Override
-    public void deleteImage(long id) {
+    public void deleteImage(final long id) {
         LOGGER.debug("Deleting image {} from DB", id);
         jdbcTemplate.update("DELETE FROM images WHERE id = ?", id);
     }
 
     // FIXME: creo que no se usa, o no se debería usar
     @Override
-    public void updateImage(long id, byte[] newContent) {
+    public void updateImage(final long id, final byte[] newContent) {
         LOGGER.debug("Updating image {} with new content of size {}", id, newContent.length);
         jdbcTemplate.update("UPDATE images SET content = ? WHERE id = ?", newContent, id);
     }
