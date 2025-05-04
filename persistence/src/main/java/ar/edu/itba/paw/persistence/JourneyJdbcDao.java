@@ -145,10 +145,10 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
     @Override
-    public Journey create(User user, University destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
+    public Journey create(final User user, final University destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
         LOGGER.debug("Registering new journey of {} to {} from {} to {} ({})", user, destinationUniversity, startDate, endDate, description);
         // FIXME: no se si es la responsabilidad del DAO validar esto
-        Optional<Journey> journey = findByUserIdDeleted(user.getId());
+        final Optional<Journey> journey = findByUserIdDeleted(user.getId());
         if(journey.isPresent()){
             LOGGER.debug("Journey found");
             updateData(journey.get().getId(), destinationUniversity, startDate, endDate, description);
@@ -172,22 +172,22 @@ public class JourneyJdbcDao implements JourneyDao {
 
 
     @Override
-    public Optional<Journey> findById(long id) {
+    public Optional<Journey> findById(final long id) {
         return jdbcTemplate.query(SQL_FIND_BY_ID, JOURNEY_ROW_MAPPER, id).stream().findFirst();
     }
     
     @Override
-    public Optional<Journey> findOverlappingJourney(long userId, LocalDate startDate, LocalDate endDate) {
+    public Optional<Journey> findOverlappingJourney(final long userId, final LocalDate startDate, final LocalDate endDate) {
         // FIXME: ¿usar Date?
-        Date newStartDate = Date.valueOf(startDate);
-        Date newEndDate = Date.valueOf(endDate);
+        final Date newStartDate = Date.valueOf(startDate);
+        final Date newEndDate = Date.valueOf(endDate);
         return jdbcTemplate.query(SQL_FIND_OVERLAPPING, JOURNEY_ROW_MAPPER, userId, newStartDate, newEndDate).stream().findFirst();
     }
 
 
     // FIXME: usar StringBuilder
     @Override
-    public List<Journey> findByFilters(String destination, LocalDate startDate, LocalDate endDate, String interest) {
+    public List<Journey> findByFilters(final String destination, final LocalDate startDate, final LocalDate endDate, final String interest) {
 
         String query;
 
@@ -197,8 +197,8 @@ public class JourneyJdbcDao implements JourneyDao {
             query = SQL_BASE;
         }
 
-        List<String> filters = new ArrayList<>();
-        List<Object> params = new ArrayList<>();
+        final List<String> filters = new ArrayList<>();
+        final List<Object> params = new ArrayList<>();
 
         if (destination != null && !destination.isEmpty()) {
             filters.add("ci2.id = ?");
@@ -226,7 +226,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
     // FIXME: use StringBuilder
     @Override
-    public List<Journey> findByFilters(long userId, String destination, LocalDate startDate, LocalDate endDate, String interest) {
+    public List<Journey> findByFilters(final long userId, final String destination, final LocalDate startDate, final LocalDate endDate, final String interest) {
 
         String query;
 
@@ -236,8 +236,8 @@ public class JourneyJdbcDao implements JourneyDao {
             query = SQL_BASE;
         }
 
-        List<String> filters = new ArrayList<>();
-        List<Object> params = new ArrayList<>();
+        final List<String> filters = new ArrayList<>();
+        final List<Object> params = new ArrayList<>();
 
         filters.add("us.id != ?"); // journey.user_id != ?
         params.add(userId);
@@ -268,47 +268,47 @@ public class JourneyJdbcDao implements JourneyDao {
 
 
     @Override
-    public List<Journey> findByOriginCity(long originCityId) {
+    public List<Journey> findByOriginCity(final long originCityId) {
         return jdbcTemplate.query(SQL_FIND_BY_ORIGIN_CITY, JOURNEY_ROW_MAPPER, originCityId);
     }
 
     @Override
-    public List<Journey> findByOriginUniversity(long originUniversityId) {
+    public List<Journey> findByOriginUniversity(final long originUniversityId) {
         return jdbcTemplate.query(SQL_FIND_BY_ORIGIN_UNIVERSITY, JOURNEY_ROW_MAPPER, originUniversityId);
     }
 
 
     @Override
-    public Optional<Journey> findByUserId(long userId) {
+    public Optional<Journey> findByUserId(final long userId) {
         return jdbcTemplate.query(SQL_FIND_BY_USER_ID, JOURNEY_ROW_MAPPER, userId).stream().findFirst();
     }
 
-    private Optional<Journey> findByUserIdDeleted(long userId) {
+    private Optional<Journey> findByUserIdDeleted(final long userId) {
         return jdbcTemplate.query(SQL_FIND_BY_USER_ID_DELETED, JOURNEY_ROW_MAPPER, userId).stream().findFirst();
     }
 
     @Override
-    public Optional<Journey> findByUserEmail(String email) {
+    public Optional<Journey> findByUserEmail(final String email) {
         return jdbcTemplate.query(SQL_FIND_BY_USER_EMAIL, JOURNEY_ROW_MAPPER, email).stream().findFirst();
     }
 
 
     @Override
-    public List<Journey> getJourneysByUser(String email) {
+    public List<Journey> getJourneysByUser(final String email) {
         return jdbcTemplate.query(SQL_FIND_BY_USER_EMAIL, JOURNEY_ROW_MAPPER, email);
     }
 
     @Override
-    public void delete(long id) {
-        int updatedRows = jdbcTemplate.update("UPDATE journeys SET deleted = TRUE WHERE id = ?;", id);
+    public void delete(final long id) {
+        final int updatedRows = jdbcTemplate.update("UPDATE journeys SET deleted = TRUE WHERE id = ?;", id);
         if (updatedRows == 0) {
             LOGGER.warn("No journey_response found with id {}", id);
         }
     }
 
     @Override
-    public void deletionMessage(long id, String message) {
-        int updatedRows = jdbcTemplate.update("UPDATE journeys SET deleted_message = ? WHERE id = ?;", message, id);
+    public void deletionMessage(final long id, final String message) {
+        final int updatedRows = jdbcTemplate.update("UPDATE journeys SET deleted_message = ? WHERE id = ?;", message, id);
         if (updatedRows == 0) {
             LOGGER.warn("No journey_response found with id {}", id);
         }
@@ -316,12 +316,12 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
     @Override
-    public List<Journey> getOthersJourneys(long userId) {
+    public List<Journey> getOthersJourneys(final long userId) {
         return jdbcTemplate.query(SQL_FIND_OTHERS_BY_USER_ID, JOURNEY_ROW_MAPPER, userId);
     }
 
     @Override
-    public void updateDates(long journeyId, LocalDate startDate, LocalDate endDate) {
+    public void updateDates(final long journeyId, final LocalDate startDate, final LocalDate endDate) {
         LOGGER.debug("Updating dates for journey ID: {} to start: {}, end: {}", journeyId, startDate, endDate);
         jdbcTemplate.update(
                 "UPDATE journeys SET start_date = ?, end_date = ? WHERE id = ?",
@@ -330,7 +330,7 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
     @Override
-    public void updateDescription(long journeyId, String description) {
+    public void updateDescription(final long journeyId, final String description) {
         LOGGER.debug("Updating description for journey ID: {}", journeyId);
         jdbcTemplate.update(
                 "UPDATE journeys SET description = ? WHERE id = ?",
@@ -339,7 +339,7 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
     @Override
-    public void updateDestinationUniversity(long journeyId, long universityId) {
+    public void updateDestinationUniversity(final long journeyId, final long universityId) {
         LOGGER.debug("Updating destination university for journey ID: {} to university ID: {}", journeyId, universityId);
         jdbcTemplate.update(
                 "UPDATE journeys SET destination_university_id = ? WHERE id = ?",
@@ -348,29 +348,29 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
     @Override
-    public Page<Journey> listAll(int page, int size) {
-        Integer totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journeys WHERE deleted = FALSE", Integer.class);
-        List<Journey> list = jdbcTemplate.query(SQL_FIND_ALL_PAGED, JOURNEY_ROW_MAPPER, size, (page-1) * size);
+    public Page<Journey> listAll(final int page, final int size) {
+        final Integer totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journeys WHERE deleted = FALSE", Integer.class);
+        final List<Journey> list = jdbcTemplate.query(SQL_FIND_ALL_PAGED, JOURNEY_ROW_MAPPER, size, (page-1) * size);
         return new Page<>(list, page, (int) Math.ceil((double) totalItems / size));
     }
 
     @Override
-    public Page<Journey> getOthersJourneys(long userId, int page, int size) {
-        int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journeys j WHERE j.deleted = FALSE AND j.user_id != ?", Integer.class, userId);
-        List<Journey> list = jdbcTemplate.query(SQL_FIND_OTHERS_PAGED, JOURNEY_ROW_MAPPER, userId, size, (page - 1) * size);
+    public Page<Journey> getOthersJourneys(final long userId, final int page, final int size) {
+        final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journeys j WHERE j.deleted = FALSE AND j.user_id != ?", Integer.class, userId);
+        final List<Journey> list = jdbcTemplate.query(SQL_FIND_OTHERS_PAGED, JOURNEY_ROW_MAPPER, userId, size, (page - 1) * size);
         return new Page<>(list, page, (int) Math.ceil((double) totalItems / size));
     }
 
     @Override
-    public Page<Journey> findByFilters(Long userId, Long cityId, LocalDate startDate, LocalDate endDate, Long interest, int page, int size) {
+    public Page<Journey> findByFilters(final Long userId, final Long cityId, final LocalDate startDate, final LocalDate endDate, final Long interest, final int page, final int size) {
 
-        List<String> countFilters = new ArrayList<>();
-        List<String> queryFilters = new ArrayList<>();
-        List<Object> params = new ArrayList<>();
+        final List<String> countFilters = new ArrayList<>();
+        final List<String> queryFilters = new ArrayList<>();
+        final List<Object> params = new ArrayList<>();
 
         countFilters.add("j.deleted = FALSE");
 
-        StringBuilder countQueryBuilder = new StringBuilder("SELECT COUNT(*) FROM journeys j");
+        final StringBuilder countQueryBuilder = new StringBuilder("SELECT COUNT(*) FROM journeys j");
 
         if (interest != null) {
             countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id");
@@ -405,9 +405,9 @@ public class JourneyJdbcDao implements JourneyDao {
         }
 
         countQueryBuilder.append(" WHERE ").append(String.join(" AND ", countFilters));
-        int totalItems = jdbcTemplate.queryForObject(countQueryBuilder.toString(), Integer.class, params.toArray());
+        final int totalItems = jdbcTemplate.queryForObject(countQueryBuilder.toString(), Integer.class, params.toArray());
 
-        StringBuilder queryBuilder = new StringBuilder((interest != null) ? SQL_BASE_INTEREST : SQL_BASE);
+        final StringBuilder queryBuilder = new StringBuilder((interest != null) ? SQL_BASE_INTEREST : SQL_BASE);
 
         if (!queryFilters.isEmpty()) {
             queryBuilder.append(" AND ").append(String.join(" AND ", queryFilters));
@@ -418,13 +418,13 @@ public class JourneyJdbcDao implements JourneyDao {
         params.add(size);
         params.add((page - 1) * size);
 
-        List<Journey> journeys = jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray());
+        final List<Journey> journeys = jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray());
         return new Page<>(journeys, page, (int) Math.ceil((double) totalItems / size));
     }
 
     @Override
-    public Page<Journey> findByOriginCity(long originCityId, int page, int size) {
-        int totalItems = jdbcTemplate.queryForObject(
+    public Page<Journey> findByOriginCity(final long originCityId, final int page, final int size) {
+        final int totalItems = jdbcTemplate.queryForObject(
                 """
                 SELECT COUNT(*) FROM journeys j JOIN users u ON j.user_id = u.id
                 JOIN universities un ON u.university = un.id
@@ -432,15 +432,15 @@ public class JourneyJdbcDao implements JourneyDao {
                 WHERE j.deleted = FALSE AND c.id = ?
                 """, Integer.class, originCityId);
 
-        List<Journey> list = jdbcTemplate.query(SQL_FIND_BY_ORIGIN_CITY_PAGED, JOURNEY_ROW_MAPPER, originCityId, size, (page - 1) * size);
+        final List<Journey> list = jdbcTemplate.query(SQL_FIND_BY_ORIGIN_CITY_PAGED, JOURNEY_ROW_MAPPER, originCityId, size, (page - 1) * size);
         return new Page<>(list, page, (int) Math.ceil((double) totalItems / size));
     }
 
     @Override
-    public Page<Journey> searchJourneys(String search, int page, int size) {
-        String searchPattern = "%" + search + "%";
+    public Page<Journey> searchJourneys(final String search, final int page, final int size) {
+        final String searchPattern = "%" + search + "%";
 
-        int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journeys j WHERE j.deleted = FALSE AND j.user_id IN (SELECT id FROM users WHERE LOWER(username) LIKE LOWER(?))", Integer.class, searchPattern);
+        final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journeys j WHERE j.deleted = FALSE AND j.user_id IN (SELECT id FROM users WHERE LOWER(username) LIKE LOWER(?))", Integer.class, searchPattern);
 
         return new Page<>(jdbcTemplate.query(
                 SQL_SEARCH_PAGED,
@@ -452,7 +452,7 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
     @Override
-    public void updateData(long journeyId, University destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
+    public void updateData(final long journeyId, final University destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
         jdbcTemplate.update("""
         UPDATE journeys
            SET destination_university_id = ?,
@@ -473,10 +473,10 @@ public class JourneyJdbcDao implements JourneyDao {
 
 
     @Override
-    public List<Journey> getRecommendedJourneys(String email) {
+    public List<Journey> getRecommendedJourneys(final String email) {
         LOGGER.debug("Querying DB for recommended journeys for usermail {}", email);
 
-        String query = """
+        final String query = """
                WITH user_data AS (
                    SELECT id, university, language AS user_university, career_id
                    FROM users
@@ -595,7 +595,7 @@ public class JourneyJdbcDao implements JourneyDao {
 /*
 
 @Override
-public void updateDates(long journeyId, LocalDate startDate, LocalDate endDate) {
+public void updateDates(final long journeyId, final LocalDate startDate, final LocalDate endDate) {
     LOGGER.debug("Updating dates for journey ID: {} to start: {}, end: {}", journeyId, startDate, endDate);
     updateJourneyField(journeyId, "start_date = ?, end_date = ?", new Object[]{startDate, endDate}, "Journey date");
 }

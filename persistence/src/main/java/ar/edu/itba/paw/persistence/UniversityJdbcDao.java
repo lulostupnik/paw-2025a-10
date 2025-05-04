@@ -65,7 +65,7 @@ public class UniversityJdbcDao implements UniversityDao {
     private final static String SQL_FIND_ALL_PAGED = SQL_FIND_ALL + " LIMIT ? OFFSET ?";
 
     @Autowired
-    public UniversityJdbcDao(CityDao cityDao, final DataSource dataSource){
+    public UniversityJdbcDao(final CityDao cityDao, final DataSource dataSource){
         this.cityDao = cityDao;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
@@ -95,9 +95,9 @@ public class UniversityJdbcDao implements UniversityDao {
     }
 
     @Override
-    public Page<University> searchBySubstring(final String substring, int page, int size) {
+    public Page<University> searchBySubstring(final String substring, final int page, final int size) {
         final String searchPattern = "%" + substring + "%";
-        int totalItems = jdbcTemplate.queryForObject(
+        final int totalItems = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM universities WHERE deleted = FALSE AND (LOWER(name) LIKE LOWER(?) OR LOWER(abbreviation) LIKE LOWER(?))",
                 Integer.class,
                 searchPattern, searchPattern
@@ -110,13 +110,13 @@ public class UniversityJdbcDao implements UniversityDao {
     }
 
     @Override
-    public Optional<University> findById(long id) {
+    public Optional<University> findById(final long id) {
         return jdbcTemplate.query(SQL_FIND_BY_ID, UNIVERSITY_ROW_MAPPER, id).stream().findFirst();
     }
 
     @Override
-    public Page<University> getAllUniversities(int page, int size) {
-        int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM universities WHERE deleted = FALSE", Integer.class);
+    public Page<University> getAllUniversities(final int page, final int size) {
+        final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM universities WHERE deleted = FALSE", Integer.class);
 
         return new Page<>(
                 jdbcTemplate.query(SQL_FIND_ALL_PAGED, UNIVERSITY_ROW_MAPPER, size, (page - 1) * size),
@@ -131,7 +131,7 @@ public class UniversityJdbcDao implements UniversityDao {
     public University createUniversity(final String name, final String abbreviation, final String city) {
         LOGGER.debug("Creating or reactivating university {} ({})", name, abbreviation);
 
-        City cityObj = cityDao.findByName(city).orElseThrow(IllegalArgumentException::new);
+        final City cityObj = cityDao.findByName(city).orElseThrow(IllegalArgumentException::new);
 
         int rowsUpdated = jdbcTemplate.update(
                 "UPDATE universities SET deleted = FALSE, abbreviation = ?, city_id = ? WHERE name = ? AND deleted = TRUE",
@@ -152,26 +152,26 @@ public class UniversityJdbcDao implements UniversityDao {
         }
 
         LOGGER.debug("No deleted university found, creating new university entry");
-        HashMap<String, Object> parameters = new HashMap<>();
+        final HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("name", name);
         parameters.put("abbreviation", abbreviation);
         parameters.put("city_id", cityObj.getId());
         parameters.put("deleted", false);
-        Number keys = simpleJdbcInsert.executeAndReturnKey(parameters);
+        final Number keys = simpleJdbcInsert.executeAndReturnKey(parameters);
         LOGGER.debug("Successfully created university {}", keys.longValue());
         return new University(keys.longValue(), name, abbreviation, cityObj);
     }
 
     @Override
-    public void updateUniversity(long id, String name, String abbreviation, long cityId) {
+    public void updateUniversity(final long id, final String name, final String abbreviation, final long cityId) {
         jdbcTemplate.update("UPDATE universities SET name = ?, abbreviation = ?, city_id = ? WHERE id = ? ", name, abbreviation, cityId, id);
         LOGGER.debug("Successfully updated uni {}", id);
     }
 
     @Override
-    public void delete(long id) {
+    public void delete(final long id) {
         LOGGER.debug("Marking university with ID: {} as deleted", id);
-        int rowsAffected = jdbcTemplate.update("UPDATE universities SET deleted = TRUE WHERE id = ?", id);
+        final int rowsAffected = jdbcTemplate.update("UPDATE universities SET deleted = TRUE WHERE id = ?", id);
         if (rowsAffected == 0) {
             LOGGER.warn("University deletion failed: University with ID {} not found", id);
         }

@@ -43,7 +43,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
 
 
     @Autowired
-    public JourneyResponseJdbcDao(DataSource dataSource){
+    public JourneyResponseJdbcDao(final DataSource dataSource){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("journey_responses")
@@ -51,7 +51,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     }
 
     @Override
-    public JourneyResponse create(long userId, String username, long journeyId, String message, LocalDateTime dateTime) {
+    public JourneyResponse create(final long userId, final String username, final long journeyId, final String message, final LocalDateTime dateTime) {
         LOGGER.debug("Registering new journey response to journey {} from user {} ({}) saying '{}' on {}", journeyId, userId, username, message, dateTime);
         final Map<String, Object> args = new HashMap<>();
 
@@ -66,13 +66,13 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     }
 
     @Override
-    public List<JourneyResponse> listAllFromJourney(long journeyId){
+    public List<JourneyResponse> listAllFromJourney(final long journeyId){
         return jdbcTemplate.query(SQL_FIND_ALL_BY_JOURNEY, JOURNEY_RESPONSE_ROW_MAPPER, journeyId);
     }
 
     @Override
-    public Page<JourneyResponse> listAllFromJourney(long journeyId, int pageNumber, int pageSize) {
-        long totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journey_responses WHERE journey_id = ? AND deleted = FALSE", Long.class, journeyId);
+    public Page<JourneyResponse> listAllFromJourney(final long journeyId, final int pageNumber, final int pageSize) {
+        final long totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journey_responses WHERE journey_id = ? AND deleted = FALSE", Long.class, journeyId);
 
         return new Page<>(
                 jdbcTemplate.query(SQL_FIND_ALL_BY_JOURNEY_PAGED, JOURNEY_RESPONSE_ROW_MAPPER, journeyId, pageSize, (pageNumber - 1) * pageSize),
@@ -82,15 +82,15 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     }
 
     @Override
-    public void delete(long id) {
-        int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted = TRUE WHERE id = ?;", id);
+    public void delete(final long id) {
+        final int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted = TRUE WHERE id = ?;", id);
         if (updatedRows == 0) {
             LOGGER.warn("No journey_response found with id {}", id);
         }
     }
 
     @Override
-    public long getJourneyIdByResponseId(long journeyResponseId) {
+    public long getJourneyIdByResponseId(final long journeyResponseId) {
         return jdbcTemplate.query(
                 "SELECT journey_id FROM journey_responses WHERE id = ?",
                 (rs, rowNum) -> rs.getLong("journey_id"),
@@ -99,16 +99,16 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     }
 
     @Override
-    public void deletionMessage(long id, String message) {
-        int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted_message = ? WHERE id = ?;", message, id);
+    public void deletionMessage(final long id, final String message) {
+        final int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted_message = ? WHERE id = ?;", message, id);
         if (updatedRows == 0) {
             LOGGER.warn("No journey_response found with id {}", id);
         }
     }
 
     @Override
-    public void deleteByJourneyId(long journeyId) {
-        int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted = TRUE WHERE journey_id = ?;", journeyId);
+    public void deleteByJourneyId(final long journeyId) {
+        final int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted = TRUE WHERE journey_id = ?;", journeyId);
         if (updatedRows == 0) {
             LOGGER.warn("No journey_response found with id {}", journeyId);
         }
