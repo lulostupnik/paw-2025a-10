@@ -1003,4 +1003,47 @@ public class EventJdbcDaoTest {
         Event event = maybeEvent.get();
         assertEqualsEvent(event);
     }
+
+    @Test
+    public void testGetRecommendedEvents(){
+        Map<String, Object> event1 = Map.of("user", USER2);
+        Map<String, Object> event2 = Map.of("user", USER2, "attending", USER1);
+        insertEvent();
+        long id1 = insertEvent(event1);
+        long id2 = insertEvent(event2);
+        insertEvent(Map.of("user", USER2, "deleted", true));
+        insertEvent(Map.of("user", USER2, "date", LocalDate.now().plusDays(-2)));
+        Map<Long, Map<String, Object>> eventInfo = Map.of(id1, event1, id2, event2);
+
+        List<UserEvent> events = eventDao.getRecommendedEvents(USER1_EMAIL);
+
+        assertNotNull(events);
+        assertEquals(2, events.size());
+        for (UserEvent e : events){
+            assertEquals(eventInfo.get(e.getEvent().getId()).get("attending") == USER1, e.isAttending());
+            assertEqualsEvent(e.getEvent(), eventInfo.get(e.getEvent().getId()));
+        }        
+    }
+    @Test
+    public void testGetRecommendedEventsNoEvents(){
+        insertEvent();
+        insertEvent(Map.of("user", USER2, "deleted", true));
+        insertEvent(Map.of("user", USER2, "date", LocalDate.now().plusDays(-2)));
+
+        List<UserEvent> events = eventDao.getRecommendedEvents(USER1_EMAIL);
+
+        assertNotNull(events);
+        assertEquals(0, events.size());   
+    }
+    @Test
+    public void testGetRecommendedEventsWrongEmail(){
+        insertEvent();
+        insertEvent(Map.of("user", USER2, "deleted", true));
+        insertEvent(Map.of("user", USER2, "date", LocalDate.now().plusDays(-2)));
+
+        List<UserEvent> events = eventDao.getRecommendedEvents("USER1_EMAIL");
+
+        assertNotNull(events);
+        assertEquals(0, events.size());   
+    }
 }

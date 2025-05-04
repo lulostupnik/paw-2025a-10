@@ -73,7 +73,6 @@
                 <spring:message code="interest.delete.cancel"/>
             </button>
             <form action="<c:url value='/interests/${interest.id}/delete'/>" method="post" id="deleteInterestForm">
-                <input type="hidden" name="_method" value="DELETE">
                 <button type="submit" class="cta-button delete-button">
                     <spring:message code="interest.delete.confirm"/>
                 </button>
@@ -81,12 +80,11 @@
         </div>
     </div>
 </div>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Modal functionality
         const modal = document.getElementById('deleteModal');
-        const deleteBtn = document.getElementById('deleteUniversityBtn');
+        const deleteBtn = document.getElementById('deleteInterestBtn');
         const cancelBtn = document.getElementById('cancelDeleteBtn');
         const closeModal = document.querySelector('.close-modal');
 
@@ -108,6 +106,5 @@
         });
     });
 </script>
-
 </body>
 </html>

@@ -52,7 +52,7 @@
                         <a href="<c:url value='/cities/${city.id}/edit'/>" class="cta-button primary">
                             <spring:message code="interest.detail.edit"/>
                         </a>
-                        <button type="button" class="cta-button delete-button" id="deleteInterestBtn">
+                        <button type="button" class="cta-button delete-button" id="deleteCityBtn">
                             <spring:message code="interests.detail.delete"/>
                         </button>
                     </div>
@@ -77,8 +77,7 @@
             <button type="button" class="cta-button secondary" id="cancelDeleteBtn">
                 <spring:message code="interest.delete.cancel"/>
             </button>
-            <form action="<c:url value='/cities/${city.id}/delete'/>" method="post" id="deleteInterestForm">
-                <input type="hidden" name="_method" value="DELETE">
+            <form action="<c:url value='/cities/${city.id}/delete'/>" method="post" id="deleteCityForm">
                 <button type="submit" class="cta-button delete-button">
                     <spring:message code="interest.delete.confirm"/>
                 </button>
@@ -91,7 +90,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Modal functionality
         const modal = document.getElementById('deleteModal');
-        const deleteBtn = document.getElementById('deleteUniversityBtn');
+        const deleteBtn = document.getElementById('deleteCityBtn');
         const cancelBtn = document.getElementById('cancelDeleteBtn');
         const closeModal = document.querySelector('.close-modal');
 
@@ -113,6 +112,5 @@
         });
     });
 </script>
-
 </body>
 </html>
