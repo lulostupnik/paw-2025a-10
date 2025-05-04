@@ -30,7 +30,7 @@ public class CareerJdbcDao implements CareerDao {
     );
 
     @Autowired
-    public CareerJdbcDao(DataSource dataSource) {
+    public CareerJdbcDao(final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.jdbcInsert = new SimpleJdbcInsert(dataSource)
                 .withTableName("careers")
@@ -38,7 +38,7 @@ public class CareerJdbcDao implements CareerDao {
     }
 
     @Override
-    public Optional<Career> findById(long id) {
+    public Optional<Career> findById(final long id) {
         return jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE AND id = ? ", CAREER_ROW_MAPPER, id)
                 .stream().findFirst();
     }
@@ -49,14 +49,14 @@ public class CareerJdbcDao implements CareerDao {
     }
 
     @Override
-    public Optional<Career> findByName(String name) {
+    public Optional<Career> findByName(final String name) {
         return jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE AND name = ?", CAREER_ROW_MAPPER, name)
                 .stream().findFirst();
     }
 
     @Override
-    public Page<Career> getAllCareers(int page, int pageSize) {
-        int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM careers WHERE deleted = FALSE", Integer.class);
+    public Page<Career> getAllCareers(final int page, final int pageSize) {
+        final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM careers WHERE deleted = FALSE", Integer.class);
 
         return new Page<>(
                 jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE LIMIT ? OFFSET ?", CAREER_ROW_MAPPER, pageSize, (page - 1) * pageSize),
@@ -67,9 +67,9 @@ public class CareerJdbcDao implements CareerDao {
     }
 
     @Override
-    public Page<Career> searchBySubstring(String substring, int page, int size) {
+    public Page<Career> searchBySubstring(final String substring, final int page, final int size) {
         final String searchPattern = "%" + substring + "%";
-        int totalCareers = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM careers WHERE LOWER(name) LIKE LOWER(?)", Integer.class, searchPattern);
+        final int totalCareers = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM careers WHERE LOWER(name) LIKE LOWER(?)", Integer.class, searchPattern);
         return new Page<>(
                 jdbcTemplate.query("SELECT * FROM careers WHERE LOWER(name) LIKE LOWER(?) LIMIT ? OFFSET ?", CAREER_ROW_MAPPER, searchPattern, size, (page - 1) * size),
                 page,
@@ -78,10 +78,10 @@ public class CareerJdbcDao implements CareerDao {
     }
 
     @Override
-    public Career create(String name) {
+    public Career create(final String name) {
         LOGGER.debug("Creating or reactivating career with name: {}", name);
 
-        int rowsUpdated = jdbcTemplate.update(
+        final int rowsUpdated = jdbcTemplate.update(
                 "UPDATE careers SET deleted = FALSE WHERE name = ? AND deleted = TRUE",
                 name
         );
@@ -101,16 +101,16 @@ public class CareerJdbcDao implements CareerDao {
     }
 
     @Override
-    public Career update(long id, String name) {
+    public Career update(final long id, final String name) {
         LOGGER.debug("Updating career id '{}' and name '{}'",id,name);
         jdbcTemplate.update("UPDATE careers SET name = ? WHERE id = ?", name, id);
         return findById(id).orElseThrow(() -> new IllegalArgumentException("Career not found"));
     }
 
     @Override
-    public void delete(long id) {
+    public void delete(final long id) {
         LOGGER.debug("Marking career with ID: {} as deleted", id);
-        int rowsAffected = jdbcTemplate.update("UPDATE careers SET deleted = TRUE WHERE id = ?", id);
+        final int rowsAffected = jdbcTemplate.update("UPDATE careers SET deleted = TRUE WHERE id = ?", id);
         if (rowsAffected == 0) {
             LOGGER.warn("Career deletion failed: Career with ID {} not found", id);
         }

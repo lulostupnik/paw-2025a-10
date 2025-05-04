@@ -46,7 +46,7 @@ public class CityJdbcDao implements CityDao {
     // private static final RowMappeFr<City> SIMPLE_CITY_ROW_MAPPER = (rs, rowNum) -> new City(rs.getString("name"), rs.getString("country"), rs.getLong("id"));
 
     @Autowired
-    public CityJdbcDao(DataSource dataSource) {
+    public CityJdbcDao(final DataSource dataSource) {
 
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
@@ -55,9 +55,9 @@ public class CityJdbcDao implements CityDao {
     }
 
     @Override
-    public Optional<City> findBy(Long id, String name, String country) {
-        StringBuilder queryBuilder = new StringBuilder();
-        List<Object> params = new ArrayList<>();
+    public Optional<City> findBy(final Long id, final String name, final String country) {
+        final StringBuilder queryBuilder = new StringBuilder();
+        final List<Object> params = new ArrayList<>();
 
         queryBuilder.append(SQL_BASE);
 
@@ -79,7 +79,7 @@ public class CityJdbcDao implements CityDao {
             params.add(country);
         }
 
-        Optional<City> city = jdbcTemplate.query(
+        final Optional<City> city = jdbcTemplate.query(
                 queryBuilder.toString(),
                 CITY_ROW_MAPPER,
                 params.toArray()
@@ -94,7 +94,7 @@ public class CityJdbcDao implements CityDao {
     }
 
     @Override
-    public Optional<City> findByName(String name) {
+    public Optional<City> findByName(final String name) {
         return jdbcTemplate.query(SQL_FIND_BY_NAME, CITY_ROW_MAPPER, name)
                 .stream().findFirst();
 
@@ -106,8 +106,8 @@ public class CityJdbcDao implements CityDao {
     }
 
     @Override
-    public Page<City> getAllCities(int page, int pageSize) {
-        int totalCities = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE deleted = FALSE ", Integer.class);
+    public Page<City> getAllCities(final int page, final int pageSize) {
+        final int totalCities = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE deleted = FALSE ", Integer.class);
         return new Page<>(
                 jdbcTemplate.query(SQL_FIND_ALL_PAGED, CITY_ROW_MAPPER, pageSize, (page - 1) * pageSize),
                 page,
@@ -117,15 +117,15 @@ public class CityJdbcDao implements CityDao {
 
 
     @Override
-    public void updateCity(long id, String name, Country country) {
+    public void updateCity(final long id, final String name, final Country country) {
         jdbcTemplate.update("UPDATE cities SET name = ?, country_id = ? WHERE id = ?", name, country.getId(), id);
     }
 
     @Override
-    public void createCity(String name, Country country) {
+    public void createCity(final String name, final Country country) {
         LOGGER.debug("Creating or reactivating city {} in country {}", name, country.getName());
 
-        int rowsUpdated = jdbcTemplate.update(
+        final int rowsUpdated = jdbcTemplate.update(
                 "UPDATE cities SET deleted = FALSE WHERE name = ? AND country_id = ? AND deleted = TRUE",
                 name, country.getId()
         );
@@ -135,7 +135,7 @@ public class CityJdbcDao implements CityDao {
             return;
         }
 
-        Map<String, Object> params = new HashMap<>();
+        final Map<String, Object> params = new HashMap<>();
         params.put("name", name);
         params.put("country_id", country.getId());
         params.put("deleted", false);
@@ -145,9 +145,9 @@ public class CityJdbcDao implements CityDao {
     }
 
     @Override
-    public void delete(long id) {
+    public void delete(final long id) {
         LOGGER.debug("Marking city with ID: {} as deleted", id);
-        int rowsAffected = jdbcTemplate.update("UPDATE cities SET deleted = TRUE WHERE id = ?", id);
+        final int rowsAffected = jdbcTemplate.update("UPDATE cities SET deleted = TRUE WHERE id = ?", id);
         if (rowsAffected == 0) {
             LOGGER.warn("City deletion failed: City with ID {} not found", id);
         }
@@ -159,14 +159,14 @@ public class CityJdbcDao implements CityDao {
     }
 
     @Override
-    public List<City> findAllByCountry(String country) {
+    public List<City> findAllByCountry(final String country) {
         return jdbcTemplate.query(SQL_FIND_BY_COUNTRY, CITY_ROW_MAPPER, country);
     }
 
     @Override
-    public Page<City> searchBySubstring(String substring, int page, int size) {
-        String searchPattern = "%" + substring + "%";
-        int totalItems = jdbcTemplate.queryForObject(
+    public Page<City> searchBySubstring(final String substring, final int page, final int size) {
+        final String searchPattern = "%" + substring + "%";
+        final int totalItems = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM cities WHERE deleted = FALSE AND LOWER(name) LIKE LOWER(?) ",
                 Integer.class,
                 searchPattern

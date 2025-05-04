@@ -26,7 +26,7 @@ public class CountryJdbcDao implements CountryDao {
     );
 
     @Autowired
-    public CountryJdbcDao(DataSource dataSource) {
+    public CountryJdbcDao(final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
@@ -36,12 +36,12 @@ public class CountryJdbcDao implements CountryDao {
     }
 
     @Override
-    public Boolean existsByName(String name) {
+    public Boolean existsByName(final String name) {
         return jdbcTemplate.queryForObject("SELECT COUNT(1) FROM countries WHERE name = ?", Boolean.class, name);
     }
 
     @Override
-    public Optional<Country> findByName(String name) {
+    public Optional<Country> findByName(final String name) {
         return jdbcTemplate.query("SELECT * FROM countries WHERE name = ?", COUNTRY_ROW_MAPPER, name).stream().findFirst();
     }
 
