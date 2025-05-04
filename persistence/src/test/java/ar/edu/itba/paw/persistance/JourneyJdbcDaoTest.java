@@ -126,7 +126,7 @@ public class JourneyJdbcDaoTest {
         DESTINATION_CITY_ID = jdbcTemplate.queryForObject("SELECT id FROM cities WHERE name = 'Massachusetts'", Long.class);
         ORIGIN_CITY_ID = jdbcTemplate.queryForObject("SELECT id FROM cities WHERE name = 'Buenos Aires'", Long.class);
         INTEREST_1_ID = jdbcTemplate.queryForObject("SELECT id FROM category WHERE name = 'Programming'", Long.class);
-        DELETED_JOURNEY_ID = insertJourneyOverride(Map.of("userId", DELETED_JOURNEY_USER_ID, "deleted", true));
+        DELETED_JOURNEY_ID = insertJourney(Map.of("userId", DELETED_JOURNEY_USER_ID, "deleted", true));
     }
 
     private void assertEqualsJourney(Journey journey){
@@ -149,10 +149,10 @@ public class JourneyJdbcDaoTest {
         assertEqualsJourney(journey); 
     }
 
-    private long insertJourneyGeneric(){
-        return insertJourneyOverride(Map.of());
+    private long insertJourney(){
+        return insertJourney(Map.of());
     }
-    private long insertJourneyOverride(Map<String, Object> overrideParams){
+    private long insertJourney(Map<String, Object> overrideParams){
         HashMap<String, Object> params = new HashMap<>();
         params.put("user_id", overrideParams.getOrDefault("userId", USER1_ID));
         params.put("destination_university_id", overrideParams.getOrDefault("destinationId", DESTINATION_UNI_ID));
@@ -201,7 +201,7 @@ public class JourneyJdbcDaoTest {
     @Test
     public void testCreateDuplicated(){
         JdbcTestUtils.deleteFromTables(jdbcTemplate, JOURNEY_TABLE);
-        long id = insertJourneyGeneric();
+        long id = insertJourney();
 
         journeyDao.create(
             new User(USER1_ID, null, null, null, null, null, null, 0, null, false),
@@ -246,8 +246,8 @@ public class JourneyJdbcDaoTest {
     @Test
     public void testListAll(){
         Map<String, Object> user2params = Map.of("userId", USER2_ID);
-        long j1 = insertJourneyGeneric();
-        insertJourneyOverride(user2params);
+        long j1 = insertJourney();
+        insertJourney(user2params);
 
         List<Journey> journeys = journeyDao.listAll();
 
@@ -271,8 +271,8 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testFindById(){
-        long id = insertJourneyGeneric();
-        insertJourneyOverride(Map.of("userId", USER2_ID));
+        long id = insertJourney();
+        insertJourney(Map.of("userId", USER2_ID));
 
         Optional<Journey> maybeJourney = journeyDao.findById(id);
 
@@ -280,8 +280,8 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByIdInvalidId(){
-        insertJourneyGeneric();
-        insertJourneyOverride(Map.of("userId", USER2_ID));
+        insertJourney();
+        insertJourney(Map.of("userId", USER2_ID));
 
         Optional<Journey> maybeJourney = journeyDao.findById(12341234);
 
@@ -305,7 +305,7 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testFindOverlappingJourneyWithOverlapLeft(){
-        insertJourneyGeneric();
+        insertJourney();
 
         Optional<Journey> maybeJourney = journeyDao.findOverlappingJourney(USER1_ID, LocalDate.now(), START_DATE.plusDays(7));
 
@@ -313,7 +313,7 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindOverlappingJourneyWithOverlapRight(){
-        insertJourneyGeneric();
+        insertJourney();
 
         Optional<Journey> maybeJourney = journeyDao.findOverlappingJourney(USER1_ID, END_DATE.plusDays(-7), END_DATE.plusDays(7));
 
@@ -321,7 +321,7 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindOverlappingJourneyWithOverlapContained(){
-        insertJourneyGeneric();
+        insertJourney();
 
         Optional<Journey> maybeJourney = journeyDao.findOverlappingJourney(USER1_ID, START_DATE.plusDays(7), END_DATE.plusDays(-7));
 
@@ -329,7 +329,7 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindOverlappingJourneyWithOverlapContainer(){
-        insertJourneyGeneric();
+        insertJourney();
 
         Optional<Journey> maybeJourney = journeyDao.findOverlappingJourney(USER1_ID, START_DATE.plusDays(-7), END_DATE.plusDays(7));
 
@@ -337,7 +337,7 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindOverlappingJourneyWithoutOverlap(){
-        insertJourneyGeneric();
+        insertJourney();
 
         Optional<Journey> maybeJourney = journeyDao.findOverlappingJourney(USER1_ID, LocalDate.now(), START_DATE.plusDays(-7));
 
@@ -347,7 +347,7 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testFindByOriginCity(){
-        insertJourneyGeneric();
+        insertJourney();
 
         List<Journey> journeys = journeyDao.findByOriginCity(ORIGIN_CITY_ID);
         
@@ -361,7 +361,7 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByOriginCityEmpty(){
-        insertJourneyGeneric();
+        insertJourney();
 
         List<Journey> journeys = journeyDao.findByOriginCity(DESTINATION_CITY_ID);
 
@@ -379,7 +379,7 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testFindByOriginUniversity(){
-        insertJourneyGeneric();
+        insertJourney();
 
         List<Journey> journeys = journeyDao.findByOriginUniversity(ORIGIN_UNI_ID);
 
@@ -393,7 +393,7 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByOriginUniversityEmpty(){
-        insertJourneyGeneric();
+        insertJourney();
 
         List<Journey> journeys = journeyDao.findByOriginUniversity(DESTINATION_UNI_ID);
 
@@ -410,7 +410,7 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testFindByUserId(){
-        insertJourneyGeneric();
+        insertJourney();
 
         Optional<Journey> maybeJourney = journeyDao.findByUserId(USER1_ID);
 
@@ -425,7 +425,7 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByUserIdWrongId(){
-        insertJourneyGeneric();
+        insertJourney();
 
         Optional<Journey> maybeJourney = journeyDao.findByUserId(12341234);
 
@@ -442,7 +442,7 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testFindByUserEmail(){
-        insertJourneyGeneric();
+        insertJourney();
 
         Optional<Journey> maybeJourney = journeyDao.findByUserEmail(USERMAIL);
 
@@ -457,7 +457,7 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByUserEmailDeleted(){
-        insertJourneyGeneric();
+        insertJourney();
 
         Optional<Journey> maybeJourney = journeyDao.findByUserEmail(DELETED_USER_MAIL);
 
@@ -467,7 +467,7 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testGetJourneysByUser(){
-        long id = insertJourneyGeneric();
+        long id = insertJourney();
 
         List<Journey> journeys = journeyDao.getJourneysByUser(USERMAIL);
 
@@ -482,7 +482,7 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testGetJourneysByUserWrongUser(){
-        insertJourneyGeneric();
+        insertJourney();
 
         List<Journey> journeys = journeyDao.getJourneysByUser("USERMAIL");
 
@@ -491,7 +491,7 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testGetJourneysByUserDeleted(){
-        insertJourneyGeneric();
+        insertJourney();
 
         List<Journey> journeys = journeyDao.getJourneysByUser(DELETED_USER_MAIL);
 
@@ -502,7 +502,7 @@ public class JourneyJdbcDaoTest {
     @Test
     public void testDelete(){
         JdbcTestUtils.deleteFromTables(jdbcTemplate, JOURNEY_TABLE);
-        long id = insertJourneyGeneric();
+        long id = insertJourney();
 
         journeyDao.delete(id);
 
@@ -512,7 +512,7 @@ public class JourneyJdbcDaoTest {
     @Test
     public void testDeleteWrongId(){
         JdbcTestUtils.deleteFromTables(jdbcTemplate, JOURNEY_TABLE);
-        long id = insertJourneyGeneric();
+        long id = insertJourney();
 
         journeyDao.delete(12341243);
 
@@ -522,7 +522,7 @@ public class JourneyJdbcDaoTest {
     @Test
     public void testDeleteDeleted(){
         JdbcTestUtils.deleteFromTables(jdbcTemplate, JOURNEY_TABLE);
-        long id = insertJourneyGeneric();
+        long id = insertJourney();
 
         journeyDao.delete(DELETED_JOURNEY_ID);
 
@@ -533,7 +533,7 @@ public class JourneyJdbcDaoTest {
     @Test
     public void testDeletionMessage(){
         JdbcTestUtils.deleteFromTables(jdbcTemplate, JOURNEY_TABLE);
-        long id = insertJourneyGeneric();
+        long id = insertJourney();
 
         journeyDao.deletionMessage(id, "WRONG");
 
@@ -544,7 +544,7 @@ public class JourneyJdbcDaoTest {
     @Test
     public void testDeletionMessageWrongId(){
         JdbcTestUtils.deleteFromTables(jdbcTemplate, JOURNEY_TABLE);
-        long id = insertJourneyGeneric();
+        long id = insertJourney();
 
         journeyDao.deletionMessage(12341243, "WRONG");
 
@@ -554,8 +554,8 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testGetOthersJourneys(){
-        insertJourneyGeneric();
-        insertJourneyOverride(Map.of("userId", USER2_ID));
+        insertJourney();
+        insertJourney(Map.of("userId", USER2_ID));
 
         List<Journey> journeys = journeyDao.getOthersJourneys(USER2_ID);
 
@@ -570,7 +570,7 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testUpdateDates(){
-        long id = insertJourneyOverride(Map.of("startDate", START_DATE.plusDays(10), "endDate", END_DATE.plusDays(10)));
+        long id = insertJourney(Map.of("startDate", START_DATE.plusDays(10), "endDate", END_DATE.plusDays(10)));
 
         journeyDao.updateDates(id, START_DATE, END_DATE);
 
@@ -587,13 +587,13 @@ public class JourneyJdbcDaoTest {
     }
     @Test(expected=NullPointerException.class)
     public void testUpdateDatesMissingDate(){
-        long id = insertJourneyOverride(Map.of("startDate", START_DATE.plusDays(10), "endDate", END_DATE.plusDays(10)));
+        long id = insertJourney(Map.of("startDate", START_DATE.plusDays(10), "endDate", END_DATE.plusDays(10)));
 
         journeyDao.updateDates(id, null, END_DATE);
     }
     @Test
     public void testUpdateDatesWrongId(){
-        long id = insertJourneyGeneric();
+        long id = insertJourney();
 
         journeyDao.updateDates(1231234, START_DATE, END_DATE);
 
@@ -611,7 +611,7 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testUpdateDescription(){
-        long id = insertJourneyGeneric();
+        long id = insertJourney();
 
         journeyDao.updateDescription(id, "NEW DESCRIPTION");
         Optional<Journey> maybeJourney = jdbcTemplate.query("SELECT * FROM journeys WHERE id = ?", JOURNEY_ROW_MAPPER, id).stream().findFirst();
@@ -627,7 +627,7 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testUpdateDescriptionWrongId(){
-        long id = insertJourneyGeneric();
+        long id = insertJourney();
 
         journeyDao.updateDescription(12341234, "NEW DESCRIPTION");
         Optional<Journey> maybeJourney = jdbcTemplate.query("SELECT * FROM journeys WHERE id = ?", JOURNEY_ROW_MAPPER, id).stream().findFirst();
@@ -644,7 +644,7 @@ public class JourneyJdbcDaoTest {
     
     @Test
     public void testUpdateDestinationUniversity(){
-        long id = insertJourneyGeneric();
+        long id = insertJourney();
 
         journeyDao.updateDestinationUniversity(id, UNI_3_ID);
 
@@ -661,13 +661,13 @@ public class JourneyJdbcDaoTest {
     }
     @Test(expected = DataAccessException.class)
     public void testUpdateDestinationUniversityInvalidId(){
-        long id = insertJourneyGeneric();
+        long id = insertJourney();
 
         journeyDao.updateDestinationUniversity(id, 1234123);
     }
     @Test
     public void testUpdateDestinationUniversityInvalidJourney(){
-        long id = insertJourneyGeneric();
+        long id = insertJourney();
 
         journeyDao.updateDestinationUniversity(12341234, UNI_3_ID);
 
@@ -685,8 +685,8 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testListAllPaged(){
-        long id1 = insertJourneyGeneric();
-        long id2 = insertJourneyOverride(Map.of("userId", USER2_ID));
+        long id1 = insertJourney();
+        long id2 = insertJourney(Map.of("userId", USER2_ID));
 
         Page<Journey> page1 = journeyDao.listAll(1, 1);
         Page<Journey> page2 = journeyDao.listAll(2, 1);
@@ -718,8 +718,8 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testGetOthersJourneysPaged(){
-        insertJourneyGeneric();
-        long id2 = insertJourneyOverride(Map.of("userId", USER2_ID));
+        insertJourney();
+        long id2 = insertJourney(Map.of("userId", USER2_ID));
 
         Page<Journey> page1 = journeyDao.getOthersJourneys(USER1_ID, 1, 1);
 
@@ -743,8 +743,8 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testFindByOriginCityPaged(){
-        insertJourneyGeneric();
-        insertJourneyOverride(Map.of("userId", USER2_ID));
+        insertJourney();
+        insertJourney(Map.of("userId", USER2_ID));
 
         Page<Journey> page1 = journeyDao.findByOriginCity(ORIGIN_CITY_ID, 1, 2);
 
@@ -756,8 +756,8 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByOriginCityPagedWrongCity(){
-        insertJourneyGeneric();
-        insertJourneyOverride(Map.of("userId", USER2_ID));
+        insertJourney();
+        insertJourney(Map.of("userId", USER2_ID));
 
         Page<Journey> page1 = journeyDao.findByOriginCity(1241234, 1, 2);
 
@@ -770,7 +770,7 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testUpdateData(){
-        long id = insertJourneyGeneric();
+        long id = insertJourney();
 
         journeyDao.updateData(id, new University(UNI_3_ID, null, null, null), START_DATE.plusDays(10), END_DATE.plusDays(10), "New description");
 
@@ -805,9 +805,9 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testSearchJourneys(){
-        insertJourneyGeneric();
-        insertJourneyOverride(Map.of("userId", USER2_ID));
-        insertJourneyOverride(Map.of("userId", USER_ANOTHER_ID));
+        insertJourney();
+        insertJourney(Map.of("userId", USER2_ID));
+        insertJourney(Map.of("userId", USER_ANOTHER_ID));
 
         Page<Journey> page = journeyDao.searchJourneys(USERNAME_1.substring(0, 6), 1, 5);
 
@@ -840,9 +840,9 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testFindByFiltersDestination(){
-        long id1 = insertJourneyGeneric();
-        long id2 = insertJourneyOverride(Map.of("userId", USER2_ID));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID));
+        long id1 = insertJourney();
+        long id2 = insertJourney(Map.of("userId", USER2_ID));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID));
 
         List<Journey> journeys = journeyDao.findByFilters(Long.toString(DESTINATION_CITY_ID), null, null, null);
 
@@ -863,9 +863,9 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByFiltersStartDate(){
-        long id1 = insertJourneyGeneric();
-        long id2 = insertJourneyOverride(Map.of("userId", USER2_ID));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-15)));
+        long id1 = insertJourney();
+        long id2 = insertJourney(Map.of("userId", USER2_ID));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-15)));
 
         List<Journey> journeys = journeyDao.findByFilters(null, START_DATE.plusDays(20), null, null);
 
@@ -886,9 +886,9 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByFiltersStartDateAndEmptyDestination(){
-        long id1 = insertJourneyGeneric();
-        long id2 = insertJourneyOverride(Map.of("userId", USER2_ID));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-15)));
+        long id1 = insertJourney();
+        long id2 = insertJourney(Map.of("userId", USER2_ID));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-15)));
 
         List<Journey> journeys = journeyDao.findByFilters("", START_DATE.plusDays(20), null, null);
 
@@ -909,9 +909,9 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByFiltersEndDate(){
-        long id1 = insertJourneyGeneric();
-        long id2 = insertJourneyOverride(Map.of("userId", USER2_ID));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "startDate", START_DATE.plusDays(15)));
+        long id1 = insertJourney();
+        long id2 = insertJourney(Map.of("userId", USER2_ID));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "startDate", START_DATE.plusDays(15)));
 
         List<Journey> journeys = journeyDao.findByFilters(null, null, END_DATE.plusDays(-20), null);
 
@@ -932,9 +932,9 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByFiltersInterests(){
-        long id1 = insertJourneyGeneric();
-        insertJourneyOverride(Map.of("userId", USER2_ID));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID));
+        long id1 = insertJourney();
+        insertJourney(Map.of("userId", USER2_ID));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID));
 
         List<Journey> journeys = journeyDao.findByFilters(null, null, null, Long.toString(INTEREST_1_ID));
 
@@ -949,9 +949,9 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByFiltersNoConditions(){
-        insertJourneyGeneric();
-        insertJourneyOverride(Map.of("userId", USER2_ID));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID));
+        insertJourney();
+        insertJourney(Map.of("userId", USER2_ID));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID));
 
         List<Journey> journeys = journeyDao.findByFilters(null, null, null, null);
 
@@ -960,9 +960,9 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByFiltersInterestsAllConditions(){
-        long id1 = insertJourneyGeneric();
-        insertJourneyOverride(Map.of("userId", USER2_ID, "destinationId", UNI_3_ID, "startDate", START_DATE.plusDays(7)));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", UNI_3_ID, "endDate", END_DATE.plusDays(-7)));
+        long id1 = insertJourney();
+        insertJourney(Map.of("userId", USER2_ID, "destinationId", UNI_3_ID, "startDate", START_DATE.plusDays(7)));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", UNI_3_ID, "endDate", END_DATE.plusDays(-7)));
 
         List<Journey> journeys = journeyDao.findByFilters(Long.toString(DESTINATION_CITY_ID), START_DATE, END_DATE, Long.toString(INTEREST_1_ID));
 
@@ -977,9 +977,9 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByFiltersInterestsAllNoInterests(){
-        long id1 = insertJourneyGeneric();
-        insertJourneyOverride(Map.of("userId", USER2_ID, "destinationId", UNI_3_ID, "startDate", START_DATE.plusDays(15)));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-15)));
+        long id1 = insertJourney();
+        insertJourney(Map.of("userId", USER2_ID, "destinationId", UNI_3_ID, "startDate", START_DATE.plusDays(15)));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-15)));
 
         List<Journey> journeys = journeyDao.findByFilters(Long.toString(DESTINATION_CITY_ID), START_DATE.plusDays(20), END_DATE.plusDays(-20), "");
 
@@ -995,9 +995,9 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testFindByFiltersDestinationExcluding(){
-        insertJourneyGeneric();
-        long id2 = insertJourneyOverride(Map.of("userId", USER2_ID));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID));
+        insertJourney();
+        long id2 = insertJourney(Map.of("userId", USER2_ID));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID));
 
         List<Journey> journeys = journeyDao.findByFilters(USER1_ID, Long.toString(DESTINATION_CITY_ID), null, null, null);
 
@@ -1012,9 +1012,9 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByFiltersStartDateExcluding(){
-        insertJourneyGeneric();
-        long id2 = insertJourneyOverride(Map.of("userId", USER2_ID));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-15)));
+        insertJourney();
+        long id2 = insertJourney(Map.of("userId", USER2_ID));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-15)));
 
         List<Journey> journeys = journeyDao.findByFilters(USER1_ID, null, START_DATE.plusDays(20), null, null);
 
@@ -1029,9 +1029,9 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByFiltersStartDateAndEmptyDestinationExcluding(){
-        insertJourneyGeneric();
-        long id2 = insertJourneyOverride(Map.of("userId", USER2_ID));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-15)));
+        insertJourney();
+        long id2 = insertJourney(Map.of("userId", USER2_ID));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-15)));
 
         List<Journey> journeys = journeyDao.findByFilters(USER1_ID, "", START_DATE.plusDays(20), null, null);
 
@@ -1046,9 +1046,9 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByFiltersEndDateExcluding(){
-        insertJourneyGeneric();
-        long id2 = insertJourneyOverride(Map.of("userId", USER2_ID));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "startDate", START_DATE.plusDays(15)));
+        insertJourney();
+        long id2 = insertJourney(Map.of("userId", USER2_ID));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "startDate", START_DATE.plusDays(15)));
 
         List<Journey> journeys = journeyDao.findByFilters(USER1_ID, null, null, END_DATE.plusDays(-20), null);
 
@@ -1063,9 +1063,9 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByFiltersInterestsExcluding(){
-        insertJourneyGeneric();
-        insertJourneyOverride(Map.of("userId", USER2_ID));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-7)));
+        insertJourney();
+        insertJourney(Map.of("userId", USER2_ID));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-7)));
 
         List<Journey> journeys = journeyDao.findByFilters(USER1_ID, null, null, null, Long.toString(INTEREST_1_ID));
 
@@ -1074,9 +1074,9 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByFiltersNoConditionsExcluding(){
-        insertJourneyGeneric();
-        insertJourneyOverride(Map.of("userId", USER2_ID));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-7)));
+        insertJourney();
+        insertJourney(Map.of("userId", USER2_ID));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-7)));
 
         List<Journey> journeys = journeyDao.findByFilters(USER1_ID, null, null, null, null);
 
@@ -1085,9 +1085,9 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByFiltersInterestsAllConditionsExcluding(){
-        insertJourneyGeneric();
-        insertJourneyOverride(Map.of("userId", USER2_ID, "destinationId", UNI_3_ID, "startDate", START_DATE.plusDays(7)));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", UNI_3_ID, "endDate", END_DATE.plusDays(-7)));
+        insertJourney();
+        insertJourney(Map.of("userId", USER2_ID, "destinationId", UNI_3_ID, "startDate", START_DATE.plusDays(7)));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", UNI_3_ID, "endDate", END_DATE.plusDays(-7)));
 
         List<Journey> journeys = journeyDao.findByFilters(USER1_ID, Long.toString(DESTINATION_CITY_ID), START_DATE, END_DATE, Long.toString(INTEREST_1_ID));
 
@@ -1096,9 +1096,9 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByFiltersInterestsAllNoInterestsExcluding(){
-        insertJourneyGeneric();
-        insertJourneyOverride(Map.of("userId", USER2_ID, "destinationId", UNI_3_ID, "startDate", START_DATE.plusDays(15)));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-15)));
+        insertJourney();
+        insertJourney(Map.of("userId", USER2_ID, "destinationId", UNI_3_ID, "startDate", START_DATE.plusDays(15)));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-15)));
 
         List<Journey> journeys = journeyDao.findByFilters(USER1_ID, Long.toString(DESTINATION_CITY_ID), START_DATE.plusDays(20), END_DATE.plusDays(-20), "");
 
@@ -1108,11 +1108,11 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testFindByFiltersDestinationPaged(){
-        insertJourneyGeneric();
-        long id2 = insertJourneyOverride(Map.of("userId", USER2_ID));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID));
+        insertJourney();
+        long id2 = insertJourney(Map.of("userId", USER2_ID));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID));
 
-        Page<Journey> journeys = journeyDao.findByFilters(USER2_ID, DESTINATION_CITY_ID, null, null, null, 1, 2);
+        Page<Journey> journeys = journeyDao.findByFilters(USER1_ID, DESTINATION_CITY_ID, null, null, null, 1, 2);
 
         assertNotNull(journeys);
         assertEquals(1, journeys.getContent().size());
@@ -1125,11 +1125,11 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByFiltersStartDatePaged(){
-        insertJourneyGeneric();
-        long id2 = insertJourneyOverride(Map.of("userId", USER2_ID));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-15)));
+        insertJourney();
+        long id2 = insertJourney(Map.of("userId", USER2_ID));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-15)));
 
-        Page<Journey> journeys = journeyDao.findByFilters(USER2_ID, null, START_DATE.plusDays(20), null, null, 1, 2);
+        Page<Journey> journeys = journeyDao.findByFilters(USER1_ID, null, START_DATE.plusDays(20), null, null, 1, 2);
 
         assertNotNull(journeys);
         assertEquals(1, journeys.getContent().size());
@@ -1142,11 +1142,11 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByFiltersEndDatePaged(){
-        insertJourneyGeneric();
-        long id2 = insertJourneyOverride(Map.of("userId", USER2_ID));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "startDate", START_DATE.plusDays(15)));
+        insertJourney();
+        long id2 = insertJourney(Map.of("userId", USER2_ID));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "startDate", START_DATE.plusDays(15)));
 
-        Page<Journey> journeys = journeyDao.findByFilters(USER2_ID, null, null, END_DATE.plusDays(-20), null, 1, 2);
+        Page<Journey> journeys = journeyDao.findByFilters(USER1_ID, null, null, END_DATE.plusDays(-20), null, 1, 2);
 
         assertNotNull(journeys);
         assertEquals(1, journeys.getContent().size());
@@ -1159,20 +1159,20 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByFiltersInterestsPaged(){
-        insertJourneyGeneric();
-        insertJourneyOverride(Map.of("userId", USER2_ID));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-7)));
+        insertJourney();
+        insertJourney(Map.of("userId", USER2_ID));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-7)));
 
-        Page<Journey> journeys = journeyDao.findByFilters(USER2_ID, null, null, null, INTEREST_1_ID, 1, 2);
+        Page<Journey> journeys = journeyDao.findByFilters(USER1_ID, null, null, null, INTEREST_1_ID, 1, 2);
 
         assertNotNull(journeys);
         assertEquals(0, journeys.getContent().size());
     }
     @Test
     public void testFindByFiltersNoConditionsPaged(){
-        insertJourneyGeneric();
-        insertJourneyOverride(Map.of("userId", USER2_ID));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-7)));
+        insertJourney();
+        insertJourney(Map.of("userId", USER2_ID));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-7)));
 
         Page<Journey> journeys = journeyDao.findByFilters(null, null, null, null, null, 1, 2);
 
@@ -1181,22 +1181,22 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByFiltersInterestsAllConditionsPaged(){
-        insertJourneyGeneric();
-        insertJourneyOverride(Map.of("userId", USER2_ID, "destinationId", UNI_3_ID, "startDate", START_DATE.plusDays(7)));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", UNI_3_ID, "endDate", END_DATE.plusDays(-7)));
+        insertJourney();
+        insertJourney(Map.of("userId", USER2_ID, "destinationId", UNI_3_ID, "startDate", START_DATE.plusDays(7)));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", UNI_3_ID, "endDate", END_DATE.plusDays(-7)));
 
-        Page<Journey> journeys = journeyDao.findByFilters(USER2_ID, DESTINATION_CITY_ID, START_DATE, END_DATE, INTEREST_1_ID, 1, 2);
+        Page<Journey> journeys = journeyDao.findByFilters(USER1_ID, DESTINATION_CITY_ID, START_DATE, END_DATE, INTEREST_1_ID, 1, 2);
 
         assertNotNull(journeys);
         assertEquals(0, journeys.getContent().size());
     }
     @Test
     public void testFindByFiltersInterestsAllNoInterestsPaged(){
-        insertJourneyGeneric();
-        insertJourneyOverride(Map.of("userId", USER2_ID, "destinationId", UNI_3_ID, "startDate", START_DATE.plusDays(15)));
-        insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-15)));
+        insertJourney();
+        insertJourney(Map.of("userId", USER2_ID, "destinationId", UNI_3_ID, "startDate", START_DATE.plusDays(15)));
+        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "endDate", END_DATE.plusDays(-15)));
 
-        Page<Journey> journeys = journeyDao.findByFilters(USER2_ID, DESTINATION_CITY_ID, START_DATE.plusDays(20), END_DATE.plusDays(-20), null, 1, 2);
+        Page<Journey> journeys = journeyDao.findByFilters(USER1_ID, DESTINATION_CITY_ID, START_DATE.plusDays(20), END_DATE.plusDays(-20), null, 1, 2);
 
         assertNotNull(journeys);
         assertEquals(0, journeys.getContent().size());
@@ -1205,11 +1205,11 @@ public class JourneyJdbcDaoTest {
     @Test
     public void testRecommendedJourneysBasic(){
         //get recs for user1
-        insertJourneyGeneric();
+        insertJourney();
         //should have internal score of 95 (30 match city, 50 match uni, 15 overlap)
-        long id1 = insertJourneyOverride(Map.of("userId", USER2_ID));
+        long id1 = insertJourney(Map.of("userId", USER2_ID));
         //should have internal score of 80 (30 match city, 50 match uni)
-        long id2 = insertJourneyOverride(Map.of("userId", USER3_ID, "startDate", END_DATE.plusDays(2), "endDate", END_DATE.plusDays(40)));
+        long id2 = insertJourney(Map.of("userId", USER3_ID, "startDate", END_DATE.plusDays(2), "endDate", END_DATE.plusDays(40)));
 
         List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL);
 
@@ -1220,7 +1220,7 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testRecommendedJourneysNoJourneys(){
-        insertJourneyGeneric();
+        insertJourney();
 
         List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL);
 
@@ -1230,11 +1230,11 @@ public class JourneyJdbcDaoTest {
     @Test
     public void testRecommendedJourneysGoingToMyCity(){
         //get recs for user1
-        insertJourneyGeneric();
+        insertJourney();
         //should have internal score of 80 (30 match origin city while there, 50 match origin uni while there)
-        long id1 = insertJourneyOverride(Map.of("userId", USER2_ID, "destinationId", ORIGIN_UNI_ID, "startDate", END_DATE.plusDays(-5), "endDate", END_DATE.plusDays(20)));
+        long id1 = insertJourney(Map.of("userId", USER2_ID, "destinationId", ORIGIN_UNI_ID, "startDate", END_DATE.plusDays(-5), "endDate", END_DATE.plusDays(20)));
         //should have an internal score of 15 (date overlap only)
-        long id2 = insertJourneyOverride(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "startDate", END_DATE.plusDays(-10), "endDate", END_DATE.plusDays(-2)));
+        long id2 = insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "startDate", END_DATE.plusDays(-10), "endDate", END_DATE.plusDays(-2)));
 
         List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL);
 
@@ -1246,15 +1246,15 @@ public class JourneyJdbcDaoTest {
     @Test
     public void testRecommendedJourneysWithInterests(){
         //get recs for user1
-        insertJourneyGeneric();
+        insertJourney();
         //should have internal score of 107 (50 + 30 match dest uni, 15 overlap, 12 interest match)
-        long id1 = insertJourneyOverride(Map.of("userId", USER_1_COMMON_INTEREST_ID));
+        long id1 = insertJourney(Map.of("userId", USER_1_COMMON_INTEREST_ID));
         //should have internal score of 113 (50 + 30 match dest uni, 15 overlap, 18 interest match)
-        long id2 = insertJourneyOverride(Map.of("userId", USER_2_COMMON_INTEREST_ID));
+        long id2 = insertJourney(Map.of("userId", USER_2_COMMON_INTEREST_ID));
         //should have internal score of 116 (50 + 30 match dest uni, 15 overlap, 21 interest match)
-        long id3 = insertJourneyOverride(Map.of("userId", USER_3_COMMON_INTEREST_ID));
+        long id3 = insertJourney(Map.of("userId", USER_3_COMMON_INTEREST_ID));
         //should have internal score of 95 (50 + 30 match dest uni, 15 overlap)
-        long id4 = insertJourneyOverride(Map.of("userId", USER2_ID));
+        long id4 = insertJourney(Map.of("userId", USER2_ID));
 
         List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL);
 
@@ -1268,19 +1268,19 @@ public class JourneyJdbcDaoTest {
     @Test
     public void testRecommendedJourneysWithInterestsComplex(){
         //get recs for user1
-        insertJourneyGeneric();
+        insertJourney();
         //should have internal score of 107 (50 + 30 match dest uni, 15 overlap, 12 interest match)
-        long id1 = insertJourneyOverride(Map.of("userId", USER_1_COMMON_INTEREST_ID));
+        long id1 = insertJourney(Map.of("userId", USER_1_COMMON_INTEREST_ID));
         //should have internal score of 98 (50 + 30 match origin uni, 18 interest match)
-        long id2 = insertJourneyOverride(Map.of("userId", USER_2_COMMON_INTEREST_ID, "destinationId", ORIGIN_UNI_ID, "startDate", END_DATE.plusDays(2), "endDate", END_DATE.plusDays(30)));
+        long id2 = insertJourney(Map.of("userId", USER_2_COMMON_INTEREST_ID, "destinationId", ORIGIN_UNI_ID, "startDate", END_DATE.plusDays(2), "endDate", END_DATE.plusDays(30)));
         //should have internal score of 36 (15 overlap, 21 interest match)
-        long id3 = insertJourneyOverride(Map.of("userId", USER_3_COMMON_INTEREST_ID, "destinationId", ORIGIN_UNI_ID, "startDate", END_DATE.plusDays(-7), "endDate", END_DATE.plusDays(-3)));
+        long id3 = insertJourney(Map.of("userId", USER_3_COMMON_INTEREST_ID, "destinationId", ORIGIN_UNI_ID, "startDate", END_DATE.plusDays(-7), "endDate", END_DATE.plusDays(-3)));
         //should have internal score of 95 (50 + 30 match dest uni, 15 overlap)
-        long id4 = insertJourneyOverride(Map.of("userId", USER2_ID));
+        long id4 = insertJourney(Map.of("userId", USER2_ID));
         //should have internal score of 80 (50 + 30 match dest uni)
-        long id5 = insertJourneyOverride(Map.of("userId", USER3_ID, "startDate", END_DATE.plusDays(2), "endDate", END_DATE.plusDays(20)));
+        long id5 = insertJourney(Map.of("userId", USER3_ID, "startDate", END_DATE.plusDays(2), "endDate", END_DATE.plusDays(20)));
         //should have internal score of 45 (30 city match, 15 overlap)
-        long id6 = insertJourneyOverride(Map.of("userId", USER_ANOTHER_ID, "destinationId", UNI_3_ID));
+        long id6 = insertJourney(Map.of("userId", USER_ANOTHER_ID, "destinationId", UNI_3_ID));
 
         List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL);
 
