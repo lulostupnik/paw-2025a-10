@@ -175,53 +175,21 @@ public class JourneyServiceImpl implements JourneyService {
     //@TODO check estilo, paso null y parseo los destination/interest.
     @Override
     @Transactional(readOnly = true)
-    public Page<Journey> getFilteredJourneys(String destination, LocalDate startDate, LocalDate endDate, String interest, int page, int size){
-        //@TODO change form so they get numbers intead of STRING
-        Long destinationId = null;
-        Long interestId = null;
-
-        try{
-            destinationId = Long.parseLong(destination);
-        }catch(Exception e) {
-            LOGGER.warn("Failed to parse destination: {}", destination, e);
-        }
-        try{
-            interestId = Long.parseLong(interest);
-        }catch(Exception e) {
-            LOGGER.warn("Failed to parse interest: {}", interest, e);
-        }
-
-        return journeyDao.findByFilters(null, destinationId, startDate,endDate, interestId, page, size);
+    public Page<Journey> getFilteredJourneys(Long destination, LocalDate startDate, LocalDate endDate, Long interest, int page, int size){
+        return journeyDao.findByFilters(null, destination, startDate,endDate, interest, page, size);
     }
 
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Journey> getFilteredJourneys(String email, String destination, LocalDate startDate, LocalDate endDate, String interest, int page, int size){
+    public Page<Journey> getFilteredJourneys(String email, Long destination, LocalDate startDate, LocalDate endDate, Long interest, int page, int size){
         LOGGER.debug("Getting filtered journeys excluding user {}", email);
 
         User user = userService.findByEmail(email).orElseThrow(() -> {
             LOGGER.warn("User not found with email: {}", email);
             return new RuntimeException("User not found");
         });
-
-        //@TODO change form so they get numbers intead of STRING
-        Long destinationId = null;
-        Long interestId = null;
-
-        try{
-            destinationId = Long.parseLong(destination);
-        }catch(Exception e) {
-            LOGGER.warn("Failed to parse destination: {}", destination, e);
-        }
-        try{
-            interestId = Long.parseLong(interest);
-        }catch(Exception e) {
-            LOGGER.warn("Failed to parse interest: {}", interest, e);
-        }
-
-
-        return journeyDao.findByFilters(user.getId(), destinationId, startDate, endDate, interestId, page, size);
+        return journeyDao.findByFilters(user.getId(), destination, startDate, endDate, interest, page, size);
     }
 
 
