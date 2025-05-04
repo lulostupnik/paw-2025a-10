@@ -419,6 +419,60 @@ public class JourneyJdbcDao implements JourneyDao {
         );
     }
 
+    // TODO: preguntar a los profes cual prefieren y que onda el warning que me tira el IDE
+    public Page<Journey> findByFilters3(final Long userId, final Long cityId, final LocalDate startDate, final LocalDate endDate, final Long interest, final int page, final int size) {
+
+        final List<Object> params = new ArrayList<>();
+
+        final StringBuilder countQueryBuilder = new StringBuilder("SELECT COUNT(*) FROM journeys j");
+        final StringBuilder queryBuilder = new StringBuilder((interest != null) ? SQL_BASE_INTEREST : SQL_BASE);
+        final StringBuilder filterClause = new StringBuilder(" ");
+
+        if (interest != null) {
+            countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id");
+            filterClause.append(" AND ui.category_id = ? ");
+            params.add(interest);
+        }
+
+        if (cityId != null) {
+            countQueryBuilder.append(" JOIN universities un ON j.destination_university_id = un.id JOIN cities ci2 ON un.city_id = ci2.id");
+            filterClause.append(" AND ci2.id = ? ");
+            params.add(cityId);
+        }
+
+        if (userId != null) {
+            filterClause.append(" AND j.user_id != ? ");
+            params.add(userId);
+        }
+
+        if (endDate != null) {
+            filterClause.append(" AND j.start_date <= ? ");
+            params.add(Date.valueOf(endDate));
+        }
+
+        if (startDate != null) {
+            filterClause.append(" AND j.end_date >= ? ");
+            params.add(Date.valueOf(startDate));
+        }
+
+        countQueryBuilder.append(" WHERE j.deleted = FALSE ").append(filterClause);
+        queryBuilder.append(filterClause);
+        queryBuilder.append(" ORDER BY j.id ASC LIMIT ? OFFSET ?");
+
+        final int totalItems = jdbcTemplate.queryForObject(countQueryBuilder.toString(), Integer.class, params.toArray());
+
+
+        params.add(size);
+        params.add((page - 1) * size);
+
+        return new Page<>(
+                jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray()),
+                page,
+                (int) Math.ceil((double) totalItems / size)
+        );
+    }
+
+
     @Override
     public Page<Journey> findByOriginCity(final long originCityId, final int page, final int size) {
         final int totalItems = jdbcTemplate.queryForObject(
