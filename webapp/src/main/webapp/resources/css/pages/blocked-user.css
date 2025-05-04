@@ -1,0 +1,94 @@
+/* Blocked User Page Specific Styles */
+
+.blocked-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.blocked-section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 0.5rem;
+}
+
+.blocked-text {
+    font-size: 0.875rem;
+    color: #4b5563;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.contact-info {
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+    padding: 1.25rem;
+    margin-top: 0.5rem;
+}
+
+.contact-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 0.75rem;
+}
+
+.contact-method {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.contact-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #4f46e5;
+    flex-shrink: 0;
+}
+
+.contact-link {
+    color: #4f46e5;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+    word-break: break-all;
+}
+
+.contact-link:hover {
+    color: #4338ca;
+    text-decoration: underline;
+}
+
+.reference-id {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 1.5rem;
+}
+
+/* Additional security-related styles */
+.security-notice {
+    font-size: 0.75rem;
+    color: #6b7280;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+/* Animation for the alert to draw attention */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+.alert-error {
+    animation: pulse 2s infinite;
+}

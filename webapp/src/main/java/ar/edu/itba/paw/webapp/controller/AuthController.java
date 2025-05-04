@@ -50,6 +50,7 @@ public class AuthController {
         this.interestService = interestService;
         this.authenticationManager = authenticationManager;
     }
+
     @RequestMapping("/login")
     public ModelAndView loginForm( @ModelAttribute("user") User user) {
         LOGGER.debug("Loading login form");
@@ -57,6 +58,13 @@ public class AuthController {
             return new ModelAndView("redirect:/explore");
         }
         return new ModelAndView("auth/login");
+    }
+    @RequestMapping("/blocked")
+    public ModelAndView blockedForm() {
+        LOGGER.debug("Loading blocked view");
+        ModelAndView mav = new ModelAndView("auth/blocked-user");
+        mav.addObject("email", "paw.2025a.10@gmail.com" );
+        return mav;
     }
 
     @RequestMapping(value = "/register", method = {RequestMethod.GET})
