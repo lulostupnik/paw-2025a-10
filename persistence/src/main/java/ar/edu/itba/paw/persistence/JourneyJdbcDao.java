@@ -189,83 +189,60 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public List<Journey> findByFilters(final String destination, final LocalDate startDate, final LocalDate endDate, final String interest) {
 
-        String query;
+        final StringBuilder queryBuilder = new StringBuilder((interest != null && !interest.isEmpty()) ? SQL_BASE_INTEREST : SQL_BASE);
 
-        if (interest != null && !interest.isEmpty()) {
-            query = SQL_BASE_INTEREST;
-        } else {
-            query = SQL_BASE;
-        }
-
-        final List<String> filters = new ArrayList<>();
         final List<Object> params = new ArrayList<>();
 
         if (destination != null && !destination.isEmpty()) {
-            filters.add("ci2.id = ?");
-            params.add(Integer.parseInt(destination));
+            queryBuilder.append(" AND ci2.id = ? ");
+            params.add(Integer.parseInt(destination)); // FIXME: ¿PORQUE ESTAMOS RECIBIENDO UN STRING CON EL ID DEL DESTINO!?!?!?
         }
         if (endDate != null) {
-            filters.add("j.start_date <= ?");
+            queryBuilder.append(" AND j.start_date <= ? ");
             params.add(Date.valueOf(endDate));
         }
         if (startDate != null) {
-            filters.add("j.end_date >= ?");
+            queryBuilder.append(" AND j.end_date >= ? ");
             params.add(Date.valueOf(startDate));
         }
         if (interest != null && !interest.isEmpty()) {
-            filters.add("c.id = ?");
-            params.add(Integer.parseInt( interest));
+            queryBuilder.append(" AND c.id = ? ");
+            params.add(Integer.parseInt(interest)); // FIXME: ¿PORQUE ESTAMOS RECIBIENDO UN STRING CON EL ID DEL DESTINO!?!?!?
         }
 
-        if (!filters.isEmpty()) {
-            query += " AND " + String.join(" AND ", filters);
-        }
-
-        return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
+        return jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray());
     }
 
-    // FIXME: use StringBuilder
     @Override
     public List<Journey> findByFilters(final long userId, final String destination, final LocalDate startDate, final LocalDate endDate, final String interest) {
 
-        String query;
+        // FIXME: ¿porque el !interest.isEmpty()?
+        final StringBuilder queryBuilder = new StringBuilder((interest != null && !interest.isEmpty()) ? SQL_BASE_INTEREST : SQL_BASE);
 
-        if (interest != null && !interest.isEmpty()) {
-            query = SQL_BASE_INTEREST;
-        } else {
-            query = SQL_BASE;
-        }
-
-        final List<String> filters = new ArrayList<>();
         final List<Object> params = new ArrayList<>();
 
-        filters.add("us.id != ?"); // journey.user_id != ?
+        queryBuilder.append(" AND us.id != ? "); // journey.user_id != ?
         params.add(userId);
 
         if (destination != null && !destination.isEmpty()) {
-            LOGGER.debug("Filter added: destination {}", destination);
-            filters.add("ci2.id = ?");
-            params.add(Integer.parseInt(destination));
+            queryBuilder.append(" AND ci2.id = ? ");
+            params.add(Integer.parseInt(destination)); // FIXME: ¿PORQUE ESTAMOS RECIBIENDO UN STRING CON EL ID DEL DESTINO!?!?!?
         }
         if (endDate != null) {
-            filters.add("j.start_date <= ?");
+            queryBuilder.append(" AND j.start_date <= ? ");
             params.add(Date.valueOf(endDate));
         }
         if (startDate != null) {
-            filters.add("j.end_date >= ?");
+            queryBuilder.append(" AND j.end_date >= ? ");
             params.add(Date.valueOf(startDate));
         }
         if (interest != null && !interest.isEmpty()) {
-            LOGGER.debug("Filter added: interest {}", interest);
-            filters.add("c.id = ?");
-            params.add(Integer.parseInt(interest));
+            queryBuilder.append(" AND c.id = ? ");
+            params.add(Integer.parseInt(interest)); // FIXME: ¿PORQUE ESTAMOS RECIBIENDO UN STRING CON EL ID DEL DESTINO!?!?!?
         }
 
-        query += " AND " + String.join(" AND ", filters);
-
-        return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
+        return jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray());
     }
-
 
     @Override
     public List<Journey> findByOriginCity(final long originCityId) {
