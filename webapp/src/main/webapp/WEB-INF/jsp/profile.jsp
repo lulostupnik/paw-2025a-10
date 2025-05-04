@@ -259,7 +259,7 @@
                 <jsp:param name="pageObjectTotalPages" value="${userEvents.totalPages}" />
                 <jsp:param name="currentPage" value="${currentPageUserEvents}" />
                 <jsp:param name="pageSize" value="${pageSize}" />
-                <jsp:param name="baseUrl" value="/profile?attendingPage=${currentPageUserAttending}&size=${pageSize}" />
+                <jsp:param name="baseUrl" value="/profile?attendingPage=${currentPageUserAttending}&size=${pageSize}&activeTab=eventsCreated" />
               </jsp:include>
             </div>
 
@@ -305,7 +305,7 @@
                 <jsp:param name="pageObjectTotalPages" value="${userAttendingEvents.totalPages}" />
                 <jsp:param name="currentPage" value="${currentPageUserAttending}" />
                 <jsp:param name="pageSize" value="${pageSize}" />
-                <jsp:param name="baseUrl" value="/profile?page=${currentPageUserEvents}&size=${pageSize}" />
+                <jsp:param name="baseUrl" value="/profile?page=${currentPageUserEvents}&size=${pageSize}&activeTab=events_attending" />
                 <jsp:param name="paramName" value="attendingPage" />
               </jsp:include>
             </div>
@@ -328,12 +328,71 @@
   </div>
 </div>
 
+
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const activeTab = urlParams.get('activeTab');
+
     // Profile tabs functionality
     const profileTabs = document.querySelectorAll('.profile-tab');
     const profileSections = document.querySelectorAll('.profile-section');
 
+    // Set active tab from URL parameter if available
+    if (activeTab) {
+      // Handle main tabs
+      if (activeTab === 'info' || activeTab === 'journeys' || activeTab === 'events') {
+        profileTabs.forEach(t => t.classList.remove('active'));
+        profileSections.forEach(section => section.classList.remove('active'));
+
+        const tabToActivate = document.querySelector(`.profile-tab[data-tab="${activeTab}"]`);
+        if (tabToActivate) {
+          tabToActivate.classList.add('active');
+          document.getElementById(activeTab + '-section').classList.add('active');
+        }
+      }
+
+      // Handle events sub-tabs
+      const eventsTabs = document.querySelectorAll('.events-tab');
+      const eventsTabContent = document.querySelectorAll('.events-tab-content');
+
+      if (activeTab === 'eventsCreated') {
+        // First activate the events main tab if not already active
+        if (!document.querySelector('.profile-tab[data-tab="events"]').classList.contains('active')) {
+          profileTabs.forEach(t => t.classList.remove('active'));
+          profileSections.forEach(section => section.classList.remove('active'));
+
+          document.querySelector('.profile-tab[data-tab="events"]').classList.add('active');
+          document.getElementById('events-section').classList.add('active');
+        }
+
+        // Then activate the created events sub-tab
+        eventsTabs.forEach(t => t.classList.remove('active'));
+        eventsTabContent.forEach(content => content.classList.remove('active'));
+
+        document.querySelector('.events-tab[data-events-tab="created"]').classList.add('active');
+        document.getElementById('created-events').classList.add('active');
+      } else if (activeTab === 'events_attending') {
+        // First activate the events main tab if not already active
+        if (!document.querySelector('.profile-tab[data-tab="events"]').classList.contains('active')) {
+          profileTabs.forEach(t => t.classList.remove('active'));
+          profileSections.forEach(section => section.classList.remove('active'));
+
+          document.querySelector('.profile-tab[data-tab="events"]').classList.add('active');
+          document.getElementById('events-section').classList.add('active');
+        }
+
+        // Then activate the attending events sub-tab
+        eventsTabs.forEach(t => t.classList.remove('active'));
+        eventsTabContent.forEach(content => content.classList.remove('active'));
+
+        document.querySelector('.events-tab[data-events-tab="attending"]').classList.add('active');
+        document.getElementById('attending-events').classList.add('active');
+      }
+    }
+
+    // Profile tabs click handler
     profileTabs.forEach(tab => {
       tab.addEventListener('click', function() {
         // Remove active class from all tabs
@@ -348,10 +407,15 @@
         // Show the corresponding section
         const tabId = this.getAttribute('data-tab');
         document.getElementById(tabId + '-section').classList.add('active');
+
+        // Update URL with active tab without reloading the page
+        const url = new URL(window.location);
+        url.searchParams.set('activeTab', tabId);
+        window.history.pushState({}, '', url);
       });
     });
 
-    // Events sub-tabs functionality
+    // Events sub-tabs click handler
     const eventsTabs = document.querySelectorAll('.events-tab');
     const eventsTabContent = document.querySelectorAll('.events-tab-content');
 
@@ -369,9 +433,20 @@
         // Show the corresponding content
         const tabId = this.getAttribute('data-events-tab');
         document.getElementById(tabId + '-events').classList.add('active');
+
+        // Update URL with active tab without reloading the page
+        const url = new URL(window.location);
+        // Set the appropriate activeTab value based on which events tab is clicked
+        if (tabId === 'created') {
+          url.searchParams.set('activeTab', 'eventsCreated');
+        } else if (tabId === 'attending') {
+          url.searchParams.set('activeTab', 'events_attending');
+        }
+        window.history.pushState({}, '', url);
       });
     });
   });
 </script>
+
 </body>
 </html>
