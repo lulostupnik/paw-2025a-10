@@ -54,3 +54,11 @@ body {
     opacity: 0.5;
     cursor: not-allowed;
 }
+.pagination {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding-bottom: 10px; 
+}

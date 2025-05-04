@@ -36,7 +36,7 @@ public class AdminController {
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView("/admin/dashboard");
-        mav.addObject("pagedEvents", eventService.getAllEvents(search, page, pageSize));
+        mav.addObject("pagedEvents", eventService.getAllEventsSearch(search, page, pageSize));
 
         return mav;
     }

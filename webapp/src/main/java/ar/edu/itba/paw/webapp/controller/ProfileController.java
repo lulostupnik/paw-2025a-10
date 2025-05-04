@@ -30,14 +30,20 @@ public class ProfileController {
     }
 
     @RequestMapping(value = "/profile", method = RequestMethod.GET)
-    public ModelAndView getProfile(@ModelAttribute("user") User user) {
+    public ModelAndView getProfile(
+            @ModelAttribute("user") User user,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "attendingPage", defaultValue = "1") int attendingPage,
+            @RequestParam(value = "size", defaultValue = "4") int size) {
+
         ModelAndView mav = new ModelAndView("profile");
-
-
         mav.addObject("user", user);
         mav.addObject("userJourneys", journeyService.getJourneysByUser(user.getEmail())); // FIXME: cambiar y usar Optional<Journey> getJourneyByEmail
-        mav.addObject("userEvents", eventService.getAllEvents(user.getEmail()));
-        mav.addObject("userAttendingEvents", eventService.getUserAttendingEvents(user.getEmail()));
+        mav.addObject("userEvents", eventService.getAllEvents(user.getEmail(), page, size));
+        mav.addObject("userAttendingEvents", eventService.getUserAttendingEvents(user.getId(), attendingPage, size));
+
+        mav.addObject("currentPageUserEvents", page);
+        mav.addObject("currentPageUserAttending", attendingPage);
 
         return mav;
     }
