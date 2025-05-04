@@ -15,9 +15,10 @@ public interface EventService {
     List<Event> getAllEvents();  // will be deprecated
     Page<Event> getAllEvents(int page, int size);
 
-    Page<Event> getAllEvents(String email, int page, int size);
+    Page<Event> getAllEventsSearch(String search, int page, int size);
 
     List<Event> getAllEvents(String email);
+    Page<Event> getAllEvents(String email, int page, int size);
     void attendEvent(String email, long eventId);
     void attendEvent(long userId, long eventId);
     void cancelAttendance(String email, long eventId);
@@ -28,6 +29,7 @@ public interface EventService {
     Page<User> getEventAttendees(long eventId, int page, int size);
     int getEventAttendeesCount(long eventId);
     List<Event> getUserAttendingEvents(String userEmail);
+    Page<Event> getUserAttendingEvents(long userId, int page, int size);
     List<Event> getUserAttendingEvents(long userId);
     List<EventResponse> getEventResponses(long eventId);
     List<UserEvent> getRecommendedEvents(String email);

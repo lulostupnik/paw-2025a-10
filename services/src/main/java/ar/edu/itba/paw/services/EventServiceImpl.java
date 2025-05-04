@@ -117,7 +117,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<Event> getAllEvents(String search,int page, int size) {
+    public Page<Event> getAllEventsSearch(String search,int page, int size) {
         LOGGER.debug("Getting all events with search {}", search);
         if (search == null || search.isEmpty()) {
             return eventDao.listAll(page, size);
@@ -127,11 +127,22 @@ public class EventServiceImpl implements EventService {
 
 
 
+
     @Transactional(readOnly = true)
     @Override
     public List<Event> getAllEvents(String email) {
         return eventDao.getEvents(email);
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Page<Event> getAllEvents(String email, int page, int size) {
+        return eventDao.getEvents(email, page, size);
+    }
+
+
+
+
 
     @Transactional
     @CacheEvict(value = "eventsById", key = "#eventId")
@@ -217,6 +228,13 @@ public class EventServiceImpl implements EventService {
     public List<Event> getUserAttendingEvents(String userEmail) {
         long userId = userService.findByEmail(userEmail).orElseThrow().getId();
         return getUserAttendingEvents(userId);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Page<Event> getUserAttendingEvents(long userId, int page, int size) {
+//        long userId = userService.findByEmail(userEmail).orElseThrow().getId();
+        return eventAttendanceDao.getAttendingEvents(userId, page, size);
     }
 
     @Transactional(readOnly = true)

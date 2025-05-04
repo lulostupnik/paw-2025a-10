@@ -16,6 +16,9 @@
   <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
 </head>
 <body>
+
+<c:set var="pageSize" value="4" scope="request" />
+
 <div class="layout-container">
   <!-- Main Content -->
   <div class="main-content">
@@ -216,7 +219,7 @@
             <!-- Created Events -->
             <div class="events-tab-content active" id="created-events">
               <div class="cards-grid">
-                <c:if test="${empty userEvents}">
+                <c:if test="${empty userEvents.content}">
                   <div class="empty-state">
                     <div class="empty-icon">
                       <svg xmlns="http://www.w3.org/2000/svg" class="empty-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -232,8 +235,8 @@
                   </div>
                 </c:if>
 
-                <c:if test="${not empty userEvents}">
-                  <c:forEach items="${userEvents}" var="event">
+                <c:if test="${not empty userEvents.content}">
+                  <c:forEach items="${userEvents.content}" var="event">
                     <jsp:include page="./events/event-card.jsp">
                       <jsp:param name="username" value="${event.user.username}"/>
                       <jsp:param name="eventId" value="${event.id}" />
@@ -251,12 +254,19 @@
                   </c:forEach>
                 </c:if>
               </div>
+
+              <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
+                <jsp:param name="pageObjectTotalPages" value="${userEvents.totalPages}" />
+                <jsp:param name="currentPage" value="${currentPageUserEvents}" />
+                <jsp:param name="pageSize" value="${pageSize}" />
+                <jsp:param name="baseUrl" value="/profile?attendingPage=${currentPageUserAttending}&size=${pageSize}" />
+              </jsp:include>
             </div>
 
             <!-- Attending Events -->
             <div class="events-tab-content" id="attending-events">
               <div class="cards-grid">
-                <c:if test="${empty userAttendingEvents}">
+                <c:if test="${empty userAttendingEvents.content}">
                   <div class="empty-state">
                     <div class="empty-icon">
                       <svg xmlns="http://www.w3.org/2000/svg" class="empty-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -272,8 +282,8 @@
                   </div>
                 </c:if>
 
-                <c:if test="${not empty userAttendingEvents}">
-                  <c:forEach items="${userAttendingEvents}" var="event">
+                <c:if test="${not empty userAttendingEvents.content}">
+                  <c:forEach items="${userAttendingEvents.content}" var="event">
                     <jsp:include page="./events/event-card.jsp">
                       <jsp:param name="username" value="${event.user.username}"/>
                       <jsp:param name="eventId" value="${event.id}" />
@@ -291,6 +301,13 @@
                   </c:forEach>
                 </c:if>
               </div>
+              <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
+                <jsp:param name="pageObjectTotalPages" value="${userAttendingEvents.totalPages}" />
+                <jsp:param name="currentPage" value="${currentPageUserAttending}" />
+                <jsp:param name="pageSize" value="${pageSize}" />
+                <jsp:param name="baseUrl" value="/profile?page=${currentPageUserEvents}&size=${pageSize}" />
+                <jsp:param name="paramName" value="attendingPage" />
+              </jsp:include>
             </div>
           </div>
         </div>
