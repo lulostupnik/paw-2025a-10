@@ -101,7 +101,10 @@ public class CareerController {
     }
 
 
-
-
+    @PostMapping(value = "/{id}/delete")
+    public ModelAndView deleteCareer(@PathVariable long id) {
+        careerService.delete(id);
+        return new ModelAndView("redirect:/dashboard/careers");
+    }
 
 }

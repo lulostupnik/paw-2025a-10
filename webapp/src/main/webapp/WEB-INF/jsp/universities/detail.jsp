@@ -84,7 +84,6 @@
         <spring:message code="university.delete.cancel"/>
       </button>
       <form action="<c:url value='/universities/${university.get().id}/delete'/>" method="post" id="deleteUniversityForm">
-        <input type="hidden" name="_method" value="DELETE">
         <button type="submit" class="cta-button delete-button">
           <spring:message code="university.delete.confirm"/>
         </button>
