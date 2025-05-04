@@ -25,8 +25,6 @@ public class CountryJdbcDao implements CountryDao {
             rs.getString("code")
     );
 
-    private final static String QUERY = "SELECT * FROM countries";
-
     @Autowired
     public CountryJdbcDao(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
@@ -34,7 +32,7 @@ public class CountryJdbcDao implements CountryDao {
 
     @Override
     public List<Country> findAll() {
-        return jdbcTemplate.query(QUERY, COUNTRY_ROW_MAPPER);
+        return jdbcTemplate.query("SELECT * FROM countries", COUNTRY_ROW_MAPPER);
     }
 
     @Override
