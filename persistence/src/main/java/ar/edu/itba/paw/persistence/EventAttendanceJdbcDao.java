@@ -35,7 +35,8 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
             Locale.of(rs.getString("user_language")),
             rs.getBoolean("user_blocked"));
 
-    private final static String GET_ATTENDEES_QUERY = """
+    private final static String SQL_USERS_BASE =
+                    """
                     SELECT
                         u.id AS user_id,
                         u.email AS user_email,
@@ -58,7 +59,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                     JOIN careers c ON c.id = u.career_id
                     JOIN cities ci ON ci.id = un.city_id
                     JOIN countries co ON co.id = ci.country_id
-                    JOIN event_attendances ea ON u.id = ea.user_id WHERE ea.event_id = ?
+                    JOIN event_attendances ea ON u.id = ea.user_id
                     """;
 
 
@@ -103,7 +104,8 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
             rs.getInt("event_attendees_count")
     );
 
-    private final static String GET_EVENTS_QUERY = """
+    private final static String SQL_EVENTS_BASE =
+                    """
                     SELECT
                         us.id AS user_id,
                         us.email AS user_email,
@@ -149,8 +151,15 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                     JOIN countries co2 ON co2.id = ci2.country_id
                     JOIN cities c ON e.city_id = c.id
                     JOIN countries co ON c.country_id = co.id
-                    JOIN event_attendances ea ON e.id = ea.event_id WHERE ea.user_id = ?
+                    JOIN event_attendances ea ON e.id = ea.event_id
                     """;
+
+    private final static String SQL_LIST_ALL_BY_EVENT = SQL_USERS_BASE + " WHERE ea.event_id = ? ";
+    private final static String SQL_LIST_ALL_BY_USER = SQL_EVENTS_BASE + " WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE ";
+
+    private final static String SQL_PAGE_BY_EVENT = SQL_LIST_ALL_BY_EVENT + " LIMIT ? OFFSET ?";
+    private final static String SQL_PAGE_BY_USER = SQL_LIST_ALL_BY_USER + " ORDER BY e.event_date DESC LIMIT ? OFFSET ?";
+
 
 
     @Autowired
@@ -187,7 +196,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
 
     @Override
     public List<User> getAttendees(long eventId) {
-        return jdbcTemplate.query(GET_ATTENDEES_QUERY, USER_ROW_MAPPER, eventId);
+        return jdbcTemplate.query(SQL_LIST_ALL_BY_EVENT, USER_ROW_MAPPER, eventId);
     }
 
     @Override
@@ -198,7 +207,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
 
     @Override
     public List<Event> getAttendingEvents(long userId) {
-        return jdbcTemplate.query(GET_EVENTS_QUERY + " AND e.user_id != ?", EVENT_ROW_MAPPER, userId, userId);
+        return jdbcTemplate.query(SQL_LIST_ALL_BY_USER, EVENT_ROW_MAPPER, userId, userId);
     }
 
     @Override
@@ -209,10 +218,9 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                 eventId
         );
 
-        String paginatedQuery = GET_ATTENDEES_QUERY + " LIMIT ? OFFSET ?";
 
         return new Page<>(
-                jdbcTemplate.query(paginatedQuery, USER_ROW_MAPPER, eventId, pageSize, (pageNumber - 1) * pageSize),
+                jdbcTemplate.query(SQL_PAGE_BY_EVENT, USER_ROW_MAPPER, eventId, pageSize, (pageNumber - 1) * pageSize),
                 pageNumber,
                 (int) Math.ceil((double) totalItems / pageSize)
         );
@@ -225,11 +233,9 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                 Integer.class,
                 userId, userId
         );
-        
-        String paginatedQuery = GET_EVENTS_QUERY + " AND e.user_id != ? AND e.deleted = FALSE ORDER BY e.event_date DESC LIMIT ? OFFSET ?";
 
         return new Page<>(
-                jdbcTemplate.query(paginatedQuery, EVENT_ROW_MAPPER, userId, userId, pageSize, (pageNumber - 1) * pageSize),
+                jdbcTemplate.query(SQL_PAGE_BY_USER, EVENT_ROW_MAPPER, userId, userId, pageSize, (pageNumber - 1) * pageSize),
                 pageNumber,
                 (int) Math.ceil((double) totalItems / pageSize)
         );
