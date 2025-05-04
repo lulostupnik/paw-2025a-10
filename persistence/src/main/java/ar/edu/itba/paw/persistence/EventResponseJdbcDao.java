@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 import javax.sql.DataSource;
@@ -56,7 +57,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
         args.put("user_id", userId);
         args.put("event_id", eventId);
         args.put("message", message);
-        args.put("date_time", dateTime);
+        args.put("date_time", Timestamp.valueOf(dateTime));
         args.put("deleted", false);
 
         final Number keys = jdbcInsert.executeAndReturnKey(args);
