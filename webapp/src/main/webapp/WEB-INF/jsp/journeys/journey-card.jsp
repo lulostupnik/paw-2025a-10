@@ -56,20 +56,19 @@
                 <!-- Format dates -->
                 <fmt:parseDate value="${param.startDate}" pattern="yyyy-MM-dd" var="parsedStartDate" />
                 <fmt:parseDate value="${param.endDate}" pattern="yyyy-MM-dd" var="parsedEndDate" />
-                <fmt:formatDate value="${parsedStartDate}" pattern="d" var="startDay" />
-                <fmt:formatDate value="${parsedStartDate}" pattern="MM" var="startMonth" />
-                <fmt:formatDate value="${parsedStartDate}" pattern="yyyy" var="startYear" />
-                <fmt:formatDate value="${parsedEndDate}" pattern="d" var="endDay" />
-                <fmt:formatDate value="${parsedEndDate}" pattern="MM" var="endMonth" />
-                <fmt:formatDate value="${parsedEndDate}" pattern="yyyy" var="endYear" />
+                <!-- Parse and format dates -->
+                <fmt:parseDate value="${param.startDate}" pattern="yyyy-MM-dd" var="parsedStartDate" />
+                <fmt:parseDate value="${param.endDate}" pattern="yyyy-MM-dd" var="parsedEndDate" />
+                <fmt:formatDate value="${parsedStartDate}" pattern="MMMM d, yyyy" var="formattedStartDate" />
+                <fmt:formatDate value="${parsedEndDate}" pattern="MMMM d, yyyy" var="formattedEndDate" />
 
                 <div class="card-dates">
                     <svg xmlns="http://www.w3.org/2000/svg" class="card-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <span class="card-date-range">
-                        <c:out value="${param.startDate}" /> → <c:out value="${param.endDate}" />
-                    </span>
+        ${formattedStartDate} → ${formattedEndDate}
+    </span>
                 </div>
                 <p class="event-card-description"><c:out value="${param.description}"/></p>
             </div>

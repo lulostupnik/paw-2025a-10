@@ -17,6 +17,8 @@ public class User{
     private final Career career;
     private final long profilePictureId;
     private final Locale locale;
+    private final boolean isBlocked;
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

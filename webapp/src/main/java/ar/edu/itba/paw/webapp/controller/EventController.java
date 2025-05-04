@@ -20,12 +20,18 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import java.util.NoSuchElementException;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
+
 
 @Controller
 @RequestMapping("/events")
@@ -34,19 +40,21 @@ public class EventController {
 
 
     private final EventService eventService;
+    private final EventResponseService eventResponseService;
     private final CityService cityService;
     private final UniversityService universityService;
     private final CareerService careerService;
 
     @Autowired
-    public EventController(EventService eventService, CityService cityService, UniversityService universityService, CareerService careerService) {
+    public EventController(EventService eventService, CityService cityService, UniversityService universityService, CareerService careerService, EventResponseService eventResponseService) {
         this.eventService = eventService;
         this.cityService = cityService;
         this.universityService = universityService;
         this.careerService = careerService;
+        this.eventResponseService = eventResponseService;
     }
 
-    @RequestMapping
+    /*@RequestMapping
     public ModelAndView getEvents(@ModelAttribute("user") User user) {
         ModelAndView mav = new ModelAndView("events/list");
         if (user != null ) {
@@ -55,7 +63,29 @@ public class EventController {
             mav.addObject("events",eventService.getAllEvents());
         }
         return mav;
+    }*/
+
+    @RequestMapping
+    public ModelAndView getEvents(@ModelAttribute("user") User user,
+                                  @RequestParam(value = "page", defaultValue = "1") int page,
+                                  @RequestParam(value = "size", defaultValue = "10") int size) {
+        ModelAndView mav = new ModelAndView("events/list");
+
+        if (user != null) {
+            Page<UserEvent> userEventsPage = eventService.getEventsPageWithAttendanceStatus(user.getId(), page, size);
+            mav.addObject("eventsPage", userEventsPage);
+            mav.addObject("eventsWithAttendance", userEventsPage.getContent());
+        } else {
+            Page<Event> eventsPage = eventService.getAllEvents(page, size);
+            mav.addObject("eventsPage", eventsPage);
+            mav.addObject("events", eventsPage.getContent());
+        }
+
+        mav.addObject("currentPage", page);
+        mav.addObject("pageSize", size);
+        return mav;
     }
+
 
     private void addDropdownAttributes(ModelAndView mav) {
         mav.addObject("careers", careerService.findAll());
@@ -99,8 +129,8 @@ public class EventController {
 
     private ModelAndView populateEventDetails( Event event, long id, User user,
                                               BindingResult deleteErrors, BindingResult deleteReplyErrors,
-                                              Long replyId) {
-        ModelAndView mav = new ModelAndView("events/detail");
+                                              Long replyId, int page, int size, int attendeesPage, int attendeesSize) {
+        ModelAndView mav = new ModelAndView("events/detail/detail");
         mav.addObject("event", event);
 
         // Check if there are errors in the delete forms
@@ -111,14 +141,18 @@ public class EventController {
             mav.addObject("deleteFormId", "delete-event-form");
         } else if (deleteReplyErrors.hasErrors()) {
 
-            // Add attributes to indicate there was an error in a journey response delete form
+            // Add attributes to indicate there was an error in a event response delete form
             mav.addObject("deleteFormHasErrors", true);
             mav.addObject("deleteFormType", "eventResponse");
             mav.addObject("deleteFormId", "delete-event-response-form-" + replyId);
         }
         LOGGER.info("Found event {}", event);
-        mav.addObject("attendees", eventService.getEventAttendees(event.getId()));
-        mav.addObject("eventResponses", eventService.getEventResponses(event.getId()));
+        mav.addObject("attendeesPage", eventService.getEventAttendees(event.getId(), attendeesPage, attendeesSize));
+        mav.addObject("attendeesCount", eventService.getEventAttendeesCount(event.getId()));
+        Page<EventResponse> eventResponsesPage = eventResponseService.listAllFromEvent(event.getId(), page, size);
+        mav.addObject("eventResponsesPage", eventResponsesPage);
+        mav.addObject("commentsCount", eventResponseService.getCount(event.getId()));
+
 
         Boolean isFull = eventService.isEventFull(id);
 
@@ -147,13 +181,23 @@ public class EventController {
                                  @ModelAttribute("user") User user,
                                  @Valid @ModelAttribute("deleteForm") final ReplyForm deleteForm, final BindingResult deleteErrors,
                                  @Valid @ModelAttribute("deleteReplyForm") final ReplyForm deleteReplyForm, final BindingResult deleteReplyErrors,
-                                 @RequestParam(value = "replyId", required = false) Long replyId) {
-
-
+                                 @RequestParam(value = "replyId", required = false) Long replyId,
+                                 @RequestParam(value = "page", defaultValue = "1") int page,
+                                 @RequestParam(value = "size", defaultValue = "5") int size,
+                                 @RequestParam(value = "attendeesPage", defaultValue = "1") int attendeesPage,
+                                 @RequestParam(value = "attendeesSize", defaultValue = "5") int attendeesSize)
+    {
         LOGGER.debug("Getting info for event {}", id);
+        Optional<Event> maybeEvent = eventService.getEventById(id);
+        if (maybeEvent.isEmpty()) { // error ControllerAdvice
+            LOGGER.warn("Event {} not found", id);
+            return new ModelAndView("events/not_found");
+        }
+
+       
 
         return populateEventDetails(eventService.getEventById(id).orElseThrow(() -> new EventNotFoundException("Event not found")),
-                id, user, deleteErrors, deleteReplyErrors, replyId);
+                id, user, deleteErrors, deleteReplyErrors, replyId ,page,size, attendeesPage, attendeesSize);
     }
     @PostMapping("/{id}/delete")
     public ModelAndView deleteEvent(@PathVariable int id, @Valid @ModelAttribute("deleteForm") final ReplyForm form,

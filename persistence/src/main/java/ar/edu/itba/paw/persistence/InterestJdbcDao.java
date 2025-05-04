@@ -2,7 +2,6 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.InterestDao;
 import ar.edu.itba.paw.models.Interest;
-
 import ar.edu.itba.paw.models.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,14 +10,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-
 import javax.sql.DataSource;
 import java.util.*;
 
 
 @Repository
 public class InterestJdbcDao implements InterestDao {
-    private static Logger LOGGER = LoggerFactory.getLogger(InterestJdbcDao.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(InterestJdbcDao.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
@@ -28,8 +26,16 @@ public class InterestJdbcDao implements InterestDao {
             rs.getString("name")
     );
 
-    private final static String SELECT_CLAUSE = "SELECT c.id AS id, c.name AS name ";
-    private final static String QUERY = SELECT_CLAUSE + "FROM category c ";
+    private final static String SQL_BASE = "SELECT id, name FROM category ";
+
+    private final static String SQL_FIND_BY_ID = SQL_BASE + " WHERE id = ?";
+    private final static String SQL_FIND_BY_NAME = SQL_BASE + " WHERE name = ?";
+
+    private final static String SQL_FIND_ALL_PAGED = SQL_BASE + " ORDER BY name ASC LIMIT ? OFFSET ?";
+
+    private final static String SQL_SEARCH_PAGED = SQL_BASE + " WHERE name LIKE ? ORDER BY name ASC LIMIT ? OFFSET ?";
+
+    private final static String SQL_FIND_ALL_BY_USER = SQL_BASE + " WHERE id IN (SELECT category_id FROM user_interest WHERE user_id = ?)";
 
     @Autowired
     public InterestJdbcDao(DataSource dataSource)
@@ -42,44 +48,39 @@ public class InterestJdbcDao implements InterestDao {
 
     @Override
     public Optional<Interest> findById(Long id) {
-        LOGGER.debug("Querying DB for interest {}", id);
-        return jdbcTemplate.query(QUERY + "WHERE id = ?",
-                INTEREST_ROW_MAPPER, id).stream().findFirst();
+        return jdbcTemplate.query(SQL_FIND_BY_ID, INTEREST_ROW_MAPPER, id).stream().findFirst();
     }
 
     @Override
     public List<Interest> findAll() {
-        LOGGER.debug("Querying DB for all interests");
-        return jdbcTemplate.query(QUERY, INTEREST_ROW_MAPPER);
+        return jdbcTemplate.query(SQL_BASE, INTEREST_ROW_MAPPER);
     }
 
     @Override
     public List<Interest> findByUserId(Long id) {
-        LOGGER.debug("Querying DB for interests of user {}", id);
-        return jdbcTemplate.query(QUERY + " WHERE id IN (SELECT category_id FROM user_interest WHERE user_id = ?)",
-                INTEREST_ROW_MAPPER, id);
+        return jdbcTemplate.query(SQL_FIND_ALL_BY_USER, INTEREST_ROW_MAPPER, id);
     }
 
     @Override
     public Optional<Interest> findByName(String name) {
-        LOGGER.debug("Querying DB for interest {}", name);
-        return jdbcTemplate.query(QUERY + " WHERE name = ?",
-                INTEREST_ROW_MAPPER, name).stream().findFirst();
+        return jdbcTemplate.query(SQL_FIND_BY_NAME, INTEREST_ROW_MAPPER, name).stream().findFirst();
     }
 
+    // FIXME: No se si esto se está usando en algún lado o no.
     @Override
     public List<Interest> findIdByName(String[] names) {
-        LOGGER.debug("Looking for IDs of interests");
-        //Boolean spanishOrEnglish = true;
         if(names == null || names.length == 0) {
             return new ArrayList<>();
         }
+
+        // FIXME: Creo que acá no deberiamos validar
         for(String name : names) {
             if (name == null || name.isEmpty()) {
                 throw new IllegalArgumentException("Interest name cannot be null or empty");
             }
         }
-        StringBuilder query = new StringBuilder(QUERY + " WHERE name IN (");
+
+        StringBuilder query = new StringBuilder(SQL_BASE).append(" WHERE name IN (");
         for (int i = 0; i < names.length; i++) {
             query.append("?");
             if (i < names.length - 1) {
@@ -87,18 +88,17 @@ public class InterestJdbcDao implements InterestDao {
             }
         }
         query.append(")");
-        List<Interest> interests = jdbcTemplate.query(query.toString(),
-                INTEREST_ROW_MAPPER, (Object[]) names);
-        if (interests.size() < names.length) {
+        List<Interest> interests = jdbcTemplate.query(query.toString(), INTEREST_ROW_MAPPER, (Object[]) names);
+        if (interests.size() < names.length) { // o != ?
             //TODO See if this is an actual error to throw (or if normal flow can continue)
             LOGGER.warn("Couldn't find IDs for all provided interests ({} vs {})", interests.size(), names.length);
         }
-        LOGGER.debug("Found interests {}", interests);
         return interests;
     }
 
     @Override
     public Interest createUserInterest(String interest) {
+        LOGGER.debug("Creating new interest {}", interest);
         Map<String, Object> params = new HashMap<>();
         params.put("name", interest);
         final Number keys = jdbcInsert.execute(params);
@@ -107,15 +107,14 @@ public class InterestJdbcDao implements InterestDao {
 
     @Override
     public void deleteUserInterest(long id) {
-        String sql = "DELETE FROM category WHERE id = ?";
-        jdbcTemplate.update(sql, id);
+        LOGGER.debug("Deleting interest with id {}", id);
+        jdbcTemplate.update("DELETE FROM category WHERE id = ?", id);
     }
 
     @Override
     public void editUserInterest(long id, String interest) {
         LOGGER.debug("Editing interest {} to {}", id, interest);
-        String sql = "UPDATE category SET name = ? WHERE id = ?";
-        jdbcTemplate.update(sql, interest ,id);
+        jdbcTemplate.update("UPDATE category SET name = ? WHERE id = ?", interest ,id);
     }
 
     @Override
@@ -141,31 +140,26 @@ public class InterestJdbcDao implements InterestDao {
         }
     }
 
-
     @Override
     public Page<Interest> getAllInterests(int page, int pageSize) {
-        LOGGER.debug("Querying DB for all interests");
-        int offset = (page - 1) * pageSize;
-        StringBuilder query = new StringBuilder(SELECT_CLAUSE);
-        query.append(" FROM category c ");
-        query.append(" ORDER BY c.name ASC LIMIT ? OFFSET ?");
         int totalInterests = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category", Integer.class);
-        int totalPages = (int) Math.ceil((double) totalInterests / pageSize);
-        return new Page<>(jdbcTemplate.query(query.toString(),INTEREST_ROW_MAPPER,pageSize,offset),page,totalPages);
+        return new Page<>(
+                jdbcTemplate.query(SQL_FIND_ALL_PAGED, INTEREST_ROW_MAPPER, pageSize, (page - 1) * pageSize),
+                page,
+                (int) Math.ceil((double) totalInterests / pageSize)
+        );
     }
 
     @Override
-    public Page<Interest> searchBySubstring(String search, int page, int pageSize) {
-        LOGGER.debug("Querying DB for interests like {}", search);
-        int offset = (page - 1) * pageSize;
-        StringBuilder query = new StringBuilder(SELECT_CLAUSE);
-        query.append(" FROM category c ");
-        query.append(" WHERE c.name LIKE ? ");
-        query.append(" ORDER BY c.name ASC LIMIT ? OFFSET ?");
-        String like = "%" + search + "%";
-        int totalInterests = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category WHERE name LIKE ?", Integer.class, like);
-        int totalPages = (int) Math.ceil((double) totalInterests / pageSize);
-        return new Page<>(jdbcTemplate.query(query.toString(),INTEREST_ROW_MAPPER, like, pageSize, offset),page,totalPages);
+    public Page<Interest> searchBySubstring(final String search, int page, int pageSize) {
+        final String searchPattern = "%" + search + "%";
+        int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category WHERE name LIKE ?", Integer.class, searchPattern);
+
+        return new Page<>(
+                jdbcTemplate.query(SQL_SEARCH_PAGED, INTEREST_ROW_MAPPER, searchPattern, pageSize, (page - 1) * pageSize),
+                page,
+                (int) Math.ceil((double) totalItems / pageSize)
+        );
     }
 
     @Override

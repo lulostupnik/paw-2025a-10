@@ -98,7 +98,8 @@ public class UserJdbcDaoTest {
         rs.getString("lastname"), 
         new University(rs.getLong("university"), null, null, null), 
         new Career(rs.getLong("career_id"), null), 
-        rs.getLong("profile_picture_id"), Locale.of(rs.getString("language")));
+        rs.getLong("profile_picture_id"), Locale.of(rs.getString("language")),
+        rs.getBoolean("blocked"));
 
     private void assertEqualsUser(User user){
         assertEqualsUser(user, Map.of());
@@ -113,6 +114,7 @@ public class UserJdbcDaoTest {
         assertEquals(overrideParams.getOrDefault("career", CAREER.getId()), user.getCareer().getId());
         assertEquals(overrideParams.getOrDefault("university", UNIVERSITY.getId()), user.getUniversity().getId());
         assertEquals(overrideParams.getOrDefault("profilepic", PROFILEPICID), user.getProfilePictureId());
+        assertEquals(overrideParams.getOrDefault("blocked", false), user.isBlocked());
     }
 
     private void assertEqualsMaybeUser(Optional<User> maybeUser){
@@ -137,6 +139,7 @@ public class UserJdbcDaoTest {
         params.put("career_id", overrideParams.getOrDefault("career", CAREER.getId()));
         params.put("profile_picture_id", overrideParams.getOrDefault("profilepic", PROFILEPICID));
         params.put("roles", overrideParams.getOrDefault("roles", USERROLE));
+        params.put("blocked", overrideParams.getOrDefault("blocked", false));
         return insert.executeAndReturnKey(params).longValue();
     }
 
@@ -704,5 +707,79 @@ public class UserJdbcDaoTest {
                 assertEqualsUser(user, userParams2);
             }
         }
+    }
+
+    @Test
+    public void testBlockUser(){
+        long id = insertUserGeneric();
+
+        userDao.blockUser(id);
+
+        Optional<User> maybeUser = jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst();
+        assertNotNull(maybeUser);
+        assertTrue(maybeUser.isPresent());
+        User user = maybeUser.get();
+        assertEqualsUser(user, Map.of("blocked", true));
+    }
+    @Test
+    public void testBlockUserBlocked(){
+        long id = insertUserOverride(Map.of("blocked", true));
+
+        userDao.blockUser(id);
+
+        Optional<User> maybeUser = jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst();
+        assertNotNull(maybeUser);
+        assertTrue(maybeUser.isPresent());
+        User user = maybeUser.get();
+        assertEqualsUser(user, Map.of("blocked", true));
+    }
+    @Test
+    public void testBlockUserWrongId(){
+        long id = insertUserGeneric();
+
+        userDao.blockUser(12341234);
+
+        Optional<User> maybeUser = jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst();
+        assertNotNull(maybeUser);
+        assertTrue(maybeUser.isPresent());
+        User user = maybeUser.get();
+        assertEqualsUser(user);
+    }
+
+    @Test
+    public void testUnblockUser(){
+        long id = insertUserOverride(Map.of("blocked", true));
+
+        userDao.unblockUser(id);
+
+        Optional<User> maybeUser = jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst();
+        assertNotNull(maybeUser);
+        assertTrue(maybeUser.isPresent());
+        User user = maybeUser.get();
+        assertEqualsUser(user);
+    }
+    @Test
+    public void testUnblockUserUnblocked(){
+        long id = insertUserGeneric();
+
+        userDao.unblockUser(id);
+        
+        Optional<User> maybeUser = jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst();
+        assertNotNull(maybeUser);
+        assertTrue(maybeUser.isPresent());
+        User user = maybeUser.get();
+        assertEqualsUser(user);
+    }
+    @Test
+    public void testUnblockUserWrongId(){
+        long id = insertUserOverride(Map.of("blocked", true));
+
+        userDao.unblockUser(12341234);
+        
+        Optional<User> maybeUser = jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst();
+        assertNotNull(maybeUser);
+        assertTrue(maybeUser.isPresent());
+        User user = maybeUser.get();
+        assertEqualsUser(user, Map.of("blocked", true));
     }
 }   

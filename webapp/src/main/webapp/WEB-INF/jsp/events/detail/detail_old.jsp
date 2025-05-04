@@ -96,7 +96,7 @@
 
 <div class="layout-container">
     <!-- Include the sidebar component -->
-    <jsp:include page="../components/sidebar.jsp" />
+    <jsp:include page="../../components/sidebar.jsp" />
 
     <!-- Main Content -->
     <div class="main-content">
@@ -195,7 +195,7 @@
                                 <form:form modelAttribute="deleteForm" id="delete-event-form" action="${deleteUrl}" method="post" style="display: none;">
                                     <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
                                     <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
-                                    <jsp:include page="../components/text-area.jsp">
+                                    <jsp:include page="../../components/text-area.jsp">
                                         <jsp:param name="path" value="message" />
                                         <jsp:param name="label" value="${messageLabel}" />
                                         <jsp:param name="placeholder" value="${messagePlaceholder}" />
@@ -363,7 +363,7 @@
                                 <!-- Attendees List  -->
                                 <c:if test="${isEventOwner}">
                                 <div id="attendees-list" class="attendees-grid">
-                                    <c:if test="${empty attendees}">
+                                    <c:if test="${empty attendeesPage.content}">
                                         <div class="empty-state">
                                             <div class="empty-icon">
                                                 <!-- Users icon SVG -->
@@ -380,8 +380,8 @@
                                         </div>
                                     </c:if>
 
-                                    <c:if test="${not empty attendees}">
-                                        <c:forEach var="attendee" items="${attendees}">
+                                    <c:if test="${not empty attendeesPage.content}">
+                                        <c:forEach var="attendee" items="${attendeesPage.content}">
                                             <div class="attendee-card">
                                                 <div class="attendee-avatar">
                                                     <c:if test="${not empty attendee.profilePictureId}">
@@ -403,8 +403,17 @@
                                                 </div>
                                             </div>
                                         </c:forEach>
+
                                     </c:if>
                                 </div>
+                                    <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
+                                        <jsp:param name="pageObjectTotalPages" value="${attendeesPage.totalPages}" />
+                                        <jsp:param name="currentPage" value="${attendeesPage.currentPage}" />
+                                        <jsp:param name="pageSize" value="4" />
+                                        <jsp:param name="baseUrl" value="/events/${event.id}" />
+                                        <jsp:param name="paramName" value="attendeesPage" />
+                                        <jsp:param name="sizeParamName" value="attendeesSize" />
+                                    </jsp:include>
                                 </c:if>
                             </div>
                         </div>
@@ -419,7 +428,7 @@
                                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                                         </svg>
                                         <spring:message code="event.responses" />
-                                        <span class="count">(<c:out value="${fn:length(eventResponses)}" />)</span>
+                                        <span class="count">(<c:out value="${commentsCount}" />)</span>
                                     </h2>
                                     <button class="toggle-button" data-toggle="chat-list" onclick="toggleSection('chat-list')">
                                             <span class="collapse-icon">
@@ -439,7 +448,7 @@
 
                                 <!-- Chat Messages -->
                                 <div id="chat-list" class="chat-list">
-                                    <c:if test="${empty eventResponses}">
+                                    <c:if test="${empty eventResponsesPage.content}">
                                         <div class="empty-state">
                                             <div class="empty-icon">
                                                 <!-- Message icon SVG -->
@@ -453,8 +462,8 @@
                                         </div>
                                     </c:if>
 
-                                    <c:if test="${not empty eventResponses}">
-                                        <c:forEach var="response" items="${eventResponses}">
+                                    <c:if test="${not empty eventResponsesPage.content}">
+                                        <c:forEach var="response" items="${eventResponsesPage.content}">
                                             <div class="chat-message">
                                                 <div class="message-header">
                                                     <div class="message-user">
@@ -479,7 +488,7 @@
                                                             <form:form modelAttribute="deleteReplyForm" id="delete-event-response-form-${response.id}" action="${deleteReplyUrl}" method="post" style="display: none;">
                                                                 <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
                                                                 <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
-                                                                <jsp:include page="../components/text-area.jsp">
+                                                                <jsp:include page="../../components/text-area.jsp">
                                                                     <jsp:param name="path" value="message" />
                                                                     <jsp:param name="label" value="${messageLabel}" />
                                                                     <jsp:param name="placeholder" value="${messagePlaceholder}" />
@@ -504,7 +513,16 @@
                                             </div>
                                         </c:forEach>
                                     </c:if>
+                                    <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
+                                        <jsp:param name="pageObjectTotalPages" value="${eventResponsesPage.totalPages}" />
+                                        <jsp:param name="currentPage" value="${eventResponsesPage.currentPage}" />
+                                        <jsp:param name="pageSize" value="4" />
+                                        <jsp:param name="baseUrl" value="/events/${id}" />
+                                    </jsp:include>
+
+
                                 </div>
+
 
                                 <!-- Reply Form -->
                                 <div class="reply-container">
@@ -524,7 +542,7 @@
                                         <!-- Message Field -->
                                         <c:set var="messageLabel"><spring:message code="reply.message"/></c:set>
                                         <c:set var="messageHint"><spring:message code="reply.message.hint"/></c:set>
-                                        <jsp:include page="../components/text-area.jsp">
+                                        <jsp:include page="../../components/text-area.jsp">
                                             <jsp:param name="path" value="message" />
                                             <jsp:param name="label" value="${messageLabel}" />
                                             <jsp:param name="placeholder" value="${messageHint}" />
@@ -533,7 +551,7 @@
                                         <!-- Submit Button -->
                                         <div class="form-actions">
                                             <c:set var="submitButtonLabel"><spring:message code="reply.submit"/></c:set>
-                                            <jsp:include page="../components/button.jsp">
+                                            <jsp:include page="../../components/button.jsp">
                                                 <jsp:param name="label" value="${submitButtonLabel}" />
                                                 <jsp:param name="type" value="submit" />
                                             </jsp:include>
@@ -550,7 +568,7 @@
 </div>
 
 <c:set var="warning"><spring:message code="event.deleteWarning"/></c:set>
-<jsp:include page="../components/delete-modal.jsp">
+<jsp:include page="../../components/delete-modal.jsp">
     <jsp:param name="warning" value="${warning}"/>
 </jsp:include>
 

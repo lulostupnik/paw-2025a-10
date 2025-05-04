@@ -11,49 +11,35 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
-
-//@TODO sort them in query by date
 @Repository
 public class JourneyResponseJdbcDao implements JourneyResponseDao {
-    private static Logger LOGGER = LoggerFactory.getLogger(JourneyResponseJdbcDao.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(JourneyResponseJdbcDao.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
+
     private static final RowMapper<JourneyResponse> JOURNEY_RESPONSE_ROW_MAPPER = (rs, rowNum) -> new JourneyResponse(
-            rs.getLong("id"), // ID from `journey_responses` table
-            rs.getLong("user_id"), // Event ID from `events` table
+            rs.getLong("id"),
+            rs.getLong("user_id"),
             rs.getString("username"),
             rs.getLong("journey_id"),
             rs.getString("message"),
             rs.getTimestamp("date_time").toLocalDateTime()
     );
 
-
-    private static final RowMapper<Long> JOURNEY_ID_ROW_MAPPER = (rs, rowNum) -> rs.getLong("journey_id");
-    private static final String JOURNEY_ID_BY_RESPONSE_ID_QUERY = """
-            SELECT jr.journey_id
-            FROM journey_responses jr
-            WHERE jr.id = ?""";
-
-    private static final String QUERY_BY_JOURNEY_ID = """
-            SELECT jr.id as id,
-                   jr.user_id, us.username AS username, jr.journey_id, jr.message, jr.date_time\s
-            FROM journey_responses jr\s
-            JOIN users us\s
-            ON jr.user_id = us.id\s
-            WHERE jr.journey_id = ?""";
-
-    private static final String PAGE_QUERY_BY_JOURNEY_ID = """
-            SELECT *
-            FROM (SELECT * FROM journey_responses WHERE journey_id = ? AND deleted = FALSE ORDER BY date_time LIMIT ? OFFSET ?) AS jr
-            JOIN users us
-            ON jr.user_id = us.id
+    private static final String SQL_FIND_ALL_BY_JOURNEY =
+            """
+            SELECT jr.id AS id, jr.user_id, us.username AS username, jr.journey_id, jr.message, jr.date_time
+                FROM journey_responses AS jr
+                JOIN users us ON jr.user_id = us.id
+                WHERE jr.journey_id = ? AND deleted = FALSE ORDER BY date_time
             """;
 
-    private static final String NOT_DELETED = " AND jr.deleted = FALSE";
+    private static final String SQL_FIND_ALL_BY_JOURNEY_PAGED = SQL_FIND_ALL_BY_JOURNEY + " LIMIT ? OFFSET ?";
 
 
     @Autowired
@@ -72,8 +58,8 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
         args.put("user_id", userId);
         args.put("journey_id", journeyId);
         args.put("message", message);
-        args.put("date_time", dateTime);
-        args.put("deleted", false);  // Establecer el valor de 'deleted' como 'false'
+        args.put("date_time", Timestamp.valueOf(dateTime));
+        args.put("deleted", false);
 
         final Number keys = jdbcInsert.executeAndReturnKey(args);
         return new JourneyResponse(keys.longValue(), userId, username, journeyId, message, dateTime);
@@ -81,23 +67,56 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
 
     @Override
     public List<JourneyResponse> listAllFromJourney(long journeyId){
-        LOGGER.debug("Querying DB for replies to journey {}", journeyId);
-        return jdbcTemplate.query(QUERY_BY_JOURNEY_ID + NOT_DELETED + " ORDER BY jr.date_time ", JOURNEY_RESPONSE_ROW_MAPPER, journeyId);
+        return jdbcTemplate.query(SQL_FIND_ALL_BY_JOURNEY, JOURNEY_RESPONSE_ROW_MAPPER, journeyId);
     }
 
     @Override
     public Page<JourneyResponse> listAllFromJourney(long journeyId, int pageNumber, int pageSize) {
-        LOGGER.debug("Querying DB for replies to journey {} with pagination", journeyId);
-        long totalCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journey_responses WHERE journey_id = ? AND deleted = FALSE", Long.class, journeyId);
-        int totalPages = (int) Math.ceil((double) totalCount / pageSize);
+        long totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journey_responses WHERE journey_id = ? AND deleted = FALSE", Long.class, journeyId);
 
-        final List<JourneyResponse> responses = jdbcTemplate.query(PAGE_QUERY_BY_JOURNEY_ID, JOURNEY_RESPONSE_ROW_MAPPER, journeyId, pageSize, (pageNumber - 1) * pageSize);
-
-        return new Page<>(responses, pageNumber, totalPages);
+        return new Page<>(
+                jdbcTemplate.query(SQL_FIND_ALL_BY_JOURNEY_PAGED, JOURNEY_RESPONSE_ROW_MAPPER, journeyId, pageSize, (pageNumber - 1) * pageSize),
+                pageNumber,
+                (int) Math.ceil((double) totalItems / pageSize)
+        );
     }
 
+    @Override
+    public void delete(long id) {
+        int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted = TRUE WHERE id = ?;", id);
+        if (updatedRows == 0) {
+            LOGGER.warn("No journey_response found with id {}", id);
+        }
+    }
 
-    //@ans devolver USERS - dao de users.
+    @Override
+    public long getJourneyIdByResponseId(long journeyResponseId) {
+        return jdbcTemplate.query(
+                "SELECT journey_id FROM journey_responses WHERE id = ?",
+                (rs, rowNum) -> rs.getLong("journey_id"),
+                journeyResponseId
+        ).getFirst();
+    }
+
+    @Override
+    public void deletionMessage(long id, String message) {
+        int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted_message = ? WHERE id = ?;", message, id);
+        if (updatedRows == 0) {
+            LOGGER.warn("No journey_response found with id {}", id);
+        }
+    }
+
+    @Override
+    public void deleteByJourneyId(long journeyId) {
+        int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted = TRUE WHERE journey_id = ?;", journeyId);
+        if (updatedRows == 0) {
+            LOGGER.warn("No journey_response found with id {}", journeyId);
+        }
+    }
+
+}
+
+//@ans devolver USERS - dao de users.
     /*@Override
     public List<EmailRecipient> listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds) {
         StringBuilder query = new StringBuilder("""
@@ -123,41 +142,3 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
 
 
     }*/
-
-    @Override
-    public void delete(long id) {
-        final String query = "UPDATE journey_responses SET deleted = TRUE WHERE id = ?;";
-        int updatedRows = jdbcTemplate.update(query, id);
-        if (updatedRows == 0) {
-            // Optionally log or throw an exception if no rows were updated
-            LOGGER.warn("No journey_response found with id {}", id);
-        }
-    }
-
-    @Override
-    public long getJourneyIdByResponseId(long journeyResponseId) {
-        return jdbcTemplate.query(JOURNEY_ID_BY_RESPONSE_ID_QUERY, JOURNEY_ID_ROW_MAPPER, journeyResponseId).getFirst();
-    }
-
-    @Override
-    public void deletionMessage(long id, String message) {
-        final String query = "UPDATE journey_responses SET deleted_message = ? WHERE id = ?;";
-        int updatedRows = jdbcTemplate.update(query, message, id);
-        if (updatedRows == 0) {
-            // Optionally log or throw an exception if no rows were updated
-            LOGGER.warn("No journey_response found with id {}", id);
-        }
-    }
-
-    @Override
-    public void deleteByJourneyId(long journeyId) {
-        final String query = "UPDATE journey_responses SET deleted = TRUE WHERE journey_id = ?;";
-        int updatedRows = jdbcTemplate.update(query, journeyId);
-        if (updatedRows == 0) {
-            // Optionally log or throw an exception if no rows were updated
-            LOGGER.warn("No journey_response found with id {}", journeyId);
-        }
-    }
-
-
-}

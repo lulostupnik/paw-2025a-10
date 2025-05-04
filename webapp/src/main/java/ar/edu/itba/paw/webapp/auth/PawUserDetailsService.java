@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.UserPassword;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,6 +32,9 @@ public class PawUserDetailsService implements UserDetailsService {
                 new UsernameNotFoundException("No user by the name " + username));
         Collection<? extends GrantedAuthority> authorities;
 
+        if(user.isBlocked()){
+            throw new DisabledException("User is blocked");
+        }
         if(user.getRole().equals("admin")) {
             authorities = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
         } else{

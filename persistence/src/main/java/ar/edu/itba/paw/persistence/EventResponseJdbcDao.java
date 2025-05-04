@@ -2,9 +2,7 @@ package ar.edu.itba.paw.persistence;
 
 import java.time.LocalDateTime;
 import java.util.*;
-
 import javax.sql.DataSource;
-
 import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,49 +11,42 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-
 import ar.edu.itba.paw.interfaces.persistence.EventResponseDao;
 
 @Repository
 public class EventResponseJdbcDao implements EventResponseDao {
-    private static Logger LOGGER = LoggerFactory.getLogger(EventResponseJdbcDao.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(EventResponseJdbcDao.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
 
     private static final RowMapper<EventResponse> EVENT_RESPONSE_ROW_MAPPER = (rs, rowNum) -> new EventResponse(
-            rs.getLong("id"), // ID from `event_responses` table
-            rs.getLong("user_id"), // Event ID from `events` table
+            rs.getLong("id"),
+            rs.getLong("user_id"),
             rs.getString("username"),
             rs.getLong("event_id"),
             rs.getString("message"),
             rs.getTimestamp("date_time").toLocalDateTime()
     );
-    private static final RowMapper<Long> EVENT_ID_ROW_MAPPER = (rs, rowNum) -> rs.getLong("event_id");
 
-
-    private static final String QUERY_BY_EVENT_ID = """
-        SELECT  er.id as id,
-         er.user_id, us.username as username, er.event_id, er.message, er.date_time\s
-        FROM event_responses er\s
-        JOIN users us\s
-        ON er.user_id = us.id\s
-        WHERE er.event_id = ?""";
-
-    private static final String NOT_DELETED = " AND er.deleted = FALSE";
-
-    private static final String QUERY_BY_RESPONSE_ID=
+    private static final String SQL_LIST_ALL_BY_EVENT =
         """
-        SELECT  er.event_id as event_id
-        FROM event_responses er\s
-        WHERE er.id = ?""";
+        SELECT  er.id AS id, er.user_id, us.username AS username, er.event_id, er.message, er.date_time
+        FROM event_responses er
+        JOIN users us ON er.user_id = us.id
+        WHERE er.deleted = FALSE AND er.event_id = ? ORDER BY date_time
+        """;
+
+    private static final String SQL_LIST_ALL_BY_EVENT_PAGED = SQL_LIST_ALL_BY_EVENT + " LIMIT ? OFFSET ?";
+
 
 
     @Autowired
     public EventResponseJdbcDao(DataSource dataSource){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("event_responses")
-                                                            .usingGeneratedKeyColumns("id");
+        this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("event_responses")
+                .usingGeneratedKeyColumns("id");
     }
 
     @Override
@@ -66,7 +57,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
         args.put("event_id", eventId);
         args.put("message", message);
         args.put("date_time", dateTime);
-        args.put("deleted", false);  // Establecer el valor de 'deleted' como 'false'
+        args.put("deleted", false);
 
         final Number keys = jdbcInsert.executeAndReturnKey(args);
         LOGGER.debug("Successfully registered event response");
@@ -75,59 +66,57 @@ public class EventResponseJdbcDao implements EventResponseDao {
 
     @Override
     public List<EventResponse> listAllFromEvent(long eventId){
-        LOGGER.debug("Querying DB for replies to event {}", eventId);
-        return jdbcTemplate.query(QUERY_BY_EVENT_ID + NOT_DELETED+ " ORDER BY date_time ", EVENT_RESPONSE_ROW_MAPPER, eventId);
+        return jdbcTemplate.query(SQL_LIST_ALL_BY_EVENT, EVENT_RESPONSE_ROW_MAPPER, eventId);
     }
 
     @Override
-    public long getEventIdByResponseId(long eventId) {
-        return jdbcTemplate.query(QUERY_BY_RESPONSE_ID + " ORDER BY date_time ", EVENT_ID_ROW_MAPPER, eventId).getFirst();
+    public int getCount(long eventId) {
+        return jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM event_responses WHERE event_id = ? AND deleted = FALSE",
+                Integer.class,
+                eventId
+        );
+    }
+
+    @Override
+    public long getEventIdByResponseId(long eventResponseId) {
+        return jdbcTemplate.query(
+                "SELECT event_id FROM event_responses WHERE id = ? ORDER BY date_time ",
+                (rs, rowNum) -> rs.getLong("event_id"),
+                eventResponseId
+        ).getFirst();
     }
 
     @Override
     public void deletionMessage(long id, String message) {
-        final String query = "UPDATE event_responses SET deleted_message = ? WHERE id = ?;";
-        int updatedRows = jdbcTemplate.update(query, message, id);
+        int updatedRows = jdbcTemplate.update("UPDATE event_responses SET deleted_message = ? WHERE id = ?;", message, id);
         if (updatedRows == 0) {
-            // Optionally log or throw an exception if no rows were updated
             LOGGER.warn("No event_response found with id {}", id);
         }
     }
 
     @Override
     public void delete(long id) {
-        final String query = "UPDATE event_responses SET deleted = TRUE WHERE id = ?;";
-        int updatedRows = jdbcTemplate.update(query, id);
-
+        int updatedRows = jdbcTemplate.update("UPDATE event_responses SET deleted = TRUE WHERE id = ?;", id);
         if (updatedRows == 0) {
-            // Optionally log or throw an exception if no rows were updated
             LOGGER.warn("No journey_response found with id {}", id);
         }
     }
 
-    private int calculateTotalPages(int totalItems, int pageSize) {
-        return (int) Math.ceil((double) totalItems / pageSize);
-    }
-
-    private int getTotalCount(String countQuery, Object... params) {
-        return jdbcTemplate.queryForObject(countQuery, Integer.class, params);
-    }
-
-
     @Override
     public Page<EventResponse> listAllFromEvent(long eventId, int page, int size) {
-        LOGGER.debug("Querying DB for paginated replies to event {} (page {}, size {})", eventId, page, size);
 
-        int totalItems = getTotalCount("SELECT COUNT(*) FROM event_responses WHERE event_id = ? AND deleted = FALSE", eventId);
-        int totalPages = calculateTotalPages(totalItems, size);
-
-        List<EventResponse> responses = jdbcTemplate.query(
-                QUERY_BY_EVENT_ID + NOT_DELETED + " ORDER BY date_time LIMIT ? OFFSET ?",
-                EVENT_RESPONSE_ROW_MAPPER,
-                eventId, size, (page - 1) * size
+        int totalItems = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM event_responses WHERE event_id = ? AND deleted = FALSE",
+                Integer.class,
+                eventId
         );
 
-        return new Page<>(responses, page, totalPages);
+        return new Page<>(
+                jdbcTemplate.query(SQL_LIST_ALL_BY_EVENT_PAGED, EVENT_RESPONSE_ROW_MAPPER, eventId, size, (page - 1) * size),
+                page,
+                (int) Math.ceil((double) totalItems / size)
+        );
     }
 
 }
