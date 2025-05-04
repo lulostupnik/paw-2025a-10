@@ -46,13 +46,10 @@ public class JourneyResponseJdbcDaoTest {
     private static final LocalDateTime RESPONSE_TIMESTAMP_2 = RESPONSE_TIMESTAMP.plusHours(1);
     private static final LocalDateTime RESPONSE_TIMESTAMP_3 = RESPONSE_TIMESTAMP.plusHours(2);
 
-    private static long DESTINATION_UNI_ID;
     private static long USER1_ID;
     private static long USER2_ID;
     private static long USER3_ID;
     private static long JOURNEY1_ID;
-    private static long JOURNEY2_ID;
-    private static long JOURNEY3_ID;
     private static long RESPONSE1_ID;
     private static long RESPONSE2_ID;
     private static long RESPONSE3_ID;
@@ -85,13 +82,10 @@ public class JourneyResponseJdbcDaoTest {
         jdbcTemplate.execute("INSERT INTO journeys(user_id, destination_university_id, start_date, end_date, description, deleted) VALUES((SELECT id FROM users WHERE username = 'username2'), (SELECT id FROM universities WHERE abbreviation = 'ITBA'),  '2000-01-01', '2000-04-01', 'cool', FALSE)");
         jdbcTemplate.execute("INSERT INTO journeys(user_id, destination_university_id, start_date, end_date, description, deleted) VALUES((SELECT id FROM users WHERE username = 'username3'), (SELECT id FROM universities WHERE abbreviation = 'ITBA'),  '2000-01-01', '2000-04-01', 'cool', FALSE)");
         
-        DESTINATION_UNI_ID = jdbcTemplate.queryForObject("SELECT id FROM universities WHERE abbreviation = 'ITBA'", Long.class);
         USER1_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'username'", Long.class);
         USER2_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'username2'", Long.class);
         USER3_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'username3'", Long.class);        
         JOURNEY1_ID = jdbcTemplate.queryForObject("SELECT id FROM journeys WHERE user_id = ?", Long.class, USER1_ID);
-        JOURNEY2_ID = jdbcTemplate.queryForObject("SELECT id FROM journeys WHERE user_id = ?", Long.class, USER2_ID);
-        JOURNEY3_ID = jdbcTemplate.queryForObject("SELECT id FROM journeys WHERE user_id = ?", Long.class, USER3_ID);
         RESPONSE1_ID = insert.executeAndReturnKey(Map.of("user_id", USER1_ID, "journey_id", JOURNEY1_ID, "message", RESPONSE_MESSAGE, "date_time", Timestamp.valueOf(RESPONSE_TIMESTAMP), "deleted", false)).longValue();
         RESPONSE2_ID = insert.executeAndReturnKey(Map.of("user_id", USER2_ID, "journey_id", JOURNEY1_ID, "message", RESPONSE_MESSAGE, "date_time", Timestamp.valueOf(RESPONSE_TIMESTAMP_2), "deleted", false)).longValue();
         RESPONSE3_ID = insert.executeAndReturnKey(Map.of("user_id", USER3_ID, "journey_id", JOURNEY1_ID, "message", RESPONSE_MESSAGE, "date_time", Timestamp.valueOf(RESPONSE_TIMESTAMP_3), "deleted", false)).longValue();

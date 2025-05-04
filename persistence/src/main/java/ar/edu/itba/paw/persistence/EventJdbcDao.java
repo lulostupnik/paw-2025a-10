@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
+import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -133,7 +134,7 @@ public class EventJdbcDao implements EventDao {
     private final static String SQL_FIND_OTHERS_PAGED = SQL_FIND_OTHERS_EVENTS + " LIMIT ? OFFSET ?";
     private final static String SQL_FIND_ALL_BY_USER_PAGED = SQL_FIND_MY_EVENTS + " ORDER BY e.event_date DESC LIMIT ? OFFSET ? ";
     private final static String SQL_FIND_ALL_BY_EMAIL_PAGED = SQL_FIND_BY_EMAIL + " ORDER BY e.event_date DESC LIMIT ? OFFSET ? ";
-    private final static String SQL_SEARCH_PAGED = SQL_NOT_DELETED + " AND (LOWER(e.title) LIKE LOWER(?)) ORDER BY e.event_date DESC LIMIT ? OFFSET ?";
+    private final static String SQL_SEARCH_PAGED = SQL_BASE_NOT_DELETED + " AND (LOWER(e.title) LIKE LOWER(?)) ORDER BY e.event_date DESC LIMIT ? OFFSET ?";
 
     private final static String SQL_SELECT_WITH_ATTENDANCE = "SELECT (ea.user_id IS NOT NULL) AS is_attending, " + SQL_ALIASES;
     private final static String SQL_FIND_EVENTS_WITH_ATTENDANCE = SQL_SELECT_WITH_ATTENDANCE + SQL_FROM_BASE + """
@@ -205,6 +206,7 @@ public class EventJdbcDao implements EventDao {
     """;
 
     private final static String SQL_TOP_EVENTS = """
+        WITH event_attendees as (SELECT COUNT(user_id) AS attendees, event_id FROM event_attendances GROUP BY event_id)
         SELECT
             e.id AS event_id, 
             e.event_date AS event_date, 
@@ -251,11 +253,10 @@ public class EventJdbcDao implements EventDao {
         JOIN countries co2 ON co2.id = ci2.country_id
         JOIN cities c ON e.city_id = c.id 
         JOIN countries co ON c.country_id = co.id
-        LEFT JOIN event_attendances ea ON ea.event_id = e.id
+        LEFT JOIN event_attendees a ON a.event_id = e.id
         WHERE e.event_date >= CURRENT_DATE
         AND e.deleted = FALSE
-        GROUP BY(e.id, us.id, ca.id, un.id, c.id, co.name, ci2.id, co2.name)
-        ORDER BY(COUNT(ea.user_id), e.event_date) DESC
+        ORDER BY COALESCE(a.attendees, 0) DESC, e.event_date ASC
         LIMIT 3
         """;
 
@@ -267,18 +268,13 @@ public class EventJdbcDao implements EventDao {
                 .usingGeneratedKeyColumns("id");
     }
 
-    public EventJdbcDao(JdbcTemplate jdbcTemplate, SimpleJdbcInsert jdbcInsert) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.jdbcInsert = jdbcInsert;
-    }
-
     @Override
     public Event create(User user, City city, LocalDate date, String description, long flyerImageId, String title, LocalTime time, String address, Integer attendeesLimit) {
         LOGGER.debug("Registering new event for user {} in {} (addr {}) on {} {} ( {} ) with image {}, title {}, limit {}", user, city, address, date, time, description, flyerImageId, title, attendeesLimit);
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("user_id", user.getId());
         parameters.put("city_id", city.getId());
-        parameters.put("event_date", date);
+        parameters.put("event_date", Date.valueOf(date));
         parameters.put("description", description);
         parameters.put("flyer_image_id", flyerImageId);
         parameters.put("title", title);
@@ -309,8 +305,8 @@ public class EventJdbcDao implements EventDao {
         }
 
         if (date != null) {
-            sqlBuilder.append(" AND event_date AFTER ? ");
-            params.add(date);
+            sqlBuilder.append(" AND event_date >= ? ");
+            params.add(Date.valueOf(date));
         }
 
         return jdbcTemplate.query(
@@ -349,8 +345,7 @@ public class EventJdbcDao implements EventDao {
     }
 
     public Optional<Integer> getEventAttendanceLimit(long eventId) {
-        return jdbcTemplate.query("SELECT attendees_limit FROM events WHERE id = ?", (rs, rowNumber) -> rs.getInt("attendees_limit"), eventId)
-                .stream().findFirst();
+        return Optional.ofNullable(jdbcTemplate.queryForObject("SELECT attendees_limit FROM events WHERE id = ?", Integer.class, eventId));
     }
 
     @Override
@@ -524,7 +519,7 @@ public class EventJdbcDao implements EventDao {
              WHERE id = ?
              """,
                 cityId,
-                date,
+                Date.valueOf(date),
                 description,
                 title,
                 (time != null) ? Time.valueOf(time) : null,

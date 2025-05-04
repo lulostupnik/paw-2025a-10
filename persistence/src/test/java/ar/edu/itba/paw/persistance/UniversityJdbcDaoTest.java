@@ -363,9 +363,9 @@ public class UniversityJdbcDaoTest {
         assertNotNull(page2.getContent());
         assertEquals(2, page1.getContent().size());
         assertEquals(1, page2.getContent().size());
-        assertEquals(UNI_ID_1, page1.getContent().get(0).getId());
-        assertEquals(UNI_ID_2, page1.getContent().get(1).getId());
-        assertEquals(bonusId, page2.getContent().get(0).getId());
+        assertEquals(bonusId, page1.getContent().get(0).getId());
+        assertEquals(UNI_ID_1, page1.getContent().get(1).getId());
+        assertEquals(UNI_ID_2, page2.getContent().get(0).getId());
     }
     @Test
     public void testGetAllUniversitiesPagedNoUniversities(){

@@ -181,7 +181,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
     @Override
     public boolean isAttending(long userId, long eventId) {
         return jdbcTemplate.queryForObject(
-                "SELECT EXISTS(SELECT 1 FROM event_attendances WHERE user_id = ? AND event_id = ?)",
+                "SELECT COUNT(1) FROM event_attendances WHERE user_id = ? AND event_id = ?",
                 Boolean.class, userId, eventId);
     }
 
