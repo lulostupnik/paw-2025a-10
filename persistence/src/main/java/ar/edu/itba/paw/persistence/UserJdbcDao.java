@@ -41,8 +41,8 @@ public class UserJdbcDao implements UserDao {
             ),
             rs.getLong("user_profile_picture_id"),
             Locale.of(rs.getString("user_language")),
-            rs.getBoolean("user_blocked"));
-
+            rs.getBoolean("user_blocked")
+    );
 
     private final static RowMapper<UserPassword> USER_PASSWORD_ROW_MAPPER = (rs, rowNum)-> new UserPassword(
             rs.getString("email"),
