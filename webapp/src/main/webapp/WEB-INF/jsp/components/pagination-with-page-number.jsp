@@ -29,10 +29,12 @@ Expected Request Parameters:
     <c:set var="sizeParamName" value="${param.sizeParamName}" />
 </c:if>
 
-<c:set var="totalPages" value="${param.pageObjectTotalPages}" />
-<c:set var="currentPage" value="${param.currentPage}" />
-<c:set var="pageSize" value="${param.pageSize}" />
+<%-- Convert string parameters to integers --%>
+<c:set var="totalPages" value="${param.pageObjectTotalPages + 0}" />
+<c:set var="currentPage" value="${param.currentPage + 0}" />
+<c:set var="pageSize" value="${param.pageSize + 0}" />
 <c:set var="baseUrl" value="${param.baseUrl}" />
+
 
 <c:if test="${totalPages > 1}">
     <div class="pagination">
@@ -43,7 +45,7 @@ Expected Request Parameters:
                 <c:param name="${paramName}" value="${currentPage - 1}" />
                 <c:param name="${sizeParamName}" value="${pageSize}" />
             </c:url>
-            <a href="${prevUrl}" class="page-link">&laquo; Prev</a>
+            <a href="${prevUrl}" class="page-link">&laquo; <spring:message code="pagination.prev"/></a>
         </c:if>
 
         <c:set var="start" value="${currentPage - 2 < 1 ? 1 : currentPage - 2}" />
@@ -87,12 +89,12 @@ Expected Request Parameters:
             <a href="${lastPageUrl}" class="page-link">${totalPages}</a>
         </c:if>
 
-        <!-- Next -->
         <c:if test="${currentPage < totalPages}">
             <c:url var="nextUrl" value="${baseUrl}">
-
+                <c:param name="${paramName}" value="${currentPage + 1}" />
+                <c:param name="${sizeParamName}" value="${pageSize}" />
             </c:url>
-            <a href="${nextUrl}" class="page-link">Next &raquo;</a>
+            <a href="${nextUrl}" class="page-link"><spring:message code="pagination.next"/> &raquo;</a>
         </c:if>
     </div>
 </c:if>

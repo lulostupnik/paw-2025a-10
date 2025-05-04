@@ -25,6 +25,10 @@ public interface JourneyService {
 
     List<Journey> getFilteredJourneys(String email, String destination, LocalDate startDate, LocalDate endDate, String interest);
 
+    Page<Journey> getFilteredJourneys(Long destination, LocalDate startDate, LocalDate endDate, Long interest, int page, int size);
+
+    Page<Journey> getFilteredJourneys(String email, Long destination, LocalDate startDate, LocalDate endDate, Long interest, int page, int size);
+
     Boolean userHasJourney(String email); // ja
 
     List<Journey> getRecommendedJourneys(String email);

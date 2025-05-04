@@ -132,7 +132,7 @@
             <div class="events-container">
                 <!-- Journeys List with grid layout -->
                 <div class="events-grid">
-                    <c:forEach var="journey" items="${journeys}">
+                    <c:forEach var="journey" items="${journeys.content}">
                         <jsp:include page="journey-card.jsp">
                             <jsp:param name="journeyId" value="${journey.id}" />
                             <jsp:param name="city" value="${journey.destinationUniversity.city.name}" />
@@ -148,13 +148,20 @@
                             <jsp:param name="isOwner" value="false"/>
                         </jsp:include>
                     </c:forEach>
-                    <c:if test="${empty journeys}">
+                    <c:if test="${empty journeys.content}">
                         <div class="no-journeys">
                             <p class="no-journeys-message"><spring:message code="journey.no.journeys"/></p>
                         </div>
                     </c:if>
                 </div>
             </div>
+
+            <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
+                <jsp:param name="pageObjectTotalPages" value="${journeys.totalPages}" />
+                <jsp:param name="currentPage" value="${currentPage}" />
+                <jsp:param name="pageSize" value="${pageSize}" />
+                <jsp:param name="baseUrl" value="/journeys" />
+            </jsp:include>
             <!-- End Journeys List -->
         </div>
     </div>
