@@ -30,7 +30,7 @@ public class JourneyServiceImpl implements JourneyService {
     private final EmailService emailService;
     private final UniversityService universityService;
     private final JourneyResponseService journeyResponseService;
-    //private final CityService cityService;
+    private final CityService cityService;
     //private final InterestService interestService;
     private final ImageService imageService;
     private final InterestService interestService;
@@ -44,7 +44,7 @@ public class JourneyServiceImpl implements JourneyService {
         this.universityService = universityService;
         this.journeyResponseService = journeyResponseService;
         this.emailService = emailService;
-        //this.cityService = cityService;
+        this.cityService = cityService;
         this.interestService = interestService;
         this.imageService = imageService;
         this.userDao = userDao;
@@ -109,19 +109,8 @@ public class JourneyServiceImpl implements JourneyService {
         List<Interest> interests = interestService.findByUserId(journey.getUser().getId());
         interestService.updateScoreByInterests(interests, user.getId());
 
-
-//
-//        emailService.answerJourneyMail(
-//                journey.getUser(),
-//                message,
-//                user,
-//                journey
-//        );
-
-//        LOGGER.info("Notifying all commenters in journey about a new comment");
-
         emailService.answerJourneyNotification(
-                userDao.listJourneyRespondersMinusUsers(journeyId/*, new ArrayList<>(List.of(user.getId(), journey.getUser().getId()))*/),
+                userDao.listJourneyRespondersMinusUsers(journeyId),
                 message,
                 user,
                 journey
@@ -180,6 +169,61 @@ public class JourneyServiceImpl implements JourneyService {
 
         return journeyDao.findByFilters(user.getId(), destination, startDate, endDate, interest);
     }
+
+
+
+    //@TODO check estilo, paso null y parseo los destination/interest.
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Journey> getFilteredJourneys(String destination, LocalDate startDate, LocalDate endDate, String interest, int page, int size){
+        //@TODO change form so they get numbers intead of STRING
+        Long destinationId = null;
+        Long interestId = null;
+
+        try{
+            destinationId = Long.parseLong(destination);
+        }catch(Exception e) {
+            LOGGER.warn("Failed to parse destination: {}", destination, e);
+        }
+        try{
+            interestId = Long.parseLong(interest);
+        }catch(Exception e) {
+            LOGGER.warn("Failed to parse interest: {}", interest, e);
+        }
+
+        return journeyDao.findByFilters(null, destinationId, startDate,endDate, interestId, page, size);
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Journey> getFilteredJourneys(String email, String destination, LocalDate startDate, LocalDate endDate, String interest, int page, int size){
+        LOGGER.debug("Getting filtered journeys excluding user {}", email);
+
+        User user = userService.findByEmail(email).orElseThrow(() -> {
+            LOGGER.warn("User not found with email: {}", email);
+            return new RuntimeException("User not found");
+        });
+
+        //@TODO change form so they get numbers intead of STRING
+        Long destinationId = null;
+        Long interestId = null;
+
+        try{
+            destinationId = Long.parseLong(destination);
+        }catch(Exception e) {
+            LOGGER.warn("Failed to parse destination: {}", destination, e);
+        }
+        try{
+            interestId = Long.parseLong(interest);
+        }catch(Exception e) {
+            LOGGER.warn("Failed to parse interest: {}", interest, e);
+        }
+
+
+        return journeyDao.findByFilters(user.getId(), destinationId, startDate, endDate, interestId, page, size);
+    }
+
 
     @Transactional(readOnly = true)
     @Override

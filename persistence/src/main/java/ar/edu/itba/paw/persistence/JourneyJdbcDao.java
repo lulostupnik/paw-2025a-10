@@ -387,8 +387,8 @@ public class JourneyJdbcDao implements JourneyDao {
         }
 
         if (userId != null) {
-            countFilters.add("j.user_id = ?");
-            queryFilters.add("us.id = ?");
+            countFilters.add("j.user_id != ?");
+            queryFilters.add("us.id != ?");
             params.add(userId);
         }
 
