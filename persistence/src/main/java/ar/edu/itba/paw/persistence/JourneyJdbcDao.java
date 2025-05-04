@@ -26,9 +26,6 @@ public class JourneyJdbcDao implements JourneyDao {
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
 
-    private static final String ORDER_BY = " ORDER BY j.id ASC ";
-    private static final String CURSOR_CONDITION = " j.id > ? ";
-
     private final static String SQL_SELECT_BASE =
             """
             SELECT
@@ -163,7 +160,7 @@ public class JourneyJdbcDao implements JourneyDao {
         args.put("start_date", Date.valueOf(startDate));
         args.put("end_date", Date.valueOf(endDate));
         args.put("description", description);
-        args.put("deleted", false);  // Establecer el valor de 'deleted' como 'false'
+        args.put("deleted", false);
         final Number id = jdbcInsert.executeAndReturnKey(args);
         return new Journey(id.longValue(), user, startDate, endDate, destinationUniversity, description);
     }
@@ -304,9 +301,7 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public void delete(long id) {
         int updatedRows = jdbcTemplate.update("UPDATE journeys SET deleted = TRUE WHERE id = ?;", id);
-
         if (updatedRows == 0) {
-            // Optionally log or throw an exception if no rows were updated
             LOGGER.warn("No journey_response found with id {}", id);
         }
     }
@@ -315,7 +310,6 @@ public class JourneyJdbcDao implements JourneyDao {
     public void deletionMessage(long id, String message) {
         int updatedRows = jdbcTemplate.update("UPDATE journeys SET deleted_message = ? WHERE id = ?;", message, id);
         if (updatedRows == 0) {
-            // Optionally log or throw an exception if no rows were updated
             LOGGER.warn("No journey_response found with id {}", id);
         }
 
@@ -351,14 +345,6 @@ public class JourneyJdbcDao implements JourneyDao {
                 "UPDATE journeys SET destination_university_id = ? WHERE id = ?",
                 universityId, journeyId
         );
-    }
-
-    private int calculateTotalPages(int totalItems, int pageSize) {
-        return (int) Math.ceil((double) totalItems / pageSize);
-    }
-
-    private int getTotalCount(String countQuery, Object... params) {
-        return jdbcTemplate.queryForObject(countQuery, Integer.class, params);
     }
 
     @Override
@@ -541,8 +527,8 @@ public class JourneyJdbcDao implements JourneyDao {
                             dest_country.name AS destination_country_name,
                             dest_city.id AS destination_city_id,
                             j.description AS journey_description,
-               
-               
+            
+            
                             -- Scores
                             CASE WHEN j.destination_university_id = uj.university_id THEN 50 ELSE 0 END AS university_match_score,
                             CASE WHEN dest_univ.city_id = uj.city_id THEN 30 ELSE 0 END AS city_match_score,
@@ -553,8 +539,8 @@ public class JourneyJdbcDao implements JourneyDao {
                                          WHERE journey_ui.user_id = j.user_id
                                      ), 0) AS interest_match_score,
                             CASE WHEN (j.start_date, j.end_date) OVERLAPS (uj.user_start, uj.user_end) THEN 15 ELSE 0 END AS timing_match_score,
-                            CASE WHEN j.destination_university_id = ud.university AND (uj.user_start = NULL OR NOT (j.start_date, j.end_date) OVERLAPS (uj.user_start, uj.user_end)) THEN 50 ELSE 0 END AS origin_uni_match_off_travel_score,
-                            CASE WHEN dest_univ.city_id = (SELECT city_id FROM universities WHERE id = ud.university) AND (uj.user_start = NULL OR NOT (j.start_date, j.end_date) OVERLAPS (uj.user_start, uj.user_end)) THEN 30 ELSE 0 END AS origin_city_match_off_travel_score
+                            CASE WHEN j.destination_university_id = ud.university AND (uj.user_start IS NULL OR NOT (j.start_date, j.end_date) OVERLAPS (uj.user_start, uj.user_end)) THEN 50 ELSE 0 END AS origin_uni_match_off_travel_score,
+                            CASE WHEN dest_univ.city_id = (SELECT city_id FROM universities WHERE id = ud.university) AND (uj.user_start IS NULL OR NOT (j.start_date, j.end_date) OVERLAPS (uj.user_start, uj.user_end)) THEN 30 ELSE 0 END AS origin_city_match_off_travel_score
                         FROM journeys j
                                  JOIN users u ON j.user_id = u.id
                                  JOIN universities dest_univ ON j.destination_university_id = dest_univ.id

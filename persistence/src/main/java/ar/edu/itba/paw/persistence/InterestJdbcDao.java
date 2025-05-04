@@ -26,8 +26,16 @@ public class InterestJdbcDao implements InterestDao {
             rs.getString("name")
     );
 
-    private final static String SELECT_CLAUSE = "SELECT c.id AS id, c.name AS name ";
-    private final static String QUERY = SELECT_CLAUSE + "FROM category c ";
+    private final static String SQL_BASE = "SELECT id, name FROM category ";
+
+    private final static String SQL_FIND_BY_ID = SQL_BASE + " WHERE id = ?";
+    private final static String SQL_FIND_BY_NAME = SQL_BASE + " WHERE name = ?";
+
+    private final static String SQL_FIND_ALL_PAGED = SQL_BASE + " ORDER BY name ASC LIMIT ? OFFSET ?";
+
+    private final static String SQL_SEARCH_PAGED = SQL_BASE + " WHERE name LIKE ? ORDER BY name ASC LIMIT ? OFFSET ?";
+
+    private final static String SQL_FIND_ALL_BY_USER = SQL_BASE + " WHERE id IN (SELECT category_id FROM user_interest WHERE user_id = ?)";
 
     @Autowired
     public InterestJdbcDao(DataSource dataSource)
@@ -40,25 +48,22 @@ public class InterestJdbcDao implements InterestDao {
 
     @Override
     public Optional<Interest> findById(Long id) {
-        return jdbcTemplate.query(QUERY + "WHERE id = ?",
-                INTEREST_ROW_MAPPER, id).stream().findFirst();
+        return jdbcTemplate.query(SQL_FIND_BY_ID, INTEREST_ROW_MAPPER, id).stream().findFirst();
     }
 
     @Override
     public List<Interest> findAll() {
-        return jdbcTemplate.query(QUERY, INTEREST_ROW_MAPPER);
+        return jdbcTemplate.query(SQL_BASE, INTEREST_ROW_MAPPER);
     }
 
     @Override
     public List<Interest> findByUserId(Long id) {
-        return jdbcTemplate.query(QUERY + " WHERE id IN (SELECT category_id FROM user_interest WHERE user_id = ?)",
-                INTEREST_ROW_MAPPER, id);
+        return jdbcTemplate.query(SQL_FIND_ALL_BY_USER, INTEREST_ROW_MAPPER, id);
     }
 
     @Override
     public Optional<Interest> findByName(String name) {
-        return jdbcTemplate.query(QUERY + " WHERE name = ?",
-                INTEREST_ROW_MAPPER, name).stream().findFirst();
+        return jdbcTemplate.query(SQL_FIND_BY_NAME, INTEREST_ROW_MAPPER, name).stream().findFirst();
     }
 
     // FIXME: No se si esto se está usando en algún lado o no.
@@ -67,12 +72,15 @@ public class InterestJdbcDao implements InterestDao {
         if(names == null || names.length == 0) {
             return new ArrayList<>();
         }
+
+        // FIXME: Creo que acá no deberiamos validar
         for(String name : names) {
             if (name == null || name.isEmpty()) {
                 throw new IllegalArgumentException("Interest name cannot be null or empty");
             }
         }
-        StringBuilder query = new StringBuilder(QUERY + " WHERE name IN (");
+
+        StringBuilder query = new StringBuilder(SQL_BASE).append(" WHERE name IN (");
         for (int i = 0; i < names.length; i++) {
             query.append("?");
             if (i < names.length - 1) {
@@ -80,18 +88,17 @@ public class InterestJdbcDao implements InterestDao {
             }
         }
         query.append(")");
-        List<Interest> interests = jdbcTemplate.query(query.toString(),
-                INTEREST_ROW_MAPPER, (Object[]) names);
-        if (interests.size() < names.length) {
+        List<Interest> interests = jdbcTemplate.query(query.toString(), INTEREST_ROW_MAPPER, (Object[]) names);
+        if (interests.size() < names.length) { // o != ?
             //TODO See if this is an actual error to throw (or if normal flow can continue)
             LOGGER.warn("Couldn't find IDs for all provided interests ({} vs {})", interests.size(), names.length);
         }
-        LOGGER.debug("Found interests {}", interests);
         return interests;
     }
 
     @Override
     public Interest createUserInterest(String interest) {
+        LOGGER.debug("Creating new interest {}", interest);
         Map<String, Object> params = new HashMap<>();
         params.put("name", interest);
         final Number keys = jdbcInsert.execute(params);
@@ -135,28 +142,21 @@ public class InterestJdbcDao implements InterestDao {
 
     @Override
     public Page<Interest> getAllInterests(int page, int pageSize) {
-        StringBuilder query = new StringBuilder(SELECT_CLAUSE);
-        query.append(" FROM category c ");
-        query.append(" ORDER BY c.name ASC LIMIT ? OFFSET ?");
         int totalInterests = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category", Integer.class);
         return new Page<>(
-                jdbcTemplate.query(query.toString(), INTEREST_ROW_MAPPER, pageSize, (page - 1) * pageSize),
+                jdbcTemplate.query(SQL_FIND_ALL_PAGED, INTEREST_ROW_MAPPER, pageSize, (page - 1) * pageSize),
                 page,
                 (int) Math.ceil((double) totalInterests / pageSize)
         );
     }
 
     @Override
-    public Page<Interest> searchBySubstring(String search, int page, int pageSize) {
-        StringBuilder query = new StringBuilder(SELECT_CLAUSE);
-        query.append(" FROM category c ");
-        query.append(" WHERE c.name LIKE ? ");
-        query.append(" ORDER BY c.name ASC LIMIT ? OFFSET ?");
-        String like = "%" + search + "%";
-        int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category WHERE name LIKE ?", Integer.class, like);
+    public Page<Interest> searchBySubstring(final String search, int page, int pageSize) {
+        final String searchPattern = "%" + search + "%";
+        int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category WHERE name LIKE ?", Integer.class, searchPattern);
 
         return new Page<>(
-                jdbcTemplate.query(query.toString(),INTEREST_ROW_MAPPER, like, pageSize, (page - 1) * pageSize),
+                jdbcTemplate.query(SQL_SEARCH_PAGED, INTEREST_ROW_MAPPER, searchPattern, pageSize, (page - 1) * pageSize),
                 page,
                 (int) Math.ceil((double) totalItems / pageSize)
         );
