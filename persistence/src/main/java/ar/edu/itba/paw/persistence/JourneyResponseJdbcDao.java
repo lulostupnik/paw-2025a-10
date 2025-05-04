@@ -15,13 +15,13 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
-//@TODO sort them in query by date
 @Repository
 public class JourneyResponseJdbcDao implements JourneyResponseDao {
     private final static Logger LOGGER = LoggerFactory.getLogger(JourneyResponseJdbcDao.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
+
     private static final RowMapper<JourneyResponse> JOURNEY_RESPONSE_ROW_MAPPER = (rs, rowNum) -> new JourneyResponse(
             rs.getLong("id"),
             rs.getLong("user_id"),
@@ -31,29 +31,15 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
             rs.getTimestamp("date_time").toLocalDateTime()
     );
 
-
-    private static final RowMapper<Long> JOURNEY_ID_ROW_MAPPER = (rs, rowNum) -> rs.getLong("journey_id");
-    private static final String JOURNEY_ID_BY_RESPONSE_ID_QUERY = """
-            SELECT jr.journey_id
-            FROM journey_responses jr
-            WHERE jr.id = ?""";
-
-    private static final String QUERY_BY_JOURNEY_ID = """
-            SELECT jr.id as id,
-                   jr.user_id, us.username AS username, jr.journey_id, jr.message, jr.date_time\s
-            FROM journey_responses jr\s
-            JOIN users us\s
-            ON jr.user_id = us.id\s
-            WHERE jr.journey_id = ?""";
-
-    private static final String PAGE_QUERY_BY_JOURNEY_ID = """
-            SELECT *
-            FROM (SELECT * FROM journey_responses WHERE journey_id = ? AND deleted = FALSE ORDER BY date_time LIMIT ? OFFSET ?) AS jr
-            JOIN users us
-            ON jr.user_id = us.id
+    private static final String SQL_FIND_ALL_BY_JOURNEY =
+            """
+            SELECT jr.id AS id, jr.user_id, us.username AS username, jr.journey_id, jr.message, jr.date_time
+                FROM journey_responses AS jr
+                JOIN users us ON jr.user_id = us.id
+                WHERE jr.journey_id = ? AND deleted = FALSE ORDER BY date_time
             """;
 
-    private static final String NOT_DELETED = " AND jr.deleted = FALSE";
+    private static final String SQL_FIND_ALL_BY_JOURNEY_PAGED = SQL_FIND_ALL_BY_JOURNEY + " LIMIT ? OFFSET ?";
 
 
     @Autowired
@@ -81,7 +67,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
 
     @Override
     public List<JourneyResponse> listAllFromJourney(long journeyId){
-        return jdbcTemplate.query(QUERY_BY_JOURNEY_ID + NOT_DELETED + " ORDER BY jr.date_time ", JOURNEY_RESPONSE_ROW_MAPPER, journeyId);
+        return jdbcTemplate.query(SQL_FIND_ALL_BY_JOURNEY, JOURNEY_RESPONSE_ROW_MAPPER, journeyId);
     }
 
     @Override
@@ -89,7 +75,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
         long totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journey_responses WHERE journey_id = ? AND deleted = FALSE", Long.class, journeyId);
 
         return new Page<>(
-                jdbcTemplate.query(PAGE_QUERY_BY_JOURNEY_ID, JOURNEY_RESPONSE_ROW_MAPPER, journeyId, pageSize, (pageNumber - 1) * pageSize),
+                jdbcTemplate.query(SQL_FIND_ALL_BY_JOURNEY_PAGED, JOURNEY_RESPONSE_ROW_MAPPER, journeyId, pageSize, (pageNumber - 1) * pageSize),
                 pageNumber,
                 (int) Math.ceil((double) totalItems / pageSize)
         );
@@ -105,7 +91,11 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
 
     @Override
     public long getJourneyIdByResponseId(long journeyResponseId) {
-        return jdbcTemplate.query(JOURNEY_ID_BY_RESPONSE_ID_QUERY, JOURNEY_ID_ROW_MAPPER, journeyResponseId).getFirst();
+        return jdbcTemplate.query(
+                "SELECT journey_id FROM journey_responses WHERE id = ?",
+                (rs, rowNum) -> rs.getLong("journey_id"),
+                journeyResponseId
+        ).getFirst();
     }
 
     @Override

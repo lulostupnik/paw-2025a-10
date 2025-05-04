@@ -128,7 +128,7 @@ public class UniversityJdbcDao implements UniversityDao {
     //FIXME: consultar con los profes -> ¿debería recibir City city o String city? ¿O que?
 
     @Override
-    public University createUniversity(String name, String abbreviation, String city) {
+    public University createUniversity(final String name, final String abbreviation, final String city) {
         LOGGER.debug("Creating or reactivating university {} ({})", name, abbreviation);
 
         City cityObj = cityDao.findByName(city).orElseThrow(IllegalArgumentException::new);
