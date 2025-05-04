@@ -476,10 +476,10 @@ public class EventJdbcDao implements EventDao {
         int totalItems = jdbcTemplate.queryForObject("""
                    SELECT COUNT(*) FROM events e
                    LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
-                   WHERE e.user_id != ? AND e.deleted = FALSE AND e.event_date >= CURRENT_DATE ORDER BY e.event_date DESC
+                   WHERE e.user_id != ? AND e.deleted = FALSE AND e.event_date >= CURRENT_DATE
                    """,
                 Integer.class,
-                userId
+                userId, userId
         );
 
         List<UserEvent> events = jdbcTemplate.query(
