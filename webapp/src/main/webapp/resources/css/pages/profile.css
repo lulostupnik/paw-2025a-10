@@ -260,7 +260,26 @@
     display: flex;
     justify-content: flex-end;
     margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
 }
+
+.section-actions .btn-primary {
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.section-actions .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Improve the events section layout */
+#events-section {
+    position: relative;
+}
+
+
 
 /* Info List */
 .info-list {
@@ -360,16 +379,30 @@
 }
 
 /* Events Filter Tabs */
+/* Position the events filter tabs better */
 .events-filter-tabs {
     display: flex;
     gap: 0.5rem;
-    margin-bottom: 1.5rem;
+    margin: 1rem 0 1.5rem 0;
     border-bottom: 1px solid var(--profile-border);
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    position: relative;
+    z-index: 0;
 }
 
+/* For better mobile layout */
+@media (max-width: 768px) {
+    .section-actions {
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    .events-filter-tabs {
+        justify-content: center;
+    }
+}
 .events-filter-tabs::-webkit-scrollbar {
     display: none;
 }
