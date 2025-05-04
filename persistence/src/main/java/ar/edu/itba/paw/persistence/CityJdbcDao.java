@@ -28,12 +28,20 @@ public class CityJdbcDao implements CityDao {
             rs.getLong("city_id")
     );
 
-    private final static String SELECT_CLAUSE = "SELECT ci.name as city_name, ci.id as city_id, co.name as country_name";
-    private final static String QUERY = SELECT_CLAUSE + " FROM cities ci, countries co WHERE ci.country_id = co.id AND ci.deleted = FALSE ";
+    private final static String SQL_BASE =
+            """
+            SELECT ci.name as city_name, ci.id as city_id, co.name as country_name
+            FROM cities ci, countries co
+            WHERE ci.country_id = co.id AND ci.deleted = FALSE
+            """;
 
-    private final static String SQL_FIND_ALL_PAGED = QUERY + " ORDER BY ci.name LIMIT ? OFFSET ?";
-    private final static String SQL_FIND_BY_COUNTRY = QUERY + "AND co.name = ?";
-    private final static String SQL_SEARCH_PAGED = QUERY + " AND LOWER(ci.name) LIKE LOWER(?) LIMIT ? OFFSET ? ";
+    private final static String SQL_FIND_BY_NAME = SQL_BASE + " AND ci.name = ?";
+
+    private final static String SQL_FIND_ALL = SQL_BASE + " ORDER BY ci.name";
+
+    private final static String SQL_FIND_ALL_PAGED = SQL_FIND_ALL + " LIMIT ? OFFSET ?";
+    private final static String SQL_FIND_BY_COUNTRY = SQL_BASE + "AND co.name = ?";
+    private final static String SQL_SEARCH_PAGED = SQL_BASE + " AND LOWER(ci.name) LIKE LOWER(?) LIMIT ? OFFSET ? ";
 
     // private static final RowMappeFr<City> SIMPLE_CITY_ROW_MAPPER = (rs, rowNum) -> new City(rs.getString("name"), rs.getString("country"), rs.getLong("id"));
 
@@ -51,23 +59,23 @@ public class CityJdbcDao implements CityDao {
         StringBuilder queryBuilder = new StringBuilder();
         List<Object> params = new ArrayList<>();
 
-        queryBuilder.append(QUERY);
+        queryBuilder.append(SQL_BASE);
 
         if (id != null && id > 0) {
             LOGGER.debug("Search parameter city ID: {}", id);
-            queryBuilder.append("AND ci.id = ? ");
+            queryBuilder.append(" AND ci.id = ? ");
             params.add(id);
         }
 
         if (name != null && !name.isEmpty()) {
             LOGGER.debug("Search parameter city name: {}", name);
-            queryBuilder.append("AND ci.name = ? ");
+            queryBuilder.append(" AND ci.name = ? ");
             params.add(name);
         }
 
         if (country != null && !country.isEmpty()) {
             LOGGER.debug("Search parameter country name: {}", country);
-            queryBuilder.append("AND co.name = ? ");
+            queryBuilder.append(" AND co.name = ? ");
             params.add(country);
         }
 
@@ -87,14 +95,14 @@ public class CityJdbcDao implements CityDao {
 
     @Override
     public Optional<City> findByName(String name) {
-        return jdbcTemplate.query(QUERY + " AND ci.name = ?", CITY_ROW_MAPPER, name)
+        return jdbcTemplate.query(SQL_FIND_BY_NAME, CITY_ROW_MAPPER, name)
                 .stream().findFirst();
 
     }
 
     @Override
     public List<City> getAllCities() {
-        return jdbcTemplate.query(QUERY + " ORDER BY city_name ", CITY_ROW_MAPPER);
+        return jdbcTemplate.query(SQL_FIND_ALL, CITY_ROW_MAPPER);
     }
 
     @Override
@@ -147,7 +155,7 @@ public class CityJdbcDao implements CityDao {
 
     @Override
     public List<City> findAll() {
-        return jdbcTemplate.query(QUERY, CITY_ROW_MAPPER);
+        return jdbcTemplate.query(SQL_BASE, CITY_ROW_MAPPER);
     }
 
     @Override
