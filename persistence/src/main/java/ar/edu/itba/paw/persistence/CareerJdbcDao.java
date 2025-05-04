@@ -39,14 +39,13 @@ public class CareerJdbcDao implements CareerDao {
 
     @Override
     public Optional<Career> findById(long id) {
-        return jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE AND id = ? ",
-                CAREER_ROW_MAPPER, id).stream().findFirst();
+        return jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE AND id = ? ", CAREER_ROW_MAPPER, id)
+                .stream().findFirst();
     }
 
     @Override
     public List<Career> findAll() {
-        return jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE",
-                CAREER_ROW_MAPPER);
+        return jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE", CAREER_ROW_MAPPER);
     }
 
     @Override
