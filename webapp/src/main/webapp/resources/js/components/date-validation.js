@@ -96,13 +96,13 @@
 
             // Validate date format
             const dateValue = dateField.value
-           /*
+
             const dateRegex = /^\d{4}-\d{2}-\d{2}$/
             if (!dateRegex.test(dateValue)) {
                 return {isValid: false, error: document.getElementById("i18n-invalid-date-format")
                     ? document.getElementById("i18n-invalid-date-format").value
                     : "Please enter a valid date in YYYY-MM-DD format"}
-            }*/
+            }
 
             // Validate date is not in the past
             const selectedDate = new Date(dateValue)
