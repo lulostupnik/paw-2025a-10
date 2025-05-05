@@ -42,7 +42,7 @@ public class CityJdbcDao implements CityDao {
 
     private final static String SQL_FIND_ALL_PAGED = SQL_FIND_ALL + " LIMIT ? OFFSET ?";
     private final static String SQL_FIND_BY_COUNTRY = SQL_BASE + "AND co.name = ?";
-    private final static String SQL_SEARCH_PAGED = SQL_BASE + " AND LOWER(ci.name) LIKE LOWER(?) LIMIT ? OFFSET ? ";
+    private final static String SQL_SEARCH_PAGED = SQL_BASE + " AND (LOWER(ci.name) LIKE LOWER(?) OR LOWER(co.name) LIKE LOWER(?)) LIMIT ? OFFSET ? ";
 
     // private static final RowMappeFr<City> SIMPLE_CITY_ROW_MAPPER = (rs, rowNum) -> new City(rs.getString("name"), rs.getString("country"), rs.getLong("id"));
 
@@ -168,12 +168,19 @@ public class CityJdbcDao implements CityDao {
     public Page<City> searchBySubstring(final String substring, final int page, final int size) {
         final String searchPattern = likePattern(substring);
         final int totalItems = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM cities WHERE deleted = FALSE AND LOWER(name) LIKE LOWER(?) ",
+                """
+                SELECT COUNT(*)
+                FROM cities ci JOIN countries co ON ci.country_id = co.id
+                WHERE deleted = FALSE AND (
+                    LOWER(ci.name) LIKE LOWER(?)
+                    OR LOWER(co.name) LIKE LOWER(?)
+                    )
+                """,
                 Integer.class,
-                searchPattern
+                searchPattern, searchPattern
         );
         return new Page<>(
-                jdbcTemplate.query(SQL_SEARCH_PAGED, CITY_ROW_MAPPER, searchPattern, size, (page - 1) * size),
+                jdbcTemplate.query(SQL_SEARCH_PAGED, CITY_ROW_MAPPER, searchPattern, searchPattern, size, (page - 1) * size),
                 page,
                 (int) Math.ceil((double) totalItems / size)
         );
