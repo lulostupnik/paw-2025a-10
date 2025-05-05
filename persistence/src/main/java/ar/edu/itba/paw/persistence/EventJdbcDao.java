@@ -139,8 +139,9 @@ public class EventJdbcDao implements EventDao {
     private final static String SQL_SEARCH_PAGED = SQL_BASE_NOT_DELETED + """
                     AND (
                             LOWER(e.title) LIKE LOWER(?)
-                            OR LOWER(e.description) LIKE LOWER(?)
+                    --        OR LOWER(e.description) LIKE LOWER(?)
                             OR LOWER(c.name) LIKE LOWER(?)
+                            OR LOWER(us.username) LIKE LOWER(?)
                         )
                     ORDER BY e.event_date DESC LIMIT ? OFFSET ?
                     """;
@@ -497,11 +498,14 @@ public class EventJdbcDao implements EventDao {
         final int totalItems = jdbcTemplate.queryForObject(
                 """
                 SELECT COUNT(*)
-                FROM events e JOIN cities c ON e.city_id = c.id
+                FROM events e
+                JOIN cities c ON e.city_id = c.id
+                JOIN users us ON e.user_id = us.id
                 WHERE e.deleted = FALSE  AND (
                         LOWER(e.title) LIKE LOWER(?)
-                        OR LOWER(e.description) LIKE LOWER(?)
+                --      OR LOWER(e.description) LIKE LOWER(?)
                         OR LOWER(c.name) LIKE LOWER(?)
+                        OR LOWER(us.username) LIKE LOWER(?)
                     )
                 """,
                 Integer.class,
