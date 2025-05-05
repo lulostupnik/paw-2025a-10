@@ -261,10 +261,10 @@ public class EventServiceImpl implements EventService {
             throw new IllegalArgumentException("Limit must be greater than 0");
         }
         LOGGER.debug("Fetching recommended events for user email: {}, with limit: {}", email, limit);
-        List<UserEvent> events = eventDao.getRecommendedEvents(email, limit);
+        List<UserEvent> events = eventDao.getRecommendedEvents(email, 1, limit).getContent();
         if (events.isEmpty()) {
             LOGGER.debug("No recommended events found for user {}. Falling back to top events.", email);
-            eventDao.getTopEvents(limit).forEach(event -> {
+            eventDao.getTopEvents(1, limit).getContent().forEach(event -> {
                 LOGGER.debug("Adding top event fallback: {}", event.getTitle());
                 UserEvent ue = new UserEvent(event, false);
                 events.add(ue);
@@ -285,7 +285,7 @@ public class EventServiceImpl implements EventService {
         if (limit <= 0) {
             throw new IllegalArgumentException("Limit must be greater than 0");
         }
-        return eventDao.getTopEvents(limit);
+        return eventDao.getTopEvents(1, limit).getContent();
     }
 
     @Transactional(readOnly=true)

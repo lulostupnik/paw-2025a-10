@@ -212,7 +212,7 @@ public class EventJdbcDao implements EventDao {
     WHERE e.event_date >= CURRENT_DATE
     AND us.email != ?
     AND e.deleted = FALSE
-    LIMIT ?
+    LIMIT ? OFFSET ?
     """;
 
     private final static String SQL_TOP_EVENTS = """
@@ -267,7 +267,7 @@ public class EventJdbcDao implements EventDao {
         WHERE e.event_date >= CURRENT_DATE
         AND e.deleted = FALSE
         ORDER BY COALESCE(a.attendees, 0) DESC, e.event_date
-        LIMIT ?
+        LIMIT ? OFFSET ?
         """;
 
     @Autowired
@@ -341,22 +341,57 @@ public class EventJdbcDao implements EventDao {
         return jdbcTemplate.query(SQL_FIND_BY_EMAIL, EVENT_ROW_MAPPER, email);
     }
 
+//    @Override
+//    public List<UserEvent> getRecommendedEvents(final String email) {
+//        return jdbcTemplate.query(SQL_RECOMMENDED_EVENTS,  (rs, rowNum) -> {
+//            Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
+//            boolean isAttending = rs.getBoolean("is_attending");
+//            return new UserEvent(event, isAttending);
+//        }, email, email);
+//    }
+
     @Override
-    public List<UserEvent> getRecommendedEvents(final String email, int limit) {
-        return jdbcTemplate.query(SQL_RECOMMENDED_EVENTS,  (rs, rowNum) -> {
-            Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
-            boolean isAttending = rs.getBoolean("is_attending");
-            return new UserEvent(event, isAttending);
-        }, email, email, limit);
+    public Page<UserEvent> getRecommendedEvents(final String email, final int page, final int size) {
+        final int totalItems = jdbcTemplate.queryForObject("""
+        SELECT COUNT(*) FROM events e
+        JOIN users us ON e.user_id = us.id
+        JOIN universities un ON us.university = un.id
+        JOIN cities c ON e.city_id = c.id
+        WHERE e.event_date >= CURRENT_DATE AND us.email != ? AND e.deleted = FALSE AND c.id = (
+            SELECT c.id FROM users u
+            JOIN universities un ON u.university = un.id
+            JOIN cities c ON un.city_id = c.id
+            WHERE u.email = ?
+        )
+        """, Integer.class, email, email);
+
+
+        final List<UserEvent> events = jdbcTemplate.query(
+                SQL_RECOMMENDED_EVENTS,
+                (rs, rowNum) -> {
+                    Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
+                    boolean isAttending = rs.getBoolean("is_attending");
+                    return new UserEvent(event, isAttending);
+                },
+                email, email, size, (page - 1) * size
+        );
+
+        return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
     }
 
-    //@TODO check, pponemos esa exception, o solo checkeamos en el service?
-    public List<Event> getTopEvents(int limit){
-//        if (limit <= 0) {
-//            throw new IllegalArgumentException("Limit must be greater than 0");
-//        }
-        return jdbcTemplate.query(SQL_TOP_EVENTS, EVENT_ROW_MAPPER, limit);
+
+    @Override
+    public Page<Event> getTopEvents(final int page, final int size) {
+        final int totalItems = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM events e WHERE e.deleted = FALSE AND e.event_date >= CURRENT_DATE",
+                Integer.class
+        );
+
+        final List<Event> events = jdbcTemplate.query(SQL_TOP_EVENTS, EVENT_ROW_MAPPER, size, (page - 1) * size);
+
+        return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
     }
+
 
     public Optional<Integer> getEventAttendanceLimit(final long eventId) {
         return jdbcTemplate.query("SELECT attendees_limit FROM events WHERE id = ?", (rs, rowNumber) -> rs.getInt("attendees_limit"), eventId)
