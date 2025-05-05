@@ -221,7 +221,7 @@ public class UniversityJdbcDaoTest {
     public void testFindByAnyMissingQuery(){
         Optional<University> maybeUni = uniDao.findByAny(null);
         assertNotNull(maybeUni);
-        assertFalse(maybeUni.isPresent());
+        assertTrue(maybeUni.isPresent());
     }
 
     @Test
@@ -341,9 +341,9 @@ public class UniversityJdbcDaoTest {
         Page<University> unis = uniDao.searchBySubstring(null, 1, 10);
         assertNotNull(unis);
         assertEquals(1, unis.getCurrentPage());
-        assertEquals(0, unis.getTotalPages());
+        assertEquals(1, unis.getTotalPages());
         assertNotNull(unis.getContent());
-        assertEquals(0, unis.getContent().size()); 
+        assertEquals(2, unis.getContent().size()); 
     }
 
     @Test

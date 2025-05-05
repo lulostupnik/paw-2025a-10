@@ -233,10 +233,9 @@ public class CityJdbcDaoTest {
         Page<City> page1 = cityDao.searchBySubstring(null, 1, 3);
 
         assertNotNull(page1);
-        assertEquals(0, page1.getTotalPages());
+        assertEquals(1, page1.getTotalPages());
         assertNotNull(page1.getContent());
-        assertNotNull(page1.getContent());
-        assertEquals(0, page1.getContent().size());
+        assertEquals(3, page1.getContent().size());
     }
     @Test
     public void testSearchBySubstringPaging(){

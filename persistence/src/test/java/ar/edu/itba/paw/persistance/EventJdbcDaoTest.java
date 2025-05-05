@@ -46,7 +46,7 @@ import ar.edu.itba.paw.persistence.EventJdbcDao;
 public class EventJdbcDaoTest {
 
     private static final String EVENT_TABLE = "events";
-    private static final String EVENT_TITLE = "cool event";
+    private static final String EVENT_TITLE = "warm event";
     private static final String EVENT_DESCRIPTION = "cool event";
     private static final String EVENT_ADDRESS = "cool place";
     private static final LocalTime EVENT_TIME = LocalTime.now().withNano(0);

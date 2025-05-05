@@ -100,7 +100,7 @@ public class UniversityJdbcDao implements UniversityDao {
     @Override
     public Optional<University> findByAny(final String searchString) {
         final String searchPattern = likePattern(searchString);
-        return jdbcTemplate.query(SQL_SEARCH, UNIVERSITY_ROW_MAPPER, searchPattern, searchPattern).stream().findFirst();
+        return jdbcTemplate.query(SQL_SEARCH, UNIVERSITY_ROW_MAPPER, searchPattern, searchPattern, searchPattern, searchPattern).stream().findFirst();
     }
 
     @Override

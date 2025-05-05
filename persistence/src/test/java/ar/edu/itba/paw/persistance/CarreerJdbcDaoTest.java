@@ -246,8 +246,8 @@ public class CarreerJdbcDaoTest {
         Page<Career> page1 = careerDao.searchBySubstring(null, 1, 3);
 
         assertNotNull(page1);
-        assertEquals(0, page1.getTotalPages());
-        assertEquals(0, page1.getContent().size());
+        assertEquals(1, page1.getTotalPages());
+        assertEquals(3, page1.getContent().size());
     }
     @Test
     public void testSearchBySubstringPaging(){
