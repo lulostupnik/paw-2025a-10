@@ -58,7 +58,7 @@
           <form:select path="city" id="city" cssClass="form-select ${not empty errors.getFieldError('city') ? 'error' : ''}" style="display: none;">
             <form:option value=""><spring:message code="createUniversity.city.select"/></form:option>
             <c:forEach var="item" items="${cities}">
-              <form:option value="${item.id}"><c:out value="${item.name}"/></form:option>
+              <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
             </c:forEach>
           </form:select>
           <input type="text" id="citySearch" class="form-input autocomplete-input" placeholder="<spring:message code="createUniversity.city.search" text="Type to search city..."/>" />
