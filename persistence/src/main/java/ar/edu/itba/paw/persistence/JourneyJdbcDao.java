@@ -97,11 +97,11 @@ public class JourneyJdbcDao implements JourneyDao {
             """
             AND (
                 LOWER(us.username) LIKE LOWER(?)
-                OR LOWER(us.firstname) LIKE LOWER(?)
-                OR LOWER(us.lastname) LIKE LOWER(?)
-                OR LOWER(j.description) LIKE LOWER(?)
+            --  OR LOWER(us.firstname) LIKE LOWER(?)
+            --  OR LOWER(us.lastname) LIKE LOWER(?)
+            --  OR LOWER(j.description) LIKE LOWER(?)
                 OR LOWER(un2.name) LIKE LOWER(?)
-                OR LOWER(un2.abbreviation) LIKE LOWER(?)
+            --  OR LOWER(un2.abbreviation) LIKE LOWER(?)
                 OR LOWER(ci2.name) LIKE LOWER(?)
             )
             """;
@@ -351,16 +351,16 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public Page<Journey> listAll(final int page, final int size) {
-        final Integer totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journeys WHERE deleted = FALSE", Integer.class);
+        final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journeys WHERE deleted = FALSE", Integer.class);
         final List<Journey> list = jdbcTemplate.query(SQL_FIND_ALL_PAGED, JOURNEY_ROW_MAPPER, size, (page-1) * size);
-        return new Page<>(list, page, (int) Math.ceil((double) totalItems / size));
+        return new Page<>(list, page, pageCount(totalItems, size));
     }
 
     @Override
     public Page<Journey> getOthersJourneys(final long userId, final int page, final int size) {
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journeys j WHERE j.deleted = FALSE AND j.user_id != ?", Integer.class, userId);
-        final List<Journey> list = jdbcTemplate.query(SQL_FIND_OTHERS_PAGED, JOURNEY_ROW_MAPPER, userId, size, (page - 1) * size);
-        return new Page<>(list, page, (int) Math.ceil((double) totalItems / size));
+        final List<Journey> list = jdbcTemplate.query(SQL_FIND_OTHERS_PAGED, JOURNEY_ROW_MAPPER, userId, size, offset(page, size));
+        return new Page<>(list, page, pageCount(totalItems, size));
     }
 
     @Override
@@ -412,12 +412,12 @@ public class JourneyJdbcDao implements JourneyDao {
         queryBuilder.append(" ORDER BY j.id ASC LIMIT ? OFFSET ?");
 
         params.add(size);
-        params.add((page - 1) * size);
+        params.add(offset(page, size));
 
         return new Page<>(
                 jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray()),
                 page,
-                (int) Math.ceil((double) totalItems / size)
+                pageCount(totalItems, size)
         );
     }
 
@@ -465,12 +465,12 @@ public class JourneyJdbcDao implements JourneyDao {
 
 
         params.add(size);
-        params.add((page - 1) * size);
+        params.add(offset(page, size));
 
         return new Page<>(
                 jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray()),
                 page,
-                (int) Math.ceil((double) totalItems / size)
+                pageCount(totalItems, size)
         );
     }
 
@@ -491,9 +491,9 @@ public class JourneyJdbcDao implements JourneyDao {
         );
 
         return new Page<>(
-                jdbcTemplate.query(SQL_FIND_BY_ORIGIN_CITY_PAGED, JOURNEY_ROW_MAPPER, originCityId, size, (page - 1) * size),
+                jdbcTemplate.query(SQL_FIND_BY_ORIGIN_CITY_PAGED, JOURNEY_ROW_MAPPER, originCityId, size, offset(page, size)),
                 page,
-                (int) Math.ceil((double) totalItems / size)
+                pageCount(totalItems, size)
         );
     }
 
@@ -504,19 +504,19 @@ public class JourneyJdbcDao implements JourneyDao {
         final int totalItems = jdbcTemplate.queryForObject(
                 SQL_SEARCH_COUNT,
                 Integer.class,
-                searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern
+                searchPattern, searchPattern, searchPattern //, searchPattern, searchPattern, searchPattern, searchPattern
         );
 
         final List<Journey> list = jdbcTemplate.query(
                 SQL_SEARCH_PAGED,
                 JOURNEY_ROW_MAPPER,
-                searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, size, (page - 1) * size
+                searchPattern, searchPattern, searchPattern, /*searchPattern, searchPattern, searchPattern, searchPattern,*/ size, offset(page, size)
         );
 
         return new Page<>(
                 list,
                 page,
-                (int) Math.ceil((double) totalItems / size)
+                pageCount(totalItems, size)
         );
     }
 
@@ -541,8 +541,9 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
 
-    @Override
-    public List<Journey> getRecommendedJourneys(final String email) {
+    //@TODO hacer bien la pagina , lo deje hardcodeado
+    /*@Override
+    public Page<Journey> getRecommendedJourneys(final String email) {
         LOGGER.debug("Querying DB for recommended journeys for usermail {}", email);
 
         final String query = """
@@ -656,7 +657,134 @@ public class JourneyJdbcDao implements JourneyDao {
                ORDER BY
                    (university_match_score + city_match_score + interest_match_score + timing_match_score + origin_uni_match_off_travel_score + origin_city_match_off_travel_score) DESC;
             """;
-        return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, email);
+            return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, email);
+    }*/
+    @Override
+    public Page<Journey> getRecommendedJourneys(final String email, final int page, final int size) {
+        LOGGER.debug("Querying recommended journeys for user {} - page {}, size {}", email, page, size);
+
+        final int offset = offset(page, size);
+
+        final String baseQuery = """
+           WITH user_data AS (
+               SELECT id, university
+               FROM users
+               WHERE email = ?
+           ),
+           user_interests AS (
+               SELECT category_id, score
+               FROM user_interest
+               JOIN user_data ud ON user_interest.user_id = ud.id
+           ),
+           user_journey AS (
+               SELECT
+                   j.destination_university_id AS university_id,
+                   univ.city_id,
+                   j.start_date AS user_start,
+                   j.end_date AS user_end
+               FROM journeys j
+               JOIN universities univ ON j.destination_university_id = univ.id
+               JOIN user_data ud ON ud.id = j.user_id
+               WHERE j.deleted = false
+               LIMIT 1
+           ),
+           journey_scores AS (
+               SELECT
+                   j.id AS journey_id,
+                   u.id AS user_id,
+                   u.language AS user_language,
+                   u.email AS user_email,
+                   u.username AS user_username,
+                   u.firstname AS user_firstname,
+                   u.lastname AS user_lastname,
+                   u.blocked AS user_blocked,
+                   uu.id AS user_university,
+                   uu.name AS university_name,
+                   uu.abbreviation AS university_abbreviation,
+                   uc.name AS city_name,
+                   co.name AS country_name,
+                   uc.id AS city_id,
+                   c.id AS career_id,
+                   c.name AS career_name,
+                   u.profile_picture_id AS user_profile_picture_id,
+                   j.start_date AS journey_start_date,
+                   j.end_date AS journey_end_date,
+                   dest_univ.id AS destination_university_id,
+                   dest_univ.name AS destination_university_name,
+                   dest_univ.abbreviation AS destination_university_abbreviation,
+                   dest_city.name AS destination_city_name,
+                   dest_country.name AS destination_country_name,
+                   dest_city.id AS destination_city_id,
+                   j.description AS journey_description,
+                   CASE WHEN j.destination_university_id = uj.university_id THEN 50 ELSE 0 END AS university_match_score,
+                   CASE WHEN dest_univ.city_id = uj.city_id THEN 30 ELSE 0 END AS city_match_score,
+                   COALESCE((
+                       SELECT SUM(ui.score) * 3
+                       FROM user_interest journey_ui
+                       JOIN user_interests ui ON ui.category_id = journey_ui.category_id
+                       WHERE journey_ui.user_id = j.user_id
+                   ), 0) AS interest_match_score,
+                   CASE WHEN (j.start_date, j.end_date) OVERLAPS (uj.user_start, uj.user_end) THEN 15 ELSE 0 END AS timing_match_score,
+                   CASE WHEN j.destination_university_id = ud.university AND (uj.user_start IS NULL OR NOT (j.start_date, j.end_date) OVERLAPS (uj.user_start, uj.user_end)) THEN 50 ELSE 0 END AS origin_uni_match_off_travel_score,
+                   CASE WHEN dest_univ.city_id = (SELECT city_id FROM universities WHERE id = ud.university) AND (uj.user_start IS NULL OR NOT (j.start_date, j.end_date) OVERLAPS (uj.user_start, uj.user_end)) THEN 30 ELSE 0 END AS origin_city_match_off_travel_score
+               FROM journeys j
+               JOIN users u ON j.user_id = u.id
+               JOIN universities dest_univ ON j.destination_university_id = dest_univ.id
+               JOIN cities dest_city ON dest_univ.city_id = dest_city.id
+               JOIN countries dest_country ON dest_city.country_id = dest_country.id
+               JOIN universities uu ON u.university = uu.id
+               JOIN cities uc ON uu.city_id = uc.id
+               JOIN countries co ON uc.country_id = co.id
+               LEFT JOIN careers c ON u.career_id = c.id
+               CROSS JOIN user_journey uj
+               CROSS JOIN user_data ud
+               WHERE j.user_id != ud.id AND j.deleted = FALSE
+           )
+           SELECT *
+           FROM journey_scores
+           WHERE (university_match_score + city_match_score + interest_match_score + timing_match_score + origin_uni_match_off_travel_score + origin_city_match_off_travel_score) > 0
+           ORDER BY (university_match_score + city_match_score + interest_match_score + timing_match_score + origin_uni_match_off_travel_score + origin_city_match_off_travel_score) DESC
+           LIMIT ? OFFSET ?
+           """;
+
+        final String countQuery = """
+           WITH user_data AS (
+               SELECT id, university
+               FROM users
+               WHERE email = ?
+           ),
+           user_journey AS (
+               SELECT
+                   j.destination_university_id AS university_id,
+                   univ.city_id,
+                   j.start_date AS user_start,
+                   j.end_date AS user_end
+               FROM journeys j
+               JOIN universities univ ON j.destination_university_id = univ.id
+               JOIN user_data ud ON ud.id = j.user_id
+               WHERE j.deleted = false
+               LIMIT 1
+           ),
+           journey_scores AS (
+               SELECT j.id
+               FROM journeys j
+               JOIN users u ON j.user_id = u.id
+               JOIN universities dest_univ ON j.destination_university_id = dest_univ.id
+               JOIN cities dest_city ON dest_univ.city_id = dest_city.id
+               JOIN universities uu ON u.university = uu.id
+               JOIN cities uc ON uu.city_id = uc.id
+               CROSS JOIN user_journey uj
+               CROSS JOIN user_data ud
+               WHERE j.user_id != ud.id AND j.deleted = FALSE
+           )
+           SELECT COUNT(*) FROM journey_scores
+           """;
+
+        final int totalItems = jdbcTemplate.queryForObject(countQuery, Integer.class, email);
+
+        final List<Journey> journeys = jdbcTemplate.query(baseQuery, JOURNEY_ROW_MAPPER, email, size, offset);
+
+        return new Page<>(journeys, page, pageCount(totalItems, size));
     }
 
 

@@ -47,7 +47,7 @@ public class CityJdbcDaoTest {
     private static final String CITY_3 = "city3";
     private static final String DELETED_CITY = "deleted_city";
     private static final String NEW_CITY = "new!";
-    private static final String COUNTRY_NAME_1 = "cuntry1";
+    private static final String COUNTRY_NAME_1 = "cuntry";
     private static final String COUNTRY_CODE_1 = "aa";    
     private static final String COUNTRY_NAME_2 = "cuntry2";
     private static final String COUNTRY_CODE_2 = "bb";
@@ -233,10 +233,9 @@ public class CityJdbcDaoTest {
         Page<City> page1 = cityDao.searchBySubstring(null, 1, 3);
 
         assertNotNull(page1);
-        assertEquals(0, page1.getTotalPages());
+        assertEquals(1, page1.getTotalPages());
         assertNotNull(page1.getContent());
-        assertNotNull(page1.getContent());
-        assertEquals(0, page1.getContent().size());
+        assertEquals(3, page1.getContent().size());
     }
     @Test
     public void testSearchBySubstringPaging(){

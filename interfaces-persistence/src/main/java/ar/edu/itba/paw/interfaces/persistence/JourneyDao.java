@@ -38,7 +38,7 @@ public interface JourneyDao {
     List<Journey> findByFilters(long userId, String destination, LocalDate startDate, LocalDate endDate, String interest);
     List<Journey> findByOriginCity(long originCityId);
     List<Journey> findByOriginUniversity(long originUniversityId);
-    List<Journey> getRecommendedJourneys(String email);
+    Page<Journey> getRecommendedJourneys(String email, int page, int size);
     List<Journey> getOthersJourneys(long userId);
 
 

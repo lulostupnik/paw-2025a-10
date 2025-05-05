@@ -139,8 +139,9 @@ public class EventJdbcDao implements EventDao {
     private final static String SQL_SEARCH_PAGED = SQL_BASE_NOT_DELETED + """
                     AND (
                             LOWER(e.title) LIKE LOWER(?)
-                            OR LOWER(e.description) LIKE LOWER(?)
+                    --        OR LOWER(e.description) LIKE LOWER(?)
                             OR LOWER(c.name) LIKE LOWER(?)
+                            OR LOWER(us.username) LIKE LOWER(?)
                         )
                     ORDER BY e.event_date DESC LIMIT ? OFFSET ?
                     """;
@@ -212,6 +213,7 @@ public class EventJdbcDao implements EventDao {
     WHERE e.event_date >= CURRENT_DATE
     AND us.email != ?
     AND e.deleted = FALSE
+    LIMIT ? OFFSET ?
     """;
 
     private final static String SQL_TOP_EVENTS = """
@@ -266,7 +268,7 @@ public class EventJdbcDao implements EventDao {
         WHERE e.event_date >= CURRENT_DATE
         AND e.deleted = FALSE
         ORDER BY COALESCE(a.attendees, 0) DESC, e.event_date
-        LIMIT 3
+        LIMIT ? OFFSET ?
         """;
 
     @Autowired
@@ -340,22 +342,60 @@ public class EventJdbcDao implements EventDao {
         return jdbcTemplate.query(SQL_FIND_BY_EMAIL, EVENT_ROW_MAPPER, email);
     }
 
+//    @Override
+//    public List<UserEvent> getRecommendedEvents(final String email) {
+//        return jdbcTemplate.query(SQL_RECOMMENDED_EVENTS,  (rs, rowNum) -> {
+//            Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
+//            boolean isAttending = rs.getBoolean("is_attending");
+//            return new UserEvent(event, isAttending);
+//        }, email, email);
+//    }
+
     @Override
-    public List<UserEvent> getRecommendedEvents(final String email) {
-        return jdbcTemplate.query(SQL_RECOMMENDED_EVENTS,  (rs, rowNum) -> {
-            Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
-            boolean isAttending = rs.getBoolean("is_attending");
-            return new UserEvent(event, isAttending);
-        }, email, email);
+    public Page<UserEvent> getRecommendedEvents(final String email, final int page, final int size) {
+        final int totalItems = jdbcTemplate.queryForObject("""
+        SELECT COUNT(*) FROM events e
+        JOIN users us ON e.user_id = us.id
+        JOIN universities un ON us.university = un.id
+        JOIN cities c ON e.city_id = c.id
+        WHERE e.event_date >= CURRENT_DATE AND us.email != ? AND e.deleted = FALSE AND c.id = (
+            SELECT c.id FROM users u
+            JOIN universities un ON u.university = un.id
+            JOIN cities c ON un.city_id = c.id
+            WHERE u.email = ?
+        )
+        """, Integer.class, email, email);
+
+
+        final List<UserEvent> events = jdbcTemplate.query(
+                SQL_RECOMMENDED_EVENTS,
+                (rs, rowNum) -> {
+                    Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
+                    boolean isAttending = rs.getBoolean("is_attending");
+                    return new UserEvent(event, isAttending);
+                },
+                email, email, size, offset(page, size)
+        );
+
+        return new Page<>(events, page, pageCount(totalItems, size));
     }
 
-    public List<Event> getTopEvents(){
-        return jdbcTemplate.query(SQL_TOP_EVENTS, EVENT_ROW_MAPPER);
+
+    @Override
+    public Page<Event> getTopEvents(final int page, final int size) {
+        final int totalItems = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM events e WHERE e.deleted = FALSE AND e.event_date >= CURRENT_DATE",
+                Integer.class
+        );
+
+        final List<Event> events = jdbcTemplate.query(SQL_TOP_EVENTS, EVENT_ROW_MAPPER, size, offset(page, size));
+
+        return new Page<>(events, page, pageCount(totalItems, size));
     }
+
 
     public Optional<Integer> getEventAttendanceLimit(final long eventId) {
-        return jdbcTemplate.query("SELECT attendees_limit FROM events WHERE id = ?", (rs, rowNumber) -> rs.getInt("attendees_limit"), eventId)
-                .stream().findFirst();
+        return Optional.ofNullable(jdbcTemplate.queryForObject("SELECT attendees_limit FROM events WHERE id = ?", Integer.class, eventId));
     }
 
     @Override
@@ -392,10 +432,6 @@ public class EventJdbcDao implements EventDao {
         return jdbcTemplate.query(SQL_FIND_OTHERS_EVENTS, EVENT_ROW_MAPPER, userId);
     }
 
-    private int calculateTotalPages(final int totalItems, final int pageSize) {
-        return (int) Math.ceil((double) totalItems / pageSize);
-    }
-
     private int getTotalCount(final String countQuery, final Object... params) {
         return jdbcTemplate.queryForObject(countQuery, Integer.class, params);
     }
@@ -408,9 +444,9 @@ public class EventJdbcDao implements EventDao {
                 userId
         );
 
-        final List<Event> events = jdbcTemplate.query(SQL_FIND_OTHERS_PAGED, EVENT_ROW_MAPPER, userId, size, (page - 1) * size);
+        final List<Event> events = jdbcTemplate.query(SQL_FIND_OTHERS_PAGED, EVENT_ROW_MAPPER, userId, size, offset(page, size));
 
-        return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
+        return new Page<>(events, page, pageCount(totalItems, size));
     }
 
     @Override
@@ -421,9 +457,9 @@ public class EventJdbcDao implements EventDao {
                 userId
         );
 
-        final List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_BY_USER_PAGED, EVENT_ROW_MAPPER, userId, size, (page - 1) * size);
+        final List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_BY_USER_PAGED, EVENT_ROW_MAPPER, userId, size, offset(page, size));
 
-        return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
+        return new Page<>(events, page, pageCount(totalItems, size));
     }
 
     //@Todo, habria que meter en el dao una validacion para int page que sea mayor a 0, o dejamos que tire una excepcion?
@@ -434,9 +470,9 @@ public class EventJdbcDao implements EventDao {
         final String countQuery = "SELECT COUNT(*) FROM events e JOIN users us ON e.user_id = us.id WHERE e.deleted = FALSE AND us.email = ?";
         final int totalItems = getTotalCount(countQuery, email);
 
-        final List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_BY_EMAIL_PAGED, EVENT_ROW_MAPPER, email, size, (page - 1) * size);
+        final List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_BY_EMAIL_PAGED, EVENT_ROW_MAPPER, email, size, offset(page, size));
 
-        return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
+        return new Page<>(events, page, pageCount(totalItems, size));
     }
 
     @Override
@@ -447,9 +483,9 @@ public class EventJdbcDao implements EventDao {
                 Integer.class
         );
 
-        final List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_PAGED, EVENT_ROW_MAPPER, size, (page - 1) * size);
+        final List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_PAGED, EVENT_ROW_MAPPER, size, offset(page, size));
 
-        return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
+        return new Page<>(events, page, pageCount(totalItems, size));
     }
 
     @Override
@@ -458,11 +494,14 @@ public class EventJdbcDao implements EventDao {
         final int totalItems = jdbcTemplate.queryForObject(
                 """
                 SELECT COUNT(*)
-                FROM events e JOIN cities c ON e.city_id = c.id
+                FROM events e
+                JOIN cities c ON e.city_id = c.id
+                JOIN users us ON e.user_id = us.id
                 WHERE e.deleted = FALSE  AND (
                         LOWER(e.title) LIKE LOWER(?)
-                        OR LOWER(e.description) LIKE LOWER(?)
+                --      OR LOWER(e.description) LIKE LOWER(?)
                         OR LOWER(c.name) LIKE LOWER(?)
+                        OR LOWER(us.username) LIKE LOWER(?)
                     )
                 """,
                 Integer.class,
@@ -474,10 +513,10 @@ public class EventJdbcDao implements EventDao {
                 EVENT_ROW_MAPPER,
                 searchPattern, searchPattern, searchPattern,
                 size,
-                (page - 1) * size
+                offset(page, size)
         );
 
-        return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));}
+        return new Page<>(events, page, pageCount(totalItems, size));}
 
 
     @Override
@@ -499,10 +538,10 @@ public class EventJdbcDao implements EventDao {
                     boolean isAttending = rs.getBoolean("is_attending");
                     return new UserEvent(event, isAttending);
                 },
-                userId, userId, size, (page - 1) * size
+                userId, userId, size, offset(page, size)
         );
 
-        return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
+        return new Page<>(events, page, pageCount(totalItems, size));
     }
 
 
