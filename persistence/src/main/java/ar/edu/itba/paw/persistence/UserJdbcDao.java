@@ -95,7 +95,13 @@ public class UserJdbcDao implements UserDao {
     private final static String SQL_FIND_ALL_PAGED = SQL_BASE + " ORDER BY u.id ASC LIMIT ? OFFSET ?";
 
     private final static String SQL_SEARCH_USERS_PAGED = SQL_BASE +
-            "WHERE LOWER(u.firstname) LIKE LOWER(?) OR LOWER(u.lastname) LIKE LOWER(?) ORDER BY u.id DESC LIMIT ? OFFSET ? ";
+            """
+            WHERE LOWER(u.firstname) LIKE LOWER(?)
+               OR LOWER(u.lastname) LIKE LOWER(?)
+               OR LOWER(u.username) LIKE LOWER(?)
+                OR LOWER(u.email) LIKE LOWER(?)
+            ORDER BY u.id DESC LIMIT ? OFFSET ?
+            """;
 
 
     @Autowired
@@ -249,9 +255,17 @@ public class UserJdbcDao implements UserDao {
     @Override
     public Page<User> searchUsers(final String search, final int page, final int size) {
         final String searchPattern = "%" + search + "%";
-        final List<User> list = jdbcTemplate.query(SQL_SEARCH_USERS_PAGED, USER_ROW_MAPPER, searchPattern, searchPattern, size, (page - 1) * size);
+        final List<User> list = jdbcTemplate.query(
+                SQL_SEARCH_USERS_PAGED,
+                USER_ROW_MAPPER,
+                searchPattern, searchPattern, searchPattern, searchPattern, size, (page - 1) * size
+        );
         final int elementCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users WHERE LOWER(firstname) LIKE LOWER(?)", Integer.class, searchPattern);
-        return new Page<>(list, page, (int) Math.ceil((double) elementCount / size));
+        return new Page<>(
+                list,
+                page,
+                (int) Math.ceil((double) elementCount / size)
+        );
     }
 
     @Override
