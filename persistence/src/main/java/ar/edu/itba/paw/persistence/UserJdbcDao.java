@@ -249,7 +249,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public Page<User> getAllUsers(final int page, final int size) {
-        final List<User> list = jdbcTemplate.query(SQL_FIND_ALL_PAGED, USER_ROW_MAPPER, size, (page - 1) * size);
+        final List<User> list = jdbcTemplate.query(SQL_FIND_ALL_PAGED, USER_ROW_MAPPER, size, offset(page, size));
         final int elementCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
         return new Page<>(list, page, pageCount(elementCount, size));
     }
@@ -260,7 +260,7 @@ public class UserJdbcDao implements UserDao {
         final List<User> list = jdbcTemplate.query(
                 SQL_SEARCH_USERS_PAGED,
                 USER_ROW_MAPPER,
-                searchPattern, searchPattern, searchPattern, /*searchPattern,*/ size, (page - 1) * size
+                searchPattern, searchPattern, searchPattern, /*searchPattern,*/ size, offset(page, size)
         );
 
         final int elementCount = jdbcTemplate.queryForObject(

@@ -117,7 +117,7 @@ public class UniversityJdbcDao implements UniversityDao {
                 searchPattern, searchPattern, searchPattern, searchPattern
         );
         return new Page<>(
-                jdbcTemplate.query(SQL_SEARCH_PAGED, UNIVERSITY_ROW_MAPPER, searchPattern, searchPattern, searchPattern, searchPattern, size, (page - 1) * size),
+                jdbcTemplate.query(SQL_SEARCH_PAGED, UNIVERSITY_ROW_MAPPER, searchPattern, searchPattern, searchPattern, searchPattern, size, offset(page, size)),
                 page,
                 pageCount(totalItems, size)
         );
@@ -133,7 +133,7 @@ public class UniversityJdbcDao implements UniversityDao {
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM universities WHERE deleted = FALSE", Integer.class);
 
         return new Page<>(
-                jdbcTemplate.query(SQL_FIND_ALL_PAGED, UNIVERSITY_ROW_MAPPER, size, (page - 1) * size),
+                jdbcTemplate.query(SQL_FIND_ALL_PAGED, UNIVERSITY_ROW_MAPPER, size, offset(page, size)),
                 page,
                 pageCount(totalItems, size)
         );

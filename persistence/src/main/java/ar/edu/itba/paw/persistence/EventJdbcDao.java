@@ -374,7 +374,7 @@ public class EventJdbcDao implements EventDao {
                     boolean isAttending = rs.getBoolean("is_attending");
                     return new UserEvent(event, isAttending);
                 },
-                email, email, size, (page - 1) * size
+                email, email, size, offset(page, size)
         );
 
         return new Page<>(events, page, pageCount(totalItems, size));
@@ -388,7 +388,7 @@ public class EventJdbcDao implements EventDao {
                 Integer.class
         );
 
-        final List<Event> events = jdbcTemplate.query(SQL_TOP_EVENTS, EVENT_ROW_MAPPER, size, (page - 1) * size);
+        final List<Event> events = jdbcTemplate.query(SQL_TOP_EVENTS, EVENT_ROW_MAPPER, size, offset(page, size));
 
         return new Page<>(events, page, pageCount(totalItems, size));
     }
@@ -444,7 +444,7 @@ public class EventJdbcDao implements EventDao {
                 userId
         );
 
-        final List<Event> events = jdbcTemplate.query(SQL_FIND_OTHERS_PAGED, EVENT_ROW_MAPPER, userId, size, (page - 1) * size);
+        final List<Event> events = jdbcTemplate.query(SQL_FIND_OTHERS_PAGED, EVENT_ROW_MAPPER, userId, size, offset(page, size));
 
         return new Page<>(events, page, pageCount(totalItems, size));
     }
@@ -457,7 +457,7 @@ public class EventJdbcDao implements EventDao {
                 userId
         );
 
-        final List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_BY_USER_PAGED, EVENT_ROW_MAPPER, userId, size, (page - 1) * size);
+        final List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_BY_USER_PAGED, EVENT_ROW_MAPPER, userId, size, offset(page, size));
 
         return new Page<>(events, page, pageCount(totalItems, size));
     }
@@ -470,7 +470,7 @@ public class EventJdbcDao implements EventDao {
         final String countQuery = "SELECT COUNT(*) FROM events e JOIN users us ON e.user_id = us.id WHERE e.deleted = FALSE AND us.email = ?";
         final int totalItems = getTotalCount(countQuery, email);
 
-        final List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_BY_EMAIL_PAGED, EVENT_ROW_MAPPER, email, size, (page - 1) * size);
+        final List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_BY_EMAIL_PAGED, EVENT_ROW_MAPPER, email, size, offset(page, size));
 
         return new Page<>(events, page, pageCount(totalItems, size));
     }
@@ -483,7 +483,7 @@ public class EventJdbcDao implements EventDao {
                 Integer.class
         );
 
-        final List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_PAGED, EVENT_ROW_MAPPER, size, (page - 1) * size);
+        final List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_PAGED, EVENT_ROW_MAPPER, size, offset(page, size));
 
         return new Page<>(events, page, pageCount(totalItems, size));
     }
@@ -513,7 +513,7 @@ public class EventJdbcDao implements EventDao {
                 EVENT_ROW_MAPPER,
                 searchPattern, searchPattern, searchPattern,
                 size,
-                (page - 1) * size
+                offset(page, size)
         );
 
         return new Page<>(events, page, pageCount(totalItems, size));}
@@ -538,7 +538,7 @@ public class EventJdbcDao implements EventDao {
                     boolean isAttending = rs.getBoolean("is_attending");
                     return new UserEvent(event, isAttending);
                 },
-                userId, userId, size, (page - 1) * size
+                userId, userId, size, offset(page, size)
         );
 
         return new Page<>(events, page, pageCount(totalItems, size));

@@ -145,7 +145,7 @@ public class InterestJdbcDao implements InterestDao {
     public Page<Interest> getAllInterests(final int page, final int pageSize) {
         final int totalInterests = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category", Integer.class);
         return new Page<>(
-                jdbcTemplate.query(SQL_FIND_ALL_PAGED, INTEREST_ROW_MAPPER, pageSize, (page - 1) * pageSize),
+                jdbcTemplate.query(SQL_FIND_ALL_PAGED, INTEREST_ROW_MAPPER, pageSize, offset(page, pageSize)),
                 page,
                 pageCount(totalInterests, pageSize)
         );
@@ -157,7 +157,7 @@ public class InterestJdbcDao implements InterestDao {
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category WHERE name LIKE ?", Integer.class, searchPattern);
 
         return new Page<>(
-                jdbcTemplate.query(SQL_SEARCH_PAGED, INTEREST_ROW_MAPPER, searchPattern, pageSize, (page - 1) * pageSize),
+                jdbcTemplate.query(SQL_SEARCH_PAGED, INTEREST_ROW_MAPPER, searchPattern, pageSize, offset(page, pageSize)),
                 page,
                 pageCount(totalItems, pageSize)
         );

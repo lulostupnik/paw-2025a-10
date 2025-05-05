@@ -110,7 +110,7 @@ public class CityJdbcDao implements CityDao {
     public Page<City> getAllCities(final int page, final int pageSize) {
         final int totalCities = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE deleted = FALSE ", Integer.class);
         return new Page<>(
-                jdbcTemplate.query(SQL_FIND_ALL_PAGED, CITY_ROW_MAPPER, pageSize, (page - 1) * pageSize),
+                jdbcTemplate.query(SQL_FIND_ALL_PAGED, CITY_ROW_MAPPER, pageSize, offset(page, pageSize)),
                 page,
                 pageCount(totalCities, pageSize)
         );
@@ -180,7 +180,7 @@ public class CityJdbcDao implements CityDao {
                 searchPattern, searchPattern
         );
         return new Page<>(
-                jdbcTemplate.query(SQL_SEARCH_PAGED, CITY_ROW_MAPPER, searchPattern, searchPattern, size, (page - 1) * size),
+                jdbcTemplate.query(SQL_SEARCH_PAGED, CITY_ROW_MAPPER, searchPattern, searchPattern, size, offset(page, size)),
                 page,
                 pageCount(totalItems, size)
         );

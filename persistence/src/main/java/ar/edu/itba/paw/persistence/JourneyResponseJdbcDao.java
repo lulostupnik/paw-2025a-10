@@ -14,6 +14,8 @@ import javax.sql.DataSource;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static ar.edu.itba.paw.persistence.JdbcDaoUtils.offset;
 import static ar.edu.itba.paw.persistence.JdbcDaoUtils.pageCount;
 
 @Repository
@@ -76,7 +78,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journey_responses WHERE journey_id = ? AND deleted = FALSE", Integer.class, journeyId);
 
         return new Page<>(
-                jdbcTemplate.query(SQL_FIND_ALL_BY_JOURNEY_PAGED, JOURNEY_RESPONSE_ROW_MAPPER, journeyId, pageSize, (pageNumber - 1) * pageSize),
+                jdbcTemplate.query(SQL_FIND_ALL_BY_JOURNEY_PAGED, JOURNEY_RESPONSE_ROW_MAPPER, journeyId, pageSize, offset(pageNumber, pageSize)),
                 pageNumber,
                 pageCount(totalItems, pageSize)
         );

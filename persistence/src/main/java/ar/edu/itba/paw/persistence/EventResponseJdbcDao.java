@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ar.edu.itba.paw.interfaces.persistence.EventResponseDao;
 
+import static ar.edu.itba.paw.persistence.JdbcDaoUtils.offset;
 import static ar.edu.itba.paw.persistence.JdbcDaoUtils.pageCount;
 
 @Repository
@@ -116,7 +117,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
         );
 
         return new Page<>(
-                jdbcTemplate.query(SQL_LIST_ALL_BY_EVENT_PAGED, EVENT_RESPONSE_ROW_MAPPER, eventId, size, (page - 1) * size),
+                jdbcTemplate.query(SQL_LIST_ALL_BY_EVENT_PAGED, EVENT_RESPONSE_ROW_MAPPER, eventId, size, offset(page, size)),
                 page,
                 pageCount(totalItems, size)
         );

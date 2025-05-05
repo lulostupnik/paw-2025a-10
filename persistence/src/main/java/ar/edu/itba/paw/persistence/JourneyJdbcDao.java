@@ -359,7 +359,7 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public Page<Journey> getOthersJourneys(final long userId, final int page, final int size) {
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journeys j WHERE j.deleted = FALSE AND j.user_id != ?", Integer.class, userId);
-        final List<Journey> list = jdbcTemplate.query(SQL_FIND_OTHERS_PAGED, JOURNEY_ROW_MAPPER, userId, size, (page - 1) * size);
+        final List<Journey> list = jdbcTemplate.query(SQL_FIND_OTHERS_PAGED, JOURNEY_ROW_MAPPER, userId, size, offset(page, size));
         return new Page<>(list, page, pageCount(totalItems, size));
     }
 
@@ -412,7 +412,7 @@ public class JourneyJdbcDao implements JourneyDao {
         queryBuilder.append(" ORDER BY j.id ASC LIMIT ? OFFSET ?");
 
         params.add(size);
-        params.add((page - 1) * size);
+        params.add(offset(page, size));
 
         return new Page<>(
                 jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray()),
@@ -465,7 +465,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
 
         params.add(size);
-        params.add((page - 1) * size);
+        params.add(offset(page, size));
 
         return new Page<>(
                 jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray()),
@@ -491,7 +491,7 @@ public class JourneyJdbcDao implements JourneyDao {
         );
 
         return new Page<>(
-                jdbcTemplate.query(SQL_FIND_BY_ORIGIN_CITY_PAGED, JOURNEY_ROW_MAPPER, originCityId, size, (page - 1) * size),
+                jdbcTemplate.query(SQL_FIND_BY_ORIGIN_CITY_PAGED, JOURNEY_ROW_MAPPER, originCityId, size, offset(page, size)),
                 page,
                 pageCount(totalItems, size)
         );
@@ -510,7 +510,7 @@ public class JourneyJdbcDao implements JourneyDao {
         final List<Journey> list = jdbcTemplate.query(
                 SQL_SEARCH_PAGED,
                 JOURNEY_ROW_MAPPER,
-                searchPattern, searchPattern, searchPattern, /*searchPattern, searchPattern, searchPattern, searchPattern,*/ size, (page - 1) * size
+                searchPattern, searchPattern, searchPattern, /*searchPattern, searchPattern, searchPattern, searchPattern,*/ size, offset(page, size)
         );
 
         return new Page<>(
@@ -663,7 +663,7 @@ public class JourneyJdbcDao implements JourneyDao {
     public Page<Journey> getRecommendedJourneys(final String email, final int page, final int size) {
         LOGGER.debug("Querying recommended journeys for user {} - page {}, size {}", email, page, size);
 
-        final int offset = (page - 1) * size;
+        final int offset = offset(page, size);
 
         final String baseQuery = """
            WITH user_data AS (
