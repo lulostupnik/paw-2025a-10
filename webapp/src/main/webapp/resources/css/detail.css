@@ -90,10 +90,7 @@
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.feature-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow);
-}
+
 
 .feature-title {
     font-size: 1rem;
