@@ -61,7 +61,7 @@ public class CareerJdbcDao implements CareerDao {
         return new Page<>(
                 jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE LIMIT ? OFFSET ?", CAREER_ROW_MAPPER, pageSize, (page - 1) * pageSize),
                 page,
-                (int) Math.ceil((double) totalItems / pageSize)
+                pageCount(totalItems, pageSize)
         );
 
     }
@@ -73,7 +73,7 @@ public class CareerJdbcDao implements CareerDao {
         return new Page<>(
                 jdbcTemplate.query("SELECT * FROM careers WHERE LOWER(name) LIKE LOWER(?) LIMIT ? OFFSET ?", CAREER_ROW_MAPPER, searchPattern, size, (page - 1) * size),
                 page,
-                (int) Math.ceil((double) totalCareers / size)
+                pageCount(totalCareers, size)
         );
     }
 

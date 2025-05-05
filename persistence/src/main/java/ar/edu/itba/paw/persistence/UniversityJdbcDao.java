@@ -119,7 +119,7 @@ public class UniversityJdbcDao implements UniversityDao {
         return new Page<>(
                 jdbcTemplate.query(SQL_SEARCH_PAGED, UNIVERSITY_ROW_MAPPER, searchPattern, searchPattern, searchPattern, searchPattern, size, (page - 1) * size),
                 page,
-                (int) Math.ceil((double) totalItems / size)
+                pageCount(totalItems, size)
         );
     }
 
@@ -135,7 +135,7 @@ public class UniversityJdbcDao implements UniversityDao {
         return new Page<>(
                 jdbcTemplate.query(SQL_FIND_ALL_PAGED, UNIVERSITY_ROW_MAPPER, size, (page - 1) * size),
                 page,
-                (int) Math.ceil((double) totalItems / size)
+                pageCount(totalItems, size)
         );
     }
 

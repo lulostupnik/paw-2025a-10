@@ -351,16 +351,16 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public Page<Journey> listAll(final int page, final int size) {
-        final Integer totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journeys WHERE deleted = FALSE", Integer.class);
+        final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journeys WHERE deleted = FALSE", Integer.class);
         final List<Journey> list = jdbcTemplate.query(SQL_FIND_ALL_PAGED, JOURNEY_ROW_MAPPER, size, (page-1) * size);
-        return new Page<>(list, page, (int) Math.ceil((double) totalItems / size));
+        return new Page<>(list, page, pageCount(totalItems, size));
     }
 
     @Override
     public Page<Journey> getOthersJourneys(final long userId, final int page, final int size) {
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journeys j WHERE j.deleted = FALSE AND j.user_id != ?", Integer.class, userId);
         final List<Journey> list = jdbcTemplate.query(SQL_FIND_OTHERS_PAGED, JOURNEY_ROW_MAPPER, userId, size, (page - 1) * size);
-        return new Page<>(list, page, (int) Math.ceil((double) totalItems / size));
+        return new Page<>(list, page, pageCount(totalItems, size));
     }
 
     @Override
@@ -417,7 +417,7 @@ public class JourneyJdbcDao implements JourneyDao {
         return new Page<>(
                 jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray()),
                 page,
-                (int) Math.ceil((double) totalItems / size)
+                pageCount(totalItems, size)
         );
     }
 
@@ -470,7 +470,7 @@ public class JourneyJdbcDao implements JourneyDao {
         return new Page<>(
                 jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray()),
                 page,
-                (int) Math.ceil((double) totalItems / size)
+                pageCount(totalItems, size)
         );
     }
 
@@ -493,7 +493,7 @@ public class JourneyJdbcDao implements JourneyDao {
         return new Page<>(
                 jdbcTemplate.query(SQL_FIND_BY_ORIGIN_CITY_PAGED, JOURNEY_ROW_MAPPER, originCityId, size, (page - 1) * size),
                 page,
-                (int) Math.ceil((double) totalItems / size)
+                pageCount(totalItems, size)
         );
     }
 
@@ -516,7 +516,7 @@ public class JourneyJdbcDao implements JourneyDao {
         return new Page<>(
                 list,
                 page,
-                (int) Math.ceil((double) totalItems / size)
+                pageCount(totalItems, size)
         );
     }
 
@@ -784,7 +784,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
         final List<Journey> journeys = jdbcTemplate.query(baseQuery, JOURNEY_ROW_MAPPER, email, size, offset);
 
-        return new Page<>(journeys, page, (int) Math.ceil((double) totalItems / size));
+        return new Page<>(journeys, page, pageCount(totalItems, size));
     }
 
 

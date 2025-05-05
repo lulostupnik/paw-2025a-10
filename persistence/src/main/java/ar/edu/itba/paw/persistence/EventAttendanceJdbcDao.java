@@ -16,6 +16,8 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ar.edu.itba.paw.interfaces.persistence.EventAttendanceDao;
 
+import static ar.edu.itba.paw.persistence.JdbcDaoUtils.pageCount;
+
 @Repository
 public class EventAttendanceJdbcDao implements EventAttendanceDao {
     private final static Logger LOGGER = LoggerFactory.getLogger(EventAttendanceJdbcDao.class);
@@ -222,7 +224,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
         return new Page<>(
                 jdbcTemplate.query(SQL_PAGE_BY_EVENT, USER_ROW_MAPPER, eventId, pageSize, (pageNumber - 1) * pageSize),
                 pageNumber,
-                (int) Math.ceil((double) totalItems / pageSize)
+                pageCount(totalItems, pageSize)
         );
     }
 
@@ -237,7 +239,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
         return new Page<>(
                 jdbcTemplate.query(SQL_PAGE_BY_USER, EVENT_ROW_MAPPER, userId, userId, pageSize, (pageNumber - 1) * pageSize),
                 pageNumber,
-                (int) Math.ceil((double) totalItems / pageSize)
+                pageCount(totalItems, pageSize)
         );
     }
 

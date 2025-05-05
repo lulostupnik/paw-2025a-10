@@ -377,7 +377,7 @@ public class EventJdbcDao implements EventDao {
                 email, email, size, (page - 1) * size
         );
 
-        return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
+        return new Page<>(events, page, pageCount(totalItems, size));
     }
 
 
@@ -390,7 +390,7 @@ public class EventJdbcDao implements EventDao {
 
         final List<Event> events = jdbcTemplate.query(SQL_TOP_EVENTS, EVENT_ROW_MAPPER, size, (page - 1) * size);
 
-        return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
+        return new Page<>(events, page, pageCount(totalItems, size));
     }
 
 
@@ -432,10 +432,6 @@ public class EventJdbcDao implements EventDao {
         return jdbcTemplate.query(SQL_FIND_OTHERS_EVENTS, EVENT_ROW_MAPPER, userId);
     }
 
-    private int calculateTotalPages(final int totalItems, final int pageSize) {
-        return (int) Math.ceil((double) totalItems / pageSize);
-    }
-
     private int getTotalCount(final String countQuery, final Object... params) {
         return jdbcTemplate.queryForObject(countQuery, Integer.class, params);
     }
@@ -450,7 +446,7 @@ public class EventJdbcDao implements EventDao {
 
         final List<Event> events = jdbcTemplate.query(SQL_FIND_OTHERS_PAGED, EVENT_ROW_MAPPER, userId, size, (page - 1) * size);
 
-        return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
+        return new Page<>(events, page, pageCount(totalItems, size));
     }
 
     @Override
@@ -463,7 +459,7 @@ public class EventJdbcDao implements EventDao {
 
         final List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_BY_USER_PAGED, EVENT_ROW_MAPPER, userId, size, (page - 1) * size);
 
-        return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
+        return new Page<>(events, page, pageCount(totalItems, size));
     }
 
     //@Todo, habria que meter en el dao una validacion para int page que sea mayor a 0, o dejamos que tire una excepcion?
@@ -476,7 +472,7 @@ public class EventJdbcDao implements EventDao {
 
         final List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_BY_EMAIL_PAGED, EVENT_ROW_MAPPER, email, size, (page - 1) * size);
 
-        return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
+        return new Page<>(events, page, pageCount(totalItems, size));
     }
 
     @Override
@@ -489,7 +485,7 @@ public class EventJdbcDao implements EventDao {
 
         final List<Event> events = jdbcTemplate.query(SQL_FIND_ALL_PAGED, EVENT_ROW_MAPPER, size, (page - 1) * size);
 
-        return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
+        return new Page<>(events, page, pageCount(totalItems, size));
     }
 
     @Override
@@ -520,7 +516,7 @@ public class EventJdbcDao implements EventDao {
                 (page - 1) * size
         );
 
-        return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));}
+        return new Page<>(events, page, pageCount(totalItems, size));}
 
 
     @Override
@@ -545,7 +541,7 @@ public class EventJdbcDao implements EventDao {
                 userId, userId, size, (page - 1) * size
         );
 
-        return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
+        return new Page<>(events, page, pageCount(totalItems, size));
     }
 
 

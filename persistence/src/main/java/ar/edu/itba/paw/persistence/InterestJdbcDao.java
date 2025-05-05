@@ -147,7 +147,7 @@ public class InterestJdbcDao implements InterestDao {
         return new Page<>(
                 jdbcTemplate.query(SQL_FIND_ALL_PAGED, INTEREST_ROW_MAPPER, pageSize, (page - 1) * pageSize),
                 page,
-                (int) Math.ceil((double) totalInterests / pageSize)
+                pageCount(totalInterests, pageSize)
         );
     }
 
@@ -159,7 +159,7 @@ public class InterestJdbcDao implements InterestDao {
         return new Page<>(
                 jdbcTemplate.query(SQL_SEARCH_PAGED, INTEREST_ROW_MAPPER, searchPattern, pageSize, (page - 1) * pageSize),
                 page,
-                (int) Math.ceil((double) totalItems / pageSize)
+                pageCount(totalItems, pageSize)
         );
     }
 

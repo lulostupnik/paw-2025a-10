@@ -112,7 +112,7 @@ public class CityJdbcDao implements CityDao {
         return new Page<>(
                 jdbcTemplate.query(SQL_FIND_ALL_PAGED, CITY_ROW_MAPPER, pageSize, (page - 1) * pageSize),
                 page,
-                (int) Math.ceil((double) totalCities / pageSize)
+                pageCount(totalCities, pageSize)
         );
     }
 
@@ -182,7 +182,7 @@ public class CityJdbcDao implements CityDao {
         return new Page<>(
                 jdbcTemplate.query(SQL_SEARCH_PAGED, CITY_ROW_MAPPER, searchPattern, searchPattern, size, (page - 1) * size),
                 page,
-                (int) Math.ceil((double) totalItems / size)
+                pageCount(totalItems, size)
         );
     }
 
