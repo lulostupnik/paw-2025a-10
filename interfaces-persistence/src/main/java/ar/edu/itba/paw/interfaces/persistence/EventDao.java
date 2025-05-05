@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.interfaces.persistence;
 
 import ar.edu.itba.paw.models.*;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -9,11 +8,17 @@ import java.util.Optional;
 
 public interface EventDao {
 
-    //CREATE
+    // CREATE
     Event create(User user, City city, LocalDate date, String description, long flyerImageId, String title, LocalTime time, String address, Integer attendeesLimit);
 
 
-    //UPDATE
+    // UPDATE
+    void updateData(long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId/*, long userId*/);
+
+
+    // DELETE
+    void delete(long id);
+    void deletionMessage(long id, String message);
 
 
     //GET (ONE)
@@ -25,39 +30,21 @@ public interface EventDao {
 
     //LIST
     List<Event> listByQuery(Long cityId, LocalDate date);
-
     List<Event> listAll();
-
     List<Event> getEvents(String email);
-
     List<UserEvent> getRecommendedEvents(String email);
-
     List<Event> getTopEvents();
-
     List<Event> getFullEvents();
-
-    void delete(long id);
-
-    void deletionMessage(long id, String message);
-
     List<Event> getMyEvents(long userId);
-
     List<Event> getOthersEvents(long userId);
-
     List<UserEvent> getEventsWithAttendanceStatus(long userId);
 
-    Page<UserEvent> getEventsWithAttendanceStatus(long userId, int page, int size);
 
     //PAGE
     Page<Event> getOthersEvents(long userId, int pageNumber, int pageSize);
-
     Page<Event> getMyEvents(long userId, int pageNumber, int pageSize);
-
     Page<Event> getEvents(String email, int pageNumber, int pageSize);
-
     Page<Event> listAll(int pageNumber, int pageSize);
-
-    void updateData(long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId/*, long userId*/);
-
+    Page<UserEvent> getEventsWithAttendanceStatus(long userId, int page, int size);
     Page<Event> searchEvents(String search, int pageNumber, int pageSize);
 }

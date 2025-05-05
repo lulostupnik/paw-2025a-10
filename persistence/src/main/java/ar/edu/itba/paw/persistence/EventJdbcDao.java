@@ -115,7 +115,7 @@ public class EventJdbcDao implements EventDao {
             JOIN users us ON e.user_id = us.id
             JOIN careers ca ON ca.id = us.career_id
             JOIN universities un ON us.university = un.id
-            JOIN cities ci2 ON un.city_id = ci2.id 
+            JOIN cities ci2 ON un.city_id = ci2.id
             JOIN countries co2 ON co2.id = ci2.country_id
             JOIN cities c ON e.city_id = c.id
             JOIN countries co ON c.country_id = co.id
@@ -134,7 +134,15 @@ public class EventJdbcDao implements EventDao {
     private final static String SQL_FIND_OTHERS_PAGED = SQL_FIND_OTHERS_EVENTS + " LIMIT ? OFFSET ?";
     private final static String SQL_FIND_ALL_BY_USER_PAGED = SQL_FIND_MY_EVENTS + " ORDER BY e.event_date DESC LIMIT ? OFFSET ? ";
     private final static String SQL_FIND_ALL_BY_EMAIL_PAGED = SQL_FIND_BY_EMAIL + " ORDER BY e.event_date DESC LIMIT ? OFFSET ? ";
-    private final static String SQL_SEARCH_PAGED = SQL_BASE_NOT_DELETED + " AND (LOWER(e.title) LIKE LOWER(?)) ORDER BY e.event_date DESC LIMIT ? OFFSET ?";
+
+    private final static String SQL_SEARCH_PAGED = SQL_BASE_NOT_DELETED + """
+                    AND (
+                            LOWER(e.title) LIKE LOWER(?)
+                            OR LOWER(e.description) LIKE LOWER(?)
+                            OR LOWER(c.name) LIKE LOWER(?)
+                        )
+                    ORDER BY e.event_date DESC LIMIT ? OFFSET ?
+                    """;
 
     private final static String SQL_SELECT_WITH_ATTENDANCE = "SELECT (ea.user_id IS NOT NULL) AS is_attending, " + SQL_ALIASES;
     private final static String SQL_FIND_EVENTS_WITH_ATTENDANCE = SQL_SELECT_WITH_ATTENDANCE + SQL_FROM_BASE + """
@@ -447,15 +455,23 @@ public class EventJdbcDao implements EventDao {
     public Page<Event> searchEvents(final String search, final int page, final int size) {
         final String searchPattern = "%" + search + "%";
         final int totalItems = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM events e WHERE e.deleted = FALSE  AND (LOWER(e.title) LIKE LOWER(?))",
+                """
+                SELECT COUNT(*)
+                FROM events e JOIN cities c ON e.city_id = c.id
+                WHERE e.deleted = FALSE  AND (
+                        LOWER(e.title) LIKE LOWER(?)
+                        OR LOWER(e.description) LIKE LOWER(?)
+                        OR LOWER(c.name) LIKE LOWER(?)
+                    )
+                """,
                 Integer.class,
-                searchPattern
+                searchPattern, searchPattern, searchPattern
         );
 
         final List<Event> events = jdbcTemplate.query(
                 SQL_SEARCH_PAGED,
                 EVENT_ROW_MAPPER,
-                searchPattern,
+                searchPattern, searchPattern, searchPattern,
                 size,
                 (page - 1) * size
         );
