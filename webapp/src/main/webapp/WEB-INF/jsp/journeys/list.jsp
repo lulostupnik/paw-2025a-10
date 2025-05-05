@@ -13,6 +13,8 @@
 </head>
 <body>
 <jsp:include page="../components/i18n-hidden-inputs.jsp"/>
+<c:set var="searchUrl" value="/journeys" scope="request" />
+<c:set var="searchPlaceholderCode" value="journeys.search.journey" scope="request" />
 
 <div class="layout-container">
     <!-- Main Content -->
@@ -24,6 +26,12 @@
                     <spring:message code="journey.list.title"/>
                 </h2>
                 <div class="journeys-actions">
+                    <form action="<c:url value='${searchUrl}'/>" method="get" class="search-form">
+                        <input type="text" name="search" class="search-input" placeholder="<spring:message code='${searchPlaceholderCode}' />" value="${param.search}">
+                        <input type="hidden" name="page" value="1">
+                        <input type="hidden" name="pageSize" value="${param.pageSize != null ? param.pageSize : 10}">
+                        <button type="submit" class="search-button"><spring:message code="admin.search.button" /></button>
+                    </form>
                     <button id="filterToggleBtn" class="btn-secondary btn-with-icon">
                         <img src="<c:url value='/resources/icons/filter.svg'/>" alt="<spring:message code="journey.filter.toggle"/>" class="btn-icon filter-icon" />
                         <img src="<c:url value='/resources/icons/x.svg'/>" alt="<spring:message code="journey.filter.close"/>" class="btn-icon close-icon" style="display: none;" />

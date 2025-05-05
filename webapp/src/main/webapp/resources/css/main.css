@@ -25,6 +25,7 @@
 @import "pages/journeys.css";
 @import "pages/error.css";
 @import "pages/login.css";
+@import "pages/dashboard.css";
 
 /* 5. Utilities */
 @import "utilities/spacing.css";
