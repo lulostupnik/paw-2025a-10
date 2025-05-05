@@ -22,6 +22,12 @@ public class Event {
     private final Optional<Integer> attendeesLimit;
     private final int attendeesCount;
 
+
+    //@TODO preguntar si esta bien
+    public boolean getFull(){
+        return attendeesLimit.isPresent() && attendeesLimit.get() < attendeesCount;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

@@ -240,7 +240,6 @@ public class JourneyServiceImpl implements JourneyService {
     public List<Journey> getOthersJourneys(long userId) {
         return journeyDao.getOthersJourneys(userId);
     }
-
     @Override
     @Transactional(readOnly = true)
     public List<Journey> getOthersJourneys(String email) {

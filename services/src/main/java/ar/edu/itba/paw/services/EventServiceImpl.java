@@ -256,21 +256,17 @@ public class EventServiceImpl implements EventService {
     // FIXME: Agregarle cacheable?
     @Transactional(readOnly = true)
     @Override
-    public List<UserEvent> getRecommendedEvents(String email, int limit) {
+    public List<UserEvent> getRecommendedEvents(long userId, int limit) {
         if (limit <= 0) {
             throw new IllegalArgumentException("Limit must be greater than 0");
         }
-        LOGGER.debug("Fetching recommended events for user email: {}, with limit: {}", email, limit);
-        List<UserEvent> events = eventDao.getRecommendedEvents(email, 1, limit).getContent();
+        LOGGER.debug("Fetching recommended events for user id: {}, with limit: {}", userId, limit);
+        List<UserEvent> events = eventDao.getRecommendedEvents(userId, 1, limit).getContent();
         if (events.isEmpty()) {
-            LOGGER.debug("No recommended events found for user {}. Falling back to top events.", email);
-            eventDao.getTopEvents(1, limit).getContent().forEach(event -> {
-                LOGGER.debug("Adding top event fallback: {}", event.getTitle());
-                UserEvent ue = new UserEvent(event, false);
-                events.add(ue);
-            });
+            LOGGER.debug("No recommended events found for user {}. Falling back to top events.", userId);
+            events = eventDao.getTopUserEvents(userId,1, limit).getContent();
         } else {
-            LOGGER.debug("Found {} recommended events for user {}", events.size(), email);
+            LOGGER.debug("Found {} recommended events for user {}", events.size(), userId);
         }
 
         return events;

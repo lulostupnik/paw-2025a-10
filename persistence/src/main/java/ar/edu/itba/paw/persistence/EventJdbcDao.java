@@ -70,43 +70,36 @@ public class EventJdbcDao implements EventDao {
     );
 
     private final static String SQL_ALIASES = """
-                us.id AS user_id,
-                us.email AS user_email,
-                us.firstname AS user_firstname,
-                us.lastname AS user_lastname,
-                us.username AS user_username,
-                us.university AS user_university,
-                us.profile_picture_id AS user_profile_picture_id,
-                us.language AS user_language,
-                us.blocked AS user_blocked,
-            
-                ca.id AS career_id,
-                ca.name AS career_name,
-            
-                e.id AS event_id,
-                e.event_date AS event_date,
-                e.description AS event_description,
-                e.flyer_image_id AS event_flyer_image_id,
-                e.title AS event_title,
-                e.event_time AS event_time,
-                e.address AS event_address,
-                e.attendees_limit AS event_attendees_limit,
-                e.attendees_count AS event_attendees_count,
-            
-                un.id AS university_id,
-                un.name AS university_name,
-                un.abbreviation AS university_abbreviation,
-            
-                c.id AS city_id,
-                c.name AS city_name,
-            
-                co.name AS country_name,
-            
-                ci2.id AS origin_city_id,
-                ci2.name AS origin_city_name,
-            
-                co2.name AS origin_country_name
-            """;
+        us.id AS user_id,
+        us.email AS user_email,
+        us.firstname AS user_firstname,
+        us.lastname AS user_lastname,
+        us.username AS user_username,
+        us.university AS user_university,
+        us.profile_picture_id AS user_profile_picture_id,
+        us.language AS user_language,
+        us.blocked AS user_blocked,
+        ca.id AS career_id,
+        ca.name AS career_name,
+        e.id AS event_id,
+        e.event_date AS event_date,
+        e.description AS event_description,
+        e.flyer_image_id AS event_flyer_image_id,
+        e.title AS event_title,
+        e.event_time AS event_time,
+        e.address AS event_address,
+        e.attendees_limit AS event_attendees_limit,
+        e.attendees_count AS event_attendees_count,
+        un.id AS university_id,
+        un.name AS university_name,
+        un.abbreviation AS university_abbreviation,
+        c.id AS city_id,
+        c.name AS city_name,
+        co.name AS country_name,
+        ci2.id AS origin_city_id,
+        ci2.name AS origin_city_name,
+        co2.name AS origin_country_name
+    """;
 
     private final static String SQL_SELECT_BASE = "SELECT " + SQL_ALIASES ;
 
@@ -155,50 +148,17 @@ public class EventJdbcDao implements EventDao {
 
 
     private final static String SQL_RECOMMENDED_EVENTS = """
-           WITH user_data AS (
+        WITH user_data AS (
         SELECT u.id, c.id AS city_id
         FROM users u
         JOIN universities un ON u.university = un.id
         JOIN cities c ON un.city_id = c.id
-        WHERE u.email = ?
+        WHERE u.id = ?
     )
     SELECT
         (ea.user_id IS NOT NULL) AS is_attending,
-        us.id AS user_id,
-        us.email AS user_email,
-        us.firstname AS user_firstname,
-        us.lastname AS user_lastname,
-        us.username AS user_username,
-        us.university AS user_university,
-        us.profile_picture_id AS user_profile_picture_id,
-        us.language AS user_language,
-        us.blocked AS user_blocked,
-    
-        ca.id AS career_id,
-        ca.name AS career_name,
-    
-        e.id AS event_id,
-        e.event_date AS event_date,
-        e.description AS event_description,
-        e.flyer_image_id AS event_flyer_image_id,
-        e.title AS event_title,
-        e.event_time AS event_time,
-        e.address AS event_address,
-        e.attendees_limit AS event_attendees_limit,
-        e.attendees_count AS event_attendees_count,
-        un.id AS university_id,
-        un.name AS university_name,
-        un.abbreviation AS university_abbreviation,
-    
-        c.id AS city_id,
-        c.name AS city_name,
-    
-        co.name AS country_name,
-    
-        ci2.id AS origin_city_id,
-        ci2.name AS origin_city_name,
-    
-        co2.name AS origin_country_name
+        (e.user_id = ?) AS is_owner,
+  """ + SQL_ALIASES + """
     FROM events e
     JOIN users us ON e.user_id = us.id
     JOIN careers ca ON ca.id = us.career_id
@@ -210,65 +170,62 @@ public class EventJdbcDao implements EventDao {
     JOIN user_data ud ON ud.city_id = e.city_id
     LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ud.id
     WHERE e.event_date >= CURRENT_DATE
-    AND us.email != ?
+    AND us.id != ?
     AND e.deleted = FALSE
+    ORDER BY
+        (e.attendees_limit IS NOT NULL AND e.attendees_count >= e.attendees_limit) ASC, 
+        is_attending ASC,
+        is_owner ASC,
+        COALESCE(e.attendees_count, 0) DESC, 
+        e.event_date
     LIMIT ? OFFSET ?
     """;
 
-    private final static String SQL_TOP_EVENTS = """
+    private final static String SQL_TOP_EVENTS_SELECT = """
         WITH event_attendees as (SELECT COUNT(user_id) AS attendees, event_id FROM event_attendances GROUP BY event_id)
         SELECT
-            e.id AS event_id,
-            e.event_date AS event_date,
-            e.description AS event_description,
-            e.flyer_image_id AS event_flyer_image_id,
-            e.title AS event_title,
-            e.event_time AS event_time,
-            e.address AS event_address,
-            e.attendees_limit AS event_attendees_limit,
-            e.attendees_count AS event_attendees_count,
-        
-            us.id AS user_id,
-            us.email AS user_email,
-            us.firstname AS user_firstname,
-            us.lastname AS user_lastname,
-            us.username AS user_username,
-            us.university AS user_university,
-            us.profile_picture_id AS user_profile_picture_id,
-            us.language AS user_language,
-            us.blocked AS user_blocked,
-        
-            ca.id AS career_id,
-            ca.name AS career_name,
-        
-            un.id AS university_id,
-            un.name AS university_name,
-            un.abbreviation AS university_abbreviation,
-        
-            c.id AS city_id,
-            c.name AS city_name,
-        
-            co.name AS country_name,
-        
-            ci2.id AS origin_city_id,
-            ci2.name AS origin_city_name,
-        
-            co2.name AS origin_country_name
-
-        FROM events e
-        JOIN users us ON e.user_id = us.id
-        JOIN careers ca ON ca.id = us.career_id
-        JOIN universities un ON us.university = un.id
-        JOIN cities ci2 ON un.city_id = ci2.id
-        JOIN countries co2 ON co2.id = ci2.country_id
-        JOIN cities c ON e.city_id = c.id
-        JOIN countries co ON c.country_id = co.id
-        LEFT JOIN event_attendees a ON a.event_id = e.id
-        WHERE e.event_date >= CURRENT_DATE
-        AND e.deleted = FALSE
-        ORDER BY COALESCE(a.attendees, 0) DESC, e.event_date
-        LIMIT ? OFFSET ?
+        """ + SQL_ALIASES;
+    private final static String SQL_TOP_EVENTS = SQL_TOP_EVENTS_SELECT +
+            """
+                FROM events e
+                JOIN users us ON e.user_id = us.id
+                JOIN careers ca ON ca.id = us.career_id
+                JOIN universities un ON us.university = un.id
+                JOIN cities ci2 ON un.city_id = ci2.id
+                JOIN countries co2 ON co2.id = ci2.country_id
+                JOIN cities c ON e.city_id = c.id
+                JOIN countries co ON c.country_id = co.id
+                LEFT JOIN event_attendees a ON a.event_id = e.id
+                WHERE e.event_date >= CURRENT_DATE
+                AND e.deleted = FALSE
+                ORDER BY (e.attendees_limit IS NOT NULL AND e.attendees_count >= e.attendees_limit) ASC, COALESCE(e.attendees_count, 0) DESC, e.event_date
+                LIMIT ? OFFSET ?
         """;
+    private final static String SQL_TOP_EVENTS_LOGGED_USER = SQL_TOP_EVENTS_SELECT +
+            """
+                ,(ea.user_id IS NOT NULL) AS is_attending
+                ,(e.user_id = ?) AS is_owner
+                FROM events e
+                JOIN users us ON e.user_id = us.id
+                JOIN careers ca ON ca.id = us.career_id
+                JOIN universities un ON us.university = un.id
+                JOIN cities ci2 ON un.city_id = ci2.id
+                JOIN countries co2 ON co2.id = ci2.country_id
+                JOIN cities c ON e.city_id = c.id
+                JOIN countries co ON c.country_id = co.id
+                LEFT JOIN event_attendees a ON a.event_id = e.id
+                LEFT JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = ?
+                WHERE e.event_date >= CURRENT_DATE
+                AND e.deleted = FALSE
+                ORDER BY
+                 (e.attendees_limit IS NOT NULL AND e.attendees_count >= e.attendees_limit) ASC, 
+                  is_attending ASC,
+                  is_owner ASC,
+                  COALESCE(e.attendees_count, 0) DESC, 
+                  e.event_date
+                LIMIT ? OFFSET ?
+            """;
+
 
     @Autowired
     public EventJdbcDao(final DataSource dataSource) {
@@ -341,30 +298,25 @@ public class EventJdbcDao implements EventDao {
         return jdbcTemplate.query(SQL_FIND_BY_EMAIL, EVENT_ROW_MAPPER, email);
     }
 
-//    @Override
-//    public List<UserEvent> getRecommendedEvents(final String email) {
-//        return jdbcTemplate.query(SQL_RECOMMENDED_EVENTS,  (rs, rowNum) -> {
-//            Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
-//            boolean isAttending = rs.getBoolean("is_attending");
-//            return new UserEvent(event, isAttending);
-//        }, email, email);
-//    }
 
     @Override
-    public Page<UserEvent> getRecommendedEvents(final String email, final int page, final int size) {
+    public Page<UserEvent> getRecommendedEvents(final long userId, final int page, final int size) {
+        LOGGER.debug("[RecommendedEvents] Fetching recommended events for user {} (page={}, size={})", userId, page, size);
+
         final int totalItems = jdbcTemplate.queryForObject("""
         SELECT COUNT(*) FROM events e
         JOIN users us ON e.user_id = us.id
         JOIN universities un ON us.university = un.id
         JOIN cities c ON e.city_id = c.id
-        WHERE e.event_date >= CURRENT_DATE AND us.email != ? AND e.deleted = FALSE AND c.id = (
+        WHERE e.event_date >= CURRENT_DATE AND us.id != ? AND e.deleted = FALSE AND c.id = (
             SELECT c.id FROM users u
             JOIN universities un ON u.university = un.id
             JOIN cities c ON un.city_id = c.id
-            WHERE u.email = ?
+            WHERE u.id = ?
         )
-        """, Integer.class, email, email);
+        """, Integer.class, userId, userId);
 
+        LOGGER.debug("[RecommendedEvents] Total matching events found: {}", totalItems);
 
         final List<UserEvent> events = jdbcTemplate.query(
                 SQL_RECOMMENDED_EVENTS,
@@ -373,8 +325,10 @@ public class EventJdbcDao implements EventDao {
                     boolean isAttending = rs.getBoolean("is_attending");
                     return new UserEvent(event, isAttending);
                 },
-                email, email, size, (page - 1) * size
+                userId, userId, userId, size, (page - 1) * size
         );
+
+        LOGGER.debug("[RecommendedEvents] Events returned: {}", events.size());
 
         return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
     }
@@ -388,6 +342,28 @@ public class EventJdbcDao implements EventDao {
         );
 
         final List<Event> events = jdbcTemplate.query(SQL_TOP_EVENTS, EVENT_ROW_MAPPER, size, (page - 1) * size);
+
+        return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
+    }
+
+
+    @Override
+    public Page<UserEvent> getTopUserEvents(long userId, final int page, final int size) {
+        LOGGER.debug("[TopUserEvents] Fetching top events for user {} (page={}, size={})", userId, page, size);
+
+        final int totalItems = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM events e WHERE e.deleted = FALSE AND e.event_date >= CURRENT_DATE",
+                Integer.class
+        );
+
+        final List<UserEvent> events = jdbcTemplate.query(SQL_TOP_EVENTS_LOGGED_USER,
+                (rs, rowNum) -> {
+                    Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
+                    boolean isAttending = rs.getBoolean("is_attending");
+                    return new UserEvent(event, isAttending);
+                },
+                userId,userId, size, (page - 1) * size
+        );
 
         return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
     }

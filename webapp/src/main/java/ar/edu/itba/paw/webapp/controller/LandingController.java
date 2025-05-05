@@ -51,16 +51,16 @@ public class LandingController {
         return mav;
     }
 
-    private void populateHomePage(ModelAndView mav, String username) {
-        List<UserEvent> events = eventService.getRecommendedEvents(username, 8);
+    private void populateHomePage(ModelAndView mav, User user) {
+        List<UserEvent> events = eventService.getRecommendedEvents(user.getId(), 8);
         LOGGER.debug("Events: {}", events);
         mav.addObject("events", events);
 
-        List<Journey> journeys = journeyService.getRecommendedJourneys(username, 4);
+        List<Journey> journeys = journeyService.getRecommendedJourneys(user.getEmail(), 4);
         LOGGER.debug("Journeys: {}", journeys);
         mav.addObject("journeys", journeys);
 
-        Boolean hasJourney = journeyService.userHasJourney(username);
+        Boolean hasJourney = journeyService.userHasJourney(user.getEmail());
         LOGGER.debug("User has journey {}", hasJourney);
         mav.addObject("hasJourney", hasJourney);
     }
@@ -70,7 +70,7 @@ public class LandingController {
         LOGGER.debug("Getting dashboard page...");
 
         ModelAndView mav = new ModelAndView("home");
-        populateHomePage(mav, user.getEmail());
+        populateHomePage(mav, user);
 
         return mav;
     }

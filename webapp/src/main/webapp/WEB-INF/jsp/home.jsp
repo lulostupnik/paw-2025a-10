@@ -143,11 +143,15 @@
                                 <jsp:param name="firstname" value="${userEvent.event.user.firstname}" />
                                 <jsp:param name="lastname" value="${userEvent.event.user.lastname}"/>
                                 <jsp:param name="title" value="${userEvent.event.title}"/>
-                                <jsp:param name="isFull" value="${userEvent.event.attendeesLimit.isPresent() && event.attendeesLimit.get() <= event.attendeesCount}"/>
+                                <jsp:param name="isFull" value="${eventAttendance.event.full}"/>
                             </jsp:include>
                         </c:forEach>
+
+
                     </c:if>
                 </div>
+
+
             </section>
 
             <!-- Quick Actions Section -->

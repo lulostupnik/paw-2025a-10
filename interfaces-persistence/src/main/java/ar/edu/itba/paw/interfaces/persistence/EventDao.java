@@ -32,8 +32,53 @@ public interface EventDao {
     List<Event> listByQuery(Long cityId, LocalDate date);
     List<Event> listAll();
     List<Event> getEvents(String email);
-    Page<UserEvent> getRecommendedEvents(String email, int page, int size);
-    Page<Event> getTopEvents(int page, int size);
+
+
+
+    /**
+     * getRecommendedEvents:
+     * Returns a page of recommended events for a user based on their city (through their university).
+     *
+     * The query:
+     * - Excludes events created by the user.
+     * - Excludes deleted events
+     * - Only includes events located in the same city as the user.
+     * - Indicates whether the user is attending (is_attending) and whether they are the owner (is_owner).
+     * - Orders the results by:
+     *   1. Events that are not full (i.e., still have available spots).
+     *   2. Events the user is not attending.
+     *   3. Events not created by the user.
+     *   4. Higher number of attendees.
+     *   5. Soonest event date.
+     *
+     * Supports pagination using LIMIT and OFFSET.
+     */
+
+    Page<UserEvent> getRecommendedEvents(long userId, int page, int size);
+
+    /**
+     * getTopEvents:
+     * Returns a page of upcoming events ordered by general popularity and availability.
+     *
+     * The query:
+     * - Only includes non-deleted events with a date on or after today.
+     * - Orders the results by:
+     *   1. Events that are not full (i.e., attendees_count < attendees_limit).
+     *   2. Higher number of attendees.
+     *   3. Soonest event date.
+     * Supports pagination using LIMIT and OFFSET.
+     */
+    Page<Event> getTopEvents(int page, int size);                           //top events
+    /**
+     * getTopUserEvents:
+     * Same as getTopEvents but orders the results by:
+     * 1. Events that are not full.
+     * 2. Events the user is not attending.
+     * 3. Events not created by the user.
+     * 4. Higher number of attendees.
+     * 5. Soonest event date.
+     */
+    Page<UserEvent> getTopUserEvents(long userId, final int page, final int size);
     List<Event> getFullEvents();
     List<Event> getMyEvents(long userId);
     List<Event> getOthersEvents(long userId);
