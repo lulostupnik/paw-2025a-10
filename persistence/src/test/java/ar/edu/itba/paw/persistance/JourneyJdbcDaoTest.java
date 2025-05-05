@@ -1210,22 +1210,28 @@ public class JourneyJdbcDaoTest {
         long id1 = insertJourney(Map.of("userId", USER2_ID));
         //should have internal score of 80 (30 match city, 50 match uni)
         long id2 = insertJourney(Map.of("userId", USER3_ID, "startDate", END_DATE.plusDays(2), "endDate", END_DATE.plusDays(40)));
-//@TODO cambiar.
-        List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL,1, 1000).getContent();
 
-        assertNotNull(recommended);
-        assertEquals(2, recommended.size());
-        assertEquals(id1, recommended.get(0).getId());
-        assertEquals(id2, recommended.get(1).getId());
+        Page<Journey> page1 = journeyDao.getRecommendedJourneys(USERMAIL,1, 1000);
+
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(1, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(2, page1.getContent().size());
+        assertEquals(id1, page1.getContent().get(0).getId());
+        assertEquals(id2, page1.getContent().get(1).getId());
     }
     @Test
     public void testRecommendedJourneysNoJourneys(){
         insertJourney();
 
-        List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL, 1, 1000).getContent();
+        Page<Journey> page1 = journeyDao.getRecommendedJourneys(USERMAIL, 1, 1000);
 
-        assertNotNull(recommended);
-        assertEquals(0, recommended.size());
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(0, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(0, page1.getContent().size());
     }
     @Test
     public void testRecommendedJourneysGoingToMyCity(){
@@ -1236,12 +1242,15 @@ public class JourneyJdbcDaoTest {
         //should have an internal score of 15 (date overlap only)
         long id2 = insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "startDate", END_DATE.plusDays(-10), "endDate", END_DATE.plusDays(-2)));
 
-        List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL, 1, 1000).getContent();
+        Page<Journey> page1 = journeyDao.getRecommendedJourneys(USERMAIL, 1, 1000);
 
-        assertNotNull(recommended);
-        assertEquals(2, recommended.size());
-        assertEquals(id1, recommended.get(0).getId());
-        assertEquals(id2, recommended.get(1).getId());
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(1, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(2, page1.getContent().size());
+        assertEquals(id1, page1.getContent().get(0).getId());
+        assertEquals(id2, page1.getContent().get(1).getId());
     }
     @Test
     public void testRecommendedJourneysWithInterests(){
@@ -1256,14 +1265,18 @@ public class JourneyJdbcDaoTest {
         //should have internal score of 95 (50 + 30 match dest uni, 15 overlap)
         long id4 = insertJourney(Map.of("userId", USER2_ID));
 
-        List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL, 1, 1000).getContent();
+        Page<Journey> page1 = journeyDao.getRecommendedJourneys(USERMAIL, 1, 1000);
 
-        assertNotNull(recommended);
-        assertEquals(4, recommended.size());
-        assertEquals(id3, recommended.get(0).getId());
-        assertEquals(id2, recommended.get(1).getId());
-        assertEquals(id1, recommended.get(2).getId());
-        assertEquals(id4, recommended.get(3).getId());
+
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(1, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(4, page1.getContent().size());
+        assertEquals(id3, page1.getContent().get(0).getId());
+        assertEquals(id2, page1.getContent().get(1).getId());
+        assertEquals(id1, page1.getContent().get(2).getId());
+        assertEquals(id4, page1.getContent().get(3).getId());
     }
     @Test
     public void testRecommendedJourneysWithInterestsComplex(){
@@ -1282,15 +1295,20 @@ public class JourneyJdbcDaoTest {
         //should have internal score of 45 (30 city match, 15 overlap)
         long id6 = insertJourney(Map.of("userId", USER_ANOTHER_ID, "destinationId", UNI_3_ID));
 
-        List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL, 1, 1000).getContent();
+        Page<Journey> page1 = journeyDao.getRecommendedJourneys(USERMAIL, 1, 1000);
 
-        assertNotNull(recommended);
-        assertEquals(6, recommended.size());
-        assertEquals(id1, recommended.get(0).getId());
-        assertEquals(id2, recommended.get(1).getId());
-        assertEquals(id4, recommended.get(2).getId());
-        assertEquals(id5, recommended.get(3).getId());   
-        assertEquals(id6, recommended.get(4).getId());
-        assertEquals(id3, recommended.get(5).getId());
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(1, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(6, page1.getContent().size());
+
+
+        assertEquals(id1, page1.getContent().get(0).getId());
+        assertEquals(id2, page1.getContent().get(1).getId());
+        assertEquals(id4, page1.getContent().get(2).getId());
+        assertEquals(id5, page1.getContent().get(3).getId());   
+        assertEquals(id6, page1.getContent().get(4).getId());
+        assertEquals(id3, page1.getContent().get(5).getId());
     }
 }

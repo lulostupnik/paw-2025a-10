@@ -381,7 +381,7 @@ public class EventJdbcDaoTest {
 
     @Test
     public void testGetTopEvents(){
-        insertEvent();
+        long id0 = insertEvent();
         long id1 = insertEvent();
         long id2 = insertEvent(Map.of("user", USER2));
         long id3 = insertEvent(Map.of("user", USER3));
@@ -392,13 +392,23 @@ public class EventJdbcDaoTest {
         insertAttendance.execute(Map.of("user_id", USER2.getId(), "event_id", id2));
         insertAttendance.execute(Map.of("user_id", USER1.getId(), "event_id", id1));
 
-        List<Event> topEvents = eventDao.getTopEvents(1,3).getContent();
+        Page<Event> page1 = eventDao.getTopEvents(1,3);
+        Page<Event> page2 = eventDao.getTopEvents(2,3);
 
-        assertNotNull(topEvents);
-        assertEquals(3, topEvents.size());
-        assertEquals(id3, topEvents.get(0).getId());
-        assertEquals(id2, topEvents.get(1).getId());
-        assertEquals(id1, topEvents.get(2).getId());
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(2, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(3, page1.getContent().size());  
+        assertNotNull(page2);
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(2, page2.getTotalPages());
+        assertNotNull(page2.getContent());
+        assertEquals(1, page2.getContent().size());  
+        assertEquals(id3, page1.getContent().get(0).getId());
+        assertEquals(id2, page1.getContent().get(1).getId());
+        assertEquals(id1, page1.getContent().get(2).getId());
+        assertEquals(id0, page2.getContent().get(0).getId());
     }
     @Test
     public void testGetTopEventsTie(){
@@ -412,13 +422,16 @@ public class EventJdbcDaoTest {
         insertAttendance.execute(Map.of("user_id", USER2.getId(), "event_id", id2));
         insertAttendance.execute(Map.of("user_id", USER1.getId(), "event_id", id1));
 
-        List<Event> topEvents = eventDao.getTopEvents(1, 3).getContent();
+        Page<Event> page1 = eventDao.getTopEvents(1, 3);
 
-        assertNotNull(topEvents);
-        assertEquals(3, topEvents.size());
-        assertEquals(id3, topEvents.get(0).getId());
-        assertEquals(id2, topEvents.get(1).getId());
-        assertEquals(id1, topEvents.get(2).getId());
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(2, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(3, page1.getContent().size());  
+        assertEquals(id3, page1.getContent().get(0).getId());
+        assertEquals(id2, page1.getContent().get(1).getId());
+        assertEquals(id1, page1.getContent().get(2).getId());
     }
     @Test
     public void testGetTopEventsDeletedTop(){
@@ -432,23 +445,29 @@ public class EventJdbcDaoTest {
         insertAttendance.execute(Map.of("user_id", USER2.getId(), "event_id", id2));
         insertAttendance.execute(Map.of("user_id", USER1.getId(), "event_id", id1));
 
-        List<Event> topEvents = eventDao.getTopEvents(1,3).getContent();
+        Page<Event> page1 = eventDao.getTopEvents(1,3);
 
-        assertNotNull(topEvents);
-        assertEquals(3, topEvents.size());
-        assertEquals(id2, topEvents.get(0).getId());
-        assertEquals(id1, topEvents.get(1).getId());
-        assertEquals(id0, topEvents.get(2).getId());
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(1, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(3, page1.getContent().size());  
+        assertEquals(id2, page1.getContent().get(0).getId());
+        assertEquals(id1, page1.getContent().get(1).getId());
+        assertEquals(id0, page1.getContent().get(2).getId());
     }
     @Test
     public void testGetTopEventsNoEvents(){
         long id1 = insertEvent(Map.of("deleted", true));
         insertAttendance.execute(Map.of("user_id", USER1.getId(), "event_id", id1));
 
-        List<Event> topEvents = eventDao.getTopEvents(1,3).getContent();
+        Page<Event> page1 = eventDao.getTopEvents(1,3);
 
-        assertNotNull(topEvents);
-        assertEquals(0, topEvents.size());
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(0, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(0, page1.getContent().size());
     }
 
     @Test
@@ -1015,11 +1034,14 @@ public class EventJdbcDaoTest {
         insertEvent(Map.of("user", USER2, "date", LocalDate.now().plusDays(-2)));
         Map<Long, Map<String, Object>> eventInfo = Map.of(id1, event1, id2, event2);
 
-        List<UserEvent> events = eventDao.getRecommendedEvents(USER1_EMAIL, 1, 100).getContent();
+        Page<UserEvent> events = eventDao.getRecommendedEvents(USER1_EMAIL, 1, 100);
 
         assertNotNull(events);
-        assertEquals(2, events.size());
-        for (UserEvent e : events){
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(1, events.getTotalPages());
+        assertNotNull(events.getContent());
+        assertEquals(2, events.getContent().size());
+        for (UserEvent e : events.getContent()){
             assertEquals(eventInfo.get(e.getEvent().getId()).get("attending") == USER1, e.isAttending());
             assertEqualsEvent(e.getEvent(), eventInfo.get(e.getEvent().getId()));
         }        
@@ -1030,10 +1052,13 @@ public class EventJdbcDaoTest {
         insertEvent(Map.of("user", USER2, "deleted", true));
         insertEvent(Map.of("user", USER2, "date", LocalDate.now().plusDays(-2)));
 
-        List<UserEvent> events = eventDao.getRecommendedEvents(USER1_EMAIL,1, 100).getContent();
+        Page<UserEvent> events = eventDao.getRecommendedEvents(USER1_EMAIL,1, 100);
 
         assertNotNull(events);
-        assertEquals(0, events.size());   
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(0, events.getTotalPages());
+        assertNotNull(events.getContent());
+        assertEquals(0, events.getContent().size());   
     }
     @Test
     public void testGetRecommendedEventsWrongEmail(){
@@ -1041,9 +1066,12 @@ public class EventJdbcDaoTest {
         insertEvent(Map.of("user", USER2, "deleted", true));
         insertEvent(Map.of("user", USER2, "date", LocalDate.now().plusDays(-2)));
 
-        List<UserEvent> events = eventDao.getRecommendedEvents("USER1_EMAIL",1, 100).getContent();
+        Page<UserEvent> events = eventDao.getRecommendedEvents("USER1_EMAIL",1, 100);
 
         assertNotNull(events);
-        assertEquals(0, events.size());   
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(0, events.getTotalPages());
+        assertNotNull(events.getContent());
+        assertEquals(0, events.getContent().size());  
     }
 }
