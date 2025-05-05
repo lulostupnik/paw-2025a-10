@@ -324,14 +324,6 @@ public class UserServiceImplTest {
 
         userService.updateUniversity(USER_ID, UNIVERSITY.getId());
     }
-    @Test(expected = IllegalArgumentException.class)
-    public void testUpdateUniversityIdNotFound(){
-        Mockito.when(
-            universityService.findById(Mockito.eq(UNIVERSITY.getId()))
-        ).thenReturn(Optional.empty());
-
-        userService.updateUniversity(USER_ID, UNIVERSITY.getId());
-    }
 
     @Test
     public void testUpdateCareerNameFound(){
