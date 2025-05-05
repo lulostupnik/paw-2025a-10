@@ -308,9 +308,11 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<UserEvent> getEventsPageWithAttendanceStatus(long userId, int page, int size) {
-
-        return eventDao.getEventsWithAttendanceStatus(userId, page,size);
+    public Page<UserEvent> getEventsPageWithAttendanceStatus(String search,long userId, int page, int size) {
+        if(search == null || search.isEmpty()) {
+            return eventDao.getEventsWithAttendanceStatus(userId, page, size);
+        }
+        return eventDao.getEventsWithAttendanceStatus(search, userId, page,size);
     }
     @Transactional(readOnly = true)
     @Override

@@ -8,7 +8,6 @@
 /* 2. Layout Styles */
 @import "layout/container.css";
 @import "layout/grid.css";
-/*@import "layout/sidebar.css";*/
 
 /* 3. Component Styles */
 @import "components/buttons.css";
@@ -25,6 +24,7 @@
 @import "pages/journeys.css";
 @import "pages/error.css";
 @import "pages/login.css";
+@import "pages/dashboard.css";
 
 /* 5. Utilities */
 @import "utilities/spacing.css";

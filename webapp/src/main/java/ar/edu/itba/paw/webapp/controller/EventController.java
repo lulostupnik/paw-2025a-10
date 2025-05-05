@@ -68,15 +68,16 @@ public class EventController {
     @RequestMapping
     public ModelAndView getEvents(@ModelAttribute("user") User user,
                                   @RequestParam(value = "page", defaultValue = "1") int page,
-                                  @RequestParam(value = "size", defaultValue = "8") int size) {
+                                  @RequestParam(value = "size", defaultValue = "8") int size,
+                                  @RequestParam(value = "search", required = false) String search) {
         ModelAndView mav = new ModelAndView("events/list");
 
         if (user != null) {
-            Page<UserEvent> userEventsPage = eventService.getEventsPageWithAttendanceStatus(user.getId(), page, size);
+            Page<UserEvent> userEventsPage = eventService.getEventsPageWithAttendanceStatus(search, user.getId(), page, size);
             mav.addObject("eventsPage", userEventsPage);
             mav.addObject("eventsWithAttendance", userEventsPage.getContent());
         } else {
-            Page<Event> eventsPage = eventService.getAllEvents(page, size);
+            Page<Event> eventsPage = eventService.getAllEvents(search,page, size);
             mav.addObject("eventsPage", eventsPage);
             mav.addObject("events", eventsPage.getContent());
         }

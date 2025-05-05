@@ -48,23 +48,14 @@ public class JourneyController {
     public ModelAndView getJourneys(@Valid @ModelAttribute("filterJourneyForm") FilterJourneyForm fjf, final BindingResult errors,
                                     @ModelAttribute("user") User user,
                                     @RequestParam(value = "page", defaultValue = "1") int page,
-                                    @RequestParam(value = "size", defaultValue = "8") int size) {
+                                    @RequestParam(value = "size", defaultValue = "8") int size,
+                                    @RequestParam(value = "search", required = false) String search){
+
         LOGGER.debug("Getting journeys with filters: {destination: \"{}\", startDate: \"{}\", endDate: \"{}\", interest: \"{}\"}",fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
-        Page<Journey> journeys;
-        boolean hasJourney = false;
-
         final ModelAndView mav = new ModelAndView("journeys/list");
-        if(user != null) {
-            hasJourney = js.userHasJourney(user.getEmail());
-            LOGGER.debug("User has journey {}", hasJourney);
-            journeys = js.getFilteredJourneys(user.getEmail(), fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests(), page, size);
-        } else{
-            journeys = js.getFilteredJourneys(fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests(), page, size);
-            LOGGER.debug("Found journeys {}", journeys);
-        }
-
-        mav.addObject("journeys", journeys);
-        mav.addObject("hasJourney", hasJourney);
+        mav.addObject("journeys", js.getAllJourneys(search, user,
+                fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests(), page, size));
+        mav.addObject("hasJourney", user != null && js.userHasJourney(user.getEmail()));
         mav.addObject("pageSize", size); //@Todo no se si esta bien.
         mav.addObject("currentPage", page);
 

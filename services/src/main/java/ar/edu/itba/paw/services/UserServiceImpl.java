@@ -3,7 +3,6 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -38,38 +36,28 @@ public class UserServiceImpl implements UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // ¿debería hacer el @CachePut? -> para eso tendría que resolver el tema de que createUser retorna un User y no un Optional<User>
     @Override
     @Transactional
-    public User createUser(String email, String username, String firstname, String lastname, String universityName,
-                           String careerName, byte[] profilePicture, long[] interests, String password, Locale locale) {
+    public User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, byte[] profilePicture, long[] interests, String password, Locale locale) {
 
         LOGGER.debug("Creating user for {}", email);
 
-        LOGGER.debug("Looking for university {}", universityName);
-        University university = universityService.findByName(universityName).orElseThrow(() -> new RuntimeException("University not found"));
+        University university = universityService.findByName(universityName).orElseThrow(() -> new RuntimeException("University not found")); // TODO: ¿Acá cuando tira excepción debería haber un log?
 
-        LOGGER.debug("Looking for career {}", careerName);
         Career career = careerService.findByName(careerName).orElseThrow(() -> new RuntimeException("Career not found"));
 
-        LOGGER.debug("Saving profile picture");
         long profilePictureId = imageService.storeImage(profilePicture);
 
-        LOGGER.info("User data is valid, commiting new user to persistance", universityName);
-        User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId,
-                passwordEncoder.encode(password), locale);
+        User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId, passwordEncoder.encode(password), locale);
 
-        LOGGER.debug("Saving user interests {}", interests.toString());
         interestService.saveUserInterests(interests, user.getId());
         
-        LOGGER.info("Successfully created user {}", user);
         return user;
     }
 
 
 
     @Override
-    @Cacheable(value = "usersByEmail", key = "#email")
     @Transactional(readOnly = true)
     public Optional<User> findByEmail(String email) {
         return userDao.findByEmail(email);
@@ -82,14 +70,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(value = "usersById", key = "#id")
     @Transactional(readOnly = true)
     public Optional<User> findById(long id) {
         return userDao.findById(id);
     }
 
     @Override
-    @Cacheable(value = "usersByUsername", key = "#username")
     @Transactional(readOnly = true)
     public Optional<User> findByUsername(String username) {
         return userDao.findByUsername(username);
@@ -109,22 +95,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"usersById", "usersByEmail", "usersByUsername"}, key = "#userId")
     public void updateProfilePicture(long userId, byte[] profilePicture) {
         LOGGER.debug("Updating profile picture for user {}", userId);
         long profilePictureId = imageService.storeImage(profilePicture);
         userDao.updateProfilePicture(userId, profilePictureId);
-        LOGGER.info("Successfully updated profile picture for user {}", userId);
     }
 
     @Override
     @Transactional
-    @CacheEvict(value = {"usersById", "usersByEmail", "usersByUsername"}, key = "#userId")
     public void updateProfileInfo(long userId, String firstname, String lastname, String username) {
-        LOGGER.debug("Updating profile info for user {}: firstname={}, lastname={}, username={}",
-                userId, firstname, lastname, username);
+        LOGGER.debug("Updating profile info for user {}: firstname={}, lastname={}, username={}", userId, firstname, lastname, username);
 
-        // Validate that username is not already taken (if changed)
         Optional<User> existingUser = findById(userId);
         if (existingUser.isPresent() && !existingUser.get().getUsername().equals(username)) {
             if (existsByUsername(username)) {
@@ -134,21 +115,17 @@ public class UserServiceImpl implements UserService {
         }
 
         userDao.updateProfileInfo(userId, firstname, lastname, username);
-        LOGGER.info("Successfully updated profile info for user {}", userId);
     }
 
     @Override
     @Transactional
-    @CacheEvict(value = {"usersById", "usersByEmail", "usersByUsername"}, key = "#userId")
     public void updateLocale(long userId, Locale locale) {
         LOGGER.debug("Updating locale for user {} to {}", userId, locale);
         userDao.updateLocale(userId, locale);
-        LOGGER.info("Successfully updated locale for user {}", userId);
     }
 
     @Override
     @Transactional
-    @CacheEvict(value = {"usersById", "usersByEmail", "usersByUsername"}, key = "#userId")
     public void updateUniversity(long userId, String newUniversityName) {
         LOGGER.debug("Updating university for user {} to {}", userId, newUniversityName);
 
@@ -159,32 +136,22 @@ public class UserServiceImpl implements UserService {
                 });
 
         userDao.updateUniversity(userId, university.getId());
-        LOGGER.info("Successfully updated university for user {} to {}", userId, newUniversityName);
     }
 
     @Override
     @Transactional
-    @CacheEvict(value = {"usersById", "usersByEmail", "usersByUsername"}, key = "#userId")
     public void updateUniversity(long userId, long universityId) {
         LOGGER.debug("Updating university for user {} to university ID {}", userId, universityId);
 
-        // Validate that university exists
-        universityService.findById(universityId)
-                .orElseThrow(() -> {
-                    LOGGER.warn("University not found with ID: {}", universityId);
-                    return new IllegalArgumentException("University not found");
-                });
-
         userDao.updateUniversity(userId, universityId);
-        LOGGER.info("Successfully updated university for user {} to university ID {}", userId, universityId);
     }
 
     @Override
     @Transactional
-    @CacheEvict(value = {"usersById", "usersByEmail", "usersByUsername"}, key = "#userId")
     public void updateCareer(long userId, String newCareerName) {
         LOGGER.debug("Updating career for user {} to {}", userId, newCareerName);
 
+        // FIXME: ¿debería ser así o directamente en el dao crear un método updateCareer(long userId, String careerName)?
         Career career = careerService.findByName(newCareerName)
                 .orElseThrow(() -> {
                     LOGGER.warn("Career not found: {}", newCareerName);
@@ -192,16 +159,15 @@ public class UserServiceImpl implements UserService {
                 });
 
         userDao.updateCareer(userId, career.getId());
-        LOGGER.info("Successfully updated career for user {} to {}", userId, newCareerName);
     }
 
     @Override
     @Transactional
-    @CacheEvict(value = {"usersById", "usersByEmail", "usersByUsername"}, key = "#userId")
     public void updateCareer(long userId, long careerId) {
         LOGGER.debug("Updating career for user {} to career ID {}", userId, careerId);
 
-        // Validate that career exists
+        // FIXME: está validación no la deberíamos hacer, ya está validada en el controller
+        // Si llegara a no existir sería una condición anormal y persistencia nos tiraría una excepción al querer realizar el update
         careerService.findById(careerId)
                 .orElseThrow(() -> {
                     LOGGER.warn("Career not found with ID: {}", careerId);
@@ -213,9 +179,11 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    // TODO: ¿Eliminar método? -> Llamar directo a imageService.getImage();
     //@TODO ask (exception?). @TODO add cache?
     public byte[] getProfilePictureData(User user) {
-        return imageService.getImage(user.getProfilePictureId()).orElseThrow(() -> new IllegalStateException("User does not have a profile picture"))
+        return imageService.getImage(user.getProfilePictureId())
+                .orElseThrow(() -> new IllegalStateException("User does not have a profile picture"))
                 .getData();
     }
 
@@ -226,7 +194,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<User> getAllUsers(String search,int page, int size) {
-        LOGGER.debug("Getting all users with search {}", search);
+
         if (search == null || search.isEmpty()) {
             return userDao.getAllUsers(page, size);
         }

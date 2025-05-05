@@ -32,7 +32,6 @@ dist/
 
 # JetBrains IDE
 .idea/
-
 #VSCode IDE
 .vscode
 
