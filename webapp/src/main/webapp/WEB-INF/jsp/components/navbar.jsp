@@ -18,9 +18,28 @@
 <c:url var="dashboardCitiesUrl" value="/dashboard/cities" />
 <c:url var="dashboardUniversitiesUrl" value="/dashboard/universities" />
 <c:url var="dashboardCareersUrl" value="/dashboard/careers" />
+<c:url var="careersUrl" value="/careers" />
+<c:url var="interestsUrl" value="/interests" />
+<c:url var="citiesUrl" value="/cities" />
+<c:url var="universitiesUrl" value="/universities" />
 <c:set var="uri" value="${requestScope['javax.servlet.forward.request_uri'] != null
                           ? requestScope['javax.servlet.forward.request_uri']
                           : request.requestURI}" />
+
+
+
+<c:set var="isAdminSectionActive"
+       value="${fn:startsWith(uri, dashboardJourneysUrl)
+            or fn:startsWith(uri, dashboardEventsUrl)
+            or fn:startsWith(uri, dashboardUsersUrl)
+            or fn:startsWith(uri, dashboardInterestsUrl)
+            or fn:startsWith(uri, dashboardCitiesUrl)
+            or fn:startsWith(uri, dashboardUniversitiesUrl)
+            or fn:startsWith(uri, dashboardCareersUrl)
+            or fn:startsWith(uri, careersUrl)
+            or fn:startsWith(uri, interestsUrl)
+            or fn:startsWith(uri, citiesUrl)
+            or fn:startsWith(uri, universitiesUrl)}" />
 
 <link rel="stylesheet" href="<c:url value='/resources/css/layout/navbar.css'/>" />
 
@@ -79,13 +98,15 @@
                 </a>
                 <sec:authorize access="hasRole('ADMIN')">
                     <a href="${dashboardJourneysUrl}"
-                       class="topbar-nav-item ${fn:startsWith(uri, dashboardEventsUrl) or fn:startsWith(uri, dashboardJourneysUrl) or fn:startsWith(uri, dashboardUsersUrl) or fn:startsWith(uri,dashboardCareersUrl) or fn:startsWith(uri,dashboardCitiesUrl) or fn:startsWith(uri,dashboardInterestsUrl) or fn:startsWith(uri,dashboardUniversitiesUrl)? 'active' : ''}">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                       class="topbar-nav-item ${isAdminSectionActive ? 'active' : ''}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                         </svg>
                         <span><spring:message code="nav.dash"/></span>
                     </a>
                 </sec:authorize>
+
             </div>
         </nav>
 
