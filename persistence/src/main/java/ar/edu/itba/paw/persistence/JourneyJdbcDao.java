@@ -73,7 +73,7 @@ public class JourneyJdbcDao implements JourneyDao {
             JOIN countries co2 ON ci2.country_id = co2.id
             """;
 
-    private static final String SQL_NOT_DELETED = " WHERE j.deleted = FALSE";
+    private static final String SQL_NOT_DELETED = " WHERE j.deleted = FALSE ";
     private final static String SQL_BASE = SQL_SELECT_BASE + SQL_FROM_BASE + SQL_NOT_DELETED;
 
     private static final String SQL_FIND_BY_ID = SQL_BASE + " AND j.id = ?";
@@ -92,7 +92,31 @@ public class JourneyJdbcDao implements JourneyDao {
     private final static String SQL_FIND_OTHERS_PAGED = SQL_BASE + " AND j.user_id != ? " + SQL_PAGE;
     private final static String SQL_BASE_INTEREST = SQL_SELECT_BASE + SQL_FROM_BASE + " JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id" + SQL_NOT_DELETED;
 
-    private final static String SQL_SEARCH_PAGED = SQL_BASE + " AND LOWER(us.username) LIKE LOWER(?) ORDER BY j.id ASC LIMIT ? OFFSET ?";
+    private final static String SQL_SEARCH_WHERE_CLAUSE =
+            """
+            AND (
+                LOWER(us.username) LIKE LOWER(?)
+                OR LOWER(us.firstname) LIKE LOWER(?)
+                OR LOWER(us.lastname) LIKE LOWER(?)
+                OR LOWER(j.description) LIKE LOWER(?)
+                OR LOWER(un2.name) LIKE LOWER(?)
+                OR LOWER(un2.abbreviation) LIKE LOWER(?)
+                OR LOWER(ci2.name) LIKE LOWER(?)
+            )
+            """;
+
+    private final static String SQL_SEARCH_PAGED = SQL_BASE + SQL_SEARCH_WHERE_CLAUSE + " ORDER BY j.id ASC LIMIT ? OFFSET ? ";
+
+    private final static String SQL_SEARCH_COUNT =
+            """
+            SELECT COUNT(*)
+            FROM users us
+            JOIN journeys j ON j.user_id = us.id
+            JOIN universities un2 ON j.destination_university_id = un2.id
+            JOIN cities ci2 ON un2.city_id = ci2.id
+            """
+            + SQL_NOT_DELETED + SQL_SEARCH_WHERE_CLAUSE;
+
 
     private final static RowMapper<Journey> JOURNEY_ROW_MAPPER = (rs, rowNum) -> new Journey(
             rs.getLong("journey_id"),
@@ -477,13 +501,19 @@ public class JourneyJdbcDao implements JourneyDao {
         final String searchPattern = "%" + search + "%";
 
         final int totalItems = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM journeys j WHERE j.deleted = FALSE AND j.user_id IN (SELECT id FROM users WHERE LOWER(username) LIKE LOWER(?))",
+                SQL_SEARCH_COUNT,
                 Integer.class,
-                searchPattern
+                searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern
+        );
+
+        final List<Journey> list = jdbcTemplate.query(
+                SQL_SEARCH_PAGED,
+                JOURNEY_ROW_MAPPER,
+                searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, size, (page - 1) * size
         );
 
         return new Page<>(
-                jdbcTemplate.query(SQL_SEARCH_PAGED, JOURNEY_ROW_MAPPER, searchPattern, size, (page - 1) * size),
+                list,
                 page,
                 (int) Math.ceil((double) totalItems / size)
         );
@@ -499,7 +529,7 @@ public class JourneyJdbcDao implements JourneyDao {
                description = ?,
                deleted = FALSE
          WHERE id = ?
-         """,
+        """,
                 destinationUniversity.getId(),
                 Date.valueOf(startDate),
                 Date.valueOf(endDate),
