@@ -98,9 +98,10 @@ public class UserJdbcDao implements UserDao {
     private final static String SQL_SEARCH_USERS_PAGED = SQL_BASE +
             """
             WHERE LOWER(u.firstname) LIKE LOWER(?)
-                OR LOWER(u.lastname) LIKE LOWER(?)
-                OR LOWER(u.username) LIKE LOWER(?)
+            --  OR LOWER(u.lastname) LIKE LOWER(?)
+            --  OR LOWER(u.username) LIKE LOWER(?)
                 OR LOWER(u.email) LIKE LOWER(?)
+                OR LOWER(un.name) LIKE LOWER(?)
             ORDER BY u.id DESC LIMIT ? OFFSET ?
             """;
 
@@ -259,20 +260,21 @@ public class UserJdbcDao implements UserDao {
         final List<User> list = jdbcTemplate.query(
                 SQL_SEARCH_USERS_PAGED,
                 USER_ROW_MAPPER,
-                searchPattern, searchPattern, searchPattern, searchPattern, size, (page - 1) * size
+                searchPattern, searchPattern, searchPattern, /*searchPattern,*/ size, (page - 1) * size
         );
 
         final int elementCount = jdbcTemplate.queryForObject(
                 """
                 SELECT COUNT(*)
-                FROM users
+                FROM users us JOIN universities un ON us.university = un.id
                 WHERE LOWER(firstname) LIKE LOWER(?)
-                OR LOWER(lastname) LIKE LOWER(?)
-                OR LOWER(username) LIKE LOWER(?)
+                -- OR LOWER(lastname) LIKE LOWER(?)
+                -- OR LOWER(username) LIKE LOWER(?)
+                OR LOWER(un.name) LIKE LOWER(?)
                 OR LOWER(email) LIKE LOWER(?)
                 """,
                 Integer.class,
-                searchPattern, searchPattern, searchPattern, searchPattern
+                searchPattern, searchPattern, searchPattern //, searchPattern
         );
 
         return new Page<>(
