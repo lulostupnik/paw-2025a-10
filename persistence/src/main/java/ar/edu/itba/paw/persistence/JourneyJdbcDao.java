@@ -97,11 +97,11 @@ public class JourneyJdbcDao implements JourneyDao {
             """
             AND (
                 LOWER(us.username) LIKE LOWER(?)
-                OR LOWER(us.firstname) LIKE LOWER(?)
-                OR LOWER(us.lastname) LIKE LOWER(?)
-                OR LOWER(j.description) LIKE LOWER(?)
+            --  OR LOWER(us.firstname) LIKE LOWER(?)
+            --  OR LOWER(us.lastname) LIKE LOWER(?)
+            --  OR LOWER(j.description) LIKE LOWER(?)
                 OR LOWER(un2.name) LIKE LOWER(?)
-                OR LOWER(un2.abbreviation) LIKE LOWER(?)
+            --  OR LOWER(un2.abbreviation) LIKE LOWER(?)
                 OR LOWER(ci2.name) LIKE LOWER(?)
             )
             """;
@@ -504,13 +504,13 @@ public class JourneyJdbcDao implements JourneyDao {
         final int totalItems = jdbcTemplate.queryForObject(
                 SQL_SEARCH_COUNT,
                 Integer.class,
-                searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern
+                searchPattern, searchPattern, searchPattern //, searchPattern, searchPattern, searchPattern, searchPattern
         );
 
         final List<Journey> list = jdbcTemplate.query(
                 SQL_SEARCH_PAGED,
                 JOURNEY_ROW_MAPPER,
-                searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, size, (page - 1) * size
+                searchPattern, searchPattern, searchPattern, /*searchPattern, searchPattern, searchPattern, searchPattern,*/ size, (page - 1) * size
         );
 
         return new Page<>(
