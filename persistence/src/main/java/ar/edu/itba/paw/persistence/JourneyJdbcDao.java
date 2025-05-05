@@ -189,83 +189,60 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public List<Journey> findByFilters(final String destination, final LocalDate startDate, final LocalDate endDate, final String interest) {
 
-        String query;
+        final StringBuilder queryBuilder = new StringBuilder((interest != null && !interest.isEmpty()) ? SQL_BASE_INTEREST : SQL_BASE);
 
-        if (interest != null && !interest.isEmpty()) {
-            query = SQL_BASE_INTEREST;
-        } else {
-            query = SQL_BASE;
-        }
-
-        final List<String> filters = new ArrayList<>();
         final List<Object> params = new ArrayList<>();
 
         if (destination != null && !destination.isEmpty()) {
-            filters.add("ci2.id = ?");
-            params.add(Integer.parseInt(destination));
+            queryBuilder.append(" AND ci2.id = ? ");
+            params.add(Integer.parseInt(destination)); // FIXME: ¿PORQUE ESTAMOS RECIBIENDO UN STRING CON EL ID DEL DESTINO!?!?!?
         }
         if (endDate != null) {
-            filters.add("j.start_date <= ?");
+            queryBuilder.append(" AND j.start_date <= ? ");
             params.add(Date.valueOf(endDate));
         }
         if (startDate != null) {
-            filters.add("j.end_date >= ?");
+            queryBuilder.append(" AND j.end_date >= ? ");
             params.add(Date.valueOf(startDate));
         }
         if (interest != null && !interest.isEmpty()) {
-            filters.add("c.id = ?");
-            params.add(Integer.parseInt( interest));
+            queryBuilder.append(" AND c.id = ? ");
+            params.add(Integer.parseInt(interest)); // FIXME: ¿PORQUE ESTAMOS RECIBIENDO UN STRING CON EL ID DEL DESTINO!?!?!?
         }
 
-        if (!filters.isEmpty()) {
-            query += " AND " + String.join(" AND ", filters);
-        }
-
-        return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
+        return jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray());
     }
 
-    // FIXME: use StringBuilder
     @Override
     public List<Journey> findByFilters(final long userId, final String destination, final LocalDate startDate, final LocalDate endDate, final String interest) {
 
-        String query;
+        // FIXME: ¿porque el !interest.isEmpty()?
+        final StringBuilder queryBuilder = new StringBuilder((interest != null && !interest.isEmpty()) ? SQL_BASE_INTEREST : SQL_BASE);
 
-        if (interest != null && !interest.isEmpty()) {
-            query = SQL_BASE_INTEREST;
-        } else {
-            query = SQL_BASE;
-        }
-
-        final List<String> filters = new ArrayList<>();
         final List<Object> params = new ArrayList<>();
 
-        filters.add("us.id != ?"); // journey.user_id != ?
+        queryBuilder.append(" AND us.id != ? "); // journey.user_id != ?
         params.add(userId);
 
         if (destination != null && !destination.isEmpty()) {
-            LOGGER.debug("Filter added: destination {}", destination);
-            filters.add("ci2.id = ?");
-            params.add(Integer.parseInt(destination));
+            queryBuilder.append(" AND ci2.id = ? ");
+            params.add(Integer.parseInt(destination)); // FIXME: ¿PORQUE ESTAMOS RECIBIENDO UN STRING CON EL ID DEL DESTINO!?!?!?
         }
         if (endDate != null) {
-            filters.add("j.start_date <= ?");
+            queryBuilder.append(" AND j.start_date <= ? ");
             params.add(Date.valueOf(endDate));
         }
         if (startDate != null) {
-            filters.add("j.end_date >= ?");
+            queryBuilder.append(" AND j.end_date >= ? ");
             params.add(Date.valueOf(startDate));
         }
         if (interest != null && !interest.isEmpty()) {
-            LOGGER.debug("Filter added: interest {}", interest);
-            filters.add("c.id = ?");
-            params.add(Integer.parseInt(interest));
+            queryBuilder.append(" AND c.id = ? ");
+            params.add(Integer.parseInt(interest)); // FIXME: ¿PORQUE ESTAMOS RECIBIENDO UN STRING CON EL ID DEL DESTINO!?!?!?
         }
 
-        query += " AND " + String.join(" AND ", filters);
-
-        return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, params.toArray());
+        return jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray());
     }
-
 
     @Override
     public List<Journey> findByOriginCity(final long originCityId) {
@@ -364,91 +341,152 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public Page<Journey> findByFilters(final Long userId, final Long cityId, final LocalDate startDate, final LocalDate endDate, final Long interest, final int page, final int size) {
 
-        final List<String> countFilters = new ArrayList<>();
-        final List<String> queryFilters = new ArrayList<>();
+        final List<String> filters = new ArrayList<>();
         final List<Object> params = new ArrayList<>();
 
-        countFilters.add("j.deleted = FALSE");
-
         final StringBuilder countQueryBuilder = new StringBuilder("SELECT COUNT(*) FROM journeys j");
+        final StringBuilder queryBuilder = new StringBuilder((interest != null) ? SQL_BASE_INTEREST : SQL_BASE);
+
 
         if (interest != null) {
             countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id");
-            countFilters.add("ui.category_id = ?");
-            queryFilters.add("c.id = ?");
+            filters.add("ui.category_id = ?");
             params.add(interest);
         }
 
         if (cityId != null) {
-            countQueryBuilder.append(" JOIN universities un ON j.destination_university_id = un.id JOIN cities c ON un.city_id = c.id");
-            countFilters.add("c.id = ?");
-            queryFilters.add("ci2.id = ?");
+            countQueryBuilder.append(" JOIN universities un ON j.destination_university_id = un.id JOIN cities ci2 ON un.city_id = ci2.id");
+            filters.add("ci2.id = ?");
             params.add(cityId);
         }
 
         if (userId != null) {
-            countFilters.add("j.user_id != ?");
-            queryFilters.add("us.id != ?");
+            filters.add("j.user_id != ?");
             params.add(userId);
         }
 
         if (endDate != null) {
-            countFilters.add("j.start_date <= ?");
-            queryFilters.add("j.start_date <= ?");
+            filters.add("j.start_date <= ?");
             params.add(Date.valueOf(endDate));
         }
 
         if (startDate != null) {
-            countFilters.add("j.end_date >= ?");
-            queryFilters.add("j.end_date >= ?");
+            filters.add("j.end_date >= ?");
             params.add(Date.valueOf(startDate));
         }
 
-        countQueryBuilder.append(" WHERE ").append(String.join(" AND ", countFilters));
-        final int totalItems = jdbcTemplate.queryForObject(countQueryBuilder.toString(), Integer.class, params.toArray());
+        countQueryBuilder.append(" WHERE j.deleted = FALSE ");
 
-        final StringBuilder queryBuilder = new StringBuilder((interest != null) ? SQL_BASE_INTEREST : SQL_BASE);
-
-        if (!queryFilters.isEmpty()) {
-            queryBuilder.append(" AND ").append(String.join(" AND ", queryFilters));
+        if(!filters.isEmpty()) {
+            countQueryBuilder.append(" AND  ").append(String.join(" AND ", filters));
+            queryBuilder.append(" AND ").append(String.join(" AND ", filters));
         }
+
+        final int totalItems = jdbcTemplate.queryForObject(countQueryBuilder.toString(), Integer.class, params.toArray());
 
         queryBuilder.append(" ORDER BY j.id ASC LIMIT ? OFFSET ?");
 
         params.add(size);
         params.add((page - 1) * size);
 
-        final List<Journey> journeys = jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray());
-        return new Page<>(journeys, page, (int) Math.ceil((double) totalItems / size));
+        return new Page<>(
+                jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray()),
+                page,
+                (int) Math.ceil((double) totalItems / size)
+        );
     }
+
+    // TODO: preguntar a los profes cual prefieren y que onda el warning que me tira el IDE
+    public Page<Journey> findByFilters3(final Long userId, final Long cityId, final LocalDate startDate, final LocalDate endDate, final Long interest, final int page, final int size) {
+
+        final List<Object> params = new ArrayList<>();
+
+        final StringBuilder countQueryBuilder = new StringBuilder("SELECT COUNT(*) FROM journeys j");
+        final StringBuilder queryBuilder = new StringBuilder((interest != null) ? SQL_BASE_INTEREST : SQL_BASE);
+        final StringBuilder filterClause = new StringBuilder(" ");
+
+        if (interest != null) {
+            countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id");
+            filterClause.append(" AND ui.category_id = ? ");
+            params.add(interest);
+        }
+
+        if (cityId != null) {
+            countQueryBuilder.append(" JOIN universities un ON j.destination_university_id = un.id JOIN cities ci2 ON un.city_id = ci2.id");
+            filterClause.append(" AND ci2.id = ? ");
+            params.add(cityId);
+        }
+
+        if (userId != null) {
+            filterClause.append(" AND j.user_id != ? ");
+            params.add(userId);
+        }
+
+        if (endDate != null) {
+            filterClause.append(" AND j.start_date <= ? ");
+            params.add(Date.valueOf(endDate));
+        }
+
+        if (startDate != null) {
+            filterClause.append(" AND j.end_date >= ? ");
+            params.add(Date.valueOf(startDate));
+        }
+
+        countQueryBuilder.append(" WHERE j.deleted = FALSE ").append(filterClause);
+        queryBuilder.append(filterClause);
+        queryBuilder.append(" ORDER BY j.id ASC LIMIT ? OFFSET ?");
+
+        final int totalItems = jdbcTemplate.queryForObject(countQueryBuilder.toString(), Integer.class, params.toArray());
+
+
+        params.add(size);
+        params.add((page - 1) * size);
+
+        return new Page<>(
+                jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray()),
+                page,
+                (int) Math.ceil((double) totalItems / size)
+        );
+    }
+
 
     @Override
     public Page<Journey> findByOriginCity(final long originCityId, final int page, final int size) {
         final int totalItems = jdbcTemplate.queryForObject(
                 """
-                SELECT COUNT(*) FROM journeys j JOIN users u ON j.user_id = u.id
+                SELECT COUNT(*)
+                FROM journeys j
+                JOIN users u ON j.user_id = u.id
                 JOIN universities un ON u.university = un.id
                 JOIN cities c ON un.city_id = c.id
                 WHERE j.deleted = FALSE AND c.id = ?
-                """, Integer.class, originCityId);
+                """,
+                Integer.class,
+                originCityId
+        );
 
-        final List<Journey> list = jdbcTemplate.query(SQL_FIND_BY_ORIGIN_CITY_PAGED, JOURNEY_ROW_MAPPER, originCityId, size, (page - 1) * size);
-        return new Page<>(list, page, (int) Math.ceil((double) totalItems / size));
+        return new Page<>(
+                jdbcTemplate.query(SQL_FIND_BY_ORIGIN_CITY_PAGED, JOURNEY_ROW_MAPPER, originCityId, size, (page - 1) * size),
+                page,
+                (int) Math.ceil((double) totalItems / size)
+        );
     }
 
     @Override
     public Page<Journey> searchJourneys(final String search, final int page, final int size) {
         final String searchPattern = "%" + search + "%";
 
-        final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journeys j WHERE j.deleted = FALSE AND j.user_id IN (SELECT id FROM users WHERE LOWER(username) LIKE LOWER(?))", Integer.class, searchPattern);
+        final int totalItems = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM journeys j WHERE j.deleted = FALSE AND j.user_id IN (SELECT id FROM users WHERE LOWER(username) LIKE LOWER(?))",
+                Integer.class,
+                searchPattern
+        );
 
-        return new Page<>(jdbcTemplate.query(
-                SQL_SEARCH_PAGED,
-                JOURNEY_ROW_MAPPER,
-                searchPattern,
-                size,
-                (page - 1) * size
-        ), page, (int) Math.ceil((double) totalItems / size));
+        return new Page<>(
+                jdbcTemplate.query(SQL_SEARCH_PAGED, JOURNEY_ROW_MAPPER, searchPattern, size, (page - 1) * size),
+                page,
+                (int) Math.ceil((double) totalItems / size)
+        );
     }
 
     @Override
@@ -554,7 +592,7 @@ public class JourneyJdbcDao implements JourneyDao {
                                  CROSS JOIN user_data ud
                         WHERE j.user_id != ud.id AND j.deleted = FALSE
                     )
-               
+            
                SELECT
                    journey_id,
                    user_id,
