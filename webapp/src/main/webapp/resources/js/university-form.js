@@ -1,68 +1,51 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize the city autocomplete
-    initializeAutocomplete('citySearch', 'cityDropdown', 'city', 'selectedCities', false);
+document.addEventListener("DOMContentLoaded", () => {
+    const universityForm = document.getElementById("universityForm");
+    const nameInput = document.getElementById("name");
+    const abbreviationInput = document.getElementById("abbreviation");
+    const cityInput = document.getElementById("city");
+    const citySearch = document.getElementById("citySearch");
+    const cityDropdown = document.getElementById("cityDropdown");
+    const selectedCity = document.getElementById("selectedCity");
+    const cityItems = document.querySelectorAll("#cityDropdown .autocomplete-item");
 
-    // Form validation
-    const universityForm = document.getElementById('universityForm');
-    if (universityForm) {
-        universityForm.addEventListener('submit', function(event) {
-            let isValid = true;
+    // Focus on the first field when the page loads
+    nameInput.focus();
 
-            // Validate name
-            const nameInput = document.getElementById('name');
-            if (!nameInput.value.trim()) {
-                markFieldAsInvalid(nameInput);
-                isValid = false;
-            } else {
-                markFieldAsValid(nameInput);
-            }
-
-            // Validate abbreviation
-            const abbreviationInput = document.getElementById('abbreviation');
-            if (!abbreviationInput.value.trim()) {
-                markFieldAsInvalid(abbreviationInput);
-                isValid = false;
-            } else {
-                markFieldAsValid(abbreviationInput);
-            }
-
-            // Validate city
-            const citySelect = document.getElementById('city');
-            if (!citySelect.value) {
-                const citySearch = document.getElementById('citySearch');
-                markFieldAsInvalid(citySearch);
-                isValid = false;
-            } else {
-                const citySearch = document.getElementById('citySearch');
-                markFieldAsValid(citySearch);
-            }
-
-            if (!isValid) {
-                event.preventDefault();
+    // Auto-capitalize first letter of each word
+    function capitalizeFirstLetter(input) {
+        input.addEventListener("blur", function () {
+            if (this.value) {
+                this.value = this.value
+                    .split(" ")
+                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(" ");
             }
         });
     }
 
-    function markFieldAsInvalid(field) {
-        field.classList.add('error');
-        const errorMessage = document.createElement('div');
-        errorMessage.className = 'error-message';
-        errorMessage.textContent = 'This field is required';
+    capitalizeFirstLetter(nameInput);
+    capitalizeFirstLetter(citySearch);
 
-        // Remove any existing error message
-        const existingError = field.parentNode.querySelector('.error-message');
-        if (existingError) {
-            field.parentNode.removeChild(existingError);
-        }
-
-        field.parentNode.appendChild(errorMessage);
+    const emptyMessage = document.getElementById("i18n-cities-none")
+        ? document.getElementById("i18n-cities-none").value
+        : "No cities selected"
+    try {
+        window.univesityCityAutocomplete = ListAutocomplete.init({
+            selectId: "city",
+            searchId: "citySearch",
+            dropdownId: "cityDropdown",
+            selectedContainerId: "selectedCity",
+            apiEndpoint: `${apiBaseUrl}cities`,
+            selectedValue: universitySelectedCity,
+            minChars: 2,
+            debounceTime: 300,
+            emptyMessage: emptyMessage,
+            multiSelect: false, // Single-select mode
+            error: document.getElementById("city.errors") !== null,
+        })
+        console.log("City autocomplete component initialized")
+    } catch (error) {
+        console.error("Failed to initialize city autocomplete component:", error)
     }
 
-    function markFieldAsValid(field) {
-        field.classList.remove('error');
-        const existingError = field.parentNode.querySelector('.error-message');
-        if (existingError) {
-            field.parentNode.removeChild(existingError);
-        }
-    }
 });

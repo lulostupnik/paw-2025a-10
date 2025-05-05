@@ -36,7 +36,7 @@ public class UniversityController {
     @RequestMapping(value = "/create", method = GET)
     public ModelAndView createUniversityForm(@ModelAttribute("createUniversityForm") final CreateUniversityForm form) {
         ModelAndView mav = new ModelAndView("universities/create");
-        mav.addObject("cities", cityService.getAllCities());
+//        mav.addObject("cities", cityService.getAllCities());
         return mav;
     }
 
