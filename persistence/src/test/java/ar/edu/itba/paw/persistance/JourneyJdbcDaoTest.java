@@ -1210,8 +1210,8 @@ public class JourneyJdbcDaoTest {
         long id1 = insertJourney(Map.of("userId", USER2_ID));
         //should have internal score of 80 (30 match city, 50 match uni)
         long id2 = insertJourney(Map.of("userId", USER3_ID, "startDate", END_DATE.plusDays(2), "endDate", END_DATE.plusDays(40)));
-
-        List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL);
+//@TODO cambiar.
+        List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL,1, 1000).getContent();
 
         assertNotNull(recommended);
         assertEquals(2, recommended.size());
@@ -1222,7 +1222,7 @@ public class JourneyJdbcDaoTest {
     public void testRecommendedJourneysNoJourneys(){
         insertJourney();
 
-        List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL);
+        List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL, 1, 1000).getContent();
 
         assertNotNull(recommended);
         assertEquals(0, recommended.size());
@@ -1236,7 +1236,7 @@ public class JourneyJdbcDaoTest {
         //should have an internal score of 15 (date overlap only)
         long id2 = insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID, "startDate", END_DATE.plusDays(-10), "endDate", END_DATE.plusDays(-2)));
 
-        List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL);
+        List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL, 1, 1000).getContent();
 
         assertNotNull(recommended);
         assertEquals(2, recommended.size());
@@ -1256,7 +1256,7 @@ public class JourneyJdbcDaoTest {
         //should have internal score of 95 (50 + 30 match dest uni, 15 overlap)
         long id4 = insertJourney(Map.of("userId", USER2_ID));
 
-        List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL);
+        List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL, 1, 1000).getContent();
 
         assertNotNull(recommended);
         assertEquals(4, recommended.size());
@@ -1282,7 +1282,7 @@ public class JourneyJdbcDaoTest {
         //should have internal score of 45 (30 city match, 15 overlap)
         long id6 = insertJourney(Map.of("userId", USER_ANOTHER_ID, "destinationId", UNI_3_ID));
 
-        List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL);
+        List<Journey> recommended = journeyDao.getRecommendedJourneys(USERMAIL, 1, 1000).getContent();
 
         assertNotNull(recommended);
         assertEquals(6, recommended.size());

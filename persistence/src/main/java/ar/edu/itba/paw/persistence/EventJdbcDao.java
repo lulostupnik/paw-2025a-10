@@ -212,6 +212,7 @@ public class EventJdbcDao implements EventDao {
     WHERE e.event_date >= CURRENT_DATE
     AND us.email != ?
     AND e.deleted = FALSE
+    LIMIT ?
     """;
 
     private final static String SQL_TOP_EVENTS = """
@@ -266,7 +267,7 @@ public class EventJdbcDao implements EventDao {
         WHERE e.event_date >= CURRENT_DATE
         AND e.deleted = FALSE
         ORDER BY COALESCE(a.attendees, 0) DESC, e.event_date
-        LIMIT 3
+        LIMIT ?
         """;
 
     @Autowired
@@ -341,16 +342,20 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public List<UserEvent> getRecommendedEvents(final String email) {
+    public List<UserEvent> getRecommendedEvents(final String email, int limit) {
         return jdbcTemplate.query(SQL_RECOMMENDED_EVENTS,  (rs, rowNum) -> {
             Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
             boolean isAttending = rs.getBoolean("is_attending");
             return new UserEvent(event, isAttending);
-        }, email, email);
+        }, email, email, limit);
     }
 
-    public List<Event> getTopEvents(){
-        return jdbcTemplate.query(SQL_TOP_EVENTS, EVENT_ROW_MAPPER);
+    //@TODO check, pponemos esa exception, o solo checkeamos en el service?
+    public List<Event> getTopEvents(int limit){
+//        if (limit <= 0) {
+//            throw new IllegalArgumentException("Limit must be greater than 0");
+//        }
+        return jdbcTemplate.query(SQL_TOP_EVENTS, EVENT_ROW_MAPPER, limit);
     }
 
     public Optional<Integer> getEventAttendanceLimit(final long eventId) {

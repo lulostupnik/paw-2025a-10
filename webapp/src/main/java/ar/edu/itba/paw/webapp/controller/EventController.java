@@ -68,7 +68,7 @@ public class EventController {
     @RequestMapping
     public ModelAndView getEvents(@ModelAttribute("user") User user,
                                   @RequestParam(value = "page", defaultValue = "1") int page,
-                                  @RequestParam(value = "size", defaultValue = "10") int size) {
+                                  @RequestParam(value = "size", defaultValue = "8") int size) {
         ModelAndView mav = new ModelAndView("events/list");
 
         if (user != null) {

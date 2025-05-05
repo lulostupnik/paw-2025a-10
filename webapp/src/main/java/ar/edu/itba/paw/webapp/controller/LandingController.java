@@ -38,7 +38,7 @@ public class LandingController {
         LOGGER.debug("Loading landing page");
         ModelAndView mav = new ModelAndView("index");
 
-        List<Event> recommendedEvents = eventService.getTopEvents();
+        List<Event> recommendedEvents = eventService.getTopEvents(3);
 
         mav.addObject("recommendedEvents", recommendedEvents);
         List<Event> eventsAttended = Collections.emptyList();
@@ -52,11 +52,11 @@ public class LandingController {
     }
 
     private void populateHomePage(ModelAndView mav, String username) {
-        List<UserEvent> events = eventService.getRecommendedEvents(username);
+        List<UserEvent> events = eventService.getRecommendedEvents(username, 8);
         LOGGER.debug("Events: {}", events);
         mav.addObject("events", events);
 
-        List<Journey> journeys = journeyService.getRecommendedJourneys(username);
+        List<Journey> journeys = journeyService.getRecommendedJourneys(username, 4);
         LOGGER.debug("Journeys: {}", journeys);
         mav.addObject("journeys", journeys);
 

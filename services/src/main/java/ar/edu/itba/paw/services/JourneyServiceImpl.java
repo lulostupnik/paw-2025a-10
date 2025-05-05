@@ -204,17 +204,20 @@ public class JourneyServiceImpl implements JourneyService {
     @Transactional(readOnly = true)
     // @Cacheable(value = "journeysRecommended", key = "#email")
     @Override
-    public List<Journey> getRecommendedJourneys(String email) {
+    public List<Journey> getRecommendedJourneys(String email, int limit) {
+        if(limit <= 0 ){
+            throw new IllegalArgumentException("Limit must be grater than 0");
+        }
         if(userHasJourney(email)){
-            return journeyDao.getRecommendedJourneys(email);
+            return journeyDao.getRecommendedJourneys(email, 1, limit).getContent();
         }
         Optional<User> maybeUser = userService.findByEmail(email);
         if(maybeUser.isEmpty()){
-            return journeyDao.listAll();
+            return journeyDao.listAll(1, limit).getContent();
         }
-        List<Journey> journeys = journeyDao.findByOriginCity(maybeUser.get().getUniversity().getCity().getId());
+        List<Journey> journeys = journeyDao.findByOriginCity(maybeUser.get().getUniversity().getCity().getId(), 1, limit).getContent();
         if(journeys.isEmpty()){
-            return journeyDao.listAll();
+            return journeyDao.listAll( 1, limit).getContent();
         }
         return journeys ;
     }

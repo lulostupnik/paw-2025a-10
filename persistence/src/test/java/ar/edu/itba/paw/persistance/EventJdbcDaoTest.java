@@ -392,7 +392,7 @@ public class EventJdbcDaoTest {
         insertAttendance.execute(Map.of("user_id", USER2.getId(), "event_id", id2));
         insertAttendance.execute(Map.of("user_id", USER1.getId(), "event_id", id1));
 
-        List<Event> topEvents = eventDao.getTopEvents();
+        List<Event> topEvents = eventDao.getTopEvents(3);
 
         assertNotNull(topEvents);
         assertEquals(3, topEvents.size());
@@ -412,7 +412,7 @@ public class EventJdbcDaoTest {
         insertAttendance.execute(Map.of("user_id", USER2.getId(), "event_id", id2));
         insertAttendance.execute(Map.of("user_id", USER1.getId(), "event_id", id1));
 
-        List<Event> topEvents = eventDao.getTopEvents();
+        List<Event> topEvents = eventDao.getTopEvents(3);
 
         assertNotNull(topEvents);
         assertEquals(3, topEvents.size());
@@ -432,7 +432,7 @@ public class EventJdbcDaoTest {
         insertAttendance.execute(Map.of("user_id", USER2.getId(), "event_id", id2));
         insertAttendance.execute(Map.of("user_id", USER1.getId(), "event_id", id1));
 
-        List<Event> topEvents = eventDao.getTopEvents();
+        List<Event> topEvents = eventDao.getTopEvents(3);
 
         assertNotNull(topEvents);
         assertEquals(3, topEvents.size());
@@ -445,7 +445,7 @@ public class EventJdbcDaoTest {
         long id1 = insertEvent(Map.of("deleted", true));
         insertAttendance.execute(Map.of("user_id", USER1.getId(), "event_id", id1));
 
-        List<Event> topEvents = eventDao.getTopEvents();
+        List<Event> topEvents = eventDao.getTopEvents(3);
 
         assertNotNull(topEvents);
         assertEquals(0, topEvents.size());
@@ -1015,7 +1015,7 @@ public class EventJdbcDaoTest {
         insertEvent(Map.of("user", USER2, "date", LocalDate.now().plusDays(-2)));
         Map<Long, Map<String, Object>> eventInfo = Map.of(id1, event1, id2, event2);
 
-        List<UserEvent> events = eventDao.getRecommendedEvents(USER1_EMAIL);
+        List<UserEvent> events = eventDao.getRecommendedEvents(USER1_EMAIL, 10);
 
         assertNotNull(events);
         assertEquals(2, events.size());
@@ -1030,7 +1030,7 @@ public class EventJdbcDaoTest {
         insertEvent(Map.of("user", USER2, "deleted", true));
         insertEvent(Map.of("user", USER2, "date", LocalDate.now().plusDays(-2)));
 
-        List<UserEvent> events = eventDao.getRecommendedEvents(USER1_EMAIL);
+        List<UserEvent> events = eventDao.getRecommendedEvents(USER1_EMAIL,10);
 
         assertNotNull(events);
         assertEquals(0, events.size());   
@@ -1041,7 +1041,7 @@ public class EventJdbcDaoTest {
         insertEvent(Map.of("user", USER2, "deleted", true));
         insertEvent(Map.of("user", USER2, "date", LocalDate.now().plusDays(-2)));
 
-        List<UserEvent> events = eventDao.getRecommendedEvents("USER1_EMAIL");
+        List<UserEvent> events = eventDao.getRecommendedEvents("USER1_EMAIL",10);
 
         assertNotNull(events);
         assertEquals(0, events.size());   

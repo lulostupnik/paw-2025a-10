@@ -256,23 +256,36 @@ public class EventServiceImpl implements EventService {
     // FIXME: Agregarle cacheable?
     @Transactional(readOnly = true)
     @Override
-    public List<UserEvent> getRecommendedEvents(String email){
-        List<UserEvent> events = eventDao.getRecommendedEvents(email);
-        if(events.isEmpty()){
-            eventDao.getTopEvents().forEach((event)->{
-                UserEvent ue = new UserEvent(event,false);
+    public List<UserEvent> getRecommendedEvents(String email, int limit) {
+        if (limit <= 0) {
+            throw new IllegalArgumentException("Limit must be greater than 0");
+        }
+        LOGGER.debug("Fetching recommended events for user email: {}, with limit: {}", email, limit);
+        List<UserEvent> events = eventDao.getRecommendedEvents(email, limit);
+        if (events.isEmpty()) {
+            LOGGER.debug("No recommended events found for user {}. Falling back to top events.", email);
+            eventDao.getTopEvents(limit).forEach(event -> {
+                LOGGER.debug("Adding top event fallback: {}", event.getTitle());
+                UserEvent ue = new UserEvent(event, false);
                 events.add(ue);
             });
+        } else {
+            LOGGER.debug("Found {} recommended events for user {}", events.size(), email);
         }
+
         return events;
     }
+
 
     // FIXME: ¿Agregarle cacheable?
     @Transactional(readOnly = true)
     @Override
-    public List<Event> getTopEvents(){
+    public List<Event> getTopEvents(int limit){
         LOGGER.debug("Getting top events");
-        return eventDao.getTopEvents();
+        if (limit <= 0) {
+            throw new IllegalArgumentException("Limit must be greater than 0");
+        }
+        return eventDao.getTopEvents(limit);
     }
 
     @Transactional(readOnly=true)

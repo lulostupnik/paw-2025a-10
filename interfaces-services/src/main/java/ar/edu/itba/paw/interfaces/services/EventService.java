@@ -32,8 +32,8 @@ public interface EventService {
     Page<Event> getUserAttendingEvents(long userId, int page, int size);
     List<Event> getUserAttendingEvents(long userId);
     List<EventResponse> getEventResponses(long eventId);
-    List<UserEvent> getRecommendedEvents(String email);
-    List<Event> getTopEvents();
+    List<UserEvent> getRecommendedEvents(String email, int limit);
+    List<Event> getTopEvents(int limit);
     Boolean isEventOwnedByUser(String email, long eventID);
     boolean isEventFull(long eventId);
     List<Event> getFullEvents();
