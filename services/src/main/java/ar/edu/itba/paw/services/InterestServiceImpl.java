@@ -20,7 +20,9 @@ public class InterestServiceImpl implements InterestService {
     private static final Logger LOGGER = LoggerFactory.getLogger(InterestServiceImpl.class);
 
     private final InterestDao interestDao;
-    
+    private static final int DEFAULT_PAGE_SIZE = 30;
+
+
     @Autowired
     public InterestServiceImpl(InterestDao interestDao) {
         this.interestDao = interestDao;
@@ -92,6 +94,18 @@ public class InterestServiceImpl implements InterestService {
 
     @Transactional
     @Override
+    public void saveUserInterests(String[] interests, long userId) {
+        List<Interest> interestList = interestDao.findIdByName(interests);
+        long[] interestIds = new long[interestList.size()];
+        for (int i = 0; i < interestList.size(); i++) {
+            interestIds[i] = interestList.get(i).getId();
+        }
+        LOGGER.debug("Adding interest list to user {}", userId);
+        interestDao.saveUserInterests(interestIds, userId);
+    }
+
+    @Transactional
+    @Override
     public void updateScoreByInterest(Interest interest, long userId) {
         LOGGER.debug("Increasing score of interest {} for user {}", interest, userId);
         interestDao.updateScoreByInterest(interest, userId);
@@ -117,10 +131,10 @@ public class InterestServiceImpl implements InterestService {
     @Override
     public String getInterestsJSON(String search) {
         if(search == null || search.isEmpty()) {
-            List<Interest> interests = interestDao.getAllInterests(1,30).getContent();
+            List<Interest> interests = interestDao.getAllInterests(1,DEFAULT_PAGE_SIZE).getContent();
             return listToJson(interests);
         }
-        List<Interest> interests = interestDao.searchBySubstring(search,1,30).getContent();
+        List<Interest> interests = interestDao.searchBySubstring(search,1,DEFAULT_PAGE_SIZE).getContent();
         return listToJson(interests);
     }
 

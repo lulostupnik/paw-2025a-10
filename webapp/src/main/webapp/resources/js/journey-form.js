@@ -65,24 +65,13 @@ document.addEventListener("DOMContentLoaded", () => {
             searchId: "universitySearch",
             dropdownId: "universityDropdown",
             selectedContainerId: "selectedUniversities",
+            apiEndpoint: `${apiBaseUrl}universities`,
+            selectedValue: journeySelectedUniversity,
+            minChars: 2,
+            debounceTime: 300,
             emptyMessage: emptyMessage,
             multiSelect: false, // Single-select mode
-            onSelect: (value, text) => {
-                console.log(`Selected university: ${text} (${value})`)
-                // Force update the select element value
-                const selectElement = document.getElementById("destinationUniversity")
-                if (selectElement) {
-                    // For single-select, just set the value
-                    selectElement.value = value
 
-                    // Trigger change event
-                    const event = new Event("change", { bubbles: true })
-                    selectElement.dispatchEvent(event)
-                }
-            },
-            onRemove: (value) => {
-                console.log(`Removed university: ${value}`)
-            },
             error: document.getElementById("destinationUniversity.errors") !== null,
         })
         console.log("University autocomplete component initialized")

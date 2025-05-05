@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <html>
 <head>
     <title><spring:message code="register.title"/></title>
@@ -331,6 +332,9 @@
 <!-- Include modularized JavaScript files -->
 <script>
     window.apiBaseUrl = '<c:url value="/" />';
+    selectedInterests = ['<c:out value="${fn:join(createUserForm.interests, ',')}" />'];
+    selectedCareer = '<c:out value="${createUserForm.career}" />';
+    selectedUniversity = '<c:out value="${createUserForm.originUniversity}" />';
 </script>
 <script src="<c:url value='/resources/js/components/password-strength.js'/>"></script>
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>

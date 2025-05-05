@@ -46,7 +46,7 @@ public class CreateUserForm {
 
     @NotNull
     @ValidInterest
-    private long[] interests;
+    private String[] interests;
 
     public String getEmail() {
         return email;
@@ -112,11 +112,11 @@ public class CreateUserForm {
         this.originUniversity = originUniversity;
     }
 
-    public long[] getInterests() {
+    public String[] getInterests() {
         return interests;
     }
 
-    public void setInterests(long[] interests) {
+    public void setInterests(String[] interests) {
         this.interests = interests;
     }
     public String getPassword() {

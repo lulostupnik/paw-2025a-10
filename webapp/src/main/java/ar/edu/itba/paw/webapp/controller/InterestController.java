@@ -41,7 +41,7 @@ public class InterestController {
         this.universityService = universityService;
         this.interestService = interestService;
     }
-    @RequestMapping(value = "", method = GET)
+    @RequestMapping(value = "", method = GET, produces = "application/json; charset=UTF-8")
     @ResponseBody
     public String getInterestsJSON(@RequestParam(value = "search", required = false) String search) {
         return interestService.getInterestsJSON(search);

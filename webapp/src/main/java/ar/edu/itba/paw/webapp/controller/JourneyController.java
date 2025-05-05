@@ -33,6 +33,7 @@ public class JourneyController {
     private final UniversityService universityService;
     private final InterestService interestService;
     private final JourneyService journeyService;
+    private static final int DEFAULT_PAGE_SIZE = 30;
 
     @Autowired
     public JourneyController(final JourneyService js, CityService cityService, UniversityService universityService, InterestService interestService, JourneyService journeyService){
@@ -68,20 +69,10 @@ public class JourneyController {
         mav.addObject("pageSize", size); //@Todo no se si esta bien.
         mav.addObject("currentPage", page);
 
-       populateDropdownAttributes(mav);
-
         return mav;
     }
 
-    private void populateDropdownAttributes(ModelAndView mav) {
-        List<City> cities = cityService.getAllCities();
-        LOGGER.debug("Cities: {}", cities);
-        mav.addObject("cities", cities);
 
-        List<Interest> interests = interestService.findAll();
-        LOGGER.debug("Interests: {}", interests);
-        mav.addObject("interests", interests);
-    }
     @PostMapping(value = "/{id}/delete")
     public ModelAndView deleteJourney(@PathVariable long id, @Valid @ModelAttribute("deleteForm") final ReplyForm form,
                                       final BindingResult errors, final RedirectAttributes redirectAttributes) {
@@ -121,8 +112,8 @@ public class JourneyController {
             return new ModelAndView("redirect:/journeys");
         }
 
-        return new ModelAndView("journeys/create")
-                .addObject("universities", universityService.getAllUniversities());
+        return new ModelAndView("journeys/create");
+              //  .addObject("universities", universityService.getAllUniversities("",1, DEFAULT_PAGE_SIZE).getContent());
     }
 
     @RequestMapping(value = "/{id}")

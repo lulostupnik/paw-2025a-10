@@ -104,6 +104,10 @@
 </div>
 
 <!-- Include modularized JavaScript files -->
+<script>
+    window.apiBaseUrl = '<c:url value="/" />';
+    journeySelectedUniversity = '<c:out value="${createJourneyForm.destinationUniversity}"/>';
+</script>
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/components/file-upload.js'/>"></script>
 <script src="<c:url value='/resources/js/components/date-validation.js'/>"></script>

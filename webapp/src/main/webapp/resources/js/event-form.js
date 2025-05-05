@@ -28,6 +28,8 @@ document.addEventListener("DOMContentLoaded", () => {
             searchId: "citySearch",
             dropdownId: "cityDropdown",
             selectedContainerId: "selectedCity",
+            apiEndpoint: `${apiBaseUrl}cities`,
+            selectedValue: eventSelectedCity,
             minChars: 2,
             debounceTime: 300,
             emptyMessage: emptyMessage,

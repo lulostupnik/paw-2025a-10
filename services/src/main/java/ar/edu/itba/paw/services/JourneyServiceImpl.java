@@ -175,21 +175,49 @@ public class JourneyServiceImpl implements JourneyService {
     //@TODO check estilo, paso null y parseo los destination/interest.
     @Override
     @Transactional(readOnly = true)
-    public Page<Journey> getFilteredJourneys(Long destination, LocalDate startDate, LocalDate endDate, Long interest, int page, int size){
-        return journeyDao.findByFilters(null, destination, startDate,endDate, interest, page, size);
+    public Page<Journey> getFilteredJourneys(String destination, LocalDate startDate, LocalDate endDate, String interest, int page, int size){
+        Long destinationId = null;
+        if(destination != null) {
+            Optional<City> city = cityService.findByName(destination);
+            if (city.isPresent()) {
+                destinationId = city.get().getId();
+            }
+        }
+        Long interestId = null;
+        if(interest != null) {
+            Optional<Interest> interestOptional = interestService.findByName(interest);
+            if (interestOptional.isPresent()) {
+                interestId = interestOptional.get().getId();
+            }
+        }
+        return journeyDao.findByFilters(null, destinationId, startDate,endDate, interestId, page, size);
     }
 
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Journey> getFilteredJourneys(String email, Long destination, LocalDate startDate, LocalDate endDate, Long interest, int page, int size){
+    public Page<Journey> getFilteredJourneys(String email, String destination, LocalDate startDate, LocalDate endDate, String interest, int page, int size){
         LOGGER.debug("Getting filtered journeys excluding user {}", email);
 
         User user = userService.findByEmail(email).orElseThrow(() -> {
             LOGGER.warn("User not found with email: {}", email);
             return new RuntimeException("User not found");
         });
-        return journeyDao.findByFilters(user.getId(), destination, startDate, endDate, interest, page, size);
+        Long destinationId = null;
+        if(destination != null) {
+            Optional<City> city = cityService.findByName(destination);
+            if (city.isPresent()) {
+                destinationId = city.get().getId();
+            }
+        }
+        Long interestId = null;
+        if(interest != null) {
+            Optional<Interest> interestOptional = interestService.findByName(interest);
+            if (interestOptional.isPresent()) {
+                interestId = interestOptional.get().getId();
+            }
+        }
+        return journeyDao.findByFilters(user.getId(), destinationId, startDate, endDate, interestId, page, size);
     }
 
 

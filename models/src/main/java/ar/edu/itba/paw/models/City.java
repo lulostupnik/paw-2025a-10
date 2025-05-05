@@ -14,4 +14,8 @@ public class City {
     public String toString() {
         return name + ", " + country;
     }
+
+    public String toJSON() {
+        return "{\"name\":\"" + name + "\",\"country\":\"" + country + "\",\"id\":" + id + "}";
+    }
 }

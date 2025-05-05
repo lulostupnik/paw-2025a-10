@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User createUser(String email, String username, String firstname, String lastname, String universityName,
-                           String careerName, byte[] profilePicture, long[] interests, String password, Locale locale) {
+                           String careerName, byte[] profilePicture, String[] interests, String password, Locale locale) {
 
         LOGGER.debug("Creating user for {}", email);
 

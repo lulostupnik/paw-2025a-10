@@ -36,7 +36,7 @@ public class CareerController {
         this.universityService = universityService;
         this.careerService = careerService;
     }
-    @RequestMapping(value = "", method = GET)
+    @RequestMapping(value = "", method = GET, produces = "application/json; charset=UTF-8")
     @ResponseBody
     public String getCareersJSON(@RequestParam(value = "search", required = false) String search) {
         return careerService.getCareersJSON(search);

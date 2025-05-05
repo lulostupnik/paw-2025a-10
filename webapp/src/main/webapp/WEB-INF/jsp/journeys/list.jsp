@@ -95,15 +95,15 @@
                             <c:set var="interestsLabel"><spring:message code="journey.filter.interest"/></c:set>
                             <form:label for="interest-search" class="form-label" path="interests">${interestsLabel}</form:label>
                             <div class="autocomplete-wrapper">
+                                <form:select path="interests" id="interest-select" name="interest" class="hidden-select" style="display: none;">
+                                    <form:option value=""/>
+                                    <c:forEach var="interest" items="${interests}">
+                                        <form:option value="${interest.id}"><c:out value="${interest.name}"/></form:option>
+                                    </c:forEach>
+                                </form:select>
                                 <input type="text" id="interest-search" class="autocomplete-input"
                                        placeholder="<spring:message code='journey.filter.interest.placeholder'/>"
                                        value="${param.interestName}" />
-                                <form:select path="interests" id="interest-select" name="interest" class="hidden-select" style="display: none;">
-                                    <option value=""></option>
-                                    <c:forEach var="interest" items="${interests}">
-                                        <option value="${interest.id}" ${param.interests == interest.id ? 'selected' : ''}><c:out value="${interest.name}"/></option>
-                                    </c:forEach>
-                                </form:select>
                                 <div id="interest-dropdown" class="autocomplete-dropdown" style="display: none;">
                                     <c:forEach var="interest" items="${interests}">
                                         <div class="autocomplete-item" data-value="${interest.id}"><c:out value="${interest.name}"/></div>
@@ -166,272 +166,17 @@
         </div>
     </div>
 </div>
-
+<script>
+    window.apiBaseUrl = '<c:url value="/" />';
+    window.journeyBaseUrl = '<c:url value="/journeys" />';
+    window.closeImage = '<c:url value="/resources/icons/x.svg"/>';
+    journeySelectedInterests = '<c:out value="${filterJourneyForm.interests}"/>';
+    journeySelectedCity = '<c:out value="${filterJourneyForm.destination}"/>';
+</script>
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/journey-cards.js'/>"></script>
+<script src="<c:url value='/resources/js/filter.js'/>"></script>
 
 <!-- Custom JavaScript for the autocomplete functionality -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize filter toggle
-        const filterToggleBtn = document.getElementById('filterToggleBtn');
-        const filterSection = document.getElementById('filterSection');
-        const filterForm = document.getElementById('journeyFilterForm');
-        const filterIcon = filterToggleBtn.querySelector('.filter-icon');
-        const closeIcon = filterToggleBtn.querySelector('.close-icon');
-
-        // Check if there are any filter parameters in the URL
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('destination') || urlParams.has('startDate') ||
-            urlParams.has('endDate') || urlParams.has('interest')) {
-            // Show filter section if filters are applied
-            filterSection.classList.remove('hidden');
-            // Update icons
-            filterIcon.style.display = 'none';
-            closeIcon.style.display = 'inline';
-        }
-
-        // Toggle filter section visibility
-        filterToggleBtn.addEventListener('click', function() {
-            filterSection.classList.toggle('hidden');
-
-            // Toggle icons
-            if (filterSection.classList.contains('hidden')) {
-                filterIcon.style.display = 'inline';
-                closeIcon.style.display = 'none';
-            } else {
-                filterIcon.style.display = 'none';
-                closeIcon.style.display = 'inline';
-            }
-
-            // Optional: Animate the toggle button
-            this.classList.toggle('active');
-        });
-
-        // City Autocomplete
-        initAutocomplete('citySearch', 'cityDropdown', 'city', 'citySelectedContainer', false);
-
-        // Interest Autocomplete
-        initAutocomplete('interest-search', 'interest-dropdown', 'interest-select', 'interestSelectedContainer', false);
-
-        // Initialize with any pre-selected values
-        initializeSelectedValues();
-
-        // Reset button functionality
-        const resetFiltersBtn = document.getElementById('resetFiltersBtn');
-        if (resetFiltersBtn) {
-            resetFiltersBtn.addEventListener('click', function(e) {
-                e.preventDefault(); // Prevent default button behavior
-
-                // Clear all form inputs
-                const inputs = filterForm.querySelectorAll('input');
-                inputs.forEach(input => {
-                    input.value = '';
-                });
-
-                // Clear all select elements
-                const selects = filterForm.querySelectorAll('select');
-                selects.forEach(select => {
-                    Array.from(select.options).forEach(option => {
-                        option.selected = false;
-                    });
-                    // Select the first empty option if it exists
-                    if (select.options.length > 0 && select.options[0].value === '') {
-                        select.options[0].selected = true;
-                    }
-                });
-
-                // Clear all selected tags
-                const selectedContainers = filterForm.querySelectorAll('.selected-items-container');
-                selectedContainers.forEach(container => {
-                    container.innerHTML = '';
-                });
-
-                // Navigate to the base journeys URL
-                window.location.href = '<c:url value="/journeys"/>';
-            });
-        }
-
-        // Function to initialize autocomplete
-        function initAutocomplete(inputId, dropdownId, selectId, containerid, multiSelect) {
-            const input = document.getElementById(inputId);
-            const dropdown = document.getElementById(dropdownId);
-            const select = document.getElementById(selectId);
-            const selectedContainer = document.getElementById(containerid);
-            const options = dropdown.querySelectorAll('.autocomplete-item');
-
-            // Show dropdown on input focus
-            input.addEventListener('focus', function() {
-                dropdown.style.display = 'block';
-                filterOptions(this.value);
-            });
-
-            // Show dropdown when clicking on input
-            input.addEventListener('click', function(e) {
-                e.stopPropagation();
-                dropdown.style.display = 'block';
-                filterOptions(this.value);
-            });
-
-            // Hide dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!input.contains(e.target) && !dropdown.contains(e.target)) {
-                    dropdown.style.display = 'none';
-                }
-            });
-
-            // Filter options as user types
-            input.addEventListener('input', function() {
-                filterOptions(this.value);
-                dropdown.style.display = 'block';
-            });
-
-            // Handle option selection
-            options.forEach(option => {
-                option.addEventListener('click', function() {
-                    const value = this.dataset.value;
-                    const text = this.textContent.trim();
-
-                    // For single select, clear previous selection
-                    if (!multiSelect) {
-                        // Clear all options
-                        Array.from(select.options).forEach(opt => {
-                            opt.selected = false;
-                        });
-
-                        // Clear selected container
-                        selectedContainer.innerHTML = '';
-                    }
-
-                    // Find and select the option
-                    Array.from(select.options).forEach(opt => {
-                        if (opt.value === value) {
-                            opt.selected = true;
-                        }
-                    });
-
-                    // Update input and selected container
-                    input.value = '';
-
-                    // Create selected tag
-                    const tag = document.createElement('div');
-                    tag.className = 'selected-tag';
-                    tag.innerHTML = text;
-
-                    // Add remove button for tag
-                    const removeBtn = document.createElement('button');
-                    removeBtn.type = 'button';
-                    removeBtn.className = 'tag-remove';
-                    removeBtn.innerHTML = '<img src="<c:url value='/resources/icons/x.svg'/>" width="12" height="12"/>';
-                    removeBtn.addEventListener('click', function() {
-                        // Deselect the option
-                        Array.from(select.options).forEach(opt => {
-                            if (opt.value === value) {
-                                opt.selected = false;
-                            }
-                        });
-
-                        // Remove the tag
-                        tag.remove();
-                    });
-
-                    tag.appendChild(removeBtn);
-                    selectedContainer.appendChild(tag);
-
-                    // Hide dropdown
-                    dropdown.style.display = 'none';
-                });
-            });
-
-            // Filter dropdown options based on search text
-            function filterOptions(searchText) {
-                const filter = searchText.toLowerCase();
-                let hasResults = false;
-
-                options.forEach(option => {
-                    const text = option.textContent.toLowerCase();
-                    if (text.includes(filter)) {
-                        option.style.display = '';
-                        hasResults = true;
-                    } else {
-                        option.style.display = 'none';
-                    }
-                });
-
-
-                const noResultsTxt = document.getElementById("i18n-results-match-none")
-                    ? document.getElementById("i18n-results-match-none").value
-                    : "No matching results found"
-
-                // Show no results message if needed
-                let noResultsMsg = dropdown.querySelector('.no-results');
-                if (!hasResults) {
-                    if (!noResultsMsg) {
-                        noResultsMsg = document.createElement('div');
-                        noResultsMsg.className = 'autocomplete-item no-results';
-                        noResultsMsg.textContent = noResultsTxt;
-                        dropdown.appendChild(noResultsMsg);
-                    }
-                    noResultsMsg.style.display = '';
-                } else if (noResultsMsg) {
-                    noResultsMsg.style.display = 'none';
-                }
-            }
-        }
-
-        // Initialize selected values from URL parameters
-        function initializeSelectedValues() {
-            // City
-            const citySelect = document.getElementById('city');
-            const citySelectedContainer = document.getElementById('citySelectedContainer');
-
-            if (citySelect.value) {
-                const selectedOption = Array.from(citySelect.options).find(opt => opt.selected);
-                if (selectedOption) {
-                    const tag = document.createElement('div');
-                    tag.className = 'selected-tag';
-                    tag.innerHTML = selectedOption.textContent;
-
-                    const removeBtn = document.createElement('button');
-                    removeBtn.type = 'button';
-                    removeBtn.className = 'tag-remove';
-                    removeBtn.innerHTML = '<img src="<c:url value='/resources/icons/x.svg'/>"/>';
-                    removeBtn.addEventListener('click', function() {
-                        selectedOption.selected = false;
-                        tag.remove();
-                    });
-
-                    tag.appendChild(removeBtn);
-                    citySelectedContainer.appendChild(tag);
-                }
-            }
-
-            // Interest
-            const interestSelect = document.getElementById('interest-select');
-            const interestSelectedContainer = document.getElementById('interestSelectedContainer');
-
-            if (interestSelect.value) {
-                const selectedOption = Array.from(interestSelect.options).find(opt => opt.selected);
-                if (selectedOption) {
-                    const tag = document.createElement('div');
-                    tag.className = 'selected-tag';
-                    tag.innerHTML = selectedOption.textContent;
-
-                    const removeBtn = document.createElement('button');
-                    removeBtn.type = 'button';
-                    removeBtn.className = 'tag-remove';
-                    removeBtn.innerHTML = '<img src="<c:url value='/resources/icons/x.svg'/>"/>';
-                    removeBtn.addEventListener('click', function() {
-                        selectedOption.selected = false;
-                        tag.remove();
-                    });
-
-                    tag.appendChild(removeBtn);
-                    interestSelectedContainer.appendChild(tag);
-                }
-            }
-        }
-    });
-</script>
 </body>
 </html>

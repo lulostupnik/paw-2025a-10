@@ -22,6 +22,7 @@ public class UniversityServiceImpl implements UniversityService {
 
     private final UniversityDao universityDao;
     private final CityService cityService;
+    private static final int DEFAULT_PAGE_SIZE = 30;
 
     @Autowired
     public UniversityServiceImpl(UniversityDao universityDao, CityService cityService) {
@@ -82,10 +83,10 @@ public class UniversityServiceImpl implements UniversityService {
         LOGGER.debug("Getting all universities with search {}", search);
         List<University> universities;
         if (search == null || search.isEmpty()) {
-            universities = universityDao.getAllUniversities(1,30).getContent();
+            universities = universityDao.getAllUniversities(1,DEFAULT_PAGE_SIZE).getContent();
             return UniversitiesToJson(universities);
         }
-        universities = universityDao.searchBySubstring(search,1,30).getContent();
+        universities = universityDao.searchBySubstring(search,1,DEFAULT_PAGE_SIZE).getContent();
 
         return UniversitiesToJson(universities);
     }

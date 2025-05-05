@@ -71,14 +71,14 @@ public class AuthController {
     public ModelAndView registerForm(@ModelAttribute ("createUserForm") final CreateUserForm form) {
         LOGGER.debug("Loading register form");
         ModelAndView mav = new ModelAndView("auth/register");
-        List<Career> careers = careerService.getAllCareers("",1,30).getContent();
-        LOGGER.debug("Found careers {}", careers);
-        mav.addObject("careers", careers);
-
-        List<University> universities = universityService.getAllUniversities("",1,30).getContent()  ;
-        LOGGER.debug("Found universities {}", universities);
-        mav.addObject("universities",  universities);
-
+//        List<Career> careers = careerService.getAllCareers("",1,30).getContent();
+//        LOGGER.debug("Found careers {}", careers);
+//        mav.addObject("careers", careers);
+//
+//        List<University> universities = universityService.getAllUniversities("",1,30).getContent()  ;
+//        LOGGER.debug("Found universities {}", universities);
+//        mav.addObject("universities",  universities);
+//
         List<Interest> interests = interestService.getAllInterests("",1,30).getContent();
         LOGGER.debug("Found interests {}", interests);
         mav.addObject("interests", interests);

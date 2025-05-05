@@ -27,7 +27,7 @@ public class UniversityController {
         this.cityService = cityService;
         this.universityService = universityService;
     }
-    @RequestMapping(value = "", method = GET)
+    @RequestMapping(value = "", method = GET, produces = "application/json; charset=UTF-8")
     @ResponseBody
     public String getUniversitiesJSON(@RequestParam(value = "search", required = false) String search) {
         return universityService.getUniversitiesJSON(search);

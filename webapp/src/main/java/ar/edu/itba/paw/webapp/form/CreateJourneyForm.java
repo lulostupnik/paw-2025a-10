@@ -25,6 +25,7 @@ public class CreateJourneyForm {
 //    @Size(min = 2, max = 100)
 //    private String destinationCity;
 
+    @NotNull
     @Size(min = 2, max = 100)
     private String destinationUniversity;
 
