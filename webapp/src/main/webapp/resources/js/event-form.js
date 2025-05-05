@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault()
 
             // Collect all validation errors at once
-            const errors = validateAllFields()
+            /*const errors = validateAllFields()
 
             // If there are errors, display all errors
             if (errors.length > 0) {
@@ -83,7 +83,8 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 // If no errors, manually submit the form
                 form.submit()
-            }
+            }*/
+            form.submit()
         })
     }
 

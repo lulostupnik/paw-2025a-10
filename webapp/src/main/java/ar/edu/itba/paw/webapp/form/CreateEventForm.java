@@ -7,10 +7,7 @@ import java.util.Optional;
 import javax.validation.constraints.*;
 //import javax.validation.constraints.Pattern;
 
-import ar.edu.itba.paw.webapp.validation.ContentType;
-import ar.edu.itba.paw.webapp.validation.FutureDate;
-import ar.edu.itba.paw.webapp.validation.ImageSize;
-import ar.edu.itba.paw.webapp.validation.ValidAttendeesLimit;
+import ar.edu.itba.paw.webapp.validation.*;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.NumberFormat;
@@ -26,10 +23,13 @@ public class CreateEventForm {
     @NotEmpty
     private String title;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+
     @NotNull
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @FutureDate
     private LocalDate date;
+
+
 
     @NotNull
     @ImageSize() // 2MB

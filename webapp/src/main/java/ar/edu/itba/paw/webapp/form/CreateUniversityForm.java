@@ -1,5 +1,7 @@
 package ar.edu.itba.paw.webapp.form;
 
+import ar.edu.itba.paw.webapp.validation.ExistingCity;
+
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -19,6 +21,7 @@ public class CreateUniversityForm {
     @Size(max = 50)
     @NotNull
     @NotEmpty
+    @ExistingCity
     private String cityName;
 
     public CreateUniversityForm() {

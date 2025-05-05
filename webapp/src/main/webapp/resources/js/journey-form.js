@@ -95,6 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
         console.error("Failed to initialize university autocomplete component:", error)
     }
+
     try {
         DateValidation.init(startDateField);
         DateValidation.init(endDateField);
@@ -108,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
             form.addEventListener("submit", (e) => {
                 e.preventDefault(); // Prevent default form submission
 
-                const errors = validateAllFields();
+                /*const errors = validateAllFields();
 
                 if (errors.length > 0) {
                     displayErrors(errors);
@@ -119,7 +120,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     firstErrorField.focus();
                 } else {
                     form.submit(); // Submit the form if no errors
-                }
+                }*/
+                form.submit();
             });
         }
 
