@@ -4,6 +4,7 @@
 /*!*Event Details refactored*!*/
 
 /* Event page specific styles */
+
 .events-container {
     width: 100%;
     padding: 0 0;
@@ -193,7 +194,17 @@
     word-wrap: break-word;
     overflow-wrap: break-word;
 }
+.event-actions {
+    padding: 20px;
+    background-color: #f9f9f9;
+}
 
+.event-actions-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    max-width: 100%;
+}
 
 /* Attendees */
 .attendees-count {

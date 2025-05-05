@@ -14,9 +14,26 @@
     <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
 </head>
 <body>
+<c:set var="searchUrl" value="/events" scope="request" />
+<c:set var="searchPlaceholderCode" value="events.search.event" scope="request" />
 
+<style>
+  .event-actions {
+    padding: 20px;
+    background-color: #f9f9f9;
+  }
+
+  .event-actions-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    max-width: 100%;
+  }
+
+</style>
 <div class="layout-container">
   <!-- Include the sidebar component -->
+
 
   <!-- Main Content -->
   <div class="main-content">
@@ -26,10 +43,21 @@
         <h2 class="page-title">
           <spring:message code="event.list.title"/>
         </h2>
-        <a href="<c:url value="/events/create"/>" class="btn btn-primary btn-with-icon">
-          <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="journey.create.button"/>" class="btn-icon" />
-          <spring:message code="event.create.button"/>
-        </a>
+        <div class="event-actions">
+          <div class="event-actions-container">
+            <form action="<c:url value='${searchUrl}'/>" method="get" class="search-form">
+              <input type="text" name="search" class="search-input" placeholder="<spring:message code='${searchPlaceholderCode}' />" value="${param.search}">
+              <input type="hidden" name="page" value="1">
+              <input type="hidden" name="pageSize" value="${param.pageSize != null ? param.pageSize : 10}">
+              <button type="submit" class="search-button"><spring:message code="admin.search.button" /></button>
+            </form>
+            <a href="<c:url value="/events/create"/>" class="btn btn-primary btn-with-icon">
+              <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="journey.create.button"/>" class="btn-icon" />
+              <spring:message code="event.create.button"/>
+            </a>
+          </div>
+        </div>
+
       </div>
 
       <!-- Events Grid -->

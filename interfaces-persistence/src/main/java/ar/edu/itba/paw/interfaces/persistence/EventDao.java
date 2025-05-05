@@ -46,5 +46,6 @@ public interface EventDao {
     Page<Event> getEvents(String email, int pageNumber, int pageSize);
     Page<Event> listAll(int pageNumber, int pageSize);
     Page<UserEvent> getEventsWithAttendanceStatus(long userId, int page, int size);
+    Page<UserEvent> getEventsWithAttendanceStatus(String search, long userId, int page, int size);
     Page<Event> searchEvents(String search, int pageNumber, int pageSize);
 }

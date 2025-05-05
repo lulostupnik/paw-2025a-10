@@ -544,6 +544,33 @@ public class EventJdbcDao implements EventDao {
         return new Page<>(events, page, pageCount(totalItems, size));
     }
 
+    @Override
+    public Page<UserEvent> getEventsWithAttendanceStatus(String search, long userId, int page, int size) {
+        final String searchPattern = likePattern(search);
+
+        final int totalItems = jdbcTemplate.queryForObject("""
+    SELECT COUNT(*) FROM events e
+    LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
+    WHERE e.user_id != ? AND e.deleted = FALSE AND e.event_date >= CURRENT_DATE AND (
+        LOWER(e.title) LIKE LOWER(?)
+    )
+""", Integer.class, userId, userId, searchPattern );
+
+
+
+        final List<UserEvent> events = jdbcTemplate.query(
+                SQL_FIND_WITH_ATTENDANCE_PAGED,
+                (rs, rowNum) -> {
+                    Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
+                    boolean isAttending = rs.getBoolean("is_attending");
+                    return new UserEvent(event, isAttending);
+                },
+                userId, userId, size, offset(page, size)
+        );
+
+        return new Page<>(events, page, pageCount(totalItems, size));
+    }
+
 
     @Override
     public List<UserEvent> getEventsWithAttendanceStatus(final long userId) {
