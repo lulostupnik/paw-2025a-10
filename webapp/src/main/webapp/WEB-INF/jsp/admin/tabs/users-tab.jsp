@@ -77,12 +77,19 @@
       </div>
     </c:if>
 
-    <jsp:include page="../../components/pagination-controls.jsp">
+<%--    <jsp:include page="../../components/pagination-controls.jsp">--%>
+<%--      <jsp:param name="currentPage" value="${pagedUsers.currentPage}" />--%>
+<%--      <jsp:param name="itemsPerPage" value="10" />--%>
+<%--      <jsp:param name="totalPages" value="${pagedUsers.totalPages}" />--%>
+<%--      <jsp:param name="search" value="${param.search}" />--%>
+<%--      <jsp:param name="currentUrl" value="/dashboard/users" />--%>
+<%--    </jsp:include>--%>
+
+    <jsp:include page="../../components/pagination-with-page-number.jsp">
+      <jsp:param name="pageObjectTotalPages" value="${pagedUsers.totalPages}" />
       <jsp:param name="currentPage" value="${pagedUsers.currentPage}" />
-      <jsp:param name="itemsPerPage" value="10" />
-      <jsp:param name="totalPages" value="${pagedUsers.totalPages}" />
-      <jsp:param name="search" value="${param.search}" />
-      <jsp:param name="currentUrl" value="/dashboard/users" />
+      <jsp:param name="pageSize" value="10" />
+      <jsp:param name="baseUrl" value="/dashboard/users?search=${param.search}" />
     </jsp:include>
   </div>
 </div>

@@ -59,12 +59,20 @@
       </div>
     </c:if>
 
-    <jsp:include page="../../components/pagination-controls.jsp">
+<%--    <jsp:include page="../../components/pagination-controls.jsp">--%>
+<%--      <jsp:param name="currentPage" value="${pagedUniversities.currentPage}" />--%>
+<%--      <jsp:param name="itemsPerPage" value="10" />--%>
+<%--      <jsp:param name="totalPages" value="${pagedUniversities.totalPages}" />--%>
+<%--      <jsp:param name="search" value="${param.search}" />--%>
+<%--      <jsp:param name="currentUrl" value="/dashboard/universities" />--%>
+<%--    </jsp:include>--%>
+
+    <jsp:include page="../../components/pagination-with-page-number.jsp">
+      <jsp:param name="pageObjectTotalPages" value="${pagedUniversities.totalPages}" />
       <jsp:param name="currentPage" value="${pagedUniversities.currentPage}" />
-      <jsp:param name="itemsPerPage" value="10" />
-      <jsp:param name="totalPages" value="${pagedUniversities.totalPages}" />
-      <jsp:param name="search" value="${param.search}" />
-      <jsp:param name="currentUrl" value="/dashboard/universities" />
+      <jsp:param name="pageSize" value="10" />
+      <jsp:param name="baseUrl" value="/dashboard/universities?search=${param.search}" />
     </jsp:include>
+
   </div>
 </div>
