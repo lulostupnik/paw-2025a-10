@@ -13,6 +13,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.util.*;
+import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
 @Repository
 public class CityJdbcDao implements CityDao {
@@ -165,7 +166,7 @@ public class CityJdbcDao implements CityDao {
 
     @Override
     public Page<City> searchBySubstring(final String substring, final int page, final int size) {
-        final String searchPattern = "%" + substring + "%";
+        final String searchPattern = likePattern(substring);
         final int totalItems = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM cities WHERE deleted = FALSE AND LOWER(name) LIKE LOWER(?) ",
                 Integer.class,

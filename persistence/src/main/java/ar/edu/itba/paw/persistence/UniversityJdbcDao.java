@@ -14,6 +14,7 @@ import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
 @Repository
 public class UniversityJdbcDao implements UniversityDao {
@@ -98,7 +99,7 @@ public class UniversityJdbcDao implements UniversityDao {
     
     @Override
     public Optional<University> findByAny(final String searchString) {
-        final String searchPattern = "%" + searchString + "%";
+        final String searchPattern = likePattern(searchString);
         return jdbcTemplate.query(SQL_SEARCH, UNIVERSITY_ROW_MAPPER, searchPattern, searchPattern).stream().findFirst();
     }
 
@@ -109,7 +110,7 @@ public class UniversityJdbcDao implements UniversityDao {
 
     @Override
     public Page<University> searchBySubstring(final String substring, final int page, final int size) {
-        final String searchPattern = "%" + substring + "%";
+        final String searchPattern = likePattern(substring);
         final int totalItems = jdbcTemplate.queryForObject(
                 SQL_SEARCH_COUNT,
                 Integer.class,

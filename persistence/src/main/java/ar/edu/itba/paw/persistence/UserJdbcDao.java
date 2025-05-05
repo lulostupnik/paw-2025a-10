@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.util.*;
+import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
 @Repository
 public class UserJdbcDao implements UserDao {
@@ -254,7 +255,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public Page<User> searchUsers(final String search, final int page, final int size) {
-        final String searchPattern = "%" + search + "%";
+        final String searchPattern = likePattern(search);
         final List<User> list = jdbcTemplate.query(
                 SQL_SEARCH_USERS_PAGED,
                 USER_ROW_MAPPER,

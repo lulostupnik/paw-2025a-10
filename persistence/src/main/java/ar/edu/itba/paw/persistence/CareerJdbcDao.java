@@ -14,7 +14,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ar.edu.itba.paw.interfaces.persistence.CareerDao;
-
+import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
 @Repository
 public class CareerJdbcDao implements CareerDao {
@@ -68,7 +68,7 @@ public class CareerJdbcDao implements CareerDao {
 
     @Override
     public Page<Career> searchBySubstring(final String substring, final int page, final int size) {
-        final String searchPattern = "%" + substring + "%";
+        final String searchPattern = likePattern(substring);
         final int totalCareers = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM careers WHERE LOWER(name) LIKE LOWER(?)", Integer.class, searchPattern);
         return new Page<>(
                 jdbcTemplate.query("SELECT * FROM careers WHERE LOWER(name) LIKE LOWER(?) LIMIT ? OFFSET ?", CAREER_ROW_MAPPER, searchPattern, size, (page - 1) * size),

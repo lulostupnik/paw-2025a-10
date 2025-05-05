@@ -18,6 +18,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
+import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
 @Repository
 public class JourneyJdbcDao implements JourneyDao {
@@ -498,7 +499,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public Page<Journey> searchJourneys(final String search, final int page, final int size) {
-        final String searchPattern = "%" + search + "%";
+        final String searchPattern = likePattern(search);
 
         final int totalItems = jdbcTemplate.queryForObject(
                 SQL_SEARCH_COUNT,

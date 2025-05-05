@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.util.*;
+import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
 
 @Repository
@@ -152,7 +153,7 @@ public class InterestJdbcDao implements InterestDao {
 
     @Override
     public Page<Interest> searchBySubstring(final String search, final int page, final int pageSize) {
-        final String searchPattern = "%" + search + "%";
+        final String searchPattern = likePattern(search);
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category WHERE name LIKE ?", Integer.class, searchPattern);
 
         return new Page<>(

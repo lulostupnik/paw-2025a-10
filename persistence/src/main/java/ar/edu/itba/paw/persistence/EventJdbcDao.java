@@ -19,6 +19,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ar.edu.itba.paw.interfaces.persistence.EventDao;
+import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
 @Repository
 public class EventJdbcDao implements EventDao {
@@ -453,7 +454,7 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public Page<Event> searchEvents(final String search, final int page, final int size) {
-        final String searchPattern = "%" + search + "%";
+        final String searchPattern = likePattern(search);
         final int totalItems = jdbcTemplate.queryForObject(
                 """
                 SELECT COUNT(*)
