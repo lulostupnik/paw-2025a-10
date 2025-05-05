@@ -107,6 +107,7 @@ CREATE TABLE IF NOT EXISTS journeys (
 
 
 CREATE TABLE IF NOT EXISTS journey_responses (
+        id SERIAL PRIMARY KEY,
         user_id INTEGER NOT NULL,
         journey_id INTEGER NOT NULL,
         message VARCHAR(1023) NOT NULL,
@@ -114,8 +115,7 @@ CREATE TABLE IF NOT EXISTS journey_responses (
         -- agregar created_at -> ¿Se puede autogenerar con el motor de la base de datos?
 
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-        FOREIGN KEY (journey_id) REFERENCES journeys(id) ON DELETE CASCADE,
-        PRIMARY KEY (user_id, journey_id)
+        FOREIGN KEY (journey_id) REFERENCES journeys(id) ON DELETE CASCADE
 );
 
 
@@ -137,14 +137,14 @@ CREATE TABLE IF NOT EXISTS events (
     );
 
 CREATE TABLE IF NOT EXISTS event_responses (
+                                               id SERIAL PRIMARY KEY,
                                                user_id INTEGER NOT NULL,
                                                event_id INTEGER NOT NULL,
                                                message VARCHAR(1023) NOT NULL,
                                                date_time TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
 
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
-    PRIMARY KEY (user_id, event_id)
+    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
     );
 
 CREATE TABLE IF NOT EXISTS event_attendances (
