@@ -95,13 +95,13 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
         console.error("Failed to initialize university autocomplete component:", error)
     }
-    /*
+
     try {
         DateValidation.init(startDateField);
         DateValidation.init(endDateField);
     } catch (error) {
         console.error("Failed to initialize date validation component:", error)
-    }*/
+    }
 
     // Form validation
         const form = document.getElementById("journeyForm");

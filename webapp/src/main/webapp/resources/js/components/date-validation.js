@@ -97,29 +97,53 @@
             // Validate date format
             const dateValue = dateField.value
 
-            const dateRegex = /^\d{4}-\d{2}-\d{2}$/
-            if (!dateRegex.test(dateValue)) {
-                return {isValid: false, error: document.getElementById("i18n-invalid-date-format")
-                    ? document.getElementById("i18n-invalid-date-format").value
-                    : "Please enter a valid date in YYYY-MM-DD format"}
+                // Chequea formato inicial
+                const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+                if (!dateRegex.test(dateValue)) {
+                    return {
+                        isValid: false,
+                        error: document.getElementById("i18n-invalid-date-format")
+                            ? document.getElementById("i18n-invalid-date-format").value
+                            : "Please enter a valid date in YYYY-MM-DD format"
+                    };
+                }
+
+                // Parsea los componentes
+                const [yearStr, monthStr, dayStr] = dateValue.split("-");
+                const year = Number(yearStr);
+                const month = Number(monthStr);
+                const day = Number(dayStr);
+
+                // Valida valores base
+                if (month < 1 || month > 12 || day < 1) {
+                    return {
+                        isValid: false,
+                        error: document.getElementById("i18n-invalid-date-format")
+                            ? document.getElementById("i18n-invalid-date-format").value
+                            : "Please enter a valid date in YYYY-MM-DD format"
+                    };
+                }
+
+                // Días máximos por mes
+                const daysInMonth = [31, (isLeapYear(year) ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+                if (day > daysInMonth[month - 1]) {
+                    return {
+                        isValid: false,
+                        error: document.getElementById("i18n-invalid-date-format")
+                            ? document.getElementById("i18n-invalid-date-format").value
+                            : "Please enter a valid date in YYYY-MM-DD format"
+                    };
+                }
+
+                return { isValid: true, error:"" };
             }
 
-            // Validate date is not in the past
-            const selectedDate = new Date(dateValue)
-            selectedDate.setHours(23, 59, 59, 0)
+// Helper para año bisiesto
+            function isLeapYear(year) {
+                return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+            }
 
-            const today = new Date()
-            today.setHours(0, 0, 0, 0)
-
-            /*
-            if (selectedDate < today) {
-                return {isValid: false, error: document.getElementById("i18n-past-date-error")
-                    ? document.getElementById("i18n-past-date-error").value
-                    : "Date cannot be in the past"}
-            }*/
-
-            return {isValid: true, error: ""};
-        }
 
         // Public API
         return {
