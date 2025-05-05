@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -151,45 +152,13 @@ public class JourneyServiceImpl implements JourneyService {
         // return journeyDao.findByUserEmail(email); ¿? -> Acá no estaríamos verificando si existe el usuario
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<Journey> getFilteredJourneys(String destination, LocalDate startDate, LocalDate endDate, String interest) {
-        return journeyDao.findByFilters(destination, startDate,endDate, interest);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Journey> getFilteredJourneys(String email, String destination, LocalDate startDate, LocalDate endDate, String interest) {
-        LOGGER.debug("Getting filtered journeys excluding user {}", email);
-
-        User user = userService.findByEmail(email).orElseThrow(() -> {
-            LOGGER.warn("User not found with email: {}", email);
-            return new RuntimeException("User not found");
-        });
-
-        return journeyDao.findByFilters(user.getId(), destination, startDate, endDate, interest);
-    }
-
-
-
-    //@TODO check estilo, paso null y parseo los destination/interest.
-    @Override
-    @Transactional(readOnly = true)
-    public Page<Journey> getFilteredJourneys(Long destination, LocalDate startDate, LocalDate endDate, Long interest, int page, int size){
-        return journeyDao.findByFilters(null, destination, startDate,endDate, interest, page, size);
-    }
 
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Journey> getFilteredJourneys(String email, Long destination, LocalDate startDate, LocalDate endDate, Long interest, int page, int size){
-        LOGGER.debug("Getting filtered journeys excluding user {}", email);
-
-        User user = userService.findByEmail(email).orElseThrow(() -> {
-            LOGGER.warn("User not found with email: {}", email);
-            return new RuntimeException("User not found");
-        });
-        return journeyDao.findByFilters(user.getId(), destination, startDate, endDate, interest, page, size);
+    public Page<Journey> getFilteredJourneys(User user, Long destination, LocalDate startDate, LocalDate endDate, Long interest, int page, int size) {
+        LOGGER.debug("Getting filtered journeys");
+        return journeyDao.findByFilters(user != null ? user.getId() : null, destination, startDate, endDate, interest, page, size);
     }
 
 
