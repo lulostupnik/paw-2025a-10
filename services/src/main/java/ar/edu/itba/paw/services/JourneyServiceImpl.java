@@ -156,8 +156,12 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Journey> getFilteredJourneys(User user, Long destination, LocalDate startDate, LocalDate endDate, Long interest, int page, int size) {
+    public Page<Journey> getAllJourneys(String search, User user, Long destination, LocalDate startDate, LocalDate endDate, Long interest, int page, int size) {
         LOGGER.debug("Getting filtered journeys");
+        if(search != null && !search.isEmpty()) {
+//            aca tal vez habria que buscar con todos los parametros de filtro
+            return journeyDao.searchJourneys(search, page, size);
+        }
         return journeyDao.findByFilters(user != null ? user.getId() : null, destination, startDate, endDate, interest, page, size);
     }
 

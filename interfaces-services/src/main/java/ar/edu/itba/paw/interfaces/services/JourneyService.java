@@ -21,7 +21,7 @@ public interface JourneyService {
 
     Optional<Journey> getJourneyByEmail(String email);
 
-    Page<Journey> getFilteredJourneys(User user, Long destination, LocalDate startDate, LocalDate endDate, Long interest, int page, int size);
+    Page<Journey> getAllJourneys(String search, User user, Long destination, LocalDate startDate, LocalDate endDate, Long interest, int page, int size);
 
     Boolean userHasJourney(String email); // ja
 

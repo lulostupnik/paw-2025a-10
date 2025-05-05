@@ -48,10 +48,12 @@ public class JourneyController {
     public ModelAndView getJourneys(@Valid @ModelAttribute("filterJourneyForm") FilterJourneyForm fjf, final BindingResult errors,
                                     @ModelAttribute("user") User user,
                                     @RequestParam(value = "page", defaultValue = "1") int page,
-                                    @RequestParam(value = "size", defaultValue = "8") int size) {
+                                    @RequestParam(value = "size", defaultValue = "8") int size,
+                                    @RequestParam(value = "search", required = false) String search){
+
         LOGGER.debug("Getting journeys with filters: {destination: \"{}\", startDate: \"{}\", endDate: \"{}\", interest: \"{}\"}",fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
         final ModelAndView mav = new ModelAndView("journeys/list");
-        mav.addObject("journeys", js.getFilteredJourneys(user,
+        mav.addObject("journeys", js.getAllJourneys(search, user,
                 fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests(), page, size));
         mav.addObject("hasJourney", user != null && js.userHasJourney(user.getEmail()));
         mav.addObject("pageSize", size); //@Todo no se si esta bien.
