@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // const PasswordStrength = window.PasswordStrength || {}
     const ListAutocomplete = window.ListAutocomplete || {}
     const FileUpload = window.FileUpload || {}
+    const apiBaseUrl = window.apiBaseUrl;
 
     // Initialize password strength component
     try {
@@ -31,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
             searchId: "careerSearch",
             dropdownId: "careerDropdown",
             selectedContainerId: "selectedCareer",
-            apiEndpoint: "/api/careers/search",
+            apiEndpoint: `${apiBaseUrl}careers`,
             minChars: 2,
             debounceTime: 300,
             emptyMessage: emptyMessage,
@@ -55,8 +56,8 @@ document.addEventListener("DOMContentLoaded", () => {
             searchId: "universitySearch",
             dropdownId: "universityDropdown",
             selectedContainerId: "selectedUniversity",
-            apiEndpoint: "/api/universities/search",
-            minChars: 2,
+            apiEndpoint: `${apiBaseUrl}universities`,
+            minChars: 1,
             debounceTime: 300,
             emptyMessage: emptyMessage,
             multiSelect: false, // Set to single-select mode
@@ -79,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
             searchId: "interestSearch",
             dropdownId: "interestDropdown",
             selectedContainerId: "selectedInterests",
-            apiEndpoint: "/api/interests/search",
+            apiEndpoint: `${apiBaseUrl}interests`,
             minChars: 2,
             debounceTime: 300,
             emptyMessage: emptyMessage,

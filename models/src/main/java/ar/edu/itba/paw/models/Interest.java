@@ -13,4 +13,8 @@ public class Interest {
     public String toString() {
         return name;
     }
+
+    public String toJSON() {
+        return "{ \"id\": " + id + ", \"name\": \"" + name + "\" }";
+    }
 }

@@ -329,6 +329,9 @@
 </div>
 
 <!-- Include modularized JavaScript files -->
+<script>
+    window.apiBaseUrl = '<c:url value="/" />';
+</script>
 <script src="<c:url value='/resources/js/components/password-strength.js'/>"></script>
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/components/file-upload.js'/>"></script>

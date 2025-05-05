@@ -3,7 +3,6 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
 import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
-import ar.edu.itba.paw.models.CursorPage;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.University;
 import org.slf4j.Logger;
@@ -77,6 +76,31 @@ public class UniversityServiceImpl implements UniversityService {
             return universityDao.getAllUniversities(page, size);
         }
         return universityDao.searchBySubstring(search,page, size);
+    }
+    @Override
+    public String getUniversitiesJSON(String search){
+        LOGGER.debug("Getting all universities with search {}", search);
+        List<University> universities;
+        if (search == null || search.isEmpty()) {
+            universities = universityDao.getAllUniversities(1,30).getContent();
+            return UniversitiesToJson(universities);
+        }
+        universities = universityDao.searchBySubstring(search,1,30).getContent();
+
+        return UniversitiesToJson(universities);
+    }
+
+    private String UniversitiesToJson(List<University> universities) {
+        StringBuilder json = new StringBuilder("[");
+        for (University university : universities) {
+            json.append(university.toJSON()).append(",");
+        }
+        if (json.length() > 1) {
+            json.deleteCharAt(json.length() - 1); // Remove last comma
+        }
+        json.append("]");
+        LOGGER.debug("JSON universities: {}", json);
+        return json.toString();
     }
 
     @Override

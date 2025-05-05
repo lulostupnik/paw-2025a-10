@@ -12,10 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -38,6 +35,11 @@ public class CareerController {
         this.cityService = cityService;
         this.universityService = universityService;
         this.careerService = careerService;
+    }
+    @RequestMapping(value = "", method = GET)
+    @ResponseBody
+    public String getCareersJSON(@RequestParam(value = "search", required = false) String search) {
+        return careerService.getCareersJSON(search);
     }
 
 

@@ -19,6 +19,7 @@ public interface InterestService {
     void updateScoreByInterest(Interest interest, long userId);
     void updateScoreByInterests(List<Interest> interests, long userId);
     Page<Interest> getAllInterests(String search, int page, int pageSize);
+    String getInterestsJSON(String search);
 
     void delete(long id);
 }

@@ -15,4 +15,8 @@ public class University{
     public String toString() {
         return name + " (" + abbreviation + ")";
     }
+
+    public String toJSON() {
+        return "{ \"id\": " + id + ", \"name\": \"" + name + "\", \"abbreviation\": \"" + abbreviation + "\", \"city\": \"" + city.getName() + "\" }";
+    }
 }

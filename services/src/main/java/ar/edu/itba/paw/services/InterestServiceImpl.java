@@ -115,6 +115,29 @@ public class InterestServiceImpl implements InterestService {
     }
 
     @Override
+    public String getInterestsJSON(String search) {
+        if(search == null || search.isEmpty()) {
+            List<Interest> interests = interestDao.getAllInterests(1,30).getContent();
+            return listToJson(interests);
+        }
+        List<Interest> interests = interestDao.searchBySubstring(search,1,30).getContent();
+        return listToJson(interests);
+    }
+
+    private String listToJson(List<Interest> interests) {
+        StringBuilder json = new StringBuilder("[");
+        for (Interest interest : interests) {
+            json.append(interest.toJSON()).append(",");
+        }
+        if (json.length() > 1) {
+            json.deleteCharAt(json.length() - 1); // Remove last comma
+        }
+        json.append("]");
+        LOGGER.debug("JSON interests: {}", json);
+        return json.toString();
+    }
+
+    @Override
     public void delete(long id) {
         interestDao.delete(id);
     }

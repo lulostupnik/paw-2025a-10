@@ -14,4 +14,8 @@ public class Career {
         return name;
     }
 
+    public String toJSON() {
+        return "{ \"id\": " + id + ", \"name\": \"" + name + "\" }";
+    }
+
 }

@@ -2,26 +2,18 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
-import ar.edu.itba.paw.models.Event;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
-import ar.edu.itba.paw.webapp.form.CreateEventForm;
 import ar.edu.itba.paw.webapp.form.CreateUniversityForm;
-import ar.edu.itba.paw.webapp.form.ReplyForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
-import java.util.Optional;
-
-import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @Controller
@@ -35,6 +27,11 @@ public class UniversityController {
         this.cityService = cityService;
         this.universityService = universityService;
     }
+    @RequestMapping(value = "", method = GET)
+    @ResponseBody
+    public String getUniversitiesJSON(@RequestParam(value = "search", required = false) String search) {
+        return universityService.getUniversitiesJSON(search);
+    }
 
     @RequestMapping(value = "/create", method = GET)
     public ModelAndView createUniversityForm(@ModelAttribute("createUniversityForm") final CreateUniversityForm form) {
@@ -44,8 +41,8 @@ public class UniversityController {
     }
 
     @RequestMapping(path = "/create", method = POST)
-    public ModelAndView createEvent(@Valid @ModelAttribute("createUniversityForm") final CreateUniversityForm uniForm,
-                                    final BindingResult errors, @ModelAttribute("user") User user) {
+    public ModelAndView createUniversity(@Valid @ModelAttribute("createUniversityForm") final CreateUniversityForm uniForm,
+                                         final BindingResult errors, @ModelAttribute("user") User user) {
 
         if (errors.hasErrors()) {
             return createUniversityForm(uniForm);

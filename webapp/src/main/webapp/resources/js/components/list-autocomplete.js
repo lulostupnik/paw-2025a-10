@@ -140,7 +140,7 @@ let ListAutocomplete = (() => {
                         showLoadingIndicator()
 
                         // Fetch from API
-                        fetch(`${config.apiEndpoint}?q=${encodeURIComponent(searchText)}`)
+                        fetch(`${config.apiEndpoint}?search=${encodeURIComponent(searchText)}`)
                             .then((response) => {
                                 if (!response.ok) {
                                     throw new Error("Network response was not ok")
