@@ -58,11 +58,24 @@ public class UniversityJdbcDao implements UniversityDao {
     private final static String SQL_FIND_BY_ABBREVIATION = SQL_BASE + " AND un.abbreviation = ?";
     private final static String SQL_FIND_BY_ID = SQL_BASE + " AND un.id = ?";
 
-    private final static String SQL_SEARCH = SQL_BASE + " AND (LOWER(un.name) LIKE LOWER(?) OR LOWER(un.abbreviation) LIKE LOWER(?))";
-    private final static String SQL_SEARCH_PAGED = SQL_SEARCH + " ORDER BY un.id LIMIT ? OFFSET ?";
-
     private final static String SQL_FIND_ALL = SQL_BASE + " ORDER BY un.name ";
     private final static String SQL_FIND_ALL_PAGED = SQL_FIND_ALL + " LIMIT ? OFFSET ?";
+
+    private final static String SQL_SEARCH_CONDITIONS =
+            """
+             AND (
+                LOWER(un.name) LIKE LOWER(?)
+                OR LOWER(un.abbreviation) LIKE LOWER(?)
+                OR LOWER(ci.name) LIKE LOWER(?)
+                OR LOWER(co.name) LIKE LOWER(?)
+             )
+            """;
+
+    private final static String SQL_SEARCH = SQL_BASE + SQL_SEARCH_CONDITIONS;
+    private final static String SQL_SEARCH_PAGED = SQL_SEARCH + " ORDER BY un.id LIMIT ? OFFSET ?";
+
+    private final static String SQL_SEARCH_COUNT = " SELECT COUNT(*) " + SQL_FROM_BASE + " WHERE un.deleted = FALSE " + SQL_SEARCH_CONDITIONS;
+
 
     @Autowired
     public UniversityJdbcDao(final CityDao cityDao, final DataSource dataSource){
@@ -98,12 +111,12 @@ public class UniversityJdbcDao implements UniversityDao {
     public Page<University> searchBySubstring(final String substring, final int page, final int size) {
         final String searchPattern = "%" + substring + "%";
         final int totalItems = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM universities WHERE deleted = FALSE AND (LOWER(name) LIKE LOWER(?) OR LOWER(abbreviation) LIKE LOWER(?))",
+                SQL_SEARCH_COUNT,
                 Integer.class,
-                searchPattern, searchPattern
+                searchPattern, searchPattern, searchPattern, searchPattern
         );
         return new Page<>(
-                jdbcTemplate.query(SQL_SEARCH_PAGED, UNIVERSITY_ROW_MAPPER, searchPattern, searchPattern, size, (page - 1) * size),
+                jdbcTemplate.query(SQL_SEARCH_PAGED, UNIVERSITY_ROW_MAPPER, searchPattern, searchPattern, searchPattern, searchPattern, size, (page - 1) * size),
                 page,
                 (int) Math.ceil((double) totalItems / size)
         );
