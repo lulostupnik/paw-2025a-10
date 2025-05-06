@@ -69,9 +69,9 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .and().authorizeRequests()
                 .antMatchers("/register", "/login", "/blocked").permitAll() // Make sure /blocked is accessible
                 .antMatchers(HttpMethod.POST, "/events/{id}/delete", "/journeys/{id}/delete", "journey-replies/{id}/delete", "event-replies/{id}/delete",
-                        "profile/{id}/block", "profile/{id}/unblock").hasRole("ADMIN")
+                        "users/{id}/block", "users/{id}/unblock").hasRole("ADMIN")
                 .antMatchers("/admin/**").hasRole("ADMIN")
-                .antMatchers("/dashboard/**","interests/**", "careers/**", "/universities/**","cities/**").hasRole("ADMIN")
+                .antMatchers("/dashboard/**","interests/**", "careers/**", "/universities/**","cities/**", "users/**").hasRole("ADMIN")
                 .antMatchers("/journeys/{id}/update").access("@accessHelper.isUserJourneyOwner(#id)")
                 .antMatchers("/events/{id}/update").access("@accessHelper.isUserEventOwner(#id)")
                 .antMatchers("/events/create", "/journeys/create").authenticated()

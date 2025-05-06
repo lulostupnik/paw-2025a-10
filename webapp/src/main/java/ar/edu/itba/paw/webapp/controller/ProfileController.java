@@ -48,27 +48,6 @@ public class ProfileController {
         return mav;
     }
 
-    @RequestMapping(value = "/profile/{id}/block", method = RequestMethod.POST)
-    public ModelAndView blockUser(@PathVariable("id") long id, @RequestHeader(value = "Referer",required = false) String referer) {
-//        ModelAndView mav = new ModelAndView("redirect:/profile/" + id);
-        userService.blockUser(id);
-        if(referer != null) {
-            return new ModelAndView("redirect:" + referer);
-        } else {
-            throw new RuntimeException("Referer header is missing");
-        }
-    }
-
-    @RequestMapping(value = "/profile/{id}/unblock", method = RequestMethod.POST)
-    public ModelAndView unblockUser(@PathVariable("id") long id, @RequestHeader(value = "Referer",required = false) String referer) {
-//        ModelAndView mav = new ModelAndView("redirect:/profile/" + id);
-        userService.unblockUser(id);
-        if(referer != null) {
-            return new ModelAndView("redirect:" + referer);
-        } else {
-            throw new RuntimeException("Referer header is missing");
-        }
-    }
 //
 //    @RequestMapping(value = "/profile/edit", method = RequestMethod.GET)
 //    public ModelAndView getEditProfile() {
