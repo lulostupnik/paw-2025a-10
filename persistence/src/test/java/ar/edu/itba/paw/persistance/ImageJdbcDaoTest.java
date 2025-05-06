@@ -104,20 +104,4 @@ public class ImageJdbcDaoTest {
         assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, IMAGES_TABLE));
     }
 
-    @Test 
-    public void testUpdateImage(){
-        imageDao.updateImage(id1, IMAGE_2);
-        Optional<Image> maybeImage = jdbcTemplate.query("SELECT * FROM images WHERE id = ?", ROW_MAPPER, id1).stream().findFirst();
-        assertNotNull(maybeImage);
-        assertTrue(maybeImage.isPresent());
-        Image image = maybeImage.get();
-        assertEquals(IMAGE_2.length, image.getData().length);
-        for (int i = 0; i < image.getData().length; i++) {
-            assertEquals(IMAGE_2[i], image.getData()[i]);
-        }
-    }
-    @Test(expected = NullPointerException.class)
-    public void testUpdateImageMissingContent(){
-        imageDao.updateImage(id1, null);
-    }
 }

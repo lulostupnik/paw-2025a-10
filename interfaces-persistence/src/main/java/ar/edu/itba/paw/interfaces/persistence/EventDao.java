@@ -13,7 +13,7 @@ public interface EventDao {
 
 
     // UPDATE
-    void updateData(long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId/*, long userId*/);
+    void updateData(long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId, long flyerImageId/*, long userId*/);
 
 
     // DELETE

@@ -334,35 +334,23 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @CacheEvict(value = "eventsById", key = "#eventId")
     @Override
-    public void editEvent(long eventId,
-                          String cityName,
-                          LocalDate date,
-                          byte[] flyer,
-                          String description,
-                          String title,
-                          LocalTime time,
-                          String address,
-                          Integer attendeesLimit) {
+    public void editEvent(long eventId, String cityName, LocalDate date, byte[] flyer, String description,
+                          String title, LocalTime time, String address, Integer attendeesLimit) {
 
-        // 1. Load the existing event
         Event currentEvent = eventDao.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Event not found"));
 
-        // 3. Resolve final values
         long resolvedCityId = cityService.findByName(cityName).orElseThrow(() -> new RuntimeException("City not found")).getId();
 
-       eventDao.updateData(
-                resolvedCityId,
-                date,
-                description,
-                title,
-                time,
-                address,
-                attendeesLimit,
-                eventId //hacer void
-        );
+        long flyerImageId = imageService.storeImage(flyer);
 
-            imageService.updateImage(currentEvent.getFlyerImageId(), flyer);
+        // hacer void ?
+        eventDao.updateData(resolvedCityId, date, description,
+                title, time, address, attendeesLimit, eventId, flyerImageId
+       );
+
+       imageService.deleteImage(currentEvent.getFlyerImageId());
+
     }
 
 

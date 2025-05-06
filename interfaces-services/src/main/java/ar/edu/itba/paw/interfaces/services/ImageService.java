@@ -7,6 +7,5 @@ public interface ImageService {
     long storeImage(byte[] imageData);
     Optional<Image> getImage(Long id);
     void deleteImage(Long id);
-    void updateImage(Long id, byte[] newContent);
 }
 

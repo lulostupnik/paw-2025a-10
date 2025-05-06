@@ -50,11 +50,5 @@ public class ImageJdbcDao implements ImageDao {
         jdbcTemplate.update("DELETE FROM images WHERE id = ?", id);
     }
 
-    // FIXME: creo que no se usa, o no se debería usar
-    @Override
-    public void updateImage(final long id, final byte[] newContent) {
-        LOGGER.debug("Updating image {} with new content of size {}", id, newContent.length);
-        jdbcTemplate.update("UPDATE images SET content = ? WHERE id = ?", newContent, id);
-    }
 
 }

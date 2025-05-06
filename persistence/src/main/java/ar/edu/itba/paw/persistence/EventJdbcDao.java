@@ -563,7 +563,7 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public void updateData(final long cityId, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit, final long eventId/*, long userId*/) {
+    public void updateData(final long cityId, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit, final long eventId, final long flyerImageId/*, long userId*/) {
         jdbcTemplate.update("""
             UPDATE events
                SET city_id = ?,
@@ -572,7 +572,8 @@ public class EventJdbcDao implements EventDao {
                    title = ?,
                    event_time = ?,
                    address = ?,
-                   attendees_limit = ?
+                   attendees_limit = ?,
+                   flyer_image_id = ?
              WHERE id = ?
              """,
                 cityId,
@@ -582,7 +583,8 @@ public class EventJdbcDao implements EventDao {
                 (time != null) ? Time.valueOf(time) : null,
                 address,
                 attendeesLimit,
-                eventId
+                eventId,
+                flyerImageId
         );
     }
 }
