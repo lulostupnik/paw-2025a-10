@@ -348,7 +348,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public void updateUniversity(final long userId, final String universityName) {
-        LOGGER.debug("Updating user university for user ID: {} to university with name: {}", userId, universityName);
+        LOGGER.debug("Updating university for user ID: {} to university with name: {}", userId, universityName);
 
         jdbcTemplate.update("""
                 UPDATE users
@@ -362,6 +362,17 @@ public class UserJdbcDao implements UserDao {
         LOGGER.debug("Updating career for user ID: {} to career ID: {}", userId, careerId);
         jdbcTemplate.update("UPDATE users SET career_id = ? WHERE id = ?", careerId, userId);
         // return update(userId, null, null, null, null, careerId, null);
+    }
+
+    @Override
+    public void updateCareer(long userId, String careerName) {
+        LOGGER.debug("Updating career for user ID: {} to university with name: {}", userId, careerName);
+
+        jdbcTemplate.update("""
+                UPDATE users
+                SET career_id = (SELECT id FROM careers WHERE name = ?)
+                WHERE id = ?
+                """, careerName, userId);
     }
 
     @Override

@@ -104,14 +104,14 @@ public class UserServiceImpl implements UserService {
     public void updateProfileInfo(long userId, String firstname, String lastname, String username) {
         LOGGER.debug("Updating profile info for user {}: firstname={}, lastname={}, username={}", userId, firstname, lastname, username);
 
-        // FIXME: todas estas validaciones creo que no hay que ponerlas
-        Optional<User> existingUser = findById(userId);
-        if (existingUser.isPresent() && !existingUser.get().getUsername().equals(username)) {
-            if (existsByUsername(username)) {
-                LOGGER.warn("Username {} is already taken", username);
-                throw new IllegalArgumentException("Username is already taken");
-            }
-        }
+//        // FIXME: todas estas validaciones creo que no hay que ponerlas
+//        Optional<User> existingUser = findById(userId);
+//        if (existingUser.isPresent() && !existingUser.get().getUsername().equals(username)) {
+//            if (existsByUsername(username)) {
+//                LOGGER.warn("Username {} is already taken", username);
+//                throw new IllegalArgumentException("Username is already taken");
+//            }
+//        }
 
         userDao.updateProfileInfo(userId, firstname, lastname, username);
     }
@@ -150,29 +150,30 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void updateCareer(long userId, String newCareerName) {
         LOGGER.debug("Updating career for user {} to {}", userId, newCareerName);
-
-        // FIXME: ¿debería ser así o directamente en el dao crear un método updateCareer(long userId, String careerName)?
-        Career career = careerService.findByName(newCareerName)
-                .orElseThrow(() -> {
-                    LOGGER.warn("Career not found: {}", newCareerName);
-                    return new IllegalArgumentException("Career not found");
-                });
-
-        userDao.updateCareer(userId, career.getId());
+//
+//        // FIXME: ¿debería ser así o directamente en el dao crear un método updateCareer(long userId, String careerName)?
+//        Career career = careerService.findByName(newCareerName)
+//                .orElseThrow(() -> {
+//                    LOGGER.warn("Career not found: {}", newCareerName);
+//                    return new IllegalArgumentException("Career not found");
+//                });
+//
+//        userDao.updateCareer(userId, career.getId());
+        userDao.updateCareer(userId, newCareerName);
     }
 
     @Override
     @Transactional
     public void updateCareer(long userId, long careerId) {
         LOGGER.debug("Updating career for user {} to career ID {}", userId, careerId);
-
-        // FIXME: está validación no la deberíamos hacer, ya está validada en webapp, o no?
-        // Si llegara a no existir sería una condición anormal y persistencia nos tiraría una excepción al querer realizar el update
-        careerService.findById(careerId)
-                .orElseThrow(() -> {
-                    LOGGER.warn("Career not found with ID: {}", careerId);
-                    return new IllegalArgumentException("Career not found");
-                });
+//
+//        // FIXME: está validación no la deberíamos hacer, ya está validada en webapp, o no?
+//        // Si llegara a no existir sería una condición anormal y persistencia nos tiraría una excepción al querer realizar el update
+//        careerService.findById(careerId)
+//                .orElseThrow(() -> {
+//                    LOGGER.warn("Career not found with ID: {}", careerId);
+//                    return new IllegalArgumentException("Career not found");
+//                });
 
         userDao.updateCareer(userId, careerId);
         LOGGER.info("Successfully updated career for user {} to career ID {}", userId, careerId);
