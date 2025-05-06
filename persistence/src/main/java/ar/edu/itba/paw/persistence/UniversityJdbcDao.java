@@ -183,6 +183,15 @@ public class UniversityJdbcDao implements UniversityDao {
     }
 
     @Override
+    public void updateUniversity(long id, String name, String abbreviation, String cityName) {
+        jdbcTemplate.update("""
+        UPDATE universities
+        SET name = ?, abbreviation = ?, city_id = (SELECT id FROM cities WHERE name = ?)
+        WHERE id = ?
+        """, name, abbreviation, cityName, id);
+    }
+
+    @Override
     public void delete(final long id) {
         LOGGER.debug("Marking university with ID: {} as deleted", id);
         final int rowsAffected = jdbcTemplate.update("UPDATE universities SET deleted = TRUE WHERE id = ?", id);

@@ -36,6 +36,8 @@ public class UserServiceImpl implements UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+
+    // TODO: ¿Está bien esto? -> ¿O debería resolverse en el DAO?
     @Override
     @Transactional
     public User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, byte[] profilePicture, long[] interests, String password, Locale locale) {

@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.interfaces.persistence;
 
-import ar.edu.itba.paw.models.CursorPage;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.University;
 import java.util.List;
@@ -10,6 +9,7 @@ public interface UniversityDao {
     University createUniversity(String name, String abbreviation, String city);
 
     void updateUniversity(long id, String name, String abbreviation, long cityId);
+    void updateUniversity(long id, String name, String abbreviation, String city);
 
     void delete(long id);
 
