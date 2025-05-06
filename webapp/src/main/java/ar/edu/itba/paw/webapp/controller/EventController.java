@@ -5,6 +5,7 @@ import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.form.CreateEventForm;
 
+import ar.edu.itba.paw.webapp.form.EditEventForm;
 import ar.edu.itba.paw.webapp.form.ReplyForm;
 
 import ar.edu.itba.paw.webapp.utils.ImageUtils;
@@ -259,7 +260,7 @@ public class EventController {
     @RequestMapping(value = "/{id}/update", method = GET)
     public ModelAndView showUpdateEventForm(@PathVariable("id") int eventId,
                                             @ModelAttribute("user") User user,
-                                            @ModelAttribute("createEventForm") CreateEventForm form,
+                                            @ModelAttribute("editEventForm") EditEventForm form,
                                             BindingResult errors) {
 
         LOGGER.debug("User {} requested to update event {}", user.getEmail(), eventId);
@@ -286,7 +287,7 @@ public class EventController {
     @RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
     public ModelAndView updateEvent(@PathVariable("id") int eventId,
                                     @ModelAttribute("user") User user,
-                                    @Valid @ModelAttribute("createEventForm") CreateEventForm form,
+                                    @Valid @ModelAttribute("editEventForm") EditEventForm form,
                                     BindingResult errors) {
 
         LOGGER.debug("User {} submitted update for event {}", user.getEmail(), eventId);
