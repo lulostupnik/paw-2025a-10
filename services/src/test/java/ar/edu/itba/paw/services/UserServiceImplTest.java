@@ -318,10 +318,6 @@ public class UserServiceImplTest {
     }
     @Test
     public void testUpdateUniversityIdFound(){
-        Mockito.when(
-            universityService.findById(Mockito.eq(UNIVERSITY.getId()))
-        ).thenReturn(Optional.of(UNIVERSITY));
-
         userService.updateUniversity(USER_ID, UNIVERSITY.getId());
     }
 
