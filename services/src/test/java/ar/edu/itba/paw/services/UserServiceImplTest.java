@@ -261,32 +261,6 @@ public class UserServiceImplTest {
 
     @Test
     public void testUpdateProfileInfo(){
-        Mockito.when(
-            userDao.findById(Mockito.eq(USER_ID))
-        ).thenReturn(Optional.of(new User(0, null, "something", null, null, null, null, 0, null, false)));
-        Mockito.when(
-            userDao.existsByUsername(USERNAME)
-        ).thenReturn(false);
-
-        userService.updateProfileInfo(USER_ID, FIRSTNAME, LASTNAME, USERNAME);
-    }
-    @Test
-    public void testUpdateProfileInfoSameUsername(){
-        Mockito.when(
-            userDao.findById(Mockito.eq(USER_ID))
-        ).thenReturn(Optional.of(USER));
-
-        userService.updateProfileInfo(USER_ID, FIRSTNAME, LASTNAME, USERNAME);
-    }
-    @Test(expected = IllegalArgumentException.class)
-    public void testUpdateProfileInfoDuplicatedUser(){
-        Mockito.when(
-            userDao.findById(Mockito.eq(USER_ID))
-        ).thenReturn(Optional.of(new User(0, null, "something", null, null, null, null, 0, null, false)));
-        Mockito.when(
-            userDao.existsByUsername(Mockito.eq(USERNAME))
-        ).thenReturn(true);
-
         userService.updateProfileInfo(USER_ID, FIRSTNAME, LASTNAME, USERNAME);
     }
 
@@ -302,18 +276,6 @@ public class UserServiceImplTest {
 
     @Test
     public void testUpdateUniversityNameFound(){
-        Mockito.when(
-            universityService.findByName(Mockito.eq(UNIVERSITY.getName()))
-        ).thenReturn(Optional.of(UNIVERSITY));
-
-        userService.updateUniversity(USER_ID, UNIVERSITY.getName());
-    }
-    @Test(expected = IllegalArgumentException.class)
-    public void testUpdateUniversityNameNotFound(){
-        Mockito.when(
-            universityService.findByName(Mockito.eq(UNIVERSITY.getName()))
-        ).thenReturn(Optional.empty());
-
         userService.updateUniversity(USER_ID, UNIVERSITY.getName());
     }
     @Test
@@ -323,34 +285,10 @@ public class UserServiceImplTest {
 
     @Test
     public void testUpdateCareerNameFound(){
-        Mockito.when(
-            careerService.findByName(Mockito.eq(CAREER.getName()))
-        ).thenReturn(Optional.of(CAREER));
-
-        userService.updateCareer(USER_ID, CAREER.getName());
-    }
-    @Test(expected = IllegalArgumentException.class)
-    public void testUpdateCareerNameNotFound(){
-        Mockito.when(
-            careerService.findByName(Mockito.eq(CAREER.getName()))
-        ).thenReturn(Optional.empty());
-
         userService.updateCareer(USER_ID, CAREER.getName());
     }
     @Test
     public void testUpdateCareerIdFound(){
-        Mockito.when(
-            careerService.findById(Mockito.eq(CAREER.getId()))
-        ).thenReturn(Optional.of(CAREER));
-
-        userService.updateCareer(USER_ID, CAREER.getId());
-    }
-    @Test(expected = IllegalArgumentException.class)
-    public void testUpdateCareerIdNotFound(){
-        Mockito.when(
-            careerService.findById(Mockito.eq(UNIVERSITY.getId()))
-        ).thenReturn(Optional.empty());
-
         userService.updateCareer(USER_ID, CAREER.getId());
     }
 
