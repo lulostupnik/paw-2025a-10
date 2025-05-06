@@ -292,13 +292,8 @@
     padding: 1rem;
     border-radius: var(--radius-sm);
     background-color: var(--profile-bg-alt);
-    transition: var(--profile-transition);
 }
 
-.info-item:hover {
-    background-color: rgba(59, 130, 246, 0.05);
-    transform: translateX(5px);
-}
 
 .info-label {
     font-size: 0.875rem;
