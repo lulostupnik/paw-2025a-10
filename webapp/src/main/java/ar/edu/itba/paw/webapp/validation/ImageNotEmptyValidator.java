@@ -4,18 +4,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.ConstraintValidator;
 
-public class ImageSizeValidator implements ConstraintValidator<ImageSize, MultipartFile> {
-private long max;
+public class ImageNotEmptyValidator implements ConstraintValidator<ImageNotEmpty, MultipartFile> {
+    private long max;
     @Override
-    public void initialize(ImageSize constraintAnnotation) {
-        this.max = constraintAnnotation.max();
-    }
+    public void initialize(ImageNotEmpty constraintAnnotation) {}
 
     @Override
     public boolean isValid(MultipartFile file, javax.validation.ConstraintValidatorContext context) {
         if (file == null || file.isEmpty()) {
-            return true;
+            return false;
         }
-        return file.getSize() <= max * 1024 * 1024 ;
+        return file.getSize() > 0;
     }
 }

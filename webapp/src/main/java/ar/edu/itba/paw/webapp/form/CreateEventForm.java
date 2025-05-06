@@ -34,6 +34,7 @@ public class CreateEventForm {
     @NotNull
     @ImageSize() // 2MB
     @ContentType({"image/jpeg", "image/jpg", "image/png"})
+    @ImageNotEmpty
     private MultipartFile flyer;
 
     @Size(min = 2, max = 2047)
