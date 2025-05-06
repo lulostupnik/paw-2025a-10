@@ -106,6 +106,7 @@ public class UserServiceImpl implements UserService {
     public void updateProfileInfo(long userId, String firstname, String lastname, String username) {
         LOGGER.debug("Updating profile info for user {}: firstname={}, lastname={}, username={}", userId, firstname, lastname, username);
 
+        // FIXME: todas estas validaciones creo que no hay que ponerlas
         Optional<User> existingUser = findById(userId);
         if (existingUser.isPresent() && !existingUser.get().getUsername().equals(username)) {
             if (existsByUsername(username)) {
@@ -166,7 +167,7 @@ public class UserServiceImpl implements UserService {
     public void updateCareer(long userId, long careerId) {
         LOGGER.debug("Updating career for user {} to career ID {}", userId, careerId);
 
-        // FIXME: está validación no la deberíamos hacer, ya está validada en el controller
+        // FIXME: está validación no la deberíamos hacer, ya está validada en webapp, o no?
         // Si llegara a no existir sería una condición anormal y persistencia nos tiraría una excepción al querer realizar el update
         careerService.findById(careerId)
                 .orElseThrow(() -> {
@@ -179,8 +180,11 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    // TODO: ¿Eliminar método? -> Llamar directo a imageService.getImage();
+
+    // Recibe User -> ¿Está bien?
     //@TODO ask (exception?). @TODO add cache?
+    @Override
+    @Transactional(readOnly = true)
     public byte[] getProfilePictureData(User user) {
         return imageService.getImage(user.getProfilePictureId())
                 .orElseThrow(() -> new IllegalStateException("User does not have a profile picture"))
@@ -188,25 +192,29 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         return userDao.getAllUsers();
     }
 
     @Override
-    public Page<User> getAllUsers(String search,int page, int size) {
+    @Transactional(readOnly = true)
+    public Page<User> getAllUsers(String search, int page, int size) {
 
         if (search == null || search.isEmpty()) {
             return userDao.getAllUsers(page, size);
         }
-        return userDao.searchUsers(search,page,size);
+        return userDao.searchUsers(search, page, size);
     }
 
     @Override
+    @Transactional
     public void blockUser(long userId) {
         userDao.blockUser(userId);
     }
 
     @Override
+    @Transactional
     public void unblockUser(long userId) {
         userDao.unblockUser(userId);
     }
