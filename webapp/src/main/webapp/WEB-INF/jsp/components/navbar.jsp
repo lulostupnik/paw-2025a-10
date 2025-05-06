@@ -22,6 +22,7 @@
 <c:url var="interestsUrl" value="/interests" />
 <c:url var="citiesUrl" value="/cities" />
 <c:url var="universitiesUrl" value="/universities" />
+<c:url var="usersUrl" value="/users" />
 <c:set var="uri" value="${requestScope['javax.servlet.forward.request_uri'] != null
                           ? requestScope['javax.servlet.forward.request_uri']
                           : request.requestURI}" />
@@ -39,6 +40,7 @@
             or fn:startsWith(uri, careersUrl)
             or fn:startsWith(uri, interestsUrl)
             or fn:startsWith(uri, citiesUrl)
+            or fn:startsWith(uri, usersUrl)
             or fn:startsWith(uri, universitiesUrl)}" />
 
 <link rel="stylesheet" href="<c:url value='/resources/css/layout/navbar.css'/>" />

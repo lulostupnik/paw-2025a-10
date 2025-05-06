@@ -42,13 +42,13 @@
       <tbody>
       <c:set var="users" value="${pagedUsers.content}" />
       <c:forEach items="${users}" var="user">
-        <tr>
+        <tr class="clickable-row" data-href="<c:url value="../users/${user.id}"/>" >
           <td><c:out value="${user.id}"/></td>
           <td><c:out value="${user.firstname}"/></td>
           <td><c:out value="${user.email}"/></td>
           <td><c:out value="${user.university}"/></td>
-          <c:set var="blockUrl" value="/profile/${user.id}/block/"/>
-            <c:set var="unblockUrl" value="/profile/${user.id}/unblock/"/>
+          <c:set var="blockUrl" value="/users/${user.id}/block/"/>
+            <c:set var="unblockUrl" value="/users/${user.id}/unblock/"/>
           <td>
             <c:if test="${! user.blocked}">
               <form action="<c:url value='${blockUrl}'/>"  method="post">
