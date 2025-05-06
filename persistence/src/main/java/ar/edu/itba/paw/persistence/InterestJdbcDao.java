@@ -38,6 +38,7 @@ public class InterestJdbcDao implements InterestDao {
 
     private final static String SQL_FIND_ALL_BY_USER = SQL_BASE + " WHERE id IN (SELECT category_id FROM user_interest WHERE user_id = ?)";
 
+    private final static String SQL_FIND_ALL_PAGED_BY_USER = SQL_FIND_ALL_BY_USER + " ORDER BY name ASC LIMIT ? OFFSET ?";
     @Autowired
     public InterestJdbcDao(final DataSource dataSource)
     {
@@ -170,6 +171,15 @@ public class InterestJdbcDao implements InterestDao {
         if (rowsAffected == 0) {
             LOGGER.warn("Interest delete failed: Interest with ID {} not found", id);
         }
+    }
+    @Override
+    public Page<Interest> findAllInterestsByUserId(final long id, final int page, final int pageSize) {
+        final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user_interest WHERE user_id = ?", Integer.class, id);
+        return new Page<>(
+                jdbcTemplate.query(SQL_FIND_ALL_PAGED_BY_USER, INTEREST_ROW_MAPPER, id,page,offset(page,pageSize)),
+                page,
+                pageCount(totalItems, pageSize)
+        );
     }
 
 

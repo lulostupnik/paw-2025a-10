@@ -66,6 +66,11 @@ public class InterestServiceImpl implements InterestService {
         return interestDao.findIdByName(names);
     }
 
+    @Override
+    public Page<Interest> findAllInterestsByUserId(long id, int page, int pageSize) {
+        return interestDao.findAllInterestsByUserId(id, page, pageSize);
+    }
+
     @Transactional
     @Override
     public Interest createUserInterest(String interest) {
