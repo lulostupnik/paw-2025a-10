@@ -222,7 +222,6 @@ public class EventJdbcDao implements EventDao {
                 ORDER BY
                  (e.attendees_limit IS NOT NULL AND e.attendees_count >= e.attendees_limit) ASC, 
                   is_attending ASC,
-                  is_owner ASC,
                   COALESCE(e.attendees_count, 0) DESC, 
                   e.event_date
                 LIMIT ? OFFSET ?
@@ -355,8 +354,8 @@ public class EventJdbcDao implements EventDao {
 
         final int totalItems = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM events e WHERE e.deleted = FALSE AND e.event_date >= CURRENT_DATE AND e.user_id != ?",
-                new Object[]{userId},
-                Integer.class
+                Integer.class,
+                userId
         );
 
         final List<UserEvent> events = jdbcTemplate.query(SQL_TOP_EVENTS_LOGGED_USER,

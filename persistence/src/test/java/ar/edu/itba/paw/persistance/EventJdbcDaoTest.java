@@ -430,75 +430,44 @@ public class EventJdbcDaoTest {
     @Test
     public void testGetTopUserEvents(){
         List<Long> ids = new ArrayList<>();
-        //not full, not attending, mine, 20, soon
-        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 20, "user", USER2)));
-        //not full, not attending, not mine, 20, later
-        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 20, "user", USER2, "date", LATER_DATE)));
-        //not full, not attending, not mine, 10, soon
-        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 10, "user", USER2)));
-        //not full, not attending, not mine, 10, later
-        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 10, "user", USER2, "date", LATER_DATE)));
-        //not full, not attending, mine, 20, soon
+        //00 not full, not attending, 20, soon
         ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 20)));
-        //not full, not attending, mine, 20, later
+        //01 not full, not attending, 20, later
         ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 20, "date", LATER_DATE)));
-        //not full, not attending, mine, 10, soon
+        //02 not full, not attending, 10, soon
         ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 10)));
-        //not full, not attending, mine, 10, later
+        //03 not full, not attending, 10, later
         ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 10, "date", LATER_DATE)));
-        //not full, attending, mine, 20, soon
-        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 20, "attending", USER1, "user", USER2)));
-        //not full, attending, not mine, 20, later
-        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 20, "attending", USER1, "date", LATER_DATE, "user", USER2)));
-        //not full, attending, not mine, 10, soon
-        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 10, "attending", USER1, "user", USER2)));
-        //not full, attending, not mine, 10, later
-        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 10, "attending", USER1, "date", LATER_DATE, "user", USER2)));
-        //not full, attending, mine, 20, soon
-        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 20, "attending", USER1)));
-        //not full, attending, mine, 20, later
-        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 20, "attending", USER1, "date", LATER_DATE)));
-        //not full, attending, mine, 10, soon
-        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 10, "attending", USER1)));
-        //not full, attending, mine, 10, later
-        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 10, "attending", USER1, "date", LATER_DATE)));
-        //full, 20, not attending, not mine, soon
-        ids.add(insertEvent(Map.of("limit", Optional.of(20), "willAttend", 20, "user", USER2)));
-        //full, 20, not attending, not mine, later
-        ids.add(insertEvent(Map.of("limit", Optional.of(20), "willAttend", 20, "date", LATER_DATE, "user", USER2)));
-        //full, 10, not attending, not mine, soon
-        ids.add(insertEvent(Map.of("limit", Optional.of(10), "willAttend", 10, "user", USER2)));
-        //full, 10, not attending, mine, later
-        ids.add(insertEvent(Map.of("limit", Optional.of(10), "willAttend", 10, "date", LATER_DATE, "user", USER2)));
-        //full, 20, not attending, mine, soon
+        //04 not full, attending, 20, soon
+        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 20, "attending", USER2)));
+        //05 not full, attending, 20, later
+        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 20, "attending", USER2, "date", LATER_DATE)));
+        //06 not full, attending, 10, soon
+        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 10, "attending", USER2)));
+        //07 not full, attending, 10, later
+        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 10, "attending", USER2, "date", LATER_DATE)));
+        //08 full, 20, not attending, soon
         ids.add(insertEvent(Map.of("limit", Optional.of(20), "willAttend", 20)));
-        //full, 20, not attending, mine, later
+        //09 full, 20, not attending, later
         ids.add(insertEvent(Map.of("limit", Optional.of(20), "willAttend", 20, "date", LATER_DATE)));
-        //full, 10, not attending, mine, soon
+        //10 full, 10, not attending, soon
         ids.add(insertEvent(Map.of("limit", Optional.of(10), "willAttend", 10)));
-        //full, 10, not attending, mine, later
+        //11 full, 10, not attending, later
         ids.add(insertEvent(Map.of("limit", Optional.of(10), "willAttend", 10, "date", LATER_DATE)));
-        //full, 20, attending, not mine, soon
-        ids.add(insertEvent(Map.of("limit", Optional.of(20), "willAttend", 20, "attending", USER1, "user", USER2)));
-        //full, 20, attending, not mine, later
-        ids.add(insertEvent(Map.of("limit", Optional.of(20), "willAttend", 20, "attending", USER1, "user", USER2, "date", LATER_DATE)));
-        //full, 10, attending, not mine, soon
-        ids.add(insertEvent(Map.of("limit", Optional.of(10), "willAttend", 10, "attending", USER1, "user", USER2)));
-        //full, 10, attending, mine, later
-        ids.add(insertEvent(Map.of("limit", Optional.of(10), "willAttend", 10, "attending", USER1, "user", USER2, "date", LATER_DATE)));
-        //full, 20, attending, mine, soon
-        ids.add(insertEvent(Map.of("limit", Optional.of(20), "willAttend", 20, "attending", USER1)));
-        //full, 20, attending, mine, later
-        ids.add(insertEvent(Map.of("limit", Optional.of(20), "willAttend", 20, "attending", USER1, "date", LATER_DATE)));
-        //full, 10, attending, mine, soon
-        ids.add(insertEvent(Map.of("limit", Optional.of(10), "willAttend", 10, "attending", USER1)));
-        //full, 10, attending, mine, later
-        ids.add(insertEvent(Map.of("limit", Optional.of(10), "willAttend", 10, "attending", USER1, "date", LATER_DATE)));
+        //12 full, 20, attending, soon
+        ids.add(insertEvent(Map.of("limit", Optional.of(20), "willAttend", 20, "attending", USER2)));
+        //13 full, 20, attending, later
+        ids.add(insertEvent(Map.of("limit", Optional.of(20), "willAttend", 20, "attending", USER2, "date", LATER_DATE)));
+        //14 full, 10, attending, soon
+        ids.add(insertEvent(Map.of("limit", Optional.of(10), "willAttend", 10, "attending", USER2)));
+        //15 full, 10, attending, later
+        ids.add(insertEvent(Map.of("limit", Optional.of(10), "willAttend", 10, "attending", USER2, "date", LATER_DATE)));
 
-        Page<UserEvent> events = eventDao.getTopUserEvents(USER1.getId(), 1, 100);
+        Page<UserEvent> events = eventDao.getTopUserEvents(USER2.getId(), 1, 100);
 
         assertNotNull(events);
         assertNotNull(events.getContent());
+        assertEquals(16, events.getContent().size());
         for (int i = 0; i < ids.size(); i++){
             assertEquals(ids.get(i).longValue(), events.getContent().get(i).getEvent().getId());
         }
