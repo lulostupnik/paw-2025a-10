@@ -11,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><spring:message code="journey.detail.title"/></title>
     <link rel="stylesheet" href="<c:url value="/resources/css/main.css"/>" />
-    <link rel="stylesheet" href="<c:url value="/resources/css/journey-detail.css"/>" />
+    <link rel="stylesheet" href="<c:url value="/resources/css/event-detail.css"/>" />
     <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
     <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
     <script src="<c:url value='/resources/js/confirm-delete.js'/>"></script>
@@ -198,7 +198,7 @@
                             <!-- Sort responses by date (newest first) -->
                             <c:set var="sortedResponses" value="${journeyResponses}" />
                             <c:forEach var="response" items="${sortedResponses}">
-                                <div class="response-card">
+                                <div class="chat-message">
                                     <!-- Delete Comment Button (Circle with Trash Icon) -->
                                     <sec:authorize access="hasRole('ADMIN')">
                                         <c:url var="deleteReplyUrl" value='/journey-replies/${response.id}/delete'/>
