@@ -41,7 +41,7 @@ public interface EventService {
     List<UserEvent> getEventsWithAttendanceStatus(long userId);
     List<UserEvent> getEventsWithAttendanceStatus(String email);
 
-    Page<UserEvent> getEventsPageWithAttendanceStatus(String search,long userId, int page, int size );
+    Page<UserEvent> getEventsPageWithAttendanceStatus(String search,User user, int page, int size );
     void editEvent(long eventId,
                           String cityName,
                           LocalDate date,

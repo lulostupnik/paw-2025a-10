@@ -31,23 +31,19 @@ public class JourneyServiceImpl implements JourneyService {
     private final EmailService emailService;
     private final UniversityService universityService;
     private final JourneyResponseService journeyResponseService;
-    private final CityService cityService;
-    //private final InterestService interestService;
-    private final ImageService imageService;
+
     private final InterestService interestService;
     private final UserDao userDao;
 
     @Autowired
-    public JourneyServiceImpl(JourneyDao journeyDao, UserService userService,UserDao userDao, ImageService imageService,
-                              UniversityService universityService, JourneyResponseService journeyResponseService, EmailService emailService, CityService cityService, InterestService interestService) {
+    public JourneyServiceImpl(JourneyDao journeyDao, UserService userService,UserDao userDao,
+                              UniversityService universityService, JourneyResponseService journeyResponseService, EmailService emailService, InterestService interestService) {
         this.journeyDao = journeyDao;
         this.userService = userService;
         this.universityService = universityService;
         this.journeyResponseService = journeyResponseService;
         this.emailService = emailService;
-        this.cityService = cityService;
         this.interestService = interestService;
-        this.imageService = imageService;
         this.userDao = userDao;
     }
 
@@ -70,23 +66,21 @@ public class JourneyServiceImpl implements JourneyService {
     @Transactional
     @Override
     public Journey createJourney(User user, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
-
         LOGGER.debug("Creating journey for {}", user);
         checkDates(startDate, endDate);
 
-        LOGGER.debug("Looking for university {}", destinationUniversity);
-        University destination = universityService.findByAny(destinationUniversity).orElseThrow(() -> new RuntimeException("Destination University not found"));
-
+        University destination = universityService.findByName(destinationUniversity)
+                .orElseThrow(() -> {
+                    LOGGER.warn("Destination university not found: {}", destinationUniversity);
+                    return new RuntimeException("Destination University not found");
+                }
+        );
 
         if (journeyDao.findOverlappingJourney(user.getId(), startDate, endDate).isPresent()) {
-            LOGGER.info("User has an overlapping journey");
+            LOGGER.warn("User has an overlapping journey");
             throw new RuntimeException("There's already a journey registered in this time period");
         }
-        if(journeyDao.findByUserId(user.getId()).isPresent()) {
-            throw new RuntimeException("User already has a journey");
-        }
 
-        LOGGER.info("Journey data is valid, commiting new event to persistance");
         return journeyDao.create(user, destination, startDate, endDate, description); // FIXME
     }
 
@@ -95,18 +89,18 @@ public class JourneyServiceImpl implements JourneyService {
     public void replyToJourney(String email, long journeyId, String message) {
         LOGGER.debug("Replying to journey {}", journeyId);
 
-        LOGGER.debug("Looking for journey {}", journeyId);
-        Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> new RuntimeException("Journey not found"));
+        Journey journey = journeyDao.findById(journeyId)
+                .orElseThrow(() -> {
+                    LOGGER.warn("Journey with id {} not found", journeyId);
+                    return new RuntimeException("Journey not found");}
+                );
 
         LOGGER.debug("Looking for user {}", email);
         //parche temporal buscar por username
         User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
 
-        LOGGER.info("Journey reply is valid, commiting new reply to persistance");
         journeyResponseService.create(user.getId(), user.getUsername() ,journeyId, message, LocalDateTime.now());
 
-
-        LOGGER.info("Updating interest score");
         List<Interest> interests = interestService.findByUserId(journey.getUser().getId());
         interestService.updateScoreByInterests(interests, user.getId());
 
@@ -136,13 +130,11 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Transactional(readOnly = true)
-    // @Cacheable(value = "journeysById", key = "#id") -> por ahora no cacheo porque cuando cambio un user tengo que invalidar esta cache y para eso tengo que encontrar este journey asociado a ese user
     @Override
     public Optional<Journey> getJourneyById(long id) {
         return journeyDao.findById(id);
     }
 
-    // Por ahora no es cacheable porque no se como hacer el CacheEvict cuando en el update no se retorna nada.
     @Transactional(readOnly = true)
     @Override
     public Optional<Journey> getJourneyByEmail(String email) {

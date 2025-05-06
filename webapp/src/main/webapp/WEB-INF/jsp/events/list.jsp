@@ -63,31 +63,11 @@
       <!-- Events Grid -->
       <div class="events-container">
         <div class="events-grid">
-          <c:if test="${empty events and empty eventsWithAttendance}">
+          <c:if test="${empty eventsWithAttendance}">
             <div class="empty-state">
               <p class="empty-message"><spring:message code="event.no.events"/></p>
             </div>
           </c:if>
-          <c:if test="${empty eventsWithAttendance and not empty events}">
-            <c:forEach items="${events}" var="event">
-                <c:set var="attend" value="false" />
-                <jsp:include page="event-card.jsp">
-                  <jsp:param name="eventId" value="${event.id}" />
-                  <jsp:param name="city" value="${event.eventCity.name}" />
-                  <jsp:param name="date" value="${event.date}" />
-                  <jsp:param name="username" value="${event.user.username}"/>
-                  <jsp:param name="description" value="${event.description}" />
-                  <jsp:param name="flyerImageId" value="${event.flyerImageId}" />
-                  <jsp:param name="attend" value="${attend}" />
-                  <jsp:param name="firstname" value="${event.user.firstname}" />
-                  <jsp:param name="lastname" value="${event.user.lastname}"/>
-                  <jsp:param name="title" value="${event.title}"/>
-                  <jsp:param name="isFull" value="${event.attendeesLimit.isPresent() && event.attendeesLimit.get() <= event.attendeesCount}"/>
-                    <jsp:param name="isOwner" value="false" />
-                </jsp:include>
-            </c:forEach>
-          </c:if>
-          <c:if test="${not empty eventsWithAttendance and empty events}">
             <c:forEach items="${eventsWithAttendance}" var="eventAttendance">
               <jsp:include page="event-card.jsp">
                 <jsp:param name="eventId" value="${eventAttendance.event.id}" />
@@ -103,7 +83,6 @@
                 <jsp:param name="isFull" value="${eventAttendance.event.attendeesLimit.isPresent() && eventAttendance.event.attendeesLimit.get() <= eventAttendance.event.attendeesCount}"/>
               </jsp:include>
             </c:forEach>
-          </c:if>
         </div>
         <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
           <jsp:param name="pageObjectTotalPages" value="${eventsPage.totalPages}" />
