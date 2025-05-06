@@ -37,6 +37,8 @@
         <th><spring:message code="admin.column.name" /></th>
         <th><spring:message code="admin.column.email" /></th>
         <th><spring:message code="admin.column.university" /></th>
+        <th><spring:message code="admin.column.actions" /></th>
+
       </tr>
       </thead>
       <tbody>
