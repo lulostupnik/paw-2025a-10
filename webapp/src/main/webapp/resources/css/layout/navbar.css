@@ -1,13 +1,13 @@
 /* Topbar Styles */
 .topbar {
-    display: flex;
-    align-items: center;
-    width: auto;
-    justify-content: right;
-    height: 44px;
-    flex-grow: 1;
-    justify-self: flex-end;
-    flex-basis: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    padding: 1rem 0;
+    line-height: normal;
 }
 
 .topbar-container {
