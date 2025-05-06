@@ -342,14 +342,16 @@ public class EventServiceImpl implements EventService {
 
         long resolvedCityId = cityService.findByName(cityName).orElseThrow(() -> new RuntimeException("City not found")).getId();
 
-        long flyerImageId = imageService.storeImage(flyer);
-
+        long flyerImageId = currentEvent.getFlyerImageId();
+        if(flyer != null && flyer.length > 0) {
+            flyerImageId = imageService.storeImage(flyer);
+            imageService.deleteImage(currentEvent.getFlyerImageId());
+        }
         // hacer void ?
         eventDao.updateData(resolvedCityId, date, description,
                 title, time, address, attendeesLimit, eventId, flyerImageId
        );
 
-       imageService.deleteImage(currentEvent.getFlyerImageId());
 
     }
 

@@ -112,8 +112,9 @@
         </div>
 
         <c:url var="updateEventUrl" value="/events/${eventId}/update"/>
-        <form:form modelAttribute="createEventForm" action="${updateEventUrl}" method="post" enctype="multipart/form-data" class="auth-form" novalidate="true">
+        <form:form modelAttribute="editEventForm" action="${updateEventUrl}" method="post" enctype="multipart/form-data" class="auth-form" novalidate="true">
 
+            <form:input type="hidden" value="${eventId}" path="id"/>
             <!-- Title Field -->
             <div class="form-group">
                 <form:label path="title" cssClass="form-label required-field">
@@ -212,6 +213,7 @@
                     </form:label>
                     <form:input path="attendeesLimit" cssClass="form-input ${not empty errors.getFieldError('attendeesLimit') ? 'error' : ''}"/>
                     <form:errors path="attendeesLimit" cssClass="error-message" />
+                    <form:errors path="" cssClass="error-message" />
                 </div>
                 <div class="checkbox-container">
                     <label class="checkbox-label">
