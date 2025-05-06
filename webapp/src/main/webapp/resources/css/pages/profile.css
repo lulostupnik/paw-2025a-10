@@ -1,30 +1,25 @@
-/* Modern Profile Page Styles */
-
-/* Variables */
+/* Updated Profile CSS with white rounded containers */
 :root {
-    --profile-primary: #3b82f6;
-    --profile-primary-light: #E3c5fd;
-    --profile-primary-dark: #2563eb;
-    --profile-bg: #ffffff;
-    --profile-bg-alt: #f9fafb;
-    --profile-text: #111827;
-    --profile-text-muted: #6b7280;
-    --profile-border: #e5e7eb;
-    --profile-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --profile-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --profile-radius: 0.75rem;
     --profile-radius-sm: 0.375rem;
+    --profile-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --profile-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --profile-transition: all 0.2s ease;
 }
 
 /* Layout */
+body {
+    background-color: var(--color-background);
+    color: var(--color-gray-900);
+}
+
 .content-container {
     max-width: 1000px;
     margin: 0 auto;
     padding: 0 1.5rem;
 }
 
-/* Profile Header */
+/* Profile Header - White background with rounded corners */
 .profile-header-wrapper {
     position: relative;
     padding: 2rem 0;
@@ -49,8 +44,8 @@
     align-items: center;
     text-align: center;
     padding: 1.5rem;
-    background-color: var(--color-background);
-    border-radius: var(--radius);
+    background-color: var(--color-white);
+    border-radius: var(--profile-radius);
     box-shadow: var(--profile-shadow);
 }
 
@@ -63,7 +58,7 @@
     height: 5rem;
     border-radius: 50%;
     overflow: hidden;
-    background-color: var(--profile-bg-alt);
+    background-color: var(--color-gray-100);
     border: 4px solid white;
     box-shadow: var(--profile-shadow);
     display: flex;
@@ -72,14 +67,32 @@
     transition: transform 0.3s ease;
 }
 
-.profiles-avatar:hover {
-    transform: scale(1.05);
+/* Remove hover effect from avatar */
+.profiles-avatar {
+    transition: none;
 }
 
 .avatar-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+/* Tab content display rules */
+.profile-section {
+    display: none;
+}
+
+.profile-section.active {
+    display: block;
+}
+
+/* Events tab content display rules */
+.events-tab-content {
+    display: none;
+}
+
+.events-tab-content.active {
+    display: block;
 }
 
 .avatar-placeholder {
@@ -102,13 +115,13 @@
     font-size: 2rem;
     font-weight: 700;
     margin: 0;
-    color: var(--profile-text);
+    color: var(--color-gray-900);
     letter-spacing: -0.025em;
 }
 
 .profile-username {
     font-size: 1.125rem;
-    color: var(--profile-text-muted);
+    color: var(--color-text-muted);
     margin: 0.5rem 0 0;
 }
 
@@ -121,10 +134,10 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.625rem 1.25rem;
-    border: 1px solid var(--profile-border);
+    border: 1px solid var(--color-gray-200);
     border-radius: var(--profile-radius-sm);
-    background-color: var(--color-background);
-    color: var(--profile-text);
+    background-color: var(--color-white);
+    color: var(--color-gray-900);
     font-size: 0.875rem;
     font-weight: 500;
     text-decoration: none;
@@ -133,36 +146,38 @@
 }
 
 .btn-edit-profile:hover {
-    background-color: var(--profile-bg-alt);
-    border-color: var(--profile-text-muted);
+    background-color: var(--color-gray-50);
+    border-color: var(--color-text-muted);
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .btn-edit-profile svg {
-    color: var(--profile-text-muted);
+    color: var(--color-text-muted);
 }
 
-/* Profile Tabs */
+/* Profile Tabs - White background */
 .profile-tabs-container {
     position: sticky;
     top: 0;
-    background-color: var(--color-background);
+    background-color: var(--color-white);
     z-index: 10;
     padding: 0.5rem 0;
     margin-bottom: 2rem;
-    border-bottom: 1px solid var(--profile-border);
+    border-radius: var(--profile-radius);
+    box-shadow: var(--profile-shadow);
 }
 
 .profile-tabs {
     display: flex;
     overflow-x: auto;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 0 1rem;
 }
 
 .profile-tabs::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
+    display: none;
 }
 
 .profile-tab {
@@ -173,7 +188,7 @@
     background: none;
     border: none;
     border-bottom: 2px solid transparent;
-    color: var(--profile-text-muted);
+    color: var(--color-text-muted);
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
@@ -182,7 +197,7 @@
 }
 
 .profile-tab:hover {
-    color: var(--profile-text);
+    color: var(--color-gray-900);
 }
 
 .profile-tab.active {
@@ -200,6 +215,7 @@
     animation: fadeIn 0.3s ease;
 }
 
+/* Information tab is active by default */
 .profile-section.active {
     display: block;
 }
@@ -215,24 +231,26 @@
     }
 }
 
+/* Profile Card - White background with rounded corners */
 .profile-card {
-    background-color: var(--color-background);
+    background-color: var(--color-white);
     border-radius: var(--profile-radius);
     padding: 2rem;
     box-shadow: var(--profile-shadow);
     margin-bottom: 2rem;
-    transition: var(--profile-transition);
+    transition: none; /* Remove hover transition */
 }
 
+/* Remove hover effect from profile card */
 .profile-card:hover {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--profile-shadow);
 }
 
 .section-title {
     font-size: 1.5rem;
     font-weight: 700;
     margin: 0 0 1.5rem;
-    color: var(--profile-text);
+    color: var(--color-gray-900);
     position: relative;
     padding-bottom: 0.75rem;
 }
@@ -255,7 +273,7 @@
     margin-bottom: 1.5rem;
 }
 
-/* Add styling for the new section-actions class */
+/* Section actions */
 .section-actions {
     display: flex;
     justify-content: flex-end;
@@ -274,13 +292,6 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Improve the events section layout */
-#events-section {
-    position: relative;
-}
-
-
-
 /* Info List */
 .info-list {
     display: flex;
@@ -290,10 +301,10 @@
 
 .info-item {
     padding: 1rem;
-    border-radius: var(--radius-sm);
-    background-color: var(--profile-bg-alt);
+    border-radius: var(--profile-radius-sm);
+    background-color: var(--color-gray-50);
+    transition: none; /* Remove hover transition */
 }
-
 
 .info-label {
     font-size: 0.875rem;
@@ -306,7 +317,7 @@
 
 .info-value {
     font-size: 1.125rem;
-    color: var(--profile-text);
+    color: var(--color-gray-900);
     margin: 0;
     word-break: break-word;
 }
@@ -319,20 +330,21 @@
     margin-top: 0.5rem;
 }
 
-/* Empty State */
+/* Empty State - White background with rounded corners */
 .empty-state {
     text-align: center;
     padding: 3rem 2rem;
-    background-color: var(--color-background);
-    border: 1px dashed var(--profile-border);
+    background-color: var(--color-white);
+    border: 1px dashed var(--color-gray-200);
     border-radius: var(--profile-radius);
     grid-column: 1 / -1;
-    transition: var(--profile-transition);
+    transition: none; /* Remove hover transition */
 }
 
+/* Remove hover effect from empty state */
 .empty-state:hover {
-    border-color: var(--color-primary-light);
-    background-color: rgba(59, 130, 246, 0.02);
+    border-color: var(--color-gray-200);
+    background-color: var(--color-white);
 }
 
 .empty-icon {
@@ -348,7 +360,7 @@
 }
 
 .empty-message {
-    color: var(--profile-text-muted);
+    color: var(--color-text-muted);
     margin: 0 0 1.5rem;
     font-size: 1.125rem;
 }
@@ -361,7 +373,7 @@
     color: white;
     font-size: 0.875rem;
     font-weight: 600;
-    border-radius: var(--radius-sm);
+    border-radius: var(--profile-radius-sm);
     text-decoration: none;
     transition: var(--profile-transition);
     box-shadow: var(--profile-shadow-sm);
@@ -370,16 +382,15 @@
 .empty-action-btn:hover {
     background-color: var(--color-primary-dark);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
 }
 
 /* Events Filter Tabs */
-/* Position the events filter tabs better */
 .events-filter-tabs {
     display: flex;
     gap: 0.5rem;
     margin: 1rem 0 1.5rem 0;
-    border-bottom: 1px solid var(--profile-border);
+    border-bottom: 1px solid var(--color-gray-200);
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -387,17 +398,6 @@
     z-index: 0;
 }
 
-/* For better mobile layout */
-@media (max-width: 768px) {
-    .section-actions {
-        justify-content: center;
-        margin-bottom: 2rem;
-    }
-
-    .events-filter-tabs {
-        justify-content: center;
-    }
-}
 .events-filter-tabs::-webkit-scrollbar {
     display: none;
 }
@@ -407,7 +407,7 @@
     background: none;
     border: none;
     border-bottom: 2px solid transparent;
-    color: var(--profile-text-muted);
+    color: var(--color-text-muted);
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
@@ -416,7 +416,7 @@
 }
 
 .events-tab:hover {
-    color: var(--profile-text);
+    color: var(--color-gray-900);
 }
 
 .events-tab.active {
@@ -433,15 +433,14 @@
     display: block;
 }
 
-/* Error Container */
+/* Error Container - White background with rounded corners */
 .error-container {
     text-align: center;
     padding: 3rem 1.5rem;
-    background-color: var(--color-background);
+    background-color: var(--color-white);
     border-radius: var(--profile-radius);
     box-shadow: var(--profile-shadow);
 }
-
 
 /* Responsive adjustments */
 @media (min-width: 768px) {
@@ -468,6 +467,15 @@
 }
 
 @media (max-width: 767px) {
+    .section-actions {
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    .events-filter-tabs {
+        justify-content: center;
+    }
+
     .profile-card {
         padding: 1.5rem;
     }

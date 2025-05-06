@@ -23,7 +23,6 @@
   <!-- Main Content -->
   <div class="main-content">
     <jsp:include page="./components/navbar.jsp" />
-
     <c:if test="${not empty user}">
       <c:set var="userObj" value="${user}" />
 
@@ -331,82 +330,115 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // Get all tab elements
+    const profileTabs = document.querySelectorAll('.profile-tab');
+    const profileSections = document.querySelectorAll('.profile-section');
+    const eventsTabs = document.querySelectorAll('.events-tab');
+    const eventsTabContent = document.querySelectorAll('.events-tab-content');
+
+    // Function to set active tab and section
+    function setActiveTab(tabSelector, tabs, sections) {
+      const tab = document.querySelector(tabSelector);
+      if (tab) {
+        // Remove active class from all tabs and sections
+        tabs.forEach(t => t.classList.remove('active'));
+        sections.forEach(s => s.classList.remove('active'));
+
+        // Add active class to selected tab
+        tab.classList.add('active');
+
+        // Get the section ID from the tab's data attribute
+        const sectionId = tab.getAttribute('data-tab');
+        const section = document.getElementById(sectionId + '-section');
+
+        if (section) {
+          section.classList.add('active');
+        }
+      }
+    }
+
+    // Function to set active events sub-tab
+    function setActiveEventsTab(tabSelector, contentId) {
+      const tab = document.querySelector(tabSelector);
+      if (tab) {
+        // Remove active class from all tabs and content
+        eventsTabs.forEach(t => t.classList.remove('active'));
+        eventsTabContent.forEach(c => c.classList.remove('active'));
+
+        // Add active class to selected tab and content
+        tab.classList.add('active');
+
+        const content = document.getElementById(contentId);
+        if (content) {
+          content.classList.add('active');
+        }
+      }
+    }
+
     // Get URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const activeTab = urlParams.get('activeTab');
 
-    // Profile tabs functionality
-    const profileTabs = document.querySelectorAll('.profile-tab');
-    const profileSections = document.querySelectorAll('.profile-section');
-
-    // Set active tab from URL parameter if available
+    // Set active tab based on URL parameter or default to info tab
     if (activeTab) {
-      // Handle main tabs
-      if (activeTab === 'info' || activeTab === 'journeys' || activeTab === 'events') {
-        profileTabs.forEach(t => t.classList.remove('active'));
-        profileSections.forEach(section => section.classList.remove('active'));
-
-        const tabToActivate = document.querySelector(`.profile-tab[data-tab="${activeTab}"]`);
-        if (tabToActivate) {
-          tabToActivate.classList.add('active');
-          document.getElementById(activeTab + '-section').classList.add('active');
-        }
+      switch (activeTab) {
+        case 'info':
+          setActiveTab('.profile-tab[data-tab="info"]', profileTabs, profileSections);
+          break;
+        case 'journeys':
+          setActiveTab('.profile-tab[data-tab="journeys"]', profileTabs, profileSections);
+          break;
+        case 'events':
+          setActiveTab('.profile-tab[data-tab="events"]', profileTabs, profileSections);
+          break;
+        case 'eventsCreated':
+          // First activate the events tab
+          setActiveTab('.profile-tab[data-tab="events"]', profileTabs, profileSections);
+          // Then activate the created events sub-tab
+          setActiveEventsTab('.events-tab[data-events-tab="created"]', 'created-events');
+          break;
+        case 'events_attending':
+          // First activate the events tab
+          setActiveTab('.profile-tab[data-tab="events"]', profileTabs, profileSections);
+          // Then activate the attending events sub-tab
+          setActiveEventsTab('.events-tab[data-events-tab="attending"]', 'attending-events');
+          break;
+        default:
+          // Default to info tab if parameter is invalid
+          setActiveTab('.profile-tab[data-tab="info"]', profileTabs, profileSections);
       }
+    } else {
+      // EXPLICITLY set info tab as default when no activeTab parameter is present
+      setActiveTab('.profile-tab[data-tab="info"]', profileTabs, profileSections);
 
-      // Handle events sub-tabs
-      const eventsTabs = document.querySelectorAll('.events-tab');
-      const eventsTabContent = document.querySelectorAll('.events-tab-content');
-
-      if (activeTab === 'eventsCreated') {
-        // First activate the events main tab if not already active
-        if (!document.querySelector('.profile-tab[data-tab="events"]').classList.contains('active')) {
-          profileTabs.forEach(t => t.classList.remove('active'));
-          profileSections.forEach(section => section.classList.remove('active'));
-
-          document.querySelector('.profile-tab[data-tab="events"]').classList.add('active');
-          document.getElementById('events-section').classList.add('active');
-        }
-
-        // Then activate the created events sub-tab
-        eventsTabs.forEach(t => t.classList.remove('active'));
-        eventsTabContent.forEach(content => content.classList.remove('active'));
-
-        document.querySelector('.events-tab[data-events-tab="created"]').classList.add('active');
-        document.getElementById('created-events').classList.add('active');
-      } else if (activeTab === 'events_attending') {
-        // First activate the events main tab if not already active
-        if (!document.querySelector('.profile-tab[data-tab="events"]').classList.contains('active')) {
-          profileTabs.forEach(t => t.classList.remove('active'));
-          profileSections.forEach(section => section.classList.remove('active'));
-
-          document.querySelector('.profile-tab[data-tab="events"]').classList.add('active');
-          document.getElementById('events-section').classList.add('active');
-        }
-
-        // Then activate the attending events sub-tab
-        eventsTabs.forEach(t => t.classList.remove('active'));
-        eventsTabContent.forEach(content => content.classList.remove('active'));
-
-        document.querySelector('.events-tab[data-events-tab="attending"]').classList.add('active');
-        document.getElementById('attending-events').classList.add('active');
+      // Make sure the info section is visible
+      const infoSection = document.getElementById('info-section');
+      if (infoSection) {
+        profileSections.forEach(s => s.classList.remove('active'));
+        infoSection.classList.add('active');
       }
     }
 
-    // Profile tabs click handler
+    // Add click event listeners to profile tabs
     profileTabs.forEach(tab => {
-      tab.addEventListener('click', function() {
-        // Remove active class from all tabs
+      tab.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        // Get the tab ID from data attribute
+        const tabId = this.getAttribute('data-tab');
+
+        // Remove active class from all tabs and sections
         profileTabs.forEach(t => t.classList.remove('active'));
+        profileSections.forEach(s => s.classList.remove('active'));
 
         // Add active class to clicked tab
         this.classList.add('active');
 
-        // Hide all sections
-        profileSections.forEach(section => section.classList.remove('active'));
-
-        // Show the corresponding section
-        const tabId = this.getAttribute('data-tab');
-        document.getElementById(tabId + '-section').classList.add('active');
+        // Show corresponding section
+        const section = document.getElementById(tabId + '-section');
+        if (section) {
+          section.classList.add('active');
+        }
 
         // Update URL with active tab without reloading the page
         const url = new URL(window.location);
@@ -415,28 +447,29 @@
       });
     });
 
-    // Events sub-tabs click handler
-    const eventsTabs = document.querySelectorAll('.events-tab');
-    const eventsTabContent = document.querySelectorAll('.events-tab-content');
-
+    // Add click event listeners to events sub-tabs
     eventsTabs.forEach(tab => {
-      tab.addEventListener('click', function() {
-        // Remove active class from all tabs
+      tab.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        // Get the tab ID from data attribute
+        const tabId = this.getAttribute('data-events-tab');
+
+        // Remove active class from all tabs and content
         eventsTabs.forEach(t => t.classList.remove('active'));
+        eventsTabContent.forEach(c => c.classList.remove('active'));
 
         // Add active class to clicked tab
         this.classList.add('active');
 
-        // Hide all content sections
-        eventsTabContent.forEach(content => content.classList.remove('active'));
-
-        // Show the corresponding content
-        const tabId = this.getAttribute('data-events-tab');
-        document.getElementById(tabId + '-events').classList.add('active');
+        // Show corresponding content
+        const content = document.getElementById(tabId + '-events');
+        if (content) {
+          content.classList.add('active');
+        }
 
         // Update URL with active tab without reloading the page
         const url = new URL(window.location);
-        // Set the appropriate activeTab value based on which events tab is clicked
         if (tabId === 'created') {
           url.searchParams.set('activeTab', 'eventsCreated');
         } else if (tabId === 'attending') {
@@ -445,6 +478,65 @@
         window.history.pushState({}, '', url);
       });
     });
+
+    // Handle browser back/forward navigation
+    window.addEventListener('popstate', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const activeTab = urlParams.get('activeTab');
+
+      if (activeTab) {
+        switch (activeTab) {
+          case 'info':
+            setActiveTab('.profile-tab[data-tab="info"]', profileTabs, profileSections);
+            break;
+          case 'journeys':
+            setActiveTab('.profile-tab[data-tab="journeys"]', profileTabs, profileSections);
+            break;
+          case 'events':
+            setActiveTab('.profile-tab[data-tab="events"]', profileTabs, profileSections);
+            break;
+          case 'eventsCreated':
+            setActiveTab('.profile-tab[data-tab="events"]', profileTabs, profileSections);
+            setActiveEventsTab('.events-tab[data-events-tab="created"]', 'created-events');
+            break;
+          case 'events_attending':
+            setActiveTab('.profile-tab[data-tab="events"]', profileTabs, profileSections);
+            setActiveEventsTab('.events-tab[data-events-tab="attending"]', 'attending-events');
+            break;
+          default:
+            setActiveTab('.profile-tab[data-tab="info"]', profileTabs, profileSections);
+        }
+      } else {
+        // Default to info tab if no parameter
+        setActiveTab('.profile-tab[data-tab="info"]', profileTabs, profileSections);
+      }
+    });
+
+    // Fallback to ensure info tab is active by default
+    function ensureInfoTabActive() {
+      // Check if any tab is active
+      const hasActiveTab = document.querySelector('.profile-tab.active');
+      const hasActiveSection = document.querySelector('.profile-section.active');
+
+      // If no active tab or section, set info tab as active
+      if (!hasActiveTab || !hasActiveSection) {
+        const infoTab = document.querySelector('.profile-tab[data-tab="info"]');
+        const infoSection = document.getElementById('info-section');
+
+        if (infoTab) {
+          profileTabs.forEach(t => t.classList.remove('active'));
+          infoTab.classList.add('active');
+        }
+
+        if (infoSection) {
+          profileSections.forEach(s => s.classList.remove('active'));
+          infoSection.classList.add('active');
+        }
+      }
+    }
+
+    // Run the fallback check after a short delay to ensure it runs after all other scripts
+    setTimeout(ensureInfoTabActive, 100);
   });
 </script>
 
