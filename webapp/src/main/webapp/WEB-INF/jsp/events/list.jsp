@@ -11,26 +11,12 @@
   <link rel="stylesheet" href="<c:url value="/resources/css/main.css"/>" />
   <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
   <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
-    <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
+  <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
 </head>
 <body>
 <c:set var="searchUrl" value="/events" scope="request" />
 <c:set var="searchPlaceholderCode" value="events.search.event" scope="request" />
 
-<style>
-  .event-actions {
-    padding: 20px;
-    background-color: #f9f9f9;
-  }
-
-  .event-actions-container {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    max-width: 100%;
-  }
-
-</style>
 <div class="layout-container">
   <!-- Include the sidebar component -->
 
@@ -49,7 +35,9 @@
               <input type="text" name="search" class="search-input" placeholder="<spring:message code='${searchPlaceholderCode}' />" value="${param.search}">
               <input type="hidden" name="page" value="1">
               <input type="hidden" name="pageSize" value="${param.pageSize != null ? param.pageSize : 10}">
-              <button type="submit" class="search-button"><spring:message code="admin.search.button" /></button>
+              <button type="submit" class="btn-secondary" aria-label="<spring:message code="admin.search.button" />">
+                <img src="<c:url value='/resources/icons/search.svg'/>" alt="<spring:message code="admin.search.button" />" class="search-icon" />
+              </button>
             </form>
             <a href="<c:url value="/events/create"/>" class="btn btn-primary btn-with-icon">
               <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="journey.create.button"/>" class="btn-icon" />
@@ -68,21 +56,21 @@
               <p class="empty-message"><spring:message code="event.no.events"/></p>
             </div>
           </c:if>
-            <c:forEach items="${eventsWithAttendance}" var="eventAttendance">
-              <jsp:include page="event-card.jsp">
-                <jsp:param name="eventId" value="${eventAttendance.event.id}" />
-                <jsp:param name="city" value="${eventAttendance.event.eventCity.name}" />
-                <jsp:param name="date" value="${eventAttendance.event.date}" />
-                <jsp:param name="username" value="${eventAttendance.event.user.username}"/>
-                <jsp:param name="description" value="${eventAttendance.event.description}" />
-                <jsp:param name="flyerImageId" value="${eventAttendance.event.flyerImageId}" />
-                <jsp:param name="attend" value="${eventAttendance.attending}" />
-                <jsp:param name="firstname" value="${eventAttendance.event.user.firstname}" />
-                <jsp:param name="lastname" value="${eventAttendance.event.user.lastname}"/>
-                <jsp:param name="title" value="${eventAttendance.event.title}"/>
-                <jsp:param name="isFull" value="${eventAttendance.event.attendeesLimit.isPresent() && eventAttendance.event.attendeesLimit.get() <= eventAttendance.event.attendeesCount}"/>
-              </jsp:include>
-            </c:forEach>
+          <c:forEach items="${eventsWithAttendance}" var="eventAttendance">
+            <jsp:include page="event-card.jsp">
+              <jsp:param name="eventId" value="${eventAttendance.event.id}" />
+              <jsp:param name="city" value="${eventAttendance.event.eventCity.name}" />
+              <jsp:param name="date" value="${eventAttendance.event.date}" />
+              <jsp:param name="username" value="${eventAttendance.event.user.username}"/>
+              <jsp:param name="description" value="${eventAttendance.event.description}" />
+              <jsp:param name="flyerImageId" value="${eventAttendance.event.flyerImageId}" />
+              <jsp:param name="attend" value="${eventAttendance.attending}" />
+              <jsp:param name="firstname" value="${eventAttendance.event.user.firstname}" />
+              <jsp:param name="lastname" value="${eventAttendance.event.user.lastname}"/>
+              <jsp:param name="title" value="${eventAttendance.event.title}"/>
+              <jsp:param name="isFull" value="${eventAttendance.event.attendeesLimit.isPresent() && eventAttendance.event.attendeesLimit.get() <= eventAttendance.event.attendeesCount}"/>
+            </jsp:include>
+          </c:forEach>
         </div>
         <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
           <jsp:param name="pageObjectTotalPages" value="${eventsPage.totalPages}" />

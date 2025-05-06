@@ -791,3 +791,14 @@
     gap: 1.5rem;
     margin-bottom: 1.5rem;
 }
+.event-actions {
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+.event-actions-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    max-width: 100%;
+}
