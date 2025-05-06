@@ -84,13 +84,13 @@
         <div class="autocomplete-wrapper">
           <form:select path="country" id="country" cssClass="form-select ${not empty errors.getFieldError('country') ? 'error' : ''}" style="display: none;">
             <form:option value=""><spring:message code="createCity.country.select" text="Select a country"/></form:option>
-            <c:forEach var="item" items="${country}">
+            <c:forEach var="item" items="${countries}">
               <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
             </c:forEach>
           </form:select>
           <input type="text" id="countrySearch" class="autocomplete-input" placeholder="<spring:message code="createCity.country.search" text="Type to search country..."/>" />
           <div id="countryDropdown" class="autocomplete-dropdown" style="display: none;">
-            <c:forEach var="item" items="${country}">
+            <c:forEach var="item" items="${countries}">
               <div class="autocomplete-item" data-value="<c:out value="${item.name}"/>">
                 <c:out value="${item.name}"/>
               </div>
@@ -123,167 +123,8 @@
 </div>
 
 <!-- Include JavaScript files -->
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const cityForm = document.getElementById("cityForm");
-    const nameInput = document.getElementById("name");
-    const countryInput = document.getElementById("country");
-    const countrySearch = document.getElementById("countrySearch");
-    const countryDropdown = document.getElementById("countryDropdown");
-    const selectedCountry = document.getElementById("selectedCountry");
-    const countryItems = document.querySelectorAll("#countryDropdown .autocomplete-item");
-
-    // Check if we're in update mode
-    const isUpdateMode = ${isUpdate != null && isUpdate ? 'true' : 'false'};
-
-    // Focus on the first field when the page loads
-    nameInput.focus();
-
-    // Auto-capitalize first letter of each word
-    function capitalizeFirstLetter(input) {
-      input.addEventListener("blur", function () {
-        if (this.value) {
-          this.value = this.value
-                  .split(" ")
-                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                  .join(" ");
-        }
-      });
-    }
-
-    capitalizeFirstLetter(nameInput);
-    capitalizeFirstLetter(countrySearch);
-
-    // Initialize country autocomplete
-    function initCountryAutocomplete() {
-      // If there's a selected country (especially in update mode), show it
-      if (countryInput.value) {
-        displaySelectedCountry(countryInput.value);
-      }
-
-      // Show dropdown when focusing on search input
-      countrySearch.addEventListener("focus", function() {
-        countryDropdown.style.display = "block";
-      });
-
-      // Filter countries as user types
-      countrySearch.addEventListener("input", function() {
-        const searchValue = this.value.toLowerCase();
-        let hasVisibleItems = false;
-
-        countryItems.forEach(item => {
-          const countryName = item.getAttribute("data-value").toLowerCase();
-          if (countryName.includes(searchValue)) {
-            item.style.display = "block";
-            hasVisibleItems = true;
-          } else {
-            item.style.display = "none";
-          }
-        });
-
-        countryDropdown.style.display = hasVisibleItems ? "block" : "none";
-      });
-
-      // Handle country selection
-      countryItems.forEach(item => {
-        item.addEventListener("click", function() {
-          const selectedValue = this.getAttribute("data-value");
-          countryInput.value = selectedValue;
-          countrySearch.value = "";
-          countryDropdown.style.display = "none";
-          displaySelectedCountry(selectedValue);
-        });
-      });
-
-      // Close dropdown when clicking outside
-      document.addEventListener("click", function(e) {
-        if (!countrySearch.contains(e.target) && !countryDropdown.contains(e.target)) {
-          countryDropdown.style.display = "none";
-        }
-      });
-    }
-
-    // Display selected country as a tag
-    function displaySelectedCountry(countryName) {
-      selectedCountry.innerHTML = "";
-
-      if (countryName) {
-        const tag = document.createElement("div");
-        tag.className = "selected-tag";
-
-        const tagText = document.createElement("span");
-        tagText.textContent = countryName;
-
-        const removeBtn = document.createElement("button");
-        removeBtn.type = "button";
-        removeBtn.className = "remove-tag";
-        removeBtn.innerHTML = "×";
-        removeBtn.addEventListener("click", function() {
-          countryInput.value = "";
-          selectedCountry.innerHTML = "";
-        });
-
-        tag.appendChild(tagText);
-        tag.appendChild(removeBtn);
-        selectedCountry.appendChild(tag);
-      }
-    }
-
-    // Initialize autocomplete
-    initCountryAutocomplete();
-
-    // Form validation
-    cityForm.addEventListener("submit", (event) => {
-      let isValid = true;
-
-      // Validate name
-      if (!nameInput.value.trim()) {
-        const errorElement = document.createElement("div");
-        errorElement.className = "error-message";
-        errorElement.textContent = "City name is required";
-
-        const existingError = nameInput.parentNode.querySelector(".error-message");
-        if (!existingError) {
-          nameInput.parentNode.appendChild(errorElement);
-        }
-
-        nameInput.classList.add("error");
-        isValid = false;
-      } else {
-        nameInput.classList.remove("error");
-        const existingError = nameInput.parentNode.querySelector(".error-message");
-        if (existingError) {
-          existingError.remove();
-        }
-      }
-
-      // Validate country
-      if (!countryInput.value.trim()) {
-        const errorElement = document.createElement("div");
-        errorElement.className = "error-message";
-        errorElement.textContent = "Country is required";
-
-        const existingError = countryInput.parentNode.parentNode.querySelector(".error-message");
-        if (!existingError) {
-          countryInput.parentNode.parentNode.appendChild(errorElement);
-        }
-
-        countrySearch.classList.add("error");
-        isValid = false;
-      } else {
-        countrySearch.classList.remove("error");
-        const existingError = countryInput.parentNode.parentNode.querySelector(".error-message");
-        if (existingError) {
-          existingError.remove();
-        }
-      }
-
-      if (!isValid) {
-        event.preventDefault();
-      }
-    });
-  });
-</script>
+<script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
+<script src="<c:url value="/resources/js/city-form.js"/>"></script>
 
 </body>
 </html>
