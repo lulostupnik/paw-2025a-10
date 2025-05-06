@@ -583,8 +583,8 @@ public class EventJdbcDao implements EventDao {
                 (time != null) ? Time.valueOf(time) : null,
                 address,
                 attendeesLimit,
-                eventId,
-                flyerImageId
+                flyerImageId, 
+                eventId
         );
     }
 }
