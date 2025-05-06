@@ -7,6 +7,10 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface PageParamPrefix {
-    String value();
+public @interface PageParamCustomizer {
+
+    int defaultPage() default -1;
+    int defaultSize() default -1;
+    String pageParamName() default "";
+    String sizeParamName() default "";
 }

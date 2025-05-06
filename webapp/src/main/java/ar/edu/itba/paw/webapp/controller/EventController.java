@@ -7,14 +7,12 @@ import ar.edu.itba.paw.webapp.form.CreateEventForm;
 
 import ar.edu.itba.paw.webapp.form.ReplyForm;
 
-import ar.edu.itba.paw.webapp.resolver.anotation.PageParamDefaults;
-import ar.edu.itba.paw.webapp.resolver.anotation.PageParamPrefix;
+import ar.edu.itba.paw.webapp.resolver.anotation.PageParamCustomizer;
 import ar.edu.itba.paw.webapp.utils.ImageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -23,10 +21,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -196,8 +190,8 @@ public class EventController {
         @Valid @ModelAttribute("deleteForm") final ReplyForm deleteForm, final BindingResult deleteErrors,
         @Valid @ModelAttribute("deleteReplyForm") final ReplyForm deleteReplyForm, final BindingResult deleteReplyErrors,
         @RequestParam(value = "replyId", required = false) Long replyId,
-        @PageParamDefaults(defaultSize = 5) PageParams  repliesPage,
-        @PageParamPrefix("attendees") @PageParamDefaults(defaultSize = 5) PageParams attendeesPage)
+        @PageParamCustomizer(defaultSize = 5) PageParams  repliesPage,
+        @PageParamCustomizer(defaultSize = 5, pageParamName = "attendeesPage", sizeParamName = "attendeesSize") PageParams attendeesPage)
     {
         LOGGER.debug("Getting info for event {}", id);
         Optional<Event> maybeEvent = eventService.getEventById(id);

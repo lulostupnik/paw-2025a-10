@@ -1,8 +1,7 @@
 package ar.edu.itba.paw.webapp.resolver;
 
 import ar.edu.itba.paw.models.PageParams;
-import ar.edu.itba.paw.webapp.resolver.anotation.PageParamDefaults;
-import ar.edu.itba.paw.webapp.resolver.anotation.PageParamPrefix;
+import ar.edu.itba.paw.webapp.resolver.anotation.PageParamCustomizer;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -16,6 +15,8 @@ public class PageParamsResolver implements HandlerMethodArgumentResolver {
     private static final int GLOBAL_DEFAULT_SIZE = 10;
     private static final int GLOBAL_MIN_SIZE = 1;
     private static final int GLOBAL_MAX_SIZE = 100;
+    private static final String DEFAULT_PAGE_PARAM_NAME = "page";
+    private static final String DEFAULT_SIZE_PARAM_NAME = "size";
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -28,23 +29,15 @@ public class PageParamsResolver implements HandlerMethodArgumentResolver {
                                   NativeWebRequest webRequest,
                                   WebDataBinderFactory binderFactory) {
 
-        String prefix = "";
-        PageParamPrefix suffixAnnotation = parameter.getParameterAnnotation(PageParamPrefix.class);
-        if (suffixAnnotation != null) {
-            prefix = suffixAnnotation.value();
-        }
-
-        String pageParamName = prefix.isEmpty() ? "page": prefix + "Page";
-        String sizeParamName = prefix.isEmpty() ? "size": prefix + "Size";
-
 
         // Optional controller override
-        PageParamDefaults defaults = parameter.getParameterAnnotation(PageParamDefaults.class);
+        PageParamCustomizer defaults = parameter.getParameterAnnotation(PageParamCustomizer.class);
 
         int defaultPage = (defaults != null && defaults.defaultPage() > 0) ? defaults.defaultPage() : GLOBAL_DEFAULT_PAGE;
         int defaultSize = (defaults != null && defaults.defaultSize() > 0) ? defaults.defaultSize() : GLOBAL_DEFAULT_SIZE;
-//        int minSize = (defaults != null && defaults.minSize() > 0) ? defaults.minSize() : GLOBAL_MIN_SIZE;
-//        int maxSize = (defaults != null && defaults.maxSize() > 0) ? defaults.maxSize() : GLOBAL_MAX_SIZE;
+        String pageParamName = (defaults != null && !defaults.pageParamName().isEmpty()) ? defaults.pageParamName():DEFAULT_PAGE_PARAM_NAME;
+        String sizeParamName = (defaults != null && !defaults.sizeParamName().isEmpty()) ? defaults.sizeParamName():DEFAULT_SIZE_PARAM_NAME;
+
 
         int page = parseOrDefault(webRequest.getParameter(pageParamName), defaultPage);
         int size = parseOrDefault(webRequest.getParameter(sizeParamName), defaultSize);
