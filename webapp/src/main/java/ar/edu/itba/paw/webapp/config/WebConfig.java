@@ -1,5 +1,7 @@
 package ar.edu.itba.paw.webapp.config;
 
+import ar.edu.itba.paw.webapp.resolver.CustomLocaleResolver;
+import ar.edu.itba.paw.webapp.resolver.PageParamsResolver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -24,6 +26,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
@@ -33,6 +36,7 @@ import org.springframework.web.servlet.view.JstlView;
 
 import javax.sql.DataSource;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -178,6 +182,19 @@ public class WebConfig implements WebMvcConfigurer {
     public LocaleResolver localeResolver() {
         return new CustomLocaleResolver();
     }
+
+    @Bean
+    public PageParamsResolver pageParamsResolver(){
+        return new PageParamsResolver();
+    }
+
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        resolvers.add(pageParamsResolver());
+    }
+
+
 
     @Bean
     public CacheManager cacheManager() {

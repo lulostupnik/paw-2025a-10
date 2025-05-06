@@ -7,6 +7,8 @@ import ar.edu.itba.paw.webapp.form.CreateEventForm;
 
 import ar.edu.itba.paw.webapp.form.ReplyForm;
 
+import ar.edu.itba.paw.webapp.resolver.anotation.PageParamDefaults;
+import ar.edu.itba.paw.webapp.resolver.anotation.PageParamPrefix;
 import ar.edu.itba.paw.webapp.utils.ImageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -177,7 +179,7 @@ public class EventController {
         return mav;
     }
 
-    @RequestMapping("/{id}")
+    /*@RequestMapping("/{id}")
     public ModelAndView getEvent(@PathVariable long id, @Valid @ModelAttribute("replyEventForm") final ReplyForm form, final BindingResult errors,
                                  @ModelAttribute("user") User user,
                                  @Valid @ModelAttribute("deleteForm") final ReplyForm deleteForm, final BindingResult deleteErrors,
@@ -187,6 +189,15 @@ public class EventController {
                                  @RequestParam(value = "size", defaultValue = "5") int size,
                                  @RequestParam(value = "attendeesPage", defaultValue = "1") int attendeesPage,
                                  @RequestParam(value = "attendeesSize", defaultValue = "5") int attendeesSize)
+    {*/
+    @RequestMapping("/{id}")
+    public ModelAndView getEvent(@PathVariable long id, @Valid @ModelAttribute("replyEventForm") final ReplyForm form, final BindingResult errors,
+        @ModelAttribute("user") User user,
+        @Valid @ModelAttribute("deleteForm") final ReplyForm deleteForm, final BindingResult deleteErrors,
+        @Valid @ModelAttribute("deleteReplyForm") final ReplyForm deleteReplyForm, final BindingResult deleteReplyErrors,
+        @RequestParam(value = "replyId", required = false) Long replyId,
+        @PageParamDefaults(defaultSize = 5) PageParams  repliesPage,
+        @PageParamPrefix("attendees") @PageParamDefaults(defaultSize = 5) PageParams attendeesPage)
     {
         LOGGER.debug("Getting info for event {}", id);
         Optional<Event> maybeEvent = eventService.getEventById(id);
@@ -195,10 +206,8 @@ public class EventController {
             return new ModelAndView("events/not_found");
         }
 
-       
-
         return populateEventDetails(eventService.getEventById(id).orElseThrow(() -> new EventNotFoundException("Event not found")),
-                id, user, deleteErrors, deleteReplyErrors, replyId ,page,size, attendeesPage, attendeesSize);
+                id, user, deleteErrors, deleteReplyErrors, replyId ,repliesPage.getPage(), repliesPage.getSize(), attendeesPage.getPage(),attendeesPage.getSize() );
     }
     @PostMapping("/{id}/delete")
     public ModelAndView deleteEvent(@PathVariable int id, @Valid @ModelAttribute("deleteForm") final ReplyForm form,
