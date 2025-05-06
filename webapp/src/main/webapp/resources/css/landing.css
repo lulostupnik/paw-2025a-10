@@ -242,13 +242,9 @@ nav a:hover {
     background-color: var(--gray-100);
     padding: 2rem;
     border-radius: var(--border-radius);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
 }
 
-.feature-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow);
-}
 
 .feature-icon {
     width: 4rem;
@@ -758,17 +754,6 @@ footer {
     gap: 2rem;
 }
 
-.feature-card {
-    background-color: #f9fafb;
-    border-radius: 1rem;
-    padding: 2rem;
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.feature-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
 
 .feature-icon {
     background-color: #4f46e5;
