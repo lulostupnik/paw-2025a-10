@@ -11,8 +11,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><spring:message code="journey.detail.title"/></title>
     <link rel="stylesheet" href="<c:url value="/resources/css/main.css"/>" />
+    <link rel="stylesheet" href="<c:url value="/resources/css/journey-detail.css"/>" />
     <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
     <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
+    <script src="<c:url value='/resources/js/confirm-delete.js'/>"></script>
     <script>
         function toggleComments() {
             const commentsList = document.getElementById('comments-list');
@@ -43,32 +45,61 @@
     <span id="i18n-journeyResponse.confirmDelete" data-message="<spring:message code='journeyResponse.confirmDelete' />"></span>
     <span id="i18n-journeyResponse.deleteWarning" data-message="<spring:message code='journeyResponse.deleteWarning' />"></span>
 </div>
+
 <div class="layout-container">
-    <!-- Include the sidebar component -->
     <!-- Main Content -->
     <div class="main-content">
-        <%--        <jsp:include page="../components/navbar.jsp" />--%>
         <div class="content-container">
             <!-- Back to Journeys Button -->
-
             <div class="back-navigation">
                 <c:if test="${isOwner}">
                     <a href="<c:url value='/profile'/>" class="back-link">
-                        <img src="<c:url value='/resources/icons/back.svg'/>" alt="Back" class="icon" />
-                        <spring:message code="journey.detail.back.to.list" />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                            <path d="M19 12H5"></path>
+                            <path d="M12 19l-7-7 7-7"></path>
+                        </svg>
+                        <span><spring:message code="journey.detail.back.to.list" /></span>
                     </a>
                 </c:if>
                 <c:if test="${not isOwner}">
                     <a href="<c:url value='/journeys' />" class="back-link">
-                        <img src="<c:url value='/resources/icons/back.svg'/>" alt="Back" class="icon" />
-                        <spring:message code="journey.detail.back.to.profile" />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                            <path d="M19 12H5"></path>
+                            <path d="M12 19l-7-7 7-7"></path>
+                        </svg>
+                        <span><spring:message code="journey.detail.back.to.profile" /></span>
                     </a>
                 </c:if>
             </div>
 
-
             <!-- Journey Detail Card -->
             <div class="content-card journey-detail-card">
+                <!-- Admin Delete Button (Top Right) -->
+                <sec:authorize access="hasRole('ADMIN')">
+                    <div class="delete-journey-btn">
+                        <c:url var="deleteUrl" value='/journeys/${journey.id}/delete'/>
+                        <form:form modelAttribute="deleteForm" id="delete-journey-form" action="${deleteUrl}" method="post" style="display: none;">
+                            <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
+                            <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
+                            <jsp:include page="../components/text-area.jsp">
+                                <jsp:param name="path" value="message" />
+                                <jsp:param name="label" value="${messageLabel}" />
+                                <jsp:param name="placeholder" value="${messagePlaceholder}" />
+                            </jsp:include>
+                        </form:form>
+
+                        <button type="button" class="btn-attendance btn-danger" onclick="openDeleteModal('delete-journey-form', 'journey')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+                                <path d="M3 6h18"></path>
+                                <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                            </svg>
+                            <span class="btn-text"><spring:message code="event.delete" text="Delete" /></span>
+                        </button>
+                    </div>
+                </sec:authorize>
+
                 <!-- Journey Detail Header -->
                 <div class="journey-detail-header">
                     <div class="journey-user-info">
@@ -90,17 +121,25 @@
                             </h1>
                             <div class="journey-meta">
                                 <div class="journey-destination">
-                                    <img src="<c:url value='/resources/icons/location.svg'/>" alt="Location" class="icon" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path>
+                                        <circle cx="12" cy="10" r="3"></circle>
+                                    </svg>
                                     <span class="destination-text">
-                                        <c:out value="${journey.destinationUniversity.city}" /> -
-                                        <c:out value="${journey.destinationUniversity.name}" />
-                                    </span>
+                                            <c:out value="${journey.destinationUniversity.city}" /> -
+                                            <c:out value="${journey.destinationUniversity.name}" />
+                                        </span>
                                 </div>
                                 <div class="journey-dates">
-                                    <img src="<c:url value='/resources/icons/calendar_black.svg'/>" alt="Calendar" class="icon" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    </svg>
                                     <span class="date-range">
-                                        <c:out value="${journey.startDate}" /> → <c:out value="${journey.endDate}" />
-                                    </span>
+                                            <c:out value="${journey.startDate}" /> → <c:out value="${journey.endDate}" />
+                                        </span>
                                 </div>
                             </div>
                         </div>
@@ -109,53 +148,34 @@
 
                 <!-- Journey Description Section -->
                 <section class="content-section">
-                    <%--                    <div class="section-header">--%>
-                    <%--                        <h2 class="section-title">--%>
-                    <%--                            <img src="<c:url value='/resources/icons/description.svg'/>" alt="Description" class="icon" />--%>
-                    <%--                            <spring:message code="journey.description" />--%>
-                    <%--                        </h2>--%>
-                    <%--                    </div>--%>
                     <div class="section-content">
                         <div class="journey-description-card">
-                            <p class="journey-description-text">
-                                <c:out value="${journey.description}" />
-                            </p>
+                            <p class="journey-description-text"><c:out value="${journey.description}" /></p>
                         </div>
                     </div>
-                        <sec:authorize access="hasRole('ADMIN')">
-                            <c:url var="deleteUrl" value='/journeys/${journey.id}/delete'/>
-                            <form:form modelAttribute="deleteForm" id="delete-journey-form" action="${deleteUrl}" method="post" style="display: none;">
-                                <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
-                                <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
-                                <jsp:include page="../components/text-area.jsp">
-                                    <jsp:param name="path" value="message" />
-                                    <jsp:param name="label" value="${messageLabel}" />
-                                    <jsp:param name="placeholder" value="${messagePlaceholder}" />
-                                </jsp:include>
-                            </form:form>
-
-                            <button type="button" class="btn-attendance btn-danger" onclick="openDeleteModal('delete-journey-form', 'journey')">
-                                <img src="<c:url value='/resources/icons/x.svg'/>" alt="<spring:message code='event.delete'/>" class="btn-icon" />
-                                <span class="btn-text"><spring:message code="event.delete" text="Delete" /></span>
-                            </button>
-                        </sec:authorize>
                 </section>
 
                 <!-- Journey Responses Section -->
                 <section class="content-section">
                     <div class="section-header">
                         <h2 class="section-title">
-                            <img src="<c:url value='/resources/icons/comments.svg'/>" alt="Comments" class="icon" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
                             <spring:message code="journey.detail.responses" />
                             <span class="response-count">(<c:out value="${fn:length(journeyResponses)}" />)</span>
                         </h2>
                         <button onclick="toggleComments()" class="toggle-comments-btn" aria-label="Toggle comments">
-                            <span id="collapse-icon">
-                                <img src="<c:url value='/resources/icons/collapse.svg'/>" alt="Collapse" class="icon" />
-                            </span>
+                                <span id="collapse-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                        <polyline points="18 15 12 9 6 15"></polyline>
+                                    </svg>
+                                </span>
                             <span id="expand-icon" style="display: none;">
-                                <img src="<c:url value='/resources/icons/expand.svg'/>" alt="Expand" class="icon" />
-                            </span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </span>
                         </button>
                     </div>
 
@@ -164,7 +184,9 @@
                         <c:if test="${empty journeyResponses}">
                             <div class="empty-state">
                                 <div class="empty-icon">
-                                    <img src="<c:url value='/resources/icons/no_comment.svg'/>" alt="No Comments" class="empty-icon-img" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="empty-icon-img">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                    </svg>
                                 </div>
                                 <p class="empty-message">
                                     <spring:message code="journey.detail.no.responses" />
@@ -176,9 +198,29 @@
                             <!-- Sort responses by date (newest first) -->
                             <c:set var="sortedResponses" value="${journeyResponses}" />
                             <c:forEach var="response" items="${sortedResponses}">
-                                <div class="response-card flex flex-row justify-between items-center">
-                                    <div class="flex flex-col">
-                                        <div class="response-header">
+                                <div class="response-card">
+                                    <!-- Delete Comment Button (Circle with Trash Icon) -->
+                                    <sec:authorize access="hasRole('ADMIN')">
+                                        <c:url var="deleteReplyUrl" value='/journey-replies/${response.id}/delete'/>
+                                        <form:form modelAttribute="deleteReplyForm" id="delete-journey-response-form-${response.id}" action="${deleteReplyUrl}" method="post" style="display: none;">
+                                            <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
+                                            <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
+                                            <jsp:include page="../components/text-area.jsp">
+                                                <jsp:param name="path" value="message" />
+                                                <jsp:param name="label" value="${messageLabel}" />
+                                                <jsp:param name="placeholder" value="${messagePlaceholder}" />
+                                            </jsp:include>
+                                        </form:form>
+
+                                        <button type="button" class="delete-comment-btn" onclick="openDeleteModal('delete-journey-response-form-${response.id}', 'journeyResponse')" aria-label="Delete comment">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                                <path d="M3 6h18"></path>
+                                                <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                                            </svg>
+                                        </button>
+                                    </sec:authorize>
+
+                                    <div class="response-header">
                                         <div class="response-user">
                                             <div class="response-avatar">
                                                 <div class="avatar-placeholder">
@@ -201,34 +243,20 @@
                                         </p>
                                     </div>
                                 </div>
-                                    <sec:authorize access="hasRole('ADMIN')">
-                                        <div class="flex">
-                                            <c:url var="deleteReplyUrl" value='/journey-replies/${response.id}/delete'/>
-                                            <form:form modelAttribute="deleteReplyForm" id="delete-journey-response-form-${response.id}" action="${deleteReplyUrl}" method="post" style="display: none;">
-                                                <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
-                                                <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
-                                                <jsp:include page="../components/text-area.jsp">
-                                                    <jsp:param name="path" value="message" />
-                                                    <jsp:param name="label" value="${messageLabel}" />
-                                                    <jsp:param name="placeholder" value="${messagePlaceholder}" />
-                                                </jsp:include>
-                                            </form:form>
-
-                                            <button type="button" class="btn-attendance btn-danger" onclick="openDeleteModal('delete-journey-response-form-${response.id}', 'journeyResponse')">
-                                                <img src="<c:url value='/resources/icons/x.svg'/>" alt="<spring:message code='event.delete'/>" class="btn-icon" />
-                                                <span class="btn-text"><spring:message code="event.delete" text="Delete" /></span>
-                                            </button>
-                                        </div>
-                                    </sec:authorize>
-                                </div>
                             </c:forEach>
                         </c:if>
                     </div>
 
-
-                    <%--                    Leave a comment div--%>
+                    <!-- Leave a comment div -->
                     <div class="section-content">
                         <div class="reply-form-container">
+                            <h3 class="reply-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                                <spring:message code="reply.message" text="Leave a comment" />
+                            </h3>
                             <c:url var="replyUrl" value="/journeys/${journey.id}/reply"/>
                             <form:form modelAttribute="replyJourneyForm" action="${replyUrl}" method="post" enctype="multipart/form-data" cssClass="reply-form">
                                 <!-- Message Field -->
@@ -252,8 +280,6 @@
                         </div>
                     </div>
                 </section>
-
-
             </div>
         </div>
     </div>
