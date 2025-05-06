@@ -73,7 +73,7 @@
           </div>
         </div>
         <div class="detail-actions">
-          <a href="javascript:void(0);" onclick="history.go(-1);" class="btn-text">
+          <a href="<c:url value='/dashboard/users'/>" class="btn-text">
             <spring:message code="users.back" text="Go Back"/>
           </a>
           <c:choose>
