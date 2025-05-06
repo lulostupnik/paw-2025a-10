@@ -88,9 +88,9 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     public void updateUniversity(long id, String name, String abbreviation, String cityName) {
-        City city = cityService.findByName(cityName).orElseThrow(() -> new IllegalArgumentException("City not found"));
-        universityDao.updateUniversity(id, name, abbreviation, city.getId());
-        //universityDao.updateUniversity(id, name, abbreviation, cityName);
+//        City city = cityService.findByName(cityName).orElseThrow(() -> new IllegalArgumentException("City not found"));
+//        universityDao.updateUniversity(id, name, abbreviation, city.getId());
+        universityDao.updateUniversity(id, name, abbreviation, cityName);
     }
 
     @Override
