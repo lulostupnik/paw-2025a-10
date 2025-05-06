@@ -38,20 +38,20 @@
       <h1 class="auth-title">
         <c:choose>
           <c:when test="${isUpdate}">
-            <spring:message code="editCity.title" text="Edit City"/>
+            <spring:message code="editInterest.title" text="Edit City"/>
           </c:when>
           <c:otherwise>
-            <spring:message code="createCity.title" text="Create City"/>
+            <spring:message code="createInterest.title" text="Create City"/>
           </c:otherwise>
         </c:choose>
       </h1>
       <p class="auth-subtitle">
         <c:choose>
           <c:when test="${isUpdate}">
-            <spring:message code="editCity.subtitle" text="Update city information"/>
+            <spring:message code="editInterest.subtitle" text="Update city information"/>
           </c:when>
           <c:otherwise>
-            <spring:message code="createCity.subtitle" text="Add a new city to the system"/>
+            <spring:message code="createInterest.subtitle" text="Add a new city to the system"/>
           </c:otherwise>
         </c:choose>
       </p>
@@ -59,56 +59,30 @@
 
     <c:choose>
       <c:when test="${isUpdate}">
-        <c:url var="formAction" value="/cities/${cityId}/edit"/>
+        <c:url var="formAction" value="/interests/${interestId}/edit"/>
       </c:when>
       <c:otherwise>
-        <c:url var="formAction" value="/cities/create"/>
+        <c:url var="formAction" value="/interests/create"/>
       </c:otherwise>
     </c:choose>
 
-    <form:form modelAttribute="createCityForm" action="${formAction}" method="post" class="auth-form" id="cityForm" novalidate="true">
+    <form:form modelAttribute="createInterestForm" action="${formAction}" method="post" class="auth-form" id="cityForm" novalidate="true">
       <!-- City Name Field -->
       <div class="form-group">
         <form:label path="name" cssClass="form-label required-field">
-          <spring:message code="createCity.name" text="City Name"/>
+          <spring:message code="createInterest.name" text="City Name"/>
         </form:label>
         <form:input path="name" id="name" type="text" cssClass="form-input ${not empty errors.getFieldError('name') ? 'error' : ''}" />
         <form:errors path="name" cssClass="error-message" />
       </div>
 
-      <!-- Country Field with Enhanced Autocomplete -->
-      <div class="form-group">
-        <form:label path="country" cssClass="form-label required-field">
-          <spring:message code="createCity.country" text="Country"/>
-        </form:label>
-        <div class="autocomplete-wrapper">
-          <form:select path="country" id="country" cssClass="form-select ${not empty errors.getFieldError('country') ? 'error' : ''}" style="display: none;">
-            <form:option value=""><spring:message code="createCity.country.select" text="Select a country"/></form:option>
-            <c:forEach var="item" items="${country}">
-              <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
-            </c:forEach>
-          </form:select>
-          <input type="text" id="countrySearch" class="form-input autocomplete-input" placeholder="<spring:message code="createCity.country.search" text="Type to search country..."/>" />
-          <div id="countryDropdown" class="autocomplete-dropdown" style="display: none;">
-            <c:forEach var="item" items="${country}">
-              <div class="autocomplete-item" data-value="<c:out value="${item.name}"/>">
-                <c:out value="${item.name}"/>
-              </div>
-            </c:forEach>
-          </div>
-          <!-- Container for selected country tag -->
-          <div id="selectedCountry" class="selected-tags"></div>
-        </div>
-        <form:errors path="country" cssClass="error-message" />
-      </div>
-
       <button type="submit" class="form-button">
         <c:choose>
           <c:when test="${isUpdate}">
-            <spring:message code="editCity.submit" text="Update City"/>
+            <spring:message code="editInterest.submit" text="Update City"/>
           </c:when>
           <c:otherwise>
-            <spring:message code="createCity.submit" text="Create City"/>
+            <spring:message code="createInterest.submit" text="Create City"/>
           </c:otherwise>
         </c:choose>
       </button>
@@ -151,146 +125,7 @@
     capitalizeFirstLetter(nameInput);
     capitalizeFirstLetter(countrySearch);
 
-    // Initialize country autocomplete
-    function initCountryAutocomplete() {
-      // If there's a selected country value, display it
-      if (countryInput.value && countryInput.value.trim() !== "") {
-        displaySelectedCountry(countryInput.value);
-      }
-
-      // Show dropdown when focusing on search input
-      countrySearch.addEventListener("focus", function() {
-        countryDropdown.style.display = "block";
       });
-
-      // Show dropdown when clicking on search input
-      countrySearch.addEventListener("click", function() {
-        countryDropdown.style.display = "block";
-      });
-
-      // Filter countries as user types
-      countrySearch.addEventListener("input", function() {
-        const searchValue = this.value.toLowerCase();
-        let hasVisibleItems = false;
-
-        countryItems.forEach(item => {
-          const countryName = item.getAttribute("data-value").toLowerCase();
-          if (countryName.includes(searchValue)) {
-            item.style.display = "block";
-            hasVisibleItems = true;
-          } else {
-            item.style.display = "none";
-          }
-        });
-
-        countryDropdown.style.display = hasVisibleItems ? "block" : "none";
-      });
-
-      // Handle country selection
-      countryItems.forEach(item => {
-        item.addEventListener("click", function() {
-          const selectedValue = this.getAttribute("data-value");
-          countryInput.value = selectedValue;
-          countrySearch.value = "";
-          countryDropdown.style.display = "none";
-          displaySelectedCountry(selectedValue);
-        });
-      });
-
-      // Close dropdown when clicking outside
-      document.addEventListener("click", function(e) {
-        if (!countrySearch.contains(e.target) && !countryDropdown.contains(e.target) && !selectedCountry.contains(e.target)) {
-          countryDropdown.style.display = "none";
-        }
-      });
-    }
-
-    // Display selected country as a tag
-    function displaySelectedCountry(countryName) {
-      selectedCountry.innerHTML = "";
-
-      if (countryName) {
-        const tag = document.createElement("div");
-        tag.className = "selected-tag";
-
-        const tagText = document.createElement("span");
-        tagText.textContent = countryName;
-
-        const removeBtn = document.createElement("button");
-        removeBtn.type = "button";
-        removeBtn.className = "remove-tag";
-        removeBtn.innerHTML = "×";
-        removeBtn.addEventListener("click", function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          countryInput.value = "";
-          selectedCountry.innerHTML = "";
-        });
-
-        tag.appendChild(tagText);
-        tag.appendChild(removeBtn);
-        selectedCountry.appendChild(tag);
-      }
-    }
-
-    // Initialize autocomplete
-    initCountryAutocomplete();
-
-    // Debug logging
-    console.log("Country items count:", countryItems.length);
-    console.log("Country input value:", countryInput.value);
-
-    // Form validation
-    cityForm.addEventListener("submit", (event) => {
-      let isValid = true;
-
-      // Validate name
-      if (!nameInput.value.trim()) {
-        const errorElement = document.createElement("div");
-        errorElement.className = "error-message";
-        errorElement.textContent = "City name is required";
-
-        const existingError = nameInput.parentNode.querySelector(".error-message");
-        if (!existingError) {
-          nameInput.parentNode.appendChild(errorElement);
-        }
-
-        nameInput.classList.add("error");
-        isValid = false;
-      } else {
-        nameInput.classList.remove("error");
-        const existingError = nameInput.parentNode.querySelector(".error-message");
-        if (existingError) {
-          existingError.remove();
-        }
-      }
-
-      // Validate country
-      if (!countryInput.value.trim()) {
-        const errorElement = document.createElement("div");
-        errorElement.className = "error-message";
-        errorElement.textContent = "Country is required";
-
-        const existingError = document.querySelector(".form-group:nth-child(2) .error-message");
-        if (!existingError) {
-          document.querySelector(".form-group:nth-child(2)").appendChild(errorElement);
-        }
-
-        countrySearch.classList.add("error");
-        isValid = false;
-      } else {
-        countrySearch.classList.remove("error");
-        const existingError = document.querySelector(".form-group:nth-child(2) .error-message");
-        if (existingError) {
-          existingError.remove();
-        }
-      }
-
-      if (!isValid) {
-        event.preventDefault();
-      }
-    });
-  });
 </script>
 
 </body>

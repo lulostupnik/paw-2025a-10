@@ -102,7 +102,7 @@ public class InterestJdbcDao implements InterestDao {
         LOGGER.debug("Creating new interest {}", interest);
         final Map<String, Object> params = new HashMap<>();
         params.put("name", interest);
-        final Number keys = jdbcInsert.execute(params);
+        final Number keys = jdbcInsert.executeAndReturnKey(params);
         return new Interest(keys.longValue(), interest);
     }
 
