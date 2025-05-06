@@ -57,9 +57,6 @@ public class JourneyServiceImpl implements JourneyService {
         if(startDate.isBefore(LocalDate.now())) {
             throw new RuntimeException("Start date cannot be before today");
         }
-        if(endDate.isBefore(LocalDate.now())) {
-            throw new RuntimeException("End date cannot be before today");
-        }
     }
 
     // FIXME: ¿CachePut?

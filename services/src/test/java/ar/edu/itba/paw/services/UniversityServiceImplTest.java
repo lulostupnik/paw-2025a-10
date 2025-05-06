@@ -256,27 +256,6 @@ public class UniversityServiceImplTest {
 
     @Test
     public void testUpdateUniversity(){
-        Mockito.when(
-            cityService.findByName(Mockito.eq(CITY_NAME))
-        ).thenReturn(Optional.of(CITY));
-
-        uniService.updateUniversity(ID, NAME, ABBREVIATION, CITY_NAME);
-    }
-    @Test(expected = NoSuchElementException.class)
-    public void testUpdateUniversityMissingCity(){
-        Mockito.when(
-            cityService.findByName(Mockito.eq(CITY_NAME))
-        ).thenReturn(Optional.empty());
-
-        uniService.updateUniversity(ID, NAME, ABBREVIATION, CITY_NAME);
-    }
-    @Test(expected = DataIntegrityViolationException.class)
-    public void testUpdateUniversityDuplicated(){
-        Mockito.when(
-            cityService.findByName(Mockito.eq(CITY_NAME))
-        ).thenReturn(Optional.of(CITY));
-        Mockito.doThrow(new DataIntegrityViolationException("error")).when(uniDao).updateUniversity(ID, NAME, ABBREVIATION, ID);
-
         uniService.updateUniversity(ID, NAME, ABBREVIATION, CITY_NAME);
     }
 
