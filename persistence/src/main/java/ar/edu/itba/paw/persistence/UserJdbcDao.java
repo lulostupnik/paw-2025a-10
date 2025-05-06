@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
+import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
@@ -107,7 +108,7 @@ public class UserJdbcDao implements UserDao {
 
 
     @Autowired
-    public UserJdbcDao(final DataSource dataSource) {
+    public UserJdbcDao(final DataSource dataSource, final UniversityDao universityDao) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("users")
@@ -343,6 +344,17 @@ public class UserJdbcDao implements UserDao {
         LOGGER.debug("Updating university for user ID: {} to university ID: {}", userId, universityId);
         jdbcTemplate.update("UPDATE users SET university = ? WHERE id = ?", universityId, userId);
         // return update(userId, null, null, null, universityId, null, null);
+    }
+
+    @Override
+    public void updateUniversity(final long userId, final String universityName) {
+        LOGGER.debug("Updating user university for user ID: {} to university with name: {}", userId, universityName);
+
+        jdbcTemplate.update("""
+                UPDATE users
+                SET university = (SELECT id FROM universities WHERE name = ?)
+                WHERE id = ?
+                """, universityName, userId);
     }
 
     @Override

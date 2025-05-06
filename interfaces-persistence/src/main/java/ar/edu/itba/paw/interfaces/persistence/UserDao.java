@@ -20,6 +20,7 @@ public interface UserDao {
     void updateProfileInfo(long userId, String firstname, String lastname, String username);
     void updateLocale(long userId, Locale locale);
     void updateUniversity(long userId, long universityId);
+    void updateUniversity(long userId, String universityName);
     void updateCareer(long userId, long careerId);
     void updateProfilePicture(long userId, long profilePictureId);
     void update(long userId, String firstname, String lastname, String username, Long universityId, Long careerId, Locale locale);

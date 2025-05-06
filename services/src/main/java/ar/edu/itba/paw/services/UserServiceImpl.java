@@ -39,11 +39,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, byte[] profilePicture, long[] interests, String password, Locale locale) {
-
         LOGGER.debug("Creating user for {}", email);
 
         University university = universityService.findByName(universityName).orElseThrow(() -> new RuntimeException("University not found")); // TODO: ¿Acá cuando tira excepción debería haber un log?
-
         Career career = careerService.findByName(careerName).orElseThrow(() -> new RuntimeException("Career not found"));
 
         long profilePictureId = imageService.storeImage(profilePicture);
@@ -129,14 +127,15 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void updateUniversity(long userId, String newUniversityName) {
         LOGGER.debug("Updating university for user {} to {}", userId, newUniversityName);
-
-        University university = universityService.findByName(newUniversityName)
-                .orElseThrow(() -> {
-                    LOGGER.warn("University not found: {}", newUniversityName);
-                    return new IllegalArgumentException("University not found");
-                });
-
-        userDao.updateUniversity(userId, university.getId());
+//
+//        University university = universityService.findByName(newUniversityName)
+//                .orElseThrow(() -> {
+//                    LOGGER.warn("University not found: {}", newUniversityName);
+//                    return new IllegalArgumentException("University not found");
+//                });
+//
+//        userDao.updateUniversity(userId, university.getId());
+        userDao.updateUniversity(userId, newUniversityName);
     }
 
     @Override
