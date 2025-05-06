@@ -133,6 +133,7 @@ form[action*="/attend-detail"] {
     color: white;
     border: none;
     cursor: pointer;
+    border-radius:0.5rem;
 }
 
 .event-full {
