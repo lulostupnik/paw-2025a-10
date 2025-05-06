@@ -63,12 +63,12 @@
               <p class="feature-description"><c:out value="${user.locale}"/></p>
             </div>
 
-              <div class="feature-card">
-                <h3 class="feature-title"><spring:message code="user.detail.profilePicture"/></h3>
-                <div class="profile-picture-container">
-                  <img src="<c:url value='/images/${user.profilePictureId}'/>" alt="<spring:message code="user.detail.profilePicture.alt"/>" class="profile-picture" />
-                </div>
+            <div class="feature-card">
+              <h3 class="feature-title"><spring:message code="user.detail.profilePicture"/></h3>
+              <div class="profile-picture-container">
+                <img src="<c:url value='/images/${user.profilePictureId}'/>" alt="<spring:message code="user.detail.profilePicture.alt"/>" class="profile-picture" />
               </div>
+            </div>
 
           </div>
         </div>
@@ -78,18 +78,14 @@
           </a>
           <c:choose>
             <c:when test="${user.blocked}">
-              <form action="<c:url value='/users/${user.id}/unblock'/>" method="post" style="display: inline;">
-                <button type="submit" class="btn-primary">
-                  <spring:message code="user.detail.unblock" text="Unblock User"/>
-                </button>
-              </form>
+              <button type="button" class="cta-button primary" id="unblockUserBtn">
+                <spring:message code="user.detail.unblock" text="Unblock User"/>
+              </button>
             </c:when>
             <c:otherwise>
-              <form action="<c:url value='/users/${user.id}/block'/>" method="post" style="display: inline;">
-                <button type="submit" class="btn-danger">
-                  <spring:message code="user.detail.block" text="Block User"/>
-                </button>
-              </form>
+              <button type="button" class="cta-button delete-button" id="blockUserBtn">
+                <spring:message code="user.detail.block" text="Block User"/>
+              </button>
             </c:otherwise>
           </c:choose>
         </div>
@@ -97,5 +93,94 @@
     </div>
   </div>
 </div>
+
+<!-- Block Confirmation Modal -->
+<div id="blockModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="blockModalTitle">
+        <c:choose>
+          <c:when test="${user.blocked}">
+            <spring:message code="user.unblock.confirm.title"/>
+          </c:when>
+          <c:otherwise>
+            <spring:message code="user.block.confirm.title"/>
+          </c:otherwise>
+        </c:choose>
+      </h2>
+      <button type="button" class="close-modal" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p id="blockModalMessage">
+        <c:choose>
+          <c:when test="${user.blocked}">
+            <spring:message code="user.unblock.confirm.message" arguments="${user.firstname} ${user.lastname}"/>
+          </c:when>
+          <c:otherwise>
+            <spring:message code="user.block.confirm.message" arguments="${user.firstname} ${user.lastname}"/>
+          </c:otherwise>
+        </c:choose>
+      </p>
+      <c:if test="${!user.blocked}">
+        <p class="warning-text"><spring:message code="user.block.confirm.warning"/></p>
+      </c:if>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="cta-button secondary" id="cancelBlockBtn">
+        <spring:message code="user.block.cancel"/>
+      </button>
+      <form action="<c:url value='/users/${user.id}/${user.blocked ? "unblock" : "block"}'/>" method="post" id="blockUserForm">
+        <button type="submit" class="cta-button ${user.blocked ? 'primary' : 'delete-button'}">
+          <c:choose>
+            <c:when test="${user.blocked}">
+              <spring:message code="user.unblock.confirm"/>
+            </c:when>
+            <c:otherwise>
+              <spring:message code="user.block.confirm"/>
+            </c:otherwise>
+          </c:choose>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Modal functionality
+    const modal = document.getElementById('blockModal');
+    const blockBtn = document.getElementById('blockUserBtn');
+    const unblockBtn = document.getElementById('unblockUserBtn');
+    const cancelBtn = document.getElementById('cancelBlockBtn');
+    const closeModal = document.querySelector('.close-modal');
+
+    // Show modal when block or unblock button is clicked
+    if (blockBtn) {
+      blockBtn.addEventListener('click', function() {
+        modal.style.display = 'flex';
+      });
+    }
+
+    if (unblockBtn) {
+      unblockBtn.addEventListener('click', function() {
+        modal.style.display = 'flex';
+      });
+    }
+
+    function hideModal() {
+      modal.style.display = 'none';
+    }
+
+    cancelBtn.addEventListener('click', hideModal);
+    closeModal.addEventListener('click', hideModal);
+
+    window.addEventListener('click', function(event) {
+      if (event.target === modal) {
+        hideModal();
+      }
+    });
+  });
+</script>
+
 </body>
 </html>

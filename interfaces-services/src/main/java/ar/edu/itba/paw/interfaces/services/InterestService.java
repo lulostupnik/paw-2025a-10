@@ -12,6 +12,7 @@ public interface InterestService {
     List<Interest> findByUserId(long id);
     Optional<Interest> findByName(String name);
     List<Interest> findIdByName(String[] names);
+    Page<Interest> findAllInterestsByUserId(long id, int page, int pageSize);
     Interest createUserInterest(String interest);
     void deleteUserInterest(long id);
     void editUserInterest(long id, String interest);
