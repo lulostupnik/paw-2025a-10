@@ -217,6 +217,7 @@ public class EventJdbcDao implements EventDao {
                 LEFT JOIN event_attendees a ON a.event_id = e.id
                 LEFT JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = ?
                 WHERE e.event_date >= CURRENT_DATE
+                AND us.id != ?
                 AND e.deleted = FALSE
                 ORDER BY
                  (e.attendees_limit IS NOT NULL AND e.attendees_count >= e.attendees_limit) ASC, 
@@ -353,7 +354,8 @@ public class EventJdbcDao implements EventDao {
         LOGGER.debug("[TopUserEvents] Fetching top events for user {} (page={}, size={})", userId, page, size);
 
         final int totalItems = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM events e WHERE e.deleted = FALSE AND e.event_date >= CURRENT_DATE",
+                "SELECT COUNT(*) FROM events e WHERE e.deleted = FALSE AND e.event_date >= CURRENT_DATE AND e.user_id != ?",
+                new Object[]{userId},
                 Integer.class
         );
 
@@ -363,7 +365,7 @@ public class EventJdbcDao implements EventDao {
                     boolean isAttending = rs.getBoolean("is_attending");
                     return new UserEvent(event, isAttending);
                 },
-                userId,userId, size, (page - 1) * size
+                userId,userId, userId, size, (page - 1) * size
         );
 
         return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
