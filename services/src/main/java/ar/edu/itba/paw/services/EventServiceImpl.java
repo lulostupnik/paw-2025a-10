@@ -308,12 +308,28 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<UserEvent> getEventsPageWithAttendanceStatus(String search,long userId, int page, int size) {
-        if(search == null || search.isEmpty()) {
-            return eventDao.getEventsWithAttendanceStatus(userId, page, size);
+    public Page<UserEvent> getEventsPageWithAttendanceStatus(String search,User user, int pageNumber, int pageSize) {
+        if(user == null) {
+            Page<Event> page;
+            if(search != null && !search.isEmpty()) {
+                page = eventDao.searchEvents(search, pageNumber, pageSize);
+            }else {
+                page = eventDao.listAll(pageNumber, pageSize);
+            }
+            List<UserEvent> userEvent = new ArrayList<>();
+            for (Event event : page.getContent()) {
+                userEvent.add(new UserEvent(event, false));
+            }
+            return new Page<>(userEvent, page.getCurrentPage(), page.getTotalPages());
         }
-        return eventDao.getEventsWithAttendanceStatus(search, userId, page,size);
+
+        if(search == null || search.isEmpty()) {
+            return eventDao.getEventsWithAttendanceStatus(user.getId(), pageNumber, pageSize);
+        }
+        return eventDao.getEventsWithAttendanceStatus(search, user.getId(), pageNumber, pageSize);
     }
+
+
     @Transactional(readOnly = true)
     @Override
     public List<UserEvent> getEventsWithAttendanceStatus(long userId) {
