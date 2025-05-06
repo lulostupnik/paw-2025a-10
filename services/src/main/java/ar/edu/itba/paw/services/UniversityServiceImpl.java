@@ -23,13 +23,11 @@ public class UniversityServiceImpl implements UniversityService {
 
 
     private final UniversityDao universityDao;
-    private final CityService cityService;
 
     @Autowired
-    public UniversityServiceImpl(UniversityDao universityDao, CityService cityService) {
+    public UniversityServiceImpl(UniversityDao universityDao) {
 
         this.universityDao = universityDao;
-        this.cityService = cityService;
     }
 
     @Transactional(readOnly = true)
