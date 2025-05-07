@@ -29,8 +29,7 @@
         <h2 class="page-title">
           <spring:message code="event.list.title"/>
         </h2>
-        <div class="event-actions">
-          <div class="event-actions-container">
+        <div class="journeys-actions">
             <form action="<c:url value='${searchUrl}'/>" method="get" class="search-form">
               <input type="text" name="search" class="search-input" placeholder="<spring:message code='${searchPlaceholderCode}' />" value="${param.search}">
               <input type="hidden" name="page" value="1">
@@ -43,7 +42,6 @@
               <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="journey.create.button"/>" class="btn-icon" />
               <spring:message code="event.create.button"/>
             </a>
-          </div>
         </div>
 
       </div>

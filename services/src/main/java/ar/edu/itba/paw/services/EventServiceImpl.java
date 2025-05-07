@@ -308,7 +308,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<UserEvent> getEventsPageWithAttendanceStatus(String search,User user, int pageNumber, int pageSize) {
+    public Page<UserEvent> getEventsPageWithAttendanceStatus(String search, User user, int pageNumber, int pageSize) {
         if(user == null) {
             Page<Event> page;
             if(search != null && !search.isEmpty()) {
@@ -380,7 +380,9 @@ public class EventServiceImpl implements EventService {
     public void delete(long id, String message) {
         LOGGER.debug("Deleting event {}", id);
         eventDao.deletionMessage(id, message);
-        //emailService.deleteEmail()
+        eventResponseService.deleteByEventId(id);
+        Event event = eventDao.findById(id).orElseThrow(() -> new RuntimeException("Event not found"));
+        emailService.sendEventDeletionNotification(event.getUser(),event,message);
         eventDao.delete(id);
     }
 

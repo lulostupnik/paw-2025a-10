@@ -1,5 +1,7 @@
 package ar.edu.itba.paw.webapp.validation;
 
+import ar.edu.itba.paw.webapp.validation.AttendeesLimitValidator;
+
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.*;

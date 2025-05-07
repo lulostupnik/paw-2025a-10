@@ -17,4 +17,5 @@ public interface EventResponseDao {
 //    List<EmailRecipient> listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds);
     long getEventIdByResponseId(long eventId);
     void deletionMessage(long id, String message);
+    void deleteByEventId(long eventId);
 }

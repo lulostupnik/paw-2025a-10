@@ -1,7 +1,5 @@
 package ar.edu.itba.paw.webapp.validation;
 
-import java.util.Optional;
-
 import javax.validation.ConstraintValidator;
 
 public class AttendeesLimitValidator implements ConstraintValidator<ValidAttendeesLimit, Integer> {

@@ -13,11 +13,6 @@ body {
     color: var(--color-gray-900);
 }
 
-.content-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
-}
 
 /* Profile Header - White background with rounded corners */
 .profile-header-wrapper {
@@ -163,7 +158,9 @@ body {
     background-color: var(--color-white);
     z-index: 10;
     padding: 0.5rem 0;
-    margin-bottom: 2rem;
+
+    margin: 3rem 0;
+
     border-radius: var(--profile-radius);
     box-shadow: var(--profile-shadow);
 }

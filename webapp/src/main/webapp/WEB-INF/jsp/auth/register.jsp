@@ -35,14 +35,6 @@
         <input type="hidden" id="i18n-password-strong" value="<spring:message code="password.strength.strong" text="Strong"/>" />
         <input type="hidden" id="i18n-password-very-strong" value="<spring:message code="password.strength.very-strong" text="Very Strong"/>" />
         <input type="hidden" id="i18n-password-strength" value="<spring:message code="password.strength.label" text="Password Strength"/>" />
-        <input type="hidden" id="i18n-password-add-more" value="<spring:message code="password.strength.add-more" text="Add more complexity"/>" />
-        <input type="hidden" id="i18n-password-good" value="<spring:message code="password.strength.good" text="Good password"/>" />
-        <input type="hidden" id="i18n-password-great" value="<spring:message code="password.strength.great" text="Great password"/>" />
-        <input type="hidden" id="i18n-password-req-length" value="<spring:message code="password.req.length" text="8+ characters"/>" />
-        <input type="hidden" id="i18n-password-req-lowercase" value="<spring:message code="password.req.lowercase" text="Lowercase letter"/>" />
-        <input type="hidden" id="i18n-password-req-uppercase" value="<spring:message code="password.req.uppercase" text="Uppercase letter"/>" />
-        <input type="hidden" id="i18n-password-req-number" value="<spring:message code="password.req.number" text="Number"/>" />
-        <input type="hidden" id="i18n-password-req-special" value="<spring:message code="password.req.special" text="Special character"/>" />
         <input type="hidden" id="i18n-password-match" value="<spring:message code="password.match" text="Passwords match"/>" />
         <input type="hidden" id="i18n-password-mismatch" value="<spring:message code="password.mismatch" text="Passwords do not match"/>" />
         <input type="hidden" id="i18n-password-show" value="<spring:message code="password.show" text="Show password"/>" />
@@ -97,41 +89,7 @@
                                 <div class="password-status">
                                     <span id="passwordStrengthLabel"></span>
                                 </div>
-                                <span class="password-message" id="passwordMessage"></span>
-                            </div>
-
-                            <!-- Password requirements -->
-                            <div class="password-requirements">
-                                <div class="requirement-item" id="req-length">
-                                    <svg class="requirement-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                    </svg>
-                                    <span><spring:message code="password.req.length" text="8+ characters"/></span>
-                                </div>
-                                <div class="requirement-item" id="req-lowercase">
-                                    <svg class="requirement-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                    </svg>
-                                    <span><spring:message code="password.req.lowercase" text="Lowercase letter"/></span>
-                                </div>
-                                <div class="requirement-item" id="req-uppercase">
-                                    <svg class="requirement-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                    </svg>
-                                    <span><spring:message code="password.req.uppercase" text="Uppercase letter"/></span>
-                                </div>
-                                <div class="requirement-item" id="req-number">
-                                    <svg class="requirement-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                    </svg>
-                                    <span><spring:message code="password.req.number" text="Number"/></span>
-                                </div>
-                                <div class="requirement-item" id="req-special">
-                                    <svg class="requirement-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                    </svg>
-                                    <span><spring:message code="password.req.special" text="Special character"/></span>
-                                </div>
+                                <!-- Removed the password message span -->
                             </div>
                         </div>
                     </div>
@@ -255,11 +213,11 @@
 
                         <!-- Hidden select that will hold the actual form data -->
                         <form:select path="interests" multiple="true" id="interestsSelect" style="display: none;" >
-<%--                            <c:forEach var="item" items="${interests}">--%>
-<%--                            <option value="${interest.id}" ${param.interests == interest.id ? 'selected' : ''}><c:out value="${interest.name}"/></option>--%>
-<%--                            </c:forEach>--%>
+                            <%--                            <c:forEach var="item" items="${interests}">--%>
+                            <%--                            <option value="${interest.id}" ${param.interests == interest.id ? 'selected' : ''}><c:out value="${interest.name}"/></option>--%>
+                            <%--                            </c:forEach>--%>
                             <form:options items="${interests}" itemValue="id" itemLabel="name"/>
-<%--@NOTE : si interests no se carga en alguna, hacer el fix de arriba ^--%>
+                            <%--@NOTE : si interests no se carga en alguna, hacer el fix de arriba ^--%>
                         </form:select>
 
                         <!-- Custom UI for interests selection -->

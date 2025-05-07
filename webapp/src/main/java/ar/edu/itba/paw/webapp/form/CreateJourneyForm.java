@@ -6,7 +6,9 @@ import java.time.LocalDate;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import ar.edu.itba.paw.webapp.validation.*;
+import ar.edu.itba.paw.webapp.validation.ExistingUniversity;
+import ar.edu.itba.paw.webapp.validation.FutureDate;
+import ar.edu.itba.paw.webapp.validation.ValidDateRange;
 import org.springframework.format.annotation.DateTimeFormat;
 
 @ValidDateRange
@@ -26,6 +28,8 @@ public class CreateJourneyForm {
 //    private String destinationCity;
 
     @Size(min = 2, max = 100)
+    @NotNull
+    @ExistingUniversity
     private String destinationUniversity;
 
     @Size(min = 2, max = 2047)
