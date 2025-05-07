@@ -14,7 +14,7 @@ public class CityNameValidator implements ConstraintValidator<ExistingCity, Stri
     @Override
     public boolean isValid(String city, ConstraintValidatorContext constraintValidatorContext) {
         if (city == null || city.isEmpty()) {
-            return false;
+            return true;
         }
         // Assuming a method exists to check if the city is valid
         // This should be replaced with actual logic to check if the city exists
