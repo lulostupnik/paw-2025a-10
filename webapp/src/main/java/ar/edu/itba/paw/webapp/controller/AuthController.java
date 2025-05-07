@@ -11,22 +11,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 
 import java.util.List;
-import java.util.Locale;
 
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 
@@ -67,7 +63,7 @@ public class AuthController {
         return mav;
     }
 
-    @RequestMapping(value = "/register", method = {RequestMethod.GET})
+    @GetMapping(value = "/register")
     public ModelAndView registerForm(@ModelAttribute ("createUserForm") final CreateUserForm form) {
         LOGGER.debug("Loading register form");
         ModelAndView mav = new ModelAndView("auth/register");
@@ -85,7 +81,7 @@ public class AuthController {
         return mav;
     }
 
-    @RequestMapping(value = "/register", method = {RequestMethod.POST})
+    @PostMapping(value = "/register")
     public ModelAndView registerSubmit(@Valid @ModelAttribute("createUserForm") final CreateUserForm form, final BindingResult errors) {
 
         LOGGER.info("CREATING USER FROM USERFORM {}", form);

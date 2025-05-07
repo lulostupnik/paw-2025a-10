@@ -19,6 +19,7 @@ public class AdminController {
     private final InterestService interestService;
     private final CityService cityService;
     private final CareerService careerService;
+    private static final String ADMIN_DASHBOARD = "/admin/dashboard";
 
     @Autowired
     public AdminController(EventService eventService, UserService userService, JourneyService journeyService, UniversityService universityService, InterestService interestService, CityService cityService, CareerService careerService) {
@@ -36,7 +37,7 @@ public class AdminController {
             @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
-        ModelAndView mav = new ModelAndView("/admin/dashboard");
+        ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
         mav.addObject("pagedEvents", eventService.getAllEventsSearch(search, pageParams));
         return mav;
     }
@@ -46,7 +47,7 @@ public class AdminController {
             @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
-        ModelAndView mav = new ModelAndView("/admin/dashboard");
+        ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
         mav.addObject("pagedUsers", userService.getAllUsers(search, pageParams));
 
         return mav;
@@ -57,7 +58,7 @@ public class AdminController {
             @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
-        ModelAndView mav = new ModelAndView("/admin/dashboard");
+        ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
         mav.addObject("pagedJourneys", journeyService.getAllJourneys(search,pageParams));
 
 
@@ -69,7 +70,7 @@ public class AdminController {
          @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
-        ModelAndView mav = new ModelAndView("/admin/dashboard");
+        ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
         mav.addObject("pagedCareers", careerService.getAllCareers(search,pageParams));
 
         return mav;
@@ -80,7 +81,7 @@ public class AdminController {
          @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
-        ModelAndView mav = new ModelAndView("/admin/dashboard");
+        ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
         mav.addObject("pagedUniversities", universityService.getAllUniversities(search, pageParams));
 
         return mav;
@@ -91,7 +92,7 @@ public class AdminController {
          @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
-        ModelAndView mav = new ModelAndView("/admin/dashboard");
+        ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
         mav.addObject("pagedInterests", interestService.getAllInterests(search, pageParams));
 
         return mav;
@@ -102,7 +103,7 @@ public class AdminController {
          @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
-        ModelAndView mav = new ModelAndView("/admin/dashboard");
+        ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
         mav.addObject("pagedCities", cityService.getAllCities(search, pageParams));
         return mav;
     }

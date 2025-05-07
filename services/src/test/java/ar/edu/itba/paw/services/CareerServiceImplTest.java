@@ -111,7 +111,6 @@ public class CareerServiceImplTest {
             careerDao.getAllCareers(Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-//        Page<Career> page = careerService.getAllCareers(null, 1, 2);
         Page<Career> page = careerService.getAllCareers(null, new PageParams(1,2));
 
         assertNotNull(page);
