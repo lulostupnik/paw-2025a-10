@@ -1,9 +1,7 @@
 package ar.edu.itba.paw.interfaces.services;
 
 
-import ar.edu.itba.paw.models.Event;
-import ar.edu.itba.paw.models.Journey;
-import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.*;
 
 import java.util.List;
 
@@ -22,5 +20,10 @@ public interface EmailService {
     void sendEventModificationNotification(Event event, String adminMessage);
 
     void sendJourneyModificationNotification(Journey journey, String adminMessage);
+    void sendUserBlockedNotification(User blockedUser/*, String adminMessage*/);
+    void sendEventCommentDeletionNotification(EventResponse deletedComment, Event event, User commentAuthor, String adminMessage);
+//    void sendJourneyCommentDeletionNotification(/*JourneyResponse deletedComment, Journey journey, User commentAuthor,*/ long journeyResponseId, String adminMessage) ;
+     void sendJourneyCommentDeletionNotification(/*long journeyResponseId,*/ JourneyResponse deletedComment,  Journey journey, User commentAuthor , String adminMessage);
+
 
 }

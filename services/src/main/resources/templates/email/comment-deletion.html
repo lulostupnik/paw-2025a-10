@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{email.comment.deletion.title}">Your Comment Has Been Removed</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; color: #333; margin: 0;">
+<div style="text-align: center; margin-bottom: 30px;">
+    <a href="http://pawserver.it.itba.edu.ar/paw-2025a-10/" style="text-decoration: none;">
+        <h1 style="font-size: 28px; font-weight: bold; color: #000000; margin: 0;">
+            Go<span style="color: #3366ff;">Together</span>
+        </h1>
+    </a>
+    <h2 th:text="#{email.comment.deletion.heading}">Your comment has been removed</h2>
+</div>
+<div style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: #333;">
+    <div style="margin-bottom: 20px;">
+        <h3 th:if="${isEvent}" th:text="#{email.comment.deletion.event.title(${contentTitle})}" style="margin: 0 0 10px 0; font-size: 18px;">Event: Event Title</h3>
+        <h3 th:unless="${isEvent}" th:text="#{email.comment.deletion.journey.title}" style="margin: 0 0 10px 0; font-size: 18px;">Journey</h3>
+        <p style="margin: 5px 0; color: #666;">
+            <span th:text="#{email.comment.deletion.date(${commentDate})}">Date: 2025-05-07</span>
+        </p>
+    </div>
+
+    <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #666;">
+        <h4 th:text="#{email.comment.deletion.your.comment}" style="margin-top: 0; margin-bottom: 10px; color: #333;">Your comment:</h4>
+        <p style="margin: 0; font-style: italic; color: #333;" th:text="${commentMessage}">Your original comment text goes here</p>
+    </div>
+
+    <p th:text="#{email.comment.deletion.explanation}" style="margin-bottom: 20px;">
+        Your comment has been removed by an administrator because it violated our community guidelines.
+    </p>
+
+    <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #ff3333;">
+        <h4 th:text="#{email.comment.deletion.reason.heading}" style="margin-top: 0; margin-bottom: 10px; color: #333;">Reason for removal:</h4>
+        <p style="margin: 0; font-style: italic; color: #333;" th:text="${adminMessage}">Admin message explaining the reason for deletion goes here</p>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px;">
+        <a th:if="${isEvent}" th:href="@{http://pawserver.it.itba.edu.ar/paw-2025a-10/events/{contentId}(contentId=${contentId})}"
+           style="display: inline-block; background-color: #3366ff; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;"
+           th:text="#{email.comment.deletion.view.event}">
+            View Event
+        </a>
+        <a th:unless="${isEvent}" th:href="@{http://pawserver.it.itba.edu.ar/paw-2025a-10/journeys/{contentId}(contentId=${contentId})}"
+           style="display: inline-block; background-color: #3366ff; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;"
+           th:text="#{email.comment.deletion.view.journey}">
+            View Journey
+        </a>
+    </div>
+</div>
+
+<div style="margin-top: 30px; text-align: center; color: #666; font-size: 14px;">
+    <p th:text="#{email.comment.deletion.guidelines}">
+        Please review our community guidelines to ensure your future comments comply with our policies.
+    </p>
+</div>
+
+</body>
+</html>
