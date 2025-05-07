@@ -99,7 +99,7 @@
                     <span><spring:message code="nav.events"/></span>
                 </a>
                 <sec:authorize access="hasRole('ADMIN')">
-                    <a href="${dashboardJourneysUrl}"
+                    <a href="<c:out value="${dashboardJourneysUrl}"/>"
                        class="topbar-nav-item ${isAdminSectionActive ? 'active' : ''}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -123,7 +123,7 @@
                                 <span class="profile-avatar">
                                     <c:choose>
                                         <c:when test="${not empty user.profilePictureId && user.profilePictureId > 0}">
-                                            <img src="<c:url value='/images/${user.profilePictureId}'/>" alt="${user.username}" class="avatar-image" />
+                                            <img src="<c:url value='/images/${user.profilePictureId}'/>" alt="<c:out value="${user.username}"/>" class="avatar-image" />
                                         </c:when>
                                         <c:otherwise>
                                             <div class="avatar-placeholder-navbar">
@@ -132,7 +132,7 @@
                                         </c:otherwise>
                                     </c:choose>
                                 </span>
-                                <span class="profile-name">${user.getUsername()}</span>
+                                <span class="profile-name"><c:out value="${user.getUsername()}"/></span>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>

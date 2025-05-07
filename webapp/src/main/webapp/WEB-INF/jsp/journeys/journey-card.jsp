@@ -37,7 +37,11 @@
             <div class="event-card-content">
                 <div class="event-card-header">
                     <div class="event-location">
-                        <h3><spring:message code="journey.destinationCityAndCountry" arguments="${param.city},${param.country}"/></h3>
+                        <h3>
+                            <spring:message code="journey.destinationCityAndCountry"
+                                            arguments="${param.city},${param.country}"
+                                            htmlEscape="true"/>
+                        </h3>
                     </div>
                     <p class="event-card-subtitle mt-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">

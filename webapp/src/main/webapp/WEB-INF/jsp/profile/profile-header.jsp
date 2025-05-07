@@ -8,7 +8,7 @@
         <div class="profiles-avatar">
           <c:choose>
             <c:when test="${not empty user.profilePictureId && user.profilePictureId > 0}">
-              <img src="<c:url value='/images/${user.profilePictureId}'/>" alt="${user.username}" class="avatar-image" />
+              <img src="<c:url value='/images/${user.profilePictureId}'/>" alt="<c:out value="${user.username}"/>" class="avatar-image" />
             </c:when>
             <c:otherwise>
               <div class="avatar-placeholder">

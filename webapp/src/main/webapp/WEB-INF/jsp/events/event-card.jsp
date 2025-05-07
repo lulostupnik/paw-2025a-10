@@ -45,10 +45,10 @@
                                 class="attend-button ${param.attend ? 'attended' : ''} ${param.isFull && !param.attend ? 'disabled' : ''}"
                                 data-event-id="<c:out value="${param.eventId}"/>"
                                 data-event-title="<c:out value="${param.title}"/>"
-                                data-is-attending="${param.attend}"
-                                data-is-full="${param.isFull}"
-                                onclick="${param.isFull && !param.attend ? 'showFullEventMessage(event)' : 'openAttendanceModal(event, this)'}"
-                                aria-label="${param.isFull && !param.attend ? fullEvent : param.attend ? attendingEvent : attendEvent}">
+                                data-is-attending="<c:out value="${param.attend}"/>"
+                                data-is-full="<c:out value ="${param.isFull}"/>"
+                                onclick="<c:out value="${param.isFull && !param.attend ? 'showFullEventMessage(event)' : 'openAttendanceModal(event, this)'}"/>"
+                                aria-label="<c:out value="${param.isFull && !param.attend ? fullEvent : param.attend ? attendingEvent : attendEvent}"/>">
                             <c:if test="${param.attend}">
                                 <img src="<c:url value='/resources/icons/check.svg'/>" alt="<spring:message code='event.attending'/>" class="btn-icon" />
                             </c:if>

@@ -30,7 +30,10 @@
                 <spring:message code="replyJourney.title"/>
             </h2>
             <p class="mt-2 text-gray-600">
-                <spring:message code="replyJourney.subtitle" arguments="${journey.user.email}"/>
+                <c:set var="userEmail">
+                    <c:out value="${journey.user.email}"/>
+                </c:set>
+                <spring:message code="replyJourney.subtitle" arguments="${userEmail}"/>
             </p>
         </div>
 
