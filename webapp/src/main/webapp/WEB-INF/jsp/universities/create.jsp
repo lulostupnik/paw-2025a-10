@@ -86,7 +86,7 @@
       </div>
 
       <!-- City Field with Enhanced Autocomplete -->
-      <div class="form-group">
+      <div class="form-group"> //@TODO: add emptyMessage for cities
         <form:label path="city" cssClass="form-label required-field">
           <spring:message code="createUniversity.city"/>
         </form:label>

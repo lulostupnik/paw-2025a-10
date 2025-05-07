@@ -58,7 +58,7 @@
                       data-user-id="${user.id}"
                       data-user-name="${user.firstname}"
                       data-action="unblock">
-                <img class="btn-icon" alt="<spring:message code="user.unblock"/>" src="<c:url value="/resources/icons/block.svg"/>"/>
+                <img class="btn-icon" alt="<spring:message code="user.unblock"/>" src="<c:url value="/resources/icons/unblock.svg"/>"/>
               </button>
             </c:if>
           </td>
