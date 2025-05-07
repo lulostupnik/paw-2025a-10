@@ -786,6 +786,23 @@ public class JourneyJdbcDaoTest {
         assertEquals(USER1_ID, journey.getUser().getId());   
     }
     @Test
+    public void testUpdateDatanotFound(){
+        long id = insertJourney();
+
+        journeyDao.updateData(12341234, new University(UNI_3_ID, null, null, null), START_DATE.plusDays(10), END_DATE.plusDays(10), "New description");
+
+        Optional<Journey> maybeJourney = jdbcTemplate.query("SELECT * FROM journeys WHERE id = ?", JOURNEY_ROW_MAPPER, id).stream().findFirst();
+        assertNotNull(maybeJourney);
+        assertTrue(maybeJourney.isPresent());
+        Journey journey = maybeJourney.get();
+        assertEquals(id, journey.getId());
+        assertEquals(DESCRIPTION, journey.getDescription());
+        assertEquals(DESTINATION_UNI_ID, journey.getDestinationUniversity().getId());
+        assertEquals(START_DATE, journey.getStartDate());
+        assertEquals(END_DATE, journey.getEndDate());
+        assertEquals(USER1_ID, journey.getUser().getId());   
+    }
+    @Test
     public void testUpdateDataDeleted(){
 
         journeyDao.updateData(DELETED_JOURNEY_ID, new University(UNI_3_ID, null, null, null), START_DATE.plusDays(10), END_DATE.plusDays(10), "New description");

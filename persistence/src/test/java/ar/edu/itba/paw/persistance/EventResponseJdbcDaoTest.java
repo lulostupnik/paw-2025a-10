@@ -2,6 +2,7 @@ package ar.edu.itba.paw.persistance;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import javax.sql.DataSource;
 
@@ -274,5 +276,31 @@ public class EventResponseJdbcDaoTest {
         insert.execute(Map.of("user_id", USER1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", false));
 
         replyDao.deletionMessage(123123, "REPLY_MESSAGE");
+    }
+
+    @Test
+    public void testDeleteByEventId(){
+        insert.execute(Map.of("user_id", USER1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", true));
+        insert.execute(Map.of("user_id", USER1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", false));
+
+        replyDao.deleteByEventId(EVENT1_ID);
+        
+        assertEquals(0, jdbcTemplate.query("SELECT * from event_responses WHERE deleted = FALSE AND event_id = ?", (rs, rowNum) -> 1, EVENT1_ID).size());
+    }
+    @Test
+    public void testDeleteByEventIdNotFound(){
+        replyDao.deleteByEventId(12341234);
+        
+        assertEquals(0, jdbcTemplate.query("SELECT * from event_responses WHERE deleted = FALSE AND event_id = ?", (rs, rowNum) -> 1, EVENT1_ID).size());
+    }
+
+    @Test
+    public void testFindByIdDeletedOrNotDeleted(){
+        long id = insert.executeAndReturnKey(Map.of("user_id", USER1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", true)).longValue();
+
+        Optional<EventResponse> maybeResponse = replyDao.findByIdDeletedOrNotDeleted(id);
+
+        assertNotNull(maybeResponse);
+        assertTrue(maybeResponse.isPresent());
     }
 }

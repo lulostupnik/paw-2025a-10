@@ -401,6 +401,37 @@ public class UniversityJdbcDaoTest {
     public void testUpdateUniversityDuplicateName(){
         uniDao.updateUniversity(UNI_ID_1, UNIVERSITY_NAME_2, UNIVERSITY_CODE_4, CITY_ID);
     }
+    @Test
+    public void testUpdateUniversityNotFound(){
+        uniDao.updateUniversity(12341234, UNIVERSITY_NAME_2, UNIVERSITY_CODE_4, CITY_ID);
+    }
+    @Test
+    public void testUpdateUniversityCityName(){
+        uniDao.updateUniversity(UNI_ID_1, UNIVERSITY_NAME_4, UNIVERSITY_CODE_4, CITY_NAME);
+
+        Optional<University> maybeUni = jdbcTemplate.query(
+            "SELECT uni.id, uni.name, uni.abbreviation, country.name as country_name, city.name as city_name, city.id as city_id FROM universities uni INNER JOIN cities city ON uni.city_id = city.id INNER JOIN countries country ON city.country_id = country.id WHERE uni.id = ?",
+            UNIVERSITY_ROW_MAPPER,
+            UNI_ID_1
+        ).stream().findFirst();
+        assertNotNull(maybeUni);
+        assertTrue(maybeUni.isPresent());
+        University uni = maybeUni.get();
+        assertEquals(UNI_ID_1, uni.getId());
+        assertEquals(UNIVERSITY_NAME_4, uni.getName());
+        assertEquals(UNIVERSITY_CODE_4, uni.getAbbreviation());
+        assertEquals(CITY_NAME, uni.getCity().getName());
+        assertEquals(CITY_ID, uni.getCity().getId());
+        assertEquals(COUNTRY_NAME, uni.getCity().getCountry());
+    }
+    @Test(expected = DataAccessException.class)
+    public void testUpdateUniversityCityNameDuplicateName(){
+        uniDao.updateUniversity(UNI_ID_1, UNIVERSITY_NAME_2, UNIVERSITY_CODE_4, CITY_NAME);
+    }
+    @Test
+    public void testUpdateUniversityCityNameNotFound(){
+        uniDao.updateUniversity(12341234, UNIVERSITY_NAME_2, UNIVERSITY_CODE_4, CITY_NAME);
+    }
 
     @Test
     public void testCreateUniversity(){

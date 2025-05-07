@@ -272,6 +272,22 @@ public class InterestJdbcDaoTest {
         assertEquals(id, maybeInterest.get().getId().longValue());
         assertEquals(INTEREST_1, maybeInterest.get().getName());
     }
+    @Test
+    public void testEditUserInterestNotFound(){
+        long id = insertInterest.executeAndReturnKey(Map.of("name", INTEREST_2)).longValue();
+
+        interestDao.editUserInterest(12341234, INTEREST_1);
+
+        Optional<Interest> maybeInterest = jdbcTemplate.query(
+            "SELECT * FROM category", 
+            (rs, rowNum) -> new Interest(rs.getLong("id"), rs.getString("name"))
+        ).stream().findFirst();
+
+        assertNotNull(maybeInterest);
+        assertTrue(maybeInterest.isPresent());
+        assertEquals(id, maybeInterest.get().getId().longValue());
+        assertEquals(INTEREST_2, maybeInterest.get().getName());
+    }
 
     @SuppressWarnings("unlikely-arg-type")
     @Test
@@ -543,6 +559,23 @@ public class InterestJdbcDaoTest {
         interestDao.delete(12341234);
 
         assertEquals(2, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category",Integer.class).intValue());
+    }
+
+    @Test
+    public void testFindAllInterestsByUserId(){
+        long id1 = insertInterest.executeAndReturnKey(Map.of("name", INTEREST_1)).longValue();
+        insertInterest.executeAndReturnKey(Map.of("name", INTEREST_2));
+        insertUserInterest.execute(Map.of("user_id", USER_ID, "category_id", id1, "score", 0));
+
+        Page<Interest> interests = interestDao.findAllInterestsByUserId(USER_ID, 1, 2);
+
+        assertNotNull(interests);
+        assertEquals(1, interests.getCurrentPage());
+        assertEquals(1, interests.getTotalPages());
+        assertNotNull(interests.getContent());
+        assertEquals(1, interests.getContent().size());
+        assertEquals(id1, interests.getContent().getFirst().getId().longValue());
+        assertEquals(INTEREST_1, interests.getContent().getFirst().getName());
     }
 
 }
