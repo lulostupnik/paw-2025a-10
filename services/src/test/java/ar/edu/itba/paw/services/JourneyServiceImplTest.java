@@ -51,7 +51,6 @@ public class JourneyServiceImplTest {
     private static final String CITY_NAME = "citi";
     private static final String COUNTRY_NAME = "cuntry";
     private static final String CAREER_NAME = "career";
-    private static final String INTEREST_NAME = "interesting";
 
     private static final City CITY = new City(CITY_NAME, COUNTRY_NAME, CITY_ID);
     private static final University UNI = new University(UNI_ID, UNI_NAME, UNI_ABBR, CITY);
@@ -59,8 +58,6 @@ public class JourneyServiceImplTest {
     private static final Locale LOCALE = Locale.of("en");
     private static final User USER = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, IMAGE_ID, LOCALE, false);
     private static final User USER2 = new User(USER_ID2, EMAIL2, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, IMAGE_ID, LOCALE, false);
-    private static final Interest INTEREST = new Interest(INTEREST_ID, INTEREST_NAME);
-    private static final List<Interest> INTERESTS = List.of(INTEREST);
 
     private static final LocalDate START_DATE = LocalDate.now();
     private static final LocalDate END_DATE = START_DATE.plusDays(10);
@@ -575,6 +572,14 @@ public class JourneyServiceImplTest {
         
         journeyService.delete(JOURNEY_ID, DESCRIPTION);
     }
+    @Test(expected = IllegalArgumentException.class)
+    public void testDeleteNotFound(){
+        Mockito.when(
+            journeyDao.findById(Mockito.eq(JOURNEY_ID))
+        ).thenReturn(Optional.empty());
+        
+        journeyService.delete(JOURNEY_ID, DESCRIPTION);
+    }
 
     @Test
     public void testIsJourneyOwnedByUser(){
@@ -622,5 +627,16 @@ public class JourneyServiceImplTest {
         ).thenReturn(Optional.empty());
 
         journeyService.editJourney(JOURNEY_ID, UNI_NAME, START_DATE, END_DATE, DESCRIPTION);
+    }
+
+    @Test
+    public void testUserHasJourneyUser(){
+        Mockito.when(
+            journeyDao.findByUserId(Mockito.eq(USER_ID))
+        ).thenReturn(Optional.of(JOURNEY));
+
+        boolean hasJourney = journeyService.userHasJourney(USER);
+
+        assertTrue(hasJourney);
     }
 }

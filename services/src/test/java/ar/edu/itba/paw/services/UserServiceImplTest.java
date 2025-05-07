@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.CareerService;
+import ar.edu.itba.paw.interfaces.services.EmailService;
 import ar.edu.itba.paw.interfaces.services.ImageService;
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
@@ -59,6 +60,8 @@ public class UserServiceImplTest {
     private InterestService interestService;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private EmailService emailService;
 
     @Test
     public void testCreateUser(){
@@ -406,11 +409,35 @@ public class UserServiceImplTest {
 
     @Test
     public void testBlockUser(){
+        Mockito.when(
+            userDao.findById(Mockito.eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+
+        userService.blockUser(USER_ID);
+    }
+    @Test(expected = IllegalStateException.class)
+    public void testBlockUserNotFound(){
+        Mockito.when(
+            userDao.findById(Mockito.eq(USER_ID))
+        ).thenReturn(Optional.empty());
+
         userService.blockUser(USER_ID);
     }
 
     @Test
     public void testUnblockUser(){
+        Mockito.when(
+            userDao.findById(Mockito.eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+
+        userService.unblockUser(USER_ID);
+    }
+    @Test(expected = IllegalStateException.class)
+    public void testUnblockUserNotFound(){
+        Mockito.when(
+            userDao.findById(Mockito.eq(USER_ID))
+        ).thenReturn(Optional.empty());
+
         userService.unblockUser(USER_ID);
     }
 }

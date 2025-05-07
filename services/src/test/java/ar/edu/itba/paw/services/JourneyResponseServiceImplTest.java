@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,10 +14,15 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
+import ar.edu.itba.paw.interfaces.services.EmailService;
+import ar.edu.itba.paw.interfaces.services.UserService;
+import ar.edu.itba.paw.models.Journey;
 import ar.edu.itba.paw.models.JourneyResponse;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.models.User;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JourneyResponseServiceImplTest {
@@ -34,12 +40,22 @@ public class JourneyResponseServiceImplTest {
     private static final int PAGE_SIZE = 2;
     private static final PageParams PAGE_PARAMS = new PageParams(1, 2);
     private static final int REPLY_COUNT = 1;
+    private static final User USER = new User(ID, null, null, null, null, null, null, ID, null, false);
+    private static final Journey JOURNEY = new Journey(ID, USER, null, null, null, MESSAGE);
+
 
     @InjectMocks
     JourneyResponseServiceImpl responseService;
 
     @Mock
     JourneyResponseDao responseDao;
+    
+    @Mock
+    JourneyDao journeyDao;
+    @Mock
+    EmailService emailService;
+    @Mock
+    UserService userService;
 
     @Test
     public void testCreate(){
@@ -78,6 +94,49 @@ public class JourneyResponseServiceImplTest {
 
     @Test
     public void testDelete(){
+        Mockito.when(
+            responseDao.findById(Mockito.eq(ID))
+        ).thenReturn(Optional.of(RESPONSE));
+        Mockito.when(
+            journeyDao.findById(Mockito.eq(JOURNEY_ID))
+        ).thenReturn(Optional.of(JOURNEY));
+        Mockito.when(
+            userService.findById(Mockito.eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+
+        responseService.delete(ID, MESSAGE);
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testDeleteUserNotFound(){
+        Mockito.when(
+            responseDao.findById(Mockito.eq(ID))
+        ).thenReturn(Optional.of(RESPONSE));
+        Mockito.when(
+            journeyDao.findById(Mockito.eq(JOURNEY_ID))
+        ).thenReturn(Optional.of(JOURNEY));
+        Mockito.when(
+            userService.findById(Mockito.eq(USER_ID))
+        ).thenReturn(Optional.empty());
+        
+        responseService.delete(ID, MESSAGE);
+    }
+    @Test(expected = IllegalStateException.class)
+    public void testDeleteEventNotFound(){
+        Mockito.when(
+            responseDao.findById(Mockito.eq(ID))
+        ).thenReturn(Optional.of(RESPONSE));
+        Mockito.when(
+            journeyDao.findById(Mockito.eq(JOURNEY_ID))
+        ).thenReturn(Optional.empty());
+        
+        responseService.delete(ID, MESSAGE);
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testDeleteResponseNotFound(){
+        Mockito.when(
+            responseDao.findById(Mockito.eq(ID))
+        ).thenReturn(Optional.empty());
+        
         responseService.delete(ID, MESSAGE);
     }
 
