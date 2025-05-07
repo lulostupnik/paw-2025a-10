@@ -337,6 +337,13 @@
     opacity: 0.5;
     cursor: not-allowed;
 }
+.clickable-row {
+    cursor: pointer;
+}
+
+.clickable-row:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
 
 /* Icons */
 .filter-icon::before,

@@ -4,6 +4,7 @@
 
 <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
 <link rel="stylesheet" href="<c:url value='/resources/css/detail.css'/>" />
+<link rel="stylesheet" href="<c:url value='/resources/css/dashboard.css'/>" />
 
 <div class="tab-content active" id="users-tab">
   <c:set var="titleMessageCode" value="admin.manage.users" scope="request" />
