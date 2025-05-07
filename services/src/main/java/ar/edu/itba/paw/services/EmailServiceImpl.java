@@ -1,16 +1,14 @@
 package ar.edu.itba.paw.services;
 
-import ar.edu.itba.paw.interfaces.services.EmailService;
-import ar.edu.itba.paw.interfaces.services.UserService;
-import ar.edu.itba.paw.models.Event;
-import ar.edu.itba.paw.models.Journey;
-import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.interfaces.services.*;
+import ar.edu.itba.paw.models.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -34,8 +32,9 @@ public class EmailServiceImpl implements EmailService {
     private final JavaMailSender emailSender;
     private final TemplateEngine templateEngine;
     private final MessageSource messageSource;
+    private final ImageService imageService;
 
-    private final UserService userService;
+
     @Value("${email.from}")
     private String fromEmail;
 
@@ -45,11 +44,11 @@ public class EmailServiceImpl implements EmailService {
     public EmailServiceImpl(JavaMailSender emailSender,
                             TemplateEngine templateEngine,
                             MessageSource messageSource,
-                            UserService userService) {
+                            ImageService imageService) {
         this.emailSender = emailSender;
         this.templateEngine = templateEngine;
         this.messageSource = messageSource;
-        this.userService = userService;
+        this.imageService = imageService;
     }
 
     private void sendHtmlMessage(Optional<byte[]> maybeImage,Optional<String> maybeImageCid, User emailRecipient, String templateName, Map<String, Object> variables, String subjectKey, Optional<Object[]> maybeSubjectArgs) {
@@ -95,12 +94,82 @@ public class EmailServiceImpl implements EmailService {
     }
 
 
+    @Override
+    public void sendEventCommentDeletionNotification(EventResponse deletedComment, Event event , User commentAuthor, String adminMessage) {
+//        LOGGER.debug("Initiating comment deletion notification for eventResponseId={} with adminMessage='{}'", eventResponseId, adminMessage);
+
+//        EventResponse deletedComment = eventResponseService.findByIdDeletedOrNotDeleted(eventResponseId)
+//                .orElseThrow(() -> {
+//                    LOGGER.warn("No EventResponse found with id {}", eventResponseId);
+//                    return new IllegalArgumentException("Event response doesn't exist");
+//                });
+//
+//        LOGGER.debug("Retrieved EventResponse: {}", deletedComment);
+//
+//        Event event = eventService.getEventById(deletedComment.getEventId())
+//                .orElseThrow(() -> {
+//                    LOGGER.warn("No Event found with id {} from EventResponse {}", deletedComment.getEventId(), deletedComment.getId());
+//                    return new IllegalStateException("Event from event response doesn't exist");
+//                });
+//
+//        LOGGER.debug("Retrieved Event: {}", event);
+//
+//        User commentAuthor = userService.findById(deletedComment.getUserId())
+//                .orElseThrow(() -> {
+//                    LOGGER.warn("No User found with id {} from EventResponse {}", deletedComment.getUserId(), deletedComment.getId());
+//                    return new IllegalArgumentException("User from event response doesn't exist");
+//                });
+//        User commentAuthor = deletedComment.getUserId();
+
+        LOGGER.debug("Retrieved User (comment author): {}", commentAuthor);
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("isEvent", true);
+        variables.put("contentTitle", event.getTitle());
+        variables.put("contentId", event.getId());
+        variables.put("commentDate", deletedComment.getFormattedDate());
+        variables.put("commentMessage", deletedComment.getMessage());
+        variables.put("adminMessage", adminMessage);
+
+        LOGGER.debug("Sending comment deletion email with variables: {}", variables);
+
+        sendHtmlMessage(
+                Optional.empty(),
+                Optional.empty(),
+                commentAuthor,
+                "comment-deletion",
+                variables,
+                "email.comment.deletion.title",
+                Optional.empty()
+        );
+
+        LOGGER.debug("Comment deletion notification sent successfully to user {}", commentAuthor.getEmail());
+    }
+
+
+
+    @Override
+    public void sendJourneyCommentDeletionNotification(/*long journeyResponseId,*/ JourneyResponse deletedComment,  Journey journey, User commentAuthor , String adminMessage) {
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("isEvent", false);
+        variables.put("contentId", journey.getId());
+        variables.put("commentDate", deletedComment.getFormattedDate());
+        variables.put("commentMessage", deletedComment.getMessage());
+        variables.put("adminMessage", adminMessage);
+
+        sendHtmlMessage(Optional.empty(), Optional.empty(), commentAuthor, "comment-deletion", variables,
+                "email.comment.deletion.title", Optional.empty());
+    }
+
 
     @Override
     public void answerEventNotification(List<User> oldRepliers, String message, User commenter, Event event) {
         User eventUser = event.getUser();
 
-        byte[] profilePictureData = userService.getProfilePictureData(commenter);
+//        byte[] profilePictureData = null;//userService.getProfilePictureData(commenter);
+
+        byte[] profilePictureData = imageService.getImage(commenter.getProfilePictureId()).orElseThrow(() -> new IllegalStateException("User does not have profile picture")).getData();
 
         Map<String, Object> variables = buildVariables(
                 commenter.getFirstname(), commenter.getLastname(),
@@ -126,7 +195,8 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void answerJourneyNotification(List<User> oldRepliers, String message, User commenter, Journey journey) {
         User journeyUser = journey.getUser();
-        byte[] profilePictureData = userService.getProfilePictureData(commenter);
+//        byte[] profilePictureData = null;//userService.getProfilePictureData(commenter);
+        byte[] profilePictureData = imageService.getImage(commenter.getProfilePictureId()).orElseThrow(() -> new IllegalStateException("User does not have profile picture")).getData();
 
 
 
@@ -152,45 +222,66 @@ public class EmailServiceImpl implements EmailService {
 
     }
     @Override
-    public void sendEventDeletionNotification(User eventOwner, Event event, String adminMessage) {
+    public void sendEventDeletionNotification(Event event, String adminMessage) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("eventTitle", event.getTitle());
         variables.put("eventId", event.getId());
         variables.put("adminMessage", adminMessage);
 
-        sendHtmlMessage(Optional.empty(),Optional.empty(), eventOwner, "event-deletion", variables,
+        sendHtmlMessage(Optional.empty(),Optional.empty(), event.getUser(), "event-deletion", variables,
                 "email.event.deletion.title",Optional.of(new Object[]{event.getTitle()}));
     }
 
     @Override
-    public void sendJourneyDeletionNotification(User journeyOwner, Journey journey, String adminMessage) {
+    public void sendJourneyDeletionNotification(Journey journey, String adminMessage) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("journeyId", journey.getId());
         variables.put("adminMessage", adminMessage);
 
-        sendHtmlMessage(Optional.empty(),Optional.empty(), journeyOwner, "journey-deletion", variables,
+        sendHtmlMessage(Optional.empty(),Optional.empty(), journey.getUser(), "journey-deletion", variables,
                 "email.journey.deletion.title", Optional.empty());
     }
 
     @Override
-    public void sendEventModificationNotification(User eventOwner, Event event, String adminMessage) {
+    public void sendEventModificationNotification(Event event, String adminMessage) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("eventTitle", event.getTitle());
         variables.put("eventId", event.getId());
         variables.put("adminMessage", adminMessage);
 
-        sendHtmlMessage(Optional.empty(),Optional.empty(), eventOwner, "event-modified", variables,
+        sendHtmlMessage(Optional.empty(),Optional.empty(), event.getUser(), "event-modified", variables,
                 "email.event.modification.title", Optional.of(new Object[]{event.getTitle()}));
     }
 
     @Override
-    public void sendJourneyModificationNotification(User journeyOwner, Journey journey, String adminMessage) {
+    public void sendJourneyModificationNotification(Journey journey, String adminMessage) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("journeyId", journey.getId());
         variables.put("adminMessage", adminMessage);
 
-        sendHtmlMessage(Optional.empty(),Optional.empty(), journeyOwner, "journey-modified", variables,
+        sendHtmlMessage(Optional.empty(),Optional.empty(), journey.getUser(), "journey-modified", variables,
                 "email.journey.modification.title", Optional.empty());
     }
+
+
+
+    @Override
+    public void sendUserBlockedNotification(User blockedUser/*, String adminMessage*/) {
+        Map<String, Object> variables = new HashMap<>();
+//        variables.put("adminMessage", adminMessage);
+        variables.put("username", blockedUser.getUsername());
+
+        sendHtmlMessage(Optional.empty(), Optional.empty(), blockedUser, "user-blocked", variables,
+                "email.user.blocked.title", Optional.empty());
+    }
+    @Override
+    public void sendUserUnblockedNotification(User unblockedUser) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("username", unblockedUser.getUsername());
+
+        sendHtmlMessage(Optional.empty(), Optional.empty(), unblockedUser, "user-unblocked", variables,
+                "email.user.unblocked.title", Optional.empty());
+    }
+
 }
 

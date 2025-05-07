@@ -283,7 +283,7 @@ public class JourneyServiceImpl implements JourneyService {
         journeyResponseService.deleteByJourneyId(id);
         Journey journey = journeyDao.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Journey not found"));
-        emailService.sendJourneyDeletionNotification(journey.getUser(),journey,message);
+        emailService.sendJourneyDeletionNotification(journey,message);
         journeyDao.delete(id);
     }
 

@@ -6,6 +6,7 @@ import ar.edu.itba.paw.models.PageParams;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface EventResponseService {
     EventResponse create(long userId, String username, long eventId, String message, LocalDateTime dateTime);
@@ -15,6 +16,7 @@ public interface EventResponseService {
     void deleteByEventId(long eventId);
     List<EventResponse> listAllFromEvent(long eventId);
     Page<EventResponse> listAllFromEvent(long eventId, PageParams pageParams);
-
+    Optional<EventResponse> findById(long id);
+    Optional<EventResponse> findByIdDeletedOrNotDeleted(long id);
 
 }

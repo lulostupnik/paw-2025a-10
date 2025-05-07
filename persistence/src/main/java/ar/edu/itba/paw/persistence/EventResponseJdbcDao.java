@@ -32,16 +32,19 @@ public class EventResponseJdbcDao implements EventResponseDao {
             rs.getString("message"),
             rs.getTimestamp("date_time").toLocalDateTime()
     );
-
-    private static final String SQL_LIST_ALL_BY_EVENT =
-        """
-        SELECT  er.id AS id, er.user_id, us.username AS username, er.event_id, er.message, er.date_time
-        FROM event_responses er
-        JOIN users us ON er.user_id = us.id
-        WHERE er.deleted = FALSE AND er.event_id = ? ORDER BY date_time
-        """;
+    private static final String SQL_EVENT_RESPONSE_BASE =
+            """
+            SELECT er.id AS id, er.user_id, us.username AS username, er.event_id, er.message, er.date_time
+            FROM event_responses er
+            JOIN users us ON er.user_id = us.id
+            """;
+    private static final String SQL_FIND_EVENT_RESPONSE = SQL_EVENT_RESPONSE_BASE + " WHERE er.deleted = FALSE AND er.id = ?";
+    private static final String SQL_LIST_ALL_BY_EVENT = SQL_EVENT_RESPONSE_BASE + " WHERE er.deleted = FALSE AND er.event_id = ? ORDER BY date_time";
+    private static final String SQL_FIND_EVENT_RESPONSE_DELETED_OR_NOT = SQL_EVENT_RESPONSE_BASE + " WHERE er.id = ?";
 
     private static final String SQL_LIST_ALL_BY_EVENT_PAGED = SQL_LIST_ALL_BY_EVENT + " LIMIT ? OFFSET ?";
+
+
 
 
 
@@ -52,6 +55,16 @@ public class EventResponseJdbcDao implements EventResponseDao {
                 .withTableName("event_responses")
                 .usingGeneratedKeyColumns("id");
     }
+
+    @Override
+    public Optional<EventResponse> findById(final long id) {
+        return jdbcTemplate.query(SQL_FIND_EVENT_RESPONSE, EVENT_RESPONSE_ROW_MAPPER, id).stream().findFirst();
+    }
+    @Override
+    public Optional<EventResponse> findByIdDeletedOrNotDeleted(final long id) {
+        return jdbcTemplate.query(SQL_FIND_EVENT_RESPONSE_DELETED_OR_NOT, EVENT_RESPONSE_ROW_MAPPER, id).stream().findFirst();
+    }
+
 
     @Override
     public EventResponse create(final long userId, final String username, final long eventId, final String message, final LocalDateTime dateTime) {
