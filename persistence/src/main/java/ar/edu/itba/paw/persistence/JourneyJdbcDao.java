@@ -187,7 +187,9 @@ public class JourneyJdbcDao implements JourneyDao {
         args.put("description", description);
         args.put("deleted", false);
         final Number id = jdbcInsert.executeAndReturnKey(args);
-        return new Journey(id.longValue(), user, startDate, endDate, destinationUniversity, description);
+        final Journey newJourney = new Journey(id.longValue(), user, startDate, endDate, destinationUniversity, description);
+        LOGGER.info("Successfully registered journey {}", newJourney);
+        return newJourney;
     }
 
     @Override
@@ -310,6 +312,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public void deletionMessage(final long id, final String message) {
+        LOGGER.info("Setting deletion message {} for journey {}", message, id);
         final int updatedRows = jdbcTemplate.update("UPDATE journeys SET deleted_message = ? WHERE id = ?;", message, id);
         if (updatedRows == 0) {
             LOGGER.warn("No journey_response found with id {}", id);
@@ -324,7 +327,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public void updateDates(final long journeyId, final LocalDate startDate, final LocalDate endDate) {
-        LOGGER.debug("Updating dates for journey ID: {} to start: {}, end: {}", journeyId, startDate, endDate);
+        LOGGER.info("Updating dates for journey ID: {} to start: {}, end: {}", journeyId, startDate, endDate);
         jdbcTemplate.update(
                 "UPDATE journeys SET start_date = ?, end_date = ? WHERE id = ?",
                 Date.valueOf(startDate), Date.valueOf(endDate), journeyId
@@ -333,7 +336,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public void updateDescription(final long journeyId, final String description) {
-        LOGGER.debug("Updating description for journey ID: {}", journeyId);
+        LOGGER.info("Updating description for journey ID: {}", journeyId);
         jdbcTemplate.update(
                 "UPDATE journeys SET description = ? WHERE id = ?",
                 description, journeyId
@@ -342,7 +345,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public void updateDestinationUniversity(final long journeyId, final long universityId) {
-        LOGGER.debug("Updating destination university for journey ID: {} to university ID: {}", journeyId, universityId);
+        LOGGER.info("Updating destination university for journey ID: {} to university ID: {}", journeyId, universityId);
         jdbcTemplate.update(
                 "UPDATE journeys SET destination_university_id = ? WHERE id = ?",
                 universityId, journeyId

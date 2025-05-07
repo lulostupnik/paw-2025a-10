@@ -96,20 +96,23 @@ public class CareerJdbcDao implements CareerDao {
         args.put("deleted", false);
 
         final Number key = jdbcInsert.executeAndReturnKey(args);
-        LOGGER.debug("Created career with id: {}", key);
+        LOGGER.info("Created career with id: {}", key);
         return new Career(key.longValue(), name);
     }
 
     @Override
     public Career update(final long id, final String name) {
-        LOGGER.debug("Updating career id '{}' and name '{}'",id,name);
-        jdbcTemplate.update("UPDATE careers SET name = ? WHERE id = ?", name, id);
+        LOGGER.info("Updating career id '{}' and name '{}'",id,name);
+        final int rowsAffected = jdbcTemplate.update("UPDATE careers SET name = ? WHERE id = ?", name, id);
+        if (rowsAffected == 0) {
+            LOGGER.warn("Career update failed: Career with ID {} not found", id);
+        }
         return findById(id).orElseThrow(() -> new IllegalArgumentException("Career not found"));
     }
 
     @Override
     public void delete(final long id) {
-        LOGGER.debug("Marking career with ID: {} as deleted", id);
+        LOGGER.info("Marking career with ID: {} as deleted", id);
         final int rowsAffected = jdbcTemplate.update("UPDATE careers SET deleted = TRUE WHERE id = ?", id);
         if (rowsAffected == 0) {
             LOGGER.warn("Career deletion failed: Career with ID {} not found", id);

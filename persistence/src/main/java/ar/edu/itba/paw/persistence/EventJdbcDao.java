@@ -335,8 +335,9 @@ public class EventJdbcDao implements EventDao {
         }
         parameters.put("deleted", false);
         final Number keys = jdbcInsert.executeAndReturnKey(parameters);
-        LOGGER.debug("Successfully registered event {}", keys.longValue());
-        return new Event(keys.longValue(), user, date, description, flyerImageId, city, title, Optional.ofNullable(time), address, Optional.ofNullable(attendeesLimit), 0);
+        final Event event = new Event(keys.longValue(), user, date, description, flyerImageId, city, title, Optional.ofNullable(time), address, Optional.ofNullable(attendeesLimit), 0);
+        LOGGER.info("Successfully registered event {}", event);
+        return event;
     }
 
     // FIXME
@@ -463,17 +464,18 @@ public class EventJdbcDao implements EventDao {
     // FIXME: ¿Los siguientes dos métodos no deberían estar en uno solo?
     @Override
     public void delete(final long id) {
-        LOGGER.debug("Marking event {} as deleted", id);
+        LOGGER.info("Marking event {} as deleted", id);
         final int updatedRows = jdbcTemplate.update("UPDATE events SET deleted = TRUE WHERE id = ?;", id);
         if (updatedRows == 0) {
-            LOGGER.warn("No journey_response found with id {}", id); // TODO: ¿hace falta esto?
+            LOGGER.warn("Deletion failed: no event found with id {}", id);
         }
     }
     @Override
     public void deletionMessage(final long id, final String message) {
+        LOGGER.info("Setting deletion message {} for event {}", message, id);
         final int updatedRows = jdbcTemplate.update("UPDATE events SET deleted_message = ? WHERE id = ?;", message, id);
         if (updatedRows == 0) {
-            LOGGER.warn("No journey_response found with id {}", id);
+            LOGGER.warn("Deletion message failed: no event found with id {}", id);
         }
     }
 
@@ -679,7 +681,8 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public void updateData(final long cityId, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit, final long eventId, final long flyerImageId/*, long userId*/) {
-        jdbcTemplate.update("""
+        LOGGER.info("Updating event {} with city {}, date {}, desc '{}', title '{}', time {}, addr '{}', limit {}, image {}", eventId, cityId, date, description, title, time, address, attendeesLimit, flyerImageId);
+        final int rowsAffected = jdbcTemplate.update("""
             UPDATE events
                SET city_id = ?,
                    event_date = ?,
@@ -701,5 +704,8 @@ public class EventJdbcDao implements EventDao {
                 flyerImageId, 
                 eventId
         );
+        if (rowsAffected == 0) {
+            LOGGER.warn("Event update failed: Event with ID {} not found", eventId);
+        }
     }
 }

@@ -143,7 +143,7 @@ public class UniversityJdbcDao implements UniversityDao {
 
     @Override
     public University createUniversity(final String name, final String abbreviation, final String city) {
-        LOGGER.debug("Creating or reactivating university {} ({})", name, abbreviation);
+        LOGGER.info("Creating or reactivating university {} ({})", name, abbreviation);
 
         final City cityObj = cityDao.findByName(city).orElseThrow(IllegalArgumentException::new);
 
@@ -172,14 +172,15 @@ public class UniversityJdbcDao implements UniversityDao {
         parameters.put("city_id", cityObj.getId());
         parameters.put("deleted", false);
         final Number keys = jdbcInsert.executeAndReturnKey(parameters);
-        LOGGER.debug("Successfully created university {}", keys.longValue());
-        return new University(keys.longValue(), name, abbreviation, cityObj);
+        final University uni = new University(keys.longValue(), name, abbreviation, cityObj);
+        LOGGER.info("Successfully created university {}", uni);
+        return uni;
     }
 
     @Override
     public void updateUniversity(final long id, final String name, final String abbreviation, final long cityId) {
         jdbcTemplate.update("UPDATE universities SET name = ?, abbreviation = ?, city_id = ? WHERE id = ? ", name, abbreviation, cityId, id);
-        LOGGER.debug("Successfully updated uni {}", id);
+        LOGGER.info("Successfully updated uni {}", id);
     }
 
     @Override
@@ -189,11 +190,12 @@ public class UniversityJdbcDao implements UniversityDao {
         SET name = ?, abbreviation = ?, city_id = (SELECT id FROM cities WHERE name = ?)
         WHERE id = ?
         """, name, abbreviation, cityName, id);
+        LOGGER.info("Successfully updated uni {}", id);
     }
 
     @Override
     public void delete(final long id) {
-        LOGGER.debug("Marking university with ID: {} as deleted", id);
+        LOGGER.info("Marking university with ID: {} as deleted", id);
         final int rowsAffected = jdbcTemplate.update("UPDATE universities SET deleted = TRUE WHERE id = ?", id);
         if (rowsAffected == 0) {
             LOGGER.warn("University deletion failed: University with ID {} not found", id);

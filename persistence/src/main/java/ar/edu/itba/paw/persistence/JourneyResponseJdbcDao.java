@@ -65,7 +65,9 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
         args.put("deleted", false);
 
         final Number keys = jdbcInsert.executeAndReturnKey(args);
-        return new JourneyResponse(keys.longValue(), userId, username, journeyId, message, dateTime);
+        final JourneyResponse response = new JourneyResponse(keys.longValue(), userId, username, journeyId, message, dateTime);
+        LOGGER.info("Successfully registered journey response {}", response);
+        return response;
     }
 
     @Override
@@ -86,6 +88,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
 
     @Override
     public void delete(final long id) {
+        LOGGER.info("Setting journey response {} as deleted", id);
         final int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted = TRUE WHERE id = ?;", id);
         if (updatedRows == 0) {
             LOGGER.warn("No journey_response found with id {}", id);
@@ -103,6 +106,8 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
 
     @Override
     public void deletionMessage(final long id, final String message) {
+        LOGGER.info("Setting deletion message '{}' for journey response {}", message, id);
+
         final int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted_message = ? WHERE id = ?;", message, id);
         if (updatedRows == 0) {
             LOGGER.warn("No journey_response found with id {}", id);
@@ -111,6 +116,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
 
     @Override
     public void deleteByJourneyId(final long journeyId) {
+        LOGGER.info("Setting responses to journey {} as deleted", journeyId);
         final int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted = TRUE WHERE journey_id = ?;", journeyId);
         if (updatedRows == 0) {
             LOGGER.warn("No journey_response found with id {}", journeyId);
