@@ -26,6 +26,7 @@ public class InterestServiceImplTest {
     private static final String INTEREST_NAME = "interesting";
     private static final String[] INTEREST_NAMES = new String[] {INTEREST_NAME};
     private static final long ID = 0;
+    private static final long USER_ID = 1;
     private static final Interest INTEREST = new Interest(ID, INTEREST_NAME);
 
     @InjectMocks
@@ -228,5 +229,18 @@ public class InterestServiceImplTest {
     @Test 
     public void testDelete(){
         interestService.delete(ID);
+    }
+
+    @Test
+    public void testFindAllInterestsByUserId(){
+        Page<Interest> testPage = new Page<Interest>(List.of(INTEREST), 1, 1);
+        Mockito.when(
+            interestDao.findAllInterestsByUserId(Mockito.eq(USER_ID), Mockito.eq(1), Mockito.eq(2))
+        ).thenReturn(testPage);
+
+        Page<Interest> page = interestService.findAllInterestsByUserId(USER_ID, new PageParams(1, 2));
+
+        assertNotNull(page);
+        assertEquals(testPage, page);
     }
 }
