@@ -94,7 +94,7 @@ form[action*="/attend-detail"] {
     background-color: #3b82f6;
     color: white;
     box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
-    
+
 }
 
 .attend-detail-button:hover {

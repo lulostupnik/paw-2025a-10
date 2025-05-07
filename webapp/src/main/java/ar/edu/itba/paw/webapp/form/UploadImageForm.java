@@ -1,15 +1,8 @@
 package ar.edu.itba.paw.webapp.form;
 
-import java.time.LocalDate;
-
-import javax.validation.constraints.Email;
-//import javax.validation.constraints.Pattern;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
 import ar.edu.itba.paw.webapp.validation.ImageNotEmpty;
 import ar.edu.itba.paw.webapp.validation.ImageSize;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 // ¿Usar lombok?

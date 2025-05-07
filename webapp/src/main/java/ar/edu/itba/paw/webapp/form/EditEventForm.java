@@ -16,6 +16,8 @@ public class EditEventForm {
     private Long id;
 
     @Size(min = 2, max = 100)
+    @NotNull
+    @ExistingCity
     private String city;
 
     @Size(max = 50)
