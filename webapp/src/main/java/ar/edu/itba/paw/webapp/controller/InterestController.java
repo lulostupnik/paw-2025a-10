@@ -1,54 +1,39 @@
 package ar.edu.itba.paw.webapp.controller;
-
-import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.InterestService;
-import ar.edu.itba.paw.interfaces.services.UniversityService;
-import ar.edu.itba.paw.models.Event;
 import ar.edu.itba.paw.models.Interest;
-import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
-import ar.edu.itba.paw.webapp.form.CreateEventForm;
 import ar.edu.itba.paw.webapp.form.CreateInterestForm;
-import ar.edu.itba.paw.webapp.form.CreateUniversityForm;
-import ar.edu.itba.paw.webapp.form.ReplyForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
 import java.util.NoSuchElementException;
 
-import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @Controller
 @RequestMapping("/interests")
 public class InterestController {
     private static final Logger LOGGER = LoggerFactory.getLogger(InterestController.class);
-    private final CityService cityService;
-    private final UniversityService universityService;
+
     private final InterestService interestService;
 
-    public InterestController(CityService cityService, UniversityService universityService, InterestService interestService) {
-        this.cityService = cityService;
-        this.universityService = universityService;
+    public InterestController(InterestService interestService) {
+
         this.interestService = interestService;
     }
 
 
-    @RequestMapping(value = "/create", method = GET)
+    @GetMapping(value = "/create")
     public ModelAndView createInterestsForm(@ModelAttribute("createInterestForm") final CreateInterestForm form) {
         return new ModelAndView("interests/create");
     }
 
-    @RequestMapping(path = "/create", method = POST)
+    @PostMapping(path = "/create")
     public ModelAndView createInterests(@Valid @ModelAttribute("createInterestForm") final CreateInterestForm intForm,
                                     final BindingResult errors,@ModelAttribute("user") User user) {
 
@@ -58,7 +43,7 @@ public class InterestController {
         Interest interest = interestService.createUserInterest(intForm.getName());
         return new ModelAndView("redirect:/interests/{id}", "id", interest.getId());
     }
-    @RequestMapping(value= "/{id}", method = GET)
+    @GetMapping(value= "/{id}")
     public ModelAndView getInterests(@PathVariable(value = "id") final long id) {
         Interest interest = interestService.findById(id).orElseThrow(NoSuchElementException::new);
         ModelAndView mav = new ModelAndView("interests/detail");
@@ -67,7 +52,7 @@ public class InterestController {
     }
 
 
-    @RequestMapping(value = "/{id}/edit", method = GET) //@TODO: check, esta raro
+    @GetMapping(value = "/{id}/edit")
     public ModelAndView updateInterestForm(@PathVariable("id") Long id,
                                             @ModelAttribute("createInterestForm") final CreateInterestForm form,
                                            BindingResult errors ) {
@@ -79,7 +64,6 @@ public class InterestController {
         if(!errors.hasErrors()){
             form.setName(interest.getName());
         }
-        // Create and populate form with existing university data
 
         ModelAndView mav = new ModelAndView("interests/create");
         mav.addObject("createInterestForm",form);
@@ -89,7 +73,7 @@ public class InterestController {
     }
 
 
-    @RequestMapping(value = "/{id}/edit", method = POST)
+    @PostMapping(value = "/{id}/edit")
     public ModelAndView updateInterest(@PathVariable("id") Long id,
                                          @Valid @ModelAttribute("createInterestForm") final CreateInterestForm form,
                                          final BindingResult errors,

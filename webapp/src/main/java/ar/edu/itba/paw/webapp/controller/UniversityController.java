@@ -2,49 +2,47 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
-import ar.edu.itba.paw.models.Event;
+
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
-import ar.edu.itba.paw.webapp.form.CreateEventForm;
 import ar.edu.itba.paw.webapp.form.CreateUniversityForm;
-import ar.edu.itba.paw.webapp.form.ReplyForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import javax.validation.Valid;
-
 import java.util.Optional;
 
-import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @Controller
 @RequestMapping("/universities")
 public class UniversityController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UniversityController.class);
     private final CityService cityService;
     private final UniversityService universityService;
+    private static final String CREATE_UNIVERSITY_FORM = "createUniversityForm";
+    private static final String CITIES = "cities";
+    private static final String IS_UPDATE = "isUpdate";
+    private static final String UNIVERSITY_ID = "universityId";
+    private static final String UNIVERSITY = "university";
+    private static final String DETAIL = "universities/detail";
+    private static final String CREATE = "universities/create";
 
     public UniversityController(CityService cityService, UniversityService universityService) {
         this.cityService = cityService;
         this.universityService = universityService;
     }
 
-    @RequestMapping(value = "/create", method = GET)
-    public ModelAndView createUniversityForm(@ModelAttribute("createUniversityForm") final CreateUniversityForm form) {
-        ModelAndView mav = new ModelAndView("universities/create");
-        mav.addObject("cities", cityService.getAllCities());
+    @GetMapping(value = "/create")
+    public ModelAndView createUniversityForm(@ModelAttribute(CREATE_UNIVERSITY_FORM) final CreateUniversityForm form) {
+        ModelAndView mav = new ModelAndView(CREATE);
+        mav.addObject(CITIES, cityService.getAllCities());
         return mav;
     }
 
-    @RequestMapping(path = "/create", method = POST)
-    public ModelAndView createEvent(@Valid @ModelAttribute("createUniversityForm") final CreateUniversityForm uniForm,
+    @PostMapping(path = "/create")
+    public ModelAndView createEvent(@Valid @ModelAttribute(CREATE_UNIVERSITY_FORM) final CreateUniversityForm uniForm,
                                     final BindingResult errors, @ModelAttribute("user") User user) {
 
         if (errors.hasErrors()) {
@@ -61,45 +59,45 @@ public class UniversityController {
         return new ModelAndView("redirect:/universities/{id}", "id", university.getId());
     }
 
-    @RequestMapping(value= "/{id}", method = GET)
+    @GetMapping(value= "/{id}")
     public ModelAndView getUniversity(@PathVariable("id") Long id) {
-        ModelAndView mav = new ModelAndView("universities/detail");
-        mav.addObject("university", universityService.findById(id));
+        ModelAndView mav = new ModelAndView(DETAIL);
+        mav.addObject(UNIVERSITY, universityService.findById(id));
         return mav;
     }
 
-    @RequestMapping(value = "/{id}/edit", method = GET)
+    @GetMapping(value = "/{id}/edit")
     public ModelAndView updateUniversityForm(@PathVariable("id") Long id) {
-        University university = universityService.findById(id).get();
-        if (university == null) {
-            return new ModelAndView("redirect:/universities");
+        Optional<University> university = universityService.findById(id);
+        if (university.isEmpty()) {
+            return new ModelAndView("redirect:/dashboard/universities");
         }
-
+        University newUni = university.get();
         // Create and populate form with existing university data
         CreateUniversityForm form = new CreateUniversityForm();
-        form.setName(university.getName());
-        form.setAbbreviation(university.getAbbreviation());
-        form.setCity(university.getCity().getName());
+        form.setName(newUni.getName());
+        form.setAbbreviation(newUni.getAbbreviation());
+        form.setCity(newUni.getCity().getName());
 
-        ModelAndView mav = new ModelAndView("universities/create");
-        mav.addObject("createUniversityForm", form);
-        mav.addObject("cities", cityService.getAllCities());
-        mav.addObject("isUpdate", true);
-        mav.addObject("universityId", id);
+        ModelAndView mav = new ModelAndView(CREATE);
+        mav.addObject(CREATE_UNIVERSITY_FORM, form);
+        mav.addObject(CITIES, cityService.getAllCities());
+        mav.addObject(IS_UPDATE, true);
+        mav.addObject(UNIVERSITY_ID, id);
         return mav;
     }
 
-    @RequestMapping(value = "/{id}/edit", method = POST)
+    @PostMapping(value = "/{id}/edit")
     public ModelAndView updateUniversity(@PathVariable("id") Long id,
-                                         @Valid @ModelAttribute("createUniversityForm") final CreateUniversityForm form,
+                                         @Valid @ModelAttribute(CREATE_UNIVERSITY_FORM) final CreateUniversityForm form,
                                          final BindingResult errors,
                                          @ModelAttribute("user") User user) {
 
         if (errors.hasErrors()) {
-            ModelAndView mav = new ModelAndView("universities/create");
-            mav.addObject("cities", cityService.getAllCities());
-            mav.addObject("isUpdate", true);
-            mav.addObject("universityId", id);
+            ModelAndView mav = new ModelAndView(CREATE);
+            mav.addObject(CITIES, cityService.getAllCities());
+            mav.addObject(IS_UPDATE, true);
+            mav.addObject(UNIVERSITY_ID, id);
             return mav;
         }
 

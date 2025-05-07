@@ -31,7 +31,6 @@
 .event-detail-header {
     padding: 1.5rem; /* Reduce from 32px to match other pages */
     background-color: var(--color-primary-light, #e6f0ff);
-    /*padding: 32px;*/
     border-bottom: 1px solid var(--color-border, #e5e7eb);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }

@@ -26,8 +26,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
+
 
 
 @Controller
@@ -41,6 +40,7 @@ public class EventController {
     private final CityService cityService;
     private final UniversityService universityService;
     private final CareerService careerService;
+    private static final String REDIRECT = "redirect:/events/";
 
     @Autowired
     public EventController(EventService eventService, CityService cityService, UniversityService universityService, CareerService careerService, EventResponseService eventResponseService) {
@@ -71,7 +71,7 @@ public class EventController {
         mav.addObject("cities", cityService.getAllCities());
     }
 
-    @RequestMapping(value = "/create", method = GET)
+    @GetMapping(value = "/create")
     public ModelAndView createEventForm(@ModelAttribute("createEventForm") final CreateEventForm form) {
         LOGGER.debug("Getting event creation form");
         ModelAndView mav = new ModelAndView("events/create");
@@ -79,7 +79,7 @@ public class EventController {
         return mav;
     }
 
-    @RequestMapping(path = "/create", method = POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/create",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ModelAndView createEvent(@Valid @ModelAttribute("createEventForm") final CreateEventForm eventForm,
                                     final BindingResult errors, @ModelAttribute("user") User user) {
 
@@ -102,7 +102,7 @@ public class EventController {
             eventForm.getAttendeesLimit()
         );
         LOGGER.info("Successfully created event {}", event);
-        return new ModelAndView("redirect:/events/{id}", "id", event.getId());
+        return new ModelAndView(REDIRECT + event.getId());
     }
 
     private ModelAndView populateEventDetails( Event event, long id, User user,
@@ -155,7 +155,7 @@ public class EventController {
     }
 
 
-    @RequestMapping("/{id}")
+    @GetMapping("/{id}")
     public ModelAndView getEvent(@PathVariable long id, @Valid @ModelAttribute("replyEventForm") final ReplyForm form, final BindingResult errors,
         @ModelAttribute("user") User user,
         @Valid @ModelAttribute("deleteForm") final ReplyForm deleteForm, final BindingResult deleteErrors,
@@ -182,14 +182,14 @@ public class EventController {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
             redirectAttributes.addFlashAttribute("deleteErrors", errors);
             redirectAttributes.addFlashAttribute("deleteForm", form);
-            return new ModelAndView("redirect:/events/{id}", "id", id);
+            return new ModelAndView(REDIRECT + id);
         }
         eventService.delete(id, form.getMessage());
-        return new ModelAndView("redirect:/events");
+        return new ModelAndView(REDIRECT);
     }
 
 
-    @RequestMapping(value = "/{id}/reply", method = POST)
+    @PostMapping(value = "/{id}/reply")
     public ModelAndView reply(@PathVariable int id, @Valid @ModelAttribute("replyEventForm") final ReplyForm form,
                               final BindingResult errors, @ModelAttribute("user") User user, RedirectAttributes redirectAttributes) {
         LOGGER.debug("Replying to event {} from form {}", id, form);
@@ -198,14 +198,14 @@ public class EventController {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
             redirectAttributes.addFlashAttribute("errors", errors);
             redirectAttributes.addFlashAttribute("replyEventForm", form);
-            return new ModelAndView("redirect:/events/{id}", "id", id);
+            return new ModelAndView(REDIRECT + id);
         }
 
         eventService.replyToEvent(user.getEmail(), id, form.getMessage());
-        return new ModelAndView("redirect:/events/{id}", "id", id);
+        return new ModelAndView(REDIRECT + id);
     }
 
-    @RequestMapping(value="/{id}/attend",method = POST,produces = "application/json")
+    @PostMapping(value="/{id}/attend",produces = "application/json")
     public ModelAndView attendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer,
                                     @ModelAttribute("user") User user) {
         LOGGER.debug("Attending event {}", id);
@@ -214,11 +214,11 @@ public class EventController {
         if (referer != null && !referer.isEmpty()) {
             return new ModelAndView("redirect:" + referer);
         } else {
-            return new ModelAndView("redirect:/events/{id}");
+            return new ModelAndView(REDIRECT + id);
         }
     }
 
-    @RequestMapping(value="/{id}/dont-attend",method = POST,produces = "application/json")
+    @PostMapping(value="/{id}/dont-attend",produces = "application/json")
     public ModelAndView dontAttendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer,
                                         @ModelAttribute("user") User user) {
         LOGGER.debug("Attending event {}", id);
@@ -227,10 +227,10 @@ public class EventController {
         if (referer != null && !referer.isEmpty()) {
             return new ModelAndView("redirect:" + referer);
         } else {
-            return new ModelAndView("redirect:/events/{id}");
+            return new ModelAndView(REDIRECT + id);
         }
     }
-    @RequestMapping(value = "/{id}/update", method = GET)
+    @GetMapping(value = "/{id}/update")
     public ModelAndView showUpdateEventForm(@PathVariable("id") int eventId,
                                             @ModelAttribute("user") User user,
                                             @ModelAttribute("editEventForm") EditEventForm form,
@@ -257,7 +257,7 @@ public class EventController {
     }
 
     //OBS para checkear. no se porque me deja subir una imagen vacia si uso el create event form.
-    @RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
+    @PostMapping(value = "/{id}/update")
     public ModelAndView updateEvent(@PathVariable("id") int eventId,
                                     @ModelAttribute("user") User user,
                                     @Valid @ModelAttribute("editEventForm") EditEventForm form,
@@ -285,7 +285,7 @@ public class EventController {
         LOGGER.info("Event {} updated successfully", eventId);
 
         // 5. Redirect to the event detail page (or somewhere you want)
-        return new ModelAndView("redirect:/events/" + eventId);
+        return new ModelAndView(REDIRECT + eventId);
     }
 
 

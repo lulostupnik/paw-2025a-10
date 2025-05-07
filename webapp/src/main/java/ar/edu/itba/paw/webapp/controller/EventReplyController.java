@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.EventResponseService;
-import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.webapp.form.ReplyForm;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;

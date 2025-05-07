@@ -99,7 +99,5 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("Failed to initialize file upload component:", error)
     }
 
-    const form = document.querySelector(".auth-form")
-
     console.log("Registration initialization complete")
 })

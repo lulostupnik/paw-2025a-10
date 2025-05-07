@@ -34,6 +34,7 @@ public class JourneyController {
     private final UniversityService universityService;
     private final InterestService interestService;
     private final JourneyService journeyService;
+    private static final String REDIRECT_JOURNEY = "redirect:/journeys/{id}";
 
     @Autowired
     public JourneyController(final JourneyService js, CityService cityService, UniversityService universityService, InterestService interestService, JourneyService journeyService){
@@ -56,7 +57,7 @@ public class JourneyController {
         mav.addObject("journeys", js.getAllJourneys(search, user,
                 fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests(), pageParams));
         mav.addObject("hasJourney", user != null && js.userHasJourney(user));
-        mav.addObject("pageSize", pageParams.getSize()); //@Todo no se si esta bien.
+        mav.addObject("pageSize", pageParams.getSize());
         mav.addObject("currentPage", pageParams.getPage());
 
        populateDropdownAttributes(mav);
@@ -81,13 +82,13 @@ public class JourneyController {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
             redirectAttributes.addFlashAttribute("deleteErrors", errors);
             redirectAttributes.addFlashAttribute("deleteForm", form);
-            return new ModelAndView("redirect:/journeys/" + id);
+            return new ModelAndView(REDIRECT_JOURNEY + id);
         }
         js.delete(id, form.getMessage());
         return new ModelAndView("redirect:/journeys");
     }
 
-    @RequestMapping(value = "/create", method = POST)
+    @PostMapping(value = "/create")
     public ModelAndView createJourney(@Valid @ModelAttribute("createJourneyForm") final CreateJourneyForm jf,
                                       final BindingResult errors, @ModelAttribute("user") User user) {
         LOGGER.debug("Creating journey from form: {}", jf);
@@ -101,7 +102,7 @@ public class JourneyController {
                 jf.getDestinationUniversity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription());
 
         LOGGER.info("Successfully created journey {}", journey);
-        return new ModelAndView("redirect:/journeys/" + journey.getId());
+        return new ModelAndView(REDIRECT_JOURNEY + journey.getId());
     }
 
     @RequestMapping(value = "/create")
@@ -159,7 +160,7 @@ public class JourneyController {
         return mav;
     }
 
-    @RequestMapping(value = "/{id}/reply", method = POST)
+    @PostMapping(value = "/{id}/reply")
     public ModelAndView replyToJourney(@PathVariable int id, @Valid @ModelAttribute("replyJourneyForm") final ReplyForm rjf,
                                        final BindingResult errors, final RedirectAttributes redirectAttributes,
                                        @ModelAttribute("user") User user) {
@@ -169,15 +170,15 @@ public class JourneyController {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
             redirectAttributes.addFlashAttribute("errors", errors);
             redirectAttributes.addFlashAttribute("replyJourneyForm", rjf);
-            return new ModelAndView("redirect:/journeys/" + id);
+            return new ModelAndView(REDIRECT_JOURNEY + id);
         }
         js.replyToJourney(user.getEmail(), id, rjf.getMessage());
 
-        return new ModelAndView("redirect:/journeys/" + id);
+        return new ModelAndView(REDIRECT_JOURNEY + id);
     }
 
 
-    @RequestMapping(value = "/{id}/update", method = GET)
+    @GetMapping(value = "/{id}/update")
     public ModelAndView showUpdateJourneyForm(@PathVariable("id") long journeyId,
                                               @ModelAttribute("user") User user,
                                               @ModelAttribute("createJourneyForm") CreateJourneyForm form,
@@ -203,7 +204,7 @@ public class JourneyController {
         return mav;
     }
 
-    @RequestMapping(value = "/{id}/update", method = POST)
+    @PostMapping(value = "/{id}/update")
     public ModelAndView updateJourney(@PathVariable("id") long journeyId,
                                       @ModelAttribute("user") User user,
                                       @Valid @ModelAttribute("createJourneyForm") CreateJourneyForm form,
@@ -222,7 +223,7 @@ public class JourneyController {
                 form.getDescription());
 
         LOGGER.info("Journey {} updated successfully", journeyId);
-        return new ModelAndView("redirect:/journeys/" + journeyId);
+        return new ModelAndView(REDIRECT_JOURNEY + journeyId);
     }
 
 
