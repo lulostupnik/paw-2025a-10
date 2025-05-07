@@ -28,10 +28,6 @@
           <h2 class="section-title-landing"><spring:message code="user.detail.information"/></h2>
 
           <div class="features-grid">
-            <div class="feature-card">
-              <h3 class="feature-title"><spring:message code="user.detail.id"/></h3>
-              <p class="feature-description"><c:out value="${user.id}"/></p>
-            </div>
 
             <div class="feature-card">
               <h3 class="feature-title"><spring:message code="user.detail.email"/></h3>

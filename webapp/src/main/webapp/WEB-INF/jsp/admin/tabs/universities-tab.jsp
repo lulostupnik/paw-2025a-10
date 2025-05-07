@@ -37,7 +37,6 @@
     <table class="data-table">
       <thead>
       <tr>
-        <th><spring:message code="admin.column.id" /></th>
         <th><spring:message code="admin.column.name" /></th>
         <th><spring:message code="admin.column.abbreviation" /></th>
         <th><spring:message code="admin.column.location" /></th>
@@ -47,7 +46,6 @@
       <c:set var="universities" value="${pagedUniversities.content}" />
       <c:forEach items="${universities}" var="uni">
         <tr class="clickable-row" data-href="<c:url value="../universities/${uni.id}"/>" >
-          <td><c:out value="${uni.id}"/></td>
           <td><c:out value="${uni.name}"/></td>
           <td><c:out value="${uni.abbreviation}"/></td>
           <td><c:out value="${uni.city}"/></td>

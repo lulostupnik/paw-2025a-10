@@ -37,7 +37,6 @@
     <table class="data-table">
       <thead>
       <tr>
-        <th><spring:message code="admin.column.id" /></th>
         <th><spring:message code="admin.column.name" /></th>
 
       </tr>
@@ -46,7 +45,6 @@
       <c:set var="careers" value="${pagedCareers.content}" />
       <c:forEach items="${careers}" var="career">
         <tr class="clickable-row" data-href="<c:url value="../careers/${career.id}"/>" >
-          <td><c:out value="${career.id}"/></td>
           <td><c:out value="${career.name}"/></td>
         </tr>
       </c:forEach>

@@ -62,7 +62,8 @@ public class UniversityController {
     @GetMapping(value= "/{id}")
     public ModelAndView getUniversity(@PathVariable("id") Long id) {
         ModelAndView mav = new ModelAndView(DETAIL);
-        mav.addObject(UNIVERSITY, universityService.findById(id));
+        mav.addObject(UNIVERSITY, universityService.findById(id).orElseThrow(
+                () -> new IllegalArgumentException("University not found")));
         return mav;
     }
 
