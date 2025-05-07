@@ -48,16 +48,16 @@
           <td>
             <c:if test="${! user.blocked}">
               <button type="button" class="btn-danger btn-with-icon block-user-btn"
-                      data-user-id="${user.id}"
-                      data-user-name="${user.firstname}"
+                      data-user-id="<c:out value="${user.id}"/>"
+                      data-user-name="<c:out value="${user.firstname}"/>"
                       data-action="block">
                 <img class="btn-icon" alt="<spring:message code="user.block"/>" src="<c:url value="/resources/icons/block.svg"/>"/>
               </button>
             </c:if>
             <c:if test="${user.blocked}">
               <button type="button" class="btn-primary btn-with-icon block-user-btn"
-                      data-user-id="${user.id}"
-                      data-user-name="${user.firstname}"
+                      data-user-id="<c:out value="${user.id}"/>"
+                      data-user-name="<c:out value="${user.firstname}"/>"
                       data-action="unblock">
                 <img class="btn-icon" alt="<spring:message code="user.unblock"/>" src="<c:url value="/resources/icons/unblock.svg"/>"/>
               </button>
@@ -73,12 +73,13 @@
         <spring:message code="admin.no.results" />
       </div>
     </c:if>
+    <c:set var="search" ><c:out value="${param.search}"/></c:set>
 
     <jsp:include page="../../components/pagination-with-page-number.jsp">
       <jsp:param name="pageObjectTotalPages" value="${pagedUsers.totalPages}" />
       <jsp:param name="currentPage" value="${pagedUsers.currentPage}" />
       <jsp:param name="pageSize" value="10" />
-      <jsp:param name="baseUrl" value="/dashboard/users?search=${param.search}" />
+      <jsp:param name="baseUrl" value="/dashboard/users?search=${search}" />
     </jsp:include>
   </div>
 
