@@ -308,7 +308,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<UserEvent> getEventsPageWithAttendanceStatus(String search,User user, int pageNumber, int pageSize) {
+    public Page<UserEvent> getEventsPageWithAttendanceStatus(String search, User user, int pageNumber, int pageSize) {
         if(user == null) {
             Page<Event> page;
             if(search != null && !search.isEmpty()) {

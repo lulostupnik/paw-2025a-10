@@ -5,6 +5,32 @@
 
 /* Event page specific styles */
 
+/* Add to your events.css file */
+.events-container {
+    padding-top: 1rem; /* Add top padding to match other pages */
+    padding-left: 0; /* Ensure no left padding is causing the rightward shift */
+}
+
+.event-title-section {
+    margin-top: 0; /* Reset any top margin */
+    padding-top: 0; /* Reset any top padding */
+}
+
+.event-title {
+    margin-top: 0; /* Align with titles on other pages */
+    margin-bottom: 1rem;
+}
+
+/* This ensures consistent header padding */
+.event-detail-header {
+    padding: 1.5rem; /* Reduce from 32px to match other pages */
+}
+
+/* Fix the grid margin to prevent pushing content down */
+.events-grid {
+    margin-top: 1rem; /* Reduce from 1.5rem */
+}
+
 .events-container {
     width: 100%;
     padding: 0 0;
