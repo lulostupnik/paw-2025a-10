@@ -27,8 +27,8 @@ public class UniversityServiceImpl implements UniversityService {
         this.universityDao = universityDao;
     }
 
-    @Cacheable(value = "universitiesByName", key = "#name")
     @Override
+    // @Cacheable(value = "universitiesByName", key = "#name")
     public Optional<University> findByName(String name) {
         LOGGER.debug("Getting university with name {}", name);
         return universityDao.findByName(name);
@@ -39,22 +39,20 @@ public class UniversityServiceImpl implements UniversityService {
         return universityDao.findById(id);
     }
 
-    @Cacheable(value = "universitiesByAbbreviation", key = "#abbreviation")
     @Override
     public Optional<University> findByAbbreviation(String abbreviation) {
         LOGGER.debug("Getting university with abbreviation {}", abbreviation);
         return universityDao.findByAbbreviation(abbreviation);
     }
 
-    @Cacheable(value = "universitiesByAny", key = "#queryString")
-    @Override    
+    @Override
     public Optional<University> findByAny(String queryString){
         LOGGER.debug("Getting university like {}", queryString);
         return universityDao.findByAny(queryString);
     }
 
     // FIXME: ¿debería ser @Cacheable?
-    @Cacheable(value = "universities")
+    // @Cacheable(value = "universities")
     @Override
     public List<University> getAllUniversities() {
         LOGGER.debug("Getting all universities");

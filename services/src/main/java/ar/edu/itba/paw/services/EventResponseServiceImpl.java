@@ -55,7 +55,7 @@ public class EventResponseServiceImpl implements EventResponseService {
     }
 
 
-    @Cacheable(value = "eventsByResponseId", key = "#eventResponseId")
+    // @Cacheable(value = "eventsByResponseId", key = "#eventResponseId")
     @Override
     public long getEventIdByResponseId(long eventResponseId) {
         return eventResponseDao.getEventIdByResponseId(eventResponseId);

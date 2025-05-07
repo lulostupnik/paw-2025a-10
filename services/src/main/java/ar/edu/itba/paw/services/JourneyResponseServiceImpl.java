@@ -36,7 +36,7 @@ public class JourneyResponseServiceImpl implements JourneyResponseService {
     }
 
     @Transactional
-    @CacheEvict(value = "journeysByResponseId", key = "#id")
+    // @CacheEvict(value = "journeysByResponseId", key = "#id")
     @Override
     public void delete(long id, String message) {
         journeyResponseDao.deletionMessage(id, message);
@@ -44,14 +44,14 @@ public class JourneyResponseServiceImpl implements JourneyResponseService {
     }
 
 
-    @Cacheable(value = "journeysByResponseId", key = "#journeyResponseId")
+    // @Cacheable(value = "journeysByResponseId", key = "#journeyResponseId")
     @Override
     public long getJourneyIdByResponseId(long journeyResponseId) {
         return journeyResponseDao.getJourneyIdByResponseId(journeyResponseId);
     }
 
     @Transactional
-    @CacheEvict(value = "journeysByResponseId", allEntries = true) //FIXME: check if should CACHE EVICT
+    // @CacheEvict(value = "journeysByResponseId", allEntries = true) //FIXME: check if should CACHE EVICT
     @Override
     public void deleteByJourneyId(long journeyId) {
         journeyResponseDao.deleteByJourneyId(journeyId);

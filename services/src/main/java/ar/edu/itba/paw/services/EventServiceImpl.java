@@ -91,7 +91,7 @@ public class EventServiceImpl implements EventService {
                 );
     }
 
-    @Cacheable(value = "eventsById", key = "#id")
+    // @Cacheable(value = "eventsById", key = "#id")
     @Override
     public Optional<Event> getEventById(long id){
         return eventDao.findById(id);

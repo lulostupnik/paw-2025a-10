@@ -30,7 +30,7 @@ public class CityServiceImpl implements CityService {
     }
 
     @Override
-    @Cacheable(value = "citiesByName", key = "#name")
+    // @Cacheable(value = "citiesByName", key = "#name")
     public Optional<City> findByName(String name) {
         LOGGER.debug("Finding city by name {}", name);
         return cityDao.findByName(name);
