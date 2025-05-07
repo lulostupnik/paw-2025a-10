@@ -155,6 +155,41 @@
                     </div>
                 </section>
 
+                <!-- User Interests Section -->
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                            <spring:message code="journey.detail.interests" text="Interests" />
+                        </h2>
+                    </div>
+                    <div class="section-content">
+                        <c:if test="${empty interests}">
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="empty-icon-img">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                    </svg>
+                                </div>
+                                <p class="empty-message">
+                                    <spring:message code="journey.detail.no.interests" text="No interests to display" />
+                                </p>
+                            </div>
+                        </c:if>
+                        <c:if test="${not empty interests}">
+                            <div class="interests-container">
+                                <c:forEach var="interest" items="${interests}">
+                                    <div class="interest-tag">
+                                        <c:out value="${interest}" />
+                                    </div>
+                                </c:forEach>
+                            </div>
+                        </c:if>
+                    </div>
+                </section>
+
                 <!-- Journey Responses Section -->
                 <section class="content-section">
                     <div class="section-header">

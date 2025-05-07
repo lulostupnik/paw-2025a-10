@@ -156,6 +156,7 @@ public class JourneyController {
             mav.addObject("deleteFormType", "journeyResponse");
             mav.addObject("deleteFormId", "delete-journey-response-form-" + replyId);
         }
+        mav.addObject("interests", interestService.findByUserId(journey.getUser().getId()));
         return mav;
     }
 
