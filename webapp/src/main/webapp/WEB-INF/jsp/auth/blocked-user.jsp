@@ -3,6 +3,8 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
+<link rel="stylesheet" href="<c:url value='/resources/css/blocked.css'/>" />
+
 <html lang="<c:out value="${pageContext.response.locale}" />">
 <head>
     <meta charset="UTF-8">
@@ -69,11 +71,9 @@
             </div>
         </div>
 
-        <div class="form-card-footer">
-            <a href="<c:url value='/'/>" class="btn-outline">
-                <spring:message code="blocked.back.to.home"/>
-            </a>
-        </div>
+        <a href="<c:url value='/'/>" class="back-button">
+            <spring:message code="blocked.back.to.home"/>
+        </a>
     </div>
 
     <!-- Reference ID for support -->
