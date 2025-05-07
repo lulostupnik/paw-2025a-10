@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
 import ar.edu.itba.paw.interfaces.services.JourneyResponseService;
 import ar.edu.itba.paw.models.JourneyResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class JourneyResponseServiceImpl implements JourneyResponseService {
     private final JourneyResponseDao journeyResponseDao;
 
@@ -26,13 +28,13 @@ public class JourneyResponseServiceImpl implements JourneyResponseService {
         return journeyResponseDao.create(userId, username, journeyId, message, dateTime);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<JourneyResponse> listAllFromJourney(long journeyId) {
         return journeyResponseDao.listAllFromJourney(journeyId);
     }
 
     @Transactional
+    @CacheEvict(value = "journeysByResponseId", key = "#id")
     @Override
     public void delete(long id, String message) {
         journeyResponseDao.deletionMessage(id, message);
@@ -40,7 +42,6 @@ public class JourneyResponseServiceImpl implements JourneyResponseService {
     }
 
 
-    @Transactional(readOnly = true)
     @Cacheable(value = "journeysByResponseId", key = "#journeyResponseId")
     @Override
     public long getJourneyIdByResponseId(long journeyResponseId) {
@@ -48,6 +49,7 @@ public class JourneyResponseServiceImpl implements JourneyResponseService {
     }
 
     @Transactional
+    @CacheEvict(value = "journeysByResponseId", allEntries = true) //FIXME: check if should CACHE EVICT
     @Override
     public void deleteByJourneyId(long journeyId) {
         journeyResponseDao.deleteByJourneyId(journeyId);

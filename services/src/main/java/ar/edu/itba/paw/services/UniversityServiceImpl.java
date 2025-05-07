@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class UniversityServiceImpl implements UniversityService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UniversityServiceImpl.class);
 
@@ -26,7 +27,6 @@ public class UniversityServiceImpl implements UniversityService {
         this.universityDao = universityDao;
     }
 
-    @Transactional(readOnly = true)
     @Cacheable(value = "universitiesByName", key = "#name")
     @Override
     public Optional<University> findByName(String name) {
@@ -35,12 +35,10 @@ public class UniversityServiceImpl implements UniversityService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Optional<University> findById(Long id) {
         return universityDao.findById(id);
     }
 
-    @Transactional(readOnly = true)
     @Cacheable(value = "universitiesByAbbreviation", key = "#abbreviation")
     @Override
     public Optional<University> findByAbbreviation(String abbreviation) {
@@ -48,7 +46,6 @@ public class UniversityServiceImpl implements UniversityService {
         return universityDao.findByAbbreviation(abbreviation);
     }
 
-    @Transactional(readOnly = true)
     @Cacheable(value = "universitiesByAny", key = "#queryString")
     @Override    
     public Optional<University> findByAny(String queryString){
@@ -57,7 +54,6 @@ public class UniversityServiceImpl implements UniversityService {
     }
 
     // FIXME: ¿debería ser @Cacheable?
-    @Transactional(readOnly = true)
     @Cacheable(value = "universities")
     @Override
     public List<University> getAllUniversities() {
@@ -68,7 +64,6 @@ public class UniversityServiceImpl implements UniversityService {
 
     // TODO: ¿Hace falta el if?
     @Override
-    @Transactional(readOnly = true)
     public Page<University> getAllUniversities(String search, PageParams pageParams) {
         LOGGER.debug("Getting all universities with search {}", search);
         if (search == null || search.isEmpty()) {
@@ -90,7 +85,6 @@ public class UniversityServiceImpl implements UniversityService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Page<University> searchUniversities(String search, PageParams pageParams) {
         return universityDao.searchBySubstring(search, pageParams.getPage(), pageParams.getSize());
     }

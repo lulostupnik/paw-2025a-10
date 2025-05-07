@@ -55,7 +55,7 @@ public class JourneyController {
         final ModelAndView mav = new ModelAndView("journeys/list");
         mav.addObject("journeys", js.getAllJourneys(search, user,
                 fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests(), pageParams));
-        mav.addObject("hasJourney", user != null && js.userHasJourney(user.getEmail()));
+        mav.addObject("hasJourney", user != null && js.userHasJourney(user));
         mav.addObject("pageSize", pageParams.getSize()); //@Todo no se si esta bien.
         mav.addObject("currentPage", pageParams.getPage());
 
@@ -107,7 +107,7 @@ public class JourneyController {
     @RequestMapping(value = "/create")
     public ModelAndView createJourneyForm(@ModelAttribute("createJourneyForm") final CreateJourneyForm jf, @ModelAttribute("user") User user) {
 
-        if (journeyService.userHasJourney(user.getEmail())) {
+        if (journeyService.userHasJourney(user)) {
             LOGGER.debug("User already has a journey, redirecting to journey list");
             return new ModelAndView("redirect:/journeys");
         }

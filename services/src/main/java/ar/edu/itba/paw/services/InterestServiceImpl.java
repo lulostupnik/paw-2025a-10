@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class InterestServiceImpl implements InterestService {
     private static final Logger LOGGER = LoggerFactory.getLogger(InterestServiceImpl.class);
 
@@ -29,7 +30,6 @@ public class InterestServiceImpl implements InterestService {
         this.interestDao = interestDao;
     }
 
-    @Transactional(readOnly = true)
     @Cacheable(value = "interestsById", key = "#id")
     @Override
     public Optional<Interest> findById(long id) {
@@ -37,7 +37,6 @@ public class InterestServiceImpl implements InterestService {
         return this.interestDao.findById(id);
     }
 
-    @Transactional(readOnly = true)
     @Cacheable(value = "interests", unless = "#result.size() > 100")
     @Override
     public List<Interest> findAll() {
@@ -45,14 +44,12 @@ public class InterestServiceImpl implements InterestService {
         return interestDao.findAll();
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<Interest> findByUserId(long id) {
         LOGGER.debug("Getting interests of user {}", id);
         return interestDao.findByUserId(id);
     }
 
-    @Transactional(readOnly = true)
     @Cacheable(value = "interestsByName", key = "#name")
     @Override
     public Optional<Interest> findByName(String name) {
@@ -60,7 +57,6 @@ public class InterestServiceImpl implements InterestService {
         return interestDao.findByName(name);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<Interest> findIdByName(String[] names) {
         LOGGER.debug("Getting interests from name list");
@@ -131,6 +127,12 @@ public class InterestServiceImpl implements InterestService {
         return interestDao.searchBySubstring(search,pageParams.getPage(), pageParams.getSize());
     }
 
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "interestsById", key = "#id"),
+            @CacheEvict(value = "interests", allEntries = true),
+            @CacheEvict(value = "interestsByName", allEntries = true)
+    })
     @Override
     public void delete(long id) {
         interestDao.delete(id);

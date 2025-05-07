@@ -57,19 +57,19 @@ public class CareerServiceImpl implements CareerService {
         return careerDao.searchBySubstring(search, pageParams.getPage(), pageParams.getSize());
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     @Override
     public Career create(String name) {
         return careerDao.create(name);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     @Override
     public Career update(long id, String name) {
         return careerDao.update(id, name);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     @Override
     public void delete(long id) {
         careerDao.delete(id);

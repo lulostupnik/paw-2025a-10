@@ -7,6 +7,7 @@ import ar.edu.itba.paw.models.EventResponse;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class EventResponseServiceImpl implements EventResponseService {
 
     EventResponseDao eventResponseDao;
@@ -33,37 +35,37 @@ public class EventResponseServiceImpl implements EventResponseService {
     }
 
     @Transactional
+    @CacheEvict(value = "eventsByResponseId", key = "#id")
     @Override
     public void delete(long id, String message) {
         eventResponseDao.deletionMessage(id, message);
         eventResponseDao.delete(id);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public int getCount(long eventId){
         return eventResponseDao.getCount(eventId);
     }
 
+    @Transactional
+    @CacheEvict(value = "eventsByResponseId", allEntries = true) //FIXME: check if should CACHE EVICT
     @Override
     public void deleteByEventId(long eventId) {
         eventResponseDao.deleteByEventId(eventId);
     }
 
 
-    @Transactional(readOnly = true)
     @Cacheable(value = "eventsByResponseId", key = "#eventResponseId")
     @Override
     public long getEventIdByResponseId(long eventResponseId) {
         return eventResponseDao.getEventIdByResponseId(eventResponseId);
     }
-    @Transactional(readOnly = true)
+
     @Override
     public List<EventResponse> listAllFromEvent(long eventId) {
         return eventResponseDao.listAllFromEvent(eventId);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Page<EventResponse> listAllFromEvent(long eventId, PageParams pageParams) {
         return eventResponseDao.listAllFromEvent(eventId,pageParams.getPage(),pageParams.getSize());

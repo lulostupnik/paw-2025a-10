@@ -70,7 +70,7 @@ public class CityServiceImpl implements CityService {
     }
 
 
-    @Transactional(readOnly = false)
+    @Transactional
     @Override
     public void updateCity(long id, String name, String country) {
         Country country1 = countryService.findByName(country)
@@ -86,7 +86,7 @@ public class CityServiceImpl implements CityService {
         return cityDao.createCity(name, country1);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     @Override
     public void delete(long id) {
         cityDao.delete(id);

@@ -2,7 +2,6 @@ package ar.edu.itba.paw.services;
 
 //import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
-import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
@@ -11,18 +10,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 //import java.util.Date;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class JourneyServiceImpl implements JourneyService {
     private static final Logger LOGGER = LoggerFactory.getLogger(JourneyServiceImpl.class);
 
@@ -111,7 +109,6 @@ public class JourneyServiceImpl implements JourneyService {
 
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<Journey> getAllJourneys() {
         return journeyDao.listAll();
@@ -126,13 +123,11 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyDao.searchJourneys(search,pageParams.getPage(), pageParams.getSize());
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Optional<Journey> getJourneyById(long id) {
         return journeyDao.findById(id);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Optional<Journey> getJourneyByEmail(String email) {
         long userId = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found")).getId();
@@ -144,7 +139,6 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
-    @Transactional(readOnly = true)
     public Page<Journey> getAllJourneys(String search, User user, Long destination, LocalDate startDate, LocalDate endDate, Long interest, PageParams pageParams) {
         LOGGER.debug("Getting filtered journeys");
         if(search != null && !search.isEmpty()) {
@@ -155,15 +149,17 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
 
-    @Transactional(readOnly = true)
     @Override
     public Boolean userHasJourney(String email) {
         Optional<User> maybeUser = userService.findByEmail(email);
         return maybeUser.filter(user -> journeyDao.findByUserId(user.getId()).isPresent()).isPresent();
     }
+    @Override
+    public boolean userHasJourney(User user) {
+        return journeyDao.findByUserId(user.getId()).isPresent();
+    }
 
     // FIXME: Configurar la cache para que guarde los resultados por un tiempo (30min) y después meter acá el @Cacheable
-    @Transactional(readOnly = true)
     // @Cacheable(value = "journeysRecommended", key = "#email")
     @Override
     public List<Journey> getRecommendedJourneys(String email, int limit) {
@@ -185,25 +181,22 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<Journey> getJourneysByUser(String email) {
         return journeyDao.getJourneysByUser(email);
     }
 
     // Yo creería que mejor no cachear, pero no estoy seguro
-    @Transactional(readOnly = true)
     @Override
     public List<JourneyResponse> getJourneyResponses(long journeyId){
         return journeyResponseService.listAllFromJourney(journeyId);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<Journey> getOthersJourneys(long userId) {
         return journeyDao.getOthersJourneys(userId);
     }
+
     @Override
-    @Transactional(readOnly = true)
     public List<Journey> getOthersJourneys(String email) {
         long userId = userService.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found")).getId();
         return getOthersJourneys(userId);

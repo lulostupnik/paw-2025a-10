@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -58,37 +59,31 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    @Transactional(readOnly = true)
     public Optional<User> findByEmail(String email) {
         return userDao.findByEmail(email);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Optional<UserPassword> findByEmailWithPass(String email) {
         return userDao.findByEmailWithPass(email);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Optional<User> findById(long id) {
         return userDao.findById(id);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Optional<User> findByUsername(String username) {
         return userDao.findByUsername(username);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public boolean existsByUsername(String username) {
         return userDao.existsByUsername(username);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public boolean existsByEmail(String email) {
         return userDao.existsByEmail(email);
     }
@@ -186,7 +181,6 @@ public class UserServiceImpl implements UserService {
     // Recibe User -> ¿Está bien?
     //@TODO ask (exception?). @TODO add cache?
     @Override
-    @Transactional(readOnly = true)
     public byte[] getProfilePictureData(User user) {
         return imageService.getImage(user.getProfilePictureId())
                 .orElseThrow(() -> new IllegalStateException("User does not have a profile picture"))
@@ -194,13 +188,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         return userDao.getAllUsers();
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Page<User> getAllUsers(String search, PageParams pageParams) {
 
         if (search == null || search.isEmpty()) {

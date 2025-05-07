@@ -20,6 +20,7 @@ import java.time.LocalTime;
 import java.util.*;
 
 @Service
+@Transactional(readOnly = true)
 public class EventServiceImpl implements EventService {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventServiceImpl.class);
 
@@ -57,14 +58,11 @@ public class EventServiceImpl implements EventService {
         LOGGER.debug("Looking for user {}", email);
         User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
 
-        LOGGER.debug("Saving event image");
         long flyerImageId = imageService.storeImage(flyer);
 
-        LOGGER.info("Event data is valid, commiting new event to persistance");
         Event event = eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit);
 
         // Automatically add the creator to the attendees list
-        LOGGER.debug("Adding event creator to attendees list");
         eventAttendanceDao.attend(user.getId(), event.getId());
 
         return event;
@@ -93,7 +91,6 @@ public class EventServiceImpl implements EventService {
                 );
     }
 
-    @Transactional(readOnly = true)
     @Cacheable(value = "eventsById", key = "#id")
     @Override
     public Optional<Event> getEventById(long id){
@@ -101,46 +98,34 @@ public class EventServiceImpl implements EventService {
     }
 
 
-    @Transactional(readOnly = true)
     @Override
     public List<Event> getAllEvents() {
         return eventDao.listAll();
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Page<Event> getAllEvents(PageParams pageParams){
         return eventDao.listAll(pageParams.getPage(), pageParams.getSize());
     }
 
-
-
-    @Transactional(readOnly = true)
     @Override
     public Page<Event> getAllEventsSearch(String search,PageParams pageParams) {
         LOGGER.debug("Getting all events with search {}", search);
         if (search == null || search.isEmpty()) {
             return eventDao.listAll(pageParams.getPage(), pageParams.getSize());
         }
-        return eventDao.searchEvents(search,pageParams.getPage(), pageParams.getSize());
+        return eventDao.searchEvents(search, pageParams.getPage(), pageParams.getSize());
     }
 
-
-
-
-    @Transactional(readOnly = true)
     @Override
     public List<Event> getAllEvents(String email) {
         return eventDao.getEvents(email);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Page<Event> getAllEvents(String email, PageParams pageParams) {
         return eventDao.getEvents(email, pageParams.getPage(), pageParams.getSize());
     }
-
-
 
 
 
@@ -187,67 +172,54 @@ public class EventServiceImpl implements EventService {
         cancelAttendance(userId, eventId);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public boolean isUserAttending(long userId, long eventId) {
         return eventAttendanceDao.isAttending(userId, eventId);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public boolean isUserAttending(String email, long eventId) {
         long userId = userService.findByEmail(email).orElseThrow().getId();
         return isUserAttending(userId, eventId);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<User> getEventAttendees(long eventId) {
         return eventAttendanceDao.getAttendees(eventId);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Page<User> getEventAttendees(long eventId, PageParams pageParams) {
         return eventAttendanceDao.getAttendees(eventId, pageParams.getPage(), pageParams.getSize());
     }
-    @Transactional(readOnly = true)
     @Override
     public int getEventAttendeesCount(long eventId) {
         return eventAttendanceDao.getAttendeesCount(eventId);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<Event> getUserAttendingEvents(long userId) {
         return eventAttendanceDao.getAttendingEvents(userId);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<Event> getUserAttendingEvents(String userEmail) {
         long userId = userService.findByEmail(userEmail).orElseThrow().getId();
         return getUserAttendingEvents(userId);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Page<Event> getUserAttendingEvents(long userId, PageParams pageParams) {
 //        long userId = userService.findByEmail(userEmail).orElseThrow().getId();
         return eventAttendanceDao.getAttendingEvents(userId, pageParams.getPage(), pageParams.getSize());
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<EventResponse> getEventResponses(long eventId){
         return eventResponseService.listAllFromEvent(eventId);
     }
 
-
-
-
     // FIXME: Agregarle cacheable?
-    @Transactional(readOnly = true)
     @Override
     public List<UserEvent> getRecommendedEvents(long userId, int limit) {
         if (limit <= 0) {
@@ -265,9 +237,7 @@ public class EventServiceImpl implements EventService {
         return events;
     }
 
-
     // FIXME: ¿Agregarle cacheable?
-    @Transactional(readOnly = true)
     @Override
     public List<Event> getTopEvents(int limit){
         LOGGER.debug("Getting top events");
@@ -277,7 +247,6 @@ public class EventServiceImpl implements EventService {
         return eventDao.getTopEvents(1, limit).getContent();
     }
 
-    @Transactional(readOnly=true)
     @Override
     public Boolean isEventOwnedByUser(String email, long eventID) {
         LOGGER.debug("Checking for event ownership of event {} by user {}", eventID, email);
@@ -285,21 +254,18 @@ public class EventServiceImpl implements EventService {
         return event.isPresent() && event.get().getUser().getEmail().equals(email);
     }
 
-    @Transactional(readOnly=true)
     @Override
     public boolean isEventFull(long eventId) {
         Optional<Integer> limit = eventDao.getEventAttendanceLimit(eventId);
         return limit.isPresent() && eventAttendanceDao.getAttendeesCount(eventId) >= limit.get();
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<Event> getFullEvents() {
         return eventDao.getFullEvents();
     }
 
 
-    @Transactional(readOnly = true)
     @Override
     public Page<UserEvent> getEventsPageWithAttendanceStatus(String search,User user, PageParams pageParams) {
         if(user == null) {
@@ -322,21 +288,17 @@ public class EventServiceImpl implements EventService {
         return eventDao.getEventsWithAttendanceStatus(search, user.getId(), pageParams.getPage(), pageParams.getSize());
     }
 
-
-    @Transactional(readOnly = true)
     @Override
     public List<UserEvent> getEventsWithAttendanceStatus(long userId) {
 
         return eventDao.getEventsWithAttendanceStatus(userId);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<UserEvent> getEventsWithAttendanceStatus(String email) {
         long userId = userService.findByEmail(email).orElseThrow().getId();
         return getEventsWithAttendanceStatus(userId);
     }
-
 
     //@TODO checkear cache
     //@TODO CHECKEAR: hay unos argumentos que estan bien en null (atendeesLimit, description).  medio que no tiene sentido/poco claro.
@@ -364,11 +326,8 @@ public class EventServiceImpl implements EventService {
 
     }
 
-
-
-
-
     @Transactional
+    @CacheEvict(value = "eventsById", key = "#id")
     @Override
     public void delete(long id, String message) {
         LOGGER.debug("Deleting event {}", id);

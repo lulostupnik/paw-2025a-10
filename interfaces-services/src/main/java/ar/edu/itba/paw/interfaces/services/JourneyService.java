@@ -25,6 +25,8 @@ public interface JourneyService {
 
     Boolean userHasJourney(String email); // ja
 
+    boolean userHasJourney(User user);
+
     List<Journey> getRecommendedJourneys(String email, int limit);
 
     List<Journey> getJourneysByUser(String email);
