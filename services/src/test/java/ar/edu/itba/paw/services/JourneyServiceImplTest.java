@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import ar.edu.itba.paw.models.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -25,14 +26,6 @@ import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.interfaces.services.JourneyResponseService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.interfaces.services.UserService;
-import ar.edu.itba.paw.models.Career;
-import ar.edu.itba.paw.models.City;
-import ar.edu.itba.paw.models.Interest;
-import ar.edu.itba.paw.models.Journey;
-import ar.edu.itba.paw.models.JourneyResponse;
-import ar.edu.itba.paw.models.Page;
-import ar.edu.itba.paw.models.University;
-import ar.edu.itba.paw.models.User;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JourneyServiceImplTest {
@@ -202,7 +195,7 @@ public class JourneyServiceImplTest {
             journeyDao.listAll(Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(JOURNEY_PAGE);
 
-        Page<Journey> page = journeyService.getAllJourneys(null, 1, 2);
+        Page<Journey> page = journeyService.getAllJourneys(null, new PageParams(1,2));
 
         assertNotNull(page);
         assertEquals(JOURNEY_PAGE, page);
@@ -213,7 +206,7 @@ public class JourneyServiceImplTest {
             journeyDao.listAll(Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(JOURNEY_PAGE);
 
-        Page<Journey> page = journeyService.getAllJourneys("", 1, 2);
+        Page<Journey> page = journeyService.getAllJourneys("",new PageParams(1,2));
 
         assertNotNull(page);
         assertEquals(JOURNEY_PAGE, page);
@@ -224,7 +217,7 @@ public class JourneyServiceImplTest {
             journeyDao.searchJourneys(Mockito.eq(DESCRIPTION), Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(JOURNEY_PAGE);
 
-        Page<Journey> page = journeyService.getAllJourneys(DESCRIPTION, 1, 2);
+        Page<Journey> page = journeyService.getAllJourneys(DESCRIPTION, new PageParams(1,2));
 
         assertNotNull(page);
         assertEquals(JOURNEY_PAGE, page);
@@ -273,7 +266,7 @@ public class JourneyServiceImplTest {
             journeyDao.searchJourneys(Mockito.eq(DESCRIPTION), Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(JOURNEY_PAGE);
 
-        Page<Journey> page = journeyService.getAllJourneys(DESCRIPTION, null, null, null, null, null, 1, 2);
+        Page<Journey> page = journeyService.getAllJourneys(DESCRIPTION, null, null, null, null, null, new PageParams(1,2));
 
         assertNotNull(page);
         assertEquals(JOURNEY_PAGE, page);
@@ -284,7 +277,7 @@ public class JourneyServiceImplTest {
             journeyDao.findByFilters(Mockito.eq(USER_ID), Mockito.eq(CITY_ID), Mockito.eq(START_DATE), Mockito.eq(END_DATE), Mockito.eq(INTEREST_ID), Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(JOURNEY_PAGE);
 
-        Page<Journey> page = journeyService.getAllJourneys("", USER, CITY_ID, START_DATE, END_DATE, INTEREST_ID, 1, 2);
+        Page<Journey> page = journeyService.getAllJourneys("", USER, CITY_ID, START_DATE, END_DATE, INTEREST_ID, new PageParams(1,2));
 
         assertNotNull(page);
         assertEquals(JOURNEY_PAGE, page);
@@ -295,7 +288,7 @@ public class JourneyServiceImplTest {
             journeyDao.findByFilters(Mockito.eq(null), Mockito.eq(CITY_ID), Mockito.eq(START_DATE), Mockito.eq(END_DATE), Mockito.eq(INTEREST_ID), Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(JOURNEY_PAGE);
 
-        Page<Journey> page = journeyService.getAllJourneys(null, null, CITY_ID, START_DATE, END_DATE, INTEREST_ID, 1, 2);
+        Page<Journey> page = journeyService.getAllJourneys(null, null, CITY_ID, START_DATE, END_DATE, INTEREST_ID, new PageParams(1,2));
 
         assertNotNull(page);
         assertEquals(JOURNEY_PAGE, page);

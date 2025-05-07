@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Optional;
 
+import ar.edu.itba.paw.models.PageParams;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -166,7 +167,7 @@ public class CityServiceImplTest {
             cityDao.getAllCities(Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<City> cities = cityService.getAllCities(null, 1, 2);
+        Page<City> cities = cityService.getAllCities(null, new PageParams(1,2));
 
         assertNotNull(cities);
         assertEquals(testPage, cities);
@@ -178,7 +179,7 @@ public class CityServiceImplTest {
             cityDao.getAllCities(Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<City> cities = cityService.getAllCities("", 1, 2);
+        Page<City> cities = cityService.getAllCities("", new PageParams(1,2));
 
         assertNotNull(cities);
         assertEquals(testPage, cities);
@@ -190,7 +191,7 @@ public class CityServiceImplTest {
             cityDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<City> cities = cityService.getAllCities(NAME, 1, 2);
+        Page<City> cities = cityService.getAllCities(NAME, new PageParams(1,2));
 
         assertNotNull(cities);
         assertEquals(testPage, cities);
@@ -203,7 +204,7 @@ public class CityServiceImplTest {
             cityDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<City> cities = cityService.searchBySubstring(NAME, 1, 2);
+        Page<City> cities = cityService.searchBySubstring(NAME, new PageParams(1,2));
 
         assertNotNull(cities);
         assertEquals(testPage, cities);

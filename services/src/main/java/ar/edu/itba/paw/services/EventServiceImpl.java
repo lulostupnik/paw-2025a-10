@@ -109,20 +109,20 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<Event> getAllEvents(int page, int size){
-        return eventDao.listAll(page, size);
+    public Page<Event> getAllEvents(PageParams pageParams){
+        return eventDao.listAll(pageParams.getPage(), pageParams.getSize());
     }
 
 
 
     @Transactional(readOnly = true)
     @Override
-    public Page<Event> getAllEventsSearch(String search,int page, int size) {
+    public Page<Event> getAllEventsSearch(String search,PageParams pageParams) {
         LOGGER.debug("Getting all events with search {}", search);
         if (search == null || search.isEmpty()) {
-            return eventDao.listAll(page, size);
+            return eventDao.listAll(pageParams.getPage(), pageParams.getSize());
         }
-        return eventDao.searchEvents(search,page, size);
+        return eventDao.searchEvents(search,pageParams.getPage(), pageParams.getSize());
     }
 
 
@@ -136,8 +136,8 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<Event> getAllEvents(String email, int page, int size) {
-        return eventDao.getEvents(email, page, size);
+    public Page<Event> getAllEvents(String email, PageParams pageParams) {
+        return eventDao.getEvents(email, pageParams.getPage(), pageParams.getSize());
     }
 
 
@@ -208,8 +208,8 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<User> getEventAttendees(long eventId, int page, int size) {
-        return eventAttendanceDao.getAttendees(eventId, page, size);
+    public Page<User> getEventAttendees(long eventId, PageParams pageParams) {
+        return eventAttendanceDao.getAttendees(eventId, pageParams.getPage(), pageParams.getSize());
     }
     @Transactional(readOnly = true)
     @Override
@@ -232,9 +232,9 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<Event> getUserAttendingEvents(long userId, int page, int size) {
+    public Page<Event> getUserAttendingEvents(long userId, PageParams pageParams) {
 //        long userId = userService.findByEmail(userEmail).orElseThrow().getId();
-        return eventAttendanceDao.getAttendingEvents(userId, page, size);
+        return eventAttendanceDao.getAttendingEvents(userId, pageParams.getPage(), pageParams.getSize());
     }
 
     @Transactional(readOnly = true)
@@ -308,13 +308,13 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<UserEvent> getEventsPageWithAttendanceStatus(String search, User user, int pageNumber, int pageSize) {
+    public Page<UserEvent> getEventsPageWithAttendanceStatus(String search,User user, PageParams pageParams) {
         if(user == null) {
             Page<Event> page;
             if(search != null && !search.isEmpty()) {
-                page = eventDao.searchEvents(search, pageNumber, pageSize);
+                page = eventDao.searchEvents(search, pageParams.getPage(), pageParams.getSize());
             }else {
-                page = eventDao.listAll(pageNumber, pageSize);
+                page = eventDao.listAll(pageParams.getPage(), pageParams.getSize());
             }
             List<UserEvent> userEvent = new ArrayList<>();
             for (Event event : page.getContent()) {
@@ -324,9 +324,9 @@ public class EventServiceImpl implements EventService {
         }
 
         if(search == null || search.isEmpty()) {
-            return eventDao.getEventsWithAttendanceStatus(user.getId(), pageNumber, pageSize);
+            return eventDao.getEventsWithAttendanceStatus(user.getId(), pageParams.getPage(), pageParams.getSize());
         }
-        return eventDao.getEventsWithAttendanceStatus(search, user.getId(), pageNumber, pageSize);
+        return eventDao.getEventsWithAttendanceStatus(search, user.getId(), pageParams.getPage(), pageParams.getSize());
     }
 
 

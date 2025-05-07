@@ -2,6 +2,7 @@ package ar.edu.itba.paw.interfaces.services;
 
 import ar.edu.itba.paw.models.EventResponse;
 import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.PageParams;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,7 +14,7 @@ public interface EventResponseService {
     int getCount(long eventId);
     void deleteByEventId(long eventId);
     List<EventResponse> listAllFromEvent(long eventId);
-    Page<EventResponse> listAllFromEvent(long eventId, int page, int size);
+    Page<EventResponse> listAllFromEvent(long eventId, PageParams pageParams);
 
 
 }

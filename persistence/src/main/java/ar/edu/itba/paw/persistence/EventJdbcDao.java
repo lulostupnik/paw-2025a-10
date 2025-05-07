@@ -142,11 +142,20 @@ public class EventJdbcDao implements EventDao {
     private final static String SQL_SELECT_WITH_ATTENDANCE = "SELECT (ea.user_id IS NOT NULL) AS is_attending, " + SQL_ALIASES;
     private final static String SQL_FIND_EVENTS_WITH_ATTENDANCE = SQL_SELECT_WITH_ATTENDANCE + SQL_FROM_BASE + """
                    LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
-                   WHERE e.user_id != ? AND e.deleted = FALSE AND e.event_date >= CURRENT_DATE ORDER BY e.event_date DESC
+                   WHERE e.user_id != ? AND e.deleted = FALSE AND e.event_date >= CURRENT_DATE
                    """;
 
-    private final static String SQL_FIND_WITH_ATTENDANCE_PAGED = SQL_FIND_EVENTS_WITH_ATTENDANCE + " LIMIT ? OFFSET ?";
+    private final static String SQL_SEARCH_EVENTS_WITH_ATTENDANCE = SQL_FIND_EVENTS_WITH_ATTENDANCE + """
+                   AND (
+                            LOWER(e.title) LIKE LOWER(?)
+                    --        OR LOWER(e.description) LIKE LOWER(?)
+                            OR LOWER(c.name) LIKE LOWER(?)
+                            OR LOWER(us.username) LIKE LOWER(?)
+                        )
+                   """;
 
+    private final static String SQL_FIND_WITH_ATTENDANCE_PAGED = SQL_FIND_EVENTS_WITH_ATTENDANCE + " ORDER BY e.event_date DESC LIMIT ? OFFSET ?";
+    private final static String SQL_SEARCH_WITH_ATTENDANCE_PAGED = SQL_SEARCH_EVENTS_WITH_ATTENDANCE + " ORDER BY e.event_date DESC LIMIT ? OFFSET ?";
 
     private final static String SQL_RECOMMENDED_EVENTS = """
         WITH user_data AS (
@@ -526,23 +535,30 @@ public class EventJdbcDao implements EventDao {
         final String searchPattern = likePattern(search);
 
         final int totalItems = jdbcTemplate.queryForObject("""
-    SELECT COUNT(*) FROM events e
-    LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
-    WHERE e.user_id != ? AND e.deleted = FALSE AND e.event_date >= CURRENT_DATE AND (
-        LOWER(e.title) LIKE LOWER(?)
-    )
-""", Integer.class, userId, userId, searchPattern );
+                SELECT COUNT(*)
+                FROM events e
+                JOIN cities c ON e.city_id = c.id
+                JOIN users us ON e.user_id = us.id
+                LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
+                WHERE e.deleted = FALSE AND e.user_id != ? AND e.event_date >= CURRENT_DATE AND (
+                        LOWER(e.title) LIKE LOWER(?)
+                --      OR LOWER(e.description) LIKE LOWER(?)
+                        OR LOWER(c.name) LIKE LOWER(?)
+                        OR LOWER(us.username) LIKE LOWER(?)
+                    )
+                """
+                , Integer.class, userId, userId, searchPattern, searchPattern, searchPattern );
 
 
 
         final List<UserEvent> events = jdbcTemplate.query(
-                SQL_FIND_WITH_ATTENDANCE_PAGED,
+                SQL_SEARCH_WITH_ATTENDANCE_PAGED,
                 (rs, rowNum) -> {
                     Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
                     boolean isAttending = rs.getBoolean("is_attending");
                     return new UserEvent(event, isAttending);
                 },
-                userId, userId, size, offset(page, size)
+                userId, userId, searchPattern, searchPattern, searchPattern, size, offset(page, size)
         );
 
         return new Page<>(events, page, pageCount(totalItems, size));
@@ -576,7 +592,7 @@ public class EventJdbcDao implements EventDao {
                    attendees_limit = ?,
                    flyer_image_id = ?
              WHERE id = ?
-             """,
+            """,
                 cityId,
                 Date.valueOf(date),
                 description,

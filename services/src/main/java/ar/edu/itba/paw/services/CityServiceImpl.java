@@ -3,10 +3,7 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.CountryService;
-import ar.edu.itba.paw.models.City;
-import ar.edu.itba.paw.models.Country;
-import ar.edu.itba.paw.models.CursorPage;
-import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,12 +61,12 @@ public class CityServiceImpl implements CityService {
     }
 
     @Override
-    public Page<City> getAllCities(String search, int page, int pageSize) {
+    public Page<City> getAllCities(String search, PageParams pageParams) {
         LOGGER.debug("Finding all cities with search {}", search);
         if (search == null || search.isEmpty()) {
-            return cityDao.getAllCities(page, pageSize);
+            return cityDao.getAllCities(pageParams.getPage(), pageParams.getSize());
         }
-        return cityDao.searchBySubstring(search,page, pageSize);
+        return cityDao.searchBySubstring(search, pageParams.getPage(), pageParams.getSize());
     }
 
 
@@ -96,8 +93,8 @@ public class CityServiceImpl implements CityService {
     }
 
     @Override
-    public Page<City> searchBySubstring(String substring, int page, int size) {
-        return cityDao.searchBySubstring(substring, page, size);
+    public Page<City> searchBySubstring(String substring, PageParams pageParams) {
+        return cityDao.searchBySubstring(substring, pageParams.getPage(), pageParams.getSize());
     }
 
 }

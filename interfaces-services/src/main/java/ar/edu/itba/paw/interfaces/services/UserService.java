@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.interfaces.services;
 
 import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public interface UserService {
     byte[] getProfilePictureData(User user);
 
     List<User> getAllUsers();
-    Page<User> getAllUsers(String search, int page, int size);
+    Page<User> getAllUsers(String search, PageParams pageParams);
 
     void blockUser(long userId);
     void unblockUser(long userId);

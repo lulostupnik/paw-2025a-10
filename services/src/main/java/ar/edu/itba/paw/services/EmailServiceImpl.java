@@ -79,15 +79,6 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    /*
-    //* Podria usar los siguientes metodos?
-    private void sendHtmlMessage(User emailRecipient, String templateName, Map<String, Object> variables, String subjectKey, Optional<Object[]> maybeSubjectArgs) {
-        sendHtmlMessage(Optional.empty(), Optional.empty(), emailRecipient, templateName, variables, subjectKey, maybeSubjectArgs);
-    }
-    private void sendHtmlMessage(User emailRecipient, String templateName, Map<String, Object> variables, String subjectKey) {
-        sendHtmlMessage(Optional.empty(), Optional.empty(), emailRecipient, templateName, variables, subjectKey, Optional.empty());
-    }*/
-
     private Map<String, Object> buildVariables(String firstName, String lastName, String username,
                                                String career, String originUniversity, String message,
                                                byte[] profilePicture, String idKey, long id) {

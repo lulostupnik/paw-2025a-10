@@ -176,7 +176,7 @@ public class InterestJdbcDao implements InterestDao {
     public Page<Interest> findAllInterestsByUserId(final long id, final int page, final int pageSize) {
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user_interest WHERE user_id = ?", Integer.class, id);
         return new Page<>(
-                jdbcTemplate.query(SQL_FIND_ALL_PAGED_BY_USER, INTEREST_ROW_MAPPER, id,page,offset(page,pageSize)),
+                jdbcTemplate.query(SQL_FIND_ALL_PAGED_BY_USER, INTEREST_ROW_MAPPER, id, pageSize, offset(page,pageSize)),
                 page,
                 pageCount(totalItems, pageSize)
         );

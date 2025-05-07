@@ -8,6 +8,7 @@ import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.webapp.form.FilterJourneyForm;
 import ar.edu.itba.paw.webapp.form.ReplyForm;
 
+import ar.edu.itba.paw.webapp.resolver.anotation.PageParamCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,17 +48,16 @@ public class JourneyController {
     @RequestMapping
     public ModelAndView getJourneys(@Valid @ModelAttribute("filterJourneyForm") FilterJourneyForm fjf, final BindingResult errors,
                                     @ModelAttribute("user") User user,
-                                    @RequestParam(value = "page", defaultValue = "1") int page,
-                                    @RequestParam(value = "size", defaultValue = "8") int size,
+                                    @PageParamCustomizer(defaultSize = 8) PageParams  pageParams,
                                     @RequestParam(value = "search", required = false) String search){
 
         LOGGER.debug("Getting journeys with filters: {destination: \"{}\", startDate: \"{}\", endDate: \"{}\", interest: \"{}\"}",fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
         final ModelAndView mav = new ModelAndView("journeys/list");
         mav.addObject("journeys", js.getAllJourneys(search, user,
-                fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests(), page, size));
+                fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests(), pageParams));
         mav.addObject("hasJourney", user != null && js.userHasJourney(user.getEmail()));
-        mav.addObject("pageSize", size); //@Todo no se si esta bien.
-        mav.addObject("currentPage", page);
+        mav.addObject("pageSize", pageParams.getSize()); //@Todo no se si esta bien.
+        mav.addObject("currentPage", pageParams.getPage());
 
        populateDropdownAttributes(mav);
 
