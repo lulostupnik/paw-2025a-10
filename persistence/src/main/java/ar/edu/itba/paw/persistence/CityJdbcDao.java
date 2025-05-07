@@ -128,7 +128,7 @@ public class CityJdbcDao implements CityDao {
 
     @Override
     public long createCity(final String name, final Country country) {
-        LOGGER.info("Creating or reactivating city {} in country {}", name, country.getName());
+        LOGGER.debug("Creating or reactivating city {} in country {}", name, country.getName());
 
         final int rowsUpdated = jdbcTemplate.update(
                 "UPDATE cities SET deleted = FALSE WHERE name = ? AND country_id = ? AND deleted = TRUE",
@@ -136,7 +136,7 @@ public class CityJdbcDao implements CityDao {
         );
 
         if (rowsUpdated > 0) {
-            LOGGER.debug("City {} reactivated", name);
+            LOGGER.info("City {} reactivated", name);
             return jdbcTemplate.queryForObject(
                     "SELECT id FROM cities WHERE name = ? AND country_id = ?",
                     Long.class,
@@ -148,13 +148,14 @@ public class CityJdbcDao implements CityDao {
         params.put("name", name);
         params.put("country_id", country.getId());
         params.put("deleted", false);
-
-        return jdbcInsert.executeAndReturnKey(params).longValue();
+        final long id = jdbcInsert.executeAndReturnKey(params).longValue();
+        LOGGER.info("Registered city '{}', '{}' with id {}", name, country, id);
+        return id;
     }
 
     @Override
     public void delete(final long id) {
-        LOGGER.debug("Marking city with ID: {} as deleted", id);
+        LOGGER.info("Marking city with ID: {} as deleted", id);
         final int rowsAffected = jdbcTemplate.update("UPDATE cities SET deleted = TRUE WHERE id = ?", id);
         if (rowsAffected == 0) {
             LOGGER.warn("City deletion failed: City with ID {} not found", id);
