@@ -1,5 +1,7 @@
 package ar.edu.itba.paw.webapp.validation;
 
+import ar.edu.itba.paw.webapp.validation.ImageSizeValidator;
+
 import javax.validation.Constraint;
 import java.lang.annotation.*;
 

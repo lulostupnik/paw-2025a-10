@@ -53,7 +53,7 @@
             <!-- Back to Journeys Button -->
             <div class="back-navigation">
                 <c:if test="${isOwner}">
-                    <a href="<c:url value='/profile'/>" class="back-link">
+                    <a href="<c:url value='/profile/info'/>" class="back-link">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
                             <path d="M19 12H5"></path>
                             <path d="M12 19l-7-7 7-7"></path>
@@ -200,25 +200,6 @@
                             <c:forEach var="response" items="${sortedResponses}">
                                 <div class="chat-message">
                                     <!-- Delete Comment Button (Circle with Trash Icon) -->
-                                    <sec:authorize access="hasRole('ADMIN')">
-                                        <c:url var="deleteReplyUrl" value='/journey-replies/${response.id}/delete'/>
-                                        <form:form modelAttribute="deleteReplyForm" id="delete-journey-response-form-${response.id}" action="${deleteReplyUrl}" method="post" style="display: none;">
-                                            <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
-                                            <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
-                                            <jsp:include page="../components/text-area.jsp">
-                                                <jsp:param name="path" value="message" />
-                                                <jsp:param name="label" value="${messageLabel}" />
-                                                <jsp:param name="placeholder" value="${messagePlaceholder}" />
-                                            </jsp:include>
-                                        </form:form>
-
-                                        <button type="button" class="delete-comment-btn" onclick="openDeleteModal('delete-journey-response-form-${response.id}', 'journeyResponse')" aria-label="Delete comment">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
-                                                <path d="M3 6h18"></path>
-                                                <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
-                                            </svg>
-                                        </button>
-                                    </sec:authorize>
 
                                     <div class="response-header">
                                         <div class="response-user">
@@ -236,11 +217,32 @@
                                                 </p>
                                             </div>
                                         </div>
+                                        <sec:authorize access="hasRole('ADMIN')">
+                                            <c:url var="deleteReplyUrl" value='/journey-replies/${response.id}/delete'/>
+                                            <form:form modelAttribute="deleteReplyForm" id="delete-journey-response-form-${response.id}" action="${deleteReplyUrl}" method="post" style="display: none;">
+                                                <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
+                                                <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
+                                                <jsp:include page="../components/text-area.jsp">
+                                                    <jsp:param name="path" value="message" />
+                                                    <jsp:param name="label" value="${messageLabel}" />
+                                                    <jsp:param name="placeholder" value="${messagePlaceholder}" />
+                                                </jsp:include>
+                                            </form:form>
+
+                                            <button type="button" class="delete-message-button" onclick="openDeleteModal('delete-journey-response-form-${response.id}', 'journeyResponse')" aria-label="Delete comment">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M3 6h18"></path>
+                                                    <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                                                </svg>
+                                            </button>
+                                        </sec:authorize>
+
                                     </div>
                                     <div class="response-body">
                                         <p class="response-message">
                                             <c:out value="${response.message}" />
                                         </p>
+
                                     </div>
                                 </div>
                             </c:forEach>

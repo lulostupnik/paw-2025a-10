@@ -1,12 +1,10 @@
 package ar.edu.itba.paw.webapp.validation;
 
 import ar.edu.itba.paw.interfaces.services.InterestService;
-import ar.edu.itba.paw.interfaces.services.JourneyService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import javax.validation.Valid;
 
 public class ValidInterestValidator implements ConstraintValidator<ValidInterest, long[]> {
     @Autowired

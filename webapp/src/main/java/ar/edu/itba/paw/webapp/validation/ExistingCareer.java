@@ -1,6 +1,6 @@
 package ar.edu.itba.paw.webapp.validation;
 
-import ar.edu.itba.paw.webapp.validation.CityNameValidator;
+import ar.edu.itba.paw.webapp.validation.ExistingCareerValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -11,8 +11,8 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = {CityNameValidator.class})
-public @interface ExistingCity {
+@Constraint(validatedBy = {ExistingCareerValidator.class})
+public @interface ExistingCareer {
     String message() default "{EmailNotInUse.message}";
 
     Class<?>[] groups() default {};
