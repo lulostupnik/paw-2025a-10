@@ -100,6 +100,14 @@ public class EventResponseJdbcDao implements EventResponseDao {
     }
 
     @Override
+    public void deleteByEventId(long eventId) {
+        final int updatedRows = jdbcTemplate.update("UPDATE event_responses SET deleted = TRUE WHERE event_id = ?;", eventId);
+        if (updatedRows == 0) {
+            LOGGER.warn("No journey_response found with id {}", eventId);
+        }
+    }
+
+    @Override
     public void delete(final long id) {
         final int updatedRows = jdbcTemplate.update("UPDATE event_responses SET deleted = TRUE WHERE id = ?;", id);
         if (updatedRows == 0) {

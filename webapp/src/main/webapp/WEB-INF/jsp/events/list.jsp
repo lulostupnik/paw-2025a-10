@@ -29,7 +29,7 @@
         <h2 class="page-title">
           <spring:message code="event.list.title"/>
         </h2>
-        <div class="events-actions">
+        <div class="journeys-actions">
             <form action="<c:url value='${searchUrl}'/>" method="get" class="search-form">
               <input type="text" name="search" class="search-input" placeholder="<spring:message code='${searchPlaceholderCode}' />" value="${param.search}">
               <input type="hidden" name="page" value="1">
