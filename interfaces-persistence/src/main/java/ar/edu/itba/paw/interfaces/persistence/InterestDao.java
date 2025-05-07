@@ -21,6 +21,7 @@ public interface InterestDao {
      void updateScoreByInterests(List<Interest> interests, Long userId);
      Page<Interest> getAllInterests(int page, int pageSize);
      Page<Interest> searchBySubstring(String search, int page, int pageSize);
-
+     Page<Interest> findAllInterestsByUserId(long id, int page, int pageSize);
+          
      void delete(long id);
 }

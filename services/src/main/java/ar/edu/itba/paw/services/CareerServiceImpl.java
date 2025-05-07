@@ -69,6 +69,7 @@ public class CareerServiceImpl implements CareerService {
         return careerDao.update(id, name);
     }
 
+    @Transactional(readOnly = false)
     @Override
     public void delete(long id) {
         careerDao.delete(id);

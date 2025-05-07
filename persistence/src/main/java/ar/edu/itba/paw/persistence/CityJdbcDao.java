@@ -123,7 +123,7 @@ public class CityJdbcDao implements CityDao {
     }
 
     @Override
-    public void createCity(final String name, final Country country) {
+    public long createCity(final String name, final Country country) {
         LOGGER.debug("Creating or reactivating city {} in country {}", name, country.getName());
 
         final int rowsUpdated = jdbcTemplate.update(
@@ -133,16 +133,19 @@ public class CityJdbcDao implements CityDao {
 
         if (rowsUpdated > 0) {
             LOGGER.debug("City {} reactivated", name);
-            return;
+            return jdbcTemplate.queryForObject(
+                    "SELECT id FROM cities WHERE name = ? AND country_id = ?",
+                    Long.class,
+                    name, country.getId()
+            );
         }
 
         final Map<String, Object> params = new HashMap<>();
         params.put("name", name);
         params.put("country_id", country.getId());
         params.put("deleted", false);
-        jdbcInsert.execute(params);
-        LOGGER.debug("City {} created", name);
 
+        return jdbcInsert.executeAndReturnKey(params).longValue();
     }
 
     @Override

@@ -96,7 +96,7 @@
                                     <c:otherwise>
                                         <c:if test="${not isFull}">
                                             <form action="<c:url value='/events/${event.id}/attend'/>" method="post">
-                                                <button type="submit" class="attend-detail-button">
+                                                <button type="submit" class="btn-primary btn-with-icon">
                                                     <!-- Calendar plus icon SVG -->
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                         <path d="M21 14V6a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h8"></path>

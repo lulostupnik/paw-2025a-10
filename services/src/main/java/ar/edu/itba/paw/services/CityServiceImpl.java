@@ -73,7 +73,7 @@ public class CityServiceImpl implements CityService {
     }
 
 
-    @Transactional
+    @Transactional(readOnly = false)
     @Override
     public void updateCity(long id, String name, String country) {
         Country country1 = countryService.findByName(country)
@@ -83,12 +83,13 @@ public class CityServiceImpl implements CityService {
 
     @Transactional
     @Override
-    public void createCity(String name, String country) {
+    public long createCity(String name, String country) {
         Country country1 = countryService.findByName(country)
                 .orElseThrow(() -> new IllegalArgumentException("Country not found"));
-        cityDao.createCity(name, country1);
+        return cityDao.createCity(name, country1);
     }
 
+    @Transactional(readOnly = false)
     @Override
     public void delete(long id) {
         cityDao.delete(id);

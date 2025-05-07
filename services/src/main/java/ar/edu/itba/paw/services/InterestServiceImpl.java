@@ -8,7 +8,9 @@ import ar.edu.itba.paw.models.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,20 +66,34 @@ public class InterestServiceImpl implements InterestService {
         return interestDao.findIdByName(names);
     }
 
+    @Override
+    public Page<Interest> findAllInterestsByUserId(long id, int page, int pageSize) {
+        return interestDao.findAllInterestsByUserId(id, page, pageSize);
+    }
+
     @Transactional
     @Override
     public Interest createUserInterest(String interest) {
         return interestDao.createUserInterest(interest);
     }
 
-
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "interestsById", key = "#id"),
+            @CacheEvict(value = "interests", allEntries = true),
+            @CacheEvict(value = "interestsByName", allEntries = true)
+    })
     @Override
     public void deleteUserInterest(long id) {
         interestDao.deleteUserInterest(id);
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "interestsById", key = "#id"),
+            @CacheEvict(value = "interests", allEntries = true),
+            @CacheEvict(value = "interestsByName", allEntries = true)
+    })
     @Override
     public void editUserInterest(long id, String interest) {
         interestDao.editUserInterest(id, interest);

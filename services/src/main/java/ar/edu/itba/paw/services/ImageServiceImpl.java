@@ -63,14 +63,6 @@ public class ImageServiceImpl implements ImageService {
         imageDao.deleteImage(id);
     }
 
-    @Transactional
-    @CacheEvict(value = "images", key = "#id")
-    @Override
-    public void updateImage(Long id, byte[] newContent) {
-        LOGGER.debug("Updating image {}", id);
-        imageDao.updateImage(id, newContent);
-    }
-
 
 }
 

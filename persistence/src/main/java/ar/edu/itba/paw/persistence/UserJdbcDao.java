@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
+import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
@@ -107,7 +108,7 @@ public class UserJdbcDao implements UserDao {
 
 
     @Autowired
-    public UserJdbcDao(final DataSource dataSource) {
+    public UserJdbcDao(final DataSource dataSource, final UniversityDao universityDao) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("users")
@@ -346,10 +347,32 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
+    public void updateUniversity(final long userId, final String universityName) {
+        LOGGER.debug("Updating university for user ID: {} to university with name: {}", userId, universityName);
+
+        jdbcTemplate.update("""
+                UPDATE users
+                SET university = (SELECT id FROM universities WHERE name = ?)
+                WHERE id = ?
+                """, universityName, userId);
+    }
+
+    @Override
     public void updateCareer(final long userId, final long careerId) {
         LOGGER.debug("Updating career for user ID: {} to career ID: {}", userId, careerId);
         jdbcTemplate.update("UPDATE users SET career_id = ? WHERE id = ?", careerId, userId);
         // return update(userId, null, null, null, null, careerId, null);
+    }
+
+    @Override
+    public void updateCareer(long userId, String careerName) {
+        LOGGER.debug("Updating career for user ID: {} to university with name: {}", userId, careerName);
+
+        jdbcTemplate.update("""
+                UPDATE users
+                SET career_id = (SELECT id FROM careers WHERE name = ?)
+                WHERE id = ?
+                """, careerName, userId);
     }
 
     @Override

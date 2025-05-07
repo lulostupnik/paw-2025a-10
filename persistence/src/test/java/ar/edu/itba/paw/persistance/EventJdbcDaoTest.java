@@ -51,7 +51,9 @@ public class EventJdbcDaoTest {
     private static final String EVENT_ADDRESS = "cool place";
     private static final LocalTime EVENT_TIME = LocalTime.now().withNano(0);
     private static final LocalDate EVENT_DATE = LocalDate.now().plusDays(7);
+    private static final LocalDate LATER_DATE = EVENT_DATE.plusDays(10);
     private static final int EVENT_ATTENDANCE_LIMIT = 10;
+    private static final int EVENT_ATTENDANCE = 5;
     private static final String USER1_EMAIL = "user1@mail.com";
     private static final String EVENT_ATTENDANCE_TABLE = "event_attendances";
 
@@ -75,7 +77,8 @@ public class EventJdbcDaoTest {
     private static User USER3;
     private static City CITY1;
     private static City CITY2;
-    private static long IMAGE_ID;
+    private static long IMAGE_ID1;
+    private static long IMAGE_ID2;
 
     @Autowired
     private DataSource ds;
@@ -101,9 +104,10 @@ public class EventJdbcDaoTest {
         params.put("event_time", time.isPresent() ? Time.valueOf(time.get()) : null);
         params.put("address", ((Optional<String>)overrides.getOrDefault("address", Optional.of(EVENT_ADDRESS))).orElse(null));
         params.put("attendees_limit", ((Optional<Integer>)overrides.getOrDefault("limit", Optional.of(EVENT_ATTENDANCE_LIMIT))).orElse(null));
+        params.put("attendees_count", ((Integer)overrides.getOrDefault("willAttend", EVENT_ATTENDANCE)));
         params.put("description", ((Optional<String>)overrides.getOrDefault("description", Optional.of(EVENT_DESCRIPTION))).orElse(null));
         params.put("title", overrides.getOrDefault("title", EVENT_TITLE));
-        params.put("flyer_image_id", overrides.getOrDefault("image", IMAGE_ID));
+        params.put("flyer_image_id", overrides.getOrDefault("image", IMAGE_ID1));
         params.put("deleted", overrides.getOrDefault("deleted", false));
         params.put("deleted_message", overrides.getOrDefault("deletedMessage", null));
 
@@ -129,7 +133,7 @@ public class EventJdbcDaoTest {
         assertEquals(overrides.getOrDefault("limit", Optional.of(EVENT_ATTENDANCE_LIMIT)), event.getAttendeesLimit());
         assertEquals(((Optional<String>)overrides.getOrDefault("description", Optional.of(EVENT_DESCRIPTION))).orElse(null), event.getDescription());
         assertEquals(overrides.getOrDefault("title", EVENT_TITLE), event.getTitle());
-        assertEquals(overrides.getOrDefault("image", IMAGE_ID), event.getFlyerImageId());
+        assertEquals(overrides.getOrDefault("image", IMAGE_ID1), event.getFlyerImageId());
     }
 
     @Before
@@ -143,6 +147,7 @@ public class EventJdbcDaoTest {
         jdbcTemplate.execute("INSERT INTO cities(name, deleted, country_id) VALUES('Buenos Aires', FALSE, (SELECT id FROM countries WHERE code = 'AR'))");
         jdbcTemplate.execute("INSERT INTO cities(name, deleted, country_id) VALUES('Boston', FALSE, (SELECT id FROM countries WHERE code = 'US'))");
         jdbcTemplate.execute("INSERT INTO images(content) VALUES('ffffffff')");
+        jdbcTemplate.execute("INSERT INTO images(content) VALUES('ffffffffffffff')");
         jdbcTemplate.execute("INSERT INTO careers(name, deleted) VALUES('a', FALSE)");
         jdbcTemplate.execute("INSERT INTO universities(name, abbreviation, deleted, city_id) VALUES('Instituto muy largo', 'ITBA', FALSE, (SELECT id FROM cities WHERE name = 'Buenos Aires'))");
         jdbcTemplate.execute("INSERT INTO users(email, username, firstname, lastname, university, career_id, profile_picture_id, language, roles, blocked) VALUES('user1@mail.com', 'user1', 'user', '1', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers WHERE name = 'a'), (SELECT id FROM images LIMIT 1), 'es', 'user', FALSE)");
@@ -154,30 +159,31 @@ public class EventJdbcDaoTest {
         USER3 = jdbcTemplate.query("SELECT id FROM users WHERE lastname = '3'", (rs, n) -> new User(rs.getLong("id"), null, null, null, null, null, null, 0, null, false)).stream().findFirst().get();
         CITY1 = jdbcTemplate.query("SELECT id FROM cities WHERE name = 'Buenos Aires'", (rs, n) -> new City(null, null, rs.getLong("id"))).stream().findFirst().get();
         CITY2 = jdbcTemplate.query("SELECT id FROM cities WHERE name = 'Boston'", (rs, n) -> new City(null, null, rs.getLong("id"))).stream().findFirst().get();
-        IMAGE_ID = jdbcTemplate.queryForObject("SELECT id FROM images LIMIT 1", Long.class).longValue();
+        IMAGE_ID1 = jdbcTemplate.queryForObject("SELECT id FROM images LIMIT 1", Long.class).longValue();
+        IMAGE_ID2 = jdbcTemplate.queryForObject("SELECT id FROM images WHERE id != ? LIMIT 1", Long.class, IMAGE_ID1).longValue();
     }
 
     @Test
     public void testCreate(){
-        Event event = eventDao.create(USER1, CITY1, EVENT_DATE, EVENT_DESCRIPTION, IMAGE_ID, EVENT_TITLE, EVENT_TIME, EVENT_ADDRESS, EVENT_ATTENDANCE_LIMIT);
+        Event event = eventDao.create(USER1, CITY1, EVENT_DATE, EVENT_DESCRIPTION, IMAGE_ID1, EVENT_TITLE, EVENT_TIME, EVENT_ADDRESS, EVENT_ATTENDANCE_LIMIT);
 
         assertEqualsEvent(event);
     }
     @Test
     public void testCreateNoAddress(){
-        Event event = eventDao.create(USER1, CITY1, EVENT_DATE, EVENT_DESCRIPTION, IMAGE_ID, EVENT_TITLE, EVENT_TIME, null, EVENT_ATTENDANCE_LIMIT);
+        Event event = eventDao.create(USER1, CITY1, EVENT_DATE, EVENT_DESCRIPTION, IMAGE_ID1, EVENT_TITLE, EVENT_TIME, null, EVENT_ATTENDANCE_LIMIT);
 
         assertEqualsEvent(event, Map.of("address", Optional.empty()));
     }
     @Test
     public void testCreateNoAddressNoLimit(){
-        Event event = eventDao.create(USER1, CITY1, EVENT_DATE, EVENT_DESCRIPTION, IMAGE_ID, EVENT_TITLE, EVENT_TIME, null, null);
+        Event event = eventDao.create(USER1, CITY1, EVENT_DATE, EVENT_DESCRIPTION, IMAGE_ID1, EVENT_TITLE, EVENT_TIME, null, null);
 
         assertEqualsEvent(event, Map.of("address", Optional.empty(), "limit", Optional.empty()));
     }
     @Test
     public void testCreateNoAddressNoLimitNoTime(){
-        Event event = eventDao.create(USER1, CITY1, EVENT_DATE, EVENT_DESCRIPTION, IMAGE_ID, EVENT_TITLE, null, null, null);
+        Event event = eventDao.create(USER1, CITY1, EVENT_DATE, EVENT_DESCRIPTION, IMAGE_ID1, EVENT_TITLE, null, null, null);
 
         assertEqualsEvent(event, Map.of("address", Optional.empty(), "limit", Optional.empty(), "time", Optional.empty()));
     }
@@ -187,11 +193,11 @@ public class EventJdbcDaoTest {
     }
     @Test(expected = DataAccessException.class)
     public void testCreateWrongCity(){
-        eventDao.create(USER1, new City(null, null, 12341234), EVENT_DATE, EVENT_DESCRIPTION, IMAGE_ID, EVENT_TITLE, EVENT_TIME, null, EVENT_ATTENDANCE_LIMIT);
+        eventDao.create(USER1, new City(null, null, 12341234), EVENT_DATE, EVENT_DESCRIPTION, IMAGE_ID1, EVENT_TITLE, EVENT_TIME, null, EVENT_ATTENDANCE_LIMIT);
     }
     @Test
     public void testCreateNoDescription(){
-        Event event = eventDao.create(USER1, CITY1, EVENT_DATE, null, IMAGE_ID, EVENT_TITLE, EVENT_TIME, EVENT_ADDRESS, EVENT_ATTENDANCE_LIMIT);
+        Event event = eventDao.create(USER1, CITY1, EVENT_DATE, null, IMAGE_ID1, EVENT_TITLE, EVENT_TIME, EVENT_ADDRESS, EVENT_ATTENDANCE_LIMIT);
 
         assertEqualsEvent(event, Map.of("description", Optional.empty()));
     }
@@ -381,87 +387,97 @@ public class EventJdbcDaoTest {
 
     @Test
     public void testGetTopEvents(){
-        long id0 = insertEvent();
-        long id1 = insertEvent();
-        long id2 = insertEvent(Map.of("user", USER2));
-        long id3 = insertEvent(Map.of("user", USER3));
-        insertAttendance.execute(Map.of("user_id", USER1.getId(), "event_id", id3));
-        insertAttendance.execute(Map.of("user_id", USER2.getId(), "event_id", id3));
-        insertAttendance.execute(Map.of("user_id", USER3.getId(), "event_id", id3));
-        insertAttendance.execute(Map.of("user_id", USER1.getId(), "event_id", id2));
-        insertAttendance.execute(Map.of("user_id", USER2.getId(), "event_id", id2));
-        insertAttendance.execute(Map.of("user_id", USER1.getId(), "event_id", id1));
+        List<Long> ids = new ArrayList<>();
+        //not full, 20, soon
+        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 20)));
+        //not full, 20, later
+        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 20, "date", LATER_DATE)));
+        //not full, 10, soon
+        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 10)));
+        //not full, 10, later
+        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 10, "date", LATER_DATE)));
+        //full, 20, soon
+        ids.add(insertEvent(Map.of("limit", Optional.of(20), "willAttend", 20)));
+        //full, 20, later
+        ids.add(insertEvent(Map.of("limit", Optional.of(20), "willAttend", 20, "date", LATER_DATE)));
+        //full, 10, soon
+        ids.add(insertEvent(Map.of("limit", Optional.of(10), "willAttend", 10)));
+        //full, 10, later
+        ids.add(insertEvent(Map.of("limit", Optional.of(10), "willAttend", 10, "date", LATER_DATE)));
 
-        Page<Event> page1 = eventDao.getTopEvents(1,3);
-        Page<Event> page2 = eventDao.getTopEvents(2,3);
+        Page<Event> events = eventDao.getTopEvents(1, 100);
 
-        assertNotNull(page1);
-        assertEquals(1, page1.getCurrentPage());
-        assertEquals(2, page1.getTotalPages());
-        assertNotNull(page1.getContent());
-        assertEquals(3, page1.getContent().size());  
-        assertNotNull(page2);
-        assertEquals(2, page2.getCurrentPage());
-        assertEquals(2, page2.getTotalPages());
-        assertNotNull(page2.getContent());
-        assertEquals(1, page2.getContent().size());  
-        assertEquals(id3, page1.getContent().get(0).getId());
-        assertEquals(id2, page1.getContent().get(1).getId());
-        assertEquals(id1, page1.getContent().get(2).getId());
-        assertEquals(id0, page2.getContent().get(0).getId());
-    }
-    @Test
-    public void testGetTopEventsTie(){
-        insertEvent();
-        long id1 = insertEvent();
-        long id2 = insertEvent(Map.of("user", USER2));
-        long id3 = insertEvent(Map.of("user", USER3, "date", EVENT_DATE.plusDays(-1)));
-        insertAttendance.execute(Map.of("user_id", USER2.getId(), "event_id", id3));
-        insertAttendance.execute(Map.of("user_id", USER3.getId(), "event_id", id3));
-        insertAttendance.execute(Map.of("user_id", USER1.getId(), "event_id", id2));
-        insertAttendance.execute(Map.of("user_id", USER2.getId(), "event_id", id2));
-        insertAttendance.execute(Map.of("user_id", USER1.getId(), "event_id", id1));
-
-        Page<Event> page1 = eventDao.getTopEvents(1, 3);
-
-        assertNotNull(page1);
-        assertEquals(1, page1.getCurrentPage());
-        assertEquals(2, page1.getTotalPages());
-        assertNotNull(page1.getContent());
-        assertEquals(3, page1.getContent().size());  
-        assertEquals(id3, page1.getContent().get(0).getId());
-        assertEquals(id2, page1.getContent().get(1).getId());
-        assertEquals(id1, page1.getContent().get(2).getId());
-    }
-    @Test
-    public void testGetTopEventsDeletedTop(){
-        long id0 = insertEvent();
-        long id1 = insertEvent();
-        long id2 = insertEvent(Map.of("user", USER2));
-        long id3 = insertEvent(Map.of("user", USER3, "date", EVENT_DATE.plusDays(-1), "deleted", true));
-        insertAttendance.execute(Map.of("user_id", USER2.getId(), "event_id", id3));
-        insertAttendance.execute(Map.of("user_id", USER3.getId(), "event_id", id3));
-        insertAttendance.execute(Map.of("user_id", USER1.getId(), "event_id", id2));
-        insertAttendance.execute(Map.of("user_id", USER2.getId(), "event_id", id2));
-        insertAttendance.execute(Map.of("user_id", USER1.getId(), "event_id", id1));
-
-        Page<Event> page1 = eventDao.getTopEvents(1,3);
-
-        assertNotNull(page1);
-        assertEquals(1, page1.getCurrentPage());
-        assertEquals(1, page1.getTotalPages());
-        assertNotNull(page1.getContent());
-        assertEquals(3, page1.getContent().size());  
-        assertEquals(id2, page1.getContent().get(0).getId());
-        assertEquals(id1, page1.getContent().get(1).getId());
-        assertEquals(id0, page1.getContent().get(2).getId());
+        assertNotNull(events);
+        assertNotNull(events.getContent());
+        for (int i = 0; i < ids.size(); i++){
+            assertEquals(ids.get(i).longValue(), events.getContent().get(i).getId());
+        }
     }
     @Test
     public void testGetTopEventsNoEvents(){
-        long id1 = insertEvent(Map.of("deleted", true));
-        insertAttendance.execute(Map.of("user_id", USER1.getId(), "event_id", id1));
+        insertEvent(Map.of("deleted", true));
+        insertEvent(Map.of("date", EVENT_DATE.plusDays(-100)));
 
         Page<Event> page1 = eventDao.getTopEvents(1,3);
+
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(0, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(0, page1.getContent().size());
+    }
+
+    @Test
+    public void testGetTopUserEvents(){
+        List<Long> ids = new ArrayList<>();
+        //00 not full, not attending, 20, soon
+        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 20)));
+        //01 not full, not attending, 20, later
+        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 20, "date", LATER_DATE)));
+        //02 not full, not attending, 10, soon
+        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 10)));
+        //03 not full, not attending, 10, later
+        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 10, "date", LATER_DATE)));
+        //04 not full, attending, 20, soon
+        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 20, "attending", USER2)));
+        //05 not full, attending, 20, later
+        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 20, "attending", USER2, "date", LATER_DATE)));
+        //06 not full, attending, 10, soon
+        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 10, "attending", USER2)));
+        //07 not full, attending, 10, later
+        ids.add(insertEvent(Map.of("limit", Optional.of(30), "willAttend", 10, "attending", USER2, "date", LATER_DATE)));
+        //08 full, 20, not attending, soon
+        ids.add(insertEvent(Map.of("limit", Optional.of(20), "willAttend", 20)));
+        //09 full, 20, not attending, later
+        ids.add(insertEvent(Map.of("limit", Optional.of(20), "willAttend", 20, "date", LATER_DATE)));
+        //10 full, 10, not attending, soon
+        ids.add(insertEvent(Map.of("limit", Optional.of(10), "willAttend", 10)));
+        //11 full, 10, not attending, later
+        ids.add(insertEvent(Map.of("limit", Optional.of(10), "willAttend", 10, "date", LATER_DATE)));
+        //12 full, 20, attending, soon
+        ids.add(insertEvent(Map.of("limit", Optional.of(20), "willAttend", 20, "attending", USER2)));
+        //13 full, 20, attending, later
+        ids.add(insertEvent(Map.of("limit", Optional.of(20), "willAttend", 20, "attending", USER2, "date", LATER_DATE)));
+        //14 full, 10, attending, soon
+        ids.add(insertEvent(Map.of("limit", Optional.of(10), "willAttend", 10, "attending", USER2)));
+        //15 full, 10, attending, later
+        ids.add(insertEvent(Map.of("limit", Optional.of(10), "willAttend", 10, "attending", USER2, "date", LATER_DATE)));
+
+        Page<UserEvent> events = eventDao.getTopUserEvents(USER2.getId(), 1, 100);
+
+        assertNotNull(events);
+        assertNotNull(events.getContent());
+        assertEquals(16, events.getContent().size());
+        for (int i = 0; i < ids.size(); i++){
+            assertEquals(ids.get(i).longValue(), events.getContent().get(i).getEvent().getId());
+        }
+    }
+    @Test
+    public void testGetTopUserEventsNoEvents(){
+        insertEvent(Map.of("deleted", true));
+        insertEvent(Map.of("date", EVENT_DATE.plusDays(-100)));
+
+        Page<UserEvent> page1 = eventDao.getTopUserEvents(USER2.getId(), 1,3);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -948,7 +964,8 @@ public class EventJdbcDaoTest {
             null, 
             null, 
             null, 
-            id
+            id,
+            IMAGE_ID1
         );
 
         Optional<Event> maybeEvent = jdbcTemplate.query(
@@ -979,7 +996,8 @@ public class EventJdbcDaoTest {
             EVENT_TIME.plusHours(1), 
             "new Address", 
             100, 
-            id
+            id,
+            IMAGE_ID2
         );
 
         Optional<Event> maybeEvent = jdbcTemplate.query(
@@ -996,21 +1014,24 @@ public class EventJdbcDaoTest {
             "description", Optional.of("EVENT_DESCRIPTION"), 
             "time", Optional.of(EVENT_TIME.plusHours(1)), 
             "address", Optional.of("new Address"),
-            "limit", Optional.of(100)));
+            "limit", Optional.of(100),
+            "image", IMAGE_ID2
+        ));
     }
     @Test
     public void updateEventWrongId(){
         long id = insertEvent();
 
         eventDao.updateData(
-            CITY2.getId(), 
+            CITY1.getId(), 
             EVENT_DATE.plusDays(30), 
             "EVENT_DESCRIPTION", 
             "EVENT_TITLE", 
             null, 
             null, 
             null, 
-            1231234
+            1231234,
+            IMAGE_ID1
         );
 
         Optional<Event> maybeEvent = jdbcTemplate.query(
@@ -1031,20 +1052,21 @@ public class EventJdbcDaoTest {
         long id1 = insertEvent(event1);
         long id2 = insertEvent(event2);
         insertEvent(Map.of("user", USER2, "deleted", true));
+        insertEvent(Map.of("user", USER2, "city", CITY2));
         insertEvent(Map.of("user", USER2, "date", LocalDate.now().plusDays(-2)));
         Map<Long, Map<String, Object>> eventInfo = Map.of(id1, event1, id2, event2);
 
-        List<UserEvent> events = eventDao.getRecommendedEvents(USER1.getId(), 1, 100).getContent();
+        Page<UserEvent> events = eventDao.getRecommendedEvents(USER1.getId(), 1, 100);
 
         assertNotNull(events);
-//        assertEquals(1, events.getCurrentPage());
-//        assertEquals(1, events.getTotalPages());
-//        assertNotNull(events.getContent());
-//        assertEquals(2, events.getContent().size());
-//        for (UserEvent e : events.getContent()){
-//            assertEquals(eventInfo.get(e.getEvent().getId()).get("attending") == USER1, e.isAttending());
-//            assertEqualsEvent(e.getEvent(), eventInfo.get(e.getEvent().getId()));
-//        }
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(1, events.getTotalPages());
+        assertNotNull(events.getContent());
+        assertEquals(2, events.getContent().size());
+        for (UserEvent e : events.getContent()){
+            assertEquals(eventInfo.get(e.getEvent().getId()).get("attending") == USER1, e.isAttending());
+            assertEqualsEvent(e.getEvent(), eventInfo.get(e.getEvent().getId()));
+        }
     }
     @Test
     public void testGetRecommendedEventsNoEvents(){
@@ -1052,13 +1074,13 @@ public class EventJdbcDaoTest {
         insertEvent(Map.of("user", USER2, "deleted", true));
         insertEvent(Map.of("user", USER2, "date", LocalDate.now().plusDays(-2)));
 
-        List<UserEvent> events = eventDao.getRecommendedEvents(USER1.getId(),1, 100).getContent();
+        Page<UserEvent> events = eventDao.getRecommendedEvents(USER1.getId(),1, 100);
 
         assertNotNull(events);
-//        assertEquals(1, events.getCurrentPage());
-//        assertEquals(0, events.getTotalPages());
-//        assertNotNull(events.getContent());
-//        assertEquals(0, events.getContent().size());
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(0, events.getTotalPages());
+        assertNotNull(events.getContent());
+        assertEquals(0, events.getContent().size());
     }
     @Test
     public void testGetRecommendedEventsWrongEmail(){
@@ -1066,12 +1088,59 @@ public class EventJdbcDaoTest {
         insertEvent(Map.of("user", USER2, "deleted", true));
         insertEvent(Map.of("user", USER2, "date", LocalDate.now().plusDays(-2)));
 
-        List<UserEvent> events = eventDao.getRecommendedEvents(USER1.getId(),1, 100).getContent();
+        Page<UserEvent> events = eventDao.getRecommendedEvents(USER1.getId(),1, 100);
 
         assertNotNull(events);
-//        assertEquals(1, events.getCurrentPage());
-//        assertEquals(0, events.getTotalPages());
-//        assertNotNull(events.getContent());
-//        assertEquals(0, events.getContent().size());
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(0, events.getTotalPages());
+        assertNotNull(events.getContent());
+        assertEquals(0, events.getContent().size());
+    }
+    @Test
+    public void testGetRecommendedEventsOrder(){
+        List<Long> ids = new ArrayList<>();
+        //not full, not attending, 20, soon (first)
+        ids.add(insertEvent(Map.of("user", USER2, "limit", Optional.of(30), "willAttend", 20)));
+        //not full, not attending, 20, later (second)
+        ids.add(insertEvent(Map.of("user", USER2, "limit", Optional.of(30), "willAttend", 20, "date", LATER_DATE)));
+        //not full, not attending, 10, soon (third)
+        ids.add(insertEvent(Map.of("user", USER2, "limit", Optional.of(30), "willAttend", 10)));
+        //not full, not attending, 10, later (fourth)
+        ids.add(insertEvent(Map.of("user", USER2, "limit", Optional.of(30), "willAttend", 10, "date", LATER_DATE)));
+        //not full, attending, 20, soon (fifth)
+        ids.add(insertEvent(Map.of("user", USER2, "limit", Optional.of(30), "willAttend", 20, "attending", USER1)));
+        //not full, attending, 20, later (sixth)
+        ids.add(insertEvent(Map.of("user", USER2, "limit", Optional.of(30), "willAttend", 20, "attending", USER1, "date", LATER_DATE)));
+        //not full, attending, 10, soon (seventh)
+        ids.add(insertEvent(Map.of("user", USER2, "limit", Optional.of(30), "willAttend", 10, "attending", USER1)));
+        //not full, attending, 10, later (eigth)
+        ids.add(insertEvent(Map.of("user", USER2, "limit", Optional.of(30), "willAttend", 10, "attending", USER1, "date", LATER_DATE)));
+        //full, not attending, 20, soon (ninth)
+        ids.add(insertEvent(Map.of("user", USER2, "limit", Optional.of(20), "willAttend", 20)));
+        //full, not attending, 20, later (tenth)
+        ids.add(insertEvent(Map.of("user", USER2, "limit", Optional.of(20), "willAttend", 20, "date", LATER_DATE)));
+        //full, not attending, 10, soon (eleventh)
+        ids.add(insertEvent(Map.of("user", USER2, "limit", Optional.of(10), "willAttend", 10)));
+        //full, not attending, 10, later (twelfth)
+        ids.add(insertEvent(Map.of("user", USER2, "limit", Optional.of(10), "willAttend", 10, "date", LATER_DATE)));
+        //full, attending, 20, soon (thirteenth)
+        ids.add(insertEvent(Map.of("user", USER2, "limit", Optional.of(20), "willAttend", 20, "attending", USER1)));
+        //full, attending, 20, later (fourteenth)
+        ids.add(insertEvent(Map.of("user", USER2, "limit", Optional.of(20), "willAttend", 20, "attending", USER1, "date", LATER_DATE)));
+        //full, attending, 10, soon (fifteenth)
+        ids.add(insertEvent(Map.of("user", USER2, "limit", Optional.of(10), "willAttend", 10, "attending", USER1)));
+        //full, attending, 10, later (sixteenth)
+        ids.add(insertEvent(Map.of("user", USER2, "limit", Optional.of(10), "willAttend", 10, "attending", USER1, "date", LATER_DATE)));
+
+        Page<UserEvent> events = eventDao.getRecommendedEvents(USER1.getId(), 1, 100);
+
+        assertNotNull(events);
+        assertNotNull(events.getContent());
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(1, events.getTotalPages());
+        assertEquals(16, events.getContent().size());
+        for (int i = 0; i < ids.size(); i++){
+            assertEquals(ids.get(i).longValue(), events.getContent().get(i).getEvent().getId());
+        }
     }
 }

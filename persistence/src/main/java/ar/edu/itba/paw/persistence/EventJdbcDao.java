@@ -217,11 +217,11 @@ public class EventJdbcDao implements EventDao {
                 LEFT JOIN event_attendees a ON a.event_id = e.id
                 LEFT JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = ?
                 WHERE e.event_date >= CURRENT_DATE
+                AND us.id != ?
                 AND e.deleted = FALSE
                 ORDER BY
                  (e.attendees_limit IS NOT NULL AND e.attendees_count >= e.attendees_limit) ASC, 
                   is_attending ASC,
-                  is_owner ASC,
                   COALESCE(e.attendees_count, 0) DESC, 
                   e.event_date
                 LIMIT ? OFFSET ?
@@ -353,8 +353,9 @@ public class EventJdbcDao implements EventDao {
         LOGGER.debug("[TopUserEvents] Fetching top events for user {} (page={}, size={})", userId, page, size);
 
         final int totalItems = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM events e WHERE e.deleted = FALSE AND e.event_date >= CURRENT_DATE",
-                Integer.class
+                "SELECT COUNT(*) FROM events e WHERE e.deleted = FALSE AND e.event_date >= CURRENT_DATE AND e.user_id != ?",
+                Integer.class,
+                userId
         );
 
         final List<UserEvent> events = jdbcTemplate.query(SQL_TOP_EVENTS_LOGGED_USER,
@@ -363,7 +364,7 @@ public class EventJdbcDao implements EventDao {
                     boolean isAttending = rs.getBoolean("is_attending");
                     return new UserEvent(event, isAttending);
                 },
-                userId,userId, size, (page - 1) * size
+                userId,userId, userId, size, (page - 1) * size
         );
 
         return new Page<>(events, page, (int) Math.ceil((double) totalItems / size));
@@ -563,7 +564,7 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public void updateData(final long cityId, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit, final long eventId/*, long userId*/) {
+    public void updateData(final long cityId, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit, final long eventId, final long flyerImageId/*, long userId*/) {
         jdbcTemplate.update("""
             UPDATE events
                SET city_id = ?,
@@ -572,7 +573,8 @@ public class EventJdbcDao implements EventDao {
                    title = ?,
                    event_time = ?,
                    address = ?,
-                   attendees_limit = ?
+                   attendees_limit = ?,
+                   flyer_image_id = ?
              WHERE id = ?
              """,
                 cityId,
@@ -582,6 +584,7 @@ public class EventJdbcDao implements EventDao {
                 (time != null) ? Time.valueOf(time) : null,
                 address,
                 attendeesLimit,
+                flyerImageId, 
                 eventId
         );
     }

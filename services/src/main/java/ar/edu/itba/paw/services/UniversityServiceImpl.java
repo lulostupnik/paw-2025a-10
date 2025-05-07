@@ -1,9 +1,7 @@
 package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
-import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
-import ar.edu.itba.paw.models.CursorPage;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.University;
 import org.slf4j.Logger;
@@ -20,15 +18,11 @@ import java.util.Optional;
 public class UniversityServiceImpl implements UniversityService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UniversityServiceImpl.class);
 
-
     private final UniversityDao universityDao;
-    private final CityService cityService;
 
     @Autowired
-    public UniversityServiceImpl(UniversityDao universityDao, CityService cityService) {
-
+    public UniversityServiceImpl(UniversityDao universityDao) {
         this.universityDao = universityDao;
-        this.cityService = cityService;
     }
 
     @Transactional(readOnly = true)
@@ -40,6 +34,7 @@ public class UniversityServiceImpl implements UniversityService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<University> findById(Long id) {
         return universityDao.findById(id);
     }
@@ -70,31 +65,37 @@ public class UniversityServiceImpl implements UniversityService {
     }
 
 
+    // TODO: ¿Hace falta el if?
     @Override
+    @Transactional(readOnly = true)
     public Page<University> getAllUniversities(String search, int page, int size) {
         LOGGER.debug("Getting all universities with search {}", search);
         if (search == null || search.isEmpty()) {
             return universityDao.getAllUniversities(page, size);
         }
-        return universityDao.searchBySubstring(search,page, size);
+        return universityDao.searchBySubstring(search, page, size);
     }
 
     @Override
+    @Transactional
     public University createUniversity(String name, String abbreviation, String city) {
         return universityDao.createUniversity(name, abbreviation, city);
     }
 
     @Override
-    public void updateUniversity(long id, String name, String abbreviation, String city) {
-        universityDao.updateUniversity(id, name, abbreviation, cityService.findByName(city).get().getId());
+    @Transactional
+    public void updateUniversity(long id, String name, String abbreviation, String cityName) {
+        universityDao.updateUniversity(id, name, abbreviation, cityName);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<University> searchUniversities(String search, int page, int size) {
         return universityDao.searchBySubstring(search, page, size);
     }
 
     @Override
+    @Transactional
     public void delete(long id) {
         universityDao.delete(id);
     }

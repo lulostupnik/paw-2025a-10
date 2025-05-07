@@ -308,12 +308,28 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<UserEvent> getEventsPageWithAttendanceStatus(String search,long userId, int page, int size) {
-        if(search == null || search.isEmpty()) {
-            return eventDao.getEventsWithAttendanceStatus(userId, page, size);
+    public Page<UserEvent> getEventsPageWithAttendanceStatus(String search,User user, int pageNumber, int pageSize) {
+        if(user == null) {
+            Page<Event> page;
+            if(search != null && !search.isEmpty()) {
+                page = eventDao.searchEvents(search, pageNumber, pageSize);
+            }else {
+                page = eventDao.listAll(pageNumber, pageSize);
+            }
+            List<UserEvent> userEvent = new ArrayList<>();
+            for (Event event : page.getContent()) {
+                userEvent.add(new UserEvent(event, false));
+            }
+            return new Page<>(userEvent, page.getCurrentPage(), page.getTotalPages());
         }
-        return eventDao.getEventsWithAttendanceStatus(search, userId, page,size);
+
+        if(search == null || search.isEmpty()) {
+            return eventDao.getEventsWithAttendanceStatus(user.getId(), pageNumber, pageSize);
+        }
+        return eventDao.getEventsWithAttendanceStatus(search, user.getId(), pageNumber, pageSize);
     }
+
+
     @Transactional(readOnly = true)
     @Override
     public List<UserEvent> getEventsWithAttendanceStatus(long userId) {
@@ -334,35 +350,25 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @CacheEvict(value = "eventsById", key = "#eventId")
     @Override
-    public void editEvent(long eventId,
-                          String cityName,
-                          LocalDate date,
-                          byte[] flyer,
-                          String description,
-                          String title,
-                          LocalTime time,
-                          String address,
-                          Integer attendeesLimit) {
+    public void editEvent(long eventId, String cityName, LocalDate date, byte[] flyer, String description,
+                          String title, LocalTime time, String address, Integer attendeesLimit) {
 
-        // 1. Load the existing event
         Event currentEvent = eventDao.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Event not found"));
 
-        // 3. Resolve final values
         long resolvedCityId = cityService.findByName(cityName).orElseThrow(() -> new RuntimeException("City not found")).getId();
 
-       eventDao.updateData(
-                resolvedCityId,
-                date,
-                description,
-                title,
-                time,
-                address,
-                attendeesLimit,
-                eventId //hacer void
-        );
+        long flyerImageId = currentEvent.getFlyerImageId();
+        if(flyer != null && flyer.length > 0) {
+            flyerImageId = imageService.storeImage(flyer);
+            imageService.deleteImage(currentEvent.getFlyerImageId());
+        }
+        // hacer void ?
+        eventDao.updateData(resolvedCityId, date, description,
+                title, time, address, attendeesLimit, eventId, flyerImageId
+       );
 
-            imageService.updateImage(currentEvent.getFlyerImageId(), flyer);
+
     }
 
 

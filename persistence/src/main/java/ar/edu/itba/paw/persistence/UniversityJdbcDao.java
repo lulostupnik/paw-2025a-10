@@ -22,7 +22,7 @@ public class UniversityJdbcDao implements UniversityDao {
 
     private final CityDao cityDao;
     private final JdbcTemplate jdbcTemplate;
-    private final SimpleJdbcInsert simpleJdbcInsert;
+    private final SimpleJdbcInsert jdbcInsert;
 
     private final static RowMapper<University> UNIVERSITY_ROW_MAPPER = (rs, rowNum) -> new University(
             rs.getLong("university_id"),
@@ -82,7 +82,7 @@ public class UniversityJdbcDao implements UniversityDao {
     public UniversityJdbcDao(final CityDao cityDao, final DataSource dataSource){
         this.cityDao = cityDao;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+        this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("universities")
                 .usingGeneratedKeyColumns("id");
     }
@@ -171,7 +171,7 @@ public class UniversityJdbcDao implements UniversityDao {
         parameters.put("abbreviation", abbreviation);
         parameters.put("city_id", cityObj.getId());
         parameters.put("deleted", false);
-        final Number keys = simpleJdbcInsert.executeAndReturnKey(parameters);
+        final Number keys = jdbcInsert.executeAndReturnKey(parameters);
         LOGGER.debug("Successfully created university {}", keys.longValue());
         return new University(keys.longValue(), name, abbreviation, cityObj);
     }
@@ -180,6 +180,15 @@ public class UniversityJdbcDao implements UniversityDao {
     public void updateUniversity(final long id, final String name, final String abbreviation, final long cityId) {
         jdbcTemplate.update("UPDATE universities SET name = ?, abbreviation = ?, city_id = ? WHERE id = ? ", name, abbreviation, cityId, id);
         LOGGER.debug("Successfully updated uni {}", id);
+    }
+
+    @Override
+    public void updateUniversity(long id, String name, String abbreviation, String cityName) {
+        jdbcTemplate.update("""
+        UPDATE universities
+        SET name = ?, abbreviation = ?, city_id = (SELECT id FROM cities WHERE name = ?)
+        WHERE id = ?
+        """, name, abbreviation, cityName, id);
     }
 
     @Override

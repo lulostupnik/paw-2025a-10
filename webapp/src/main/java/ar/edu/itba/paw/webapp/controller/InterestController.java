@@ -67,16 +67,19 @@ public class InterestController {
     }
 
 
-    @RequestMapping(value = "/{id}/edit", method = GET)
-    public ModelAndView updateInterestForm(@PathVariable("id") Long id) {
-        Interest interest = interestService.findById(id).get();
+    @RequestMapping(value = "/{id}/edit", method = GET) //@TODO: check, esta raro
+    public ModelAndView updateInterestForm(@PathVariable("id") Long id,
+                                            @ModelAttribute("createInterestForm") final CreateInterestForm form,
+                                           BindingResult errors ) {
+        Interest interest = interestService.findById(id).orElseThrow(NoSuchElementException::new);
         if (interest == null) {
             return new ModelAndView("redirect:/interests");
         }
 
+        if(!errors.hasErrors()){
+            form.setName(interest.getName());
+        }
         // Create and populate form with existing university data
-        CreateInterestForm form = new CreateInterestForm();
-        form.setName(interest.getName());
 
         ModelAndView mav = new ModelAndView("interests/create");
         mav.addObject("createInterestForm",form);
@@ -93,10 +96,7 @@ public class InterestController {
                                          @ModelAttribute("user") User user) {
 
         if (errors.hasErrors()) {
-            ModelAndView mav = new ModelAndView("interests/create");
-            mav.addObject("isUpdate", true);
-            mav.addObject("interestId", id);
-            return mav;
+          return updateInterestForm(id, form, errors);
         }
 
         interestService.editUserInterest(

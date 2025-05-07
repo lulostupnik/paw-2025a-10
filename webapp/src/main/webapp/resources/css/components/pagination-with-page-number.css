@@ -1,27 +1,121 @@
-
+/* Updated Pagination Styles */
 .pagination {
-    margin-top: 20px;
+    margin-top: 1.5rem;
     display: flex;
     justify-content: center;
-    gap: 8px;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .page-link {
-    padding: 6px 12px;
-    border: 1px solid #ccc;
-    color: #333;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-gray-700);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-gray-200);
+    border-radius: 0.375rem;
     text-decoration: none;
-    border-radius: 4px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.page-link:hover {
+    background-color: var(--color-gray-50);
+    color: var(--color-primary);
+    border-color: var(--color-gray-300);
+    z-index: 2;
+}
+
+.page-link:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
+    z-index: 3;
 }
 
 .page-link.active {
-    background-color: #007bff;
-    color: white;
-    font-weight: bold;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    border-color: var(--color-primary);
+    font-weight: 600;
+    z-index: 1;
+}
+
+.page-link.active:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.page-link.disabled {
+    color: var(--color-gray-400);
+    pointer-events: none;
+    background-color: var(--color-gray-50);
+    border-color: var(--color-gray-200);
 }
 
 .page-ellipsis {
-    display: inline-block;
-    padding: 6px 12px;
-    color: #999;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    color: var(--color-gray-500);
+    font-size: 0.875rem;
+}
+
+/* Navigation buttons (prev/next) */
+.page-nav {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-gray-700);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-gray-200);
+    border-radius: 0.375rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.page-nav:hover:not(.disabled) {
+    background-color: var(--color-gray-50);
+    color: var(--color-primary);
+    border-color: var(--color-gray-300);
+}
+
+.page-nav.disabled {
+    color: var(--color-gray-400);
+    pointer-events: none;
+    background-color: var(--color-gray-50);
+    border-color: var(--color-gray-200);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .pagination {
+        gap: 0.25rem;
+    }
+
+    .page-link, .page-nav {
+        min-width: 2rem;
+        height: 2rem;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .page-ellipsis {
+        min-width: 1.5rem;
+        padding: 0.25rem;
+    }
 }

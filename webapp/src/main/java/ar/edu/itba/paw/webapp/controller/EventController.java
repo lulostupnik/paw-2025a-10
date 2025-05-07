@@ -5,6 +5,7 @@ import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.form.CreateEventForm;
 
+import ar.edu.itba.paw.webapp.form.EditEventForm;
 import ar.edu.itba.paw.webapp.form.ReplyForm;
 
 import ar.edu.itba.paw.webapp.resolver.anotation.PageParamCustomizer;
@@ -67,17 +68,9 @@ public class EventController {
                                   @RequestParam(value = "size", defaultValue = "8") int size,
                                   @RequestParam(value = "search", required = false) String search) {
         ModelAndView mav = new ModelAndView("events/list");
-
-        if (user != null) {
-            Page<UserEvent> userEventsPage = eventService.getEventsPageWithAttendanceStatus(search, user.getId(), page, size);
-            mav.addObject("eventsPage", userEventsPage);
-            mav.addObject("eventsWithAttendance", userEventsPage.getContent());
-        } else {
-            Page<Event> eventsPage = eventService.getAllEvents(search,page, size);
-            mav.addObject("eventsPage", eventsPage);
-            mav.addObject("events", eventsPage.getContent());
-        }
-
+        Page<UserEvent> userEventsPage = eventService.getEventsPageWithAttendanceStatus(search, user, page, size);
+        mav.addObject("eventsPage", userEventsPage);
+        mav.addObject("eventsWithAttendance", userEventsPage.getContent());
         mav.addObject("currentPage", page);
         mav.addObject("pageSize", size);
         return mav;
@@ -262,7 +255,7 @@ public class EventController {
     @RequestMapping(value = "/{id}/update", method = GET)
     public ModelAndView showUpdateEventForm(@PathVariable("id") int eventId,
                                             @ModelAttribute("user") User user,
-                                            @ModelAttribute("createEventForm") CreateEventForm form,
+                                            @ModelAttribute("editEventForm") EditEventForm form,
                                             BindingResult errors) {
 
         LOGGER.debug("User {} requested to update event {}", user.getEmail(), eventId);
@@ -289,7 +282,7 @@ public class EventController {
     @RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
     public ModelAndView updateEvent(@PathVariable("id") int eventId,
                                     @ModelAttribute("user") User user,
-                                    @Valid @ModelAttribute("createEventForm") CreateEventForm form,
+                                    @Valid @ModelAttribute("editEventForm") EditEventForm form,
                                     BindingResult errors) {
 
         LOGGER.debug("User {} submitted update for event {}", user.getEmail(), eventId);

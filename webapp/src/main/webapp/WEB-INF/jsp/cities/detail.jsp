@@ -5,7 +5,7 @@
 
 <html>
 <head>
-    <title><spring:message code="interest.detail.title"/></title>
+    <title><spring:message code="city.detail.title"/></title>
     <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/detail.css'/>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,16 +24,16 @@
                 </div>
 
                 <div class="detail-content">
-                    <h2 class="section-title-landing"><spring:message code="interest.detail.information"/></h2>
+                    <h2 class="section-title-landing"><spring:message code="city.detail.information"/></h2>
 
                     <div class="features-grid">
                         <div class="feature-card">
-                            <h3 class="feature-title"><spring:message code="interest.detail.id"/></h3>
+                            <h3 class="feature-title"><spring:message code="city.detail.id"/></h3>
                             <p class="feature-description"><c:out value="${city.id}"/></p>
                         </div>
 
                         <div class="feature-card">
-                            <h3 class="feature-title"><spring:message code="interest.detail.name"/></h3>
+                            <h3 class="feature-title"><spring:message code="city.detail.name"/></h3>
                             <p class="feature-description"><c:out value="${city.name}"/></p>
                         </div>
 
@@ -50,10 +50,10 @@
                     </a>
                     <div class="hero-cta">
                         <a href="<c:url value='/cities/${city.id}/edit'/>" class="cta-button primary">
-                            <spring:message code="interest.detail.edit"/>
+                            <spring:message code="city.detail.edit"/>
                         </a>
                         <button type="button" class="cta-button delete-button" id="deleteCityBtn">
-                            <spring:message code="interests.detail.delete"/>
+                            <spring:message code="city.detail.delete"/>
                         </button>
                     </div>
                 </div>
@@ -66,20 +66,20 @@
 <div id="deleteModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2><spring:message code="interest.delete.confirm.title"/></h2>
+            <h2><spring:message code="city.delete.confirm.title"/></h2>
             <button type="button" class="close-modal" aria-label="Close">&times;</button>
         </div>
         <div class="modal-body">
-            <p><spring:message code="interest.delete.confirm.message"/></p>
-            <p class="warning-text"><spring:message code="interest.delete.confirm.warning"/></p>
+            <p><spring:message code="city.delete.confirm.message"/></p>
+            <p class="warning-text"><spring:message code="city.delete.confirm.warning"/></p>
         </div>
         <div class="modal-footer">
             <button type="button" class="cta-button secondary" id="cancelDeleteBtn">
-                <spring:message code="interest.delete.cancel"/>
+                <spring:message code="city.delete.cancel"/>
             </button>
             <form action="<c:url value='/cities/${city.id}/delete'/>" method="post" id="deleteCityForm">
                 <button type="submit" class="cta-button delete-button">
-                    <spring:message code="interest.delete.confirm"/>
+                    <spring:message code="city.delete.confirm"/>
                 </button>
             </form>
         </div>

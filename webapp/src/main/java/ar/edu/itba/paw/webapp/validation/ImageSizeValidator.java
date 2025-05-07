@@ -14,8 +14,8 @@ private long max;
     @Override
     public boolean isValid(MultipartFile file, javax.validation.ConstraintValidatorContext context) {
         if (file == null || file.isEmpty()) {
-            return false; //@Todo podria ser otra validacion
+            return true;
         }
-        return file.getSize() <= max * 1024 * 1024;
+        return file.getSize() <= max * 1024 * 1024 ;
     }
 }

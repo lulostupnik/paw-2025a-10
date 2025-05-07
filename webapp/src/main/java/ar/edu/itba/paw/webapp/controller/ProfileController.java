@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.EventService;
+import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.User;
@@ -16,74 +17,64 @@ import org.springframework.web.servlet.ModelAndView;
 import java.util.Optional;
 
 @Controller
+@RequestMapping("/profile")
 public class ProfileController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileController.class);
     private final JourneyService journeyService;
     private final UserService userService;
     private final EventService eventService;
+    private final InterestService interestService;
 
     @Autowired
-    public ProfileController(JourneyService journeyService, UserService userService, EventService eventService) {
+    public ProfileController(JourneyService journeyService, UserService userService, EventService eventService, InterestService interestService) {
         this.journeyService = journeyService;
         this.userService = userService;
         this.eventService = eventService;
+        this.interestService = interestService;
+    }
+    @RequestMapping(value = "/info", method = RequestMethod.GET)
+    public ModelAndView getInfo() {
+
+        return new ModelAndView("profile/profile");
     }
 
-    @RequestMapping(value = "/profile", method = RequestMethod.GET)
-    public ModelAndView getProfile(
+
+    @RequestMapping(value = "/interests", method = RequestMethod.GET)
+    public ModelAndView getInterests(
             @ModelAttribute("user") User user,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "attendingPage", defaultValue = "1") int attendingPage,
             @RequestParam(value = "size", defaultValue = "4") int size) {
 
-        ModelAndView mav = new ModelAndView("profile");
-        mav.addObject("user", user);
-        mav.addObject("userJourneys", journeyService.getJourneysByUser(user.getEmail())); // FIXME: cambiar y usar Optional<Journey> getJourneyByEmail
-        mav.addObject("userEvents", eventService.getAllEvents(user.getEmail(), page, size));
-        mav.addObject("userAttendingEvents", eventService.getUserAttendingEvents(user.getId(), attendingPage, size));
-
-        mav.addObject("currentPageUserEvents", page);
-        mav.addObject("currentPageUserAttending", attendingPage);
-
+        ModelAndView mav = new ModelAndView("profile/profile");
+        mav.addObject("interests",interestService.findAllInterestsByUserId(user.getId(), page, size));
         return mav;
     }
 
-    @RequestMapping(value = "/profile/{id}/block", method = RequestMethod.POST)
-    public ModelAndView blockUser(@PathVariable("id") long id, @RequestHeader(value = "Referer",required = false) String referer) {
-//        ModelAndView mav = new ModelAndView("redirect:/profile/" + id);
-        userService.blockUser(id);
-        if(referer != null) {
-            return new ModelAndView("redirect:" + referer);
-        } else {
-            throw new RuntimeException("Referer header is missing");
-        }
-    }
 
-    @RequestMapping(value = "/profile/{id}/unblock", method = RequestMethod.POST)
-    public ModelAndView unblockUser(@PathVariable("id") long id, @RequestHeader(value = "Referer",required = false) String referer) {
-//        ModelAndView mav = new ModelAndView("redirect:/profile/" + id);
-        userService.unblockUser(id);
-        if(referer != null) {
-            return new ModelAndView("redirect:" + referer);
-        } else {
-            throw new RuntimeException("Referer header is missing");
-        }
+    @RequestMapping(value = "/journeys", method = RequestMethod.GET)
+    public ModelAndView getJourneys(
+            @ModelAttribute("user") User user,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "attendingPage", defaultValue = "1") int attendingPage,
+            @RequestParam(value = "size", defaultValue = "4") int size) {
+
+        ModelAndView mav = new ModelAndView("profile/profile");
+        mav.addObject("userJourneys", journeyService.getJourneysByUser(user.getEmail())); // FIXME: cambiar y usar Optional<Journey> getJourneyByEmail
+        return mav;
     }
-//
-//    @RequestMapping(value = "/profile/edit", method = RequestMethod.GET)
-//    public ModelAndView getEditProfile() {
-//        ModelAndView mav = new ModelAndView("profile/edit-profile");
-//
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        String userEmail = authentication.getName();
-//        Optional<User> user = userService.findByEmail(userEmail);
-//
-//        if (user.isPresent()) {
-//            mav.addObject("user", user.get());
-//        } else {
-//            return new ModelAndView("redirect:/");
-//        }
-//
-//        return mav;
-//    }
+    @RequestMapping(value = "/events", method = RequestMethod.GET)
+    public ModelAndView getEvents(
+            @ModelAttribute("user") User user,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "attendingPage", defaultValue = "1") int attendingPage,
+            @RequestParam(value = "size", defaultValue = "4") int size) {
+
+        ModelAndView mav = new ModelAndView("profile/profile");
+        mav.addObject("userEvents", eventService.getAllEvents(user.getEmail(), page, size));
+        mav.addObject("userAttendingEvents", eventService.getUserAttendingEvents(user.getId(), attendingPage, size));
+        mav.addObject("currentPageUserEvents", page);
+        mav.addObject("currentPageUserAttending", attendingPage);
+        return mav;
+    }
 }

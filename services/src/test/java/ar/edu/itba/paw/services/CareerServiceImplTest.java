@@ -161,7 +161,7 @@ public class CareerServiceImplTest {
     }
 
     @Test
-    public void update(){
+    public void testUpdate(){
         Mockito.when(
             careerDao.update(Mockito.eq(ID), Mockito.eq(NAME))
         ).thenReturn(CAREER);
@@ -172,7 +172,7 @@ public class CareerServiceImplTest {
         assertEquals(CAREER, career);
     }
     @Test(expected = DataIntegrityViolationException.class)
-    public void updateDuplicated(){
+    public void testUpdateDuplicated(){
         Mockito.when(
             careerDao.update(Mockito.eq(ID), Mockito.eq(NAME))
         ).thenThrow(new DataIntegrityViolationException("NAME"));

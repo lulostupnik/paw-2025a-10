@@ -7,6 +7,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import ar.edu.itba.paw.webapp.validation.ImageNotEmpty;
 import ar.edu.itba.paw.webapp.validation.ImageSize;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,6 +18,7 @@ public class UploadImageForm {
     // @FileSize(min = 1, max = 1024 * 1024)
     @NotNull
     @ImageSize
+    @ImageNotEmpty
     private MultipartFile image;
 
     public MultipartFile getImage() {

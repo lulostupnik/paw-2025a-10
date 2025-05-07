@@ -18,11 +18,13 @@
           <input type="text" name="search" class="search-input" placeholder="<spring:message code='${searchPlaceholderCode}' />" value="${param.search}">
           <input type="hidden" name="page" value="1">
           <input type="hidden" name="pageSize" value="${param.pageSize != null ? param.pageSize : 10}">
-          <button type="submit" class="search-button"><spring:message code="admin.search.button" /></button>
+          <button type="submit" class="btn-secondary" aria-label="<spring:message code="admin.search.button" />">
+            <img src="<c:url value='/resources/icons/search.svg'/>" alt="<spring:message code="admin.search.button" />" class="search-icon" />
+          </button>
         </form>
         <c:if test="${showAddButton}">
-          <a href="<c:url value='${addButtonUrl}'/>" class="add-button">
-            <i class="plus-icon"></i>
+          <a href="<c:url value='${addButtonUrl}'/>" class="btn btn-primary btn-with-icon">
+            <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="${addButtonTextCode}"/>" class="btn-icon" />
             <spring:message code="${addButtonTextCode}"/>
           </a>
         </c:if>

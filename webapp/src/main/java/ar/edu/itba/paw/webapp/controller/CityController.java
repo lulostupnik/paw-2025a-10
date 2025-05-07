@@ -46,7 +46,7 @@ public class CityController {
 
     @RequestMapping(value = "/create", method = GET)
     public ModelAndView createCitiesForm(@ModelAttribute("createCityForm") final CreateCityForm form) {
-        return new ModelAndView("cities/create").addObject(countryService.getAllCountries());
+        return new ModelAndView("cities/create").addObject("countries",countryService.getAllCountries());
     }
 
     @RequestMapping(path = "/create", method = POST)
@@ -56,8 +56,12 @@ public class CityController {
         if (errors.hasErrors()) {
             return createCitiesForm(cityForm);
         }
+        long cityId = cityService.createCity(
+                cityForm.getName(),
+                cityForm.getCountry()
+        );
 
-        return new ModelAndView("redirect:/cities/{id}", "id", 1);
+        return new ModelAndView("redirect:/cities/{id}", "id", cityId);
     }
     @RequestMapping(value= "/{id}", method = GET)
     public ModelAndView getCity(@PathVariable(value = "id") final long id) {
@@ -81,7 +85,7 @@ public class CityController {
         mav.addObject("createCityForm", form);
         mav.addObject("isUpdate", true);
         mav.addObject("cityId", id);
-        mav.addObject("country", countryService.getAllCountries());
+        mav.addObject("countries", countryService.getAllCountries());
         return mav;
     }
 

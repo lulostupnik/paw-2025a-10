@@ -39,6 +39,7 @@ public class CreateUserForm {
     @NotNull
     @ImageSize() // 2MB
     @ContentType({"image/jpeg", "image/jpg", "image/png"})
+    @ImageNotEmpty
     private MultipartFile profilePicture;
 
     @Size(min = 2, max = 100)
