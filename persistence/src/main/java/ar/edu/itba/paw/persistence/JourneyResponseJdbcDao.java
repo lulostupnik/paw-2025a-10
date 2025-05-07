@@ -34,16 +34,19 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
             rs.getTimestamp("date_time").toLocalDateTime()
     );
 
-    private static final String SQL_FIND_ALL_BY_JOURNEY =
+    private static final String SQL_JOURNEY_RESPONSE_BASE =
             """
             SELECT jr.id AS id, jr.user_id, us.username AS username, jr.journey_id, jr.message, jr.date_time
-                FROM journey_responses AS jr
-                JOIN users us ON jr.user_id = us.id
-                WHERE jr.journey_id = ? AND deleted = FALSE ORDER BY date_time
+            FROM journey_responses AS jr
+            JOIN users us ON jr.user_id = us.id
+            WHERE jr.deleted = FALSE
             """;
 
-    private static final String SQL_FIND_ALL_BY_JOURNEY_PAGED = SQL_FIND_ALL_BY_JOURNEY + " LIMIT ? OFFSET ?";
+    private static final String SQL_FIND_BY_ID = SQL_JOURNEY_RESPONSE_BASE + " AND jr.id = ?";
 
+    private static final String SQL_FIND_ALL_BY_JOURNEY = SQL_JOURNEY_RESPONSE_BASE + " AND jr.journey_id = ? ORDER BY date_time";
+
+    private static final String SQL_FIND_ALL_BY_JOURNEY_PAGED = SQL_FIND_ALL_BY_JOURNEY + " LIMIT ? OFFSET ?";
 
     @Autowired
     public JourneyResponseJdbcDao(final DataSource dataSource){
@@ -51,6 +54,11 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
         this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("journey_responses")
                 .usingGeneratedKeyColumns("id");
+    }
+
+    @Override
+    public Optional<JourneyResponse> findById(final long id) {
+        return jdbcTemplate.query(SQL_FIND_BY_ID, JOURNEY_RESPONSE_ROW_MAPPER, id).stream().findFirst();
     }
 
     @Override

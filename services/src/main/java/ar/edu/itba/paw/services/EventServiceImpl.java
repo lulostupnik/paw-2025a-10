@@ -335,7 +335,7 @@ public class EventServiceImpl implements EventService {
         eventDao.deletionMessage(id, message);
         eventResponseService.deleteByEventId(id);
         Event event = eventDao.findById(id).orElseThrow(() -> new RuntimeException("Event not found"));
-        emailService.sendEventDeletionNotification(event.getUser(),event,message);
+        emailService.sendEventDeletionNotification(event,message);
         eventDao.delete(id);
     }
 

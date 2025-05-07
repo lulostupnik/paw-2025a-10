@@ -34,7 +34,7 @@ public class JourneyController {
     private final UniversityService universityService;
     private final InterestService interestService;
     private final JourneyResponseService journeyResponseService;
-    private static final String REDIRECT_JOURNEY = "redirect:/journeys/{id}";
+    private static final String REDIRECT_JOURNEY = "redirect:/journeys/";
 
     @Autowired
     public JourneyController(final JourneyService js, CityService cityService, UniversityService universityService, InterestService interestService, JourneyResponseService journeyResponseService) {
