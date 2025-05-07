@@ -33,15 +33,15 @@ public class JourneyController {
     private final CityService cityService;
     private final UniversityService universityService;
     private final InterestService interestService;
-    private final JourneyService journeyService;
+    private final JourneyResponseService journeyResponseService;
 
     @Autowired
-    public JourneyController(final JourneyService js, CityService cityService, UniversityService universityService, InterestService interestService, JourneyService journeyService){
+    public JourneyController(final JourneyService js, CityService cityService, UniversityService universityService, InterestService interestService, JourneyResponseService journeyResponseService) {
         this.js = js;
         this.cityService = cityService;
         this.universityService = universityService;
         this.interestService = interestService;
-        this.journeyService = journeyService;
+        this.journeyResponseService = journeyResponseService;
     }
 
 
@@ -107,7 +107,7 @@ public class JourneyController {
     @RequestMapping(value = "/create")
     public ModelAndView createJourneyForm(@ModelAttribute("createJourneyForm") final CreateJourneyForm jf, @ModelAttribute("user") User user) {
 
-        if (journeyService.userHasJourney(user)) {
+        if (js.userHasJourney(user)) {
             LOGGER.debug("User already has a journey, redirecting to journey list");
             return new ModelAndView("redirect:/journeys");
         }
@@ -125,17 +125,20 @@ public class JourneyController {
                                    final BindingResult deleteErrors,
                                    @Valid @ModelAttribute("deleteReplyForm") final ReplyForm deleteReplyForm,
                                    final BindingResult deleteReplyErrors,
-                                   @RequestParam(value = "replyId", required = false) Long replyId){
+                                   @RequestParam(value = "replyId", required = false) Long replyId,
+                                   @PageParamCustomizer(defaultSize = 5) PageParams  repliesPage,
+                                   @PageParamCustomizer(defaultSize = 5, pageParamName = "interestsPage", sizeParamName = "interestsSize") PageParams interestsPage) {
 
         LOGGER.debug("Getting info for journey {}", id);
 
         Journey journey = js.getJourneyById(id).orElseThrow(()-> new JourneyNotFoundException("Journey not found"));
 
-        List<JourneyResponse> journeyResponses = js.getJourneyResponses(journey.getId());
+        Page<JourneyResponse> journeyResponses = journeyResponseService.listAllFromJourney(journey.getId(), repliesPage);
 
         final ModelAndView mav = new ModelAndView("journeys/detail");
         mav.addObject("journey", journey);
-        mav.addObject("journeyResponses", journeyResponses);
+        mav.addObject("journeyResponsesPage", journeyResponses);
+        mav.addObject("commentsCount", journeyResponseService.getCount(journey.getId()));
 
         if(user != null){
             mav.addObject("isOwner", js.isJourneyOwnedByUser(user.getEmail(),journey.getId()));
@@ -156,7 +159,7 @@ public class JourneyController {
             mav.addObject("deleteFormType", "journeyResponse");
             mav.addObject("deleteFormId", "delete-journey-response-form-" + replyId);
         }
-        mav.addObject("interests", interestService.findByUserId(journey.getUser().getId()));
+        mav.addObject("interestPage", interestService.findAllInterestsByUserId(journey.getUser().getId(), interestsPage));
         return mav;
     }
 
@@ -185,7 +188,7 @@ public class JourneyController {
                                               BindingResult errors) {
         LOGGER.debug("User {} requested to update journey {}", user, journeyId);
 
-        Journey journey = journeyService.getJourneyById(journeyId)
+        Journey journey = js.getJourneyById(journeyId)
                 .orElseThrow(() -> {
                     LOGGER.warn("Journey {} not found", journeyId);
                     return new IllegalArgumentException("Journey not found");

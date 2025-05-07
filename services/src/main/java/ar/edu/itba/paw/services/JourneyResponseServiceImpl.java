@@ -3,6 +3,8 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
 import ar.edu.itba.paw.interfaces.services.JourneyResponseService;
 import ar.edu.itba.paw.models.JourneyResponse;
+import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.PageParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -53,6 +55,16 @@ public class JourneyResponseServiceImpl implements JourneyResponseService {
     @Override
     public void deleteByJourneyId(long journeyId) {
         journeyResponseDao.deleteByJourneyId(journeyId);
+    }
+
+    @Override
+    public Page<JourneyResponse> listAllFromJourney(long journeyId, PageParams pageParams) {
+        return journeyResponseDao.listAllFromJourney(journeyId, pageParams.getPage(), pageParams.getSize());
+    }
+
+    @Override
+    public int getCount(long id) {
+        return journeyResponseDao.getCount(id);
     }
 
 }

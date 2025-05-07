@@ -35,6 +35,8 @@
 </head>
 
 <body>
+<c:set var="interestPageSize" value="8" scope="request" />
+<c:set var="chatPageSize" value="4" scope="request" />
 <!-- Hidden elements to store i18n messages for JavaScript -->
 <div style="display: none;">
     <!-- Journey deletion messages -->
@@ -166,7 +168,7 @@
                         </h2>
                     </div>
                     <div class="section-content">
-                        <c:if test="${empty interests}">
+                        <c:if test="${empty interestPage.content}">
                             <div class="empty-state">
                                 <div class="empty-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="empty-icon-img">
@@ -178,15 +180,22 @@
                                 </p>
                             </div>
                         </c:if>
-                        <c:if test="${not empty interests}">
+                        <c:if test="${not empty interestPage.content}">
                             <div class="interests-container">
-                                <c:forEach var="interest" items="${interests}">
+                                <c:forEach var="interest" items="${interestPage.content}">
                                     <div class="interest-tag">
                                         <c:out value="${interest}" />
                                     </div>
                                 </c:forEach>
                             </div>
+                            <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
+                                <jsp:param name="pageObjectTotalPages" value="${interestPage.totalPages}" />
+                                <jsp:param name="currentPage" value="${interestPage.currentPage}" />
+                                <jsp:param name="pageSize" value="${interestPageSize}" />
+                                <jsp:param name="baseUrl" value="/journeys/${journey.id}?page=${journeyResponsesPage.currentPage}&size=${chatPageSize}" />
+                            </jsp:include>
                         </c:if>
+
                     </div>
                 </section>
 
@@ -198,7 +207,7 @@
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                             </svg>
                             <spring:message code="journey.detail.responses" />
-                            <span class="response-count">(<c:out value="${fn:length(journeyResponses)}" />)</span>
+                            <span class="count">(<c:out value="${commentsCount}" />)</span>
                         </h2>
                         <button onclick="toggleComments()" class="toggle-comments-btn" aria-label="Toggle comments">
                                 <span id="collapse-icon">
@@ -216,7 +225,7 @@
 
                     <!-- Responses List -->
                     <div id="comments-list" class="section-content responses-list">
-                        <c:if test="${empty journeyResponses}">
+                        <c:if test="${empty journeyResponsesPage.content}">
                             <div class="empty-state">
                                 <div class="empty-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="empty-icon-img">
@@ -229,9 +238,9 @@
                             </div>
                         </c:if>
 
-                        <c:if test="${not empty journeyResponses}">
+                        <c:if test="${not empty journeyResponsesPage.content}">
                             <!-- Sort responses by date (newest first) -->
-                            <c:set var="sortedResponses" value="${journeyResponses}" />
+                            <c:set var="sortedResponses" value="${journeyResponsesPage.content}" />
                             <c:forEach var="response" items="${sortedResponses}">
                                 <div class="chat-message">
                                     <!-- Delete Comment Button (Circle with Trash Icon) -->
@@ -282,6 +291,12 @@
                                 </div>
                             </c:forEach>
                         </c:if>
+                        <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
+                            <jsp:param name="pageObjectTotalPages" value="${journeyResponsesPage.totalPages}" />
+                            <jsp:param name="currentPage" value="${journeyResponsesPage.currentPage}" />
+                            <jsp:param name="pageSize" value="${chatPageSize}" />
+                            <jsp:param name="baseUrl" value="/journeys/${journey.id}?interestsPage=${interestPage.currentPage}&interestsSize=${interestPageSize}" />
+                        </jsp:include>
                     </div>
 
                     <!-- Leave a comment div -->

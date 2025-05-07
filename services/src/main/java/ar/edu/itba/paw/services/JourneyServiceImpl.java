@@ -303,5 +303,4 @@ public class JourneyServiceImpl implements JourneyService {
                 });
         journeyDao.updateData(journeyId, university, startDate, endDate, description);
     }
-
 }
