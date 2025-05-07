@@ -177,13 +177,15 @@ public class UserJdbcDao implements UserDao {
         args.put("roles", "user");
         args.put("blocked", false);
         final Number id = jdbcInsert.executeAndReturnKey(args);
-        return new User(id.longValue(), email, username, firstname, lastname, university, career, profilePictureId, locale,false );
+        final User user = new User(id.longValue(), email, username, firstname, lastname, university, career, profilePictureId, locale,false );
+        LOGGER.info("Successfully registered new user {}", user);
+        return user;
     }
 
     @Override
     public void update(final long userId, final String firstname, final String lastname, final String username,
                        final Long universityId, final Long careerId, final Locale locale) {
-        LOGGER.debug("Updating user with ID: {}", userId);
+        LOGGER.info("Updating user with ID: {}", userId);
 
         final StringBuilder queryBuilder = new StringBuilder("UPDATE users SET ");
         final List<Object> parameters = new ArrayList<>();
@@ -334,21 +336,21 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public void updateLocale(final long userId, final Locale locale) {
-        LOGGER.debug("Updating locale for user ID: {} to {}", userId, locale);
+        LOGGER.info("Updating locale for user ID: {} to {}", userId, locale);
         jdbcTemplate.update("UPDATE users SET language = ? WHERE id = ?", locale.getLanguage(), userId);
         // return update(userId, null, null, null, null, null, locale);
     }
 
     @Override
     public void updateUniversity(final long userId, final long universityId) {
-        LOGGER.debug("Updating university for user ID: {} to university ID: {}", userId, universityId);
+        LOGGER.info("Updating university for user ID: {} to university ID: {}", userId, universityId);
         jdbcTemplate.update("UPDATE users SET university = ? WHERE id = ?", universityId, userId);
         // return update(userId, null, null, null, universityId, null, null);
     }
 
     @Override
     public void updateUniversity(final long userId, final String universityName) {
-        LOGGER.debug("Updating university for user ID: {} to university with name: {}", userId, universityName);
+        LOGGER.info("Updating university for user ID: {} to university with name: {}", userId, universityName);
 
         jdbcTemplate.update("""
                 UPDATE users
@@ -359,14 +361,14 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public void updateCareer(final long userId, final long careerId) {
-        LOGGER.debug("Updating career for user ID: {} to career ID: {}", userId, careerId);
+        LOGGER.info("Updating career for user ID: {} to career ID: {}", userId, careerId);
         jdbcTemplate.update("UPDATE users SET career_id = ? WHERE id = ?", careerId, userId);
         // return update(userId, null, null, null, null, careerId, null);
     }
 
     @Override
     public void updateCareer(long userId, String careerName) {
-        LOGGER.debug("Updating career for user ID: {} to university with name: {}", userId, careerName);
+        LOGGER.info("Updating career for user ID: {} to university with name: {}", userId, careerName);
 
         jdbcTemplate.update("""
                 UPDATE users
@@ -387,7 +389,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public void blockUser(final long userId){
-        LOGGER.debug("Blocking user with ID: {}", userId);
+        LOGGER.info("Blocking user with ID: {}", userId);
         final int rowsAffected = jdbcTemplate.update(
                 "UPDATE users SET blocked = TRUE WHERE id = ?",
                 userId
@@ -399,7 +401,7 @@ public class UserJdbcDao implements UserDao {
     }
     @Override
     public void unblockUser(final long userId){
-        LOGGER.debug("Unblocking user with ID: {}", userId);
+        LOGGER.info("Unblocking user with ID: {}", userId);
         final int rowsAffected = jdbcTemplate.update(
                 "UPDATE users SET blocked = FALSE WHERE id = ?",
                 userId

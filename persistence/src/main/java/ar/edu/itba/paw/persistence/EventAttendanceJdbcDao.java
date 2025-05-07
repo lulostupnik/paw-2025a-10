@@ -174,17 +174,22 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
 
     @Override
     public void attend(final long userId, final long eventId) {
-        LOGGER.debug("Registering user {} will attend event {}", userId, eventId);
+        LOGGER.info("Registering user {} will attend event {}", userId, eventId);
         final Map<String, Object> params = new HashMap<>();
         params.put("user_id", userId);
         params.put("event_id", eventId);
-        jdbcInsert.execute(params);
-        jdbcTemplate.update("UPDATE events SET attendees_count = attendees_count + 1 WHERE id = ?", eventId);
+        int rowsAffected = jdbcInsert.execute(params);
+        if (rowsAffected > 0){
+            rowsAffected = jdbcTemplate.update("UPDATE events SET attendees_count = attendees_count + 1 WHERE id = ?", eventId);
+        }
+        if (rowsAffected == 0) {
+            LOGGER.warn("Event attendance failed: Event with ID {} not found", eventId);
+        }
     }
 
     @Override
     public void cancel(final long userId, final long eventId) {
-        LOGGER.debug("Registering user {} will cancel attendance to event {}", userId, eventId);
+        LOGGER.info("Registering user {} will cancel attendance to event {}", userId, eventId);
         jdbcTemplate.update("DELETE FROM event_attendances WHERE user_id = ? AND event_id = ?", userId, eventId);
         jdbcTemplate.update("UPDATE events SET attendees_count = attendees_count - 1 WHERE id = ?", eventId);
     }

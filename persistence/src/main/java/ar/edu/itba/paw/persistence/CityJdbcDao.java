@@ -119,12 +119,16 @@ public class CityJdbcDao implements CityDao {
 
     @Override
     public void updateCity(final long id, final String name, final Country country) {
-        jdbcTemplate.update("UPDATE cities SET name = ?, country_id = ? WHERE id = ?", name, country.getId(), id);
+        LOGGER.info("Updating city id '{}' and name '{}', country {}",id,name, country);
+        final int rowsAffected = jdbcTemplate.update("UPDATE cities SET name = ?, country_id = ? WHERE id = ?", name, country.getId(), id);
+        if (rowsAffected == 0) {
+            LOGGER.warn("City update failed: City with ID {} not found", id);
+        }
     }
 
     @Override
     public long createCity(final String name, final Country country) {
-        LOGGER.debug("Creating or reactivating city {} in country {}", name, country.getName());
+        LOGGER.info("Creating or reactivating city {} in country {}", name, country.getName());
 
         final int rowsUpdated = jdbcTemplate.update(
                 "UPDATE cities SET deleted = FALSE WHERE name = ? AND country_id = ? AND deleted = TRUE",

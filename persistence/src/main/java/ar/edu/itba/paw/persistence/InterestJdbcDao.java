@@ -104,24 +104,32 @@ public class InterestJdbcDao implements InterestDao {
         final Map<String, Object> params = new HashMap<>();
         params.put("name", interest);
         final Number keys = jdbcInsert.executeAndReturnKey(params);
-        return new Interest(keys.longValue(), interest);
+        final Interest newInterest = new Interest(keys.longValue(), interest);
+        LOGGER.info("Created interest {}", interest);
+        return newInterest;
     }
 
     @Override
     public void deleteUserInterest(final long id) {
-        LOGGER.debug("Deleting interest with id {}", id);
-        jdbcTemplate.update("DELETE FROM category WHERE id = ?", id);
+        LOGGER.info("Deleting interest with id {}", id);
+        final int rowsAffected = jdbcTemplate.update("DELETE FROM category WHERE id = ?", id);
+        if (rowsAffected == 0) {
+            LOGGER.warn("Interest deletion failed: Interest with ID {} not found", id);
+        }
     }
 
     @Override
     public void editUserInterest(final long id, final String interest) {
-        LOGGER.debug("Editing interest {} to {}", id, interest);
-        jdbcTemplate.update("UPDATE category SET name = ? WHERE id = ?", interest ,id);
+        LOGGER.info("Editing interest {} to {}", id, interest);
+        final int rowsAffected = jdbcTemplate.update("UPDATE category SET name = ? WHERE id = ?", interest ,id);
+        if (rowsAffected == 0) {
+            LOGGER.warn("Interest update failed: Interest with ID {} not found", id);
+        }
     }
 
     @Override
     public void saveUserInterests(final long[] interests, final Long userId) {
-        LOGGER.debug("Registering to DB new interests for user {}...", userId);
+        LOGGER.info("Registering to DB new interests {} for user {}...", interests, userId);
         for (long interest : interests) {
             jdbcTemplate.update("INSERT INTO user_interest (user_id, category_id) VALUES (?, ?)", userId, interest);
         }
@@ -129,7 +137,7 @@ public class InterestJdbcDao implements InterestDao {
 
     @Override
     public void updateScoreByInterest(final Interest interest, final Long userId) {
-        LOGGER.debug("Registering to DB new interest {} score increase for user {}", interest, userId);
+        LOGGER.info("Registering to DB new interest {} score increase for user {}", interest, userId);
         jdbcTemplate.update("UPDATE user_interest SET score = score + 1 WHERE user_id = ? AND category_id = ?",
                 userId, interest.getId());
     }
@@ -166,7 +174,7 @@ public class InterestJdbcDao implements InterestDao {
 
     @Override
     public void delete(final long id) {
-        LOGGER.debug("Deleting interest with ID: {}", id);
+        LOGGER.info("Deleting interest with ID: {}", id);
         final int rowsAffected = jdbcTemplate.update("DELETE FROM category WHERE id = ?", id);
         if (rowsAffected == 0) {
             LOGGER.warn("Interest delete failed: Interest with ID {} not found", id);

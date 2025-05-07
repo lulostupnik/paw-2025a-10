@@ -34,7 +34,7 @@ public class ImageJdbcDao implements ImageDao {
     public long saveImage(final byte[] imageData) {
         LOGGER.debug("Registering new image of size {}", imageData.length);
         final long id = jdbcInsert.executeAndReturnKey(Map.of("content", imageData)).longValue();
-        LOGGER.debug("Successfully registered image {}", id);
+        LOGGER.info("Successfully registered image {}", id);
         return id;
     }
 
@@ -47,7 +47,10 @@ public class ImageJdbcDao implements ImageDao {
     @Override
     public void deleteImage(final long id) {
         LOGGER.debug("Deleting image {} from DB", id);
-        jdbcTemplate.update("DELETE FROM images WHERE id = ?", id);
+        final int rowsAffected = jdbcTemplate.update("DELETE FROM images WHERE id = ?", id);
+        if (rowsAffected == 0) {
+            LOGGER.warn("Image deletion failed: Image with ID {} not found", id);
+        }
     }
 
 

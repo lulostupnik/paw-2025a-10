@@ -77,8 +77,9 @@ public class EventResponseJdbcDao implements EventResponseDao {
         args.put("deleted", false);
 
         final Number keys = jdbcInsert.executeAndReturnKey(args);
-        LOGGER.debug("Successfully registered event response");
-        return new EventResponse(keys.longValue(), userId, username, eventId, message, dateTime);
+        final EventResponse response = new EventResponse(keys.longValue(), userId, username, eventId, message, dateTime);
+        LOGGER.debug("Successfully registered event response {}", response);
+        return response;
     }
 
     @Override
@@ -106,6 +107,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
 
     @Override
     public void deletionMessage(final long id, final String message) {
+        LOGGER.info("Setting event response delete message '{}' for response {}", message, id);
         final int updatedRows = jdbcTemplate.update("UPDATE event_responses SET deleted_message = ? WHERE id = ?;", message, id);
         if (updatedRows == 0) {
             LOGGER.warn("No event_response found with id {}", id);
@@ -114,17 +116,19 @@ public class EventResponseJdbcDao implements EventResponseDao {
 
     @Override
     public void deleteByEventId(long eventId) {
+        LOGGER.info("Setting event responses for event {} as deleted", eventId);
         final int updatedRows = jdbcTemplate.update("UPDATE event_responses SET deleted = TRUE WHERE event_id = ?;", eventId);
         if (updatedRows == 0) {
-            LOGGER.warn("No journey_response found with id {}", eventId);
+            LOGGER.warn("No event found with id {}", eventId);
         }
     }
 
     @Override
     public void delete(final long id) {
+        LOGGER.info("Setting event response {} as deleted", id);
         final int updatedRows = jdbcTemplate.update("UPDATE event_responses SET deleted = TRUE WHERE id = ?;", id);
         if (updatedRows == 0) {
-            LOGGER.warn("No journey_response found with id {}", id);
+            LOGGER.warn("No event_response found with id {}", id);
         }
     }
 
