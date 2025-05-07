@@ -3,9 +3,6 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<div class="profile-header-wrapper">
-  <div class="profile-header-bg"></div>
-  <div class="content-container">
     <div class="profile-header">
       <div class="profile-avatar-container">
         <div class="profiles-avatar">
@@ -26,5 +23,3 @@
         <p class="profile-username">@<c:out value="${user.username}"/></p>
       </div>
     </div>
-  </div>
-</div>

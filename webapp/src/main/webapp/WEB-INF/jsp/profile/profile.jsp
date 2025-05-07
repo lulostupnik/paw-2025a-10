@@ -29,40 +29,37 @@
       <div class="header-container">
         <h2 class="page-title"><spring:message code="profile.page.title"/></h2>
       </div>
+
+      <c:if test="${not empty user}">
+        <!-- Profile Header Section -->
+        <jsp:include page="./profile-header.jsp" />
+
+          <!-- Profile Navigation Tabs -->
+          <jsp:include page="./profile-tabs.jsp" />
+
+          <!-- Profile Content Sections -->
+          <div class="profile-content">
+            <!-- Include the appropriate tab content based on the current URL -->
+            <c:set var="currentPath" value="${requestScope['javax.servlet.forward.servlet_path']}" />
+
+            <c:choose>
+              <c:when test="${currentPath eq '/profile/interests'}">
+                <jsp:include page="./interests-tab.jsp" />
+              </c:when>
+              <c:when test="${currentPath eq '/profile/journeys'}">
+                <jsp:include page="./journeys-tab.jsp" />
+              </c:when>
+              <c:when test="${currentPath eq '/profile/events'}">
+                <jsp:include page="./events-tab.jsp" />
+              </c:when>
+              <c:otherwise>
+                <!-- Default to info tab -->
+                <jsp:include page="./info-tab.jsp" />
+              </c:otherwise>
+            </c:choose>
+          </div>
+      </c:if>
     </div>
-
-    <c:if test="${not empty user}">
-      <!-- Profile Header Section -->
-      <jsp:include page="./profile-header.jsp" />
-
-      <!-- Main Content Section -->
-      <div class="content-container">
-        <!-- Profile Navigation Tabs -->
-        <jsp:include page="./profile-tabs.jsp" />
-
-        <!-- Profile Content Sections -->
-        <div class="profile-content">
-          <!-- Include the appropriate tab content based on the current URL -->
-          <c:set var="currentPath" value="${requestScope['javax.servlet.forward.servlet_path']}" />
-
-          <c:choose>
-            <c:when test="${currentPath eq '/profile/interests'}">
-              <jsp:include page="./interests-tab.jsp" />
-            </c:when>
-            <c:when test="${currentPath eq '/profile/journeys'}">
-              <jsp:include page="./journeys-tab.jsp" />
-            </c:when>
-            <c:when test="${currentPath eq '/profile/events'}">
-              <jsp:include page="./events-tab.jsp" />
-            </c:when>
-            <c:otherwise>
-              <!-- Default to info tab -->
-              <jsp:include page="./info-tab.jsp" />
-            </c:otherwise>
-          </c:choose>
-        </div>
-      </div>
-    </c:if>
   </div>
 </div>
 

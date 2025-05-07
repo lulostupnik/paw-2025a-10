@@ -12,6 +12,7 @@ public interface EventResponseService {
     void delete(long id,String message);
     long getEventIdByResponseId(long responseId);
     int getCount(long eventId);
+    void deleteByEventId(long eventId);
     List<EventResponse> listAllFromEvent(long eventId);
     Page<EventResponse> listAllFromEvent(long eventId, PageParams pageParams);
 
