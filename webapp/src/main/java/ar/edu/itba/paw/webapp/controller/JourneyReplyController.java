@@ -1,8 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.JourneyResponseService;
-import ar.edu.itba.paw.interfaces.services.JourneyService;
-import ar.edu.itba.paw.models.Event;
 import ar.edu.itba.paw.webapp.form.ReplyForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -33,9 +31,9 @@ public class JourneyReplyController {
             redirectAttributes.addFlashAttribute("deleteReplyErrors", errors);
             redirectAttributes.addFlashAttribute("deleteReplyForm", form);
             redirectAttributes.addAttribute("replyId", id);
-            return new ModelAndView( "redirect:/journeys/" + journeyId); // Redirect to the list of journey replies in case of error
+        }else {
+            journeyResponseService.delete(id, form.getMessage());
         }
-        journeyResponseService.delete(id, form.getMessage());
         return new ModelAndView( "redirect:/journeys/" + journeyId ); // Redirect to the list of journey replies after deletion
     }
 }

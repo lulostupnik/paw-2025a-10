@@ -9,10 +9,10 @@ let PasswordStrength = (() => {
      * @param {Object} options Configuration options
      */
 
-    var passwordField
-    var confirmPasswordField
-    var passwordMatchMessage
-    var messages
+    let passwordField
+    let confirmPasswordField
+    let passwordMatchMessage
+    let messages
 
     function init(options = {}) {
         // Default configuration

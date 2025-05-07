@@ -3,73 +3,69 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
-import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.resolver.anotation.PageParamCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/profile")
 public class ProfileController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileController.class);
     private final JourneyService journeyService;
-    private final UserService userService;
+
     private final EventService eventService;
     private final InterestService interestService;
+    private static final String PROFILE = "profile/profile";
 
     @Autowired
-    public ProfileController(JourneyService journeyService, UserService userService, EventService eventService, InterestService interestService) {
+    public ProfileController(JourneyService journeyService, EventService eventService, InterestService interestService) {
         this.journeyService = journeyService;
-        this.userService = userService;
+
         this.eventService = eventService;
         this.interestService = interestService;
     }
-    @RequestMapping(value = "/info", method = RequestMethod.GET)
+    @GetMapping(value = "/info")
     public ModelAndView getInfo() {
 
-        return new ModelAndView("profile/profile");
+        return new ModelAndView(PROFILE);
     }
 
 
-    @RequestMapping(value = "/interests", method = RequestMethod.GET)
+    @GetMapping(value = "/interests")
     public ModelAndView getInterests(
             @ModelAttribute("user") User user,
             @PageParamCustomizer(defaultSize = 4) PageParams pageParams) {
 
-        ModelAndView mav = new ModelAndView("profile/profile");
+        ModelAndView mav = new ModelAndView(PROFILE);
         mav.addObject("interests",interestService.findAllInterestsByUserId(user.getId(), pageParams));
         return mav;
     }
 
 
-    @RequestMapping(value = "/journeys", method = RequestMethod.GET)
+    @GetMapping(value = "/journeys")
     public ModelAndView getJourneys(
             @ModelAttribute("user") User user,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "attendingPage", defaultValue = "1") int attendingPage,
             @RequestParam(value = "size", defaultValue = "4") int size) {
 
-        ModelAndView mav = new ModelAndView("profile/profile");
+        ModelAndView mav = new ModelAndView(PROFILE);
         mav.addObject("userJourneys", journeyService.getJourneysByUser(user.getEmail())); // FIXME: cambiar y usar Optional<Journey> getJourneyByEmail
         return mav;
     }
-    @RequestMapping(value = "/events", method = RequestMethod.GET)
+    @GetMapping(value = "/events")
     public ModelAndView getEvents(
             @ModelAttribute("user") User user,
             @PageParamCustomizer(defaultSize = 4, pageParamName = "attendingPage") PageParams attendingPage,
             @PageParamCustomizer(defaultSize = 4) PageParams pageParam) {
 
-        ModelAndView mav = new ModelAndView("profile/profile");
+        ModelAndView mav = new ModelAndView(PROFILE);
         mav.addObject("userEvents", eventService.getAllEvents(user.getEmail(), pageParam));
         mav.addObject("userAttendingEvents", eventService.getUserAttendingEvents(user.getId(), attendingPage));
         mav.addObject("currentPageUserEvents", pageParam.getPage());

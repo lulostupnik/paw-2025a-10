@@ -186,13 +186,9 @@
     position: relative;
     max-height: 4.5em; /* Approximately 3 lines of text */
     line-height: 1.5;
-    /*display: block; !* Changed from -webkit-box to ensure proper wrapping *!*/
     overflow-wrap: break-word;
     word-wrap: break-word;
     word-break: break-word; /* Allow breaking words if needed */
-    /*hyphens: auto;*/
-    /*max-height: 4.5em; !* Approximately 3 lines of text *!*/
-    /*overflow: hidden;*/
 }
 
 /* Event full badge */

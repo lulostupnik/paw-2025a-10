@@ -9,10 +9,11 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 @RequestMapping("/errors")
 public class ErrorController {
+    private static final String ERROR_VIEW = "errors/error";
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @RequestMapping("/403")
     public ModelAndView error403() {
-        ModelAndView mav = new ModelAndView("errors/error");
+        ModelAndView mav = new ModelAndView(ERROR_VIEW);
         mav.addObject("errorType", "403");
         mav.addObject("errorIcon", "shield-off");
         return mav;
@@ -21,16 +22,15 @@ public class ErrorController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @RequestMapping("/404")
     public ModelAndView error404() {
-        ModelAndView mav = new ModelAndView("errors/error");
+        ModelAndView mav = new ModelAndView(ERROR_VIEW);
         mav.addObject("errorType", "404");
-//        mav.addObject("errorIcon", "file-search");
         return mav;
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @RequestMapping("/500")
     public ModelAndView error500() {
-        ModelAndView mav = new ModelAndView("errors/error");
+        ModelAndView mav = new ModelAndView(ERROR_VIEW);
         mav.addObject("errorType", "500");
 //        mav.addObject("errorIcon", "server-off");
         return mav;
@@ -40,9 +40,8 @@ public class ErrorController {
 
     @RequestMapping("/general")
     public ModelAndView errorGeneral() {
-        ModelAndView mav = new ModelAndView("errors/error");
+        ModelAndView mav = new ModelAndView(ERROR_VIEW);
         mav.addObject("errorType", "general");
-//        mav.addObject("errorIcon", "alert-circle");
         return mav;
     }
 }

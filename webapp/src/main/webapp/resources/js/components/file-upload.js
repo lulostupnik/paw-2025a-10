@@ -65,14 +65,6 @@ let FileUpload = (() => {
                 const file = this.files[0]
                 console.log("FileUpload: File selected:", file.name, "Size:", file.size)
 
-                // Check file size (max 5MB by default)
-               /* if (file.size > config.maxSizeMB * 1024 * 1024) {
-                    console.error("FileUpload: File size exceeds limit")
-                    alert(config.sizeExceededMessage)
-                    this.value = ""
-                    return
-                }*/
-
                 // Update file name
                 fileName.textContent = file.name
 

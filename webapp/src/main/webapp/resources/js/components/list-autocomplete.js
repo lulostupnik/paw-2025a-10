@@ -12,10 +12,6 @@ let ListAutocomplete = (() => {
     function init(options = {}) {
         // Default configuration
 
-        const emptyMessage = document.getElementById("i18n-items-none")
-            ? document.getElementById("i18n-items-none").value
-            : "No items selected"
-
         const config = {
             selectId: "",
             searchId: "",

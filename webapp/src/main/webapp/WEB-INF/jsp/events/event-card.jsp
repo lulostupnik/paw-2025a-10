@@ -58,8 +58,6 @@
                         </button>
                     </div>
                 </c:if>
-                <%--                Edit event button:--%>
-                <%--@TODO Las clases son las de attend-button que es medio confuso, pero tiene el mismo CSS --%>
                 <c:if test="${ isOwner == true}">
                     <div class="attend-button-container">
                         <button type="button"

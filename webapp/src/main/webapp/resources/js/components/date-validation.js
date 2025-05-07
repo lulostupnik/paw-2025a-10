@@ -14,7 +14,6 @@
 
                 // Remove the name attribute from the visible date field to prevent it from being submitted
                 // This ensures only our validated value gets submitted
-                const originalName = dateField.name
                 dateField.removeAttribute("name")
 
                 // Set min attribute to today to prevent selecting past dates in the date picker

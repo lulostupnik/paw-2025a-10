@@ -13,10 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Add novalidate attribute to the form to disable browser's native validation
     const form = document.querySelector(".auth-form")
-    // if (form) {
-    //     form.setAttribute("novalidate", "")
-    // }
-
     // Initialize city autocomplete with single-select mode
     const emptyMessage = document.getElementById("i18n-city-none")
         ? document.getElementById("i18n-city-none").value
@@ -66,146 +62,10 @@ document.addEventListener("DOMContentLoaded", () => {
         form.addEventListener("submit", (e) => {
             // Always prevent default to handle validation ourselves
             e.preventDefault()
-
-            // Collect all validation errors at once
-            /*const errors = validateAllFields()
-
-            // If there are errors, display all errors
-            if (errors.length > 0) {
-                displayErrors(errors)
-
-                // Scroll to the first error
-                if (errors.length > 0) {
-                    const firstErrorField = errors[0].field
-                    firstErrorField.scrollIntoView({ behavior: "smooth", block: "center" })
-                    firstErrorField.focus()
-                }
-            } else {
-                // If no errors, manually submit the form
-                form.submit()
-            }*/
             form.submit()
         })
     }
 
-    /**
-     * Validates all form fields and returns an array of errors
-     * @returns {Array} Array of error objects with field and message properties
-     */
-    function validateAllFields() {
-        const errors = []
-
-        // Validate required fields
-        const requiredFields = form.querySelectorAll(
-            "[required], .required-field + .form-input, .required-field + .form-textarea, .required-field + .autocomplete-wrapper select"
-        )
-        requiredFields.forEach((field) => {
-            // Skip fields that are disabled (like when "all day event" is checked)
-            if (field.disabled) return
-
-            if (!field.value.trim()) {
-                errors.push({
-                    field: field,
-                    message: document.getElementById("i18n-required-field")
-                        ? document.getElementById("i18n-required-field").value
-                        : "This field is required",
-                })
-            }
-        })
-
-        // Validate date
-        const dateValidation = new DateValidation.isValid(dateField)
-        if (!dateValidation.isValid) {
-            errors.push({
-                field: dateField,
-                message: dateValidation.error
-            })
-        }
-
-        // Validate attendees limit is a positive number
-        const attendeesLimitField = document.getElementById("attendeesLimit")
-        const noAttendeesLimit = document.querySelector("input[name='noAttendeesLimit']")
-
-        if (attendeesLimitField && !attendeesLimitField.disabled && attendeesLimitField.value) {
-            const attendeesLimit = Number.parseInt(attendeesLimitField.value, 10)
-
-            if (isNaN(attendeesLimit) || attendeesLimit <= 0) {
-                errors.push({
-                    field: attendeesLimitField,
-                    message: document.getElementById("i18n-positive-number-error")
-                        ? document.getElementById("i18n-positive-number-error").value
-                        : "Please enter a positive number",
-                })
-            }
-        }
-
-        // Validate city is selected (for autocomplete fields)
-        const cityField = document.getElementById("city")
-        if (cityField && !cityField.value.trim()) {
-            const citySearchField = document.getElementById("citySearch")
-            if (citySearchField) {
-                errors.push({
-                    field: citySearchField,
-                    message: document.getElementById("i18n-city-required")
-                        ? document.getElementById("i18n-city-required").value
-                        : "Please select a city",
-                })
-            }
-        }
-
-        return errors
-    }
-
-    /**
-     * Displays all validation errors
-     * @param {Array} errors Array of error objects with field and message properties
-     */
-    function displayErrors(errors) {
-        // Clear previous error messages
-        clearErrorMessages()
-
-        // Display new error messages
-        errors.forEach((error) => {
-            const field = error.field
-            const message = error.message
-
-
-            // Create error message element
-            const errorMsg = document.createElement("div")
-            errorMsg.className = "error-message"
-            errorMsg.textContent = message
-
-            // Find the parent container for the field
-            const parent = field.parentNode
-
-            // For autocomplete fields, we need to go up one more level
-            if (parent.classList.contains("autocomplete-wrapper")) {
-                parent.appendChild(errorMsg)
-            } else {
-                // Check if there's already an error message
-                const existingError = parent.querySelector(".error-message")
-                if (!existingError) {
-                    parent.appendChild(errorMsg)
-                }
-            }
-        })
-    }
-
-    /**
-     * Clears all error messages
-     */
-    function clearErrorMessages() {
-        // Remove error class from all fields
-        const errorFields = document.querySelectorAll(".error")
-        errorFields.forEach((field) => {
-        })
-
-        // Remove all client-side error messages
-        const errorMessages = document.querySelectorAll(".error-message:not([data-server-error])")
-        errorMessages.forEach((msg) => {
-            msg.remove()
-        })
-    }
 
     /**
      * Sets up real-time validation for date and number fields
