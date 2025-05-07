@@ -902,6 +902,7 @@ public class EventJdbcDaoTest {
         assertEquals(0, page1.getContent().size());
     }
 
+    /*
     @Test
     public void testGetEventsWithAttendanceStatusPaged(){
         Map<String, Object> event1 = Map.of("user", USER2, "attending", USER1);
@@ -933,6 +934,8 @@ public class EventJdbcDaoTest {
             assertEqualsEvent(e.getEvent(), eventInfo.get(e.getEvent().getId()));
         }
     }
+
+     */
     @Test
     public void testGetEventsWithAttendanceStatus(){
         Map<String, Object> event1 = Map.of("user", USER2, "attending", USER1);

@@ -267,25 +267,26 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public Page<UserEvent> getEventsPageWithAttendanceStatus(String search,User user, PageParams pageParams) {
-        if(user == null) {
-            Page<Event> page;
-            if(search != null && !search.isEmpty()) {
-                page = eventDao.searchEvents(search, pageParams.getPage(), pageParams.getSize());
-            }else {
-                page = eventDao.listAll(pageParams.getPage(), pageParams.getSize());
-            }
-            List<UserEvent> userEvent = new ArrayList<>();
-            for (Event event : page.getContent()) {
-                userEvent.add(new UserEvent(event, false));
-            }
-            return new Page<>(userEvent, page.getCurrentPage(), page.getTotalPages());
-        }
-
-        if(search == null || search.isEmpty()) {
-            return eventDao.getEventsWithAttendanceStatus(user.getId(), pageParams.getPage(), pageParams.getSize());
-        }
-        return eventDao.getEventsWithAttendanceStatus(search, user.getId(), pageParams.getPage(), pageParams.getSize());
+    public Page<UserEvent> getEventsPageWithAttendanceStatus(String search, User user, PageParams pageParams) {
+        return eventDao.getEventsWithAttendanceStatus(user == null ? null : user.getId(), search, pageParams.getPage(), pageParams.getSize());
+//        if(user == null) {
+//            Page<Event> page;
+//            if(search != null && !search.isEmpty()) {
+//                page = eventDao.searchEvents(search, pageParams.getPage(), pageParams.getSize());
+//            }else {
+//                page = eventDao.listAll(pageParams.getPage(), pageParams.getSize());
+//            }
+//            List<UserEvent> userEvent = new ArrayList<>();
+//            for (Event event : page.getContent()) {
+//                userEvent.add(new UserEvent(event, false));
+//            }
+//            return new Page<>(userEvent, page.getCurrentPage(), page.getTotalPages());
+//        }
+//
+//        if(search == null || search.isEmpty()) {
+//            return eventDao.getEventsWithAttendanceStatus(user.getId(), pageParams.getPage(), pageParams.getSize());
+//        }
+//        return eventDao.getEventsWithAttendanceStatus(search, user.getId(), pageParams.getPage(), pageParams.getSize());
     }
 
     @Override

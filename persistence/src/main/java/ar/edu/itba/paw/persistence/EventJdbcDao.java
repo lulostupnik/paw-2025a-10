@@ -154,6 +154,76 @@ public class EventJdbcDao implements EventDao {
                         )
                    """;
 
+    private final static String SQL_SEARCH_OTHERS_EVENTS_WITH_ATTENDANCE =
+            "SELECT (ea.user_id IS NOT NULL) AS is_attending, "
+                    + SQL_ALIASES + SQL_FROM_BASE + """
+                   LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
+                   WHERE e.user_id != ?
+                   AND e.deleted = FALSE
+                   AND e.event_date >= CURRENT_DATE
+                   AND (
+                            LOWER(e.title) LIKE LOWER(?)
+                            OR LOWER(c.name) LIKE LOWER(?)
+                            OR LOWER(us.username) LIKE LOWER(?)
+                        )
+                     ORDER BY e.event_date DESC LIMIT ? OFFSET ?
+                   """;
+
+    private final static String SQL_COUNT_OTHERS_EVENTS_WITH_ATTENDANCE =
+            """
+            SELECT COUNT(*)
+            FROM events e
+            JOIN cities c ON e.city_id = c.id
+            JOIN users us ON e.user_id = us.id
+            LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
+            WHERE e.deleted = FALSE AND e.user_id != ? AND e.event_date >= CURRENT_DATE AND (
+                    LOWER(e.title) LIKE LOWER(?)
+                    OR LOWER(c.name) LIKE LOWER(?)
+                    OR LOWER(us.username) LIKE LOWER(?)
+                )
+            """;
+
+    /*
+     """
+    SELECT COUNT(*)
+    FROM events e
+    JOIN cities c ON e.city_id = c.id
+    JOIN users us ON e.user_id = us.id
+    LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
+    WHERE e.deleted = FALSE AND e.user_id != ? AND e.event_date >= CURRENT_DATE AND (
+            LOWER(e.title) LIKE LOWER(?)
+            OR LOWER(c.name) LIKE LOWER(?)
+            OR LOWER(us.username) LIKE LOWER(?)
+        )
+    """
+    */
+
+    private final static String SQL_SEARCH_ALL_EVENTS_WITH_ATTENDANCE =
+            "SELECT FALSE AS is_attending, "
+                    + SQL_ALIASES + SQL_FROM_BASE + """
+                    WHERE e.deleted = FALSE
+                    AND e.event_date >= CURRENT_DATE
+                    AND (
+                            LOWER(e.title) LIKE LOWER(?)
+                            OR LOWER(c.name) LIKE LOWER(?)
+                            OR LOWER(us.username) LIKE LOWER(?)
+                           )
+                    ORDER BY e.event_date DESC LIMIT ? OFFSET ?
+                    """;
+
+    private final static String SQL_COUNT_ALL_EVENTS_WITH_ATTENDANCE =
+            """
+            SELECT COUNT(*)
+            FROM events e
+            JOIN cities c ON e.city_id = c.id
+            JOIN users us ON e.user_id = us.id
+            WHERE e.deleted = FALSE AND e.event_date >= CURRENT_DATE AND (
+                    LOWER(e.title) LIKE LOWER(?)
+                    OR LOWER(c.name) LIKE LOWER(?)
+                    OR LOWER(us.username) LIKE LOWER(?)
+                )
+            """;
+
     private final static String SQL_FIND_WITH_ATTENDANCE_PAGED = SQL_FIND_EVENTS_WITH_ATTENDANCE + " ORDER BY e.event_date DESC LIMIT ? OFFSET ?";
     private final static String SQL_SEARCH_WITH_ATTENDANCE_PAGED = SQL_SEARCH_EVENTS_WITH_ATTENDANCE + " ORDER BY e.event_date DESC LIMIT ? OFFSET ?";
 
@@ -505,7 +575,6 @@ public class EventJdbcDao implements EventDao {
         return new Page<>(events, page, pageCount(totalItems, size));}
 
 
-    @Override
     public Page<UserEvent> getEventsWithAttendanceStatus(final long userId, final int page, final int size) {
 
         final int totalItems = jdbcTemplate.queryForObject("""
@@ -530,37 +599,66 @@ public class EventJdbcDao implements EventDao {
         return new Page<>(events, page, pageCount(totalItems, size));
     }
 
+//    private Page<UserEvent> getEventsWithAttendanceStatus(String search, long userId, int page, int size) {
+//        final String searchPattern = likePattern(search);
+//
+//        final int totalItems = jdbcTemplate.queryForObject("""
+//                SELECT COUNT(*)
+//                FROM events e
+//                JOIN cities c ON e.city_id = c.id
+//                JOIN users us ON e.user_id = us.id
+//                LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
+//                WHERE e.deleted = FALSE AND e.user_id != ? AND e.event_date >= CURRENT_DATE AND (
+//                        LOWER(e.title) LIKE LOWER(?)
+//                --      OR LOWER(e.description) LIKE LOWER(?)
+//                        OR LOWER(c.name) LIKE LOWER(?)
+//                        OR LOWER(us.username) LIKE LOWER(?)
+//                    )
+//                """
+//                , Integer.class, userId, userId, searchPattern, searchPattern, searchPattern );
+//
+//
+//
+//        final List<UserEvent> events = jdbcTemplate.query(
+//                SQL_SEARCH_WITH_ATTENDANCE_PAGED,
+//                (rs, rowNum) -> {
+//                    Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
+//                    boolean isAttending = rs.getBoolean("is_attending");
+//                    return new UserEvent(event, isAttending);
+//                },
+//                userId, userId, searchPattern, searchPattern, searchPattern, size, offset(page, size)
+//        );
+//
+//        return new Page<>(events, page, pageCount(totalItems, size));
+//    }
+
     @Override
-    public Page<UserEvent> getEventsWithAttendanceStatus(String search, long userId, int page, int size) {
+    public Page<UserEvent> getEventsWithAttendanceStatus(Long userId, String search, int page, int size) {
         final String searchPattern = likePattern(search);
+        if(userId != null){
+            // return getEventsWithAttendanceStatus(search, userId, page, size);
+            return getWithAttendance(userId, searchPattern, page, size);
+        }
+        return getWithAttendance(searchPattern, page, size);
+    }
 
-        final int totalItems = jdbcTemplate.queryForObject("""
-                SELECT COUNT(*)
-                FROM events e
-                JOIN cities c ON e.city_id = c.id
-                JOIN users us ON e.user_id = us.id
-                LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
-                WHERE e.deleted = FALSE AND e.user_id != ? AND e.event_date >= CURRENT_DATE AND (
-                        LOWER(e.title) LIKE LOWER(?)
-                --      OR LOWER(e.description) LIKE LOWER(?)
-                        OR LOWER(c.name) LIKE LOWER(?)
-                        OR LOWER(us.username) LIKE LOWER(?)
-                    )
-                """
-                , Integer.class, userId, userId, searchPattern, searchPattern, searchPattern );
+    private Page<UserEvent> getWithAttendance(long userId, String searchPattern, int page, int size) {
+        int totalItems = jdbcTemplate.queryForObject(SQL_COUNT_OTHERS_EVENTS_WITH_ATTENDANCE, Integer.class, userId, userId, searchPattern, searchPattern, searchPattern);
+        List<UserEvent> events = jdbcTemplate.query(SQL_SEARCH_OTHERS_EVENTS_WITH_ATTENDANCE, (rs, rowNum) -> {
+            Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
+            boolean isAttending = rs.getBoolean("is_attending");
+            return new UserEvent(event, isAttending);
+        }, userId, userId, searchPattern, searchPattern, searchPattern, size, offset(page, size));
+        return new Page<>(events, page, pageCount(totalItems, size));
+    }
 
-
-
-        final List<UserEvent> events = jdbcTemplate.query(
-                SQL_SEARCH_WITH_ATTENDANCE_PAGED,
-                (rs, rowNum) -> {
-                    Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
-                    boolean isAttending = rs.getBoolean("is_attending");
-                    return new UserEvent(event, isAttending);
-                },
-                userId, userId, searchPattern, searchPattern, searchPattern, size, offset(page, size)
-        );
-
+    private Page<UserEvent> getWithAttendance(String searchPattern, int page, int size) {
+        int totalItems = jdbcTemplate.queryForObject(SQL_COUNT_ALL_EVENTS_WITH_ATTENDANCE, Integer.class, searchPattern, searchPattern, searchPattern);
+        List<UserEvent> events = jdbcTemplate.query(SQL_SEARCH_ALL_EVENTS_WITH_ATTENDANCE, (rs, rowNum) -> {
+            Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
+            boolean isAttending = rs.getBoolean("is_attending");
+            return new UserEvent(event, isAttending);
+        }, searchPattern, searchPattern, searchPattern, size, offset(page, size));
         return new Page<>(events, page, pageCount(totalItems, size));
     }
 
