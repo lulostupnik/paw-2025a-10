@@ -1,6 +1,8 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.*;
+import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.webapp.resolver.anotation.PageParamCustomizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -31,36 +33,32 @@ public class AdminController {
 
     @RequestMapping("/events")
     public ModelAndView dashboardEvents(
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView("/admin/dashboard");
-        mav.addObject("pagedEvents", eventService.getAllEventsSearch(search, page, pageSize));
-
+        mav.addObject("pagedEvents", eventService.getAllEventsSearch(search, pageParams));
         return mav;
     }
 
     @RequestMapping("/users")
     public ModelAndView dashboardUsers(
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView("/admin/dashboard");
-        mav.addObject("pagedUsers", userService.getAllUsers(search, page, pageSize));
+        mav.addObject("pagedUsers", userService.getAllUsers(search, pageParams));
 
         return mav;
     }
 
     @RequestMapping("/journeys")
     public ModelAndView dashboardJourneys(
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView("/admin/dashboard");
-        mav.addObject("pagedJourneys", journeyService.getAllJourneys(search,page,pageSize));
+        mav.addObject("pagedJourneys", journeyService.getAllJourneys(search,pageParams));
 
 
         return mav;
@@ -68,48 +66,44 @@ public class AdminController {
 
     @RequestMapping("/careers")
     public ModelAndView dashboardCareers(
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+         @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView("/admin/dashboard");
-        mav.addObject("pagedCareers", careerService.getAllCareers(search,page, pageSize));
+        mav.addObject("pagedCareers", careerService.getAllCareers(search,pageParams));
 
         return mav;
     }
 
     @RequestMapping("/universities")
     public ModelAndView dashboardUniversities(
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+         @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView("/admin/dashboard");
-        mav.addObject("pagedUniversities", universityService.getAllUniversities(search, page, pageSize));
+        mav.addObject("pagedUniversities", universityService.getAllUniversities(search, pageParams));
 
         return mav;
     }
 
     @RequestMapping("/interests")
     public ModelAndView dashboardInterests(
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+         @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView("/admin/dashboard");
-        mav.addObject("pagedInterests", interestService.getAllInterests(search, page, pageSize));
+        mav.addObject("pagedInterests", interestService.getAllInterests(search, pageParams));
 
         return mav;
     }
 
     @RequestMapping("/cities")
     public ModelAndView dashboardCities(
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+         @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView("/admin/dashboard");
-        mav.addObject("pagedCities", cityService.getAllCities(search, page, pageSize));
+        mav.addObject("pagedCities", cityService.getAllCities(search, pageParams));
         return mav;
     }
 

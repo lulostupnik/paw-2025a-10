@@ -118,12 +118,12 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
-    public Page<Journey> getAllJourneys(String search, int page, int size) {
+    public Page<Journey> getAllJourneys(String search, PageParams pageParams) {
         LOGGER.debug("Getting all journeys with search {}", search);
         if (search == null || search.isEmpty()) {
-            return journeyDao.listAll(page, size);
+            return journeyDao.listAll(pageParams.getPage(), pageParams.getSize());
         }
-        return journeyDao.searchJourneys(search,page,size);
+        return journeyDao.searchJourneys(search,pageParams.getPage(), pageParams.getSize());
     }
 
     @Transactional(readOnly = true)
@@ -145,13 +145,13 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Journey> getAllJourneys(String search, User user, Long destination, LocalDate startDate, LocalDate endDate, Long interest, int page, int size) {
+    public Page<Journey> getAllJourneys(String search, User user, Long destination, LocalDate startDate, LocalDate endDate, Long interest, PageParams pageParams) {
         LOGGER.debug("Getting filtered journeys");
         if(search != null && !search.isEmpty()) {
 //            aca tal vez habria que buscar con todos los parametros de filtro
-            return journeyDao.searchJourneys(search, page, size);
+            return journeyDao.searchJourneys(search, pageParams.getPage(), pageParams.getSize());
         }
-        return journeyDao.findByFilters(user != null ? user.getId() : null, destination, startDate, endDate, interest, page, size);
+        return journeyDao.findByFilters(user != null ? user.getId() : null, destination, startDate, endDate, interest, pageParams.getPage(), pageParams.getSize());
     }
 
 

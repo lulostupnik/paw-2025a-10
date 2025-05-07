@@ -5,6 +5,7 @@ import ar.edu.itba.paw.interfaces.services.CareerService;
 import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.CursorPage;
 import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.PageParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,12 +50,12 @@ public class CareerServiceImpl implements CareerService {
     }
 
     @Override
-    public Page<Career> getAllCareers(String search, int page, int pageSize) {
+    public Page<Career> getAllCareers(String search, PageParams pageParams) {
         LOGGER.debug("Getting all careers with search {}", search);
         if (search == null || search.isEmpty()) {
-            return careerDao.getAllCareers(page, pageSize);
+            return careerDao.getAllCareers(pageParams.getPage(), pageParams.getSize());
         }
-        return careerDao.searchBySubstring(search,page, pageSize);
+        return careerDao.searchBySubstring(search, pageParams.getPage(), pageParams.getSize());
     }
 
     @Transactional(readOnly = false)

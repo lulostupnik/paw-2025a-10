@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import ar.edu.itba.paw.models.PageParams;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -92,7 +93,7 @@ public class EventResponseServiceImplTest {
             responseDao.listAllFromEvent(Mockito.eq(EVENT_ID), Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<EventResponse> page = responseService.listAllFromEvent(EVENT_ID, 1, 2);
+        Page<EventResponse> page = responseService.listAllFromEvent(EVENT_ID,new PageParams(1,2));
 
         assertNotNull(page);
         assertEquals(testPage, page);

@@ -201,12 +201,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<User> getAllUsers(String search, int page, int size) {
+    public Page<User> getAllUsers(String search, PageParams pageParams) {
 
         if (search == null || search.isEmpty()) {
-            return userDao.getAllUsers(page, size);
+            return userDao.getAllUsers(pageParams.getPage(), pageParams.getSize());
         }
-        return userDao.searchUsers(search, page, size);
+        return userDao.searchUsers(search, pageParams.getPage(), pageParams.getSize());
     }
 
     @Override

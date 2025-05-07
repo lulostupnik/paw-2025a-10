@@ -4,7 +4,9 @@ import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.interfaces.services.UserService;
+import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.webapp.resolver.anotation.PageParamCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,12 +44,10 @@ public class ProfileController {
     @RequestMapping(value = "/interests", method = RequestMethod.GET)
     public ModelAndView getInterests(
             @ModelAttribute("user") User user,
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "attendingPage", defaultValue = "1") int attendingPage,
-            @RequestParam(value = "size", defaultValue = "4") int size) {
+            @PageParamCustomizer(defaultSize = 4) PageParams pageParams) {
 
         ModelAndView mav = new ModelAndView("profile/profile");
-        mav.addObject("interests",interestService.findAllInterestsByUserId(user.getId(), page, size));
+        mav.addObject("interests",interestService.findAllInterestsByUserId(user.getId(), pageParams));
         return mav;
     }
 
@@ -66,15 +66,14 @@ public class ProfileController {
     @RequestMapping(value = "/events", method = RequestMethod.GET)
     public ModelAndView getEvents(
             @ModelAttribute("user") User user,
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "attendingPage", defaultValue = "1") int attendingPage,
-            @RequestParam(value = "size", defaultValue = "4") int size) {
+            @PageParamCustomizer(defaultSize = 4, pageParamName = "attendingPage") PageParams attendingPage,
+            @PageParamCustomizer(defaultSize = 4) PageParams pageParam) {
 
         ModelAndView mav = new ModelAndView("profile/profile");
-        mav.addObject("userEvents", eventService.getAllEvents(user.getEmail(), page, size));
-        mav.addObject("userAttendingEvents", eventService.getUserAttendingEvents(user.getId(), attendingPage, size));
-        mav.addObject("currentPageUserEvents", page);
-        mav.addObject("currentPageUserAttending", attendingPage);
+        mav.addObject("userEvents", eventService.getAllEvents(user.getEmail(), pageParam));
+        mav.addObject("userAttendingEvents", eventService.getUserAttendingEvents(user.getId(), attendingPage));
+        mav.addObject("currentPageUserEvents", pageParam.getPage());
+        mav.addObject("currentPageUserAttending", attendingPage.getPage());
         return mav;
     }
 }

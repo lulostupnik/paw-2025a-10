@@ -15,9 +15,8 @@
                 <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
                     <jsp:param name="pageObjectTotalPages" value="${interests.totalPages}" />
                     <jsp:param name="currentPage" value="${interests.currentPage}" />
-                    <jsp:param name="pageSize" value="${pageSize}" />
-                    <jsp:param name="baseUrl" value="/profile/interests?page=${interests.currentPage}&size=${pageSize}" />
-                    <jsp:param name="paramName" value="interestsPage" />
+                    <jsp:param name="pageSize" value="4" />
+                    <jsp:param name="baseUrl" value="/profile/interests" />
                 </jsp:include>
             </c:if>
             <c:if test="${empty interests.content}">

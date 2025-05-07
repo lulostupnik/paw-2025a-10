@@ -1,4 +1,4 @@
-package ar.edu.itba.paw.webapp.config;
+package ar.edu.itba.paw.webapp.resolver;
 
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 

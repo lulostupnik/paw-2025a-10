@@ -15,13 +15,13 @@ public interface JourneyService {
 
     List<Journey> getAllJourneys();
 
-    Page<Journey> getAllJourneys(String search, int page, int size);
+    Page<Journey> getAllJourneys(String search, PageParams pageParams);
 
     Optional<Journey> getJourneyById(long id);
 
     Optional<Journey> getJourneyByEmail(String email);
 
-    Page<Journey> getAllJourneys(String search, User user, Long destination, LocalDate startDate, LocalDate endDate, Long interest, int page, int size);
+    Page<Journey> getAllJourneys(String search, User user, Long destination, LocalDate startDate, LocalDate endDate, Long interest, PageParams pageParams);
 
     Boolean userHasJourney(String email); // ja
 
