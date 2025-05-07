@@ -220,17 +220,12 @@
     word-wrap: break-word;
     overflow-wrap: break-word;
 }
-.event-actions {
-    padding: 20px;
-    background-color: #f9f9f9;
+.events-actions {
+    display: flex
+;
+    gap: 1rem;
 }
 
-.event-actions-container {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    max-width: 100%;
-}
 
 /* Attendees */
 .attendees-count {
