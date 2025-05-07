@@ -3,7 +3,6 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.InterestDao;
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.models.Interest;
-
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import org.slf4j.Logger;
@@ -14,7 +13,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -70,6 +68,7 @@ public class InterestServiceImpl implements InterestService {
 
     @Transactional
     @Override
+    @CacheEvict(value = "interests", allEntries = true)
     public Interest createUserInterest(String interest) {
         return interestDao.createUserInterest(interest);
     }
