@@ -9,11 +9,17 @@
 .events-container {
     padding-top: 1rem; /* Add top padding to match other pages */
     padding-left: 0; /* Ensure no left padding is causing the rightward shift */
+    width: 100%;
 }
+
 
 .event-title-section {
     margin-top: 0; /* Reset any top margin */
     padding-top: 0; /* Reset any top padding */
+    flex-grow: 1;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    position: relative;
 }
 
 .event-title {
@@ -24,24 +30,23 @@
 /* This ensures consistent header padding */
 .event-detail-header {
     padding: 1.5rem; /* Reduce from 32px to match other pages */
+    background-color: var(--color-primary-light, #e6f0ff);
+    /*padding: 32px;*/
+    border-bottom: 1px solid var(--color-border, #e5e7eb);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 /* Fix the grid margin to prevent pushing content down */
 .events-grid {
     margin-top: 1rem; /* Reduce from 1.5rem */
-}
-
-.events-container {
-    width: 100%;
-    padding: 0 0;
-}
-
-.events-grid {
     display: grid;
     grid-template-columns: repeat(1, 1fr);
     gap: 1.5rem;
-    margin-top: 1.5rem;
 }
+
+
+
+
 
 @media (min-width: 640px) {
     .events-grid {
@@ -106,13 +111,7 @@
     background-color: var(--profile-bg-alt, #f9fafb);
     color: var(--color-text-muted, #6b7280);
 }
-/* Event Detail Header */
-.event-detail-header {
-    background-color: var(--color-primary-light, #e6f0ff);
-    padding: 32px;
-    border-bottom: 1px solid var(--color-border, #e5e7eb);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
+
 
 .event-info {
     align-items: flex-start;
@@ -125,12 +124,7 @@
 }
 
 
-.event-title-section {
-    flex-grow: 1;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    position: relative;
-}
+
 .event-title-section > h1:first-child {
     margin-right: 120px; /* dejar espacio para attendance-control */
 }
@@ -354,6 +348,8 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
+    margin-bottom: 24px;
+
 }
 
 .response-card {
@@ -450,6 +446,7 @@
     flex-direction: column;
     gap: 16px;
 }
+
 
 .form-actions {
     display: flex;
@@ -646,10 +643,6 @@
     }
 }
 
-/* Add spacing between comments list and reply form without the separator line */
-.responses-list {
-    margin-bottom: 24px;
-}
 
 /* Make the reply form container stand out more */
 .reply-form-container {
@@ -661,21 +654,7 @@
     border: 1px solid #f3f4f6;
 }
 
-/* .responses-list:after {
-    content: '';
-    display: block;
-    height: 1px;
-    background: #e5e7eb;
-    margin: 16px 0;
-    opacity: 0.7;
-} */
 
-/* Make the reply form more visually distinct */
-.reply-form {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
 
 /* Improve the textarea styling */
 .form-group textarea {
