@@ -677,12 +677,10 @@ public class EventServiceImplTest {
         assertEquals(EVENTS, events);
     }
 
-    // FIXME
-    /*
     @Test
     public void testGetEventsPageWithAttendanceStatus(){
         Mockito.when(
-            eventDao.getEventsWithAttendanceStatus(Mockito.eq(DESCRIPTION), Mockito.eq(USER_ID), Mockito.eq(1), Mockito.eq(2))
+            eventDao.getEventsWithAttendanceStatus(Mockito.eq(USER_ID), Mockito.eq(DESCRIPTION), Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(USEREVENTS_PAGE);
 
         Page<UserEvent> page = eventService.getEventsPageWithAttendanceStatus(DESCRIPTION, USER, PAGE_PARAMS);
@@ -690,71 +688,16 @@ public class EventServiceImplTest {
         assertNotNull(page);
         assertEquals(USEREVENTS_PAGE, page);
     }
-
-     */
-    /*
-    @Test
-    public void testGetEventsPageWithAttendanceStatusMissingQuery(){
-        Mockito.when(
-            eventDao.getEventsWithAttendanceStatus(Mockito.eq(USER_ID), Mockito.eq(1), Mockito.eq(2))
-        ).thenReturn(USEREVENTS_PAGE);
-
-        Page<UserEvent> page = eventService.getEventsPageWithAttendanceStatus(null, USER, PAGE_PARAMS);
-
-        assertNotNull(page);
-        assertEquals(USEREVENTS_PAGE, page);
-    }
-
-     */
-    /*
-    @Test
-    public void testGetEventsPageWithAttendanceStatusEmptyQuery(){
-        Mockito.when(
-            eventDao.getEventsWithAttendanceStatus(Mockito.eq(USER_ID), Mockito.eq(1), Mockito.eq(2))
-        ).thenReturn(USEREVENTS_PAGE);
-
-        Page<UserEvent> page = eventService.getEventsPageWithAttendanceStatus("", USER, PAGE_PARAMS);
-
-        assertNotNull(page);
-        assertEquals(USEREVENTS_PAGE, page);
-    }
-
-     */
     @Test
     public void testGetEventsPageWithAttendanceStatusNoUser(){
         Mockito.when(
-            eventDao.searchEvents(Mockito.eq(DESCRIPTION), Mockito.eq(1), Mockito.eq(2))
-        ).thenReturn(EVENTS_PAGE);
+            eventDao.getEventsWithAttendanceStatus(Mockito.eq(null), Mockito.eq(DESCRIPTION), Mockito.eq(1), Mockito.eq(2))
+        ).thenReturn(USEREVENTS_PAGE);
 
         Page<UserEvent> page = eventService.getEventsPageWithAttendanceStatus(DESCRIPTION, null, PAGE_PARAMS);
 
         assertNotNull(page);
-        assertFalse(page.getContent().getFirst().isAttending());
-        assertEquals(EVENT, page.getContent().getFirst().getEvent());
-    }
-    @Test
-    public void testGetEventsPageWithAttendanceStatusNoUserMissingQuery(){
-        Mockito.when(
-            eventDao.listAll(Mockito.eq(1), Mockito.eq(2))
-        ).thenReturn(EVENTS_PAGE);
-
-        Page<UserEvent> page = eventService.getEventsPageWithAttendanceStatus(null, null, PAGE_PARAMS);
-
-        assertNotNull(page);
-        assertFalse(page.getContent().getFirst().isAttending());
-        assertEquals(EVENT, page.getContent().getFirst().getEvent());
-    }
-    @Test
-    public void testGetEventsPageWithAttendanceStatusNoUserEmptyQuery(){
-        Mockito.when(
-            eventDao.listAll(Mockito.eq(1), Mockito.eq(2))
-        ).thenReturn(EVENTS_PAGE);
-
-        Page<UserEvent> page = eventService.getEventsPageWithAttendanceStatus("", null, PAGE_PARAMS);
-
-        assertNotNull(page);
-        assertFalse(page.getContent().getFirst().isAttending());
-        assertEquals(EVENT, page.getContent().getFirst().getEvent());
+        assertEquals(USEREVENTS_PAGE, page);
     }
 
     @Test

@@ -15,6 +15,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
 import ar.edu.itba.paw.models.JourneyResponse;
+import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.PageParams;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JourneyResponseServiceImplTest {
@@ -26,6 +28,12 @@ public class JourneyResponseServiceImplTest {
     private static final String MESSAGE = "message";
     private static final LocalDateTime TIMESTAMP = LocalDateTime.now().withNano(0);
     private static final JourneyResponse RESPONSE = new JourneyResponse(ID, USER_ID, USERNAME, JOURNEY_ID, MESSAGE, TIMESTAMP);
+    private static final List<JourneyResponse> RESPONSES = List.of(RESPONSE);
+    private static final Page<JourneyResponse> RESPONSE_PAGE = new Page<JourneyResponse>(RESPONSES, 1, 1);
+    private static final int PAGE_NUM = 1;
+    private static final int PAGE_SIZE = 2;
+    private static final PageParams PAGE_PARAMS = new PageParams(1, 2);
+    private static final int REPLY_COUNT = 1;
 
     @InjectMocks
     JourneyResponseServiceImpl responseService;
@@ -76,5 +84,28 @@ public class JourneyResponseServiceImplTest {
     @Test
     public void testDeleteByJourneyId(){
         responseService.deleteByJourneyId(JOURNEY_ID);
+    }
+
+    @Test
+    public void testListAllFromJourneyPaged(){
+        Mockito.when(
+            responseDao.listAllFromJourney(Mockito.eq(JOURNEY_ID), Mockito.eq(PAGE_NUM), Mockito.eq(PAGE_SIZE))
+        ).thenReturn(RESPONSE_PAGE);
+
+        Page<JourneyResponse> page = responseService.listAllFromJourney(JOURNEY_ID, PAGE_PARAMS);
+
+        assertNotNull(page);
+        assertEquals(RESPONSE_PAGE, page);
+    }
+
+    @Test
+    public void testGetCount(){
+        Mockito.when(
+            responseDao.getCount(Mockito.eq(JOURNEY_ID))
+        ).thenReturn(REPLY_COUNT);
+
+        int count = responseService.getCount(JOURNEY_ID);
+
+        assertEquals(REPLY_COUNT, count);
     }
 }
