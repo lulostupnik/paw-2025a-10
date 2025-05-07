@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.persistence.EventResponseDao;
 import ar.edu.itba.paw.interfaces.services.EventResponseService;
 import ar.edu.itba.paw.models.EventResponse;
 import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.PageParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -56,8 +57,8 @@ public class EventResponseServiceImpl implements EventResponseService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<EventResponse> listAllFromEvent(long eventId, int page, int size) {
-        return eventResponseDao.listAllFromEvent(eventId,page,size);
+    public Page<EventResponse> listAllFromEvent(long eventId, PageParams pageParams) {
+        return eventResponseDao.listAllFromEvent(eventId,pageParams.getPage(),pageParams.getSize());
     }
 
 

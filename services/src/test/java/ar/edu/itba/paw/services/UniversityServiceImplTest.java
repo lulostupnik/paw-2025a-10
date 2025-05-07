@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import ar.edu.itba.paw.models.PageParams;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -145,7 +146,7 @@ public class UniversityServiceImplTest {
             uniDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<University> unis = uniService.searchUniversities(NAME, 1, 2);
+        Page<University> unis = uniService.searchUniversities(NAME, new PageParams(1,2));
 
         assertNotNull(unis);
         assertNotNull(unis.getContent());
@@ -161,7 +162,7 @@ public class UniversityServiceImplTest {
             uniDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<University> unis = uniService.searchUniversities(NAME, 1, 2);
+        Page<University> unis = uniService.searchUniversities(NAME, new PageParams(1,2));
 
         assertNotNull(unis);
         assertNotNull(unis.getContent());
@@ -201,7 +202,7 @@ public class UniversityServiceImplTest {
             uniDao.getAllUniversities(Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<University> unis = uniService.getAllUniversities(null, 1, 2);
+        Page<University> unis = uniService.getAllUniversities(null, new PageParams(1,2));
 
         assertNotNull(unis);
         assertNotNull(unis.getContent());
@@ -217,7 +218,7 @@ public class UniversityServiceImplTest {
             uniDao.getAllUniversities(Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<University> unis = uniService.getAllUniversities("", 1, 2);
+        Page<University> unis = uniService.getAllUniversities("", new PageParams(1,2));
 
         assertNotNull(unis);
         assertNotNull(unis.getContent());
@@ -233,7 +234,7 @@ public class UniversityServiceImplTest {
             uniDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<University> unis = uniService.getAllUniversities(NAME, 1, 2);
+        Page<University> unis = uniService.getAllUniversities(NAME,new PageParams(1,2));
 
         assertNotNull(unis);
         assertNotNull(unis.getContent());

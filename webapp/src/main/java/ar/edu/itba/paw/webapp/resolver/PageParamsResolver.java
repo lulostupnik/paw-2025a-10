@@ -39,18 +39,22 @@ public class PageParamsResolver implements HandlerMethodArgumentResolver {
         String sizeParamName = (defaults != null && !defaults.sizeParamName().isEmpty()) ? defaults.sizeParamName():DEFAULT_SIZE_PARAM_NAME;
 
 
-        int page = parseOrDefault(webRequest.getParameter(pageParamName), defaultPage);
-        int size = parseOrDefault(webRequest.getParameter(sizeParamName), defaultSize);
+        int page = parsePositiveIntOrDefault(webRequest.getParameter(pageParamName), defaultPage);
+        int size = parsePositiveIntOrDefault(webRequest.getParameter(sizeParamName), defaultSize);
 
 //        size = Math.max(minSize, Math.min(maxSize, size));
         size = Math.max(GLOBAL_MIN_SIZE, Math.min(GLOBAL_MAX_SIZE, size));
         return new PageParams(page, size);
     }
 
-    private int parseOrDefault(String param, int defaultValue) {
+    private int parsePositiveIntOrDefault(String param, int defaultValue) {
+        if (param == null) {
+            return defaultValue;
+        }
         try {
-            return param != null ? Integer.parseInt(param) : defaultValue;
-        } catch (NumberFormatException e) {
+            int value = Integer.parseInt(param);
+            return value > 0 ? value : defaultValue;
+        } catch (NumberFormatException  e) {
             return defaultValue;
         }
     }

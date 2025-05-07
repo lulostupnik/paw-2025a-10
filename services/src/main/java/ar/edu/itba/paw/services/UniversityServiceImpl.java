@@ -3,6 +3,7 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,12 +69,12 @@ public class UniversityServiceImpl implements UniversityService {
     // TODO: ¿Hace falta el if?
     @Override
     @Transactional(readOnly = true)
-    public Page<University> getAllUniversities(String search, int page, int size) {
+    public Page<University> getAllUniversities(String search, PageParams pageParams) {
         LOGGER.debug("Getting all universities with search {}", search);
         if (search == null || search.isEmpty()) {
-            return universityDao.getAllUniversities(page, size);
+            return universityDao.getAllUniversities(pageParams.getPage(), pageParams.getSize());
         }
-        return universityDao.searchBySubstring(search, page, size);
+        return universityDao.searchBySubstring(search, pageParams.getPage(), pageParams.getSize());
     }
 
     @Override
@@ -90,8 +91,8 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<University> searchUniversities(String search, int page, int size) {
-        return universityDao.searchBySubstring(search, page, size);
+    public Page<University> searchUniversities(String search, PageParams pageParams) {
+        return universityDao.searchBySubstring(search, pageParams.getPage(), pageParams.getSize());
     }
 
     @Override

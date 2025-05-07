@@ -51,28 +51,16 @@ public class EventController {
         this.eventResponseService = eventResponseService;
     }
 
-    /*@RequestMapping
-    public ModelAndView getEvents(@ModelAttribute("user") User user) {
-        ModelAndView mav = new ModelAndView("events/list");
-        if (user != null ) {
-            mav.addObject("eventsWithAttendance", eventService.getEventsWithAttendanceStatus(user.getEmail()));
-        } else{
-            mav.addObject("events",eventService.getAllEvents());
-        }
-        return mav;
-    }*/
-
     @RequestMapping
     public ModelAndView getEvents(@ModelAttribute("user") User user,
-                                  @RequestParam(value = "page", defaultValue = "1") int page,
-                                  @RequestParam(value = "size", defaultValue = "8") int size,
+                                  @PageParamCustomizer(defaultSize = 8) PageParams  pageParams,
                                   @RequestParam(value = "search", required = false) String search) {
         ModelAndView mav = new ModelAndView("events/list");
-        Page<UserEvent> userEventsPage = eventService.getEventsPageWithAttendanceStatus(search, user, page, size);
+        Page<UserEvent> userEventsPage = eventService.getEventsPageWithAttendanceStatus(search, user, pageParams);
         mav.addObject("eventsPage", userEventsPage);
         mav.addObject("eventsWithAttendance", userEventsPage.getContent());
-        mav.addObject("currentPage", page);
-        mav.addObject("pageSize", size);
+        mav.addObject("currentPage", pageParams.getPage());
+        mav.addObject("pageSize", pageParams.getSize());
         return mav;
     }
 
@@ -119,7 +107,7 @@ public class EventController {
 
     private ModelAndView populateEventDetails( Event event, long id, User user,
                                               BindingResult deleteErrors, BindingResult deleteReplyErrors,
-                                              Long replyId, int page, int size, int attendeesPage, int attendeesSize) {
+                                              Long replyId, PageParams pageParams, PageParams attendeesPageParams) {
         ModelAndView mav = new ModelAndView("events/detail/detail");
         mav.addObject("event", event);
 
@@ -137,9 +125,9 @@ public class EventController {
             mav.addObject("deleteFormId", "delete-event-response-form-" + replyId);
         }
         LOGGER.info("Found event {}", event);
-        mav.addObject("attendeesPage", eventService.getEventAttendees(event.getId(), attendeesPage, attendeesSize));
+        mav.addObject("attendeesPage", eventService.getEventAttendees(event.getId(), attendeesPageParams));
         mav.addObject("attendeesCount", eventService.getEventAttendeesCount(event.getId()));
-        Page<EventResponse> eventResponsesPage = eventResponseService.listAllFromEvent(event.getId(), page, size);
+        Page<EventResponse> eventResponsesPage = eventResponseService.listAllFromEvent(event.getId(), pageParams);
         mav.addObject("eventResponsesPage", eventResponsesPage);
         mav.addObject("commentsCount", eventResponseService.getCount(event.getId()));
 
@@ -166,17 +154,7 @@ public class EventController {
         return mav;
     }
 
-    /*@RequestMapping("/{id}")
-    public ModelAndView getEvent(@PathVariable long id, @Valid @ModelAttribute("replyEventForm") final ReplyForm form, final BindingResult errors,
-                                 @ModelAttribute("user") User user,
-                                 @Valid @ModelAttribute("deleteForm") final ReplyForm deleteForm, final BindingResult deleteErrors,
-                                 @Valid @ModelAttribute("deleteReplyForm") final ReplyForm deleteReplyForm, final BindingResult deleteReplyErrors,
-                                 @RequestParam(value = "replyId", required = false) Long replyId,
-                                 @RequestParam(value = "page", defaultValue = "1") int page,
-                                 @RequestParam(value = "size", defaultValue = "5") int size,
-                                 @RequestParam(value = "attendeesPage", defaultValue = "1") int attendeesPage,
-                                 @RequestParam(value = "attendeesSize", defaultValue = "5") int attendeesSize)
-    {*/
+
     @RequestMapping("/{id}")
     public ModelAndView getEvent(@PathVariable long id, @Valid @ModelAttribute("replyEventForm") final ReplyForm form, final BindingResult errors,
         @ModelAttribute("user") User user,
@@ -194,7 +172,7 @@ public class EventController {
         }
 
         return populateEventDetails(eventService.getEventById(id).orElseThrow(() -> new EventNotFoundException("Event not found")),
-                id, user, deleteErrors, deleteReplyErrors, replyId ,repliesPage.getPage(), repliesPage.getSize(), attendeesPage.getPage(),attendeesPage.getSize() );
+                id, user, deleteErrors, deleteReplyErrors, replyId ,repliesPage, attendeesPage );
     }
     @PostMapping("/{id}/delete")
     public ModelAndView deleteEvent(@PathVariable int id, @Valid @ModelAttribute("deleteForm") final ReplyForm form,

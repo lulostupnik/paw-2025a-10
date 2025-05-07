@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Optional;
 
+import ar.edu.itba.paw.models.PageParams;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -110,7 +111,8 @@ public class CareerServiceImplTest {
             careerDao.getAllCareers(Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<Career> page = careerService.getAllCareers(null, 1, 2);
+//        Page<Career> page = careerService.getAllCareers(null, 1, 2);
+        Page<Career> page = careerService.getAllCareers(null, new PageParams(1,2));
 
         assertNotNull(page);
         assertEquals(testPage, page);
@@ -122,7 +124,7 @@ public class CareerServiceImplTest {
             careerDao.getAllCareers(Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<Career> page = careerService.getAllCareers("", 1, 2);
+        Page<Career> page = careerService.getAllCareers("", new PageParams(1,2));
 
         assertNotNull(page);
         assertEquals(testPage, page);
@@ -134,7 +136,7 @@ public class CareerServiceImplTest {
             careerDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<Career> page = careerService.getAllCareers(NAME, 1, 2);
+        Page<Career> page = careerService.getAllCareers(NAME, new PageParams(1,2));
 
         assertNotNull(page);
         assertEquals(testPage, page);

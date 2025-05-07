@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Optional;
 
+import ar.edu.itba.paw.models.PageParams;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -172,7 +173,7 @@ public class InterestServiceImplTest {
             interestDao.getAllInterests(Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<Interest> page = interestService.getAllInterests(null, 1, 2);
+        Page<Interest> page = interestService.getAllInterests(null, new PageParams(1,2));
 
         assertEquals(testPage, page);
     }
@@ -183,7 +184,7 @@ public class InterestServiceImplTest {
             interestDao.getAllInterests(Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<Interest> page = interestService.getAllInterests("", 1, 2);
+        Page<Interest> page = interestService.getAllInterests("", new PageParams(1,2));
 
         assertEquals(testPage, page);
     }
@@ -194,7 +195,7 @@ public class InterestServiceImplTest {
             interestDao.searchBySubstring(Mockito.eq(INTEREST_NAME), Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<Interest> page = interestService.getAllInterests(INTEREST_NAME, 1, 2);
+        Page<Interest> page = interestService.getAllInterests(INTEREST_NAME, new PageParams(1,2));
 
         assertEquals(testPage, page);
     }

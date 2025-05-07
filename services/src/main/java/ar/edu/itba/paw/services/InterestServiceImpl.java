@@ -5,6 +5,7 @@ import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.models.Interest;
 
 import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.PageParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,8 +68,8 @@ public class InterestServiceImpl implements InterestService {
     }
 
     @Override
-    public Page<Interest> findAllInterestsByUserId(long id, int page, int pageSize) {
-        return interestDao.findAllInterestsByUserId(id, page, pageSize);
+    public Page<Interest> findAllInterestsByUserId(long id, PageParams pageParams) {
+        return interestDao.findAllInterestsByUserId(id, pageParams.getPage(), pageParams.getSize());
     }
 
     @Transactional
@@ -122,12 +123,12 @@ public class InterestServiceImpl implements InterestService {
     }
 
     @Override
-    public Page<Interest> getAllInterests(String search, int page, int pageSize) {
+    public Page<Interest> getAllInterests(String search, PageParams pageParams) {
         LOGGER.debug("Finding all interests with search {}", search);
         if (search == null || search.isEmpty()) {
-            return interestDao.getAllInterests(page, pageSize);
+            return interestDao.getAllInterests(pageParams.getPage(), pageParams.getSize());
         }
-        return interestDao.searchBySubstring(search,page, pageSize);
+        return interestDao.searchBySubstring(search,pageParams.getPage(), pageParams.getSize());
     }
 
     @Override

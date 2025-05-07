@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import ar.edu.itba.paw.models.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -24,13 +25,6 @@ import ar.edu.itba.paw.interfaces.services.CareerService;
 import ar.edu.itba.paw.interfaces.services.ImageService;
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
-import ar.edu.itba.paw.models.Career;
-import ar.edu.itba.paw.models.Image;
-import ar.edu.itba.paw.models.Interest;
-import ar.edu.itba.paw.models.Page;
-import ar.edu.itba.paw.models.University;
-import ar.edu.itba.paw.models.User;
-import ar.edu.itba.paw.models.UserPassword;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserServiceImplTest {
@@ -343,7 +337,7 @@ public class UserServiceImplTest {
             userDao.getAllUsers(Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<User> users = userService.getAllUsers(null, 1, 2);
+        Page<User> users = userService.getAllUsers(null, new PageParams(1,2));
 
         assertNotNull(users);
         assertEquals(testPage, users);
@@ -355,7 +349,7 @@ public class UserServiceImplTest {
             userDao.getAllUsers(Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<User> users = userService.getAllUsers("", 1, 2);
+        Page<User> users = userService.getAllUsers("", new PageParams(1,2));
 
         assertNotNull(users);
         assertEquals(testPage, users);
@@ -367,7 +361,7 @@ public class UserServiceImplTest {
             userDao.getAllUsers(Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<User> users = userService.getAllUsers(null, 1, 2);
+        Page<User> users = userService.getAllUsers(null, new PageParams(1,2));
 
         assertNotNull(users);
         assertEquals(testPage, users);
@@ -379,7 +373,7 @@ public class UserServiceImplTest {
             userDao.getAllUsers(Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<User> users = userService.getAllUsers("", 1, 2);
+        Page<User> users = userService.getAllUsers("", new PageParams(1,2));
 
         assertNotNull(users);
         assertEquals(testPage, users);
@@ -392,7 +386,7 @@ public class UserServiceImplTest {
             userDao.searchUsers(Mockito.eq(FIRSTNAME), Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<User> users = userService.getAllUsers(FIRSTNAME, 1, 2);
+        Page<User> users = userService.getAllUsers(FIRSTNAME, new PageParams(1,2));
 
         assertNotNull(users);
         assertEquals(testPage, users);
@@ -404,7 +398,7 @@ public class UserServiceImplTest {
             userDao.searchUsers(Mockito.eq(FIRSTNAME), Mockito.eq(1), Mockito.eq(2))
         ).thenReturn(testPage);
 
-        Page<User> users = userService.getAllUsers(FIRSTNAME, 1, 2);
+        Page<User> users = userService.getAllUsers(FIRSTNAME, new PageParams(1,2));
 
         assertNotNull(users);
         assertEquals(testPage, users);
