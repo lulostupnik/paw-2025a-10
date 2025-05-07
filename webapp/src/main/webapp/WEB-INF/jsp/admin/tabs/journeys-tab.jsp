@@ -34,7 +34,6 @@
     <table class="data-table">
       <thead>
       <tr>
-        <th><spring:message code="admin.column.id" /></th>
         <th><spring:message code="admin.column.user" /></th>
         <th><spring:message code="admin.column.destination" /></th>
         <th><spring:message code="admin.column.university" /></th>
@@ -46,7 +45,6 @@
       <c:set var="journeys" value="${pagedJourneys.content}" />
       <c:forEach items="${journeys}" var="journey">
         <tr class="clickable-row" data-href="<c:url value="../journeys/${journey.id}"/>" >
-          <td><c:out value="${journey.id}"/></td>
           <td><c:out value="${journey.user.username}"/></td>
           <td><c:out value="${journey.destinationUniversity.city}"/></td>
           <td><c:out value="${journey.destinationUniversity.name}"/></td>
