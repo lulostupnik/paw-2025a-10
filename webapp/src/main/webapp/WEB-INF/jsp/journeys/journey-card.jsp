@@ -80,8 +80,17 @@
     </a>
 </div>
 <script>
-    function redirectToJourneyUpdate(id) {
-        const baseUrl = '<c:url value="/" />';
+    document.addEventListener('DOMContentLoaded', function() {
+        const attendButtons = document.querySelectorAll('.attend-button');
+        attendButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        });
+    });
+        function redirectToJourneyUpdate(id) {
+        const baseUrl = '<c:url value="/"/>';
         window.location.href = baseUrl + 'journeys/' + id + '/update';
     }
 </script>
