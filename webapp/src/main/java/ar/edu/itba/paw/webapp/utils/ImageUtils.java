@@ -5,7 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
-public class ImageUtils {
+public final class ImageUtils {
+    private ImageUtils() {
+            throw new AssertionError("Utility class should not be instantiated");
+        }
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageUtils.class);
     public static byte[] getBytes(MultipartFile file) {
         try {
