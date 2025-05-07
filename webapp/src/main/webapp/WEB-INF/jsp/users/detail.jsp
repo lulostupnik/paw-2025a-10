@@ -114,11 +114,9 @@
       <p id="blockModalMessage">
         <c:choose>
           <c:when test="${user.blocked}">
-            <spring:message code="user.unblock.confirm.message" arguments="${user.firstname} ${user.lastname}"/>
-          </c:when>
+            <c:out value="${spring:message(code='user.unblock.confirm.message', arguments='${user.firstname} ${user.lastname}')}" />          </c:when>
           <c:otherwise>
-            <spring:message code="user.block.confirm.message" arguments="${user.firstname} ${user.lastname}"/>
-          </c:otherwise>
+            <c:out value="${spring:message(code='user.block.confirm.message', arguments='${user.firstname} ${user.lastname}')}" />          </c:otherwise>
         </c:choose>
       </p>
       <c:if test="${!user.blocked}">

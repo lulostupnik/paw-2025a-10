@@ -18,9 +18,6 @@
 <c:set var="searchPlaceholderCode" value="events.search.event" scope="request" />
 
 <div class="layout-container">
-  <!-- Include the sidebar component -->
-
-
   <!-- Main Content -->
   <div class="main-content">
     <jsp:include page="../components/navbar.jsp" />
