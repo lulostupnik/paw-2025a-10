@@ -259,9 +259,10 @@
         </form:form>
 
         <div class="auth-footer">
-            <button type="button" name="back" class="auth-link" onClick="history.back()">
+            <a  class="auth-link" href="<c:url value='/events'/>" class="btn-text">
                 <spring:message code="event.back" text="Back to events"/>
-            </button>
+            </a>
+
         </div>
     </div>
 </div>
