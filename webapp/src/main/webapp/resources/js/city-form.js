@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
     capitalizeFirstLetter(nameInput);
     capitalizeFirstLetter(countrySearch);
     const emptyMessage = document.getElementById("country.emptyMessage") !== null
-        ? document.getElementById("country.emptyMessage").innerText
+        ? document.getElementById("country.emptyMessage").value
         : "No countries found";
 
     window.countryAutocomplete = ListAutocomplete.init({

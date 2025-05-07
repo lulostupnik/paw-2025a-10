@@ -24,9 +24,7 @@
   <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
 </head>
 <body>
-<div class="hidden">
   <input type="hidden" id="country.emptyMessage" value="<spring:message code="country.empty" text="Very Weak"/>" />
-</div>
 <jsp:include page="../components/navbar.jsp"/>
 <jsp:include page="../components/i18n-hidden-inputs.jsp"/>
 
