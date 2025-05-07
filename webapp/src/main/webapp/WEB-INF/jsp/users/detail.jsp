@@ -114,9 +114,17 @@
       <p id="blockModalMessage">
         <c:choose>
           <c:when test="${user.blocked}">
-            <c:out value="${spring:message(code='user.unblock.confirm.message', arguments='${user.firstname} ${user.lastname}')}" />          </c:when>
+            <spring:message code="user.unblock.confirm.message">
+              <spring:argument><c:out value="${user.firstname}"/></spring:argument>
+              <spring:argument><c:out value="${user.lastname}"/></spring:argument>
+            </spring:message>
+          </c:when>
           <c:otherwise>
-            <c:out value="${spring:message(code='user.block.confirm.message', arguments='${user.firstname} ${user.lastname}')}" />          </c:otherwise>
+            <spring:message code="user.block.confirm.message">
+              <spring:argument><c:out value="${user.firstname}"/></spring:argument>
+              <spring:argument><c:out value="${user.lastname}"/></spring:argument>
+            </spring:message>
+          </c:otherwise>
         </c:choose>
       </p>
       <c:if test="${!user.blocked}">
@@ -128,6 +136,7 @@
         <spring:message code="user.block.cancel"/>
       </button>
       <form action="<c:url value='/users/${user.id}/${user.blocked ? "unblock" : "block"}'/>" method="post" id="blockUserForm">
+        <input type="hidden" name="userId" value="<c:out value="${user.id}"/>">
         <button type="submit" class="cta-button ${user.blocked ? 'primary' : 'delete-button'}">
           <c:choose>
             <c:when test="${user.blocked}">
