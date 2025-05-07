@@ -14,11 +14,6 @@ public class CreateUserForm {
     @EmailNotInUse
     private String email;
 
-    @Size(min = 2, max = 100)
-    @ExistingUniversity
-    @NotNull
-    private String university;
-
     @Size(min = 2, max = 50)
     @NotNull
     @ExistingCareer
@@ -68,14 +63,6 @@ public class CreateUserForm {
 
     public void setCareer(String career) {
         this.career = career;
-    }
-
-    public String getUniversity() {
-        return university;
-    }
-
-    public void setUniversity(String university) {
-        this.university = university;
     }
 
     public String getUsername() {
@@ -150,8 +137,6 @@ public class CreateUserForm {
         sb.append(firstName);
         sb.append("\", lastName: \"");
         sb.append(lastName);
-        sb.append("\", university: \"");
-        sb.append(university);        
         sb.append("\", originUniversity: \"");
         sb.append(originUniversity);
         sb.append("\", career: \"");
