@@ -15,8 +15,9 @@
     <div class="action-bar">
       <div class="actions-container">
         <form action="<c:url value='${searchUrl}'/>" method="get" class="search-form">
-          <input type="text" name="search" class="search-input" placeholder="<spring:message code='${searchPlaceholderCode}' />" value="${param.search}">
-          <input type="hidden" name="page" value="1">
+          <input type="text" name="search" class="search-input"
+                 placeholder="<spring:message code='${searchPlaceholderCode}' />"
+                 value="<c:out value="${param.search}"/>">          <input type="hidden" name="page" value="1">
           <input type="hidden" name="pageSize" value="${param.pageSize != null ? param.pageSize : 10}">
           <button type="submit" class="btn-secondary" aria-label="<spring:message code="admin.search.button" />">
             <img src="<c:url value='/resources/icons/search.svg'/>" alt="<spring:message code="admin.search.button" />" class="search-icon" />
