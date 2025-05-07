@@ -3,11 +3,12 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%-- Set the locale based on the session language --%>
-<%--<fmt:setLocale value="${sessionScope.lang}" />--%>
+<c:set var="lang" value="${not empty sessionScope.lang ? sessionScope.lang : pageContext.response.locale}" />
+<fmt:setLocale value="${lang}" />
 <fmt:setBundle basename="i18n.messages" />
 
 <!DOCTYPE html>
-<html lang="${pageContext.response.locale}">
+<html lang="<c:out value='${lang}'/>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -65,7 +66,7 @@
         <div class="error-code">
             <c:choose>
                 <c:when test="${not empty statusCode}">
-                    ${statusCode}
+                    <c:out value="${statusCode}" />
                 </c:when>
                 <c:otherwise>
                     <fmt:message key="error.${errorType}.code" />
@@ -101,8 +102,6 @@
                         <span><fmt:message key="error.404.help.2" /></span>
                     </li>
                 </c:if>
-
-
 
                 <c:if test="${errorType == '403'}">
                     <li class="help-item">
@@ -162,13 +161,11 @@
         </div>
 
         <div class="error-actions">
-
             <a href="<c:url value='/explore'/>" class="primary-action">
-               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                   <polyline points="9 22 9 12 15 12 15 22"></polyline>
-               </svg>
-
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
                 <fmt:message key="error.action.home" />
             </a>
         </div>
@@ -192,42 +189,15 @@
                 <fmt:message key="nav.events" />
             </a>
 
-<%--            <a href="mailto:support@example.com" class="secondary-action-link">--%>
-<%--                <svg class="secondary-action-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">--%>
-<%--                    <path d="M21.5 12H16c-.7 2-2 3-4 3s-3.3-1-4-3H2.5"></path>--%>
-<%--                    <path d="M5.5 5.1L2 12v6c0 1.1.9 2 2 2h16a2 2 0 0 0 2-2v-6l-3.4-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0-1.8 1.1z"></path>--%>
-<%--                </svg>--%>
-<%--                <fmt:message key="error.action.contact" />--%>
-<%--            </a>--%>
+            <a href="mailto:paw.2025a.10@gmail.com" class="secondary-action-link">
+                <svg class="secondary-action-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21.5 12H16c-.7 2-2 3-4 3s-3.3-1-4-3H2.5"></path>
+                    <path d="M5.5 5.1L2 12v6c0 1.1.9 2 2 2h16a2 2 0 0 0 2-2v-6l-3.4-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0-1.8 1.1z"></path>
+                </svg>
+                <fmt:message key="error.action.contact" />
+            </a>
         </div>
-
-        <%-- Display exception details in development mode --%>
-<%--        <c:if test="${not empty param.debug && not empty exception}">--%>
-<%--            <div class="exception-details">--%>
-<%--                <h3 class="exception-title">Exception Details:</h3>--%>
-<%--                <p class="exception-message">${exception.message}</p>--%>
-<%--                <pre class="exception-stack-trace">--%>
-<%--                    <c:forEach var="stackTraceElement" items="${exception.stackTrace}">--%>
-<%--                        ${stackTraceElement}--%>
-<%--                    </c:forEach>--%>
-<%--                </pre>--%>
-<%--            </div>--%>
-<%--        </c:if>--%>
     </div>
 </div>
-
-<%--<!-- JavaScript for language switching -->--%>
-<%--<script>--%>
-<%--    function changeLanguage(lang) {--%>
-<%--        // Get current URL--%>
-<%--        let url = new URL(window.location.href);--%>
-
-<%--        // Set the lang parameter--%>
-<%--        url.searchParams.set('lang', lang);--%>
-
-<%--        // Redirect to the new URL--%>
-<%--        window.location.href = url.toString();--%>
-<%--    }--%>
-<%--</script>--%>
 </body>
 </html>
