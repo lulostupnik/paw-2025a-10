@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.webapp.config;
 
 import ar.edu.itba.paw.webapp.auth.AccessHelper;
+import ar.edu.itba.paw.webapp.auth.AuthEntryPointHandler;
 import ar.edu.itba.paw.webapp.auth.CustomAuthenticationFailureHandler;
 import ar.edu.itba.paw.webapp.auth.PawUserDetailsService;
 import org.slf4j.Logger;
@@ -49,6 +50,11 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
+    public AuthEntryPointHandler authEntryPointHandler() {
+        return new AuthEntryPointHandler();
+    }
+
+    @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
@@ -67,16 +73,16 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .invalidSessionUrl("/")
                 .and().authorizeRequests()
-                .antMatchers("/register", "/login", "/blocked").permitAll() // Make sure /blocked is accessible
+                .antMatchers("/register", "/login").anonymous() // Make sure /blocked is accessible
                 .antMatchers(HttpMethod.POST, "/events/{id}/delete", "/journeys/{id}/delete", "journey-replies/{id}/delete", "event-replies/{id}/delete",
                         "users/{id}/block", "users/{id}/unblock").hasRole("ADMIN")
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .antMatchers("/dashboard/**","interests/**", "careers/**", "/universities/**","cities/**", "users/**").hasRole("ADMIN")
                 .antMatchers("/journeys/{id}/update").access("@accessHelper.isUserJourneyOwner(#id)")
                 .antMatchers("/events/{id}/update").access("@accessHelper.isUserEventOwner(#id)")
-                .antMatchers("/events/create", "/journeys/create").authenticated()
-                .antMatchers("/events/*/reply", "/journeys/*/reply", "/events/*/attend").authenticated()
-                .antMatchers(HttpMethod.GET,"/events", "/", "/events/{id}", "/journeys", "/journeys/{id}", "/images/{id}","/universities","/universities/{id}").permitAll()
+                .antMatchers("/events/create", "/journeys/create").access("isAuthenticated() and !@accessHelper.isUserBlocked()")
+                .antMatchers("/events/*/reply", "/journeys/*/reply", "/events/*/attend").access("isAuthenticated() and !@accessHelper.isUserBlocked()")
+                .antMatchers(HttpMethod.GET,"/events", "/", "/events/{id}", "/journeys", "/journeys/{id}", "/images/{id}","/universities","/universities/{id}", "/blocked").permitAll()
                 .antMatchers("/**").access("isAuthenticated() and !@accessHelper.isUserBlocked()")
                 .and().formLogin()
                 .usernameParameter("j_username")
@@ -94,6 +100,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessUrl("/login")
                 .and().exceptionHandling()
                 .accessDeniedPage("/errors/403")
+                .authenticationEntryPoint(authEntryPointHandler())
                 .and().csrf().disable();
     }
 
