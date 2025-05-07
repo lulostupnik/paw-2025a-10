@@ -17,7 +17,7 @@
 </head>
 <body>
 
-<c:set var="pageSize" value="4" scope="request" />
+<c:set var="pageSize" value="6" scope="request" />
 
 <div class="layout-container">
   <!-- Main Content -->

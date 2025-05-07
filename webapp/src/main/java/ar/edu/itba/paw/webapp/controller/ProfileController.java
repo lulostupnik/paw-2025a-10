@@ -62,8 +62,8 @@ public class ProfileController {
     @GetMapping(value = "/events")
     public ModelAndView getEvents(
             @ModelAttribute("user") User user,
-            @PageParamCustomizer(defaultSize = 4, pageParamName = "attendingPage") PageParams attendingPage,
-            @PageParamCustomizer(defaultSize = 4) PageParams pageParam) {
+            @PageParamCustomizer(defaultSize = 6, pageParamName = "attendingPage") PageParams attendingPage,
+            @PageParamCustomizer(defaultSize = 6) PageParams pageParam) {
 
         ModelAndView mav = new ModelAndView(PROFILE);
         mav.addObject("userEvents", eventService.getAllEvents(user.getEmail(), pageParam));
