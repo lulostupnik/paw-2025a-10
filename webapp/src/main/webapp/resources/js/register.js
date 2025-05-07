@@ -68,7 +68,6 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("Failed to initialize university autocomplete component:", error)
     }
 
-    // Initialize interests multi-select with API endpoint using ListAutocomplete in multi-select mode
     try {
         const emptyMessage = document.getElementById("i18n-interests-none")
             ? document.getElementById("i18n-interests-none").value
@@ -94,140 +93,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initialize file upload
     try {
         window.fileUpload = FileUpload.init({
-            // Using default IDs
-            // maxSizeMB: 5,
-            // sizeExceededMessage: "File size exceeds 5MB limit",
         })
         console.log("File upload component initialized")
     } catch (error) {
         console.error("Failed to initialize file upload component:", error)
     }
 
-    // Additional form validation
     const form = document.querySelector(".auth-form")
-   /* const form = document.querySelector(".auth-form")
-    if (form) {
-        form.addEventListener("submit", (e) => {
-            let isValid = true
-            let firstErrorField = null
 
-            // Validate required fields
-            const requiredFields = form.querySelectorAll("input.required")
-            console.log(requiredFields)
-            requiredFields.forEach((field) => {
-                if (!field.value.trim()) {
-                    isValid = false
-                    //field.classList.add("error")
-
-                    // Store the first error field for focusing later
-                    if (!firstErrorField) {
-                        firstErrorField = field
-                    }
-
-                    // Create error message if it doesn't exist
-                    let errorMsg = field.parentNode.querySelector(".error-message")
-                    if (!errorMsg) {
-                        errorMsg = document.createElement("div")
-                        errorMsg.className = "error-message"
-                        field.parentNode.appendChild(errorMsg)
-                    }
-                    errorMsg.textContent = document.getElementById("i18n-required-field")
-                        ? document.getElementById("i18n-required-field").value
-                        : "This field is required"
-                    // errorMsg.textContent = "This field is required"
-                } else {
-                    //field.classList.remove("error")
-                    const errorMsg = field.parentNode.querySelector(".error-message")
-                    if (errorMsg) {
-                        errorMsg.remove()
-                    }
-                }
-            })
-
-            // Validate required tag fields
-            const requiredTagFields = form.querySelectorAll(".required-selected-tags")
-            console.log(requiredTagFields)
-            requiredTagFields.forEach((field) => {
-                if (field.querySelectorAll("div.selected-tag").length == 0) {
-                    isValid = false
-                    const inputField = field.parentNode.querySelector("input")
-
-                    // Store the first error field for focusing later
-                    if (!firstErrorField && inputField) {
-                        firstErrorField = inputField
-                    }
-
-                    // field.parentNode.querySelectorAll("input").item(0).classList.add("error")
-
-                    // Create error message if it doesn't exist
-                    let errorMsg = field.parentNode.querySelector(".error-message")
-                    if (!errorMsg) {
-                        errorMsg = document.createElement("div")
-                        errorMsg.className = "error-message"
-                        field.parentNode.appendChild(errorMsg)
-                    }
-                    errorMsg.textContent = document.getElementById("i18n-required-field")
-                        ? document.getElementById("i18n-required-field").value
-                        : "This field is required"
-                } else {
-                    //field.parentNode.querySelectorAll("input").item(0).classList.remove("error")
-                    const errorMsg = field.parentNode.querySelector(".error-message")
-                    if (errorMsg) {
-                        errorMsg.remove()
-                    }
-                }
-            })
-
-            // Validate email format
-            const emailField = form.querySelector('input[id="register-email"]')
-
-            if (emailField && emailField.value.trim()) {
-                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-                if (!emailPattern.test(emailField.value)) {
-                    isValid = false
-
-                    // Store the first error field for focusing later
-                    if (!firstErrorField) {
-                        firstErrorField = emailField
-                    }
-
-                    //emailField.classList.add("error")
-
-                    // Create error message if it doesn't exist
-                    let errorMsg = emailField.parentNode.querySelector(".error-message")
-                    if (!errorMsg) {
-                        errorMsg = document.createElement("div")
-                        errorMsg.className = "error-message"
-                        emailField.parentNode.appendChild(errorMsg)
-                    }
-                    errorMsg.textContent = document.getElementById("i18n-email-error")
-                        ? document.getElementById("i18n-email-error").value
-                        : "Please enter a valid email"
-                }
-            }
-
-            // Validate password
-            const passwordValid = window.PasswordStrength.isValid()
-            isValid = isValid && passwordValid
-
-            // If password validation failed, set password field as first error field
-            if (!passwordValid && !firstErrorField) {
-                firstErrorField = document.getElementById("password")
-            }
-
-            if (!isValid) {
-                e.preventDefault()
-
-                // Focus the first error field
-                if (firstErrorField) {
-                    firstErrorField.scrollIntoView({ behavior: "smooth", block: "center" })
-                    setTimeout(() => {
-                        firstErrorField.focus()
-                    }, 500) // Small delay to ensure smooth scrolling completes
-                }
-            }
-        })
-    }
-    */
     console.log("Registration initialization complete")
 })
