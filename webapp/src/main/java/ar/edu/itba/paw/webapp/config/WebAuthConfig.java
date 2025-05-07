@@ -77,7 +77,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/events/create", "/journeys/create").authenticated()
                 .antMatchers("/events/*/reply", "/journeys/*/reply", "/events/*/attend").authenticated()
                 .antMatchers(HttpMethod.GET,"/events", "/", "/events/{id}", "/journeys", "/journeys/{id}", "/images/{id}","/universities","/universities/{id}").permitAll()
-                .antMatchers("/**").authenticated()
+                .antMatchers("/**").access("isAuthenticated() and !@accessHelper.isUserBlocked()")
                 .and().formLogin()
                 .usernameParameter("j_username")
                 .passwordParameter("j_password")
