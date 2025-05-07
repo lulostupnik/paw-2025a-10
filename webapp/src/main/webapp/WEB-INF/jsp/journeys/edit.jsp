@@ -97,7 +97,7 @@
         </form:form>
 
         <div class="auth-footer">
-            <a href="<c:url value='/profile/info' />" class="auth-link">
+            <a href="<c:url value='/profile/journeys' />" class="auth-link">
                 <spring:message code="journey.back" text="Back to journeys"/>
             </a>
         </div>
