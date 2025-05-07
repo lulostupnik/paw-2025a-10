@@ -59,7 +59,15 @@
     border: 1px solid #e5e7eb;
     border-radius: 0.75rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
 }
+
 
 /* Profile image - IMPROVED to show full face */
 .profile-image {
@@ -71,6 +79,7 @@
     object-fit: cover; /* Changed from 'fill' to 'cover' to maintain aspect ratio */
     object-position: center; /* Changed to center to ensure balanced image display */
 }
+
 
 .image-placeholder {
     position: absolute;
@@ -91,6 +100,10 @@
     font-weight: 600;
     color: #111827;
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .event-rating {
@@ -131,12 +144,15 @@
 }
 
 .event-card-content {
+    width: 100%;
+    max-width: 100%;
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
     flex: 1;
     overflow: hidden;
 }
+
 
 .event-card-header {
     margin-bottom: 1rem;
@@ -167,9 +183,18 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
+    position: relative;
     max-height: 4.5em; /* Approximately 3 lines of text */
     line-height: 1.5;
+    /*display: block; !* Changed from -webkit-box to ensure proper wrapping *!*/
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word; /* Allow breaking words if needed */
+    /*hyphens: auto;*/
+    /*max-height: 4.5em; !* Approximately 3 lines of text *!*/
+    /*overflow: hidden;*/
 }
+
 /* Event full badge */
 .event-full-badge {
     position: absolute;
@@ -223,6 +248,8 @@
 }
 
 .featured-event-card {
+    max-width: 100%;
+    width: 100%;
     background: white;
     border-radius: 1rem;
     overflow: hidden;
@@ -246,39 +273,11 @@
     max-width: 100%;
 }
 
-/* Ensure featured event cards don't grow beyond their container */
-.featured-event-card {
-    width: 100%;
-    max-width: 100%;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    max-height: 450px;
-    overflow: hidden;
-}
 
-/* Fix for event card content */
-.event-card-content {
-    width: 100%;
-    max-width: 100%;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    overflow: hidden;
-}
 
-/* Description text wrapping fix - ensure text wraps properly */
-.event-card-description {
-    display: block; /* Changed from -webkit-box to ensure proper wrapping */
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    word-break: break-word; /* Allow breaking words if needed */
-    hyphens: auto;
-    max-height: 4.5em; /* Approximately 3 lines of text */
-    overflow: hidden;
-    position: relative;
-    line-height: 1.5;
-}
+
+
+
 
 /* Add ellipsis at the end of truncated text */
 .event-card-description.has-overflow::after {
@@ -301,26 +300,11 @@
     display: inline-block;
 }
 
-/* Event title truncation */
-.event-card-title {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-}
 
-/* Journey location truncation */
-.event-location h3 {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-}
 
-/* Ensure card footer stays at bottom */
-.event-card-footer {
-    margin-top: auto;
-}
+
+
+
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
@@ -343,28 +327,10 @@
     }
 }
 
-.user-name,
-.organizer-name,
-.university-name {
-    max-width: 200px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: inline-block;
-}
 
-/* Journey location truncation */
-.event-location h3 {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-}
 
-/* Ensure card footer stays at bottom */
-.event-card-footer {
-    margin-top: auto;
-}
+
+
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
@@ -400,6 +366,7 @@
     flex-grow: 1;
 }
 
+
 .event-description {
     font-size: 0.875rem;
     color: #6b7280;
@@ -412,6 +379,7 @@
     text-overflow: ellipsis;
 }
 
+
 /* Grid layout for cards - IMPROVED */
 .events-grid {
     display: grid;
@@ -419,6 +387,7 @@
     gap: 1.5rem;
     margin-top: 1.5rem;
 }
+
 
 @media (min-width: 640px) {
     .events-grid {
@@ -510,22 +479,9 @@
     margin: 0;
 }
 
-.event-description-container {
-    margin-bottom: 0.5rem;
-    flex-grow: 1;
-}
 
-.event-description {
-    font-size: 0.875rem;
-    color: #4b5563;
-    margin: 0;
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+
+
 
 /* Detail card - UPDATED */
 .detail-card {
@@ -632,12 +588,7 @@
     text-decoration: none;
     color: inherit;
 }
-.events-grid {
-    display: grid;
-    grid-template-columns: repeat(1, 1fr);
-    gap: 2rem;
-    margin-top: 1.5rem;
-}
+
 
 @media (min-width: 640px) {
     .events-grid {
@@ -677,6 +628,8 @@
     overflow: hidden;
     border-radius: 8px 8px 0 0; /* Rounded corners only at the top */
 }
+
+
 
 .event-card:hover {
     transform: translateY(-2px);
@@ -870,18 +823,7 @@
     color: inherit;
 }
 
-.journey-card {
-    position: relative;
-    background: #ffffff;
-    border-radius: 0.75rem;
-    overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
+
 
 .journey-card:hover {
     transform: translateY(-2px);
@@ -1066,22 +1008,3 @@
     gap: 1rem;
 }
 
-/* Modificaciones para el contenedor de imágenes */
-.event-image-container {
-    position: relative;
-    width: 100%;
-    padding-top: 56.25%; /* 16:9 aspect ratio */
-    overflow: hidden;
-    border-radius: 8px 8px 0 0; /* Rounded corners only at the top */
-}
-
-/* Ajuste para imagen de perfil */
-.profile-image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Changed from 'fill' to 'cover' to maintain aspect ratio */
-    object-position: center; /* Changed to center to ensure balanced image display */
-}
