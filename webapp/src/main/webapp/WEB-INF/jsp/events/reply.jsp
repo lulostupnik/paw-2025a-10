@@ -3,7 +3,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <!DOCTYPE html>
-<html>
+<html lang="${pageContext.response.locale}">
 <head>
   <title><spring:message code="replyEvent.title"/></title>
   <!-- Include custom CSS -->

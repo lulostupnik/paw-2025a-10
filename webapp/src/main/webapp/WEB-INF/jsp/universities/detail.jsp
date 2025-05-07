@@ -3,7 +3,7 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
-<html>
+<html lang="${pageContext.response.locale}">
 <head>
   <title><spring:message code="university.detail.title"/></title>
   <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />

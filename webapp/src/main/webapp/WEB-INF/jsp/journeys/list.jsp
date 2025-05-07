@@ -3,7 +3,7 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <!DOCTYPE html>
-<html>
+<html lang="${pageContext.response.locale}">
 <head>
     <title><spring:message code="journey.page.title"/></title>
     <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />

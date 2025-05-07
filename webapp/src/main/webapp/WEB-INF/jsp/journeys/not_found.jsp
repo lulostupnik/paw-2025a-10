@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
+<html lang="${pageContext.response.locale}">
 <head>
   <title><spring:message code="journey.detail.title"/></title>
   <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
