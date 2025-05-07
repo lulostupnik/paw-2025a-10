@@ -304,9 +304,10 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public void delete(final long id) {
+        LOGGER.info("Setting journey {} as deleted", id);
         final int updatedRows = jdbcTemplate.update("UPDATE journeys SET deleted = TRUE WHERE id = ?;", id);
         if (updatedRows == 0) {
-            LOGGER.warn("No journey_response found with id {}", id);
+            LOGGER.warn("No journey found with id {}", id);
         }
     }
 
@@ -315,7 +316,7 @@ public class JourneyJdbcDao implements JourneyDao {
         LOGGER.info("Setting deletion message {} for journey {}", message, id);
         final int updatedRows = jdbcTemplate.update("UPDATE journeys SET deleted_message = ? WHERE id = ?;", message, id);
         if (updatedRows == 0) {
-            LOGGER.warn("No journey_response found with id {}", id);
+            LOGGER.warn("No journey found with id {}", id);
         }
 
     }
@@ -328,28 +329,37 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public void updateDates(final long journeyId, final LocalDate startDate, final LocalDate endDate) {
         LOGGER.info("Updating dates for journey ID: {} to start: {}, end: {}", journeyId, startDate, endDate);
-        jdbcTemplate.update(
+        final int updatedRows = jdbcTemplate.update(
                 "UPDATE journeys SET start_date = ?, end_date = ? WHERE id = ?",
                 Date.valueOf(startDate), Date.valueOf(endDate), journeyId
         );
+        if (updatedRows == 0) {
+            LOGGER.warn("No journey found with id {}", journeyId);
+        }
     }
 
     @Override
     public void updateDescription(final long journeyId, final String description) {
         LOGGER.info("Updating description for journey ID: {}", journeyId);
-        jdbcTemplate.update(
+        final int updatedRows = jdbcTemplate.update(
                 "UPDATE journeys SET description = ? WHERE id = ?",
                 description, journeyId
         );
+        if (updatedRows == 0) {
+            LOGGER.warn("No journey found with id {}", journeyId);
+        }
     }
 
     @Override
     public void updateDestinationUniversity(final long journeyId, final long universityId) {
         LOGGER.info("Updating destination university for journey ID: {} to university ID: {}", journeyId, universityId);
-        jdbcTemplate.update(
+        final int updatedRows = jdbcTemplate.update(
                 "UPDATE journeys SET destination_university_id = ? WHERE id = ?",
                 universityId, journeyId
         );
+        if (updatedRows == 0) {
+            LOGGER.warn("No journey found with id {}", journeyId);
+        }
     }
 
     @Override
@@ -525,7 +535,8 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public void updateData(final long journeyId, final University destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
-        jdbcTemplate.update("""
+        LOGGER.info("Updating uni {}, startDate {}, endDate {}, desc '{}' for journey {}", destinationUniversity, startDate, endDate, description, journeyId);
+        final int updatedRows = jdbcTemplate.update("""
         UPDATE journeys
            SET destination_university_id = ?,
                start_date = ?,
@@ -540,6 +551,9 @@ public class JourneyJdbcDao implements JourneyDao {
                 description,
                 journeyId
         );
+        if (updatedRows == 0) {
+            LOGGER.warn("No journey found with id {}", journeyId);
+        }
 
     }
 

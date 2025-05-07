@@ -78,7 +78,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
 
         final Number keys = jdbcInsert.executeAndReturnKey(args);
         final EventResponse response = new EventResponse(keys.longValue(), userId, username, eventId, message, dateTime);
-        LOGGER.debug("Successfully registered event response {}", response);
+        LOGGER.info("Successfully registered event response {}", response);
         return response;
     }
 

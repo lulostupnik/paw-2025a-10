@@ -129,7 +129,7 @@ public class InterestJdbcDao implements InterestDao {
 
     @Override
     public void saveUserInterests(final long[] interests, final Long userId) {
-        LOGGER.info("Registering to DB new interests {} for user {}...", interests, userId);
+        LOGGER.debug("Registering to DB new interests {} for user {}...", interests, userId);
         for (long interest : interests) {
             jdbcTemplate.update("INSERT INTO user_interest (user_id, category_id) VALUES (?, ?)", userId, interest);
         }

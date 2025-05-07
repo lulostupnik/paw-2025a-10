@@ -87,6 +87,7 @@ public class AuthController {
         LOGGER.info("CREATING USER FROM USERFORM {}", form);
         if (errors.hasErrors()) {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
+            LOGGER.debug("Errors: {}", errors);
             return registerForm(form);
         }
 

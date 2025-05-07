@@ -87,7 +87,7 @@ public class CareerJdbcDao implements CareerDao {
         );
 
         if (rowsUpdated > 0) {
-            LOGGER.debug("Reactivated existing deleted career");
+            LOGGER.info("Reactivated existing deleted career {}", name);
             return findByName(name).orElseThrow(() -> new RuntimeException("Failed to retrieve reactivated career"));
         }
 
@@ -96,8 +96,9 @@ public class CareerJdbcDao implements CareerDao {
         args.put("deleted", false);
 
         final Number key = jdbcInsert.executeAndReturnKey(args);
-        LOGGER.info("Created career with id: {}", key);
-        return new Career(key.longValue(), name);
+        final Career career = new Career(key.longValue(), name);
+        LOGGER.info("Successfully created career {}", career);
+        return career;
     }
 
     @Override

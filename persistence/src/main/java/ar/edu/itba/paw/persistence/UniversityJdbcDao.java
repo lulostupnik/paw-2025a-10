@@ -143,7 +143,7 @@ public class UniversityJdbcDao implements UniversityDao {
 
     @Override
     public University createUniversity(final String name, final String abbreviation, final String city) {
-        LOGGER.info("Creating or reactivating university {} ({})", name, abbreviation);
+        LOGGER.debug("Creating or reactivating university {} ({})", name, abbreviation);
 
         final City cityObj = cityDao.findByName(city).orElseThrow(IllegalArgumentException::new);
 
@@ -160,7 +160,7 @@ public class UniversityJdbcDao implements UniversityDao {
         }
 
         if (rowsUpdated > 0) {
-            LOGGER.debug("Reactivated existing deleted university");
+            LOGGER.info("Reactivated existing deleted university");
             return findByName(name).orElseThrow(() -> new RuntimeException("Failed to retrieve reactivated university")); 
             // FIXME: extra query, use RETURNING in update -> That'll break testing because hsql doesn't like it
         }
@@ -179,18 +179,24 @@ public class UniversityJdbcDao implements UniversityDao {
 
     @Override
     public void updateUniversity(final long id, final String name, final String abbreviation, final long cityId) {
-        jdbcTemplate.update("UPDATE universities SET name = ?, abbreviation = ?, city_id = ? WHERE id = ? ", name, abbreviation, cityId, id);
-        LOGGER.info("Successfully updated uni {}", id);
+        LOGGER.info("Updating name '{}', abbr '{}', city {} for uni {}", name, abbreviation, cityId, id);
+        final int updatedRows = jdbcTemplate.update("UPDATE universities SET name = ?, abbreviation = ?, city_id = ? WHERE id = ? ", name, abbreviation, cityId, id);
+        if (updatedRows == 0) {
+            LOGGER.warn("No uni found with id {}", id);
+        }    
     }
 
     @Override
     public void updateUniversity(long id, String name, String abbreviation, String cityName) {
-        jdbcTemplate.update("""
+        LOGGER.info("Updating name '{}', abbr '{}', city '{}'' for uni {}", name, abbreviation, cityName, id);
+        final int updatedRows = jdbcTemplate.update("""
         UPDATE universities
         SET name = ?, abbreviation = ?, city_id = (SELECT id FROM cities WHERE name = ?)
         WHERE id = ?
         """, name, abbreviation, cityName, id);
-        LOGGER.info("Successfully updated uni {}", id);
+        if (updatedRows == 0) {
+            LOGGER.warn("No uni found with id {}", id);
+        }
     }
 
     @Override

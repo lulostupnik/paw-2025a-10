@@ -154,8 +154,8 @@ public class UserJdbcDaoTest {
         jdbcTemplate.execute("INSERT INTO universities(name, city_id, abbreviation) VALUES('Instituto Tecnologico muy largo', (SELECT MIN(id) FROM cities), 'ITBA')");
         jdbcTemplate.execute("INSERT INTO careers(name) VALUES('Ingenieria Informatica')");
 
-        UNIVERSITY = jdbcTemplate.query("SELECT id FROM universities LIMIT 1", (rs, rowNum) -> new University(rs.getLong("id"), null, null, null)).stream().findFirst().get();
-        CAREER = jdbcTemplate.query("SELECT id FROM careers LIMIT 1", (rs, rowNum) -> new Career(rs.getLong("id"), null)).stream().findFirst().get();
+        UNIVERSITY = jdbcTemplate.query("SELECT id, name FROM universities LIMIT 1", (rs, rowNum) -> new University(rs.getLong("id"), rs.getString("name"), null, null)).stream().findFirst().get();
+        CAREER = jdbcTemplate.query("SELECT id, name FROM careers LIMIT 1", (rs, rowNum) -> new Career(rs.getLong("id"), rs.getString("name"))).stream().findFirst().get();
         PROFILEPICID = jdbcTemplate.query("SELECT id FROM images LIMIT 1", (rs, rowNum) -> rs.getLong("id")).stream().findFirst().get();
     }
 
@@ -448,6 +448,32 @@ public class UserJdbcDaoTest {
     }
 
     @Test
+    public void testUpdateUniversityName(){
+        final long universityId = new SimpleJdbcInsert(ds).withTableName(UNIVERSITIES_TABLE).usingGeneratedKeyColumns("id")
+            .executeAndReturnKey(Map.of(
+                "name", "Universidad de muy largo", 
+                "abbreviation", "UBA", 
+                "deleted", false,
+                "city_id", jdbcTemplate.queryForObject("SELECT id FROM cities LIMIT 1", Long.class)
+            )).longValue();
+        final long userid = insertUserOverride(Map.of("university", universityId));
+
+        userDao.updateUniversity(userid, UNIVERSITY.getName());
+
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+    }
+    @Test(expected = DataAccessException.class)
+    public void testUpdateUniversityNameWrongUniversity(){
+        final long userid = insertUserGeneric();
+
+        userDao.updateUniversity(userid, "12341234");
+    }
+    @Test
+    public void testUpdateUniversityNameWrongUser(){
+        userDao.updateUniversity(13241234, "12341234");
+    }
+
+    @Test
     public void testUpdateCareer(){
         final long careerId = new SimpleJdbcInsert(ds).withTableName(CAREERS_TABLE).usingGeneratedKeyColumns("id")
             .executeAndReturnKey(Map.of("name", "Abogacia", "deleted", false)).longValue();
@@ -466,6 +492,27 @@ public class UserJdbcDaoTest {
     @Test
     public void testUpdateCareerWrongUser(){
         userDao.updateCareer(13241234, 12341234);
+    }
+
+    @Test
+    public void testUpdateCareerName(){
+        final long careerId = new SimpleJdbcInsert(ds).withTableName(CAREERS_TABLE).usingGeneratedKeyColumns("id")
+            .executeAndReturnKey(Map.of("name", "Abogacia", "deleted", false)).longValue();
+        final long userid = insertUserOverride(Map.of("career", careerId));
+
+        userDao.updateCareer(userid, CAREER.getName());
+
+        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+    }
+    @Test(expected = DataAccessException.class)
+    public void testUpdateCareerWrongCareerName(){
+        final long userid = insertUserGeneric();
+
+        userDao.updateCareer(userid, "12341234");
+    }
+    @Test
+    public void testUpdateCareerWrongUserName(){
+        userDao.updateCareer(13241234, "12341234");
     }
 
     @Test

@@ -1,14 +1,17 @@
 package ar.edu.itba.paw.persistance;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import javax.sql.DataSource;
 
@@ -266,5 +269,34 @@ public class JourneyResponseJdbcDaoTest {
 
         assertEquals(beforeRows, JdbcTestUtils.countRowsInTable(jdbcTemplate, RESPONSE_TABLE));
         assertEquals(TOTAL_RESPONSES, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journey_responses WHERE deleted = FALSE", Integer.class).intValue());
+    }
+
+    @Test
+    public void testFindById(){
+        Optional<JourneyResponse> maybeResponse = responseDao.findById(RESPONSE1_ID);
+
+        assertNotNull(maybeResponse);
+        assertTrue(maybeResponse.isPresent());
+    }
+    @Test
+    public void testFindByIdMissing(){
+        Optional<JourneyResponse> maybeResponse = responseDao.findById(12341234);
+
+        assertNotNull(maybeResponse);
+        assertFalse(maybeResponse.isPresent());
+    }
+    @Test
+    public void testFindByIdDeleted(){
+        Optional<JourneyResponse> maybeResponse = responseDao.findById(RESPONSE_DELETED_ID);
+
+        assertNotNull(maybeResponse);
+        assertFalse(maybeResponse.isPresent());
+    }
+
+    @Test
+    public void testGetCount(){
+        int count = responseDao.getCount(JOURNEY1_ID);
+
+        assertEquals(3, count);
     }
 }
