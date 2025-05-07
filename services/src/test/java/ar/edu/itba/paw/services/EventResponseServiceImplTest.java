@@ -98,4 +98,9 @@ public class EventResponseServiceImplTest {
         assertNotNull(page);
         assertEquals(testPage, page);
     }
+
+    @Test
+    public void testDeleteByEventId(){
+        responseService.deleteByEventId(EVENT_ID);
+    }
 }

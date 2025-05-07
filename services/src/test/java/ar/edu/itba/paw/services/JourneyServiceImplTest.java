@@ -569,6 +569,10 @@ public class JourneyServiceImplTest {
 
     @Test
     public void testDelete(){
+        Mockito.when(
+            journeyDao.findById(Mockito.eq(JOURNEY_ID))
+        ).thenReturn(Optional.of(JOURNEY));
+        
         journeyService.delete(JOURNEY_ID, DESCRIPTION);
     }
 
