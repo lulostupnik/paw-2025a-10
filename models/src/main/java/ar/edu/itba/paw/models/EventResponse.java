@@ -3,11 +3,8 @@ package ar.edu.itba.paw.models;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.Locale;
 
 
 @Getter

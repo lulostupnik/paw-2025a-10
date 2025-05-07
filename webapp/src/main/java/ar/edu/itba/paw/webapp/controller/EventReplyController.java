@@ -14,11 +14,9 @@ import javax.validation.Valid;
 @Controller
 @RequestMapping("/event-replies")
 public class EventReplyController {
-    private final EventService eventService;
     private final EventResponseService eventResponseService;
 
-    public EventReplyController(EventService eventService, EventResponseService eventResponseService) {
-        this.eventService = eventService;
+    public EventReplyController( EventResponseService eventResponseService) {
         this.eventResponseService = eventResponseService;
     }
 

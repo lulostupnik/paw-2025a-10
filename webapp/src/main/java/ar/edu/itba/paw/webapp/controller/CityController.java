@@ -2,55 +2,44 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.CountryService;
-import ar.edu.itba.paw.interfaces.services.UniversityService;
-import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.City;
-import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.User;
-import ar.edu.itba.paw.webapp.form.CreateCareerForm;
 import ar.edu.itba.paw.webapp.form.CreateCityForm;
-import ar.edu.itba.paw.webapp.form.CreateInterestForm;
-import ar.edu.itba.paw.webapp.form.ReplyForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
 import java.util.NoSuchElementException;
-
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/cities")
 public class CityController {
     private static final Logger LOGGER = LoggerFactory.getLogger(CityController.class);
     private final CityService cityService;
-    private final UniversityService universityService;
     private final CountryService countryService;
+    private static final String CREATE_CITY = "cities/create";
+    private static final String CITY_DETAIL = "cities/detail";
+    private static final String CITY_CREATE_FORM = "createCityForm";
 
-    public CityController(CityService cityService, UniversityService universityService, CountryService countryService) {
+    public CityController(CityService cityService, CountryService countryService) {
         this.cityService = cityService;
-        this.universityService = universityService;
         this.countryService = countryService;
     }
 
 
-    @RequestMapping(value = "/create", method = GET)
-    public ModelAndView createCitiesForm(@ModelAttribute("createCityForm") final CreateCityForm form) {
-        return new ModelAndView("cities/create").addObject("countries",countryService.getAllCountries());
+    @GetMapping(value = "/create")
+    public ModelAndView createCitiesForm(@ModelAttribute(CITY_CREATE_FORM) final CreateCityForm form) {
+        return new ModelAndView(CREATE_CITY).addObject("countries",countryService.getAllCountries());
     }
 
-    @RequestMapping(path = "/create", method = POST)
-    public ModelAndView createCities(@Valid @ModelAttribute("createCityForm") final CreateCityForm cityForm,
+    @PostMapping(path = "/create")
+    public ModelAndView createCities(@Valid @ModelAttribute(CITY_CREATE_FORM) final CreateCityForm cityForm,
                                         final BindingResult errors, @ModelAttribute("user") User user) {
 
         if (errors.hasErrors()) {
@@ -63,40 +52,44 @@ public class CityController {
 
         return new ModelAndView("redirect:/cities/{id}", "id", cityId);
     }
-    @RequestMapping(value= "/{id}", method = GET)
+    @GetMapping(value= "/{id}")
     public ModelAndView getCity(@PathVariable(value = "id") final long id) {
         City city = cityService.findById(id).orElseThrow(NoSuchElementException::new);
-        ModelAndView mav = new ModelAndView("cities/detail");
+        ModelAndView mav = new ModelAndView(CITY_DETAIL);
         mav.addObject("city", city);
         return mav;
     }
 
-    @RequestMapping(value = "/{id}/edit", method = GET)
+    @GetMapping(value = "/{id}/edit")
     public ModelAndView updateCityForm(@PathVariable("id") Long id) {
-        City city = cityService.findById(id).get();
-        if (city == null) {
+        Optional<City> optionalCity = cityService.findById(id);
+
+        if (optionalCity.isEmpty()) {
             return new ModelAndView("redirect:/cities");
         }
+
+        City city = optionalCity.get();
         CreateCityForm form = new CreateCityForm();
         form.setName(city.getName());
         form.setCountry(city.getCountry());
 
-        ModelAndView mav = new ModelAndView("cities/create");
-        mav.addObject("createCityForm", form);
+        ModelAndView mav = new ModelAndView(CREATE_CITY);
+        mav.addObject(CITY_CREATE_FORM, form);
         mav.addObject("isUpdate", true);
         mav.addObject("cityId", id);
         mav.addObject("countries", countryService.getAllCountries());
         return mav;
     }
 
-    @RequestMapping(value = "/{id}/edit", method = POST)
+
+    @PostMapping(value = "/{id}/edit")
     public ModelAndView updateCity(@PathVariable("id") Long id,
-                                     @Valid @ModelAttribute("createCityForm") final CreateCityForm form,
+                                     @Valid @ModelAttribute(CITY_CREATE_FORM) final CreateCityForm form,
                                      final BindingResult errors,
                                      @ModelAttribute("user") User user) {
 
         if (errors.hasErrors()) {
-            ModelAndView mav = new ModelAndView("cities/create");
+            ModelAndView mav = new ModelAndView(CREATE_CITY);
             mav.addObject("isUpdate", true);
             mav.addObject("cityId", id);
             return mav;

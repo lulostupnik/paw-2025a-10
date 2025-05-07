@@ -245,13 +245,6 @@ public class EventServiceImpl implements EventService {
 
 
 
-//    //@TODO cache ?
-//    @Transactional(readOnly = true)
-//    @Override
-//    public List<User> getEventResponders(long eventId){
-//        return eventResponseDao.listAllUsersResponders(eventId);
-//    }
-
 
     // FIXME: Agregarle cacheable?
     @Transactional(readOnly = true)
