@@ -152,44 +152,44 @@ public class EmailServiceImpl implements EmailService {
 
     }
     @Override
-    public void sendEventDeletionNotification(User eventOwner, Event event, String adminMessage) {
+    public void sendEventDeletionNotification(Event event, String adminMessage) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("eventTitle", event.getTitle());
         variables.put("eventId", event.getId());
         variables.put("adminMessage", adminMessage);
 
-        sendHtmlMessage(Optional.empty(),Optional.empty(), eventOwner, "event-deletion", variables,
+        sendHtmlMessage(Optional.empty(),Optional.empty(), event.getUser(), "event-deletion", variables,
                 "email.event.deletion.title",Optional.of(new Object[]{event.getTitle()}));
     }
 
     @Override
-    public void sendJourneyDeletionNotification(User journeyOwner, Journey journey, String adminMessage) {
+    public void sendJourneyDeletionNotification(Journey journey, String adminMessage) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("journeyId", journey.getId());
         variables.put("adminMessage", adminMessage);
 
-        sendHtmlMessage(Optional.empty(),Optional.empty(), journeyOwner, "journey-deletion", variables,
+        sendHtmlMessage(Optional.empty(),Optional.empty(), journey.getUser(), "journey-deletion", variables,
                 "email.journey.deletion.title", Optional.empty());
     }
 
     @Override
-    public void sendEventModificationNotification(User eventOwner, Event event, String adminMessage) {
+    public void sendEventModificationNotification(Event event, String adminMessage) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("eventTitle", event.getTitle());
         variables.put("eventId", event.getId());
         variables.put("adminMessage", adminMessage);
 
-        sendHtmlMessage(Optional.empty(),Optional.empty(), eventOwner, "event-modified", variables,
+        sendHtmlMessage(Optional.empty(),Optional.empty(), event.getUser(), "event-modified", variables,
                 "email.event.modification.title", Optional.of(new Object[]{event.getTitle()}));
     }
 
     @Override
-    public void sendJourneyModificationNotification(User journeyOwner, Journey journey, String adminMessage) {
+    public void sendJourneyModificationNotification(Journey journey, String adminMessage) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("journeyId", journey.getId());
         variables.put("adminMessage", adminMessage);
 
-        sendHtmlMessage(Optional.empty(),Optional.empty(), journeyOwner, "journey-modified", variables,
+        sendHtmlMessage(Optional.empty(),Optional.empty(), journey.getUser(), "journey-modified", variables,
                 "email.journey.modification.title", Optional.empty());
     }
 }

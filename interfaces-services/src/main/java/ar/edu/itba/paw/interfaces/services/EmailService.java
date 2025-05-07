@@ -15,12 +15,12 @@ public interface EmailService {
     void answerJourneyNotification(List<User> oldRepliers, String message, User commenter, Journey journey  );
 
 
-    void sendEventDeletionNotification(User eventOwner, Event event, String adminMessage);
+    void sendEventDeletionNotification(Event event, String adminMessage);
 
-    void sendJourneyDeletionNotification(User journeyOwner, Journey journey, String adminMessage);
+    void sendJourneyDeletionNotification(Journey journey, String adminMessage);
 
-    void sendEventModificationNotification(User eventOwner, Event event, String adminMessage);
+    void sendEventModificationNotification(Event event, String adminMessage);
 
-    void sendJourneyModificationNotification(User journeyOwner, Journey journey, String adminMessage);
+    void sendJourneyModificationNotification(Journey journey, String adminMessage);
 
 }
