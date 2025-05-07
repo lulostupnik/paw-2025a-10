@@ -124,12 +124,14 @@
     color: #2563eb;
     text-decoration: none;
     transition: color 0.2s ease;
+
 }
 
 .view-all-link:hover {
     color: #1d4ed8;
     text-decoration: none;
 }
+
 
 .view-all-icon {
     width: 1rem;
@@ -474,13 +476,5 @@
     }
 }
 
-.view-all-link {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #2563eb;
-    text-decoration: none;
-}
 
-.view-all-link:hover {
-    color: #1d4ed8;
-}
+

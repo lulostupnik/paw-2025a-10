@@ -59,12 +59,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.3s ease;
-}
-
-/* Remove hover effect from avatar */
-.profiles-avatar {
-    transition: none;
 }
 
 .avatar-image {
@@ -72,23 +66,26 @@ body {
     height: 100%;
     object-fit: cover;
 }
-/* Tab content display rules */
 .profile-section {
     display: none;
-}
+    animation: fadeIn 0.3s ease;
 
+}
 .profile-section.active {
     display: block;
 }
 
-/* Events tab content display rules */
 .events-tab-content {
     display: none;
+    animation: fadeIn 0.3s ease;
+
 }
+
 
 .events-tab-content.active {
     display: block;
 }
+
 
 .avatar-placeholder {
     width: 100%;
@@ -207,15 +204,8 @@ body {
 }
 
 /* Profile Sections */
-.profile-section {
-    display: none;
-    animation: fadeIn 0.3s ease;
-}
 
-/* Information tab is active by default */
-.profile-section.active {
-    display: block;
-}
+
 
 @keyframes fadeIn {
     from {
@@ -421,14 +411,8 @@ body {
     border-bottom-color: var(--color-primary);
 }
 
-.events-tab-content {
-    display: none;
-    animation: fadeIn 0.3s ease;
-}
 
-.events-tab-content.active {
-    display: block;
-}
+
 
 /* Error Container - White background with rounded corners */
 .error-container {
