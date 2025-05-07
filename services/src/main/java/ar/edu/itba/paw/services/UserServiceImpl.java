@@ -215,6 +215,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void unblockUser(long userId) {
+        emailService.sendUserUnblockedNotification(findById(userId).orElseThrow(()-> new IllegalStateException("User does not exist")));
         userDao.unblockUser(userId);
     }
 

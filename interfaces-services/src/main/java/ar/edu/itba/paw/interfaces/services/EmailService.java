@@ -25,5 +25,5 @@ public interface EmailService {
 //    void sendJourneyCommentDeletionNotification(/*JourneyResponse deletedComment, Journey journey, User commentAuthor,*/ long journeyResponseId, String adminMessage) ;
      void sendJourneyCommentDeletionNotification(/*long journeyResponseId,*/ JourneyResponse deletedComment,  Journey journey, User commentAuthor , String adminMessage);
 
-
+     void sendUserUnblockedNotification(User unblockedUser);
 }

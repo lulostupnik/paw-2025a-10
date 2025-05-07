@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{email.user.unblocked.title}">Your Account Has Been Unblocked</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; color: #333; margin: 0;">
+<div style="text-align: center; margin-bottom: 30px;">
+    <a href="http://pawserver.it.itba.edu.ar/paw-2025a-10/" style="text-decoration: none;">
+        <h1 style="font-size: 28px; font-weight: bold; color: #000000; margin: 0;">
+            Go<span style="color: #3366ff;">Together</span>
+        </h1>
+    </a>
+    <h2 th:text="#{email.user.unblocked.heading}">Your account has been unblocked</h2>
+</div>
+<div style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: #333;">
+    <p th:text="#{email.user.unblocked.explanation}" style="margin-bottom: 20px;">
+        We're pleased to inform you that your account has been unblocked. You now have full access to all features of our platform again.
+    </p>
+
+    <p th:text="#{email.user.unblocked.features}" style="margin-top: 20px;">
+        You can now create and participate in events and journeys, and your content is visible to other users again.
+    </p>
+
+</div>
+
+<div style="margin-top: 30px; text-align: center; color: #666; font-size: 14px;">
+    <p th:text="#{email.footer.message}">
+        If you have any questions or need assistance, please contact our support team.
+    </p>
+</div>
+
+</body>
+</html>

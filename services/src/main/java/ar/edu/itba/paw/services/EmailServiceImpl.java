@@ -274,6 +274,14 @@ public class EmailServiceImpl implements EmailService {
         sendHtmlMessage(Optional.empty(), Optional.empty(), blockedUser, "user-blocked", variables,
                 "email.user.blocked.title", Optional.empty());
     }
+    @Override
+    public void sendUserUnblockedNotification(User unblockedUser) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("username", unblockedUser.getUsername());
+
+        sendHtmlMessage(Optional.empty(), Optional.empty(), unblockedUser, "user-unblocked", variables,
+                "email.user.unblocked.title", Optional.empty());
+    }
 
 }
 
