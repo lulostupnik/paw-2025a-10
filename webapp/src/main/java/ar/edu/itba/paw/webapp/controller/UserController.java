@@ -21,7 +21,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping(value= "/{id}")
+    @GetMapping(value= "/{id}")
     public ModelAndView getUser(@PathVariable(value = "id") final long id) {
         User user = userService.findById(id).orElseThrow(() -> new NoSuchElementException("User not found"));
         ModelAndView mav = new ModelAndView("users/detail");

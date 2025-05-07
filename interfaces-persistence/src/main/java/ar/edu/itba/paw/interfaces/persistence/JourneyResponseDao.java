@@ -17,5 +17,7 @@ public interface JourneyResponseDao {
     long getJourneyIdByResponseId(long journeyId);
     void deletionMessage(long id, String message);
     void deleteByJourneyId(long journeyId);
+
+    int getCount(long id);
 }
 

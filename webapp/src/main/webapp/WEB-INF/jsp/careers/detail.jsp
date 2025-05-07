@@ -48,7 +48,7 @@
                             <spring:message code="interest.detail.edit"/>
                         </a>
                         <button type="button" class="cta-button delete-button" id="deleteCareerBtn">
-                            <spring:message code="interests.detail.delete"/>
+                            <spring:message code="career.detail.delete"/>
                         </button>
                     </div>
                 </div>

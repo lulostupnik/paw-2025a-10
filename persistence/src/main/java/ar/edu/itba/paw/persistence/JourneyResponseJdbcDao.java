@@ -117,6 +117,15 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
         }
     }
 
+    @Override
+    public int getCount(long id) {
+        return jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM journey_responses WHERE journey_id = ? AND deleted = FALSE",
+                Integer.class,
+                id
+        );
+    }
+
 }
 
 //@ans devolver USERS - dao de users.
