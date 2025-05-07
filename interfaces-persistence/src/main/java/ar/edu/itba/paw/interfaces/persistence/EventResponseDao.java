@@ -5,6 +5,7 @@ import ar.edu.itba.paw.models.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface EventResponseDao {
     EventResponse create(long userId, String username, long eventId, String message, LocalDateTime dateTime);
@@ -15,4 +16,8 @@ public interface EventResponseDao {
     long getEventIdByResponseId(long eventId);
     void deletionMessage(long id, String message);
     void deleteByEventId(long eventId);
+    Optional<EventResponse> findById(long responseId);
+    Optional<EventResponse> findByIdDeletedOrNotDeleted(long responseId);
+
+
 }

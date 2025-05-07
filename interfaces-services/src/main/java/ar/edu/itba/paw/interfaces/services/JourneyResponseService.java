@@ -6,6 +6,7 @@ import ar.edu.itba.paw.models.PageParams;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface JourneyResponseService {
     JourneyResponse create(long userId, String username, long journeyId, String message, LocalDateTime dateTime);
@@ -14,7 +15,9 @@ public interface JourneyResponseService {
     long getJourneyIdByResponseId(long journeyId);
     void deleteByJourneyId(long journeyId);
 
-    public Page<JourneyResponse> listAllFromJourney(long eventId, PageParams pageParams);
+    Optional<JourneyResponse> findById(long id);
+
+    Page<JourneyResponse> listAllFromJourney(long eventId, PageParams pageParams);
 
     int getCount(long id);
 }

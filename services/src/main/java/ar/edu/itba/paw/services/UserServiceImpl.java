@@ -6,6 +6,9 @@ import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,16 +26,18 @@ public class UserServiceImpl implements UserService {
     private final ImageService imageService;
     private final CareerService careerService;
     private final InterestService interestService;
+    private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UniversityService universityService, UserDao userDao, ImageService imageService, CareerService careerService, InterestService interestService, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UniversityService universityService, UserDao userDao, ImageService imageService, CareerService careerService, InterestService interestService, PasswordEncoder passwordEncoder, EmailService emailService) {
         this.universityService = universityService;
         this.userDao = userDao;
         this.imageService = imageService;
         this.careerService = careerService;
         this.interestService = interestService;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
 
@@ -202,12 +207,15 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void blockUser(long userId) {
+        emailService.sendUserBlockedNotification(findById(userId).orElseThrow(()-> new IllegalStateException("User does not exist")));
+
         userDao.blockUser(userId);
     }
 
     @Override
     @Transactional
     public void unblockUser(long userId) {
+        emailService.sendUserUnblockedNotification(findById(userId).orElseThrow(()-> new IllegalStateException("User does not exist")));
         userDao.unblockUser(userId);
     }
 
