@@ -6,6 +6,7 @@ import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.form.CreateEventForm;
 
 import ar.edu.itba.paw.webapp.form.EditEventForm;
+import ar.edu.itba.paw.webapp.form.FilterJourneyForm;
 import ar.edu.itba.paw.webapp.form.ReplyForm;
 
 import ar.edu.itba.paw.webapp.resolver.anotation.PageParamCustomizer;
@@ -22,6 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -40,27 +42,44 @@ public class EventController {
     private final CityService cityService;
     private final UniversityService universityService;
     private final CareerService careerService;
+    private final InterestService interestService;
     private static final String REDIRECT = "redirect:/events/";
 
     @Autowired
-    public EventController(EventService eventService, CityService cityService, UniversityService universityService, CareerService careerService, EventResponseService eventResponseService) {
+    public EventController(EventService eventService, CityService cityService, UniversityService universityService, CareerService careerService, EventResponseService eventResponseService, InterestService interestService) {
         this.eventService = eventService;
         this.cityService = cityService;
         this.universityService = universityService;
         this.careerService = careerService;
         this.eventResponseService = eventResponseService;
+        this.interestService = interestService;
+    }
+    private void populateDropdownAttributes(ModelAndView mav) {
+        List<City> cities = cityService.getAllCities();
+        LOGGER.debug("Cities: {}", cities);
+        mav.addObject("cities", cities);
+
+        List<Interest> interests = interestService.findAll();
+        LOGGER.debug("Interests: {}", interests);
+        mav.addObject("interests", interests);
     }
 
     @RequestMapping
     public ModelAndView getEvents(@ModelAttribute("user") User user,
                                   @PageParamCustomizer(defaultSize = 8) PageParams  pageParams,
-                                  @RequestParam(value = "search", required = false) String search) {
+                                  @RequestParam(value = "search", required = false) String search,
+                                  @Valid @ModelAttribute("filterEventForm") FilterJourneyForm filterForm,
+                                  BindingResult errors,
+                                  @RequestParam(value = "sort", required = false) String sortBy,
+                                  @RequestParam(value = "direction", required = false) String direction) {
+
         ModelAndView mav = new ModelAndView("events/list");
         Page<UserEvent> userEventsPage = eventService.getEventsPageWithAttendanceStatus(search, user, pageParams);
         mav.addObject("eventsPage", userEventsPage);
         mav.addObject("eventsWithAttendance", userEventsPage.getContent());
         mav.addObject("currentPage", pageParams.getPage());
         mav.addObject("pageSize", pageParams.getSize());
+        populateDropdownAttributes(mav);
         return mav;
     }
 

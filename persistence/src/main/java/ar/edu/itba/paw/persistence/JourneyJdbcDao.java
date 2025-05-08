@@ -30,15 +30,15 @@ public class JourneyJdbcDao implements JourneyDao {
     private final static String SQL_SELECT_BASE =
             """
             SELECT
-                us.id AS user_id,
-                us.email AS user_email,
-                us.firstname AS user_firstname,
-                us.lastname AS user_lastname,
-                us.username AS user_username,
-                us.university AS user_university,
-                us.profile_picture_id AS user_profile_picture_id,
-                us.language AS user_language,
-                us.blocked AS user_blocked,
+                u.id AS user_id,
+                u.email AS user_email,
+                u.firstname AS user_firstname,
+                u.lastname AS user_lastname,
+                u.username AS user_username,
+                u.university AS user_university,
+                u.profile_picture_id AS user_profile_picture_id,
+                u.language AS user_language,
+                u.blocked AS user_blocked,
                 ca.id AS career_id,
                 ca.name AS career_name,
                 j.id AS journey_id,
@@ -63,10 +63,10 @@ public class JourneyJdbcDao implements JourneyDao {
 
     private final static String SQL_FROM_BASE =
             """
-            FROM users us
-            JOIN journeys j ON j.user_id = us.id
-            JOIN careers ca ON us.career_id = ca.id
-            JOIN universities un1 ON us.university = un1.id
+            FROM users u
+            JOIN journeys j ON j.user_id = u.id
+            JOIN careers ca ON u.career_id = ca.id
+            JOIN universities un1 ON u.university = un1.id
             JOIN cities ci1 ON un1.city_id = ci1.id
             JOIN countries co1 ON ci1.country_id = co1.id
             JOIN universities un2 ON j.destination_university_id = un2.id
@@ -78,11 +78,11 @@ public class JourneyJdbcDao implements JourneyDao {
     private final static String SQL_BASE = SQL_SELECT_BASE + SQL_FROM_BASE + SQL_NOT_DELETED;
 
     private static final String SQL_FIND_BY_ID = SQL_BASE + " AND j.id = ?";
-    private final static String SQL_FIND_BY_USER_ID = SQL_BASE + " AND us.id = ?";
-    private final static String SQL_FIND_BY_USER_ID_DELETED = SQL_SELECT_BASE + SQL_FROM_BASE + " WHERE us.id = ?" ; // "AND j.deleted = TRUE"; ?
-    private final static String SQL_FIND_BY_USER_EMAIL = SQL_BASE + " AND us.email = ?";
+    private final static String SQL_FIND_BY_USER_ID = SQL_BASE + " AND u.id = ?";
+    private final static String SQL_FIND_BY_USER_ID_DELETED = SQL_SELECT_BASE + SQL_FROM_BASE + " WHERE u.id = ?" ; // "AND j.deleted = TRUE"; ?
+    private final static String SQL_FIND_BY_USER_EMAIL = SQL_BASE + " AND u.email = ?";
     private final static String SQL_FIND_OVERLAPPING = SQL_BASE + " AND j.user_id = ? AND j.end_date >= ? AND j.start_date <= ?";
-    private final static String SQL_FIND_OTHERS_BY_USER_ID = SQL_BASE + " AND us.id != ?";
+    private final static String SQL_FIND_OTHERS_BY_USER_ID = SQL_BASE + " AND u.id != ?";
     private final static String SQL_FIND_BY_ORIGIN_CITY = SQL_BASE + " AND ci1.id = ?";
     private final static String SQL_FIND_BY_ORIGIN_UNIVERSITY = SQL_BASE + " AND un1.id = ?";
 
@@ -91,14 +91,14 @@ public class JourneyJdbcDao implements JourneyDao {
     private final static String SQL_PAGE = " ORDER BY j.id ASC LIMIT ? OFFSET ? ";
     private final static String SQL_FIND_ALL_PAGED = SQL_BASE + SQL_PAGE;
     private final static String SQL_FIND_OTHERS_PAGED = SQL_BASE + " AND j.user_id != ? " + SQL_PAGE;
-    private final static String SQL_BASE_INTEREST = SQL_SELECT_BASE + SQL_FROM_BASE + " JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id" + SQL_NOT_DELETED;
+    private final static String SQL_BASE_INTEREST = SQL_SELECT_BASE + SQL_FROM_BASE + " JOIN user_interest ui ON u.id = ui.user_id JOIN category c ON ui.category_id = c.id" + SQL_NOT_DELETED;
 
     private final static String SQL_SEARCH_WHERE_CLAUSE =
             """
-            AND (
-                LOWER(us.username) LIKE LOWER(?)
-            --  OR LOWER(us.firstname) LIKE LOWER(?)
-            --  OR LOWER(us.lastname) LIKE LOWER(?)
+            (
+                LOWER(u.username) LIKE LOWER(?)
+            --  OR LOWER(u.firstname) LIKE LOWER(?)
+            --  OR LOWER(u.lastname) LIKE LOWER(?)
             --  OR LOWER(j.description) LIKE LOWER(?)
                 OR LOWER(un2.name) LIKE LOWER(?)
             --  OR LOWER(un2.abbreviation) LIKE LOWER(?)
@@ -106,17 +106,17 @@ public class JourneyJdbcDao implements JourneyDao {
             )
             """;
 
-    private final static String SQL_SEARCH_PAGED = SQL_BASE + SQL_SEARCH_WHERE_CLAUSE + " ORDER BY j.id ASC LIMIT ? OFFSET ? ";
+    private final static String SQL_SEARCH_PAGED = SQL_BASE + " AND " + SQL_SEARCH_WHERE_CLAUSE + " ORDER BY j.id ASC LIMIT ? OFFSET ? ";
 
     private final static String SQL_SEARCH_COUNT =
             """
             SELECT COUNT(*)
-            FROM users us
-            JOIN journeys j ON j.user_id = us.id
+            FROM users u
+            JOIN journeys j ON j.user_id = u.id
             JOIN universities un2 ON j.destination_university_id = un2.id
             JOIN cities ci2 ON un2.city_id = ci2.id
             """
-            + SQL_NOT_DELETED + SQL_SEARCH_WHERE_CLAUSE;
+            + SQL_NOT_DELETED + " AND " + SQL_SEARCH_WHERE_CLAUSE;
 
 
     private final static RowMapper<Journey> JOURNEY_ROW_MAPPER = (rs, rowNum) -> new Journey(
@@ -248,7 +248,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
         final List<Object> params = new ArrayList<>();
 
-        queryBuilder.append(" AND us.id != ? "); // journey.user_id != ?
+        queryBuilder.append(" AND u.id != ? "); // journey.user_id != ?
         params.add(userId);
 
         if (destination != null && !destination.isEmpty()) {
@@ -510,8 +510,91 @@ public class JourneyJdbcDao implements JourneyDao {
         );
     }
 
+        @Override
+        public Page<Journey> searchJourneys(final String search, Long userId, String orderBy, String direction, Long cityId, LocalDate startDate, LocalDate endDate, Long interest, int page, int size) {
+            final String searchPattern = likePattern(search);
+
+            final List<String> filters = new ArrayList<>();
+            final List<Object> params = new ArrayList<>();
+
+            final StringBuilder countQueryBuilder = new StringBuilder("SELECT COUNT(*) FROM journeys j");
+            final StringBuilder queryBuilder = new StringBuilder((interest != null) ? SQL_BASE_INTEREST : SQL_BASE);
+
+
+            if (interest != null) {
+                countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id");
+                filters.add("ui.category_id = ?");
+                params.add(interest);
+            }
+
+            if (cityId != null) {
+                countQueryBuilder.append(" JOIN universities un ON j.destination_university_id = un.id JOIN cities ci2 ON un.city_id = ci2.id");
+                filters.add("ci2.id = ?");
+                params.add(cityId);
+            }
+
+            if (userId != null) {
+                filters.add("j.user_id != ?");
+                params.add(userId);
+            }
+
+            if (endDate != null) {
+                filters.add("j.start_date <= ?");
+                params.add(Date.valueOf(endDate));
+            }
+
+            if (startDate != null) {
+                filters.add("j.end_date >= ?");
+                params.add(Date.valueOf(startDate));
+            }
+            if(search != null && !search.isEmpty()) {
+                if(cityId != null) {
+                    countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id ");
+                }
+                if(interest != null) {
+                    countQueryBuilder.append(" JOIN users u ON j.user_id = u.id ");
+                }
+                filters.add(SQL_SEARCH_WHERE_CLAUSE);
+                params.add(searchPattern);
+                params.add(searchPattern);
+                params.add(searchPattern);
+            }
+
+            countQueryBuilder.append(" WHERE j.deleted = FALSE ");
+
+            if(!filters.isEmpty()) {
+                countQueryBuilder.append(" AND  ").append(String.join(" AND ", filters));
+                queryBuilder.append(" AND ").append(String.join(" AND ", filters));
+            }
+
+            if (orderBy != null && !orderBy.isEmpty()) {
+                if(orderBy.equals("city")){
+                    orderBy= "ci2.name";
+                }
+                if(orderBy.equals("interest")){
+                    orderBy= "c.name";
+                }
+                queryBuilder.append(" ORDER BY ").append(orderBy);
+            } else {
+                queryBuilder.append(" ORDER BY j.id");
+            }
+
+            final int totalItems = jdbcTemplate.queryForObject(countQueryBuilder.toString(), Integer.class, params.toArray());
+
+            queryBuilder.append(" LIMIT ? OFFSET ? ");
+
+            params.add(size);
+            params.add(offset(page, size));
+
+            return new Page<>(
+                    jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray()),
+                    page,
+                    pageCount(totalItems, size)
+            );
+        }
+
     @Override
-    public Page<Journey> searchJourneys(final String search, final int page, final int size) {
+    public Page<Journey> searchJourneys(final String search, int page, int size){
         final String searchPattern = likePattern(search);
 
         final int totalItems = jdbcTemplate.queryForObject(
@@ -532,6 +615,7 @@ public class JourneyJdbcDao implements JourneyDao {
                 pageCount(totalItems, size)
         );
     }
+
 
     @Override
     public void updateData(final long journeyId, final University destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {

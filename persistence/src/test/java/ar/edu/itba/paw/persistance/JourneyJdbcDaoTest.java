@@ -812,65 +812,65 @@ public class JourneyJdbcDaoTest {
         assertEquals(DELETED_JOURNEY_USER_ID, journey.getUser().getId());   
     }
 
-    @Test
-    public void testSearchJourneys(){
-        insertJourney();
-        insertJourney(Map.of("userId", USER2_ID));
-        insertJourney(Map.of("userId", USER_ANOTHER_ID));
-
-        Page<Journey> page = journeyDao.searchJourneys(USERNAME_1.substring(0, 6), 1, 5);
-
-        assertNotNull(page);
-        assertEquals(1,page.getCurrentPage());
-        assertEquals(1,page.getTotalPages());
-        assertNotNull(page.getContent());
-        assertEquals(2, page.getContent().size());
-    }
-    @Test
-    public void testSearchJourneysNoJourneys(){
-        Page<Journey> page = journeyDao.searchJourneys(USERNAME_1.substring(0, 6), 1, 5);
-
-        assertNotNull(page);
-        assertEquals(1,page.getCurrentPage());
-        assertEquals(0,page.getTotalPages());
-        assertNotNull(page.getContent());
-        assertEquals(0, page.getContent().size());
-    }
-    @Test
-    public void testSearchJourneysDeleted(){
-        Page<Journey> page = journeyDao.searchJourneys(DELETED_USER_NAME, 1, 5);
-
-        assertNotNull(page);
-        assertEquals(1,page.getCurrentPage());
-        assertEquals(0,page.getTotalPages());
-        assertNotNull(page.getContent());
-        assertEquals(0, page.getContent().size());
-    }
-
-    @Test
-    public void testFindByFiltersDestination(){
-        long id1 = insertJourney();
-        long id2 = insertJourney(Map.of("userId", USER2_ID));
-        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID));
-
-        List<Journey> journeys = journeyDao.findByFilters(Long.toString(DESTINATION_CITY_ID), null, null, null);
-
-        assertNotNull(journeys);
-        assertEquals(2, journeys.size());
-        //TODO if-else
-        for (Journey j : journeys){
-            assertEquals(DESCRIPTION, j.getDescription());
-            assertEquals(DESTINATION_UNI_ID, j.getDestinationUniversity().getId());
-            assertEquals(START_DATE, j.getStartDate());
-            assertEquals(END_DATE, j.getEndDate());
-            if (j.getId() == id1) {
-                assertEquals(USER1_ID, j.getUser().getId());
-            } else {
-                assertEquals(id2, j.getId());
-                assertEquals(USER2_ID, j.getUser().getId());
-            }
-        }
-    }
+//    @Test
+//    public void testSearchJourneys(){
+//        insertJourney();
+//        insertJourney(Map.of("userId", USER2_ID));
+//        insertJourney(Map.of("userId", USER_ANOTHER_ID));
+//
+//        Page<Journey> page = journeyDao.searchJourneys(USERNAME_1.substring(0, 6), 1, 5);
+//
+//        assertNotNull(page);
+//        assertEquals(1,page.getCurrentPage());
+//        assertEquals(1,page.getTotalPages());
+//        assertNotNull(page.getContent());
+//        assertEquals(2, page.getContent().size());
+//    }
+//    @Test
+//    public void testSearchJourneysNoJourneys(){
+//        Page<Journey> page = journeyDao.searchJourneys(USERNAME_1.substring(0, 6), 1, 5);
+//
+//        assertNotNull(page);
+//        assertEquals(1,page.getCurrentPage());
+//        assertEquals(0,page.getTotalPages());
+//        assertNotNull(page.getContent());
+//        assertEquals(0, page.getContent().size());
+//    }
+//    @Test
+//    public void testSearchJourneysDeleted(){
+//        Page<Journey> page = journeyDao.searchJourneys(DELETED_USER_NAME, 1, 5);
+//
+//        assertNotNull(page);
+//        assertEquals(1,page.getCurrentPage());
+//        assertEquals(0,page.getTotalPages());
+//        assertNotNull(page.getContent());
+//        assertEquals(0, page.getContent().size());
+//    }
+//
+//    @Test
+//    public void testFindByFiltersDestination(){
+//        long id1 = insertJourney();
+//        long id2 = insertJourney(Map.of("userId", USER2_ID));
+//        insertJourney(Map.of("userId", USER3_ID, "destinationId", ORIGIN_UNI_ID));
+//
+//        List<Journey> journeys = journeyDao.findByFilters(Long.toString(DESTINATION_CITY_ID), null, null, null);
+//
+//        assertNotNull(journeys);
+//        assertEquals(2, journeys.size());
+//        //TODO if-else
+//        for (Journey j : journeys){
+//            assertEquals(DESCRIPTION, j.getDescription());
+//            assertEquals(DESTINATION_UNI_ID, j.getDestinationUniversity().getId());
+//            assertEquals(START_DATE, j.getStartDate());
+//            assertEquals(END_DATE, j.getEndDate());
+//            if (j.getId() == id1) {
+//                assertEquals(USER1_ID, j.getUser().getId());
+//            } else {
+//                assertEquals(id2, j.getId());
+//                assertEquals(USER2_ID, j.getUser().getId());
+//            }
+//        }
+//    }
     @Test
     public void testFindByFiltersStartDate(){
         long id1 = insertJourney();

@@ -50,11 +50,13 @@ public class JourneyController {
     public ModelAndView getJourneys(@Valid @ModelAttribute("filterJourneyForm") FilterJourneyForm fjf, final BindingResult errors,
                                     @ModelAttribute("user") User user,
                                     @PageParamCustomizer(defaultSize = 8) PageParams  pageParams,
-                                    @RequestParam(value = "search", required = false) String search){
+                                    @RequestParam(value = "search", required = false) String search,
+                                    @RequestParam(value = "sort", required = false) String sortBy,
+                                    @RequestParam(value = "direction", required = false) String direction) {
 
         LOGGER.debug("Getting journeys with filters: {destination: \"{}\", startDate: \"{}\", endDate: \"{}\", interest: \"{}\"}",fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
         final ModelAndView mav = new ModelAndView("journeys/list");
-        mav.addObject("journeys", js.getAllJourneys(search, user,
+        mav.addObject("journeys", js.getAllJourneys(search, user, sortBy,direction,
                 fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests(), pageParams));
         mav.addObject("hasJourney", user != null && js.userHasJourney(user));
         mav.addObject("pageSize", pageParams.getSize());
