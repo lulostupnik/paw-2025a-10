@@ -25,7 +25,6 @@ public class JourneyServiceImpl implements JourneyService {
     private final UserService userService;
     private final EmailService emailService;
     private final UniversityService universityService;
-
     private final InterestService interestService;
     private final UserDao userDao;
 
@@ -53,8 +52,8 @@ public class JourneyServiceImpl implements JourneyService {
         }
     }
 
-    @Transactional
     @Override
+    @Transactional
     public Journey createJourney(User user, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
         LOGGER.debug("Creating journey for {}", user);
         checkDates(startDate, endDate);
@@ -74,8 +73,8 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyDao.create(user, destination, startDate, endDate, description); // FIXME
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void replyToJourney(String email, long journeyId, String message) {
         LOGGER.debug("Replying to journey {}", journeyId);
 
@@ -85,13 +84,12 @@ public class JourneyServiceImpl implements JourneyService {
                     return new RuntimeException("Journey not found");}
                 );
 
-        LOGGER.debug("Looking for user {}", email);
-        //parche temporal buscar por username
         User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
 
-//        journeyResponseService.createJourneyResponse(user.getId(), user.getUsername() ,journeyId, message, LocalDateTime.now());
-        journeyResponseDao.create(user.getId(), user.getUsername() , journeyId, message, LocalDateTime.now());
+        journeyResponseDao.create(user.getId(), user.getUsername(), journeyId, message, LocalDateTime.now());
+
         List<Interest> interests = interestService.findByUserId(journey.getUser().getId());
+
         interestService.updateScoreByInterests(interests, user.getId());
 
         emailService.answerJourneyNotification(
@@ -100,7 +98,6 @@ public class JourneyServiceImpl implements JourneyService {
                 user,
                 journey
         );
-
 
     }
 
@@ -125,6 +122,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     public Optional<Journey> getJourneyByEmail(String email) {
+        // return journeyDao.findByUserEmail(email);
         long userId = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found")).getId();
         return journeyDao.findByUserId(userId);
         // ó deberíamos hacer lo siguiente?
@@ -266,8 +264,8 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.info("Successfully updated destination for journey {} to university ID {}", journeyId, universityId);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void delete(long id, String message) {
         journeyDao.deletionMessage(id, message);
         journeyResponseDao.deleteResponsesByJourneyId(id);
@@ -283,8 +281,8 @@ public class JourneyServiceImpl implements JourneyService {
         return journey.isPresent() && journey.get().getUser().getEmail().equals(email);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void editJourney(long journeyId, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
         University university = universityService.findByName(destinationUniversity)
                 .orElseThrow(() -> {
@@ -296,6 +294,7 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
+    @Transactional
     public List<JourneyResponse> listAllResponsesFromJourney(long journeyId) {
         return journeyResponseDao.listAllFromJourney(journeyId);
     }

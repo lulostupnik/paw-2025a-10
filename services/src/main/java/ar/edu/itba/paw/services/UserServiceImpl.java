@@ -44,6 +44,7 @@ public class UserServiceImpl implements UserService {
         LOGGER.debug("Creating user for {}", email);
 
         University university = universityService.findByName(universityName).orElseThrow(() -> new RuntimeException("University not found")); // TODO: ¿Acá cuando tira excepción debería haber un log?
+
         Career career = careerService.findByName(careerName).orElseThrow(() -> new RuntimeException("Career not found"));
 
         long profilePictureId = imageService.storeImage(profilePicture);
