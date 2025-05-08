@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
@@ -381,5 +382,38 @@ public class EventServiceImpl implements EventService {
     @Override
     public Optional<EventResponse> findEventResponseById(long id){
         return eventResponseDao.findById(id);
+    }
+
+
+
+    @Scheduled(cron = "0 0 12 * * ?" /*, zone = "America/Argentina/Buenos_Aires"*/)
+    @Transactional(readOnly = true)
+    public void sendEventReminders(){
+//        Optional<User> maybeUser = userService.findById(1);
+//        if(maybeUser.isEmpty()){
+//            LOGGER.error("User not found");
+//            return;
+//        }
+//        emailService.sendUserBlockedNotification(maybeUser.get());
+//        // emailService.sendUserBlockedNotification();
+
+        LOGGER.info("Starting scheduled task: sending reminder emails for upcoming events");
+
+        LocalDate today = LocalDate.now();
+        LocalDate tomorrow = today.plusDays(1);
+
+        List<Event> upcomingEvents = eventDao.listByQuery(null, today)
+                .stream()
+                .filter(event -> (event.getDate().isEqual(today) || event.getDate().isEqual(tomorrow)))
+                .toList();
+
+        LOGGER.info("Found {} events occurring in the next 24 hours", upcomingEvents.size());
+
+        for (Event event : upcomingEvents) {
+            // emailService.sendEventReminderNotification(event, eventAttendanceDao.getAttendees(event.getId()));
+        }
+
+        LOGGER.info("Completed scheduled task: sent reminder emails for upcoming events");
+
     }
 }
