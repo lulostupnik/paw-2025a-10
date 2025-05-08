@@ -31,16 +31,19 @@ public interface EventService {
     Page<Event> getUserAttendingEvents(long userId, PageParams pageParams);
     List<Event> getUserAttendingEvents(long userId);
     List<EventResponse> getEventResponses(long eventId);
-    List<UserEvent> getRecommendedEvents(long userId, int limit);
+    List<Event> getRecommendedEvents(long userId, int limit);
     List<Event> getTopEvents(int limit);
     Boolean isEventOwnedByUser(String email, long eventID);
     boolean isEventFull(long eventId);
     List<Event> getFullEvents();
 
-    List<UserEvent> getEventsWithAttendanceStatus(long userId);
-    List<UserEvent> getEventsWithAttendanceStatus(String email);
+    List<Event> getEventsWithAttendanceStatus(long userId);
+    List<Event> getEventsWithAttendanceStatus(String email);
 
-    Page<UserEvent> getEventsPageWithAttendanceStatus(String search,User user, PageParams pageParams );
+    Page<Event> getEventsPageWithAttendanceStatus(String search, User user,
+                                                  String sortBy, String direction, Long destination, LocalDate startDate, LocalDate endDate, Long interest,
+                                                  boolean isPast, boolean isUpcoming, boolean attending,
+                                                  PageParams pageParams );
     void editEvent(long eventId,
                           String cityName,
                           LocalDate date,

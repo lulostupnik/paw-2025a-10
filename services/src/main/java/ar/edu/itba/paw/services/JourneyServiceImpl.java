@@ -139,7 +139,10 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
-    public Page<Journey> getAllJourneys(String search, User user, String sortBy, String direction, Long destination, LocalDate startDate, LocalDate endDate, Long interest, PageParams pageParams) {
+    public Page<Journey> getAllJourneys(String search, User user, String sortBy, String direction, Long destination,
+                                        LocalDate startDate, LocalDate endDate, Long interest,
+                                        boolean isPast, boolean isUpcoming, boolean isMyDestination,
+                                        PageParams pageParams) {
         LOGGER.debug("Getting filtered journeys");
         if(direction == null || direction.isEmpty()){
             direction = "asc";
@@ -153,7 +156,9 @@ public class JourneyServiceImpl implements JourneyService {
             throw new IllegalArgumentException("Invalid sortBy parameter");
         }
 
-        return journeyDao.searchJourneys(search, user != null ? user.getId() : null, sortBy, direction, destination, startDate, endDate, interest, pageParams.getPage(), pageParams.getSize());
+        return journeyDao.searchJourneys(search, user != null ? user.getId() : null, sortBy, direction, destination,
+                startDate, endDate, interest, isPast, isUpcoming, isMyDestination,
+                pageParams.getPage(), pageParams.getSize());
 
     }
 

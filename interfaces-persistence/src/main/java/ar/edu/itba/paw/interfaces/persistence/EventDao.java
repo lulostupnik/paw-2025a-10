@@ -54,7 +54,7 @@ public interface EventDao {
      * Supports pagination using LIMIT and OFFSET.
      */
 
-    Page<UserEvent> getRecommendedEvents(long userId, int page, int size);
+    Page<Event> getRecommendedEvents(long userId, int page, int size);
 
     /**
      * getTopEvents:
@@ -78,11 +78,11 @@ public interface EventDao {
      * 4. Higher number of attendees.
      * 5. Soonest event date.
      */
-    Page<UserEvent> getTopUserEvents(long userId, final int page, final int size);
+    Page<Event> getTopUserEvents(long userId, final int page, final int size);
     List<Event> getFullEvents();
     List<Event> getMyEvents(long userId);
     List<Event> getOthersEvents(long userId);
-    List<UserEvent> getEventsWithAttendanceStatus(long userId);
+    List<Event> getEventsWithAttendanceStatus(long userId);
 
 
     //PAGE
@@ -92,6 +92,9 @@ public interface EventDao {
     Page<Event> listAll(int pageNumber, int pageSize);
 //    Page<UserEvent> getEventsWithAttendanceStatus(long userId, int page, int size);
 //    Page<UserEvent> getEventsWithAttendanceStatus(String search, long userId, int page, int size);
-    Page<UserEvent> getEventsWithAttendanceStatus(Long userId, String search, int page, int size);
+    Page<Event> getEventsWithAttendanceStatus(Long userId, String search,
+                                              String sortBy, String direction, Long destination,
+                                              LocalDate startDate, LocalDate endDate, Long interest,
+                                              boolean isPast, boolean isUpcoming, boolean attending, int pageNumber, int pageSize);
     Page<Event> searchEvents(String search, int pageNumber, int pageSize);
 }

@@ -50,7 +50,10 @@ public interface JourneyDao {
     // Page<Journey> getRecommendedJourneys(Long userId, int page, int size); // fixme
     Page<Journey> searchJourneys(String search, int page, int size);
 
-    Page<Journey> searchJourneys(String search, Long userId, String orderBy, String direction, Long cityId, LocalDate startDate, LocalDate endDate, Long interest,  int page, int size);
+    Page<Journey> searchJourneys(String search, Long userId, String orderBy, String direction,
+                                 Long cityId, LocalDate startDate, LocalDate endDate, Long interest,
+                                 boolean isPast, boolean isUpcoming, boolean isMyDestination,
+                                 int page, int size);
 
     // ELIMINAR o reemplazar
     Optional<Journey> findOverlappingJourney(long id, LocalDate startDate, LocalDate endDate);

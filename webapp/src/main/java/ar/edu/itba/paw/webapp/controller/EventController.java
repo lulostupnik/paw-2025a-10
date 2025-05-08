@@ -3,11 +3,7 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
-import ar.edu.itba.paw.webapp.form.CreateEventForm;
-
-import ar.edu.itba.paw.webapp.form.EditEventForm;
-import ar.edu.itba.paw.webapp.form.FilterJourneyForm;
-import ar.edu.itba.paw.webapp.form.ReplyForm;
+import ar.edu.itba.paw.webapp.form.*;
 
 import ar.edu.itba.paw.webapp.resolver.anotation.PageParamCustomizer;
 import ar.edu.itba.paw.webapp.utils.ImageUtils;
@@ -68,13 +64,18 @@ public class EventController {
     public ModelAndView getEvents(@ModelAttribute("user") User user,
                                   @PageParamCustomizer(defaultSize = 8) PageParams  pageParams,
                                   @RequestParam(value = "search", required = false) String search,
-                                  @Valid @ModelAttribute("filterEventForm") FilterJourneyForm filterForm,
+                                  @Valid @ModelAttribute("filterEventForm") FilterEventForm filterForm,
                                   BindingResult errors,
                                   @RequestParam(value = "sort", required = false) String sortBy,
                                   @RequestParam(value = "direction", required = false) String direction) {
 
         ModelAndView mav = new ModelAndView("events/list");
-        Page<UserEvent> userEventsPage = eventService.getEventsPageWithAttendanceStatus(search, user, pageParams);
+
+        Page<Event> userEventsPage = eventService.getEventsPageWithAttendanceStatus(search, user, sortBy,direction,
+                filterForm.getDestination(), filterForm.getStartDate(), filterForm.getEndDate(), filterForm.getInterests(),
+                filterForm.getIsPast(), filterForm.getIsUpcoming(), filterForm.getAttending(), pageParams);
+
+
         mav.addObject("eventsPage", userEventsPage);
         mav.addObject("eventsWithAttendance", userEventsPage.getContent());
         mav.addObject("currentPage", pageParams.getPage());

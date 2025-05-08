@@ -511,7 +511,10 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
         @Override
-        public Page<Journey> searchJourneys(final String search, Long userId, String orderBy, String direction, Long cityId, LocalDate startDate, LocalDate endDate, Long interest, int page, int size) {
+        public Page<Journey> searchJourneys(final String search, Long userId, String orderBy, String direction,
+                                            Long cityId, LocalDate startDate, LocalDate endDate, Long interest,
+                                            boolean isPast, boolean isUpcoming, boolean isMyDestination,
+                                            int page, int size) {
             final String searchPattern = likePattern(search);
 
             final List<String> filters = new ArrayList<>();
@@ -547,6 +550,7 @@ public class JourneyJdbcDao implements JourneyDao {
                 filters.add("j.end_date >= ?");
                 params.add(Date.valueOf(startDate));
             }
+
             if(search != null && !search.isEmpty()) {
                 if(cityId == null) {
                     countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id ");
@@ -558,6 +562,19 @@ public class JourneyJdbcDao implements JourneyDao {
                 params.add(searchPattern);
                 params.add(searchPattern);
                 params.add(searchPattern);
+            }
+            if (isUpcoming) {
+                filters.add("j.start_date >= ?");
+                params.add(Date.valueOf(LocalDate.now()));
+            }
+            if (isPast) {
+                filters.add("j.end_date <= ?");
+                params.add(Date.valueOf(LocalDate.now()));
+            }
+            if (isMyDestination) {
+                countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id");
+                filters.add(" ci2.id = ( SELECT ci2.id FROM journeys j JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id WHERE j.user_id = ? LIMIT 1) ");
+                params.add(userId);
             }
 
             countQueryBuilder.append(" WHERE j.deleted = FALSE ");
