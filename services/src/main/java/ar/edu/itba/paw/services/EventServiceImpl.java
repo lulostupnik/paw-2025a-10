@@ -388,14 +388,6 @@ public class EventServiceImpl implements EventService {
     @Scheduled(cron = "0 0 12 * * ?" /*, zone = "America/Argentina/Buenos_Aires"*/)
     @Transactional(readOnly = true)
     public void sendEventReminders(){
-//        Optional<User> maybeUser = userService.findById(1);
-//        if(maybeUser.isEmpty()){
-//            LOGGER.error("User not found");
-//            return;
-//        }
-//        emailService.sendUserBlockedNotification(maybeUser.get());
-//        // emailService.sendUserBlockedNotification();
-
         LOGGER.info("Starting scheduled task: sending reminder emails for upcoming events");
 
         LocalDate today = LocalDate.now();
@@ -409,7 +401,7 @@ public class EventServiceImpl implements EventService {
         LOGGER.info("Found {} events occurring in the next 24 hours", upcomingEvents.size());
 
         for (Event event : upcomingEvents) {
-            // emailService.sendEventReminderNotification(event, eventAttendanceDao.getAttendees(event.getId()));
+            emailService.sendEventReminderNotification(event, eventAttendanceDao.getAttendees(event.getId()));
         }
 
         LOGGER.info("Completed scheduled task: sent reminder emails for upcoming events");
