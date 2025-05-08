@@ -278,7 +278,7 @@
                                 <!-- Details Tab Content -->
                                 <div id="details-content" class="tab-content">
                                     <!-- Attendees Section -->
-                                    <jsp:include page="attendees-section.jsp">
+                                    <jsp:include page="statistics-section.jsp">
                                         <jsp:param name="showList" value="true" />
                                         <jsp:param name="showToggle" value="false" />
                                     </jsp:include>
@@ -298,7 +298,7 @@
                         <!-- Simplified layout for non-owners -->
                         <div class="non-owner-content">
                             <!-- Attendees Count Section -->
-                            <jsp:include page="attendees-section.jsp">
+                            <jsp:include page="statistics-section.jsp">
                                 <jsp:param name="showList" value="false" />
                                 <jsp:param name="showToggle" value="false" />
                             </jsp:include>
