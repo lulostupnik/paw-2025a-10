@@ -107,18 +107,20 @@ public class InterestServiceImpl implements InterestService {
         interestDao.saveUserInterests(interests, userId);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void updateScoreByInterest(Interest interest, long userId) {
         LOGGER.debug("Increasing score of interest {} for user {}", interest, userId);
         interestDao.updateScoreByInterest(interest, userId);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void updateScoreByInterests(List<Interest> interests, long userId) {
         LOGGER.debug("Increasing score of interests {} for user {}", interests, userId);
         interestDao.updateScoreByInterests(interests, userId);
+        // FIXME: OJO!, CREO QUE EL INTEREST DAO NO PUEDE TOCAR LA TABLA DE USER
+        // -> esto debería estar en el user dao
 
     }
 
@@ -131,13 +133,13 @@ public class InterestServiceImpl implements InterestService {
         return interestDao.searchBySubstring(search,pageParams.getPage(), pageParams.getSize());
     }
 
+    @Override
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = "interestsById", key = "#id"),
             @CacheEvict(value = "interests", allEntries = true),
             @CacheEvict(value = "interestsByName", allEntries = true)
     })
-    @Override
     public void delete(long id) {
         interestDao.delete(id);
     }

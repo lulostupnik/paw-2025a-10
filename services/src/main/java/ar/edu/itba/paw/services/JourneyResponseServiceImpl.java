@@ -11,11 +11,8 @@ import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +25,7 @@ public class JourneyResponseServiceImpl implements JourneyResponseService {
     private final JourneyDao journeyDao;
     private final EmailService emailService;
     private final UserService userService;
+
     @Autowired
     public JourneyResponseServiceImpl(final JourneyResponseDao journeyResponseDao, JourneyDao journeyDao, EmailService emailService, UserService userService) {
         this.journeyResponseDao = journeyResponseDao;
@@ -36,8 +34,8 @@ public class JourneyResponseServiceImpl implements JourneyResponseService {
         this.userService = userService;
     }
 
-    @Transactional
     @Override
+    @Transactional
     public JourneyResponse create(long userId, String username, long journeyId, String message, LocalDateTime dateTime) {
         return journeyResponseDao.create(userId, username, journeyId, message, dateTime);
     }
@@ -52,10 +50,8 @@ public class JourneyResponseServiceImpl implements JourneyResponseService {
         return journeyResponseDao.findById(id);
     }
 
-
-    @Transactional
-    // @CacheEvict(value = "journeysByResponseId", key = "#id")
     @Override
+    @Transactional
     public void delete(long id, String message) {
 
         JourneyResponse deletedComment = findById(id).orElseThrow(() -> new IllegalArgumentException("Journey response doesn't exists"));
@@ -69,15 +65,13 @@ public class JourneyResponseServiceImpl implements JourneyResponseService {
     }
 
 
-    // @Cacheable(value = "journeysByResponseId", key = "#journeyResponseId")
     @Override
     public long getJourneyIdByResponseId(long journeyResponseId) {
         return journeyResponseDao.getJourneyIdByResponseId(journeyResponseId);
     }
 
-    @Transactional
-    // @CacheEvict(value = "journeysByResponseId", allEntries = true) //FIXME: check if should CACHE EVICT
     @Override
+    @Transactional
     public void deleteByJourneyId(long journeyId) {
         journeyResponseDao.deleteByJourneyId(journeyId);
     }
