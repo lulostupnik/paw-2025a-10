@@ -20,6 +20,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class TestConfig {
     @Value("classpath:schema.sql")
     private Resource schemaSql;
+    @Value("classpath:inserts.sql")
+    private Resource insertsSql;
 
     @Bean
     public DataSource dataSource() {
@@ -47,6 +49,7 @@ public class TestConfig {
     private DatabasePopulator databasePopulator() {
         final ResourceDatabasePopulator dbp = new ResourceDatabasePopulator();
         dbp.addScript(schemaSql);
+        dbp.addScript(insertsSql);
         return dbp;
     }    
 

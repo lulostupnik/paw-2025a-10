@@ -73,11 +73,6 @@ public class JourneyResponseJdbcDaoTest {
         jdbcTemplate = new JdbcTemplate(ds);
         insert = new SimpleJdbcInsert(ds).withTableName(RESPONSE_TABLE).usingGeneratedKeyColumns("id");
 
-        jdbcTemplate.execute("INSERT INTO countries(name, code) VALUES('Argentina', 'AR')");
-        jdbcTemplate.execute("INSERT INTO cities(name, country_id) VALUES('Buenos Aires', (SELECT id FROM countries WHERE code = 'AR'))");
-        jdbcTemplate.execute("INSERT INTO images(content) VALUES('ffffffff')");
-        jdbcTemplate.execute("INSERT INTO careers(name) VALUES('Ingenieria informatica')");
-        jdbcTemplate.execute("INSERT INTO universities(name, abbreviation, city_id) VALUES('Instituto tecnologico muy largo', 'ITBA', (SELECT id FROM cities WHERE name = 'Buenos Aires'))");
         jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('username', 'user@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
         jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('username2', 'user2@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
         jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('username3', 'user3@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
@@ -141,6 +136,7 @@ public class JourneyResponseJdbcDaoTest {
         Page<JourneyResponse> page1 = responseDao.listAllFromJourney(JOURNEY1_ID, 1, 2);
         Page<JourneyResponse> page2 = responseDao.listAllFromJourney(JOURNEY1_ID, 2, 2);
 
+        //TODO awful
         assertNotNull(page1);
         assertNotNull(page2);
         assertEquals(1, page1.getCurrentPage());

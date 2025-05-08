@@ -32,12 +32,6 @@ import ar.edu.itba.paw.persistence.CountryJdbcDao;
 @ContextConfiguration(classes = TestConfig.class)
 public class CountryJdbcDaoTest {
 
-    private static final String COUNTRY_TABLE = "countries";
-    private static final String COUNTRY_NAME_1 = "cuntry1";
-    private static final String COUNTRY_CODE_1 = "aa";    
-    private static final String COUNTRY_NAME_2 = "cuntry2";
-    private static final String COUNTRY_CODE_2 = "bb";
-    private static final int TOTAL_COUNTRIES = 2;
     private static long id1;
 
     @Autowired
@@ -47,34 +41,32 @@ public class CountryJdbcDaoTest {
     private CountryJdbcDao countryDao;
 
     private JdbcTemplate jdbcTemplate;
-    private SimpleJdbcInsert insert;
 
     @Before
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
-        insert = new SimpleJdbcInsert(ds).withTableName(COUNTRY_TABLE).usingGeneratedKeyColumns("id");
-        id1 = insert.executeAndReturnKey(Map.of("name", COUNTRY_NAME_1, "code", COUNTRY_CODE_1)).longValue();
-        insert.execute(Map.of("name", COUNTRY_NAME_2, "code", COUNTRY_CODE_2));
+
+        id1 = jdbcTemplate.queryForObject("SELECT id FROM countries WHERE code = ?", Long.class, TestUtils.COUNTRY_1_CODE);
     }
 
     @Test
     public void testFindAll(){
         List<Country> countries = countryDao.findAll();
         assertNotNull(countries);
-        assertEquals(TOTAL_COUNTRIES, countries.size());
-        List<String> countryNames = List.of(COUNTRY_NAME_1, COUNTRY_NAME_2);
-        List<String> countryCodes = List.of(COUNTRY_CODE_1, COUNTRY_CODE_2);
+        assertEquals(TestUtils.TOTAL_COUNTRIES, countries.size());
+        List<String> countryNames = List.of(TestUtils.COUNTRY_1_NAME, TestUtils.COUNTRY_2_NAME);
+        List<String> countryCodes = List.of(TestUtils.COUNTRY_1_CODE, TestUtils.COUNTRY_2_CODE);
         for (Country country : countries) {
             assertTrue(countryNames.contains(country.getName()));
             assertTrue(countryCodes.contains(country.getCode()));
-            if (country.getName().equals(COUNTRY_NAME_1)){
+            if (country.getName().equals(TestUtils.COUNTRY_1_NAME)){
                 assertEquals(id1, country.getId());
             }
         }
     }
     @Test
     public void testFindAllNoCountries(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, COUNTRY_TABLE);
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.UNIVERSITY_TABLE, TestUtils.CITY_TABLE, TestUtils.COUNTRY_TABLE);
         List<Country> countries = countryDao.findAll();
         assertNotNull(countries);
         assertEquals(0, countries.size());
@@ -82,12 +74,12 @@ public class CountryJdbcDaoTest {
 
     @Test
     public void testExistsByName(){
-        boolean result = countryDao.existsByName(COUNTRY_NAME_1);
+        boolean result = countryDao.existsByName(TestUtils.COUNTRY_1_NAME);
         assertTrue(result);
     }
     @Test
     public void testExistsByNameFakeName(){
-        boolean result = countryDao.existsByName("COUNTRY_NAME_1");
+        boolean result = countryDao.existsByName("TestUtils.COUNTRY_1_NAME");
         assertFalse(result);
     }
     @Test
@@ -104,16 +96,16 @@ public class CountryJdbcDaoTest {
     
     @Test
     public void testFindByName(){
-        Optional<Country> result = countryDao.findByName(COUNTRY_NAME_1);
+        Optional<Country> result = countryDao.findByName(TestUtils.COUNTRY_1_NAME);
         assertNotNull(result);
         assertTrue(result.isPresent());
-        assertEquals(COUNTRY_NAME_1, result.get().getName());
-        assertEquals(COUNTRY_CODE_1, result.get().getCode());
+        assertEquals(TestUtils.COUNTRY_1_NAME, result.get().getName());
+        assertEquals(TestUtils.COUNTRY_1_CODE, result.get().getCode());
         assertEquals(id1, result.get().getId());
     }
     @Test
     public void testFindByNameFakeName(){
-        Optional<Country> result = countryDao.findByName("COUNTRY_NAME_1");
+        Optional<Country> result = countryDao.findByName("TestUtils.COUNTRY_1_NAME");
         assertNotNull(result);
         assertFalse(result.isPresent());    
     }

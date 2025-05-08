@@ -67,6 +67,7 @@ public class UserJdbcDaoTest {
     private static final String LOCALE = "es";
     private static final String USERROLE = "user";
     private static University UNIVERSITY;
+    private static University UNIVERSITY2;
     private static Career CAREER;
     private static long PROFILEPICID;
 
@@ -151,10 +152,10 @@ public class UserJdbcDaoTest {
         jdbcTemplate.execute("INSERT INTO images(content) VALUES('ffffffffff')");
         jdbcTemplate.execute("INSERT INTO countries(name, code) VALUES('Argentina', 'AR')");
         jdbcTemplate.execute("INSERT INTO cities(name, country_id) VALUES('Buenos Aires', (SELECT MIN(id) FROM countries))");
-        jdbcTemplate.execute("INSERT INTO universities(name, city_id, abbreviation) VALUES('Instituto Tecnologico muy largo', (SELECT MIN(id) FROM cities), 'ITBA')");
         jdbcTemplate.execute("INSERT INTO careers(name) VALUES('Ingenieria Informatica')");
 
-        UNIVERSITY = jdbcTemplate.query("SELECT id, name FROM universities LIMIT 1", (rs, rowNum) -> new University(rs.getLong("id"), rs.getString("name"), null, null)).stream().findFirst().get();
+        UNIVERSITY = jdbcTemplate.query("SELECT id, name FROM universities WHERE abbreviation = ?", (rs, rowNum) -> new University(rs.getLong("id"), rs.getString("name"), null, null), TestUtils.UNIVERSITY_1_CODE).stream().findFirst().get();
+        UNIVERSITY2 = jdbcTemplate.query("SELECT id, name FROM universities WHERE abbreviation = ?", (rs, rowNum) -> new University(rs.getLong("id"), rs.getString("name"), null, null), TestUtils.UNIVERSITY_2_CODE).stream().findFirst().get();
         CAREER = jdbcTemplate.query("SELECT id, name FROM careers LIMIT 1", (rs, rowNum) -> new Career(rs.getLong("id"), rs.getString("name"))).stream().findFirst().get();
         PROFILEPICID = jdbcTemplate.query("SELECT id FROM images LIMIT 1", (rs, rowNum) -> rs.getLong("id")).stream().findFirst().get();
     }
@@ -378,7 +379,7 @@ public class UserJdbcDaoTest {
     @Test
     public void testUpdateProfileInfoMissingUser(){
         userDao.updateProfileInfo(123123, FIRSTNAME, LASTNAME, USERNAME);  
-        //No checks needed, if it tried to update the empty DB, we'd get an exception and fail automatically.
+        //TODO asserts
     }
 
     @Test
@@ -398,6 +399,7 @@ public class UserJdbcDaoTest {
     @Test
     public void testUpdateLocaleMissingUser(){
         userDao.updateLocale(1321423, Locale.of(LOCALE));  
+        //TODO asserts
     }
 
     @Test
@@ -423,14 +425,7 @@ public class UserJdbcDaoTest {
 
     @Test
     public void testUpdateUniversity(){
-        final long universityId = new SimpleJdbcInsert(ds).withTableName(UNIVERSITIES_TABLE).usingGeneratedKeyColumns("id")
-            .executeAndReturnKey(Map.of(
-                "name", "Universidad de muy largo", 
-                "abbreviation", "UBA", 
-                "deleted", false,
-                "city_id", jdbcTemplate.queryForObject("SELECT id FROM cities LIMIT 1", Long.class)
-            )).longValue();
-        final long userid = insertUserOverride(Map.of("university", universityId));
+        final long userid = insertUserOverride(Map.of("university", UNIVERSITY2.getId()));
 
         userDao.updateUniversity(userid, UNIVERSITY.getId());
 
@@ -445,18 +440,12 @@ public class UserJdbcDaoTest {
     @Test
     public void testUpdateUniversityWrongUser(){
         userDao.updateUniversity(13241234, 12341234);
+        //TODO asserts
     }
 
     @Test
     public void testUpdateUniversityName(){
-        final long universityId = new SimpleJdbcInsert(ds).withTableName(UNIVERSITIES_TABLE).usingGeneratedKeyColumns("id")
-            .executeAndReturnKey(Map.of(
-                "name", "Universidad de muy largo", 
-                "abbreviation", "UBA", 
-                "deleted", false,
-                "city_id", jdbcTemplate.queryForObject("SELECT id FROM cities LIMIT 1", Long.class)
-            )).longValue();
-        final long userid = insertUserOverride(Map.of("university", universityId));
+        final long userid = insertUserOverride(Map.of("university", UNIVERSITY2.getId()));
 
         userDao.updateUniversity(userid, UNIVERSITY.getName());
 
@@ -470,6 +459,7 @@ public class UserJdbcDaoTest {
     }
     @Test
     public void testUpdateUniversityNameWrongUser(){
+        //TODO asserts
         userDao.updateUniversity(13241234, "12341234");
     }
 
@@ -492,6 +482,7 @@ public class UserJdbcDaoTest {
     @Test
     public void testUpdateCareerWrongUser(){
         userDao.updateCareer(13241234, 12341234);
+        //TODO asserts
     }
 
     @Test
@@ -513,6 +504,7 @@ public class UserJdbcDaoTest {
     @Test
     public void testUpdateCareerWrongUserName(){
         userDao.updateCareer(13241234, "12341234");
+        //TODO asserts
     }
 
     @Test
@@ -715,6 +707,7 @@ public class UserJdbcDaoTest {
 
         assertNotNull(repliesUser);
         assertEquals(2, repliesUser.size());
+        //TODO if-else
         for (User user : repliesUser) {
             if (user.getId() == replyUserId1) {
                 assertEqualsUser(user, userParams1);
@@ -747,6 +740,7 @@ public class UserJdbcDaoTest {
 
         assertNotNull(repliesUser);
         assertEquals(2, repliesUser.size());
+        //TODO if-else
         for (User user : repliesUser) {
             if (user.getId() == replyUserId1) {
                 assertEqualsUser(user, userParams1);

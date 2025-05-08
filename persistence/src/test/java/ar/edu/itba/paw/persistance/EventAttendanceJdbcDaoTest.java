@@ -57,14 +57,9 @@ public class EventAttendanceJdbcDaoTest {
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
         insert = new SimpleJdbcInsert(ds).withTableName(ATTENDANCE_TABLE);
-        jdbcTemplate.execute("INSERT INTO countries(name, code) VALUES('Argentina', 'AR')");
-        jdbcTemplate.execute("INSERT INTO cities(name, deleted, country_id) VALUES('Buenos Aires', FALSE, (SELECT id FROM countries WHERE code = 'AR'))");
-        jdbcTemplate.execute("INSERT INTO images(content) VALUES('ffffffff')");
-        jdbcTemplate.execute("INSERT INTO careers(name, deleted) VALUES('a', FALSE)");
-        jdbcTemplate.execute("INSERT INTO universities(name, abbreviation, deleted, city_id) VALUES('Instituto muy largo', 'ITBA', FALSE, (SELECT id FROM cities WHERE name = 'Buenos Aires'))");
-        jdbcTemplate.execute("INSERT INTO users(email, username, firstname, lastname, university, career_id, profile_picture_id, language, roles, blocked) VALUES('user1@mail.com', 'user1', 'user', '1', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers WHERE name = 'a'), (SELECT id FROM images LIMIT 1), 'es', 'user', FALSE)");
-        jdbcTemplate.execute("INSERT INTO users(email, username, firstname, lastname, university, career_id, profile_picture_id, language, roles, blocked) VALUES('user2@mail.com', 'user2', 'user', '2', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers WHERE name = 'a'), (SELECT id FROM images LIMIT 1), 'en', 'user', FALSE)");
-        jdbcTemplate.execute("INSERT INTO users(email, username, firstname, lastname, university, career_id, profile_picture_id, language, roles, blocked) VALUES('user3@mail.com', 'user3', 'user', '3', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers WHERE name = 'a'), (SELECT id FROM images LIMIT 1), 'en', 'user', FALSE)");
+        jdbcTemplate.execute("INSERT INTO users(email, username, firstname, lastname, university, career_id, profile_picture_id, language, roles, blocked) VALUES('user1@mail.com', 'user1', 'user', '1', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers WHERE name = 'career 1'), (SELECT id FROM images LIMIT 1), 'es', 'user', FALSE)");
+        jdbcTemplate.execute("INSERT INTO users(email, username, firstname, lastname, university, career_id, profile_picture_id, language, roles, blocked) VALUES('user2@mail.com', 'user2', 'user', '2', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers WHERE name = 'career 1'), (SELECT id FROM images LIMIT 1), 'en', 'user', FALSE)");
+        jdbcTemplate.execute("INSERT INTO users(email, username, firstname, lastname, university, career_id, profile_picture_id, language, roles, blocked) VALUES('user3@mail.com', 'user3', 'user', '3', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers WHERE name = 'career 1'), (SELECT id FROM images LIMIT 1), 'en', 'user', FALSE)");
         jdbcTemplate.execute("INSERT INTO events(user_id, city_id, event_date, attendees_limit, title, deleted) VALUES((SELECT id FROM users WHERE lastname = 1), (SELECT id FROM cities LIMIT 1), CURRENT_DATE, 2, '1', FALSE)");
         jdbcTemplate.execute("INSERT INTO events(user_id, city_id, event_date, attendees_limit, title, deleted) VALUES((SELECT id FROM users WHERE lastname = 2), (SELECT id FROM cities LIMIT 1), CURRENT_DATE, 10, '2', FALSE)");
         jdbcTemplate.execute("INSERT INTO events(user_id, city_id, event_date, title, deleted, event_time) VALUES((SELECT id FROM users WHERE lastname = 2), (SELECT id FROM cities LIMIT 1), CURRENT_DATE, '3', FALSE, '20:00:00')");
@@ -117,10 +112,12 @@ public class EventAttendanceJdbcDaoTest {
     }   
     @Test
     public void testCancelWrongEvent(){
+        //TODO assert
         attendanceDao.cancel(USER2.getId(), 12341234);
     }  
     @Test
     public void testCancelWrongUser(){
+        //TODO assert
         attendanceDao.cancel(1241234, EVENT1_ID);
     }  
 

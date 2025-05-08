@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.sql.DataSource;
@@ -18,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
@@ -39,19 +37,7 @@ import ar.edu.itba.paw.persistence.CityJdbcDao;
 @ContextConfiguration(classes = TestConfig.class)
 public class CityJdbcDaoTest {
 
-    private static final String CITY_TABLE = "cities";
-    private static final String COUNTRY_TABLE = "countries";
-    
-    private static final String CITY_1 = "city1";
-    private static final String CITY_2 = "city2";
-    private static final String CITY_3 = "city3";
-    private static final String DELETED_CITY = "deleted_city";
-    private static final String NEW_CITY = "new!";
-    private static final String COUNTRY_NAME_1 = "cuntry";
-    private static final String COUNTRY_CODE_1 = "aa";    
-    private static final String COUNTRY_NAME_2 = "cuntry2";
-    private static final String COUNTRY_CODE_2 = "bb";
-    private static final int TOTAL_CITIES = 3; //City 4 will be logic deleted
+
     private static long CITY_ID_1;
     private static long DELETED_CITY_ID;
     private static long COUNTRY_ID_1;
@@ -64,38 +50,33 @@ public class CityJdbcDaoTest {
     private CityJdbcDao cityDao;
 
     private JdbcTemplate jdbcTemplate;
-    private SimpleJdbcInsert insert;
 
     private RowMapper<City> CITY_ROW_MAPPER = (rs, n) -> new City(rs.getString("name"), rs.getString("country_name"), rs.getLong("id"));
 
     @Before
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
-        insert = new SimpleJdbcInsert(ds).withTableName(CITY_TABLE).usingGeneratedKeyColumns("id");
 
-        SimpleJdbcInsert countryInsert = new SimpleJdbcInsert(ds).withTableName(COUNTRY_TABLE).usingGeneratedKeyColumns("id");
-        COUNTRY_ID_1 = countryInsert.executeAndReturnKey(Map.of("name", COUNTRY_NAME_1, "code", COUNTRY_CODE_1)).longValue();
-        COUNTRY_ID_2 = countryInsert.executeAndReturnKey(Map.of("name", COUNTRY_NAME_2, "code", COUNTRY_CODE_2)).longValue();
+        COUNTRY_ID_1 = jdbcTemplate.queryForObject("SELECT id FROM countries WHERE code = ?", Long.class, TestUtils.COUNTRY_1_CODE);
+        COUNTRY_ID_2 = jdbcTemplate.queryForObject("SELECT id FROM countries WHERE code = ?", Long.class, TestUtils.COUNTRY_2_CODE);
 
-        CITY_ID_1 = insert.executeAndReturnKey(Map.of("name", CITY_1, "country_id", COUNTRY_ID_1, "deleted", false)).longValue();
-        insert.execute(Map.of("name", CITY_2, "country_id", COUNTRY_ID_1, "deleted", false));
-        insert.execute(Map.of("name", CITY_3, "country_id", COUNTRY_ID_2, "deleted", false));
-        DELETED_CITY_ID = insert.executeAndReturnKey(Map.of("name", DELETED_CITY, "country_id", COUNTRY_ID_2, "deleted", true)).longValue();
+        CITY_ID_1 = jdbcTemplate.queryForObject("SELECT id FROM cities WHERE name = ?", Long.class, TestUtils.CITY_1_NAME);
+        DELETED_CITY_ID = jdbcTemplate.queryForObject("SELECT id FROM cities WHERE name = ?", Long.class, TestUtils.CITY_DELETED_NAME);
     }
     
     @Test
     public void testFindByName(){
-        Optional<City> maybeCity = cityDao.findByName(CITY_1);
+        Optional<City> maybeCity = cityDao.findByName(TestUtils.CITY_1_NAME);
 
         assertNotNull(maybeCity);
         assertTrue(maybeCity.isPresent());
         assertEquals(CITY_ID_1, maybeCity.get().getId());
-        assertEquals(CITY_1, maybeCity.get().getName());
-        assertEquals(COUNTRY_NAME_1, maybeCity.get().getCountry());
+        assertEquals(TestUtils.CITY_1_NAME, maybeCity.get().getName());
+        assertEquals(TestUtils.COUNTRY_1_NAME, maybeCity.get().getCountry());
     }
     @Test
     public void testFindByNameMissingCity(){
-        Optional<City> maybeCity = cityDao.findByName("CITY_1");
+        Optional<City> maybeCity = cityDao.findByName("TestUtils.CITY_1_NAME");
 
         assertNotNull(maybeCity);
         assertFalse(maybeCity.isPresent());
@@ -109,7 +90,7 @@ public class CityJdbcDaoTest {
     }
     @Test
     public void testFindByNameDeleted(){
-        Optional<City> maybeCity = cityDao.findByName(DELETED_CITY);
+        Optional<City> maybeCity = cityDao.findByName(TestUtils.CITY_DELETED_NAME);
 
         assertNotNull(maybeCity);
         assertFalse(maybeCity.isPresent());
@@ -120,15 +101,15 @@ public class CityJdbcDaoTest {
         List<City> cities = cityDao.findAll();
 
         assertNotNull(cities);
-        assertEquals(TOTAL_CITIES, cities.size());
-        List<String> cityNames = List.of(CITY_1, CITY_2, CITY_3);
+        assertEquals(TestUtils.TOTAL_CITIES, cities.size());
+        List<String> cityNames = List.of(TestUtils.CITY_1_NAME, TestUtils.CITY_2_NAME, TestUtils.CITY_3_NAME);
         for (City city : cities){
             assertTrue(cityNames.contains(city.getName()));
         }
     }
     @Test
     public void testFindAllNoCities(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, CITY_TABLE);
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.UNIVERSITY_TABLE, TestUtils.CITY_TABLE);
 
         List<City> cities = cityDao.findAll();
 
@@ -140,15 +121,15 @@ public class CityJdbcDaoTest {
         List<City> cities = cityDao.getAllCities();
 
         assertNotNull(cities);
-        assertEquals(TOTAL_CITIES, cities.size());
-        List<String> cityNames = List.of(CITY_1, CITY_2, CITY_3);
+        assertEquals(TestUtils.TOTAL_CITIES, cities.size());
+        List<String> cityNames = List.of(TestUtils.CITY_1_NAME, TestUtils.CITY_2_NAME, TestUtils.CITY_3_NAME);
         for (City city : cities){
             assertTrue(cityNames.contains(city.getName()));
         }
     }
     @Test
     public void testGetAllCitiesNoCities(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, CITY_TABLE);
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.UNIVERSITY_TABLE, TestUtils.CITY_TABLE);
 
         List<City> cities = cityDao.getAllCities();
 
@@ -158,28 +139,28 @@ public class CityJdbcDaoTest {
 
     @Test
     public void testFindAllByCountry1(){
-        List<City> cities = cityDao.findAllByCountry(COUNTRY_NAME_1);
+        List<City> cities = cityDao.findAllByCountry(TestUtils.COUNTRY_1_NAME);
 
         assertNotNull(cities);
         assertEquals(2, cities.size());
-        List<String> cityNames = List.of(CITY_1, CITY_2);
+        List<String> cityNames = List.of(TestUtils.CITY_1_NAME, TestUtils.CITY_2_NAME);
         for (City city : cities){
             assertTrue(cityNames.contains(city.getName()));
-            assertEquals(COUNTRY_NAME_1, city.getCountry());
+            assertEquals(TestUtils.COUNTRY_1_NAME, city.getCountry());
         }
     }
     @Test
     public void testFindAllByCountry2(){
-        List<City> cities = cityDao.findAllByCountry(COUNTRY_NAME_2);
+        List<City> cities = cityDao.findAllByCountry(TestUtils.COUNTRY_2_NAME);
 
         assertNotNull(cities);
         assertEquals(1, cities.size());
-        assertEquals(CITY_3, cities.getFirst().getName());
-        assertEquals(COUNTRY_NAME_2, cities.getFirst().getCountry());
+        assertEquals(TestUtils.CITY_3_NAME, cities.getFirst().getName());
+        assertEquals(TestUtils.COUNTRY_2_NAME, cities.getFirst().getCountry());
     }
     @Test
     public void testFindAllByCountryWrongCountry(){
-        List<City> cities = cityDao.findAllByCountry("COUNTRY_NAME_2");
+        List<City> cities = cityDao.findAllByCountry("TestUtils.COUNTRY_2_NAME");
 
         assertNotNull(cities);
         assertEquals(0, cities.size());
@@ -194,7 +175,7 @@ public class CityJdbcDaoTest {
 
     @Test
     public void testSearchBySubstringNoFiltering(){
-        Page<City> page1 = cityDao.searchBySubstring(CITY_1.substring(0, 3), 1, 3);
+        Page<City> page1 = cityDao.searchBySubstring(TestUtils.CITY_1_NAME.substring(0, 3), 1, 3);
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
@@ -203,7 +184,7 @@ public class CityJdbcDaoTest {
     }
     @Test
     public void testSearchBySubstringFiltering(){
-        Page<City> page1 = cityDao.searchBySubstring(CITY_1.substring(CITY_1.length()-1, CITY_1.length()), 1, 3);
+        Page<City> page1 = cityDao.searchBySubstring(TestUtils.CITY_1_NAME.substring(TestUtils.CITY_1_NAME.length()-1, TestUtils.CITY_1_NAME.length()), 1, 3);
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
@@ -221,7 +202,7 @@ public class CityJdbcDaoTest {
     }
     @Test
     public void testSearchBySubstringDeleted(){
-        Page<City> page1 = cityDao.searchBySubstring(DELETED_CITY, 1, 3);
+        Page<City> page1 = cityDao.searchBySubstring(TestUtils.CITY_DELETED_NAME, 1, 3);
 
         assertNotNull(page1);
         assertEquals(0, page1.getTotalPages());
@@ -254,13 +235,13 @@ public class CityJdbcDaoTest {
 
     @Test
     public void testFindByAll(){
-        Optional<City> maybeCity = cityDao.findBy(CITY_ID_1, CITY_1, COUNTRY_NAME_1);
+        Optional<City> maybeCity = cityDao.findBy(CITY_ID_1, TestUtils.CITY_1_NAME, TestUtils.COUNTRY_1_NAME);
         assertNotNull(maybeCity);
         assertTrue(maybeCity.isPresent());
         City city = maybeCity.get();
         assertEquals(CITY_ID_1, city.getId());
-        assertEquals(CITY_1, city.getName());
-        assertEquals(COUNTRY_NAME_1, city.getCountry());
+        assertEquals(TestUtils.CITY_1_NAME, city.getName());
+        assertEquals(TestUtils.COUNTRY_1_NAME, city.getCountry());
     }
     @Test
     public void testFindByGenericById(){
@@ -269,8 +250,8 @@ public class CityJdbcDaoTest {
         assertTrue(maybeCity.isPresent());
         City city = maybeCity.get();
         assertEquals(CITY_ID_1, city.getId());
-        assertEquals(CITY_1, city.getName());
-        assertEquals(COUNTRY_NAME_1, city.getCountry());
+        assertEquals(TestUtils.CITY_1_NAME, city.getName());
+        assertEquals(TestUtils.COUNTRY_1_NAME, city.getCountry());
     }
     @Test
     public void testFindByGenericByIdDeleted(){
@@ -280,61 +261,61 @@ public class CityJdbcDaoTest {
     }
     @Test
     public void testFindByGenericByName(){
-        Optional<City> maybeCity = cityDao.findBy(null, CITY_1, null);
+        Optional<City> maybeCity = cityDao.findBy(null, TestUtils.CITY_1_NAME, null);
         assertNotNull(maybeCity);
         assertTrue(maybeCity.isPresent());
         City city = maybeCity.get();
         assertEquals(CITY_ID_1, city.getId());
-        assertEquals(CITY_1, city.getName());
-        assertEquals(COUNTRY_NAME_1, city.getCountry());
+        assertEquals(TestUtils.CITY_1_NAME, city.getName());
+        assertEquals(TestUtils.COUNTRY_1_NAME, city.getCountry());
     }
     @Test
     public void testFindByGenericByName2(){
-        Optional<City> maybeCity = cityDao.findBy(null, CITY_3, null);
+        Optional<City> maybeCity = cityDao.findBy(null, TestUtils.CITY_3_NAME, null);
         assertNotNull(maybeCity);
         assertTrue(maybeCity.isPresent());
         City city = maybeCity.get();
-        assertEquals(CITY_3, city.getName());
-        assertEquals(COUNTRY_NAME_2, city.getCountry());
+        assertEquals(TestUtils.CITY_3_NAME, city.getName());
+        assertEquals(TestUtils.COUNTRY_2_NAME, city.getCountry());
     }
     @Test
     public void testFindByGenericByNameDeleted(){
-        Optional<City> maybeCity = cityDao.findBy(null, DELETED_CITY, null);
+        Optional<City> maybeCity = cityDao.findBy(null, TestUtils.CITY_DELETED_NAME, null);
         assertNotNull(maybeCity);
         assertFalse(maybeCity.isPresent());
     }
     @Test
     public void testFindByGenericByCountry(){
-        Optional<City> maybeCity = cityDao.findBy(null, null, COUNTRY_NAME_1);
+        Optional<City> maybeCity = cityDao.findBy(null, null, TestUtils.COUNTRY_1_NAME);
         assertNotNull(maybeCity);
         assertTrue(maybeCity.isPresent());
         City city = maybeCity.get();
-        assertTrue(List.of(CITY_1, CITY_2).contains(city.getName()));
-        assertEquals(COUNTRY_NAME_1, city.getCountry());
+        assertTrue(List.of(TestUtils.CITY_1_NAME, TestUtils.CITY_2_NAME).contains(city.getName()));
+        assertEquals(TestUtils.COUNTRY_1_NAME, city.getCountry());
     }
     @Test
     public void testFindByGenericByCountry2(){
-        Optional<City> maybeCity = cityDao.findBy(null, null, COUNTRY_NAME_2);
+        Optional<City> maybeCity = cityDao.findBy(null, null, TestUtils.COUNTRY_2_NAME);
         assertNotNull(maybeCity);
         assertTrue(maybeCity.isPresent());
         City city = maybeCity.get();
-        assertEquals(CITY_3, city.getName());
-        assertEquals(COUNTRY_NAME_2, city.getCountry());
+        assertEquals(TestUtils.CITY_3_NAME, city.getName());
+        assertEquals(TestUtils.COUNTRY_2_NAME, city.getCountry());
     }
     @Test
     public void testFindByGenericWrongId(){
-        Optional<City> maybeCity = cityDao.findBy((long)141234, null, COUNTRY_NAME_2);
+        Optional<City> maybeCity = cityDao.findBy((long)141234, null, TestUtils.COUNTRY_2_NAME);
         assertNotNull(maybeCity);
         assertFalse(maybeCity.isPresent());
     }
     @Test
     public void testFindByGenericMissingId(){
-        Optional<City> maybeCity = cityDao.findBy((long)0, null, COUNTRY_NAME_2);
+        Optional<City> maybeCity = cityDao.findBy((long)0, null, TestUtils.COUNTRY_2_NAME);
         assertNotNull(maybeCity);
         assertTrue(maybeCity.isPresent());
         City city = maybeCity.get();
-        assertEquals(CITY_3, city.getName());
-        assertEquals(COUNTRY_NAME_2, city.getCountry());
+        assertEquals(TestUtils.CITY_3_NAME, city.getName());
+        assertEquals(TestUtils.COUNTRY_2_NAME, city.getCountry());
     }
     @Test
     public void testFindByGenericNoParams(){
@@ -377,7 +358,7 @@ public class CityJdbcDaoTest {
     }
     @Test
     public void testGetAllCitiesPagedNoCities(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, CITY_TABLE);
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.UNIVERSITY_TABLE, TestUtils.CITY_TABLE);
 
         Page<City> page1 = cityDao.getAllCities(1, 2);
         
@@ -388,18 +369,18 @@ public class CityJdbcDaoTest {
 
     @Test
     public void testCreate(){
-        cityDao.createCity(NEW_CITY, new Country(COUNTRY_ID_1, null, null));
+        cityDao.createCity(TestUtils.NEW_CITY_NAME, new Country(COUNTRY_ID_1, null, null));
 
-        assertEquals(TOTAL_CITIES + 1, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE deleted = FALSE", Integer.class).intValue());
-        Optional<City> maybeCity = jdbcTemplate.query("SELECT ci.id as id, ci.name as name, co.name as country_name FROM cities ci JOIN countries co ON ci.country_id = co.id WHERE deleted = FALSE AND name = ?", CITY_ROW_MAPPER, NEW_CITY).stream().findFirst();
+        assertEquals(TestUtils.TOTAL_CITIES + 1, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE deleted = FALSE", Integer.class).intValue());
+        Optional<City> maybeCity = jdbcTemplate.query("SELECT ci.id as id, ci.name as name, co.name as country_name FROM cities ci JOIN countries co ON ci.country_id = co.id WHERE deleted = FALSE AND name = ?", CITY_ROW_MAPPER, TestUtils.NEW_CITY_NAME).stream().findFirst();
         assertNotNull(maybeCity);
         assertTrue(maybeCity.isPresent());
-        assertEquals(NEW_CITY, maybeCity.get().getName());
-        assertEquals(COUNTRY_NAME_1, maybeCity.get().getCountry());
+        assertEquals(TestUtils.NEW_CITY_NAME, maybeCity.get().getName());
+        assertEquals(TestUtils.COUNTRY_1_NAME, maybeCity.get().getCountry());
     }
     @Test(expected = DataAccessException.class)
     public void testCreateDuplicate(){
-        cityDao.createCity(CITY_1, new Country(COUNTRY_ID_1, null, null));
+        cityDao.createCity(TestUtils.CITY_1_NAME, new Country(COUNTRY_ID_1, null, null));
     }
     @Test(expected = DataAccessException.class)
     public void testCreateEmpty(){
@@ -411,57 +392,57 @@ public class CityJdbcDaoTest {
     }
     @Test
     public void testCreateDuplicateDeleted(){
-        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, CITY_TABLE);
+        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE);
 
-        cityDao.createCity(DELETED_CITY, new Country(COUNTRY_ID_2, null, null));
+        cityDao.createCity(TestUtils.CITY_DELETED_NAME, new Country(COUNTRY_ID_2, null, null));
 
-        assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, CITY_TABLE));
-        assertEquals(TOTAL_CITIES + 1, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE deleted = FALSE", Integer.class).intValue());
-        Optional<City> maybeCity = jdbcTemplate.query("SELECT ci.id as id, ci.name as name, co.name as country_name FROM cities ci JOIN countries co ON ci.country_id = co.id WHERE deleted = FALSE AND name = ?", CITY_ROW_MAPPER, DELETED_CITY).stream().findFirst();
+        assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE));
+        assertEquals(TestUtils.TOTAL_CITIES + 1, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE deleted = FALSE", Integer.class).intValue());
+        Optional<City> maybeCity = jdbcTemplate.query("SELECT ci.id as id, ci.name as name, co.name as country_name FROM cities ci JOIN countries co ON ci.country_id = co.id WHERE deleted = FALSE AND name = ?", CITY_ROW_MAPPER, TestUtils.CITY_DELETED_NAME).stream().findFirst();
         assertNotNull(maybeCity);
         assertTrue(maybeCity.isPresent());
-        assertEquals(DELETED_CITY, maybeCity.get().getName());
-        assertEquals(COUNTRY_NAME_2, maybeCity.get().getCountry());
+        assertEquals(TestUtils.CITY_DELETED_NAME, maybeCity.get().getName());
+        assertEquals(TestUtils.COUNTRY_2_NAME, maybeCity.get().getCountry());
         assertEquals(DELETED_CITY_ID, maybeCity.get().getId());
     }
 
     @Test
     public void testDeleteCity(){
-        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, CITY_TABLE);
+        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE);
 
         cityDao.delete(CITY_ID_1);
 
-        assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, CITY_TABLE));
-        assertEquals(TOTAL_CITIES - 1, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE deleted = FALSE", Integer.class).intValue());
+        assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE));
+        assertEquals(TestUtils.TOTAL_CITIES - 1, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE deleted = FALSE", Integer.class).intValue());
     }
     @Test
     public void testDeleteDeleted(){
-        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, CITY_TABLE);
+        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE);
 
         cityDao.delete(CITY_ID_1);
 
-        assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, CITY_TABLE));
-        assertEquals(TOTAL_CITIES - 1, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE deleted = FALSE", Integer.class).intValue());
+        assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE));
+        assertEquals(TestUtils.TOTAL_CITIES - 1, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE deleted = FALSE", Integer.class).intValue());
     }
     @Test
     public void testDeleteWrong(){
-        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, CITY_TABLE);
+        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE);
 
         cityDao.delete(12341234);
 
-        assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, CITY_TABLE));
-        assertEquals(TOTAL_CITIES, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE deleted = FALSE", Integer.class).intValue());
+        assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE));
+        assertEquals(TestUtils.TOTAL_CITIES, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE deleted = FALSE", Integer.class).intValue());
     }
 
     @Test
     public void testUpdate(){
-        cityDao.updateCity(CITY_ID_1, NEW_CITY, new Country(COUNTRY_ID_1, null, null));
+        cityDao.updateCity(CITY_ID_1, TestUtils.NEW_CITY_NAME, new Country(COUNTRY_ID_1, null, null));
 
         Optional<City> maybeCity = jdbcTemplate.query("SELECT ci.id as id, ci.name as name, co.name as country_name FROM cities ci JOIN countries co ON ci.country_id = co.id WHERE deleted = FALSE AND id = ?", CITY_ROW_MAPPER, CITY_ID_1).stream().findFirst();
         assertNotNull(maybeCity);
         assertTrue(maybeCity.isPresent());
-        assertEquals(NEW_CITY, maybeCity.get().getName());
-        assertEquals(COUNTRY_NAME_1, maybeCity.get().getCountry());
+        assertEquals(TestUtils.NEW_CITY_NAME, maybeCity.get().getName());
+        assertEquals(TestUtils.COUNTRY_1_NAME, maybeCity.get().getCountry());
     }
 }
 

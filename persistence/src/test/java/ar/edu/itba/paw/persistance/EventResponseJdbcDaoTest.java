@@ -59,12 +59,7 @@ public class EventResponseJdbcDaoTest {
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
         insert = new SimpleJdbcInsert(ds).withTableName(REPLY_TABLE).usingGeneratedKeyColumns("id");
-        jdbcTemplate.execute("INSERT INTO countries(name, code) VALUES('Argentina', 'AR')");
-        jdbcTemplate.execute("INSERT INTO cities(name, deleted, country_id) VALUES('Buenos Aires', FALSE, (SELECT id FROM countries WHERE code = 'AR'))");
-        jdbcTemplate.execute("INSERT INTO images(content) VALUES('ffffffff')");
-        jdbcTemplate.execute("INSERT INTO careers(name, deleted) VALUES('a', FALSE)");
-        jdbcTemplate.execute("INSERT INTO universities(name, abbreviation, deleted, city_id) VALUES('Instituto muy largo', 'ITBA', FALSE, (SELECT id FROM cities WHERE name = 'Buenos Aires'))");
-        jdbcTemplate.execute("INSERT INTO users(email, username, firstname, lastname, university, career_id, profile_picture_id, language, roles, blocked) VALUES('user1@mail.com', 'user1', 'user', '1', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers WHERE name = 'a'), (SELECT id FROM images LIMIT 1), 'es', 'user', FALSE)");
+        jdbcTemplate.execute("INSERT INTO users(email, username, firstname, lastname, university, career_id, profile_picture_id, language, roles, blocked) VALUES('user1@mail.com', 'user1', 'user', '1', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers WHERE name = 'career 1'), (SELECT id FROM images LIMIT 1), 'es', 'user', FALSE)");
         jdbcTemplate.execute("INSERT INTO events(user_id, city_id, event_date, attendees_limit, title, deleted) VALUES((SELECT id FROM users WHERE lastname = 1), (SELECT id FROM cities LIMIT 1), CURRENT_DATE, 2, '1', FALSE)");
 
         USER1 = jdbcTemplate.query("SELECT * FROM users WHERE lastname = '1'", (rs, n) -> new User(rs.getLong("id"), null, rs.getString("username"), null, null, null, null, 0, null, false)).stream().findFirst().get();
@@ -276,6 +271,7 @@ public class EventResponseJdbcDaoTest {
         insert.execute(Map.of("user_id", USER1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", false));
 
         replyDao.deletionMessage(123123, "REPLY_MESSAGE");
+        //TODO asserts
     }
 
     @Test

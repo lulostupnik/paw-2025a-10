@@ -81,19 +81,10 @@ public class JourneyJdbcDaoTest {
         jdbcTemplate = new JdbcTemplate(ds);
         insert = new SimpleJdbcInsert(ds).withTableName(JOURNEY_TABLE).usingGeneratedKeyColumns("id");
 
-        jdbcTemplate.execute("INSERT INTO countries(name, code) VALUES('Argentina', 'AR')");
-        jdbcTemplate.execute("INSERT INTO countries(name, code) VALUES('Estados Unidos', 'US')");
-        jdbcTemplate.execute("INSERT INTO cities(name, country_id) VALUES('Buenos Aires', (SELECT id FROM countries WHERE code = 'AR'))");
-        jdbcTemplate.execute("INSERT INTO cities(name, country_id) VALUES('Massachusetts', (SELECT id FROM countries WHERE code = 'US'))");
-        jdbcTemplate.execute("INSERT INTO images(content) VALUES('ffffffff')");
-        jdbcTemplate.execute("INSERT INTO careers(name) VALUES('Ingenieria informatica')");
-        jdbcTemplate.execute("INSERT INTO universities(name, abbreviation, city_id) VALUES('Instituto tecnologico muy largo', 'ITBA', (SELECT id FROM cities WHERE name = 'Buenos Aires'))");
-        jdbcTemplate.execute("INSERT INTO universities(name, abbreviation, city_id) VALUES('Massachusetts muy largo', 'MIT', (SELECT id FROM cities WHERE name = 'Massachusetts'))");
-        jdbcTemplate.execute("INSERT INTO universities(name, abbreviation, city_id) VALUES('Otra mas', 'MAS', (SELECT id FROM cities WHERE name = 'Massachusetts'))");
         jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('username', 'user@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
         jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('username2', 'user2@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
         jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('username3', 'user3@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
-        jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('anotherOne', 'anotherone@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'MIT'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
+        jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('anotherOne', 'anotherone@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'UBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
         jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('1interest', '1interest@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
         jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('2interest', '2interest@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
         jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('3interest', '3interest@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
@@ -112,7 +103,7 @@ public class JourneyJdbcDaoTest {
         jdbcTemplate.execute("INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = '3interest'), (SELECT id FROM category WHERE name = 'Repeating'), 1)");
         jdbcTemplate.execute("INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = 'deletedjourney'), (SELECT id FROM category WHERE name = 'Programming'), 1)");
 
-        DESTINATION_UNI_ID = jdbcTemplate.queryForObject("SELECT id FROM universities WHERE abbreviation = 'MIT'", Long.class);
+        DESTINATION_UNI_ID = jdbcTemplate.queryForObject("SELECT id FROM universities WHERE abbreviation = 'UBA'", Long.class);
         ORIGIN_UNI_ID = jdbcTemplate.queryForObject("SELECT id FROM universities WHERE abbreviation = 'ITBA'", Long.class);
         UNI_3_ID = jdbcTemplate.queryForObject("SELECT id FROM universities WHERE abbreviation = 'MAS'", Long.class);
         USER1_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'username'", Long.class);
@@ -123,8 +114,8 @@ public class JourneyJdbcDaoTest {
         USER_2_COMMON_INTEREST_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = '2interest'", Long.class);
         USER_3_COMMON_INTEREST_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = '3interest'", Long.class);
         DELETED_JOURNEY_USER_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'deletedjourney'", Long.class);
-        DESTINATION_CITY_ID = jdbcTemplate.queryForObject("SELECT id FROM cities WHERE name = 'Massachusetts'", Long.class);
-        ORIGIN_CITY_ID = jdbcTemplate.queryForObject("SELECT id FROM cities WHERE name = 'Buenos Aires'", Long.class);
+        DESTINATION_CITY_ID = jdbcTemplate.queryForObject("SELECT id FROM cities WHERE name = 'city2'", Long.class);
+        ORIGIN_CITY_ID = jdbcTemplate.queryForObject("SELECT id FROM cities WHERE name = 'city1'", Long.class);
         INTEREST_1_ID = jdbcTemplate.queryForObject("SELECT id FROM category WHERE name = 'Programming'", Long.class);
         DELETED_JOURNEY_ID = insertJourney(Map.of("userId", DELETED_JOURNEY_USER_ID, "deleted", true));
     }
@@ -253,6 +244,7 @@ public class JourneyJdbcDaoTest {
 
         assertNotNull(journeys);
         assertEquals(2, journeys.size());
+        //TODO if-else
         for (Journey j : journeys){
             if (j.getId() == j1) {
                 assertEqualsJourney(j);
@@ -865,6 +857,7 @@ public class JourneyJdbcDaoTest {
 
         assertNotNull(journeys);
         assertEquals(2, journeys.size());
+        //TODO if-else
         for (Journey j : journeys){
             assertEquals(DESCRIPTION, j.getDescription());
             assertEquals(DESTINATION_UNI_ID, j.getDestinationUniversity().getId());
@@ -888,6 +881,7 @@ public class JourneyJdbcDaoTest {
 
         assertNotNull(journeys);
         assertEquals(2, journeys.size());
+        //TODO if-else
         for (Journey j : journeys){
             assertEquals(DESCRIPTION, j.getDescription());
             assertEquals(DESTINATION_UNI_ID, j.getDestinationUniversity().getId());
@@ -911,6 +905,7 @@ public class JourneyJdbcDaoTest {
 
         assertNotNull(journeys);
         assertEquals(2, journeys.size());
+        //TODO if-else
         for (Journey j : journeys){
             assertEquals(DESCRIPTION, j.getDescription());
             assertEquals(DESTINATION_UNI_ID, j.getDestinationUniversity().getId());
@@ -934,6 +929,7 @@ public class JourneyJdbcDaoTest {
 
         assertNotNull(journeys);
         assertEquals(2, journeys.size());
+        //TODO if-else
         for (Journey j : journeys){
             assertEquals(DESCRIPTION, j.getDescription());
             assertEquals(DESTINATION_UNI_ID, j.getDestinationUniversity().getId());
@@ -1284,7 +1280,7 @@ public class JourneyJdbcDaoTest {
 
         Page<Journey> page1 = journeyDao.getRecommendedJourneys(USERMAIL, 1, 1000);
 
-
+        //TODO for-loop
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
         assertEquals(1, page1.getTotalPages());
@@ -1320,7 +1316,7 @@ public class JourneyJdbcDaoTest {
         assertNotNull(page1.getContent());
         assertEquals(6, page1.getContent().size());
 
-
+        //TODO for-loop
         assertEquals(id1, page1.getContent().get(0).getId());
         assertEquals(id2, page1.getContent().get(1).getId());
         assertEquals(id4, page1.getContent().get(2).getId());

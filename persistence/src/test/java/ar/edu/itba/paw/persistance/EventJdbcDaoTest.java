@@ -142,23 +142,15 @@ public class EventJdbcDaoTest {
         insert = new SimpleJdbcInsert(ds).withTableName(EVENT_TABLE).usingGeneratedKeyColumns("id");
         insertAttendance = new SimpleJdbcInsert(ds).withTableName(EVENT_ATTENDANCE_TABLE);
 
-        jdbcTemplate.execute("INSERT INTO countries(name, code) VALUES('Argentina', 'AR')");
-        jdbcTemplate.execute("INSERT INTO countries(name, code) VALUES('Estados Unidos', 'US')");
-        jdbcTemplate.execute("INSERT INTO cities(name, deleted, country_id) VALUES('Buenos Aires', FALSE, (SELECT id FROM countries WHERE code = 'AR'))");
-        jdbcTemplate.execute("INSERT INTO cities(name, deleted, country_id) VALUES('Boston', FALSE, (SELECT id FROM countries WHERE code = 'US'))");
-        jdbcTemplate.execute("INSERT INTO images(content) VALUES('ffffffff')");
-        jdbcTemplate.execute("INSERT INTO images(content) VALUES('ffffffffffffff')");
-        jdbcTemplate.execute("INSERT INTO careers(name, deleted) VALUES('a', FALSE)");
-        jdbcTemplate.execute("INSERT INTO universities(name, abbreviation, deleted, city_id) VALUES('Instituto muy largo', 'ITBA', FALSE, (SELECT id FROM cities WHERE name = 'Buenos Aires'))");
-        jdbcTemplate.execute("INSERT INTO users(email, username, firstname, lastname, university, career_id, profile_picture_id, language, roles, blocked) VALUES('user1@mail.com', 'user1', 'user', '1', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers WHERE name = 'a'), (SELECT id FROM images LIMIT 1), 'es', 'user', FALSE)");
-        jdbcTemplate.execute("INSERT INTO users(email, username, firstname, lastname, university, career_id, profile_picture_id, language, roles, blocked) VALUES('user2@mail.com', 'user2', 'user', '2', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers WHERE name = 'a'), (SELECT id FROM images LIMIT 1), 'en', 'user', FALSE)");
-        jdbcTemplate.execute("INSERT INTO users(email, username, firstname, lastname, university, career_id, profile_picture_id, language, roles, blocked) VALUES('user3@mail.com', 'user3', 'user', '3', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers WHERE name = 'a'), (SELECT id FROM images LIMIT 1), 'en', 'user', FALSE)");
+        jdbcTemplate.execute("INSERT INTO users(email, username, firstname, lastname, university, career_id, profile_picture_id, language, roles, blocked) VALUES('user1@mail.com', 'user1', 'user', '1', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers WHERE name = 'career 1'), (SELECT id FROM images LIMIT 1), 'es', 'user', FALSE)");
+        jdbcTemplate.execute("INSERT INTO users(email, username, firstname, lastname, university, career_id, profile_picture_id, language, roles, blocked) VALUES('user2@mail.com', 'user2', 'user', '2', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers WHERE name = 'career 1'), (SELECT id FROM images LIMIT 1), 'en', 'user', FALSE)");
+        jdbcTemplate.execute("INSERT INTO users(email, username, firstname, lastname, university, career_id, profile_picture_id, language, roles, blocked) VALUES('user3@mail.com', 'user3', 'user', '3', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers WHERE name = 'career 1'), (SELECT id FROM images LIMIT 1), 'en', 'user', FALSE)");
 
         USER1 = jdbcTemplate.query("SELECT id FROM users WHERE lastname = '1'", (rs, n) -> new User(rs.getLong("id"), null, null, null, null, null, null, 0, null, false)).stream().findFirst().get();
         USER2 = jdbcTemplate.query("SELECT id FROM users WHERE lastname = '2'", (rs, n) -> new User(rs.getLong("id"), null, null, null, null, null, null, 0, null, false)).stream().findFirst().get();
         USER3 = jdbcTemplate.query("SELECT id FROM users WHERE lastname = '3'", (rs, n) -> new User(rs.getLong("id"), null, null, null, null, null, null, 0, null, false)).stream().findFirst().get();
-        CITY1 = jdbcTemplate.query("SELECT id FROM cities WHERE name = 'Buenos Aires'", (rs, n) -> new City(null, null, rs.getLong("id"))).stream().findFirst().get();
-        CITY2 = jdbcTemplate.query("SELECT id FROM cities WHERE name = 'Boston'", (rs, n) -> new City(null, null, rs.getLong("id"))).stream().findFirst().get();
+        CITY1 = jdbcTemplate.query("SELECT id FROM cities WHERE name = 'city1'", (rs, n) -> new City(null, null, rs.getLong("id"))).stream().findFirst().get();
+        CITY2 = jdbcTemplate.query("SELECT id FROM cities WHERE name = 'city2'", (rs, n) -> new City(null, null, rs.getLong("id"))).stream().findFirst().get();
         IMAGE_ID1 = jdbcTemplate.queryForObject("SELECT id FROM images LIMIT 1", Long.class).longValue();
         IMAGE_ID2 = jdbcTemplate.queryForObject("SELECT id FROM images WHERE id != ? LIMIT 1", Long.class, IMAGE_ID1).longValue();
     }
@@ -409,6 +401,7 @@ public class EventJdbcDaoTest {
 
         assertNotNull(events);
         assertNotNull(events.getContent());
+        //TODO trad for-loop
         for (int i = 0; i < ids.size(); i++){
             assertEquals(ids.get(i).longValue(), events.getContent().get(i).getId());
         }
@@ -468,6 +461,8 @@ public class EventJdbcDaoTest {
         assertNotNull(events);
         assertNotNull(events.getContent());
         assertEquals(16, events.getContent().size());
+
+        //TODO trad for-loop
         for (int i = 0; i < ids.size(); i++){
             assertEquals(ids.get(i).longValue(), events.getContent().get(i).getEvent().getId());
         }
@@ -1202,6 +1197,8 @@ public class EventJdbcDaoTest {
         assertEquals(1, events.getCurrentPage());
         assertEquals(1, events.getTotalPages());
         assertEquals(16, events.getContent().size());
+
+        //TODO trad for-loop
         for (int i = 0; i < ids.size(); i++){
             assertEquals(ids.get(i).longValue(), events.getContent().get(i).getEvent().getId());
         }
