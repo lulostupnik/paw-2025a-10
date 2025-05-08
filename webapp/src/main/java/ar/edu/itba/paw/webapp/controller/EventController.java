@@ -125,11 +125,17 @@ public class EventController {
         return new ModelAndView(REDIRECT + event.getId());
     }
 
-    private ModelAndView populateEventDetails( Event event, long id, User user,
+    private ModelAndView populateEventDetails( EventWithStatistics eventWithStatistics, long id, User user,
                                               BindingResult deleteErrors, BindingResult deleteReplyErrors,
                                               Long replyId, PageParams pageParams, PageParams attendeesPageParams) {
         ModelAndView mav = new ModelAndView("events/detail/detail");
+        Event event = eventWithStatistics.getEvent();
         mav.addObject("event", event);
+        mav.addObject("createdEventsCount", eventWithStatistics.getCreatedEventsCount());
+        mav.addObject("attendedEventsCount", eventWithStatistics.getAttendedEventsCount());
+        mav.addObject("topAttendeeCountry", eventWithStatistics.getTopAttendeeCountry());
+        mav.addObject("topAttendeeCountryCount", eventWithStatistics.getTopAttendeeCountryCount());
+
 
         // Check if there are errors in the delete forms
         if (deleteErrors.hasErrors()) {
@@ -185,13 +191,13 @@ public class EventController {
         @PageParamCustomizer(defaultSize = 5, pageParamName = "attendeesPage", sizeParamName = "attendeesSize") PageParams attendeesPage)
     {
         LOGGER.debug("Getting info for event {}", id);
-        Optional<Event> maybeEvent = eventService.getEventById(id);
+        Optional<EventWithStatistics> maybeEvent = eventService.findEventWithStatistics(id);
         if (maybeEvent.isEmpty()) { // error ControllerAdvice
             LOGGER.warn("Event {} not found", id);
             return new ModelAndView("events/not_found");
         }
 
-        return populateEventDetails(eventService.getEventById(id).orElseThrow(() -> new EventNotFoundException("Event not found")),
+        return populateEventDetails(maybeEvent.get(),
                 id, user, deleteErrors, deleteReplyErrors, replyId ,repliesPage, attendeesPage );
     }
     @PostMapping("/{id}/delete")
