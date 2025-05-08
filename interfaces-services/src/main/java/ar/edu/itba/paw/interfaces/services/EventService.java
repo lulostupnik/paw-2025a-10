@@ -61,4 +61,5 @@ public interface EventService {
     List<EventResponse> listAllResponseFromEvent(long eventId);
     Page<EventResponse> listAllResponseFromEvent(long eventId, PageParams pageParams);
     Optional<EventResponse> findEventResponseById(long id);
+    void sendEventReminders();
 }
