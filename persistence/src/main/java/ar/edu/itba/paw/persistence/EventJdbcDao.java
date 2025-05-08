@@ -636,15 +636,13 @@ public class EventJdbcDao implements EventDao {
                                                      LocalDate startDate, LocalDate endDate, Long interest,
                                                      boolean isPast, boolean isUpcoming, boolean attending, int page, int size){
         final String searchPattern = likePattern(search);
-        if(userId != null){
-            // return getEventsWithAttendanceStatus(search, userId, page, size);
+
             return getWithAttendance(userId, searchPattern, sortBy, direction, destination,
                     startDate, endDate, interest, isPast, isUpcoming, attending, page, size);
-        }
-        return getWithAttendance(searchPattern, page, size);
+
     }
 
-    private Page<Event> getWithAttendance(long userId, String searchPattern, String sortBy, String direction, Long destination,
+    private Page<Event> getWithAttendance(Long userId, String searchPattern, String sortBy, String direction, Long destination,
                                           LocalDate startDate, LocalDate endDate, Long interest,
                                           boolean isPast, boolean isUpcoming, boolean attending,
                                           int page, int size) {
@@ -667,8 +665,10 @@ public class EventJdbcDao implements EventDao {
             params.add(destination);
         }
 
-        filters.add("e.user_id != ?");
-        params.add(userId);
+        if(userId != null) {
+            filters.add("e.user_id != ?");
+            params.add(userId);
+        }
 
 
         if (endDate != null) {
@@ -694,7 +694,7 @@ public class EventJdbcDao implements EventDao {
             params.add(searchPattern);
         }
 
-        if(attending) {
+        if(attending && userId != null) {
             queryBuilder.append(" LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ");
             queryBuilder.append( userId );
             countQueryBuilder.append(" LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = " );
