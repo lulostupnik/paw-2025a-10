@@ -58,6 +58,12 @@ public class UserServiceImpl implements UserService {
         
         return user;
     }
+    @Override
+    @Transactional
+    public void changePassword(String email, String newPassword) {
+        LOGGER.debug("Changing password for user {}", email);
+        userDao.changePassword(email, passwordEncoder.encode(newPassword));
+    }
 
 
 
