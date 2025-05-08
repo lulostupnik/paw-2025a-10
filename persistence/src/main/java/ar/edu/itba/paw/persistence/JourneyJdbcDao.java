@@ -106,7 +106,7 @@ public class JourneyJdbcDao implements JourneyDao {
             )
             """;
 
-    private final static String SQL_SEARCH_PAGED = SQL_BASE + " AND " + SQL_SEARCH_WHERE_CLAUSE + " ORDER BY j.id ASC LIMIT ? OFFSET ? ";
+    private final static String SQL_SEARCH_PAGED = SQL_BASE + " AND "  + " ORDER BY j.id ASC LIMIT ? OFFSET ? ";
 
     private final static String SQL_SEARCH_COUNT =
             """
@@ -450,7 +450,7 @@ public class JourneyJdbcDao implements JourneyDao {
         }
 
         if (cityId != null) {
-            countQueryBuilder.append(" JOIN universities un ON j.destination_university_id = un.id JOIN cities ci2 ON un.city_id = ci2.id");
+            countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id");
             filterClause.append(" AND ci2.id = ? ");
             params.add(cityId);
         }
@@ -528,7 +528,7 @@ public class JourneyJdbcDao implements JourneyDao {
             }
 
             if (cityId != null) {
-                countQueryBuilder.append(" JOIN universities un ON j.destination_university_id = un.id JOIN cities ci2 ON un.city_id = ci2.id");
+                countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id");
                 filters.add("ci2.id = ?");
                 params.add(cityId);
             }
@@ -548,10 +548,10 @@ public class JourneyJdbcDao implements JourneyDao {
                 params.add(Date.valueOf(startDate));
             }
             if(search != null && !search.isEmpty()) {
-                if(cityId != null) {
+                if(cityId == null) {
                     countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id ");
                 }
-                if(interest != null) {
+                if(interest == null) {
                     countQueryBuilder.append(" JOIN users u ON j.user_id = u.id ");
                 }
                 filters.add(SQL_SEARCH_WHERE_CLAUSE);
