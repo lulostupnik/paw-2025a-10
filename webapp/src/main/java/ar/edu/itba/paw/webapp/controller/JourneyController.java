@@ -236,7 +236,20 @@ public class JourneyController {
         return new ModelAndView(REDIRECT_JOURNEY + journeyId);
     }
 
-
+    @PostMapping("{journeyId}/reply/{id}/delete")
+    public ModelAndView deleteJourneyReply(@PathVariable(value = "journeyId") long journeyId,
+                                           @PathVariable("id") long id,
+                                           @Valid @ModelAttribute("deleteReplyForm") ReplyForm form, BindingResult errors,
+                                           RedirectAttributes redirectAttributes) {
+        if (errors.hasErrors()) {
+            redirectAttributes.addFlashAttribute("deleteReplyErrors", errors);
+            redirectAttributes.addFlashAttribute("deleteReplyForm", form);
+            redirectAttributes.addAttribute("replyId", id);
+        }else {
+            js.deleteJourneyResponse(id, form.getMessage());
+        }
+        return new ModelAndView( "redirect:/journeys/" + journeyId ); // Redirect to the list of journey replies after deletion
+    }
 
 
 

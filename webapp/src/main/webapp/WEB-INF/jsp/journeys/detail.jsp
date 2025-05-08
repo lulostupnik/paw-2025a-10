@@ -273,7 +273,7 @@
                                             </div>
                                         </div>
                                         <sec:authorize access="hasRole('ADMIN')">
-                                            <c:url var="deleteReplyUrl" value='/journey-replies/${response.id}/delete'/>
+                                            <c:url var="deleteReplyUrl" value='/journeys/${journey.id}/reply/${response.id}/delete'/>
                                             <form:form modelAttribute="deleteReplyForm" id="delete-journey-response-form-${response.id}" action="${deleteReplyUrl}" method="post" style="display: none;">
                                                 <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
                                                 <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
