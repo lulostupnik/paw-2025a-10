@@ -391,6 +391,74 @@ public class EventJdbcDao implements EventDao {
 
 
     @Override
+    public Optional<EventWithStatistics> findEventWithStatistics(final long eventId) {
+
+        Optional<Event> maybeEvent = findById(eventId);
+        if (maybeEvent.isEmpty()) {
+            return Optional.empty();
+        }
+
+        final long creatorId = maybeEvent.get().getUser().getId();
+
+        final int creatorEventCount = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM events WHERE user_id = ? AND deleted = FALSE",
+                Integer.class,
+                creatorId
+        );
+
+        final int creatorAttendanceCount = jdbcTemplate.queryForObject("""
+                        SELECT COUNT(*) FROM event_attendances ea
+                        JOIN events e ON ea.event_id = e.id
+                        WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE
+                        """,
+                Integer.class,
+                creatorId, creatorId
+        );
+
+        final List<Object[]> topCountry = jdbcTemplate.query(
+                """
+                SELECT co.name as country_name, COUNT(*) as attendee_count
+                FROM event_attendances ea
+                JOIN users u ON ea.user_id = u.id
+                JOIN universities uni ON u.university = uni.id
+                JOIN cities ci ON uni.city_id = ci.id
+                JOIN countries co ON ci.country_id = co.id
+                WHERE ea.event_id = ?
+                GROUP BY co.name
+                ORDER BY attendee_count DESC
+                LIMIT 1
+                """,
+                (rs, rowNum) -> new Object[] {
+                        rs.getString("country_name"),
+                        rs.getInt("attendee_count")
+                },
+                eventId
+        );
+
+        String topAttendeeCountry = null;
+        int topAttendeeCountryCount = 0;
+
+        if (!topCountry.isEmpty()) {
+            topAttendeeCountry = (String) topCountry.getFirst()[0];
+            topAttendeeCountryCount = (Integer) topCountry.getFirst()[1];
+        }
+
+        EventWithStatistics eventStatistics = new EventWithStatistics(
+                maybeEvent.get(),
+                creatorEventCount,
+                creatorAttendanceCount,
+                topAttendeeCountry,
+                topAttendeeCountryCount
+        );
+
+        LOGGER.debug("Found event statistics for event {}: creator events {}, creator attended {}, top attendee country {} ({})",
+                eventId, creatorEventCount, creatorAttendanceCount, topAttendeeCountry, topAttendeeCountryCount);
+
+        return Optional.of(eventStatistics);
+    }
+
+
+    @Override
     public Page<Event> getRecommendedEvents(final long userId, final int page, final int size) {
         LOGGER.debug("[RecommendedEvents] Fetching recommended events for user {} (page={}, size={})", userId, page, size);
 

@@ -2,7 +2,6 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
-import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
 
 import ar.edu.itba.paw.webapp.resolver.anotation.PageParamCustomizer;
@@ -34,7 +33,6 @@ public class EventController {
 
 
     private final EventService eventService;
-    private final EventResponseService eventResponseService;
     private final CityService cityService;
     private final UniversityService universityService;
     private final CareerService careerService;
@@ -42,12 +40,11 @@ public class EventController {
     private static final String REDIRECT = "redirect:/events/";
 
     @Autowired
-    public EventController(EventService eventService, CityService cityService, UniversityService universityService, CareerService careerService, EventResponseService eventResponseService, InterestService interestService) {
+    public EventController(CityService cityService, UniversityService universityService, CareerService careerService, EventService eventService, InterestService interestService) {
         this.eventService = eventService;
         this.cityService = cityService;
         this.universityService = universityService;
         this.careerService = careerService;
-        this.eventResponseService = eventResponseService;
         this.interestService = interestService;
     }
     private void populateDropdownAttributes(ModelAndView mav) {
@@ -127,11 +124,17 @@ public class EventController {
         return new ModelAndView(REDIRECT + event.getId());
     }
 
-    private ModelAndView populateEventDetails( Event event, long id, User user,
+    private ModelAndView populateEventDetails( EventWithStatistics eventWithStatistics, long id, User user,
                                               BindingResult deleteErrors, BindingResult deleteReplyErrors,
                                               Long replyId, PageParams pageParams, PageParams attendeesPageParams) {
         ModelAndView mav = new ModelAndView("events/detail/detail");
+        Event event = eventWithStatistics.getEvent();
         mav.addObject("event", event);
+        mav.addObject("createdEventsCount", eventWithStatistics.getCreatedEventsCount());
+        mav.addObject("attendedEventsCount", eventWithStatistics.getAttendedEventsCount());
+        mav.addObject("topAttendeeCountry", eventWithStatistics.getTopAttendeeCountry());
+        mav.addObject("topAttendeeCountryCount", eventWithStatistics.getTopAttendeeCountryCount());
+
 
         // Check if there are errors in the delete forms
         if (deleteErrors.hasErrors()) {
@@ -149,9 +152,9 @@ public class EventController {
         LOGGER.info("Found event {}", event);
         mav.addObject("attendeesPage", eventService.getEventAttendees(event.getId(), attendeesPageParams));
         mav.addObject("attendeesCount", eventService.getEventAttendeesCount(event.getId()));
-        Page<EventResponse> eventResponsesPage = eventResponseService.listAllFromEvent(event.getId(), pageParams);
+        Page<EventResponse> eventResponsesPage = eventService.listAllResponseFromEvent(event.getId(), pageParams);
         mav.addObject("eventResponsesPage", eventResponsesPage);
-        mav.addObject("commentsCount", eventResponseService.getCount(event.getId()));
+        mav.addObject("commentsCount", eventService.getResponseCount(event.getId()));
 
 
         Boolean isFull = eventService.isEventFull(id);
@@ -187,13 +190,13 @@ public class EventController {
         @PageParamCustomizer(defaultSize = 5, pageParamName = "attendeesPage", sizeParamName = "attendeesSize") PageParams attendeesPage)
     {
         LOGGER.debug("Getting info for event {}", id);
-        Optional<Event> maybeEvent = eventService.getEventById(id);
+        Optional<EventWithStatistics> maybeEvent = eventService.findEventWithStatistics(id);
         if (maybeEvent.isEmpty()) { // error ControllerAdvice
             LOGGER.warn("Event {} not found", id);
             return new ModelAndView("events/not_found");
         }
 
-        return populateEventDetails(eventService.getEventById(id).orElseThrow(() -> new EventNotFoundException("Event not found")),
+        return populateEventDetails(maybeEvent.get(),
                 id, user, deleteErrors, deleteReplyErrors, replyId ,repliesPage, attendeesPage );
     }
     @PostMapping("/{id}/delete")

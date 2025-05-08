@@ -3,6 +3,7 @@ package ar.edu.itba.paw.interfaces.services;
 import ar.edu.itba.paw.models.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -13,9 +14,8 @@ public interface EventService {
     Optional<Event> getEventById(long id);
     List<Event> getAllEvents();  // will be deprecated
     Page<Event> getAllEvents(PageParams pageParams);
-
+    Optional<EventWithStatistics> findEventWithStatistics(long eventId);
     Page<Event> getAllEventsSearch(String search, PageParams pageParams);
-
     List<Event> getAllEvents(String email);
     Page<Event> getAllEvents(String email, PageParams pageParams);
     void attendEvent(String email, long eventId);
@@ -30,7 +30,6 @@ public interface EventService {
     List<Event> getUserAttendingEvents(String userEmail);
     Page<Event> getUserAttendingEvents(long userId, PageParams pageParams);
     List<Event> getUserAttendingEvents(long userId);
-    List<EventResponse> getEventResponses(long eventId);
     List<Event> getRecommendedEvents(long userId, int limit);
     List<Event> getTopEvents(int limit);
     Boolean isEventOwnedByUser(String email, long eventID);
@@ -55,4 +54,11 @@ public interface EventService {
                           Integer attendeesLimit);
 
     void delete(long id, String message);
+
+    void deleteResponse(long id, String message);
+    long getEventIdByResponseId(long responseId);
+    int getResponseCount(long eventId);
+    List<EventResponse> listAllResponseFromEvent(long eventId);
+    Page<EventResponse> listAllResponseFromEvent(long eventId, PageParams pageParams);
+    Optional<EventResponse> findEventResponseById(long id);
 }

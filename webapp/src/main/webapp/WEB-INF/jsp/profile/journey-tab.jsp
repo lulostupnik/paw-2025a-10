@@ -4,7 +4,7 @@
 
 <div class="profile-section active" id="journeys-section">
   <div class="section-actions">
-    <c:if test="${empty userJourneys}">
+    <c:if test="${empty userJourney}">
       <a href="<c:url value='/journeys/create'/>" class="btn-primary">
         <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -16,7 +16,7 @@
   </div>
 
   <div class="cards-grid">
-    <c:if test="${empty userJourneys}">
+    <c:if test="${empty userJourney}">
       <div class="empty-state">
         <div class="empty-icon">
           <svg xmlns="http://www.w3.org/2000/svg" class="empty-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -26,31 +26,27 @@
         <p class="empty-message">
           <spring:message code="profile.no.journeys"/>
         </p>
-        <c:if test="${empty userJourneys}">
-          <a href="<c:url value='/journeys/create'/>" class="empty-action-btn">
-            <spring:message code="journey.create.button" />
-          </a>
-        </c:if>
+        <a href="<c:url value='/journeys/create'/>" class="empty-action-btn">
+          <spring:message code="journey.create.button" />
+        </a>
       </div>
     </c:if>
 
-    <c:if test="${not empty userJourneys}">
-      <c:forEach var="journey" items="${userJourneys}" varStatus="status">
-        <jsp:include page="../journeys/journey-card.jsp">
-          <jsp:param name="journeyId" value="${journey.id}" />
-          <jsp:param name="city" value="${journey.destinationUniversity.city.name}" />
-          <jsp:param name="startDate" value="${journey.startDate}" />
-          <jsp:param name="endDate" value="${journey.endDate}" />
-          <jsp:param name="description" value="${journey.description}" />
-          <jsp:param name="profilePictureId" value="${journey.user.profilePictureId}" />
-          <jsp:param name="userName" value="${journey.user.username}" />
-          <jsp:param name="firstname" value="${journey.user.firstname}" />
-          <jsp:param name="lastname" value="${journey.user.lastname}"/>
-          <jsp:param name="country" value="${journey.destinationUniversity.city.country}"/>
-          <jsp:param name="university" value="${journey.destinationUniversity.name}"/>
-          <jsp:param name="isOwner" value="true"/>
-        </jsp:include>
-      </c:forEach>
+    <c:if test="${not empty userJourney}">
+      <jsp:include page="../journeys/journey-card.jsp">
+        <jsp:param name="journeyId" value="${userJourney.id}" />
+        <jsp:param name="city" value="${userJourney.destinationUniversity.city.name}" />
+        <jsp:param name="startDate" value="${userJourney.startDate}" />
+        <jsp:param name="endDate" value="${userJourney.endDate}" />
+        <jsp:param name="description" value="${userJourney.description}" />
+        <jsp:param name="profilePictureId" value="${userJourney.user.profilePictureId}" />
+        <jsp:param name="userName" value="${userJourney.user.username}" />
+        <jsp:param name="firstname" value="${userJourney.user.firstname}" />
+        <jsp:param name="lastname" value="${userJourney.user.lastname}"/>
+        <jsp:param name="country" value="${userJourney.destinationUniversity.city.country}"/>
+        <jsp:param name="university" value="${userJourney.destinationUniversity.name}"/>
+        <jsp:param name="isOwner" value="true"/>
+      </jsp:include>
     </c:if>
   </div>
 </div>

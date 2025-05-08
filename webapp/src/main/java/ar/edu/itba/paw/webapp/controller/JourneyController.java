@@ -23,8 +23,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
-import static org.springframework.web.bind.annotation.RequestMethod.*;
-
 @Controller
 @RequestMapping("/journeys")
 public class JourneyController {
@@ -34,16 +32,15 @@ public class JourneyController {
     private final CityService cityService;
     private final UniversityService universityService;
     private final InterestService interestService;
-    private final JourneyResponseService journeyResponseService;
+//    private final JourneyResponseService journeyResponseService;
     private static final String REDIRECT_JOURNEY = "redirect:/journeys/";
 
     @Autowired
-    public JourneyController(final JourneyService js, CityService cityService, UniversityService universityService, InterestService interestService, JourneyResponseService journeyResponseService) {
+    public JourneyController(final JourneyService js, CityService cityService, UniversityService universityService, InterestService interestService) {
         this.js = js;
         this.cityService = cityService;
         this.universityService = universityService;
         this.interestService = interestService;
-        this.journeyResponseService = journeyResponseService;
     }
 
 
@@ -143,12 +140,12 @@ public class JourneyController {
 
         Journey journey = js.getJourneyById(id).orElseThrow(()-> new JourneyNotFoundException("Journey not found"));
 
-        Page<JourneyResponse> journeyResponses = journeyResponseService.listAllFromJourney(journey.getId(), repliesPage);
+        Page<JourneyResponse> journeyResponses = js.listAllResponsesFromJourney(journey.getId(), repliesPage);
 
         final ModelAndView mav = new ModelAndView("journeys/detail");
         mav.addObject("journey", journey);
         mav.addObject("journeyResponsesPage", journeyResponses);
-        mav.addObject("commentsCount", journeyResponseService.getCount(journey.getId()));
+        mav.addObject("commentsCount", js.getJourneyResponseCount(journey.getId()));
 
         if(user != null){
             mav.addObject("isOwner", js.isJourneyOwnedByUser(user.getEmail(),journey.getId()));

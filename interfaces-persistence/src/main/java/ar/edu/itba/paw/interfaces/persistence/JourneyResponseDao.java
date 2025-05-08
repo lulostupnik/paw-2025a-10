@@ -2,7 +2,6 @@ package ar.edu.itba.paw.interfaces.persistence;
 
 import ar.edu.itba.paw.models.JourneyResponse;
 import ar.edu.itba.paw.models.Page;
-import ar.edu.itba.paw.models.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,8 +18,8 @@ public interface JourneyResponseDao {
     void delete(long id);
     long getJourneyIdByResponseId(long journeyId);
     void deletionMessage(long id, String message);
-    void deleteByJourneyId(long journeyId);
+    void deleteResponsesByJourneyId(long journeyId);
 
-    int getCount(long id);
+    int getJourneyResponseCount(long journeyId);
 }
 

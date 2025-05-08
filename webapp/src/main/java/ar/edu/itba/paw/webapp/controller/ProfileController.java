@@ -4,10 +4,7 @@ import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.interfaces.services.UserService;
-import ar.edu.itba.paw.models.Interest;
-import ar.edu.itba.paw.models.Page;
-import ar.edu.itba.paw.models.PageParams;
-import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.webapp.form.CreateInterestForm;
 import ar.edu.itba.paw.webapp.form.EditInterestForm;
 import ar.edu.itba.paw.webapp.form.UpdatePasswordForm;
@@ -22,6 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/profile")
@@ -60,17 +58,14 @@ public class ProfileController {
     }
 
 
-    @GetMapping(value = "/journeys")
-    public ModelAndView getJourneys(
-            @ModelAttribute("user") User user,
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "attendingPage", defaultValue = "1") int attendingPage,
-            @RequestParam(value = "size", defaultValue = "4") int size) {
-
+    @GetMapping(value = "/journey")
+    public ModelAndView getJourney(
+            @ModelAttribute("user") User user) {
         ModelAndView mav = new ModelAndView(PROFILE);
-        mav.addObject("userJourneys", journeyService.getJourneysByUser(user.getEmail())); // FIXME: cambiar y usar Optional<Journey> getJourneyByEmail
-        return mav;
+        Optional<Journey> maybeJourney = journeyService.getJourneyByEmail(user.getEmail());
+        return maybeJourney.map(journey -> mav.addObject("userJourney", journey)).orElseGet(() -> mav.addObject("userJourney", null));
     }
+
     @GetMapping(value = "/events")
     public ModelAndView getEvents(
             @ModelAttribute("user") User user,

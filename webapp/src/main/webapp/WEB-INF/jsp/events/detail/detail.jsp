@@ -30,9 +30,6 @@
 </div>
 
 <div class="layout-container">
-    <!-- Include the sidebar component -->
-    <jsp:include page="../../components/sidebar.jsp" />
-
     <!-- Main Content -->
     <div class="main-content">
         <div class="content-container">
@@ -248,9 +245,6 @@
                     </div>
                 </div>
 
-                <!-- Different layouts for event owner vs non-owner -->
-                <c:choose>
-                    <c:when test="${isEventOwner}">
                         <!-- Tab Navigation for event owners -->
                         <div class="tabs-container">
                             <div class="tabs-header">
@@ -278,8 +272,9 @@
                                 <!-- Details Tab Content -->
                                 <div id="details-content" class="tab-content">
                                     <!-- Attendees Section -->
-                                    <jsp:include page="attendees-section.jsp">
-                                        <jsp:param name="showList" value="true" />
+                                    <c:set var="showListValue" value="${isEventOwner ? 'true' : 'false'}" />
+                                    <jsp:include page="statistics-section.jsp">
+                                        <jsp:param name="showList" value="${showListValue}" />
                                         <jsp:param name="showToggle" value="false" />
                                     </jsp:include>
                                 </div>
@@ -293,24 +288,6 @@
                                 </div>
                             </div>
                         </div>
-                    </c:when>
-                    <c:otherwise>
-                        <!-- Simplified layout for non-owners -->
-                        <div class="non-owner-content">
-                            <!-- Attendees Count Section -->
-                            <jsp:include page="attendees-section.jsp">
-                                <jsp:param name="showList" value="false" />
-                                <jsp:param name="showToggle" value="false" />
-                            </jsp:include>
-
-                            <!-- Chat Section -->
-                            <jsp:include page="chat-section.jsp">
-                                <jsp:param name="chatListId" value="chat-list-non-owner" />
-                                <jsp:param name="showToggle" value="true" />
-                            </jsp:include>
-                        </div>
-                    </c:otherwise>
-                </c:choose>
             </div>
         </div>
     </div>
