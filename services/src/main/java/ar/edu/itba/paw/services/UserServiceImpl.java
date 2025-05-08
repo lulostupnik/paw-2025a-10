@@ -6,9 +6,6 @@ import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +38,6 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    // TODO: ¿Está bien esto? -> ¿O debería resolverse en el DAO?
     @Override
     @Transactional
     public User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, byte[] profilePicture, long[] interests, String password, Locale locale) {
@@ -58,14 +54,13 @@ public class UserServiceImpl implements UserService {
         
         return user;
     }
+
     @Override
     @Transactional
     public void changePassword(String email, String newPassword) {
         LOGGER.debug("Changing password for user {}", email);
         userDao.changePassword(email, passwordEncoder.encode(newPassword));
     }
-
-
 
     @Override
     public Optional<User> findByEmail(String email) {
@@ -109,16 +104,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void updateProfileInfo(long userId, String firstname, String lastname, String username) {
         LOGGER.debug("Updating profile info for user {}: firstname={}, lastname={}, username={}", userId, firstname, lastname, username);
-
-//        // FIXME: todas estas validaciones creo que no hay que ponerlas
-//        Optional<User> existingUser = findById(userId);
-//        if (existingUser.isPresent() && !existingUser.get().getUsername().equals(username)) {
-//            if (existsByUsername(username)) {
-//                LOGGER.warn("Username {} is already taken", username);
-//                throw new IllegalArgumentException("Username is already taken");
-//            }
-//        }
-
         userDao.updateProfileInfo(userId, firstname, lastname, username);
     }
 
@@ -133,14 +118,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void updateUniversity(long userId, String newUniversityName) {
         LOGGER.debug("Updating university for user {} to {}", userId, newUniversityName);
-//
-//        University university = universityService.findByName(newUniversityName)
-//                .orElseThrow(() -> {
-//                    LOGGER.warn("University not found: {}", newUniversityName);
-//                    return new IllegalArgumentException("University not found");
-//                });
-//
-//        userDao.updateUniversity(userId, university.getId());
         userDao.updateUniversity(userId, newUniversityName);
     }
 
@@ -148,7 +125,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void updateUniversity(long userId, long universityId) {
         LOGGER.debug("Updating university for user {} to university ID {}", userId, universityId);
-
         userDao.updateUniversity(userId, universityId);
     }
 
@@ -156,15 +132,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void updateCareer(long userId, String newCareerName) {
         LOGGER.debug("Updating career for user {} to {}", userId, newCareerName);
-//
-//        // FIXME: ¿debería ser así o directamente en el dao crear un método updateCareer(long userId, String careerName)?
-//        Career career = careerService.findByName(newCareerName)
-//                .orElseThrow(() -> {
-//                    LOGGER.warn("Career not found: {}", newCareerName);
-//                    return new IllegalArgumentException("Career not found");
-//                });
-//
-//        userDao.updateCareer(userId, career.getId());
         userDao.updateCareer(userId, newCareerName);
     }
 
@@ -172,23 +139,11 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void updateCareer(long userId, long careerId) {
         LOGGER.debug("Updating career for user {} to career ID {}", userId, careerId);
-//
-//        // FIXME: está validación no la deberíamos hacer, ya está validada en webapp, o no?
-//        // Si llegara a no existir sería una condición anormal y persistencia nos tiraría una excepción al querer realizar el update
-//        careerService.findById(careerId)
-//                .orElseThrow(() -> {
-//                    LOGGER.warn("Career not found with ID: {}", careerId);
-//                    return new IllegalArgumentException("Career not found");
-//                });
-
         userDao.updateCareer(userId, careerId);
         LOGGER.info("Successfully updated career for user {} to career ID {}", userId, careerId);
     }
 
 
-
-    // Recibe User -> ¿Está bien?
-    //@TODO ask (exception?). @TODO add cache?
     @Override
     public byte[] getProfilePictureData(User user) {
         return imageService.getImage(user.getProfilePictureId())

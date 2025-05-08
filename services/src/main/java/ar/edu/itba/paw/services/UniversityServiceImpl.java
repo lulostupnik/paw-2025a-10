@@ -60,7 +60,6 @@ public class UniversityServiceImpl implements UniversityService {
     }
 
 
-    // TODO: ¿Hace falta el if?
     @Override
     public Page<University> getAllUniversities(String search, PageParams pageParams) {
         LOGGER.debug("Getting all universities with search {}", search);

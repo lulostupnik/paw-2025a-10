@@ -1,20 +1,15 @@
 package ar.edu.itba.paw.services;
 
-//import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
-//import java.util.Date;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -57,7 +52,6 @@ public class JourneyServiceImpl implements JourneyService {
         }
     }
 
-    // FIXME: ¿CachePut?
     @Transactional
     @Override
     public Journey createJourney(User user, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
@@ -159,8 +153,7 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyDao.findByUserId(user.getId()).isPresent();
     }
 
-    // FIXME: Configurar la cache para que guarde los resultados por un tiempo (30min) y después meter acá el @Cacheable
-    // @Cacheable(value = "journeysRecommended", key = "#email")
+
     @Override
     public List<Journey> getRecommendedJourneys(String email, int limit) {
         if(limit <= 0 ){
@@ -185,7 +178,6 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyDao.getJourneysByUser(email);
     }
 
-    // Yo creería que mejor no cachear, pero no estoy seguro
     @Override
     public List<JourneyResponse> getJourneyResponses(long journeyId){
         return journeyResponseService.listAllFromJourney(journeyId);
@@ -204,7 +196,6 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    // @CacheEvict(value = "journeysById", key = "#journeyId")
     public void updateJourneyDates(long journeyId, LocalDate startDate, LocalDate endDate) {
         LOGGER.debug("Updating dates for journey {}: start={}, end={}", journeyId, startDate, endDate);
 
@@ -228,24 +219,14 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    // @CacheEvict(value = "journeysById", key = "#journeyId")
     public void updateJourneyDescription(long journeyId, String description) {
         LOGGER.debug("Updating description for journey {}", journeyId);
-
-        // Verify journey exists
-        journeyDao.findById(journeyId)
-                .orElseThrow(() -> {
-                    LOGGER.warn("Journey not found with ID: {}", journeyId);
-                    return new IllegalArgumentException("Journey not found");
-                });
-
         journeyDao.updateDescription(journeyId, description);
         LOGGER.info("Successfully updated description for journey {}", journeyId);
     }
 
     @Override
     @Transactional
-    // @CacheEvict(value = "journeysById", key = "#journeyId")
     public void updateJourneyDestination(long journeyId, String universityName) {
         LOGGER.debug("Updating destination for journey {} to {}", journeyId, universityName);
 
@@ -261,11 +242,9 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    // @CacheEvict(value = "journeysById", key = "#journeyId")
     public void updateJourneyDestination(long journeyId, long universityId) {
         LOGGER.debug("Updating destination for journey {} to university ID {}", journeyId, universityId);
 
-        // Validate that university exists
         universityService.findById(universityId)
                 .orElseThrow(() -> {
                     LOGGER.warn("University not found with ID: {}", universityId);
