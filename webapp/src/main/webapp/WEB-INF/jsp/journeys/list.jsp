@@ -61,6 +61,10 @@
                             <input type="hidden" name="interestName" value="<c:out value="${param.interestName}"/>">
                         </c:if>
 
+                        <!-- Preserve tab parameters -->
+                        <c:if test="${not empty param.isMyDestination}">
+                            <input type="hidden" name="isMyDestination" value="<c:out value="${param.isMyDestination}"/>">
+                        </c:if>
                         <c:if test="${not empty param.isUpcoming}">
                             <input type="hidden" name="isUpcoming" value="<c:out value="${param.isUpcoming}"/>">
                         </c:if>
@@ -120,13 +124,11 @@
                             <spring:message code="journey.tabs.all"/>
                         </a>
                     </li>
-                    <c:if test="${hasJourney ==  true}">
-                        <li class="tab-item ${not empty param.isMyDestination ? 'active' : ''}">
-                            <a href="<c:url value="/journeys?isMyDestination=true${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.sort ? '&sort='.concat(param.sort) : ''}${not empty param.direction ? '&direction='.concat(param.direction) : ''}&page=1${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>" class="tab-link">
-                                <spring:message code="journey.tabs.myDestination"/>
-                            </a>
-                        </li>
-                    </c:if>
+                    <li class="tab-item ${not empty param.isMyDestination ? 'active' : ''}">
+                        <a href="<c:url value="/journeys?isMyDestination=true${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.sort ? '&sort='.concat(param.sort) : ''}${not empty param.direction ? '&direction='.concat(param.direction) : ''}&page=1${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>" class="tab-link">
+                            <spring:message code="journey.tabs.myDestination"/>
+                        </a>
+                    </li>
                     <li class="tab-item ${not empty param.isUpcoming ? 'active' : ''}">
                         <a href="<c:url value="/journeys?isUpcoming=true${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.sort ? '&sort='.concat(param.sort) : ''}${not empty param.direction ? '&direction='.concat(param.direction) : ''}&page=1${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>" class="tab-link">
                             <spring:message code="journey.tabs.upcoming"/>
@@ -287,11 +289,53 @@
                 </div>
             </div>
 
+            <!-- Construct baseUrl with all query parameters -->
+            <c:set var="paginationBaseUrl" value="/journeys?" />
+            <c:if test="${not empty param.search}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}search=${param.search}&" />
+            </c:if>
+            <c:if test="${not empty param.destination}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}destination=${param.destination}&" />
+            </c:if>
+            <c:if test="${not empty param.destinationName}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}destinationName=${param.destinationName}&" />
+            </c:if>
+            <c:if test="${not empty param.startDate}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}startDate=${param.startDate}&" />
+            </c:if>
+            <c:if test="${not empty param.endDate}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}endDate=${param.endDate}&" />
+            </c:if>
+            <c:if test="${not empty param.interests}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}interests=${param.interests}&" />
+            </c:if>
+            <c:if test="${not empty param.interestName}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}interestName=${param.interestName}&" />
+            </c:if>
+            <c:if test="${not empty param.sort}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}sort=${param.sort}&" />
+            </c:if>
+            <c:if test="${not empty param.direction}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}direction=${param.direction}&" />
+            </c:if>
+            <c:if test="${not empty param.isMyDestination}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}isMyDestination=${param.isMyDestination}&" />
+            </c:if>
+            <c:if test="${not empty param.isUpcoming}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}isUpcoming=${param.isUpcoming}&" />
+            </c:if>
+            <c:if test="${not empty param.isPast}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}isPast=${param.isPast}&" />
+            </c:if>
+            <c:if test="${not empty param.pageSize}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}pageSize=${param.pageSize}&" />
+            </c:if>
+
             <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
                 <jsp:param name="pageObjectTotalPages" value="${journeys.totalPages}" />
                 <jsp:param name="currentPage" value="${currentPage}" />
                 <jsp:param name="pageSize" value="${pageSize}" />
-                <jsp:param name="baseUrl" value="/journeys" />
+                <jsp:param name="baseUrl" value="${paginationBaseUrl}" />
             </jsp:include>
             <!-- End Journeys List -->
         </div>

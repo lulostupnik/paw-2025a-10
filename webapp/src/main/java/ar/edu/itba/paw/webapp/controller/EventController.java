@@ -70,8 +70,10 @@ public class EventController {
                                   @RequestParam(value = "direction", required = false) String direction) {
 
         ModelAndView mav = new ModelAndView("events/list");
+        LOGGER.debug("Getting events list with search: {}, filter: {}, pageParams: {}, sortBy: {}, direction: {}",
+                search, filterForm, pageParams, sortBy, direction);
 
-        Page<Event> userEventsPage = eventService.getEventsPageWithAttendanceStatus(search, user, sortBy,direction,
+        Page<Event> userEventsPage = eventService.getEventsPageWithAttendanceStatus(search, user, sortBy, direction,
                 filterForm.getDestination(), filterForm.getStartDate(), filterForm.getEndDate(), filterForm.getInterests(),
                 filterForm.getIsPast(), filterForm.getIsUpcoming(), filterForm.getAttending(), pageParams);
 

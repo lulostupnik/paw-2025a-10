@@ -31,7 +31,7 @@
                    placeholder="<spring:message code='${searchPlaceholderCode}' />"
                    value="<c:out value="${param.search}"/>">
             <input type="hidden" name="page" value="1">
-            <input type="hidden" name="pageSize" value="${param.pageSize != null ? param.pageSize : 10}">
+            <input type="hidden" name="pageSize" value="${param.pageSize != null ? param.pageSize : 4}">
 
             <!-- Preserve sort parameters -->
             <c:if test="${not empty param.sort}">
@@ -283,12 +283,55 @@
             </jsp:include>
           </c:forEach>
         </div>
+        <!-- Construct baseUrl with all query parameters -->
+        <c:set var="paginationBaseUrl" value="/events?" />
+        <c:if test="${not empty param.search}">
+          <c:set var="paginationBaseUrl" value="${paginationBaseUrl}search=${param.search}&" />
+        </c:if>
+        <c:if test="${not empty param.destination}">
+          <c:set var="paginationBaseUrl" value="${paginationBaseUrl}destination=${param.destination}&" />
+        </c:if>
+        <c:if test="${not empty param.destinationName}">
+          <c:set var="paginationBaseUrl" value="${paginationBaseUrl}destinationName=${param.destinationName}&" />
+        </c:if>
+        <c:if test="${not empty param.startDate}">
+          <c:set var="paginationBaseUrl" value="${paginationBaseUrl}startDate=${param.startDate}&" />
+        </c:if>
+        <c:if test="${not empty param.endDate}">
+          <c:set var="paginationBaseUrl" value="${paginationBaseUrl}endDate=${param.endDate}&" />
+        </c:if>
+        <c:if test="${not empty param.interests}">
+          <c:set var="paginationBaseUrl" value="${paginationBaseUrl}interests=${param.interests}&" />
+        </c:if>
+        <c:if test="${not empty param.interestName}">
+          <c:set var="paginationBaseUrl" value="${paginationBaseUrl}interestName=${param.interestName}&" />
+        </c:if>
+        <c:if test="${not empty param.sort}">
+          <c:set var="paginationBaseUrl" value="${paginationBaseUrl}sort=${param.sort}&" />
+        </c:if>
+        <c:if test="${not empty param.direction}">
+          <c:set var="paginationBaseUrl" value="${paginationBaseUrl}direction=${param.direction}&" />
+        </c:if>
+        <c:if test="${not empty param.isMyDestination}">
+          <c:set var="paginationBaseUrl" value="${paginationBaseUrl}isMyDestination=${param.isMyDestination}&" />
+        </c:if>
+        <c:if test="${not empty param.isUpcoming}">
+          <c:set var="paginationBaseUrl" value="${paginationBaseUrl}isUpcoming=${param.isUpcoming}&" />
+        </c:if>
+        <c:if test="${not empty param.isPast}">
+          <c:set var="paginationBaseUrl" value="${paginationBaseUrl}isPast=${param.isPast}&" />
+        </c:if>
+<%--        <c:if test="${not empty param.pageSize}">--%>
+<%--          <c:set var="paginationBaseUrl" value="${paginationBaseUrl}pageSize=${param.pageSize}&" />--%>
+<%--        </c:if>--%>
+
         <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
           <jsp:param name="pageObjectTotalPages" value="${eventsPage.totalPages}" />
           <jsp:param name="currentPage" value="${currentPage}" />
           <jsp:param name="pageSize" value="${pageSize}" />
-          <jsp:param name="baseUrl" value="/events" />
+          <jsp:param name="baseUrl" value="${paginationBaseUrl}" />
         </jsp:include>
+
       </div>
     </div>
   </div>
