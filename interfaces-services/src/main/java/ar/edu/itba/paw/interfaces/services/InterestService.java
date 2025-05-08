@@ -18,6 +18,7 @@ public interface InterestService {
     void deleteUserInterest(long id);
     void editUserInterest(long id, String interest);
     void saveUserInterests(long[] interests, long userId);
+    void saveUserInterests(List<String> interests, long userId);
     void updateScoreByInterest(Interest interest, long userId);
     void updateScoreByInterests(List<Interest> interests, long userId);
     Page<Interest> getAllInterests(String search, PageParams pageParams);

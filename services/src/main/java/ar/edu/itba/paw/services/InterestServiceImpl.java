@@ -102,6 +102,11 @@ public class InterestServiceImpl implements InterestService {
         interestDao.saveUserInterests(interests, userId);
     }
 
+    @Override
+    public void saveUserInterests(List<String> interests, long userId) {
+        interestDao.saveUserInterests(interests, userId);
+    }
+
     @Transactional
     @Override
     public void updateScoreByInterest(Interest interest, long userId) {
