@@ -125,6 +125,11 @@ public class InterestServiceImpl implements InterestService {
     }
 
     @Override
+    public void updateUserInterests(List<Long> interestIds, long userId) {
+        interestDao.updateUserInterests(interestIds, userId);
+    }
+
+    @Override
     public Page<Interest> getAllInterests(String search, PageParams pageParams) {
         LOGGER.debug("Finding all interests with search {}", search);
         if (search == null || search.isEmpty()) {

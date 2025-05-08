@@ -143,6 +143,55 @@ public class InterestJdbcDao implements InterestDao {
     }
 
     @Override
+    public void updateUserInterests(final List<Long> interestIds, final long userId) {
+        LOGGER.debug("Updating interests for user {} to match provided list of {} interests", userId, interestIds.size());
+
+        final List<Long> currentInterestIds = jdbcTemplate.queryForList(
+                "SELECT category_id FROM user_interest WHERE user_id = ?",
+                Long.class,
+                userId
+        );
+
+        final List<Long> interestsToAdd = new ArrayList<>(interestIds);
+        interestsToAdd.removeAll(currentInterestIds);
+
+        final List<Long> interestsToRemove = new ArrayList<>(currentInterestIds);
+        interestsToRemove.removeAll(interestIds);
+
+        for (Long interestId : interestsToAdd) {
+            jdbcTemplate.update(
+                    "INSERT INTO user_interest (user_id, category_id) VALUES (?, ?)",
+                    userId, interestId
+            );
+        }
+
+        if(interestsToRemove.isEmpty()){
+            return;
+        }
+
+        final StringBuilder deleteQuery = new StringBuilder(
+                "DELETE FROM user_interest WHERE user_id = ? AND category_id IN ("
+        );
+        for (int i = 0; i < interestsToRemove.size(); i++) {
+            deleteQuery.append("?");
+            if (i < interestsToRemove.size() - 1) {
+                deleteQuery.append(", ");
+            }
+        }
+        deleteQuery.append(")");
+
+        Object[] params = new Object[interestsToRemove.size() + 1];
+        params[0] = userId;
+        for (int i = 0; i < interestsToRemove.size(); i++) {
+            params[i + 1] = interestsToRemove.get(i);
+        }
+
+        jdbcTemplate.update(deleteQuery.toString(), params);
+
+
+    }
+
+    @Override
     public void updateScoreByInterests(final List<Interest> interests, final Long userId) {
         LOGGER.debug("Registering to DB multiple score increases for intrests of user {}", userId);
         for (Interest interest : interests) {
