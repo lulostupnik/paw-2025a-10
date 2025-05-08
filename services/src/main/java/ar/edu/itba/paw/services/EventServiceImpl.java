@@ -323,10 +323,12 @@ public class EventServiceImpl implements EventService {
     @Override
     public void delete(long id, String message) {
         LOGGER.debug("Deleting event {}", id);
-        eventDao.deletionMessage(id, message);
-        eventResponseDao.deleteByEventId(id);
         Event event = eventDao.findById(id).orElseThrow(() -> new RuntimeException("Event not found"));
-        emailService.sendEventDeletionNotification(event,message);
+        if(message != null && !message.isEmpty()){
+            eventDao.deletionMessage(id, message);
+            emailService.sendEventDeletionNotification(event,message);
+        }
+        eventResponseDao.deleteByEventId(id);
         eventDao.delete(id);
     }
 
