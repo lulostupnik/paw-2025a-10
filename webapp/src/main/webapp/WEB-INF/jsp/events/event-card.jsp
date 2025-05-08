@@ -26,36 +26,13 @@
                 </c:if>
 
 
-
-                <!-- Attend Button -->
                 <c:if test="${not empty user && isOwner == false}">
                     <div class="attend-button-container">
-                        <!-- Add this inside the attend-button-container div, after the existing button -->
                         <c:if test="${ param.isFull && !param.attend}">
                             <div class="event-full-badge">
                                 <spring:message code="event.full" />
                             </div>
                         </c:if>
-                        <c:set var="fullEvent"><spring:message code="event.full" /></c:set>
-                        <c:set var="attendEvent"><spring:message code="event.attend" /></c:set>
-                        <c:set var="attendingEvent"><spring:message code="event.attending" /></c:set>
-
-                        <!-- Modify the attend button to be disabled when the event is full -->
-                        <button type="button"
-                                class="attend-button ${param.attend ? 'attended' : ''} ${param.isFull && !param.attend ? 'disabled' : ''}"
-                                data-event-id="<c:out value="${param.eventId}"/>"
-                                data-event-title="<c:out value="${param.title}"/>"
-                                data-is-attending="<c:out value="${param.attend}"/>"
-                                data-is-full="<c:out value ="${param.isFull}"/>"
-                                onclick="<c:out value="${param.isFull && !param.attend ? 'showFullEventMessage(event)' : 'openAttendanceModal(event, this)'}"/>"
-                                aria-label="<c:out value="${param.isFull && !param.attend ? fullEvent : param.attend ? attendingEvent : attendEvent}"/>">
-                            <c:if test="${param.attend}">
-                                <img src="<c:url value='/resources/icons/check.svg'/>" alt="<spring:message code='event.attending'/>" class="btn-icon" />
-                            </c:if>
-                            <c:if test="${not param.attend}">
-                                <img src="<c:url value='/resources/icons/calendar-plus.svg'/>" alt="${param.isFull ? fullEvent : attendEvent}" class="btn-icon" />
-                            </c:if>
-                        </button>
                     </div>
                 </c:if>
                 <c:if test="${ isOwner == true}">
