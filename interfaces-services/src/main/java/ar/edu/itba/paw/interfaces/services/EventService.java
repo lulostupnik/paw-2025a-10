@@ -14,6 +14,8 @@ public interface EventService {
     List<Event> getAllEvents();  // will be deprecated
     Page<Event> getAllEvents(PageParams pageParams);
 
+    Optional<EventWithStatistics> findEventWithStatistics(long eventId);
+
     Page<Event> getAllEventsSearch(String search, PageParams pageParams);
 
     List<Event> getAllEvents(String email);

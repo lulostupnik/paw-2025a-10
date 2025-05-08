@@ -34,25 +34,7 @@ public interface EventDao {
     List<Event> getEvents(String email);
 
 
-
-    /**
-     * getRecommendedEvents:
-     * Returns a page of recommended events for a user based on their city (through their university).
-     *
-     * The query:
-     * - Excludes events created by the user.
-     * - Excludes deleted events
-     * - Only includes events located in the same city as the user.
-     * - Indicates whether the user is attending (is_attending) and whether they are the owner (is_owner).
-     * - Orders the results by:
-     *   1. Events that are not full (i.e., still have available spots).
-     *   2. Events the user is not attending.
-     *   3. Events not created by the user.
-     *   4. Higher number of attendees.
-     *   5. Soonest event date.
-     *
-     * Supports pagination using LIMIT and OFFSET.
-     */
+    Optional<EventWithStatistics> findEventWithStatistics(long eventId);
 
     Page<Event> getRecommendedEvents(long userId, int page, int size);
 

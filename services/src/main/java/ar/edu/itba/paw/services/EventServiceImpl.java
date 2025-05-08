@@ -108,6 +108,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public Optional<EventWithStatistics> findEventWithStatistics(long eventId) {
+        return eventDao.findEventWithStatistics(eventId);
+    }
+
+    @Override
     public Page<Event> getAllEventsSearch(String search,PageParams pageParams) {
         LOGGER.debug("Getting all events with search {}", search);
         if (search == null || search.isEmpty()) {
