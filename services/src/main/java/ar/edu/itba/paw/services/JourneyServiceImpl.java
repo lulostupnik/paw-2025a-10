@@ -19,7 +19,7 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class JourneyServiceImpl implements JourneyService {
     private static final Logger LOGGER = LoggerFactory.getLogger(JourneyServiceImpl.class);
-    protected final JourneyResponseDao journeyResponseDao;
+    private final JourneyResponseDao journeyResponseDao;
 
     private final JourneyDao journeyDao;
     private final UserService userService;
