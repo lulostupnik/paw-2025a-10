@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
@@ -221,12 +220,12 @@ public class EventServiceImpl implements EventService {
 
     // FIXME: Agregarle cacheable?
     @Override
-    public List<UserEvent> getRecommendedEvents(long userId, int limit) {
+    public List<Event> getRecommendedEvents(long userId, int limit) {
         if (limit <= 0) {
             throw new IllegalArgumentException("Limit must be greater than 0");
         }
         LOGGER.debug("Fetching recommended events for user id: {}, with limit: {}", userId, limit);
-        List<UserEvent> events = eventDao.getRecommendedEvents(userId, 1, limit).getContent();
+        List<Event> events = eventDao.getRecommendedEvents(userId, 1, limit).getContent();
         if (events.isEmpty()) {
             LOGGER.debug("No recommended events found for user {}. Falling back to top events.", userId);
             events = eventDao.getTopUserEvents(userId,1, limit).getContent();
@@ -267,8 +266,13 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public Page<UserEvent> getEventsPageWithAttendanceStatus(String search, User user, PageParams pageParams) {
-        return eventDao.getEventsWithAttendanceStatus(user == null ? null : user.getId(), search, pageParams.getPage(), pageParams.getSize());
+    public Page<Event> getEventsPageWithAttendanceStatus(String search, User user, String sortBy, String direction, Long destination, LocalDate startDate, LocalDate endDate, Long interest,
+                                                         boolean isPast, boolean isUpcoming, boolean attending,
+                                                         PageParams pageParams) {
+
+        return eventDao.getEventsWithAttendanceStatus(user == null ? null : user.getId(), search, sortBy, direction, destination, startDate, endDate, interest,
+                isPast, isUpcoming, attending, pageParams.getPage(), pageParams.getSize());
+
 //        if(user == null) {
 //            Page<Event> page;
 //            if(search != null && !search.isEmpty()) {
@@ -290,13 +294,13 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<UserEvent> getEventsWithAttendanceStatus(long userId) {
+    public List<Event> getEventsWithAttendanceStatus(long userId) {
 
         return eventDao.getEventsWithAttendanceStatus(userId);
     }
 
     @Override
-    public List<UserEvent> getEventsWithAttendanceStatus(String email) {
+    public List<Event> getEventsWithAttendanceStatus(String email) {
         long userId = userService.findByEmail(email).orElseThrow().getId();
         return getEventsWithAttendanceStatus(userId);
     }

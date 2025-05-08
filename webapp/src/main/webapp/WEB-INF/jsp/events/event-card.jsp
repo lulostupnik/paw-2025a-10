@@ -33,6 +33,9 @@
                                 <spring:message code="event.full" />
                             </div>
                         </c:if>
+                        <c:set var="fullEvent"><spring:message code="event.full" /></c:set>
+                        <c:set var="attendEvent"><spring:message code="event.attend" /></c:set>
+                        <c:set var="attendingEvent"><spring:message code="event.attending" /></c:set>
                     </div>
                 </c:if>
                 <c:if test="${ isOwner == true}">
@@ -75,35 +78,6 @@
     </a>
 </div>
 
-<!-- Attendance Modal -->
-<c:if test="${isOwner == false}">
-    <div id="attendanceModal" class="attendance-modal">
-        <div class="attendance-modal-content">
-            <div class="attendance-modal-header">
-                <h3 id="attendanceModalTitle" class="attendance-modal-title"></h3>
-                <button type="button" class="attendance-modal-close" onclick="closeAttendanceModal()">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="modal-close-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <div class="attendance-modal-body">
-                <p id="attendanceModalMessage"></p>
-            </div>
-            <div class="attendance-modal-footer">
-                <button type="button" class="btn-secondary" onclick="closeAttendanceModal()">
-                    <spring:message code="event.cancel" />
-                </button>
-                <form id="attendanceForm" method="post" action="">
-                    <input type="hidden" name="eventId" id="eventIdInput" value="" />
-                    <button type="submit" id="confirmAttendanceBtn" class="btn-primary">
-                        <spring:message code="event.confirm" />
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</c:if>
 
 <script>
     // Prevent the event card link from triggering when clicking the attend button
@@ -117,47 +91,6 @@
         });
     });
 
-    function openAttendanceModal(event, button) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const eventId = button.getAttribute('data-event-id');
-        const eventTitle = button.getAttribute('data-event-title');
-        const isAttending = button.getAttribute('data-is-attending') === 'true';
-
-        const modal = document.getElementById('attendanceModal');
-        const titleElement = document.getElementById('attendanceModalTitle');
-        const messageElement = document.getElementById('attendanceModalMessage');
-        const form = document.getElementById('attendanceForm');
-        const eventIdInput = document.getElementById('eventIdInput');
-        const confirmButton = document.getElementById('confirmAttendanceBtn');
-
-        // Set the event ID in the form
-        eventIdInput.value = eventId;
-
-        // Set the form action based on attendance status
-        if (isAttending) {
-            form.action = '<c:url value="/events/"/>' + eventId + '/dont-attend';
-            titleElement.textContent = '<spring:message code="event.cancel.attendance" />';
-            messageElement.textContent = '<spring:message code="event.unattend.message" arguments="' + eventTitle + '" />';
-            confirmButton.classList.remove('btn-primary');
-            confirmButton.classList.add('btn-danger');
-            confirmButton.textContent = '<spring:message code="event.unattend.confirm" />';
-        } else {
-            form.action = '<c:url value="/events/"/>' + eventId + '/attend';
-            titleElement.textContent = '<spring:message code="event.attend.title" />';
-            messageElement.textContent = '<spring:message code="event.attend.message" arguments="' + eventTitle + '" />';
-            confirmButton.classList.remove('btn-danger');
-            confirmButton.classList.add('btn-primary');
-            confirmButton.textContent = '<spring:message code="event.attend.confirm" />';
-        }
-
-        // Show the modal
-        modal.classList.add('active');
-
-        // Prevent scrolling on the body
-        document.body.style.overflow = 'hidden';
-    }
     // Add this function to your existing JavaScript
     function showFullEventMessage(event) {
         event.preventDefault();
@@ -183,13 +116,6 @@
         document.body.style.overflow = 'hidden';
     }
 
-    function closeAttendanceModal() {
-        const modal = document.getElementById('attendanceModal');
-        modal.classList.remove('active');
-
-        // Re-enable scrolling on the body
-        document.body.style.overflow = '';
-    }
     function redirectToUpdate(eventId) {
         const baseUrl = '<c:url value="/" />';
         window.location.href = baseUrl + 'events/' + eventId + '/update';

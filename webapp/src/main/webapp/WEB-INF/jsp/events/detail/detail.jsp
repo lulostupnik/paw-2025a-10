@@ -125,29 +125,43 @@
                                 </c:choose>
                             </c:if>
 
-                            <sec:authorize access="hasRole('ADMIN')">
-                                <c:url var="deleteUrl" value='/events/${event.id}/delete'/>
-                                <form:form modelAttribute="deleteForm" id="delete-event-form" action="${deleteUrl}" method="post" style="display: none;">
-                                    <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
-                                    <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
-                                    <jsp:include page="../../components/text-area.jsp">
-                                        <jsp:param name="path" value="message" />
-                                        <jsp:param name="label" value="${messageLabel}" />
-                                        <jsp:param name="placeholder" value="${messagePlaceholder}" />
-                                    </jsp:include>
-                                </form:form>
+                            <!-- Event Owner/Admin Actions -->
+                            <c:if test="${isEventOwner || pageContext.request.isUserInRole('ADMIN')}">
+                                <div class="event-actions">
+                                    <c:if test="${isEventOwner}">
+                                        <a href="<c:url value='/events/${event.id}/update'/>" class="btn-edit">
+                                            <!-- Edit icon SVG -->
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                            </svg>
+                                            <span><spring:message code="event.edit" text="Edit Event" /></span>
+                                        </a>
+                                    </c:if>
 
-                                <button type="button" class="delete-button" onclick="openDeleteModal('delete-event-form', 'event')">
-                                    <!-- Delete icon SVG -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M3 6h18"></path>
-                                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
-                                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                                    </svg>
-                                    <span><spring:message code="event.delete" text="Delete" /></span>
-                                </button>
-                            </sec:authorize>
+                                    <c:url var="deleteUrl" value='/events/${event.id}/delete'/>
+                                    <form:form modelAttribute="deleteForm" id="delete-event-form" action="${deleteUrl}" method="post" style="display: none;">
+                                        <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
+                                        <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
+                                        <jsp:include page="../../components/text-area.jsp">
+                                            <jsp:param name="path" value="message" />
+                                            <jsp:param name="label" value="${messageLabel}" />
+                                            <jsp:param name="placeholder" value="${messagePlaceholder}" />
+                                        </jsp:include>
+                                    </form:form>
+
+                                    <button type="button" class="btn-delete" onclick="openDeleteModal('delete-event-form', 'event')">
+                                        <!-- Delete icon SVG -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+                                            <path d="M3 6h18"></path>
+                                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                                        </svg>
+                                        <span><spring:message code="event.delete" text="Delete Event" /></span>
+                                    </button>
+                                </div>
+                            </c:if>
                         </div>
                     </div>
 

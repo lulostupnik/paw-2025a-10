@@ -30,8 +30,44 @@
                         <input type="text" name="search" class="search-input"
                                placeholder="<spring:message code='${searchPlaceholderCode}' />"
                                value="<c:out value="${param.search}"/>">
-                        <input type="hidden" name="page" value="1">                        <input type="hidden" name="page" value="1">
+                        <input type="hidden" name="page" value="1">
                         <input type="hidden" name="pageSize" value="${param.pageSize != null ? param.pageSize : 10}">
+
+                        <!-- Preserve sort parameters -->
+                        <c:if test="${not empty param.sort}">
+                            <input type="hidden" name="sort" value="<c:out value="${param.sort}"/>">
+                        </c:if>
+                        <c:if test="${not empty param.direction}">
+                            <input type="hidden" name="direction" value="<c:out value="${param.direction}"/>">
+                        </c:if>
+
+                        <!-- Preserve filter parameters -->
+                        <c:if test="${not empty param.destination}">
+                            <input type="hidden" name="destination" value="<c:out value="${param.destination}"/>">
+                        </c:if>
+                        <c:if test="${not empty param.destinationName}">
+                            <input type="hidden" name="destinationName" value="<c:out value="${param.destinationName}"/>">
+                        </c:if>
+                        <c:if test="${not empty param.startDate}">
+                            <input type="hidden" name="startDate" value="<c:out value="${param.startDate}"/>">
+                        </c:if>
+                        <c:if test="${not empty param.endDate}">
+                            <input type="hidden" name="endDate" value="<c:out value="${param.endDate}"/>">
+                        </c:if>
+                        <c:if test="${not empty param.interests}">
+                            <input type="hidden" name="interests" value="<c:out value="${param.interests}"/>">
+                        </c:if>
+                        <c:if test="${not empty param.interestName}">
+                            <input type="hidden" name="interestName" value="<c:out value="${param.interestName}"/>">
+                        </c:if>
+
+                        <c:if test="${not empty param.isUpcoming}">
+                            <input type="hidden" name="isUpcoming" value="<c:out value="${param.isUpcoming}"/>">
+                        </c:if>
+                        <c:if test="${not empty param.isPast}">
+                            <input type="hidden" name="isPast" value="<c:out value="${param.isPast}"/>">
+                        </c:if>
+
                         <button type="submit" class="btn-secondary" aria-label="<spring:message code="admin.search.button" />">
                             <img src="<c:url value='/resources/icons/search.svg'/>" alt="<spring:message code="admin.search.button" />" class="search-icon" />
                         </button>
@@ -41,6 +77,32 @@
                         <img src="<c:url value='/resources/icons/x.svg'/>" alt="<spring:message code="journey.filter.close"/>" class="btn-icon close-icon" style="display: none;" />
                         <spring:message code="journey.filter.toggle"/>
                     </button>
+                    <div class="sort-dropdown">
+                        <button id="sortToggleBtn" class="btn-secondary btn-with-icon">
+                            <img src="<c:url value='/resources/icons/sort.svg'/>" alt="<spring:message code="journey.sort.toggle"/>" class="btn-icon" />
+                            <spring:message code="journey.sort.toggle"/>
+                        </button>
+                        <div id="sortDropdown" class="dropdown-content" style="display: none;">
+                            <a href="<c:url value="/journeys?sort=start_date&direction=asc${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.isMyDestination ? '&isMyDestination='.concat(param.isMyDestination) : ''}${not empty param.isUpcoming ? '&isUpcoming='.concat(param.isUpcoming) : ''}${not empty param.isPast ? '&isPast='.concat(param.isPast) : ''}${not empty param.page ? '&page='.concat(param.page) : ''}${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>" class="${param.sort == 'startDate' && param.direction == 'asc' ? 'active' : ''}">
+                                <spring:message code="journey.sort.startDate.asc"/>
+                            </a>
+                            <a href="<c:url value="/journeys?sort=start_date&direction=desc${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.isMyDestination ? '&isMyDestination='.concat(param.isMyDestination) : ''}${not empty param.isUpcoming ? '&isUpcoming='.concat(param.isUpcoming) : ''}${not empty param.isPast ? '&isPast='.concat(param.isPast) : ''}${not empty param.page ? '&page='.concat(param.page) : ''}${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>" class="${param.sort == 'startDate' && param.direction == 'desc' ? 'active' : ''}">
+                                <spring:message code="journey.sort.startDate.desc"/>
+                            </a>
+                            <a href="<c:url value="/journeys?sort=end_date&direction=asc${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.isMyDestination ? '&isMyDestination='.concat(param.isMyDestination) : ''}${not empty param.isUpcoming ? '&isUpcoming='.concat(param.isUpcoming) : ''}${not empty param.isPast ? '&isPast='.concat(param.isPast) : ''}${not empty param.page ? '&page='.concat(param.page) : ''}${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>" class="${param.sort == 'endDate' && param.direction == 'asc' ? 'active' : ''}">
+                                <spring:message code="journey.sort.endDate.asc"/>
+                            </a>
+                            <a href="<c:url value="/journeys?sort=end_date&direction=desc${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.isMyDestination ? '&isMyDestination='.concat(param.isMyDestination) : ''}${not empty param.isUpcoming ? '&isUpcoming='.concat(param.isUpcoming) : ''}${not empty param.isPast ? '&isPast='.concat(param.isPast) : ''}${not empty param.page ? '&page='.concat(param.page) : ''}${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>" class="${param.sort == 'endDate' && param.direction == 'desc' ? 'active' : ''}">
+                                <spring:message code="journey.sort.endDate.desc"/>
+                            </a>
+                            <a href="<c:url value="/journeys?sort=city&direction=asc${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.isMyDestination ? '&isMyDestination='.concat(param.isMyDestination) : ''}${not empty param.isUpcoming ? '&isUpcoming='.concat(param.isUpcoming) : ''}${not empty param.isPast ? '&isPast='.concat(param.isPast) : ''}${not empty param.page ? '&page='.concat(param.page) : ''}${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>" class="${param.sort == 'city' && param.direction == 'asc' ? 'active' : ''}">
+                                <spring:message code="journey.sort.city"/>
+                            </a>
+                            <a href="<c:url value="/journeys?sort=interest&direction=asc${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.isMyDestination ? '&isMyDestination='.concat(param.isMyDestination) : ''}${not empty param.isUpcoming ? '&isUpcoming='.concat(param.isUpcoming) : ''}${not empty param.isPast ? '&isPast='.concat(param.isPast) : ''}${not empty param.page ? '&page='.concat(param.page) : ''}${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>" class="${param.sort == 'interest' && param.direction == 'asc' ? 'active' : ''}">
+                                <spring:message code="journey.sort.interest"/>
+                            </a>
+                        </div>
+                    </div>
                     <c:if test="${hasJourney == false}">
                         <a href="<c:url value="/journeys/create"/>" class="btn btn-primary btn-with-icon">
                             <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="journey.create.button"/>" class="btn-icon" />
@@ -48,6 +110,34 @@
                         </a>
                     </c:if>
                 </div>
+            </div>
+
+            <!-- Journey Tabs -->
+            <div class="journey-tabs">
+                <ul class="tabs-list">
+                    <li class="tab-item ${empty param.isMyDestination && empty param.isUpcoming && empty param.isPast ? 'active' : ''}">
+                        <a href="<c:url value="/journeys?${not empty param.search ? 'search='.concat(param.search).concat('&') : ''}${not empty param.destination ? 'destination='.concat(param.destination).concat('&') : ''}${not empty param.destinationName ? 'destinationName='.concat(param.destinationName).concat('&') : ''}${not empty param.startDate ? 'startDate='.concat(param.startDate).concat('&') : ''}${not empty param.endDate ? 'endDate='.concat(param.endDate).concat('&') : ''}${not empty param.interests ? 'interests='.concat(param.interests).concat('&') : ''}${not empty param.interestName ? 'interestName='.concat(param.interestName).concat('&') : ''}${not empty param.sort ? 'sort='.concat(param.sort).concat('&') : ''}${not empty param.direction ? 'direction='.concat(param.direction).concat('&') : ''}page=1${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>" class="tab-link">
+                            <spring:message code="journey.tabs.all"/>
+                        </a>
+                    </li>
+                    <c:if test="${hasJourney ==  true}">
+                        <li class="tab-item ${not empty param.isMyDestination ? 'active' : ''}">
+                            <a href="<c:url value="/journeys?isMyDestination=true${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.sort ? '&sort='.concat(param.sort) : ''}${not empty param.direction ? '&direction='.concat(param.direction) : ''}&page=1${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>" class="tab-link">
+                                <spring:message code="journey.tabs.myDestination"/>
+                            </a>
+                        </li>
+                    </c:if>
+                    <li class="tab-item ${not empty param.isUpcoming ? 'active' : ''}">
+                        <a href="<c:url value="/journeys?isUpcoming=true${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.sort ? '&sort='.concat(param.sort) : ''}${not empty param.direction ? '&direction='.concat(param.direction) : ''}&page=1${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>" class="tab-link">
+                            <spring:message code="journey.tabs.upcoming"/>
+                        </a>
+                    </li>
+                    <li class="tab-item ${not empty param.isPast ? 'active' : ''}">
+                        <a href="<c:url value="/journeys?isPast=true${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.sort ? '&sort='.concat(param.sort) : ''}${not empty param.direction ? '&direction='.concat(param.direction) : ''}&page=1${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>" class="tab-link">
+                            <spring:message code="journey.tabs.past"/>
+                        </a>
+                    </li>
+                </ul>
             </div>
 
             <!-- Filter Section - Initially Hidden -->
@@ -110,7 +200,7 @@
                                 <input type="text" id="interest-search" class="autocomplete-input"
                                        placeholder="<spring:message code='journey.filter.interest.placeholder'/>"
                                        value="${param.interestName}" />
-                                <form:select path="interests" id="interest-select" name="interest" class="hidden-select" style="display: none;">
+                                <form:select path="interests" id="interest-select" name="interests" class="hidden-select" style="display: none;">
                                     <option value=""></option>
                                     <c:forEach var="interest" items="${interests}">
                                         <option value="${interest.id}" ${param.interests == interest.id ? 'selected' : ''}><c:out value="${interest.name}"/></option>
@@ -125,8 +215,37 @@
                             </div>
                             <form:errors path="interests" cssClass="error-message" />
                         </div>
-
                     </div>
+
+                    <!-- Preserve search parameter -->
+                    <c:if test="${not empty param.search}">
+                        <input type="hidden" name="search" value="<c:out value="${param.search}"/>">
+                    </c:if>
+
+                    <!-- Preserve sort parameters -->
+                    <c:if test="${not empty param.sort}">
+                        <input type="hidden" name="sort" value="<c:out value="${param.sort}"/>">
+                    </c:if>
+                    <c:if test="${not empty param.direction}">
+                        <input type="hidden" name="direction" value="<c:out value="${param.direction}"/>">
+                    </c:if>
+
+                    <!-- Preserve tab parameters -->
+                    <c:if test="${not empty param.isMyDestination}">
+                        <form:hidden path="isMyDestination" value="${param.isMyDestination}" />
+                    </c:if>
+                    <c:if test="${not empty param.isUpcoming}">
+                        <form:hidden path="isUpcoming" value="${param.isUpcoming}" />
+                    </c:if>
+                    <c:if test="${not empty param.isPast}">
+                        <form:hidden path="isPast" value="${param.isPast}" />
+                    </c:if>
+
+                    <!-- Preserve pagination parameters -->
+                    <input type="hidden" name="page" value="1">
+                    <c:if test="${not empty param.pageSize}">
+                        <input type="hidden" name="pageSize" value="<c:out value="${param.pageSize}"/>">
+                    </c:if>
 
                     <div class="filter-actions">
                         <button type="button" id="resetFiltersBtn" class="btn-danger btn-with-icon">
@@ -195,7 +314,7 @@
         // Check if there are any filter parameters in the URL
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('destination') || urlParams.has('startDate') ||
-            urlParams.has('endDate') || urlParams.has('interest')) {
+            urlParams.has('endDate') || urlParams.has('interests')) {
             // Show filter section if filters are applied
             filterSection.classList.remove('hidden');
             // Update icons
@@ -220,6 +339,22 @@
             this.classList.toggle('active');
         });
 
+        // Sort dropdown toggle
+        const sortToggleBtn = document.getElementById('sortToggleBtn');
+        const sortDropdown = document.getElementById('sortDropdown');
+
+        sortToggleBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            sortDropdown.style.display = sortDropdown.style.display === 'block' ? 'none' : 'block';
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!sortToggleBtn.contains(e.target) && !sortDropdown.contains(e.target)) {
+                sortDropdown.style.display = 'none';
+            }
+        });
+
         // City Autocomplete
         initAutocomplete('citySearch', 'cityDropdown', 'city', 'citySelectedContainer', false);
 
@@ -235,32 +370,62 @@
             resetFiltersBtn.addEventListener('click', function(e) {
                 e.preventDefault(); // Prevent default button behavior
 
-                // Clear all form inputs
-                const inputs = filterForm.querySelectorAll('input');
-                inputs.forEach(input => {
-                    input.value = '';
-                });
+                // Build URL with only sort parameters preserved
+                let resetUrl = '<c:url value="/journeys"/>';
+                const sortParam = urlParams.get('sort');
+                const directionParam = urlParams.get('direction');
+                const searchParam = urlParams.get('search');
+                const pageSizeParam = urlParams.get('pageSize');
 
-                // Clear all select elements
-                const selects = filterForm.querySelectorAll('select');
-                selects.forEach(select => {
-                    Array.from(select.options).forEach(option => {
-                        option.selected = false;
-                    });
-                    // Select the first empty option if it exists
-                    if (select.options.length > 0 && select.options[0].value === '') {
-                        select.options[0].selected = true;
-                    }
-                });
+                // Preserve tab parameters
+                const isMyDestinationParam = urlParams.get('isMyDestination');
+                const isUpcomingParam = urlParams.get('isUpcoming');
+                const isPastParam = urlParams.get('isPast');
 
-                // Clear all selected tags
-                const selectedContainers = filterForm.querySelectorAll('.selected-items-container');
-                selectedContainers.forEach(container => {
-                    container.innerHTML = '';
-                });
+                // Start with question mark if we have parameters
+                let hasParam = false;
 
-                // Navigate to the base journeys URL
-                window.location.href = '<c:url value="/journeys"/>';
+                if (sortParam) {
+                    resetUrl += (hasParam ? '&' : '?') + 'sort=' + sortParam;
+                    hasParam = true;
+                }
+
+                if (directionParam) {
+                    resetUrl += (hasParam ? '&' : '?') + 'direction=' + directionParam;
+                    hasParam = true;
+                }
+
+                if (searchParam) {
+                    resetUrl += (hasParam ? '&' : '?') + 'search=' + searchParam;
+                    hasParam = true;
+                }
+
+                if (pageSizeParam) {
+                    resetUrl += (hasParam ? '&' : '?') + 'pageSize=' + pageSizeParam;
+                    hasParam = true;
+                }
+
+                // Add tab parameters if they exist
+                if (isMyDestinationParam) {
+                    resetUrl += (hasParam ? '&' : '?') + 'isMyDestination=' + isMyDestinationParam;
+                    hasParam = true;
+                }
+
+                if (isUpcomingParam) {
+                    resetUrl += (hasParam ? '&' : '?') + 'isUpcoming=' + isUpcomingParam;
+                    hasParam = true;
+                }
+
+                if (isPastParam) {
+                    resetUrl += (hasParam ? '&' : '?') + 'isPast=' + isPastParam;
+                    hasParam = true;
+                }
+
+                // Always reset to page 1
+                resetUrl += (hasParam ? '&' : '?') + 'page=1';
+
+                // Navigate to the reset URL
+                window.location.href = resetUrl;
             });
         }
 
@@ -445,5 +610,90 @@
         }
     });
 </script>
+
+<style>
+    /* Sort dropdown styles */
+    .sort-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-content {
+        position: absolute;
+        right: 0;
+        background-color: white;
+        min-width: 200px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        z-index: 1;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .dropdown-content a {
+        color: #333;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        transition: background-color 0.2s;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #f1f1f1;
+    }
+
+    .dropdown-content a.active {
+        background-color: #e5e7eb;
+        font-weight: 500;
+    }
+
+    /* Journey Tabs Styles */
+    .journey-tabs {
+        margin: 1.5rem 0;
+    }
+
+    .tabs-list {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        border-bottom: 1px solid #e5e7eb;
+        overflow-x: auto;
+    }
+
+    .tab-item {
+        margin-right: 0.5rem;
+    }
+
+    .tab-link {
+        display: block;
+        padding: 0.75rem 1.25rem;
+        color: #6b7280;
+        text-decoration: none;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .tab-item.active .tab-link {
+        color: #4361ee;
+        border-bottom-color: #4361ee;
+        font-weight: 500;
+    }
+
+    .tab-link:hover {
+        color: #4361ee;
+    }
+
+    @media (max-width: 640px) {
+        .tabs-list {
+            padding-bottom: 0.5rem;
+        }
+
+        .tab-link {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+    }
+</style>
 </body>
 </html>

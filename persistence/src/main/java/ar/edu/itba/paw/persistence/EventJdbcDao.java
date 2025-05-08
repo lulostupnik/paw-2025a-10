@@ -117,6 +117,7 @@ public class EventJdbcDao implements EventDao {
 
     private final static String SQL_NOT_DELETED = " WHERE e.deleted = FALSE ";
     private final static String SQL_BASE = SQL_SELECT_BASE + SQL_FROM_BASE; // + SQL_NOT_DELETED;
+    private final static String SQL_BASE_INTEREST = SQL_BASE + " JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id " ;
     private static final String SQL_BASE_NOT_DELETED = SQL_BASE + SQL_NOT_DELETED;
 
     private final static String SQL_FIND_BY_ID = SQL_BASE_NOT_DELETED + " AND e.id = ? ";
@@ -168,6 +169,15 @@ public class EventJdbcDao implements EventDao {
                         )
                      ORDER BY e.event_date DESC LIMIT ? OFFSET ?
                    """;
+
+    private final static String SQL_SEARCH_WHERE_CLAUSE =
+            """
+            (
+            LOWER(e.title) LIKE LOWER(?)
+    OR LOWER(c.name) LIKE LOWER(?)
+    OR LOWER(us.username) LIKE LOWER(?)
+    )
+    """;
 
     private final static String SQL_COUNT_OTHERS_EVENTS_WITH_ATTENDANCE =
             """
@@ -381,7 +391,7 @@ public class EventJdbcDao implements EventDao {
 
 
     @Override
-    public Page<UserEvent> getRecommendedEvents(final long userId, final int page, final int size) {
+    public Page<Event> getRecommendedEvents(final long userId, final int page, final int size) {
         LOGGER.debug("[RecommendedEvents] Fetching recommended events for user {} (page={}, size={})", userId, page, size);
 
         final int totalItems = jdbcTemplate.queryForObject("""
@@ -399,14 +409,9 @@ public class EventJdbcDao implements EventDao {
 
         LOGGER.debug("[RecommendedEvents] Total matching events found: {}", totalItems);
 
-        final List<UserEvent> events = jdbcTemplate.query(
+        final List<Event> events = jdbcTemplate.query(
                 SQL_RECOMMENDED_EVENTS,
-                (rs, rowNum) -> {
-                    Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
-                    boolean isAttending = rs.getBoolean("is_attending");
-                    return new UserEvent(event, isAttending);
-                },
-
+                EVENT_ROW_MAPPER,
                 userId, userId, userId, size, offset(page, size)
         );
 
@@ -429,7 +434,7 @@ public class EventJdbcDao implements EventDao {
 
 
     @Override
-    public Page<UserEvent> getTopUserEvents(long userId, final int page, final int size) {
+    public Page<Event> getTopUserEvents(long userId, final int page, final int size) {
         LOGGER.debug("[TopUserEvents] Fetching top events for user {} (page={}, size={})", userId, page, size);
 
         final int totalItems = jdbcTemplate.queryForObject(
@@ -438,12 +443,7 @@ public class EventJdbcDao implements EventDao {
                 userId
         );
 
-        final List<UserEvent> events = jdbcTemplate.query(SQL_TOP_EVENTS_LOGGED_USER,
-                (rs, rowNum) -> {
-                    Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
-                    boolean isAttending = rs.getBoolean("is_attending");
-                    return new UserEvent(event, isAttending);
-                },
+        final List<Event> events = jdbcTemplate.query(SQL_TOP_EVENTS_LOGGED_USER, EVENT_ROW_MAPPER,
                 userId,userId, userId, size, (page - 1) * size
         );
 
@@ -577,7 +577,7 @@ public class EventJdbcDao implements EventDao {
         return new Page<>(events, page, pageCount(totalItems, size));}
 
 
-    public Page<UserEvent> getEventsWithAttendanceStatus(final long userId, final int page, final int size) {
+    public Page<Event> getEventsWithAttendanceStatus(final long userId, final int page, final int size) {
 
         final int totalItems = jdbcTemplate.queryForObject("""
                    SELECT COUNT(*) FROM events e
@@ -588,13 +588,9 @@ public class EventJdbcDao implements EventDao {
                 userId, userId
         );
 
-        final List<UserEvent> events = jdbcTemplate.query(
+        final List<Event> events = jdbcTemplate.query(
                 SQL_FIND_WITH_ATTENDANCE_PAGED,
-                (rs, rowNum) -> {
-                    Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
-                    boolean isAttending = rs.getBoolean("is_attending");
-                    return new UserEvent(event, isAttending);
-                },
+                EVENT_ROW_MAPPER,
                 userId, userId, size, offset(page, size)
         );
 
@@ -635,46 +631,128 @@ public class EventJdbcDao implements EventDao {
 //    }
 
     @Override
-    public Page<UserEvent> getEventsWithAttendanceStatus(Long userId, String search, int page, int size) {
+    public Page<Event> getEventsWithAttendanceStatus(Long userId, String search,
+                                                     String sortBy, String direction, Long destination,
+                                                     LocalDate startDate, LocalDate endDate, Long interest,
+                                                     boolean isPast, boolean isUpcoming, boolean attending, int page, int size){
         final String searchPattern = likePattern(search);
         if(userId != null){
             // return getEventsWithAttendanceStatus(search, userId, page, size);
-            return getWithAttendance(userId, searchPattern, page, size);
+            return getWithAttendance(userId, searchPattern, sortBy, direction, destination,
+                    startDate, endDate, interest, isPast, isUpcoming, attending, page, size);
         }
         return getWithAttendance(searchPattern, page, size);
     }
 
-    private Page<UserEvent> getWithAttendance(long userId, String searchPattern, int page, int size) {
-        int totalItems = jdbcTemplate.queryForObject(SQL_COUNT_OTHERS_EVENTS_WITH_ATTENDANCE, Integer.class, userId, userId, searchPattern, searchPattern, searchPattern);
-        List<UserEvent> events = jdbcTemplate.query(SQL_SEARCH_OTHERS_EVENTS_WITH_ATTENDANCE, (rs, rowNum) -> {
-            Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
-            boolean isAttending = rs.getBoolean("is_attending");
-            return new UserEvent(event, isAttending);
-        }, userId, userId, searchPattern, searchPattern, searchPattern, size, offset(page, size));
+    private Page<Event> getWithAttendance(long userId, String searchPattern, String sortBy, String direction, Long destination,
+                                          LocalDate startDate, LocalDate endDate, Long interest,
+                                          boolean isPast, boolean isUpcoming, boolean attending,
+                                          int page, int size) {
+        final List<String> filters = new ArrayList<>();
+        final List<Object> params = new ArrayList<>();
+
+        final StringBuilder countQueryBuilder = new StringBuilder("SELECT COUNT(*) FROM events e");
+        final StringBuilder queryBuilder = new StringBuilder((interest != null) ? SQL_BASE_INTEREST : SQL_BASE);
+
+
+        if (interest != null) {
+            countQueryBuilder.append(" JOIN users us ON e.user_id = us.id JOIN user_interest ui ON us.id = ui.user_id");
+            filters.add("ui.category_id = ?");
+            params.add(interest);
+        }
+
+        if (destination != null) {
+            countQueryBuilder.append(" JOIN cities ci2 ON e.city_id = ci2.id ");
+            filters.add("ci2.id = ?");
+            params.add(destination);
+        }
+
+        filters.add("e.user_id != ?");
+        params.add(userId);
+
+
+        if (endDate != null) {
+            filters.add("e.event_date <= ?");
+            params.add(Date.valueOf(endDate));
+        }
+
+        if (startDate != null) {
+            filters.add("e.event_date >= ?");
+            params.add(Date.valueOf(startDate));
+        }
+
+        if(searchPattern != null && !searchPattern.isEmpty()) {
+            if(destination == null) {
+                countQueryBuilder.append(" JOIN cities ci2 ON e.city_id = ci2.id ");
+            }
+            if(interest == null) {
+                countQueryBuilder.append(" JOIN users us ON e.user_id = us.id JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id ");
+            }
+            filters.add(SQL_SEARCH_WHERE_CLAUSE);
+            params.add(searchPattern);
+            params.add(searchPattern);
+            params.add(searchPattern);
+        }
+        if(attending) {
+            queryBuilder.append(" LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ");
+            queryBuilder.append( userId );
+            countQueryBuilder.append(" LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = " );
+            countQueryBuilder.append( userId );
+            filters.add("ea.user_id = ?");
+            params.add(userId);
+        } else
+            if (isPast) {
+            filters.add("e.event_date < CURRENT_DATE");
+        } else if (isUpcoming) {
+            filters.add("e.event_date >= CURRENT_DATE");
+        }
+
+
+        countQueryBuilder.append(" WHERE e.deleted = FALSE ");
+            queryBuilder.append(" WHERE e.deleted = FALSE ");
+
+        if(!filters.isEmpty()) {
+            countQueryBuilder.append(" AND  ").append(String.join(" AND ", filters));
+            queryBuilder.append(" AND ").append(String.join(" AND ", filters));
+        }
+
+        if (sortBy != null && !sortBy.isEmpty()) {
+            if(sortBy.equals("destination")){
+                sortBy= "ci2.name";
+            }
+            if(sortBy.equals("interest")){
+                sortBy= "c.name";
+            }
+            queryBuilder.append(" ORDER BY ").append(sortBy);
+        } else {
+            queryBuilder.append(" ORDER BY e.id");
+        }
+
+        final int totalItems = jdbcTemplate.queryForObject(countQueryBuilder.toString(), Integer.class, params.toArray());
+
+        queryBuilder.append(" LIMIT ? OFFSET ? ");
+
+        params.add(size);
+        params.add(offset(page, size));
+
+        List<Event> events = jdbcTemplate.query(queryBuilder.toString(), EVENT_ROW_MAPPER, params.toArray());
         return new Page<>(events, page, pageCount(totalItems, size));
+
     }
 
-    private Page<UserEvent> getWithAttendance(String searchPattern, int page, int size) {
+    private Page<Event> getWithAttendance(String searchPattern, int page, int size) {
         int totalItems = jdbcTemplate.queryForObject(SQL_COUNT_ALL_EVENTS_WITH_ATTENDANCE, Integer.class, searchPattern, searchPattern, searchPattern);
-        List<UserEvent> events = jdbcTemplate.query(SQL_SEARCH_ALL_EVENTS_WITH_ATTENDANCE, (rs, rowNum) -> {
-            Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
-            boolean isAttending = rs.getBoolean("is_attending");
-            return new UserEvent(event, isAttending);
-        }, searchPattern, searchPattern, searchPattern, size, offset(page, size));
+        List<Event> events = jdbcTemplate.query(SQL_SEARCH_ALL_EVENTS_WITH_ATTENDANCE, EVENT_ROW_MAPPER, searchPattern, searchPattern, searchPattern, size, offset(page, size));
         return new Page<>(events, page, pageCount(totalItems, size));
     }
 
 
     @Override
-    public List<UserEvent> getEventsWithAttendanceStatus(final long userId) {
+    public List<Event> getEventsWithAttendanceStatus(final long userId) {
 
         return jdbcTemplate.query(
                 SQL_FIND_EVENTS_WITH_ATTENDANCE,
-                (rs, rowNum) -> {
-                    Event event = EVENT_ROW_MAPPER.mapRow(rs, rowNum);
-                    boolean isAttending = rs.getBoolean("is_attending");
-                    return new UserEvent(event, isAttending);
-                },
+                EVENT_ROW_MAPPER,
                 userId, userId
         );
     }

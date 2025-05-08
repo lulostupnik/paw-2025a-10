@@ -4,14 +4,12 @@ import java.util.Collections;
 import java.util.List;
 
 import ar.edu.itba.paw.interfaces.services.JourneyService;
+import ar.edu.itba.paw.models.Event;
 import ar.edu.itba.paw.models.Journey;
 import ar.edu.itba.paw.models.User;
-import ar.edu.itba.paw.models.UserEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import ar.edu.itba.paw.interfaces.services.EventService;
-import ar.edu.itba.paw.models.Event;
 
 @Controller
 public class LandingController {
@@ -53,7 +50,7 @@ public class LandingController {
     }
 
     private void populateHomePage(ModelAndView mav, User user) {
-        List<UserEvent> events = eventService.getRecommendedEvents(user.getId(), 8);
+        List<Event> events = eventService.getRecommendedEvents(user.getId(), 8);
         LOGGER.debug("Events: {}", events);
         mav.addObject("events", events);
 

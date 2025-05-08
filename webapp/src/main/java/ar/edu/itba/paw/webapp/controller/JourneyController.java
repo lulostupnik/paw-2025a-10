@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import javax.validation.Valid;
 
+import ar.edu.itba.paw.models.exceptions.InvalidException;
 import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
@@ -50,13 +51,21 @@ public class JourneyController {
     public ModelAndView getJourneys(@Valid @ModelAttribute("filterJourneyForm") FilterJourneyForm fjf, final BindingResult errors,
                                     @ModelAttribute("user") User user,
                                     @PageParamCustomizer(defaultSize = 8) PageParams  pageParams,
-                                    @RequestParam(value = "search", required = false) String search){
+                                    @RequestParam(value = "search", required = false) String search,
+                                    @RequestParam(value = "sort", required = false) String sortBy,
+                                    @RequestParam(value = "direction", required = false) String direction) {
 
         LOGGER.debug("Getting journeys with filters: {destination: \"{}\", startDate: \"{}\", endDate: \"{}\", interest: \"{}\"}",fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
         final ModelAndView mav = new ModelAndView("journeys/list");
-        mav.addObject("journeys", js.getAllJourneys(search, user,
-                fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests(), pageParams));
-        mav.addObject("hasJourney", user != null && js.userHasJourney(user));
+
+        boolean hasJourney = user != null && js.userHasJourney(user);
+        if(! hasJourney && fjf.getIsMyDestination()){
+            throw new InvalidException("You must have a journey to filter by destination");
+        }
+        mav.addObject("journeys", js.getAllJourneys(search, user, sortBy,direction,
+                fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests(),fjf.getIsPast(), fjf.getIsUpcoming(), fjf.getIsMyDestination(),
+                pageParams));
+        mav.addObject("hasJourney", hasJourney);
         mav.addObject("pageSize", pageParams.getSize());
         mav.addObject("currentPage", pageParams.getPage());
 
