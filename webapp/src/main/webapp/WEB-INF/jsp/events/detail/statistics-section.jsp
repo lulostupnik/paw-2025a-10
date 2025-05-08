@@ -25,38 +25,65 @@ Parameters:
 
 <div class="content-section">
     <div class="section-header">
-        <h2 class="section-title">
-            <!-- Users icon SVG -->
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-            </svg>
-            <spring:message code="event.attendees" />
-            <c:if test="${event.attendeesLimit.isPresent()}">
-                <span class="count">(<c:out value="${event.attendeesCount}" /> / <c:out value="${event.attendeesLimit.get()}" />)</span>
+        <div class="attendees-header">
+            <h2 class="section-title">
+                <!-- Users icon SVG -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <spring:message code="event.data" />
+
+            </h2>
+            <c:if test="${showToggle eq 'true' and showList eq 'true'}">
+                <button class="toggle-button" data-toggle="attendees-list" onclick="toggleSection('attendees-list')">
+                    <span class="collapse-icon">
+                        <!-- Chevron up icon SVG -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="18 15 12 9 6 15"></polyline>
+                        </svg>
+                    </span>
+                    <span class="expand-icon" style="display: none;">
+                        <!-- Chevron down icon SVG -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </span>
+                </button>
             </c:if>
-            <c:if test="${event.attendeesLimit.isEmpty()}">
-                <span class="count">(<c:out value="${event.attendeesCount}" /> / <spring:message code="event.noAttendeesLimit"/>)</span>
-            </c:if>
-        </h2>
-        <c:if test="${showToggle eq 'true' and showList eq 'true'}">
-            <button class="toggle-button" data-toggle="attendees-list" onclick="toggleSection('attendees-list')">
-                <span class="collapse-icon">
-                    <!-- Chevron up icon SVG -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="18 15 12 9 6 15"></polyline>
-                    </svg>
-                </span>
-                <span class="expand-icon" style="display: none;">
-                    <!-- Chevron down icon SVG -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                </span>
-            </button>
-        </c:if>
+        </div>
+    </div>
+
+    <div class="data-statistics-container">
+        <div class="data-section">
+            <div class="statistics-list">
+                <div class="stat-item">
+                    <span class="stat-label"><spring:message code="event.stats.createdEvents" /></span>
+                    <span class="stat-value"><c:out value="${createdEventsCount}" /></span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label"><spring:message code="event.stats.attendedEvents" /></span>
+                    <span class="stat-value"><c:out value="${attendedEventsCount}" /></span>
+                </div>
+                <c:if test="${not empty topAttendeeCountry}">
+                    <div class="stat-item">
+                        <span class="stat-label"><spring:message code="event.stats.topCountry" /></span>
+                        <span class="stat-value"><c:out value="${topAttendeeCountry}" /> (<c:out value="${topAttendeeCountryCount}" />)</span>
+                    </div>
+                </c:if>
+                <div class="stat-item">
+                    <span class="stat-label"><spring:message code="event.stats.totalParticipants" /></span>
+                    <c:if test="${event.attendeesLimit.isPresent()}">
+                        <span class="stat-value">(<c:out value="${event.attendeesCount}" /> / <c:out value="${event.attendeesLimit.get()}" />)</span>
+                    </c:if>
+                    <c:if test="${event.attendeesLimit.isEmpty()}">
+                        <span class="stat-value">(<c:out value="${event.attendeesCount}" /> / <spring:message code="event.noAttendeesLimit"/>)</span>
+                    </c:if>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Attendees List - Only shown if showList is true -->
