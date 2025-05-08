@@ -12,6 +12,7 @@
     <title><spring:message code="journey.detail.title"/></title>
     <link rel="stylesheet" href="<c:url value="/resources/css/main.css"/>" />
     <link rel="stylesheet" href="<c:url value="/resources/css/event-detail.css"/>" />
+    <link rel="stylesheet" href="<c:url value="/resources/css/journeys.css"/>" />
     <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
     <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
     <script src="<c:url value='/resources/js/confirm-delete.js'/>"></script>
@@ -76,9 +77,9 @@
 
             <!-- Journey Detail Card -->
             <div class="content-card journey-detail-card">
-                <!-- Admin Delete Button (Top Right) -->
-                <sec:authorize access="hasRole('ADMIN')">
-                    <div class="delete-journey-btn">
+                <!-- Journey Actions (Edit/Delete) -->
+                <div class="journey-actions">
+                    <c:if test="${isOwner || pageContext.request.isUserInRole('ADMIN')}">
                         <c:url var="deleteUrl" value='/journeys/${journey.id}/delete'/>
                         <form:form modelAttribute="deleteForm" id="delete-journey-form" action="${deleteUrl}" method="post" style="display: none;">
                             <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
@@ -90,17 +91,27 @@
                             </jsp:include>
                         </form:form>
 
-                        <button type="button" class="btn-attendance btn-danger" onclick="openDeleteModal('delete-journey-form', 'journey')">
+                        <c:if test="${isOwner}">
+                            <a href="<c:url value='/journeys/${journey.id}/update'/>" class="btn-action btn-edit">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                                <span class="btn-text"><spring:message code="journey.edit" text="Edit Journey" /></span>
+                            </a>
+                        </c:if>
+
+                        <button type="button" class="btn-action btn-danger" onclick="openDeleteModal('delete-journey-form', 'journey')">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
                                 <path d="M3 6h18"></path>
                                 <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
                                 <line x1="10" y1="11" x2="10" y2="17"></line>
                                 <line x1="14" y1="11" x2="14" y2="17"></line>
                             </svg>
-                            <span class="btn-text"><spring:message code="event.delete" text="Delete" /></span>
+                            <span class="btn-text"><spring:message code="journey.delete" text="Delete Journey" /></span>
                         </button>
-                    </div>
-                </sec:authorize>
+                    </c:if>
+                </div>
 
                 <!-- Journey Detail Header -->
                 <div class="journey-detail-header">

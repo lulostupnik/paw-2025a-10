@@ -262,7 +262,7 @@
         </form:form>
 
         <div class="auth-footer">
-            <a  class="auth-link" href="<c:url value='/profile/events?eventsTab=created'/>" class="btn-text">
+            <a  class="auth-link" href="<c:url value='/events/${eventId}'/>" class="btn-text">
                 <spring:message code="event.back" text="Back to events"/>
             </a>
         </div>

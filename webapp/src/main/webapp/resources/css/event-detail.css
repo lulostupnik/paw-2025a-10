@@ -62,6 +62,69 @@
     flex-shrink: 0;
 }
 
+/* Event Actions */
+.event-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.btn-edit,
+.btn-delete {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    color: white;
+}
+
+.btn-edit:hover {
+    background: linear-gradient(135deg, #4338ca, #4f46e5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
+}
+
+.btn-edit:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.btn-delete:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-2px);
+
+    box-shadow: 0 4px 8px rgba #dc2626, #b91c1c;
+);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+}
+
+.btn-delete:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+}
+
+.btn-icon {
+    width: 18px;
+    height: 18px;
+}
+
 /* Attendance Control - Standardized styles for both states */
 .attendance-status,
 form[action*="/attend-detail"] {
@@ -94,7 +157,6 @@ form[action*="/attend-detail"] {
     background-color: #3b82f6;
     color: white;
     box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
-
 }
 
 .attend-detail-button:hover {
@@ -114,7 +176,7 @@ form[action*="/attend-detail"] {
     height: 100%;
     opacity: 0;
     transform: translateX(100%);
-    border-radius:0.5rem;
+    border-radius: 0.5rem;
     transition: all 0.3s ease;
 }
 
@@ -133,7 +195,7 @@ form[action*="/attend-detail"] {
     color: white;
     border: none;
     cursor: pointer;
-    border-radius:0.5rem;
+    border-radius: 0.5rem;
 }
 
 .event-full {
@@ -203,7 +265,6 @@ form[action*="/attend-detail"] {
     height: 100%;
     object-fit: cover;
 }
-
 
 .flyer-placeholder {
     width: 100%;
@@ -386,8 +447,6 @@ form[action*="/attend-detail"] {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-
-
 .attendee-avatar {
     flex-shrink: 0;
 }
@@ -474,7 +533,6 @@ form[action*="/attend-detail"] {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     border-left: 3px solid #4f46e5;
 }
-
 
 .message-header {
     display: flex;
@@ -620,7 +678,34 @@ form[action*="/attend-detail"] {
     }
 
     .action-controls {
-        align-self: flex-end;
+        align-self: flex-start;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .event-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .btn-edit,
+    .btn-delete {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .attendance-status,
+    form[action*="/attend-detail"],
+    .event-full {
+        width: 100%;
+    }
+
+    .attending-detail-badge,
+    .attend-detail-button,
+    .event-full,
+    button[type="submit"] {
+        width: 100%;
+        justify-content: center;
     }
 
     .event-flyer {
