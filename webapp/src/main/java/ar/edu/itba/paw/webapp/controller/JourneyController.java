@@ -46,7 +46,7 @@ public class JourneyController {
     }
 
 
-    @RequestMapping
+    @GetMapping
     public ModelAndView getJourneys(@Valid @ModelAttribute("filterJourneyForm") FilterJourneyForm fjf, final BindingResult errors,
                                     @ModelAttribute("user") User user,
                                     @PageParamCustomizer(defaultSize = 8) PageParams  pageParams,
@@ -105,7 +105,7 @@ public class JourneyController {
         return new ModelAndView(REDIRECT_JOURNEY + journey.getId());
     }
 
-    @RequestMapping(value = "/create")
+    @GetMapping(value = "/create")
     public ModelAndView createJourneyForm(@ModelAttribute("createJourneyForm") final CreateJourneyForm jf, @ModelAttribute("user") User user) {
 
         if (js.userHasJourney(user)) {
@@ -117,7 +117,7 @@ public class JourneyController {
                 .addObject("universities", universityService.getAllUniversities());
     }
 
-    @RequestMapping(value = "/{id}")
+    @GetMapping(value = "/{id}")
     public ModelAndView getJourney(@PathVariable long id,
                                       @ModelAttribute("user") User user,
                                    @Valid @ModelAttribute("replyJourneyForm") final ReplyForm rjf,

@@ -114,12 +114,19 @@ public class InterestServiceImpl implements InterestService {
         interestDao.updateScoreByInterest(interest, userId);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void updateScoreByInterests(List<Interest> interests, long userId) {
         LOGGER.debug("Increasing score of interests {} for user {}", interests, userId);
         interestDao.updateScoreByInterests(interests, userId);
+        // FIXME: OJO!, CREO QUE EL INTEREST DAO NO PUEDE TOCAR LA TABLA DE USER
+        // -> esto debería estar en el user dao
 
+    }
+
+    @Override
+    public void updateUserInterests(List<Long> interestIds, long userId) {
+        interestDao.updateUserInterests(interestIds, userId);
     }
 
     @Override
@@ -132,20 +139,12 @@ public class InterestServiceImpl implements InterestService {
     }
 
     @Override
-    public void deleteUserInterests(long userId, long[] interests) {
-        LOGGER.debug("Deleting interests {} from user {}", interests, userId);
-        for(long interest : interests) {
-            interestDao.deleteUserInterest(interest);
-        }
-    }
-
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = "interestsById", key = "#id"),
             @CacheEvict(value = "interests", allEntries = true),
             @CacheEvict(value = "interestsByName", allEntries = true)
     })
-    @Override
     public void delete(long id) {
         interestDao.delete(id);
     }
