@@ -24,7 +24,7 @@ import java.util.*;
 @Transactional(readOnly = true)
 public class EventServiceImpl implements EventService {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventServiceImpl.class);
-    protected final EventResponseDao eventResponseDao;
+    private final EventResponseDao eventResponseDao;
 
     private final UserService userService;
     private final EmailService emailService;
