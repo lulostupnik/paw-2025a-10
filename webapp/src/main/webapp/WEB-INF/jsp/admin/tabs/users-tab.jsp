@@ -98,6 +98,7 @@
           <spring:message code="user.block.cancel"/>
         </button>
         <form id="blockUserForm" method="post">
+          <input type="hidden" value="${userId}" name="id"/>
           <button type="submit" class="cta-button" id="confirmBlockBtn">
             <spring:message code="user.block.confirm"/>
           </button>
@@ -138,14 +139,14 @@
           confirmBtn.textContent = '<spring:message code="user.block.confirm"/>';
           confirmBtn.className = 'cta-button delete-button';
           modalWarning.style.display = 'block';
-          blockForm.action = '<c:url value="/users/"/>' + userId + '/block/';
+          blockForm.action = '<c:url value="/users/block"/>' ;
         } else {
           modalTitle.textContent = '<spring:message code="user.unblock.confirm.title"/>';
           modalMessage.textContent = '<spring:message code="user.unblock.confirm.message" arguments="' + userName + '"/>';
           confirmBtn.textContent = '<spring:message code="user.unblock.confirm"/>';
           confirmBtn.className = 'cta-button primary';
           modalWarning.style.display = 'none';
-          blockForm.action = '<c:url value="/users/"/>' + userId + '/unblock/';
+          blockForm.action = '<c:url value="/users/unblock"/>';
         }
 
         // Show modal
