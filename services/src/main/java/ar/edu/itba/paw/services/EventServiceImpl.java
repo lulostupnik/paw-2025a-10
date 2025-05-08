@@ -387,7 +387,7 @@ public class EventServiceImpl implements EventService {
 
 
 
-    @Scheduled(cron = "0 0 12 * * ?" /*, zone = "America/Argentina/Buenos_Aires"*/)
+    @Scheduled(cron = "0 0 12 * * ?")
     @Transactional(readOnly = true)
     public void sendEventReminders(){
         LOGGER.info("Starting scheduled task: sending reminder emails for upcoming events");
@@ -395,10 +395,7 @@ public class EventServiceImpl implements EventService {
         LocalDate today = LocalDate.now();
         LocalDate tomorrow = today.plusDays(1);
 
-        List<Event> upcomingEvents = eventDao.listByQuery(null, today)
-                .stream()
-                .filter(event -> (event.getDate().isEqual(today) || event.getDate().isEqual(tomorrow)))
-                .toList();
+        List<Event> upcomingEvents = eventDao.findAllBetweenDates(today, tomorrow);
 
         LOGGER.info("Found {} events occurring in the next 24 hours", upcomingEvents.size());
 

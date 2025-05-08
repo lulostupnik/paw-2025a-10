@@ -124,6 +124,7 @@ public class EventJdbcDao implements EventDao {
     private final static String SQL_FIND_BY_EMAIL = SQL_BASE_NOT_DELETED + " AND us.email = ?";
     private final static String SQL_FIND_MY_EVENTS = SQL_BASE_NOT_DELETED + " AND e.user_id = ? "; // "ORDER BY e.event_date DESC"
     private final static String SQL_FIND_OTHERS_EVENTS = SQL_BASE_NOT_DELETED + " AND e.user_id != ? AND e.event_date >= CURRENT_DATE ORDER BY e.event_date DESC ";
+    private final static String SQL_FIND_ALL_BETWEEN_DATES = SQL_BASE_NOT_DELETED + " AND e.event_date BETWEEN ? AND ? ";
 
     private final static String SQL_FIND_ALL_PAGED = SQL_BASE_NOT_DELETED + " ORDER BY e.event_date DESC LIMIT ? OFFSET ? ";
     private final static String SQL_FIND_OTHERS_PAGED = SQL_FIND_OTHERS_EVENTS + " LIMIT ? OFFSET ?";
@@ -387,6 +388,11 @@ public class EventJdbcDao implements EventDao {
     @Override
     public List<Event> getEvents(final String email) {
         return jdbcTemplate.query(SQL_FIND_BY_EMAIL, EVENT_ROW_MAPPER, email);
+    }
+
+    @Override
+    public List<Event> findAllBetweenDates(LocalDate startDate, LocalDate endDate) {
+        return jdbcTemplate.query(SQL_FIND_ALL_BETWEEN_DATES, EVENT_ROW_MAPPER, startDate, endDate);
     }
 
 
