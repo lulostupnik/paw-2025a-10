@@ -54,15 +54,16 @@
                             <c:set var="destinationLabel"><spring:message code="createJourney.destinationCity"/></c:set>
                             <form:label for="citySearch" class="form-label" path="destination">${destinationLabel}</form:label>
                             <div class="autocomplete-wrapper">
-                                <input type="text" id="citySearch" class="autocomplete-input"
-                                       placeholder="<spring:message code='journey.filter.destination.placeholder'/>"
+                                <c:set var="citySearch"><spring:message code='journey.filter.destination.placeholder'/></c:set>
+                                <form:input path="destination" type="text" id="citySearch" class="autocomplete-input"
+                                       placeholder="${citySearch}"
                                        value="${param.destinationName}" />
-                                <form:select id="city" name="destination" class="hidden-select" path="destination" style="display: none;">
+                                <select id="city" name="destination" class="hidden-select" style="display: none;">
                                     <option value=""></option>
                                     <c:forEach var="city" items="${cities}">
                                         <option value="${city.id}" ${param.destination == city.id ? 'selected' : ''}><c:out value="${city.name}"/></option>
                                     </c:forEach>
-                                </form:select>
+                                </select>
                                 <div id="cityDropdown" class="autocomplete-dropdown" style="display: none;">
                                     <c:forEach var="city" items="${cities}">
                                         <div class="autocomplete-item" data-value="${city.id}"><c:out value="${city.name}"/></div>
@@ -95,14 +96,15 @@
                             <c:set var="interestsLabel"><spring:message code="journey.filter.interest"/></c:set>
                             <form:label for="interest-search" class="form-label" path="interests">${interestsLabel}</form:label>
                             <div class="autocomplete-wrapper">
-                                <form:select path="interests" id="interest-select" name="interest" class="hidden-select" style="display: none;">
-                                    <form:option value=""/>
+                                <select  id="interest-select" name="interest" class="hidden-select" style="display: none;">
+                                    <option value=""></option>
                                     <c:forEach var="interest" items="${interests}">
-                                        <form:option value="${interest.id}"><c:out value="${interest.name}"/></form:option>
+                                        <option value="${interest.id}"><c:out value="${interest.name}"/></option>
                                     </c:forEach>
-                                </form:select>
-                                <input type="text" id="interest-search" class="autocomplete-input"
-                                       placeholder="<spring:message code='journey.filter.interest.placeholder'/>"
+                                </select>
+                                <c:set var="interestSearch"><spring:message code='journey.filter.interest.placeholder'/></c:set>
+                                <form:input path="interests" type="text" id="interest-search" class="autocomplete-input"
+                                       placeholder="${interestSearch}"
                                        value="${param.interestName}" />
                                 <div id="interest-dropdown" class="autocomplete-dropdown" style="display: none;">
                                     <c:forEach var="interest" items="${interests}">
@@ -174,6 +176,7 @@
     journeySelectedCity = '<c:out value="${filterJourneyForm.destination}"/>';
 </script>
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
+<script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/journey-cards.js'/>"></script>
 <script src="<c:url value='/resources/js/filter.js'/>"></script>
 

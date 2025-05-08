@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ? document.getElementById("i18n-career-none").value
             : "No career selected"
 
-        window.careerAutocomplete = ListAutocomplete.init({
+        window.careerAutocomplete = SingleOptionAutocomplete.init({
             selectId: "career",
             searchId: "careerSearch",
             dropdownId: "careerDropdown",
@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ? document.getElementById("i18n-university-none").value
             : "No university selected"
 
-        window.universityAutocomplete = ListAutocomplete.init({
+        window.universityAutocomplete = SingleOptionAutocomplete.init({
             selectId: "originUniversity",
             searchId: "universitySearch",
             dropdownId: "universityDropdown",

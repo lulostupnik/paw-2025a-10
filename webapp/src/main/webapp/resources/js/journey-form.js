@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Initializing journey creation form components...")
 
     // Import necessary modules
-    const ListAutocomplete = window.ListAutocomplete || {}
     const DateValidation = window.DateValidation || {}
 
     const startDateField = document.getElementById("startDate");
@@ -60,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ? document.getElementById("i18n-university-none").value
             : "No university selected"
 
-        window.universityAutocomplete = ListAutocomplete.init({
+        window.universityAutocomplete = window.SingleOptionAutocomplete.init({
             selectId: "destinationUniversity",
             searchId: "universitySearch",
             dropdownId: "universityDropdown",

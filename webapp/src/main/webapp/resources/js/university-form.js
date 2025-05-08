@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ? document.getElementById("i18n-cities-none").value
         : "No cities selected"
     try {
-        window.univesityCityAutocomplete = ListAutocomplete.init({
+        window.univesityCityAutocomplete = SingleOptionAutocomplete.init({
             selectId: "city",
             searchId: "citySearch",
             dropdownId: "cityDropdown",

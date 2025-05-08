@@ -1,0 +1,120 @@
+/* Single Option Autocomplete Styles */
+
+/* Container for the autocomplete component */
+.autocomplete-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+/* Input field styling */
+.autocomplete-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--text-color, #1f2937);
+    background-color: #fff;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: var(--radius, 0.5rem);
+    transition: all 0.2s ease;
+}
+
+.autocomplete-input:focus {
+    border-color: var(--primary-color, #4f46e5);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    outline: none;
+}
+
+/* Style for input when it has a selection */
+.autocomplete-input.has-selection {
+    background-color: #fff;
+    border-color: var(--primary-color, #4f46e5);
+    color: var(--text-color, #1f2937);
+    font-weight: 500;
+}
+
+/* Dropdown styling */
+.autocomplete-dropdown {
+    position: absolute;
+    z-index: 100;
+    width: 100%;
+    max-height: 250px;
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 0 0 var(--radius, 0.5rem) var(--radius, 0.5rem);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: -1px;
+    display: none; /* Hidden by default */
+}
+
+/* Dropdown items */
+.autocomplete-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover {
+    background-color: var(--primary-light, #eef2ff);
+}
+
+/* Selected item in dropdown */
+.autocomplete-item.selected {
+    background-color: var(--primary-light, #eef2ff);
+    color: var(--primary-color, #4f46e5);
+    font-weight: 500;
+}
+
+/* No results and loading states */
+.autocomplete-item.no-results,
+.autocomplete-item.loading {
+    font-style: italic;
+    color: #888;
+    cursor: default;
+}
+
+/* Clear button */
+.autocomplete-clear-button {
+    display: none; /* Hidden by default, shown when there's a selection */
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 4px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.autocomplete-clear-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Error state */
+.autocomplete-input.error {
+    border-color: var(--error-color, #ef4444);
+    background-color: var(--error-light, #fee2e2);
+}
+
+/* Animation for selection */
+@keyframes highlight {
+    0% {
+        background-color: var(--primary-light, #eef2ff);
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+.highlight-selection {
+    animation: highlight 1s ease;
+}

@@ -298,7 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Import ListAutocomplete (assuming it's a global or available through a module)
     // If it's a module, use: import ListAutocomplete from './list-autocomplete';
     // For this example, we'll assume it's a global.  If it's a module, adjust accordingly.
-    const ListAutocomplete = window.ListAutocomplete // Example if it's a global
+    const ListAutocomplete = window.SingleOptionAutocomplete // Example if it's a global
 
     // Add this code at the end of the DOMContentLoaded event listener, before the final console.log
     // Initialize ListAutocomplete for city (destination)

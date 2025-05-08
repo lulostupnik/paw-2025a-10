@@ -90,13 +90,14 @@
           <spring:message code="createUniversity.city"/>
         </form:label>
         <div class="autocomplete-wrapper">
-          <form:select path="city" id="city" cssClass="form-select ${not empty errors.getFieldError('city') ? 'error' : ''}" style="display: none;">
-            <form:option value=""><spring:message code="createUniversity.city.select"/></form:option>
+          <select id="city" class="form-select ${not empty errors.getFieldError('city') ? 'error' : ''}" style="display: none;">
+            <option value=""><spring:message code="createUniversity.city.select"/></option>
             <c:forEach var="item" items="${cities}">
-              <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
+              <option value="${item.name}"><c:out value="${item.name}"/></option>
             </c:forEach>
-          </form:select>
-          <input type="text" id="citySearch" class="form-input autocomplete-input" placeholder="<spring:message code="createUniversity.city.search" text="Type to search city..."/>" />
+          </select>
+            <c:set var="citySearch"><spring:message code="createUniversity.city.search"/></c:set>
+          <form:input  path="city" type="text" id="citySearch" class="form-input autocomplete-input" placeholder="${citySearch}" />
           <div id="cityDropdown" class="autocomplete-dropdown" style="display: none;">
             <c:forEach var="item" items="${cities}">
               <div class="autocomplete-item" data-value="<c:out value="${item.name}"/>">
@@ -138,6 +139,7 @@
     universitySelectedCity = '<c:out value="${createUniversityForm.city}"/>';
 </script>
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
+<script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/university-form.js'/>"></script>
 
 </body>

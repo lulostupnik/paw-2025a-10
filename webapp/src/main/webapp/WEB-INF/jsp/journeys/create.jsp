@@ -56,13 +56,14 @@
                     <spring:message code="createJourney.destinationUniversity"/>
                 </form:label>
                 <div class="autocomplete-wrapper">
-                    <form:select path="destinationUniversity" id="destinationUniversity" cssClass="form-select ${not empty errors.getFieldError('destinationUniversity') ? 'error' : ''}" style="display: none;">
-                        <form:option value=""><spring:message code="createJourney.destinationUniversity.select"/></form:option>
+                    <select id="destinationUniversity" class="form-select ${not empty errors.getFieldError('destinationUniversity') ? 'error' : ''}" style="display: none;">
+                        <option value=""><spring:message code="createJourney.destinationUniversity.select"/></option>
                         <c:forEach var="item" items="${universities}">
-                            <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
+                            <option value="${item.name}"><c:out value="${item.name}"/></option>
                         </c:forEach>
-                    </form:select>
-                    <input type="text" id="universitySearch" class="form-input autocomplete-input" placeholder="<spring:message code="createJourney.destinationUniversity.search" text="Type to search university..."/>" />
+                    </select>
+                    <c:set var="universitySearch"><spring:message code="createJourney.destinationUniversity.search"/></c:set>
+                    <form:input path="destinationUniversity" type="text" id="universitySearch" class="form-input autocomplete-input" placeholder="${universitySearch}" />
                     <div id="universityDropdown" class="autocomplete-dropdown" style="display: none;">
                         <c:forEach var="item" items="${universities}">
                             <div class="autocomplete-item" data-value="<c:out value="${item.name}"/>">
@@ -109,6 +110,7 @@
     journeySelectedUniversity = '<c:out value="${createJourneyForm.destinationUniversity}"/>';
 </script>
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
+<script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/components/file-upload.js'/>"></script>
 <script src="<c:url value='/resources/js/components/date-validation.js'/>"></script>
 <script src="<c:url value='/resources/js/journey-form.js'/>"></script>

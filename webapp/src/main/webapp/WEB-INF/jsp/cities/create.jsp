@@ -82,13 +82,14 @@
           <spring:message code="createCity.country" text="Country"/>
         </form:label>
         <div class="autocomplete-wrapper">
-          <form:select path="country" id="country" cssClass="form-select ${not empty errors.getFieldError('country') ? 'error' : ''}" style="display: none;">
-            <form:option value=""><spring:message code="createCity.country.select" text="Select a country"/></form:option>
+          <select  id="country" class="form-select ${not empty errors.getFieldError('country') ? 'error' : ''}" style="display: none;">
+            <option value=""><spring:message code="createCity.country.select" text="Select a country"/></option>
             <c:forEach var="item" items="${country}">
-              <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
+              <option value="${item.name}"><c:out value="${item.name}"/></option>
             </c:forEach>
-          </form:select>
-          <input type="text" id="countrySearch" class="autocomplete-input" placeholder="<spring:message code="createCity.country.search" text="Type to search country..."/>" />
+          </select>
+            <c:set var="countrySearch"><spring:message code="createCity.country.search" text="Search for a country"/></c:set>
+          <form:input path="country" type="text" id="countrySearch" class="autocomplete-input" placeholder="${countrySearch}" />
           <div id="countryDropdown" class="autocomplete-dropdown" style="display: none;">
             <c:forEach var="item" items="${country}">
               <div class="autocomplete-item" data-value="<c:out value="${item.name}"/>">
