@@ -133,13 +133,27 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
-    public Page<Journey> getAllJourneys(String search, User user, Long destination, LocalDate startDate, LocalDate endDate, Long interest, PageParams pageParams) {
+    public Page<Journey> getAllJourneys(String search, User user, String sortBy, String direction, Long destination,
+                                        LocalDate startDate, LocalDate endDate, Long interest,
+                                        boolean isPast, boolean isUpcoming, boolean isMyDestination,
+                                        PageParams pageParams) {
         LOGGER.debug("Getting filtered journeys");
-        if(search != null && !search.isEmpty()) {
-//            aca tal vez habria que buscar con todos los parametros de filtro
-            return journeyDao.searchJourneys(search, pageParams.getPage(), pageParams.getSize());
+        if(direction == null || direction.isEmpty()){
+            direction = "asc";
+        } else if(! direction.equals("asc") && ! direction.equals("desc")){
+            throw new IllegalArgumentException("Invalid direction parameter");
         }
-        return journeyDao.findByFilters(user != null ? user.getId() : null, destination, startDate, endDate, interest, pageParams.getPage(), pageParams.getSize());
+
+        if(sortBy == null || sortBy.isEmpty()){
+            sortBy = "start_date";
+        } else if (! sortBy.equals("start_date") && ! sortBy.equals("end_date") && ! sortBy.equals("city") && ! sortBy.equals("interest")) {
+            throw new IllegalArgumentException("Invalid sortBy parameter");
+        }
+
+        return journeyDao.searchJourneys(search, user != null ? user.getId() : null, sortBy, direction, destination,
+                startDate, endDate, interest, isPast, isUpcoming, isMyDestination,
+                pageParams.getPage(), pageParams.getSize());
+
     }
 
 

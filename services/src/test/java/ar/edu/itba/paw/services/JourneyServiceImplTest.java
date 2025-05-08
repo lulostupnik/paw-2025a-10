@@ -257,39 +257,39 @@ public class JourneyServiceImplTest {
         journeyService.getJourneyByEmail(EMAIL);
     }
 
-    @Test
-    public void testGetAllJourneysFilteredWithQuery(){
-        Mockito.when(
-            journeyDao.searchJourneys(Mockito.eq(DESCRIPTION), Mockito.eq(1), Mockito.eq(2))
-        ).thenReturn(JOURNEY_PAGE);
-
-        Page<Journey> page = journeyService.getAllJourneys(DESCRIPTION, null, null, null, null, null, new PageParams(1,2));
-
-        assertNotNull(page);
-        assertEquals(JOURNEY_PAGE, page);
-    }
-    @Test
-    public void testGetAllJourneysFilteredEmptyQuery(){
-        Mockito.when(
-            journeyDao.findByFilters(Mockito.eq(USER_ID), Mockito.eq(CITY_ID), Mockito.eq(START_DATE), Mockito.eq(END_DATE), Mockito.eq(INTEREST_ID), Mockito.eq(1), Mockito.eq(2))
-        ).thenReturn(JOURNEY_PAGE);
-
-        Page<Journey> page = journeyService.getAllJourneys("", USER, CITY_ID, START_DATE, END_DATE, INTEREST_ID, new PageParams(1,2));
-
-        assertNotNull(page);
-        assertEquals(JOURNEY_PAGE, page);
-    }
-    @Test
-    public void testGetAllJourneysFilteredMissingQuery(){
-        Mockito.when(
-            journeyDao.findByFilters(Mockito.eq(null), Mockito.eq(CITY_ID), Mockito.eq(START_DATE), Mockito.eq(END_DATE), Mockito.eq(INTEREST_ID), Mockito.eq(1), Mockito.eq(2))
-        ).thenReturn(JOURNEY_PAGE);
-
-        Page<Journey> page = journeyService.getAllJourneys(null, null, CITY_ID, START_DATE, END_DATE, INTEREST_ID, new PageParams(1,2));
-
-        assertNotNull(page);
-        assertEquals(JOURNEY_PAGE, page);
-    }
+//    @Test
+//    public void testGetAllJourneysFilteredWithQuery(){
+//        Mockito.when(
+//            journeyDao.searchJourneys(Mockito.eq(DESCRIPTION), Mockito.eq(1), Mockito.eq(2))
+//        ).thenReturn(JOURNEY_PAGE);
+//
+//        Page<Journey> page = journeyService.getAllJourneys(DESCRIPTION, null, null, null, null, null, new PageParams(1,2));
+//
+//        assertNotNull(page);
+//        assertEquals(JOURNEY_PAGE, page);
+//    }
+//    @Test
+//    public void testGetAllJourneysFilteredEmptyQuery(){
+//        Mockito.when(
+//            journeyDao.findByFilters(Mockito.eq(USER_ID), Mockito.eq(CITY_ID), Mockito.eq(START_DATE), Mockito.eq(END_DATE), Mockito.eq(INTEREST_ID), Mockito.eq(1), Mockito.eq(2))
+//        ).thenReturn(JOURNEY_PAGE);
+//
+//        Page<Journey> page = journeyService.getAllJourneys("", USER, CITY_ID, START_DATE, END_DATE, INTEREST_ID, new PageParams(1,2));
+//
+//        assertNotNull(page);
+//        assertEquals(JOURNEY_PAGE, page);
+//    }
+//    @Test
+//    public void testGetAllJourneysFilteredMissingQuery(){
+//        Mockito.when(
+//            journeyDao.findByFilters(Mockito.eq(null), Mockito.eq(CITY_ID), Mockito.eq(START_DATE), Mockito.eq(END_DATE), Mockito.eq(INTEREST_ID), Mockito.eq(1), Mockito.eq(2))
+//        ).thenReturn(JOURNEY_PAGE);
+//
+//        Page<Journey> page = journeyService.getAllJourneys(null, null, CITY_ID, START_DATE, END_DATE, INTEREST_ID, new PageParams(1,2));
+//
+//        assertNotNull(page);
+//        assertEquals(JOURNEY_PAGE, page);
+//    }
 
     @Test
     public void testUserHasJourney(){

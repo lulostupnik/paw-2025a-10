@@ -78,7 +78,7 @@ public class ProfileController {
             @PageParamCustomizer(defaultSize = 6) PageParams pageParam) {
 
         ModelAndView mav = new ModelAndView(PROFILE);
-        mav.addObject("userEvents", eventService.getAllEvents(user.getEmail(), pageParam));
+        mav.addObject("events", eventService.getAllEvents(user.getEmail(), pageParam));
         mav.addObject("userAttendingEvents", eventService.getUserAttendingEvents(user.getId(), attendingPage));
         mav.addObject("currentPageUserEvents", pageParam.getPage());
         mav.addObject("currentPageUserAttending", attendingPage.getPage());
