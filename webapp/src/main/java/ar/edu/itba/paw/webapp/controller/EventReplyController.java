@@ -1,6 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.interfaces.services.EventResponseService;
+import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.webapp.form.ReplyForm;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -13,24 +13,24 @@ import javax.validation.Valid;
 @Controller
 @RequestMapping("/event-replies")
 public class EventReplyController {
-    private final EventResponseService eventResponseService;
+    private final EventService eventService;
 
-    public EventReplyController( EventResponseService eventResponseService) {
-        this.eventResponseService = eventResponseService;
+    public EventReplyController( EventService eventService) {
+        this.eventService = eventService;
     }
 
     @PostMapping("/{id}/delete")
     public ModelAndView deleteEventReply(@PathVariable("id") long id, @Valid @ModelAttribute("deleteReplyForm") ReplyForm form,
                                          BindingResult errors, RedirectAttributes redirectAttributes) {
         // Logic to delete the event reply by ID
-        long eventId = eventResponseService.getEventIdByResponseId(id);
+        long eventId = eventService.getEventIdByResponseId(id);
         if (errors.hasErrors()) {
             redirectAttributes.addFlashAttribute("deleteReplyErrors", errors);
             redirectAttributes.addFlashAttribute("deleteReplyForm", form);
             redirectAttributes.addAttribute("replyId",id );
             return new ModelAndView( "redirect:/events/" + eventId); // Redirect to the list of event replies in case of error
         }
-        eventResponseService.delete(id, form.getMessage());
+        eventService.deleteResponse(id, form.getMessage());
         return new ModelAndView( "redirect:/events/" + eventId);
     }
 }

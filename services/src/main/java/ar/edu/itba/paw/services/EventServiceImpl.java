@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
@@ -22,9 +23,9 @@ import java.util.*;
 @Transactional(readOnly = true)
 public class EventServiceImpl implements EventService {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventServiceImpl.class);
+    protected final EventResponseDao eventResponseDao;
 
     private final UserService userService;
-    private final EventResponseService eventResponseService;
     private final EmailService emailService;
     private final EventDao eventDao;
     private final ImageService imageService;
@@ -33,12 +34,12 @@ public class EventServiceImpl implements EventService {
     private final UserDao userDao;
 
     @Autowired
-    public EventServiceImpl(UserService userService, EventResponseService eventResponseService,
+    public EventServiceImpl(UserService userService, EventResponseDao eventResponseDao,
                             EventDao eventDao, EmailService emailService, ImageService imageService,
                             CityService cityService, EventAttendanceDao eventAttendanceDao, UserDao userDao) {
         this.userDao = userDao;
         this.userService = userService;
-        this.eventResponseService = eventResponseService;
+        this.eventResponseDao = eventResponseDao;
         this.eventDao = eventDao;
         this.emailService = emailService;
         this.imageService = imageService;
@@ -78,8 +79,7 @@ public class EventServiceImpl implements EventService {
         User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
 
         LOGGER.info("Event reply is valid, commiting new reply to persistence");
-        eventResponseService.create(user.getId(), user.getUsername(),eventId, message, LocalDateTime.now());
-
+        eventResponseDao.create(user.getId(), user.getUsername(), eventId, message, LocalDateTime.now());
         LOGGER.info("Sending email notification for the event"); //@TODO mejorar
 
         emailService.answerEventNotification(
@@ -214,14 +214,10 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Page<Event> getUserAttendingEvents(long userId, PageParams pageParams) {
-//        long userId = userService.findByEmail(userEmail).orElseThrow().getId();
         return eventAttendanceDao.getAttendingEvents(userId, pageParams.getPage(), pageParams.getSize());
     }
 
-    @Override
-    public List<EventResponse> getEventResponses(long eventId){
-        return eventResponseService.listAllFromEvent(eventId);
-    }
+
 
     // FIXME: Agregarle cacheable?
     @Override
@@ -277,25 +273,6 @@ public class EventServiceImpl implements EventService {
 
         return eventDao.getEventsWithAttendanceStatus(user == null ? null : user.getId(), search, sortBy, direction, destination, startDate, endDate, interest,
                 isPast, isUpcoming, attending, pageParams.getPage(), pageParams.getSize());
-
-//        if(user == null) {
-//            Page<Event> page;
-//            if(search != null && !search.isEmpty()) {
-//                page = eventDao.searchEvents(search, pageParams.getPage(), pageParams.getSize());
-//            }else {
-//                page = eventDao.listAll(pageParams.getPage(), pageParams.getSize());
-//            }
-//            List<UserEvent> userEvent = new ArrayList<>();
-//            for (Event event : page.getContent()) {
-//                userEvent.add(new UserEvent(event, false));
-//            }
-//            return new Page<>(userEvent, page.getCurrentPage(), page.getTotalPages());
-//        }
-//
-//        if(search == null || search.isEmpty()) {
-//            return eventDao.getEventsWithAttendanceStatus(user.getId(), pageParams.getPage(), pageParams.getSize());
-//        }
-//        return eventDao.getEventsWithAttendanceStatus(search, user.getId(), pageParams.getPage(), pageParams.getSize());
     }
 
     @Override
@@ -336,16 +313,71 @@ public class EventServiceImpl implements EventService {
 
     }
 
+
+
     @Transactional
-    @CacheEvict(value = "eventsById", key = "#id")
+    @Caching(evict = {
+            @CacheEvict(value = "eventsById", key = "#id"),
+            @CacheEvict(value = "eventsByResponseId", allEntries = true) //FIXME: check if should CACHE EVICT
+    })
     @Override
     public void delete(long id, String message) {
         LOGGER.debug("Deleting event {}", id);
         eventDao.deletionMessage(id, message);
-        eventResponseService.deleteByEventId(id);
+        eventResponseDao.deleteByEventId(id);
         Event event = eventDao.findById(id).orElseThrow(() -> new RuntimeException("Event not found"));
         emailService.sendEventDeletionNotification(event,message);
         eventDao.delete(id);
     }
 
+
+    @Transactional
+    @CacheEvict(value = "eventsByResponseId", key = "#id")
+    @Override
+    public void deleteResponse(long id, String message) {
+
+        EventResponse deletedComment = findEventResponseById(id)
+                .orElseThrow(() ->
+                    new IllegalArgumentException("Event response doesn't exist"));
+
+        Event event = eventDao.findById(deletedComment.getEventId())
+                .orElseThrow(() ->  new IllegalStateException("Event from event response doesn't exist"));
+
+
+        User commentAuthor = userService.findById(deletedComment.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("User from event response doesn't exist"));
+
+        emailService.sendEventCommentDeletionNotification(deletedComment,event,commentAuthor, message );
+
+        eventResponseDao.deletionMessage(id, message);
+        eventResponseDao.delete(id);
+    }
+
+    @Override
+    public int getResponseCount(long eventId){
+        return eventResponseDao.getCount(eventId);
+    }
+
+
+
+    // @Cacheable(value = "eventsByResponseId", key = "#eventResponseId")
+    @Override
+    public long getEventIdByResponseId(long eventResponseId) {
+        return eventResponseDao.getEventIdByResponseId(eventResponseId);
+    }
+
+    @Override
+    public List<EventResponse> listAllResponseFromEvent(long eventId) {
+        return eventResponseDao.listAllFromEvent(eventId);
+    }
+
+    @Override
+    public Page<EventResponse> listAllResponseFromEvent(long eventId, PageParams pageParams) {
+        return eventResponseDao.listAllFromEvent(eventId,pageParams.getPage(),pageParams.getSize());
+    }
+
+    @Override
+    public Optional<EventResponse> findEventResponseById(long id){
+        return eventResponseDao.findById(id);
+    }
 }

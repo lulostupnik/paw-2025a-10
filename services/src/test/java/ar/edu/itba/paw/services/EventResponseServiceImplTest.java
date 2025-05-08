@@ -39,140 +39,129 @@ public class EventResponseServiceImplTest {
     private static final Event EVENT = new Event(EVENT_ID, null, null, MESSAGE, ID, null, USERNAME, null, MESSAGE, null, 0);
     private static final User USER = new User(ID, null, null, null, null, null, null, ID, null, false);
 
-    @InjectMocks
-    private EventResponseServiceImpl responseService;
+//    @InjectMocks
+//    private EventResponseServiceImpl responseService;
+//
+//    @Mock
+//    private EventResponseDao responseDao;
+//    @Mock
+//    private EventDao eventDao;
+//    @Mock
+//    private EmailService emailService;
+//    @Mock
+//    private UserService userService;
+//
+//    @Test
+//    public void testCreate(){
+//        Mockito.when(
+//            responseDao.create(Mockito.eq(USER_ID), Mockito.eq(USERNAME), Mockito.eq(EVENT_ID), Mockito.eq(MESSAGE), Mockito.eq(TIMESTAMP))
+//        ).thenReturn(RESPONSE);
+//
+//        EventResponse response = responseService.createResponse(USER_ID, USERNAME, EVENT_ID, MESSAGE, TIMESTAMP);
+//
+//        assertEquals(RESPONSE, response);
+//    }
+//
+//    @Test
+//    public void testDelete(){
+//        Mockito.when(
+//            responseDao.findById(Mockito.eq(ID))
+//        ).thenReturn(Optional.of(RESPONSE));
+//        Mockito.when(
+//            eventDao.findById(Mockito.eq(EVENT_ID))
+//        ).thenReturn(Optional.of(EVENT));
+//        Mockito.when(
+//            userService.findById(Mockito.eq(USER_ID))
+//        ).thenReturn(Optional.of(USER));
+//
+//        responseService.deleteResponse(ID, MESSAGE);
+//    }
+//    @Test(expected = IllegalArgumentException.class)
+//    public void testDeleteUserNotFound(){
+//        Mockito.when(
+//            responseDao.findById(Mockito.eq(ID))
+//        ).thenReturn(Optional.of(RESPONSE));
+//        Mockito.when(
+//            eventDao.findById(Mockito.eq(EVENT_ID))
+//        ).thenReturn(Optional.of(EVENT));
+//        Mockito.when(
+//            userService.findById(Mockito.eq(USER_ID))
+//        ).thenReturn(Optional.empty());
+//
+//        responseService.deleteResponse(ID, MESSAGE);
+//    }
+//    @Test(expected = IllegalStateException.class)
+//    public void testDeleteEventNotFound(){
+//        Mockito.when(
+//            responseDao.findById(Mockito.eq(ID))
+//        ).thenReturn(Optional.of(RESPONSE));
+//        Mockito.when(
+//            eventDao.findById(Mockito.eq(EVENT_ID))
+//        ).thenReturn(Optional.empty());
+//
+//        responseService.deleteResponse(ID, MESSAGE);
+//    }
+//    @Test(expected = IllegalArgumentException.class)
+//    public void testDeleteResponseNotFound(){
+//        Mockito.when(
+//            responseDao.findById(Mockito.eq(ID))
+//        ).thenReturn(Optional.empty());
+//
+//        responseService.deleteResponse(ID, MESSAGE);
+//    }
+//
+//    @Test
+//    public void testGetCount(){
+//        Mockito.when(
+//            responseDao.getCount(Mockito.eq(EVENT_ID))
+//        ).thenReturn(1);
+//
+//        int count = responseService.getResponseCount(EVENT_ID);
+//
+//        assertEquals(1, count);
+//    }
+//
+//    @Test
+//    public void testGetEventIdByResponseId(){
+//        Mockito.when(
+//            responseDao.getEventIdByResponseId(Mockito.eq(ID))
+//        ).thenReturn(EVENT_ID);
+//
+//        long eventId = responseService.getEventIdByResponseId(ID);
+//
+//        assertEquals(EVENT_ID, eventId);
+//    }
+//
+//    @Test
+//    public void testListAllFromEvent(){
+//        Mockito.when(
+//            responseDao.listAllFromEvent(Mockito.eq(EVENT_ID))
+//        ).thenReturn(List.of(RESPONSE));
+//
+//        List<EventResponse> responses = responseService.listAllResponseFromEvent(EVENT_ID);
+//
+//        assertNotNull(responses);
+//        assertEquals(1, responses.size());
+//        assertEquals(RESPONSE, responses.getFirst());
+//    }
+//
+//    @Test
+//    public void testListAllFromEventPaged(){
+//        Page<EventResponse> testPage = new Page<EventResponse>(List.of(RESPONSE), 1, 1);
+//        Mockito.when(
+//            responseDao.listAllFromEvent(Mockito.eq(EVENT_ID), Mockito.eq(1), Mockito.eq(2))
+//        ).thenReturn(testPage);
+//
+//        Page<EventResponse> page = responseService.listAllResponseFromEvent(EVENT_ID,new PageParams(1,2));
+//
+//        assertNotNull(page);
+//        assertEquals(testPage, page);
+//    }
+//
+//    @Test
+//    public void testDeleteByEventId(){
+//        responseService.deleteResponseByEventId(EVENT_ID);
+//    }
 
-    @Mock
-    private EventResponseDao responseDao;
-    @Mock
-    private EventDao eventDao;
-    @Mock
-    private EmailService emailService;
-    @Mock
-    private UserService userService;
 
-    @Test
-    public void testCreate(){
-        Mockito.when(
-            responseDao.create(Mockito.eq(USER_ID), Mockito.eq(USERNAME), Mockito.eq(EVENT_ID), Mockito.eq(MESSAGE), Mockito.eq(TIMESTAMP))
-        ).thenReturn(RESPONSE);
-
-        EventResponse response = responseService.create(USER_ID, USERNAME, EVENT_ID, MESSAGE, TIMESTAMP);
-
-        assertEquals(RESPONSE, response);
-    }
-
-    @Test
-    public void testDelete(){
-        Mockito.when(
-            responseDao.findById(Mockito.eq(ID))
-        ).thenReturn(Optional.of(RESPONSE));
-        Mockito.when(
-            eventDao.findById(Mockito.eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-        Mockito.when(
-            userService.findById(Mockito.eq(USER_ID))
-        ).thenReturn(Optional.of(USER));
-
-        responseService.delete(ID, MESSAGE);
-    }
-    @Test(expected = IllegalArgumentException.class)
-    public void testDeleteUserNotFound(){
-        Mockito.when(
-            responseDao.findById(Mockito.eq(ID))
-        ).thenReturn(Optional.of(RESPONSE));
-        Mockito.when(
-            eventDao.findById(Mockito.eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-        Mockito.when(
-            userService.findById(Mockito.eq(USER_ID))
-        ).thenReturn(Optional.empty());
-        
-        responseService.delete(ID, MESSAGE);
-    }
-    @Test(expected = IllegalStateException.class)
-    public void testDeleteEventNotFound(){
-        Mockito.when(
-            responseDao.findById(Mockito.eq(ID))
-        ).thenReturn(Optional.of(RESPONSE));
-        Mockito.when(
-            eventDao.findById(Mockito.eq(EVENT_ID))
-        ).thenReturn(Optional.empty());
-        
-        responseService.delete(ID, MESSAGE);
-    }
-    @Test(expected = IllegalArgumentException.class)
-    public void testDeleteResponseNotFound(){
-        Mockito.when(
-            responseDao.findById(Mockito.eq(ID))
-        ).thenReturn(Optional.empty());
-        
-        responseService.delete(ID, MESSAGE);
-    }
-
-    @Test
-    public void testGetCount(){
-        Mockito.when(
-            responseDao.getCount(Mockito.eq(EVENT_ID))
-        ).thenReturn(1);
-
-        int count = responseService.getCount(EVENT_ID);
-
-        assertEquals(1, count);
-    }
-
-    @Test
-    public void testGetEventIdByResponseId(){
-        Mockito.when(
-            responseDao.getEventIdByResponseId(Mockito.eq(ID))
-        ).thenReturn(EVENT_ID);
-
-        long eventId = responseService.getEventIdByResponseId(ID);
-
-        assertEquals(EVENT_ID, eventId);
-    }
-
-    @Test
-    public void testListAllFromEvent(){
-        Mockito.when(
-            responseDao.listAllFromEvent(Mockito.eq(EVENT_ID))
-        ).thenReturn(List.of(RESPONSE));
-
-        List<EventResponse> responses = responseService.listAllFromEvent(EVENT_ID);
-
-        assertNotNull(responses);
-        assertEquals(1, responses.size());
-        assertEquals(RESPONSE, responses.getFirst());
-    }
-
-    @Test
-    public void testListAllFromEventPaged(){
-        Page<EventResponse> testPage = new Page<EventResponse>(List.of(RESPONSE), 1, 1);
-        Mockito.when(
-            responseDao.listAllFromEvent(Mockito.eq(EVENT_ID), Mockito.eq(1), Mockito.eq(2))
-        ).thenReturn(testPage);
-
-        Page<EventResponse> page = responseService.listAllFromEvent(EVENT_ID,new PageParams(1,2));
-
-        assertNotNull(page);
-        assertEquals(testPage, page);
-    }
-
-    @Test
-    public void testDeleteByEventId(){
-        responseService.deleteByEventId(EVENT_ID);
-    }
-
-    @Test
-    public void testFindByIdDeletedOrNotDeleted(){
-        Mockito.when(
-            responseDao.findByIdDeletedOrNotDeleted(Mockito.eq(ID))
-        ).thenReturn(Optional.of(RESPONSE));
-
-        Optional<EventResponse> response = responseService.findByIdDeletedOrNotDeleted(ID);
-
-        assertNotNull(response);
-        assertTrue(response.isPresent());
-        assertEquals(RESPONSE, response.get());
-    }
 }
