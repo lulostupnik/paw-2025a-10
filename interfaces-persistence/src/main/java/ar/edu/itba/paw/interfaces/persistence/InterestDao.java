@@ -11,7 +11,7 @@ public interface InterestDao {
      List<Interest> findAll();
      List<Interest> findByUserId(Long id);
      Optional<Interest> findByName(String name);
-     List<Interest> findIdByName(String[] names);
+     List<Interest> findIdByName(List<String> names);
      Interest createUserInterest(String interest);
      void deleteUserInterest(long id);
      void saveUserInterests(List<String> interests, long userId);

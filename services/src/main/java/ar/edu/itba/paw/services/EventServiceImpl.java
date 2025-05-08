@@ -269,7 +269,7 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public Page<Event> getEventsPageWithAttendanceStatus(String search, User user, String sortBy, String direction, Long destination, LocalDate startDate, LocalDate endDate, Long interest,
+    public Page<Event> getEventsPageWithAttendanceStatus(String search, User user, String sortBy, String direction, String destination, LocalDate startDate, LocalDate endDate, String interest,
                                                          boolean isPast, boolean isUpcoming, boolean attending,
                                                          PageParams pageParams) {
 

@@ -132,8 +132,8 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
-    public Page<Journey> getAllJourneys(String search, User user, String sortBy, String direction, Long destination,
-                                        LocalDate startDate, LocalDate endDate, Long interest,
+    public Page<Journey> getAllJourneys(String search, User user, String sortBy, String direction, String destination,
+                                        LocalDate startDate, LocalDate endDate, String interest,
                                         boolean isPast, boolean isUpcoming, boolean isMyDestination,
                                         PageParams pageParams) {
         LOGGER.debug("Getting filtered journeys");

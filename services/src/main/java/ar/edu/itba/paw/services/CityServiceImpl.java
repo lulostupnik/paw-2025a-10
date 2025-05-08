@@ -22,6 +22,8 @@ public class CityServiceImpl implements CityService {
     private final CityDao cityDao;
     private final CountryService countryService;
 
+    private static final int DEFAULT_PAGE_SIZE = 30;
+
     @Autowired
     public CityServiceImpl(CityDao cityDao, CountryService countryService) {
 
@@ -87,6 +89,34 @@ public class CityServiceImpl implements CityService {
     }
 
     @Transactional
+    @Override
+    public String getCitiesJson(String search) {
+        LOGGER.debug("Finding all cities with search {}", search);
+        List<City> cities;
+        if (search == null || search.isEmpty()) {
+            cities = cityDao.getAllCities(1,DEFAULT_PAGE_SIZE).getContent();
+            return listToJson(cities);
+
+        }
+        cities = cityDao.searchBySubstring(search, 1, DEFAULT_PAGE_SIZE).getContent();
+        return listToJson(cities);
+
+
+    }
+
+    private String listToJson(List<City> cities) {
+        StringBuilder json = new StringBuilder("[");
+        for (City city : cities) {
+            json.append(city.toJSON()).append(",");
+        }
+        if (json.length() > 1) {
+            json.deleteCharAt(json.length() - 1); // Remove last comma
+        }
+        json.append("]");
+        LOGGER.debug("JSON universities: {}", json);
+        return json.toString();
+    }
+
     @Override
     public void delete(long id) {
         cityDao.delete(id);

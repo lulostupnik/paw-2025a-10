@@ -512,7 +512,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
         @Override
         public Page<Journey> searchJourneys(final String search, Long userId, String orderBy, String direction,
-                                            Long cityId, LocalDate startDate, LocalDate endDate, Long interest,
+                                            String city, LocalDate startDate, LocalDate endDate, String interest,
                                             boolean isPast, boolean isUpcoming, boolean isMyDestination,
                                             int page, int size) {
             final String searchPattern = likePattern(search);
@@ -524,16 +524,16 @@ public class JourneyJdbcDao implements JourneyDao {
             final StringBuilder queryBuilder = new StringBuilder((interest != null || orderBy.equals("interest")) ? SQL_BASE_INTEREST : SQL_BASE);
 
 
-            if (interest != null) {
-                countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id");
-                filters.add("ui.category_id = ?");
+            if (interest != null && !interest.isEmpty()) {
+                countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id JOIN category c ON ui.category_id = c.id ");
+                filters.add("c.name = ?");
                 params.add(interest);
             }
 
-            if (cityId != null) {
+            if (city != null && !city.isEmpty()) {
                 countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id");
-                filters.add("ci2.id = ?");
-                params.add(cityId);
+                filters.add("ci2.name = ?");
+                params.add(city);
             }
 
             if (userId != null) {
@@ -552,7 +552,7 @@ public class JourneyJdbcDao implements JourneyDao {
             }
 
             if(search != null && !search.isEmpty()) {
-                if(cityId == null) {
+                if(city == null) {
                     countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id ");
                 }
                 if(interest == null) {
@@ -579,9 +579,8 @@ public class JourneyJdbcDao implements JourneyDao {
             if(orderBy != null && orderBy.equals("interest")){
                 orderBy= "c.name";
                 if(interest == null) {
-                    countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id ");
+                    countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id JOIN category c ON ui.category_id = c.id ");
                 }
-                countQueryBuilder.append(" JOIN category c ON ui.category_id = c.id ");
             }
 
             countQueryBuilder.append(" WHERE j.deleted = FALSE ");

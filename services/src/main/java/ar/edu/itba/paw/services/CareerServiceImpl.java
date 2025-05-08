@@ -21,6 +21,7 @@ public class CareerServiceImpl implements CareerService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CareerServiceImpl.class);
 
     private final CareerDao careerDao;
+    private static final int DEFAULT_PAGE_SIZE = 30;
 
     @Autowired
     public CareerServiceImpl(CareerDao careerDao) {
@@ -73,6 +74,30 @@ public class CareerServiceImpl implements CareerService {
     @Override
     public void delete(long id) {
         careerDao.delete(id);
+    }
+
+    @Override
+    public String getCareersJSON(String search) {
+        LOGGER.debug("Getting all careers with search {}", search);
+        if (search == null || search.isEmpty()) {
+
+            List<Career> careers = careerDao.getAllCareers(1,DEFAULT_PAGE_SIZE).getContent();
+            return listToJson(careers);
+        }
+        List<Career> careers = careerDao.searchBySubstring(search,1,DEFAULT_PAGE_SIZE).getContent();
+        return listToJson(careers);
+    }
+
+    private String listToJson(List<Career> careers) {
+        StringBuilder json = new StringBuilder("[");
+        for (Career career : careers) {
+            json.append(career.toJSON()).append(",");        }
+        if (json.length() > 1) {
+            json.deleteCharAt(json.length() - 1); // Remove the last comma
+        }
+        json.append("]");
+        LOGGER.debug("JSON careers: {}", json);
+        return json.toString();
     }
 
 }

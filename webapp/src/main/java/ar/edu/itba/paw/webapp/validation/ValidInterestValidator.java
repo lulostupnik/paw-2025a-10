@@ -5,8 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.List;
 
-public class ValidInterestValidator implements ConstraintValidator<ValidInterest, long[]> {
+public class ValidInterestValidator implements ConstraintValidator<ValidInterest, List<String>> {
     @Autowired
     private InterestService interestService;
 
@@ -15,13 +16,13 @@ public class ValidInterestValidator implements ConstraintValidator<ValidInterest
     }
 
     @Override
-    public boolean isValid(long[] interests, ConstraintValidatorContext context) {
-        if (interests == null || interests.length == 0) {
+    public boolean isValid(List<String> interests, ConstraintValidatorContext context) {
+        if (interests == null || interests.isEmpty()) {
             return false;
         }
         try {
-            for(Number interest : interests) {
-                if (interestService.findById(interest.longValue()).isEmpty()) {
+            for(String interest : interests) {
+                if (interestService.findByName(interest).isEmpty()) {
                     return false; // Si no existe el interes, no es valido
                 }
             }

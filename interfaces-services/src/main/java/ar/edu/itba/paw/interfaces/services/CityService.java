@@ -17,6 +17,7 @@ public interface CityService {
     Page<City> getAllCities(String search, PageParams pageParams);
     Page<City> searchBySubstring(String substring, PageParams pageParams);
     void updateCity(long id, String name, String country);
+    String getCitiesJson(String search);
     long createCity(String name, String country);
 
     void delete(long id);

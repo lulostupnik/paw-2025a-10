@@ -81,7 +81,7 @@ public class UserServiceImplTest {
             userDao.create(Mockito.eq(EMAIL), Mockito.eq(USERNAME), Mockito.eq(FIRSTNAME), Mockito.eq(LASTNAME), Mockito.eq(UNIVERSITY), Mockito.eq(CAREER), Mockito.eq(IMAGE.getId()), Mockito.eq(PASSWORD), Mockito.eq(LOCALE))
         ).thenReturn(USER);
 
-        User user = userService.createUser(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY.getName(), CAREER.getName(), IMAGE.getData(), new long[] {INTEREST.getId()}, PASSWORD, LOCALE);
+        User user = userService.createUser(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY.getName(), CAREER.getName(), IMAGE.getData(), List.of(INTEREST.getName()), PASSWORD, LOCALE);
 
         assertNotNull(user);
         assertEquals(USER, user);
@@ -95,7 +95,7 @@ public class UserServiceImplTest {
             careerService.findByName(Mockito.eq(CAREER.getName()))
         ).thenReturn(Optional.empty());
         
-        userService.createUser(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY.getName(), CAREER.getName(), IMAGE.getData(), new long[] {INTEREST.getId()}, PASSWORD, LOCALE);
+        userService.createUser(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY.getName(), CAREER.getName(), IMAGE.getData(), List.of(INTEREST.getName()) , PASSWORD, LOCALE);
     }
     @Test(expected = RuntimeException.class)
     public void testCreateUserMissingUniversity(){
@@ -103,7 +103,7 @@ public class UserServiceImplTest {
             universityService.findByName(Mockito.eq(UNIVERSITY.getName()))
         ).thenReturn(Optional.empty());        
 
-        User user = userService.createUser(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY.getName(), CAREER.getName(), IMAGE.getData(), new long[] {INTEREST.getId()}, PASSWORD, LOCALE);
+        User user = userService.createUser(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY.getName(), CAREER.getName(), IMAGE.getData(), List.of(INTEREST.getName()), PASSWORD, LOCALE);
 
         assertNotNull(user);
         assertEquals(USER, user);

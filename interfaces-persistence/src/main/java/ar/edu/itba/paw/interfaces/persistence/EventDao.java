@@ -75,8 +75,8 @@ public interface EventDao {
 //    Page<UserEvent> getEventsWithAttendanceStatus(long userId, int page, int size);
 //    Page<UserEvent> getEventsWithAttendanceStatus(String search, long userId, int page, int size);
     Page<Event> getEventsWithAttendanceStatus(Long userId, String search,
-                                              String sortBy, String direction, Long destination,
-                                              LocalDate startDate, LocalDate endDate, Long interest,
+                                              String sortBy, String direction, String destination,
+                                              LocalDate startDate, LocalDate endDate, String interest,
                                               boolean isPast, boolean isUpcoming, boolean attending, int pageNumber, int pageSize);
     Page<Event> searchEvents(String search, int pageNumber, int pageSize);
 }

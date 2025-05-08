@@ -8,9 +8,9 @@ import java.time.LocalDate;
 @ValidFilterDateRange
 public class FilterJourneyForm {
 
-    private Long destination;
+    private String destination;
 
-    private Long interests;
+    private String interests;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
@@ -46,22 +46,18 @@ public class FilterJourneyForm {
     public void setIsPast(boolean isPast) {
         this.isPast = isPast;
     }
+    public void setInterests(String interests) {
+        this.interests = interests;
+    }
 
-    public Long getDestination() {
+    public String getDestination() {
         return destination;
     }
 
-    public void setDestination(Long destination) {
+    public void setDestination(String destination) {
         this.destination = destination;
     }
 
-    public Long getInterests() {
-        return interests;
-    }
-
-    public void setInterests(Long interests) {
-        this.interests = interests;
-    }
 
     public LocalDate getEndDate() {
         return endDate;
@@ -78,6 +74,13 @@ public class FilterJourneyForm {
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
+
+
+
+    public String getInterests() {
+        return interests;
+    }
+
 
     @Override
     public String toString() {

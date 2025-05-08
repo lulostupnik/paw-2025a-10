@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 public class CreateEventForm {
+    @NotNull
     @Size(min = 2, max = 100)
     @NotNull
     @ExistingCity

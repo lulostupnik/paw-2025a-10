@@ -5,10 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import javax.sql.DataSource;
 
@@ -148,7 +145,7 @@ public class InterestJdbcDaoTest {
     @Test
     public void testFindIdByName(){
         insertInterest.execute(Map.of("name", TestUtils.INTEREST_NEW1_NAME));
-        String[] query = {TestUtils.INTEREST_1_NAME, TestUtils.INTEREST_2_NAME};
+        List<String> query = List.of( TestUtils.INTEREST_1_NAME, TestUtils.INTEREST_2_NAME);
         List<Interest> interests = interestDao.findIdByName(query);
 
         assertNotNull(interests);
@@ -159,7 +156,7 @@ public class InterestJdbcDaoTest {
     }
     @Test
     public void testFindIdByNameSomeNamesNotFound(){
-        String[] query = {TestUtils.INTEREST_1_NAME, TestUtils.INTEREST_2_NAME, TestUtils.INTEREST_NEW2_NAME};
+        List<String> query = List.of( TestUtils.INTEREST_1_NAME, TestUtils.INTEREST_2_NAME, TestUtils.INTEREST_NEW2_NAME);
         List<Interest> interests = interestDao.findIdByName(query);
 
         assertNotNull(interests);
@@ -174,20 +171,20 @@ public class InterestJdbcDaoTest {
     }
     @Test 
     public void testFindIdByNameEmptyNames(){
-        List<Interest> interests = interestDao.findIdByName(new String[0]);
+        List<Interest> interests = interestDao.findIdByName(new ArrayList<>());
 
         assertNotNull(interests);
         assertEquals(0, interests.size());
     }
     @Test(expected = IllegalArgumentException.class)
     public void testFindIdByNameMissingNameInArray(){
-        String[] query = {TestUtils.INTEREST_1_NAME, TestUtils.INTEREST_2_NAME, null};
+        List<String> query = List.of(TestUtils.INTEREST_1_NAME, TestUtils.INTEREST_2_NAME, null);
 
         interestDao.findIdByName(query);
     }
     @Test(expected = IllegalArgumentException.class)
     public void testFindIdByNameEmptyNameInArray(){
-        String[] query = {TestUtils.INTEREST_1_NAME, TestUtils.INTEREST_2_NAME, ""};
+        List<String> query = List.of(TestUtils.INTEREST_1_NAME, TestUtils.INTEREST_2_NAME, "");
 
         interestDao.findIdByName(query);
     }

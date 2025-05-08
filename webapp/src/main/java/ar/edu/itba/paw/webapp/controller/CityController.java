@@ -32,6 +32,11 @@ public class CityController {
         this.countryService = countryService;
     }
 
+    @GetMapping(value = "", produces = "application/json; charset=UTF-8")
+    @ResponseBody
+    public String getCitiesJson(@RequestParam(value = "search", required = false) String search) {
+        return cityService.getCitiesJson(search);
+    }
 
     @GetMapping(value = "/create")
     public ModelAndView createCitiesForm(@ModelAttribute(CITY_CREATE_FORM) final CreateCityForm form) {

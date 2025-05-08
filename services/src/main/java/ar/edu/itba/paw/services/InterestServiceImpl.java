@@ -22,7 +22,9 @@ public class InterestServiceImpl implements InterestService {
     private static final Logger LOGGER = LoggerFactory.getLogger(InterestServiceImpl.class);
 
     private final InterestDao interestDao;
-    
+    private static final int DEFAULT_PAGE_SIZE = 30;
+
+
     @Autowired
     public InterestServiceImpl(InterestDao interestDao) {
         this.interestDao = interestDao;
@@ -56,7 +58,7 @@ public class InterestServiceImpl implements InterestService {
     }
 
     @Override
-    public List<Interest> findIdByName(String[] names) {
+    public List<Interest> findIdByName(List<String> names) {
         LOGGER.debug("Getting interests from name list");
         return interestDao.findIdByName(names);
     }
@@ -137,6 +139,29 @@ public class InterestServiceImpl implements InterestService {
             return interestDao.getAllInterests(pageParams.getPage(), pageParams.getSize());
         }
         return interestDao.searchBySubstring(search,pageParams.getPage(), pageParams.getSize());
+    }
+
+    @Override
+    public String getInterestsJSON(String search) {
+        if(search == null || search.isEmpty()) {
+            List<Interest> interests = interestDao.getAllInterests(1,DEFAULT_PAGE_SIZE).getContent();
+            return listToJson(interests);
+        }
+        List<Interest> interests = interestDao.searchBySubstring(search,1,DEFAULT_PAGE_SIZE).getContent();
+        return listToJson(interests);
+    }
+
+    private String listToJson(List<Interest> interests) {
+        StringBuilder json = new StringBuilder("[");
+        for (Interest interest : interests) {
+            json.append(interest.toJSON()).append(",");
+        }
+        if (json.length() > 1) {
+            json.deleteCharAt(json.length() - 1); // Remove last comma
+        }
+        json.append("]");
+        LOGGER.debug("JSON interests: {}", json);
+        return json.toString();
     }
 
     @Override

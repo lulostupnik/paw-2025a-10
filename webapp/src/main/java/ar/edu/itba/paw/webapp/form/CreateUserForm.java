@@ -5,6 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 @PasswordsMatch
 public class CreateUserForm {
@@ -47,7 +48,7 @@ public class CreateUserForm {
 
     @NotNull
     @ValidInterest
-    private long[] interests;
+    private List<String> interests;
 
     public String getEmail() {
         return email;
@@ -105,11 +106,11 @@ public class CreateUserForm {
         this.originUniversity = originUniversity;
     }
 
-    public long[] getInterests() {
+    public List<String> getInterests() {
         return interests;
     }
 
-    public void setInterests(long[] interests) {
+    public void setInterests(List<String> interests) {
         this.interests = interests;
     }
     public String getPassword() {
@@ -143,13 +144,9 @@ public class CreateUserForm {
         sb.append(career);
         if(interests != null) {
             sb.append("\", interests: {");
-            for (int i = 0; i < interests.length; i++) {
-                sb.append("\"");
-                sb.append(interests[i]);
-                sb.append("\"");
-                if (i + 1 != interests.length) {
-                    sb.append(", ");
-                }
+            for(String interest : interests) {
+                sb.append(interest);
+                sb.append(", ");
             }
             sb.append("}");
         }

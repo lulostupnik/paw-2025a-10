@@ -51,7 +51,7 @@ public interface JourneyDao {
     Page<Journey> searchJourneys(String search, int page, int size);
 
     Page<Journey> searchJourneys(String search, Long userId, String orderBy, String direction,
-                                 Long cityId, LocalDate startDate, LocalDate endDate, Long interest,
+                                 String city, LocalDate startDate, LocalDate endDate, String interest,
                                  boolean isPast, boolean isUpcoming, boolean isMyDestination,
                                  int page, int size);
 

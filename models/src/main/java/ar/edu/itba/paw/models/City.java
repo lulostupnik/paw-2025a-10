@@ -14,4 +14,24 @@ public class City {
     public String toString() {
         return name + ", " + country;
     }
-}
+
+
+        public String toJSON() {
+            return "{\"name\":\"" + escapeJson(name) + "\","
+                    + "\"country\":\"" + escapeJson(country) + "\","
+                    + "\"id\":" + id + "}";
+        }
+
+        private String escapeJson(String value) {
+            if (value == null) return "";
+            return value.replace("\\", "\\\\")
+                    .replace("\"", "\\\"")
+                    .replace("\b", "\\b")
+                    .replace("\f", "\\f")
+                    .replace("\n", "\\n")
+                    .replace("\r", "\\r")
+                    .replace("\t", "\\t");
+        }
+    }
+
+

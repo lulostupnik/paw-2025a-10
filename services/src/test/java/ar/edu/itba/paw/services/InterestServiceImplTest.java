@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +25,7 @@ import ar.edu.itba.paw.models.Page;
 public class InterestServiceImplTest {
 
     private static final String INTEREST_NAME = "interesting";
-    private static final String[] INTEREST_NAMES = new String[] {INTEREST_NAME};
+    private static final List<String> INTEREST_NAMES = List.of(INTEREST_NAME);
     private static final long ID = 0;
     private static final long USER_ID = 1;
     private static final Interest INTEREST = new Interest(ID, INTEREST_NAME);

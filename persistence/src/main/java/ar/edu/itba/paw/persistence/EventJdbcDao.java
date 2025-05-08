@@ -700,20 +700,11 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public Page<Event> getEventsWithAttendanceStatus(Long userId, String search,
-                                                     String sortBy, String direction, Long destination,
-                                                     LocalDate startDate, LocalDate endDate, Long interest,
+                                                     String sortBy, String direction, String destination,
+                                                     LocalDate startDate, LocalDate endDate, String interest,
                                                      boolean isPast, boolean isUpcoming, boolean attending, int page, int size){
         final String searchPattern = likePattern(search);
 
-            return getWithAttendance(userId, searchPattern, sortBy, direction, destination,
-                    startDate, endDate, interest, isPast, isUpcoming, attending, page, size);
-
-    }
-
-    private Page<Event> getWithAttendance(Long userId, String searchPattern, String sortBy, String direction, Long destination,
-                                          LocalDate startDate, LocalDate endDate, Long interest,
-                                          boolean isPast, boolean isUpcoming, boolean attending,
-                                          int page, int size) {
         final List<String> filters = new ArrayList<>();
         final List<Object> params = new ArrayList<>();
 
@@ -721,8 +712,8 @@ public class EventJdbcDao implements EventDao {
         final StringBuilder queryBuilder = new StringBuilder((interest != null) ? SQL_BASE_INTEREST : SQL_BASE);
 
 
-        if (interest != null) {
-            countQueryBuilder.append(" JOIN users us ON e.user_id = us.id JOIN user_interest ui ON us.id = ui.user_id ");
+        if (interest != null && ! interest.isEmpty()) {
+            countQueryBuilder.append(" JOIN users us ON e.user_id = us.id JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON c.id = ui.category_id ");
             filters.add("ui.category_id = ?");
             params.add(interest);
         }
@@ -749,11 +740,11 @@ public class EventJdbcDao implements EventDao {
             params.add(Date.valueOf(startDate));
         }
 
-        if(searchPattern != null && !searchPattern.isEmpty()) {
-            if(destination == null) {
+        if(search != null && !search.isEmpty()) {
+            if(destination == null || destination.isEmpty()) {
                 countQueryBuilder.append(" JOIN cities ci2 ON e.city_id = ci2.id ");
             }
-            if(interest == null) {
+            if(interest == null || interest.isEmpty()) {
                 countQueryBuilder.append(" JOIN users us ON e.user_id = us.id ");
             }
             filters.add(SQL_SEARCH_WHERE_CLAUSE);
@@ -770,7 +761,7 @@ public class EventJdbcDao implements EventDao {
             filters.add("ea.user_id = ?");
             params.add(userId);
         } else
-            if (isPast) {
+        if (isPast) {
             filters.add("e.event_date < CURRENT_DATE");
         } else if (isUpcoming) {
             filters.add("e.event_date >= CURRENT_DATE");
@@ -778,7 +769,7 @@ public class EventJdbcDao implements EventDao {
 
 
         countQueryBuilder.append(" WHERE e.deleted = FALSE ");
-            queryBuilder.append(" WHERE e.deleted = FALSE ");
+        queryBuilder.append(" WHERE e.deleted = FALSE ");
 
         if(!filters.isEmpty()) {
             countQueryBuilder.append(" AND  ").append(String.join(" AND ", filters));
@@ -821,6 +812,7 @@ public class EventJdbcDao implements EventDao {
         return new Page<>(events, page, pageCount(totalItems, size));
 
     }
+
 
     private Page<Event> getWithAttendance(String searchPattern, int page, int size) {
         int totalItems = jdbcTemplate.queryForObject(SQL_COUNT_ALL_EVENTS_WITH_ATTENDANCE, Integer.class, searchPattern, searchPattern, searchPattern);

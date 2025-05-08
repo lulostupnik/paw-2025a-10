@@ -20,6 +20,7 @@ public class UniversityServiceImpl implements UniversityService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UniversityServiceImpl.class);
 
     private final UniversityDao universityDao;
+    private static final int DEFAULT_PAGE_SIZE = 30;
 
     @Autowired
     public UniversityServiceImpl(UniversityDao universityDao) {
@@ -65,6 +66,31 @@ public class UniversityServiceImpl implements UniversityService {
             return universityDao.getAllUniversities(pageParams.getPage(), pageParams.getSize());
         }
         return universityDao.searchBySubstring(search, pageParams.getPage(), pageParams.getSize());
+    }
+    @Override
+    public String getUniversitiesJSON(String search){
+        LOGGER.debug("Getting all universities with search {}", search);
+        List<University> universities;
+        if (search == null || search.isEmpty()) {
+            universities = universityDao.getAllUniversities(1,DEFAULT_PAGE_SIZE).getContent();
+            return UniversitiesToJson(universities);
+        }
+        universities = universityDao.searchBySubstring(search,1,DEFAULT_PAGE_SIZE).getContent();
+
+        return UniversitiesToJson(universities);
+    }
+
+    private String UniversitiesToJson(List<University> universities) {
+        StringBuilder json = new StringBuilder("[");
+        for (University university : universities) {
+            json.append(university.toJSON()).append(",");
+        }
+        if (json.length() > 1) {
+            json.deleteCharAt(json.length() - 1); // Remove last comma
+        }
+        json.append("]");
+        LOGGER.debug("JSON universities: {}", json);
+        return json.toString();
     }
 
     @Override

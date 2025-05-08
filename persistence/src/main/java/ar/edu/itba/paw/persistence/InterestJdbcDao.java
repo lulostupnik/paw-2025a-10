@@ -72,8 +72,8 @@ public class InterestJdbcDao implements InterestDao {
 
     // FIXME: No se si esto se está usando en algún lado o no.
     @Override
-    public List<Interest> findIdByName(final String[] names) {
-        if(names == null || names.length == 0) {
+    public List<Interest> findIdByName(final List<String> names) {
+        if(names == null || names.isEmpty()) {
             return new ArrayList<>();
         }
 
@@ -85,17 +85,17 @@ public class InterestJdbcDao implements InterestDao {
         }
 
         final StringBuilder query = new StringBuilder(SQL_BASE).append(" WHERE name IN (");
-        for (int i = 0; i < names.length; i++) {
+        for (int i = 0; i < names.size(); i++) {
             query.append("?");
-            if (i < names.length - 1) {
+            if (i < names.size() - 1) {
                 query.append(", ");
             }
         }
         query.append(")");
-        final List<Interest> interests = jdbcTemplate.query(query.toString(), INTEREST_ROW_MAPPER, (Object[]) names);
-        if (interests.size() < names.length) { // o != ?
+        final List<Interest> interests = jdbcTemplate.query(query.toString(), INTEREST_ROW_MAPPER,  names.toArray());
+        if (interests.size() < names.size()) { // o != ?
             //TODO See if this is an actual error to throw (or if normal flow can continue)
-            LOGGER.warn("Couldn't find IDs for all provided interests ({} vs {})", interests.size(), names.length);
+            LOGGER.warn("Couldn't find IDs for all provided interests ({} vs {})", interests.size(), names.size());
         }
         return interests;
     }

@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, byte[] profilePicture, long[] interests, String password, Locale locale) {
+    public User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, byte[] profilePicture, List<String> interests, String password, Locale locale) {
         LOGGER.debug("Creating user for {}", email);
 
         University university = universityService.findByName(universityName).orElseThrow(() -> new RuntimeException("University not found")); // TODO: ¿Acá cuando tira excepción debería haber un log?
@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
         User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId, passwordEncoder.encode(password), locale);
 
         interestService.saveUserInterests(interests, user.getId());
-        
+
         return user;
     }
 
