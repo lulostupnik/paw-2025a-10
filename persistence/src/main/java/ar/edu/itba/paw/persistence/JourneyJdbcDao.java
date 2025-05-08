@@ -521,7 +521,7 @@ public class JourneyJdbcDao implements JourneyDao {
             final List<Object> params = new ArrayList<>();
 
             final StringBuilder countQueryBuilder = new StringBuilder("SELECT COUNT(*) FROM journeys j");
-            final StringBuilder queryBuilder = new StringBuilder((interest != null) ? SQL_BASE_INTEREST : SQL_BASE);
+            final StringBuilder queryBuilder = new StringBuilder((interest != null || orderBy.equals("interest")) ? SQL_BASE_INTEREST : SQL_BASE);
 
 
             if (interest != null) {
@@ -576,6 +576,13 @@ public class JourneyJdbcDao implements JourneyDao {
                 filters.add(" ci2.id = ( SELECT ci2.id FROM journeys j JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id WHERE j.user_id = ? LIMIT 1) ");
                 params.add(userId);
             }
+            if(orderBy != null && orderBy.equals("interest")){
+                orderBy= "c.name";
+                if(interest == null) {
+                    countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id ");
+                }
+                countQueryBuilder.append(" JOIN category c ON ui.category_id = c.id ");
+            }
 
             countQueryBuilder.append(" WHERE j.deleted = FALSE ");
 
@@ -588,10 +595,14 @@ public class JourneyJdbcDao implements JourneyDao {
                 if(orderBy.equals("city")){
                     orderBy= "ci2.name";
                 }
-                if(orderBy.equals("interest")){
-                    orderBy= "c.name";
-                }
+
                 queryBuilder.append(" ORDER BY ").append(orderBy);
+
+                if (direction != null && direction.equals("desc")) {
+                    queryBuilder.append(" DESC");
+                } else {
+                    queryBuilder.append(" ASC");
+                }
             } else {
                 queryBuilder.append(" ORDER BY j.id");
             }

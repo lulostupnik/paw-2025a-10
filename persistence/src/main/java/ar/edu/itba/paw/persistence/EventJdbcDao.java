@@ -117,7 +117,7 @@ public class EventJdbcDao implements EventDao {
 
     private final static String SQL_NOT_DELETED = " WHERE e.deleted = FALSE ";
     private final static String SQL_BASE = SQL_SELECT_BASE + SQL_FROM_BASE; // + SQL_NOT_DELETED;
-    private final static String SQL_BASE_INTEREST = SQL_BASE + " JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id " ;
+    private final static String SQL_BASE_INTEREST = SQL_BASE + " JOIN user_interest ui ON us.id = ui.user_id " ;
     private static final String SQL_BASE_NOT_DELETED = SQL_BASE + SQL_NOT_DELETED;
 
     private final static String SQL_FIND_BY_ID = SQL_BASE_NOT_DELETED + " AND e.id = ? ";
@@ -174,7 +174,7 @@ public class EventJdbcDao implements EventDao {
             """
             (
             LOWER(e.title) LIKE LOWER(?)
-    OR LOWER(c.name) LIKE LOWER(?)
+    OR LOWER(ci2.name) LIKE LOWER(?)
     OR LOWER(us.username) LIKE LOWER(?)
     )
     """;
@@ -704,15 +704,13 @@ public class EventJdbcDao implements EventDao {
                                                      LocalDate startDate, LocalDate endDate, Long interest,
                                                      boolean isPast, boolean isUpcoming, boolean attending, int page, int size){
         final String searchPattern = likePattern(search);
-        if(userId != null){
-            // return getEventsWithAttendanceStatus(search, userId, page, size);
+
             return getWithAttendance(userId, searchPattern, sortBy, direction, destination,
                     startDate, endDate, interest, isPast, isUpcoming, attending, page, size);
-        }
-        return getWithAttendance(searchPattern, page, size);
+
     }
 
-    private Page<Event> getWithAttendance(long userId, String searchPattern, String sortBy, String direction, Long destination,
+    private Page<Event> getWithAttendance(Long userId, String searchPattern, String sortBy, String direction, Long destination,
                                           LocalDate startDate, LocalDate endDate, Long interest,
                                           boolean isPast, boolean isUpcoming, boolean attending,
                                           int page, int size) {
@@ -724,7 +722,7 @@ public class EventJdbcDao implements EventDao {
 
 
         if (interest != null) {
-            countQueryBuilder.append(" JOIN users us ON e.user_id = us.id JOIN user_interest ui ON us.id = ui.user_id");
+            countQueryBuilder.append(" JOIN users us ON e.user_id = us.id JOIN user_interest ui ON us.id = ui.user_id ");
             filters.add("ui.category_id = ?");
             params.add(interest);
         }
@@ -735,8 +733,10 @@ public class EventJdbcDao implements EventDao {
             params.add(destination);
         }
 
-        filters.add("e.user_id != ?");
-        params.add(userId);
+        if(userId != null) {
+            filters.add("e.user_id != ?");
+            params.add(userId);
+        }
 
 
         if (endDate != null) {
@@ -754,14 +754,15 @@ public class EventJdbcDao implements EventDao {
                 countQueryBuilder.append(" JOIN cities ci2 ON e.city_id = ci2.id ");
             }
             if(interest == null) {
-                countQueryBuilder.append(" JOIN users us ON e.user_id = us.id JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id ");
+                countQueryBuilder.append(" JOIN users us ON e.user_id = us.id ");
             }
             filters.add(SQL_SEARCH_WHERE_CLAUSE);
             params.add(searchPattern);
             params.add(searchPattern);
             params.add(searchPattern);
         }
-        if(attending) {
+
+        if(attending && userId != null) {
             queryBuilder.append(" LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ");
             queryBuilder.append( userId );
             countQueryBuilder.append(" LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = " );
@@ -785,13 +786,26 @@ public class EventJdbcDao implements EventDao {
         }
 
         if (sortBy != null && !sortBy.isEmpty()) {
-            if(sortBy.equals("destination")){
+            if(sortBy.equals("destination") || sortBy.equals("city")){
                 sortBy= "ci2.name";
             }
             if(sortBy.equals("interest")){
                 sortBy= "c.name";
             }
+            if(sortBy.equals("attendees")){
+                sortBy= "e.attendees_count";
+            }
+            if(sortBy.equals("date")){
+                sortBy= "e.event_date";
+            }
+
             queryBuilder.append(" ORDER BY ").append(sortBy);
+
+            if (direction != null && direction.equals("desc")) {
+                queryBuilder.append(" DESC");
+            } else {
+                queryBuilder.append(" ASC");
+            }
         } else {
             queryBuilder.append(" ORDER BY e.id");
         }

@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
+import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
@@ -18,23 +19,23 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class JourneyServiceImpl implements JourneyService {
     private static final Logger LOGGER = LoggerFactory.getLogger(JourneyServiceImpl.class);
+    protected final JourneyResponseDao journeyResponseDao;
 
     private final JourneyDao journeyDao;
     private final UserService userService;
     private final EmailService emailService;
     private final UniversityService universityService;
-    private final JourneyResponseService journeyResponseService;
 
     private final InterestService interestService;
     private final UserDao userDao;
 
     @Autowired
     public JourneyServiceImpl(JourneyDao journeyDao, UserService userService,UserDao userDao,
-                              UniversityService universityService, JourneyResponseService journeyResponseService, EmailService emailService, InterestService interestService) {
+                              UniversityService universityService, JourneyResponseDao journeyResponseDao, EmailService emailService, InterestService interestService) {
         this.journeyDao = journeyDao;
         this.userService = userService;
         this.universityService = universityService;
-        this.journeyResponseService = journeyResponseService;
+        this.journeyResponseDao = journeyResponseDao;
         this.emailService = emailService;
         this.interestService = interestService;
         this.userDao = userDao;
@@ -88,8 +89,8 @@ public class JourneyServiceImpl implements JourneyService {
         //parche temporal buscar por username
         User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
 
-        journeyResponseService.create(user.getId(), user.getUsername() ,journeyId, message, LocalDateTime.now());
-
+//        journeyResponseService.createJourneyResponse(user.getId(), user.getUsername() ,journeyId, message, LocalDateTime.now());
+        journeyResponseDao.create(user.getId(), user.getUsername() , journeyId, message, LocalDateTime.now());
         List<Interest> interests = interestService.findByUserId(journey.getUser().getId());
         interestService.updateScoreByInterests(interests, user.getId());
 
@@ -192,10 +193,6 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyDao.getJourneysByUser(email);
     }
 
-    @Override
-    public List<JourneyResponse> getJourneyResponses(long journeyId){
-        return journeyResponseService.listAllFromJourney(journeyId);
-    }
 
     @Override
     public List<Journey> getOthersJourneys(long userId) {
@@ -273,7 +270,7 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     public void delete(long id, String message) {
         journeyDao.deletionMessage(id, message);
-        journeyResponseService.deleteByJourneyId(id);
+        journeyResponseDao.deleteResponsesByJourneyId(id);
         Journey journey = journeyDao.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Journey not found"));
         emailService.sendJourneyDeletionNotification(journey,message);
@@ -295,5 +292,47 @@ public class JourneyServiceImpl implements JourneyService {
                     return new IllegalArgumentException("University not found");
                 });
         journeyDao.updateData(journeyId, university, startDate, endDate, description);
+    }
+
+
+    @Override
+    public List<JourneyResponse> listAllResponsesFromJourney(long journeyId) {
+        return journeyResponseDao.listAllFromJourney(journeyId);
+    }
+
+    @Override
+    public Optional<JourneyResponse> findJourneyResponseById(long id) {
+        return journeyResponseDao.findById(id);
+    }
+
+    @Override
+    @Transactional
+    public void deleteJourneyResponse(long id, String message) {
+
+        JourneyResponse deletedComment = findJourneyResponseById(id).orElseThrow(() -> new IllegalArgumentException("Journey response doesn't exists"));
+        Journey journey = journeyDao.findById(deletedComment.getJourneyId()).orElseThrow(()->new IllegalStateException("Journey from journey response doesn't exist"));
+        User commentAuthor = userService.findById(deletedComment.getUserId()).orElseThrow(() -> new IllegalArgumentException("User from journey response doesn't exists"));
+
+        emailService.sendJourneyCommentDeletionNotification(deletedComment,journey,commentAuthor,message);
+
+        journeyResponseDao.deletionMessage(id, message);
+        journeyResponseDao.delete(id);
+    }
+
+    @Override
+    public long getJourneyIdByResponseId(long journeyResponseId) {
+        return journeyResponseDao.getJourneyIdByResponseId(journeyResponseId);
+    }
+
+
+
+    @Override
+    public Page<JourneyResponse> listAllResponsesFromJourney(long journeyId, PageParams pageParams) {
+        return journeyResponseDao.listAllFromJourney(journeyId, pageParams.getPage(), pageParams.getSize());
+    }
+
+    @Override
+    public int getJourneyResponseCount(long id) {
+        return journeyResponseDao.getJourneyResponseCount(id);
     }
 }

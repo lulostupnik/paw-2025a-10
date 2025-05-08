@@ -23,7 +23,6 @@ import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.EmailService;
 import ar.edu.itba.paw.interfaces.services.InterestService;
-import ar.edu.itba.paw.interfaces.services.JourneyResponseService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 
@@ -83,8 +82,8 @@ public class JourneyServiceImplTest {
     EmailService emailService;
     @Mock
     UniversityService uniService;
-    @Mock
-    JourneyResponseService responseService;
+//    @Mock
+//    JourneyResponseService responseService;
     @Mock
     InterestService interestService;
     @Mock
@@ -412,18 +411,18 @@ public class JourneyServiceImplTest {
         assertNotNull(journeys);
         assertEquals(JOURNEYS, journeys);
     }
-
-    @Test
-    public void testGetJourneyResponses(){
-        Mockito.when(
-            responseService.listAllFromJourney(Mockito.eq(JOURNEY_ID))
-        ).thenReturn(REPLIES);
-
-        List<JourneyResponse> replies = journeyService.getJourneyResponses(JOURNEY_ID);
-        
-        assertNotNull(replies);
-        assertEquals(REPLIES, replies);
-    }
+//
+//    @Test
+//    public void testGetJourneyResponses(){
+//        Mockito.when(
+//            responseService.listAllResponsesFromJourney(Mockito.eq(JOURNEY_ID))
+//        ).thenReturn(REPLIES);
+//
+//        List<JourneyResponse> replies = journeyService.getJourneyResponses(JOURNEY_ID);
+//
+//        assertNotNull(replies);
+//        assertEquals(REPLIES, replies);
+//    }
 
     @Test
     public void testGetOthersJourneysID(){

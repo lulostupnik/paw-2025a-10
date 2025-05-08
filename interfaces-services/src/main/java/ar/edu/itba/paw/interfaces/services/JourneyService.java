@@ -31,7 +31,6 @@ public interface JourneyService {
 
     List<Journey> getJourneysByUser(String email);
 
-    List<JourneyResponse> getJourneyResponses(long journeyId);
 
     List<Journey> getOthersJourneys(long userId);
 
@@ -51,4 +50,13 @@ public interface JourneyService {
 
     void editJourney(long journeyId, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
 
+    List<JourneyResponse> listAllResponsesFromJourney(long journeyId);
+    void deleteJourneyResponse(long id, String message);
+    long getJourneyIdByResponseId(long journeyId);
+
+    Optional<JourneyResponse> findJourneyResponseById(long id);
+
+    Page<JourneyResponse> listAllResponsesFromJourney(long eventId, PageParams pageParams);
+
+    int getJourneyResponseCount(long id);
 }
