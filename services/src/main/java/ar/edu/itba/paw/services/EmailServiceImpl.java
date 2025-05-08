@@ -96,30 +96,6 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendEventCommentDeletionNotification(EventResponse deletedComment, Event event , User commentAuthor, String adminMessage) {
-//        LOGGER.debug("Initiating comment deletion notification for eventResponseId={} with adminMessage='{}'", eventResponseId, adminMessage);
-
-//        EventResponse deletedComment = eventResponseService.findByIdDeletedOrNotDeleted(eventResponseId)
-//                .orElseThrow(() -> {
-//                    LOGGER.warn("No EventResponse found with id {}", eventResponseId);
-//                    return new IllegalArgumentException("Event response doesn't exist");
-//                });
-//
-//        LOGGER.debug("Retrieved EventResponse: {}", deletedComment);
-//
-//        Event event = eventService.getEventById(deletedComment.getEventId())
-//                .orElseThrow(() -> {
-//                    LOGGER.warn("No Event found with id {} from EventResponse {}", deletedComment.getEventId(), deletedComment.getId());
-//                    return new IllegalStateException("Event from event response doesn't exist");
-//                });
-//
-//        LOGGER.debug("Retrieved Event: {}", event);
-//
-//        User commentAuthor = userService.findById(deletedComment.getUserId())
-//                .orElseThrow(() -> {
-//                    LOGGER.warn("No User found with id {} from EventResponse {}", deletedComment.getUserId(), deletedComment.getId());
-//                    return new IllegalArgumentException("User from event response doesn't exist");
-//                });
-//        User commentAuthor = deletedComment.getUserId();
 
         LOGGER.debug("Retrieved User (comment author): {}", commentAuthor);
 
