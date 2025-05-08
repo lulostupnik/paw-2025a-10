@@ -197,7 +197,7 @@ public class WebConfig implements WebMvcConfigurer {
     public CacheManager cacheManager() {
         return new ConcurrentMapCacheManager(
                 "images",
-                "careers", "careersByName", "careersById",
+                "careersByName", "careersById",
                 "interests", "interestsById", "interestsByName",
                 "countries", "countriesByName",
                 "cities", "citiesByName",
