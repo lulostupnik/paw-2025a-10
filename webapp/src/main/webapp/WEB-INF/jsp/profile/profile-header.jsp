@@ -22,4 +22,8 @@
         <h1 class="profile-name"><c:out value="${user.firstname} ${user.lastname}"/></h1>
         <p class="profile-username">@<c:out value="${user.username}"/></p>
       </div>
+      <button class="btn-primary"
+                onclick="window.location.href='<c:url value='/profile/changePassword' />'">
+            <spring:message code="profile.edit.password" text="Change password"/>
+      </button>
     </div>

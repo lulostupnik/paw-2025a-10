@@ -3,13 +3,16 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
+import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.webapp.form.UpdatePasswordForm;
 import ar.edu.itba.paw.webapp.resolver.anotation.PageParamCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -22,13 +25,15 @@ public class ProfileController {
     private final EventService eventService;
     private final InterestService interestService;
     private static final String PROFILE = "profile/profile";
+    private final UserService userService;
 
     @Autowired
-    public ProfileController(JourneyService journeyService, EventService eventService, InterestService interestService) {
+    public ProfileController(JourneyService journeyService, EventService eventService, InterestService interestService, UserService userService) {
         this.journeyService = journeyService;
 
         this.eventService = eventService;
         this.interestService = interestService;
+        this.userService = userService;
     }
     @GetMapping(value = "/info")
     public ModelAndView getInfo() {
@@ -72,4 +77,19 @@ public class ProfileController {
         mav.addObject("currentPageUserAttending", attendingPage.getPage());
         return mav;
     }
+    @GetMapping(value="/changePassword")
+    public ModelAndView getChangePassword(@ModelAttribute("updatePasswordForm") UpdatePasswordForm updatePasswordForm) {
+        return new ModelAndView("profile/change-password");
+    }
+    @PostMapping(value="/changePassword")
+    public ModelAndView changePassword(@ModelAttribute("updatePasswordForm") UpdatePasswordForm updatePasswordForm,
+                                       BindingResult errors,
+                                       @ModelAttribute("user") User user) {
+        if(errors.hasErrors()) {
+            return new ModelAndView("redirect:/profile/changePassword");
+        }
+        userService.changePassword(user.getEmail(), updatePasswordForm.getPassword());
+        return new ModelAndView("redirect:/profile/info");
+    }
+
 }
