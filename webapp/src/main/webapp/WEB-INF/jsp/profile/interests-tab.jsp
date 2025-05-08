@@ -18,6 +18,13 @@
                     <jsp:param name="pageSize" value="4" />
                     <jsp:param name="baseUrl" value="/profile/interests" />
                 </jsp:include>
+
+                <!-- Edit button when user has interests -->
+                <div class="action-buttons">
+                    <a href="<c:url value='/interests/edit'/>" class="btn-primary">
+                        <spring:message code="profile.edit.interests"/>
+                    </a>
+                </div>
             </c:if>
             <c:if test="${empty interests.content}">
                 <div class="empty-state">
@@ -29,9 +36,13 @@
                     <p class="empty-message">
                         <spring:message code="profile.no.interests"/>
                     </p>
-<%--                    <a href="<c:url value='/profile/edit'/>" class="empty-action-btn">--%>
-<%--                        <spring:message code="profile.add.interests"/>--%>
-<%--                    </a>--%>
+
+                    <!-- Add button when user has no interests -->
+                    <div class="action-buttons">
+                        <a href="<c:url value='/interests/edit'/>" class="btn-primary">
+                            <spring:message code="profile.add.interests"/>
+                        </a>
+                    </div>
                 </div>
             </c:if>
         </div>

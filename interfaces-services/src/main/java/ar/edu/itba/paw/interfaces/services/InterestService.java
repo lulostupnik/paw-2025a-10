@@ -22,6 +22,6 @@ public interface InterestService {
     void updateScoreByInterest(Interest interest, long userId);
     void updateScoreByInterests(List<Interest> interests, long userId);
     Page<Interest> getAllInterests(String search, PageParams pageParams);
-
+    void deleteUserInterests(long userId, long[] interests);
     void delete(long id);
 }

@@ -4,8 +4,12 @@ import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.interfaces.services.UserService;
+import ar.edu.itba.paw.models.Interest;
+import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.webapp.form.CreateInterestForm;
+import ar.edu.itba.paw.webapp.form.EditInterestForm;
 import ar.edu.itba.paw.webapp.form.UpdatePasswordForm;
 import ar.edu.itba.paw.webapp.resolver.anotation.PageParamCustomizer;
 import org.slf4j.Logger;
@@ -15,6 +19,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.validation.Valid;
+import java.util.NoSuchElementException;
 
 @Controller
 @RequestMapping("/profile")
@@ -77,6 +84,7 @@ public class ProfileController {
         mav.addObject("currentPageUserAttending", attendingPage.getPage());
         return mav;
     }
+
     @GetMapping(value="/changePassword")
     public ModelAndView getChangePassword(@ModelAttribute("updatePasswordForm") UpdatePasswordForm updatePasswordForm) {
         return new ModelAndView("profile/change-password");
@@ -91,5 +99,6 @@ public class ProfileController {
         userService.changePassword(user.getEmail(), updatePasswordForm.getPassword());
         return new ModelAndView("redirect:/profile/info");
     }
+
 
 }

@@ -131,6 +131,14 @@ public class InterestServiceImpl implements InterestService {
         return interestDao.searchBySubstring(search,pageParams.getPage(), pageParams.getSize());
     }
 
+    @Override
+    public void deleteUserInterests(long userId, long[] interests) {
+        LOGGER.debug("Deleting interests {} from user {}", interests, userId);
+        for(long interest : interests) {
+            interestDao.deleteUserInterest(interest);
+        }
+    }
+
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = "interestsById", key = "#id"),

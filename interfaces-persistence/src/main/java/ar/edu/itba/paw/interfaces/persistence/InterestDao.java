@@ -22,6 +22,5 @@ public interface InterestDao {
      Page<Interest> getAllInterests(int page, int pageSize);
      Page<Interest> searchBySubstring(String search, int page, int pageSize);
      Page<Interest> findAllInterestsByUserId(long id, int page, int pageSize);
-          
      void delete(long id);
 }
