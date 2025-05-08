@@ -125,7 +125,8 @@ public class InterestServiceImpl implements InterestService {
     }
 
     @Override
-    public void updateUserInterests(List<Long> interestIds, long userId) {
+    @Transactional(readOnly = false)
+    public void updateUserInterests(long[] interestIds, long userId) {
         interestDao.updateUserInterests(interestIds, userId);
     }
 

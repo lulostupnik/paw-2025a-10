@@ -12,6 +12,8 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.util.*;
+import java.util.stream.Collectors;
+
 import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
 
@@ -143,8 +145,8 @@ public class InterestJdbcDao implements InterestDao {
     }
 
     @Override
-    public void updateUserInterests(final List<Long> interestIds, final long userId) {
-        LOGGER.debug("Updating interests for user {} to match provided list of {} interests", userId, interestIds.size());
+    public void updateUserInterests(final long[] interestIds, final long userId) {
+        LOGGER.debug("Updating interests for user {}", userId);
 
         final List<Long> currentInterestIds = jdbcTemplate.queryForList(
                 "SELECT category_id FROM user_interest WHERE user_id = ?",
@@ -152,11 +154,13 @@ public class InterestJdbcDao implements InterestDao {
                 userId
         );
 
-        final List<Long> interestsToAdd = new ArrayList<>(interestIds);
-        interestsToAdd.removeAll(currentInterestIds);
+        final List<Long> interestsToAdd = Arrays.stream(interestIds).boxed()
+                .collect(Collectors.toList());
 
         final List<Long> interestsToRemove = new ArrayList<>(currentInterestIds);
-        interestsToRemove.removeAll(interestIds);
+
+        interestsToRemove.removeAll(interestsToAdd);
+        interestsToAdd.removeAll(currentInterestIds);
 
         for (Long interestId : interestsToAdd) {
             jdbcTemplate.update(

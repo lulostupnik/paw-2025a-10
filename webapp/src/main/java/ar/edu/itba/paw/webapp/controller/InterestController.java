@@ -129,6 +129,7 @@ public class InterestController {
         if (errors.hasErrors()) {
             return updateInterestForm(user, form, errors);
         }
+        interestService.updateUserInterests(form.getInterests(), user.getId());
 
         return new ModelAndView("redirect:/profile/interests");
     }
