@@ -26,4 +26,6 @@ public interface EmailService {
      void sendJourneyCommentDeletionNotification(/*long journeyResponseId,*/ JourneyResponse deletedComment,  Journey journey, User commentAuthor , String adminMessage);
 
      void sendUserUnblockedNotification(User unblockedUser);
+
+     void sendEventReminderNotification(Event event, List<User> attendees);
 }

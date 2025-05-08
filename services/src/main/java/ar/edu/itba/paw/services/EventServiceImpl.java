@@ -50,6 +50,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public Event createEvent(String email, String cityName, LocalDate date, byte[] flyer, String description, String title, LocalTime time, String address, Integer attendeesLimit) {
+
         LOGGER.debug("Creating event for user {}", email);
 
         LOGGER.debug("Looking for city {}", cityName);

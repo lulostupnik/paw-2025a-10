@@ -143,7 +143,6 @@ public class EmailServiceImpl implements EmailService {
     public void answerEventNotification(List<User> oldRepliers, String message, User commenter, Event event) {
         User eventUser = event.getUser();
 
-//        byte[] profilePictureData = null;//userService.getProfilePictureData(commenter);
 
         byte[] profilePictureData = imageService.getImage(commenter.getProfilePictureId()).orElseThrow(() -> new IllegalStateException("User does not have profile picture")).getData();
 
@@ -171,10 +170,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void answerJourneyNotification(List<User> oldRepliers, String message, User commenter, Journey journey) {
         User journeyUser = journey.getUser();
-//        byte[] profilePictureData = null;//userService.getProfilePictureData(commenter);
         byte[] profilePictureData = imageService.getImage(commenter.getProfilePictureId()).orElseThrow(() -> new IllegalStateException("User does not have profile picture")).getData();
-
-
 
         Map<String, Object> variables = buildVariables(
                 commenter.getFirstname(), commenter.getLastname(),
@@ -242,9 +238,8 @@ public class EmailServiceImpl implements EmailService {
 
 
     @Override
-    public void sendUserBlockedNotification(User blockedUser/*, String adminMessage*/) {
+    public void sendUserBlockedNotification(User blockedUser) {
         Map<String, Object> variables = new HashMap<>();
-//        variables.put("adminMessage", adminMessage);
         variables.put("username", blockedUser.getUsername());
 
         sendHtmlMessage(Optional.empty(), Optional.empty(), blockedUser, "user-blocked", variables,
@@ -258,6 +253,40 @@ public class EmailServiceImpl implements EmailService {
         sendHtmlMessage(Optional.empty(), Optional.empty(), unblockedUser, "user-unblocked", variables,
                 "email.user.unblocked.title", Optional.empty());
     }
+
+
+    @Override
+    public void sendEventReminderNotification(Event event, List<User> attendees) {
+        Optional<byte[]> eventImage = Optional.empty();
+        Optional<String> eventImageCid = Optional.empty();
+
+        if (event.getFlyerImageId() > 0) {
+            eventImage = Optional.ofNullable(imageService.getImage(event.getFlyerImageId())
+                    .map(Image::getData)
+                    .orElse(null));
+            eventImageCid = Optional.of("eventImage");
+        }
+
+        for (User attendee : attendees) {
+            Map<String, Object> variables = new HashMap<>();
+            variables.put("firstname", attendee.getFirstname());
+            variables.put("event", event);
+
+            sendHtmlMessage(
+                    eventImage,
+                    eventImageCid,
+                    attendee,
+                    "event-reminder",
+                    variables,
+                    "email.event.reminder.title",
+                    Optional.of(new Object[]{event.getTitle()})
+            );
+
+            LOGGER.debug("Event reminder notification sent successfully to user {}", attendee.getEmail());
+        }
+    }
+
+
 
 }
 
