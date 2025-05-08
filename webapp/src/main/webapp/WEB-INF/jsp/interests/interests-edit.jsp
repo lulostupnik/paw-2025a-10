@@ -100,10 +100,14 @@
     const selectedInterests = document.getElementById("selectedInterests");
     const interestItems = document.querySelectorAll("#interestDropdown .autocomplete-item");
 
+    // Track selected interest IDs to prevent duplicates
+    const selectedInterestIds = new Set();
+
     // Initialize with user's existing interests
     function initializeUserInterests() {
       // Clear any existing tags
       selectedInterests.innerHTML = '';
+      selectedInterestIds.clear();
 
       // Get all selected options from the hidden select
       const selectedOptions = Array.from(interestsSelect.selectedOptions);
@@ -119,9 +123,12 @@
     // Add a tag for an interest
     function addInterestTag(id, name) {
       // Check if this interest is already selected
-      if (document.querySelector(`.selected-tag[data-id="${id}"]`)) {
+      if (selectedInterestIds.has(id)) {
         return;
       }
+
+      // Add to our tracking set
+      selectedInterestIds.add(id);
 
       // Create the tag element
       const tag = document.createElement("div");
@@ -145,6 +152,9 @@
       tagRemove.addEventListener("click", function() {
         // Remove the tag
         tag.remove();
+
+        // Remove from our tracking set
+        selectedInterestIds.delete(id);
 
         // Deselect the option in the hidden select
         const option = Array.from(interestsSelect.options).find(opt => opt.value === id);
@@ -174,10 +184,13 @@
 
       interestItems.forEach(item => {
         const itemValue = item.getAttribute("data-value").toLowerCase();
-        if (itemValue.includes(searchTerm)) {
-          item.style.display = "block";
-        } else {
+        const itemId = item.getAttribute("data-id");
+
+        // Hide already selected items and non-matching items
+        if (selectedInterestIds.has(itemId) || !itemValue.includes(searchTerm)) {
           item.style.display = "none";
+        } else {
+          item.style.display = "block";
         }
       });
 
@@ -207,6 +220,9 @@
 
         // Hide the dropdown
         interestDropdown.style.display = "none";
+
+        // Hide this item in future searches
+        this.style.display = "none";
       });
     });
 
