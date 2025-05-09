@@ -3,6 +3,9 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.ExpiredTokenException;
+import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
+import ar.edu.itba.paw.models.exceptions.UserValidatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,10 +76,10 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = false)
     public void validateEmail(String token) {
         if (userDao.hasExpired(token)) {
-            throw new IllegalStateException("Token expired");
+            throw new ExpiredTokenException("Token expired");
         }
         if(!userDao.isValid(token)){
-            throw new IllegalStateException("Token already used");
+            throw new InvalidTokenException("Token already used");
         }
         userDao.validateToken(token);
     }

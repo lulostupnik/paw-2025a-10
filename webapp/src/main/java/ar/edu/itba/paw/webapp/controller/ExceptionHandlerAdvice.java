@@ -1,8 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
-import ar.edu.itba.paw.models.exceptions.InvalidException;
-import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
+import ar.edu.itba.paw.models.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -79,5 +77,32 @@ public class ExceptionHandlerAdvice {
         ModelAndView mav = new ModelAndView(ERROR_VIEW);
         mav.addObject("errorType", "500");
         return mav;
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    public ModelAndView error400Token(InvalidTokenException ex) {
+        LOGGER.warn("InvalidTokenException: {}", ex.getMessage());
+        LOGGER.debug("Stack trace for InvalidTokenException", ex);
+
+        return new ModelAndView("auth/invalid-token");
+    }
+
+    @ExceptionHandler(ExpiredTokenException.class)
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    public ModelAndView error400ExpiredToken(ExpiredTokenException ex) {
+        LOGGER.warn("ExpiredToken: {}", ex.getMessage());
+        LOGGER.debug("Stack trace for ExpiredToken", ex);
+
+        return new ModelAndView("auth/expired-token");
+    }
+
+    @ExceptionHandler(UserValidatedException.class)
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    public ModelAndView userValidatedExcpetion(UserValidatedException ex) {
+        LOGGER.warn("UserValidatedException: {}", ex.getMessage());
+        LOGGER.debug("Stack trace for UserValidatedException", ex);
+
+        return new ModelAndView("auth/not-verified");
     }
 }

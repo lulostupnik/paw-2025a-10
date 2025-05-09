@@ -50,7 +50,7 @@ public class AuthController {
     @GetMapping(value ="/validate")
     public ModelAndView validateEmail(@RequestParam("token") String token) {
         userService.validateEmail(token);
-        return new ModelAndView("redirect:/explore");
+        return new ModelAndView("redirect:/auth/validate-user");
     }
 
     @RequestMapping("/login")
@@ -61,6 +61,24 @@ public class AuthController {
         }
         return new ModelAndView("auth/login");
     }
+//    @RequestMapping("/not-verified")
+//    public ModelAndView notVerified() {
+//        LOGGER.debug("Loading notVerified view");
+//        return new ModelAndView("auth/not-verified");
+//    }
+//
+//    @RequestMapping("/expired-token")
+//    public ModelAndView expiredToken() {
+//        LOGGER.debug("Loading expiredToken view");
+//        return new ModelAndView("auth/expired-token");
+//    }
+//
+//    @RequestMapping("/invalid-token")
+//    public ModelAndView invalidToken() {
+//        LOGGER.debug("Loading invalidToken view");
+//        return new ModelAndView("auth/invalid-token");
+//    }
+
     @RequestMapping("/blocked")
     public ModelAndView blockedForm() {
         LOGGER.debug("Loading blocked view");
@@ -91,14 +109,14 @@ public class AuthController {
                 form.getLastName(), form.getOriginUniversity(), form.getCareer(), profilePicture,
                 form.getInterests(), form.getPassword(), LocaleContextHolder.getLocale());
 
-        setAuth(form.getEmail(), form.getPassword());
+//        setAuth(form.getEmail(), form.getPassword());
 
         return new ModelAndView("redirect:explore");
     }
 
-    private void setAuth(String email, String password) {
-        Authentication authToken = new UsernamePasswordAuthenticationToken(email, password);
-        Authentication authentication = authenticationManager.authenticate(authToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
+//    private void setAuth(String email, String password) {
+//        Authentication authToken = new UsernamePasswordAuthenticationToken(email, password);
+//        Authentication authentication = authenticationManager.authenticate(authToken);
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//    }
 }

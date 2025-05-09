@@ -2,6 +2,8 @@ package ar.edu.itba.paw.webapp.auth;
 
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.UserPassword;
+import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
+import ar.edu.itba.paw.models.exceptions.UserValidatedException;
 import ar.edu.itba.paw.webapp.exception.EmailNotVerifiedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.DisabledException;
@@ -33,7 +35,7 @@ public class PawUserDetailsService implements UserDetailsService {
             throw new DisabledException("User is blocked");
         }
         if(!user.isVerified()){
-            throw new EmailNotVerifiedException("User is not verified");
+            throw new UserValidatedException("User is not verified");
         }
         if(user.getRole().equals("admin")) {
             authorities = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
