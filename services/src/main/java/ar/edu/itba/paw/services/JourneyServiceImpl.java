@@ -130,7 +130,7 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     public Page<Journey> getAllJourneys(String search, User user, String sortBy, String direction, String destination,
                                         LocalDate startDate, LocalDate endDate, String interest,
-                                        boolean isPast, boolean isUpcoming, boolean isMyDestination,
+                                        boolean isPast, boolean isUpcoming, boolean isMyDestination, boolean isOngoing,
                                         PageParams pageParams) {
         LOGGER.debug("Getting filtered journeys");
         if(direction == null || direction.isEmpty()){
@@ -146,7 +146,7 @@ public class JourneyServiceImpl implements JourneyService {
         }
 
         return journeyDao.searchJourneys(search, user != null ? user.getId() : null, sortBy, direction, destination,
-                startDate, endDate, interest, isPast, isUpcoming, isMyDestination,
+                startDate, endDate, interest, isPast, isUpcoming, isMyDestination, isOngoing,
                 pageParams);
 
     }

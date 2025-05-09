@@ -24,6 +24,13 @@ public class FilterJourneyForm {
 
     private boolean isPast;
 
+    private boolean isOngoing;
+
+    public boolean getIsOngoing() {
+        return isOngoing;
+    }
+
+
     public boolean getIsMyDestination() {
         return isMyDestination;
     }
@@ -45,6 +52,10 @@ public class FilterJourneyForm {
 
     public void setIsPast(boolean isPast) {
         this.isPast = isPast;
+    }
+
+    public void setIsOngoing(boolean isOngoing) {
+        this.isOngoing = isOngoing;
     }
     public void setInterests(String interests) {
         this.interests = interests;
@@ -99,6 +110,8 @@ public class FilterJourneyForm {
         sb.append(isUpcoming);
         sb.append("\", isPast: \"");
         sb.append(isPast);
+        sb.append("\", isOngoing: \"");
+        sb.append(isOngoing);
         sb.append("\"}");
         return sb.toString();
     }

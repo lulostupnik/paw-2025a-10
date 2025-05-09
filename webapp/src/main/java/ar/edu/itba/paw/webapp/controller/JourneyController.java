@@ -53,7 +53,7 @@ public class JourneyController {
                                     @RequestParam(value = "sort", required = false) String sortBy,
                                     @RequestParam(value = "direction", required = false) String direction) {
 
-        LOGGER.debug("Getting journeys with filters: {destination: \"{}\", startDate: \"{}\", endDate: \"{}\", interest: \"{}\"}",fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests());
+        LOGGER.debug("Getting journeys with filters: {}", fjf);
         final ModelAndView mav = new ModelAndView("journeys/list");
 
         boolean hasJourney = user != null && js.userHasJourney(user);
@@ -62,7 +62,7 @@ public class JourneyController {
         }
         mav.addObject("journeys", js.getAllJourneys(search, user, sortBy,direction,
                 fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests(),fjf.getIsPast(), fjf.getIsUpcoming(), fjf.getIsMyDestination(),
-                pageParams));
+                fjf.getIsOngoing(), pageParams));
         mav.addObject("hasJourney", hasJourney);
         mav.addObject("pageSize", pageParams.getSize());
         mav.addObject("currentPage", pageParams.getPage());
@@ -125,7 +125,7 @@ public class JourneyController {
                                    final BindingResult deleteReplyErrors,
                                    @RequestParam(value = "replyId", required = false) Long replyId,
                                    @PageParamCustomizer(defaultSize = 4) PageParams  repliesPage,
-                                   @PageParamCustomizer(defaultSize = 7, pageParamName = "interestsPage", sizeParamName = "interestsSize") PageParams interestsPage) {
+                                   @PageParamCustomizer(defaultSize = 8, pageParamName = "interestsPage", sizeParamName = "interestsSize") PageParams interestsPage) {
 
         LOGGER.debug("Getting info for journey {}", id);
 

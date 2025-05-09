@@ -76,6 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const isMyDestinationParam = urlParams.get('isMyDestination');
             const isUpcomingParam = urlParams.get('isUpcoming');
             const isPastParam = urlParams.get('isPast');
+            const isOngoingParam = urlParams.get('isOngoing');
 
             // Start with question mark if we have parameters
             let hasParam = false;
@@ -113,6 +114,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (isPastParam) {
                 resetUrl += (hasParam ? '&' : '?') + 'isPast=' + isPastParam;
+                hasParam = true;
+            }
+            if (isOngoingParam) {
+                resetUrl += (hasParam ? '&' : '?') + 'isOngoing=' + isOngoingParam;
                 hasParam = true;
             }
 

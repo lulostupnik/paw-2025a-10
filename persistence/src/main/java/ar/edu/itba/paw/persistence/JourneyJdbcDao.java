@@ -430,7 +430,7 @@ public class JourneyJdbcDao implements JourneyDao {
         @Override
         public Page<Journey> searchJourneys(final String search, Long userId, String orderBy, String direction,
                                             String city, LocalDate startDate, LocalDate endDate, String interest,
-                                            boolean isPast, boolean isUpcoming, boolean isMyDestination,
+                                            boolean isPast, boolean isUpcoming, boolean isMyDestination, boolean isOngoing,
                                             PageParams pageParams) {
             final String searchPattern = likePattern(search);
 
@@ -480,13 +480,19 @@ public class JourneyJdbcDao implements JourneyDao {
                 params.add(searchPattern);
                 params.add(searchPattern);
             }
-            if (isUpcoming) {
-                filters.add("j.start_date >= ?");
+            if(isOngoing){
+                filters.add("j.start_date <= ? AND j.end_date >= ?");
                 params.add(Date.valueOf(LocalDate.now()));
-            }
-            if (isPast) {
-                filters.add("j.end_date <= ?");
                 params.add(Date.valueOf(LocalDate.now()));
+            } else {
+                if (isUpcoming) {
+                    filters.add("j.start_date > ?");
+                    params.add(Date.valueOf(LocalDate.now()));
+                }
+                if (isPast) {
+                    filters.add("j.end_date < ?");
+                    params.add(Date.valueOf(LocalDate.now()));
+                }
             }
             if (isMyDestination) {
                 countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id");

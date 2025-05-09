@@ -25,7 +25,7 @@ public interface JourneyDao {
     Page<Journey> searchJourneys(String search, PageParams pageParams);
     Page<Journey> searchJourneys(String search, Long userId, String orderBy, String direction,
                                  String city, LocalDate startDate, LocalDate endDate, String interest,
-                                 boolean isPast, boolean isUpcoming, boolean isMyDestination,
+                                 boolean isPast, boolean isUpcoming, boolean isMyDestination, boolean isOngoing,
                                  PageParams pageParams);
     Optional<Journey> findOverlappingJourney(long id, LocalDate startDate, LocalDate endDate);
 }
