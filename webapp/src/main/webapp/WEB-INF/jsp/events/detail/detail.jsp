@@ -16,7 +16,7 @@
     <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
     <script src="<c:url value='/resources/js/confirm-delete.js'/>"></script>
 </head>
-<c:set var="attendeesPageSize" value="4" scope="request" />
+<c:set var="attendeesPageSize" value="6" scope="request" />
 <c:set var="chatPageSize" value="4" scope="request" />
 <body>
 <div style="display: none;">

@@ -186,7 +186,7 @@ public class EventController {
         @Valid @ModelAttribute("deleteReplyForm") final ReplyForm deleteReplyForm, final BindingResult deleteReplyErrors,
         @RequestParam(value = "replyId", required = false) Long replyId,
         @PageParamCustomizer(defaultSize = 4) PageParams  repliesPage,
-        @PageParamCustomizer(defaultSize = 4, pageParamName = "attendeesPage", sizeParamName = "attendeesSize") PageParams attendeesPage)
+        @PageParamCustomizer(defaultSize = 6, pageParamName = "attendeesPage", sizeParamName = "attendeesSize") PageParams attendeesPage)
     {
         LOGGER.debug("Getting info for event {}", id);
         Optional<EventWithStatistics> maybeEvent = eventService.findEventWithStatistics(id);
