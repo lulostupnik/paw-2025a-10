@@ -84,7 +84,7 @@ Parameters:
 
                         <sec:authorize access="hasRole('ADMIN')">
                             <div class="message-actions">
-                                <c:url var="deleteReplyUrl" value='/event-replies/${response.id}/delete'/>
+                                <c:url var="deleteReplyUrl" value='/events/${event.id}/reply/${response.id}/delete'/>
                                 <form:form modelAttribute="deleteReplyForm" id="delete-event-response-form-${response.id}" action="${deleteReplyUrl}" method="post" style="display: none;">
                                     <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
                                     <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>

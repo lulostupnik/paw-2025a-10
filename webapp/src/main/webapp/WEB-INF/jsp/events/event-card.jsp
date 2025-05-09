@@ -28,14 +28,11 @@
 
                 <c:if test="${not empty user && isOwner == false}">
                     <div class="attend-button-container">
-                        <c:if test="${ param.isFull && !param.attend}">
+                        <c:if test="${ param.isFull}">
                             <div class="event-full-badge">
                                 <spring:message code="event.full" />
                             </div>
                         </c:if>
-                        <c:set var="fullEvent"><spring:message code="event.full" /></c:set>
-                        <c:set var="attendEvent"><spring:message code="event.attend" /></c:set>
-                        <c:set var="attendingEvent"><spring:message code="event.attending" /></c:set>
                     </div>
                 </c:if>
                 <c:if test="${ isOwner == true}">

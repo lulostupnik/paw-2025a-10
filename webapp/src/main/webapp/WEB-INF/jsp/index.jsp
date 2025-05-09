@@ -147,13 +147,6 @@
 
                 <c:if test="${not empty recommendedEvents}">
                     <c:forEach items="${recommendedEvents}" var="event">
-                        <c:set var="attend" value="false" />
-                        <c:forEach items="${eventsAttended}" var="attendedEvent">
-                            <c:if test="${attendedEvent.id == event.id}">
-                                <c:set var="attend" value="true" />
-                            </c:if>
-
-                        </c:forEach>
                         <jsp:include page="events/event-card.jsp">
                             <jsp:param name="eventId" value="${event.id}" />
                             <jsp:param name="city" value="${event.eventCity.name}" />

@@ -35,17 +35,8 @@ public class LandingController {
     public ModelAndView landing(@ModelAttribute("user") User user) {
         LOGGER.debug("Loading landing page");
         ModelAndView mav = new ModelAndView("index");
-
         List<Event> recommendedEvents = eventService.getTopEvents(3);
-
         mav.addObject("recommendedEvents", recommendedEvents);
-        List<Event> eventsAttended = Collections.emptyList();
-
-        if (user != null ) {
-            eventsAttended = eventService.getUserAttendingEvents(user.getEmail());
-        }
-
-        mav.addObject("eventsAttended", eventsAttended);
         return mav;
     }
 
