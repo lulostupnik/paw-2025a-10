@@ -7,11 +7,8 @@ import java.util.Optional;
 
 public interface CityDao {
     Optional<City> findBy(Long id, String name, String country);
-
     List<City> findAllByCountry(String country);
     Optional<City> findByName(String name); // method to find a city by its name
-    List<City> getAllCities();
-    // add method that finds cities with a "similar" name -> using Levenshtein?
     Page<City> searchBySubstring(String substring, PageParams pageParams);
     Page<City> getAllCities(PageParams pageParams);
     void updateCity(long id, String name, Country country); // method to update a city by its id

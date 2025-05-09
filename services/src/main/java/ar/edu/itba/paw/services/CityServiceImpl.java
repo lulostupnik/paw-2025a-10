@@ -52,11 +52,6 @@ public class CityServiceImpl implements CityService {
         return cityDao.findAllByCountry(country);
     }
 
-    @Override
-    @Cacheable(value="cities")
-    public List<City> getAllCities() {
-        return cityDao.getAllCities();
-    }
 
     @Override
     public Page<City> getAllCities(String search, PageParams pageParams) {

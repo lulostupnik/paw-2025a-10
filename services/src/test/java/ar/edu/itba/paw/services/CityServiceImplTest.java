@@ -114,29 +114,8 @@ public class CityServiceImplTest {
         assertEquals(0, cities.size());
     }
 
-    @Test
-    public void testGetAllCities(){
-        Mockito.when(
-            cityDao.getAllCities()
-        ).thenReturn(List.of(CITY));
 
-        List<City> cities = cityService.getAllCities();
 
-        assertNotNull(cities);
-        assertEquals(1, cities.size());
-        assertEquals(CITY, cities.getFirst());
-    }
-    @Test
-    public void testGetAllCitiesNotFound(){
-        Mockito.when(
-            cityDao.getAllCities()
-        ).thenReturn(List.of());
-
-        List<City> cities = cityService.getAllCities();
-
-        assertNotNull(cities);
-        assertEquals(0, cities.size());
-    }
 
     @Test
     public void testGetAllCitiesPagedMissingQuery(){

@@ -8,7 +8,6 @@ import java.util.Optional;
 
 public interface CareerDao {
     Optional<Career> findById(long id);
-
     Optional<Career> findByName(String name);
     Page<Career> getAllCareers(PageParams pageParams);
     Page<Career> searchBySubstring(String substring, PageParams pageParams);

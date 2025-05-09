@@ -11,7 +11,6 @@ public interface CityService {
     Optional<City> findByName(String name);
     Optional<City> findById(Long id);
     List<City> findAllByCountry(String country);
-    List<City> getAllCities();
     Page<City> getAllCities(String search, PageParams pageParams);
     Page<City> searchBySubstring(String substring, PageParams pageParams);
     void updateCity(long id, String name, String country);
