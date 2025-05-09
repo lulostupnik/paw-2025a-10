@@ -40,12 +40,6 @@ public class InterestServiceImpl implements InterestService {
         return this.interestDao.findById(id);
     }
 
-    @Override
-    @Cacheable(value = "interests", unless = "#result.size() > 100")
-    public List<Interest> findAll() {
-        LOGGER.debug("Getting all interests");
-        return interestDao.findAll();
-    }
 
     @Override
     public List<Interest> findByUserId(long id) {

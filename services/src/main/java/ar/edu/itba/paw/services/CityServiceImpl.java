@@ -38,12 +38,6 @@ public class CityServiceImpl implements CityService {
         return cityDao.findByName(name);
     }
 
-    @Override
-    @Cacheable(value = "cities")
-    public List<City> findAll() {
-        LOGGER.debug("Finding all cities");
-        return cityDao.findAll();
-    }
 
     @Override
     @Cacheable(value = "citiesById", key = "#id")

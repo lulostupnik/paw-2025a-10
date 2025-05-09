@@ -9,7 +9,6 @@ import java.util.Optional;
 
 public interface InterestService {
     Optional<Interest> findById(long id);
-    List<Interest> findAll();
     List<Interest> findByUserId(long id);
     Optional<Interest> findByName(String name);
     List<Interest> findIdByName(List<String> names);

@@ -10,7 +10,6 @@ import java.util.Optional;
 public interface InterestDao {
 
      Optional<Interest> findById(Long id);
-     List<Interest> findAll();
      List<Interest> findByUserId(Long id);
      Optional<Interest> findByName(String name);
      List<Interest> findIdByName(List<String> names);

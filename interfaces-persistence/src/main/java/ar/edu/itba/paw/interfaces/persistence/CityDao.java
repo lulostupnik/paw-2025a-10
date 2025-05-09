@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface CityDao {
     Optional<City> findBy(Long id, String name, String country);
-    List<City> findAll();
+
     List<City> findAllByCountry(String country);
     Optional<City> findByName(String name); // method to find a city by its name
     List<City> getAllCities();

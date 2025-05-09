@@ -56,7 +56,6 @@ public class InterestJdbcDao implements InterestDao {
         return jdbcTemplate.query(SQL_FIND_BY_ID, INTEREST_ROW_MAPPER, id).stream().findFirst();
     }
 
-    @Override
     public List<Interest> findAll() {
         return jdbcTemplate.query(SQL_BASE, INTEREST_ROW_MAPPER);
     }

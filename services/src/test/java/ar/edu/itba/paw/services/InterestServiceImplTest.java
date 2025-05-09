@@ -108,29 +108,6 @@ public class InterestServiceImplTest {
         assertEquals(0, interests.size());
     }
 
-    @Test
-    public void testFindAll(){
-        Mockito.when(
-            interestDao.findAll()
-        ).thenReturn(List.of(INTEREST));
-
-        List<Interest> interests = interestService.findAll();
-
-        assertNotNull(interests);
-        assertEquals(1, interests.size());
-        assertEquals(INTEREST, interests.getFirst());
-    }
-    @Test
-    public void testFindAllMissing(){
-        Mockito.when(
-            interestDao.findAll()
-        ).thenReturn(List.of());
-
-        List<Interest> interests = interestService.findAll();
-
-        assertNotNull(interests);
-        assertEquals(0, interests.size());
-    }
 
     
     @Test

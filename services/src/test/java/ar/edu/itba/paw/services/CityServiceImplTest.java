@@ -88,29 +88,7 @@ public class CityServiceImplTest {
         assertFalse(maybeCity.isPresent());
     }
 
-    @Test
-    public void testFindAll(){
-        Mockito.when(
-            cityDao.findAll()
-        ).thenReturn(List.of(CITY));
 
-        List<City> cities = cityService.findAll();
-
-        assertNotNull(cities);
-        assertEquals(1, cities.size());
-        assertEquals(CITY, cities.getFirst());
-    }
-    @Test
-    public void testFindAllNotFound(){
-        Mockito.when(
-            cityDao.findAll()
-        ).thenReturn(List.of());
-
-        List<City> cities = cityService.findAll();
-
-        assertNotNull(cities);
-        assertEquals(0, cities.size());
-    }
 
     @Test
     public void testFindAllByCountry(){

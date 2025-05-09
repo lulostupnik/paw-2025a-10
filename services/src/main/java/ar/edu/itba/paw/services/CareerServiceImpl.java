@@ -37,12 +37,7 @@ public class CareerServiceImpl implements CareerService {
         return careerDao.findById(id);
     }
 
-    @Override
-    @Cacheable(value = "careers")
-    public List<Career> findAll() {
-        LOGGER.debug("Getting all careers");
-        return careerDao.findAll();
-    }
+
 
     @Override
     @Cacheable(value = "careersByName", key = "#name")
