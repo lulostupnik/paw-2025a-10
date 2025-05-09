@@ -108,10 +108,6 @@
 .btn-delete:hover {
     background: linear-gradient(135deg, #dc2626, #b91c1c);
     transform: translateY(-2px);
-
-    box-shadow: 0 4px 8px rgba #dc2626, #b91c1c;
-);
-    transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
 }
 
@@ -939,4 +935,93 @@ form[action*="/attend-detail"] {
     .attendees-grid {
         grid-template-columns: 1fr;
     }
+}
+/* Event Creator Styles - Updated with specific class names */
+.event-creator {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.creator-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.creator-profile {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.creator-avatar-container {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    position: relative;
+}
+
+.creator-image-wrapper {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.creator-profile-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+    position: relative;
+    z-index: 1;
+}
+
+.creator-avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-weight: bold;
+}
+
+.creator-info {
+    flex-grow: 1;
+}
+
+.creator-name {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.creator-username {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.creator-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.creator-detail {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.85rem;
+    color: #495057;
 }
