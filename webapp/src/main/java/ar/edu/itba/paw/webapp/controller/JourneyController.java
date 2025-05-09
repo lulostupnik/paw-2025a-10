@@ -201,7 +201,6 @@ public class JourneyController {
         }
 
         ModelAndView mav = new ModelAndView("journeys/edit");
-        mav.addObject("universities", universityService.getAllUniversities());
         mav.addObject("journeyId", journeyId);
         return mav;
     }

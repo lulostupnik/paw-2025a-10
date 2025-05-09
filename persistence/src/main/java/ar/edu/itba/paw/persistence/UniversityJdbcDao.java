@@ -103,7 +103,6 @@ public class UniversityJdbcDao implements UniversityDao {
         return jdbcTemplate.query(SQL_SEARCH, UNIVERSITY_ROW_MAPPER, searchPattern, searchPattern, searchPattern, searchPattern).stream().findFirst();
     }
 
-    @Override
     public List<University> getAllUniversities() {
         return jdbcTemplate.query(SQL_FIND_ALL, UNIVERSITY_ROW_MAPPER);
     }

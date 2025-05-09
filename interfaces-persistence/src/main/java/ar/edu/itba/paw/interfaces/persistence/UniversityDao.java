@@ -3,7 +3,7 @@ package ar.edu.itba.paw.interfaces.persistence;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
-import java.util.List;
+
 import java.util.Optional;
 
 public interface UniversityDao {
@@ -19,7 +19,6 @@ public interface UniversityDao {
     Optional<University> findByAny(String search);
     Optional<University> findById(long id);
 
-    List<University> getAllUniversities();
     Page<University> searchBySubstring(String substring, PageParams pageParams);
     Page<University> getAllUniversities(PageParams pageParams);
 

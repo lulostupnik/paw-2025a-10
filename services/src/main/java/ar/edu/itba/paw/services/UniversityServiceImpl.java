@@ -55,12 +55,6 @@ public class UniversityServiceImpl implements UniversityService {
         return universityDao.findByAny(queryString);
     }
 
-    @Override
-    @Cacheable(value = "universities")
-    public List<University> getAllUniversities() {
-        LOGGER.debug("Getting all universities");
-        return universityDao.getAllUniversities();
-    }
 
 
     @Override

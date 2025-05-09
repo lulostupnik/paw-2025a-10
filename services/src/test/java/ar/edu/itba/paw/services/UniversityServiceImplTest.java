@@ -170,29 +170,6 @@ public class UniversityServiceImplTest {
         assertEquals(0, unis.getContent().size());
     }
 
-    @Test
-    public void testGetAllUniversities(){
-        Mockito.when(
-            uniDao.getAllUniversities()
-        ).thenReturn(List.of(UNI));
-
-        List<University> unis = uniService.getAllUniversities();
-
-        assertNotNull(unis);
-        assertEquals(1, unis.size());
-        assertEquals(UNI, unis.getFirst());
-    }
-    @Test
-    public void testGetAllUniversitiesEmpty(){
-        Mockito.when(
-            uniDao.getAllUniversities()
-        ).thenReturn(List.of());
-
-        List<University> unis = uniService.getAllUniversities();
-
-        assertNotNull(unis);
-        assertEquals(0, unis.size());
-    }
 
     @Test
     public void testGetAllUniversitiesPagedMissingQuery(){
