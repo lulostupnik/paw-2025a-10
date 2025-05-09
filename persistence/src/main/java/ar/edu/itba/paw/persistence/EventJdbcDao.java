@@ -714,13 +714,13 @@ public class EventJdbcDao implements EventDao {
 
         if (interest != null && ! interest.isEmpty()) {
             countQueryBuilder.append(" JOIN users us ON e.user_id = us.id JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON c.id = ui.category_id ");
-            filters.add("ui.category_id = ?");
+            filters.add("c.name = ?");
             params.add(interest);
         }
 
-        if (destination != null) {
+        if (destination != null && !destination.isEmpty()) {
             countQueryBuilder.append(" JOIN cities ci2 ON e.city_id = ci2.id ");
-            filters.add("ci2.id = ?");
+            filters.add("ci2.name = ?");
             params.add(destination);
         }
 

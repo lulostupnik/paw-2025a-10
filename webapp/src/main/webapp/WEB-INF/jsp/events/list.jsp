@@ -156,15 +156,16 @@
               <c:set var="cityLabel"><spring:message code="createJourney.city"/></c:set>
               <form:label for="citySearch" class="form-label" path="destination">${cityLabel}</form:label>
               <div class="autocomplete-wrapper">
-                <input type="text" id="citySearch" class="autocomplete-input"
-                       placeholder="<spring:message code='event.filter.city.placeholder'/>"
+                <c:set var="cityNamePlaceholder"><spring:message code="event.filter.city.placeholder"/></c:set>
+                <form:input path="destination" type="text" id="citySearch" class="autocomplete-input"
+                       placeholder="${cityNamePlaceholder}"
                        value="${param.cityName}" />
-                <form:select id="city" name="destination" class="hidden-select" path="destination" style="display: none;">
+                <select id="city"  class="hidden-select"  style="display: none;">
                   <option value=""></option>
                   <c:forEach var="city" items="${cities}">
                     <option value="${city.id}" ${param.destination == city.id ? 'selected' : ''}><c:out value="${city.name}"/></option>
                   </c:forEach>
-                </form:select>
+                </select>
                 <div id="cityDropdown" class="autocomplete-dropdown" style="display: none;">
                   <c:forEach var="city" items="${cities}">
                     <div class="autocomplete-item" data-value="${city.id}"><c:out value="${city.name}"/></div>
@@ -197,15 +198,16 @@
               <c:set var="interestsLabel"><spring:message code="event.filter.interest"/></c:set>
               <form:label for="interest-search" class="form-label" path="interests">${interestsLabel}</form:label>
               <div class="autocomplete-wrapper">
-                <input type="text" id="interest-search" class="autocomplete-input"
-                       placeholder="<spring:message code='event.filter.interest.placeholder'/>"
+                <c:set var="interestNamePlaceholder"><spring:message code="event.filter.interest.placeholder"/></c:set>
+                <form:input path="interests" type="text" id="interest-search" class="autocomplete-input"
+                       placeholder="${interestNamePlaceholder}"
                        value="${param.interestName}" />
-                <form:select path="interests" id="interest-select" name="interests" class="hidden-select" style="display: none;">
+                <select  id="interest-select" class="hidden-select" style="display: none;">
                   <option value=""></option>
                   <c:forEach var="interest" items="${interests}">
                     <option value="${interest.id}" ${param.interests == interest.id ? 'selected' : ''}><c:out value="${interest.name}"/></option>
                   </c:forEach>
-                </form:select>
+                </select>
                 <div id="interest-dropdown" class="autocomplete-dropdown" style="display: none;">
                   <c:forEach var="interest" items="${interests}">
                     <div class="autocomplete-item" data-value="${interest.id}"><c:out value="${interest.name}"/></div>

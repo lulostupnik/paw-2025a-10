@@ -48,13 +48,13 @@ public class EventController {
         this.interestService = interestService;
     }
     private void populateDropdownAttributes(ModelAndView mav) {
-        List<City> cities = cityService.getAllCities();
-        LOGGER.debug("Cities: {}", cities);
-        mav.addObject("cities", cities);
-
-        List<Interest> interests = interestService.findAll();
-        LOGGER.debug("Interests: {}", interests);
-        mav.addObject("interests", interests);
+//        List<City> cities = cityService.getAllCities();
+//        LOGGER.debug("Cities: {}", cities);
+//        mav.addObject("cities", cities);
+//
+//        List<Interest> interests = interestService.findAll();
+//        LOGGER.debug("Interests: {}", interests);
+//        mav.addObject("interests", interests);
     }
 
     @RequestMapping

@@ -45,9 +45,6 @@
                         <c:if test="${not empty param.destination}">
                             <input type="hidden" name="destination" value="<c:out value="${param.destination}"/>">
                         </c:if>
-                        <c:if test="${not empty param.destinationName}">
-                            <input type="hidden" name="destinationName" value="<c:out value="${param.destinationName}"/>">
-                        </c:if>
                         <c:if test="${not empty param.startDate}">
                             <input type="hidden" name="startDate" value="<c:out value="${param.startDate}"/>">
                         </c:if>
@@ -161,8 +158,8 @@
                                 <c:set var="citySearch"><spring:message code='journey.filter.destination.placeholder'/></c:set>
                                 <form:input path="destination" type="text" id="citySearch" class="autocomplete-input"
                                        placeholder="${citySearch}"
-                                       value="${param.destinationName}" />
-                                <select id="city" name="destination" class="hidden-select" style="display: none;">
+                                       value="${param.destination}" />
+                                <select id="city" class="hidden-select" style="display: none;">
                                     <option value=""></option>
                                     <c:forEach var="city" items="${cities}">
                                         <option value="<c:out value="${city.name}"/>" ${param.destination == city.id ? 'selected' : ''}><c:out value="${city.name}"/></option>
@@ -200,16 +197,16 @@
                             <c:set var="interestsLabel"><spring:message code="journey.filter.interest"/></c:set>
                             <form:label for="interest-search" class="form-label" path="interests">${interestsLabel}</form:label>
                             <div class="autocomplete-wrapper">
-                                <select  id="interest-select" name="interest" class="hidden-select" style="display: none;">
+                                <select  id="interest-select" class="hidden-select" style="display: none;">
                                     <option value=""></option>
                                     <c:forEach var="interest" items="${interests}">
-                                        <option value="${interest.id}"><c:out value="${interest.name}"/></option>
+                                        <option value="<c:out value=" ${interest.name}"/>"><c:out value="${interest.name}"/></option>
                                     </c:forEach>
                                 </select>
                                 <c:set var="interestSearch"><spring:message code='journey.filter.interest.placeholder'/></c:set>
                                 <form:input path="interests" type="text" id="interest-search" class="autocomplete-input"
                                        placeholder="${interestSearch}"
-                                       value="${param.interestName}" />
+                                       value="${param.interests}" />
                                 <div id="interest-dropdown" class="autocomplete-dropdown" style="display: none;">
                                     <c:forEach var="interest" items="${interests}">
                                         <div class="autocomplete-item" data-value="${interest.id}"><c:out value="${interest.name}"/></div>
@@ -299,9 +296,6 @@
             <c:if test="${not empty param.destination}">
                 <c:set var="paginationBaseUrl" value="${paginationBaseUrl}destination=${param.destination}&" />
             </c:if>
-            <c:if test="${not empty param.destinationName}">
-                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}destinationName=${param.destinationName}&" />
-            </c:if>
             <c:if test="${not empty param.startDate}">
                 <c:set var="paginationBaseUrl" value="${paginationBaseUrl}startDate=${param.startDate}&" />
             </c:if>
@@ -310,9 +304,6 @@
             </c:if>
             <c:if test="${not empty param.interests}">
                 <c:set var="paginationBaseUrl" value="${paginationBaseUrl}interests=${param.interests}&" />
-            </c:if>
-            <c:if test="${not empty param.interestName}">
-                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}interestName=${param.interestName}&" />
             </c:if>
             <c:if test="${not empty param.sort}">
                 <c:set var="paginationBaseUrl" value="${paginationBaseUrl}sort=${param.sort}&" />

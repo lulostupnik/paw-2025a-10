@@ -273,8 +273,10 @@ public class EventServiceImpl implements EventService {
                                                          boolean isPast, boolean isUpcoming, boolean attending,
                                                          PageParams pageParams) {
 
-        return eventDao.getEventsWithAttendanceStatus(user == null ? null : user.getId(), search, sortBy, direction, destination, startDate, endDate, interest,
+        Page<Event> page=  eventDao.getEventsWithAttendanceStatus(user == null ? null : user.getId(), search, sortBy, direction, destination, startDate, endDate, interest,
                 isPast, isUpcoming, attending, pageParams.getPage(), pageParams.getSize());
+        LOGGER.debug("Getting events with attendance status for user {} with search {} and event {} and total pages {}", user, search, page.getContent(), page.getTotalPages());
+        return page;
     }
 
     @Override

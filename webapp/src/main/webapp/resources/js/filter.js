@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Check if there are any filter parameters in the URL
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('destination') || urlParams.has('startDate') ||
-        urlParams.has('endDate') || urlParams.has('interest')) {
+        urlParams.has('endDate') || urlParams.has('interests')) {
         // Show filter section if filters are applied
         filterSection.classList.remove('hidden');
         // Update icons
@@ -174,59 +174,59 @@ document.addEventListener("DOMContentLoaded", () => {
             multiSelect: false, // Important: limit to single selection
         })
     }
-    // function initializeSelectedValues() {
-    //     // City
-    //     const citySelect = document.getElementById('city');
-    //     const citySelectedContainer = document.getElementById('citySelectedContainer');
-    //
-    //     if (citySelect.value) {
-    //         const selectedOption = Array.from(citySelect.options).find(opt => opt.selected);
-    //         if (selectedOption) {
-    //             const tag = document.createElement('div');
-    //             tag.className = 'selected-tag';
-    //             tag.innerHTML = selectedOption.textContent;
-    //
-    //             const removeBtn = document.createElement('button');
-    //             removeBtn.type = 'button';
-    //             removeBtn.className = 'tag-remove';
-    //             removeBtn.innerHTML = `<img src="${apiBaseUrl}cities/>"`;
-    //             removeBtn.addEventListener('click', function() {
-    //                 selectedOption.selected = false;
-    //                 tag.remove();
-    //             });
-    //
-    //             tag.appendChild(removeBtn);
-    //             citySelectedContainer.appendChild(tag);
-    //         }
-    //     }
-    //
-    //     // Interest
-    //     const interestSelect = document.getElementById('interest-select');
-    //     const interestSelectedContainer = document.getElementById('interestSelectedContainer');
-    //
-    //     if (interestSelect.value) {
-    //         const selectedOption = Array.from(interestSelect.options).find(opt => opt.selected);
-    //         if (selectedOption) {
-    //             const tag = document.createElement('div');
-    //             tag.className = 'selected-tag';
-    //             tag.innerHTML = selectedOption.textContent;
-    //
-    //             const removeBtn = document.createElement('button');
-    //             removeBtn.type = 'button';
-    //             removeBtn.className = 'tag-remove';
-    //             removeBtn.innerHTML = `<img src="${apiBaseUrl}cities/>"` ;
-    //             removeBtn.addEventListener('click', function() {
-    //                 selectedOption.selected = false;
-    //                 tag.remove();
-    //             });
-    //
-    //             tag.appendChild(removeBtn);
-    //             interestSelectedContainer.appendChild(tag);
-    //         }
-    //     }
-    // }
-
-
-    console.log("Journey filters initialization complete")
-
-})
+//     function initializeSelectedValues() {
+//         // City
+//         const citySelect = document.getElementById('city');
+//         const citySelectedContainer = document.getElementById('citySelectedContainer');
+//
+//         if (citySelect.value) {
+//             const selectedOption = Array.from(citySelect.options).find(opt => opt.selected);
+//             if (selectedOption) {
+//                 const tag = document.createElement('div');
+//                 tag.className = 'selected-tag';
+//                 tag.innerHTML = selectedOption.textContent;
+//
+//                 const removeBtn = document.createElement('button');
+//                 removeBtn.type = 'button';
+//                 removeBtn.className = 'tag-remove';
+//                 removeBtn.innerHTML = `<img src="${apiBaseUrl}cities/>"`;
+//                 removeBtn.addEventListener('click', function() {
+//                     selectedOption.selected = false;
+//                     tag.remove();
+//                 });
+//
+//                 tag.appendChild(removeBtn);
+//                 citySelectedContainer.appendChild(tag);
+//             }
+//         }
+//
+//         // Interest
+//         const interestSelect = document.getElementById('interest-select');
+//         const interestSelectedContainer = document.getElementById('interestSelectedContainer');
+//
+//         if (interestSelect.value) {
+//             const selectedOption = Array.from(interestSelect.options).find(opt => opt.selected);
+//             if (selectedOption) {
+//                 const tag = document.createElement('div');
+//                 tag.className = 'selected-tag';
+//                 tag.innerHTML = selectedOption.textContent;
+//
+//                 const removeBtn = document.createElement('button');
+//                 removeBtn.type = 'button';
+//                 removeBtn.className = 'tag-remove';
+//                 removeBtn.innerHTML = `<img src="${apiBaseUrl}cities/>"` ;
+//                 removeBtn.addEventListener('click', function() {
+//                     selectedOption.selected = false;
+//                     tag.remove();
+//                 });
+//
+//                 tag.appendChild(removeBtn);
+//                 interestSelectedContainer.appendChild(tag);
+//             }
+//         }
+//     }
+//
+//
+//     console.log("Journey filters initialization complete")
+//
+ })
