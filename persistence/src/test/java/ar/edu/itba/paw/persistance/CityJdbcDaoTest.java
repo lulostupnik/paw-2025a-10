@@ -106,7 +106,7 @@ public class CityJdbcDaoTest {
     }
     @Test
     public void testGetAllCitiesNoCities(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.JOURNEY_TABLE, TestUtils.USER_INTEREST_TABLE, TestUtils.USER_TABLE, TestUtils.UNIVERSITY_TABLE, TestUtils.CITY_TABLE);
+        TestUtils.deleteCities(jdbcTemplate);
 
         List<City> cities = cityDao.getAllCities();
 
@@ -300,7 +300,7 @@ public class CityJdbcDaoTest {
     }
     @Test
     public void testGetAllCitiesPagedNoCities(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.JOURNEY_TABLE, TestUtils.USER_INTEREST_TABLE, TestUtils.USER_TABLE, TestUtils.UNIVERSITY_TABLE, TestUtils.CITY_TABLE);
+        TestUtils.deleteCities(jdbcTemplate);
 
         Page<City> page1 = cityDao.getAllCities(new PageParams(1, 2));
         

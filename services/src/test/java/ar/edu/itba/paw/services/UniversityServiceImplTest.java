@@ -32,6 +32,7 @@ public class UniversityServiceImplTest {
     private static final String CITY_NAME = "citi";
     private static final City CITY = new City(CITY_NAME, NAME, ID);
     private static final University UNI = new University(ID, NAME, ABBREVIATION, CITY);
+    private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
 
     @InjectMocks
     private UniversityServiceImpl uniService;
@@ -142,10 +143,10 @@ public class UniversityServiceImplTest {
     public void testSearchUniversities(){
         Page<University> testPage = new Page<University>(List.of(UNI), 1, 1);
         Mockito.when(
-            uniDao.searchBySubstring(Mockito.eq(NAME), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            uniDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<University> unis = uniService.searchUniversities(NAME, new PageParams(1,2));
+        Page<University> unis = uniService.searchUniversities(NAME, PAGE_1_DEFAULT);
 
         assertNotNull(unis);
         assertNotNull(unis.getContent());
@@ -158,10 +159,10 @@ public class UniversityServiceImplTest {
     public void testSearchUniversitiesNotFound(){
         Page<University> testPage = new Page<University>(List.of(), 1, 1);
         Mockito.when(
-            uniDao.searchBySubstring(Mockito.eq(NAME), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            uniDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<University> unis = uniService.searchUniversities(NAME, new PageParams(1,2));
+        Page<University> unis = uniService.searchUniversities(NAME, PAGE_1_DEFAULT);
 
         assertNotNull(unis);
         assertNotNull(unis.getContent());
@@ -175,10 +176,10 @@ public class UniversityServiceImplTest {
     public void testGetAllUniversitiesPagedMissingQuery(){
         Page<University> testPage = new Page<University>(List.of(UNI), 1, 1);
         Mockito.when(
-            uniDao.getAllUniversities(new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            uniDao.getAllUniversities(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<University> unis = uniService.getAllUniversities(null, new PageParams(1,2));
+        Page<University> unis = uniService.getAllUniversities(null, PAGE_1_DEFAULT);
 
         assertNotNull(unis);
         assertNotNull(unis.getContent());
@@ -191,10 +192,10 @@ public class UniversityServiceImplTest {
     public void testGetAllUniversitiesPagedEmptyQuery(){
         Page<University> testPage = new Page<University>(List.of(UNI), 1, 1);
         Mockito.when(
-            uniDao.getAllUniversities(new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            uniDao.getAllUniversities(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<University> unis = uniService.getAllUniversities("", new PageParams(1,2));
+        Page<University> unis = uniService.getAllUniversities("", PAGE_1_DEFAULT);
 
         assertNotNull(unis);
         assertNotNull(unis.getContent());
@@ -207,10 +208,10 @@ public class UniversityServiceImplTest {
     public void testGetAllUniversitiesPagedQuery(){
         Page<University> testPage = new Page<University>(List.of(UNI), 1, 1);
         Mockito.when(
-            uniDao.searchBySubstring(Mockito.eq(NAME), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            uniDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<University> unis = uniService.getAllUniversities(NAME,new PageParams(1,2));
+        Page<University> unis = uniService.getAllUniversities(NAME, PAGE_1_DEFAULT);
 
         assertNotNull(unis);
         assertNotNull(unis.getContent());

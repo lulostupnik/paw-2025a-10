@@ -7,7 +7,9 @@ import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Map;
 
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.test.jdbc.JdbcTestUtils;
 
 import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.City;
@@ -107,6 +109,7 @@ public class TestUtils {
     public static final String USER_NEW2_MAIL = "newUser2@mail.com";
     public static final String USER_PASSWORD = "superSecret";
     public static final String USER_LOCALE = "es";
+    public static final String USER_LOCALE_DEFAULT = "en";
     public static final String USER_ROLE = "user";
     public static final boolean USER_BLOCKED = false;
     public static final String USER_FAKE_MAIL = "totallyRealEmail@legitEmailService.com";
@@ -130,7 +133,7 @@ public class TestUtils {
     public static final LocalDate JOURNEY_START_DATE = LocalDate.now().plusDays(7);
     public static final LocalDate JOURNEY_END_DATE = JOURNEY_START_DATE.plusMonths(1);
 
-    public static final int TOTAL_JOURNEYS = 2;
+    public static final int TOTAL_JOURNEYS = 3;
 
     //QUERIES
     public static final String USER_SELECT = """
@@ -324,5 +327,96 @@ public class TestUtils {
         UNIVERSITY_DESTINATION_ROW_MAPPER.mapRow(rs, n),
         rs.getString("description")
     );
+
+
+    //DELETES
+    public static final void deleteJourneyReplies(JdbcTemplate template){
+        JdbcTestUtils.deleteFromTables(template, JOURNEY_REPLY_TABLE);
+    }
+    public static final void deleteJourneys(JdbcTemplate template){
+        deleteJourneyReplies(template);
+        JdbcTestUtils.deleteFromTables(template, JOURNEY_TABLE);   
+    }
+    public static final void deleteUserInterests(JdbcTemplate template){
+        JdbcTestUtils.deleteFromTables(template, USER_INTEREST_TABLE);
+    }
+    public static final void deleteUsers(JdbcTemplate template){
+        deleteJourneys(template);
+        deleteUserInterests(template);
+        JdbcTestUtils.deleteFromTables(template, USER_TABLE);
+    }
+    public static final void deleteInterests(JdbcTemplate template){
+        deleteUsers(template);
+        JdbcTestUtils.deleteFromTables(template, INTEREST_TABLE);
+    }
+    public static final void deleteUniversities(JdbcTemplate template){
+        deleteJourneys(template);
+        deleteUsers(template);
+        JdbcTestUtils.deleteFromTables(template, UNIVERSITY_TABLE);
+    }
+    public static final void deleteCareers(JdbcTemplate template){ 
+        deleteUsers(template);
+        JdbcTestUtils.deleteFromTables(template, CAREER_TABLE);
+    }
+    public static final void deleteCities(JdbcTemplate template){
+        deleteUniversities(template);
+        JdbcTestUtils.deleteFromTables(template, CITY_TABLE);
+    }
+    public static final void deleteCountries(JdbcTemplate template){
+        deleteCities(template);
+        JdbcTestUtils.deleteFromTables(template, COUNTRY_TABLE);
+    }
+
+
+    //COMPARATORS
+
+    public static void assertEqualsCareer(Career expected, Career actual){
+        assertNotNull(expected);
+        assertNotNull(actual);
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getName(), actual.getName());
+    }
+    public static void assertEqualsCity(City expected, City actual){
+        assertNotNull(expected);
+        assertNotNull(actual);
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getName(), actual.getName());
+        assertEquals(expected.getCountry(), actual.getCountry());
+    }
+
+    public static void assertEqualsUni(University expected, University actual){
+        assertNotNull(expected);
+        assertNotNull(actual);
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getName(), actual.getName());
+        assertEquals(expected.getAbbreviation(), actual.getAbbreviation());
+        assertEqualsCity(expected.getCity(), actual.getCity());
+    }
+
+    public static void assertEqualsUser(User expected, User actual){
+        assertNotNull(actual);
+        assertNotNull(expected);
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getEmail(), actual.getEmail());
+        assertEquals(expected.getUsername(), actual.getUsername());
+        assertEquals(expected.getFirstname(), actual.getFirstname());
+        assertEquals(expected.getLastname(), actual.getLastname());
+        assertEquals(expected.getProfilePictureId(), actual.getProfilePictureId());
+        assertEqualsCareer(expected.getCareer(), actual.getCareer());
+        assertEqualsUni(expected.getUniversity(), actual.getUniversity());
+        assertEquals(expected.getLocale(), actual.getLocale());
+        assertEquals(expected.isBlocked(), actual.isBlocked());
+
+    }
+    public static void assertEqualsJourney(Journey expected, Journey actual){
+        assertNotNull(actual);
+        assertNotNull(expected);
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getStartDate(), actual.getStartDate());
+        assertEquals(expected.getEndDate(), actual.getEndDate());
+        assertEquals(expected.getDescription(), actual.getDescription());
+        assertEqualsUser(expected.getUser(), actual.getUser());
+        assertEqualsUni(expected.getDestinationUniversity(), actual.getDestinationUniversity());
+    }
 
 }

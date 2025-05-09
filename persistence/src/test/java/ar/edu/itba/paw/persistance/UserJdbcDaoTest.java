@@ -48,6 +48,8 @@ public class UserJdbcDaoTest {
     private User USER_1;
     private User USER_2;
     private User USER_3;
+
+    private Journey JOURNEY_1;
     
     @Autowired
     private DataSource ds;
@@ -122,20 +124,22 @@ public class UserJdbcDaoTest {
         jdbcTemplate = new JdbcTemplate(ds);
         insert = new SimpleJdbcInsert(ds).withTableName(TestUtils.USER_TABLE).usingGeneratedKeyColumns("id");
 
-        UNIVERSITY_1 = jdbcTemplate.query(TestUtils.UNIVERSITY_SELECT_BY_ABBR, TestUtils.UNIVERSITY_ROW_MAPPER, TestUtils.UNIVERSITY_1_CODE).stream().findFirst().get();
-        UNIVERSITY_2 = jdbcTemplate.query(TestUtils.UNIVERSITY_SELECT_BY_ABBR, TestUtils.UNIVERSITY_ROW_MAPPER, TestUtils.UNIVERSITY_2_CODE).stream().findFirst().get();
-        CAREER_1 = jdbcTemplate.query(TestUtils.CAREER_SELECT_BY_NAME, TestUtils.CAREER_ROW_MAPPER, TestUtils.CAREER_1_NAME).stream().findFirst().get();
-        CAREER_2 = jdbcTemplate.query(TestUtils.CAREER_SELECT_BY_NAME, TestUtils.CAREER_ROW_MAPPER, TestUtils.CAREER_2_NAME).stream().findFirst().get();
-        PROFILEPIC_1 = jdbcTemplate.query(TestUtils.IMAGE_SELECT_BY_DATA, TestUtils.IMAGE_ROW_MAPPER, TestUtils.IMAGE_1_DATA).stream().findFirst().get();
-        PROFILEPIC_2 = jdbcTemplate.query(TestUtils.IMAGE_SELECT_BY_DATA, TestUtils.IMAGE_ROW_MAPPER, TestUtils.IMAGE_2_DATA).stream().findFirst().get();
-        USER_1 = jdbcTemplate.query(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_MAIL).stream().findFirst().get();
-        USER_2 = jdbcTemplate.query(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_2_MAIL).stream().findFirst().get();
-        USER_3 = jdbcTemplate.query(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_3_MAIL).stream().findFirst().get();
+        UNIVERSITY_1 = jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ABBR, TestUtils.UNIVERSITY_ROW_MAPPER, TestUtils.UNIVERSITY_1_CODE);
+        UNIVERSITY_2 = jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ABBR, TestUtils.UNIVERSITY_ROW_MAPPER, TestUtils.UNIVERSITY_2_CODE);
+        CAREER_1 = jdbcTemplate.queryForObject(TestUtils.CAREER_SELECT_BY_NAME, TestUtils.CAREER_ROW_MAPPER, TestUtils.CAREER_1_NAME);
+        CAREER_2 = jdbcTemplate.queryForObject(TestUtils.CAREER_SELECT_BY_NAME, TestUtils.CAREER_ROW_MAPPER, TestUtils.CAREER_2_NAME);
+        PROFILEPIC_1 = jdbcTemplate.queryForObject(TestUtils.IMAGE_SELECT_BY_DATA, TestUtils.IMAGE_ROW_MAPPER, TestUtils.IMAGE_1_DATA);
+        PROFILEPIC_2 = jdbcTemplate.queryForObject(TestUtils.IMAGE_SELECT_BY_DATA, TestUtils.IMAGE_ROW_MAPPER, TestUtils.IMAGE_2_DATA);
+        USER_1 = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_MAIL);
+        USER_2 = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_2_MAIL);
+        USER_3 = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_3_MAIL);
+        JOURNEY_1 = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_USERMAIL, TestUtils.JOURNEY_ROW_MAPPER, TestUtils.USER_1_MAIL);
     }
 
     @Test
     public void testCreateUser(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.JOURNEY_TABLE, TestUtils.USER_INTEREST_TABLE, TestUtils.USER_TABLE);
+        TestUtils.deleteUsers(jdbcTemplate);
+
         final User user = userDao.create(TestUtils.USER_1_MAIL, TestUtils.USER_1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE));
 
         assertEqualsUser(user);
@@ -182,9 +186,11 @@ public class UserJdbcDaoTest {
     public void testCreateUserNoPassword(){
         userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), null, Locale.of(TestUtils.USER_LOCALE));
     }
-    @Test(expected = DataAccessException.class)
+    @Test
     public void testCreateUserNoLocale(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, null);
+        User user = userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, null);
+        
+        assertEqualsUser(user, Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "locale", TestUtils.USER_LOCALE_DEFAULT));
     }
 
     @Test
@@ -561,7 +567,8 @@ public class UserJdbcDaoTest {
     }
     @Test 
     public void testGetAllUsersNoUsers(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.JOURNEY_TABLE, TestUtils.USER_INTEREST_TABLE, TestUtils.USER_TABLE);
+        TestUtils.deleteUsers(jdbcTemplate);
+
         List<User> users = userDao.getAllUsers();
 
         assertNotNull(users);
@@ -645,20 +652,12 @@ public class UserJdbcDaoTest {
 
     @Test
     public void testListJourneyRespondersMinusUsers(){
-        //TODO replace journey insert
-        long journeyId = new SimpleJdbcInsert(ds).withTableName(TestUtils.JOURNEY_TABLE).usingGeneratedKeyColumns("id")
-            .executeAndReturnKey(Map.of(
-                "user_id", USER_2.getId(), 
-                "destination_university_id", UNIVERSITY_1.getId(), 
-                "start_date", LocalDate.now().toString(), 
-                "end_date", LocalDate.now().plusDays(10).toString(),
-                "deleted", false))
-            .longValue();
+        //TODO replace reply insert
         SimpleJdbcInsert journeyReplyInsert = new SimpleJdbcInsert(ds).withTableName(TestUtils.JOURNEY_REPLY_TABLE).usingGeneratedKeyColumns("id");
-        journeyReplyInsert.execute(Map.of("user_id", USER_2.getId(), "journey_id", journeyId, "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
-        journeyReplyInsert.execute(Map.of("user_id", USER_3.getId(), "journey_id", journeyId, "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
+        journeyReplyInsert.execute(Map.of("user_id", USER_2.getId(), "journey_id", JOURNEY_1.getId(), "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
+        journeyReplyInsert.execute(Map.of("user_id", USER_3.getId(), "journey_id", JOURNEY_1.getId(), "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
 
-        List<User> repliesUser = userDao.listJourneyRespondersMinusUsers(journeyId);
+        List<User> repliesUser = userDao.listJourneyRespondersMinusUsers(JOURNEY_1.getId());
 
         assertNotNull(repliesUser);
         assertEquals(2, repliesUser.size());

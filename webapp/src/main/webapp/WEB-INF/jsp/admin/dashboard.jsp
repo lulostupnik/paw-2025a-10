@@ -77,7 +77,7 @@
 </div>
 <!-- Include JavaScript files -->
 <script src="<c:url value='/resources/js/dashboard.js' />"></script>
-<script src="<c:url value='/resources/js/pagination.js' />"></script>
+<script src="<c:url value='/resources/js/components/pagination.js' />"></script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const rows = document.querySelectorAll(".clickable-row");

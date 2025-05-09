@@ -345,7 +345,7 @@
 </script>
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
-<script src="<c:url value='/resources/js/journey-cards.js'/>"></script>
+<script src="<c:url value='/resources/js/journeys/journey-cards.js'/>"></script>
 <script src="<c:url value='/resources/js/filter.js'/>"></script>
 
 <!-- Custom JavaScript for the autocomplete functionality -->

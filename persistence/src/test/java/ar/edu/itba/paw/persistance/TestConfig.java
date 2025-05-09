@@ -18,6 +18,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 @ComponentScan({"ar.edu.itba.paw.persistence"})
 public class TestConfig {
+    @Value("classpath:hsqldb.sql")
+    private Resource configSql;
     @Value("classpath:schema.sql")
     private Resource schemaSql;
     @Value("classpath:inserts.sql")
@@ -48,6 +50,7 @@ public class TestConfig {
 
     private DatabasePopulator databasePopulator() {
         final ResourceDatabasePopulator dbp = new ResourceDatabasePopulator();
+        dbp.addScript(configSql);
         dbp.addScript(schemaSql);
         dbp.addScript(insertsSql);
         return dbp;

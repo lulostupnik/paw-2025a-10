@@ -5,7 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,10 +24,12 @@ import ar.edu.itba.paw.models.Page;
 public class InterestServiceImplTest {
 
     private static final String INTEREST_NAME = "interesting";
-    private static final List<String> INTEREST_NAMES = List.of(INTEREST_NAME);
+    //private static final List<String> INTEREST_NAMES = List.of(INTEREST_NAME);
     private static final long ID = 0;
     private static final long USER_ID = 1;
     private static final Interest INTEREST = new Interest(ID, INTEREST_NAME);
+    private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
+
 
     @InjectMocks
     InterestServiceImpl interestService;
@@ -124,10 +125,10 @@ public class InterestServiceImplTest {
     public void testGetAllInterestsMissingQuery(){
         Page<Interest> testPage = new Page<Interest>(List.of(INTEREST), 1, 1);
         Mockito.when(
-            interestDao.getAllInterests(new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            interestDao.getAllInterests(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<Interest> page = interestService.getAllInterests(null, new PageParams(1,2));
+        Page<Interest> page = interestService.getAllInterests(null, PAGE_1_DEFAULT);
 
         assertEquals(testPage, page);
     }
@@ -135,10 +136,10 @@ public class InterestServiceImplTest {
     public void testGetAllInterestsEmptyQuery(){
         Page<Interest> testPage = new Page<Interest>(List.of(INTEREST), 1, 1);
         Mockito.when(
-            interestDao.getAllInterests(new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            interestDao.getAllInterests(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<Interest> page = interestService.getAllInterests("", new PageParams(1,2));
+        Page<Interest> page = interestService.getAllInterests("", PAGE_1_DEFAULT);
 
         assertEquals(testPage, page);
     }
@@ -146,10 +147,10 @@ public class InterestServiceImplTest {
     public void testGetAllInterestsQuery(){
         Page<Interest> testPage = new Page<Interest>(List.of(INTEREST), 1, 1);
         Mockito.when(
-            interestDao.searchBySubstring(Mockito.eq(INTEREST_NAME), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            interestDao.searchBySubstring(Mockito.eq(INTEREST_NAME), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<Interest> page = interestService.getAllInterests(INTEREST_NAME, new PageParams(1,2));
+        Page<Interest> page = interestService.getAllInterests(INTEREST_NAME, PAGE_1_DEFAULT);
 
         assertEquals(testPage, page);
     }
@@ -188,10 +189,10 @@ public class InterestServiceImplTest {
     public void testFindAllInterestsByUserId(){
         Page<Interest> testPage = new Page<Interest>(List.of(INTEREST), 1, 1);
         Mockito.when(
-            interestDao.findAllInterestsByUserId(Mockito.eq(USER_ID), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            interestDao.findAllInterestsByUserId(Mockito.eq(USER_ID), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<Interest> page = interestService.findAllInterestsByUserId(USER_ID, new PageParams(1, 2));
+        Page<Interest> page = interestService.findAllInterestsByUserId(USER_ID, PAGE_1_DEFAULT);
 
         assertNotNull(page);
         assertEquals(testPage, page);

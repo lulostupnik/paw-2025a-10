@@ -74,7 +74,6 @@ public class JourneyResponseJdbcDaoTest {
         jdbcTemplate = new JdbcTemplate(ds);
         insert = new SimpleJdbcInsert(ds).withTableName(RESPONSE_TABLE).usingGeneratedKeyColumns("id");
 
-        jdbcTemplate.execute("INSERT INTO journeys(user_id, destination_university_id, start_date, end_date, description, deleted) VALUES((SELECT id FROM users WHERE username = 'user2'), (SELECT id FROM universities WHERE abbreviation = 'ITBA'),  '2000-01-01', '2000-04-01', 'cool', FALSE)");
         jdbcTemplate.execute("INSERT INTO journeys(user_id, destination_university_id, start_date, end_date, description, deleted) VALUES((SELECT id FROM users WHERE username = 'user3'), (SELECT id FROM universities WHERE abbreviation = 'ITBA'),  '2000-01-01', '2000-04-01', 'cool', FALSE)");
         
         USER1_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'user1'", Long.class);
@@ -120,7 +119,7 @@ public class JourneyResponseJdbcDaoTest {
     }
     @Test
     public void testListAllFromJourneyNoResponses(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, RESPONSE_TABLE);
+        TestUtils.deleteJourneyReplies(jdbcTemplate);
 
         List<JourneyResponse> responses = responseDao.listAllFromJourney(JOURNEY1_ID);
 

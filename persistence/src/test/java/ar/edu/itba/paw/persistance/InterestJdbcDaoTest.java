@@ -335,7 +335,8 @@ public class InterestJdbcDaoTest {
     }
     @Test
     public void testGetAllInterestsPagedNoInterests(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.INTEREST_TABLE);
+        TestUtils.deleteInterests(jdbcTemplate);
+
         Page<Interest> page1 = interestDao.getAllInterests(new PageParams(1, 2));
 
         assertNotNull(page1);
