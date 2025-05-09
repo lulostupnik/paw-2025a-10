@@ -7,10 +7,11 @@ import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -26,26 +27,26 @@ public class CityServiceImpl implements CityService {
 
     @Autowired
     public CityServiceImpl(CityDao cityDao, CountryService countryService) {
-
         this.cityDao = cityDao;
         this.countryService = countryService;
     }
 
     @Override
-    // @Cacheable(value = "citiesByName", key = "#name")
+    @Cacheable(value = "citiesByName", key = "#name")
     public Optional<City> findByName(String name) {
         LOGGER.debug("Finding city by name {}", name);
         return cityDao.findByName(name);
     }
 
-    // todo: ¿Cacheable?
     @Override
+    @Cacheable(value = "cities")
     public List<City> findAll() {
         LOGGER.debug("Finding all cities");
         return cityDao.findAll();
     }
 
     @Override
+    @Cacheable(value = "citiesById", key = "#id")
     public Optional<City> findById(Long id) {
         LOGGER.debug("Finding city by id {}", id);
         return cityDao.findBy(id, null, null);
@@ -58,6 +59,7 @@ public class CityServiceImpl implements CityService {
     }
 
     @Override
+    @Cacheable(value="cities")
     public List<City> getAllCities() {
         return cityDao.getAllCities();
     }
@@ -71,24 +73,40 @@ public class CityServiceImpl implements CityService {
         return cityDao.searchBySubstring(search, pageParams);
     }
 
-
-    @Transactional
     @Override
-    public void updateCity(long id, String name, String country) {
-        Country country1 = countryService.findByName(country)
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "citiesByName", allEntries = true),
+                    @CacheEvict(value = "citiesById", key = "#id"),
+                    @CacheEvict(value = "cities", allEntries = true),
+                    @CacheEvict(value = "universities", allEntries = true),
+                    @CacheEvict(value = "universitiesById", allEntries = true),
+                    @CacheEvict(value = "universitiesByName", allEntries = true)
+            }
+    )
+    public void updateCity(long id, String name, String countryName) {
+        Country country = countryService.findByName(countryName)
                 .orElseThrow(() -> new IllegalArgumentException("Country not found"));
-        cityDao.updateCity(id, name, country1);
+        cityDao.updateCity(id, name, country);
     }
 
-    @Transactional
     @Override
-    public long createCity(String name, String country) {
-        Country country1 = countryService.findByName(country)
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(value= "cities", allEntries = true),
+                    @CacheEvict(value = "universities", allEntries = true),
+                    @CacheEvict(value = "universitiesById", allEntries = true),
+                    @CacheEvict(value = "universitiesByName", allEntries = true)
+            }
+    )
+    public long createCity(String cityName, String countryName) {
+        Country country = countryService.findByName(countryName)
                 .orElseThrow(() -> new IllegalArgumentException("Country not found"));
-        return cityDao.createCity(name, country1);
+        return cityDao.createCity(cityName, country);
     }
 
-    @Transactional
     @Override
     public String getCitiesJson(String search, PageParams pageParams) {
         LOGGER.debug("Finding all cities with search {}", search);
@@ -118,6 +136,17 @@ public class CityServiceImpl implements CityService {
     }
 
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "citiesById", key = "#id"),
+                    @CacheEvict(value = "citiesByName", allEntries = true),
+                    @CacheEvict(value = "cities", allEntries = true),
+                    @CacheEvict(value = "universities", allEntries = true),
+                    @CacheEvict(value = "universitiesById", allEntries = true),
+                    @CacheEvict(value = "universitiesByName", allEntries = true)
+            }
+    )
     public void delete(long id) {
         cityDao.delete(id);
     }

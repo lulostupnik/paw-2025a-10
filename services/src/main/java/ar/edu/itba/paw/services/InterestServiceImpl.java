@@ -9,12 +9,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
+
+//                 "interests", "interestsById", "interestsByName",
 
 @Service
 @Transactional(readOnly = true)
@@ -30,15 +33,15 @@ public class InterestServiceImpl implements InterestService {
         this.interestDao = interestDao;
     }
 
-    @Cacheable(value = "interestsById", key = "#id")
     @Override
+    @Cacheable(value = "interestsById", key = "#id")
     public Optional<Interest> findById(long id) {
         LOGGER.debug("Getting interest {}", id);
         return this.interestDao.findById(id);
     }
 
-    @Cacheable(value = "interests", unless = "#result.size() > 100")
     @Override
+    @Cacheable(value = "interests", unless = "#result.size() > 100")
     public List<Interest> findAll() {
         LOGGER.debug("Getting all interests");
         return interestDao.findAll();
@@ -50,8 +53,8 @@ public class InterestServiceImpl implements InterestService {
         return interestDao.findByUserId(id);
     }
 
-    @Cacheable(value = "interestsByName", key = "#name")
     @Override
+    @Cacheable(value = "interestsByName", key = "#name")
     public Optional<Interest> findByName(String name) {
         LOGGER.debug("Getting interest {}", name);
         return interestDao.findByName(name);
@@ -68,11 +71,19 @@ public class InterestServiceImpl implements InterestService {
         return interestDao.findAllInterestsByUserId(id, pageParams);
     }
 
-    @Transactional
     @Override
-    @CacheEvict(value = "interests", allEntries = true)
-    public Interest createUserInterest(String interest) {
-        return interestDao.createUserInterest(interest);
+    @Transactional
+    @Caching(
+            put = {
+                @CachePut(value = "interestsByName", key = "#name"),
+                @CachePut(value = "interestsById", key = "#result.id")
+            },
+            evict = {
+                @CacheEvict(value = "interests", allEntries = true)
+            }
+    )
+    public Interest createUserInterest(String name) {
+        return interestDao.createUserInterest(name);
     }
 
     @Transactional
@@ -97,8 +108,8 @@ public class InterestServiceImpl implements InterestService {
         interestDao.editUserInterest(id, interest);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void saveUserInterests(long[] interests, long userId) {
         LOGGER.debug("Adding interest list to user {}", userId);
         interestDao.saveUserInterests(interests, userId);
@@ -109,8 +120,8 @@ public class InterestServiceImpl implements InterestService {
         interestDao.saveUserInterests(interests, userId);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void updateScoreByInterest(Interest interest, long userId) {
         LOGGER.debug("Increasing score of interest {} for user {}", interest, userId);
         interestDao.updateScoreByInterest(interest, userId);
@@ -127,7 +138,7 @@ public class InterestServiceImpl implements InterestService {
     }
 
     @Override
-    @Transactional(readOnly = false)
+    @Transactional
     public void updateUserInterests(long[] interestIds, long userId) {
         interestDao.updateUserInterests(interestIds, userId);
     }

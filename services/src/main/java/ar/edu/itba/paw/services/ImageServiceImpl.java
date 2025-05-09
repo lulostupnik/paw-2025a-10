@@ -3,7 +3,6 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.ImageDao;
 import ar.edu.itba.paw.interfaces.services.ImageService;
 import ar.edu.itba.paw.models.Image;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Optional;
 
 @Service
@@ -30,8 +28,8 @@ public class ImageServiceImpl implements ImageService {
         this.cacheManager = cacheManager;
     }
 
-    @Transactional
     @Override
+    @Transactional
     public long storeImage(byte[] imageData) {
         LOGGER.debug("Storing image of size {}", imageData.length);
         long imageId = imageDao.saveImage(imageData);
@@ -47,17 +45,17 @@ public class ImageServiceImpl implements ImageService {
         return imageId;
     }
 
+    @Override
     @Transactional(readOnly = true)
     @Cacheable(value = "images", key = "#id")
-    @Override
     public Optional<Image> getImage(Long id) {
         LOGGER.debug("Getting image {}", id);
         return imageDao.getImageById(id);
     }
 
+    @Override
     @Transactional
     @CacheEvict(value = "images", key = "#id")
-    @Override
     public void deleteImage(Long id) {
         LOGGER.debug("Deleting image {}", id);
         imageDao.deleteImage(id);

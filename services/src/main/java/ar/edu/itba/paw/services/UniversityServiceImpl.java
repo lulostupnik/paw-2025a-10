@@ -8,7 +8,10 @@ import ar.edu.itba.paw.models.University;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -28,13 +31,14 @@ public class UniversityServiceImpl implements UniversityService {
     }
 
     @Override
-    // @Cacheable(value = "universitiesByName", key = "#name")
+    @Cacheable(value = "universitiesByName", key = "#name")
     public Optional<University> findByName(String name) {
         LOGGER.debug("Getting university with name {}", name);
         return universityDao.findByName(name);
     }
 
     @Override
+    @Cacheable(value = "universitiesById", key = "#id")
     public Optional<University> findById(Long id) {
         return universityDao.findById(id);
     }
@@ -51,8 +55,8 @@ public class UniversityServiceImpl implements UniversityService {
         return universityDao.findByAny(queryString);
     }
 
-    // @Cacheable(value = "universities")
     @Override
+    @Cacheable(value = "universities")
     public List<University> getAllUniversities() {
         LOGGER.debug("Getting all universities");
         return universityDao.getAllUniversities();
@@ -95,12 +99,26 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     @Transactional
+    @Caching(
+            put = {
+                @CachePut(value = "universitiesById", key = "#result.id"),
+                @CachePut(value = "universitiesByName", key = "#result.name")
+            },
+            evict = {
+                @CacheEvict(value = "universities", allEntries = true)
+            }
+    )
     public University createUniversity(String name, String abbreviation, String city) {
         return universityDao.createUniversity(name, abbreviation, city);
     }
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "universities", allEntries = true),
+            @CacheEvict(value = "universitiesById", key = "#id"),
+            @CacheEvict(value = "universitiesByName", allEntries = true)
+    })
     public void updateUniversity(long id, String name, String abbreviation, String cityName) {
         universityDao.updateUniversity(id, name, abbreviation, cityName);
     }
@@ -112,6 +130,13 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "universities", allEntries = true),
+                    @CacheEvict(value = "universitiesById", key = "#id"),
+                    @CacheEvict(value = "universitiesByName", allEntries = true)
+            }
+    )
     public void delete(long id) {
         universityDao.delete(id);
     }
