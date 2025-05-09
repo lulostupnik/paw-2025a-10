@@ -11,6 +11,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.*;
 import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
@@ -50,7 +52,8 @@ public class UserJdbcDao implements UserDao {
             rs.getString("email"),
             rs.getString("password"),
             rs.getString("roles"),
-            rs.getBoolean("blocked")
+            rs.getBoolean("blocked"),
+            rs.getBoolean("verified")
     );
 
 
@@ -135,7 +138,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public Optional<UserPassword> findByEmailWithPass(final String email) {
-        return jdbcTemplate.query("SELECT email, password, roles, blocked FROM users WHERE email = ?", USER_PASSWORD_ROW_MAPPER, email).stream().findFirst();
+        return jdbcTemplate.query("SELECT email, password, roles, blocked, validate_token is not null AS verified FROM users WHERE email = ?", USER_PASSWORD_ROW_MAPPER, email).stream().findFirst();
     }
 
     @Override
@@ -165,7 +168,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public User create(final String email, final String username, final String firstname, final String lastname, final University university,
-                       final Career career, final long profilePictureId, final String password, final Locale locale) {
+                       final Career career, final long profilePictureId, final String password, final Locale locale,final String validateToken, final LocalDate exipirationDate) {
         LOGGER.debug("Registering new user to DB");
         final Map<String, Object> args = new HashMap<>();
         args.put("email", email);
@@ -179,11 +182,14 @@ public class UserJdbcDao implements UserDao {
         args.put("language", locale.getLanguage().isEmpty() ? "en":locale.getLanguage());
         args.put("roles", "user");
         args.put("blocked", false);
+        args.put("validate_token", validateToken);
+        args.put("validate_token_expiration", Date.valueOf(exipirationDate));
         final Number id = jdbcInsert.executeAndReturnKey(args);
-        final User user = new User(id.longValue(), email, username, firstname, lastname, university, career, profilePictureId, locale,false );
+        final User user = new User(id.longValue(), email, username, firstname, lastname, university, career, profilePictureId, locale,false);
         LOGGER.info("Successfully registered new user {}", user);
         return user;
     }
+
 
     @Override
     public void update(final long userId, final String firstname, final String lastname, final String username,
@@ -290,6 +296,48 @@ public class UserJdbcDao implements UserDao {
                 pageParams.getPage(),
                 pageCount(elementCount, pageParams.getSize())
         );
+    }
+
+    @Override
+    public boolean isValid(String token) {
+        Integer count = jdbcTemplate.queryForObject(
+                """
+                SELECT COUNT(*)
+                FROM users
+                WHERE validate_token = ?
+                AND validate_token_expiration > NOW()
+                """,
+                Integer.class,
+                token
+        );
+        return count != null && count > 0;
+    }
+
+    @Override
+    public void validateToken(String token) {
+        jdbcTemplate.update(
+                """
+                UPDATE users
+                SET validate_token = NULL, validate_token_expiration = NULL
+                WHERE validate_token = ?
+                """,
+                token
+        );
+    }
+
+    @Override
+    public boolean hasExpired(String token) {
+        Integer count = jdbcTemplate.queryForObject(
+                """
+                SELECT COUNT(*)
+                FROM users
+                WHERE validate_token = ?
+                AND validate_token_expiration < NOW()
+                """,
+                Integer.class,
+                token
+        );
+        return count != null && count > 0;
     }
 
     @Override

@@ -262,6 +262,16 @@ public class EmailServiceImpl implements EmailService {
                 "email.user.unblocked.title", Optional.empty());
     }
 
+    @Override
+    public void sendValidationEmail(User user, String token) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("firstName", user.getUsername());
+        variables.put("validationToken", token);
+
+        sendHtmlMessage(Optional.empty(), Optional.empty(), user, "validation", variables,
+                "email.validation.title", Optional.empty());
+    }
+
 
     @Override
     public void sendEventReminderNotification(Event event, List<User> attendees) {

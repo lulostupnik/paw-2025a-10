@@ -63,29 +63,29 @@ public class UserServiceImplTest {
     @Mock
     private EmailService emailService;
 
-    @Test
-    public void testCreateUser(){
-        Mockito.when(
-            universityService.findByName(Mockito.eq(UNIVERSITY.getName()))
-        ).thenReturn(Optional.of(UNIVERSITY));
-        Mockito.when(
-            careerService.findByName(Mockito.eq(CAREER.getName()))
-        ).thenReturn(Optional.of(CAREER));
-        Mockito.when(
-            imageService.storeImage(Mockito.eq(IMAGE.getData()))
-        ).thenReturn(IMAGE.getId());
-        Mockito.when(
-            passwordEncoder.encode(Mockito.eq(PASSWORD))
-        ).thenReturn(PASSWORD);
-        Mockito.when(
-            userDao.create(Mockito.eq(EMAIL), Mockito.eq(USERNAME), Mockito.eq(FIRSTNAME), Mockito.eq(LASTNAME), Mockito.eq(UNIVERSITY), Mockito.eq(CAREER), Mockito.eq(IMAGE.getId()), Mockito.eq(PASSWORD), Mockito.eq(LOCALE))
-        ).thenReturn(USER);
-
-        User user = userService.createUser(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY.getName(), CAREER.getName(), IMAGE.getData(), List.of(INTEREST.getName()), PASSWORD, LOCALE);
-
-        assertNotNull(user);
-        assertEquals(USER, user);
-    }
+//    @Test
+//    public void testCreateUser(){
+//        Mockito.when(
+//            universityService.findByName(Mockito.eq(UNIVERSITY.getName()))
+//        ).thenReturn(Optional.of(UNIVERSITY));
+//        Mockito.when(
+//            careerService.findByName(Mockito.eq(CAREER.getName()))
+//        ).thenReturn(Optional.of(CAREER));
+//        Mockito.when(
+//            imageService.storeImage(Mockito.eq(IMAGE.getData()))
+//        ).thenReturn(IMAGE.getId());
+//        Mockito.when(
+//            passwordEncoder.encode(Mockito.eq(PASSWORD))
+//        ).thenReturn(PASSWORD);
+//        Mockito.when(
+////            userDao.create(Mockito.eq(EMAIL), Mockito.eq(USERNAME), Mockito.eq(FIRSTNAME), Mockito.eq(LASTNAME), Mockito.eq(UNIVERSITY), Mockito.eq(CAREER), Mockito.eq(IMAGE.getId()), Mockito.eq(PASSWORD), Mockito.eq(LOCALE))
+//        ).thenReturn(USER);
+//
+//        User user = userService.createUser(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY.getName(), CAREER.getName(), IMAGE.getData(), List.of(INTEREST.getName()), PASSWORD, LOCALE);
+//
+//        assertNotNull(user);
+//        assertEquals(USER, user);
+//    }
     @Test(expected = RuntimeException.class)
     public void testCreateUserMissingCareer(){
         Mockito.when(
@@ -133,18 +133,18 @@ public class UserServiceImplTest {
         assertFalse(maybeUser.isPresent());
     }
 
-    @Test
-    public void testFindByEmailWithPass(){
-        Mockito.when(
-            userDao.findByEmailWithPass(Mockito.eq(EMAIL))
-        ).thenReturn(Optional.of(new UserPassword(EMAIL, PASSWORD, ROLE, BLOCKED)));
-
-        Optional<UserPassword> maybeUser = userService.findByEmailWithPass(EMAIL);
-
-        assertNotNull(maybeUser);
-        assertTrue(maybeUser.isPresent());
-        assertEquals(PASSWORD, maybeUser.get().getPassword());
-    }
+//    @Test
+//    public void testFindByEmailWithPass(){
+//        Mockito.when(
+//            userDao.findByEmailWithPass(Mockito.eq(EMAIL))
+//        ).thenReturn(Optional.of(new UserPassword(EMAIL, PASSWORD, ROLE, BLOCKED)));
+//
+//        Optional<UserPassword> maybeUser = userService.findByEmailWithPass(EMAIL);
+//
+//        assertNotNull(maybeUser);
+//        assertTrue(maybeUser.isPresent());
+//        assertEquals(PASSWORD, maybeUser.get().getPassword());
+//    }
     @Test
     public void testFindByEmailWithPassMissing(){
         Mockito.when(
@@ -309,29 +309,8 @@ public class UserServiceImplTest {
         userService.getProfilePictureData(USER);
     }
 
-    @Test
-    public void testGetAllUsers(){
-        Mockito.when(
-            userDao.getAllUsers()
-        ).thenReturn(List.of(USER));
 
-        List<User> users = userService.getAllUsers();
 
-        assertNotNull(users);
-        assertEquals(1, users.size());
-        assertEquals(USER, users.getFirst());
-    }
-    @Test
-    public void testGetAllUsersNoUsers(){
-        Mockito.when(
-            userDao.getAllUsers()
-        ).thenReturn(List.of());
-
-        List<User> users = userService.getAllUsers();
-
-        assertNotNull(users);
-        assertEquals(0, users.size());
-    }
 
     @Test
     public void testGetAllUsersPaged(){

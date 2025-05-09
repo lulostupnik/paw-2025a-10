@@ -35,6 +35,9 @@ public class PawUserDetailsService implements UserDetailsService {
         if(user.isBlocked()){
             throw new DisabledException("User is blocked");
         }
+        if(!user.isVerified()){
+            throw new DisabledException("User is not verified");
+        }
         if(user.getRole().equals("admin")) {
             authorities = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
         } else{

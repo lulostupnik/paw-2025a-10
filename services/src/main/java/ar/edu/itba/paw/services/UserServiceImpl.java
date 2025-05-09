@@ -9,9 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -49,10 +53,12 @@ public class UserServiceImpl implements UserService {
 
         long profilePictureId = imageService.storeImage(profilePicture);
 
-        User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId, passwordEncoder.encode(password), locale);
+        String uid = UUID.randomUUID().toString();
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId, passwordEncoder.encode(password), locale,uid,tomorrow);
 
         interestService.saveUserInterests(interests, user.getId());
-
+        emailService.sendValidationEmail(user,uid);
         return user;
     }
 
@@ -61,6 +67,18 @@ public class UserServiceImpl implements UserService {
     public void changePassword(String email, String newPassword) {
         LOGGER.debug("Changing password for user {}", email);
         userDao.changePassword(email, passwordEncoder.encode(newPassword));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void validateEmail(String token) {
+        if (userDao.hasExpired(token)) {
+            throw new IllegalStateException("Token expired");
+        }
+        if(!userDao.isValid(token)){
+            throw new IllegalStateException("Token already used");
+        }
+        userDao.validateToken(token);
     }
 
     @Override
@@ -152,9 +170,7 @@ public class UserServiceImpl implements UserService {
                 .getData();
     }
 
-    public List<User> getAllUsers() {
-        return userDao.getAllUsers();
-    }
+
 
     @Override
     public Page<User> getAllUsers(String search, PageParams pageParams) {

@@ -23,6 +23,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
 
 import java.util.List;
+import java.util.UUID;
 
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 
@@ -46,6 +47,11 @@ public class AuthController {
         this.interestService = interestService;
         this.authenticationManager = authenticationManager;
     }
+    @PostMapping(value ="/validate")
+    public ModelAndView validateEmail(@RequestParam("token") String token) {
+        userService.validateEmail(token);
+        return new ModelAndView("redirect:/explore");
+    }
 
     @RequestMapping("/login")
     public ModelAndView loginForm( @ModelAttribute("user") User user) {
@@ -66,19 +72,7 @@ public class AuthController {
     @GetMapping(value = "/register")
     public ModelAndView registerForm(@ModelAttribute ("createUserForm") final CreateUserForm form) {
         LOGGER.debug("Loading register form");
-        ModelAndView mav = new ModelAndView("auth/register");
-//        List<Career> careers = careerService.getAllCareers("",1,30).getContent();
-//        LOGGER.debug("Found careers {}", careers);
-//        mav.addObject("careers", careers);
-//
-//        List<University> universities = universityService.getAllUniversities("",1,30).getContent()  ;
-//        LOGGER.debug("Found universities {}", universities);
-//        mav.addObject("universities",  universities);
-//
-//        List<Interest> interests = interestService.getAllInterests("",1,30).getContent();
-//        LOGGER.debug("Found interests {}", interests);
-//        mav.addObject("interests", interests);
-        return mav;
+        return new ModelAndView("auth/register");
     }
 
     @PostMapping(value = "/register")

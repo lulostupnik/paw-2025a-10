@@ -11,5 +11,7 @@ public class UserPassword{
     private final String password;
     private final String role;
     private final boolean blocked;
+    private final boolean verified;
 
 }
+
