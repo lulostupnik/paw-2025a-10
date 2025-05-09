@@ -1,8 +1,10 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.acls.model.NotFoundException;
@@ -16,6 +18,9 @@ public class ExceptionHandlerAdvice {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionHandlerAdvice.class);
     private static final String ERROR_VIEW = "errors/error";
+    @Autowired
+    private UserService userSerivice;
+
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(code = HttpStatus.NOT_FOUND)
     public ModelAndView error404(NotFoundException ex) {
@@ -93,7 +98,7 @@ public class ExceptionHandlerAdvice {
     public ModelAndView error400ExpiredToken(ExpiredTokenException ex) {
         LOGGER.warn("ExpiredToken: {}", ex.getMessage());
         LOGGER.debug("Stack trace for ExpiredToken", ex);
-
+        userSerivice.refreshToken(ex.getOldToken());
         return new ModelAndView("auth/expired-token");
     }
 

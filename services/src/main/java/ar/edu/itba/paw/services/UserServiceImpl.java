@@ -73,10 +73,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional(readOnly = false)
+    @Transactional
     public void validateEmail(String token) {
         if (userDao.hasExpired(token)) {
-            throw new ExpiredTokenException("Token expired");
+            throw new ExpiredTokenException("Token expired", token);
         }
         if(!userDao.isValid(token)){
             throw new InvalidTokenException("Token already used");
@@ -199,6 +199,18 @@ public class UserServiceImpl implements UserService {
     public void unblockUser(long userId) {
         emailService.sendUserUnblockedNotification(findById(userId).orElseThrow(()-> new IllegalStateException("User does not exist")));
         userDao.unblockUser(userId);
+    }
+    @Override
+    @Transactional
+    public void refreshToken(String oldToken) {
+        String uid = UUID.randomUUID().toString();
+        LocalDate date = LocalDate.now().plusDays(1);
+        userDao.refreshToken(uid, date,oldToken);
+        Optional<User> user = userDao.getUserByToken(oldToken);
+        if(user.isEmpty()){
+            throw new InvalidTokenException("Invalid Token");
+        }
+        emailService.sendValidationEmail(user.get(),uid);
     }
 
 }

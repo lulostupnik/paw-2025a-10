@@ -32,4 +32,6 @@ public interface UserService {
     void unblockUser(long userId);
     void changePassword(String email, String newPassword);
     void validateEmail(String token);
-}
+    void refreshToken(String oldToken);
+
+    }

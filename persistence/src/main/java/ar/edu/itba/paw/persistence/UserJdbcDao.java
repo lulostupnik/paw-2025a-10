@@ -93,6 +93,7 @@ public class UserJdbcDao implements UserDao {
     private final static String SQL_BASE_DISTINCT = "SELECT DISTINCT " + SQL_SELECT_BASE.substring(6) + SQL_FROM_BASE;
 
     private final static String SQL_FIND_BY_ID = SQL_BASE + " WHERE u.id = ? ";
+    private final static String SQL_FIND_BY_TOKEN = SQL_BASE + " WHERE u.validate_token = ? ";
     private final static String SQL_FIND_BY_EMAIL = SQL_BASE + " WHERE u.email = ? ";
     private final static String SQL_FIND_BY_USERNAME = SQL_BASE + " WHERE u.username = ? ";
 
@@ -155,6 +156,11 @@ public class UserJdbcDao implements UserDao {
         if (updatedRows == 0) {
             LOGGER.warn("Password change failed: user with email {} not found", email);
         }
+    }
+
+    @Override
+    public void refreshToken(String newToken, LocalDate date, String oldToken){
+       jdbcTemplate.update("UPDATE users SET validate_token = ?, validate_token_expiration_date = ? WHERE validate_token = ?", newToken, date ,oldToken);
     }
 
     @Override
@@ -484,6 +490,15 @@ public class UserJdbcDao implements UserDao {
         if (rowsAffected == 0) {
             LOGGER.warn("User unblock failed: User with ID {} not found", userId);
         }
+    }
+
+    @Override
+    public Optional<User> getUserByToken(String token) {
+        return jdbcTemplate.query(
+                SQL_FIND_BY_TOKEN,
+                USER_ROW_MAPPER,
+                token
+        ).stream().findFirst();
     }
 
 }
