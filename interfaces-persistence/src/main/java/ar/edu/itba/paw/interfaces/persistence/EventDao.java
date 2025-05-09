@@ -32,6 +32,7 @@ public interface EventDao {
     List<Event> listByQuery(Long cityId, LocalDate date);
     List<Event> listAll();
     List<Event> getEvents(String email);
+    List<Event> findAllBetweenDates(LocalDate startDate, LocalDate endDate);
 
 
     Optional<EventWithStatistics> findEventWithStatistics(long eventId);

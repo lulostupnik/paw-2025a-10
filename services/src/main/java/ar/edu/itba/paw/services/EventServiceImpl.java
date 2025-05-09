@@ -10,8 +10,6 @@ import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,7 +89,6 @@ public class EventServiceImpl implements EventService {
                 );
     }
 
-    // @Cacheable(value = "eventsById", key = "#id")
     @Override
     public Optional<Event> getEventById(long id){
         return eventDao.findById(id);
@@ -135,7 +132,6 @@ public class EventServiceImpl implements EventService {
 
 
     @Transactional
-    @CacheEvict(value = "eventsById", key = "#eventId")
     @Override
     public void attendEvent(long userId, long eventId) {
         if(eventAttendanceDao.isAttending(userId, eventId)){
@@ -155,7 +151,6 @@ public class EventServiceImpl implements EventService {
     }
 
     @Transactional
-    @CacheEvict(value = "eventsById", key = "#eventId") // todo: ver que onda esto
     @Override
     public void attendEvent(String email, long eventId) {
         long userId = userService.findByEmail(email).orElseThrow().getId();
@@ -163,14 +158,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Transactional
-    @CacheEvict(value = "eventsById", key = "#eventId")
     @Override
     public void cancelAttendance(long userId, long eventId) {
         eventAttendanceDao.cancel(userId, eventId);
     }
 
     @Transactional
-    @CacheEvict(value = "eventsById", key = "#eventId")
     @Override
     public void cancelAttendance(String email, long eventId) {
         long userId = userService.findByEmail(email).orElseThrow().getId();
@@ -220,7 +213,6 @@ public class EventServiceImpl implements EventService {
 
 
 
-    // FIXME: Agregarle cacheable?
     @Override
     public List<Event> getRecommendedEvents(long userId, int limit) {
         if (limit <= 0) {
@@ -238,7 +230,6 @@ public class EventServiceImpl implements EventService {
         return events;
     }
 
-    // FIXME: ¿Agregarle cacheable?
     @Override
     public List<Event> getTopEvents(int limit){
         LOGGER.debug("Getting top events");
@@ -288,10 +279,8 @@ public class EventServiceImpl implements EventService {
         return getEventsWithAttendanceStatus(userId);
     }
 
-    //@TODO checkear cache
-    //@TODO CHECKEAR: hay unos argumentos que estan bien en null (atendeesLimit, description).  medio que no tiene sentido/poco claro.
+
     @Transactional
-    @CacheEvict(value = "eventsById", key = "#eventId")
     @Override
     public void editEvent(long eventId, String cityName, LocalDate date, byte[] flyer, String description,
                           String title, LocalTime time, String address, Integer attendeesLimit) {
@@ -317,23 +306,20 @@ public class EventServiceImpl implements EventService {
 
 
     @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "eventsById", key = "#id"),
-            @CacheEvict(value = "eventsByResponseId", allEntries = true) //FIXME: check if should CACHE EVICT
-    })
     @Override
     public void delete(long id, String message) {
         LOGGER.debug("Deleting event {}", id);
-        eventDao.deletionMessage(id, message);
-        eventResponseDao.deleteByEventId(id);
         Event event = eventDao.findById(id).orElseThrow(() -> new RuntimeException("Event not found"));
-        emailService.sendEventDeletionNotification(event,message);
+        if(message != null && !message.isEmpty()){
+            eventDao.deletionMessage(id, message);
+            emailService.sendEventDeletionNotification(event,message);
+        }
+        eventResponseDao.deleteByEventId(id);
         eventDao.delete(id);
     }
 
 
     @Transactional
-    @CacheEvict(value = "eventsByResponseId", key = "#id")
     @Override
     public void deleteResponse(long id, String message) {
 
@@ -361,7 +347,6 @@ public class EventServiceImpl implements EventService {
 
 
 
-    // @Cacheable(value = "eventsByResponseId", key = "#eventResponseId")
     @Override
     public long getEventIdByResponseId(long eventResponseId) {
         return eventResponseDao.getEventIdByResponseId(eventResponseId);
@@ -384,31 +369,20 @@ public class EventServiceImpl implements EventService {
 
 
 
-    @Scheduled(cron = "0 0 12 * * ?" /*, zone = "America/Argentina/Buenos_Aires"*/)
+    @Scheduled(cron = "0 0 12 * * ?")
     @Transactional(readOnly = true)
     public void sendEventReminders(){
-//        Optional<User> maybeUser = userService.findById(1);
-//        if(maybeUser.isEmpty()){
-//            LOGGER.error("User not found");
-//            return;
-//        }
-//        emailService.sendUserBlockedNotification(maybeUser.get());
-//        // emailService.sendUserBlockedNotification();
-
         LOGGER.info("Starting scheduled task: sending reminder emails for upcoming events");
 
         LocalDate today = LocalDate.now();
         LocalDate tomorrow = today.plusDays(1);
 
-        List<Event> upcomingEvents = eventDao.listByQuery(null, today)
-                .stream()
-                .filter(event -> (event.getDate().isEqual(today) || event.getDate().isEqual(tomorrow)))
-                .toList();
+        List<Event> upcomingEvents = eventDao.findAllBetweenDates(today, tomorrow);
 
         LOGGER.info("Found {} events occurring in the next 24 hours", upcomingEvents.size());
 
         for (Event event : upcomingEvents) {
-            // emailService.sendEventReminderNotification(event, eventAttendanceDao.getAttendees(event.getId()));
+            emailService.sendEventReminderNotification(event, eventAttendanceDao.getAttendees(event.getId()));
         }
 
         LOGGER.info("Completed scheduled task: sent reminder emails for upcoming events");

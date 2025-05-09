@@ -183,7 +183,7 @@ public class EventController {
     @GetMapping("/{id}")
     public ModelAndView getEvent(@PathVariable long id, @Valid @ModelAttribute("replyEventForm") final ReplyForm form, final BindingResult errors,
         @ModelAttribute("user") User user,
-        @Valid @ModelAttribute("deleteForm") final ReplyForm deleteForm, final BindingResult deleteErrors,
+        @Valid @ModelAttribute("deleteForm") final DeleteForm deleteForm, final BindingResult deleteErrors,
         @Valid @ModelAttribute("deleteReplyForm") final ReplyForm deleteReplyForm, final BindingResult deleteReplyErrors,
         @RequestParam(value = "replyId", required = false) Long replyId,
         @PageParamCustomizer(defaultSize = 5) PageParams  repliesPage,
@@ -199,17 +199,17 @@ public class EventController {
         return populateEventDetails(maybeEvent.get(),
                 id, user, deleteErrors, deleteReplyErrors, replyId ,repliesPage, attendeesPage );
     }
-    @PostMapping("/{id}/delete")
-    public ModelAndView deleteEvent(@PathVariable int id, @Valid @ModelAttribute("deleteForm") final ReplyForm form,
+    @PostMapping("/delete")
+    public ModelAndView deleteEvent(@ModelAttribute("user") User user,
+            @Valid @ModelAttribute("deleteForm") final DeleteForm form,
                                     final BindingResult errors, RedirectAttributes redirectAttributes) {
-        LOGGER.debug("Deleting event {}", id);
         if (errors.hasErrors()) {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
             redirectAttributes.addFlashAttribute("deleteErrors", errors);
             redirectAttributes.addFlashAttribute("deleteForm", form);
-            return new ModelAndView(REDIRECT + id);
+            return new ModelAndView("events/" + form.getId() );
         }
-        eventService.delete(id, form.getMessage());
+        eventService.delete(form.getId(), form.getMessage());
         return new ModelAndView(REDIRECT);
     }
 
