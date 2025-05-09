@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.webapp.config;
 
-import ar.edu.itba.paw.webapp.resolver.CustomLocaleResolver;
 import ar.edu.itba.paw.webapp.resolver.PageParamsResolver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
@@ -115,7 +114,6 @@ public class WebConfig implements WebMvcConfigurer {
         ms.setCacheSeconds((int) TimeUnit.MINUTES.toSeconds(5));
         ms.setBasename("classpath:i18n/messages");
         ms.setDefaultEncoding(StandardCharsets.UTF_8.name());
-
         return ms;
     }
 
@@ -176,11 +174,6 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/resources/**").addResourceLocations("/resources/");
-    }
-
-    @Bean
-    public LocaleResolver localeResolver() {
-        return new CustomLocaleResolver();
     }
 
     @Bean

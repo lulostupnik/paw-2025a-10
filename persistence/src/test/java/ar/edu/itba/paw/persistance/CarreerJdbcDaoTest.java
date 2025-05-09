@@ -111,26 +111,6 @@ public class CarreerJdbcDaoTest {
         assertFalse(maybeCareer.isPresent());
     }
 
-    @Test
-    public void testFindAll(){
-        List<Career> careers = careerDao.findAll();
-
-        assertNotNull(careers);
-        assertEquals(TestUtils.TOTAL_CAREERS, careers.size());
-        List<String> careerNames = List.of(TestUtils.CAREER_1_NAME, TestUtils.CAREER_2_NAME);
-        for (Career career : careers){
-            assertTrue(careerNames.contains(career.getName()));
-        }
-    }
-    @Test
-    public void testFindAllNoCareers(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.JOURNEY_TABLE, TestUtils.USER_INTEREST_TABLE, TestUtils.USER_TABLE, TestUtils.CAREER_TABLE);
-
-        List<Career> careers = careerDao.findAll();
-
-        assertNotNull(careers);
-        assertEquals(0, careers.size());
-    }
 
     @Test
     public void testGetAllCareers(){

@@ -53,26 +53,34 @@ public class EmailServiceImpl implements EmailService {
 
     private void sendHtmlMessage(Optional<byte[]> maybeImage,Optional<String> maybeImageCid, User emailRecipient, String templateName, Map<String, Object> variables, String subjectKey, Optional<Object[]> maybeSubjectArgs) {
         try {
+            LOGGER.debug("Sending email to: {}", emailRecipient.getEmail());
+            LOGGER.debug("Locale of recipient: {}", emailRecipient.getLocale());
+            LOGGER.debug("Subject key: {}", subjectKey);
+            LOGGER.debug("Subject args: {}", maybeSubjectArgs.orElse(null));
             String subject = messageSource.getMessage(
                     subjectKey,
                     maybeSubjectArgs.orElse(null),
                     emailRecipient.getLocale()
             );
+            LOGGER.debug("Resolved subject: {}", subject);
+
 
             MimeMessage message = emailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             Context context = new Context(emailRecipient.getLocale());
             context.setVariables(variables);
             String htmlContent = templateEngine.process(templateName, context);
+            LOGGER.debug("Rendered template [{}] for locale [{}]", templateName,emailRecipient.getLocale());
             helper.setFrom(fromEmail);
             helper.setTo(emailRecipient.getEmail());
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
             if(maybeImageCid.isPresent() && maybeImage.isPresent() && maybeImage.get().length > 0){
+                LOGGER.debug("Attaching image with CID: {}", maybeImageCid.get());
                 DataSource imageSource = new ByteArrayDataSource(maybeImage.get(), "image/jpeg");
                 helper.addInline(maybeImageCid.get(), imageSource);
             }
-            emailSender.send(message);
+            //emailSender.send(message);
         } catch (Exception e) {
             LOGGER.error("Failed to send email", e);
         }

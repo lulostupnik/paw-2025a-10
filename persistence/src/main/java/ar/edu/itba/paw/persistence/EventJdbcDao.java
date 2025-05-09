@@ -769,11 +769,6 @@ public class EventJdbcDao implements EventDao {
 
     }
 
-    private Page<Event> getWithAttendance(String searchPattern, PageParams pageParams) {
-        int totalItems = jdbcTemplate.queryForObject(SQL_COUNT_ALL_EVENTS_WITH_ATTENDANCE, Integer.class, searchPattern, searchPattern, searchPattern);
-        List<Event> events = jdbcTemplate.query(SQL_SEARCH_ALL_EVENTS_WITH_ATTENDANCE, EVENT_ROW_MAPPER, searchPattern, searchPattern, searchPattern, pageParams.getSize(), offset(pageParams));
-        return new Page<>(events, pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
-    }
 
 
     @Override

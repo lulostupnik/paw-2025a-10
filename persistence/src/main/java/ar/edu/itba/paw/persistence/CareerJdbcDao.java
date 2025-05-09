@@ -43,10 +43,6 @@ public class CareerJdbcDao implements CareerDao {
                 .stream().findFirst();
     }
 
-    public List<Career> findAll() {
-        return jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE", CAREER_ROW_MAPPER);
-    }
-
     @Override
     public Optional<Career> findByName(final String name) {
         return jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE AND name = ?", CAREER_ROW_MAPPER, name)

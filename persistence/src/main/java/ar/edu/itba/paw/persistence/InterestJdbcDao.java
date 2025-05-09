@@ -104,7 +104,7 @@ public class InterestJdbcDao implements InterestDao {
     }
 
     @Override
-    public void updateScoreByInterest(final Interest interest, final Long userId) {
+    public void updateScoreByInterest(final Interest interest, final long userId) {
         LOGGER.info("Registering to DB new interest {} score increase for user {}", interest, userId);
         jdbcTemplate.update("UPDATE user_interest SET score = score + 1 WHERE user_id = ? AND category_id = ?",
                 userId, interest.getId());
@@ -162,7 +162,7 @@ public class InterestJdbcDao implements InterestDao {
     }
 
     @Override
-    public void updateScoreByInterests(final List<Interest> interests, final Long userId) {
+    public void updateScoreByInterests(final List<Interest> interests, final long userId) {
         LOGGER.debug("Registering to DB multiple score increases for intrests of user {}", userId);
         for (Interest interest : interests) {
             updateScoreByInterest(interest, userId);
