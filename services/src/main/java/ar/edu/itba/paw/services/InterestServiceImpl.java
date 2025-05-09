@@ -65,7 +65,7 @@ public class InterestServiceImpl implements InterestService {
 
     @Override
     public Page<Interest> findAllInterestsByUserId(long id, PageParams pageParams) {
-        return interestDao.findAllInterestsByUserId(id, pageParams.getPage(), pageParams.getSize());
+        return interestDao.findAllInterestsByUserId(id, pageParams);
     }
 
     @Transactional
@@ -136,9 +136,9 @@ public class InterestServiceImpl implements InterestService {
     public Page<Interest> getAllInterests(String search, PageParams pageParams) {
         LOGGER.debug("Finding all interests with search {}", search);
         if (search == null || search.isEmpty()) {
-            return interestDao.getAllInterests(pageParams.getPage(), pageParams.getSize());
+            return interestDao.getAllInterests(pageParams);
         }
-        return interestDao.searchBySubstring(search,pageParams.getPage(), pageParams.getSize());
+        return interestDao.searchBySubstring(search,pageParams);
     }
 
     @Override

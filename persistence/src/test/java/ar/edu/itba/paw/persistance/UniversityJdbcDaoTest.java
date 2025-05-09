@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 
 import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.PageParams;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -262,7 +263,7 @@ public class UniversityJdbcDaoTest {
     
     @Test
     public void testSearchBySubstringUsingAbbrSubstring(){
-        Page<University> unis = uniDao.searchBySubstring(TestUtils.UNIVERSITY_1_CODE.substring(1, 3),1,10);
+        Page<University> unis = uniDao.searchBySubstring(TestUtils.UNIVERSITY_1_CODE.substring(1, 3),new PageParams(1,10));
         assertNotNull(unis);
         assertEquals(1, unis.getCurrentPage());
         assertEquals(1, unis.getTotalPages());
@@ -276,7 +277,7 @@ public class UniversityJdbcDaoTest {
     }
     @Test
     public void testSearchBySubstringUsingNameSubstring(){
-        Page<University> unis = uniDao.searchBySubstring(TestUtils.UNIVERSITY_2_NAME.substring(5, 15), 1, 2);
+        Page<University> unis = uniDao.searchBySubstring(TestUtils.UNIVERSITY_2_NAME.substring(5, 15), new PageParams(1,2));
         assertNotNull(unis);
         assertEquals(1, unis.getCurrentPage());
         assertEquals(1, unis.getTotalPages());
@@ -290,7 +291,7 @@ public class UniversityJdbcDaoTest {
     }
     @Test
     public void testSearchBySubstringMultipleResults(){
-        Page<University> unis = uniDao.searchBySubstring(TestUtils.UNIVERSITY_1_NAME.substring(TestUtils.UNIVERSITY_1_NAME.length() - 5, TestUtils.UNIVERSITY_1_NAME.length()), 1, 10);
+        Page<University> unis = uniDao.searchBySubstring(TestUtils.UNIVERSITY_1_NAME.substring(TestUtils.UNIVERSITY_1_NAME.length() - 5, TestUtils.UNIVERSITY_1_NAME.length()), new PageParams(1,10));
         assertNotNull(unis);
         assertEquals(1, unis.getCurrentPage());
         assertEquals(1, unis.getTotalPages());
@@ -299,7 +300,7 @@ public class UniversityJdbcDaoTest {
     }
     @Test
     public void testSearchBySubstringWrongQuery(){
-        Page<University> unis = uniDao.searchBySubstring("TestUtils.UNIVERSITY_1_CODE", 1, 10);
+        Page<University> unis = uniDao.searchBySubstring("TestUtils.UNIVERSITY_1_CODE", new PageParams(1,10));
         assertNotNull(unis);
         assertEquals(1, unis.getCurrentPage());
         assertEquals(0, unis.getTotalPages());
@@ -308,7 +309,7 @@ public class UniversityJdbcDaoTest {
     }
     @Test
     public void testSearchBySubstringDeleted(){
-        Page<University> unis = uniDao.searchBySubstring(TestUtils.UNIVERSITY_DELETED_NAME, 1, 10);
+        Page<University> unis = uniDao.searchBySubstring(TestUtils.UNIVERSITY_DELETED_NAME, new PageParams(1,10));
         assertNotNull(unis);
         assertEquals(1, unis.getCurrentPage());
         assertEquals(0, unis.getTotalPages());
@@ -317,7 +318,7 @@ public class UniversityJdbcDaoTest {
     }
     @Test
     public void testSearchBySubstringEmptyQuery(){
-        Page<University> unis = uniDao.searchBySubstring("", 1, 10);
+        Page<University> unis = uniDao.searchBySubstring("", new PageParams(1,10));
         assertNotNull(unis);
         assertEquals(1, unis.getCurrentPage());
         assertEquals(1, unis.getTotalPages());
@@ -326,7 +327,7 @@ public class UniversityJdbcDaoTest {
     }
     @Test
     public void testSearchBySubstringMissingQuery(){
-        Page<University> unis = uniDao.searchBySubstring(null, 1, 10);
+        Page<University> unis = uniDao.searchBySubstring(null, new PageParams(1,10));
         assertNotNull(unis);
         assertEquals(1, unis.getCurrentPage());
         assertEquals(1, unis.getTotalPages());
@@ -338,8 +339,8 @@ public class UniversityJdbcDaoTest {
     public void testGetAllUniversitiesPaged(){
         long bonusId = insert.executeAndReturnKey(Map.of("name", TestUtils.UNIVERSITY_NEW_NAME, "abbreviation", TestUtils.UNIVERSITY_NEW_CODE, "CITY_ID", CITY_1_ID, "deleted", false)).longValue();
 
-        Page<University> page1 = uniDao.getAllUniversities(1, 2);
-        Page<University> page2 = uniDao.getAllUniversities(2, 2);
+        Page<University> page1 = uniDao.getAllUniversities(new PageParams(1,2));
+        Page<University> page2 = uniDao.getAllUniversities(new PageParams(2,2));
         assertNotNull(page1);
         assertNotNull(page2);
         assertEquals(1, page1.getCurrentPage());
@@ -358,7 +359,7 @@ public class UniversityJdbcDaoTest {
     @Test
     public void testGetAllUniversitiesPagedNoUniversities(){
         JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.UNIVERSITY_TABLE);
-        Page<University> page = uniDao.getAllUniversities(1, 2);
+        Page<University> page = uniDao.getAllUniversities(new PageParams(1,2));
         assertNotNull(page);
         assertEquals(1, page.getCurrentPage());
         assertEquals(0, page.getTotalPages());

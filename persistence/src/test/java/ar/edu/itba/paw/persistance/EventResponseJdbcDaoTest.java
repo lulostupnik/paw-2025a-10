@@ -14,6 +14,7 @@ import java.util.Optional;
 
 import javax.sql.DataSource;
 
+import ar.edu.itba.paw.models.PageParams;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -133,8 +134,8 @@ public class EventResponseJdbcDaoTest {
         insert.execute(Map.of("user_id", USER1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", false));
         insert.execute(Map.of("user_id", USER1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", true));
 
-        Page<EventResponse> page1 = replyDao.listAllFromEvent(EVENT1_ID, 1, 2);
-        Page<EventResponse> page2 = replyDao.listAllFromEvent(EVENT1_ID, 2, 2);
+        Page<EventResponse> page1 = replyDao.listAllFromEvent(EVENT1_ID, new PageParams(1, 2));
+        Page<EventResponse> page2 = replyDao.listAllFromEvent(EVENT1_ID, new PageParams(2, 2));
 
         assertNotNull(page1);
         assertNotNull(page2);
@@ -162,7 +163,7 @@ public class EventResponseJdbcDaoTest {
     public void testListAllFromEventPagedNoReplies(){
         insert.execute(Map.of("user_id", USER1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", true));
 
-        Page<EventResponse> page1 = replyDao.listAllFromEvent(EVENT1_ID, 1, 2);
+        Page<EventResponse> page1 = replyDao.listAllFromEvent(EVENT1_ID, new PageParams(1, 2));
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -172,7 +173,7 @@ public class EventResponseJdbcDaoTest {
     }
     @Test
     public void testListAllFromEventPagedNoEvent(){
-        Page<EventResponse> page1 = replyDao.listAllFromEvent(1234234, 1, 2);
+        Page<EventResponse> page1 = replyDao.listAllFromEvent(1234234, new PageParams(1, 2));
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());

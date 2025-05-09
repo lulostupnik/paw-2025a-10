@@ -15,6 +15,7 @@ import java.util.Optional;
 
 import javax.sql.DataSource;
 
+import ar.edu.itba.paw.models.PageParams;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -133,8 +134,8 @@ public class JourneyResponseJdbcDaoTest {
 
     @Test
     public void testListAllFromJourneyPaged(){
-        Page<JourneyResponse> page1 = responseDao.listAllFromJourney(JOURNEY1_ID, 1, 2);
-        Page<JourneyResponse> page2 = responseDao.listAllFromJourney(JOURNEY1_ID, 2, 2);
+        Page<JourneyResponse> page1 = responseDao.listAllFromJourney(JOURNEY1_ID, new PageParams(1, 2));
+        Page<JourneyResponse> page2 = responseDao.listAllFromJourney(JOURNEY1_ID, new PageParams(2, 2));
 
         //TODO awful
         assertNotNull(page1);
@@ -170,7 +171,7 @@ public class JourneyResponseJdbcDaoTest {
     public void testListAllFromJourneyPagedNoResponses(){
         JdbcTestUtils.deleteFromTableWhere(jdbcTemplate, RESPONSE_TABLE, "deleted = FALSE");
 
-        Page<JourneyResponse> page1 = responseDao.listAllFromJourney(JOURNEY1_ID, 1, 2);
+        Page<JourneyResponse> page1 = responseDao.listAllFromJourney(JOURNEY1_ID, new PageParams(1, 2));
 
         assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, RESPONSE_TABLE));
         assertNotNull(page1);

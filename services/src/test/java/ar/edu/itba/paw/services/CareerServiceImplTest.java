@@ -108,7 +108,7 @@ public class CareerServiceImplTest {
     public void testGetAllCareersNoFilter(){
         Page<Career> testPage = new Page<Career>(List.of(CAREER), 1, 1);
         Mockito.when(
-            careerDao.getAllCareers(Mockito.eq(1), Mockito.eq(2))
+            careerDao.getAllCareers(new PageParams(Mockito.eq(1), Mockito.eq(2)))  //@TODO test, le cambie a page params
         ).thenReturn(testPage);
 
         Page<Career> page = careerService.getAllCareers(null, new PageParams(1,2));
@@ -120,7 +120,7 @@ public class CareerServiceImplTest {
     public void testGetAllCareersEmptyFilter(){
         Page<Career> testPage = new Page<Career>(List.of(CAREER), 1, 1);
         Mockito.when(
-            careerDao.getAllCareers(Mockito.eq(1), Mockito.eq(2))
+            careerDao.getAllCareers(new PageParams(Mockito.eq(1), Mockito.eq(2)))
         ).thenReturn(testPage);
 
         Page<Career> page = careerService.getAllCareers("", new PageParams(1,2));
@@ -132,7 +132,7 @@ public class CareerServiceImplTest {
     public void testGetAllCareersFilter(){
         Page<Career> testPage = new Page<Career>(List.of(CAREER), 1, 1);
         Mockito.when(
-            careerDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(1), Mockito.eq(2))
+            careerDao.searchBySubstring(Mockito.eq(NAME), new PageParams(Mockito.eq(1), Mockito.eq(2)))
         ).thenReturn(testPage);
 
         Page<Career> page = careerService.getAllCareers(NAME, new PageParams(1,2));

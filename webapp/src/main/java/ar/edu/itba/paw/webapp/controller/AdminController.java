@@ -2,7 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.PageParams;
-import ar.edu.itba.paw.webapp.resolver.anotation.PageParamCustomizer;
+import ar.edu.itba.paw.webapp.resolver.annotation.PageParamCustomizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +34,7 @@ public class AdminController {
 
     @RequestMapping("/events")
     public ModelAndView dashboardEvents(
-            @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
+            @PageParamCustomizer(defaultSize = 10, defaultPage = -1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);

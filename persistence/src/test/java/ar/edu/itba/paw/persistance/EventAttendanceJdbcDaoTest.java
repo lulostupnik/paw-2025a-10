@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import ar.edu.itba.paw.models.PageParams;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -232,8 +233,8 @@ public class EventAttendanceJdbcDaoTest {
         insert.execute(Map.of("event_id", EVENT1_ID ,"user_id", USER2.getId()));
         insert.execute(Map.of("event_id", EVENT1_ID ,"user_id", USER3.getId()));
 
-        Page<User> page1 = attendanceDao.getAttendees(EVENT1_ID, 1, 2);
-        Page<User> page2 = attendanceDao.getAttendees(EVENT1_ID, 2, 2);
+        Page<User> page1 = attendanceDao.getAttendees(EVENT1_ID, new PageParams(1, 2));
+        Page<User> page2 = attendanceDao.getAttendees(EVENT1_ID, new PageParams(2, 2));
 
         assertNotNull(page1);
         assertNotNull(page2);
@@ -248,7 +249,7 @@ public class EventAttendanceJdbcDaoTest {
     }
     @Test
     public void testGetAttendeesPagedNoAttendees(){
-        Page<User> attendees = attendanceDao.getAttendees(EVENT1_ID, 1, 2);
+        Page<User> attendees = attendanceDao.getAttendees(EVENT1_ID, new PageParams(1, 2));
 
         assertNotNull(attendees);
         assertEquals(1, attendees.getCurrentPage());
@@ -258,7 +259,7 @@ public class EventAttendanceJdbcDaoTest {
     }
     @Test
     public void testGetAttendeesPagedMissingEvent(){
-        Page<User> attendees = attendanceDao.getAttendees(412341234, 1, 2);
+        Page<User> attendees = attendanceDao.getAttendees(412341234,new PageParams( 1, 2));
 
         assertNotNull(attendees);
         assertEquals(1, attendees.getCurrentPage());
@@ -272,8 +273,8 @@ public class EventAttendanceJdbcDaoTest {
         insert.execute(Map.of("event_id", EVENT3_ID ,"user_id", USER1.getId()));
         insert.execute(Map.of("event_id", EVENT2_ID ,"user_id", USER1.getId()));
 
-        Page<Event> page1 = attendanceDao.getAttendingEvents(USER1.getId(), 1, 1);
-        Page<Event> page2 = attendanceDao.getAttendingEvents(USER1.getId(), 2, 1);
+        Page<Event> page1 = attendanceDao.getAttendingEvents(USER1.getId(), new PageParams(1, 1));
+        Page<Event> page2 = attendanceDao.getAttendingEvents(USER1.getId(), new PageParams(2, 1));
         
         assertNotNull(page1);
         assertNotNull(page2);
@@ -288,7 +289,7 @@ public class EventAttendanceJdbcDaoTest {
     }
     @Test
     public void testGetAttendingEventsNoAttendingPaged(){
-        Page<Event> events = attendanceDao.getAttendingEvents(USER1.getId(), 1, 1);
+        Page<Event> events = attendanceDao.getAttendingEvents(USER1.getId(), new PageParams(1, 1));
         
         assertNotNull(events);
         assertEquals(1, events.getCurrentPage());
@@ -300,7 +301,7 @@ public class EventAttendanceJdbcDaoTest {
     public void testGetAttendingEventsWrongUserPaged(){
         insert.execute(Map.of("event_id", EVENT3_ID ,"user_id", USER1.getId()));
 
-        Page<Event> events = attendanceDao.getAttendingEvents(12341234, 1, 1);
+        Page<Event> events = attendanceDao.getAttendingEvents(12341234, new PageParams(1, 1));
         
         assertNotNull(events);
         assertEquals(1, events.getCurrentPage());

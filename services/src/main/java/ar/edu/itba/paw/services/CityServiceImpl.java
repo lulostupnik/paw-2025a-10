@@ -66,9 +66,9 @@ public class CityServiceImpl implements CityService {
     public Page<City> getAllCities(String search, PageParams pageParams) {
         LOGGER.debug("Finding all cities with search {}", search);
         if (search == null || search.isEmpty()) {
-            return cityDao.getAllCities(pageParams.getPage(), pageParams.getSize());
+            return cityDao.getAllCities(pageParams);
         }
-        return cityDao.searchBySubstring(search, pageParams.getPage(), pageParams.getSize());
+        return cityDao.searchBySubstring(search, pageParams);
     }
 
 
@@ -124,7 +124,7 @@ public class CityServiceImpl implements CityService {
 
     @Override
     public Page<City> searchBySubstring(String substring, PageParams pageParams) {
-        return cityDao.searchBySubstring(substring, pageParams.getPage(), pageParams.getSize());
+        return cityDao.searchBySubstring(substring, pageParams);
     }
 
 }

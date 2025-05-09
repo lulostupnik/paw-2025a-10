@@ -161,9 +161,9 @@ public class UserServiceImpl implements UserService {
     public Page<User> getAllUsers(String search, PageParams pageParams) {
 
         if (search == null || search.isEmpty()) {
-            return userDao.getAllUsers(pageParams.getPage(), pageParams.getSize());
+            return userDao.getAllUsers(pageParams);
         }
-        return userDao.searchUsers(search, pageParams.getPage(), pageParams.getSize());
+        return userDao.searchUsers(search, pageParams);
     }
 
     @Override

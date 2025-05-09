@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import javax.sql.DataSource;
 
+import ar.edu.itba.paw.models.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,11 +31,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import ar.edu.itba.paw.models.Career;
-import ar.edu.itba.paw.models.Page;
-import ar.edu.itba.paw.models.University;
-import ar.edu.itba.paw.models.User;
-import ar.edu.itba.paw.models.UserPassword;
 import ar.edu.itba.paw.persistence.UserJdbcDao;
 
 @Transactional
@@ -606,9 +602,9 @@ public class UserJdbcDaoTest {
         insertUserOverride(userParams3);
         insertUserOverride(userParams4);
 
-        Page<User> page1 = userDao.getAllUsers(1, PAGESIZE);
-        Page<User> page2 = userDao.getAllUsers(2, PAGESIZE);
-        Page<User> page3 = userDao.getAllUsers(3, PAGESIZE);
+        Page<User> page1 = userDao.getAllUsers(new PageParams(1, PAGESIZE));
+        Page<User> page2 = userDao.getAllUsers(new PageParams(2, PAGESIZE));
+        Page<User> page3 = userDao.getAllUsers(new PageParams(3, PAGESIZE));
 
         assertNotNull(page1);
         assertNotNull(page2);
@@ -633,9 +629,9 @@ public class UserJdbcDaoTest {
         insertUserGeneric();
         insertUserOverride(Map.of("email", USERMAIL2, "username", USERNAME2));
 
-        Page<User> page1 = userDao.getAllUsers(1, PAGESIZE);
-        Page<User> page2 = userDao.getAllUsers(2, PAGESIZE);
-        Page<User> page3 = userDao.getAllUsers(3, PAGESIZE);
+        Page<User> page1 = userDao.getAllUsers(new PageParams(1, PAGESIZE));
+        Page<User> page2 = userDao.getAllUsers(new PageParams(2, PAGESIZE));
+        Page<User> page3 = userDao.getAllUsers(new PageParams(3, PAGESIZE));
 
         assertNotNull(page1);
         assertNotNull(page2);
@@ -658,7 +654,7 @@ public class UserJdbcDaoTest {
         insertUserGeneric();
         insertUserOverride(userParams1);
 
-        Page<User> page1 = userDao.searchUsers(FIRSTNAME, 1, PAGESIZE);
+        Page<User> page1 = userDao.searchUsers(FIRSTNAME, new PageParams(1, PAGESIZE));
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -673,8 +669,8 @@ public class UserJdbcDaoTest {
         insertUserGeneric();
         insertUserOverride(userParams1);
 
-        Page<User> page1 = userDao.searchUsers(FIRSTNAME, 1, 1);
-        Page<User> page2 = userDao.searchUsers(FIRSTNAME, 2, 1);
+        Page<User> page1 = userDao.searchUsers(FIRSTNAME, new PageParams(1, 1));
+        Page<User> page2 = userDao.searchUsers(FIRSTNAME, new PageParams(2, 1));
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());

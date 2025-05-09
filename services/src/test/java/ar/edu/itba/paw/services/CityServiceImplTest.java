@@ -164,7 +164,7 @@ public class CityServiceImplTest {
     public void testGetAllCitiesPagedMissingQuery(){
         Page<City> testPage = new Page<City>(List.of(CITY), 1, 1);
         Mockito.when(
-            cityDao.getAllCities(Mockito.eq(1), Mockito.eq(2))
+            cityDao.getAllCities(new PageParams(Mockito.eq(1), Mockito.eq(2)))
         ).thenReturn(testPage);
 
         Page<City> cities = cityService.getAllCities(null, new PageParams(1,2));
@@ -176,7 +176,7 @@ public class CityServiceImplTest {
     public void testGetAllCitiesPagedEmptyQuery(){
         Page<City> testPage = new Page<City>(List.of(CITY), 1, 1);
         Mockito.when(
-            cityDao.getAllCities(Mockito.eq(1), Mockito.eq(2))
+            cityDao.getAllCities(new PageParams(Mockito.eq(1), Mockito.eq(2)))
         ).thenReturn(testPage);
 
         Page<City> cities = cityService.getAllCities("", new PageParams(1,2));
@@ -188,7 +188,7 @@ public class CityServiceImplTest {
     public void testGetAllCitiesPagedQuery(){
         Page<City> testPage = new Page<City>(List.of(CITY), 1, 1);
         Mockito.when(
-            cityDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(1), Mockito.eq(2))
+            cityDao.searchBySubstring(Mockito.eq(NAME), new PageParams(Mockito.eq(1), Mockito.eq(2)))
         ).thenReturn(testPage);
 
         Page<City> cities = cityService.getAllCities(NAME, new PageParams(1,2));
@@ -201,7 +201,7 @@ public class CityServiceImplTest {
     public void testSearchBySubstring(){
         Page<City> testPage = new Page<City>(List.of(CITY), 1, 1);
         Mockito.when(
-            cityDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(1), Mockito.eq(2))
+            cityDao.searchBySubstring(Mockito.eq(NAME), new PageParams(Mockito.eq(1), Mockito.eq(2)))
         ).thenReturn(testPage);
 
         Page<City> cities = cityService.searchBySubstring(NAME, new PageParams(1,2));

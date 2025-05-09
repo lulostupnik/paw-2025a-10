@@ -3,6 +3,7 @@ package ar.edu.itba.paw.persistence;
 import ar.edu.itba.paw.interfaces.persistence.InterestDao;
 import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.PageParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -214,24 +215,24 @@ public class InterestJdbcDao implements InterestDao {
     }
 
     @Override
-    public Page<Interest> getAllInterests(final int page, final int pageSize) {
+    public Page<Interest> getAllInterests(PageParams pageParams) {
         final int totalInterests = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category", Integer.class);
         return new Page<>(
-                jdbcTemplate.query(SQL_FIND_ALL_PAGED, INTEREST_ROW_MAPPER, pageSize, offset(page, pageSize)),
-                page,
-                pageCount(totalInterests, pageSize)
+                jdbcTemplate.query(SQL_FIND_ALL_PAGED, INTEREST_ROW_MAPPER, pageParams.getSize(), offset(pageParams)),
+                pageParams.getPage(),
+                pageCount(totalInterests, pageParams.getSize())
         );
     }
 
     @Override
-    public Page<Interest> searchBySubstring(final String search, final int page, final int pageSize) {
+    public Page<Interest> searchBySubstring(final String search, PageParams pageParams) {
         final String searchPattern = likePattern(search);
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category WHERE name LIKE ?", Integer.class, searchPattern);
 
         return new Page<>(
-                jdbcTemplate.query(SQL_SEARCH_PAGED, INTEREST_ROW_MAPPER, searchPattern, pageSize, offset(page, pageSize)),
-                page,
-                pageCount(totalItems, pageSize)
+                jdbcTemplate.query(SQL_SEARCH_PAGED, INTEREST_ROW_MAPPER, searchPattern, pageParams.getSize(), offset(pageParams)),
+                pageParams.getPage(),
+                pageCount(totalItems, pageParams.getSize())
         );
     }
 
@@ -244,12 +245,12 @@ public class InterestJdbcDao implements InterestDao {
         }
     }
     @Override
-    public Page<Interest> findAllInterestsByUserId(final long id, final int page, final int pageSize) {
+    public Page<Interest> findAllInterestsByUserId(final long id, PageParams pageParams) {
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user_interest WHERE user_id = ?", Integer.class, id);
         return new Page<>(
-                jdbcTemplate.query(SQL_FIND_ALL_PAGED_BY_USER, INTEREST_ROW_MAPPER, id, pageSize, offset(page,pageSize)),
-                page,
-                pageCount(totalItems, pageSize)
+                jdbcTemplate.query(SQL_FIND_ALL_PAGED_BY_USER, INTEREST_ROW_MAPPER, id, pageParams.getSize(), offset(pageParams)),
+                pageParams.getPage(),
+                pageCount(totalItems, pageParams.getSize())
         );
     }
 

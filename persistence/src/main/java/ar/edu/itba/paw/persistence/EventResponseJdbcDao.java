@@ -133,7 +133,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
     }
 
     @Override
-    public Page<EventResponse> listAllFromEvent(final long eventId, final int page, final int size) {
+    public Page<EventResponse> listAllFromEvent(final long eventId, PageParams pageParams) {
 
         final int totalItems = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM event_responses WHERE event_id = ? AND deleted = FALSE",
@@ -142,9 +142,9 @@ public class EventResponseJdbcDao implements EventResponseDao {
         );
 
         return new Page<>(
-                jdbcTemplate.query(SQL_LIST_ALL_BY_EVENT_PAGED, EVENT_RESPONSE_ROW_MAPPER, eventId, size, offset(page, size)),
-                page,
-                pageCount(totalItems, size)
+                jdbcTemplate.query(SQL_LIST_ALL_BY_EVENT_PAGED, EVENT_RESPONSE_ROW_MAPPER, eventId, pageParams.getSize(), offset(pageParams)),
+                pageParams.getPage(),
+                pageCount(totalItems, pageParams.getSize())
         );
     }
 

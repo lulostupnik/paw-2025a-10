@@ -172,7 +172,7 @@ public class InterestServiceImplTest {
     public void testGetAllInterestsMissingQuery(){
         Page<Interest> testPage = new Page<Interest>(List.of(INTEREST), 1, 1);
         Mockito.when(
-            interestDao.getAllInterests(Mockito.eq(1), Mockito.eq(2))
+            interestDao.getAllInterests(new PageParams(Mockito.eq(1), Mockito.eq(2)))
         ).thenReturn(testPage);
 
         Page<Interest> page = interestService.getAllInterests(null, new PageParams(1,2));
@@ -183,7 +183,7 @@ public class InterestServiceImplTest {
     public void testGetAllInterestsEmptyQuery(){
         Page<Interest> testPage = new Page<Interest>(List.of(INTEREST), 1, 1);
         Mockito.when(
-            interestDao.getAllInterests(Mockito.eq(1), Mockito.eq(2))
+            interestDao.getAllInterests(new PageParams(Mockito.eq(1), Mockito.eq(2)))
         ).thenReturn(testPage);
 
         Page<Interest> page = interestService.getAllInterests("", new PageParams(1,2));
@@ -194,7 +194,7 @@ public class InterestServiceImplTest {
     public void testGetAllInterestsQuery(){
         Page<Interest> testPage = new Page<Interest>(List.of(INTEREST), 1, 1);
         Mockito.when(
-            interestDao.searchBySubstring(Mockito.eq(INTEREST_NAME), Mockito.eq(1), Mockito.eq(2))
+            interestDao.searchBySubstring(Mockito.eq(INTEREST_NAME), new PageParams(Mockito.eq(1), Mockito.eq(2)))
         ).thenReturn(testPage);
 
         Page<Interest> page = interestService.getAllInterests(INTEREST_NAME, new PageParams(1,2));
@@ -236,7 +236,7 @@ public class InterestServiceImplTest {
     public void testFindAllInterestsByUserId(){
         Page<Interest> testPage = new Page<Interest>(List.of(INTEREST), 1, 1);
         Mockito.when(
-            interestDao.findAllInterestsByUserId(Mockito.eq(USER_ID), Mockito.eq(1), Mockito.eq(2))
+            interestDao.findAllInterestsByUserId(Mockito.eq(USER_ID), new PageParams(Mockito.eq(1), Mockito.eq(2)))
         ).thenReturn(testPage);
 
         Page<Interest> page = interestService.findAllInterestsByUserId(USER_ID, new PageParams(1, 2));
