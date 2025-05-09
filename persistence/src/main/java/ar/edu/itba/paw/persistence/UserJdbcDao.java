@@ -181,7 +181,7 @@ public class UserJdbcDao implements UserDao {
         args.put("career_id", career.getId());
         args.put("profile_picture_id", profilePictureId);
         args.put("password", password);
-        args.put("language", locale);
+        args.put("language", locale.getLanguage().isEmpty() ? "en":locale.getLanguage());
         args.put("roles", "user");
         args.put("blocked", false);
         args.put("validate_token", validateToken);

@@ -23,7 +23,7 @@ public class ValidInterestValidator implements ConstraintValidator<ValidInterest
         try {
             for(String interest : interests) {
                 if (interestService.findByName(interest).isEmpty()) {
-                    return false; // Si no existe el interes, no es valido
+                    return false;
                 }
             }
             return true;
