@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface UniversityService {
     Optional<University> findByName(String name);
-    Optional<University> findById(Long id);
+    Optional<University> findById(long id);
     Optional<University> findByAbbreviation(String abbreviation);
     Optional<University> findByAny(String queryString);
     Page<University> getAllUniversities(String search, PageParams pageParams);
