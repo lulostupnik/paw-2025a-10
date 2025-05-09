@@ -399,13 +399,23 @@ public class CityJdbcDaoTest {
         );    }
 
     @Test
-    public void testUpdate(){
+    public void testUpdateCity(){
         cityDao.updateCity(CITY_1.getId(), TestUtils.NEW_CITY_NAME, new Country(COUNTRY_1.getId(), null, null));
 
         Optional<City> maybeCity = jdbcTemplate.query(TestUtils.CITY_SELECT_BY_ID, TestUtils.CITY_ROW_MAPPER, CITY_1.getId()).stream().findFirst();
         assertNotNull(maybeCity);
         assertTrue(maybeCity.isPresent());
         assertEquals(TestUtils.NEW_CITY_NAME, maybeCity.get().getName());
+        assertEquals(TestUtils.COUNTRY_1_NAME, maybeCity.get().getCountry());
+    }
+    @Test
+    public void testUpdateCityWrongId(){
+        cityDao.updateCity(12341234l, TestUtils.NEW_CITY_NAME, new Country(COUNTRY_1.getId(), null, null));
+
+        Optional<City> maybeCity = jdbcTemplate.query(TestUtils.CITY_SELECT_BY_ID, TestUtils.CITY_ROW_MAPPER, CITY_1.getId()).stream().findFirst();
+        assertNotNull(maybeCity);
+        assertTrue(maybeCity.isPresent());
+        assertEquals(TestUtils.CITY_1_NAME, maybeCity.get().getName());
         assertEquals(TestUtils.COUNTRY_1_NAME, maybeCity.get().getCountry());
     }
 }

@@ -90,7 +90,7 @@ public class TestUtils {
     public static final String USER_1_NAME = "user1";
     public static final String USER_2_NAME = "user2";
     public static final String USER_3_NAME = "user3";
-    public static final String USER_4_NAME = "user3";
+    public static final String USER_4_NAME = "user4";
     public static final String USER_NEW1_NAME = "newUser1";
     public static final String USER_NEW2_NAME = "newUser2";
     public static final String USER_COMMON_INTERESTS_1_NAME = "1interest";
@@ -110,6 +110,8 @@ public class TestUtils {
     public static final String USER_PASSWORD = "superSecret";
     public static final String USER_LOCALE = "es";
     public static final String USER_LOCALE_DEFAULT = "en";
+    public static final String USER_VALID_TOKEN_DEFAULT = "token";
+    public static final LocalDate USER_EXPIRATION_DEFAULT = LocalDate.now().plusMonths(1);
     public static final String USER_ROLE = "user";
     public static final boolean USER_BLOCKED = false;
     public static final String USER_FAKE_MAIL = "totallyRealEmail@legitEmailService.com";
@@ -126,6 +128,7 @@ public class TestUtils {
     public static final int USER_1_INTERESTS = 3;
     public static final Map<String, Object> USER_2_PARAMS = Map.of("email", TestUtils.USER_2_MAIL, "username", TestUtils.USER_2_NAME);
     public static final Map<String, Object> USER_3_PARAMS = Map.of("email", TestUtils.USER_3_MAIL, "username", TestUtils.USER_3_NAME);
+    public static final Map<String, Object> USER_4_PARAMS = Map.of("email", TestUtils.USER_4_MAIL, "username", TestUtils.USER_4_NAME);
 
     public static final int TOTAL_USER_INTERESTS = 9;
 
@@ -406,8 +409,8 @@ public class TestUtils {
         assertEqualsUni(expected.getUniversity(), actual.getUniversity());
         assertEquals(expected.getLocale(), actual.getLocale());
         assertEquals(expected.isBlocked(), actual.isBlocked());
-
     }
+
     public static void assertEqualsJourney(Journey expected, Journey actual){
         assertNotNull(actual);
         assertNotNull(expected);
