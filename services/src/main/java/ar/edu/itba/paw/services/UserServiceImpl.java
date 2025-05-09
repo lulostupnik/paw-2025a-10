@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = false)
     public void validateEmail(String token) {
         if (userDao.hasExpired(token)) {
             throw new IllegalStateException("Token expired");
