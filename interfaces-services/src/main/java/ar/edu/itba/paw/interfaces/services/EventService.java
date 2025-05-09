@@ -27,7 +27,7 @@ public interface EventService {
     Page<Event> getUserAttendingEvents(long userId, PageParams pageParams);
     List<Event> getRecommendedEvents(long userId, int limit);
     List<Event> getTopEvents(int limit);
-    Boolean isEventOwnedByUser(String email, long eventID);
+    boolean isEventOwnedByUser(String email, long eventID);
     boolean isEventFull(long eventId);
     Page<Event> getEventsPageWithAttendanceStatus(String search, User user,
                                                   String sortBy, String direction, String destination, LocalDate startDate, LocalDate endDate, String interest,

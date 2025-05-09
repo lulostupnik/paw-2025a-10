@@ -13,7 +13,7 @@ public interface JourneyService {
     Optional<Journey> getJourneyById(long id);
     Optional<Journey> getJourneyByEmail(String email);
     Page<Journey> getAllJourneys(String search, User user, String sortBy, String direction, String destination, LocalDate startDate, LocalDate endDate, String interest, boolean isPast, boolean isUpcoming, boolean isMyDestination, PageParams pageParams);
-    Boolean userHasJourney(String email); // ja
+    boolean userHasJourney(String email); // ja
     boolean userHasJourney(User user);
     List<Journey> getRecommendedJourneys(String email, int limit);
     void updateJourneyDates(long journeyId, LocalDate startDate, LocalDate endDate);

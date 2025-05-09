@@ -153,7 +153,7 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
-    public Boolean userHasJourney(String email) {
+    public boolean userHasJourney(String email) {
         Optional<User> maybeUser = userService.findByEmail(email);
         return maybeUser.filter(user -> journeyDao.findByUserId(user.getId()).isPresent()).isPresent();
     }

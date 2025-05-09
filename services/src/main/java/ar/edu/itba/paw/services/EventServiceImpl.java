@@ -223,7 +223,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Boolean isEventOwnedByUser(String email, long eventID) {
+    public boolean isEventOwnedByUser(String email, long eventID) {
         LOGGER.debug("Checking for event ownership of event {} by user {}", eventID, email);
         Optional<Event> event = eventDao.findById(eventID);
         return event.isPresent() && event.get().getUser().getEmail().equals(email);
