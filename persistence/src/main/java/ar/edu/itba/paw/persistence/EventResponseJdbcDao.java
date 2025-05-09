@@ -82,10 +82,6 @@ public class EventResponseJdbcDao implements EventResponseDao {
         return response;
     }
 
-    @Override
-    public List<EventResponse> listAllFromEvent(final long eventId){
-        return jdbcTemplate.query(SQL_LIST_ALL_BY_EVENT, EVENT_RESPONSE_ROW_MAPPER, eventId);
-    }
 
     @Override
     public int getCount(final long eventId) {

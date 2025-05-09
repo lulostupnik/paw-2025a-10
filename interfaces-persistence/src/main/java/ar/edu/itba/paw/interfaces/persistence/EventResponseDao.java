@@ -5,12 +5,10 @@ import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 public interface EventResponseDao {
     EventResponse create(long userId, String username, long eventId, String message, LocalDateTime dateTime);
-    List<EventResponse> listAllFromEvent(long eventId);
     int getCount(long eventId);
     Page<EventResponse> listAllFromEvent(long eventId, PageParams pageParams);
     void delete(long id);

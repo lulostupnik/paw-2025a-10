@@ -195,78 +195,6 @@ public class EventJdbcDaoTest {
     }
 
     @Test
-    public void testListByQueryAll(){
-        insertEvent();
-        insertEvent();
-        insertEvent();
-        insertEvent(Map.of("deleted", true));
-
-        List<Event> results = eventDao.listByQuery(null, null);
-
-        assertNotNull(results);
-        assertEquals(3, results.size());
-        for (Event e : results){
-            assertEqualsEvent(e);
-        }
-    }
-    @Test
-    public void testListByQueryFilterCity(){
-        insertEvent();
-        insertEvent();
-        insertEvent(Map.of("city", CITY2));
-        insertEvent(Map.of("deleted", true));
-
-        List<Event> results = eventDao.listByQuery(CITY1.getId(), null);
-
-        assertNotNull(results);
-        assertEquals(2, results.size());
-        for (Event e : results){
-            assertEqualsEvent(e);
-        }
-    }
-    @Test
-    public void testListByQueryFilterDate(){
-        insertEvent();
-        insertEvent();
-        insertEvent(Map.of("date", EVENT_DATE.plusDays(-10)));
-        insertEvent(Map.of("deleted", true));
-
-        List<Event> results = eventDao.listByQuery(null, EVENT_DATE);
-
-        assertNotNull(results);
-        assertEquals(2, results.size());
-        for (Event e : results){
-            assertEqualsEvent(e);
-        }
-    }
-    @Test
-    public void testListByQueryFilterBoth(){
-        insertEvent();
-        insertEvent(Map.of("city", CITY2));
-        insertEvent(Map.of("date", EVENT_DATE.plusDays(-10)));
-        insertEvent(Map.of("deleted", true));
-
-        List<Event> results = eventDao.listByQuery(CITY1.getId(), EVENT_DATE);
-
-        assertNotNull(results);
-        assertEquals(1, results.size());
-        for (Event e : results){
-            assertEqualsEvent(e);
-        }
-    }
-    @Test
-    public void testListByQueryInvalidCity(){
-        insertEvent();
-        insertEvent(Map.of("city", CITY2));
-        insertEvent(Map.of("date", EVENT_DATE.plusDays(-10)));
-        insertEvent(Map.of("deleted", true));
-
-        List<Event> results = eventDao.listByQuery((long)12341234, EVENT_DATE);
-
-        assertNotNull(results);
-        assertEquals(0, results.size());
-    }
-    @Test
     public void testFindById(){
         long id = insertEvent();
         insertEvent(Map.of("title", "anotherEvent"));
@@ -309,69 +237,7 @@ public class EventJdbcDaoTest {
         assertFalse(maybeEvent.isPresent());
     }
 
-    @Test
-    public void testListAll(){
-        Map<String, Object> event1 = Map.of();
-        Map<String, Object> event2 = Map.of("title", "anotherEvent");
-        Map<String, Object> event3 = Map.of("title", "oneMore", "date", EVENT_DATE.plusDays(10));
-        long id1 = insertEvent(event1);
-        long id2 = insertEvent(event2);
-        long id3 = insertEvent(event3);
-        Map<Long, Map<String, Object>> eventInfo = Map.of(id1, event1, id2, event2, id3, event3);
-        
-        List<Event> events = eventDao.listAll();
-        
-        assertNotNull(events);
-        assertEquals(3, events.size());
-        for (Event e : events) {
-            assertEqualsEvent(e, eventInfo.get(e.getId()));
-        }
-    }
-    @Test
-    public void testListAllNoEvents(){
-        List<Event> events = eventDao.listAll();
-        
-        assertNotNull(events);
-        assertEquals(0, events.size());
-    }
 
-    @Test
-    public void testGetEvents(){
-        //get events by user email
-        Map<String, Object> event1 = Map.of();
-        Map<String, Object> event2 = Map.of("title", "Another cool event", "date", EVENT_DATE.plusDays(40), "limit", Optional.empty());
-        long id1 = insertEvent(event1);
-        long id2 = insertEvent(event2);
-        Map<Long, Map<String, Object>> eventInfo = Map.of(id1, event1, id2, event2);
-        insertEvent(Map.of("user", USER2));
-        insertEvent(Map.of("user", USER2));
-        
-        List<Event> userEvents = eventDao.getEvents(USER1_EMAIL);
-    
-        assertNotNull(userEvents);
-        assertEquals(2, userEvents.size());
-        for (Event e : userEvents){
-            assertEqualsEvent(e, eventInfo.get(e.getId()));
-        }
-    }
-    @Test
-    public void testGetEventsNoEvents(){
-        //get events by user email    
-        List<Event> userEvents = eventDao.getEvents(USER1_EMAIL);
-    
-        assertNotNull(userEvents);
-        assertEquals(0, userEvents.size());
-    }
-    @Test
-    public void testGetEventsWrongMail(){
-        //get events by user email    
-        insertEvent();
-
-        List<Event> userEvents = eventDao.getEvents("USER1_EMAIL");
-    
-        assertNotNull(userEvents);
-        assertEquals(0, userEvents.size());
-    }
 
     @Test
     public void testGetTopEvents(){
@@ -504,13 +370,6 @@ public class EventJdbcDaoTest {
     }
 
     @Test
-    public void testGetFullEvents(){
-        List<Event> emptyList = eventDao.getFullEvents();
-
-        assertEquals(0, emptyList.size());
-    }
-
-    @Test
     public void testDelete(){
         long id1 = insertEvent();
         insertEvent(Map.of("deleted", true));
@@ -563,62 +422,7 @@ public class EventJdbcDaoTest {
         assertEquals(null, jdbcTemplate.queryForObject("SELECT deleted_message FROM events WHERE id = ?", String.class, id));
     }
 
-    @Test
-    public void testGetMyEvents(){
-        insertEvent();
-        insertEvent();
-        insertEvent(Map.of("title", "deleted event", "deleted", true));
-        insertEvent(Map.of("user", USER2));
-        insertEvent(Map.of("user", USER3));
 
-        List<Event> events = eventDao.getMyEvents(USER1.getId());
-
-        assertNotNull(events);
-        assertEquals(2, events.size());
-        for (Event e : events){
-            assertEqualsEvent(e);
-        }
-    }
-    @Test
-    public void testGetMyEventsNoEvents(){
-        insertEvent(Map.of("deleted", true));
-        insertEvent(Map.of("user", USER2));
-        insertEvent(Map.of("user", USER3));
-
-        List<Event> events = eventDao.getMyEvents(USER1.getId());
-
-        assertNotNull(events);
-        assertEquals(0, events.size());
-    }
-
-    @Test
-    public void testGetOthersEvents(){
-        insertEvent();
-        insertEvent();
-        insertEvent(Map.of("title", "deleted event", "deleted", true));
-        insertEvent(Map.of("user", USER2));
-        insertEvent(Map.of("user", USER3, "date", EVENT_DATE.plusDays(1)));
-        insertEvent(Map.of("user", USER3, "deleted", true, "title", "DELETED"));
-
-        List<Event> events = eventDao.getOthersEvents(USER1.getId());
-
-        assertNotNull(events);
-        assertEquals(2, events.size());
-        assertEqualsEvent(events.get(0), Map.of("user", USER3, "date", EVENT_DATE.plusDays(1)));
-        assertEqualsEvent(events.get(1), Map.of("user", USER2));
-    }
-    @Test
-    public void testGetOthersEventsNoEvents(){
-        insertEvent();
-        insertEvent();
-        insertEvent(Map.of("title", "deleted event", "deleted", true));
-        insertEvent(Map.of("user", USER3, "deleted", true, "title", "DELETED"));
-
-        List<Event> events = eventDao.getOthersEvents(USER1.getId());
-
-        assertNotNull(events);
-        assertEquals(0, events.size());
-    }
 
     @Test
     public void testGetOthersEventsPaged(){

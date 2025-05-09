@@ -192,11 +192,9 @@ public class JourneyJdbcDao implements JourneyDao {
         return newJourney;
     }
 
-    @Override
-    public List<Journey> listAll() {
-        return jdbcTemplate.query(SQL_BASE, JOURNEY_ROW_MAPPER);
+    private Optional<Journey> findByUserIdDeleted(long id) {
+        return jdbcTemplate.query(SQL_FIND_BY_USER_ID_DELETED, JOURNEY_ROW_MAPPER, id).stream().findFirst();
     }
-
 
     @Override
     public Optional<Journey> findById(final long id) {
@@ -212,84 +210,11 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
 
-    // FIXME: usar StringBuilder
-    @Override
-    public List<Journey> findByFilters(final String destination, final LocalDate startDate, final LocalDate endDate, final String interest) {
-
-        final StringBuilder queryBuilder = new StringBuilder((interest != null && !interest.isEmpty()) ? SQL_BASE_INTEREST : SQL_BASE);
-
-        final List<Object> params = new ArrayList<>();
-
-        if (destination != null && !destination.isEmpty()) {
-            queryBuilder.append(" AND ci2.id = ? ");
-            params.add(Integer.parseInt(destination)); // FIXME: ¿PORQUE ESTAMOS RECIBIENDO UN STRING CON EL ID DEL DESTINO!?!?!?
-        }
-        if (endDate != null) {
-            queryBuilder.append(" AND j.start_date <= ? ");
-            params.add(Date.valueOf(endDate));
-        }
-        if (startDate != null) {
-            queryBuilder.append(" AND j.end_date >= ? ");
-            params.add(Date.valueOf(startDate));
-        }
-        if (interest != null && !interest.isEmpty()) {
-            queryBuilder.append(" AND c.id = ? ");
-            params.add(Integer.parseInt(interest)); // FIXME: ¿PORQUE ESTAMOS RECIBIENDO UN STRING CON EL ID DEL DESTINO!?!?!?
-        }
-
-        return jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray());
-    }
-
-    @Override
-    public List<Journey> findByFilters(final long userId, final String destination, final LocalDate startDate, final LocalDate endDate, final String interest) {
-
-        // FIXME: ¿porque el !interest.isEmpty()?
-        final StringBuilder queryBuilder = new StringBuilder((interest != null && !interest.isEmpty()) ? SQL_BASE_INTEREST : SQL_BASE);
-
-        final List<Object> params = new ArrayList<>();
-
-        queryBuilder.append(" AND u.id != ? "); // journey.user_id != ?
-        params.add(userId);
-
-        if (destination != null && !destination.isEmpty()) {
-            queryBuilder.append(" AND ci2.id = ? ");
-            params.add(Integer.parseInt(destination)); // FIXME: ¿PORQUE ESTAMOS RECIBIENDO UN STRING CON EL ID DEL DESTINO!?!?!?
-        }
-        if (endDate != null) {
-            queryBuilder.append(" AND j.start_date <= ? ");
-            params.add(Date.valueOf(endDate));
-        }
-        if (startDate != null) {
-            queryBuilder.append(" AND j.end_date >= ? ");
-            params.add(Date.valueOf(startDate));
-        }
-        if (interest != null && !interest.isEmpty()) {
-            queryBuilder.append(" AND c.id = ? ");
-            params.add(Integer.parseInt(interest)); // FIXME: ¿PORQUE ESTAMOS RECIBIENDO UN STRING CON EL ID DEL DESTINO!?!?!?
-        }
-
-        return jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray());
-    }
-
-    @Override
-    public List<Journey> findByOriginCity(final long originCityId) {
-        return jdbcTemplate.query(SQL_FIND_BY_ORIGIN_CITY, JOURNEY_ROW_MAPPER, originCityId);
-    }
-
-    @Override
-    public List<Journey> findByOriginUniversity(final long originUniversityId) {
-        return jdbcTemplate.query(SQL_FIND_BY_ORIGIN_UNIVERSITY, JOURNEY_ROW_MAPPER, originUniversityId);
-    }
-
-
     @Override
     public Optional<Journey> findByUserId(final long userId) {
         return jdbcTemplate.query(SQL_FIND_BY_USER_ID, JOURNEY_ROW_MAPPER, userId).stream().findFirst();
     }
 
-    private Optional<Journey> findByUserIdDeleted(final long userId) {
-        return jdbcTemplate.query(SQL_FIND_BY_USER_ID_DELETED, JOURNEY_ROW_MAPPER, userId).stream().findFirst();
-    }
 
     @Override
     public Optional<Journey> findByUserEmail(final String email) {
@@ -297,10 +222,6 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
 
-    @Override
-    public List<Journey> getJourneysByUser(final String email) {
-        return jdbcTemplate.query(SQL_FIND_BY_USER_EMAIL, JOURNEY_ROW_MAPPER, email);
-    }
 
     @Override
     public void delete(final long id) {
@@ -321,10 +242,6 @@ public class JourneyJdbcDao implements JourneyDao {
 
     }
 
-    @Override
-    public List<Journey> getOthersJourneys(final long userId) {
-        return jdbcTemplate.query(SQL_FIND_OTHERS_BY_USER_ID, JOURNEY_ROW_MAPPER, userId);
-    }
 
     @Override
     public void updateDates(final long journeyId, final LocalDate startDate, final LocalDate endDate) {

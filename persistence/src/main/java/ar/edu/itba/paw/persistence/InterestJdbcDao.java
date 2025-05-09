@@ -56,10 +56,6 @@ public class InterestJdbcDao implements InterestDao {
         return jdbcTemplate.query(SQL_FIND_BY_ID, INTEREST_ROW_MAPPER, id).stream().findFirst();
     }
 
-    public List<Interest> findAll() {
-        return jdbcTemplate.query(SQL_BASE, INTEREST_ROW_MAPPER);
-    }
-
     @Override
     public List<Interest> findByUserId(final Long id) {
         return jdbcTemplate.query(SQL_FIND_ALL_BY_USER, INTEREST_ROW_MAPPER, id);
@@ -68,36 +64,6 @@ public class InterestJdbcDao implements InterestDao {
     @Override
     public Optional<Interest> findByName(final String name) {
         return jdbcTemplate.query(SQL_FIND_BY_NAME, INTEREST_ROW_MAPPER, name).stream().findFirst();
-    }
-
-    // FIXME: No se si esto se está usando en algún lado o no.
-    @Override
-    public List<Interest> findIdByName(final List<String> names) {
-        if(names == null || names.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        // FIXME: Creo que acá no deberiamos validar
-        for(String name : names) {
-            if (name == null || name.isEmpty()) {
-                throw new IllegalArgumentException("Interest name cannot be null or empty");
-            }
-        }
-
-        final StringBuilder query = new StringBuilder(SQL_BASE).append(" WHERE name IN (");
-        for (int i = 0; i < names.size(); i++) {
-            query.append("?");
-            if (i < names.size() - 1) {
-                query.append(", ");
-            }
-        }
-        query.append(")");
-        final List<Interest> interests = jdbcTemplate.query(query.toString(), INTEREST_ROW_MAPPER,  names.toArray());
-        if (interests.size() < names.size()) { // o != ?
-            //TODO See if this is an actual error to throw (or if normal flow can continue)
-            LOGGER.warn("Couldn't find IDs for all provided interests ({} vs {})", interests.size(), names.size());
-        }
-        return interests;
     }
 
     @Override

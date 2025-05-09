@@ -80,31 +80,7 @@ public class InterestJdbcDaoTest {
         assertFalse(maybeInterest.isPresent());
     }
 
-    @Test
-    public void testFindAll(){
-        List<Interest> interests = interestDao.findAll();
 
-        assertNotNull(interests);
-        assertEquals(2, interests.size());
-        //TODO if-else
-        for (Interest i : interests){
-            if (i.getId() == INTEREST_1_ID) {
-                assertEquals(TestUtils.INTEREST_1_NAME, i.getName());
-            } else {
-                assertEquals(INTEREST_2_ID.longValue(), i.getId().longValue());
-                assertEquals(TestUtils.INTEREST_2_NAME, i.getName());
-            }
-        }
-    }
-    @Test    
-    public void testFindAllNoInterests(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.INTEREST_TABLE);
-
-        List<Interest> interests = interestDao.findAll();
-
-        assertNotNull(interests);
-        assertEquals(0, interests.size());
-    }
 
     @Test
     public void testFindByUserId(){
@@ -143,52 +119,7 @@ public class InterestJdbcDaoTest {
         assertFalse(maybeInterest.isPresent());
     }
 
-    @Test
-    public void testFindIdByName(){
-        insertInterest.execute(Map.of("name", TestUtils.INTEREST_NEW1_NAME));
-        List<String> query = List.of( TestUtils.INTEREST_1_NAME, TestUtils.INTEREST_2_NAME);
-        List<Interest> interests = interestDao.findIdByName(query);
 
-        assertNotNull(interests);
-        assertEquals(2, interests.size());
-        for (Interest i : interests){
-            List.of(query).contains(i.getName());
-        }
-    }
-    @Test
-    public void testFindIdByNameSomeNamesNotFound(){
-        List<String> query = List.of( TestUtils.INTEREST_1_NAME, TestUtils.INTEREST_2_NAME, TestUtils.INTEREST_NEW2_NAME);
-        List<Interest> interests = interestDao.findIdByName(query);
-
-        assertNotNull(interests);
-        assertEquals(2, interests.size());
-    }
-    @Test
-    public void testFindIdByNameMissingNames(){
-        List<Interest> interests = interestDao.findIdByName(null);
-
-        assertNotNull(interests);
-        assertEquals(0, interests.size());
-    }
-    @Test 
-    public void testFindIdByNameEmptyNames(){
-        List<Interest> interests = interestDao.findIdByName(new ArrayList<>());
-
-        assertNotNull(interests);
-        assertEquals(0, interests.size());
-    }
-    @Test(expected = IllegalArgumentException.class)
-    public void testFindIdByNameMissingNameInArray(){
-        List<String> query = List.of(TestUtils.INTEREST_1_NAME, TestUtils.INTEREST_2_NAME, null);
-
-        interestDao.findIdByName(query);
-    }
-    @Test(expected = IllegalArgumentException.class)
-    public void testFindIdByNameEmptyNameInArray(){
-        List<String> query = List.of(TestUtils.INTEREST_1_NAME, TestUtils.INTEREST_2_NAME, "");
-
-        interestDao.findIdByName(query);
-    }
 
     @Test
     public void testCreateUserInterest(){

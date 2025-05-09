@@ -16,6 +16,5 @@ public interface UniversityService {
     University createUniversity(String name, String abbreviation, String city);
     void updateUniversity(long id, String name, String abbreviation, String city);
     Page<University> searchUniversities(String search, PageParams pageParams);
-
     void delete(long id);
 }

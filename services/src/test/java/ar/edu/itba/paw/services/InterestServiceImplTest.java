@@ -109,31 +109,6 @@ public class InterestServiceImplTest {
     }
 
 
-    
-    @Test
-    public void testFindIdByName(){
-        Mockito.when(
-            interestDao.findIdByName(INTEREST_NAMES)
-        ).thenReturn(List.of(INTEREST));
-
-        List<Interest> interests = interestService.findIdByName(INTEREST_NAMES);
-
-        assertNotNull(interests);
-        assertEquals(1, interests.size());
-        assertEquals(INTEREST, interests.getFirst());
-    }
-    @Test
-    public void testFindIdByNameMissing(){
-        Mockito.when(
-            interestDao.findIdByName(INTEREST_NAMES)
-        ).thenReturn(List.of());
-
-        List<Interest> interests = interestService.findIdByName(INTEREST_NAMES);
-
-        assertNotNull(interests);
-        assertEquals(0, interests.size());
-    }
-
     @Test
     public void testCreateUserInterest(){
         Mockito.when(

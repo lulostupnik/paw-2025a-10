@@ -186,14 +186,8 @@ public class EventServiceImpl implements EventService {
         return eventAttendanceDao.getAttendeesCount(eventId);
     }
 
-    public List<Event> getUserAttendingEvents(long userId) {
-        return eventAttendanceDao.getAttendingEvents(userId);
-    }
 
-    public List<Event> getUserAttendingEvents(String userEmail) {
-        long userId = userService.findByEmail(userEmail).orElseThrow().getId();
-        return getUserAttendingEvents(userId);
-    }
+
 
     @Override
     public Page<Event> getUserAttendingEvents(long userId, PageParams pageParams) {

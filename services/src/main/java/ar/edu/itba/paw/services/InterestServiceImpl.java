@@ -54,11 +54,6 @@ public class InterestServiceImpl implements InterestService {
         return interestDao.findByName(name);
     }
 
-    @Override
-    public List<Interest> findIdByName(List<String> names) {
-        LOGGER.debug("Getting interests from name list");
-        return interestDao.findIdByName(names);
-    }
 
     @Override
     public Page<Interest> findAllInterestsByUserId(long id, PageParams pageParams) {

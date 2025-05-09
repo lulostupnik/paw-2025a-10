@@ -96,38 +96,6 @@ public class EventResponseJdbcDaoTest {
     }
 
     @Test
-    public void testListAllFromEvent(){
-        insert.execute(Map.of("user_id", USER1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", false));
-        insert.execute(Map.of("user_id", USER1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", false));
-        insert.execute(Map.of("user_id", USER1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", true));
-
-        List<EventResponse> replies = replyDao.listAllFromEvent(EVENT1_ID);
-
-        assertEquals(2, replies.size());
-        for (EventResponse reply : replies){
-            assertNotNull(reply);
-            assertEquals(REPLY_TIMESTAMP, reply.getDateTime());
-            assertEquals(EVENT1_ID, reply.getEventId());
-            assertEquals(REPLY_MESSAGE, reply.getMessage());
-            assertEquals(USER1.getId(), reply.getUserId());
-            assertEquals(USER1.getUsername(), reply.getUsername());
-        }
-    }
-    @Test
-    public void testListAllFromEventNoReplies(){
-        insert.execute(Map.of("user_id", USER1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", true));
-
-        List<EventResponse> replies = replyDao.listAllFromEvent(EVENT1_ID);
-
-        assertEquals(0, replies.size());
-    }
-    @Test
-    public void testListAllFromEventNoEvent(){
-        List<EventResponse> replies = replyDao.listAllFromEvent(1241234);
-
-        assertEquals(0, replies.size());
-    }
-    @Test
     public void testListAllFromEventPaged(){
         insert.execute(Map.of("user_id", USER1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", false));
         insert.execute(Map.of("user_id", USER1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", false));

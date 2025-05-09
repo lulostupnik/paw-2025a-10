@@ -214,7 +214,6 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
         // return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM event_attendances WHERE event_id = ?",  Integer.class, eventId);
     }
 
-    @Override
     public List<Event> getAttendingEvents(final long userId) {
         return jdbcTemplate.query(SQL_LIST_ALL_BY_USER, EVENT_ROW_MAPPER, userId, userId);
     }
