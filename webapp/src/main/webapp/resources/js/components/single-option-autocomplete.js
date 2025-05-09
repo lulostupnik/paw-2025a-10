@@ -18,7 +18,7 @@ let SingleOptionAutocomplete = (() => {
             apiEndpoint: null, // API endpoint for dynamic suggestions
             selectedValue: null, // Pre-selected value
             minChars: 2, // Minimum characters before triggering search
-            debounceTime: 300, // Debounce time for API requests
+            debounceTime: 150, // Debounce should be between 150-200ms
             placeholder: "", // Placeholder text for the input field
             error: false, // Whether there's an error with this field
             onSelect: null, // Callback when an option is selected

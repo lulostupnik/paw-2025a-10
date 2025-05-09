@@ -36,7 +36,7 @@ public class CountryJdbcDao implements CountryDao {
     }
 
     @Override
-    public Boolean existsByName(final String name) {
+    public boolean existsByName(final String name) {
         return jdbcTemplate.queryForObject("SELECT COUNT(1) FROM countries WHERE name = ?", Boolean.class, name);
     }
 

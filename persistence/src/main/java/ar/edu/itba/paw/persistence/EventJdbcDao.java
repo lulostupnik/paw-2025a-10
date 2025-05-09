@@ -351,29 +351,6 @@ public class EventJdbcDao implements EventDao {
         return event;
     }
 
-    // FIXME
-    @Override
-    public List<Event> listByQuery(final Long cityId, final LocalDate date) {
-
-        final StringBuilder sqlBuilder = new StringBuilder(SQL_BASE_NOT_DELETED);
-        final List<Object> params = new ArrayList<>();
-
-        if (cityId != null) {
-            sqlBuilder.append(" AND city_id = ? ");
-            params.add(cityId);
-        }
-
-        if (date != null) {
-            sqlBuilder.append(" AND event_date >= ? ");
-            params.add(Date.valueOf(date));
-        }
-
-        return jdbcTemplate.query(
-                sqlBuilder.toString(),
-                EVENT_ROW_MAPPER,
-                params.toArray()
-        );
-    }
 
     @Override
     public Optional<Event> findById(final long eventId) {
@@ -381,15 +358,9 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public List<Event> listAll() {
-        return jdbcTemplate.query(SQL_BASE_NOT_DELETED, EVENT_ROW_MAPPER);
+    public Optional<Integer> getEventAttendanceLimit(final long eventId) {
+        return Optional.ofNullable(jdbcTemplate.queryForObject("SELECT attendees_limit FROM events WHERE id = ?", Integer.class, eventId));
     }
-
-    @Override
-    public List<Event> getEvents(final String email) {
-        return jdbcTemplate.query(SQL_FIND_BY_EMAIL, EVENT_ROW_MAPPER, email);
-    }
-
     @Override
     public List<Event> findAllBetweenDates(LocalDate startDate, LocalDate endDate) {
         return jdbcTemplate.query(SQL_FIND_ALL_BETWEEN_DATES, EVENT_ROW_MAPPER, startDate, endDate);
@@ -525,16 +496,6 @@ public class EventJdbcDao implements EventDao {
     }
 
 
-    public Optional<Integer> getEventAttendanceLimit(final long eventId) {
-        return Optional.ofNullable(jdbcTemplate.queryForObject("SELECT attendees_limit FROM events WHERE id = ?", Integer.class, eventId));
-    }
-
-    @Override
-    public List<Event> getFullEvents() {
-        // Fixme: ¿NECESITAMOS ESTO?
-        return List.of();
-    }
-
     // FIXME: ¿Los siguientes dos métodos no deberían estar en uno solo?
     @Override
     public void delete(final long id) {
@@ -551,17 +512,6 @@ public class EventJdbcDao implements EventDao {
         if (updatedRows == 0) {
             LOGGER.warn("Deletion message failed: no event found with id {}", id);
         }
-    }
-
-    @Override
-    public List<Event> getMyEvents(final long userId) {
-        return jdbcTemplate.query(SQL_FIND_MY_EVENTS, EVENT_ROW_MAPPER, userId);
-    }
-
-
-    @Override
-    public List<Event> getOthersEvents(final long userId) {
-        return jdbcTemplate.query(SQL_FIND_OTHERS_EVENTS, EVENT_ROW_MAPPER, userId);
     }
 
     private int getTotalCount(final String countQuery, final Object... params) {
@@ -825,16 +775,6 @@ public class EventJdbcDao implements EventDao {
         return new Page<>(events, pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
     }
 
-
-    @Override
-    public List<Event> getEventsWithAttendanceStatus(final long userId) {
-
-        return jdbcTemplate.query(
-                SQL_FIND_EVENTS_WITH_ATTENDANCE,
-                EVENT_ROW_MAPPER,
-                userId, userId
-        );
-    }
 
     @Override
     public void updateData(final long cityId, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit, final long eventId, final long flyerImageId/*, long userId*/) {

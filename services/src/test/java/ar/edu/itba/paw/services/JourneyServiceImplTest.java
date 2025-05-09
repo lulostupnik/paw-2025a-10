@@ -174,17 +174,7 @@ public class JourneyServiceImplTest {
         journeyService.replyToJourney(EMAIL, JOURNEY_ID, DESCRIPTION);
     }
 
-    @Test
-    public void testGetAllJourneys(){
-        Mockito.when(
-            journeyDao.listAll()
-        ).thenReturn(JOURNEYS);
 
-        List<Journey> journeys = journeyService.getAllJourneys();
-
-        assertNotNull(journeys);
-        assertEquals(JOURNEYS, journeys);
-    }
     @Test
     public void testGetAllJourneysPagedMissingQuery(){
         Mockito.when(
@@ -400,17 +390,6 @@ public class JourneyServiceImplTest {
         journeyService.getRecommendedJourneys(EMAIL, 0);
     }
 
-    @Test
-    public void testGetJourneysByUser(){
-        Mockito.when(
-            journeyDao.getJourneysByUser(Mockito.eq(EMAIL))
-        ).thenReturn(JOURNEYS);
-
-        List<Journey> journeys = journeyService.getJourneysByUser(EMAIL);
-        
-        assertNotNull(journeys);
-        assertEquals(JOURNEYS, journeys);
-    }
 //
 //    @Test
 //    public void testGetJourneyResponses(){
@@ -423,40 +402,6 @@ public class JourneyServiceImplTest {
 //        assertNotNull(replies);
 //        assertEquals(REPLIES, replies);
 //    }
-
-    @Test
-    public void testGetOthersJourneysID(){
-        Mockito.when(
-            journeyDao.getOthersJourneys(Mockito.eq(USER_ID))
-        ).thenReturn(JOURNEYS);
-
-        List<Journey> journeys = journeyService.getOthersJourneys(USER_ID);
-
-        assertNotNull(journeys);
-        assertEquals(JOURNEYS, journeys);
-    }
-    @Test
-    public void testGetOthersJourneysMail(){
-        Mockito.when(
-            userService.findByEmail(Mockito.eq(EMAIL))
-        ).thenReturn(Optional.of(USER));
-        Mockito.when(
-            journeyDao.getOthersJourneys(Mockito.eq(USER_ID))
-        ).thenReturn(JOURNEYS);
-
-        List<Journey> journeys = journeyService.getOthersJourneys(EMAIL);
-
-        assertNotNull(journeys);
-        assertEquals(JOURNEYS, journeys);
-    }
-    @Test(expected = RuntimeException.class)
-    public void testGetOthersJourneysWrongMail(){
-        Mockito.when(
-            userService.findByEmail(Mockito.eq(EMAIL))
-        ).thenReturn(Optional.empty());
-
-        journeyService.getOthersJourneys(EMAIL);
-    }
 
     @Test
     public void testUpdateJourneyDates(){

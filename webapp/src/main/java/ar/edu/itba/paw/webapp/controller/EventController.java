@@ -87,7 +87,6 @@ public class EventController {
     private void addDropdownAttributes(ModelAndView mav) {
 //        mav.addObject("careers", careerService.findAll());
 //        mav.addObject("universities", universityService.getAllUniversities());
-        mav.addObject("cities", cityService.getAllCities());
     }
 
     @GetMapping(value = "/create")

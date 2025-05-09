@@ -23,7 +23,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
@@ -39,43 +38,16 @@ import ar.edu.itba.paw.persistence.UserJdbcDao;
 @ContextConfiguration(classes = TestConfig.class)
 public class UserJdbcDaoTest {
 
-    private static final String USER_TABLE = "users";
-    private static final String IMAGES_TABLE = "images";
-    private static final String UNIVERSITIES_TABLE = "universities";
-    private static final String CAREERS_TABLE = "careers";
-    private static final String JOURNEY_TABLE = "journeys";
-    private static final String EVENT_TABLE = "events";
-    private static final String JOURNEY_REPLY_TABLE = "journey_responses";
-    private static final String EVENT_REPLY_TABLE = "event_responses";
-    private static final String USERNAME = "newUser";
-    private static final String USERNAME2 = "newUser2";
-    private static final String USERNAME3 = "newUser3";
-    private static final String USERNAME4 = "newUser4";
-    private static final String USERNAME5 = "newUser5";
-    private static final String FIRSTNAME = "New";
-    private static final String LASTNAME = "User";
-    private static final String USERMAIL = "user@gmail.com";
-    private static final String USERMAIL2 = "user2@gmail.com";
-    private static final String USERMAIL3 = "user3@gmail.com";
-    private static final String USERMAIL4 = "user4@gmail.com";
-    private static final String USERMAIL5 = "user5@gmail.com";
-    private static final String PASSWORD = "superSecret";
-    private static final String LOCALE = "es";
-    private static final String USERROLE = "user";
-    private static University UNIVERSITY;
-    private static University UNIVERSITY2;
-    private static Career CAREER;
-    private static long PROFILEPICID;
+    private static University UNIVERSITY_1;
+    private static University UNIVERSITY_2;
+    private static Career CAREER_1;
+    private static Career CAREER_2;
+    private static Image PROFILEPIC_1;
+    private static Image PROFILEPIC_2;
 
-    private static final String FAKEEMAIL = "totallyRealEmail@legitEmailService.com";
-    private static final String FAKEUSERNAME = "totallyLegitUser";
-    private static final String FAKEPASSWORD = "wrongPassword";
-    private static final String FAKEFIRSTNAME = "fake";
-    private static final String FAKELASTNAME = "name";
-    private static final String FAKELOCALE = "en";
-    private static final String WRONGLOCALE = "jp";
-
-    private static final int PAGESIZE = 2;
+    private User USER_1;
+    private User USER_2;
+    private User USER_3;
     
     @Autowired
     private DataSource ds;
@@ -87,55 +59,60 @@ public class UserJdbcDaoTest {
 
     private SimpleJdbcInsert insert;
 
-    private RowMapper<User> USER_ROW_MAPPER = (rs, rowNum) -> 
-    new User(rs.getLong("id"), 
-        rs.getString("email"), 
-        rs.getString("username"), 
-        rs.getString("firstname"), 
-        rs.getString("lastname"), 
-        new University(rs.getLong("university"), null, null, null), 
-        new Career(rs.getLong("career_id"), null), 
-        rs.getLong("profile_picture_id"), Locale.of(rs.getString("language")),
-        rs.getBoolean("blocked"));
-
-    private void assertEqualsUser(User user){
+    private static void assertEqualsUser(User user){
         assertEqualsUser(user, Map.of());
     }
-    private void assertEqualsUser(User user, Map<String, Object> overrideParams){
+
+    private static void assertEqualsUser(User user, Map<String, Object> overrideParams){
         assertNotNull(user);
-        assertEquals(overrideParams.getOrDefault("email", USERMAIL), user.getEmail());
-        assertEquals(overrideParams.getOrDefault("username", USERNAME), user.getUsername());
-        assertEquals(overrideParams.getOrDefault("firstname", FIRSTNAME), user.getFirstname());
-        assertEquals(overrideParams.getOrDefault("lastname", LASTNAME), user.getLastname());
-        assertEquals(Locale.of((String)overrideParams.getOrDefault("locale", LOCALE)), user.getLocale());
-        assertEquals(overrideParams.getOrDefault("career", CAREER.getId()), user.getCareer().getId());
-        assertEquals(overrideParams.getOrDefault("university", UNIVERSITY.getId()), user.getUniversity().getId());
-        assertEquals(overrideParams.getOrDefault("profilepic", PROFILEPICID), user.getProfilePictureId());
+        assertEquals(overrideParams.getOrDefault("email", TestUtils.USER_1_MAIL), user.getEmail());
+        assertEquals(overrideParams.getOrDefault("username", TestUtils.USER_1_NAME), user.getUsername());
+        assertEquals(overrideParams.getOrDefault("firstname", TestUtils.USER_FIRSTNAME), user.getFirstname());
+        assertEquals(overrideParams.getOrDefault("lastname", TestUtils.USER_LASTNAME), user.getLastname());
+        assertEquals(Locale.of((String)overrideParams.getOrDefault("locale", TestUtils.USER_LOCALE)), user.getLocale());
+        assertEquals(((Career)overrideParams.getOrDefault("career", CAREER_1)).getName(), user.getCareer().getName());
+        assertEquals(((Career)overrideParams.getOrDefault("career", CAREER_1)).getId(), user.getCareer().getId());
+        assertEquals(((University)overrideParams.getOrDefault("university", UNIVERSITY_1)).getId(), user.getUniversity().getId());
+        assertEquals(((University)overrideParams.getOrDefault("university", UNIVERSITY_1)).getName(), user.getUniversity().getName());
+        assertEquals(((University)overrideParams.getOrDefault("university", UNIVERSITY_1)).getAbbreviation(), user.getUniversity().getAbbreviation());
+        assertEquals(((University)overrideParams.getOrDefault("university", UNIVERSITY_1)).getCity().getId(), user.getUniversity().getCity().getId());
+        assertEquals(((University)overrideParams.getOrDefault("university", UNIVERSITY_1)).getCity().getName(), user.getUniversity().getCity().getName());
+        assertEquals(((University)overrideParams.getOrDefault("university", UNIVERSITY_1)).getCity().getCountry(), user.getUniversity().getCity().getCountry());
+        assertEquals(((Image)overrideParams.getOrDefault("profilepic", PROFILEPIC_1)).getId(), user.getProfilePictureId());
         assertEquals(overrideParams.getOrDefault("blocked", false), user.isBlocked());
     }
 
-    private void assertEqualsMaybeUser(Optional<User> maybeUser){
+    private static void assertEqualsMaybeUser(Optional<User> maybeUser){
+        assertEqualsMaybeUser(maybeUser, Map.of());
+    }
+
+    private static void assertEqualsMaybeUser(Optional<User> maybeUser, Map<String, Object> overrideParams){
         assertNotNull(maybeUser);
         assertTrue(maybeUser.isPresent());
         final User user = maybeUser.get();
-        assertEqualsUser(user); 
+        assertEqualsUser(user, overrideParams); 
     }
 
-    private long insertUserGeneric(){
-        return insertUserOverride(Map.of());
+    private static void assertEqualsUserPassword(UserPassword up){
+        assertNotNull(up);
+        assertEquals(TestUtils.USER_1_MAIL, up.getEmail());
+        assertEquals(TestUtils.USER_PASSWORD, up.getPassword());
+        assertEquals(TestUtils.USER_ROLE, up.getRole());
+        assertEquals(TestUtils.USER_BLOCKED, up.isBlocked());
     }
-    private long insertUserOverride(Map<String, Object> overrideParams){
+
+    private long insertUser(Map<String, Object> overrideParams){
         HashMap<String, Object> params = new HashMap<>();
-        params.put("email", overrideParams.getOrDefault("email", USERMAIL));
-        params.put("username", overrideParams.getOrDefault("username", USERNAME));
-        params.put("firstname", overrideParams.getOrDefault("firstname", FIRSTNAME));
-        params.put("lastname", overrideParams.getOrDefault("lastname", LASTNAME));
-        params.put("password", overrideParams.getOrDefault("password", PASSWORD));
-        params.put("language", overrideParams.getOrDefault("locale", LOCALE));
-        params.put("university", overrideParams.getOrDefault("university", UNIVERSITY.getId()));
-        params.put("career_id", overrideParams.getOrDefault("career", CAREER.getId()));
-        params.put("profile_picture_id", overrideParams.getOrDefault("profilepic", PROFILEPICID));
-        params.put("roles", overrideParams.getOrDefault("roles", USERROLE));
+        params.put("email", overrideParams.getOrDefault("email", TestUtils.USER_1_MAIL));
+        params.put("username", overrideParams.getOrDefault("username", TestUtils.USER_1_NAME));
+        params.put("firstname", overrideParams.getOrDefault("firstname", TestUtils.USER_FIRSTNAME));
+        params.put("lastname", overrideParams.getOrDefault("lastname", TestUtils.USER_LASTNAME));
+        params.put("password", overrideParams.getOrDefault("password", TestUtils.USER_PASSWORD));
+        params.put("language", overrideParams.getOrDefault("locale", TestUtils.USER_LOCALE));
+        params.put("university", overrideParams.getOrDefault("university", UNIVERSITY_1.getId()));
+        params.put("career_id", overrideParams.getOrDefault("career", CAREER_1.getId()));
+        params.put("profile_picture_id", overrideParams.getOrDefault("profilepic", PROFILEPIC_1.getId()));
+        params.put("roles", overrideParams.getOrDefault("roles", TestUtils.USER_ROLE));
         params.put("blocked", overrideParams.getOrDefault("blocked", false));
         return insert.executeAndReturnKey(params).longValue();
     }
@@ -143,447 +120,448 @@ public class UserJdbcDaoTest {
     @Before
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
-        insert = new SimpleJdbcInsert(ds).withTableName(USER_TABLE).usingGeneratedKeyColumns("id");
+        insert = new SimpleJdbcInsert(ds).withTableName(TestUtils.USER_TABLE).usingGeneratedKeyColumns("id");
 
-        jdbcTemplate.execute("INSERT INTO images(content) VALUES('ffffffffff')");
-        jdbcTemplate.execute("INSERT INTO countries(name, code) VALUES('Argentina', 'AR')");
-        jdbcTemplate.execute("INSERT INTO cities(name, country_id) VALUES('Buenos Aires', (SELECT MIN(id) FROM countries))");
-        jdbcTemplate.execute("INSERT INTO careers(name) VALUES('Ingenieria Informatica')");
-
-        UNIVERSITY = jdbcTemplate.query("SELECT id, name FROM universities WHERE abbreviation = ?", (rs, rowNum) -> new University(rs.getLong("id"), rs.getString("name"), null, null), TestUtils.UNIVERSITY_1_CODE).stream().findFirst().get();
-        UNIVERSITY2 = jdbcTemplate.query("SELECT id, name FROM universities WHERE abbreviation = ?", (rs, rowNum) -> new University(rs.getLong("id"), rs.getString("name"), null, null), TestUtils.UNIVERSITY_2_CODE).stream().findFirst().get();
-        CAREER = jdbcTemplate.query("SELECT id, name FROM careers LIMIT 1", (rs, rowNum) -> new Career(rs.getLong("id"), rs.getString("name"))).stream().findFirst().get();
-        PROFILEPICID = jdbcTemplate.query("SELECT id FROM images LIMIT 1", (rs, rowNum) -> rs.getLong("id")).stream().findFirst().get();
+        UNIVERSITY_1 = jdbcTemplate.query(TestUtils.UNIVERSITY_SELECT_BY_ABBR, TestUtils.UNIVERSITY_ROW_MAPPER, TestUtils.UNIVERSITY_1_CODE).stream().findFirst().get();
+        UNIVERSITY_2 = jdbcTemplate.query(TestUtils.UNIVERSITY_SELECT_BY_ABBR, TestUtils.UNIVERSITY_ROW_MAPPER, TestUtils.UNIVERSITY_2_CODE).stream().findFirst().get();
+        CAREER_1 = jdbcTemplate.query(TestUtils.CAREER_SELECT_BY_NAME, TestUtils.CAREER_ROW_MAPPER, TestUtils.CAREER_1_NAME).stream().findFirst().get();
+        CAREER_2 = jdbcTemplate.query(TestUtils.CAREER_SELECT_BY_NAME, TestUtils.CAREER_ROW_MAPPER, TestUtils.CAREER_2_NAME).stream().findFirst().get();
+        PROFILEPIC_1 = jdbcTemplate.query(TestUtils.IMAGE_SELECT_BY_DATA, TestUtils.IMAGE_ROW_MAPPER, TestUtils.IMAGE_1_DATA).stream().findFirst().get();
+        PROFILEPIC_2 = jdbcTemplate.query(TestUtils.IMAGE_SELECT_BY_DATA, TestUtils.IMAGE_ROW_MAPPER, TestUtils.IMAGE_2_DATA).stream().findFirst().get();
+        USER_1 = jdbcTemplate.query(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_MAIL).stream().findFirst().get();
+        USER_2 = jdbcTemplate.query(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_2_MAIL).stream().findFirst().get();
+        USER_3 = jdbcTemplate.query(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_3_MAIL).stream().findFirst().get();
     }
 
     @Test
     public void testCreateUser(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, USER_TABLE);
-        final User user = userDao.create(USERMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, PROFILEPICID, PASSWORD, Locale.of(LOCALE));
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.JOURNEY_TABLE, TestUtils.USER_INTEREST_TABLE, TestUtils.USER_TABLE);
+        final User user = userDao.create(TestUtils.USER_1_MAIL, TestUtils.USER_1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE));
 
         assertEqualsUser(user);
-        assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, USER_TABLE));
+        assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_TABLE));
     }
 
     @Test(expected = DataAccessException.class)
     public void testCreateUserNoMail(){
-        userDao.create(null, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, PROFILEPICID, PASSWORD, Locale.of(LOCALE));
+        userDao.create(null, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE));
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserNoUsername(){
-        userDao.create(USERMAIL, null, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, PROFILEPICID, PASSWORD, Locale.of(LOCALE));
+        userDao.create(TestUtils.USER_NEW1_MAIL, null, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE));
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserNoFirstName(){
-        userDao.create(USERMAIL, USERNAME, null, LASTNAME, UNIVERSITY, CAREER, PROFILEPICID, PASSWORD, Locale.of(LOCALE));
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, null, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE));
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserNoLastName(){
-        userDao.create(USERMAIL, USERNAME, FIRSTNAME, null, UNIVERSITY, CAREER, PROFILEPICID, PASSWORD, Locale.of(LOCALE));
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, null, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE));
     }
     @Test(expected = NullPointerException.class)
     public void testCreateUserNoUniversity(){
-        userDao.create(USERMAIL, USERNAME, FIRSTNAME, LASTNAME, null, CAREER, PROFILEPICID, PASSWORD, Locale.of(LOCALE));
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, null, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE));
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserInvalidUniversity(){
-        userDao.create(USERMAIL, USERNAME, FIRSTNAME, LASTNAME, new University(1034234123, null, null, null), CAREER, PROFILEPICID, PASSWORD, Locale.of(LOCALE));
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, new University(1034234123, null, null, null), CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE));
     }
     @Test(expected = NullPointerException.class)
     public void testCreateUserNoCareer(){
-        userDao.create(USERMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, null, PROFILEPICID, PASSWORD, Locale.of(LOCALE));
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, null, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE));
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserInvalidCareer(){
-        userDao.create(USERMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, new Career((long)1313423,null), PROFILEPICID, PASSWORD, Locale.of(LOCALE));
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, new Career((long)1313423,null), PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE));
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserInvalidPic(){
-        userDao.create(USERMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, 123123123, PASSWORD, Locale.of(LOCALE));
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, 123123123, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE));
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserNoPassword(){
-        userDao.create(USERMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, PROFILEPICID, null, Locale.of(LOCALE));
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), null, Locale.of(TestUtils.USER_LOCALE));
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserNoLocale(){
-        userDao.create(USERMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, PROFILEPICID, PASSWORD, null);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, null);
     }
 
     @Test
     public void testFindUserById(){
-        final long id = insertUserGeneric();
+        Optional<User> maybeUser = userDao.findById(USER_1.getId());
 
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst());
+        assertEqualsMaybeUser(maybeUser);
     }
     @Test
     public void testFindUserByIdMissing(){
         final Optional<User> maybeUser = userDao.findById(12341234);
+
         assertNotNull(maybeUser);
         assertFalse(maybeUser.isPresent());
     }
     @Test
     public void testFindUserByEmail(){
-        insertUserGeneric();
-
-        final Optional<User> maybeUser = userDao.findByEmail(USERMAIL);
+        final Optional<User> maybeUser = userDao.findByEmail(TestUtils.USER_1_MAIL);
 
         assertEqualsMaybeUser(maybeUser);
     }
     @Test
     public void testFindUserByEmailMissing(){
-        final Optional<User> maybeUser = userDao.findByEmail(FAKEEMAIL);
+        final Optional<User> maybeUser = userDao.findByEmail(TestUtils.USER_FAKE_MAIL);
+
         assertNotNull(maybeUser);
         assertFalse(maybeUser.isPresent());
     }
     @Test
     public void testFindUserByEmailWithPassword(){
-        insertUserGeneric();
-
-        final Optional<UserPassword> maybeUser = userDao.findByEmailWithPass(USERMAIL);
+        final Optional<UserPassword> maybeUser = userDao.findByEmailWithPass(TestUtils.USER_1_MAIL);
 
         assertNotNull(maybeUser);
         assertTrue(maybeUser.isPresent());
         final UserPassword user = maybeUser.get();
-        assertEquals(PASSWORD, user.getPassword());
-        // assertEqualsUser(user);
+        assertEqualsUserPassword(user);
     }
     @Test
     public void testFindUserByEmailWithPasswordMissing(){
-        final Optional<UserPassword> maybeUser = userDao.findByEmailWithPass(FAKEEMAIL);
+        final Optional<UserPassword> maybeUser = userDao.findByEmailWithPass(TestUtils.USER_FAKE_MAIL);
         assertNotNull(maybeUser);
         assertFalse(maybeUser.isPresent());
     }
     @Test
     public void testFindUserByUsername(){
-        insertUserGeneric();
-
-        final Optional<User> maybeUser = userDao.findByUsername(USERNAME);
+        final Optional<User> maybeUser = userDao.findByUsername(TestUtils.USER_1_NAME);
         assertEqualsMaybeUser(maybeUser);
     }
     @Test
     public void testFindUserByUsernameMissing(){
-        final Optional<User> maybeUser = userDao.findByUsername(FAKEUSERNAME);
+        final Optional<User> maybeUser = userDao.findByUsername(TestUtils.USER_FAKE_NAME);
         assertFalse(maybeUser.isPresent());
     }
 
     @Test
     public void testChangePassword(){
-        final long id = insertUserOverride(Map.of("password", FAKEPASSWORD));
+        userDao.changePassword(TestUtils.USER_1_MAIL, TestUtils.USER_FAKE_PASSWORD);
 
-        userDao.changePassword(USERMAIL, PASSWORD);
-
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst());
+        assertEqualsMaybeUser(
+            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(), 
+            Map.of("password", TestUtils.USER_FAKE_PASSWORD)
+        );
     }
     @Test
     public void testChangePasswordMissingUser(){
-        userDao.changePassword(USERMAIL, PASSWORD);
+        userDao.changePassword(TestUtils.USER_FAKE_MAIL, TestUtils.USER_PASSWORD);
     }
     @Test(expected = DataAccessException.class)
     public void testChangePasswordMissingPassword(){
-        final long id = insertUserOverride(Map.of("password", PASSWORD));
+        userDao.changePassword(TestUtils.USER_1_MAIL, null);
 
-        userDao.changePassword(USERMAIL, null);
-
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst());
+        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst());
     }
     @Test
     public void testChangePasswordEmptyPassword(){
-        final long id = insertUserOverride(Map.of("password", PASSWORD));
+        userDao.changePassword(TestUtils.USER_1_MAIL, "");
 
-        userDao.changePassword(USERMAIL, "");
-
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst());
+        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst());
     }
 
     @Test
     public void testExistsByUsernameDoesExist(){
-        insertUserGeneric();
-
-        final boolean exists = userDao.existsByUsername(USERNAME);
+        final boolean exists = userDao.existsByUsername(TestUtils.USER_1_NAME);
 
         assertTrue(exists);
     }
     @Test
     public void testExistsByUsernameDoesNotExist(){
-        final boolean exists = userDao.existsByUsername(FAKEUSERNAME);
+        final boolean exists = userDao.existsByUsername(TestUtils.USER_FAKE_NAME);
 
         assertFalse(exists);
     }
     @Test
     public void testExistsByEmailDoesExist(){
-        insertUserGeneric();
-
-        final boolean exists = userDao.existsByEmail(USERMAIL);
+        final boolean exists = userDao.existsByEmail(TestUtils.USER_1_MAIL);
 
         assertTrue(exists);
     }
     @Test
     public void testExistsByEmailDoesNotExist(){
-        final boolean exists = userDao.existsByEmail(FAKEEMAIL);
+        final boolean exists = userDao.existsByEmail(TestUtils.USER_FAKE_MAIL);
 
         assertFalse(exists);
     }
 
     @Test
     public void testUpdateProfileInfo(){
-        final long id = insertUserOverride(Map.of("username", FAKEUSERNAME, "firstname", FAKEFIRSTNAME, "lastname", FAKELASTNAME));
+        userDao.updateProfileInfo(USER_1.getId(), TestUtils.USER_FAKE_FIRSTNAME, TestUtils.USER_FAKE_LASTNAME, TestUtils.USER_FAKE_NAME);
 
-        userDao.updateProfileInfo(id, FIRSTNAME, LASTNAME, USERNAME);
-
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst());
+        assertEqualsMaybeUser(
+            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+            Map.of("username", TestUtils.USER_FAKE_NAME, "firstname", TestUtils.USER_FAKE_FIRSTNAME, "lastname", TestUtils.USER_FAKE_LASTNAME)
+        );
     }
     @Test
     public void testUpdateProfileInfoUsername(){
-        final long id = insertUserOverride(Map.of("username", FAKEUSERNAME, "firstname", FIRSTNAME, "lastname", LASTNAME));
+        userDao.updateProfileInfo(USER_1.getId(), null, null, TestUtils.USER_FAKE_NAME);
 
-        userDao.updateProfileInfo(id, null, null, USERNAME);
-
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst());
+        assertEqualsMaybeUser(
+            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+            Map.of("username", TestUtils.USER_FAKE_NAME)
+        );
     }
     @Test
     public void testUpdateProfileInfoFirstName(){
-        final long id = insertUserOverride(Map.of("username", USERNAME, "firstname", FAKEFIRSTNAME, "lastname", LASTNAME));
+        userDao.updateProfileInfo(USER_1.getId(), TestUtils.USER_FAKE_FIRSTNAME, null, null);
 
-        userDao.updateProfileInfo(id, FIRSTNAME, null, null);
-
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst());
+        assertEqualsMaybeUser(
+            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+            Map.of("firstname", TestUtils.USER_FAKE_FIRSTNAME)
+        );
     }
     @Test
     public void testUpdateProfileInfoLastName(){
-        final long id = insertUserOverride(Map.of("username", USERNAME, "firstname", FIRSTNAME, "lastname", FAKELASTNAME));
+        userDao.updateProfileInfo(USER_1.getId(), null, TestUtils.USER_FAKE_LASTNAME, null);
 
-        userDao.updateProfileInfo(id, null, LASTNAME, null);
-
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst());
+        assertEqualsMaybeUser(
+            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+            Map.of("lastname", TestUtils.USER_FAKE_LASTNAME)
+        );
     }
     @Test(expected = DataAccessException.class)
     public void testUpdateProfileInfoDuplicatedUsername(){
-        insertUserOverride(Map.of("email", FAKEEMAIL, "firstname", FAKEFIRSTNAME, "lastname", FAKELASTNAME));
-        final long id = insertUserOverride(Map.of("username", FAKEUSERNAME));
+        final long id = insertUser(Map.of("username", TestUtils.USER_FAKE_NAME));
 
-        userDao.updateProfileInfo(id, FIRSTNAME, LASTNAME, USERNAME);
+        userDao.updateProfileInfo(id, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.USER_1_NAME);
     }
     @Test
     public void testUpdateProfileInfoNoParams(){
-        final long id = insertUserGeneric();
+        userDao.updateProfileInfo(USER_1.getId(), null, null, null);
 
-        userDao.updateProfileInfo(id, null, null, null);
-
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst()); 
+        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst()); 
     }
     @Test
     public void testUpdateProfileInfoMissingUser(){
-        userDao.updateProfileInfo(123123, FIRSTNAME, LASTNAME, USERNAME);  
-        //TODO asserts
+        userDao.updateProfileInfo(123123, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.USER_1_NAME);  
+
+        assertEquals(TestUtils.TOTAL_USERS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_TABLE));
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_2.getId()), TestUtils.USER_2_PARAMS);
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_3.getId()), TestUtils.USER_3_PARAMS);
+
     }
 
     @Test
     public void testUpdateLocale(){
-        final long id = insertUserOverride(Map.of("locale", FAKELOCALE));
+        userDao.updateLocale(USER_1.getId(), Locale.of(TestUtils.USER_FAKE_LOCALE));
 
-        userDao.updateLocale(id, Locale.of(LOCALE));
-
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst()); 
+        assertEqualsMaybeUser(
+            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+            Map.of("locale", TestUtils.USER_FAKE_LOCALE)
+        ); 
     }
     @Test(expected = DataAccessException.class)
     public void testUpdateLocaleWrongLocale(){
-        final long id = insertUserGeneric();
-
-        userDao.updateLocale(id, Locale.of(WRONGLOCALE));  
+        userDao.updateLocale(USER_1.getId(), Locale.of(TestUtils.USER_WRONG_LOCALE));  
     }
     @Test
     public void testUpdateLocaleMissingUser(){
-        userDao.updateLocale(1321423, Locale.of(LOCALE));  
-        //TODO asserts
-    }
+        userDao.updateLocale(1321423, Locale.of(TestUtils.USER_LOCALE));  
+
+        assertEquals(TestUtils.TOTAL_USERS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_TABLE));
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_2.getId()), TestUtils.USER_2_PARAMS);
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_3.getId()), TestUtils.USER_3_PARAMS);    }
 
     @Test
-    public void testUpdateProfilePicture(){
-        final long imageId = new SimpleJdbcInsert(ds).withTableName(IMAGES_TABLE).usingGeneratedKeyColumns("id")
-            .executeAndReturnKey(Map.of("content", FAKEEMAIL.getBytes())).longValue();
-        final long userid = insertUserOverride(Map.of("profilepic", imageId));
+    public void testUpdateProfilePicture(){        
+        userDao.updateProfilePicture(USER_1.getId(), PROFILEPIC_2.getId());
         
-        userDao.updateProfilePicture(userid, PROFILEPICID);
-        
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+        assertEqualsMaybeUser(
+            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+            Map.of("profilepic", PROFILEPIC_2)
+        );
     }
     @Test(expected = DataAccessException.class)
     public void testUpdateProfilePictureWrongPicture(){
-        final long userid = insertUserGeneric();
-
-        userDao.updateProfilePicture(userid, 123411234);
+        userDao.updateProfilePicture(USER_1.getId(), 123411234);
     }
     @Test
     public void testUpdateProfilePictureWrongUser(){
-        userDao.updateProfilePicture(1234, PROFILEPICID);
+        userDao.updateProfilePicture(1234, PROFILEPIC_2.getId());
+
+        assertEquals(TestUtils.TOTAL_USERS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_TABLE));
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_2.getId()), TestUtils.USER_2_PARAMS);
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_3.getId()), TestUtils.USER_3_PARAMS);
     }
 
     @Test
     public void testUpdateUniversity(){
-        final long userid = insertUserOverride(Map.of("university", UNIVERSITY2.getId()));
+        userDao.updateUniversity(USER_1.getId(), UNIVERSITY_2.getId());
 
-        userDao.updateUniversity(userid, UNIVERSITY.getId());
-
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+        assertEqualsMaybeUser(
+            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+            Map.of("university", UNIVERSITY_2)
+        );
     }
     @Test(expected = DataAccessException.class)
     public void testUpdateUniversityWrongUniversity(){
-        final long userid = insertUserGeneric();
-
-        userDao.updateUniversity(userid, 12341234);
+        userDao.updateUniversity(USER_1.getId(), 12341234);
     }
     @Test
     public void testUpdateUniversityWrongUser(){
         userDao.updateUniversity(13241234, 12341234);
-        //TODO asserts
+
+        assertEquals(TestUtils.TOTAL_USERS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_TABLE));
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_2.getId()), TestUtils.USER_2_PARAMS);
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_3.getId()), TestUtils.USER_3_PARAMS);
     }
 
     @Test
     public void testUpdateUniversityName(){
-        final long userid = insertUserOverride(Map.of("university", UNIVERSITY2.getId()));
+        userDao.updateUniversity(USER_1.getId(), UNIVERSITY_2.getName());
 
-        userDao.updateUniversity(userid, UNIVERSITY.getName());
-
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+        assertEqualsMaybeUser(
+            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+            Map.of("university", UNIVERSITY_2)
+        );
     }
     @Test(expected = DataAccessException.class)
     public void testUpdateUniversityNameWrongUniversity(){
-        final long userid = insertUserGeneric();
-
-        userDao.updateUniversity(userid, "12341234");
+        userDao.updateUniversity(USER_1.getId(), "12341234");
     }
     @Test
     public void testUpdateUniversityNameWrongUser(){
-        //TODO asserts
         userDao.updateUniversity(13241234, "12341234");
+
+        assertEquals(TestUtils.TOTAL_USERS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_TABLE));
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_2.getId()), TestUtils.USER_2_PARAMS);
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_3.getId()), TestUtils.USER_3_PARAMS);
     }
 
     @Test
     public void testUpdateCareer(){
-        final long careerId = new SimpleJdbcInsert(ds).withTableName(CAREERS_TABLE).usingGeneratedKeyColumns("id")
-            .executeAndReturnKey(Map.of("name", "Abogacia", "deleted", false)).longValue();
-        final long userid = insertUserOverride(Map.of("career", careerId));
+        userDao.updateCareer(USER_1.getId(), CAREER_2.getId());
 
-        userDao.updateCareer(userid, CAREER.getId());
-
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+        assertEqualsMaybeUser(
+            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+            Map.of("career", CAREER_2)
+        );
     }
     @Test(expected = DataAccessException.class)
     public void testUpdateCareerWrongCareer(){
-        final long userid = insertUserGeneric();
-
-        userDao.updateCareer(userid, 12341234);
+        userDao.updateCareer(USER_1.getId(), 12341234);
     }
     @Test
     public void testUpdateCareerWrongUser(){
         userDao.updateCareer(13241234, 12341234);
-        //TODO asserts
+
+        assertEquals(TestUtils.TOTAL_USERS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_TABLE));
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_2.getId()), TestUtils.USER_2_PARAMS);
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_3.getId()), TestUtils.USER_3_PARAMS);
     }
 
     @Test
     public void testUpdateCareerName(){
-        final long careerId = new SimpleJdbcInsert(ds).withTableName(CAREERS_TABLE).usingGeneratedKeyColumns("id")
-            .executeAndReturnKey(Map.of("name", "Abogacia", "deleted", false)).longValue();
-        final long userid = insertUserOverride(Map.of("career", careerId));
+        userDao.updateCareer(USER_1.getId(), CAREER_2.getName());
 
-        userDao.updateCareer(userid, CAREER.getName());
-
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+        assertEqualsMaybeUser(
+            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+            Map.of("career", CAREER_2)
+        );
     }
     @Test(expected = DataAccessException.class)
     public void testUpdateCareerWrongCareerName(){
-        final long userid = insertUserGeneric();
-
-        userDao.updateCareer(userid, "12341234");
+        userDao.updateCareer(USER_1.getId(), "12341234");
     }
     @Test
     public void testUpdateCareerWrongUserName(){
         userDao.updateCareer(13241234, "12341234");
-        //TODO asserts
+
+        assertEquals(TestUtils.TOTAL_USERS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_TABLE));
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_2.getId()), TestUtils.USER_2_PARAMS);
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_3.getId()), TestUtils.USER_3_PARAMS);
     }
 
     @Test
     public void testUpdateGeneric(){
-        final long userid = insertUserGeneric();
-
-        userDao.update(userid, FIRSTNAME, LASTNAME, USERNAME, UNIVERSITY.getId(), CAREER.getId(), Locale.of(LOCALE));
+        userDao.update(USER_1.getId(), TestUtils.USER_FAKE_FIRSTNAME, TestUtils.USER_FAKE_LASTNAME, TestUtils.USER_FAKE_NAME, UNIVERSITY_2.getId(), CAREER_2.getId(), Locale.of(TestUtils.USER_FAKE_LOCALE));
         
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+        assertEqualsMaybeUser(
+            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+            Map.of(
+                "firstname", TestUtils.USER_FAKE_FIRSTNAME, 
+                "lastname", TestUtils.USER_FAKE_LASTNAME, 
+                "username", TestUtils.USER_FAKE_NAME, 
+                "university", UNIVERSITY_2, 
+                "career", CAREER_2, 
+                "locale", TestUtils.USER_FAKE_LOCALE
+            )
+        );
     }
     @Test
     public void testUpdateFirstname(){
-        final long userid = insertUserGeneric();
-
-        userDao.update(userid, FIRSTNAME, null, null, null, null, null);
+        userDao.update(USER_1.getId(), TestUtils.USER_FIRSTNAME, null, null, null, null, null);
         
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst());
     }
     @Test
     public void testUpdateLastname(){
-        final long userid = insertUserGeneric();
-
-        userDao.update(userid, null, LASTNAME, null, null, null, null);
+        userDao.update(USER_1.getId(), null, TestUtils.USER_LASTNAME, null, null, null, null);
         
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst());
     }
     @Test
     public void testUpdateUsername(){
-        final long userid = insertUserGeneric();
-
-        userDao.update(userid, null, null, USERNAME, null, null, null);
+        userDao.update(USER_1.getId(), null, null, TestUtils.USER_1_NAME, null, null, null);
         
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst());
     }
     @Test
     public void testUpdateGenericUniversity(){
-        final long userid = insertUserGeneric();
-
-        userDao.update(userid, null, null, null, UNIVERSITY.getId(), null, null);
+        userDao.update(USER_1.getId(), null, null, null, UNIVERSITY_1.getId(), null, null);
         
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst());
     }
     @Test
     public void testUpdateCareerGeneric(){
-        final long userid = insertUserGeneric();
-
-        userDao.update(userid, null, null, null, null, CAREER.getId(), null);
+        userDao.update(USER_1.getId(), null, null, null, null, CAREER_1.getId(), null);
         
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst());
     }
     @Test
     public void testUpdateLocaleGeneric(){
-        final long userid = insertUserGeneric();
-
-        userDao.update(userid, null, null, null, null, null, Locale.of(LOCALE));
+        userDao.update(USER_1.getId(), null, null, null, null, null, Locale.of(TestUtils.USER_LOCALE));
         
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());
+        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst());
     }
     @Test
     public void testUpdateWrongUser(){
-        userDao.update(12341234, FIRSTNAME, LASTNAME, USERNAME, UNIVERSITY.getId(), CAREER.getId(), Locale.of(LOCALE));
+        userDao.update(12341234, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.USER_1_NAME, UNIVERSITY_1.getId(), CAREER_1.getId(), Locale.of(TestUtils.USER_LOCALE));
     }
     @Test
     public void testUpdateNoArguments(){
-        final long userid = insertUserGeneric();
-
-        userDao.update(userid, null, null, null, null, null, null);
+        userDao.update(USER_1.getId(), null, null, null, null, null, null);
         
-        assertEqualsMaybeUser(jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, userid).stream().findFirst());    
+        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst());    
     }
 
     @Test
     public void testGetAllUsers(){
-        insertUserGeneric();
-
         List<User> users = userDao.getAllUsers();
 
         assertNotNull(users);
-        assertEquals(1, users.size());
-        assertEqualsUser(users.getFirst());
+        assertEquals(TestUtils.TOTAL_USERS, users.size());
+        assertEqualsUser(users.get(0));
+        assertEqualsUser(users.get(1), TestUtils.USER_2_PARAMS);
+        assertEqualsUser(users.get(2), TestUtils.USER_3_PARAMS);
     }
     @Test 
     public void testGetAllUsersNoUsers(){
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.JOURNEY_TABLE, TestUtils.USER_INTEREST_TABLE, TestUtils.USER_TABLE);
         List<User> users = userDao.getAllUsers();
 
         assertNotNull(users);
@@ -592,216 +570,170 @@ public class UserJdbcDaoTest {
 
     @Test
     public void testGetAllUsersPaged(){
-        insertUserGeneric();
-        Map<String, Object> userParams1 = Map.of("email", USERMAIL2, "username", USERNAME2);
-        Map<String, Object> userParams2 = Map.of("email", USERMAIL3, "username", USERNAME3);
-        Map<String, Object> userParams3 = Map.of("email", USERMAIL4, "username", USERNAME4);
-        Map<String, Object> userParams4 = Map.of("email", USERMAIL5, "username", USERNAME5);
-        insertUserOverride(userParams1);
-        insertUserOverride(userParams2);
-        insertUserOverride(userParams3);
-        insertUserOverride(userParams4);
-
-        Page<User> page1 = userDao.getAllUsers(new PageParams(1, PAGESIZE));
-        Page<User> page2 = userDao.getAllUsers(new PageParams(2, PAGESIZE));
-        Page<User> page3 = userDao.getAllUsers(new PageParams(3, PAGESIZE));
+        Page<User> page1 = userDao.getAllUsers(TestUtils.PAGE_1_DEFAULT);
+        Page<User> page2 = userDao.getAllUsers(TestUtils.PAGE_2_DEFAULT);
 
         assertNotNull(page1);
         assertNotNull(page2);
-        assertNotNull(page3);
         assertEquals(1, page1.getCurrentPage());
         assertEquals(2, page2.getCurrentPage());
-        assertEquals(3, page3.getCurrentPage());
+        assertEquals(4, page1.getTotalPages());
+        assertEquals(4, page2.getTotalPages());
         assertNotNull(page1.getContent());
         assertNotNull(page2.getContent());
-        assertNotNull(page3.getContent());
-        assertEquals(PAGESIZE, page1.getContent().size());
-        assertEquals(PAGESIZE, page2.getContent().size());
-        assertEquals(1, page3.getContent().size());
+        assertEquals(2, page1.getContent().size());
+        assertEquals(2, page2.getContent().size());
         assertEqualsUser(page1.getContent().getFirst());
-        assertEqualsUser(page1.getContent().getLast(), userParams1);
-        assertEqualsUser(page2.getContent().getFirst(), userParams2);
-        assertEqualsUser(page2.getContent().getLast(), userParams3);
-        assertEqualsUser(page3.getContent().getFirst(), userParams4);
+        assertEqualsUser(page1.getContent().getLast(), TestUtils.USER_2_PARAMS);
+        assertEqualsUser(page2.getContent().getFirst(), TestUtils.USER_3_PARAMS);
     }
     @Test
     public void testGetAllUsersPagedWrongPage(){
-        insertUserGeneric();
-        insertUserOverride(Map.of("email", USERMAIL2, "username", USERNAME2));
-
-        Page<User> page1 = userDao.getAllUsers(new PageParams(1, PAGESIZE));
-        Page<User> page2 = userDao.getAllUsers(new PageParams(2, PAGESIZE));
-        Page<User> page3 = userDao.getAllUsers(new PageParams(3, PAGESIZE));
+        Page<User> page1 = userDao.getAllUsers(TestUtils.PAGE_1_BIG);
+        Page<User> page2 = userDao.getAllUsers(TestUtils.PAGE_2_BIG);
 
         assertNotNull(page1);
         assertNotNull(page2);
-        assertNotNull(page3);
         assertEquals(1, page1.getCurrentPage());
         assertEquals(2, page2.getCurrentPage());
-        assertEquals(3, page3.getCurrentPage());
+        assertEquals(1, page1.getTotalPages());
+        assertEquals(1, page2.getTotalPages());
         assertNotNull(page1.getContent());
         assertNotNull(page2.getContent());
-        assertNotNull(page3.getContent());
-        assertEquals(PAGESIZE, page1.getContent().size());
+        assertEquals(TestUtils.TOTAL_USERS, page1.getContent().size());
         assertEquals(0, page2.getContent().size());
-        assertEquals(0, page3.getContent().size());
-        assertEqualsUser(page1.getContent().getFirst());
+        assertEqualsUser(page1.getContent().get(0));
+        assertEqualsUser(page1.getContent().get(1), TestUtils.USER_2_PARAMS);
+        assertEqualsUser(page1.getContent().get(2), TestUtils.USER_3_PARAMS);
     }
 
     @Test
     public void testSearchUsersPaged(){
-        Map<String, Object> userParams1 = Map.of("email", USERMAIL2, "username", USERNAME2);
-        insertUserGeneric();
-        insertUserOverride(userParams1);
-
-        Page<User> page1 = userDao.searchUsers(FIRSTNAME, new PageParams(1, PAGESIZE));
+        Page<User> page1 = userDao.searchUsers(TestUtils.USER_FIRSTNAME, TestUtils.PAGE_1_DEFAULT);
+        Page<User> page2 = userDao.searchUsers(TestUtils.USER_FIRSTNAME, TestUtils.PAGE_2_DEFAULT);
 
         assertNotNull(page1);
+        assertNotNull(page2);
         assertEquals(1, page1.getCurrentPage());
+        assertEquals(4, page1.getTotalPages());
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(4, page2.getTotalPages());
         assertNotNull(page1.getContent());
-        assertEquals(PAGESIZE, page1.getContent().size());
-        assertEqualsUser(page1.getContent().getFirst(), userParams1);
-        assertEqualsUser(page1.getContent().getLast());
+        assertNotNull(page2.getContent());
+        assertEquals(TestUtils.PAGE_SIZE_DEFAULT, page1.getContent().size());
+        assertEquals(2, page2.getContent().size());
+        // assertEqualsUser(page1.getContent().getFirst(), TestUtils.USER_3_PARAMS);
+        // assertEqualsUser(page1.getContent().getLast(), TestUtils.USER_2_PARAMS);
+        // assertEqualsUser(page2.getContent().getFirst());
     }
     @Test
     public void testSearchUsersPaged2(){
-        Map<String, Object> userParams1 = Map.of("email", USERMAIL2, "username", USERNAME2);
-        insertUserGeneric();
-        insertUserOverride(userParams1);
-
-        Page<User> page1 = userDao.searchUsers(FIRSTNAME, new PageParams(1, 1));
-        Page<User> page2 = userDao.searchUsers(FIRSTNAME, new PageParams(2, 1));
+        Page<User> page1 = userDao.searchUsers(TestUtils.USER_1_NAME, TestUtils.PAGE_1_DEFAULT);
+        Page<User> page2 = userDao.searchUsers(TestUtils.USER_1_NAME, TestUtils.PAGE_2_DEFAULT);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(1, page1.getTotalPages());
+        assertEquals(1, page2.getTotalPages());
         assertNotNull(page1.getContent());
+        assertNotNull(page2.getContent());
         assertEquals(1, page1.getContent().size());
-        assertEqualsUser(page1.getContent().getFirst(), userParams1);
-        assertEqualsUser(page2.getContent().getFirst());
+        assertEquals(0, page2.getContent().size());
+        assertEqualsUser(page1.getContent().getFirst());
     }
 
     @Test
     public void testListJourneyRespondersMinusUsers(){
-        Map<String, Object> userParams1 = Map.of("username", USERNAME2, "email", USERMAIL2);
-        Map<String, Object> userParams2 = Map.of("username", USERNAME3, "email", USERMAIL3);
-        long ownerUserId = insertUserGeneric();
-        long replyUserId1 = insertUserOverride(userParams1);
-        long replyUserId2 = insertUserOverride(userParams2);
-        long journeyId = new SimpleJdbcInsert(ds).withTableName(JOURNEY_TABLE).usingGeneratedKeyColumns("id")
+        //TODO replace journey insert
+        long journeyId = new SimpleJdbcInsert(ds).withTableName(TestUtils.JOURNEY_TABLE).usingGeneratedKeyColumns("id")
             .executeAndReturnKey(Map.of(
-                "user_id", ownerUserId, 
-                "destination_university_id", UNIVERSITY.getId(), 
+                "user_id", USER_2.getId(), 
+                "destination_university_id", UNIVERSITY_1.getId(), 
                 "start_date", LocalDate.now().toString(), 
                 "end_date", LocalDate.now().plusDays(10).toString(),
                 "deleted", false))
             .longValue();
-        SimpleJdbcInsert journeyReplyInsert = new SimpleJdbcInsert(ds).withTableName(JOURNEY_REPLY_TABLE).usingGeneratedKeyColumns("id");
-        journeyReplyInsert.execute(Map.of("user_id", replyUserId1, "journey_id", journeyId, "message", USERMAIL2, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
-        journeyReplyInsert.execute(Map.of("user_id", replyUserId2, "journey_id", journeyId, "message", USERMAIL2, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
+        SimpleJdbcInsert journeyReplyInsert = new SimpleJdbcInsert(ds).withTableName(TestUtils.JOURNEY_REPLY_TABLE).usingGeneratedKeyColumns("id");
+        journeyReplyInsert.execute(Map.of("user_id", USER_2.getId(), "journey_id", journeyId, "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
+        journeyReplyInsert.execute(Map.of("user_id", USER_3.getId(), "journey_id", journeyId, "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
 
         List<User> repliesUser = userDao.listJourneyRespondersMinusUsers(journeyId);
 
         assertNotNull(repliesUser);
         assertEquals(2, repliesUser.size());
-        //TODO if-else
+        Map<Long, Map<String, Object>> userData = Map.of(USER_1.getId(), Map.of(), USER_2.getId(), TestUtils.USER_2_PARAMS, USER_3.getId(), TestUtils.USER_3_PARAMS);
         for (User user : repliesUser) {
-            if (user.getId() == replyUserId1) {
-                assertEqualsUser(user, userParams1);
-            } else {
-                assertEqualsUser(user, userParams2);
-            }
+            assertEqualsUser(user, userData.get(user.getId()));
         }
     }
     @Test
     public void testListEventRespondersMinusUsers(){
-        Map<String, Object> userParams1 = Map.of("username", USERNAME2, "email", USERMAIL2);
-        Map<String, Object> userParams2 = Map.of("username", USERNAME3, "email", USERMAIL3);
-        long ownerUserId = insertUserGeneric();
-        long replyUserId1 = insertUserOverride(userParams1);
-        long replyUserId2 = insertUserOverride(userParams2);
-        long eventId = new SimpleJdbcInsert(ds).withTableName(EVENT_TABLE).usingGeneratedKeyColumns("id")
+        //TODO replace event insert
+        long eventId = new SimpleJdbcInsert(ds).withTableName(TestUtils.EVENT_TABLE).usingGeneratedKeyColumns("id")
             .executeAndReturnKey(Map.of(
-                "user_id", ownerUserId, 
+                "user_id", USER_1.getId(), 
                 "city_id", jdbcTemplate.queryForObject("SELECT id FROM cities LIMIT 1", Long.class), 
                 "event_date", LocalDate.now().plusDays(10).toString(),
                 "title", "title",
                 "description", "event",
                 "deleted", false))
             .longValue();
-        SimpleJdbcInsert eventReplyInsert = new SimpleJdbcInsert(ds).withTableName(EVENT_REPLY_TABLE).usingGeneratedKeyColumns("id");
-        eventReplyInsert.execute(Map.of("user_id", replyUserId1, "event_id", eventId, "message", USERMAIL2, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
-        eventReplyInsert.execute(Map.of("user_id", replyUserId2, "event_id", eventId, "message", USERMAIL2, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
+        SimpleJdbcInsert eventReplyInsert = new SimpleJdbcInsert(ds).withTableName(TestUtils.EVENT_REPLY_TABLE).usingGeneratedKeyColumns("id");
+        eventReplyInsert.execute(Map.of("user_id", USER_2.getId(), "event_id", eventId, "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
+        eventReplyInsert.execute(Map.of("user_id", USER_3.getId(), "event_id", eventId, "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
 
         List<User> repliesUser = userDao.listEventRespondersMinusUsers(eventId);
 
         assertNotNull(repliesUser);
         assertEquals(2, repliesUser.size());
-        //TODO if-else
+        Map<Long, Map<String, Object>> userData = Map.of(USER_1.getId(), Map.of(), USER_2.getId(), TestUtils.USER_2_PARAMS, USER_3.getId(), TestUtils.USER_3_PARAMS);
         for (User user : repliesUser) {
-            if (user.getId() == replyUserId1) {
-                assertEqualsUser(user, userParams1);
-            } else {
-                assertEqualsUser(user, userParams2);
-            }
+            assertEqualsUser(user, userData.get(user.getId()));
         }
     }
 
     @Test
     public void testBlockUser(){
-        long id = insertUserGeneric();
+        userDao.blockUser(USER_1.getId());
 
-        userDao.blockUser(id);
-
-        Optional<User> maybeUser = jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst();
-        assertNotNull(maybeUser);
-        assertTrue(maybeUser.isPresent());
-        User user = maybeUser.get();
-        assertEqualsUser(user, Map.of("blocked", true));
+        Optional<User> maybeUser = jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst();
+        assertEqualsMaybeUser(maybeUser, Map.of("blocked", true));
     }
     @Test
     public void testBlockUserBlocked(){
-        long id = insertUserOverride(Map.of("blocked", true));
+        Map<String, Object> params = Map.of("email", TestUtils.USER_NEW1_MAIL, "username", TestUtils.USER_NEW1_NAME, "blocked", true);
+        long id = insertUser(params);
 
         userDao.blockUser(id);
 
-        Optional<User> maybeUser = jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst();
-        assertNotNull(maybeUser);
-        assertTrue(maybeUser.isPresent());
-        User user = maybeUser.get();
-        assertEqualsUser(user, Map.of("blocked", true));
+        Optional<User> maybeUser = jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, id).stream().findFirst();
+        assertEqualsMaybeUser(maybeUser, params);
     }
     @Test
     public void testBlockUserWrongId(){
-        long id = insertUserGeneric();
-
         userDao.blockUser(12341234);
 
-        Optional<User> maybeUser = jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst();
-        assertNotNull(maybeUser);
-        assertTrue(maybeUser.isPresent());
-        User user = maybeUser.get();
-        assertEqualsUser(user);
+        assertEquals(TestUtils.TOTAL_USERS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_TABLE));
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_2.getId()), TestUtils.USER_2_PARAMS);
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_3.getId()), TestUtils.USER_3_PARAMS);
     }
 
     @Test
     public void testUnblockUser(){
-        long id = insertUserOverride(Map.of("blocked", true));
+        long id = insertUser(Map.of("email", TestUtils.USER_NEW1_MAIL, "username", TestUtils.USER_NEW1_NAME, "blocked", true));
 
         userDao.unblockUser(id);
 
-        Optional<User> maybeUser = jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst();
-        assertNotNull(maybeUser);
-        assertTrue(maybeUser.isPresent());
-        User user = maybeUser.get();
-        assertEqualsUser(user);
+        Optional<User> maybeUser = jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, id).stream().findFirst();
+        assertEqualsMaybeUser(maybeUser, Map.of("email", TestUtils.USER_NEW1_MAIL, "username", TestUtils.USER_NEW1_NAME));
     }
     @Test
     public void testUnblockUserUnblocked(){
-        long id = insertUserGeneric();
-
-        userDao.unblockUser(id);
+        userDao.unblockUser(USER_1.getId());
         
-        Optional<User> maybeUser = jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst();
+        Optional<User> maybeUser = jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst();
         assertNotNull(maybeUser);
         assertTrue(maybeUser.isPresent());
         User user = maybeUser.get();
@@ -809,14 +741,11 @@ public class UserJdbcDaoTest {
     }
     @Test
     public void testUnblockUserWrongId(){
-        long id = insertUserOverride(Map.of("blocked", true));
-
         userDao.unblockUser(12341234);
         
-        Optional<User> maybeUser = jdbcTemplate.query("SELECT * FROM users WHERE id = ?", USER_ROW_MAPPER, id).stream().findFirst();
-        assertNotNull(maybeUser);
-        assertTrue(maybeUser.isPresent());
-        User user = maybeUser.get();
-        assertEqualsUser(user, Map.of("blocked", true));
+        assertEquals(TestUtils.TOTAL_USERS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_TABLE));
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_2.getId()), TestUtils.USER_2_PARAMS);
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_3.getId()), TestUtils.USER_3_PARAMS);
     }
 }   

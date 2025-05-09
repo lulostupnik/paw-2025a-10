@@ -1,11 +1,9 @@
 package ar.edu.itba.paw.interfaces.services;
 
-import ar.edu.itba.paw.models.CursorPage;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface UniversityService {
@@ -13,12 +11,10 @@ public interface UniversityService {
     Optional<University> findById(Long id);
     Optional<University> findByAbbreviation(String abbreviation);
     Optional<University> findByAny(String queryString);
-    List<University> getAllUniversities();
     Page<University> getAllUniversities(String search, PageParams pageParams);
     String getUniversitiesJSON(String search, PageParams pageParams);
     University createUniversity(String name, String abbreviation, String city);
     void updateUniversity(long id, String name, String abbreviation, String city);
     Page<University> searchUniversities(String search, PageParams pageParams);
-
     void delete(long id);
 }

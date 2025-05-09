@@ -42,9 +42,9 @@ public class JourneyResponseJdbcDaoTest {
 
     private static final String RESPONSE_TABLE = "journey_responses";
     private static final String RESPONSE_MESSAGE = "COOL!";
-    private static final String USER1_NAME = "username";
-    private static final String USER2_NAME = "username2";
-    private static final String USER3_NAME = "username3";
+    private static final String USER1_NAME = "user1";
+    private static final String USER2_NAME = "user2";
+    private static final String USER3_NAME = "user3";
     private static final String DELETION_MESSAGE = "get deleted";
     private static final LocalDateTime RESPONSE_TIMESTAMP = LocalDateTime.now().withNano(0);
     private static final LocalDateTime RESPONSE_TIMESTAMP_2 = RESPONSE_TIMESTAMP.plusHours(1);
@@ -74,16 +74,12 @@ public class JourneyResponseJdbcDaoTest {
         jdbcTemplate = new JdbcTemplate(ds);
         insert = new SimpleJdbcInsert(ds).withTableName(RESPONSE_TABLE).usingGeneratedKeyColumns("id");
 
-        jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('username', 'user@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
-        jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('username2', 'user2@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
-        jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('username3', 'user3@name.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
-        jdbcTemplate.execute("INSERT INTO journeys(user_id, destination_university_id, start_date, end_date, description, deleted) VALUES((SELECT id FROM users WHERE username = 'username'),  (SELECT id FROM universities WHERE abbreviation =  'ITBA'), '2000-01-01', '2000-04-01', 'cool', FALSE)");
-        jdbcTemplate.execute("INSERT INTO journeys(user_id, destination_university_id, start_date, end_date, description, deleted) VALUES((SELECT id FROM users WHERE username = 'username2'), (SELECT id FROM universities WHERE abbreviation = 'ITBA'),  '2000-01-01', '2000-04-01', 'cool', FALSE)");
-        jdbcTemplate.execute("INSERT INTO journeys(user_id, destination_university_id, start_date, end_date, description, deleted) VALUES((SELECT id FROM users WHERE username = 'username3'), (SELECT id FROM universities WHERE abbreviation = 'ITBA'),  '2000-01-01', '2000-04-01', 'cool', FALSE)");
+        jdbcTemplate.execute("INSERT INTO journeys(user_id, destination_university_id, start_date, end_date, description, deleted) VALUES((SELECT id FROM users WHERE username = 'user2'), (SELECT id FROM universities WHERE abbreviation = 'ITBA'),  '2000-01-01', '2000-04-01', 'cool', FALSE)");
+        jdbcTemplate.execute("INSERT INTO journeys(user_id, destination_university_id, start_date, end_date, description, deleted) VALUES((SELECT id FROM users WHERE username = 'user3'), (SELECT id FROM universities WHERE abbreviation = 'ITBA'),  '2000-01-01', '2000-04-01', 'cool', FALSE)");
         
-        USER1_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'username'", Long.class);
-        USER2_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'username2'", Long.class);
-        USER3_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'username3'", Long.class);        
+        USER1_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'user1'", Long.class);
+        USER2_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'user2'", Long.class);
+        USER3_ID = jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = 'user3'", Long.class);        
         JOURNEY1_ID = jdbcTemplate.queryForObject("SELECT id FROM journeys WHERE user_id = ?", Long.class, USER1_ID);
         RESPONSE1_ID = insert.executeAndReturnKey(Map.of("user_id", USER1_ID, "journey_id", JOURNEY1_ID, "message", RESPONSE_MESSAGE, "date_time", Timestamp.valueOf(RESPONSE_TIMESTAMP), "deleted", false)).longValue();
         RESPONSE2_ID = insert.executeAndReturnKey(Map.of("user_id", USER2_ID, "journey_id", JOURNEY1_ID, "message", RESPONSE_MESSAGE, "date_time", Timestamp.valueOf(RESPONSE_TIMESTAMP_2), "deleted", false)).longValue();

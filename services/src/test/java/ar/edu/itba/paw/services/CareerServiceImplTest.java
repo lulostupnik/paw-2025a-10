@@ -56,29 +56,7 @@ public class CareerServiceImplTest {
         assertFalse(maybeCareer.isPresent());
     }
 
-    @Test
-    public void testFindAll(){
-        Mockito.when(
-            careerDao.findAll()
-        ).thenReturn(List.of(CAREER));
 
-        List<Career> careers = careerService.findAll();
-
-        assertNotNull(careers);
-        assertEquals(1, careers.size());
-        assertEquals(CAREER, careers.getFirst());
-    }
-    @Test
-    public void testFindAllNoCareers(){
-        Mockito.when(
-            careerDao.findAll()
-        ).thenReturn(List.of());
-
-        List<Career> careers = careerService.findAll();
-
-        assertNotNull(careers);
-        assertEquals(0, careers.size());
-    }
 
     @Test
     public void testFindByName(){

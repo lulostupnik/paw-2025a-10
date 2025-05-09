@@ -88,77 +88,11 @@ public class CityServiceImplTest {
         assertFalse(maybeCity.isPresent());
     }
 
-    @Test
-    public void testFindAll(){
-        Mockito.when(
-            cityDao.findAll()
-        ).thenReturn(List.of(CITY));
 
-        List<City> cities = cityService.findAll();
 
-        assertNotNull(cities);
-        assertEquals(1, cities.size());
-        assertEquals(CITY, cities.getFirst());
-    }
-    @Test
-    public void testFindAllNotFound(){
-        Mockito.when(
-            cityDao.findAll()
-        ).thenReturn(List.of());
 
-        List<City> cities = cityService.findAll();
 
-        assertNotNull(cities);
-        assertEquals(0, cities.size());
-    }
 
-    @Test
-    public void testFindAllByCountry(){
-        Mockito.when(
-            cityDao.findAllByCountry(Mockito.eq(COUNTRY_NAME))
-        ).thenReturn(List.of(CITY));
-
-        List<City> cities = cityService.findAllByCountry(COUNTRY_NAME);
-
-        assertNotNull(cities);
-        assertEquals(1, cities.size());
-        assertEquals(CITY, cities.getFirst());
-    }
-    @Test
-    public void testFindAllByCountryNotFound(){
-        Mockito.when(
-            cityDao.findAllByCountry(Mockito.eq(COUNTRY_NAME))
-        ).thenReturn(List.of());
-
-        List<City> cities = cityService.findAllByCountry(COUNTRY_NAME);
-
-        assertNotNull(cities);
-        assertEquals(0, cities.size());
-    }
-
-    @Test
-    public void testGetAllCities(){
-        Mockito.when(
-            cityDao.getAllCities()
-        ).thenReturn(List.of(CITY));
-
-        List<City> cities = cityService.getAllCities();
-
-        assertNotNull(cities);
-        assertEquals(1, cities.size());
-        assertEquals(CITY, cities.getFirst());
-    }
-    @Test
-    public void testGetAllCitiesNotFound(){
-        Mockito.when(
-            cityDao.getAllCities()
-        ).thenReturn(List.of());
-
-        List<City> cities = cityService.getAllCities();
-
-        assertNotNull(cities);
-        assertEquals(0, cities.size());
-    }
 
     @Test
     public void testGetAllCitiesPagedMissingQuery(){

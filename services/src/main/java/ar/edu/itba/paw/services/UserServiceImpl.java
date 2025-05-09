@@ -152,7 +152,6 @@ public class UserServiceImpl implements UserService {
                 .getData();
     }
 
-    @Override
     public List<User> getAllUsers() {
         return userDao.getAllUsers();
     }

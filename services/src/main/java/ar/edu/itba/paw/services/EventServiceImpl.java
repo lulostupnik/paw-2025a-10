@@ -96,11 +96,6 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public List<Event> getAllEvents() {
-        return eventDao.listAll();
-    }
-
-    @Override
     public Page<Event> getAllEvents(PageParams pageParams){
         return eventDao.listAll(pageParams);
     }
@@ -119,10 +114,6 @@ public class EventServiceImpl implements EventService {
         return eventDao.searchEvents(search, pageParams);
     }
 
-    @Override
-    public List<Event> getAllEvents(String email) {
-        return eventDao.getEvents(email);
-    }
 
     @Override
     public Page<Event> getAllEvents(String email, PageParams pageParams) {
@@ -195,16 +186,8 @@ public class EventServiceImpl implements EventService {
         return eventAttendanceDao.getAttendeesCount(eventId);
     }
 
-    @Override
-    public List<Event> getUserAttendingEvents(long userId) {
-        return eventAttendanceDao.getAttendingEvents(userId);
-    }
 
-    @Override
-    public List<Event> getUserAttendingEvents(String userEmail) {
-        long userId = userService.findByEmail(userEmail).orElseThrow().getId();
-        return getUserAttendingEvents(userId);
-    }
+
 
     @Override
     public Page<Event> getUserAttendingEvents(long userId, PageParams pageParams) {
@@ -240,7 +223,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Boolean isEventOwnedByUser(String email, long eventID) {
+    public boolean isEventOwnedByUser(String email, long eventID) {
         LOGGER.debug("Checking for event ownership of event {} by user {}", eventID, email);
         Optional<Event> event = eventDao.findById(eventID);
         return event.isPresent() && event.get().getUser().getEmail().equals(email);
@@ -252,11 +235,6 @@ public class EventServiceImpl implements EventService {
         return limit.isPresent() && eventAttendanceDao.getAttendeesCount(eventId) >= limit.get();
     }
 
-    @Override
-    public List<Event> getFullEvents() {
-        return eventDao.getFullEvents();
-    }
-
 
     @Override
     public Page<Event> getEventsPageWithAttendanceStatus(String search, User user, String sortBy, String direction, String destination, LocalDate startDate, LocalDate endDate, String interest,
@@ -265,18 +243,6 @@ public class EventServiceImpl implements EventService {
 
         return eventDao.getEventsWithAttendanceStatus(user == null ? null : user.getId(), search, sortBy, direction, destination, startDate, endDate, interest,
                 isPast, isUpcoming, attending, pageParams);
-    }
-
-    @Override
-    public List<Event> getEventsWithAttendanceStatus(long userId) {
-
-        return eventDao.getEventsWithAttendanceStatus(userId);
-    }
-
-    @Override
-    public List<Event> getEventsWithAttendanceStatus(String email) {
-        long userId = userService.findByEmail(email).orElseThrow().getId();
-        return getEventsWithAttendanceStatus(userId);
     }
 
 
@@ -350,11 +316,6 @@ public class EventServiceImpl implements EventService {
     @Override
     public long getEventIdByResponseId(long eventResponseId) {
         return eventResponseDao.getEventIdByResponseId(eventResponseId);
-    }
-
-    @Override
-    public List<EventResponse> listAllResponseFromEvent(long eventId) {
-        return eventResponseDao.listAllFromEvent(eventId);
     }
 
     @Override

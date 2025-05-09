@@ -102,7 +102,6 @@ public class CityJdbcDao implements CityDao {
 
     }
 
-    @Override
     public List<City> getAllCities() {
         return jdbcTemplate.query(SQL_FIND_ALL, CITY_ROW_MAPPER);
     }
@@ -163,12 +162,10 @@ public class CityJdbcDao implements CityDao {
         }
     }
 
-    @Override
     public List<City> findAll() {
         return jdbcTemplate.query(SQL_BASE, CITY_ROW_MAPPER);
     }
 
-    @Override
     public List<City> findAllByCountry(final String country) {
         return jdbcTemplate.query(SQL_FIND_BY_COUNTRY, CITY_ROW_MAPPER, country);
     }

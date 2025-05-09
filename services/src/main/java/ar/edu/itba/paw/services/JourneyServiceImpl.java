@@ -101,10 +101,6 @@ public class JourneyServiceImpl implements JourneyService {
 
     }
 
-    @Override
-    public List<Journey> getAllJourneys() {
-        return journeyDao.listAll();
-    }
 
     @Override
     public Page<Journey> getAllJourneys(String search, PageParams pageParams) {
@@ -157,7 +153,7 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
-    public Boolean userHasJourney(String email) {
+    public boolean userHasJourney(String email) {
         Optional<User> maybeUser = userService.findByEmail(email);
         return maybeUser.filter(user -> journeyDao.findByUserId(user.getId()).isPresent()).isPresent();
     }
@@ -187,22 +183,7 @@ public class JourneyServiceImpl implements JourneyService {
         return journeys ;
     }
 
-    @Override
-    public List<Journey> getJourneysByUser(String email) {
-        return journeyDao.getJourneysByUser(email);
-    }
 
-
-    @Override
-    public List<Journey> getOthersJourneys(long userId) {
-        return journeyDao.getOthersJourneys(userId);
-    }
-
-    @Override
-    public List<Journey> getOthersJourneys(String email) {
-        long userId = userService.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found")).getId();
-        return getOthersJourneys(userId);
-    }
 
     @Override
     @Transactional
@@ -293,12 +274,6 @@ public class JourneyServiceImpl implements JourneyService {
         journeyDao.updateData(journeyId, university, startDate, endDate, description);
     }
 
-
-    @Override
-    @Transactional
-    public List<JourneyResponse> listAllResponsesFromJourney(long journeyId) {
-        return journeyResponseDao.listAllFromJourney(journeyId);
-    }
 
     @Override
     public Optional<JourneyResponse> findJourneyResponseById(long id) {

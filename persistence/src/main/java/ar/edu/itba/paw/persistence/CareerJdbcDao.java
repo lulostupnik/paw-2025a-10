@@ -43,7 +43,6 @@ public class CareerJdbcDao implements CareerDao {
                 .stream().findFirst();
     }
 
-    @Override
     public List<Career> findAll() {
         return jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE", CAREER_ROW_MAPPER);
     }

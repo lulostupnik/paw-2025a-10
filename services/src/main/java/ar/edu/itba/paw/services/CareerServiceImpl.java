@@ -37,11 +37,7 @@ public class CareerServiceImpl implements CareerService {
         return careerDao.findById(id);
     }
 
-    @Override
-    public List<Career> findAll() {
-        LOGGER.debug("Getting all careers");
-        return careerDao.findAll();
-    }
+
 
     @Override
     @Cacheable(value = "careersByName", key = "#name")
@@ -73,7 +69,10 @@ public class CareerServiceImpl implements CareerService {
     @Transactional
     @Caching(
             put = { @CachePut(value = "careersById", key = "#id") },
-            evict = { @CacheEvict(value = "careersByName", allEntries = true) }
+            evict = {
+                    @CacheEvict(value = "careersByName", allEntries = true),
+                    @CacheEvict(value = "careers", allEntries = true)
+            }
     )
     public Career update(long id, String name) {
         return careerDao.update(id, name);
@@ -83,7 +82,8 @@ public class CareerServiceImpl implements CareerService {
     @Transactional
     @Caching(evict = {
                 @CacheEvict(value = "careersById", key = "#id"),
-                @CacheEvict(value = "careersByName", allEntries = true)
+                @CacheEvict(value = "careersByName", allEntries = true),
+                @CacheEvict(value = "careers", allEntries = true)
     })
     public void delete(long id) {
         careerDao.delete(id);

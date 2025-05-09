@@ -93,9 +93,7 @@ public class UniversityController {
         form.setCity(newUni.getCity().getName());
 
         ModelAndView mav = new ModelAndView(CREATE);
-        mav.addObject(CREATE_UNIVERSITY_FORM, form);
-        mav.addObject(CITIES, cityService.getAllCities());
-        mav.addObject(IS_UPDATE, true);
+        mav.addObject(CREATE_UNIVERSITY_FORM, form);mav.addObject(IS_UPDATE, true);
         mav.addObject(UNIVERSITY_ID, id);
         return mav;
     }
@@ -108,7 +106,6 @@ public class UniversityController {
 
         if (errors.hasErrors()) {
             ModelAndView mav = new ModelAndView(CREATE);
-            mav.addObject(CITIES, cityService.getAllCities());
             mav.addObject(IS_UPDATE, true);
             mav.addObject(UNIVERSITY_ID, id);
             return mav;
