@@ -94,26 +94,6 @@ public class CityJdbcDaoTest {
     }
 
     @Test
-    public void testFindAll(){
-        List<City> cities = cityDao.findAll();
-
-        assertNotNull(cities);
-        assertEquals(TestUtils.TOTAL_CITIES, cities.size());
-        List<String> cityNames = List.of(TestUtils.CITY_1_NAME, TestUtils.CITY_2_NAME, TestUtils.CITY_3_NAME);
-        for (City city : cities){
-            assertTrue(cityNames.contains(city.getName()));
-        }
-    }
-    @Test
-    public void testFindAllNoCities(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.JOURNEY_TABLE, TestUtils.USER_INTEREST_TABLE, TestUtils.USER_TABLE, TestUtils.UNIVERSITY_TABLE, TestUtils.CITY_TABLE);
-
-        List<City> cities = cityDao.findAll();
-
-        assertNotNull(cities);
-        assertEquals(0, cities.size());
-    }
-    @Test
     public void testGetAllCities(){
         List<City> cities = cityDao.getAllCities();
 
@@ -134,41 +114,6 @@ public class CityJdbcDaoTest {
         assertEquals(0, cities.size());
     }
 
-    @Test
-    public void testFindAllByCountry1(){
-        List<City> cities = cityDao.findAllByCountry(TestUtils.COUNTRY_1_NAME);
-
-        assertNotNull(cities);
-        assertEquals(2, cities.size());
-        List<String> cityNames = List.of(TestUtils.CITY_1_NAME, TestUtils.CITY_2_NAME);
-        for (City city : cities){
-            assertTrue(cityNames.contains(city.getName()));
-            assertEquals(TestUtils.COUNTRY_1_NAME, city.getCountry());
-        }
-    }
-    @Test
-    public void testFindAllByCountry2(){
-        List<City> cities = cityDao.findAllByCountry(TestUtils.COUNTRY_2_NAME);
-
-        assertNotNull(cities);
-        assertEquals(1, cities.size());
-        assertEquals(TestUtils.CITY_3_NAME, cities.getFirst().getName());
-        assertEquals(TestUtils.COUNTRY_2_NAME, cities.getFirst().getCountry());
-    }
-    @Test
-    public void testFindAllByCountryWrongCountry(){
-        List<City> cities = cityDao.findAllByCountry("TestUtils.COUNTRY_2_NAME");
-
-        assertNotNull(cities);
-        assertEquals(0, cities.size());
-    }
-    @Test
-    public void testFindAllByCountryMissingCountry(){
-        List<City> cities = cityDao.findAllByCountry(null);
-
-        assertNotNull(cities);
-        assertEquals(0, cities.size());
-    }
 
     @Test
     public void testSearchBySubstringNoFiltering(){

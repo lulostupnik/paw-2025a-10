@@ -121,11 +121,13 @@
                             <spring:message code="journey.tabs.all"/>
                         </a>
                     </li>
+                    <c:if test="${hasJourney}">
                     <li class="tab-item ${not empty param.isMyDestination ? 'active' : ''}">
                         <a href="<c:url value="/journeys?isMyDestination=true${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.sort ? '&sort='.concat(param.sort) : ''}${not empty param.direction ? '&direction='.concat(param.direction) : ''}&page=1${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>" class="tab-link">
                             <spring:message code="journey.tabs.myDestination"/>
                         </a>
                     </li>
+                    </c:if>
                     <li class="tab-item ${not empty param.isUpcoming ? 'active' : ''}">
                         <a href="<c:url value="/journeys?isUpcoming=true${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.sort ? '&sort='.concat(param.sort) : ''}${not empty param.direction ? '&direction='.concat(param.direction) : ''}&page=1${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>" class="tab-link">
                             <spring:message code="journey.tabs.upcoming"/>

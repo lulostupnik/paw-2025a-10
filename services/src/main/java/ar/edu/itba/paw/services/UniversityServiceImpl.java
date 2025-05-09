@@ -39,7 +39,7 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     @Cacheable(value = "universitiesById", key = "#id")
-    public Optional<University> findById(Long id) {
+    public Optional<University> findById(long id) {
         return universityDao.findById(id);
     }
 

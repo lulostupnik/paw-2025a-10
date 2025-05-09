@@ -41,7 +41,7 @@ public class CityServiceImpl implements CityService {
 
     @Override
     @Cacheable(value = "citiesById", key = "#id")
-    public Optional<City> findById(Long id) {
+    public Optional<City> findById(long id) {
         LOGGER.debug("Finding city by id {}", id);
         return cityDao.findBy(id, null, null);
     }
