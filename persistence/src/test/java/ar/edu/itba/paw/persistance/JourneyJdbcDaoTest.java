@@ -8,7 +8,6 @@ import static org.junit.Assert.assertTrue;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -36,8 +35,6 @@ import ar.edu.itba.paw.persistence.JourneyJdbcDao;
 @ContextConfiguration(classes = TestConfig.class)
 public class JourneyJdbcDaoTest {
 
-    private static final String JOURNEY_TABLE = "journeys";
-
     private static University UNI_DESTINATION; 
     private static University UNI_ORIGIN; 
     private static University UNI_3;
@@ -54,6 +51,7 @@ public class JourneyJdbcDaoTest {
     private static Interest INTEREST_1;
     private static Journey JOURNEY_DELETED;
     private static Journey JOURNEY_1;
+    private static Journey JOURNEY_2;
 
     @Autowired
     private DataSource ds;
@@ -67,7 +65,7 @@ public class JourneyJdbcDaoTest {
     @Before
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
-        insert = new SimpleJdbcInsert(ds).withTableName(JOURNEY_TABLE).usingGeneratedKeyColumns("id");
+        insert = new SimpleJdbcInsert(ds).withTableName(TestUtils.JOURNEY_TABLE).usingGeneratedKeyColumns("id");
 
         jdbcTemplate.execute("INSERT INTO users(username, email, firstname, lastname, university, career_id, profile_picture_id) VALUES('newUser1', 'newUser1@mail.com', 'user', 'name', (SELECT id FROM universities WHERE abbreviation = 'UBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1))");
 
@@ -87,6 +85,7 @@ public class JourneyJdbcDaoTest {
         INTEREST_1 = jdbcTemplate.queryForObject(TestUtils.INTEREST_SELECT_BY_NAME, TestUtils.INTEREST_ROW_MAPPER, TestUtils.INTEREST_1_NAME);
         JOURNEY_DELETED = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_USERMAIL, TestUtils.JOURNEY_ROW_MAPPER, TestUtils.USER_4_MAIL);
         JOURNEY_1 = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_USERMAIL, TestUtils.JOURNEY_ROW_MAPPER, TestUtils.USER_1_MAIL);
+        JOURNEY_2 = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_USERMAIL, TestUtils.JOURNEY_ROW_MAPPER, TestUtils.USER_2_MAIL);
     }
 
     private void assertEqualsJourney(Journey journey){
@@ -110,10 +109,7 @@ public class JourneyJdbcDaoTest {
         assertEqualsJourney(journey); 
     }
 
-    private long insertJourney(){
-        return insertJourney(Map.of());
-    }
-    private long insertJourney(Map<String, Object> overrideParams){
+    private Journey insertJourney(Map<String, Object> overrideParams){
         HashMap<String, Object> params = new HashMap<>();
         params.put("user_id", ((User)overrideParams.getOrDefault("user", USER_2)).getId());
         params.put("destination_university_id", ((University)overrideParams.getOrDefault("destination", UNI_DESTINATION)).getId());
@@ -122,12 +118,13 @@ public class JourneyJdbcDaoTest {
         params.put("description", overrideParams.getOrDefault("description", TestUtils.JOURNEY_DESCRIPTION));
         params.put("deleted", overrideParams.getOrDefault("deleted", false));
         params.put("deleted_message", overrideParams.getOrDefault("deletedMessage", null));
-        return insert.executeAndReturnKey(params).longValue();
+        long id = insert.executeAndReturnKey(params).longValue();
+        return jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, id);
     }
 
     @Test
     public void testCreate(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, JOURNEY_TABLE);
+        TestUtils.deleteJourneys(jdbcTemplate);
         Journey journey = journeyDao.create(
             USER_1,
             UNI_DESTINATION,
@@ -135,29 +132,23 @@ public class JourneyJdbcDaoTest {
         );
 
         assertEqualsJourney(journey, Map.of("id", jdbcTemplate.queryForObject("SELECT id FROM journeys WHERE user_id = ?", Long.class, USER_1.getId())));
-        assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, JOURNEY_TABLE));
+        assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_TABLE));
     }
     @Test(expected = DataAccessException.class)
     public void testCreateInvalidUser(){
-        Journey journey = journeyDao.create(
+        journeyDao.create(
             new User(12341234, null, null, null, null, null, null, 0, null, false),
             UNI_DESTINATION,
             TestUtils.JOURNEY_START_DATE, TestUtils.JOURNEY_END_DATE, TestUtils.JOURNEY_DESCRIPTION
         );
-
-        assertEqualsJourney(journey);
-        assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, JOURNEY_TABLE));
     }
     @Test(expected = DataAccessException.class)
     public void testCreateInvalidUni(){
-        Journey journey = journeyDao.create(
+        journeyDao.create(
             USER_1,
             new University(12431234, null,null, null),
             TestUtils.JOURNEY_START_DATE, TestUtils.JOURNEY_END_DATE, TestUtils.JOURNEY_DESCRIPTION
         );
-
-        assertEqualsJourney(journey);
-        assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, JOURNEY_TABLE));
     }
     @Test
     public void testCreateDuplicated(){
@@ -167,15 +158,13 @@ public class JourneyJdbcDaoTest {
             TestUtils.JOURNEY_START_DATE, TestUtils.JOURNEY_END_DATE, TestUtils.JOURNEY_DESCRIPTION
         );
 
-        assertEquals(TestUtils.TOTAL_JOURNEYS, JdbcTestUtils.countRowsInTable(jdbcTemplate, JOURNEY_TABLE));
+        assertEquals(TestUtils.TOTAL_JOURNEYS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_TABLE));
         Journey journey = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, JOURNEY_1.getId());
         assertEqualsJourney(journey);
     }
 
     @Test
     public void testFindById(){
-        insertJourney(Map.of("user", USER_2));
-
         Optional<Journey> maybeJourney = journeyDao.findById(JOURNEY_1.getId());
 
         assertEqualsMaybeJourney(maybeJourney);
@@ -277,21 +266,21 @@ public class JourneyJdbcDaoTest {
     public void testDelete(){
         journeyDao.delete(JOURNEY_1.getId());
 
-        assertEquals(TestUtils.TOTAL_JOURNEYS, JdbcTestUtils.countRowsInTable(jdbcTemplate, JOURNEY_TABLE));
+        assertEquals(TestUtils.TOTAL_JOURNEYS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_TABLE));
         assertTrue(jdbcTemplate.queryForObject("SELECT deleted FROM journeys WHERE id = ?", Boolean.class, JOURNEY_1.getId()));
     }
     @Test
     public void testDeleteWrongId(){
         journeyDao.delete(12341243);
 
-        assertEquals(TestUtils.TOTAL_JOURNEYS, JdbcTestUtils.countRowsInTable(jdbcTemplate, JOURNEY_TABLE));
+        assertEquals(TestUtils.TOTAL_JOURNEYS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_TABLE));
         assertFalse(jdbcTemplate.queryForObject("SELECT deleted FROM journeys WHERE id = ?", Boolean.class, JOURNEY_1.getId()));
     }
     @Test
     public void testDeleteDeleted(){
         journeyDao.delete(JOURNEY_DELETED.getId());
 
-        assertEquals(TestUtils.TOTAL_JOURNEYS, JdbcTestUtils.countRowsInTable(jdbcTemplate, JOURNEY_TABLE));
+        assertEquals(TestUtils.TOTAL_JOURNEYS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_TABLE));
         assertTrue(jdbcTemplate.queryForObject("SELECT deleted FROM journeys WHERE id = ?", Boolean.class, JOURNEY_DELETED.getId()));
         assertFalse(jdbcTemplate.queryForObject("SELECT deleted FROM journeys WHERE id = ?", Boolean.class, JOURNEY_1.getId()));
     }
@@ -300,7 +289,7 @@ public class JourneyJdbcDaoTest {
     public void testDeletionMessage(){
         journeyDao.deletionMessage(JOURNEY_1.getId(), "WRONG");
 
-        assertEquals(TestUtils.TOTAL_JOURNEYS, JdbcTestUtils.countRowsInTable(jdbcTemplate, JOURNEY_TABLE));
+        assertEquals(TestUtils.TOTAL_JOURNEYS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_TABLE));
         assertFalse(jdbcTemplate.queryForObject("SELECT deleted FROM journeys WHERE id = ?", Boolean.class, JOURNEY_1.getId()));
         assertEquals("WRONG", jdbcTemplate.queryForObject("SELECT deleted_message FROM journeys WHERE id = ?", String.class, JOURNEY_1.getId()));
     }
@@ -308,11 +297,9 @@ public class JourneyJdbcDaoTest {
     public void testDeletionMessageWrongId(){
         journeyDao.deletionMessage(12341243, "WRONG");
 
-        assertEquals(TestUtils.TOTAL_JOURNEYS, JdbcTestUtils.countRowsInTable(jdbcTemplate, JOURNEY_TABLE));
+        assertEquals(TestUtils.TOTAL_JOURNEYS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_TABLE));
         assertFalse(jdbcTemplate.queryForObject("SELECT deleted FROM journeys WHERE id = ?", Boolean.class, JOURNEY_1.getId()));
     }
-
-
 
     @Test
     public void testUpdateDates(){
@@ -366,11 +353,11 @@ public class JourneyJdbcDaoTest {
         Journey journey = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, JOURNEY_1.getId());
         assertEqualsJourney(journey, Map.of("destination", UNI_3)); 
     }
-    @Test(expected = DataAccessException.class)
+    @Test
     public void testUpdateDestinationUniversityInvalidId(){
-        long id = insertJourney();
-
-        journeyDao.updateDestinationUniversity(id, 1234123);
+        journeyDao.updateDestinationUniversity(12341234, 1234123);
+        
+        assertEqualsJourney(jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, JOURNEY_1.getId()));
     }
     @Test
     public void testUpdateDestinationUniversityInvalidJourney(){
@@ -382,8 +369,6 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testListAllPaged(){
-        long id2 = insertJourney(Map.of("user", USER_2));
-
         Page<Journey> page1 = journeyDao.listAll(new PageParams(1, 1));
         Page<Journey> page2 = journeyDao.listAll(new PageParams(2, 1));
 
@@ -397,13 +382,13 @@ public class JourneyJdbcDaoTest {
         assertNotNull(page2.getContent());
         assertEquals(1, page1.getContent().size());
         assertEquals(1, page2.getContent().size());
-        assertEquals(JOURNEY_1.getId(), page1.getContent().getFirst().getId());
-        assertEquals(id2, page2.getContent().getFirst().getId());
+        TestUtils.assertEqualsJourney(JOURNEY_1, page1.getContent().getFirst());
+        TestUtils.assertEqualsJourney(JOURNEY_2, page2.getContent().getFirst());
     }
     
     @Test
     public void testListAllPagedNoJourneys(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.JOURNEY_TABLE);
+        TestUtils.deleteJourneys(jdbcTemplate);
 
         Page<Journey> page1 = journeyDao.listAll(TestUtils.PAGE_1_DEFAULT);
 
@@ -416,8 +401,6 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testGetOthersJourneysPaged(){
-        long id = insertJourney(Map.of("user", USER_2));
-
         Page<Journey> page1 = journeyDao.getOthersJourneys(USER_1.getId(), new PageParams(1, 1));
 
         assertNotNull(page1);
@@ -425,10 +408,11 @@ public class JourneyJdbcDaoTest {
         assertEquals(1, page1.getTotalPages());
         assertNotNull(page1.getContent());
         assertEquals(1, page1.getContent().size());
-        assertEqualsJourney(page1.getContent().getFirst(), Map.of("id", id, "user", USER_2));
+        TestUtils.assertEqualsJourney(JOURNEY_2, page1.getContent().getFirst());
     }
     @Test
     public void testGetOthersJourneysPagedNoJourneys(){
+        TestUtils.deleteJourneys(jdbcTemplate);
         Page<Journey> page1 = journeyDao.getOthersJourneys(USER_1.getId(), new PageParams(1,1));
 
         assertNotNull(page1);
@@ -440,8 +424,6 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testFindByOriginCityPaged(){
-        insertJourney(Map.of("user", USER_2));
-
         Page<Journey> page1 = journeyDao.findByOriginCity(CITY_ORIGIN.getId(), TestUtils.PAGE_1_DEFAULT);
 
         assertNotNull(page1);
@@ -452,8 +434,6 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByOriginCityPagedWrongCity(){
-        insertJourney(Map.of("user", USER_2));
-
         Page<Journey> page1 = journeyDao.findByOriginCity(1241234, new PageParams(1,2));
 
         assertNotNull(page1);
@@ -486,7 +466,7 @@ public class JourneyJdbcDaoTest {
         );
     }
     @Test
-    public void testUpdateDatanotFound(){
+    public void testUpdateDataNotFound(){
         journeyDao.updateData(
             12341234, 
             UNI_3, 
@@ -534,8 +514,6 @@ public class JourneyJdbcDaoTest {
 
 //    @Test
 //    public void testSearchJourneys(){
-//        insertJourney();
-//        insertJourney(Map.of("userId", USER2_ID));
 //        insertJourney(Map.of("userId", USER_ANOTHER_ID));
 //
 //        Page<Journey> page = journeyDao.searchJourneys(USERNAME_1.substring(0, 6), 1, 5);
@@ -569,8 +547,6 @@ public class JourneyJdbcDaoTest {
 //
 //    @Test
 //    public void testFindByFiltersDestination(){
-//        long id1 = insertJourney();
-//        long id2 = insertJourney(Map.of("userId", USER2_ID));
 //        insertJourney(Map.of("userId", USER3_ID, "destination", UNI_ORIGIN));
 //
 //        List<Journey> journeys = journeyDao.findByFilters(Long.toString(DESTINATION_CITY_ID), null, null, null);
@@ -594,43 +570,39 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testFindByFiltersDestinationPaged(){
-        long id = insertJourney(Map.of("user", USER_2));
         insertJourney(Map.of("user", USER_3, "destination", UNI_ORIGIN));
 
         Page<Journey> journeys = journeyDao.findByFilters(USER_1.getId(), CITY_DESTINATION.getId(), null, null, null, TestUtils.PAGE_1_DEFAULT);
 
         assertNotNull(journeys);
         assertEquals(1, journeys.getContent().size());
-        assertEqualsJourney(journeys.getContent().getFirst(), Map.of("user", USER_2, "id", id));
+        TestUtils.assertEqualsJourney(JOURNEY_2, journeys.getContent().getFirst());
 
     }
     @Test
     public void testFindByFiltersStartDatePaged(){
-        long id = insertJourney(Map.of("user", USER_2));
         insertJourney(Map.of("user", USER_3, "destination", UNI_ORIGIN, "endDate", TestUtils.JOURNEY_END_DATE.plusDays(-15)));
 
         Page<Journey> journeys = journeyDao.findByFilters(USER_1.getId(), null, TestUtils.JOURNEY_START_DATE.plusDays(20), null, null, TestUtils.PAGE_1_DEFAULT);
 
         assertNotNull(journeys);
         assertEquals(1, journeys.getContent().size());
-        assertEqualsJourney(journeys.getContent().getFirst(), Map.of("user", USER_2, "id", id));
+        TestUtils.assertEqualsJourney(JOURNEY_2, journeys.getContent().getFirst());
 
     }
     @Test
     public void testFindByFiltersEndDatePaged(){
-        long id = insertJourney(Map.of("user", USER_2));
         insertJourney(Map.of("user", USER_3, "destination", UNI_ORIGIN, "startDate", TestUtils.JOURNEY_START_DATE.plusDays(15)));
 
         Page<Journey> journeys = journeyDao.findByFilters(USER_1.getId(), null, null, TestUtils.JOURNEY_END_DATE.plusDays(-20), null, TestUtils.PAGE_1_DEFAULT);
 
         assertNotNull(journeys);
         assertEquals(1, journeys.getContent().size());
-        assertEqualsJourney(journeys.getContent().getFirst(), Map.of("user", USER_2, "id", id));
+        TestUtils.assertEqualsJourney(JOURNEY_2, journeys.getContent().getFirst());
 
     }
     @Test
     public void testFindByFiltersInterestsPaged(){
-        insertJourney(Map.of("user", USER_2));
         insertJourney(Map.of("user", USER_3, "destination", UNI_ORIGIN, "endDate", TestUtils.JOURNEY_END_DATE.plusDays(-7)));
 
         Page<Journey> journeys = journeyDao.findByFilters(USER_1.getId(), null, null, null, INTEREST_1.getId(), TestUtils.PAGE_1_DEFAULT);
@@ -640,16 +612,18 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByFiltersNoConditionsPaged(){
-        insertJourney(Map.of("user", USER_2));
         insertJourney(Map.of("user", USER_3, "destination", UNI_ORIGIN, "endDate", TestUtils.JOURNEY_END_DATE.plusDays(-7)));
 
         Page<Journey> journeys = journeyDao.findByFilters(null, null, null, null, null, TestUtils.PAGE_1_DEFAULT);
 
         assertNotNull(journeys);
         assertEquals(2, journeys.getContent().size());
+        TestUtils.assertEqualsJourney(JOURNEY_1, journeys.getContent().get(0));
+        TestUtils.assertEqualsJourney(JOURNEY_2, journeys.getContent().get(1));
     }
     @Test
     public void testFindByFiltersInterestsAllConditionsPaged(){
+        TestUtils.deleteJourneys(jdbcTemplate);
         insertJourney(Map.of("user", USER_2, "destination", UNI_3, "startDate", TestUtils.JOURNEY_START_DATE.plusDays(7)));
         insertJourney(Map.of("user", USER_3, "destination", UNI_3, "endDate", TestUtils.JOURNEY_END_DATE.plusDays(-7)));
 
@@ -660,6 +634,7 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testFindByFiltersInterestsAllNoInterestsPaged(){
+        TestUtils.deleteJourneys(jdbcTemplate);
         insertJourney(Map.of("user", USER_2, "destination", UNI_3, "startDate", TestUtils.JOURNEY_START_DATE.plusDays(15)));
         insertJourney(Map.of("user", USER_3, "destination", UNI_ORIGIN, "endDate", TestUtils.JOURNEY_END_DATE.plusDays(-15)));
 
@@ -671,10 +646,9 @@ public class JourneyJdbcDaoTest {
 
     @Test
     public void testRecommendedJourneysBasic(){
-        //should have internal score of 95 (30 match city, 50 match uni, 15 overlap)
-        long id1 = insertJourney(Map.of("user", USER_2));
+        //JOURNEY_2 should have internal score of 95 (30 match city, 50 match uni, 15 overlap)
         //should have internal score of 80 (30 match city, 50 match uni)
-        long id2 = insertJourney(Map.of("user", USER_3, "startDate", TestUtils.JOURNEY_END_DATE.plusDays(2), "endDate", TestUtils.JOURNEY_END_DATE.plusDays(40)));
+        Journey newJourney = insertJourney(Map.of("user", USER_3, "startDate", TestUtils.JOURNEY_END_DATE.plusDays(2), "endDate", TestUtils.JOURNEY_END_DATE.plusDays(40)));
 
         Page<Journey> page1 = journeyDao.getRecommendedJourneys(TestUtils.USER_1_MAIL, TestUtils.PAGE_1_BIG);
 
@@ -683,12 +657,12 @@ public class JourneyJdbcDaoTest {
         assertEquals(1, page1.getTotalPages());
         assertNotNull(page1.getContent());
         assertEquals(2, page1.getContent().size());
-        assertEquals(id1, page1.getContent().get(0).getId());
-        assertEquals(id2, page1.getContent().get(1).getId());
+        TestUtils.assertEqualsJourney(JOURNEY_2, page1.getContent().get(0));
+        TestUtils.assertEqualsJourney(newJourney, page1.getContent().get(1));
     }
     @Test
     public void testRecommendedJourneysNoJourneys(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.JOURNEY_TABLE);
+        TestUtils.deleteJourneys(jdbcTemplate);
         Page<Journey> page1 = journeyDao.getRecommendedJourneys(TestUtils.USER_1_MAIL, TestUtils.PAGE_1_BIG);
 
         assertNotNull(page1);
@@ -699,10 +673,12 @@ public class JourneyJdbcDaoTest {
     }
     @Test
     public void testRecommendedJourneysGoingToMyCity(){
+        TestUtils.deleteJourneys(jdbcTemplate);
+        insertJourney(Map.of("user", USER_1));
         //should have internal score of 80 (30 match origin city while there, 50 match origin uni while there)
-        long id1 = insertJourney(Map.of("user", USER_2, "destination", UNI_ORIGIN, "startDate", TestUtils.JOURNEY_END_DATE.plusDays(-5), "endDate", TestUtils.JOURNEY_END_DATE.plusDays(20)));
+        Journey newJourney1 = insertJourney(Map.of("user", USER_3, "destination", UNI_ORIGIN, "startDate", TestUtils.JOURNEY_END_DATE.plusDays(-5), "endDate", TestUtils.JOURNEY_END_DATE.plusDays(20)));
         //should have an internal score of 15 (date overlap only)
-        long id2 = insertJourney(Map.of("user", USER_3, "destination", UNI_ORIGIN, "startDate", TestUtils.JOURNEY_END_DATE.plusDays(-10), "endDate", TestUtils.JOURNEY_END_DATE.plusDays(-2)));
+        Journey newJourney2 = insertJourney(Map.of("user", USER_4, "destination", UNI_ORIGIN, "startDate", TestUtils.JOURNEY_END_DATE.plusDays(-10), "endDate", TestUtils.JOURNEY_END_DATE.plusDays(-2)));
 
         Page<Journey> page1 = journeyDao.getRecommendedJourneys(TestUtils.USER_1_MAIL, TestUtils.PAGE_1_BIG);
 
@@ -711,19 +687,18 @@ public class JourneyJdbcDaoTest {
         assertEquals(1, page1.getTotalPages());
         assertNotNull(page1.getContent());
         assertEquals(2, page1.getContent().size());
-        assertEquals(id1, page1.getContent().get(0).getId());
-        assertEquals(id2, page1.getContent().get(1).getId());
+        TestUtils.assertEqualsJourney(newJourney1, page1.getContent().get(0));
+        TestUtils.assertEqualsJourney(newJourney2, page1.getContent().get(1));
     }
     @Test
     public void testRecommendedJourneysWithInterests(){
-        //should have internal score of 107 (50 + 30 match dest uni, 15 overlap, 12 interest match)
-        long id1 = insertJourney(Map.of("user", USER_COMMON_INTERESTS_1));
-        //should have internal score of 113 (50 + 30 match dest uni, 15 overlap, 18 interest match)
-        long id2 = insertJourney(Map.of("user", USER_COMMON_INTERESTS_2));
         //should have internal score of 116 (50 + 30 match dest uni, 15 overlap, 21 interest match)
-        long id3 = insertJourney(Map.of("user", USER_COMMON_INTERESTS_3));
-        //should have internal score of 95 (50 + 30 match dest uni, 15 overlap)
-        long id4 = insertJourney(Map.of("user", USER_2));
+        Journey newJourney1 = insertJourney(Map.of("user", USER_COMMON_INTERESTS_3));
+        //should have internal score of 113 (50 + 30 match dest uni, 15 overlap, 18 interest match)
+        Journey newJourney2 = insertJourney(Map.of("user", USER_COMMON_INTERESTS_2));
+        //should have internal score of 107 (50 + 30 match dest uni, 15 overlap, 12 interest match)
+        Journey newJourney3 = insertJourney(Map.of("user", USER_COMMON_INTERESTS_1));
+        //JOURNEY_2 should have internal score of 95 (50 + 30 match dest uni, 15 overlap)
 
         Page<Journey> page1 = journeyDao.getRecommendedJourneys(TestUtils.USER_1_MAIL, TestUtils.PAGE_1_BIG);
 
@@ -733,25 +708,24 @@ public class JourneyJdbcDaoTest {
         assertEquals(1, page1.getTotalPages());
         assertNotNull(page1.getContent());
         assertEquals(4, page1.getContent().size());
-        assertEquals(id3, page1.getContent().get(0).getId());
-        assertEquals(id2, page1.getContent().get(1).getId());
-        assertEquals(id1, page1.getContent().get(2).getId());
-        assertEquals(id4, page1.getContent().get(3).getId());
+        TestUtils.assertEqualsJourney(newJourney1, page1.getContent().get(0));
+        TestUtils.assertEqualsJourney(newJourney2, page1.getContent().get(1));
+        TestUtils.assertEqualsJourney(newJourney3, page1.getContent().get(2));
+        TestUtils.assertEqualsJourney(JOURNEY_2, page1.getContent().get(3));
     }
     @Test
     public void testRecommendedJourneysWithInterestsComplex(){
         //should have internal score of 107 (50 + 30 match dest uni, 15 overlap, 12 interest match)
-        long id1 = insertJourney(Map.of("user", USER_COMMON_INTERESTS_1));
+        Journey newJourney1 = insertJourney(Map.of("user", USER_COMMON_INTERESTS_1));
         //should have internal score of 98 (50 + 30 match origin uni, 18 interest match)
-        long id2 = insertJourney(Map.of("user", USER_COMMON_INTERESTS_2, "destination", UNI_ORIGIN, "startDate", TestUtils.JOURNEY_END_DATE.plusDays(2), "endDate", TestUtils.JOURNEY_END_DATE.plusDays(30)));
+        Journey newJourney2 = insertJourney(Map.of("user", USER_COMMON_INTERESTS_2, "destination", UNI_ORIGIN, "startDate", TestUtils.JOURNEY_END_DATE.plusDays(2), "endDate", TestUtils.JOURNEY_END_DATE.plusDays(30)));
         //should have internal score of 36 (15 overlap, 21 interest match)
-        long id3 = insertJourney(Map.of("user", USER_COMMON_INTERESTS_3, "destination", UNI_ORIGIN, "startDate", TestUtils.JOURNEY_END_DATE.plusDays(-7), "endDate", TestUtils.JOURNEY_END_DATE.plusDays(-3)));
-        //should have internal score of 95 (50 + 30 match dest uni, 15 overlap)
-        long id4 = insertJourney(Map.of("user", USER_2));
+        Journey newJourney3 = insertJourney(Map.of("user", USER_COMMON_INTERESTS_3, "destination", UNI_ORIGIN, "startDate", TestUtils.JOURNEY_END_DATE.plusDays(-7), "endDate", TestUtils.JOURNEY_END_DATE.plusDays(-3)));
+        //JOURNEY_2 should have internal score of 95 (50 + 30 match dest uni, 15 overlap)
         //should have internal score of 80 (50 + 30 match dest uni)
-        long id5 = insertJourney(Map.of("user", USER_3, "startDate", TestUtils.JOURNEY_END_DATE.plusDays(2), "endDate", TestUtils.JOURNEY_END_DATE.plusDays(20)));
+        Journey newJourney4 = insertJourney(Map.of("user", USER_3, "startDate", TestUtils.JOURNEY_END_DATE.plusDays(2), "endDate", TestUtils.JOURNEY_END_DATE.plusDays(20)));
         //should have internal score of 45 (30 city match, 15 overlap)
-        long id6 = insertJourney(Map.of("user", USER_5, "destination", UNI_3));
+        Journey newJourney5 = insertJourney(Map.of("user", USER_5, "destination", UNI_3));
 
         Page<Journey> page1 = journeyDao.getRecommendedJourneys(TestUtils.USER_1_MAIL, TestUtils.PAGE_1_BIG);
 
@@ -762,11 +736,11 @@ public class JourneyJdbcDaoTest {
         assertEquals(6, page1.getContent().size());
 
         //TODO for-loop
-        assertEquals(id1, page1.getContent().get(0).getId());
-        assertEquals(id2, page1.getContent().get(1).getId());
-        assertEquals(id4, page1.getContent().get(2).getId());
-        assertEquals(id5, page1.getContent().get(3).getId());   
-        assertEquals(id6, page1.getContent().get(4).getId());
-        assertEquals(id3, page1.getContent().get(5).getId());
+        TestUtils.assertEqualsJourney(newJourney1, page1.getContent().get(0));
+        TestUtils.assertEqualsJourney(newJourney2, page1.getContent().get(1));
+        TestUtils.assertEqualsJourney(JOURNEY_2, page1.getContent().get(2));
+        TestUtils.assertEqualsJourney(newJourney4, page1.getContent().get(3));   
+        TestUtils.assertEqualsJourney(newJourney5, page1.getContent().get(4));
+        TestUtils.assertEqualsJourney(newJourney3, page1.getContent().get(5));
     }
 }

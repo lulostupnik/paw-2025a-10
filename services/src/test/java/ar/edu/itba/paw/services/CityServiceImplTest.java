@@ -31,6 +31,8 @@ public class CityServiceImplTest {
     private static final long ID = 0;
     private static final City CITY = new City(NAME, COUNTRY_NAME, ID);
     private static final Country COUNTRY = new Country(ID, COUNTRY_NAME, COUNTRY_NAME);
+    private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
+
 
     @InjectMocks
     CityServiceImpl cityService;
@@ -88,20 +90,14 @@ public class CityServiceImplTest {
         assertFalse(maybeCity.isPresent());
     }
 
-
-
-
-
-
-
     @Test
     public void testGetAllCitiesPagedMissingQuery(){
         Page<City> testPage = new Page<City>(List.of(CITY), 1, 1);
         Mockito.when(
-            cityDao.getAllCities(new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            cityDao.getAllCities(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<City> cities = cityService.getAllCities(null, new PageParams(1,2));
+        Page<City> cities = cityService.getAllCities(null, PAGE_1_DEFAULT);
 
         assertNotNull(cities);
         assertEquals(testPage, cities);
@@ -110,10 +106,10 @@ public class CityServiceImplTest {
     public void testGetAllCitiesPagedEmptyQuery(){
         Page<City> testPage = new Page<City>(List.of(CITY), 1, 1);
         Mockito.when(
-            cityDao.getAllCities(new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            cityDao.getAllCities(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<City> cities = cityService.getAllCities("", new PageParams(1,2));
+        Page<City> cities = cityService.getAllCities("", PAGE_1_DEFAULT);
 
         assertNotNull(cities);
         assertEquals(testPage, cities);
@@ -122,10 +118,10 @@ public class CityServiceImplTest {
     public void testGetAllCitiesPagedQuery(){
         Page<City> testPage = new Page<City>(List.of(CITY), 1, 1);
         Mockito.when(
-            cityDao.searchBySubstring(Mockito.eq(NAME), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            cityDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<City> cities = cityService.getAllCities(NAME, new PageParams(1,2));
+        Page<City> cities = cityService.getAllCities(NAME, PAGE_1_DEFAULT);
 
         assertNotNull(cities);
         assertEquals(testPage, cities);
@@ -135,10 +131,10 @@ public class CityServiceImplTest {
     public void testSearchBySubstring(){
         Page<City> testPage = new Page<City>(List.of(CITY), 1, 1);
         Mockito.when(
-            cityDao.searchBySubstring(Mockito.eq(NAME), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            cityDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<City> cities = cityService.searchBySubstring(NAME, new PageParams(1,2));
+        Page<City> cities = cityService.searchBySubstring(NAME, PAGE_1_DEFAULT);
 
         assertNotNull(cities);
         assertEquals(testPage, cities);

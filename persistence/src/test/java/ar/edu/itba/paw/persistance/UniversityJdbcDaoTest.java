@@ -24,7 +24,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import ar.edu.itba.paw.models.University;
@@ -228,7 +227,7 @@ public class UniversityJdbcDaoTest {
     }
     @Test
     public void testGetAllUniversitiesNoUniversities(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.JOURNEY_TABLE, TestUtils.USER_INTEREST_TABLE, TestUtils.USER_TABLE, TestUtils.UNIVERSITY_TABLE);
+        TestUtils.deleteUniversities(jdbcTemplate);
         List<University> unis = uniDao.getAllUniversities();
         assertNotNull(unis);
         assertEquals(0, unis.size());
@@ -355,7 +354,7 @@ public class UniversityJdbcDaoTest {
     }
     @Test
     public void testGetAllUniversitiesPagedNoUniversities(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.JOURNEY_TABLE, TestUtils.USER_INTEREST_TABLE, TestUtils.USER_TABLE, TestUtils.UNIVERSITY_TABLE);
+        TestUtils.deleteUniversities(jdbcTemplate);
         Page<University> page = uniDao.getAllUniversities(TestUtils.PAGE_1_DEFAULT);
         assertNotNull(page);
         assertEquals(1, page.getCurrentPage());

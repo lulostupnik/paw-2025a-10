@@ -165,9 +165,12 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public User create(final String email, final String username, final String firstname, final String lastname, final University university,
-                       final Career career, final long profilePictureId, final String password, final Locale locale) {
+                       final Career career, final long profilePictureId, final String password, Locale locale) {
         LOGGER.debug("Registering new user to DB");
         final Map<String, Object> args = new HashMap<>();
+        if (locale == null || locale.getLanguage().isEmpty()){
+            locale = Locale.of("en");
+        }
         args.put("email", email);
         args.put("username", username);
         args.put("firstname", firstname);
@@ -176,7 +179,7 @@ public class UserJdbcDao implements UserDao {
         args.put("career_id", career.getId());
         args.put("profile_picture_id", profilePictureId);
         args.put("password", password);
-        args.put("language", locale.getLanguage().isEmpty() ? "en":locale.getLanguage());
+        args.put("language", locale);
         args.put("roles", "user");
         args.put("blocked", false);
         final Number id = jdbcInsert.executeAndReturnKey(args);

@@ -1,61 +1,61 @@
-package ar.edu.itba.paw.services;
+// package ar.edu.itba.paw.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+// import static org.junit.Assert.assertEquals;
+// import static org.junit.Assert.assertNotNull;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+// import java.time.LocalDateTime;
+// import java.util.List;
+// import java.util.Optional;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+// import org.junit.Test;
+// import org.junit.runner.RunWith;
+// import org.mockito.InjectMocks;
+// import org.mockito.Mock;
+// import org.mockito.Mockito;
+// import org.mockito.junit.MockitoJUnitRunner;
 
-import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
-import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
-import ar.edu.itba.paw.interfaces.services.EmailService;
-import ar.edu.itba.paw.interfaces.services.UserService;
-import ar.edu.itba.paw.models.Journey;
-import ar.edu.itba.paw.models.JourneyResponse;
-import ar.edu.itba.paw.models.Page;
-import ar.edu.itba.paw.models.PageParams;
-import ar.edu.itba.paw.models.User;
+// import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
+// import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
+// import ar.edu.itba.paw.interfaces.services.EmailService;
+// import ar.edu.itba.paw.interfaces.services.UserService;
+// import ar.edu.itba.paw.models.Journey;
+// import ar.edu.itba.paw.models.JourneyResponse;
+// import ar.edu.itba.paw.models.Page;
+// import ar.edu.itba.paw.models.PageParams;
+// import ar.edu.itba.paw.models.User;
 
-@RunWith(MockitoJUnitRunner.class)
-public class JourneyResponseServiceImplTest {
+// @RunWith(MockitoJUnitRunner.class)
+// public class JourneyResponseServiceImplTest {
 
-    private static final long JOURNEY_ID = 0;
-    private static final long USER_ID = 0;
-    private static final String USERNAME = "user";
-    private static final long ID = 0;
-    private static final String MESSAGE = "message";
-    private static final LocalDateTime TIMESTAMP = LocalDateTime.now().withNano(0);
-    private static final JourneyResponse RESPONSE = new JourneyResponse(ID, USER_ID, USERNAME, JOURNEY_ID, MESSAGE, TIMESTAMP);
-    private static final List<JourneyResponse> RESPONSES = List.of(RESPONSE);
-    private static final Page<JourneyResponse> RESPONSE_PAGE = new Page<JourneyResponse>(RESPONSES, 1, 1);
-    private static final int PAGE_NUM = 1;
-    private static final int PAGE_SIZE = 2;
-    private static final PageParams PAGE_PARAMS = new PageParams(1, 2);
-    private static final int REPLY_COUNT = 1;
-    private static final User USER = new User(ID, null, null, null, null, null, null, ID, null, false);
-    private static final Journey JOURNEY = new Journey(ID, USER, null, null, null, MESSAGE);
+//     private static final long JOURNEY_ID = 0;
+//     private static final long USER_ID = 0;
+//     private static final String USERNAME = "user";
+//     private static final long ID = 0;
+//     private static final String MESSAGE = "message";
+//     private static final LocalDateTime TIMESTAMP = LocalDateTime.now().withNano(0);
+//     private static final JourneyResponse RESPONSE = new JourneyResponse(ID, USER_ID, USERNAME, JOURNEY_ID, MESSAGE, TIMESTAMP);
+//     private static final List<JourneyResponse> RESPONSES = List.of(RESPONSE);
+//     private static final Page<JourneyResponse> RESPONSE_PAGE = new Page<JourneyResponse>(RESPONSES, 1, 1);
+//     private static final int PAGE_NUM = 1;
+//     private static final int PAGE_SIZE = 2;
+//     private static final PageParams PAGE_PARAMS = new PageParams(1, 2);
+//     private static final int REPLY_COUNT = 1;
+//     private static final User USER = new User(ID, null, null, null, null, null, null, ID, null, false);
+//     private static final Journey JOURNEY = new Journey(ID, USER, null, null, null, MESSAGE);
 
 
 //    @InjectMocks
 //    JourneyResponseServiceImpl responseService;
 
-    @Mock
-    JourneyResponseDao responseDao;
+    // @Mock
+    // JourneyResponseDao responseDao;
     
-    @Mock
-    JourneyDao journeyDao;
-    @Mock
-    EmailService emailService;
-    @Mock
-    UserService userService;
+    // @Mock
+    // JourneyDao journeyDao;
+    // @Mock
+    // EmailService emailService;
+    // @Mock
+    // UserService userService;
 
 //    @Test
 //    public void testCreate(){
@@ -167,4 +167,4 @@ public class JourneyResponseServiceImplTest {
 //
 //        assertEquals(REPLY_COUNT, count);
 //    }
-}
+//}

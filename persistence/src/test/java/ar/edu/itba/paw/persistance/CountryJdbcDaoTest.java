@@ -18,7 +18,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import ar.edu.itba.paw.models.Country;
@@ -64,7 +63,7 @@ public class CountryJdbcDaoTest {
     }
     @Test
     public void testFindAllNoCountries(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.JOURNEY_TABLE, TestUtils.USER_INTEREST_TABLE, TestUtils.USER_TABLE, TestUtils.UNIVERSITY_TABLE, TestUtils.CITY_TABLE, TestUtils.COUNTRY_TABLE);
+        TestUtils.deleteCountries(jdbcTemplate);
         List<Country> countries = countryDao.findAll();
         assertNotNull(countries);
         assertEquals(0, countries.size());
