@@ -124,8 +124,8 @@ public class JourneyController {
                                    @Valid @ModelAttribute("deleteReplyForm") final ReplyForm deleteReplyForm,
                                    final BindingResult deleteReplyErrors,
                                    @RequestParam(value = "replyId", required = false) Long replyId,
-                                   @PageParamCustomizer(defaultSize = 5) PageParams  repliesPage,
-                                   @PageParamCustomizer(defaultSize = 5, pageParamName = "interestsPage", sizeParamName = "interestsSize") PageParams interestsPage) {
+                                   @PageParamCustomizer(defaultSize = 4) PageParams  repliesPage,
+                                   @PageParamCustomizer(defaultSize = 7, pageParamName = "interestsPage", sizeParamName = "interestsSize") PageParams interestsPage) {
 
         LOGGER.debug("Getting info for journey {}", id);
 
