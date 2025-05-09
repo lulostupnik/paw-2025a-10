@@ -47,7 +47,7 @@ public class AuthController {
         this.interestService = interestService;
         this.authenticationManager = authenticationManager;
     }
-    @PostMapping(value ="/validate")
+    @GetMapping(value ="/validate")
     public ModelAndView validateEmail(@RequestParam("token") String token) {
         userService.validateEmail(token);
         return new ModelAndView("redirect:/explore");
