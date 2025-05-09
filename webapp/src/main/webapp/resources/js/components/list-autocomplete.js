@@ -26,6 +26,7 @@ let ListAutocomplete = (() => {
             apiEndpoint: null, // API endpoint for dynamic suggestions
             minChars: 2, // Minimum characters before triggering search
             debounceTime: 300, // Debounce time for API requests
+            useId: false, // Use ID for value instead of name
             ...options,
         }
 
@@ -219,7 +220,7 @@ let ListAutocomplete = (() => {
             const options = selectElement.querySelectorAll("option")
 
             for (let i = 0; i < options.length; i++) {
-                if (options[i].value === value) {
+                if (options[i].value == value) {
                     optionExists = true
                     break
                 }
@@ -228,7 +229,7 @@ let ListAutocomplete = (() => {
             // If option doesn't exist, create it
             if (!optionExists) {
                 const newOption = document.createElement("option")
-                newOption.value = text
+                newOption.value = value // change for value
                 newOption.textContent = text
                 selectElement.appendChild(newOption)
             }
@@ -257,7 +258,12 @@ let ListAutocomplete = (() => {
 
             // Add each result to dropdown and ensure it exists in the select element
             data.forEach((item) => {
-                const itemValue = typeof item === "object" ? item.name || item.id || item.value : item
+                let itemValue;
+                if(config.useId){
+                     itemValue = typeof item === "object" ? item.id || item.name || item.value : item
+                } else {
+                     itemValue = typeof item === "object" ? item.name || item.value : item
+                }
                 const itemText = typeof item === "object" ? item.name || item.text || item.label : item
 
                 // Ensure option exists in select element
@@ -328,10 +334,17 @@ let ListAutocomplete = (() => {
                     // Add the current value from the select element
                     for(let myValue in config.selectedValue){
                         if(myValue !== "") {
-                            selectedValues.push({
-                                value: config.selectedValue[myValue],
-                                text: selectElement.options[config.selectedValue[myValue]]?.textContent.trim() || config.selectedValue[myValue],
-                            })
+                            if( config.useId) {
+                                selectedValues.push({
+                                    value: config.selectedValue[myValue].id,
+                                    text: selectElement.options[config.selectedValue[myValue]]?.textContent.trim() || config.selectedValue[myValue].name,
+                                })
+                            } else {
+                                selectedValues.push({
+                                    value: config.selectedValue[myValue],
+                                    text: selectElement.options[config.selectedValue[myValue]]?.textContent.trim() || config.selectedValue[myValue],
+                                })
+                            }
                         }
 
                     }
@@ -564,7 +577,7 @@ let ListAutocomplete = (() => {
                     updateSelectElement()
                     updateSelectedTags()
                     searchInput.focus() // Return focus to search input
-
+                    console.log("Selected values: ", selectedValues)
                     // Call onRemove callback if provided
                     if (typeof config.onRemove === "function") {
                         config.onRemove(valueToRemove)

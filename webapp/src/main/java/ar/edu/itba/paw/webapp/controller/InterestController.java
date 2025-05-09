@@ -113,17 +113,16 @@ public class InterestController {
                                             BindingResult errors ) {
         Page<Interest> pagedInterests = interestService.findAllInterestsByUserId(user.getId(), new PageParams(1, 20));
         if (pagedInterests.getContent().isEmpty()) {
-            return new ModelAndView("redirect:/profile/profile");
+            return new ModelAndView("redirect:/profile/info");
         }
-
-        if(errors.hasErrors()){
-            return new ModelAndView("redirect:/profile/profile");
-        }
-        //NO ESTA BIEN EL TEMA PAGINACION(AUTOCOMPLETE)
+//
+//        if(errors.hasErrors()){
+//            return new ModelAndView("redirect:/profile/profile");
+//        }
         ModelAndView mav = new ModelAndView("interests/interests-edit");
         mav.addObject("editInterestsForm",form);
         mav.addObject("userInterests", pagedInterests.getContent());
-        mav.addObject("interests", interestService.getAllInterests(null,new PageParams(1, 20)).getContent());
+//        mav.addObject("interests", interestService.getAllInterests(null,new PageParams(1, 20)).getContent());
         return mav;
     }
 

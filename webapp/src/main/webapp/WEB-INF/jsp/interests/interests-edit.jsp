@@ -40,20 +40,12 @@
       <!-- Interests Field -->
       <div class="form-group">
         <form:label path="interests" cssClass="form-label required-field">
-          <spring:message code="event.interest" text="Interests"/>
+          <spring:message code="event.interest"/>
         </form:label>
 
         <!-- Hidden select that will hold the actual form data -->
-        <form:select path="interests" multiple="true" id="interestsSelect" style="display: none;">
-          <c:forEach var="interest" items="${interests}">
-            <c:set var="isSelected" value="false" />
-            <c:forEach var="userInterest" items="${userInterests}">
-              <c:if test="${interest.id == userInterest.id}">
-                <c:set var="isSelected" value="true" />
-              </c:if>
-            </c:forEach>
-            <option value="${interest.id}" ${isSelected ? 'selected' : ''}><c:out value="${interest.name}"/></option>
-          </c:forEach>
+        <form:select path="interests" multiple="true" id="interestsSelect" style="display: none;" >
+          <form:options items="${interests}" itemValue="id" itemLabel="name"/>
         </form:select>
 
         <!-- Custom UI for interests selection -->
@@ -62,13 +54,12 @@
                  placeholder="<spring:message code="event.interest.search" text="Search interests..."/>" />
 
           <div id="interestDropdown" class="autocomplete-dropdown" style="display: none;">
-            <c:forEach var="interest" items="${interests}">
-              <div class="autocomplete-item" data-id="${interest.id}" data-value="${interest.name}">
-                <c:out value="${interest.name}"/>
+            <c:forEach var="item" items="${interests}">
+              <div class="autocomplete-item" data-value="${item.id}">
+                <c:out value="${item.name}"/>
               </div>
             </c:forEach>
           </div>
-
           <!-- Selected interests will appear here as tags -->
           <div id="selectedInterests" class="selected-tags required-selected-tags"></div>
 
@@ -92,166 +83,14 @@
 <!-- Include JavaScript files -->
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const interestsForm = document.getElementById("interestsForm");
-    const interestsSelect = document.getElementById("interestsSelect");
-    const interestSearch = document.getElementById("interestSearch");
-    const interestDropdown = document.getElementById("interestDropdown");
-    const selectedInterests = document.getElementById("selectedInterests");
-    const interestItems = document.querySelectorAll("#interestDropdown .autocomplete-item");
-
-    // Track selected interest IDs to prevent duplicates
-    const selectedInterestIds = new Set();
-
-    // Initialize with user's existing interests
-    function initializeUserInterests() {
-      // Clear any existing tags
-      selectedInterests.innerHTML = '';
-      selectedInterestIds.clear();
-
-      // Get all selected options from the hidden select
-      const selectedOptions = Array.from(interestsSelect.selectedOptions);
-
-      // Create tags for each selected interest
-      selectedOptions.forEach(option => {
-        const id = option.value;
-        const name = option.text;
-        addInterestTag(id, name);
-      });
-    }
-
-    // Add a tag for an interest
-    function addInterestTag(id, name) {
-      // Check if this interest is already selected
-      if (selectedInterestIds.has(id)) {
-        return;
-      }
-
-      // Add to our tracking set
-      selectedInterestIds.add(id);
-
-      // Create the tag element
-      const tag = document.createElement("div");
-      tag.className = "selected-tag";
-      tag.setAttribute("data-id", id);
-      tag.setAttribute("data-value", name);
-
-      // Create the tag content with proper escaping
-      const tagText = document.createElement("span");
-      tagText.className = "tag-text";
-      tagText.textContent = name;
-
-      const tagRemove = document.createElement("span");
-      tagRemove.className = "tag-remove";
-      tagRemove.textContent = "×";
-
-      tag.appendChild(tagText);
-      tag.appendChild(tagRemove);
-
-      // Add click handler to remove tag
-      tagRemove.addEventListener("click", function() {
-        // Remove the tag
-        tag.remove();
-
-        // Remove from our tracking set
-        selectedInterestIds.delete(id);
-
-        // Deselect the option in the hidden select
-        const option = Array.from(interestsSelect.options).find(opt => opt.value === id);
-        if (option) {
-          option.selected = false;
-        }
-      });
-
-      // Add the tag to the container
-      selectedInterests.appendChild(tag);
-
-      // Select the option in the hidden select
-      const option = Array.from(interestsSelect.options).find(opt => opt.value === id);
-      if (option) {
-        option.selected = true;
-      }
-    }
-
-    // Show/hide dropdown when clicking on the search input
-    interestSearch.addEventListener("focus", function() {
-      interestDropdown.style.display = "block";
-    });
-
-    // Filter interests as user types
-    interestSearch.addEventListener("input", function() {
-      const searchTerm = this.value.toLowerCase();
-
-      interestItems.forEach(item => {
-        const itemValue = item.getAttribute("data-value").toLowerCase();
-        const itemId = item.getAttribute("data-id");
-
-        // Hide already selected items and non-matching items
-        if (selectedInterestIds.has(itemId) || !itemValue.includes(searchTerm)) {
-          item.style.display = "none";
-        } else {
-          item.style.display = "block";
-        }
-      });
-
-      // Show dropdown if there are matching items
-      const hasVisibleItems = Array.from(interestItems).some(item => item.style.display !== "none");
-      interestDropdown.style.display = hasVisibleItems ? "block" : "none";
-    });
-
-    // Handle clicking outside the dropdown
-    document.addEventListener("click", function(e) {
-      if (!interestSearch.contains(e.target) && !interestDropdown.contains(e.target)) {
-        interestDropdown.style.display = "none";
-      }
-    });
-
-    // Handle selecting an interest from the dropdown
-    interestItems.forEach(item => {
-      item.addEventListener("click", function() {
-        const id = this.getAttribute("data-id");
-        const value = this.getAttribute("data-value");
-
-        // Add the tag
-        addInterestTag(id, value);
-
-        // Clear the search input
-        interestSearch.value = "";
-
-        // Hide the dropdown
-        interestDropdown.style.display = "none";
-
-        // Hide this item in future searches
-        this.style.display = "none";
-      });
-    });
-
-    // Validate form before submission
-    interestsForm.addEventListener("submit", function(e) {
-      // Check if at least one interest is selected
-      if (selectedInterests.children.length === 0) {
-        e.preventDefault();
-        // Add error class to the input
-        interestSearch.classList.add("error");
-        // Show error message
-        const errorMsg = document.createElement("div");
-        errorMsg.className = "error-message";
-        errorMsg.textContent = "<spring:message code='interests.required' text='Please select at least one interest'/>";
-
-        // Remove any existing error message
-        const existingError = selectedInterests.nextElementSibling;
-        if (existingError && existingError.classList.contains("error-message")) {
-          existingError.remove();
-        }
-
-        selectedInterests.after(errorMsg);
-      }
-    });
-
-    // Initialize the form with user's existing interests
-    initializeUserInterests();
-  });
+  window.apiBaseUrl = '<c:url value="/" />';
+  previousInterests = [
+    <c:forEach var="interest" items="${userInterests}" varStatus="status">
+    { "name" : "<c:out value="${interest.name}"/>" , "id" : "<c:out value="${interest.id}"/>" }<c:if test="${!status.last}">,</c:if>
+    </c:forEach>
+  ];
 </script>
+<script src="<c:url value='/resources/js/edit-interest.js'/>"></script>
 
 </body>
 </html>

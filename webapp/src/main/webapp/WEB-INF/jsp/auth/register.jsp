@@ -231,7 +231,7 @@
 
                             <div id="interestDropdown" class="autocomplete-dropdown" style="display: none;">
                                 <c:forEach var="item" items="${interests}">
-                                    <div class="autocomplete-item" data-value="${item.name}">
+                                    <div class="autocomplete-item" data-value="${item.id}">
                                         <c:out value="${item.name}"/>
                                     </div>
                                 </c:forEach>
@@ -293,15 +293,16 @@
 <!-- Include modularized JavaScript files -->
 <script>
     window.apiBaseUrl = '<c:url value="/" />';
-    selectedInterests = ['<c:out value="${fn:join(createUserForm.interests.toArray(), ',')}" />'];
-    selectedCareer = '<c:out value="${createUserForm.career}" />';
+    selectedInterests = [
+        <c:forEach var="interest" items="${createUserForm.interests}" varStatus="status">
+        "<c:out value="${interest}"/>"<c:if test="${!status.last}">,</c:if>
+        </c:forEach>
+    ];    selectedCareer = '<c:out value="${createUserForm.career}" />';
     selectedUniversity = '<c:out value="${createUserForm.originUniversity}" />';
 </script>
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/components/password-strength.js'/>"></script>
-<script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
-<script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/components/file-upload.js'/>"></script>
 <script src="<c:url value='/resources/js/register.js'/>"></script>
 
