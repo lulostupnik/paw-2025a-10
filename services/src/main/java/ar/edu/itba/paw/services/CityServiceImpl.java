@@ -46,12 +46,6 @@ public class CityServiceImpl implements CityService {
         return cityDao.findBy(id, null, null);
     }
 
-    @Override
-    public List<City> findAllByCountry(String country) {
-        LOGGER.debug("Finding city by country name {}", country);
-        return cityDao.findAllByCountry(country);
-    }
-
 
     @Override
     public Page<City> getAllCities(String search, PageParams pageParams) {

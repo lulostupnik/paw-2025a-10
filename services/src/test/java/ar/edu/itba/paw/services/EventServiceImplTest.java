@@ -180,17 +180,6 @@ public class EventServiceImplTest {
         assertEquals(EVENT, maybeEvent.get());
     }
 
-    @Test
-    public void testGetAllEvents(){
-        Mockito.when(
-            eventDao.listAll()
-        ).thenReturn(EVENTS);
-
-        List<Event> events = eventService.getAllEvents();
-
-        assertNotNull(events);
-        assertEquals(EVENTS, events);
-    }
 
     @Test
     public void testGetAllEventsPaged(){
@@ -250,17 +239,7 @@ public class EventServiceImplTest {
         assertEquals(EVENTS_PAGE, page);
     }
 
-    @Test
-    public void testGetAllEventsEmail(){
-        Mockito.when(
-            eventDao.getEvents(Mockito.eq(EMAIL))
-        ).thenReturn(EVENTS);
 
-        List<Event> events = eventService.getAllEvents(EMAIL);
-
-        assertNotNull(events);
-        assertEquals(EVENTS, events);
-    }
 
     @Test
     public void testGetAllEventsEmailPaged(){
@@ -651,17 +630,6 @@ public class EventServiceImplTest {
         assertFalse(isFull);
     }
 
-    @Test
-    public void testGetFullEvents(){
-        Mockito.when(
-            eventDao.getFullEvents()
-        ).thenReturn(EVENTS);
-
-        List<Event> events = eventService.getFullEvents();
-
-        assertNotNull(events);
-        assertEquals(EVENTS, events);
-    }
 
 //    @Test
 //    public void testGetEventsPageWithAttendanceStatus(){
