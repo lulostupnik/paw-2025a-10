@@ -15,7 +15,7 @@ public interface UniversityService {
     Optional<University> findByAny(String queryString);
     List<University> getAllUniversities();
     Page<University> getAllUniversities(String search, PageParams pageParams);
-    String getUniversitiesJSON(String search);
+    String getUniversitiesJSON(String search, PageParams pageParams);
     University createUniversity(String name, String abbreviation, String city);
     void updateUniversity(long id, String name, String abbreviation, String city);
     Page<University> searchUniversities(String search, PageParams pageParams);

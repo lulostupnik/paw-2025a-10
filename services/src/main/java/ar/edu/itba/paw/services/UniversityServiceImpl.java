@@ -68,14 +68,14 @@ public class UniversityServiceImpl implements UniversityService {
         return universityDao.searchBySubstring(search, pageParams);
     }
     @Override
-    public String getUniversitiesJSON(String search){
+    public String getUniversitiesJSON(String search, PageParams pageParams){
         LOGGER.debug("Getting all universities with search {}", search);
         List<University> universities;
         if (search == null || search.isEmpty()) {
-            universities = universityDao.getAllUniversities(1,DEFAULT_PAGE_SIZE).getContent();
+            universities = universityDao.getAllUniversities(pageParams).getContent();
             return UniversitiesToJson(universities);
         }
-        universities = universityDao.searchBySubstring(search,1,DEFAULT_PAGE_SIZE).getContent();
+        universities = universityDao.searchBySubstring(search,pageParams).getContent();
 
         return UniversitiesToJson(universities);
     }

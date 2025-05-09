@@ -6,6 +6,7 @@ import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.form.CreateInterestForm;
 import ar.edu.itba.paw.webapp.form.EditInterestForm;
+import ar.edu.itba.paw.webapp.resolver.annotation.PageParamCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -31,8 +32,9 @@ public class InterestController {
     }
     @GetMapping(value = "", produces = "application/json; charset=UTF-8")
     @ResponseBody
-    public String getInterestsJSON(@RequestParam(value = "search", required = false) String search) {
-        return interestService.getInterestsJSON(search);
+    public String getInterestsJSON(@RequestParam(value = "search", required = false) String search,
+                                   @PageParamCustomizer(defaultSize = 30) PageParams pageParams) {
+        return interestService.getInterestsJSON(search, pageParams);
     }
 
 

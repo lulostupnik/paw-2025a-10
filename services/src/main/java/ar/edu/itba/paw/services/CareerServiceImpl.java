@@ -90,14 +90,14 @@ public class CareerServiceImpl implements CareerService {
     }
 
     @Override
-    public String getCareersJSON(String search) {
+    public String getCareersJSON(String search, PageParams pageParams) {
         LOGGER.debug("Getting all careers with search {}", search);
         if (search == null || search.isEmpty()) {
 
-            List<Career> careers = careerDao.getAllCareers(1,DEFAULT_PAGE_SIZE).getContent();
+            List<Career> careers = careerDao.getAllCareers(pageParams).getContent();
             return listToJson(careers);
         }
-        List<Career> careers = careerDao.searchBySubstring(search,1,DEFAULT_PAGE_SIZE).getContent();
+        List<Career> careers = careerDao.searchBySubstring(search,pageParams).getContent();
         return listToJson(careers);
     }
 

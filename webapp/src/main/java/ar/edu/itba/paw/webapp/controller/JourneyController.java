@@ -167,6 +167,7 @@ public class JourneyController {
                                        @ModelAttribute("user") User user) {
 
         LOGGER.debug("Replying to journey {} from form {}", id, rjf);
+        redirectAttributes.addFlashAttribute("goBack", true);
         if (errors.hasErrors()) {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
             redirectAttributes.addFlashAttribute("errors", errors);

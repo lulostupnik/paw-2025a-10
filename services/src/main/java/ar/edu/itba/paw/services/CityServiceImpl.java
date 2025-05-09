@@ -90,15 +90,15 @@ public class CityServiceImpl implements CityService {
 
     @Transactional
     @Override
-    public String getCitiesJson(String search) {
+    public String getCitiesJson(String search, PageParams pageParams) {
         LOGGER.debug("Finding all cities with search {}", search);
         List<City> cities;
         if (search == null || search.isEmpty()) {
-            cities = cityDao.getAllCities(1,DEFAULT_PAGE_SIZE).getContent();
+            cities = cityDao.getAllCities(pageParams).getContent();
             return listToJson(cities);
 
         }
-        cities = cityDao.searchBySubstring(search, 1, DEFAULT_PAGE_SIZE).getContent();
+        cities = cityDao.searchBySubstring(search, pageParams).getContent();
         return listToJson(cities);
 
 

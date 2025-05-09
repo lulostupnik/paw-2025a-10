@@ -4,8 +4,10 @@ import ar.edu.itba.paw.interfaces.services.CareerService;
 
 import ar.edu.itba.paw.models.Career;
 
+import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.form.*;
+import ar.edu.itba.paw.webapp.resolver.annotation.PageParamCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -34,8 +36,9 @@ public class CareerController {
     }
     @GetMapping(value = "", produces = "application/json; charset=UTF-8")
     @ResponseBody
-    public String getCareersJSON(@RequestParam(value = "search", required = false) String search) {
-        return careerService.getCareersJSON(search);
+    public String getCareersJSON(@RequestParam(value = "search", required = false) String search,
+                                 @PageParamCustomizer(defaultSize = 30) PageParams pageParams) {
+        return careerService.getCareersJSON(search, pageParams);
     }
 
 

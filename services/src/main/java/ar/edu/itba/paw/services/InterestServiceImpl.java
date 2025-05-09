@@ -142,12 +142,12 @@ public class InterestServiceImpl implements InterestService {
     }
 
     @Override
-    public String getInterestsJSON(String search) {
+    public String getInterestsJSON(String search, PageParams pageParams) {
         if(search == null || search.isEmpty()) {
-            List<Interest> interests = interestDao.getAllInterests(1,DEFAULT_PAGE_SIZE).getContent();
+            List<Interest> interests = interestDao.getAllInterests(pageParams).getContent();
             return listToJson(interests);
         }
-        List<Interest> interests = interestDao.searchBySubstring(search,1,DEFAULT_PAGE_SIZE).getContent();
+        List<Interest> interests = interestDao.searchBySubstring(search,pageParams).getContent();
         return listToJson(interests);
     }
 

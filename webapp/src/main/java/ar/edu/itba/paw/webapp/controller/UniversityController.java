@@ -3,9 +3,11 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 
+import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.form.CreateUniversityForm;
+import ar.edu.itba.paw.webapp.resolver.annotation.PageParamCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -39,8 +41,10 @@ public class UniversityController {
     }
     @GetMapping(value = "", produces = "application/json; charset=UTF-8")
     @ResponseBody
-    public String getUniversitiesJSON(@RequestParam(value = "search", required = false) String search) {
-        return universityService.getUniversitiesJSON(search);
+    public String getUniversitiesJSON(@RequestParam(value = "search", required = false) String search,
+                                     @PageParamCustomizer(defaultSize = 30) PageParams pageParams) {
+
+        return universityService.getUniversitiesJSON(search, pageParams);
     }
 
     @GetMapping(value = "/create")
