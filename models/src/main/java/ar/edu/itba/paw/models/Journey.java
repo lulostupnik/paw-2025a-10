@@ -11,7 +11,7 @@ public class Journey{
     private final User user;
     private final LocalDate startDate;
     private final LocalDate endDate;
-    private final University destinationUniversity; // FIXME: Cambiar por String -> lo obtenemos del toString();
+    private final University destinationUniversity;
     private final String description;
 
     @Override

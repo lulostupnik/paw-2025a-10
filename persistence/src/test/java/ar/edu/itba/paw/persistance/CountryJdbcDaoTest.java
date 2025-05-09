@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.sql.DataSource;
@@ -16,7 +15,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -32,7 +30,7 @@ import ar.edu.itba.paw.persistence.CountryJdbcDao;
 @ContextConfiguration(classes = TestConfig.class)
 public class CountryJdbcDaoTest {
 
-    private static long id1;
+    private static Country COUNTRY_1;
 
     @Autowired
     private DataSource ds;
@@ -46,7 +44,7 @@ public class CountryJdbcDaoTest {
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
 
-        id1 = jdbcTemplate.queryForObject("SELECT id FROM countries WHERE code = ?", Long.class, TestUtils.COUNTRY_1_CODE);
+        COUNTRY_1 = jdbcTemplate.queryForObject(TestUtils.COUNTRY_SELECT_BY_CODE, TestUtils.COUNTRY_ROW_MAPPER, TestUtils.COUNTRY_1_CODE);
     }
 
     @Test
@@ -60,13 +58,13 @@ public class CountryJdbcDaoTest {
             assertTrue(countryNames.contains(country.getName()));
             assertTrue(countryCodes.contains(country.getCode()));
             if (country.getName().equals(TestUtils.COUNTRY_1_NAME)){
-                assertEquals(id1, country.getId());
+                assertEquals(COUNTRY_1.getId(), country.getId());
             }
         }
     }
     @Test
     public void testFindAllNoCountries(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.UNIVERSITY_TABLE, TestUtils.CITY_TABLE, TestUtils.COUNTRY_TABLE);
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.JOURNEY_TABLE, TestUtils.USER_INTEREST_TABLE, TestUtils.USER_TABLE, TestUtils.UNIVERSITY_TABLE, TestUtils.CITY_TABLE, TestUtils.COUNTRY_TABLE);
         List<Country> countries = countryDao.findAll();
         assertNotNull(countries);
         assertEquals(0, countries.size());
@@ -101,7 +99,7 @@ public class CountryJdbcDaoTest {
         assertTrue(result.isPresent());
         assertEquals(TestUtils.COUNTRY_1_NAME, result.get().getName());
         assertEquals(TestUtils.COUNTRY_1_CODE, result.get().getCode());
-        assertEquals(id1, result.get().getId());
+        assertEquals(COUNTRY_1.getId(), result.get().getId());
     }
     @Test
     public void testFindByNameFakeName(){
