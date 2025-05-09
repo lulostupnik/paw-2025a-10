@@ -1,8 +1,8 @@
 package ar.edu.itba.paw.webapp.auth;
 
 import ar.edu.itba.paw.interfaces.services.UserService;
-import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.UserPassword;
+import ar.edu.itba.paw.webapp.exception.EmailNotVerifiedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.GrantedAuthority;
@@ -11,11 +11,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.regex.Pattern;
 
 @Component
 public class PawUserDetailsService implements UserDetailsService {
@@ -36,7 +33,7 @@ public class PawUserDetailsService implements UserDetailsService {
             throw new DisabledException("User is blocked");
         }
         if(!user.isVerified()){
-            throw new DisabledException("User is not verified");
+            throw new EmailNotVerifiedException("User is not verified");
         }
         if(user.getRole().equals("admin")) {
             authorities = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
