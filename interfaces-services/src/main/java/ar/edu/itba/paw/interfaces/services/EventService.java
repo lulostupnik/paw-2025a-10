@@ -12,7 +12,7 @@ public interface EventService {
     void replyToEvent(String email,long eventId, String message);
     Optional<Event> getEventById(long id);
     Page<Event> getAllEvents(PageParams pageParams);
-    Optional<EventWithStatistics> findEventWithStatistics(long eventId);
+    Optional<EventWithStatistics> findEventWithStatistics(User user, long eventId);
     Page<Event> getAllEventsSearch(String search, PageParams pageParams);
     Page<Event> getAllEvents(String email, PageParams pageParams);
     void attendEvent(String email, long eventId);
@@ -29,6 +29,7 @@ public interface EventService {
     List<Event> getTopEvents(int limit);
     boolean isEventOwnedByUser(String email, long eventID);
     boolean isEventFull(long eventId);
+    boolean isEventFull(Event event);
     Page<Event> getEventsPageWithAttendanceStatus(String search, User user,
                                                   String sortBy, String direction, String destination, LocalDate startDate, LocalDate endDate, String interest,
                                                   boolean isPast, boolean isUpcoming, boolean attending,

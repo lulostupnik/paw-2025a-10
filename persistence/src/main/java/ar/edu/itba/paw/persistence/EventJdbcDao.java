@@ -131,6 +131,8 @@ public class EventJdbcDao implements EventDao {
     private final static String SQL_FIND_ALL_BY_USER_PAGED = SQL_FIND_MY_EVENTS + " ORDER BY e.event_date DESC LIMIT ? OFFSET ? ";
     private final static String SQL_FIND_ALL_BY_EMAIL_PAGED = SQL_FIND_BY_EMAIL + " ORDER BY e.event_date DESC LIMIT ? OFFSET ? ";
 
+
+
     private final static String SQL_SEARCH_PAGED = SQL_BASE_NOT_DELETED + """
                     AND (
                             LOWER(e.title) LIKE LOWER(?)
@@ -154,6 +156,13 @@ public class EventJdbcDao implements EventDao {
                             OR LOWER(c.name) LIKE LOWER(?)
                             OR LOWER(us.username) LIKE LOWER(?)
                         )
+                   """;
+
+    private final static String SQL_SELECT_WITH_USER_INFO = "SELECT (ea.user_id IS NOT NULL) AS is_attending, (e.user_id = ?) AS is_owner, " + SQL_ALIASES;
+
+    private final static String SQL_FIND_EVENT_WITH_USER_INFO = SQL_SELECT_WITH_USER_INFO + SQL_FROM_BASE + """
+                   LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
+                   WHERE e.id = ?
                    """;
 
     private final static String SQL_SEARCH_OTHERS_EVENTS_WITH_ATTENDANCE =
@@ -368,14 +377,34 @@ public class EventJdbcDao implements EventDao {
 
 
     @Override
-    public Optional<EventWithStatistics> findEventWithStatistics(final long eventId) {
-
-        Optional<Event> maybeEvent = findById(eventId);
+    public Optional<EventWithStatistics> findEventWithStatistics(final Long userId, final long eventId) {
+        Optional<EventWithUserInfo> maybeEvent;
+        if(userId == null){
+            maybeEvent = jdbcTemplate.query(
+                    SQL_FIND_BY_ID,
+                    (rs, rowNum) -> new EventWithUserInfo(
+                            EVENT_ROW_MAPPER.mapRow(rs, rowNum),
+                            false,
+                            false
+                    ),
+                    eventId
+            ).stream().findFirst();
+        } else {
+             maybeEvent = jdbcTemplate.query(
+                    SQL_FIND_EVENT_WITH_USER_INFO,
+                    (rs, rowNum) -> new EventWithUserInfo(
+                            EVENT_ROW_MAPPER.mapRow(rs, rowNum),
+                            rs.getBoolean("is_attending"),
+                            rs.getBoolean("is_owner")
+                    ),
+                    userId, userId, eventId
+            ).stream().findFirst();
+        }
         if (maybeEvent.isEmpty()) {
             return Optional.empty();
         }
 
-        final long creatorId = maybeEvent.get().getUser().getId();
+        final long creatorId = maybeEvent.get().getEvent().getUser().getId();
 
         final int creatorEventCount = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM events WHERE user_id = ? AND deleted = FALSE",
@@ -421,11 +450,13 @@ public class EventJdbcDao implements EventDao {
         }
 
         EventWithStatistics eventStatistics = new EventWithStatistics(
-                maybeEvent.get(),
+                maybeEvent.get().getEvent(),
                 creatorEventCount,
                 creatorAttendanceCount,
                 topAttendeeCountry,
-                topAttendeeCountryCount
+                topAttendeeCountryCount,
+                maybeEvent.get().isAttending(),
+                maybeEvent.get().isCreator()
         );
 
         LOGGER.debug("Found event statistics for event {}: creator events {}, creator attended {}, top attendee country {} ({})",

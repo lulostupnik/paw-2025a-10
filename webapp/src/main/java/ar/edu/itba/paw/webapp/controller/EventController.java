@@ -156,25 +156,12 @@ public class EventController {
         mav.addObject("commentsCount", eventService.getResponseCount(event.getId()));
 
 
-        Boolean isFull = eventService.isEventFull(id);
-
-        boolean isAttending = false;
-        boolean isEventOwner = false;
-
-        if(user != null) {
-            isAttending = eventService.isUserAttending(user.getEmail(), id);
-            isEventOwner = eventService.isEventOwnedByUser(user.getEmail(), id);
-        }
-
-        LOGGER.debug("User attending event {}", isAttending);
-        LOGGER.debug("User is event owner {}", isEventOwner);
-
-        if(isEventOwner){
+        if(eventWithStatistics.isCreator()){
             mav.addObject("attendees", eventService.getEventAttendees(id));
         }
-        mav.addObject("attend", isAttending);
-        mav.addObject("isEventOwner", isEventOwner);
-        mav.addObject("isFull", isFull);
+        mav.addObject("attend", eventWithStatistics.isAttending());
+        mav.addObject("isEventOwner", eventWithStatistics.isCreator());
+        mav.addObject("isFull", eventService.isEventFull(event));
         return mav;
     }
 
@@ -189,7 +176,7 @@ public class EventController {
         @PageParamCustomizer(defaultSize = 5, pageParamName = "attendeesPage", sizeParamName = "attendeesSize") PageParams attendeesPage)
     {
         LOGGER.debug("Getting info for event {}", id);
-        Optional<EventWithStatistics> maybeEvent = eventService.findEventWithStatistics(id);
+        Optional<EventWithStatistics> maybeEvent = eventService.findEventWithStatistics(user, id);
         if (maybeEvent.isEmpty()) { // error ControllerAdvice
             LOGGER.warn("Event {} not found", id);
             return new ModelAndView("events/not_found");
