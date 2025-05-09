@@ -38,22 +38,22 @@ public interface JourneyDao {
     List<Journey> findByFilters(long userId, String destination, LocalDate startDate, LocalDate endDate, String interest);
     List<Journey> findByOriginCity(long originCityId);
     List<Journey> findByOriginUniversity(long originUniversityId);
-    Page<Journey> getRecommendedJourneys(String email, int page, int size);
+    Page<Journey> getRecommendedJourneys(String email, PageParams pageParams);
     List<Journey> getOthersJourneys(long userId);
 
 
     // PAGE
-    Page<Journey> listAll(int page, int size);
-    Page<Journey> getOthersJourneys(long userId, int page, int size);
-    Page<Journey> findByFilters(Long userId, Long cityId, LocalDate startDate, LocalDate endDate, Long interest, int page, int size);
-    Page<Journey> findByOriginCity(long originCityId, int page, int size);
-    // Page<Journey> getRecommendedJourneys(Long userId, int page, int size); // fixme
-    Page<Journey> searchJourneys(String search, int page, int size);
+    Page<Journey> listAll(PageParams pageParams);
+    Page<Journey> getOthersJourneys(long userId, PageParams pageParams);
+    Page<Journey> findByFilters(Long userId, Long cityId, LocalDate startDate, LocalDate endDate, Long interest, PageParams pageParams);
+    Page<Journey> findByOriginCity(long originCityId, PageParams pageParams);
+    // Page<Journey> getRecommendedJourneys(Long userId, PageParams pageParams); // fixme
+    Page<Journey> searchJourneys(String search, PageParams pageParams);
 
     Page<Journey> searchJourneys(String search, Long userId, String orderBy, String direction,
                                  Long cityId, LocalDate startDate, LocalDate endDate, Long interest,
                                  boolean isPast, boolean isUpcoming, boolean isMyDestination,
-                                 int page, int size);
+                                 PageParams pageParams);
 
     // ELIMINAR o reemplazar
     Optional<Journey> findOverlappingJourney(long id, LocalDate startDate, LocalDate endDate);

@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import javax.sql.DataSource;
 
+import ar.edu.itba.paw.models.PageParams;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -387,8 +388,8 @@ public class InterestJdbcDaoTest {
     public void testGetAllInterestsPaged(){
         long id3 = insertInterest.executeAndReturnKey(Map.of("name", TestUtils.INTEREST_NEW1_NAME)).longValue();
 
-        Page<Interest> page1 = interestDao.getAllInterests(1, 2);
-        Page<Interest> page2 = interestDao.getAllInterests(2, 2);
+        Page<Interest> page1 = interestDao.getAllInterests(new PageParams(1, 2));
+        Page<Interest> page2 = interestDao.getAllInterests(new PageParams(2, 2));
 
         assertNotNull(page1);
         assertNotNull(page2);
@@ -410,7 +411,7 @@ public class InterestJdbcDaoTest {
     @Test
     public void testGetAllInterestsPagedNoInterests(){
         JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.INTEREST_TABLE);
-        Page<Interest> page1 = interestDao.getAllInterests(1, 2);
+        Page<Interest> page1 = interestDao.getAllInterests(new PageParams(1, 2));
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -423,7 +424,7 @@ public class InterestJdbcDaoTest {
     public void testSearchBySubstringNoFiltering(){
         insertInterest.execute(Map.of("name", TestUtils.INTEREST_NEW1_NAME));
 
-        Page<Interest> page1 = interestDao.searchBySubstring(TestUtils.INTEREST_1_NAME.substring(0, 5), 1, 3);
+        Page<Interest> page1 = interestDao.searchBySubstring(TestUtils.INTEREST_1_NAME.substring(0, 5), new PageParams(1, 3));
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
@@ -431,7 +432,7 @@ public class InterestJdbcDaoTest {
     }
     @Test
     public void testSearchBySubstringFiltering(){
-        Page<Interest> page1 = interestDao.searchBySubstring(TestUtils.INTEREST_1_NAME.substring(TestUtils.INTEREST_1_NAME.length()-1, TestUtils.INTEREST_1_NAME.length()), 1, 3);
+        Page<Interest> page1 = interestDao.searchBySubstring(TestUtils.INTEREST_1_NAME.substring(TestUtils.INTEREST_1_NAME.length()-1, TestUtils.INTEREST_1_NAME.length()), new PageParams(1, 3));
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
@@ -441,7 +442,7 @@ public class InterestJdbcDaoTest {
     public void testSearchBySubstringEmpty(){
         insertInterest.execute(Map.of("name", TestUtils.INTEREST_NEW1_NAME));
 
-        Page<Interest> page1 = interestDao.searchBySubstring("", 1, 3);
+        Page<Interest> page1 = interestDao.searchBySubstring("", new PageParams(1, 3));
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
@@ -451,7 +452,7 @@ public class InterestJdbcDaoTest {
     public void testSearchBySubstringMissing(){
         insertInterest.execute(Map.of("name", TestUtils.INTEREST_NEW1_NAME));
 
-        Page<Interest> page1 = interestDao.searchBySubstring(null, 1, 3);
+        Page<Interest> page1 = interestDao.searchBySubstring(null, new PageParams(1, 3));
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
@@ -461,8 +462,8 @@ public class InterestJdbcDaoTest {
     public void testSearchBySubstringPaging(){
         insertInterest.execute(Map.of("name", TestUtils.INTEREST_NEW1_NAME));
 
-        Page<Interest> page1 = interestDao.searchBySubstring("", 1, 2);
-        Page<Interest> page2 = interestDao.searchBySubstring("", 2, 2);
+        Page<Interest> page1 = interestDao.searchBySubstring("", new PageParams(1, 2));
+        Page<Interest> page2 = interestDao.searchBySubstring("", new PageParams(2, 2));
 
         assertNotNull(page1);
         assertNotNull(page2);
@@ -493,7 +494,7 @@ public class InterestJdbcDaoTest {
     public void testFindAllInterestsByUserId(){
         insertUserInterest.execute(Map.of("user_id", USER_ID, "category_id", INTEREST_1_ID, "score", 0));
 
-        Page<Interest> interests = interestDao.findAllInterestsByUserId(USER_ID, 1, 2);
+        Page<Interest> interests = interestDao.findAllInterestsByUserId(USER_ID, new PageParams(1, 2));
 
         assertNotNull(interests);
         assertEquals(1, interests.getCurrentPage());

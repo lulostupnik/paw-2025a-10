@@ -64,9 +64,9 @@ public class UniversityServiceImpl implements UniversityService {
     public Page<University> getAllUniversities(String search, PageParams pageParams) {
         LOGGER.debug("Getting all universities with search {}", search);
         if (search == null || search.isEmpty()) {
-            return universityDao.getAllUniversities(pageParams.getPage(), pageParams.getSize());
+            return universityDao.getAllUniversities(pageParams);
         }
-        return universityDao.searchBySubstring(search, pageParams.getPage(), pageParams.getSize());
+        return universityDao.searchBySubstring(search, pageParams);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     public Page<University> searchUniversities(String search, PageParams pageParams) {
-        return universityDao.searchBySubstring(search, pageParams.getPage(), pageParams.getSize());
+        return universityDao.searchBySubstring(search, pageParams);
     }
 
     @Override

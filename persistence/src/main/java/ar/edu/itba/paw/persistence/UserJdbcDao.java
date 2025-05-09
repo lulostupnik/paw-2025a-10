@@ -256,19 +256,19 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public Page<User> getAllUsers(final int page, final int size) {
-        final List<User> list = jdbcTemplate.query(SQL_FIND_ALL_PAGED, USER_ROW_MAPPER, size, offset(page, size));
+    public Page<User> getAllUsers(PageParams pageParams) {
+        final List<User> list = jdbcTemplate.query(SQL_FIND_ALL_PAGED, USER_ROW_MAPPER, pageParams.getSize(), offset(pageParams));
         final int elementCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
-        return new Page<>(list, page, pageCount(elementCount, size));
+        return new Page<>(list, pageParams.getPage(), pageCount(elementCount, pageParams.getSize()));
     }
 
     @Override
-    public Page<User> searchUsers(final String search, final int page, final int size) {
+    public Page<User> searchUsers(final String search, PageParams pageParams) {
         final String searchPattern = likePattern(search);
         final List<User> list = jdbcTemplate.query(
                 SQL_SEARCH_USERS_PAGED,
                 USER_ROW_MAPPER,
-                searchPattern, searchPattern, searchPattern, /*searchPattern,*/ size, offset(page, size)
+                searchPattern, searchPattern, searchPattern, /*searchPattern,*/ pageParams.getSize(), offset(pageParams)
         );
 
         final int elementCount = jdbcTemplate.queryForObject(
@@ -287,8 +287,8 @@ public class UserJdbcDao implements UserDao {
 
         return new Page<>(
                 list,
-                page,
-                pageCount(elementCount, size)
+                pageParams.getPage(),
+                pageCount(elementCount, pageParams.getSize())
         );
     }
 

@@ -25,7 +25,6 @@ import java.util.*;
 public class EventServiceImpl implements EventService {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventServiceImpl.class);
     private final EventResponseDao eventResponseDao;
-
     private final UserService userService;
     private final EmailService emailService;
     private final EventDao eventDao;
@@ -106,7 +105,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Page<Event> getAllEvents(PageParams pageParams){
-        return eventDao.listAll(pageParams.getPage(), pageParams.getSize());
+        return eventDao.listAll(pageParams);
     }
 
     @Override
@@ -118,9 +117,9 @@ public class EventServiceImpl implements EventService {
     public Page<Event> getAllEventsSearch(String search,PageParams pageParams) {
         LOGGER.debug("Getting all events with search {}", search);
         if (search == null || search.isEmpty()) {
-            return eventDao.listAll(pageParams.getPage(), pageParams.getSize());
+            return eventDao.listAll(pageParams);
         }
-        return eventDao.searchEvents(search, pageParams.getPage(), pageParams.getSize());
+        return eventDao.searchEvents(search, pageParams);
     }
 
     @Override
@@ -130,7 +129,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Page<Event> getAllEvents(String email, PageParams pageParams) {
-        return eventDao.getEvents(email, pageParams.getPage(), pageParams.getSize());
+        return eventDao.getEvents(email, pageParams);
     }
 
 
@@ -196,7 +195,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Page<User> getEventAttendees(long eventId, PageParams pageParams) {
-        return eventAttendanceDao.getAttendees(eventId, pageParams.getPage(), pageParams.getSize());
+        return eventAttendanceDao.getAttendees(eventId, pageParams);
     }
     @Override
     public int getEventAttendeesCount(long eventId) {
@@ -216,7 +215,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Page<Event> getUserAttendingEvents(long userId, PageParams pageParams) {
-        return eventAttendanceDao.getAttendingEvents(userId, pageParams.getPage(), pageParams.getSize());
+        return eventAttendanceDao.getAttendingEvents(userId, pageParams);
     }
 
 
@@ -228,10 +227,10 @@ public class EventServiceImpl implements EventService {
             throw new IllegalArgumentException("Limit must be greater than 0");
         }
         LOGGER.debug("Fetching recommended events for user id: {}, with limit: {}", userId, limit);
-        List<Event> events = eventDao.getRecommendedEvents(userId, 1, limit).getContent();
+        List<Event> events = eventDao.getRecommendedEvents(userId, new PageParams(1, limit)).getContent();
         if (events.isEmpty()) {
             LOGGER.debug("No recommended events found for user {}. Falling back to top events.", userId);
-            events = eventDao.getTopUserEvents(userId,1, limit).getContent();
+            events = eventDao.getTopUserEvents(userId,new PageParams(1, limit)).getContent();
         } else {
             LOGGER.debug("Found {} recommended events for user {}", events.size(), userId);
         }
@@ -246,7 +245,7 @@ public class EventServiceImpl implements EventService {
         if (limit <= 0) {
             throw new IllegalArgumentException("Limit must be greater than 0");
         }
-        return eventDao.getTopEvents(1, limit).getContent();
+        return eventDao.getTopEvents(new PageParams(1, limit)).getContent();
     }
 
     @Override
@@ -274,7 +273,7 @@ public class EventServiceImpl implements EventService {
                                                          PageParams pageParams) {
 
         return eventDao.getEventsWithAttendanceStatus(user == null ? null : user.getId(), search, sortBy, direction, destination, startDate, endDate, interest,
-                isPast, isUpcoming, attending, pageParams.getPage(), pageParams.getSize());
+                isPast, isUpcoming, attending, pageParams);
     }
 
     @Override
@@ -375,7 +374,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Page<EventResponse> listAllResponseFromEvent(long eventId, PageParams pageParams) {
-        return eventResponseDao.listAllFromEvent(eventId,pageParams.getPage(),pageParams.getSize());
+        return eventResponseDao.listAllFromEvent(eventId,pageParams);
     }
 
     @Override

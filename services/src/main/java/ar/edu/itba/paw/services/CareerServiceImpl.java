@@ -52,9 +52,9 @@ public class CareerServiceImpl implements CareerService {
     public Page<Career> getAllCareers(String search, PageParams pageParams) {
         LOGGER.debug("Getting all careers with search {}", search);
         if (search == null || search.isEmpty()) {
-            return careerDao.getAllCareers(pageParams.getPage(), pageParams.getSize());
+            return careerDao.getAllCareers(pageParams);
         }
-        return careerDao.searchBySubstring(search, pageParams.getPage(), pageParams.getSize());
+        return careerDao.searchBySubstring(search, pageParams);
     }
 
     @Transactional

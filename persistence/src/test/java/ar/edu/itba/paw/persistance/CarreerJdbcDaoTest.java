@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import javax.sql.DataSource;
 
+import ar.edu.itba.paw.models.PageParams;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -133,8 +134,8 @@ public class CarreerJdbcDaoTest {
     public void testGetAllCareers(){
         long bonusId = insert.executeAndReturnKey(Map.of("name", TestUtils.CAREER_INSERT1_NAME, "deleted", false)).longValue();
 
-        Page<Career> page1 = careerDao.getAllCareers(1, 2);
-        Page<Career> page2 = careerDao.getAllCareers(2, 2);
+        Page<Career> page1 = careerDao.getAllCareers(new PageParams(1, 2));
+        Page<Career> page2 = careerDao.getAllCareers(new PageParams(2, 2));
 
         assertNotNull(page1);
         assertNotNull(page2);
@@ -156,7 +157,7 @@ public class CarreerJdbcDaoTest {
     public void testGetAllCareersNoCareers(){
         JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.CAREER_TABLE);
 
-        Page<Career> page1 = careerDao.getAllCareers(1, 2);
+        Page<Career> page1 = careerDao.getAllCareers(new PageParams(1, 2));
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -213,7 +214,7 @@ public class CarreerJdbcDaoTest {
 
     @Test
     public void testSearchBySubstringNoFiltering(){
-        Page<Career> page1 = careerDao.searchBySubstring(TestUtils.CAREER_1_NAME.substring(0, 5), 1, 3);
+        Page<Career> page1 = careerDao.searchBySubstring(TestUtils.CAREER_1_NAME.substring(0, 5), new PageParams(1, 3));
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
@@ -221,7 +222,7 @@ public class CarreerJdbcDaoTest {
     }
     @Test
     public void testSearchBySubstringFiltering(){
-        Page<Career> page1 = careerDao.searchBySubstring(TestUtils.CAREER_1_NAME.substring(TestUtils.CAREER_1_NAME.length()-1, TestUtils.CAREER_1_NAME.length()), 1, 3);
+        Page<Career> page1 = careerDao.searchBySubstring(TestUtils.CAREER_1_NAME.substring(TestUtils.CAREER_1_NAME.length()-1, TestUtils.CAREER_1_NAME.length()), new PageParams(1, 3));
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
@@ -229,7 +230,7 @@ public class CarreerJdbcDaoTest {
     }
     @Test
     public void testSearchBySubstringEmpty(){
-        Page<Career> page1 = careerDao.searchBySubstring("", 1, 3);
+        Page<Career> page1 = careerDao.searchBySubstring("", new PageParams(1, 3));
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
@@ -237,7 +238,7 @@ public class CarreerJdbcDaoTest {
     }
     @Test
     public void testSearchBySubstringMissing(){
-        Page<Career> page1 = careerDao.searchBySubstring(null, 1, 3);
+        Page<Career> page1 = careerDao.searchBySubstring(null, new PageParams(1, 3));
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
@@ -245,8 +246,8 @@ public class CarreerJdbcDaoTest {
     }
     @Test
     public void testSearchBySubstringPaging(){
-        Page<Career> page1 = careerDao.searchBySubstring("", 1, 2);
-        Page<Career> page2 = careerDao.searchBySubstring("", 2, 2);
+        Page<Career> page1 = careerDao.searchBySubstring("", new PageParams(1, 2));
+        Page<Career> page2 = careerDao.searchBySubstring("", new PageParams(2, 2));
 
         assertNotNull(page1);
         assertNotNull(page2);

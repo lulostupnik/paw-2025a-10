@@ -1,7 +1,7 @@
 package ar.edu.itba.paw.webapp.resolver;
 
 import ar.edu.itba.paw.models.PageParams;
-import ar.edu.itba.paw.webapp.resolver.anotation.PageParamCustomizer;
+import ar.edu.itba.paw.webapp.resolver.annotation.PageParamCustomizer;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;

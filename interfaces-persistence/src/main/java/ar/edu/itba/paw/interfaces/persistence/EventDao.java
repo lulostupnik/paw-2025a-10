@@ -36,7 +36,7 @@ public interface EventDao {
 
     Optional<EventWithStatistics> findEventWithStatistics(long eventId);
 
-    Page<Event> getRecommendedEvents(long userId, int page, int size);
+    Page<Event> getRecommendedEvents(long userId, PageParams pageParams);
 
     /**
      * getTopEvents:
@@ -50,7 +50,7 @@ public interface EventDao {
      *   3. Soonest event date.
      * Supports pagination using LIMIT and OFFSET.
      */
-    Page<Event> getTopEvents(int page, int size);                           //top events
+    Page<Event> getTopEvents(PageParams pageParams);                           //top events
     /**
      * getTopUserEvents:
      * Same as getTopEvents but orders the results by:
@@ -60,7 +60,7 @@ public interface EventDao {
      * 4. Higher number of attendees.
      * 5. Soonest event date.
      */
-    Page<Event> getTopUserEvents(long userId, final int page, final int size);
+    Page<Event> getTopUserEvents(long userId, PageParams pageParams);
     List<Event> getFullEvents();
     List<Event> getMyEvents(long userId);
     List<Event> getOthersEvents(long userId);
@@ -68,15 +68,15 @@ public interface EventDao {
 
 
     //PAGE
-    Page<Event> getOthersEvents(long userId, int pageNumber, int pageSize);
-    Page<Event> getMyEvents(long userId, int pageNumber, int pageSize);
-    Page<Event> getEvents(String email, int pageNumber, int pageSize);
-    Page<Event> listAll(int pageNumber, int pageSize);
-//    Page<UserEvent> getEventsWithAttendanceStatus(long userId, int page, int size);
-//    Page<UserEvent> getEventsWithAttendanceStatus(String search, long userId, int page, int size);
+    Page<Event> getOthersEvents(long userId, PageParams pageParams);
+    Page<Event> getMyEvents(long userId, PageParams pageParams);
+    Page<Event> getEvents(String email, PageParams pageParams);
+    Page<Event> listAll(PageParams pageParams);
+//    Page<UserEvent> getEventsWithAttendanceStatus(long userId, PageParams pageParams);
+//    Page<UserEvent> getEventsWithAttendanceStatus(String search, long userId, PageParams pageParams);
     Page<Event> getEventsWithAttendanceStatus(Long userId, String search,
                                               String sortBy, String direction, Long destination,
                                               LocalDate startDate, LocalDate endDate, Long interest,
-                                              boolean isPast, boolean isUpcoming, boolean attending, int pageNumber, int pageSize);
-    Page<Event> searchEvents(String search, int pageNumber, int pageSize);
+                                              boolean isPast, boolean isUpcoming, boolean attending, PageParams pageParams);
+    Page<Event> searchEvents(String search, PageParams pageParams);
 }

@@ -55,25 +55,25 @@ public class CareerJdbcDao implements CareerDao {
     }
 
     @Override
-    public Page<Career> getAllCareers(final int page, final int pageSize) {
+    public Page<Career> getAllCareers(PageParams pageParams) {
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM careers WHERE deleted = FALSE", Integer.class);
 
         return new Page<>(
-                jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE LIMIT ? OFFSET ?", CAREER_ROW_MAPPER, pageSize, offset(page, pageSize)),
-                page,
-                pageCount(totalItems, pageSize)
+                jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE LIMIT ? OFFSET ?", CAREER_ROW_MAPPER, pageParams.getSize(), offset(pageParams)),
+                pageParams.getPage(),
+                pageCount(totalItems, pageParams.getSize())
         );
 
     }
 
     @Override
-    public Page<Career> searchBySubstring(final String substring, final int page, final int size) {
+    public Page<Career> searchBySubstring(final String substring, PageParams pageParams) {
         final String searchPattern = likePattern(substring);
         final int totalCareers = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM careers WHERE LOWER(name) LIKE LOWER(?)", Integer.class, searchPattern);
         return new Page<>(
-                jdbcTemplate.query("SELECT * FROM careers WHERE LOWER(name) LIKE LOWER(?) LIMIT ? OFFSET ?", CAREER_ROW_MAPPER, searchPattern, size, offset(page, size)),
-                page,
-                pageCount(totalCareers, size)
+                jdbcTemplate.query("SELECT * FROM careers WHERE LOWER(name) LIKE LOWER(?) LIMIT ? OFFSET ?", CAREER_ROW_MAPPER, searchPattern, pageParams.getSize(), offset(pageParams)),
+                pageParams.getPage(),
+                pageCount(totalCareers, pageParams.getSize())
         );
     }
 

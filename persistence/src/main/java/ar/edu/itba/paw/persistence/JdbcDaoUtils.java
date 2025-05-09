@@ -1,5 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
+import ar.edu.itba.paw.models.PageParams;
+
 public final class JdbcDaoUtils {
 
     private JdbcDaoUtils() {
@@ -35,8 +37,8 @@ public final class JdbcDaoUtils {
         return sb.toString();
     }
 
-    public static int offset(int page, int size) {
-        return (Math.max(1, page) - 1) * size;
+    public static int offset(PageParams pageParams) {
+        return (Math.max(1, pageParams.getPage()) - 1) * pageParams.getSize();
     }
 
     public static int pageCount(int total, int size) {
