@@ -12,9 +12,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+
 import javax.validation.Valid;
 import java.util.Optional;
 
+
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @Controller
 @RequestMapping("/universities")
 public class UniversityController {
@@ -33,16 +37,20 @@ public class UniversityController {
         this.cityService = cityService;
         this.universityService = universityService;
     }
+    @GetMapping(value = "", produces = "application/json; charset=UTF-8")
+    @ResponseBody
+    public String getUniversitiesJSON(@RequestParam(value = "search", required = false) String search) {
+        return universityService.getUniversitiesJSON(search);
+    }
 
     @GetMapping(value = "/create")
     public ModelAndView createUniversityForm(@ModelAttribute(CREATE_UNIVERSITY_FORM) final CreateUniversityForm form) {
         ModelAndView mav = new ModelAndView(CREATE);
-        mav.addObject(CITIES, cityService.getAllCities());
         return mav;
     }
 
     @PostMapping(path = "/create")
-    public ModelAndView createEvent(@Valid @ModelAttribute(CREATE_UNIVERSITY_FORM) final CreateUniversityForm uniForm,
+    public ModelAndView createUniversity(@Valid @ModelAttribute(CREATE_UNIVERSITY_FORM) final CreateUniversityForm uniForm,
                                     final BindingResult errors, @ModelAttribute("user") User user) {
 
         if (errors.hasErrors()) {

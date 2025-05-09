@@ -29,6 +29,11 @@ public class InterestController {
 
         this.interestService = interestService;
     }
+    @GetMapping(value = "", produces = "application/json; charset=UTF-8")
+    @ResponseBody
+    public String getInterestsJSON(@RequestParam(value = "search", required = false) String search) {
+        return interestService.getInterestsJSON(search);
+    }
 
 
     @GetMapping(value = "/create")

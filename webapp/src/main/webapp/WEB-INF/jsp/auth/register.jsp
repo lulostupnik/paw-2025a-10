@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale}">
 <head>
@@ -160,13 +161,14 @@
                             <spring:message code="event.career"/>
                         </form:label>
                         <div class="autocomplete-wrapper">
-                            <form:select path="career" id="career" cssClass="form-select ${not empty errors.getFieldError('career') ? 'error' : ''}" style="display: none;">
-                                <form:option value=""><spring:message code="event.career.select"/></form:option>
+                            <select id="career" class="form-select ${not empty errors.getFieldError('career') ? 'error' : ''}" style="display: none;">
+                                <option value=""><spring:message code="event.career.select"/></option>
                                 <c:forEach var="item" items="${careers}">
-                                    <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
+                                    <option value="${item.name}"><c:out value="${item.name}"/></option>
                                 </c:forEach>
-                            </form:select>
-                            <input type="text" id="careerSearch" class="autocomplete-input ${not empty errors.getFieldError('career') ? 'error' : ''}" placeholder="<spring:message code="event.career.search" text="Type to search..."/>" />
+                            </select>
+                            <c:set var="searchPlaceholder"><spring:message code="event.career.search" text="Type to search..."/></c:set>
+                            <form:input type="text" path="career" id="careerSearch" class="autocomplete-input ${not empty errors.getFieldError('career') ? 'error' : ''}" placeholder="${searchPlaceholder}" />
                             <div id="careerDropdown" class="autocomplete-dropdown" style="display: none;">
                                 <c:forEach var="item" items="${careers}">
                                     <div class="autocomplete-item" data-value="${item.name}">
@@ -186,13 +188,14 @@
                             <spring:message code="createJourney.originUniversity"/>
                         </form:label>
                         <div class="autocomplete-wrapper">
-                            <form:select path="originUniversity" id="originUniversity" cssClass="form-select ${not empty errors.getFieldError('originUniversity') ? 'error' : ''}" style="display: none;">
-                                <form:option value=""><spring:message code="createJourney.originUniversity.select"/></form:option>
+                            <select  id="originUniversity" class="form-select ${not empty errors.getFieldError('originUniversity') ? 'error' : ''}" style="display: none;">
+                                <option value=""><spring:message code="createJourney.originUniversity.select"/></option>
                                 <c:forEach var="item" items="${universities}">
-                                    <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
+                                    <option value="${item.name}"><c:out value="${item.name}"/></option>
                                 </c:forEach>
-                            </form:select>
-                            <input type="text" id="universitySearch" class="autocomplete-input ${not empty errors.getFieldError('originUniversity') ? 'error' : ''}" placeholder="<spring:message code="createJourney.originUniversity.search" text="Type to search..."/>" />
+                            </select>
+                            <c:set var="searchUni"><spring:message code="createJourney.originUniversity.search" text="Type to search..."/></c:set>
+                            <form:input path="originUniversity" type="text" id="universitySearch" class="autocomplete-input ${not empty errors.getFieldError('originUniversity') ? 'error' : ''}" placeholder="${searchUni}" />
                             <div id="universityDropdown" class="autocomplete-dropdown" style="display: none;">
                                 <c:forEach var="item" items="${universities}">
                                     <div class="autocomplete-item" data-value="${item.name}">
@@ -288,8 +291,17 @@
 </div>
 
 <!-- Include modularized JavaScript files -->
+<script>
+    window.apiBaseUrl = '<c:url value="/" />';
+    selectedInterests = ['<c:out value="${fn:join(createUserForm.interests.toArray(), ',')}" />'];
+    selectedCareer = '<c:out value="${createUserForm.career}" />';
+    selectedUniversity = '<c:out value="${createUserForm.originUniversity}" />';
+</script>
+<script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
+<script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/components/password-strength.js'/>"></script>
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
+<script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/components/file-upload.js'/>"></script>
 <script src="<c:url value='/resources/js/register.js'/>"></script>
 

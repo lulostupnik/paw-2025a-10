@@ -132,13 +132,14 @@
                     <spring:message code="event.city"/>
                 </form:label>
                 <div class="autocomplete-wrapper">
-                    <form:select path="city" id="city" cssClass="form-select ${not empty errors.getFieldError('city') ? 'error' : ''}" style="display: none;">
-                        <form:option value=""><spring:message code="createJourney.destinationCity.select"/></form:option>
+                    <select  id="city" class="form-select ${not empty errors.getFieldError('city') ? 'error' : ''}" style="display: none;">
+                        <option value=""><spring:message code="createJourney.destinationCity.select"/></option>
                         <c:forEach var="item" items="${cities}">
                             <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
                         </c:forEach>
-                    </form:select>
-                    <input type="text" id="citySearch" class="autocomplete-input" placeholder="<spring:message code="event.city.search" text="Type to search city..."/>" />
+                    </select>
+                    <c:set var="citySearch"><spring:message code="event.city.search"/></c:set>
+                    <form:input path="city" type="text" id="citySearch" class="autocomplete-input" placeholder="${citySearch}" />
                     <div id="cityDropdown" class="autocomplete-dropdown" style="display: none;">
                         <c:forEach var="item" items="${cities}">
                             <div class="autocomplete-item" data-value="<c:out value="${item.name}"/>">
@@ -270,7 +271,12 @@
 </div>
 
 <!-- Include modularized JavaScript files -->
+<script>
+    window.apiBaseUrl = '<c:url value="/" />';
+    eventSelectedCity = '<c:out value="${createEventForm.city}"/>';
+</script>
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
+<script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/components/file-upload.js'/>"></script>
 <script src="<c:url value='/resources/js/components/date-validation.js'/>"></script>
 <script src="<c:url value='/resources/js/event-form.js'/>"></script>

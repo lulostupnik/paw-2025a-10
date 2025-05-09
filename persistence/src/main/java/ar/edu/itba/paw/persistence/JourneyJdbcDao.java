@@ -363,21 +363,21 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
     @Override
-    public Page<Journey> listAll(final int page, final int size) {
+    public Page<Journey> listAll(PageParams pageParams) {
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journeys WHERE deleted = FALSE", Integer.class);
-        final List<Journey> list = jdbcTemplate.query(SQL_FIND_ALL_PAGED, JOURNEY_ROW_MAPPER, size, (page-1) * size);
-        return new Page<>(list, page, pageCount(totalItems, size));
+        final List<Journey> list = jdbcTemplate.query(SQL_FIND_ALL_PAGED, JOURNEY_ROW_MAPPER, pageParams.getSize(), (pageParams.getPage()-1) * pageParams.getSize());
+        return new Page<>(list, pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
     }
 
     @Override
-    public Page<Journey> getOthersJourneys(final long userId, final int page, final int size) {
+    public Page<Journey> getOthersJourneys(final long userId, PageParams pageParams) {
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journeys j WHERE j.deleted = FALSE AND j.user_id != ?", Integer.class, userId);
-        final List<Journey> list = jdbcTemplate.query(SQL_FIND_OTHERS_PAGED, JOURNEY_ROW_MAPPER, userId, size, offset(page, size));
-        return new Page<>(list, page, pageCount(totalItems, size));
+        final List<Journey> list = jdbcTemplate.query(SQL_FIND_OTHERS_PAGED, JOURNEY_ROW_MAPPER, userId, pageParams.getSize(), offset(pageParams));
+        return new Page<>(list, pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
     }
 
     @Override
-    public Page<Journey> findByFilters(final Long userId, final Long cityId, final LocalDate startDate, final LocalDate endDate, final Long interest, final int page, final int size) {
+    public Page<Journey> findByFilters(final Long userId, final Long cityId, final LocalDate startDate, final LocalDate endDate, final Long interest, PageParams pageParams) {
 
         final List<String> filters = new ArrayList<>();
         final List<Object> params = new ArrayList<>();
@@ -424,18 +424,18 @@ public class JourneyJdbcDao implements JourneyDao {
 
         queryBuilder.append(" ORDER BY j.id ASC LIMIT ? OFFSET ?");
 
-        params.add(size);
-        params.add(offset(page, size));
+        params.add(pageParams.getSize());
+        params.add(offset(pageParams));
 
         return new Page<>(
                 jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray()),
-                page,
-                pageCount(totalItems, size)
+                pageParams.getPage(),
+                pageCount(totalItems, pageParams.getSize())
         );
     }
 
     // TODO: preguntar a los profes cual prefieren y que onda el warning que me tira el IDE
-    public Page<Journey> findByFilters3(final Long userId, final Long cityId, final LocalDate startDate, final LocalDate endDate, final Long interest, final int page, final int size) {
+    public Page<Journey> findByFilters3(final Long userId, final Long cityId, final LocalDate startDate, final LocalDate endDate, final Long interest, PageParams pageParams) {
 
         final List<Object> params = new ArrayList<>();
 
@@ -477,19 +477,19 @@ public class JourneyJdbcDao implements JourneyDao {
         final int totalItems = jdbcTemplate.queryForObject(countQueryBuilder.toString(), Integer.class, params.toArray());
 
 
-        params.add(size);
-        params.add(offset(page, size));
+        params.add(pageParams.getSize());
+        params.add(offset(pageParams));
 
         return new Page<>(
                 jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray()),
-                page,
-                pageCount(totalItems, size)
+                pageParams.getPage(),
+                pageCount(totalItems, pageParams.getSize())
         );
     }
 
 
     @Override
-    public Page<Journey> findByOriginCity(final long originCityId, final int page, final int size) {
+    public Page<Journey> findByOriginCity(final long originCityId, PageParams pageParams) {
         final int totalItems = jdbcTemplate.queryForObject(
                 """
                 SELECT COUNT(*)
@@ -504,17 +504,17 @@ public class JourneyJdbcDao implements JourneyDao {
         );
 
         return new Page<>(
-                jdbcTemplate.query(SQL_FIND_BY_ORIGIN_CITY_PAGED, JOURNEY_ROW_MAPPER, originCityId, size, offset(page, size)),
-                page,
-                pageCount(totalItems, size)
+                jdbcTemplate.query(SQL_FIND_BY_ORIGIN_CITY_PAGED, JOURNEY_ROW_MAPPER, originCityId, pageParams.getSize(), offset(pageParams)),
+                pageParams.getPage(),
+                pageCount(totalItems, pageParams.getSize())
         );
     }
 
         @Override
         public Page<Journey> searchJourneys(final String search, Long userId, String orderBy, String direction,
-                                            Long cityId, LocalDate startDate, LocalDate endDate, Long interest,
+                                            String city, LocalDate startDate, LocalDate endDate, String interest,
                                             boolean isPast, boolean isUpcoming, boolean isMyDestination,
-                                            int page, int size) {
+                                            PageParams pageParams) {
             final String searchPattern = likePattern(search);
 
             final List<String> filters = new ArrayList<>();
@@ -524,16 +524,16 @@ public class JourneyJdbcDao implements JourneyDao {
             final StringBuilder queryBuilder = new StringBuilder((interest != null || orderBy.equals("interest")) ? SQL_BASE_INTEREST : SQL_BASE);
 
 
-            if (interest != null) {
-                countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id");
-                filters.add("ui.category_id = ?");
+            if (interest != null && !interest.isEmpty()) {
+                countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id JOIN category c ON ui.category_id = c.id ");
+                filters.add("c.name = ?");
                 params.add(interest);
             }
 
-            if (cityId != null) {
+            if (city != null && !city.isEmpty()) {
                 countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id");
-                filters.add("ci2.id = ?");
-                params.add(cityId);
+                filters.add("ci2.name = ?");
+                params.add(city);
             }
 
             if (userId != null) {
@@ -552,7 +552,7 @@ public class JourneyJdbcDao implements JourneyDao {
             }
 
             if(search != null && !search.isEmpty()) {
-                if(cityId == null) {
+                if(city == null) {
                     countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id ");
                 }
                 if(interest == null) {
@@ -579,9 +579,8 @@ public class JourneyJdbcDao implements JourneyDao {
             if(orderBy != null && orderBy.equals("interest")){
                 orderBy= "c.name";
                 if(interest == null) {
-                    countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id ");
+                    countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id JOIN category c ON ui.category_id = c.id ");
                 }
-                countQueryBuilder.append(" JOIN category c ON ui.category_id = c.id ");
             }
 
             countQueryBuilder.append(" WHERE j.deleted = FALSE ");
@@ -611,18 +610,18 @@ public class JourneyJdbcDao implements JourneyDao {
 
             queryBuilder.append(" LIMIT ? OFFSET ? ");
 
-            params.add(size);
-            params.add(offset(page, size));
+            params.add(pageParams.getSize());
+            params.add(offset(pageParams));
 
             return new Page<>(
                     jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray()),
-                    page,
-                    pageCount(totalItems, size)
+                    pageParams.getPage(),
+                    pageCount(totalItems, pageParams.getSize())
             );
         }
 
     @Override
-    public Page<Journey> searchJourneys(final String search, int page, int size){
+    public Page<Journey> searchJourneys(final String search, PageParams pageParams){
         final String searchPattern = likePattern(search);
 
         final int totalItems = jdbcTemplate.queryForObject(
@@ -634,13 +633,13 @@ public class JourneyJdbcDao implements JourneyDao {
         final List<Journey> list = jdbcTemplate.query(
                 SQL_SEARCH_PAGED,
                 JOURNEY_ROW_MAPPER,
-                searchPattern, searchPattern, searchPattern, /*searchPattern, searchPattern, searchPattern, searchPattern,*/ size, offset(page, size)
+                searchPattern, searchPattern, searchPattern, /*searchPattern, searchPattern, searchPattern, searchPattern,*/ pageParams.getSize(), offset(pageParams)
         );
 
         return new Page<>(
                 list,
-                page,
-                pageCount(totalItems, size)
+                pageParams.getPage(),
+                pageCount(totalItems, pageParams.getSize())
         );
     }
 
@@ -789,10 +788,10 @@ public class JourneyJdbcDao implements JourneyDao {
             return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, email);
     }*/
     @Override
-    public Page<Journey> getRecommendedJourneys(final String email, final int page, final int size) {
-        LOGGER.debug("Querying recommended journeys for user {} - page {}, size {}", email, page, size);
+    public Page<Journey> getRecommendedJourneys(final String email, PageParams pageParams) {
+        LOGGER.debug("Querying recommended journeys for user {} - page {}, size {}", email, pageParams.getPage(), pageParams.getSize());
 
-        final int offset = offset(page, size);
+        final int offset = offset(pageParams);
 
         final String baseQuery = """
            WITH user_data AS (
@@ -911,9 +910,9 @@ public class JourneyJdbcDao implements JourneyDao {
 
         final int totalItems = jdbcTemplate.queryForObject(countQuery, Integer.class, email);
 
-        final List<Journey> journeys = jdbcTemplate.query(baseQuery, JOURNEY_ROW_MAPPER, email, size, offset);
+        final List<Journey> journeys = jdbcTemplate.query(baseQuery, JOURNEY_ROW_MAPPER, email, pageParams.getSize(), offset);
 
-        return new Page<>(journeys, page, pageCount(totalItems, size));
+        return new Page<>(journeys, pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
     }
 
 

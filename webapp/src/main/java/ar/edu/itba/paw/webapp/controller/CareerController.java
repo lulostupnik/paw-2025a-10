@@ -32,6 +32,11 @@ public class CareerController {
     public CareerController(CareerService careerService) {
         this.careerService = careerService;
     }
+    @GetMapping(value = "", produces = "application/json; charset=UTF-8")
+    @ResponseBody
+    public String getCareersJSON(@RequestParam(value = "search", required = false) String search) {
+        return careerService.getCareersJSON(search);
+    }
 
 
     @GetMapping(value = "/create")

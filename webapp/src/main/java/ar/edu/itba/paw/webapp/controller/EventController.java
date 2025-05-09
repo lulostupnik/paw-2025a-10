@@ -4,7 +4,7 @@ import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.webapp.form.*;
 
-import ar.edu.itba.paw.webapp.resolver.anotation.PageParamCustomizer;
+import ar.edu.itba.paw.webapp.resolver.annotation.PageParamCustomizer;
 import ar.edu.itba.paw.webapp.utils.ImageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,13 +48,13 @@ public class EventController {
         this.interestService = interestService;
     }
     private void populateDropdownAttributes(ModelAndView mav) {
-        List<City> cities = cityService.getAllCities();
-        LOGGER.debug("Cities: {}", cities);
-        mav.addObject("cities", cities);
-
-        List<Interest> interests = interestService.findAll();
-        LOGGER.debug("Interests: {}", interests);
-        mav.addObject("interests", interests);
+//        List<City> cities = cityService.getAllCities();
+//        LOGGER.debug("Cities: {}", cities);
+//        mav.addObject("cities", cities);
+//
+//        List<Interest> interests = interestService.findAll();
+//        LOGGER.debug("Interests: {}", interests);
+//        mav.addObject("interests", interests);
     }
 
     @RequestMapping
@@ -85,8 +85,8 @@ public class EventController {
 
 
     private void addDropdownAttributes(ModelAndView mav) {
-        mav.addObject("careers", careerService.findAll());
-        mav.addObject("universities", universityService.getAllUniversities());
+//        mav.addObject("careers", careerService.findAll());
+//        mav.addObject("universities", universityService.getAllUniversities());
         mav.addObject("cities", cityService.getAllCities());
     }
 

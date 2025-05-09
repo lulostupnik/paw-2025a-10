@@ -220,7 +220,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
     }
 
     @Override
-    public Page<User> getAttendees(final long eventId, final int pageNumber, final int pageSize) {
+    public Page<User> getAttendees(final long eventId, PageParams pageParams) {
         final int totalItems = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM event_attendances WHERE event_id = ?",
                 Integer.class,
@@ -229,14 +229,14 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
 
 
         return new Page<>(
-                jdbcTemplate.query(SQL_PAGE_BY_EVENT, USER_ROW_MAPPER, eventId, pageSize, offset(pageNumber, pageSize)),
-                pageNumber,
-                pageCount(totalItems, pageSize)
+                jdbcTemplate.query(SQL_PAGE_BY_EVENT, USER_ROW_MAPPER, eventId, pageParams.getSize(), offset(pageParams)),
+                pageParams.getPage(),
+                pageCount(totalItems,pageParams.getSize())
         );
     }
 
     @Override
-    public Page<Event> getAttendingEvents(final long userId, final int pageNumber, final int pageSize) {
+    public Page<Event> getAttendingEvents(final long userId, PageParams pageParams) {
         final int totalItems = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM event_attendances ea JOIN events e ON ea.event_id = e.id WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE",
                 Integer.class,
@@ -244,9 +244,9 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
         );
 
         return new Page<>(
-                jdbcTemplate.query(SQL_PAGE_BY_USER, EVENT_ROW_MAPPER, userId, userId, pageSize, offset(pageNumber, pageSize)),
-                pageNumber,
-                pageCount(totalItems, pageSize)
+                jdbcTemplate.query(SQL_PAGE_BY_USER, EVENT_ROW_MAPPER, userId, userId, pageParams.getSize(), offset(pageParams)),
+                pageParams.getPage(),
+                pageCount(totalItems, pageParams.getSize())
         );
     }
 

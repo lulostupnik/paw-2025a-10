@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Country;
 import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.PageParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,12 +108,12 @@ public class CityJdbcDao implements CityDao {
     }
 
     @Override
-    public Page<City> getAllCities(final int page, final int pageSize) {
+    public Page<City> getAllCities(PageParams pageParams) {
         final int totalCities = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE deleted = FALSE ", Integer.class);
         return new Page<>(
-                jdbcTemplate.query(SQL_FIND_ALL_PAGED, CITY_ROW_MAPPER, pageSize, offset(page, pageSize)),
-                page,
-                pageCount(totalCities, pageSize)
+                jdbcTemplate.query(SQL_FIND_ALL_PAGED, CITY_ROW_MAPPER, pageParams.getSize(), offset(pageParams)),
+                pageParams.getPage(),
+                pageCount(totalCities, pageParams.getSize())
         );
     }
 
@@ -173,7 +174,7 @@ public class CityJdbcDao implements CityDao {
     }
 
     @Override
-    public Page<City> searchBySubstring(final String substring, final int page, final int size) {
+    public Page<City> searchBySubstring(final String substring, PageParams pageParams) {
         final String searchPattern = likePattern(substring);
         final int totalItems = jdbcTemplate.queryForObject(
                 """
@@ -188,9 +189,9 @@ public class CityJdbcDao implements CityDao {
                 searchPattern, searchPattern
         );
         return new Page<>(
-                jdbcTemplate.query(SQL_SEARCH_PAGED, CITY_ROW_MAPPER, searchPattern, searchPattern, size, offset(page, size)),
-                page,
-                pageCount(totalItems, size)
+                jdbcTemplate.query(SQL_SEARCH_PAGED, CITY_ROW_MAPPER, searchPattern, searchPattern, pageParams.getSize(), offset(pageParams)),
+                pageParams.getPage(),
+                pageCount(totalItems, pageParams.getSize())
         );
     }
 

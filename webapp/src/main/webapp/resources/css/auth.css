@@ -774,3 +774,90 @@
     gap: 15px;
     max-width: 100%;
 }
+/* Sort dropdown styles */
+.sort-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    position: absolute;
+    right: 0;
+    background-color: white;
+    min-width: 200px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    z-index: 1;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.dropdown-content a {
+    color: #333;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.2s;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown-content a.active {
+    background-color: #e5e7eb;
+    font-weight: 500;
+}
+
+/* Event Tabs Styles */
+.event-tabs {
+    margin: 1.5rem 0;
+}
+
+.tabs-list {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-bottom: 1px solid #e5e7eb;
+    overflow-x: auto;
+}
+
+.tab-item {
+    margin-right: 0.5rem;
+}
+
+.tab-link {
+    display: block;
+    padding: 0.75rem 1.25rem;
+    color: #6b7280;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.tab-item.active .tab-link {
+    color: #4361ee;
+    border-bottom-color: #4361ee;
+    font-weight: 500;
+}
+
+.tab-link:hover {
+    color: #4361ee;
+}
+
+@media (max-width: 640px) {
+    .tabs-list {
+        padding-bottom: 0.5rem;
+    }
+
+    .tab-link {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* Journey Tabs Styles */
+.journey-tabs {
+    margin: 1.5rem 0;
+}

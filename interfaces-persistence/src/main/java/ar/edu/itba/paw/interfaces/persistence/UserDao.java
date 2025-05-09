@@ -34,8 +34,8 @@ public interface UserDao {
 
     List<User> getAllUsers();
 
-    Page<User> getAllUsers(int page, int size);
-    Page<User> searchUsers(String search, int page, int size);
+    Page<User> getAllUsers(PageParams pageParams);
+    Page<User> searchUsers(String search, PageParams pageParams);
     // podríamos generalizar en findBy(String field, String value) o algo por el estilo
 
 }

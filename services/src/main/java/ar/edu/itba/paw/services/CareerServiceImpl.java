@@ -8,10 +8,12 @@ import ar.edu.itba.paw.models.PageParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +23,7 @@ public class CareerServiceImpl implements CareerService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CareerServiceImpl.class);
 
     private final CareerDao careerDao;
+    private static final int DEFAULT_PAGE_SIZE = 30;
 
     @Autowired
     public CareerServiceImpl(CareerDao careerDao) {
@@ -28,21 +31,20 @@ public class CareerServiceImpl implements CareerService {
     }
 
     @Override
-    // @Cacheable(value = "careersById", key = "#id")
+    @Cacheable(value = "careersById", key = "#id")
     public Optional<Career> findById(long id) {
         LOGGER.debug("Getting career by id {}", id);
         return careerDao.findById(id);
     }
 
     @Override
-    // @Cacheable(value = "careers", unless = "#result.size() > 100") // ¿tiene sentido?
     public List<Career> findAll() {
         LOGGER.debug("Getting all careers");
         return careerDao.findAll();
     }
 
     @Override
-    // @Cacheable(value = "careersByName", key = "#name")
+    @Cacheable(value = "careersByName", key = "#name")
     public Optional<Career> findByName(String name) {
         LOGGER.debug("Getting career by name {}", name);
         return careerDao.findByName(name);
@@ -52,27 +54,63 @@ public class CareerServiceImpl implements CareerService {
     public Page<Career> getAllCareers(String search, PageParams pageParams) {
         LOGGER.debug("Getting all careers with search {}", search);
         if (search == null || search.isEmpty()) {
-            return careerDao.getAllCareers(pageParams.getPage(), pageParams.getSize());
+            return careerDao.getAllCareers(pageParams);
         }
-        return careerDao.searchBySubstring(search, pageParams.getPage(), pageParams.getSize());
+        return careerDao.searchBySubstring(search, pageParams);
     }
 
-    @Transactional
     @Override
+    @Transactional
+    @Caching(put = {
+                    @CachePut(value = "careersById", key = "#result.id"),
+                    @CachePut(value = "careersByName", key = "#result.name")
+    })
     public Career create(String name) {
         return careerDao.create(name);
     }
 
-    @Transactional
     @Override
+    @Transactional
+    @Caching(
+            put = { @CachePut(value = "careersById", key = "#id") },
+            evict = { @CacheEvict(value = "careersByName", allEntries = true) }
+    )
     public Career update(long id, String name) {
         return careerDao.update(id, name);
     }
 
-    @Transactional
     @Override
+    @Transactional
+    @Caching(evict = {
+                @CacheEvict(value = "careersById", key = "#id"),
+                @CacheEvict(value = "careersByName", allEntries = true)
+    })
     public void delete(long id) {
         careerDao.delete(id);
+    }
+
+    @Override
+    public String getCareersJSON(String search) {
+        LOGGER.debug("Getting all careers with search {}", search);
+        if (search == null || search.isEmpty()) {
+
+            List<Career> careers = careerDao.getAllCareers(1,DEFAULT_PAGE_SIZE).getContent();
+            return listToJson(careers);
+        }
+        List<Career> careers = careerDao.searchBySubstring(search,1,DEFAULT_PAGE_SIZE).getContent();
+        return listToJson(careers);
+    }
+
+    private String listToJson(List<Career> careers) {
+        StringBuilder json = new StringBuilder("[");
+        for (Career career : careers) {
+            json.append(career.toJSON()).append(",");        }
+        if (json.length() > 1) {
+            json.deleteCharAt(json.length() - 1); // Remove the last comma
+        }
+        json.append("]");
+        LOGGER.debug("JSON careers: {}", json);
+        return json.toString();
     }
 
 }

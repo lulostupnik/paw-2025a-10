@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Initializing event creation form with overridden date validation...")
 
     // Import necessary modules
-    const ListAutocomplete = window.ListAutocomplete || {}
+    const ListAutocomplete = window.SingleOptionAutocomplete || {}
     const FileUpload = window.FileUpload || {}
     const DateValidation = window.DateValidation || {}
 
@@ -24,6 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
             searchId: "citySearch",
             dropdownId: "cityDropdown",
             selectedContainerId: "selectedCity",
+            apiEndpoint: `${apiBaseUrl}cities`,
+            selectedValue: eventSelectedCity,
             minChars: 2,
             debounceTime: 300,
             emptyMessage: emptyMessage,

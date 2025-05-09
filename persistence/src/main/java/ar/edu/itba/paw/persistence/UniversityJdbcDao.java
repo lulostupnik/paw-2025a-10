@@ -109,7 +109,7 @@ public class UniversityJdbcDao implements UniversityDao {
     }
 
     @Override
-    public Page<University> searchBySubstring(final String substring, final int page, final int size) {
+    public Page<University> searchBySubstring(final String substring, PageParams pageParams) {
         final String searchPattern = likePattern(substring);
         final int totalItems = jdbcTemplate.queryForObject(
                 SQL_SEARCH_COUNT,
@@ -117,9 +117,9 @@ public class UniversityJdbcDao implements UniversityDao {
                 searchPattern, searchPattern, searchPattern, searchPattern
         );
         return new Page<>(
-                jdbcTemplate.query(SQL_SEARCH_PAGED, UNIVERSITY_ROW_MAPPER, searchPattern, searchPattern, searchPattern, searchPattern, size, offset(page, size)),
-                page,
-                pageCount(totalItems, size)
+                jdbcTemplate.query(SQL_SEARCH_PAGED, UNIVERSITY_ROW_MAPPER, searchPattern, searchPattern, searchPattern, searchPattern, pageParams.getSize(), offset(pageParams)),
+                pageParams.getPage(),
+                pageCount(totalItems, pageParams.getSize())
         );
     }
 
@@ -129,13 +129,13 @@ public class UniversityJdbcDao implements UniversityDao {
     }
 
     @Override
-    public Page<University> getAllUniversities(final int page, final int size) {
+    public Page<University> getAllUniversities(PageParams pageParams) {
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM universities WHERE deleted = FALSE", Integer.class);
 
         return new Page<>(
-                jdbcTemplate.query(SQL_FIND_ALL_PAGED, UNIVERSITY_ROW_MAPPER, size, offset(page, size)),
-                page,
-                pageCount(totalItems, size)
+                jdbcTemplate.query(SQL_FIND_ALL_PAGED, UNIVERSITY_ROW_MAPPER, pageParams.getSize(), offset(pageParams)),
+                pageParams.getPage(),
+                pageCount(totalItems, pageParams.getSize())
         );
     }
 

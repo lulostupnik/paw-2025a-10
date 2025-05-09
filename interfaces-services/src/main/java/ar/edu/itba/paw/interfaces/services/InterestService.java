@@ -12,7 +12,7 @@ public interface InterestService {
     List<Interest> findAll();
     List<Interest> findByUserId(long id);
     Optional<Interest> findByName(String name);
-    List<Interest> findIdByName(String[] names);
+    List<Interest> findIdByName(List<String> names);
     Page<Interest> findAllInterestsByUserId(long id, PageParams pageParams);
     Interest createUserInterest(String interest);
     void deleteUserInterest(long id);
@@ -21,6 +21,8 @@ public interface InterestService {
     void saveUserInterests(List<String> interests, long userId);
     void updateScoreByInterest(Interest interest, long userId);
     void updateScoreByInterests(List<Interest> interests, long userId);
+    String getInterestsJSON(String search);
+
     void updateUserInterests(final long[] interestIds, final long userId);
     Page<Interest> getAllInterests(String search, PageParams pageParams);
     void delete(long id);

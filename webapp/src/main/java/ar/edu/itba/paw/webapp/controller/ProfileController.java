@@ -5,10 +5,8 @@ import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.*;
-import ar.edu.itba.paw.webapp.form.CreateInterestForm;
-import ar.edu.itba.paw.webapp.form.EditInterestForm;
 import ar.edu.itba.paw.webapp.form.UpdatePasswordForm;
-import ar.edu.itba.paw.webapp.resolver.anotation.PageParamCustomizer;
+import ar.edu.itba.paw.webapp.resolver.annotation.PageParamCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +15,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.validation.Valid;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Controller

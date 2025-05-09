@@ -40,7 +40,7 @@ public interface EventService {
     List<Event> getEventsWithAttendanceStatus(String email);
 
     Page<Event> getEventsPageWithAttendanceStatus(String search, User user,
-                                                  String sortBy, String direction, Long destination, LocalDate startDate, LocalDate endDate, Long interest,
+                                                  String sortBy, String direction, String destination, LocalDate startDate, LocalDate endDate, String interest,
                                                   boolean isPast, boolean isUpcoming, boolean attending,
                                                   PageParams pageParams );
     void editEvent(long eventId,

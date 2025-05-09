@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Initializing journey creation form components...")
 
     // Import necessary modules
-    const ListAutocomplete = window.ListAutocomplete || {}
     const DateValidation = window.DateValidation || {}
 
     const startDateField = document.getElementById("startDate");
@@ -60,29 +59,18 @@ document.addEventListener("DOMContentLoaded", () => {
             ? document.getElementById("i18n-university-none").value
             : "No university selected"
 
-        window.universityAutocomplete = ListAutocomplete.init({
+        window.universityAutocomplete = window.SingleOptionAutocomplete.init({
             selectId: "destinationUniversity",
             searchId: "universitySearch",
             dropdownId: "universityDropdown",
             selectedContainerId: "selectedUniversities",
+            apiEndpoint: `${apiBaseUrl}universities`,
+            selectedValue: journeySelectedUniversity,
+            minChars: 2,
+            debounceTime: 300,
             emptyMessage: emptyMessage,
             multiSelect: false, // Single-select mode
-            onSelect: (value, text) => {
-                console.log(`Selected university: ${text} (${value})`)
-                // Force update the select element value
-                const selectElement = document.getElementById("destinationUniversity")
-                if (selectElement) {
-                    // For single-select, just set the value
-                    selectElement.value = value
 
-                    // Trigger change event
-                    const event = new Event("change", { bubbles: true })
-                    selectElement.dispatchEvent(event)
-                }
-            },
-            onRemove: (value) => {
-                console.log(`Removed university: ${value}`)
-            },
             error: document.getElementById("destinationUniversity.errors") !== null,
         })
         console.log("University autocomplete component initialized")

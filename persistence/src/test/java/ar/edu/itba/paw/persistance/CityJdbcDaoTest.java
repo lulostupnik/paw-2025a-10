@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import javax.sql.DataSource;
 
+import ar.edu.itba.paw.models.PageParams;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -175,7 +176,7 @@ public class CityJdbcDaoTest {
 
     @Test
     public void testSearchBySubstringNoFiltering(){
-        Page<City> page1 = cityDao.searchBySubstring(TestUtils.CITY_1_NAME.substring(0, 3), 1, 3);
+        Page<City> page1 = cityDao.searchBySubstring(TestUtils.CITY_1_NAME.substring(0, 3), new PageParams(1, 3));
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
@@ -184,7 +185,7 @@ public class CityJdbcDaoTest {
     }
     @Test
     public void testSearchBySubstringFiltering(){
-        Page<City> page1 = cityDao.searchBySubstring(TestUtils.CITY_1_NAME.substring(TestUtils.CITY_1_NAME.length()-1, TestUtils.CITY_1_NAME.length()), 1, 3);
+        Page<City> page1 = cityDao.searchBySubstring(TestUtils.CITY_1_NAME.substring(TestUtils.CITY_1_NAME.length()-1, TestUtils.CITY_1_NAME.length()), new PageParams(1,3));
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
@@ -193,7 +194,7 @@ public class CityJdbcDaoTest {
     }
     @Test
     public void testSearchBySubstringEmpty(){
-        Page<City> page1 = cityDao.searchBySubstring("", 1, 3);
+        Page<City> page1 = cityDao.searchBySubstring("", new PageParams(1, 3));
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
@@ -202,7 +203,7 @@ public class CityJdbcDaoTest {
     }
     @Test
     public void testSearchBySubstringDeleted(){
-        Page<City> page1 = cityDao.searchBySubstring(TestUtils.CITY_DELETED_NAME, 1, 3);
+        Page<City> page1 = cityDao.searchBySubstring(TestUtils.CITY_DELETED_NAME, new PageParams(1, 3));
 
         assertNotNull(page1);
         assertEquals(0, page1.getTotalPages());
@@ -211,7 +212,7 @@ public class CityJdbcDaoTest {
     }
     @Test
     public void testSearchBySubstringMissing(){
-        Page<City> page1 = cityDao.searchBySubstring(null, 1, 3);
+        Page<City> page1 = cityDao.searchBySubstring(null, new PageParams(1, 3));
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
@@ -220,8 +221,8 @@ public class CityJdbcDaoTest {
     }
     @Test
     public void testSearchBySubstringPaging(){
-        Page<City> page1 = cityDao.searchBySubstring("", 1, 2);
-        Page<City> page2 = cityDao.searchBySubstring("", 2, 2);
+        Page<City> page1 = cityDao.searchBySubstring("", new PageParams(1, 2));
+        Page<City> page2 = cityDao.searchBySubstring("", new PageParams(2, 2));
 
         assertNotNull(page1);
         assertNotNull(page2);
@@ -338,7 +339,7 @@ public class CityJdbcDaoTest {
 
     @Test
     public void testGetAllCitiesPagedOnePage(){
-        Page<City> page1 = cityDao.getAllCities(1, 3);
+        Page<City> page1 = cityDao.getAllCities(new PageParams(1, 3));
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
@@ -346,8 +347,8 @@ public class CityJdbcDaoTest {
     }
     @Test
     public void testGetAllCitiesPagedMultiplePages(){
-        Page<City> page1 = cityDao.getAllCities(1, 2);
-        Page<City> page2 = cityDao.getAllCities(2, 2);
+        Page<City> page1 = cityDao.getAllCities(new PageParams(1, 2));
+        Page<City> page2 = cityDao.getAllCities(new PageParams(2, 2));
         
         assertNotNull(page1);
         assertEquals(2, page1.getTotalPages());
@@ -360,7 +361,7 @@ public class CityJdbcDaoTest {
     public void testGetAllCitiesPagedNoCities(){
         JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.UNIVERSITY_TABLE, TestUtils.CITY_TABLE);
 
-        Page<City> page1 = cityDao.getAllCities(1, 2);
+        Page<City> page1 = cityDao.getAllCities(new PageParams(1, 2));
         
         assertNotNull(page1);
         assertEquals(0, page1.getTotalPages());

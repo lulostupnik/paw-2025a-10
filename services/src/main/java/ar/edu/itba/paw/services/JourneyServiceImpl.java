@@ -110,9 +110,9 @@ public class JourneyServiceImpl implements JourneyService {
     public Page<Journey> getAllJourneys(String search, PageParams pageParams) {
         LOGGER.debug("Getting all journeys with search {}", search);
         if (search == null || search.isEmpty()) {
-            return journeyDao.listAll(pageParams.getPage(), pageParams.getSize());
+            return journeyDao.listAll(pageParams);
         }
-        return journeyDao.searchJourneys(search,pageParams.getPage(), pageParams.getSize());
+        return journeyDao.searchJourneys(search,pageParams);
     }
 
     @Override
@@ -132,8 +132,8 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
-    public Page<Journey> getAllJourneys(String search, User user, String sortBy, String direction, Long destination,
-                                        LocalDate startDate, LocalDate endDate, Long interest,
+    public Page<Journey> getAllJourneys(String search, User user, String sortBy, String direction, String destination,
+                                        LocalDate startDate, LocalDate endDate, String interest,
                                         boolean isPast, boolean isUpcoming, boolean isMyDestination,
                                         PageParams pageParams) {
         LOGGER.debug("Getting filtered journeys");
@@ -151,7 +151,7 @@ public class JourneyServiceImpl implements JourneyService {
 
         return journeyDao.searchJourneys(search, user != null ? user.getId() : null, sortBy, direction, destination,
                 startDate, endDate, interest, isPast, isUpcoming, isMyDestination,
-                pageParams.getPage(), pageParams.getSize());
+                pageParams);
 
     }
 
@@ -167,21 +167,22 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
 
+    //@Todo tendria mas sentido q reciba pageParams y que el controller le mande 1, limit.
     @Override
     public List<Journey> getRecommendedJourneys(String email, int limit) {
         if(limit <= 0 ){
             throw new IllegalArgumentException("Limit must be grater than 0");
         }
         if(userHasJourney(email)){
-            return journeyDao.getRecommendedJourneys(email, 1, limit).getContent();
+            return journeyDao.getRecommendedJourneys(email, new PageParams(1, limit)).getContent();
         }
         Optional<User> maybeUser = userService.findByEmail(email);
         if(maybeUser.isEmpty()){
-            return journeyDao.listAll(1, limit).getContent();
+            return journeyDao.listAll(new PageParams(1, limit)).getContent();
         }
-        List<Journey> journeys = journeyDao.findByOriginCity(maybeUser.get().getUniversity().getCity().getId(), 1, limit).getContent();
+        List<Journey> journeys = journeyDao.findByOriginCity(maybeUser.get().getUniversity().getCity().getId(), new PageParams(1, limit)).getContent();
         if(journeys.isEmpty()){
-            return journeyDao.listAll( 1, limit).getContent();
+            return journeyDao.listAll( new PageParams(1, limit)).getContent();
         }
         return journeys ;
     }
@@ -327,7 +328,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     public Page<JourneyResponse> listAllResponsesFromJourney(long journeyId, PageParams pageParams) {
-        return journeyResponseDao.listAllFromJourney(journeyId, pageParams.getPage(), pageParams.getSize());
+        return journeyResponseDao.listAllFromJourney(journeyId, pageParams);
     }
 
     @Override

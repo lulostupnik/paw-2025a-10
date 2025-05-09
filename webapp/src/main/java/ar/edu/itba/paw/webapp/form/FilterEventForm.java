@@ -8,9 +8,9 @@ import java.time.LocalDate;
 
 @ValidEventFilterDateRange
 public class FilterEventForm {
-    private Long destination;
+    private String destination;
 
-    private Long interests;
+    private String interests;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
@@ -43,15 +43,15 @@ public class FilterEventForm {
         this.attending = attending;
     }
 
-    public void setInterests(Long interests) {
+    public void setInterests(String interests) {
         this.interests = interests;
     }
 
-    public Long getDestination() {
+    public String getDestination() {
         return destination;
     }
 
-    public void setDestination(Long destination) {
+    public void setDestination(String destination) {
         this.destination = destination;
     }
 
@@ -73,7 +73,7 @@ public class FilterEventForm {
 
 
 
-    public Long getInterests() {
+    public String getInterests() {
         return interests;
     }
 
