@@ -245,4 +245,4 @@
     </div>
 </header>
 
-<script src="<c:url value='/resources/js/navbar.js'/>"></script>
+<script src="<c:url value='/resources/js/components/navbar.js'/>"></script>

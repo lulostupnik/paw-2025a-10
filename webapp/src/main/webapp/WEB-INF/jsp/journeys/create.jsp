@@ -114,7 +114,7 @@
 <script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/components/file-upload.js'/>"></script>
 <script src="<c:url value='/resources/js/components/date-validation.js'/>"></script>
-<script src="<c:url value='/resources/js/journey-form.js'/>"></script>
+<script src="<c:url value='/resources/js/journeys/journey-form.js'/>"></script>
 
 </body>
 </html>

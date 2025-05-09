@@ -204,6 +204,8 @@
                                 <jsp:param name="currentPage" value="${interestPage.currentPage}" />
                                 <jsp:param name="pageSize" value="${interestPageSize}" />
                                 <jsp:param name="baseUrl" value="/journeys/${journey.id}?page=${journeyResponsesPage.currentPage}&size=${chatPageSize}" />
+                                <jsp:param name="paramName" value="interestsPage" />
+                                <jsp:param name="sizeParamName" value="interestsSize" />
                             </jsp:include>
                         </c:if>
 

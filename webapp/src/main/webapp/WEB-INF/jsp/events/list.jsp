@@ -346,7 +346,7 @@
   eventSelectedCity = '<c:out value="${filterEventForm.destination}"/>';
 </script>
 <script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
-<script src="<c:url value='/resources/js/event-list.js'/>"></script>
+<script src="<c:url value='/resources/js/events/event-list.js'/>"></script>
 
 </body>
 </html>
