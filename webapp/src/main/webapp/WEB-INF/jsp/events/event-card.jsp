@@ -9,7 +9,7 @@
 <div class="event-card-wrapper">
 
 
-    <a href="<c:url value="/events/${param.eventId}"/>" class="event-card-link">
+    <a href="<c:url value="/events/${param.eventId}"/>" onclick="saveLink()" class="event-card-link">
         <div class="featured-event-card">
             <div class="event-image-container">
                 <c:if test="${not empty param.flyerImageId}">
@@ -25,7 +25,6 @@
                     </div>
                 </c:if>
 
-
                 <c:if test="${not empty user && isOwner == false}">
                     <div class="attend-button-container">
                         <c:if test="${ param.isFull}">
@@ -35,17 +34,6 @@
                         </c:if>
                     </div>
                 </c:if>
-                <c:if test="${ isOwner == true}">
-                    <div class="attend-button-container">
-                        <button type="button"
-                                class="attend-button"
-                                onclick="redirectToUpdate(<c:out value='${param.eventId}'/>)"
-                                aria-label="<spring:message code='event.edit'/>">
-                            <img src="<c:url value='/resources/icons/edit.svg'/>" alt="<spring:message code='event.edit'/>" class="btn-icon" />
-                        </button>
-                    </div>
-                </c:if>
-
 
             </div>
             <div class="event-card-content">
@@ -117,5 +105,7 @@
         const baseUrl = '<c:url value="/" />';
         window.location.href = baseUrl + 'events/' + eventId + '/update';
     }
-
+    function saveLink() {
+        sessionStorage.setItem("rutaAnterior", window.location.href);
+    }
 </script>

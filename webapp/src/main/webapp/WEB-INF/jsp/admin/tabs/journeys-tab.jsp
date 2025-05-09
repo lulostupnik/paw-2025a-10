@@ -3,6 +3,11 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <link rel="stylesheet" href="<c:url value='/resources/css/dashboard.css'/>" />
 
+<script>
+  function saveLink() {
+    sessionStorage.setItem("rutaAnterior", window.location.href);
+  }
+</script>
 <div class="tab-content active" id="journeys-tab">
   <c:set var="titleMessageCode" value="admin.manage.journeys" scope="request" />
   <c:set var="searchUrl" value="/dashboard/journeys" scope="request" />
@@ -44,7 +49,7 @@
       <tbody>
       <c:set var="journeys" value="${pagedJourneys.content}" />
       <c:forEach items="${journeys}" var="journey">
-        <tr class="clickable-row" data-href="<c:url value="../journeys/${journey.id}"/>" >
+        <tr class="clickable-row" onclick="saveLink()" data-href="<c:url value="../journeys/${journey.id}"/>" >
           <td><c:out value="${journey.user.username}"/></td>
           <td><c:out value="${journey.destinationUniversity.city}"/></td>
           <td><c:out value="${journey.destinationUniversity.name}"/></td>
