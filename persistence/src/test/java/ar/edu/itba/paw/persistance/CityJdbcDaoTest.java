@@ -290,7 +290,7 @@ public class CityJdbcDaoTest {
     public void testGetAllCitiesPagedMultiplePages(){
         Page<City> page1 = cityDao.getAllCities(new PageParams(1, 2));
         Page<City> page2 = cityDao.getAllCities(new PageParams(2, 2));
-        
+
         assertNotNull(page1);
         assertEquals(2, page1.getTotalPages());
         assertEquals(2, page1.getContent().size());

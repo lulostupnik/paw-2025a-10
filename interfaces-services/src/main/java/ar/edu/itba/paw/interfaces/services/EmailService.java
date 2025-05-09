@@ -24,7 +24,7 @@ public interface EmailService {
     void sendEventCommentDeletionNotification(EventResponse deletedComment, Event event, User commentAuthor, String adminMessage);
 //    void sendJourneyCommentDeletionNotification(/*JourneyResponse deletedComment, Journey journey, User commentAuthor,*/ long journeyResponseId, String adminMessage) ;
      void sendJourneyCommentDeletionNotification(/*long journeyResponseId,*/ JourneyResponse deletedComment,  Journey journey, User commentAuthor , String adminMessage);
-
+     void sendValidationEmail(User user, String token);
      void sendUserUnblockedNotification(User unblockedUser);
 
      void sendEventReminderNotification(Event event, List<User> attendees);

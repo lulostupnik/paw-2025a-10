@@ -23,6 +23,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
 
 import java.util.List;
+import java.util.UUID;
 
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 
@@ -45,6 +46,11 @@ public class AuthController {
         this.userService = userService;
         this.interestService = interestService;
         this.authenticationManager = authenticationManager;
+    }
+    @GetMapping(value ="/validate")
+    public ModelAndView validateEmail(@RequestParam("token") String token) {
+        userService.validateEmail(token);
+        return new ModelAndView("redirect:/explore");
     }
 
     @RequestMapping("/login")

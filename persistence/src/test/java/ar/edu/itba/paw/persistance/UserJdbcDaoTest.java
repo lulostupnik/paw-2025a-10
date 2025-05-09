@@ -50,7 +50,7 @@ public class UserJdbcDaoTest {
     private User USER_3;
 
     private Journey JOURNEY_1;
-    
+
     @Autowired
     private DataSource ds;
 
@@ -189,7 +189,7 @@ public class UserJdbcDaoTest {
     @Test
     public void testCreateUserNoLocale(){
         User user = userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, null);
-        
+
         assertEqualsUser(user, Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "locale", TestUtils.USER_LOCALE_DEFAULT));
     }
 

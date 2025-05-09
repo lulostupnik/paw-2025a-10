@@ -1,12 +1,15 @@
 package ar.edu.itba.paw.interfaces.persistence;
 
 import ar.edu.itba.paw.models.*;
+
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 public interface UserDao {
-    User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale);
+    User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale, String validateToken, LocalDate validateTokenExpiration);
     Optional<User> findById(long id);
     Optional<User> findByEmail(String email);
     Optional<UserPassword> findByEmailWithPass(String email);
@@ -30,5 +33,7 @@ public interface UserDao {
     Page<User> getAllUsers(PageParams pageParams);
     Page<User> searchUsers(String search, PageParams pageParams);
     // podríamos generalizar en findBy(String field, String value) o algo por el estilo
-
+    boolean isValid(String token);
+    boolean hasExpired(String token);
+    void validateToken(String token);
 }
