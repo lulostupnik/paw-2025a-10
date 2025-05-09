@@ -138,7 +138,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public Optional<UserPassword> findByEmailWithPass(final String email) {
-        return jdbcTemplate.query("SELECT email, password, roles, blocked, validate_token is not null AS verified FROM users WHERE email = ?", USER_PASSWORD_ROW_MAPPER, email).stream().findFirst();
+        return jdbcTemplate.query("SELECT email, password, roles, blocked, validate_token is null AS verified FROM users WHERE email = ?", USER_PASSWORD_ROW_MAPPER, email).stream().findFirst();
     }
 
     @Override

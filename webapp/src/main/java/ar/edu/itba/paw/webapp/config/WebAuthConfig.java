@@ -73,7 +73,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .invalidSessionUrl("/")
                 .and().authorizeRequests()
-                .antMatchers("/register", "/login").anonymous() // Make sure /blocked is accessible
+                .antMatchers("/register", "/login", "/validate").anonymous() // Make sure /blocked is accessible
                 .antMatchers("/universities", "/careers", "/interests", "/cities").permitAll()
                 .antMatchers(HttpMethod.POST, "/events/{id}/delete", "/journeys/{id}/delete",
                         "users/block", "users/unblock").access("hasRole('ADMIN') and !@accessHelper.isUserBlocked()")
