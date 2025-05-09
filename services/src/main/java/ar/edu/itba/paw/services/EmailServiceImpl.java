@@ -80,7 +80,7 @@ public class EmailServiceImpl implements EmailService {
                 DataSource imageSource = new ByteArrayDataSource(maybeImage.get(), "image/jpeg");
                 helper.addInline(maybeImageCid.get(), imageSource);
             }
-            //emailSender.send(message);
+            emailSender.send(message);
         } catch (Exception e) {
             LOGGER.error("Failed to send email", e);
         }
