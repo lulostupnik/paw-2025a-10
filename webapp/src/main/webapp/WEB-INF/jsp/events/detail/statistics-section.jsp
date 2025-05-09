@@ -111,7 +111,7 @@ Parameters:
                     <div class="attendee-card">
                         <div class="attendee-avatar">
                             <c:if test="${not empty attendee.profilePictureId}">
-                                <img src="<c:url value='/images/${attendee.profilePictureId}'/>" alt="Profile" class="avatar-img">
+                                <img src="<c:url value='/images/${attendee.profilePictureId}'/>" alt="Profile" class="detail-avatar-img">
                             </c:if>
                             <c:if test="${empty attendee.profilePictureId}">
                                 <div class="avatar-placeholder">
