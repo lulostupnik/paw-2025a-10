@@ -5,7 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -137,7 +136,7 @@ public class CarreerJdbcDaoTest {
     }
     @Test
     public void testGetAllCareersNoCareers(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.JOURNEY_TABLE, TestUtils.USER_INTEREST_TABLE, TestUtils.USER_TABLE, TestUtils.CAREER_TABLE);
+        TestUtils.deleteCareers(jdbcTemplate);
 
         Page<Career> page1 = careerDao.getAllCareers(new PageParams(1, 2));
 

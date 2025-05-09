@@ -26,6 +26,7 @@ public class CareerServiceImplTest {
     private static final String NAME = "career";
     private static final long ID = 0;
     private static final Career CAREER = new Career(ID, NAME);
+    private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
     @InjectMocks
     private CareerServiceImpl careerService;
 
@@ -86,10 +87,10 @@ public class CareerServiceImplTest {
     public void testGetAllCareersNoFilter(){
         Page<Career> testPage = new Page<Career>(List.of(CAREER), 1, 1);
         Mockito.when(
-            careerDao.getAllCareers(new PageParams(Mockito.eq(1), Mockito.eq(2)))  //@TODO test, le cambie a page params
+            careerDao.getAllCareers(Mockito.eq(PAGE_1_DEFAULT))  //@TODO test, le cambie a page params
         ).thenReturn(testPage);
 
-        Page<Career> page = careerService.getAllCareers(null, new PageParams(1,2));
+        Page<Career> page = careerService.getAllCareers(null, PAGE_1_DEFAULT);
 
         assertNotNull(page);
         assertEquals(testPage, page);
@@ -98,10 +99,10 @@ public class CareerServiceImplTest {
     public void testGetAllCareersEmptyFilter(){
         Page<Career> testPage = new Page<Career>(List.of(CAREER), 1, 1);
         Mockito.when(
-            careerDao.getAllCareers(new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            careerDao.getAllCareers(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<Career> page = careerService.getAllCareers("", new PageParams(1,2));
+        Page<Career> page = careerService.getAllCareers("", PAGE_1_DEFAULT);
 
         assertNotNull(page);
         assertEquals(testPage, page);
@@ -110,10 +111,10 @@ public class CareerServiceImplTest {
     public void testGetAllCareersFilter(){
         Page<Career> testPage = new Page<Career>(List.of(CAREER), 1, 1);
         Mockito.when(
-            careerDao.searchBySubstring(Mockito.eq(NAME), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            careerDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<Career> page = careerService.getAllCareers(NAME, new PageParams(1,2));
+        Page<Career> page = careerService.getAllCareers(NAME, PAGE_1_DEFAULT);
 
         assertNotNull(page);
         assertEquals(testPage, page);

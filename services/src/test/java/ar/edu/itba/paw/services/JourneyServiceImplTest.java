@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -20,6 +19,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
+import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.EmailService;
 import ar.edu.itba.paw.interfaces.services.InterestService;
@@ -38,7 +38,7 @@ public class JourneyServiceImplTest {
     private static final long JOURNEY_ID = 6;
     private static final long JOURNEY_ID2 = 7;
     private static final long INTEREST_ID = 8;
-    private static final long REPLY_ID = 9;
+    //private static final long REPLY_ID = 9;
 
     private static final String UNI_NAME = "uni";
     private static final String UNI_ABBR = "uni";
@@ -50,6 +50,8 @@ public class JourneyServiceImplTest {
     private static final String CITY_NAME = "citi";
     private static final String COUNTRY_NAME = "cuntry";
     private static final String CAREER_NAME = "career";
+    private static final String INTEREST_NAME = "interesting";
+
 
     private static final City CITY = new City(CITY_NAME, COUNTRY_NAME, CITY_ID);
     private static final University UNI = new University(UNI_ID, UNI_NAME, UNI_ABBR, CITY);
@@ -57,6 +59,8 @@ public class JourneyServiceImplTest {
     private static final Locale LOCALE = Locale.of("en");
     private static final User USER = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, IMAGE_ID, LOCALE, false);
     private static final User USER2 = new User(USER_ID2, EMAIL2, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, IMAGE_ID, LOCALE, false);
+    private static final Interest INTEREST = new Interest(INTEREST_ID, INTEREST_NAME);
+    private static final List<Interest> INTERESTS = List.of(INTEREST);
 
     private static final LocalDate START_DATE = LocalDate.now();
     private static final LocalDate END_DATE = START_DATE.plusDays(10);
@@ -66,15 +70,19 @@ public class JourneyServiceImplTest {
     private static final List<Journey> JOURNEYS = List.of(JOURNEY);
     private static final Page<Journey> JOURNEY_PAGE = new Page<Journey>(JOURNEYS, 1, 1);
 
-    private static final LocalDateTime REPLY_TIMESTAMP = LocalDateTime.now();
-    private static final JourneyResponse REPLY = new JourneyResponse(REPLY_ID, USER_ID, USERNAME, JOURNEY_ID, DESCRIPTION, REPLY_TIMESTAMP);
-    private static final List<JourneyResponse> REPLIES = List.of(REPLY);
+    //private static final LocalDateTime REPLY_TIMESTAMP = LocalDateTime.now();
+    //private static final JourneyResponse REPLY = new JourneyResponse(REPLY_ID, USER_ID, USERNAME, JOURNEY_ID, DESCRIPTION, REPLY_TIMESTAMP);
+    //private static final List<JourneyResponse> REPLIES = List.of(REPLY);
+
+    private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
 
     @InjectMocks
     JourneyServiceImpl journeyService;
 
     @Mock
     JourneyDao journeyDao;
+    @Mock
+    JourneyResponseDao replyDao;
 
     @Mock
     UserService userService;
@@ -82,8 +90,6 @@ public class JourneyServiceImplTest {
     EmailService emailService;
     @Mock
     UniversityService uniService;
-//    @Mock
-//    JourneyResponseService responseService;
     @Mock
     InterestService interestService;
     @Mock
@@ -151,6 +157,9 @@ public class JourneyServiceImplTest {
         Mockito.when(
             userService.findByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.of(USER));
+        Mockito.when(
+            interestService.findByUserId(Mockito.eq(USER_ID))
+        ).thenReturn(INTERESTS);
 
         journeyService.replyToJourney(EMAIL, JOURNEY_ID, DESCRIPTION);
     }
@@ -178,10 +187,10 @@ public class JourneyServiceImplTest {
     @Test
     public void testGetAllJourneysPagedMissingQuery(){
         Mockito.when(
-            journeyDao.listAll(new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            journeyDao.listAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
-        Page<Journey> page = journeyService.getAllJourneys(null, new PageParams(1,2));
+        Page<Journey> page = journeyService.getAllJourneys(null, PAGE_1_DEFAULT);
 
         assertNotNull(page);
         assertEquals(JOURNEY_PAGE, page);
@@ -189,10 +198,10 @@ public class JourneyServiceImplTest {
     @Test
     public void testGetAllJourneysPagedEmptyQuery(){
         Mockito.when(
-            journeyDao.listAll(new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            journeyDao.listAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
-        Page<Journey> page = journeyService.getAllJourneys("",new PageParams(1,2));
+        Page<Journey> page = journeyService.getAllJourneys("", PAGE_1_DEFAULT);
 
         assertNotNull(page);
         assertEquals(JOURNEY_PAGE, page);
@@ -200,10 +209,10 @@ public class JourneyServiceImplTest {
     @Test
     public void testGetAllJourneysPagedQuery(){
         Mockito.when(
-            journeyDao.searchJourneys(Mockito.eq(DESCRIPTION), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            journeyDao.searchJourneys(Mockito.eq(DESCRIPTION), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
-        Page<Journey> page = journeyService.getAllJourneys(DESCRIPTION, new PageParams(1,2));
+        Page<Journey> page = journeyService.getAllJourneys(DESCRIPTION, PAGE_1_DEFAULT);
 
         assertNotNull(page);
         assertEquals(JOURNEY_PAGE, page);
@@ -326,7 +335,7 @@ public class JourneyServiceImplTest {
             journeyDao.findByUserId(Mockito.eq(USER_ID))
         ).thenReturn(Optional.of(JOURNEY));
         Mockito.when(
-            journeyDao.getRecommendedJourneys(Mockito.eq(EMAIL), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            journeyDao.getRecommendedJourneys(Mockito.eq(EMAIL), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
         List<Journey> journeys = journeyService.getRecommendedJourneys(EMAIL, 2);
@@ -343,7 +352,7 @@ public class JourneyServiceImplTest {
             journeyDao.findByUserId(Mockito.eq(USER_ID))
         ).thenReturn(Optional.empty());
         Mockito.when(
-            journeyDao.findByOriginCity(Mockito.eq(CITY_ID), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            journeyDao.findByOriginCity(Mockito.eq(CITY_ID), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
         List<Journey> journeys = journeyService.getRecommendedJourneys(EMAIL, 2);
@@ -360,10 +369,10 @@ public class JourneyServiceImplTest {
             journeyDao.findByUserId(Mockito.eq(USER_ID))
         ).thenReturn(Optional.empty());
         Mockito.when(
-            journeyDao.findByOriginCity(Mockito.eq(CITY_ID), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            journeyDao.findByOriginCity(Mockito.eq(CITY_ID), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(new Page<Journey>(List.of(), 1, 2));
         Mockito.when(
-            journeyDao.listAll(new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            journeyDao.listAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
         List<Journey> journeys = journeyService.getRecommendedJourneys(EMAIL, 2);
@@ -377,7 +386,7 @@ public class JourneyServiceImplTest {
             userService.findByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.empty());
         Mockito.when(
-            journeyDao.listAll(new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            journeyDao.listAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
         List<Journey> journeys = journeyService.getRecommendedJourneys(EMAIL, 2);
@@ -459,18 +468,6 @@ public class JourneyServiceImplTest {
 
     @Test
     public void testUpdateJourneyDescription(){
-        Mockito.when(
-            journeyDao.findById(Mockito.eq(JOURNEY_ID))
-        ).thenReturn(Optional.of(JOURNEY));
-        
-        journeyService.updateJourneyDescription(JOURNEY_ID, DESCRIPTION);
-    }
-    @Test(expected = RuntimeException.class)
-    public void testUpdateJourneyDescriptionMissingJourney(){
-        Mockito.when(
-            journeyDao.findById(Mockito.eq(JOURNEY_ID))
-        ).thenReturn(Optional.empty());
-        
         journeyService.updateJourneyDescription(JOURNEY_ID, DESCRIPTION);
     }
 

@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.models;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 public class PageParams {
@@ -14,5 +13,10 @@ public class PageParams {
         }
         this.page = page;
         this.size = size;
+    }
+
+    @Override
+    public boolean equals(Object other){
+        return ((other instanceof PageParams p) && p.getPage() == this.page && p.getSize() == this.size);
     }
 }

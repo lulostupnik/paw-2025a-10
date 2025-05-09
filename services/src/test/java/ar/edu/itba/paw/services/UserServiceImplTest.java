@@ -44,6 +44,7 @@ public class UserServiceImplTest {
     private static final boolean BLOCKED = false;
     private static final Interest INTEREST = new Interest((long)0, "name");
     private static final User USER = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE.getId(), LOCALE, false);
+    private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -337,10 +338,10 @@ public class UserServiceImplTest {
     public void testGetAllUsersPaged(){
         Page<User> testPage = new Page<User>(List.of(USER), 1, 1);
         Mockito.when(
-            userDao.getAllUsers(new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            userDao.getAllUsers(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<User> users = userService.getAllUsers(null, new PageParams(1,2));
+        Page<User> users = userService.getAllUsers(null, PAGE_1_DEFAULT);
 
         assertNotNull(users);
         assertEquals(testPage, users);
@@ -349,10 +350,10 @@ public class UserServiceImplTest {
     public void testGetAllUsersPagedEmptySearch(){
         Page<User> testPage = new Page<User>(List.of(USER), 1, 1);
         Mockito.when(
-            userDao.getAllUsers(new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            userDao.getAllUsers(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<User> users = userService.getAllUsers("", new PageParams(1,2));
+        Page<User> users = userService.getAllUsers("", PAGE_1_DEFAULT);
 
         assertNotNull(users);
         assertEquals(testPage, users);
@@ -361,10 +362,10 @@ public class UserServiceImplTest {
     public void testGetAllUsersPagedNoUsers(){
         Page<User> testPage = new Page<User>(List.of(), 1, 0);
         Mockito.when(
-            userDao.getAllUsers(new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            userDao.getAllUsers(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<User> users = userService.getAllUsers(null, new PageParams(1,2));
+        Page<User> users = userService.getAllUsers(null, PAGE_1_DEFAULT);
 
         assertNotNull(users);
         assertEquals(testPage, users);
@@ -373,10 +374,10 @@ public class UserServiceImplTest {
     public void testGetAllUsersPagedEmptySearchNoUsers(){
         Page<User> testPage = new Page<User>(List.of(), 1, 0);
         Mockito.when(
-            userDao.getAllUsers(new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            userDao.getAllUsers(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<User> users = userService.getAllUsers("", new PageParams(1,2));
+        Page<User> users = userService.getAllUsers("", PAGE_1_DEFAULT);
 
         assertNotNull(users);
         assertEquals(testPage, users);
@@ -386,10 +387,10 @@ public class UserServiceImplTest {
     public void testGetAllUsersPagedSearch(){
         Page<User> testPage = new Page<User>(List.of(USER), 1, 1);
         Mockito.when(
-            userDao.searchUsers(Mockito.eq(FIRSTNAME), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            userDao.searchUsers(Mockito.eq(FIRSTNAME), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<User> users = userService.getAllUsers(FIRSTNAME, new PageParams(1,2));
+        Page<User> users = userService.getAllUsers(FIRSTNAME, PAGE_1_DEFAULT);
 
         assertNotNull(users);
         assertEquals(testPage, users);
@@ -398,10 +399,10 @@ public class UserServiceImplTest {
     public void testGetAllUsersPagedSearchNoUsers(){
         Page<User> testPage = new Page<User>(List.of(), 1, 1);
         Mockito.when(
-            userDao.searchUsers(Mockito.eq(FIRSTNAME), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            userDao.searchUsers(Mockito.eq(FIRSTNAME), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
-        Page<User> users = userService.getAllUsers(FIRSTNAME, new PageParams(1,2));
+        Page<User> users = userService.getAllUsers(FIRSTNAME, PAGE_1_DEFAULT);
 
         assertNotNull(users);
         assertEquals(testPage, users);

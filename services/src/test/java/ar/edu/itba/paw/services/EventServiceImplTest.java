@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Locale;
@@ -23,6 +22,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import ar.edu.itba.paw.interfaces.persistence.EventAttendanceDao;
 import ar.edu.itba.paw.interfaces.persistence.EventDao;
+import ar.edu.itba.paw.interfaces.persistence.EventResponseDao;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.EmailService;
@@ -38,7 +38,7 @@ public class EventServiceImplTest {
     private static final long CITY_ID = 3;
     private static final long IMAGE_ID = 4;
     private static final long CAREER_ID = 5;
-    private static final long RESPONSE_ID = 6;
+    //private static final long RESPONSE_ID = 6;
     private static final String EMAIL = "email";
     private static final String USERNAME = "username";
     private static final String FIRSTNAME = "name";
@@ -54,7 +54,7 @@ public class EventServiceImplTest {
     private static final String DESCRIPTION = "description";
     private static final String TITLE = "title";
     private static final LocalTime TIME = LocalTime.now();
-    private static final LocalDateTime TIMESTAMP = LocalDateTime.now();
+    //private static final LocalDateTime TIMESTAMP = LocalDateTime.now();
     private static final String ADDRESS = "address";
     private static final int LIMIT = 10;
     private static final int ATTENDEES = 8;
@@ -69,9 +69,9 @@ public class EventServiceImplTest {
     private static final List<Event> EVENTS = List.of(EVENT);
     private static final Page<Event> EVENTS_PAGE = new Page<Event>(EVENTS, 1, 1);
     private static final Page<User> USERS_PAGE = new Page<User>(USERS, 1, 1);
-    private static final EventResponse RESPONSE = new EventResponse(RESPONSE_ID, USER_ID, USERNAME, EVENT_ID, DESCRIPTION, TIMESTAMP);
-    private static final List<EventResponse> RESPONSES = List.of(RESPONSE);
-    private static final PageParams PAGE_PARAMS = new PageParams(1, 2);
+    //private static final EventResponse RESPONSE = new EventResponse(RESPONSE_ID, USER_ID, USERNAME, EVENT_ID, DESCRIPTION, TIMESTAMP);
+    //private static final List<EventResponse> RESPONSES = List.of(RESPONSE);
+    private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
 
     @InjectMocks
     EventServiceImpl eventService;
@@ -92,6 +92,8 @@ public class EventServiceImplTest {
     EventAttendanceDao attendanceDao;
     @Mock
     UserDao userDao;
+    @Mock
+    EventResponseDao replyDao;
 
     @Test
     public void testCreateEvent(){
@@ -184,10 +186,10 @@ public class EventServiceImplTest {
     @Test
     public void testGetAllEventsPaged(){
         Mockito.when(
-            eventDao.listAll(new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            eventDao.listAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
-        Page<Event> page = eventService.getAllEvents(PAGE_PARAMS);
+        Page<Event> page = eventService.getAllEvents(PAGE_1_DEFAULT);
 
         assertNotNull(page);
         assertEquals(EVENTS_PAGE, page);
@@ -196,10 +198,10 @@ public class EventServiceImplTest {
     @Test
     public void testGetAllEventsPagedEmail(){
         Mockito.when(
-            eventDao.getEvents(Mockito.eq(EMAIL), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            eventDao.getEvents(Mockito.eq(EMAIL), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
-        Page<Event> page = eventService.getAllEvents(EMAIL, PAGE_PARAMS);
+        Page<Event> page = eventService.getAllEvents(EMAIL, PAGE_1_DEFAULT);
 
         assertNotNull(page);
         assertEquals(EVENTS_PAGE, page);
@@ -208,10 +210,10 @@ public class EventServiceImplTest {
     @Test
     public void testGetAllEventsSearchMissingQuery(){
         Mockito.when(
-            eventDao.listAll(new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            eventDao.listAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
-        Page<Event> page = eventService.getAllEventsSearch(null, PAGE_PARAMS);
+        Page<Event> page = eventService.getAllEventsSearch(null, PAGE_1_DEFAULT);
 
         assertNotNull(page);
         assertEquals(EVENTS_PAGE, page);
@@ -219,10 +221,10 @@ public class EventServiceImplTest {
     @Test
     public void testGetAllEventsSearchEmptyQuery(){
         Mockito.when(
-            eventDao.listAll(new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            eventDao.listAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
-        Page<Event> page = eventService.getAllEventsSearch("", PAGE_PARAMS);
+        Page<Event> page = eventService.getAllEventsSearch("", PAGE_1_DEFAULT);
 
         assertNotNull(page);
         assertEquals(EVENTS_PAGE, page);
@@ -230,10 +232,10 @@ public class EventServiceImplTest {
     @Test
     public void testGetAllEventsSearchQuery(){
         Mockito.when(
-            eventDao.searchEvents(Mockito.eq(DESCRIPTION), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            eventDao.searchEvents(Mockito.eq(DESCRIPTION), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
-        Page<Event> page = eventService.getAllEventsSearch(DESCRIPTION, PAGE_PARAMS);
+        Page<Event> page = eventService.getAllEventsSearch(DESCRIPTION, PAGE_1_DEFAULT);
 
         assertNotNull(page);
         assertEquals(EVENTS_PAGE, page);
@@ -244,10 +246,10 @@ public class EventServiceImplTest {
     @Test
     public void testGetAllEventsEmailPaged(){
         Mockito.when(
-            eventDao.getEvents(Mockito.eq(EMAIL), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            eventDao.getEvents(Mockito.eq(EMAIL), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
-        Page<Event> page = eventService.getAllEvents(EMAIL, PAGE_PARAMS);
+        Page<Event> page = eventService.getAllEvents(EMAIL, PAGE_1_DEFAULT);
 
         assertNotNull(page);
         assertEquals(EVENTS_PAGE, page);
@@ -437,10 +439,10 @@ public class EventServiceImplTest {
     @Test
     public void testGetAttendeesPaged(){
         Mockito.when(
-            attendanceDao.getAttendees(Mockito.eq(EVENT_ID), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            attendanceDao.getAttendees(Mockito.eq(EVENT_ID), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(USERS_PAGE);
 
-        Page<User> attending = eventService.getEventAttendees(EVENT_ID, PAGE_PARAMS);
+        Page<User> attending = eventService.getEventAttendees(EVENT_ID, PAGE_1_DEFAULT);
 
         assertNotNull(attending);
         assertEquals(USERS_PAGE, attending);
@@ -461,10 +463,10 @@ public class EventServiceImplTest {
     @Test
     public void testGetUserAttendingEventsPaged(){
         Mockito.when(
-            attendanceDao.getAttendingEvents(Mockito.eq(USER_ID), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            attendanceDao.getAttendingEvents(Mockito.eq(USER_ID), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
-        Page<Event> page = eventService.getUserAttendingEvents(USER_ID, PAGE_PARAMS);
+        Page<Event> page = eventService.getUserAttendingEvents(USER_ID, PAGE_1_DEFAULT);
 
         assertNotNull(page);
         assertEquals(EVENTS_PAGE, page);
@@ -485,7 +487,7 @@ public class EventServiceImplTest {
     @Test
     public void testGetRecommendedEvents(){
         Mockito.when(
-            eventDao.getRecommendedEvents(Mockito.eq(USER_ID), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            eventDao.getRecommendedEvents(Mockito.eq(USER_ID), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
         List<Event> userevents = eventService.getRecommendedEvents(USER_ID, 2);
@@ -496,10 +498,10 @@ public class EventServiceImplTest {
     @Test
     public void testGetRecommendedEventsMissing(){
         Mockito.when(
-            eventDao.getRecommendedEvents(Mockito.eq(USER_ID), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            eventDao.getRecommendedEvents(Mockito.eq(USER_ID), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(new Page<>(List.of(), 1, 0));
         Mockito.when(
-            eventDao.getTopUserEvents(Mockito.eq(USER_ID), new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            eventDao.getTopUserEvents(Mockito.eq(USER_ID), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
         List<Event> userevents = eventService.getRecommendedEvents(USER_ID, 2);
@@ -515,7 +517,7 @@ public class EventServiceImplTest {
     @Test
     public void testGetTopEvents(){
         Mockito.when(
-            eventDao.getTopEvents(new PageParams(Mockito.eq(1), Mockito.eq(2)))
+            eventDao.getTopEvents(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
         List<Event> events = eventService.getTopEvents(2);

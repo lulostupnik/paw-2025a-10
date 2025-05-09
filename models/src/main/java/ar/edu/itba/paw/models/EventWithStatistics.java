@@ -11,4 +11,6 @@ public class EventWithStatistics {
     private final int attendedEventsCount;
     private final String topAttendeeCountry;
     private final int topAttendeeCountryCount;
+    private final boolean isAttending;
+    private final boolean isCreator;
 }

@@ -118,7 +118,7 @@ Parameters:
             <jsp:param name="pageObjectTotalPages" value="${eventResponsesPage.totalPages}" />
             <jsp:param name="currentPage" value="${eventResponsesPage.currentPage}" />
             <jsp:param name="pageSize" value="${chatPageSize}" />
-            <jsp:param name="baseUrl" value="/events/${event.id}?attendeesPage=${attendeesPage.currentPage}&attendeesSize=${attendeesPageSize}" />
+            <jsp:param name="baseUrl" value="/events/${event.id}" />
         </jsp:include>
 
     </div>

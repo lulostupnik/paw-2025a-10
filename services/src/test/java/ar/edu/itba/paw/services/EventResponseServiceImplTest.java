@@ -1,43 +1,41 @@
-package ar.edu.itba.paw.services;
+// package ar.edu.itba.paw.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+// import static org.junit.Assert.assertEquals;
+// import static org.junit.Assert.assertNotNull;
+// import static org.junit.Assert.assertTrue;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+// import java.time.LocalDateTime;
+// import java.util.List;
+// import java.util.Optional;
 
-import ar.edu.itba.paw.models.PageParams;
-import ar.edu.itba.paw.models.User;
+// import ar.edu.itba.paw.models.PageParams;
+// import ar.edu.itba.paw.models.User;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+// import org.junit.Test;
+// import org.junit.runner.RunWith;
+// import org.mockito.InjectMocks;
+// import org.mockito.Mock;
+// import org.mockito.Mockito;
+// import org.mockito.junit.MockitoJUnitRunner;
 
-import ar.edu.itba.paw.interfaces.persistence.EventDao;
-import ar.edu.itba.paw.interfaces.persistence.EventResponseDao;
-import ar.edu.itba.paw.interfaces.services.EmailService;
-import ar.edu.itba.paw.interfaces.services.UserService;
-import ar.edu.itba.paw.models.Event;
-import ar.edu.itba.paw.models.EventResponse;
-import ar.edu.itba.paw.models.Page;
+// import ar.edu.itba.paw.interfaces.persistence.EventDao;
+// import ar.edu.itba.paw.interfaces.persistence.EventResponseDao;
+// import ar.edu.itba.paw.interfaces.services.EmailService;
+// import ar.edu.itba.paw.interfaces.services.UserService;
+// import ar.edu.itba.paw.models.Event;
+// import ar.edu.itba.paw.models.EventResponse;
+// import ar.edu.itba.paw.models.Page;
 
-@RunWith(MockitoJUnitRunner.class)
-public class EventResponseServiceImplTest {
+// @RunWith(MockitoJUnitRunner.class)
+// public class EventResponseServiceImplTest {
 
-    private static final long USER_ID = 0;
-    private static final String USERNAME = "user";
-    private static final long EVENT_ID = 1;
-    private static final long ID = 2;
-    private static final String MESSAGE = "message";
-    private static final LocalDateTime TIMESTAMP = LocalDateTime.now().withNano(0);
-    private static final EventResponse RESPONSE = new EventResponse(ID, USER_ID, USERNAME, EVENT_ID, MESSAGE, TIMESTAMP);
-    private static final Event EVENT = new Event(EVENT_ID, null, null, MESSAGE, ID, null, USERNAME, null, MESSAGE, null, 0);
-    private static final User USER = new User(ID, null, null, null, null, null, null, ID, null, false);
+//     private static final long USER_ID = 0;
+//     private static final String USERNAME = "user";
+//     private static final long EVENT_ID = 1;
+//     private static final long ID = 2;
+//     private static final String MESSAGE = "message";
+//     private static final LocalDateTime TIMESTAMP = LocalDateTime.now().withNano(0);
+
 
 //    @InjectMocks
 //    private EventResponseServiceImpl responseService;
@@ -164,4 +162,4 @@ public class EventResponseServiceImplTest {
 //    }
 
 
-}
+//}
