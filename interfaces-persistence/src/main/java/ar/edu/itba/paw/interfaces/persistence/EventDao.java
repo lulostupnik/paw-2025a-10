@@ -14,7 +14,7 @@ public interface EventDao {
     Optional<Event> findById(long eventId);
     Optional<Integer> getEventAttendanceLimit(long eventId);
     List<Event> findAllBetweenDates(LocalDate startDate, LocalDate endDate);
-    Optional<EventWithStatistics> findEventWithStatistics(long eventId);
+    Optional<EventWithStatistics> findEventWithStatistics(Long userId, long eventId);
     Page<Event> getRecommendedEvents(long userId, PageParams pageParams);
     Page<Event> getTopEvents(PageParams pageParams);                           //top events
     Page<Event> getTopUserEvents(long userId, PageParams pageParams);

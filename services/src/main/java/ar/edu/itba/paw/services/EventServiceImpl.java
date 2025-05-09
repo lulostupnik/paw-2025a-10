@@ -101,9 +101,14 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Optional<EventWithStatistics> findEventWithStatistics(long eventId) {
-        return eventDao.findEventWithStatistics(eventId);
+    public Optional<EventWithStatistics> findEventWithStatistics(User user, long eventId) {
+        if(user == null){
+            return eventDao.findEventWithStatistics(null, eventId);
+        }
+        return eventDao.findEventWithStatistics(user.getId(), eventId);
     }
+
+
 
     @Override
     public Page<Event> getAllEventsSearch(String search,PageParams pageParams) {
@@ -233,6 +238,15 @@ public class EventServiceImpl implements EventService {
     public boolean isEventFull(long eventId) {
         Optional<Integer> limit = eventDao.getEventAttendanceLimit(eventId);
         return limit.isPresent() && eventAttendanceDao.getAttendeesCount(eventId) >= limit.get();
+    }
+
+    @Override
+    public boolean isEventFull(Event event) {
+        Optional<Integer> limit = event.getAttendeesLimit();
+        if (limit.isEmpty()) {
+            return false;
+        }
+        return event.getAttendeesCount() >= limit.get();
     }
 
 
