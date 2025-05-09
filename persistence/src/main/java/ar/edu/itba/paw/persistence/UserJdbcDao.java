@@ -10,6 +10,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
 import javax.sql.DataSource;
 import java.sql.Date;
 import java.time.LocalDate;
@@ -183,7 +185,7 @@ public class UserJdbcDao implements UserDao {
         args.put("roles", "user");
         args.put("blocked", false);
         args.put("validate_token", validateToken);
-        args.put("validate_token_expiration", Date.valueOf(exipirationDate));
+        args.put("validate_token_expiration_date", Date.valueOf(exipirationDate));
         final Number id = jdbcInsert.executeAndReturnKey(args);
         final User user = new User(id.longValue(), email, username, firstname, lastname, university, career, profilePictureId, locale,false);
         LOGGER.info("Successfully registered new user {}", user);
@@ -305,20 +307,19 @@ public class UserJdbcDao implements UserDao {
                 SELECT COUNT(*)
                 FROM users
                 WHERE validate_token = ?
-                AND validate_token_expiration > NOW()
+                AND validate_token_expiration_date > NOW()
                 """,
                 Integer.class,
                 token
         );
         return count != null && count > 0;
     }
-
     @Override
     public void validateToken(String token) {
         jdbcTemplate.update(
                 """
                 UPDATE users
-                SET validate_token = NULL, validate_token_expiration = NULL
+                SET validate_token = NULL, validate_token_expiration_date = NULL
                 WHERE validate_token = ?
                 """,
                 token
@@ -332,7 +333,7 @@ public class UserJdbcDao implements UserDao {
                 SELECT COUNT(*)
                 FROM users
                 WHERE validate_token = ?
-                AND validate_token_expiration < NOW()
+                AND validate_token_expiration_date < NOW()
                 """,
                 Integer.class,
                 token
