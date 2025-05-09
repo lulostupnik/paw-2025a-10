@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface CountryService {
     List<Country> getAllCountries();
-    Boolean existsByName(String name);
+    boolean existsByName(String name);
     Optional<Country> findByName(String name);
 }

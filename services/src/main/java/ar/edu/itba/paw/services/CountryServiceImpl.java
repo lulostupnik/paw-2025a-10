@@ -30,7 +30,7 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Override
-    public Boolean existsByName(String name) {
+    public boolean existsByName(String name) {
         LOGGER.debug("Checking if country {} exists", name);
         return countryDao.existsByName(name);
     }
