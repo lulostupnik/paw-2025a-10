@@ -253,9 +253,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public Page<User> getAllUsers(PageParams pageParams) {
-        final List<User> list = jdbcTemplate.query(SQL_FIND_ALL_PAGED, USER_ROW_MAPPER, pageParams.getSize(), offset(pageParams));
-        final int elementCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
-        return new Page<>(list, pageParams.getPage(), pageCount(elementCount, pageParams.getSize()));
+        return executePagedQuery(jdbcTemplate, USER_ROW_MAPPER, "SELECT COUNT(*) FROM users", SQL_FIND_ALL_PAGED, pageParams);
     }
 
     @Override
