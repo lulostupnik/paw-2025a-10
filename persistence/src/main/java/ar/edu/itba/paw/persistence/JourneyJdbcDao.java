@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Optional;
 import javax.sql.DataSource;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.enums.SortDirection;
+import ar.edu.itba.paw.models.enums.SortFieldJourney;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -428,7 +430,7 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
         @Override
-        public Page<Journey> searchJourneys(final String search, Long userId, String orderBy, String direction,
+        public Page<Journey> searchJourneys(final String search, Long userId, SortFieldJourney orderBy, SortDirection direction,
                                             String city, LocalDate startDate, LocalDate endDate, String interest,
                                             boolean isPast, boolean isUpcoming, boolean isMyDestination, boolean isOngoing,
                                             PageParams pageParams) {
@@ -438,7 +440,8 @@ public class JourneyJdbcDao implements JourneyDao {
             final List<Object> params = new ArrayList<>();
 
             final StringBuilder countQueryBuilder = new StringBuilder("SELECT COUNT(*) FROM journeys j");
-            final StringBuilder queryBuilder = new StringBuilder((interest != null || orderBy.equals("interest")) ? SQL_BASE_INTEREST : SQL_BASE);
+//            final StringBuilder queryBuilder = new StringBuilder((interest != null || orderBy.equals("interest")) ? SQL_BASE_INTEREST : SQL_BASE);
+            final StringBuilder queryBuilder =new StringBuilder(SQL_BASE);
 
 
             if (interest != null && !interest.isEmpty()) {
@@ -499,12 +502,12 @@ public class JourneyJdbcDao implements JourneyDao {
                 filters.add(" ci2.id = ( SELECT ci2.id FROM journeys j JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id WHERE j.user_id = ? LIMIT 1) ");
                 params.add(userId);
             }
-            if(orderBy != null && orderBy.equals("interest")){
-                orderBy= "c.name";
-                if(interest == null) {
-                    countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id JOIN category c ON ui.category_id = c.id ");
-                }
-            }
+//            if(orderBy != null && orderBy.equals("interest")){
+//                orderBy= "c.name";
+//                if(interest == null) {
+//                    countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id JOIN category c ON ui.category_id = c.id ");
+//                }
+//            }
 
             countQueryBuilder.append(" WHERE j.deleted = FALSE ");
 
@@ -513,14 +516,12 @@ public class JourneyJdbcDao implements JourneyDao {
                 queryBuilder.append(" AND ").append(String.join(" AND ", filters));
             }
 
-            if (orderBy != null && !orderBy.isEmpty()) {
-                if(orderBy.equals("city")){
-                    orderBy= "ci2.name";
-                }
-
+            if (orderBy != null/*&& !orderBy.isEmpty()*/) {
+//                if(orderBy.equals("city")){
+//                    orderBy= "ci2.name";
+//                }
                 queryBuilder.append(" ORDER BY ").append(orderBy);
-
-                if (direction != null && direction.equals("desc")) {
+                if (direction != null && direction.equals(SortDirection.DESC)){
                     queryBuilder.append(" DESC");
                 } else {
                     queryBuilder.append(" ASC");

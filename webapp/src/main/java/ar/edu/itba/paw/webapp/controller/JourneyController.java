@@ -2,6 +2,8 @@ package ar.edu.itba.paw.webapp.controller;
 
 import javax.validation.Valid;
 
+import ar.edu.itba.paw.models.enums.SortDirection;
+import ar.edu.itba.paw.models.enums.SortFieldJourney;
 import ar.edu.itba.paw.models.exceptions.InvalidException;
 import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
 import ar.edu.itba.paw.interfaces.services.*;
@@ -32,9 +34,7 @@ public class JourneyController {
     private final CityService cityService;
     private final UniversityService universityService;
     private final InterestService interestService;
-//    private final JourneyResponseService journeyResponseService;
     private static final String REDIRECT_JOURNEY = "redirect:/journeys/";
-    private static final int DEFAULT_PAGE_SIZE = 30;
 
     @Autowired
     public JourneyController(final JourneyService js, CityService cityService, UniversityService universityService, InterestService interestService) {
@@ -60,7 +60,7 @@ public class JourneyController {
         if(! hasJourney && fjf.getIsMyDestination()){
             throw new InvalidException("You must have a journey to filter by destination");
         }
-        mav.addObject("journeys", js.getAllJourneys(search, user, sortBy,direction,
+        mav.addObject("journeys", js.getAllJourneys(search, user, SortFieldJourney.from(sortBy), SortDirection.from(direction),
                 fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests(),fjf.getIsPast(), fjf.getIsUpcoming(), fjf.getIsMyDestination(),
                 fjf.getIsOngoing(), pageParams));
         mav.addObject("hasJourney", hasJourney);

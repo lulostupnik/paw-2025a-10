@@ -92,7 +92,7 @@
           param.sort != 'date' and
           param.sort != 'attendees' and
           param.sort != 'responders'
-        ) or (param.sort == 'date' and param.direction == 'asc') or (param.sort == 'date' and param.direction != 'desc') ? 'active' : ''}">
+        ) or (param.sort == 'date' and empty param.direction or param.direction != "desc") ? 'active' : ''}">
                 <spring:message code="event.sort.date.asc"/>
               </a>
               <a href="<c:url value="/events?sort=date&direction=desc${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.cityName ? '&cityName='.concat(param.cityName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.isUpcoming ? '&isUpcoming='.concat(param.isUpcoming) : ''}${not empty param.attending ? '&attending='.concat(param.attending) : ''}${not empty param.isPast ? '&isPast='.concat(param.isPast) : ''}${not empty param.page ? '&page='.concat(param.page) : ''}${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>"
