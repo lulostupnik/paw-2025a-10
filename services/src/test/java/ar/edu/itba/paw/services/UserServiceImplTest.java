@@ -183,30 +183,6 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void testFindByUsername(){
-        Mockito.when(
-            userDao.findByUsername(Mockito.eq(USERNAME))
-        ).thenReturn(Optional.of(USER));
-
-        Optional<User> maybeUser = userService.findByUsername(USERNAME);
-
-        assertNotNull(maybeUser);
-        assertTrue(maybeUser.isPresent());
-        assertEquals(USER, maybeUser.get());
-    }
-    @Test
-    public void testFindByUsernameMissing(){
-        Mockito.when(
-            userDao.findByUsername(Mockito.eq(USERNAME))
-        ).thenReturn(Optional.empty());
-
-        Optional<User> maybeUser = userService.findByUsername(USERNAME);
-
-        assertNotNull(maybeUser);
-        assertFalse(maybeUser.isPresent());
-    }
-
-    @Test
     public void testExistsByUsername(){
         Mockito.when(
             userDao.existsByUsername(Mockito.eq(EMAIL))
@@ -247,51 +223,6 @@ public class UserServiceImplTest {
 
         assertFalse(exists);
     }
-
-    @Test
-    public void testUpdateProfilePicture(){
-        Mockito.when(
-            imageService.storeImage(Mockito.eq(IMAGE.getData()))
-        ).thenReturn(IMAGE.getId());
-
-        userService.updateProfilePicture(USER_ID, IMAGE.getData());
-    }
-
-    @Test
-    public void testUpdateProfileInfo(){
-        userService.updateProfileInfo(USER_ID, FIRSTNAME, LASTNAME, USERNAME);
-    }
-
-    @Test
-    public void testUpdateLocale(){
-        userService.updateLocale(Mockito.eq(USER_ID), Mockito.eq(LOCALE));
-    }
-    @Test(expected = DataAccessException.class)
-    public void testUpdateLocaleWrongLocale(){
-        Mockito.doThrow(new DataIntegrityViolationException("")).when(userDao).updateLocale(USER_ID, LOCALE);
-        userService.updateLocale(USER_ID, LOCALE);
-    }
-
-    @Test
-    public void testGetProfilePictureData(){
-        Mockito.when(
-            imageService.getImage(Mockito.eq(IMAGE.getId()))
-        ).thenReturn(Optional.of(IMAGE));
-
-        byte[] image = userService.getProfilePictureData(USER);
-
-        assertNotNull(image);
-        assertEquals(IMAGE.getData(), image);
-    }
-    @Test(expected = IllegalStateException.class)
-    public void testGetProfilePictureDataMissing(){
-        Mockito.when(
-            imageService.getImage(Mockito.eq(IMAGE.getId()))
-        ).thenReturn(Optional.empty());
-
-        userService.getProfilePictureData(USER);
-    }
-
 
 
 
@@ -428,4 +359,78 @@ public class UserServiceImplTest {
 //    @Test
 //    public void testUpdateUniversityIdFound(){
 //        userService.updateUniversity(USER_ID, UNIVERSITY.getId());
+//    }
+
+//
+//    @Test
+//    public void testGetProfilePictureData(){
+//        Mockito.when(
+//            imageService.getImage(Mockito.eq(IMAGE.getId()))
+//        ).thenReturn(Optional.of(IMAGE));
+//
+//        byte[] image = userService.getProfilePictureData(USER);
+//
+//        assertNotNull(image);
+//        assertEquals(IMAGE.getData(), image);
+//    }
+//    @Test(expected = IllegalStateException.class)
+//    public void testGetProfilePictureDataMissing(){
+//        Mockito.when(
+//            imageService.getImage(Mockito.eq(IMAGE.getId()))
+//        ).thenReturn(Optional.empty());
+//
+//        userService.getProfilePictureData(USER);
+//    }
+//
+
+//
+//    @Test
+//    public void testUpdateProfileInfo(){
+//        userService.updateProfileInfo(USER_ID, FIRSTNAME, LASTNAME, USERNAME);
+//    }
+
+//
+//    @Test
+//    public void testUpdateLocale(){
+//        userService.updateLocale(Mockito.eq(USER_ID), Mockito.eq(LOCALE));
+//    }
+//    @Test(expected = DataAccessException.class)
+//    public void testUpdateLocaleWrongLocale(){
+//        Mockito.doThrow(new DataIntegrityViolationException("")).when(userDao).updateLocale(USER_ID, LOCALE);
+//        userService.updateLocale(USER_ID, LOCALE);
+//    }
+
+//
+//    @Test
+//    public void testUpdateProfilePicture(){
+//        Mockito.when(
+//            imageService.storeImage(Mockito.eq(IMAGE.getData()))
+//        ).thenReturn(IMAGE.getId());
+//
+//        userService.updateProfilePicture(USER_ID, IMAGE.getData());
+//    }
+
+//
+//    @Test
+//    public void testFindByUsername(){
+//        Mockito.when(
+//            userDao.findByUsername(Mockito.eq(USERNAME))
+//        ).thenReturn(Optional.of(USER));
+//
+//        Optional<User> maybeUser = userService.findByUsername(USERNAME);
+//
+//        assertNotNull(maybeUser);
+//        assertTrue(maybeUser.isPresent());
+//        assertEquals(USER, maybeUser.get());
+//    }
+//    @Test
+//    public void testFindByUsernameMissing(){
+//        Mockito.when(
+//            userDao.findByUsername(Mockito.eq(USERNAME))
+//        ).thenReturn(Optional.empty());
+//
+//        Optional<User> maybeUser = userService.findByUsername(USERNAME);
+//
+//        assertNotNull(maybeUser);
+//        assertFalse(maybeUser.isPresent());
 //    }

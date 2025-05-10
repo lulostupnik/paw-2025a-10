@@ -102,11 +102,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> findByUsername(String username) {
-        return userDao.findByUsername(username);
-    }
-
-    @Override
     public boolean existsByUsername(String username) {
         return userDao.existsByUsername(username);
     }
@@ -115,38 +110,6 @@ public class UserServiceImpl implements UserService {
     public boolean existsByEmail(String email) {
         return userDao.existsByEmail(email);
     }
-
-    @Override
-    @Transactional
-    public void updateProfilePicture(long userId, byte[] profilePicture) {
-        LOGGER.debug("Updating profile picture for user {}", userId);
-        long profilePictureId = imageService.storeImage(profilePicture);
-        userDao.updateProfilePicture(userId, profilePictureId);
-    }
-
-    @Override
-    @Transactional
-    public void updateProfileInfo(long userId, String firstname, String lastname, String username) {
-        LOGGER.debug("Updating profile info for user {}: firstname={}, lastname={}, username={}", userId, firstname, lastname, username);
-        userDao.updateProfileInfo(userId, firstname, lastname, username);
-    }
-
-    @Override
-    @Transactional
-    public void updateLocale(long userId, Locale locale) {
-        LOGGER.debug("Updating locale for user {} to {}", userId, locale);
-        userDao.updateLocale(userId, locale);
-    }
-
-
-
-    @Override
-    public byte[] getProfilePictureData(User user) {
-        return imageService.getImage(user.getProfilePictureId())
-                .orElseThrow(() -> new IllegalStateException("User does not have a profile picture"))
-                .getData();
-    }
-
 
 
     @Override
@@ -220,3 +183,43 @@ public class UserServiceImpl implements UserService {
 //        LOGGER.debug("Updating university for user {} to university ID {}", userId, universityId);
 //        userDao.updateUniversity(userId, universityId);
 //    }
+
+//
+//    @Override
+//    public byte[] getProfilePictureData(User user) {
+//        return imageService.getImage(user.getProfilePictureId())
+//                .orElseThrow(() -> new IllegalStateException("User does not have a profile picture"))
+//                .getData();
+//    }
+
+//
+//    @Override
+//    @Transactional
+//    public void updateProfileInfo(long userId, String firstname, String lastname, String username) {
+//        LOGGER.debug("Updating profile info for user {}: firstname={}, lastname={}, username={}", userId, firstname, lastname, username);
+//        userDao.updateProfileInfo(userId, firstname, lastname, username);
+//    }
+
+//
+//    @Override
+//    @Transactional
+//    public void updateLocale(long userId, Locale locale) {
+//        LOGGER.debug("Updating locale for user {} to {}", userId, locale);
+//        userDao.updateLocale(userId, locale);
+//    }
+
+//
+//    @Override
+//    @Transactional
+//    public void updateProfilePicture(long userId, byte[] profilePicture) {
+//        LOGGER.debug("Updating profile picture for user {}", userId);
+//        long profilePictureId = imageService.storeImage(profilePicture);
+//        userDao.updateProfilePicture(userId, profilePictureId);
+//    }
+
+
+//    @Override
+//    public Optional<User> findByUsername(String username) {
+//        return userDao.findByUsername(username);
+//    }
+
