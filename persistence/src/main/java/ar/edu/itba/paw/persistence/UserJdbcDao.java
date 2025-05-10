@@ -287,7 +287,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public void validateToken(String token) {
+    public void validateToken(String token) { // todo: validateToken suena a business logic -> cambiar nombre o función
         LOGGER.info("Validating token: {}", token);
         int updatedRows = jdbcTemplate.update(
                 """
@@ -303,7 +303,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public boolean hasExpired(String token) {
+    public boolean hasExpired(String token) { // todo: business logic? -> por ahí este método debería retornar el LocalDate y que el servicio lo compare
         int count = jdbcTemplate.queryForObject(
                 """
                 SELECT COUNT(*)

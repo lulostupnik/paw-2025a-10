@@ -115,100 +115,6 @@ public class UniversityJdbcDaoTest {
     }
 
     @Test
-    public void testFindByAbbreviation(){
-        Optional<University> maybeUni = uniDao.findByAbbreviation(TestUtils.UNIVERSITY_1_CODE);
-        assertNotNull(maybeUni);
-        assertTrue(maybeUni.isPresent());
-        University uni = maybeUni.get();
-        assertEquals(TestUtils.UNIVERSITY_1_NAME, uni.getName());
-        assertEquals(TestUtils.UNIVERSITY_1_CODE, uni.getAbbreviation());
-        assertEquals(UNI_1.getId(), uni.getId());
-        assertEquals(CITY_1.getId(), uni.getCity().getId());
-    }
-    @Test
-    public void testFindByAbbreviation2(){
-        Optional<University> maybeUni = uniDao.findByAbbreviation(TestUtils.UNIVERSITY_2_CODE);
-        assertNotNull(maybeUni);
-        assertTrue(maybeUni.isPresent());
-        University uni = maybeUni.get();
-        assertEquals(TestUtils.UNIVERSITY_2_NAME, uni.getName());
-        assertEquals(TestUtils.UNIVERSITY_2_CODE, uni.getAbbreviation());
-        assertEquals(UNI_2.getId(), uni.getId());
-        assertEquals(CITY_2.getId(), uni.getCity().getId());
-    }
-    @Test
-    public void testFindByAbbreviationDeleted(){
-        Optional<University> maybeUni = uniDao.findByAbbreviation(TestUtils.UNIVERSITY_DELETED_CODE);
-        assertNotNull(maybeUni);
-        assertFalse(maybeUni.isPresent());
-    }
-    @Test
-    public void testFindByAbbreviationWrongAbbreviation(){
-        Optional<University> maybeUni = uniDao.findByAbbreviation("TestUtils.UNIVERSITY_1_CODE");
-        assertNotNull(maybeUni);
-        assertFalse(maybeUni.isPresent());
-    }
-    @Test
-    public void testFindByAbbreviationEmptyAbbreviation(){
-        Optional<University> maybeUni = uniDao.findByAbbreviation("");
-        assertNotNull(maybeUni);
-        assertFalse(maybeUni.isPresent());
-    }
-    @Test
-    public void testFindByAbbreviationMissingAbbreviation(){
-        Optional<University> maybeUni = uniDao.findByAbbreviation(null);
-        assertNotNull(maybeUni);
-        assertFalse(maybeUni.isPresent());
-    }
-    
-    @Test
-    public void testFindByAnyUsingAbbrSubstring(){
-        Optional<University> maybeUni = uniDao.findByAny(TestUtils.UNIVERSITY_1_CODE.substring(1, 3));
-        assertNotNull(maybeUni);
-        assertTrue(maybeUni.isPresent());
-        University uni = maybeUni.get();
-        assertEquals(TestUtils.UNIVERSITY_1_NAME, uni.getName());
-        assertEquals(TestUtils.UNIVERSITY_1_CODE, uni.getAbbreviation());
-        assertEquals(UNI_1.getId(), uni.getId());
-        assertEquals(CITY_1.getId(), uni.getCity().getId());
-    }
-    @Test
-    public void testFindByAnyUsingNameSubstring(){
-        Optional<University> maybeUni = uniDao.findByAny(TestUtils.UNIVERSITY_2_NAME.substring(5, 15));
-        assertNotNull(maybeUni);
-        assertTrue(maybeUni.isPresent());
-        University uni = maybeUni.get();
-        assertEquals(TestUtils.UNIVERSITY_2_NAME, uni.getName());
-        assertEquals(TestUtils.UNIVERSITY_2_CODE, uni.getAbbreviation());
-        assertEquals(UNI_2.getId(), uni.getId());
-        assertEquals(CITY_2.getId(), uni.getCity().getId());
-    }
-    @Test
-    public void testFindByAnyWrongQuery(){
-        Optional<University> maybeUni = uniDao.findByAny("TestUtils.UNIVERSITY_1_CODE");
-        assertNotNull(maybeUni);
-        assertFalse(maybeUni.isPresent());
-    }
-    @Test
-    public void testFindByAnyDeleted(){
-        Optional<University> maybeUni = uniDao.findByAny(TestUtils.UNIVERSITY_DELETED_NAME);
-        assertNotNull(maybeUni);
-        assertFalse(maybeUni.isPresent());
-    }
-    @Test
-    public void testFindByAnyEmptyQuery(){
-        Optional<University> maybeUni = uniDao.findByAny("");
-        assertNotNull(maybeUni);
-        assertTrue(maybeUni.isPresent());
-    }
-    @Test
-    public void testFindByAnyMissingQuery(){
-        Optional<University> maybeUni = uniDao.findByAny(null);
-        assertNotNull(maybeUni);
-        assertTrue(maybeUni.isPresent());
-    }
-
-    @Test
     public void testGetAllUniversities(){
         List<University> unis = uniDao.getAllUniversities();
         assertNotNull(unis);
@@ -535,3 +441,100 @@ public class UniversityJdbcDaoTest {
         );    
     }
 }
+
+
+//@Test
+//public void testFindByAbbreviation(){
+//    Optional<University> maybeUni = uniDao.findByAbbreviation(TestUtils.UNIVERSITY_1_CODE);
+//    assertNotNull(maybeUni);
+//    assertTrue(maybeUni.isPresent());
+//    University uni = maybeUni.get();
+//    assertEquals(TestUtils.UNIVERSITY_1_NAME, uni.getName());
+//    assertEquals(TestUtils.UNIVERSITY_1_CODE, uni.getAbbreviation());
+//    assertEquals(UNI_1.getId(), uni.getId());
+//    assertEquals(CITY_1.getId(), uni.getCity().getId());
+//}
+//@Test
+//public void testFindByAbbreviation2(){
+//    Optional<University> maybeUni = uniDao.findByAbbreviation(TestUtils.UNIVERSITY_2_CODE);
+//    assertNotNull(maybeUni);
+//    assertTrue(maybeUni.isPresent());
+//    University uni = maybeUni.get();
+//    assertEquals(TestUtils.UNIVERSITY_2_NAME, uni.getName());
+//    assertEquals(TestUtils.UNIVERSITY_2_CODE, uni.getAbbreviation());
+//    assertEquals(UNI_2.getId(), uni.getId());
+//    assertEquals(CITY_2.getId(), uni.getCity().getId());
+//}
+//@Test
+//public void testFindByAbbreviationDeleted(){
+//    Optional<University> maybeUni = uniDao.findByAbbreviation(TestUtils.UNIVERSITY_DELETED_CODE);
+//    assertNotNull(maybeUni);
+//    assertFalse(maybeUni.isPresent());
+//}
+//@Test
+//public void testFindByAbbreviationWrongAbbreviation(){
+//    Optional<University> maybeUni = uniDao.findByAbbreviation("TestUtils.UNIVERSITY_1_CODE");
+//    assertNotNull(maybeUni);
+//    assertFalse(maybeUni.isPresent());
+//}
+//@Test
+//public void testFindByAbbreviationEmptyAbbreviation(){
+//    Optional<University> maybeUni = uniDao.findByAbbreviation("");
+//    assertNotNull(maybeUni);
+//    assertFalse(maybeUni.isPresent());
+//}
+//@Test
+//public void testFindByAbbreviationMissingAbbreviation(){
+//    Optional<University> maybeUni = uniDao.findByAbbreviation(null);
+//    assertNotNull(maybeUni);
+//    assertFalse(maybeUni.isPresent());
+//}
+//
+
+//
+//@Test
+//public void testFindByAnyUsingAbbrSubstring(){
+//    Optional<University> maybeUni = uniDao.findByAny(TestUtils.UNIVERSITY_1_CODE.substring(1, 3));
+//    assertNotNull(maybeUni);
+//    assertTrue(maybeUni.isPresent());
+//    University uni = maybeUni.get();
+//    assertEquals(TestUtils.UNIVERSITY_1_NAME, uni.getName());
+//    assertEquals(TestUtils.UNIVERSITY_1_CODE, uni.getAbbreviation());
+//    assertEquals(UNI_1.getId(), uni.getId());
+//    assertEquals(CITY_1.getId(), uni.getCity().getId());
+//}
+//@Test
+//public void testFindByAnyUsingNameSubstring(){
+//    Optional<University> maybeUni = uniDao.findByAny(TestUtils.UNIVERSITY_2_NAME.substring(5, 15));
+//    assertNotNull(maybeUni);
+//    assertTrue(maybeUni.isPresent());
+//    University uni = maybeUni.get();
+//    assertEquals(TestUtils.UNIVERSITY_2_NAME, uni.getName());
+//    assertEquals(TestUtils.UNIVERSITY_2_CODE, uni.getAbbreviation());
+//    assertEquals(UNI_2.getId(), uni.getId());
+//    assertEquals(CITY_2.getId(), uni.getCity().getId());
+//}
+//@Test
+//public void testFindByAnyWrongQuery(){
+//    Optional<University> maybeUni = uniDao.findByAny("TestUtils.UNIVERSITY_1_CODE");
+//    assertNotNull(maybeUni);
+//    assertFalse(maybeUni.isPresent());
+//}
+//@Test
+//public void testFindByAnyDeleted(){
+//    Optional<University> maybeUni = uniDao.findByAny(TestUtils.UNIVERSITY_DELETED_NAME);
+//    assertNotNull(maybeUni);
+//    assertFalse(maybeUni.isPresent());
+//}
+//@Test
+//public void testFindByAnyEmptyQuery(){
+//    Optional<University> maybeUni = uniDao.findByAny("");
+//    assertNotNull(maybeUni);
+//    assertTrue(maybeUni.isPresent());
+//}
+//@Test
+//public void testFindByAnyMissingQuery(){
+//    Optional<University> maybeUni = uniDao.findByAny(null);
+//    assertNotNull(maybeUni);
+//    assertTrue(maybeUni.isPresent());
+//}

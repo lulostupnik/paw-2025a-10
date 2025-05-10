@@ -12,8 +12,6 @@ public interface UniversityDao {
     void updateUniversity(long id, String name, String abbreviation, String city);
     void delete(long id);
     Optional<University> findByName(String name);
-    Optional<University> findByAbbreviation(String abbreviation);
-    Optional<University> findByAny(String search);
     Optional<University> findById(long id);
     Page<University> searchBySubstring(String substring, PageParams pageParams);
     Page<University> getAllUniversities(PageParams pageParams);

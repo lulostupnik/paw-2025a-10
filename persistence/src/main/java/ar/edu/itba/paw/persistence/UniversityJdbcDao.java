@@ -56,7 +56,6 @@ public class UniversityJdbcDao implements UniversityDao {
     private final static String SQL_BASE = SQL_SELECT_BASE + SQL_FROM_BASE + " WHERE un.deleted = FALSE";
 
     private final static String SQL_FIND_BY_NAME = SQL_BASE + " AND un.name = ?";
-    private final static String SQL_FIND_BY_ABBREVIATION = SQL_BASE + " AND un.abbreviation = ?";
     private final static String SQL_FIND_BY_ID = SQL_BASE + " AND un.id = ?";
 
     private final static String SQL_FIND_ALL = SQL_BASE + " ORDER BY un.name ";
@@ -90,17 +89,6 @@ public class UniversityJdbcDao implements UniversityDao {
     @Override
     public Optional<University> findByName(final String name) {
         return jdbcTemplate.query(SQL_FIND_BY_NAME, UNIVERSITY_ROW_MAPPER, name).stream().findFirst();
-    }
-
-    @Override
-    public Optional<University> findByAbbreviation(final String abbreviation) {
-        return jdbcTemplate.query(SQL_FIND_BY_ABBREVIATION, UNIVERSITY_ROW_MAPPER, abbreviation).stream().findFirst();
-    }    
-    
-    @Override
-    public Optional<University> findByAny(final String searchString) {
-        final String searchPattern = likePattern(searchString);
-        return jdbcTemplate.query(SQL_SEARCH, UNIVERSITY_ROW_MAPPER, searchPattern, searchPattern, searchPattern, searchPattern).stream().findFirst();
     }
 
     public List<University> getAllUniversities() {
