@@ -146,21 +146,9 @@
                                         </a>
                                     </c:if>
 
-                                    <c:url var="deleteUrl" value='/events/delete'/>
-                                    <form:form modelAttribute="deleteForm" id="delete-event-form" action="${deleteUrl}" method="post" style="display: none;">
-                                        <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
-                                        <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
-                                        <form:hidden path="id" value="${event.id}" />
-                                        <c:if test="${!isEventOwner}">
-                                            <jsp:include page="../../components/text-area.jsp">
-                                                <jsp:param name="path" value="message" />
-                                                <jsp:param name="label" value="${messageLabel}" />
-                                                <jsp:param name="placeholder" value="${messagePlaceholder}" />
-                                            </jsp:include>
-                                        </c:if>
-                                    </form:form>
+                                    <c:url var="deleteUrl" value='/events/${event.id}/delete'/>
 
-                                    <button type="button" class="btn-delete" onclick="openDeleteModal('delete-event-form', 'event')">
+                                    <a type="button" class="btn-delete" href="${deleteUrl}">
                                         <!-- Delete icon SVG -->
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
                                             <path d="M3 6h18"></path>
@@ -169,7 +157,7 @@
                                             <line x1="14" y1="11" x2="14" y2="17"></line>
                                         </svg>
                                         <span><spring:message code="event.delete" text="Delete Event" /></span>
-                                    </button>
+                                    </a>
                                 </div>
                             </c:if>
                         </div>
@@ -360,11 +348,6 @@
     </div>
 </div>
 
-<c:set var="warning"><spring:message code="event.deleteWarning"/></c:set>
-<jsp:include page="../../components/delete-modal.jsp">
-    <jsp:param name="warning" value="${warning}"/>
-</jsp:include>
-
 <!-- JavaScript for the page -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -457,31 +440,5 @@
     }
 </script>
 
-<!-- Add this before the closing body tag -->
-<c:if test="${deleteFormHasErrors}">
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Open the modal with the form that has errors
-            openDeleteModal('${deleteFormId}', '${deleteFormType}');
-        });
-    </script>
-</c:if>
-
-<!-- Handle active tab after form submission -->
-<c:if test="${not empty param.activeTab}">
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Set the active tab based on the parameter
-            const tabId = "${param.activeTab}";
-            sessionStorage.setItem('activeTab', tabId);
-
-            // Trigger a click on the tab
-            const tabElement = document.getElementById(tabId + '-tab');
-            if (tabElement) {
-                tabElement.click();
-            }
-        });
-    </script>
-</c:if>
 </body>
 </html>
