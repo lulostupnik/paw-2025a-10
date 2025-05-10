@@ -32,6 +32,14 @@
                 expandIcon.style.display = 'inline';
             }
         }
+            function goBack(){
+            const rutaAnterior = sessionStorage.getItem("rutaAnterior");
+            if (rutaAnterior) {
+            window.location.href = rutaAnterior;
+        } else {
+            window.location.href = "<c:url value='/journeys' />"
+        }
+        }
     </script>
 </head>
 
@@ -56,22 +64,22 @@
             <!-- Back to Journeys Button -->
             <div class="back-navigation">
                 <c:if test="${ isOwner}">
-                    <a href="<c:url value='/profile/info'/>" class="back-link">
+                    <button onclick="goBack()" class="back-link">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
                             <path d="M19 12H5"></path>
                             <path d="M12 19l-7-7 7-7"></path>
                         </svg>
                         <span><spring:message code="journey.detail.back.to.profile" /></span>
-                    </a>
+                    </button>
                 </c:if>
                 <c:if test="${not isOwner}">
-                    <a href="<c:url value='/journeys' />" class="back-link">
+                    <button onclick="goBack()" class="back-link">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
                             <path d="M19 12H5"></path>
                             <path d="M12 19l-7-7 7-7"></path>
                         </svg>
                         <span><spring:message code="journey.detail.back.to.list" /></span>
-                    </a>
+                    </button>
                 </c:if>
             </div>
 

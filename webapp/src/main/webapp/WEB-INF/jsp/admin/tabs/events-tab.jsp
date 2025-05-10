@@ -47,7 +47,7 @@
       <tbody>
       <c:set var="events" value="${pagedEvents.content}" />
       <c:forEach items="${events}" var="event">
-        <tr class="clickable-row" data-href="<c:url value="../events/${event.id}"/>" >
+        <tr class="clickable-row"  onclick="saveLink()" data-href="<c:url value="../events/${event.id}"/>" >
           <td><c:out value="${event.title}"/></td>
           <td><c:out value="${event.user.username}"/></td>
           <td><c:out value="${event.eventCity}"/></td>
@@ -95,3 +95,8 @@
 <%--    --%>
   </div>
 </div>
+<script>
+  function saveLink() {
+    sessionStorage.setItem("rutaAnterior", window.location.href);
+  }
+</script>
