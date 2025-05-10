@@ -168,7 +168,7 @@ public class UserServiceImpl implements UserService {
         String uid = UUID.randomUUID().toString();
         LocalDate date = LocalDate.now().plusDays(1);
         userDao.refreshToken(uid, date,oldToken);
-        Optional<User> user = userDao.getUserByToken(oldToken);
+        Optional<User> user = userDao.findByToken(oldToken);
         if(user.isEmpty()){
             throw new InvalidTokenException("Invalid Token");
         }
