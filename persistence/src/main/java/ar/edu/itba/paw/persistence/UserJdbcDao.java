@@ -307,12 +307,18 @@ public class UserJdbcDao implements UserDao {
         AND token_expiration > NOW()
     """;
 
-        // Query for a Boolean value
-        Boolean validated = jdbcTemplate.queryForObject(sql, Boolean.class, token);
+        // Use query to handle an empty result set without throwing an exception
+        List<Boolean> results = jdbcTemplate.query(sql, (rs, rowNum) -> rs.getBoolean("validated"), token);
 
-        // If no result is found, return false
-        return Boolean.TRUE.equals(validated);
+        // If no results, return false
+        if (results.isEmpty()) {
+            return false;
+        }
+
+        // Return the first result
+        return Boolean.TRUE.equals(results.get(0));
     }
+
 
     @Override
     public boolean isValid(String token) {
