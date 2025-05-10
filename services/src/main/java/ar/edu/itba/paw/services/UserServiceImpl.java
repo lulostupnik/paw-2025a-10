@@ -197,9 +197,13 @@ public class UserServiceImpl implements UserService {
         if(user.isEmpty()){
             throw new RuntimeException("Invalid User");
         }
+
+        if(!userDao.isUserValidByEmail(email)){
+            throw new UserValidatedException("User not validated");
+        }
         String uid = UUID.randomUUID().toString();
         LocalDate date = LocalDate.now().plusDays(1);
-        userDao.refreshToken(uid, date,uid);
+        userDao.generatePassToken(uid, date,user.get().getId());
         emailService.sendForgotPassEmail(user.get(),uid);
 
     }

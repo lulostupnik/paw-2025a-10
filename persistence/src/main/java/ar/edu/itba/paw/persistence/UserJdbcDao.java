@@ -135,6 +135,25 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
+    public void generatePassToken(String uid, LocalDate date, long id) {
+        jdbcTemplate.update("UPDATE users SET token = ?, token_expiration = ? WHERE id = ?", uid, date, id);
+    }
+
+    @Override
+    public boolean isUserValidByEmail(String email) {
+        String sql = """
+        SELECT validated
+        FROM users
+        WHERE email = ?
+        """;
+
+        Boolean validated = jdbcTemplate.queryForObject(sql, Boolean.class, email);
+
+        // If no result is found, return false
+        return Boolean.TRUE.equals(validated);
+    }
+
+    @Override
     public Optional<User> findByEmail(final String email) {
         return jdbcTemplate.query(SQL_FIND_BY_EMAIL, USER_ROW_MAPPER, email).stream().findFirst();
     }

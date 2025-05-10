@@ -12,9 +12,10 @@ public interface UserDao {
     User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale, String validateToken, LocalDate validateTokenExpiration);
     void newPassword(String token, String newPassword);
     Optional<User> findById(long id);
-
+    void generatePassToken(String uid, LocalDate date, long id);
+    boolean isUserValidByEmail(String email);
     Optional<User> findByEmail(String email);
-    public void validateEmail(String token);
+    void validateEmail(String token);
     Optional<UserPassword> findByEmailWithPass(String email);
 
     Optional<User> findByUsername(String username);
