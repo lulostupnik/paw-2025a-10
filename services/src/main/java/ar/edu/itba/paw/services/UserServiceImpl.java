@@ -138,34 +138,6 @@ public class UserServiceImpl implements UserService {
         userDao.updateLocale(userId, locale);
     }
 
-    @Override
-    @Transactional
-    public void updateUniversity(long userId, String newUniversityName) {
-        LOGGER.debug("Updating university for user {} to {}", userId, newUniversityName);
-        userDao.updateUniversity(userId, newUniversityName);
-    }
-
-    @Override
-    @Transactional
-    public void updateUniversity(long userId, long universityId) {
-        LOGGER.debug("Updating university for user {} to university ID {}", userId, universityId);
-        userDao.updateUniversity(userId, universityId);
-    }
-
-    @Override
-    @Transactional
-    public void updateCareer(long userId, String newCareerName) {
-        LOGGER.debug("Updating career for user {} to {}", userId, newCareerName);
-        userDao.updateCareer(userId, newCareerName);
-    }
-
-    @Override
-    @Transactional
-    public void updateCareer(long userId, long careerId) {
-        LOGGER.debug("Updating career for user {} to career ID {}", userId, careerId);
-        userDao.updateCareer(userId, careerId);
-        LOGGER.info("Successfully updated career for user {} to career ID {}", userId, careerId);
-    }
 
 
     @Override
@@ -214,3 +186,37 @@ public class UserServiceImpl implements UserService {
     }
 
 }
+
+//
+//@Override
+//@Transactional
+//public void updateCareer(long userId, String newCareerName) {
+//    LOGGER.debug("Updating career for user {} to {}", userId, newCareerName);
+//    userDao.updateCareer(userId, newCareerName);
+//}
+
+//
+//    @Override
+//    @Transactional
+//    public void updateCareer(long userId, long careerId) {
+//        LOGGER.debug("Updating career for user {} to career ID {}", userId, careerId);
+//        userDao.updateCareer(userId, careerId);
+//        LOGGER.info("Successfully updated career for user {} to career ID {}", userId, careerId);
+//    }
+
+//
+//@Override
+//@Transactional
+//public void updateUniversity(long userId, String newUniversityName) {
+//    LOGGER.debug("Updating university for user {} to {}", userId, newUniversityName);
+//    userDao.updateUniversity(userId, newUniversityName);
+//}
+
+
+//
+//    @Override
+//    @Transactional
+//    public void updateUniversity(long userId, long universityId) {
+//        LOGGER.debug("Updating university for user {} to university ID {}", userId, universityId);
+//        userDao.updateUniversity(userId, universityId);
+//    }

@@ -409,53 +409,7 @@ public class UserJdbcDao implements UserDao {
         // return update(userId, null, null, null, null, null, locale);
     }
 
-    @Override
-    public void updateUniversity(final long userId, final long universityId) {
-        LOGGER.info("Updating university for user ID: {} to university ID: {}", userId, universityId);
-        final int rowsAffected = jdbcTemplate.update("UPDATE users SET university = ? WHERE id = ?", universityId, userId);
-        if (rowsAffected == 0) {
-            LOGGER.warn("User {} not found", userId);
-        }
-        // return update(userId, null, null, null, universityId, null, null);
-    }
 
-    @Override
-    public void updateUniversity(final long userId, final String universityName) {
-        LOGGER.info("Updating university for user ID: {} to university with name: {}", userId, universityName);
-
-        final int rowsAffected = jdbcTemplate.update("""
-                UPDATE users
-                SET university = (SELECT id FROM universities WHERE name = ?)
-                WHERE id = ?
-                """, universityName, userId);
-        if (rowsAffected == 0) {
-            LOGGER.warn("User {} not found", userId);
-        }
-    }
-
-    @Override
-    public void updateCareer(final long userId, final long careerId) {
-        LOGGER.info("Updating career for user ID: {} to career ID: {}", userId, careerId);
-        final int rowsAffected = jdbcTemplate.update("UPDATE users SET career_id = ? WHERE id = ?", careerId, userId);
-        if (rowsAffected == 0) {
-            LOGGER.warn("User {} not found", userId);
-        }
-        // return update(userId, null, null, null, null, careerId, null);
-    }
-
-    @Override
-    public void updateCareer(long userId, String careerName) {
-        LOGGER.info("Updating career for user ID: {} to university with name: {}", userId, careerName);
-
-        final int rowsAffected = jdbcTemplate.update("""
-                UPDATE users
-                SET career_id = (SELECT id FROM careers WHERE name = ?)
-                WHERE id = ?
-                """, careerName, userId);
-        if (rowsAffected == 0) {
-            LOGGER.warn("User {} not found", userId);
-        }
-    }
 
     @Override
     public List<User> listJourneyRespondersMinusUsers(final long journeyId/*, List<Long> userIds*/) {
@@ -502,3 +456,56 @@ public class UserJdbcDao implements UserDao {
     }
 
 }
+
+// ES POSIBLE QUE SE VUELVAN A USAR
+
+//@Override
+//public void updateCareer(long userId, String careerName) {
+//    LOGGER.info("Updating career for user ID: {} to university with name: {}", userId, careerName);
+//
+//    final int rowsAffected = jdbcTemplate.update("""
+//                UPDATE users
+//                SET career_id = (SELECT id FROM careers WHERE name = ?)
+//                WHERE id = ?
+//                """, careerName, userId);
+//    if (rowsAffected == 0) {
+//        LOGGER.warn("User {} not found", userId);
+//    }
+//}
+
+//
+//    @Override
+//    public void updateCareer(final long userId, final long careerId) {
+//        LOGGER.info("Updating career for user ID: {} to career ID: {}", userId, careerId);
+//        final int rowsAffected = jdbcTemplate.update("UPDATE users SET career_id = ? WHERE id = ?", careerId, userId);
+//        if (rowsAffected == 0) {
+//            LOGGER.warn("User {} not found", userId);
+//        }
+//        // return update(userId, null, null, null, null, careerId, null);
+//    }
+
+
+//    @Override
+//    public void updateUniversity(final long userId, final String universityName) {
+//        LOGGER.info("Updating university for user ID: {} to university with name: {}", userId, universityName);
+//
+//        final int rowsAffected = jdbcTemplate.update("""
+//                UPDATE users
+//                SET university = (SELECT id FROM universities WHERE name = ?)
+//                WHERE id = ?
+//                """, universityName, userId);
+//        if (rowsAffected == 0) {
+//            LOGGER.warn("User {} not found", userId);
+//        }
+//    }
+
+//
+//    @Override
+//    public void updateUniversity(final long userId, final long universityId) {
+//        LOGGER.info("Updating university for user ID: {} to university ID: {}", userId, universityId);
+//        final int rowsAffected = jdbcTemplate.update("UPDATE users SET university = ? WHERE id = ?", universityId, userId);
+//        if (rowsAffected == 0) {
+//            LOGGER.warn("User {} not found", userId);
+//        }
+//        // return update(userId, null, null, null, universityId, null, null);
+//    }

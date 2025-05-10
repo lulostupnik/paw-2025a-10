@@ -423,85 +423,7 @@ public class UserJdbcDaoTest {
         assertUserDBDefaultStatus();
     }
 
-    @Test
-    public void testUpdateUniversity(){
-        userDao.updateUniversity(USER_1.getId(), UNIVERSITY_2.getId());
 
-        assertEqualsMaybeUser(
-            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
-            Map.of("university", UNIVERSITY_2)
-        );
-    }
-    @Test(expected = DataAccessException.class)
-    public void testUpdateUniversityWrongUniversity(){
-        userDao.updateUniversity(USER_1.getId(), 12341234);
-    }
-    @Test
-    public void testUpdateUniversityWrongUser(){
-        userDao.updateUniversity(13241234, 12341234);
-
-        assertUserDBDefaultStatus();
-    }
-
-    @Test
-    public void testUpdateUniversityName(){
-        userDao.updateUniversity(USER_1.getId(), UNIVERSITY_2.getName());
-
-        assertEqualsMaybeUser(
-            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
-            Map.of("university", UNIVERSITY_2)
-        );
-    }
-    @Test(expected = DataAccessException.class)
-    public void testUpdateUniversityNameWrongUniversity(){
-        userDao.updateUniversity(USER_1.getId(), "12341234");
-    }
-    @Test
-    public void testUpdateUniversityNameWrongUser(){
-        userDao.updateUniversity(13241234, "12341234");
-
-        assertUserDBDefaultStatus();
-    }
-
-    @Test
-    public void testUpdateCareer(){
-        userDao.updateCareer(USER_1.getId(), CAREER_2.getId());
-
-        assertEqualsMaybeUser(
-            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
-            Map.of("career", CAREER_2)
-        );
-    }
-    @Test(expected = DataAccessException.class)
-    public void testUpdateCareerWrongCareer(){
-        userDao.updateCareer(USER_1.getId(), 12341234);
-    }
-    @Test
-    public void testUpdateCareerWrongUser(){
-        userDao.updateCareer(13241234, 12341234);
-
-        assertUserDBDefaultStatus();
-    }
-
-    @Test
-    public void testUpdateCareerName(){
-        userDao.updateCareer(USER_1.getId(), CAREER_2.getName());
-
-        assertEqualsMaybeUser(
-            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
-            Map.of("career", CAREER_2)
-        );
-    }
-    @Test(expected = DataAccessException.class)
-    public void testUpdateCareerWrongCareerName(){
-        userDao.updateCareer(USER_1.getId(), "12341234");
-    }
-    @Test
-    public void testUpdateCareerWrongUserName(){
-        userDao.updateCareer(13241234, "12341234");
-
-        assertUserDBDefaultStatus();
-    }
 
     @Test
     public void testUpdateGeneric(){
@@ -827,4 +749,94 @@ public class UserJdbcDaoTest {
 
         assertFalse(isExpired);
     }
-}   
+}
+
+
+//
+//    @Test
+//    public void testUpdateCareerName(){
+//        userDao.updateCareer(USER_1.getId(), CAREER_2.getName());
+//
+//        assertEqualsMaybeUser(
+//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+//            Map.of("career", CAREER_2)
+//        );
+//    }
+//    @Test(expected = DataAccessException.class)
+//    public void testUpdateCareerWrongCareerName(){
+//        userDao.updateCareer(USER_1.getId(), "12341234");
+//    }
+//    @Test
+//    public void testUpdateCareerWrongUserName(){
+//        userDao.updateCareer(13241234, "12341234");
+//
+//        assertUserDBDefaultStatus();
+//    }
+
+
+//
+//    @Test
+//    public void testUpdateCareer(){
+//        userDao.updateCareer(USER_1.getId(), CAREER_2.getId());
+//
+//        assertEqualsMaybeUser(
+//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+//            Map.of("career", CAREER_2)
+//        );
+//    }
+//    @Test(expected = DataAccessException.class)
+//    public void testUpdateCareerWrongCareer(){
+//        userDao.updateCareer(USER_1.getId(), 12341234);
+//    }
+//    @Test
+//    public void testUpdateCareerWrongUser(){
+//        userDao.updateCareer(13241234, 12341234);
+//
+//        assertUserDBDefaultStatus();
+//    }
+
+/*
+@Test
+public void testUpdateUniversityName(){
+    userDao.updateUniversity(USER_1.getId(), UNIVERSITY_2.getName());
+
+    assertEqualsMaybeUser(
+            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+            Map.of("university", UNIVERSITY_2)
+    );
+}
+@Test(expected = DataAccessException.class)
+public void testUpdateUniversityNameWrongUniversity(){
+    userDao.updateUniversity(USER_1.getId(), "12341234");
+}
+@Test
+public void testUpdateUniversityNameWrongUser(){
+    userDao.updateUniversity(13241234, "12341234");
+
+    assertUserDBDefaultStatus();
+}
+*/
+
+/*
+
+
+    @Test
+    public void testUpdateUniversity(){
+        userDao.updateUniversity(USER_1.getId(), UNIVERSITY_2.getId());
+
+        assertEqualsMaybeUser(
+            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+            Map.of("university", UNIVERSITY_2)
+        );
+    }
+    @Test(expected = DataAccessException.class)
+    public void testUpdateUniversityWrongUniversity(){
+        userDao.updateUniversity(USER_1.getId(), 12341234);
+    }
+    @Test
+    public void testUpdateUniversityWrongUser(){
+        userDao.updateUniversity(13241234, 12341234);
+
+        assertUserDBDefaultStatus();
+    }
+*/

@@ -22,10 +22,7 @@ public interface UserService {
     void updateProfilePicture(long userId, byte[] profilePicture);
     void updateProfileInfo(long userId, String firstname, String lastname, String username);
     void updateLocale(long userId, Locale locale);
-    void updateUniversity(long userId, String newUniversityName);
-    void updateUniversity(long userId, long universityId);
-    void updateCareer(long userId, String newCareerName);
-    void updateCareer(long userId, long careerId);
+
     byte[] getProfilePictureData(User user);
     Page<User> getAllUsers(String search, PageParams pageParams);
     void blockUser(long userId);
@@ -35,3 +32,10 @@ public interface UserService {
     void refreshToken(String oldToken);
 
     }
+
+//     void updateCareer(long userId, String newCareerName);
+
+//     void updateCareer(long userId, long careerId);
+//
+//void updateUniversity(long userId, String newUniversityName);
+//void updateUniversity(long userId, long universityId);
