@@ -319,81 +319,6 @@ public class UserJdbcDaoTest {
     }
 
     @Test
-    public void testUpdateProfileInfo(){
-        userDao.updateProfileInfo(USER_1.getId(), TestUtils.USER_FAKE_FIRSTNAME, TestUtils.USER_FAKE_LASTNAME, TestUtils.USER_FAKE_NAME);
-
-        assertEqualsMaybeUser(
-            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
-            Map.of("username", TestUtils.USER_FAKE_NAME, "firstname", TestUtils.USER_FAKE_FIRSTNAME, "lastname", TestUtils.USER_FAKE_LASTNAME)
-        );
-    }
-    @Test
-    public void testUpdateProfileInfoUsername(){
-        userDao.updateProfileInfo(USER_1.getId(), null, null, TestUtils.USER_FAKE_NAME);
-
-        assertEqualsMaybeUser(
-            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
-            Map.of("username", TestUtils.USER_FAKE_NAME)
-        );
-    }
-    @Test
-    public void testUpdateProfileInfoFirstName(){
-        userDao.updateProfileInfo(USER_1.getId(), TestUtils.USER_FAKE_FIRSTNAME, null, null);
-
-        assertEqualsMaybeUser(
-            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
-            Map.of("firstname", TestUtils.USER_FAKE_FIRSTNAME)
-        );
-    }
-    @Test
-    public void testUpdateProfileInfoLastName(){
-        userDao.updateProfileInfo(USER_1.getId(), null, TestUtils.USER_FAKE_LASTNAME, null);
-
-        assertEqualsMaybeUser(
-            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
-            Map.of("lastname", TestUtils.USER_FAKE_LASTNAME)
-        );
-    }
-    @Test(expected = DataAccessException.class)
-    public void testUpdateProfileInfoDuplicatedUsername(){
-        final long id = insertUser(Map.of("username", TestUtils.USER_FAKE_NAME));
-
-        userDao.updateProfileInfo(id, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.USER_1_NAME);
-    }
-    @Test
-    public void testUpdateProfileInfoNoParams(){
-        userDao.updateProfileInfo(USER_1.getId(), null, null, null);
-
-        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst()); 
-    }
-    @Test
-    public void testUpdateProfileInfoMissingUser(){
-        userDao.updateProfileInfo(123123, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.USER_1_NAME);  
-
-        assertUserDBDefaultStatus();
-    }
-
-    @Test
-    public void testUpdateLocale(){
-        userDao.updateLocale(USER_1.getId(), Locale.of(TestUtils.USER_FAKE_LOCALE));
-
-        assertEqualsMaybeUser(
-            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
-            Map.of("locale", TestUtils.USER_FAKE_LOCALE)
-        ); 
-    }
-    @Test(expected = DataAccessException.class)
-    public void testUpdateLocaleWrongLocale(){
-        userDao.updateLocale(USER_1.getId(), Locale.of(TestUtils.USER_WRONG_LOCALE));  
-    }
-    @Test
-    public void testUpdateLocaleMissingUser(){
-        userDao.updateLocale(1321423, Locale.of(TestUtils.USER_LOCALE));  
-
-        assertUserDBDefaultStatus();  
-    }
-
-    @Test
     public void testUpdateProfilePicture(){        
         userDao.updateProfilePicture(USER_1.getId(), PROFILEPIC_2.getId());
         
@@ -806,3 +731,81 @@ public void testUpdateUniversityNameWrongUser(){
         assertUserDBDefaultStatus();
     }
 */
+
+
+
+
+//    @Test
+//    public void testUpdateProfileInfo(){
+//        userDao.updateProfileInfo(USER_1.getId(), TestUtils.USER_FAKE_FIRSTNAME, TestUtils.USER_FAKE_LASTNAME, TestUtils.USER_FAKE_NAME);
+//
+//        assertEqualsMaybeUser(
+//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+//            Map.of("username", TestUtils.USER_FAKE_NAME, "firstname", TestUtils.USER_FAKE_FIRSTNAME, "lastname", TestUtils.USER_FAKE_LASTNAME)
+//        );
+//    }
+//    @Test
+//    public void testUpdateProfileInfoUsername(){
+//        userDao.updateProfileInfo(USER_1.getId(), null, null, TestUtils.USER_FAKE_NAME);
+//
+//        assertEqualsMaybeUser(
+//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+//            Map.of("username", TestUtils.USER_FAKE_NAME)
+//        );
+//    }
+//    @Test
+//    public void testUpdateProfileInfoFirstName(){
+//        userDao.updateProfileInfo(USER_1.getId(), TestUtils.USER_FAKE_FIRSTNAME, null, null);
+//
+//        assertEqualsMaybeUser(
+//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+//            Map.of("firstname", TestUtils.USER_FAKE_FIRSTNAME)
+//        );
+//    }
+//    @Test
+//    public void testUpdateProfileInfoLastName(){
+//        userDao.updateProfileInfo(USER_1.getId(), null, TestUtils.USER_FAKE_LASTNAME, null);
+//
+//        assertEqualsMaybeUser(
+//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+//            Map.of("lastname", TestUtils.USER_FAKE_LASTNAME)
+//        );
+//    }
+//    @Test(expected = DataAccessException.class)
+//    public void testUpdateProfileInfoDuplicatedUsername(){
+//        final long id = insertUser(Map.of("username", TestUtils.USER_FAKE_NAME));
+//
+//        userDao.updateProfileInfo(id, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.USER_1_NAME);
+//    }
+//    @Test
+//    public void testUpdateProfileInfoNoParams(){
+//        userDao.updateProfileInfo(USER_1.getId(), null, null, null);
+//
+//        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst());
+//    }
+//    @Test
+//    public void testUpdateProfileInfoMissingUser(){
+//        userDao.updateProfileInfo(123123, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.USER_1_NAME);
+//
+//        assertUserDBDefaultStatus();
+//    }
+//
+//    @Test
+//    public void testUpdateLocale(){
+//        userDao.updateLocale(USER_1.getId(), Locale.of(TestUtils.USER_FAKE_LOCALE));
+//
+//        assertEqualsMaybeUser(
+//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+//            Map.of("locale", TestUtils.USER_FAKE_LOCALE)
+//        );
+//    }
+//    @Test(expected = DataAccessException.class)
+//    public void testUpdateLocaleWrongLocale(){
+//        userDao.updateLocale(USER_1.getId(), Locale.of(TestUtils.USER_WRONG_LOCALE));
+//    }
+//    @Test
+//    public void testUpdateLocaleMissingUser(){
+//        userDao.updateLocale(1321423, Locale.of(TestUtils.USER_LOCALE));
+//
+//        assertUserDBDefaultStatus();
+//    }

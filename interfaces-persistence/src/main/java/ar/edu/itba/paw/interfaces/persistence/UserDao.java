@@ -22,10 +22,6 @@ public interface UserDao {
 
     void changePassword(String email, String password);
 
-    void updateProfileInfo(long userId, String firstname, String lastname, String username);
-
-    void updateLocale(long userId, Locale locale);
-
     void updateProfilePicture(long userId, long profilePictureId);
 
     void update(long userId, String firstname, String lastname, String username, Long universityId, Long careerId, Locale locale);
@@ -63,3 +59,8 @@ public interface UserDao {
 //
 //    void updateUniversity(long userId, String universityName);
 //
+
+//
+//    void updateProfileInfo(long userId, String firstname, String lastname, String username);
+//
+//    void updateLocale(long userId, Locale locale);
