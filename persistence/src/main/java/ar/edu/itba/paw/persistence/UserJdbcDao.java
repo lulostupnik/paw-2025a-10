@@ -93,7 +93,6 @@ public class UserJdbcDao implements UserDao {
     private final static String SQL_FIND_BY_ID = SQL_BASE + " WHERE u.id = ? ";
     private final static String SQL_FIND_BY_TOKEN = SQL_BASE + " WHERE u.validate_token = ? ";
     private final static String SQL_FIND_BY_EMAIL = SQL_BASE + " WHERE u.email = ? ";
-    private final static String SQL_FIND_BY_USERNAME = SQL_BASE + " WHERE u.username = ? ";
 
     private final static String SQL_JOIN_JOURNEY_RESPONDERS = SQL_BASE_DISTINCT + " JOIN journey_responses jr ON jr.user_id = u.id WHERE jr.journey_id = ? ";
     private final static String SQL_JOIN_EVENT_RESPONDERS = SQL_BASE_DISTINCT + " JOIN event_responses er ON er.user_id = u.id WHERE er.event_id = ? ";
@@ -117,7 +116,7 @@ public class UserJdbcDao implements UserDao {
                 .usingGeneratedKeyColumns("id");
     }
 
-    // TODO: methods findById, findByEmail and findByUsername are very similar, we should refactor them
+    // TODO: methods findById and findByEmail are very similar, we should refactor them
     // -> maybe use enum to specify the column to search by
     // private simpleFindBy(String query, RowMapper<User> rowMapper, Object... args);
     // -> de hecho creería que el RowMapper mucho sentido no tiene
@@ -142,7 +141,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public void changePassword(final String email, final String password) {
-        LOGGER.info("Updating password for user email {} (has password {})", email, password != null && !password.isEmpty());
+        LOGGER.info("Updating password for user email {} (has password {})", email, password != null && !password.isEmpty()); // todo: no entiendo el has password
         final int updatedRows = jdbcTemplate.update("UPDATE users SET password = ? WHERE email = ?", password, email);
         if (updatedRows == 0) {
             LOGGER.warn("Password change failed: user with email {} not found", email);
@@ -167,7 +166,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public User create(final String email, final String username, final String firstname, final String lastname, final University university,
-                       final Career career, final long profilePictureId, final String password, final Locale locale,final String validateToken, final LocalDate exipirationDate) {
+                       final Career career, final long profilePictureId, final String password, final Locale locale,final String validateToken, final LocalDate expirationDate) {
         LOGGER.debug("Registering new user to DB");
         final Map<String, Object> args = new HashMap<>();
         args.put("email", email);
@@ -182,7 +181,7 @@ public class UserJdbcDao implements UserDao {
         args.put("roles", "user");
         args.put("blocked", false);
         args.put("validate_token", validateToken);
-        args.put("validate_token_expiration_date", Date.valueOf(exipirationDate));
+        args.put("validate_token_expiration_date", Date.valueOf(expirationDate));
         final Number id = jdbcInsert.executeAndReturnKey(args);
         final User user = new User(id.longValue(), email, username, firstname, lastname, university, career, profilePictureId, locale,false);
         LOGGER.info("Successfully registered new user {}", user);
@@ -256,11 +255,6 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public List<User> getAllUsers() {
-        return jdbcTemplate.query(SQL_BASE, USER_ROW_MAPPER);
-    }
-
-    @Override
     public Page<User> getAllUsers(PageParams pageParams) {
         final List<User> list = jdbcTemplate.query(SQL_FIND_ALL_PAGED, USER_ROW_MAPPER, pageParams.getSize(), offset(pageParams));
         final int elementCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
@@ -281,8 +275,6 @@ public class UserJdbcDao implements UserDao {
                 SELECT COUNT(*)
                 FROM users us JOIN universities un ON us.university = un.id
                 WHERE LOWER(firstname) LIKE LOWER(?)
-                -- OR LOWER(lastname) LIKE LOWER(?)
-                -- OR LOWER(username) LIKE LOWER(?)
                 OR LOWER(un.name) LIKE LOWER(?)
                 OR LOWER(email) LIKE LOWER(?)
                 """,

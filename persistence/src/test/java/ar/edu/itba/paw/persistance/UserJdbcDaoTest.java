@@ -479,30 +479,6 @@ public class UserJdbcDaoTest {
     }
 
     @Test
-    public void testGetAllUsers(){
-        List<User> users = userDao.getAllUsers();
-
-        assertNotNull(users);
-        assertEquals(TestUtils.TOTAL_USERS, users.size());
-        //TODO loop
-        TestUtils.assertEqualsUser(USER_1, users.get(0));
-        TestUtils.assertEqualsUser(USER_2, users.get(1));
-        TestUtils.assertEqualsUser(USER_3, users.get(2));
-        TestUtils.assertEqualsUser(USER_4, users.get(3));
-        TestUtils.assertEqualsUser(USER_I1, users.get(4));
-        TestUtils.assertEqualsUser(USER_I2, users.get(5));
-        TestUtils.assertEqualsUser(USER_I3, users.get(6));
-    }
-    @Test 
-    public void testGetAllUsersNoUsers(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, TestUtils.JOURNEY_TABLE, TestUtils.USER_INTEREST_TABLE, TestUtils.USER_TABLE);
-        List<User> users = userDao.getAllUsers();
-
-        assertNotNull(users);
-        assertEquals(0, users.size());
-    }
-
-    @Test
     public void testGetAllUsersPaged(){
         Page<User> page1 = userDao.getAllUsers(TestUtils.PAGE_1_DEFAULT);
         Page<User> page2 = userDao.getAllUsers(TestUtils.PAGE_2_DEFAULT);
