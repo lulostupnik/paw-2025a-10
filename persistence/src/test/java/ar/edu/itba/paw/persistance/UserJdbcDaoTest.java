@@ -405,9 +405,9 @@ public class UserJdbcDaoTest {
     }
 
     @Test
-    public void testGetAllUsersPaged(){
-        Page<User> page1 = userDao.getAllUsers(TestUtils.PAGE_1_DEFAULT);
-        Page<User> page2 = userDao.getAllUsers(TestUtils.PAGE_2_DEFAULT);
+    public void testFindAllPaged(){
+        Page<User> page1 = userDao.findAll(TestUtils.PAGE_1_DEFAULT);
+        Page<User> page2 = userDao.findAll(TestUtils.PAGE_2_DEFAULT);
 
         assertNotNull(page1);
         assertNotNull(page2);
@@ -424,9 +424,9 @@ public class UserJdbcDaoTest {
         assertEqualsUser(page2.getContent().getFirst(), TestUtils.USER_3_PARAMS);
     }
     @Test
-    public void testGetAllUsersPagedWrongPage(){
-        Page<User> page1 = userDao.getAllUsers(TestUtils.PAGE_1_BIG);
-        Page<User> page2 = userDao.getAllUsers(TestUtils.PAGE_2_BIG);
+    public void testFindAllPagedWrongPage(){
+        Page<User> page1 = userDao.findAll(TestUtils.PAGE_1_BIG);
+        Page<User> page2 = userDao.findAll(TestUtils.PAGE_2_BIG);
 
         assertNotNull(page1);
         assertNotNull(page2);
@@ -444,9 +444,9 @@ public class UserJdbcDaoTest {
     }
 
     @Test
-    public void testSearchUsersPaged(){
-        Page<User> page1 = userDao.searchUsers(TestUtils.USER_FIRSTNAME, TestUtils.PAGE_1_DEFAULT);
-        Page<User> page2 = userDao.searchUsers(TestUtils.USER_FIRSTNAME, TestUtils.PAGE_2_DEFAULT);
+    public void testSearchPaged(){
+        Page<User> page1 = userDao.search(TestUtils.USER_FIRSTNAME, TestUtils.PAGE_1_DEFAULT);
+        Page<User> page2 = userDao.search(TestUtils.USER_FIRSTNAME, TestUtils.PAGE_2_DEFAULT);
 
         assertNotNull(page1);
         assertNotNull(page2);
@@ -463,9 +463,9 @@ public class UserJdbcDaoTest {
         TestUtils.assertEqualsUser(USER_I1, page2.getContent().getFirst());
     }
     @Test
-    public void testSearchUsersPaged2(){
-        Page<User> page1 = userDao.searchUsers(TestUtils.USER_1_NAME, TestUtils.PAGE_1_DEFAULT);
-        Page<User> page2 = userDao.searchUsers(TestUtils.USER_1_NAME, TestUtils.PAGE_2_DEFAULT);
+    public void testSearchPaged2(){
+        Page<User> page1 = userDao.search(TestUtils.USER_1_NAME, TestUtils.PAGE_1_DEFAULT);
+        Page<User> page2 = userDao.search(TestUtils.USER_1_NAME, TestUtils.PAGE_2_DEFAULT);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -480,13 +480,13 @@ public class UserJdbcDaoTest {
     }
 
    @Test
-   public void testListJourneyRespondersMinusUsers(){
+   public void testListJourneyResponders(){
         //TODO replace reply insert
         SimpleJdbcInsert journeyReplyInsert = new SimpleJdbcInsert(ds).withTableName(TestUtils.JOURNEY_REPLY_TABLE).usingGeneratedKeyColumns("id");
         journeyReplyInsert.execute(Map.of("user_id", USER_2.getId(), "journey_id", JOURNEY_1.getId(), "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
         journeyReplyInsert.execute(Map.of("user_id", USER_3.getId(), "journey_id", JOURNEY_1.getId(), "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
 
-        List<User> repliesUser = userDao.listJourneyRespondersMinusUsers(JOURNEY_1.getId());
+        List<User> repliesUser = userDao.listJourneyResponders(JOURNEY_1.getId());
 
         assertNotNull(repliesUser);
         assertEquals(2, repliesUser.size());
@@ -496,7 +496,7 @@ public class UserJdbcDaoTest {
         }
    }
     @Test
-    public void testListEventRespondersMinusUsers(){
+    public void testListEventResponders(){
         //TODO replace event insert
         long eventId = new SimpleJdbcInsert(ds).withTableName(TestUtils.EVENT_TABLE).usingGeneratedKeyColumns("id")
             .executeAndReturnKey(Map.of(
@@ -511,7 +511,7 @@ public class UserJdbcDaoTest {
         eventReplyInsert.execute(Map.of("user_id", USER_2.getId(), "event_id", eventId, "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
         eventReplyInsert.execute(Map.of("user_id", USER_3.getId(), "event_id", eventId, "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
 
-        List<User> repliesUser = userDao.listEventRespondersMinusUsers(eventId);
+        List<User> repliesUser = userDao.listEventResponders(eventId);
 
         assertNotNull(repliesUser);
         assertEquals(2, repliesUser.size());

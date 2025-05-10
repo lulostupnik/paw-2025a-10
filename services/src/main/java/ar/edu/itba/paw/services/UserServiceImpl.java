@@ -130,9 +130,9 @@ public class UserServiceImpl implements UserService {
     public Page<User> getAllUsers(String search, PageParams pageParams) {
 
         if (search == null || search.isEmpty()) {
-            return userDao.getAllUsers(pageParams);
+            return userDao.findAll(pageParams);
         }
-        return userDao.searchUsers(search, pageParams);
+        return userDao.search(search, pageParams);
     }
 
     @Override
@@ -155,7 +155,7 @@ public class UserServiceImpl implements UserService {
         String uid = UUID.randomUUID().toString();
         LocalDate date = LocalDate.now().plusDays(1);
         userDao.refreshToken(uid, date,oldToken);
-        Optional<User> user = userDao.getUserByToken(oldToken);
+        Optional<User> user = userDao.findByToken(oldToken);
         if(user.isEmpty()){
             throw new InvalidTokenException("Invalid Token");
         }
@@ -168,7 +168,7 @@ public class UserServiceImpl implements UserService {
         String uid = UUID.randomUUID().toString();
         LocalDate date = LocalDate.now().plusDays(1);
         userDao.refreshToken(uid, date,oldToken);
-        Optional<User> user = userDao.getUserByToken(oldToken);
+        Optional<User> user = userDao.findByToken(oldToken);
         if(user.isEmpty()){
             throw new InvalidTokenException("Invalid Token");
         }
@@ -192,18 +192,20 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void forgotPass(String email) {
-        Optional<User> user = userDao.findByEmail(email);
-        if(user.isEmpty()){
-            throw new RuntimeException("Invalid User");
-        }
+        User user = userDao.findByEmail(email).orElseThrow(()-> {
+            LOGGER.warn("User with email {} not found", email);
+            return new RuntimeException("User does not exist");
+        });
+
 
         if(!userDao.isUserValidByEmail(email)){
             throw new UserValidatedException("User not validated");
         }
-        String uid = UUID.randomUUID().toString();
+
+        String uuid = UUID.randomUUID().toString();
         LocalDate date = LocalDate.now().plusDays(1);
-        userDao.generatePassToken(uid, date,user.get().getId());
-        emailService.sendForgotPassEmail(user.get(),uid);
+        userDao.updateToken(user.getId(), uuid, date);
+        emailService.sendForgotPassEmail(user, uuid);
 
     }
 

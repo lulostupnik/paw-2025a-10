@@ -127,22 +127,13 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public void generatePassToken(String uid, LocalDate date, long id) {
+    public void updateToken(final long id, final String uid, final LocalDate date) {
         jdbcTemplate.update("UPDATE users SET token = ?, token_expiration = ? WHERE id = ?", uid, date, id);
     }
 
     @Override
     public boolean isUserValidByEmail(String email) {
-        String sql = """
-        SELECT validated
-        FROM users
-        WHERE email = ?
-        """;
-
-        Boolean validated = jdbcTemplate.queryForObject(sql, Boolean.class, email);
-
-        // If no result is found, return false
-        return Boolean.TRUE.equals(validated);
+        return jdbcTemplate.queryForObject("SELECT validated FROM users WHERE email = ? ", Boolean.class, email);
     }
 
     @Override
@@ -279,12 +270,12 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public Page<User> getAllUsers(PageParams pageParams) {
+    public Page<User> findAll(PageParams pageParams) {
         return executePagedQuery(jdbcTemplate, USER_ROW_MAPPER, "SELECT COUNT(*) FROM users", SQL_FIND_ALL_PAGED, pageParams);
     }
 
     @Override
-    public Page<User> searchUsers(final String search, PageParams pageParams) {
+    public Page<User> search(final String search, PageParams pageParams) {
         final String searchPattern = likePattern(search);
 
         return executePagedQuery(
@@ -341,7 +332,7 @@ public class UserJdbcDao implements UserDao {
         jdbcTemplate.update(
                 """
                 UPDATE users
-                SET token = NULL, token_expiration = NULL,
+                SET token = NULL, token_expiration = NULL
                 WHERE token = ?
                 """,
                 token
@@ -389,12 +380,12 @@ public class UserJdbcDao implements UserDao {
 
 
     @Override
-    public List<User> listJourneyRespondersMinusUsers(final long journeyId/*, List<Long> userIds*/) {
+    public List<User> listJourneyResponders(final long journeyId/*, List<Long> userIds*/) {
         return jdbcTemplate.query(SQL_JOIN_JOURNEY_RESPONDERS, USER_ROW_MAPPER, journeyId);
     }
 
     @Override
-    public List<User> listEventRespondersMinusUsers(final long eventId) {
+    public List<User> listEventResponders(final long eventId) {
         return jdbcTemplate.query(SQL_JOIN_EVENT_RESPONDERS, USER_ROW_MAPPER, eventId);
     }
 
@@ -424,7 +415,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public Optional<User> getUserByToken(String token) {
+    public Optional<User> findByToken(String token) {
         return jdbcTemplate.query(
                 SQL_FIND_BY_TOKEN,
                 USER_ROW_MAPPER,

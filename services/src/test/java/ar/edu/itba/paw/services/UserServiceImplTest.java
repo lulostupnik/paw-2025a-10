@@ -228,7 +228,7 @@ public class UserServiceImplTest {
     public void testGetAllUsersPaged(){
         Page<User> testPage = new Page<User>(List.of(USER), 1, 1);
         Mockito.when(
-            userDao.getAllUsers(Mockito.eq(PAGE_1_DEFAULT))
+            userDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
         Page<User> users = userService.getAllUsers(null, PAGE_1_DEFAULT);
@@ -240,7 +240,7 @@ public class UserServiceImplTest {
     public void testGetAllUsersPagedEmptySearch(){
         Page<User> testPage = new Page<User>(List.of(USER), 1, 1);
         Mockito.when(
-            userDao.getAllUsers(Mockito.eq(PAGE_1_DEFAULT))
+            userDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
         Page<User> users = userService.getAllUsers("", PAGE_1_DEFAULT);
@@ -252,7 +252,7 @@ public class UserServiceImplTest {
     public void testGetAllUsersPagedNoUsers(){
         Page<User> testPage = new Page<User>(List.of(), 1, 0);
         Mockito.when(
-            userDao.getAllUsers(Mockito.eq(PAGE_1_DEFAULT))
+            userDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
         Page<User> users = userService.getAllUsers(null, PAGE_1_DEFAULT);
@@ -264,7 +264,7 @@ public class UserServiceImplTest {
     public void testGetAllUsersPagedEmptySearchNoUsers(){
         Page<User> testPage = new Page<User>(List.of(), 1, 0);
         Mockito.when(
-            userDao.getAllUsers(Mockito.eq(PAGE_1_DEFAULT))
+            userDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
         Page<User> users = userService.getAllUsers("", PAGE_1_DEFAULT);
@@ -277,7 +277,7 @@ public class UserServiceImplTest {
     public void testGetAllUsersPagedSearch(){
         Page<User> testPage = new Page<User>(List.of(USER), 1, 1);
         Mockito.when(
-            userDao.searchUsers(Mockito.eq(FIRSTNAME), Mockito.eq(PAGE_1_DEFAULT))
+            userDao.search(Mockito.eq(FIRSTNAME), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
         Page<User> users = userService.getAllUsers(FIRSTNAME, PAGE_1_DEFAULT);
@@ -289,7 +289,7 @@ public class UserServiceImplTest {
     public void testGetAllUsersPagedSearchNoUsers(){
         Page<User> testPage = new Page<User>(List.of(), 1, 1);
         Mockito.when(
-            userDao.searchUsers(Mockito.eq(FIRSTNAME), Mockito.eq(PAGE_1_DEFAULT))
+            userDao.search(Mockito.eq(FIRSTNAME), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
         Page<User> users = userService.getAllUsers(FIRSTNAME, PAGE_1_DEFAULT);
