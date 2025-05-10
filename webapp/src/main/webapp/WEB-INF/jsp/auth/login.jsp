@@ -86,6 +86,9 @@
                     <span class="checkbox-custom"></span>
                     <span><spring:message code="remember_me" text="Remember me"/></span>
                 </label>
+                <a href="<c:url value='/forgot_pass'/>" class="auth-link forgot-password">
+                    <spring:message code="login.forgot_password" text="Forgot pass"/>
+                </a>
             </div>
 
             <button type="submit" class="form-button">
