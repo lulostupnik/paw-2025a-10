@@ -341,7 +341,7 @@ public class UserJdbcDao implements UserDao {
         jdbcTemplate.update(
                 """
                 UPDATE users
-                SET token = NULL, token_expiration = NULL,
+                SET token = NULL, token_expiration = NULL
                 WHERE token = ?
                 """,
                 token
