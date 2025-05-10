@@ -55,11 +55,13 @@ public class AuthController {
     }
 
     @GetMapping(value ="/reset-password")
-    public ModelAndView changePassForm(@RequestParam("token") String token, @ModelAttribute("UpdatePasswordForm")UpdatePasswordForm form) {
-        return new ModelAndView("redirect:/profile/change-password");
+    public ModelAndView changePassForm(@RequestParam("token") String token, @ModelAttribute("updatePasswordForm")UpdatePasswordForm form) {
+        ModelAndView mav = new ModelAndView("auth/reset-password");
+        mav.addObject("token", token);
+        return mav;
     }
     @PostMapping(value ="/reset-password")
-    public ModelAndView changePass(@RequestParam("token") String token, @Valid@ModelAttribute("UpdatePasswordForm")UpdatePasswordForm form, final BindingResult errors) {
+    public ModelAndView changePass(@RequestParam("token") String token, @Valid@ModelAttribute("updatePasswordForm")UpdatePasswordForm form, final BindingResult errors) {
         if(errors.hasErrors()) {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
             LOGGER.debug("Errors: {}", errors);
