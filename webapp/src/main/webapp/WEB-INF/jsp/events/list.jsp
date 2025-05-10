@@ -323,6 +323,10 @@
         <c:if test="${not empty param.isPast}">
           <c:set var="paginationBaseUrl" value="${paginationBaseUrl}isPast=${param.isPast}&" />
         </c:if>
+          <c:if test="${not empty param.attending}">
+              <c:set var="paginationBaseUrl" value="${paginationBaseUrl}attending=${param.attending}&" />
+          </c:if>
+
 <%--        <c:if test="${not empty param.pageSize}">--%>
 <%--          <c:set var="paginationBaseUrl" value="${paginationBaseUrl}pageSize=${param.pageSize}&" />--%>
 <%--        </c:if>--%>
