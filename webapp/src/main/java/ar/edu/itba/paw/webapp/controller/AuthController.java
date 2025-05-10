@@ -88,7 +88,7 @@ public class AuthController {
     }
 
     @PostMapping("/forgot_pass")
-    public ModelAndView forgotPass(@ModelAttribute ("emailForm") final EmailForm form,
+    public ModelAndView forgotPass(@Valid @ModelAttribute ("emailForm") final EmailForm form,
                                    final BindingResult errors) {
         LOGGER.debug("Loading forgot password form");
         if (errors.hasErrors()) {

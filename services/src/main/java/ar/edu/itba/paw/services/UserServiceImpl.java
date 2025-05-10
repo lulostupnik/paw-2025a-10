@@ -3,6 +3,7 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.ExpiredPassTokenException;
 import ar.edu.itba.paw.models.exceptions.ExpiredTokenException;
 import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
 import ar.edu.itba.paw.models.exceptions.UserValidatedException;
@@ -180,7 +181,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void newPassword(String token, String newPassword) {
         if(userDao.hasExpired(token)){
-            throw new ExpiredTokenException("Token expired", token);
+            throw new ExpiredPassTokenException("Token expired", token);
         }
         if(!userDao.isValid(token)){
             throw new InvalidTokenException("Token already used");
