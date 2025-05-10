@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.interfaces.services;
 
 import ar.edu.itba.paw.models.*;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -16,10 +15,6 @@ public interface JourneyService {
     boolean userHasJourney(String email); // ja
     boolean userHasJourney(User user);
     List<Journey> getRecommendedJourneys(String email, int limit);
-    void updateJourneyDates(long journeyId, LocalDate startDate, LocalDate endDate);
-    void updateJourneyDescription(long journeyId, String description);
-    void updateJourneyDestination(long journeyId, String universityName);
-    void updateJourneyDestination(long journeyId, long universityId);
     void delete(long id, String message);
     boolean isJourneyOwnedByUser(String email, long journeyID);
     void editJourney(long journeyId, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
@@ -29,3 +24,8 @@ public interface JourneyService {
     Page<JourneyResponse> listAllResponsesFromJourney(long eventId, PageParams pageParams);
     int getJourneyResponseCount(long id);
 }
+
+//    void updateJourneyDates(long journeyId, LocalDate startDate, LocalDate endDate);
+//    void updateJourneyDescription(long journeyId, String description);
+//    void updateJourneyDestination(long journeyId, String universityName);
+//    void updateJourneyDestination(long journeyId, long universityId);

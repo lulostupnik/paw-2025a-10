@@ -187,67 +187,6 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    public void updateJourneyDates(long journeyId, LocalDate startDate, LocalDate endDate) {
-        LOGGER.debug("Updating dates for journey {}: start={}, end={}", journeyId, startDate, endDate);
-
-        checkDates(startDate, endDate);
-
-        Journey journey = journeyDao.findById(journeyId)
-                .orElseThrow(() -> {
-                    LOGGER.warn("Journey not found with ID: {}", journeyId);
-                    return new IllegalArgumentException("Journey not found");
-                });
-
-        Optional<Journey> overlapping = journeyDao.findOverlappingJourney(journey.getUser().getId(), startDate, endDate);
-        if (overlapping.isPresent() && overlapping.get().getId() != journeyId) {
-            LOGGER.warn("User has an overlapping journey");
-            throw new RuntimeException("There's already a journey registered in this time period");
-        }
-
-        journeyDao.updateDates(journeyId, startDate, endDate);
-        LOGGER.info("Successfully updated dates for journey {}", journeyId);
-    }
-
-    @Override
-    @Transactional
-    public void updateJourneyDescription(long journeyId, String description) {
-        LOGGER.debug("Updating description for journey {}", journeyId);
-        journeyDao.updateDescription(journeyId, description);
-        LOGGER.info("Successfully updated description for journey {}", journeyId);
-    }
-
-    @Override
-    @Transactional
-    public void updateJourneyDestination(long journeyId, String universityName) {
-        LOGGER.debug("Updating destination for journey {} to {}", journeyId, universityName);
-
-        University university = universityService.findByName(universityName)
-                .orElseThrow(() -> {
-                    LOGGER.warn("University not found: {}", universityName);
-                    return new IllegalArgumentException("University not found");
-                });
-
-        journeyDao.updateDestinationUniversity(journeyId, university.getId());
-        LOGGER.info("Successfully updated destination for journey {} to {}", journeyId, universityName);
-    }
-
-    @Override
-    @Transactional
-    public void updateJourneyDestination(long journeyId, long universityId) {
-        LOGGER.debug("Updating destination for journey {} to university ID {}", journeyId, universityId);
-
-        universityService.findById(universityId)
-                .orElseThrow(() -> {
-                    LOGGER.warn("University not found with ID: {}", universityId);
-                    return new IllegalArgumentException("University not found");
-                });
-
-        journeyDao.updateDestinationUniversity(journeyId, universityId);
-        LOGGER.info("Successfully updated destination for journey {} to university ID {}", journeyId, universityId);
-    }
-
-    @Override
-    @Transactional
     public void delete(long id, String message) {
         journeyDao.deletionMessage(id, message);
         journeyResponseDao.deleteResponsesByJourneyId(id);
@@ -311,3 +250,66 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyResponseDao.getJourneyResponseCount(id);
     }
 }
+
+
+//
+//    @Override
+//    @Transactional
+//    public void updateJourneyDates(long journeyId, LocalDate startDate, LocalDate endDate) {
+//        LOGGER.debug("Updating dates for journey {}: start={}, end={}", journeyId, startDate, endDate);
+//
+//        checkDates(startDate, endDate);
+//
+//        Journey journey = journeyDao.findById(journeyId)
+//                .orElseThrow(() -> {
+//                    LOGGER.warn("Journey not found with ID: {}", journeyId);
+//                    return new IllegalArgumentException("Journey not found");
+//                });
+//
+//        Optional<Journey> overlapping = journeyDao.findOverlappingJourney(journey.getUser().getId(), startDate, endDate);
+//        if (overlapping.isPresent() && overlapping.get().getId() != journeyId) {
+//            LOGGER.warn("User has an overlapping journey");
+//            throw new RuntimeException("There's already a journey registered in this time period");
+//        }
+//
+//        journeyDao.updateDates(journeyId, startDate, endDate);
+//        LOGGER.info("Successfully updated dates for journey {}", journeyId);
+//    }
+//
+//    @Override
+//    @Transactional
+//    public void updateJourneyDescription(long journeyId, String description) {
+//        LOGGER.debug("Updating description for journey {}", journeyId);
+//        journeyDao.updateDescription(journeyId, description);
+//        LOGGER.info("Successfully updated description for journey {}", journeyId);
+//    }
+//
+//    @Override
+//    @Transactional
+//    public void updateJourneyDestination(long journeyId, String universityName) {
+//        LOGGER.debug("Updating destination for journey {} to {}", journeyId, universityName);
+//
+//        University university = universityService.findByName(universityName)
+//                .orElseThrow(() -> {
+//                    LOGGER.warn("University not found: {}", universityName);
+//                    return new IllegalArgumentException("University not found");
+//                });
+//
+//        journeyDao.updateDestinationUniversity(journeyId, university.getId());
+//        LOGGER.info("Successfully updated destination for journey {} to {}", journeyId, universityName);
+//    }
+//
+//    @Override
+//    @Transactional
+//    public void updateJourneyDestination(long journeyId, long universityId) {
+//        LOGGER.debug("Updating destination for journey {} to university ID {}", journeyId, universityId);
+//
+//        universityService.findById(universityId)
+//                .orElseThrow(() -> {
+//                    LOGGER.warn("University not found with ID: {}", universityId);
+//                    return new IllegalArgumentException("University not found");
+//                });
+//
+//        journeyDao.updateDestinationUniversity(journeyId, universityId);
+//        LOGGER.info("Successfully updated destination for journey {} to university ID {}", journeyId, universityId);
+//    }
