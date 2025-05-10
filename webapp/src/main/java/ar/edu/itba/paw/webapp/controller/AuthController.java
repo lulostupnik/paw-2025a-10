@@ -18,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
@@ -73,12 +74,18 @@ public class AuthController {
 
 
     @RequestMapping("/login")
-    public ModelAndView loginForm( @ModelAttribute("user") User user) {
+    public ModelAndView loginForm(
+            @RequestParam(value = "resetPassword", required = false, defaultValue = "false") final boolean resetPassword,
+            @RequestParam(value = "registrationSuccess", required = false, defaultValue = "false") final boolean registrationSuccess,
+                                  @ModelAttribute("user") User user) {
         LOGGER.debug("Loading login form");
         if (user != null) {
             return new ModelAndView("redirect:/explore");
         }
-        return new ModelAndView("auth/login");
+        ModelAndView mav = new ModelAndView("auth/login");
+        mav.addObject("registrationSuccess", registrationSuccess);
+        mav.addObject("resetPassword", resetPassword);
+        return mav;
     }
 
     @GetMapping("/forgot_pass")
@@ -97,7 +104,7 @@ public class AuthController {
             return forgotPassForm(form);
         }
         userService.forgotPass(form.getEmail());
-        return new ModelAndView("auth/login");
+        return new ModelAndView("auth/login?resetPassword=true");
     }
 
 
@@ -131,9 +138,7 @@ public class AuthController {
                 form.getLastName(), form.getOriginUniversity(), form.getCareer(), profilePicture,
                 form.getInterests(), form.getPassword(), LocaleContextHolder.getLocale());
 
-//        setAuth(form.getEmail(), form.getPassword());
-
-        return new ModelAndView("redirect:explore");
+        return new ModelAndView("redirect:/login?registrationSuccess=true");
     }
 
 //    private void setAuth(String email, String password) {
