@@ -15,7 +15,7 @@ public interface UserDao {
     Optional<User> findByEmail(String email);
 
     Optional<UserAuthInfo> findByEmailWithPass(String email);
-    
+
     boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);
@@ -39,8 +39,6 @@ public interface UserDao {
     List<User> listJourneyRespondersMinusUsers(long journeyId/*, List<Long> userIds*/);
 
     List<User> listEventRespondersMinusUsers(long eventId/*, List<Long> userIds*/);
-
-    List<User> getAllUsers();
 
     Page<User> getAllUsers(PageParams pageParams);
 
