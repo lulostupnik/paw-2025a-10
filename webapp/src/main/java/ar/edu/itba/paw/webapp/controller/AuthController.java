@@ -23,6 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
@@ -51,7 +52,11 @@ public class AuthController {
     }
     @GetMapping(value ="/validate")
     public ModelAndView validateEmail(@RequestParam("token") String token) {
-        userService.validateEmail(token);
+        Optional<UserAuthInfo> user = userService.validateEmail(token);
+        if(user.isEmpty()) {
+            return new ModelAndView("redirect:/login");
+        }
+        setAuth(user.get().getEmail(),user.get().getPassword());
         return new ModelAndView("/auth/validate-user");
     }
 
@@ -143,9 +148,9 @@ public class AuthController {
         return new ModelAndView("redirect:/login?registrationSuccess=true");
     }
 
-//    private void setAuth(String email, String password) {
-//        Authentication authToken = new UsernamePasswordAuthenticationToken(email, password);
-//        Authentication authentication = authenticationManager.authenticate(authToken);
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
-//    }
+    private void setAuth(String email, String password) {
+        Authentication authToken = new UsernamePasswordAuthenticationToken(email, password);
+        Authentication authentication = authenticationManager.authenticate(authToken);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
 }

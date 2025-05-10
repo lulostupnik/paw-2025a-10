@@ -19,7 +19,7 @@ public interface UserDao {
 
     Optional<User> findByEmail(String email);
 
-    void validateEmail(String token);
+    Optional<UserAuthInfo> validateEmail(String token);
 
     Optional<UserAuthInfo> findAuthInfoByEmail(String email);
 

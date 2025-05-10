@@ -340,7 +340,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public void validateEmail(String token) {
+    public Optional<UserAuthInfo> validateEmail(String token) {
         int updatedRows = jdbcTemplate.update(
                 """
                 UPDATE users
@@ -352,6 +352,11 @@ public class UserJdbcDao implements UserDao {
         if(updatedRows == 0) {
             LOGGER.warn("Token validation failed: token {} not found", token);
         }
+        return jdbcTemplate.query(
+                "SELECT email, password, roles, blocked, validated AS verified FROM users WHERE token = ?",
+                USER_PASSWORD_ROW_MAPPER,
+                token
+        ).stream().findFirst();
     }
 
     @Override

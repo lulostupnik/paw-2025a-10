@@ -22,7 +22,7 @@ public interface UserService {
     void blockUser(long userId);
     void unblockUser(long userId);
     void changePassword(long id, String newPassword);
-    void validateEmail(String token);
+    Optional<UserAuthInfo> validateEmail(String token);
     void refreshToken(String oldToken);
     void refreshPassToken(String oldToken);
     void newPassword(String token, String newPassword);

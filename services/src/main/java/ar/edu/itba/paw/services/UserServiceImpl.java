@@ -74,14 +74,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void validateEmail(String token) {
+    public Optional<UserAuthInfo> validateEmail(String token) {
         if (userDao.hasExpired(token)) {
             throw new ExpiredTokenException("Token expired", token);
         }
         if(userDao.isUserValidated(token)){
             throw new InvalidTokenException("Token already used");
         }
-        userDao.validateEmail(token);
+        return userDao.validateEmail(token);
     }
     //Ver que onda porque la logica es igual, lo unico que cambia es que la de arriba tilda un boolean en is valid
     //para saber que el usuario valido su email y la de abajo falla
