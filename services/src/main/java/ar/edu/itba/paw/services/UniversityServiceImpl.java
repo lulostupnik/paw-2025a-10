@@ -43,17 +43,6 @@ public class UniversityServiceImpl implements UniversityService {
         return universityDao.findById(id);
     }
 
-    @Override
-    public Optional<University> findByAbbreviation(String abbreviation) {
-        LOGGER.debug("Getting university with abbreviation {}", abbreviation);
-        return universityDao.findByAbbreviation(abbreviation);
-    }
-
-    @Override
-    public Optional<University> findByAny(String queryString){
-        LOGGER.debug("Getting university like {}", queryString);
-        return universityDao.findByAny(queryString);
-    }
 
 
 
@@ -118,11 +107,6 @@ public class UniversityServiceImpl implements UniversityService {
     }
 
     @Override
-    public Page<University> searchUniversities(String search, PageParams pageParams) {
-        return universityDao.searchBySubstring(search, pageParams);
-    }
-
-    @Override
     @Transactional
     @Caching(
             evict = {
@@ -137,3 +121,22 @@ public class UniversityServiceImpl implements UniversityService {
 
 
 }
+
+//
+//    @Override
+//    public Page<University> searchUniversities(String search, PageParams pageParams) {
+//        return universityDao.searchBySubstring(search, pageParams);
+//    }
+
+//
+//    @Override
+//    public Optional<University> findByAbbreviation(String abbreviation) {
+//        LOGGER.debug("Getting university with abbreviation {}", abbreviation);
+//        return universityDao.findByAbbreviation(abbreviation);
+//    }
+//
+//    @Override
+//    public Optional<University> findByAny(String queryString){
+//        LOGGER.debug("Getting university like {}", queryString);
+//        return universityDao.findByAny(queryString);
+//    }

@@ -67,29 +67,6 @@ public class UniversityServiceImplTest {
         assertFalse(maybeUni.isPresent());
     }
 
-    @Test
-    public void testFindByAbbreviation(){
-        Mockito.when(
-            uniDao.findByAbbreviation(Mockito.eq(ABBREVIATION))
-        ).thenReturn(Optional.of(UNI));
-
-        Optional<University> maybeUni = uniService.findByAbbreviation(ABBREVIATION);
-
-        assertNotNull(maybeUni);
-        assertTrue(maybeUni.isPresent());
-        assertEquals(UNI, maybeUni.get());
-    }
-    @Test
-    public void testFindByAbbreviationNotFound(){
-        Mockito.when(
-            uniDao.findByAbbreviation(Mockito.eq(ABBREVIATION))
-        ).thenReturn(Optional.empty());
-
-        Optional<University> maybeUni = uniService.findByAbbreviation(ABBREVIATION);
-
-        assertNotNull(maybeUni);
-        assertFalse(maybeUni.isPresent());
-    }
 
     @Test
     public void testFindById(){
@@ -113,62 +90,6 @@ public class UniversityServiceImplTest {
 
         assertNotNull(maybeUni);
         assertFalse(maybeUni.isPresent());
-    }
-
-    @Test
-    public void testFindByAny(){
-        Mockito.when(
-            uniDao.findByAny(Mockito.eq(NAME))
-        ).thenReturn(Optional.of(UNI));
-
-        Optional<University> maybeUni = uniService.findByAny(NAME);
-
-        assertNotNull(maybeUni);
-        assertTrue(maybeUni.isPresent());
-        assertEquals(UNI, maybeUni.get());
-    }
-    @Test
-    public void testFindByAnyNotFound(){
-        Mockito.when(
-            uniDao.findByAny(Mockito.eq(NAME))
-        ).thenReturn(Optional.empty());
-
-        Optional<University> maybeUni = uniService.findByAny(NAME);
-
-        assertNotNull(maybeUni);
-        assertFalse(maybeUni.isPresent());
-    }
-    
-    @Test
-    public void testSearchUniversities(){
-        Page<University> testPage = new Page<University>(List.of(UNI), 1, 1);
-        Mockito.when(
-            uniDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(testPage);
-
-        Page<University> unis = uniService.searchUniversities(NAME, PAGE_1_DEFAULT);
-
-        assertNotNull(unis);
-        assertNotNull(unis.getContent());
-        assertEquals(1, unis.getCurrentPage());
-        assertEquals(1, unis.getTotalPages());
-        assertEquals(1, unis.getContent().size());
-        assertEquals(UNI, unis.getContent().getFirst());
-    }
-    @Test
-    public void testSearchUniversitiesNotFound(){
-        Page<University> testPage = new Page<University>(List.of(), 1, 1);
-        Mockito.when(
-            uniDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(testPage);
-
-        Page<University> unis = uniService.searchUniversities(NAME, PAGE_1_DEFAULT);
-
-        assertNotNull(unis);
-        assertNotNull(unis.getContent());
-        assertEquals(1, unis.getCurrentPage());
-        assertEquals(1, unis.getTotalPages());
-        assertEquals(0, unis.getContent().size());
     }
 
 
@@ -242,3 +163,87 @@ public class UniversityServiceImplTest {
         uniService.delete(ID);
     }
 }
+
+//
+//    @Test
+//    public void testFindByAbbreviation(){
+//        Mockito.when(
+//            uniDao.findByAbbreviation(Mockito.eq(ABBREVIATION))
+//        ).thenReturn(Optional.of(UNI));
+//
+//        Optional<University> maybeUni = uniService.findByAbbreviation(ABBREVIATION);
+//
+//        assertNotNull(maybeUni);
+//        assertTrue(maybeUni.isPresent());
+//        assertEquals(UNI, maybeUni.get());
+//    }
+//    @Test
+//    public void testFindByAbbreviationNotFound(){
+//        Mockito.when(
+//            uniDao.findByAbbreviation(Mockito.eq(ABBREVIATION))
+//        ).thenReturn(Optional.empty());
+//
+//        Optional<University> maybeUni = uniService.findByAbbreviation(ABBREVIATION);
+//
+//        assertNotNull(maybeUni);
+//        assertFalse(maybeUni.isPresent());
+//    }
+
+
+//    @Test
+//    public void testSearchUniversitiesNotFound(){
+//        Page<University> testPage = new Page<University>(List.of(), 1, 1);
+//        Mockito.when(
+//            uniDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
+//        ).thenReturn(testPage);
+//
+//        Page<University> unis = uniService.searchUniversities(NAME, PAGE_1_DEFAULT);
+//
+//        assertNotNull(unis);
+//        assertNotNull(unis.getContent());
+//        assertEquals(1, unis.getCurrentPage());
+//        assertEquals(1, unis.getTotalPages());
+//        assertEquals(0, unis.getContent().size());
+//    }
+
+//
+//@Test
+//public void testFindByAny(){
+//    Mockito.when(
+//            uniDao.findByAny(Mockito.eq(NAME))
+//    ).thenReturn(Optional.of(UNI));
+//
+//    Optional<University> maybeUni = uniService.findByAny(NAME);
+//
+//    assertNotNull(maybeUni);
+//    assertTrue(maybeUni.isPresent());
+//    assertEquals(UNI, maybeUni.get());
+//}
+//@Test
+//public void testFindByAnyNotFound(){
+//    Mockito.when(
+//            uniDao.findByAny(Mockito.eq(NAME))
+//    ).thenReturn(Optional.empty());
+//
+//    Optional<University> maybeUni = uniService.findByAny(NAME);
+//
+//    assertNotNull(maybeUni);
+//    assertFalse(maybeUni.isPresent());
+//}
+//
+//@Test
+//public void testSearchUniversities(){
+//    Page<University> testPage = new Page<University>(List.of(UNI), 1, 1);
+//    Mockito.when(
+//            uniDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
+//    ).thenReturn(testPage);
+//
+//    Page<University> unis = uniService.searchUniversities(NAME, PAGE_1_DEFAULT);
+//
+//    assertNotNull(unis);
+//    assertNotNull(unis.getContent());
+//    assertEquals(1, unis.getCurrentPage());
+//    assertEquals(1, unis.getTotalPages());
+//    assertEquals(1, unis.getContent().size());
+//    assertEquals(UNI, unis.getContent().getFirst());
+//}
