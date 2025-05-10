@@ -36,7 +36,7 @@ public interface UserDao {
     void blockUser(long userId);
 
     void unblockUser(long userId);
-    public boolean isUserValidated(String token);
+    boolean isUserValidated(String token);
 
     Optional<User> getUserByToken(String token);
 
