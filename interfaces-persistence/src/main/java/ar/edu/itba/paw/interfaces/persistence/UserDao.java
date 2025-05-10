@@ -14,15 +14,15 @@ public interface UserDao {
 
     Optional<User> findByEmail(String email);
 
-    Optional<UserAuthInfo> findByEmailWithPass(String email);
+    Optional<UserAuthInfo> findAuthInfoByEmail(String email);
 
     boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);
 
-    void changePassword(String email, String password);
+    void updatePassword(long id, String password);
 
-    void updateProfilePicture(long userId, long profilePictureId);
+    void updateProfilePicture(long id, long profilePictureId);
 
     void update(long userId, String firstname, String lastname, String username, Long universityId, Long careerId, Locale locale);
 

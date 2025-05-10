@@ -12,7 +12,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
 import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
@@ -162,7 +161,7 @@ public class UniversityJdbcDao implements UniversityDao {
     }
 
     @Override
-    public void update(long id, final String name, final String abbreviation, final String cityName) {
+    public void update(final long id, final String name, final String abbreviation, final String cityName) {
         LOGGER.info("Updating university with ID: {}. New values: name '{}', abbr '{}', city {}", id,  name, abbreviation, cityName);
         final int updatedRows = jdbcTemplate.update("""
                 UPDATE universities

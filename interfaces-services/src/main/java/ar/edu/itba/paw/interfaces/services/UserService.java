@@ -21,7 +21,7 @@ public interface UserService {
     Page<User> getAllUsers(String search, PageParams pageParams);
     void blockUser(long userId);
     void unblockUser(long userId);
-    void changePassword(String email, String newPassword);
+    void changePassword(long id, String newPassword);
     void validateEmail(String token);
     void refreshToken(String oldToken);
 

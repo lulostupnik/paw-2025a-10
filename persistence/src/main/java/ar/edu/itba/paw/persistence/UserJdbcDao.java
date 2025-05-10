@@ -132,16 +132,16 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public Optional<UserAuthInfo> findByEmailWithPass(final String email) {
+    public Optional<UserAuthInfo> findAuthInfoByEmail(final String email) {
         return jdbcTemplate.query("SELECT email, password, roles, blocked, validate_token is null AS verified FROM users WHERE email = ?", USER_PASSWORD_ROW_MAPPER, email).stream().findFirst();
     }
 
     @Override
-    public void changePassword(final String email, final String password) {
-        LOGGER.info("Updating password for user email {} (has password {})", email, password != null && !password.isEmpty()); // todo: no entiendo el has password
-        final int updatedRows = jdbcTemplate.update("UPDATE users SET password = ? WHERE email = ?", password, email);
+    public void updatePassword(final long id, final String password) {
+        LOGGER.info("Updating password for user with ID: {} (has password {})", id, password != null && !password.isEmpty()); // todo: no entiendo el has password
+        final int updatedRows = jdbcTemplate.update("UPDATE users SET password = ? WHERE id = ?", password, id);
         if (updatedRows == 0) {
-            LOGGER.warn("Password change failed: user with email {} not found", email);
+            LOGGER.warn("Password change failed: user with ID: {} not found", id);
         }
     }
 

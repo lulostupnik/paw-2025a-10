@@ -65,9 +65,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void changePassword(String email, String newPassword) {
-        LOGGER.debug("Changing password for user {}", email);
-        userDao.changePassword(email, passwordEncoder.encode(newPassword));
+    public void changePassword(long id, String newPassword) {
+        LOGGER.debug("Changing password for user with ID: {}", id);
+        userDao.updatePassword(id, passwordEncoder.encode(newPassword));
     }
 
     @Override
@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserAuthInfo> findByEmailWithPass(String email) {
-        return userDao.findByEmailWithPass(email);
+        return userDao.findAuthInfoByEmail(email);
     }
 
     @Override

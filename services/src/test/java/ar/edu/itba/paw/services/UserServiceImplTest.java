@@ -147,7 +147,7 @@ public class UserServiceImplTest {
     @Test
     public void testFindByEmailWithPassMissing(){
         Mockito.when(
-            userDao.findByEmailWithPass(Mockito.eq(EMAIL))
+            userDao.findAuthInfoByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.empty());
 
         Optional<UserAuthInfo> maybeUser = userService.findByEmailWithPass(EMAIL);
