@@ -52,7 +52,7 @@ public class AuthController {
     @GetMapping(value ="/validate")
     public ModelAndView validateEmail(@RequestParam("token") String token) {
         userService.validateEmail(token);
-        return new ModelAndView("redirect:/auth/validate-user");
+        return new ModelAndView("/auth/validate-user");
     }
 
     @GetMapping(value ="/reset-password")
@@ -69,12 +69,13 @@ public class AuthController {
             return changePassForm(token, form);
         }
         userService.newPassword(token, form.getPassword());
-        return new ModelAndView("redirect:/auth/login");
+        return new ModelAndView("redirect:login?resetPassword=true");
     }
 
 
     @RequestMapping("/login")
     public ModelAndView loginForm(
+            @RequestParam(value = "emailSuccess", required = false, defaultValue = "false") final boolean emailSuccess,
             @RequestParam(value = "resetPassword", required = false, defaultValue = "false") final boolean resetPassword,
             @RequestParam(value = "registrationSuccess", required = false, defaultValue = "false") final boolean registrationSuccess,
                                   @ModelAttribute("user") User user) {
@@ -85,6 +86,7 @@ public class AuthController {
         ModelAndView mav = new ModelAndView("auth/login");
         mav.addObject("registrationSuccess", registrationSuccess);
         mav.addObject("resetPassword", resetPassword);
+        mav.addObject("emailSuccess", emailSuccess);
         return mav;
     }
 
@@ -104,7 +106,7 @@ public class AuthController {
             return forgotPassForm(form);
         }
         userService.forgotPass(form.getEmail());
-        return new ModelAndView("auth/login?resetPassword=true");
+        return new ModelAndView("redirect:auth/login?emailSuccess=true");
     }
 
 

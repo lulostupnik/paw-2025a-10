@@ -105,6 +105,22 @@
     </div>
 </c:if>
 
+<!-- Email Password Reset Popup -->
+<c:if test="${emailSuccess eq true}">
+    <div id="emailSuccessPopup" class="popup-overlay" style="display: flex;">
+        <div class="popup-container">
+            <svg xmlns="http://www.w3.org/2000/svg" class="popup-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 class="popup-title"><spring:message code="email.password.reset.title" text="Email Sent" /></h3>
+            <p class="popup-message">
+                <spring:message code="email.password.reset.message" text="An email with instructions to reset your password has been sent to your email address. Please check your inbox and follow the link to reset your password." />
+            </p>
+            <button type="button" class="popup-button" id="closeEmailSuccessPopup"><spring:message code="email.password.reset.button" text="Got it" /></button>
+        </div>
+    </div>
+</c:if>
+
 <!-- Email Validation Popup -->
 <div id="emailValidationPopup" class="popup-overlay">
     <div class="popup-container">
@@ -216,6 +232,7 @@
         const passwordInput = document.getElementById('j_password');
         const closePopupButton = document.getElementById('closePopup');
         const closeResetPopupButton = document.getElementById('closeResetPopup');
+        const closeEmailSuccessPopupButton = document.getElementById('closeEmailSuccessPopup');
         const closeEmailValidationPopupButton = document.getElementById('closeEmailValidationPopup');
         const emailValidationPopup = document.getElementById('emailValidationPopup');
         const emailValidationMessage = document.getElementById('emailValidationMessage');
@@ -231,6 +248,13 @@
         if (closeResetPopupButton) {
             closeResetPopupButton.addEventListener('click', function() {
                 document.getElementById('resetPasswordPopup').style.display = 'none';
+            });
+        }
+
+        // Close email success popup
+        if (closeEmailSuccessPopupButton) {
+            closeEmailSuccessPopupButton.addEventListener('click', function() {
+                document.getElementById('emailSuccessPopup').style.display = 'none';
             });
         }
 
