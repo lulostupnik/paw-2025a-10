@@ -99,30 +99,27 @@ public class UserJdbcDao implements UserDao {
 
     private final static String SQL_FIND_ALL_PAGED = SQL_BASE + " ORDER BY u.id ASC LIMIT ? OFFSET ?";
 
-    private final static String SQL_SEARCH_USERS_PAGED = SQL_BASE +
+    private final static String SQL_SEARCH_WHERE_CLAUSE =
             """
-            WHERE LOWER(u.firstname) LIKE LOWER(?)
-                OR LOWER(u.email) LIKE LOWER(?)
+            WHERE LOWER(firstname) LIKE LOWER(?)
                 OR LOWER(un.name) LIKE LOWER(?)
-            ORDER BY u.id DESC LIMIT ? OFFSET ?
+                OR LOWER(email) LIKE LOWER(?)
             """;
+
+    private final static String SQL_SEARCH_USERS_PAGED = SQL_BASE + SQL_SEARCH_WHERE_CLAUSE + " ORDER BY u.id DESC LIMIT ? OFFSET ?";
+
+    private final static String SQL_SEARCH_USERS_COUNT =
+            "SELECT COUNT(*) FROM users us JOIN universities un ON us.university = un.id " + SQL_SEARCH_WHERE_CLAUSE;
 
 
     @Autowired
-    public UserJdbcDao(final DataSource dataSource, final UniversityDao universityDao) {
+    public UserJdbcDao(final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("users")
                 .usingGeneratedKeyColumns("id");
     }
 
-    // TODO: methods findById and findByEmail are very similar, we should refactor them
-    // -> maybe use enum to specify the column to search by
-    // private simpleFindBy(String query, RowMapper<User> rowMapper, Object... args);
-    // -> de hecho creería que el RowMapper mucho sentido no tiene
-    // private Optional<User> simpleFindBy(QUERY, Object... args){
-    //      return jdbcTemplate.query(query, args).stream().findFirst();
-    // }
 
     @Override
     public Optional<User> findById(final long id) {
@@ -192,7 +189,7 @@ public class UserJdbcDao implements UserDao {
     @Override
     public void update(final long userId, final String firstname, final String lastname, final String username,
                        final Long universityId, final Long careerId, final Locale locale) {
-        LOGGER.info("Updating user with ID {}: name '{}' '{}', username '{}', uniId {}, careerId {}, locale '{}'", userId, firstname, lastname, username, universityId, careerId, locale);
+        LOGGER.info("Updating user with ID {}. New information provided: name '{}' '{}', username '{}', uniId {}, careerId {}, locale '{}'", userId, firstname, lastname, username, universityId, careerId, locale);
 
         final StringBuilder queryBuilder = new StringBuilder("UPDATE users SET ");
         final List<Object> parameters = new ArrayList<>();
@@ -249,49 +246,34 @@ public class UserJdbcDao implements UserDao {
 
         final int updatedRows = jdbcTemplate.update(queryBuilder.toString(), parameters.toArray());
         if (updatedRows == 0) {
-            LOGGER.warn("Update user failed: user not found");
+            LOGGER.warn("User was not updated: user with ID: {} not found", userId);
         }
 
     }
 
     @Override
     public Page<User> getAllUsers(PageParams pageParams) {
-        final List<User> list = jdbcTemplate.query(SQL_FIND_ALL_PAGED, USER_ROW_MAPPER, pageParams.getSize(), offset(pageParams));
-        final int elementCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
-        return new Page<>(list, pageParams.getPage(), pageCount(elementCount, pageParams.getSize()));
+        return executePagedQuery(jdbcTemplate, USER_ROW_MAPPER, "SELECT COUNT(*) FROM users", SQL_FIND_ALL_PAGED, pageParams);
     }
 
     @Override
     public Page<User> searchUsers(final String search, PageParams pageParams) {
         final String searchPattern = likePattern(search);
-        final List<User> list = jdbcTemplate.query(
-                SQL_SEARCH_USERS_PAGED,
+
+        return executePagedQuery(
+                jdbcTemplate,
                 USER_ROW_MAPPER,
-                searchPattern, searchPattern, searchPattern, /*searchPattern,*/ pageParams.getSize(), offset(pageParams)
+                SQL_SEARCH_USERS_COUNT,
+                SQL_SEARCH_USERS_PAGED,
+                pageParams,
+                searchPattern, searchPattern, searchPattern
         );
 
-        final int elementCount = jdbcTemplate.queryForObject(
-                """
-                SELECT COUNT(*)
-                FROM users us JOIN universities un ON us.university = un.id
-                WHERE LOWER(firstname) LIKE LOWER(?)
-                OR LOWER(un.name) LIKE LOWER(?)
-                OR LOWER(email) LIKE LOWER(?)
-                """,
-                Integer.class,
-                searchPattern, searchPattern, searchPattern //, searchPattern
-        );
-
-        return new Page<>(
-                list,
-                pageParams.getPage(),
-                pageCount(elementCount, pageParams.getSize())
-        );
     }
 
     @Override
     public boolean isValid(String token) {
-        Integer count = jdbcTemplate.queryForObject(
+        int count = jdbcTemplate.queryForObject(
                 """
                 SELECT COUNT(*)
                 FROM users
@@ -301,11 +283,13 @@ public class UserJdbcDao implements UserDao {
                 Integer.class,
                 token
         );
-        return count != null && count > 0;
+        return count > 0;
     }
+
     @Override
     public void validateToken(String token) {
-        jdbcTemplate.update(
+        LOGGER.info("Validating token: {}", token);
+        int updatedRows = jdbcTemplate.update(
                 """
                 UPDATE users
                 SET validate_token = NULL, validate_token_expiration_date = NULL
@@ -313,11 +297,14 @@ public class UserJdbcDao implements UserDao {
                 """,
                 token
         );
+        if(updatedRows == 0) {
+            LOGGER.warn("Token validation failed: token {} not found", token);
+        }
     }
 
     @Override
     public boolean hasExpired(String token) {
-        Integer count = jdbcTemplate.queryForObject(
+        int count = jdbcTemplate.queryForObject(
                 """
                 SELECT COUNT(*)
                 FROM users
@@ -327,7 +314,7 @@ public class UserJdbcDao implements UserDao {
                 Integer.class,
                 token
         );
-        return count != null && count > 0;
+        return count > 0;
     }
 
     @Override
@@ -338,60 +325,6 @@ public class UserJdbcDao implements UserDao {
             LOGGER.warn("User {} not found", userId);
         }
     }
-
-    @Override
-    public void updateProfileInfo(final long userId, final String firstname, final String lastname, final String username) {
-        LOGGER.debug("Updating profile info for user ID: {} (name '{}', '{}', username '{}')", userId, firstname, lastname, username);
-
-        final StringBuilder queryBuilder = new StringBuilder("UPDATE users SET ");
-        final List<Object> parameters = new ArrayList<>();
-        boolean hasUpdates = false;
-
-        if (firstname != null) {
-            queryBuilder.append("firstname = ?");
-            parameters.add(firstname);
-            hasUpdates = true;
-        }
-
-        if (lastname != null) {
-            if (hasUpdates) queryBuilder.append(", ");
-            queryBuilder.append("lastname = ?");
-            parameters.add(lastname);
-            hasUpdates = true;
-        }
-
-        if (username != null) {
-            if (hasUpdates) queryBuilder.append(", ");
-            queryBuilder.append("username = ?");
-            parameters.add(username);
-            hasUpdates = true;
-        }
-
-        if (!hasUpdates) {
-            LOGGER.warn("No profile info updates provided for user with ID: {}", userId);
-            return;
-        }
-
-        queryBuilder.append(" WHERE id = ?");
-        parameters.add(userId);
-
-        final int rowsAffected = jdbcTemplate.update(queryBuilder.toString(), parameters.toArray());
-        if (rowsAffected == 0) {
-            LOGGER.warn("User {} not found", userId);
-        }
-        // return update(userId, firstname, lastname, username, null, null, null);
-    }
-
-    @Override
-    public void updateLocale(final long userId, final Locale locale) {
-        LOGGER.info("Updating locale for user ID: {} to {}", userId, locale);
-        final int rowsAffected = jdbcTemplate.update("UPDATE users SET language = ? WHERE id = ?", locale.getLanguage(), userId);
-        if (rowsAffected == 0) {
-            LOGGER.warn("User {} not found", userId);
-        }
-        // return update(userId, null, null, null, null, null, locale);
-    }
-
 
 
     @Override
@@ -492,3 +425,58 @@ public class UserJdbcDao implements UserDao {
 //        }
 //        // return update(userId, null, null, null, universityId, null, null);
 //    }
+
+//
+//    @Override
+//    public void updateProfileInfo(final long userId, final String firstname, final String lastname, final String username) {
+//        LOGGER.debug("Updating profile info for user ID: {} (name '{}', '{}', username '{}')", userId, firstname, lastname, username);
+//
+//        final StringBuilder queryBuilder = new StringBuilder("UPDATE users SET ");
+//        final List<Object> parameters = new ArrayList<>();
+//        boolean hasUpdates = false;
+//
+//        if (firstname != null) {
+//            queryBuilder.append("firstname = ?");
+//            parameters.add(firstname);
+//            hasUpdates = true;
+//        }
+//
+//        if (lastname != null) {
+//            if (hasUpdates) queryBuilder.append(", ");
+//            queryBuilder.append("lastname = ?");
+//            parameters.add(lastname);
+//            hasUpdates = true;
+//        }
+//
+//        if (username != null) {
+//            if (hasUpdates) queryBuilder.append(", ");
+//            queryBuilder.append("username = ?");
+//            parameters.add(username);
+//            hasUpdates = true;
+//        }
+//
+//        if (!hasUpdates) {
+//            LOGGER.warn("No profile info updates provided for user with ID: {}", userId);
+//            return;
+//        }
+//
+//        queryBuilder.append(" WHERE id = ?");
+//        parameters.add(userId);
+//
+//        final int rowsAffected = jdbcTemplate.update(queryBuilder.toString(), parameters.toArray());
+//        if (rowsAffected == 0) {
+//            LOGGER.warn("User {} not found", userId);
+//        }
+//        // return update(userId, firstname, lastname, username, null, null, null);
+//    }
+//
+//    @Override
+//    public void updateLocale(final long userId, final Locale locale) {
+//        LOGGER.info("Updating locale for user ID: {} to {}", userId, locale);
+//        final int rowsAffected = jdbcTemplate.update("UPDATE users SET language = ? WHERE id = ?", locale.getLanguage(), userId);
+//        if (rowsAffected == 0) {
+//            LOGGER.warn("User {} not found", userId);
+//        }
+//        // return update(userId, null, null, null, null, null, locale);
+//    }
+//
