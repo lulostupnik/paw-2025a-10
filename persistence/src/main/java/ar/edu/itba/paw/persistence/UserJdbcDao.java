@@ -192,6 +192,7 @@ public class UserJdbcDao implements UserDao {
         args.put("blocked", false);
         args.put("token", validateToken);
         args.put("token_expiration", Date.valueOf(exipirationDate));
+        args.put("validated",false);
         final Number id = jdbcInsert.executeAndReturnKey(args);
         final User user = new User(id.longValue(), email, username, firstname, lastname, university, career, profilePictureId, locale,false);
         LOGGER.info("Successfully registered new user {}", user);
