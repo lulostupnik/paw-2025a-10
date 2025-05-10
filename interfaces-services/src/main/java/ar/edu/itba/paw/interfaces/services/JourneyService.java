@@ -1,6 +1,9 @@
 package ar.edu.itba.paw.interfaces.services;
 
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.enums.SortDirection;
+import ar.edu.itba.paw.models.enums.SortFieldJourney;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +14,7 @@ public interface JourneyService {
     Page<Journey> getAllJourneys(String search, PageParams pageParams);
     Optional<Journey> getJourneyById(long id);
     Optional<Journey> getJourneyByEmail(String email);
-    Page<Journey> getAllJourneys(String search, User user, String sortBy, String direction, String destination, LocalDate startDate, LocalDate endDate, String interest, boolean isPast, boolean isUpcoming, boolean isMyDestination, boolean isOngoing, PageParams pageParams);
+    Page<Journey> getAllJourneys(String search, User user, SortFieldJourney sortBy, SortDirection direction, String destination, LocalDate startDate, LocalDate endDate, String interest, boolean isPast, boolean isUpcoming, boolean isMyDestination, boolean isOngoing, PageParams pageParams);
     boolean userHasJourney(String email); // ja
     boolean userHasJourney(User user);
     List<Journey> getRecommendedJourneys(String email, int limit);

@@ -97,7 +97,7 @@ public class UniversityServiceImplTest {
     public void testGetAllUniversitiesPagedMissingQuery(){
         Page<University> testPage = new Page<University>(List.of(UNI), 1, 1);
         Mockito.when(
-            uniDao.getAllUniversities(Mockito.eq(PAGE_1_DEFAULT))
+            uniDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
         Page<University> unis = uniService.getAllUniversities(null, PAGE_1_DEFAULT);
@@ -113,7 +113,7 @@ public class UniversityServiceImplTest {
     public void testGetAllUniversitiesPagedEmptyQuery(){
         Page<University> testPage = new Page<University>(List.of(UNI), 1, 1);
         Mockito.when(
-            uniDao.getAllUniversities(Mockito.eq(PAGE_1_DEFAULT))
+            uniDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
         Page<University> unis = uniService.getAllUniversities("", PAGE_1_DEFAULT);
@@ -129,7 +129,7 @@ public class UniversityServiceImplTest {
     public void testGetAllUniversitiesPagedQuery(){
         Page<University> testPage = new Page<University>(List.of(UNI), 1, 1);
         Mockito.when(
-            uniDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
+            uniDao.search(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
         Page<University> unis = uniService.getAllUniversities(NAME, PAGE_1_DEFAULT);
@@ -148,7 +148,7 @@ public class UniversityServiceImplTest {
     }
     @Test(expected = DataIntegrityViolationException.class)
     public void testCreateUniversityDuplicated(){
-        Mockito.doThrow(new DataIntegrityViolationException("error")).when(uniDao).createUniversity(NAME, ABBREVIATION, CITY_NAME);
+        Mockito.doThrow(new DataIntegrityViolationException("error")).when(uniDao).create(NAME, ABBREVIATION, CITY_NAME);
         
         uniService.createUniversity(NAME, ABBREVIATION, CITY_NAME);
     }

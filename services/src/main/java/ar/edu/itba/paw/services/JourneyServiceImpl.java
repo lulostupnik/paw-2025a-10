@@ -5,6 +5,8 @@ import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.enums.SortDirection;
+import ar.edu.itba.paw.models.enums.SortFieldJourney;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,7 +95,7 @@ public class JourneyServiceImpl implements JourneyService {
         interestService.updateScoreByInterests(interests, user.getId());
 
         emailService.answerJourneyNotification(
-                userDao.listJourneyRespondersMinusUsers(journeyId),
+                userDao.listJourneyResponders(journeyId),
                 message,
                 user,
                 journey
@@ -128,22 +130,22 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
-    public Page<Journey> getAllJourneys(String search, User user, String sortBy, String direction, String destination,
+    public Page<Journey> getAllJourneys(String search, User user, SortFieldJourney sortBy, SortDirection direction, String destination,
                                         LocalDate startDate, LocalDate endDate, String interest,
                                         boolean isPast, boolean isUpcoming, boolean isMyDestination, boolean isOngoing,
                                         PageParams pageParams) {
         LOGGER.debug("Getting filtered journeys");
-        if(direction == null || direction.isEmpty()){
-            direction = "asc";
-        } else if(! direction.equals("asc") && ! direction.equals("desc")){
-            throw new IllegalArgumentException("Invalid direction parameter");
-        }
-
-        if(sortBy == null || sortBy.isEmpty()){
-            sortBy = "start_date";
-        } else if (! sortBy.equals("start_date") && ! sortBy.equals("end_date") && ! sortBy.equals("city") && ! sortBy.equals("interest")) {
-            throw new IllegalArgumentException("Invalid sortBy parameter");
-        }
+//        if(direction == null || direction.isEmpty()){
+//            direction = "asc";
+//        } else if(! direction.equals("asc") && ! direction.equals("desc")){
+//            throw new IllegalArgumentException("Invalid direction parameter");
+//        }
+//
+//        if(sortBy == null || sortBy.isEmpty()){
+//            sortBy = "start_date";
+//        } else if (! sortBy.equals("start_date") && ! sortBy.equals("end_date") && ! sortBy.equals("city") && ! sortBy.equals("interest")) {
+//            throw new IllegalArgumentException("Invalid sortBy parameter");
+//        }
 
         return journeyDao.searchJourneys(search, user != null ? user.getId() : null, sortBy, direction, destination,
                 startDate, endDate, interest, isPast, isUpcoming, isMyDestination, isOngoing,

@@ -271,6 +271,15 @@ public class EmailServiceImpl implements EmailService {
         sendHtmlMessage(Optional.empty(), Optional.empty(), user, "validation", variables,
                 "email.validation.title", Optional.empty());
     }
+    @Override
+    public void sendForgotPassEmail(User user, String token) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("firstName", user.getUsername());
+        variables.put("resetToken", token);
+
+        sendHtmlMessage(Optional.empty(), Optional.empty(), user, "forgot-password", variables,
+                "email.reset.title", Optional.empty());
+    }
 
 
     @Override

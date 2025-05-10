@@ -50,19 +50,19 @@ public class UniversityServiceImpl implements UniversityService {
     public Page<University> getAllUniversities(String search, PageParams pageParams) {
         LOGGER.debug("Getting all universities with search {}", search);
         if (search == null || search.isEmpty()) {
-            return universityDao.getAllUniversities(pageParams);
+            return universityDao.findAll(pageParams);
         }
-        return universityDao.searchBySubstring(search, pageParams);
+        return universityDao.search(search, pageParams);
     }
     @Override
     public String getUniversitiesJSON(String search, PageParams pageParams){
         LOGGER.debug("Getting all universities with search {}", search);
         List<University> universities;
         if (search == null || search.isEmpty()) {
-            universities = universityDao.getAllUniversities(pageParams).getContent();
+            universities = universityDao.findAll(pageParams).getContent();
             return UniversitiesToJson(universities);
         }
-        universities = universityDao.searchBySubstring(search,pageParams).getContent();
+        universities = universityDao.search(search,pageParams).getContent();
 
         return UniversitiesToJson(universities);
     }
@@ -92,7 +92,7 @@ public class UniversityServiceImpl implements UniversityService {
             }
     )
     public University createUniversity(String name, String abbreviation, String city) {
-        return universityDao.createUniversity(name, abbreviation, city);
+        return universityDao.create(name, abbreviation, city);
     }
 
     @Override
@@ -103,7 +103,7 @@ public class UniversityServiceImpl implements UniversityService {
             @CacheEvict(value = "universitiesByName", allEntries = true)
     })
     public void updateUniversity(long id, String name, String abbreviation, String cityName) {
-        universityDao.updateUniversity(id, name, abbreviation, cityName);
+        universityDao.update(id, name, abbreviation, cityName);
     }
 
     @Override

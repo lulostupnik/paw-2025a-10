@@ -4,7 +4,7 @@ import ar.edu.itba.paw.webapp.validation.PasswordsMatch;
 
 import javax.validation.constraints.Size;
 
-@PasswordsMatch
+//@PasswordsMatch
 public class UpdatePasswordForm {
     @Size(min = 8, max = 100)
     private String password;

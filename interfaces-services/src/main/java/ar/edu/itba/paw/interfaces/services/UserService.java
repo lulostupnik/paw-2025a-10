@@ -5,25 +5,30 @@ import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
 import java.util.List;
 import java.util.Locale;
-import ar.edu.itba.paw.models.UserPassword;
+
+import ar.edu.itba.paw.models.UserAuthInfo;
+
 import java.util.Optional;
 
 public interface UserService {
     User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, byte[] profilePicture, List<String> interests, String password, Locale locale);
     Optional<User> findByEmail(String email);
-    Optional<UserPassword> findByEmailWithPass(String email);
+    Optional<UserAuthInfo> findByEmailWithPass(String email);
     Optional<User> findById(long id);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
-
+    void validateToken(String token);
     Page<User> getAllUsers(String search, PageParams pageParams);
     void blockUser(long userId);
     void unblockUser(long userId);
-    void changePassword(String email, String newPassword);
-    void validateEmail(String token);
+    void changePassword(long id, String newPassword);
+    Optional<UserAuthInfo> validateEmail(String token);
     void refreshToken(String oldToken);
-
+    void refreshPassToken(String oldToken);
+    void newPassword(String token, String newPassword);
+    void forgotPass(String email);
     }
+
 
 //     void updateCareer(long userId, String newCareerName);
 

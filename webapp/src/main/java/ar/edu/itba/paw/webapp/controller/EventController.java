@@ -2,6 +2,8 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.enums.SortDirection;
+import ar.edu.itba.paw.models.enums.SortFieldEvent;
 import ar.edu.itba.paw.webapp.form.*;
 
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
@@ -18,7 +20,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -47,15 +48,6 @@ public class EventController {
         this.careerService = careerService;
         this.interestService = interestService;
     }
-    private void populateDropdownAttributes(ModelAndView mav) {
-//        List<City> cities = cityService.getAllCities();
-//        LOGGER.debug("Cities: {}", cities);
-//        mav.addObject("cities", cities);
-//
-//        List<Interest> interests = interestService.findAll();
-//        LOGGER.debug("Interests: {}", interests);
-//        mav.addObject("interests", interests);
-    }
 
     @RequestMapping
     public ModelAndView getEvents(@ModelAttribute("user") User user,
@@ -70,7 +62,7 @@ public class EventController {
         LOGGER.debug("Getting events list with search: {}, filter: {}, pageParams: {}, sortBy: {}, direction: {}",
                 search, filterForm, pageParams, sortBy, direction);
 
-        Page<Event> userEventsPage = eventService.getEventsPageWithAttendanceStatus(search, user, sortBy, direction,
+        Page<Event> userEventsPage = eventService.getEventsPage(search, user, SortFieldEvent.from(sortBy), SortDirection.from(direction),
                 filterForm.getDestination(), filterForm.getStartDate(), filterForm.getEndDate(), filterForm.getInterests(),
                 filterForm.getIsPast(), filterForm.getIsUpcoming(), filterForm.getAttending(), pageParams);
 
@@ -79,21 +71,15 @@ public class EventController {
         mav.addObject("eventsWithAttendance", userEventsPage.getContent());
         mav.addObject("currentPage", pageParams.getPage());
         mav.addObject("pageSize", pageParams.getSize());
-        populateDropdownAttributes(mav);
         return mav;
     }
 
-
-    private void addDropdownAttributes(ModelAndView mav) {
-//        mav.addObject("careers", careerService.findAll());
-//        mav.addObject("universities", universityService.getAllUniversities());
-    }
 
     @GetMapping(value = "/create")
     public ModelAndView createEventForm(@ModelAttribute("createEventForm") final CreateEventForm form) {
         LOGGER.debug("Getting event creation form");
         ModelAndView mav = new ModelAndView("events/create");
-        addDropdownAttributes(mav);
+//        addDropdownAttributes(mav);
         return mav;
     }
 
@@ -262,7 +248,7 @@ public class EventController {
         }
 
         ModelAndView mav = new ModelAndView("events/edit");
-        addDropdownAttributes(mav);
+//        addDropdownAttributes(mav);
         mav.addObject("eventId", eventId);
         return mav;
     }

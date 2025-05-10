@@ -71,8 +71,9 @@ CREATE TABLE IF NOT EXISTS users (
         profile_picture_id INTEGER NOT NULL,
         language VARCHAR(2) NOT NULL DEFAULT 'en' CHECK (language IN ('en', 'es')),
         blocked BOOLEAN NOT NULL DEFAULT FALSE,
-        validate_token VARCHAR(100) DEFAULT NULL,
-        validate_token_expiration_date DATE DEFAULT NULL,
+        token VARCHAR(100) DEFAULT NULL,
+        token_expiration_date DATE DEFAULT NULL,
+        validated BOOLEAN NOT NULL,
 
     FOREIGN KEY (university) REFERENCES universities(id) ON DELETE RESTRICT,
         FOREIGN KEY (career_id) REFERENCES careers(id) ON DELETE RESTRICT
@@ -251,8 +252,9 @@ ALTER TABLE careers ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FA
 COMMIT;
 
 ALTER TABLE users ADD COLUMN IF NOT EXISTS roles VARCHAR(50) DEFAULT 'user' CHECK (roles IN ('user', 'admin'));
-Alter TABLE users ADD COLUMN IF NOT EXISTS validate_token VARCHAR(100) DEFAULT NULL;
-Alter TABLE users ADD COLUMN IF NOT EXISTS validate_token_expiration_date Date DEFAULT NULL;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS token VARCHAR(100) UNIQUE DEFAULT NULL;
+Alter TABLE users ADD COLUMN IF NOT EXISTS token_expiration Date DEFAULT NULL;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS validated BOOLEAN NOT NULL DEFAULT TRUE;
 
 
 ALTER TABLE users add column IF NOT EXISTS blocked BOOLEAN NOT NULL DEFAULT FALSE;

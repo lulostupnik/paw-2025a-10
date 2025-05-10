@@ -3,6 +3,7 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.ExpiredPassTokenException;
 import ar.edu.itba.paw.models.exceptions.ExpiredTokenException;
 import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
 import ar.edu.itba.paw.models.exceptions.UserValidatedException;
@@ -13,7 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
@@ -67,15 +67,29 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void changePassword(String email, String newPassword) {
-        LOGGER.debug("Changing password for user {}", email);
-        userDao.changePassword(email, passwordEncoder.encode(newPassword));
+    public void changePassword(long id, String newPassword) {
+        LOGGER.debug("Changing password for user with ID: {}", id);
+        userDao.updatePassword(id, passwordEncoder.encode(newPassword));
     }
 
     @Override
     @Transactional
-    public void validateEmail(String token) {
+    public Optional<UserAuthInfo> validateEmail(String token) {
         if (userDao.hasExpired(token)) {
+            throw new ExpiredTokenException("Token expired", token);
+        }
+        if(userDao.isUserValidated(token)){
+            throw new InvalidTokenException("Token already used");
+        }
+        return userDao.validateEmail(token);
+    }
+    //Ver que onda porque la logica es igual, lo unico que cambia es que la de arriba tilda un boolean en is valid
+    //para saber que el usuario valido su email y la de abajo falla
+
+    @Override
+    @Transactional
+    public void validateToken(String token){
+        if(userDao.hasExpired(token)){
             throw new ExpiredTokenException("Token expired", token);
         }
         if(!userDao.isValid(token)){
@@ -92,8 +106,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserPassword> findByEmailWithPass(String email) {
-        return userDao.findByEmailWithPass(email);
+    public Optional<UserAuthInfo> findByEmailWithPass(String email) {
+        return userDao.findAuthInfoByEmail(email);
     }
 
     @Override
@@ -116,9 +130,9 @@ public class UserServiceImpl implements UserService {
     public Page<User> getAllUsers(String search, PageParams pageParams) {
 
         if (search == null || search.isEmpty()) {
-            return userDao.getAllUsers(pageParams);
+            return userDao.findAll(pageParams);
         }
-        return userDao.searchUsers(search, pageParams);
+        return userDao.search(search, pageParams);
     }
 
     @Override
@@ -141,11 +155,58 @@ public class UserServiceImpl implements UserService {
         String uid = UUID.randomUUID().toString();
         LocalDate date = LocalDate.now().plusDays(1);
         userDao.refreshToken(uid, date,oldToken);
-        Optional<User> user = userDao.getUserByToken(oldToken);
+        Optional<User> user = userDao.findByToken(oldToken);
         if(user.isEmpty()){
             throw new InvalidTokenException("Invalid Token");
         }
         emailService.sendValidationEmail(user.get(),uid);
+    }
+
+    @Override
+    @Transactional
+    public void refreshPassToken(String oldToken) {
+        String uid = UUID.randomUUID().toString();
+        LocalDate date = LocalDate.now().plusDays(1);
+        userDao.refreshToken(uid, date,oldToken);
+        Optional<User> user = userDao.findByToken(oldToken);
+        if(user.isEmpty()){
+            throw new InvalidTokenException("Invalid Token");
+        }
+        emailService.sendForgotPassEmail(user.get(),uid);
+
+    }
+
+    @Override
+    @Transactional
+    public void newPassword(String token, String newPassword) {
+        if(userDao.hasExpired(token)){
+            throw new ExpiredPassTokenException("Token expired", token);
+        }
+        if(!userDao.isValid(token)){
+            throw new InvalidTokenException("Token already used");
+        }
+        userDao.newPassword(token, passwordEncoder.encode(newPassword));
+
+    }
+
+    @Override
+    @Transactional
+    public void forgotPass(String email) {
+        User user = userDao.findByEmail(email).orElseThrow(()-> {
+            LOGGER.warn("User with email {} not found", email);
+            return new RuntimeException("User does not exist");
+        });
+
+
+        if(!userDao.isUserValidByEmail(email)){
+            throw new UserValidatedException("User not validated");
+        }
+
+        String uuid = UUID.randomUUID().toString();
+        LocalDate date = LocalDate.now().plusDays(1);
+        userDao.updateToken(user.getId(), uuid, date);
+        emailService.sendForgotPassEmail(user, uuid);
+
     }
 
 }

@@ -7,6 +7,9 @@ import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.ImageService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.enums.SortDirection;
+import ar.edu.itba.paw.models.enums.SortFieldEvent;
+import ar.edu.itba.paw.models.exceptions.InvalidException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +85,7 @@ public class EventServiceImpl implements EventService {
         LOGGER.info("Sending email notification for the event"); //@TODO mejorar
 
         emailService.answerEventNotification(
-                userDao.listEventRespondersMinusUsers(eventId),
+                userDao.listEventResponders(eventId),
                 message,
                 user,
                 event
@@ -146,16 +149,25 @@ public class EventServiceImpl implements EventService {
         eventAttendanceDao.attend(userId, eventId);
     }
 
+    private void futureEvent(long eventId){
+        Event event = eventDao.findById(eventId).orElseThrow(() ->
+                new IllegalArgumentException("Event not found with id: " + eventId));
+
+        if (!event.getIsFuture()) {
+            throw new InvalidException("Event (id " + eventId + ") is not in the future");
+        }
+    }
     @Transactional
     @Override
     public void attendEvent(String email, long eventId) {
+        futureEvent(eventId);
         long userId = userService.findByEmail(email).orElseThrow().getId();
         attendEvent(userId, eventId);
     }
-
     @Transactional
     @Override
     public void cancelAttendance(long userId, long eventId) {
+        futureEvent(eventId);
         eventAttendanceDao.cancel(userId, eventId);
     }
 
@@ -251,11 +263,11 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public Page<Event> getEventsPageWithAttendanceStatus(String search, User user, String sortBy, String direction, String destination, LocalDate startDate, LocalDate endDate, String interest,
-                                                         boolean isPast, boolean isUpcoming, boolean attending,
-                                                         PageParams pageParams) {
+    public Page<Event> getEventsPage(String search, User user, SortFieldEvent sortBy, SortDirection direction, String destination, LocalDate startDate, LocalDate endDate, String interest,
+                                     boolean isPast, boolean isUpcoming, boolean attending,
+                                     PageParams pageParams) {
 
-        return eventDao.getEventsWithAttendanceStatus(user == null ? null : user.getId(), search, sortBy, direction, destination, startDate, endDate, interest,
+        return eventDao.getEvents(user == null ? null : user.getId(), search, sortBy, direction, destination, startDate, endDate, interest,
                 isPast, isUpcoming, attending, pageParams);
     }
 
