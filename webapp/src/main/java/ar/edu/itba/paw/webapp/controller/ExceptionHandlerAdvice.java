@@ -102,6 +102,15 @@ public class ExceptionHandlerAdvice {
         return new ModelAndView("auth/expired-token");
     }
 
+    @ExceptionHandler(ExpiredPassTokenException.class)
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    public ModelAndView error400ExpiredPassToken(ExpiredPassTokenException ex) {
+        LOGGER.warn("ExpiredToken: {}", ex.getMessage());
+        LOGGER.debug("Stack trace for ExpiredToken", ex);
+        userSerivice.refreshPassToken(ex.getOldToken());
+        return new ModelAndView("auth/expired-token");
+    }
+
     @ExceptionHandler(UserValidatedException.class)
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     public ModelAndView userValidatedExcpetion(UserValidatedException ex) {

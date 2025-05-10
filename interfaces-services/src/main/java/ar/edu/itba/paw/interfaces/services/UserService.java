@@ -17,15 +17,18 @@ public interface UserService {
     Optional<User> findById(long id);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
-
+    void validateToken(String token);
     Page<User> getAllUsers(String search, PageParams pageParams);
     void blockUser(long userId);
     void unblockUser(long userId);
     void changePassword(long id, String newPassword);
-    void validateEmail(String token);
+    Optional<UserAuthInfo> validateEmail(String token);
     void refreshToken(String oldToken);
-
+    void refreshPassToken(String oldToken);
+    void newPassword(String token, String newPassword);
+    void forgotPass(String email);
     }
+
 
 //     void updateCareer(long userId, String newCareerName);
 

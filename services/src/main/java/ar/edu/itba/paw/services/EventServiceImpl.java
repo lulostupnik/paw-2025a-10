@@ -85,7 +85,7 @@ public class EventServiceImpl implements EventService {
         LOGGER.info("Sending email notification for the event"); //@TODO mejorar
 
         emailService.answerEventNotification(
-                userDao.listEventRespondersMinusUsers(eventId),
+                userDao.listEventResponders(eventId),
                 message,
                 user,
                 event
