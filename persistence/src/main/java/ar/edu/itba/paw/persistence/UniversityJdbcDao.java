@@ -91,22 +91,15 @@ public class UniversityJdbcDao implements UniversityDao {
         return jdbcTemplate.query(SQL_FIND_BY_NAME, UNIVERSITY_ROW_MAPPER, name).stream().findFirst();
     }
 
-    public List<University> getAllUniversities() {
-        return jdbcTemplate.query(SQL_FIND_ALL, UNIVERSITY_ROW_MAPPER);
-    }
 
     @Override
-    public Page<University> search(final String substring, PageParams pageParams) {
-        final String searchPattern = likePattern(substring);
-        final int totalItems = jdbcTemplate.queryForObject(
-                SQL_SEARCH_COUNT,
-                Integer.class,
+    public Page<University> search(final String searchTerm, final PageParams pageParams) {
+        final String searchPattern = likePattern(searchTerm);
+        return executePagedQuery(
+                jdbcTemplate, UNIVERSITY_ROW_MAPPER,
+                SQL_SEARCH_COUNT, SQL_SEARCH_PAGED,
+                pageParams,
                 searchPattern, searchPattern, searchPattern, searchPattern
-        );
-        return new Page<>(
-                jdbcTemplate.query(SQL_SEARCH_PAGED, UNIVERSITY_ROW_MAPPER, searchPattern, searchPattern, searchPattern, searchPattern, pageParams.getSize(), offset(pageParams)),
-                pageParams.getPage(),
-                pageCount(totalItems, pageParams.getSize())
         );
     }
 
@@ -116,17 +109,14 @@ public class UniversityJdbcDao implements UniversityDao {
     }
 
     @Override
-    public Page<University> findAll(PageParams pageParams) {
-        final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM universities WHERE deleted = FALSE", Integer.class);
-
-        return new Page<>(
-                jdbcTemplate.query(SQL_FIND_ALL_PAGED, UNIVERSITY_ROW_MAPPER, pageParams.getSize(), offset(pageParams)),
-                pageParams.getPage(),
-                pageCount(totalItems, pageParams.getSize())
+    public Page<University> findAll(final PageParams pageParams) {
+        return executePagedQuery(
+                jdbcTemplate, UNIVERSITY_ROW_MAPPER,
+                "SELECT COUNT(*) FROM universities WHERE deleted = FALSE", SQL_FIND_ALL_PAGED,
+                pageParams
         );
     }
 
-    //FIXME: consultar con los profes -> ¿debería recibir City city o String city? ¿O que?
 
     @Override
     public University create(final String name, final String abbreviation, final String city) {
@@ -152,35 +142,34 @@ public class UniversityJdbcDao implements UniversityDao {
             // FIXME: extra query, use RETURNING in update -> That'll break testing because hsql doesn't like it
         }
 
-        LOGGER.debug("No deleted university found, creating new university entry");
         final HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("name", name);
         parameters.put("abbreviation", abbreviation);
         parameters.put("city_id", cityObj.getId());
         parameters.put("deleted", false);
-        final Number keys = jdbcInsert.executeAndReturnKey(parameters);
-        final University uni = new University(keys.longValue(), name, abbreviation, cityObj);
-        LOGGER.info("Successfully created university {}", uni);
-        return uni;
+        final long id = jdbcInsert.executeAndReturnKey(parameters).longValue();
+        LOGGER.info("Successfully created university with ID: {}", id);
+        return new University(id, name, abbreviation, cityObj);
     }
 
     @Override
     public void update(final long id, final String name, final String abbreviation, final long cityId) {
-        LOGGER.info("Updating name '{}', abbr '{}', city {} for uni {}", name, abbreviation, cityId, id);
+        LOGGER.info("Updating university with ID: {}. New values: name '{}', abbr '{}', city {}", id,  name, abbreviation, cityId);
         final int updatedRows = jdbcTemplate.update("UPDATE universities SET name = ?, abbreviation = ?, city_id = ? WHERE id = ? ", name, abbreviation, cityId, id);
         if (updatedRows == 0) {
-            LOGGER.warn("No uni found with id {}", id);
+            LOGGER.warn("No university found with id {}", id);
         }    
     }
 
     @Override
-    public void update(long id, String name, String abbreviation, String cityName) {
-        LOGGER.info("Updating name '{}', abbr '{}', city '{}'' for uni {}", name, abbreviation, cityName, id);
+    public void update(long id, final String name, final String abbreviation, final String cityName) {
+        LOGGER.info("Updating university with ID: {}. New values: name '{}', abbr '{}', city {}", id,  name, abbreviation, cityName);
         final int updatedRows = jdbcTemplate.update("""
-        UPDATE universities
-        SET name = ?, abbreviation = ?, city_id = (SELECT id FROM cities WHERE name = ?)
-        WHERE id = ?
-        """, name, abbreviation, cityName, id);
+                UPDATE universities
+                SET name = ?, abbreviation = ?, city_id = (SELECT id FROM cities WHERE name = ?)
+                WHERE id = ?
+                """, name, abbreviation, cityName, id
+        );
         if (updatedRows == 0) {
             LOGGER.warn("No uni found with id {}", id);
         }

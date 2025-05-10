@@ -114,30 +114,6 @@ public class UniversityJdbcDaoTest {
         assertFalse(maybeUni.isPresent());
     }
 
-    @Test
-    public void testFindAll(){
-        List<University> unis = uniDao.getAllUniversities();
-        assertNotNull(unis);
-        assertEquals(TestUtils.TOTAL_UNIVERSITIES, unis.size());
-        //TODO if-else
-        for (University uni : unis) {
-            //assertEquals(TestUtils.CITY_1_NAME, uni.getCity().getName());
-            if (uni.getId() == UNI_1.getId()){
-                assertEquals(TestUtils.UNIVERSITY_1_NAME, uni.getName());
-                assertEquals(TestUtils.UNIVERSITY_1_CODE, uni.getAbbreviation());
-            } else {
-                //assertEquals(TestUtils.UNIVERSITY_2_NAME, uni.getName());
-                //assertEquals(TestUtils.UNIVERSITY_2_CODE, uni.getAbbreviation());
-            }
-        }
-    }
-    @Test
-    public void testFindAllUniversitiesNo(){
-        TestUtils.deleteUniversities(jdbcTemplate);
-        List<University> unis = uniDao.getAllUniversities();
-        assertNotNull(unis);
-        assertEquals(0, unis.size());
-    }
 
     @Test
     public void testFindById(){

@@ -12,7 +12,7 @@ public interface UniversityDao {
     void delete(long id);
     Optional<University> findByName(String name);
     Optional<University> findById(long id);
-    Page<University> search(String substring, PageParams pageParams);
+    Page<University> search(String searchTerm, PageParams pageParams);
     Page<University> findAll(PageParams pageParams);
 
     // No se están usando, pero tal vez se podrían/deberían usar
