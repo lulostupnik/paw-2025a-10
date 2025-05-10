@@ -5,7 +5,7 @@ import ar.edu.itba.paw.models.*;
 import java.util.Optional;
 
 public interface CityDao {
-    Optional<City> findBy(Long id, String name, String country);
+    Optional<City> findById(long id);
     Optional<City> findByName(String name); // method to find a city by its name
     Page<City> searchBySubstring(String substring, PageParams pageParams);
     Page<City> getAllCities(PageParams pageParams);

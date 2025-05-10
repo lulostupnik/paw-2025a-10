@@ -23,7 +23,6 @@ public class CityServiceImpl implements CityService {
     private final CityDao cityDao;
     private final CountryService countryService;
 
-    private static final int DEFAULT_PAGE_SIZE = 30;
 
     @Autowired
     public CityServiceImpl(CityDao cityDao, CountryService countryService) {
@@ -43,7 +42,7 @@ public class CityServiceImpl implements CityService {
     @Cacheable(value = "citiesById", key = "#id")
     public Optional<City> findById(long id) {
         LOGGER.debug("Finding city by id {}", id);
-        return cityDao.findBy(id, null, null);
+        return cityDao.findById(id);
     }
 
 

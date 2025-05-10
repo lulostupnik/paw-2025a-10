@@ -69,7 +69,7 @@ public class CityServiceImplTest {
     @Test
     public void testFindById(){
         Mockito.when(
-            cityDao.findBy(Mockito.eq(ID), Mockito.eq(null), Mockito.eq(null))
+            cityDao.findById(Mockito.eq(ID))
         ).thenReturn(Optional.of(CITY));
 
         Optional<City> maybeCity = cityService.findById(ID);
@@ -81,7 +81,7 @@ public class CityServiceImplTest {
     @Test
     public void testFindByIdNotFound(){
         Mockito.when(
-            cityDao.findBy(Mockito.eq(ID), Mockito.eq(null), Mockito.eq(null))
+            cityDao.findById(Mockito.eq(ID))
         ).thenReturn(Optional.empty());
 
         Optional<City> maybeCity = cityService.findById(ID);

@@ -175,19 +175,10 @@ public class CityJdbcDaoTest {
         assertEquals(1, page2.getContent().size());
     }
 
-    @Test
-    public void testFindByAll(){
-        Optional<City> maybeCity = cityDao.findBy(CITY_1.getId(), TestUtils.CITY_1_NAME, TestUtils.COUNTRY_1_NAME);
-        assertNotNull(maybeCity);
-        assertTrue(maybeCity.isPresent());
-        City city = maybeCity.get();
-        assertEquals(CITY_1.getId(), city.getId());
-        assertEquals(TestUtils.CITY_1_NAME, city.getName());
-        assertEquals(TestUtils.COUNTRY_1_NAME, city.getCountry());
-    }
+
     @Test
     public void testFindByGenericById(){
-        Optional<City> maybeCity = cityDao.findBy(CITY_1.getId(), null, null);
+        Optional<City> maybeCity = cityDao.findById(CITY_1.getId());
         assertNotNull(maybeCity);
         assertTrue(maybeCity.isPresent());
         City city = maybeCity.get();
@@ -197,86 +188,12 @@ public class CityJdbcDaoTest {
     }
     @Test
     public void testFindByGenericByIdDeleted(){
-        Optional<City> maybeCity = cityDao.findBy(CITY_DELETED.getId(), null, null);
+        Optional<City> maybeCity = cityDao.findById(CITY_DELETED.getId());
         assertNotNull(maybeCity);
         assertFalse(maybeCity.isPresent());
     }
-    @Test
-    public void testFindByGenericByName(){
-        Optional<City> maybeCity = cityDao.findBy(null, TestUtils.CITY_1_NAME, null);
-        assertNotNull(maybeCity);
-        assertTrue(maybeCity.isPresent());
-        City city = maybeCity.get();
-        assertEquals(CITY_1.getId(), city.getId());
-        assertEquals(TestUtils.CITY_1_NAME, city.getName());
-        assertEquals(TestUtils.COUNTRY_1_NAME, city.getCountry());
-    }
-    @Test
-    public void testFindByGenericByName2(){
-        Optional<City> maybeCity = cityDao.findBy(null, TestUtils.CITY_3_NAME, null);
-        assertNotNull(maybeCity);
-        assertTrue(maybeCity.isPresent());
-        City city = maybeCity.get();
-        assertEquals(TestUtils.CITY_3_NAME, city.getName());
-        assertEquals(TestUtils.COUNTRY_2_NAME, city.getCountry());
-    }
-    @Test
-    public void testFindByGenericByNameDeleted(){
-        Optional<City> maybeCity = cityDao.findBy(null, TestUtils.CITY_DELETED_NAME, null);
-        assertNotNull(maybeCity);
-        assertFalse(maybeCity.isPresent());
-    }
-    @Test
-    public void testFindByGenericByCountry(){
-        Optional<City> maybeCity = cityDao.findBy(null, null, TestUtils.COUNTRY_1_NAME);
-        assertNotNull(maybeCity);
-        assertTrue(maybeCity.isPresent());
-        City city = maybeCity.get();
-        assertTrue(List.of(TestUtils.CITY_1_NAME, TestUtils.CITY_2_NAME).contains(city.getName()));
-        assertEquals(TestUtils.COUNTRY_1_NAME, city.getCountry());
-    }
-    @Test
-    public void testFindByGenericByCountry2(){
-        Optional<City> maybeCity = cityDao.findBy(null, null, TestUtils.COUNTRY_2_NAME);
-        assertNotNull(maybeCity);
-        assertTrue(maybeCity.isPresent());
-        City city = maybeCity.get();
-        assertEquals(TestUtils.CITY_3_NAME, city.getName());
-        assertEquals(TestUtils.COUNTRY_2_NAME, city.getCountry());
-    }
-    @Test
-    public void testFindByGenericWrongId(){
-        Optional<City> maybeCity = cityDao.findBy((long)141234, null, TestUtils.COUNTRY_2_NAME);
-        assertNotNull(maybeCity);
-        assertFalse(maybeCity.isPresent());
-    }
-    @Test
-    public void testFindByGenericMissingId(){
-        Optional<City> maybeCity = cityDao.findBy((long)0, null, TestUtils.COUNTRY_2_NAME);
-        assertNotNull(maybeCity);
-        assertTrue(maybeCity.isPresent());
-        City city = maybeCity.get();
-        assertEquals(TestUtils.CITY_3_NAME, city.getName());
-        assertEquals(TestUtils.COUNTRY_2_NAME, city.getCountry());
-    }
-    @Test
-    public void testFindByGenericNoParams(){
-        Optional<City> maybeCity = cityDao.findBy(null, null, null);
-        assertNotNull(maybeCity);
-        assertTrue(maybeCity.isPresent());
-    }
-    @Test
-    public void testFindByGenericEmptyName(){
-        Optional<City> maybeCity = cityDao.findBy(null, "", null);
-        assertNotNull(maybeCity);
-        assertTrue(maybeCity.isPresent());
-    }
-    @Test
-    public void testFindByGenericEmptyCountry(){
-        Optional<City> maybeCity = cityDao.findBy(null, null, "");
-        assertNotNull(maybeCity);
-        assertTrue(maybeCity.isPresent());
-    }
+
+
 
     @Test
     public void testGetAllCitiesPagedOnePage(){

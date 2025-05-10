@@ -38,6 +38,7 @@ public class CityJdbcDao implements CityDao {
             """;
 
     private final static String SQL_FIND_BY_NAME = SQL_BASE + " AND ci.name = ?";
+    private final static String SQL_FIND_BY_ID = SQL_BASE + " AND ci.id = ?";
 
     private final static String SQL_FIND_ALL = SQL_BASE + " ORDER BY ci.name";
 
@@ -45,7 +46,6 @@ public class CityJdbcDao implements CityDao {
     private final static String SQL_FIND_BY_COUNTRY = SQL_BASE + "AND co.name = ?";
     private final static String SQL_SEARCH_PAGED = SQL_BASE + " AND (LOWER(ci.name) LIKE LOWER(?) OR LOWER(co.name) LIKE LOWER(?)) LIMIT ? OFFSET ? ";
 
-    // private static final RowMappeFr<City> SIMPLE_CITY_ROW_MAPPER = (rs, rowNum) -> new City(rs.getString("name"), rs.getString("country"), rs.getLong("id"));
 
     @Autowired
     public CityJdbcDao(final DataSource dataSource) {
@@ -55,44 +55,12 @@ public class CityJdbcDao implements CityDao {
                 .withTableName("cities")
                 .usingGeneratedKeyColumns("id");
     }
-
+    
     @Override
-    public Optional<City> findBy(final Long id, final String name, final String country) {
-        final StringBuilder queryBuilder = new StringBuilder();
-        final List<Object> params = new ArrayList<>();
+    public Optional<City> findById(final long id) {
+        return jdbcTemplate.query(SQL_FIND_BY_ID, CITY_ROW_MAPPER, id)
+                .stream().findFirst();
 
-        queryBuilder.append(SQL_BASE);
-
-        if (id != null && id > 0) {
-            LOGGER.debug("Search parameter city ID: {}", id);
-            queryBuilder.append(" AND ci.id = ? ");
-            params.add(id);
-        }
-
-        if (name != null && !name.isEmpty()) {
-            LOGGER.debug("Search parameter city name: {}", name);
-            queryBuilder.append(" AND ci.name = ? ");
-            params.add(name);
-        }
-
-        if (country != null && !country.isEmpty()) {
-            LOGGER.debug("Search parameter country name: {}", country);
-            queryBuilder.append(" AND co.name = ? ");
-            params.add(country);
-        }
-
-        final Optional<City> city = jdbcTemplate.query(
-                queryBuilder.toString(),
-                CITY_ROW_MAPPER,
-                params.toArray()
-        ).stream().findFirst();
-
-        if (city.isPresent()) {
-            LOGGER.info("Found city {}", city.get());
-        } else {
-            LOGGER.info("City {}, {} ({}) not found", name, country, id);
-        }
-        return city;
     }
 
     @Override

@@ -23,7 +23,6 @@ public class CareerServiceImpl implements CareerService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CareerServiceImpl.class);
 
     private final CareerDao careerDao;
-    private static final int DEFAULT_PAGE_SIZE = 30;
 
     @Autowired
     public CareerServiceImpl(CareerDao careerDao) {

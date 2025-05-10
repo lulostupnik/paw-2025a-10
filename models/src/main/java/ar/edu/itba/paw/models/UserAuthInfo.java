@@ -12,6 +12,5 @@ public class UserAuthInfo {
     private final String role;
     private final boolean blocked;
     private final boolean verified;
-
 }
 
