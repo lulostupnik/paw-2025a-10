@@ -10,11 +10,11 @@ import java.util.Optional;
 
 public interface UserDao {
     User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale, String validateToken, LocalDate validateTokenExpiration);
-
+    void newPassword(String token, String newPassword);
     Optional<User> findById(long id);
 
     Optional<User> findByEmail(String email);
-
+    public void validateEmail(String token);
     Optional<UserPassword> findByEmailWithPass(String email);
 
     Optional<User> findByUsername(String username);
@@ -36,6 +36,7 @@ public interface UserDao {
     void blockUser(long userId);
 
     void unblockUser(long userId);
+    public boolean isUserValidated(String token);
 
     Optional<User> getUserByToken(String token);
 

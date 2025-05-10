@@ -93,7 +93,7 @@ public class UserJdbcDao implements UserDao {
     private final static String SQL_BASE_DISTINCT = "SELECT DISTINCT " + SQL_SELECT_BASE.substring(6) + SQL_FROM_BASE;
 
     private final static String SQL_FIND_BY_ID = SQL_BASE + " WHERE u.id = ? ";
-    private final static String SQL_FIND_BY_TOKEN = SQL_BASE + " WHERE u.validate_token = ? ";
+    private final static String SQL_FIND_BY_TOKEN = SQL_BASE + " WHERE u.token = ? ";
     private final static String SQL_FIND_BY_EMAIL = SQL_BASE + " WHERE u.email = ? ";
     private final static String SQL_FIND_BY_USERNAME = SQL_BASE + " WHERE u.username = ? ";
 
@@ -141,7 +141,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public Optional<UserPassword> findByEmailWithPass(final String email) {
-        return jdbcTemplate.query("SELECT email, password, roles, blocked, validate_token is null AS verified FROM users WHERE email = ?", USER_PASSWORD_ROW_MAPPER, email).stream().findFirst();
+        return jdbcTemplate.query("SELECT email, password, roles, blocked, validated AS verified FROM users WHERE email = ?", USER_PASSWORD_ROW_MAPPER, email).stream().findFirst();
     }
 
     @Override
@@ -160,7 +160,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public void refreshToken(String newToken, LocalDate date, String oldToken){
-       jdbcTemplate.update("UPDATE users SET validate_token = ?, validate_token_expiration_date = ? WHERE validate_token = ?", newToken, date ,oldToken);
+       jdbcTemplate.update("UPDATE users SET token = ?, token_expiration = ? WHERE token = ?", newToken, date ,oldToken);
     }
 
     @Override
@@ -190,12 +190,19 @@ public class UserJdbcDao implements UserDao {
         args.put("language", locale.getLanguage().isEmpty() ? "en":locale.getLanguage());
         args.put("roles", "user");
         args.put("blocked", false);
-        args.put("validate_token", validateToken);
-        args.put("validate_token_expiration_date", Date.valueOf(exipirationDate));
+        args.put("token", validateToken);
+        args.put("token_expiration", Date.valueOf(exipirationDate));
         final Number id = jdbcInsert.executeAndReturnKey(args);
         final User user = new User(id.longValue(), email, username, firstname, lastname, university, career, profilePictureId, locale,false);
         LOGGER.info("Successfully registered new user {}", user);
         return user;
+    }
+
+    @Override
+    public void newPassword(String token, String newPassword) {
+        jdbcTemplate.update("""
+        UPDATE users SET password = ? WHERE token = ?
+    """, newPassword, token);
     }
 
 
@@ -307,26 +314,56 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
+    public boolean isUserValidated(String token) {
+        String sql = """
+        SELECT validated
+        FROM users
+        WHERE token = ?
+        AND token_expiration > NOW()
+    """;
+
+        // Query for a Boolean value
+        Boolean validated = jdbcTemplate.queryForObject(sql, Boolean.class, token);
+
+        // If no result is found, return false
+        return Boolean.TRUE.equals(validated);
+    }
+
+    @Override
     public boolean isValid(String token) {
-        Integer count = jdbcTemplate.queryForObject(
-                """
-                SELECT COUNT(*)
-                FROM users
-                WHERE validate_token = ?
-                AND validate_token_expiration_date > NOW()
-                """,
-                Integer.class,
-                token
-        );
+        String sql = """
+        SELECT COUNT(*)
+        FROM users
+        WHERE token = ?
+        AND token_expiration > NOW()
+        AND validated = TRUE
+    """;
+
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, token);
+
         return count != null && count > 0;
     }
+
+
     @Override
     public void validateToken(String token) {
         jdbcTemplate.update(
                 """
                 UPDATE users
-                SET validate_token = NULL, validate_token_expiration_date = NULL
-                WHERE validate_token = ?
+                SET token = NULL, token_expiration = NULL,
+                WHERE token = ?
+                """,
+                token
+        );
+    }
+
+    @Override
+    public void validateEmail(String token) {
+        jdbcTemplate.update(
+                """
+                UPDATE users
+                SET validated = TRUE, token = NULL, token_expiration = NULL
+                WHERE token = ?
                 """,
                 token
         );
@@ -338,8 +375,8 @@ public class UserJdbcDao implements UserDao {
                 """
                 SELECT COUNT(*)
                 FROM users
-                WHERE validate_token = ?
-                AND validate_token_expiration_date < NOW()
+                WHERE token = ?
+                AND token_expiration < NOW()
                 """,
                 Integer.class,
                 token
