@@ -85,23 +85,14 @@ Parameters:
                         <sec:authorize access="hasRole('ADMIN')">
                             <div class="message-actions">
                                 <c:url var="deleteReplyUrl" value='/events/${event.id}/reply/${response.id}/delete'/>
-                                <form:form modelAttribute="deleteReplyForm" id="delete-event-response-form-${response.id}" action="${deleteReplyUrl}" method="post" style="display: none;">
-                                    <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
-                                    <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
-                                    <jsp:include page="../../components/text-area.jsp">
-                                        <jsp:param name="path" value="message" />
-                                        <jsp:param name="label" value="${messageLabel}" />
-                                        <jsp:param name="placeholder" value="${messagePlaceholder}" />
-                                    </jsp:include>
-                                </form:form>
 
-                                <button type="button" class="delete-message-button" onclick="openDeleteModal('delete-event-response-form-${response.id}', 'eventResponse')">
+                                <a type="button" class="delete-message-button" href="${deleteReplyUrl}">
                                     <!-- Trash icon SVG -->
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <polyline points="3 6 5 6 21 6"></polyline>
                                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                                     </svg>
-                                </button>
+                                </a>
                             </div>
                         </sec:authorize>
                     </div>
@@ -135,7 +126,7 @@ Parameters:
             </svg>
             <spring:message code="reply.message" text="Leave a comment" />
         </h3>
-        <c:url var="replyUrl" value="/events/${event.id}/reply"/>
+        <c:url var="replyUrl" value="/events/${event.id}"/>
         <form:form modelAttribute="replyEventForm" action="${replyUrl}" method="post" enctype="multipart/form-data" cssClass="reply-form">
             <!-- Hidden field to track active tab -->
             <c:if test="${not empty param.activeTab}">
