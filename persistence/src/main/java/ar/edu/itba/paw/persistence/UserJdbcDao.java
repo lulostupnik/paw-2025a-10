@@ -127,7 +127,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public void generatePassToken(String uid, LocalDate date, long id) {
+    public void updateToken(final long id, final String uid, final LocalDate date) {
         jdbcTemplate.update("UPDATE users SET token = ?, token_expiration = ? WHERE id = ?", uid, date, id);
     }
 

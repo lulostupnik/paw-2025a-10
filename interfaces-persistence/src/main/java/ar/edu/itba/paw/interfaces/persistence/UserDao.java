@@ -8,9 +8,13 @@ import java.util.Optional;
 
 public interface UserDao {
     User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale, String validateToken, LocalDate validateTokenExpiration);
-    void newPassword(String token, String newPassword);
+
+    void newPassword(String token, String newPassword); // todo: o en servicios verificar token y después hacer changePassword ?
+
     Optional<User> findById(long id);
-    void generatePassToken(String uid, LocalDate date, long id);
+
+    void updateToken(long id, String uid, LocalDate date);
+
     boolean isUserValidByEmail(String email);
     Optional<User> findByEmail(String email);
     void validateEmail(String token);
