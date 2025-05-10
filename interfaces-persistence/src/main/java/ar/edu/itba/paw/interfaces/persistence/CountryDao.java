@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.interfaces.persistence;
 
 import ar.edu.itba.paw.models.Country;
-import ar.edu.itba.paw.models.CursorPage;
 
 import java.util.List;
 import java.util.Optional;
