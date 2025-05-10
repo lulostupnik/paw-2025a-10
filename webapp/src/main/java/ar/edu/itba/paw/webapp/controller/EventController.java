@@ -186,7 +186,7 @@ public class EventController {
 
         Event event = eventService.getEventById(eventId).orElseThrow(()-> new EventNotFoundException("Event not found"));
 
-        EventResponse eventResponse = eventService.findEventResponseById(id).orElseThrow(() -> new NotFoundException("Event response not found"));
+        EventResponse eventResponse = eventService.findEventResponseById(id).orElseThrow(() -> new EventNotFoundException("Event response not found"));
 
 
         ModelAndView mav = new ModelAndView("events/delete-reply");

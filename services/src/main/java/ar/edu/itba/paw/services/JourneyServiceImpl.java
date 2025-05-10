@@ -67,7 +67,7 @@ public class JourneyServiceImpl implements JourneyService {
                 }
         );
 
-        if (journeyDao.findOverlappingJourney(user.getId(), startDate, endDate).isPresent()) {
+        if (journeyDao.findOverlapping(user.getId(), startDate, endDate).isPresent()) {
             LOGGER.warn("User has an overlapping journey");
             throw new RuntimeException("There's already a journey registered in this time period");
         }
@@ -108,9 +108,9 @@ public class JourneyServiceImpl implements JourneyService {
     public Page<Journey> getAllJourneys(String search, PageParams pageParams) {
         LOGGER.debug("Getting all journeys with search {}", search);
         if (search == null || search.isEmpty()) {
-            return journeyDao.listAll(pageParams);
+            return journeyDao.findAll(pageParams);
         }
-        return journeyDao.searchJourneys(search,pageParams);
+        return journeyDao.search(search,pageParams);
     }
 
     @Override
@@ -147,7 +147,7 @@ public class JourneyServiceImpl implements JourneyService {
 //            throw new IllegalArgumentException("Invalid sortBy parameter");
 //        }
 
-        return journeyDao.searchJourneys(search, user != null ? user.getId() : null, sortBy, direction, destination,
+        return journeyDao.search(search, user != null ? user.getId() : null, sortBy, direction, destination,
                 startDate, endDate, interest, isPast, isUpcoming, isMyDestination, isOngoing,
                 pageParams);
 
@@ -172,15 +172,15 @@ public class JourneyServiceImpl implements JourneyService {
             throw new IllegalArgumentException("Limit must be grater than 0");
         }
         if(userHasJourney(email)){
-            return journeyDao.getRecommendedJourneys(email, new PageParams(1, limit)).getContent();
+            return journeyDao.findRecommended(email, new PageParams(1, limit)).getContent();
         }
         Optional<User> maybeUser = userService.findByEmail(email);
         if(maybeUser.isEmpty()){
-            return journeyDao.listAll(new PageParams(1, limit)).getContent();
+            return journeyDao.findAll(new PageParams(1, limit)).getContent();
         }
         List<Journey> journeys = journeyDao.findByOriginCity(maybeUser.get().getUniversity().getCity().getId(), new PageParams(1, limit)).getContent();
         if(journeys.isEmpty()){
-            return journeyDao.listAll( new PageParams(1, limit)).getContent();
+            return journeyDao.findAll( new PageParams(1, limit)).getContent();
         }
         return journeys ;
     }
@@ -190,8 +190,8 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     @Transactional
     public void delete(long id, String message) {
-        journeyDao.deletionMessage(id, message);
-        journeyResponseDao.deleteResponsesByJourneyId(id);
+        journeyDao.updateDeletionMessage(id, message);
+        journeyResponseDao.deleteByJourneyId(id);
         Journey journey = journeyDao.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Journey not found"));
         emailService.sendJourneyDeletionNotification(journey,message);
@@ -231,25 +231,25 @@ public class JourneyServiceImpl implements JourneyService {
 
         emailService.sendJourneyCommentDeletionNotification(deletedComment,journey,commentAuthor,message);
 
-        journeyResponseDao.deletionMessage(id, message);
+        journeyResponseDao.updateDeletionMessage(id, message);
         journeyResponseDao.delete(id);
     }
 
     @Override
     public long getJourneyIdByResponseId(long journeyResponseId) {
-        return journeyResponseDao.getJourneyIdByResponseId(journeyResponseId);
+        return journeyResponseDao.findJourneyIdByResponseId(journeyResponseId);
     }
 
 
 
     @Override
     public Page<JourneyResponse> listAllResponsesFromJourney(long journeyId, PageParams pageParams) {
-        return journeyResponseDao.listAllFromJourney(journeyId, pageParams);
+        return journeyResponseDao.listAllByJourneyId(journeyId, pageParams);
     }
 
     @Override
     public int getJourneyResponseCount(long id) {
-        return journeyResponseDao.getJourneyResponseCount(id);
+        return journeyResponseDao.countByJourneyId(id);
     }
 }
 
