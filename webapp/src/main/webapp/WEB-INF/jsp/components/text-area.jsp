@@ -17,6 +17,6 @@ Parameters:
     <c:out value="${param.label}" />
   </form:label>
   <form:textarea path="${param.path}" rows="${empty param.rows ? '4' : param.rows}"
-                 cssClass="form-input" placeholder="${escapedPlaceholder}" />
+                 cssClass="form-input" placeholder="${escapedPlaceholder}" style="resize: vertical;" />
   <form:errors path="${param.path}" cssClass="error-message" />
 </div>
