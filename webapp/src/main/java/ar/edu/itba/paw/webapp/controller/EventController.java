@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
+import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
 
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
@@ -110,8 +111,7 @@ public class EventController {
     }
 
     private ModelAndView populateEventDetails( EventWithStatistics eventWithStatistics, long id, User user,
-                                              BindingResult deleteErrors, BindingResult deleteReplyErrors,
-                                              Long replyId, PageParams pageParams, PageParams attendeesPageParams) {
+                                              PageParams pageParams, PageParams attendeesPageParams) {
         ModelAndView mav = new ModelAndView("events/detail/detail");
         Event event = eventWithStatistics.getEvent();
         mav.addObject("event", event);
@@ -120,20 +120,6 @@ public class EventController {
         mav.addObject("topAttendeeCountry", eventWithStatistics.getTopAttendeeCountry());
         mav.addObject("topAttendeeCountryCount", eventWithStatistics.getTopAttendeeCountryCount());
 
-
-        // Check if there are errors in the delete forms
-        if (deleteErrors.hasErrors()) {
-            // Add attributes to indicate there was an error in the journey delete form
-            mav.addObject("deleteFormHasErrors", true);
-            mav.addObject("deleteFormType", "event");
-            mav.addObject("deleteFormId", "delete-event-form");
-        } else if (deleteReplyErrors.hasErrors()) {
-
-            // Add attributes to indicate there was an error in a event response delete form
-            mav.addObject("deleteFormHasErrors", true);
-            mav.addObject("deleteFormType", "eventResponse");
-            mav.addObject("deleteFormId", "delete-event-response-form-" + replyId);
-        }
         LOGGER.info("Found event {}", event);
         mav.addObject("attendeesPage", eventService.getEventAttendees(event.getId(), attendeesPageParams));
         mav.addObject("attendeesCount", eventService.getEventAttendeesCount(event.getId()));
@@ -153,49 +139,70 @@ public class EventController {
 
 
     @GetMapping("/{id}")
-    public ModelAndView getEvent(@PathVariable long id, @Valid @ModelAttribute("replyEventForm") final ReplyForm form, final BindingResult errors,
+    public ModelAndView getEvent(@PathVariable long id, @ModelAttribute("replyEventForm") final ReplyForm form,
         @ModelAttribute("user") User user,
-        @Valid @ModelAttribute("deleteForm") final DeleteForm deleteForm, final BindingResult deleteErrors,
-        @Valid @ModelAttribute("deleteReplyForm") final ReplyForm deleteReplyForm, final BindingResult deleteReplyErrors,
-        @RequestParam(value = "replyId", required = false) Long replyId,
         @PageParamCustomizer(defaultSize = 4) PageParams  repliesPage,
         @PageParamCustomizer(defaultSize = 6, pageParamName = "attendeesPage", sizeParamName = "attendeesSize") PageParams attendeesPage)
     {
         LOGGER.debug("Getting info for event {}", id);
-        Optional<EventWithStatistics> maybeEvent = eventService.findEventWithStatistics(user, id);
-        if (maybeEvent.isEmpty()) { // error ControllerAdvice
-            LOGGER.warn("Event {} not found", id);
-            return new ModelAndView("events/not_found");
-        }
+        EventWithStatistics eventWithStatistics = eventService.findEventWithStatistics(user, id).orElseThrow(()-> new EventNotFoundException("Event not found"));
 
-        return populateEventDetails(maybeEvent.get(),
-                id, user, deleteErrors, deleteReplyErrors, replyId ,repliesPage, attendeesPage );
+
+        return populateEventDetails(eventWithStatistics,
+                id, user, repliesPage, attendeesPage );
     }
-    @PostMapping("/delete")
-    public ModelAndView deleteEvent(@ModelAttribute("user") User user,
-            @Valid @ModelAttribute("deleteForm") final DeleteForm form,
-                                    final BindingResult errors, RedirectAttributes redirectAttributes) {
+
+    @PostMapping("/{id}/delete")
+    public ModelAndView deleteEvent(@PathVariable long id,
+            @ModelAttribute("user") User user,
+            @Valid @ModelAttribute("deleteForm") final ReplyForm form,
+                                    final BindingResult errors) {
         if (errors.hasErrors()) {
-            LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
-            redirectAttributes.addFlashAttribute("deleteErrors", errors);
-            redirectAttributes.addFlashAttribute("deleteForm", form);
-            return new ModelAndView("events/" + form.getId() );
+            return deleteEventForm(id, user, form);
         }
-        eventService.delete(form.getId(), form.getMessage());
+        eventService.delete(id, form.getMessage());
         return new ModelAndView(REDIRECT);
     }
+    @GetMapping(value = "/{id}/delete")
+    public ModelAndView deleteEventForm(@PathVariable long id, @ModelAttribute("user") User user,
+                                        @ModelAttribute("deleteForm") final ReplyForm form) {
+        LOGGER.debug("Showing delete form for event {}", id);
+
+        Event event = eventService.getEventById(id).orElseThrow(()-> new EventNotFoundException("Event not found"));
+        long commentsCount = eventService.getResponseCount(event.getId());
+
+        ModelAndView mav = new ModelAndView("events/delete");
+        mav.addObject("event", event);
+        mav.addObject("commentsCount", commentsCount);
+        return mav;
+    }
+
+    @GetMapping(value = "/{eventId}/reply/{id}/delete")
+    public ModelAndView deleteEventReplyForm(@PathVariable(value = "eventId") long eventId,
+                                             @PathVariable("id") long id,
+                                             @ModelAttribute("user") User user,
+                                             @ModelAttribute("deleteReplyForm") ReplyForm form) {
+        LOGGER.debug("Showing delete form for reply {} from event {}", id, eventId);
+
+        Event event = eventService.getEventById(eventId).orElseThrow(()-> new EventNotFoundException("Event not found"));
+
+        EventResponse eventResponse = eventService.findEventResponseById(id).orElseThrow(() -> new NotFoundException("Event response not found"));
 
 
-    @PostMapping(value = "/{id}/reply")
+        ModelAndView mav = new ModelAndView("events/delete-reply");
+        mav.addObject("event", event);
+        mav.addObject("eventResponse", eventResponse);
+        return mav;
+    }
+
+
+    @PostMapping(value = "/{id}")
     public ModelAndView reply(@PathVariable int id, @Valid @ModelAttribute("replyEventForm") final ReplyForm form,
-                              final BindingResult errors, @ModelAttribute("user") User user, RedirectAttributes redirectAttributes) {
+                              final BindingResult errors, @ModelAttribute("user") User user) {
         LOGGER.debug("Replying to event {} from form {}", id, form);
 
         if (errors.hasErrors()) {
-            LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
-            redirectAttributes.addFlashAttribute("errors", errors);
-            redirectAttributes.addFlashAttribute("replyEventForm", form);
-            return new ModelAndView(REDIRECT + id);
+            return getEvent(id, form, user, new PageParams(1, 4), new PageParams(1, 6));
         }
 
         eventService.replyToEvent(user.getEmail(), id, form.getMessage());

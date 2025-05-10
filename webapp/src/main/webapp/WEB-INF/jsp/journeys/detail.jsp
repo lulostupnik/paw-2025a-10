@@ -12,7 +12,6 @@
     <title><spring:message code="journey.detail.title"/></title>
     <link rel="stylesheet" href="<c:url value="/resources/css/main.css"/>" />
     <link rel="stylesheet" href="<c:url value="/resources/css/event-detail.css"/>" />
-    <link rel="stylesheet" href="<c:url value="/resources/css/journeys.css"/>" />
     <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
     <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
     <script src="<c:url value='/resources/js/confirm-delete.js'/>"></script>
@@ -31,6 +30,14 @@
                 collapseIcon.style.display = 'none';
                 expandIcon.style.display = 'inline';
             }
+        }
+            function goBack(){
+            const rutaAnterior = sessionStorage.getItem("rutaAnterior");
+            if (rutaAnterior) {
+            window.location.href = rutaAnterior;
+        } else {
+            window.location.href = "<c:url value='/journeys' />"
+        }
         }
     </script>
 </head>
@@ -56,22 +63,22 @@
             <!-- Back to Journeys Button -->
             <div class="back-navigation">
                 <c:if test="${ isOwner}">
-                    <a href="<c:url value='/profile/info'/>" class="back-link">
+                    <button onclick="goBack()" class="back-link">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
                             <path d="M19 12H5"></path>
                             <path d="M12 19l-7-7 7-7"></path>
                         </svg>
                         <span><spring:message code="journey.detail.back.to.profile" /></span>
-                    </a>
+                    </button>
                 </c:if>
                 <c:if test="${not isOwner}">
-                    <a href="<c:url value='/journeys' />" class="back-link">
+                    <button onclick="goBack()" class="back-link">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
                             <path d="M19 12H5"></path>
                             <path d="M12 19l-7-7 7-7"></path>
                         </svg>
                         <span><spring:message code="journey.detail.back.to.list" /></span>
-                    </a>
+                    </button>
                 </c:if>
             </div>
 
@@ -81,15 +88,6 @@
                 <div class="journey-actions">
                     <c:if test="${isOwner || pageContext.request.isUserInRole('ADMIN')}">
                         <c:url var="deleteUrl" value='/journeys/${journey.id}/delete'/>
-                        <form:form modelAttribute="deleteForm" id="delete-journey-form" action="${deleteUrl}" method="post" style="display: none;">
-                            <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
-                            <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
-                            <jsp:include page="../components/text-area.jsp">
-                                <jsp:param name="path" value="message" />
-                                <jsp:param name="label" value="${messageLabel}" />
-                                <jsp:param name="placeholder" value="${messagePlaceholder}" />
-                            </jsp:include>
-                        </form:form>
 
                         <c:if test="${isOwner}">
                             <a href="<c:url value='/journeys/${journey.id}/update'/>" class="btn-action btn-edit">
@@ -101,7 +99,7 @@
                             </a>
                         </c:if>
 
-                        <button type="button" class="btn-action btn-danger" onclick="openDeleteModal('delete-journey-form', 'journey')">
+                        <a href="${deleteUrl}" type="button" class="btn-action btn-danger" >
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
                                 <path d="M3 6h18"></path>
                                 <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
@@ -109,7 +107,7 @@
                                 <line x1="14" y1="11" x2="14" y2="17"></line>
                             </svg>
                             <span class="btn-text"><spring:message code="journey.delete" text="Delete Journey" /></span>
-                        </button>
+                        </a>
                     </c:if>
                 </div>
 
@@ -276,22 +274,13 @@
                                         </div>
                                         <sec:authorize access="hasRole('ADMIN')">
                                             <c:url var="deleteReplyUrl" value='/journeys/${journey.id}/reply/${response.id}/delete'/>
-                                            <form:form modelAttribute="deleteReplyForm" id="delete-journey-response-form-${response.id}" action="${deleteReplyUrl}" method="post" style="display: none;">
-                                                <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
-                                                <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
-                                                <jsp:include page="../components/text-area.jsp">
-                                                    <jsp:param name="path" value="message" />
-                                                    <jsp:param name="label" value="${messageLabel}" />
-                                                    <jsp:param name="placeholder" value="${messagePlaceholder}" />
-                                                </jsp:include>
-                                            </form:form>
 
-                                            <button type="button" class="delete-message-button" onclick="openDeleteModal('delete-journey-response-form-${response.id}', 'journeyResponse')" aria-label="Delete comment">
+                                            <a type="button" class="delete-message-button" href="${deleteReplyUrl}" aria-label="Delete comment">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <path d="M3 6h18"></path>
                                                     <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
                                                 </svg>
-                                            </button>
+                                            </a>
                                         </sec:authorize>
 
                                     </div>
@@ -322,7 +311,7 @@
                                 </svg>
                                 <spring:message code="reply.message" text="Leave a comment" />
                             </h3>
-                            <c:url var="replyUrl" value="/journeys/${journey.id}/reply"/>
+                            <c:url var="replyUrl" value="/journeys/${journey.id}"/>
                             <form:form modelAttribute="replyJourneyForm" action="${replyUrl}" method="post" enctype="multipart/form-data" cssClass="reply-form">
                                 <!-- Message Field -->
                                 <c:set var="messageLabel"><spring:message code="reply.message"/></c:set>
@@ -349,18 +338,5 @@
         </div>
     </div>
 </div>
-<c:set var="warning"><spring:message code="event.deleteWarning"/></c:set>
-<jsp:include page="../components/delete-modal.jsp">
-    <jsp:param name="warning" value="${warning}"/>
-</jsp:include>
-<!-- Add this before the closing body tag -->
-<c:if test="${deleteFormHasErrors}">
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Open the modal with the form that has errors
-            openDeleteModal('${deleteFormId}', '${deleteFormType}');
-        });
-    </script>
-</c:if>
 </body>
 </html>
