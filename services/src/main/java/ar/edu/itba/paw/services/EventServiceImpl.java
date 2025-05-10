@@ -7,6 +7,7 @@ import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.ImageService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.InvalidException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -146,16 +147,25 @@ public class EventServiceImpl implements EventService {
         eventAttendanceDao.attend(userId, eventId);
     }
 
+    private void futureEvent(long eventId){
+        Event event = eventDao.findById(eventId).orElseThrow(() ->
+                new IllegalArgumentException("Event not found with id: " + eventId));
+
+        if (!event.getIsFuture()) {
+            throw new InvalidException("Event (id " + eventId + ") is not in the future");
+        }
+    }
     @Transactional
     @Override
     public void attendEvent(String email, long eventId) {
+        futureEvent(eventId);
         long userId = userService.findByEmail(email).orElseThrow().getId();
         attendEvent(userId, eventId);
     }
-
     @Transactional
     @Override
     public void cancelAttendance(long userId, long eventId) {
+        futureEvent(eventId);
         eventAttendanceDao.cancel(userId, eventId);
     }
 
