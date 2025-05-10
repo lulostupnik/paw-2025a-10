@@ -96,7 +96,7 @@ public class UniversityJdbcDao implements UniversityDao {
     }
 
     @Override
-    public Page<University> searchBySubstring(final String substring, PageParams pageParams) {
+    public Page<University> search(final String substring, PageParams pageParams) {
         final String searchPattern = likePattern(substring);
         final int totalItems = jdbcTemplate.queryForObject(
                 SQL_SEARCH_COUNT,
@@ -116,7 +116,7 @@ public class UniversityJdbcDao implements UniversityDao {
     }
 
     @Override
-    public Page<University> getAllUniversities(PageParams pageParams) {
+    public Page<University> findAll(PageParams pageParams) {
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM universities WHERE deleted = FALSE", Integer.class);
 
         return new Page<>(
@@ -129,7 +129,7 @@ public class UniversityJdbcDao implements UniversityDao {
     //FIXME: consultar con los profes -> ¿debería recibir City city o String city? ¿O que?
 
     @Override
-    public University createUniversity(final String name, final String abbreviation, final String city) {
+    public University create(final String name, final String abbreviation, final String city) {
         LOGGER.debug("Creating or reactivating university {} ({})", name, abbreviation);
 
         final City cityObj = cityDao.findByName(city).orElseThrow(IllegalArgumentException::new);
@@ -165,7 +165,7 @@ public class UniversityJdbcDao implements UniversityDao {
     }
 
     @Override
-    public void updateUniversity(final long id, final String name, final String abbreviation, final long cityId) {
+    public void update(final long id, final String name, final String abbreviation, final long cityId) {
         LOGGER.info("Updating name '{}', abbr '{}', city {} for uni {}", name, abbreviation, cityId, id);
         final int updatedRows = jdbcTemplate.update("UPDATE universities SET name = ?, abbreviation = ?, city_id = ? WHERE id = ? ", name, abbreviation, cityId, id);
         if (updatedRows == 0) {
@@ -174,7 +174,7 @@ public class UniversityJdbcDao implements UniversityDao {
     }
 
     @Override
-    public void updateUniversity(long id, String name, String abbreviation, String cityName) {
+    public void update(long id, String name, String abbreviation, String cityName) {
         LOGGER.info("Updating name '{}', abbr '{}', city '{}'' for uni {}", name, abbreviation, cityName, id);
         final int updatedRows = jdbcTemplate.update("""
         UPDATE universities
