@@ -2,7 +2,6 @@ package ar.edu.itba.paw.interfaces.persistence;
 
 import ar.edu.itba.paw.models.*;
 
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
@@ -15,10 +14,8 @@ public interface UserDao {
 
     Optional<User> findByEmail(String email);
 
-    Optional<UserPassword> findByEmailWithPass(String email);
-
-    Optional<User> findByUsername(String username);
-
+    Optional<UserAuthInfo> findByEmailWithPass(String email);
+    
     boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);

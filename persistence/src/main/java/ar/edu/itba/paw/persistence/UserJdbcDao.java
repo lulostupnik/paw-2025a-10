@@ -10,8 +10,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-
 import javax.sql.DataSource;
 import java.sql.Date;
 import java.time.LocalDate;
@@ -50,7 +48,7 @@ public class UserJdbcDao implements UserDao {
             rs.getBoolean("user_blocked")
     );
 
-    private final static RowMapper<UserPassword> USER_PASSWORD_ROW_MAPPER = (rs, rowNum)-> new UserPassword(
+    private final static RowMapper<UserAuthInfo> USER_PASSWORD_ROW_MAPPER = (rs, rowNum)-> new UserAuthInfo(
             rs.getString("email"),
             rs.getString("password"),
             rs.getString("roles"),
@@ -105,8 +103,6 @@ public class UserJdbcDao implements UserDao {
     private final static String SQL_SEARCH_USERS_PAGED = SQL_BASE +
             """
             WHERE LOWER(u.firstname) LIKE LOWER(?)
-            --  OR LOWER(u.lastname) LIKE LOWER(?)
-            --  OR LOWER(u.username) LIKE LOWER(?)
                 OR LOWER(u.email) LIKE LOWER(?)
                 OR LOWER(un.name) LIKE LOWER(?)
             ORDER BY u.id DESC LIMIT ? OFFSET ?
@@ -140,13 +136,8 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public Optional<UserPassword> findByEmailWithPass(final String email) {
+    public Optional<UserAuthInfo> findByEmailWithPass(final String email) {
         return jdbcTemplate.query("SELECT email, password, roles, blocked, validate_token is null AS verified FROM users WHERE email = ?", USER_PASSWORD_ROW_MAPPER, email).stream().findFirst();
-    }
-
-    @Override
-    public Optional<User> findByUsername(final String username) {
-        return jdbcTemplate.query(SQL_FIND_BY_USERNAME, USER_ROW_MAPPER, username).stream().findFirst();
     }
 
     @Override
