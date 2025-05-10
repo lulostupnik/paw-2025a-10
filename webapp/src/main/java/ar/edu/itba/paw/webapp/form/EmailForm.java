@@ -1,12 +1,13 @@
 package ar.edu.itba.paw.webapp.form;
 
+import ar.edu.itba.paw.webapp.validation.EmailInUse;
 import ar.edu.itba.paw.webapp.validation.EmailNotInUse;
 
 import javax.validation.constraints.Email;
 
 public class EmailForm {
     @Email
-    //Falta un email inUse
+    @EmailInUse
     private String email;
 
 
