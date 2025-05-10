@@ -12,34 +12,16 @@ public final class JdbcDaoUtils {
         throw new AssertionError("Utility class should not be instantiated");
     }
 
-    // Creates a SQL LIKE pattern by adding wildcards and escaping special characters (%, _).
     public static String likePattern(String text) {
         if (text == null || text.isEmpty()) {
             return "%";
         }
-        return "%" + text.replace("%", "\\%").replace("_", "\\_") + "%";
-    }
-
-    // FIXME: Elegir una de las dos funciones y eliminar la otra
-    public static String likePattern2(String search) {
-        if (search == null || search.isEmpty()) {
-            return "%";
-        }
-
-        StringBuilder sb = new StringBuilder(search.length() + 4);
-        sb.append('%');
-
-        for (int i = 0; i < search.length(); i++) {
-            char c = search.charAt(i);
-            if (c == '%' || c == '_') {
-                sb.append('\\');
-            }
-            sb.append(c);
-        }
-
-        sb.append('%');
+        StringBuilder sb = new StringBuilder();
+        sb.append("%").append(text.replace("%", "\\%").replace("_", "\\_")).append("%");
         return sb.toString();
+        //         return "%" + text.replace("%", "\\%").replace("_", "\\_") + "%";
     }
+
 
     public static int offset(PageParams pageParams) {
         return (Math.max(1, pageParams.getPage()) - 1) * pageParams.getSize();
