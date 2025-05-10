@@ -30,15 +30,15 @@ public interface UserDao {
 
     void unblockUser(long userId);
 
-    Optional<User> getUserByToken(String token);
+    Optional<User> findByToken(String token);
 
-    List<User> listJourneyRespondersMinusUsers(long journeyId/*, List<Long> userIds*/);
+    List<User> listJourneyResponders(long journeyId/*, List<Long> userIds*/);
 
-    List<User> listEventRespondersMinusUsers(long eventId/*, List<Long> userIds*/);
+    List<User> listEventResponders(long eventId/*, List<Long> userIds*/);
 
-    Page<User> getAllUsers(PageParams pageParams);
+    Page<User> findAll(PageParams pageParams);
 
-    Page<User> searchUsers(String search, PageParams pageParams);
+    Page<User> search(String search, PageParams pageParams);
 
     // podríamos generalizar en findBy(String field, String value) o algo por el estilo
     boolean isValid(String token);

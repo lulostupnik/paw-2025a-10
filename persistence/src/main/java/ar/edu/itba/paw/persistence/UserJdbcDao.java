@@ -252,12 +252,12 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public Page<User> getAllUsers(PageParams pageParams) {
+    public Page<User> findAll(PageParams pageParams) {
         return executePagedQuery(jdbcTemplate, USER_ROW_MAPPER, "SELECT COUNT(*) FROM users", SQL_FIND_ALL_PAGED, pageParams);
     }
 
     @Override
-    public Page<User> searchUsers(final String search, PageParams pageParams) {
+    public Page<User> search(final String search, PageParams pageParams) {
         final String searchPattern = likePattern(search);
 
         return executePagedQuery(
@@ -328,12 +328,12 @@ public class UserJdbcDao implements UserDao {
 
 
     @Override
-    public List<User> listJourneyRespondersMinusUsers(final long journeyId/*, List<Long> userIds*/) {
+    public List<User> listJourneyResponders(final long journeyId/*, List<Long> userIds*/) {
         return jdbcTemplate.query(SQL_JOIN_JOURNEY_RESPONDERS, USER_ROW_MAPPER, journeyId);
     }
 
     @Override
-    public List<User> listEventRespondersMinusUsers(final long eventId) {
+    public List<User> listEventResponders(final long eventId) {
         return jdbcTemplate.query(SQL_JOIN_EVENT_RESPONDERS, USER_ROW_MAPPER, eventId);
     }
 
@@ -363,7 +363,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public Optional<User> getUserByToken(String token) {
+    public Optional<User> findByToken(String token) {
         return jdbcTemplate.query(
                 SQL_FIND_BY_TOKEN,
                 USER_ROW_MAPPER,
