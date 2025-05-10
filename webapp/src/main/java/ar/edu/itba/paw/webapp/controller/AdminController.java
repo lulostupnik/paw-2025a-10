@@ -2,7 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.PageParams;
-import ar.edu.itba.paw.webapp.resolver.annotation.PageParamCustomizer;
+import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

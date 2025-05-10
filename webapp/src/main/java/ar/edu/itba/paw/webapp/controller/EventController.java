@@ -4,7 +4,7 @@ import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.webapp.form.*;
 
-import ar.edu.itba.paw.webapp.resolver.annotation.PageParamCustomizer;
+import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
 import ar.edu.itba.paw.webapp.utils.ImageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,16 +84,16 @@ public class EventController {
     }
 
 
-    private void addDropdownAttributes(ModelAndView mav) {
-//        mav.addObject("careers", careerService.findAll());
-//        mav.addObject("universities", universityService.getAllUniversities());
-    }
+//    private void addDropdownAttributes(ModelAndView mav) {
+////        mav.addObject("careers", careerService.findAll());
+////        mav.addObject("universities", universityService.getAllUniversities());
+//    }
 
     @GetMapping(value = "/create")
     public ModelAndView createEventForm(@ModelAttribute("createEventForm") final CreateEventForm form) {
         LOGGER.debug("Getting event creation form");
         ModelAndView mav = new ModelAndView("events/create");
-        addDropdownAttributes(mav);
+//        addDropdownAttributes(mav);
         return mav;
     }
 
@@ -262,7 +262,7 @@ public class EventController {
         }
 
         ModelAndView mav = new ModelAndView("events/edit");
-        addDropdownAttributes(mav);
+//        addDropdownAttributes(mav);
         mav.addObject("eventId", eventId);
         return mav;
     }

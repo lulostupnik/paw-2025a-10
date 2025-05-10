@@ -7,7 +7,7 @@ import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.form.*;
-import ar.edu.itba.paw.webapp.resolver.annotation.PageParamCustomizer;
+import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
