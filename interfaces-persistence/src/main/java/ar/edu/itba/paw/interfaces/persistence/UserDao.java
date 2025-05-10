@@ -13,11 +13,14 @@ public interface UserDao {
 
     Optional<User> findById(long id);
 
-    void updateToken(long id, String uid, LocalDate date);
+    void updateToken(long id, String uuid, LocalDate date);
 
     boolean isUserValidByEmail(String email);
+
     Optional<User> findByEmail(String email);
+
     void validateEmail(String token);
+
     Optional<UserAuthInfo> findAuthInfoByEmail(String email);
 
     boolean existsByUsername(String username);
@@ -28,11 +31,12 @@ public interface UserDao {
 
     void updateProfilePicture(long id, long profilePictureId);
 
-    void update(long userId, String firstname, String lastname, String username, Long universityId, Long careerId, Locale locale);
+    void update(long id, String firstname, String lastname, String username, Long universityId, Long careerId, Locale locale);
 
-    void blockUser(long userId);
+    void blockUser(long id);
 
-    void unblockUser(long userId);
+    void unblockUser(long id);
+
     boolean isUserValidated(String token);
 
     Optional<User> findByToken(String token);

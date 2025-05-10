@@ -133,16 +133,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public boolean isUserValidByEmail(String email) {
-        String sql = """
-        SELECT validated
-        FROM users
-        WHERE email = ?
-        """;
-
-        Boolean validated = jdbcTemplate.queryForObject(sql, Boolean.class, email);
-
-        // If no result is found, return false
-        return Boolean.TRUE.equals(validated);
+        return jdbcTemplate.queryForObject("SELECT validated FROM users WHERE email = ? ", Boolean.class, email);
     }
 
     @Override
