@@ -1,6 +1,8 @@
 package ar.edu.itba.paw.interfaces.services;
 
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.enums.SortDirection;
+import ar.edu.itba.paw.models.enums.SortFieldEvent;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -30,10 +32,10 @@ public interface EventService {
     boolean isEventOwnedByUser(String email, long eventID);
     boolean isEventFull(long eventId);
     boolean isEventFull(Event event);
-    Page<Event> getEventsPageWithAttendanceStatus(String search, User user,
-                                                  String sortBy, String direction, String destination, LocalDate startDate, LocalDate endDate, String interest,
-                                                  boolean isPast, boolean isUpcoming, boolean attending,
-                                                  PageParams pageParams );
+    Page<Event> getEventsPage(String search, User user,
+                              SortFieldEvent sortBy, SortDirection direction, String destination, LocalDate startDate, LocalDate endDate, String interest,
+                              boolean isPast, boolean isUpcoming, boolean attending,
+                              PageParams pageParams );
     void editEvent(long eventId,
                           String cityName,
                           LocalDate date,

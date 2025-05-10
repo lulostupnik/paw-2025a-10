@@ -1,6 +1,9 @@
 package ar.edu.itba.paw.interfaces.persistence;
 
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.enums.SortDirection;
+import ar.edu.itba.paw.models.enums.SortFieldEvent;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -24,9 +27,9 @@ public interface EventDao {
     Page<Event> listAll(PageParams pageParams);
 //    Page<UserEvent> getEventsWithAttendanceStatus(long userId, PageParams pageParams);
 //    Page<UserEvent> getEventsWithAttendanceStatus(String search, long userId, PageParams pageParams);
-    Page<Event> getEventsWithAttendanceStatus(Long userId, String search,
-                                              String sortBy, String direction, String destination,
-                                              LocalDate startDate, LocalDate endDate, String interest,
-                                              boolean isPast, boolean isUpcoming, boolean attending, PageParams pageParams);
+    Page<Event> getEvents(Long userId, String search,
+                          SortFieldEvent sortBy, SortDirection direction, String destination,
+                          LocalDate startDate, LocalDate endDate, String interest,
+                          boolean isPast, boolean isUpcoming, boolean attending, PageParams pageParams);
     Page<Event> searchEvents(String search, PageParams pageParams);
 }

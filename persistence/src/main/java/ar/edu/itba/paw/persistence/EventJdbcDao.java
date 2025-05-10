@@ -11,6 +11,8 @@ import java.util.Locale;
 import java.util.Optional;
 import javax.sql.DataSource;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.enums.SortDirection;
+import ar.edu.itba.paw.models.enums.SortFieldEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -686,10 +688,10 @@ public class EventJdbcDao implements EventDao {
 //    }
 
     @Override
-    public Page<Event> getEventsWithAttendanceStatus(Long userId, String search,
-                                                     String sortBy, String direction, String destination,
-                                                     LocalDate startDate, LocalDate endDate, String interest,
-                                                     boolean isPast, boolean isUpcoming, boolean attending, PageParams pageParams){
+    public Page<Event> getEvents(Long userId, String search,
+                                 SortFieldEvent sortBy, SortDirection direction, String destination,
+                                 LocalDate startDate, LocalDate endDate, String interest,
+                                 boolean isPast, boolean isUpcoming, boolean attending, PageParams pageParams){
         final String searchPattern = likePattern(search);
 
         final List<String> filters = new ArrayList<>();
@@ -763,23 +765,18 @@ public class EventJdbcDao implements EventDao {
             queryBuilder.append(" AND ").append(String.join(" AND ", filters));
         }
 
-        if (sortBy != null && !sortBy.isEmpty()) {
-            if(sortBy.equals("destination") || sortBy.equals("city")){
-                sortBy= "ci2.name";
+        if (sortBy != null) {
+            String sortByStr = "e.id";
+            if(sortBy.equals(SortFieldEvent.ATTENDEES)){
+                sortByStr= "e.attendees_count";
             }
-            if(sortBy.equals("interest")){
-                sortBy= "c.name";
-            }
-            if(sortBy.equals("attendees")){
-                sortBy= "e.attendees_count";
-            }
-            if(sortBy.equals("date")){
-                sortBy= "e.event_date";
+            if(sortBy.equals(SortFieldEvent.DATE)){
+                sortByStr= "e.event_date";
             }
 
-            queryBuilder.append(" ORDER BY ").append(sortBy);
+            queryBuilder.append(" ORDER BY ").append(sortByStr);
 
-            if (direction != null && direction.equals("desc")) {
+            if (direction != null && direction.equals(SortDirection.DESC)) {
                 queryBuilder.append(" DESC");
             } else {
                 queryBuilder.append(" ASC");

@@ -7,8 +7,8 @@ import java.util.stream.Stream;
 public enum SortFieldEvent {
 
     DATE("date"),
-    ATTENDEES("attendees"),
-    RESPONDERS("responders");
+    ATTENDEES("attendees");//,
+//    RESPONDERS("responders");
 
     private final String param;
 
