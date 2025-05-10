@@ -1,10 +1,8 @@
 package ar.edu.itba.paw.webapp.auth;
 
 import ar.edu.itba.paw.interfaces.services.UserService;
-import ar.edu.itba.paw.models.UserPassword;
-import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
+import ar.edu.itba.paw.models.UserAuthInfo;
 import ar.edu.itba.paw.models.exceptions.UserValidatedException;
-import ar.edu.itba.paw.webapp.exception.EmailNotVerifiedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,7 +25,7 @@ public class PawUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        final UserPassword user = us.findByEmailWithPass(username).orElseThrow(() ->
+        final UserAuthInfo user = us.findByEmailWithPass(username).orElseThrow(() ->
                 new UsernameNotFoundException("No user by the name " + username));
         Collection<? extends GrantedAuthority> authorities;
 

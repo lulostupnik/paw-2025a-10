@@ -16,8 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
@@ -138,9 +136,9 @@ public class UserServiceImplTest {
 //    public void testFindByEmailWithPass(){
 //        Mockito.when(
 //            userDao.findByEmailWithPass(Mockito.eq(EMAIL))
-//        ).thenReturn(Optional.of(new UserPassword(EMAIL, PASSWORD, ROLE, BLOCKED)));
+//        ).thenReturn(Optional.of(new UserAuthInfo(EMAIL, PASSWORD, ROLE, BLOCKED)));
 //
-//        Optional<UserPassword> maybeUser = userService.findByEmailWithPass(EMAIL);
+//        Optional<UserAuthInfo> maybeUser = userService.findByEmailWithPass(EMAIL);
 //
 //        assertNotNull(maybeUser);
 //        assertTrue(maybeUser.isPresent());
@@ -152,7 +150,7 @@ public class UserServiceImplTest {
             userDao.findByEmailWithPass(Mockito.eq(EMAIL))
         ).thenReturn(Optional.empty());
 
-        Optional<UserPassword> maybeUser = userService.findByEmailWithPass(EMAIL);
+        Optional<UserAuthInfo> maybeUser = userService.findByEmailWithPass(EMAIL);
 
         assertNotNull(maybeUser);
         assertFalse(maybeUser.isPresent());

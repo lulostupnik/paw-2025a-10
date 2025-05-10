@@ -111,7 +111,7 @@ public class UserJdbcDaoTest {
         assertEqualsUser(user, overrideParams); 
     }
 
-    private static void assertEqualsUserPassword(UserPassword up){
+    private static void assertEqualsUserPassword(UserAuthInfo up){
         assertNotNull(up);
         assertEquals(TestUtils.USER_1_MAIL, up.getEmail());
         assertEquals(TestUtils.USER_PASSWORD, up.getPassword());
@@ -253,16 +253,16 @@ public class UserJdbcDaoTest {
     }
     @Test
     public void testFindUserByEmailWithPassword(){
-        final Optional<UserPassword> maybeUser = userDao.findByEmailWithPass(TestUtils.USER_1_MAIL);
+        final Optional<UserAuthInfo> maybeUser = userDao.findByEmailWithPass(TestUtils.USER_1_MAIL);
 
         assertNotNull(maybeUser);
         assertTrue(maybeUser.isPresent());
-        final UserPassword user = maybeUser.get();
+        final UserAuthInfo user = maybeUser.get();
         assertEqualsUserPassword(user);
     }
     @Test
     public void testFindUserByEmailWithPasswordMissing(){
-        final Optional<UserPassword> maybeUser = userDao.findByEmailWithPass(TestUtils.USER_FAKE_MAIL);
+        final Optional<UserAuthInfo> maybeUser = userDao.findByEmailWithPass(TestUtils.USER_FAKE_MAIL);
         assertNotNull(maybeUser);
         assertFalse(maybeUser.isPresent());
     }
