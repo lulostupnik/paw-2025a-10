@@ -266,16 +266,6 @@ public class UserJdbcDaoTest {
         assertNotNull(maybeUser);
         assertFalse(maybeUser.isPresent());
     }
-    @Test
-    public void testFindUserByUsername(){
-        final Optional<User> maybeUser = userDao.findByUsername(TestUtils.USER_1_NAME);
-        assertEqualsMaybeUser(maybeUser);
-    }
-    @Test
-    public void testFindUserByUsernameMissing(){
-        final Optional<User> maybeUser = userDao.findByUsername(TestUtils.USER_FAKE_NAME);
-        assertFalse(maybeUser.isPresent());
-    }
 
     @Test
     public void testChangePassword(){

@@ -141,11 +141,6 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public Optional<User> findByUsername(final String username) {
-        return jdbcTemplate.query(SQL_FIND_BY_USERNAME, USER_ROW_MAPPER, username).stream().findFirst();
-    }
-
-    @Override
     public void changePassword(final String email, final String password) {
         LOGGER.info("Updating password for user email {} (has password {})", email, password != null && !password.isEmpty());
         final int updatedRows = jdbcTemplate.update("UPDATE users SET password = ? WHERE email = ?", password, email);
