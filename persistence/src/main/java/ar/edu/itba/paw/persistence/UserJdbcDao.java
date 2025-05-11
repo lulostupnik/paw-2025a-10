@@ -261,26 +261,16 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public Optional<UserAuthInfo> updateValidationAndFindAuthInfoByToken(final String token) {
-        Optional<UserAuthInfo> userAuthInfo = jdbcTemplate.query(
-                "SELECT email, password, roles, blocked, true AS verified FROM users WHERE token = ?",
-                USER_PASSWORD_ROW_MAPPER,
-                token
-        ).stream().findFirst();
-        int updatedRows = jdbcTemplate.update(
-                """
+        return jdbcTemplate.query("""
                 UPDATE users
                 SET validated = TRUE, token = NULL, token_expiration = NULL
                 WHERE token = ?
+                RETURNING email, password, roles, blocked, true AS verified
                 """,
+                USER_PASSWORD_ROW_MAPPER,
                 token
-        );
-        if(updatedRows == 0) {
-            LOGGER.warn("Token validation failed: token {} not found", token);
-            throw new RuntimeException();
-        }
+        ).stream().findFirst();
 
-        LOGGER.debug("UserAuthInfo: {}", userAuthInfo);
-        return userAuthInfo;
     }
 
     @Override
@@ -311,13 +301,11 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public void updateBlock(final long userId, final boolean bool){
-        LOGGER.info("Blocking user with ID: {}", userId);
         final int rowsAffected = jdbcTemplate.update(
                 "UPDATE users SET blocked = ? WHERE id = ?",
                 bool,
                 userId
         );
-
         if (rowsAffected == 0) {
             LOGGER.warn("User block failed: User with ID {} not found", userId);
         }

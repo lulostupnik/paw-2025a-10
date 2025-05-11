@@ -258,13 +258,4 @@ public class EventResponseJdbcDaoTest {
         assertEquals(0, jdbcTemplate.query("SELECT * from event_responses WHERE deleted = FALSE AND event_id = ?", (rs, rowNum) -> 1, EVENT1_ID).size());
     }
 
-    @Test
-    public void testFindByIdDeletedOrNot(){
-        long id = insert.executeAndReturnKey(Map.of("user_id", USER_1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", true)).longValue();
-
-        Optional<EventResponse> maybeResponse = replyDao.findByIdDeletedOrNot(id);
-
-        assertNotNull(maybeResponse);
-        assertTrue(maybeResponse.isPresent());
-    }
 }

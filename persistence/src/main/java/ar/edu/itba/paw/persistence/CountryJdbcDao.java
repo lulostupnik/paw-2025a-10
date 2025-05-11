@@ -34,11 +34,6 @@ public class CountryJdbcDao implements CountryDao {
     }
 
     @Override
-    public boolean existsByName(final String name) {
-        return jdbcTemplate.queryForObject("SELECT COUNT(1) FROM countries WHERE name = ?", Boolean.class, name);
-    }
-
-    @Override
     public Optional<Country> findByName(final String name) {
         return jdbcTemplate.query("SELECT * FROM countries WHERE name = ?", COUNTRY_ROW_MAPPER, name).stream().findFirst();
     }
