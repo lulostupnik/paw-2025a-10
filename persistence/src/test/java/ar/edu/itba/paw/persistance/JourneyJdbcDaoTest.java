@@ -247,22 +247,6 @@ public class JourneyJdbcDaoTest {
     }
 
     @Test
-    public void testFindByUserEmail(){
-        Optional<Journey> maybeJourney = journeyDao.findByUserEmail(TestUtils.USER_1_MAIL);
-
-        assertNotNull(maybeJourney);
-        assertTrue(maybeJourney.isPresent());
-        assertEqualsJourney(maybeJourney.get());
-    }
-    @Test
-    public void testFindByUserEmailDeleted(){
-        Optional<Journey> maybeJourney = journeyDao.findByUserEmail(TestUtils.USER_3_MAIL);
-
-        assertNotNull(maybeJourney);
-        assertFalse(maybeJourney.isPresent());
-    }
-
-    @Test
     public void testDelete(){
         journeyDao.delete(JOURNEY_1.getId());
 
@@ -325,29 +309,6 @@ public class JourneyJdbcDaoTest {
         TestUtils.deleteJourneys(jdbcTemplate);
 
         Page<Journey> page1 = journeyDao.findAll(TestUtils.PAGE_1_DEFAULT);
-
-        assertNotNull(page1);
-        assertEquals(1, page1.getCurrentPage());
-        assertEquals(0, page1.getTotalPages());
-        assertNotNull(page1.getContent());
-        assertEquals(0, page1.getContent().size());
-    }
-
-    @Test
-    public void testFindOthersPaged(){
-        Page<Journey> page1 = journeyDao.findOthers(USER_1.getId(), new PageParams(1, 1));
-
-        assertNotNull(page1);
-        assertEquals(1, page1.getCurrentPage());
-        assertEquals(1, page1.getTotalPages());
-        assertNotNull(page1.getContent());
-        assertEquals(1, page1.getContent().size());
-        TestUtils.assertEqualsJourney(JOURNEY_2, page1.getContent().getFirst());
-    }
-    @Test
-    public void testFindOthersJourneysPagedNo(){
-        TestUtils.deleteJourneys(jdbcTemplate);
-        Page<Journey> page1 = journeyDao.findOthers(USER_1.getId(), new PageParams(1,1));
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -501,81 +462,6 @@ public class JourneyJdbcDaoTest {
 //            }
 //        }
 //    }
-
-    @Test
-    public void testFindByFiltersDestinationPaged(){
-        insertJourney(Map.of("user", USER_3, "destination", UNI_ORIGIN));
-
-        Page<Journey> journeys = journeyDao.findByFilters(USER_1.getId(), CITY_DESTINATION.getId(), null, null, null, TestUtils.PAGE_1_DEFAULT);
-
-        assertNotNull(journeys);
-        assertEquals(1, journeys.getContent().size());
-        TestUtils.assertEqualsJourney(JOURNEY_2, journeys.getContent().getFirst());
-
-    }
-    @Test
-    public void testFindByFiltersStartDatePaged(){
-        insertJourney(Map.of("user", USER_3, "destination", UNI_ORIGIN, "endDate", TestUtils.JOURNEY_END_DATE.plusDays(-15)));
-
-        Page<Journey> journeys = journeyDao.findByFilters(USER_1.getId(), null, TestUtils.JOURNEY_START_DATE.plusDays(20), null, null, TestUtils.PAGE_1_DEFAULT);
-
-        assertNotNull(journeys);
-        assertEquals(1, journeys.getContent().size());
-        TestUtils.assertEqualsJourney(JOURNEY_2, journeys.getContent().getFirst());
-
-    }
-    @Test
-    public void testFindByFiltersEndDatePaged(){
-        insertJourney(Map.of("user", USER_3, "destination", UNI_ORIGIN, "startDate", TestUtils.JOURNEY_START_DATE.plusDays(15)));
-
-        Page<Journey> journeys = journeyDao.findByFilters(USER_1.getId(), null, null, TestUtils.JOURNEY_END_DATE.plusDays(-20), null, TestUtils.PAGE_1_DEFAULT);
-
-        assertNotNull(journeys);
-        assertEquals(1, journeys.getContent().size());
-        TestUtils.assertEqualsJourney(JOURNEY_2, journeys.getContent().getFirst());
-    }
-    @Test
-    public void testFindByFiltersInterestsPaged(){
-        insertJourney(Map.of("user", USER_3, "destination", UNI_ORIGIN, "endDate", TestUtils.JOURNEY_END_DATE.plusDays(-7)));
-
-        Page<Journey> journeys = journeyDao.findByFilters(USER_1.getId(), null, null, null, INTEREST_1.getId(), TestUtils.PAGE_1_DEFAULT);
-
-        assertNotNull(journeys);
-        assertEquals(0, journeys.getContent().size());
-    }
-    @Test
-    public void testFindByFiltersNoConditionsPaged(){
-        insertJourney(Map.of("user", USER_3, "destination", UNI_ORIGIN, "endDate", TestUtils.JOURNEY_END_DATE.plusDays(-7)));
-
-        Page<Journey> journeys = journeyDao.findByFilters(null, null, null, null, null, TestUtils.PAGE_1_DEFAULT);
-
-        assertNotNull(journeys);
-        assertEquals(2, journeys.getContent().size());
-        TestUtils.assertEqualsJourney(JOURNEY_1, journeys.getContent().get(0));
-        TestUtils.assertEqualsJourney(JOURNEY_2, journeys.getContent().get(1));
-    }
-    @Test
-    public void testFindByFiltersInterestsAllConditionsPaged(){
-        TestUtils.deleteJourneys(jdbcTemplate);
-        insertJourney(Map.of("user", USER_2, "destination", UNI_3, "startDate", TestUtils.JOURNEY_START_DATE.plusDays(7)));
-        insertJourney(Map.of("user", USER_3, "destination", UNI_3, "endDate", TestUtils.JOURNEY_END_DATE.plusDays(-7)));
-
-        Page<Journey> journeys = journeyDao.findByFilters(USER_1.getId(), CITY_DESTINATION.getId(), TestUtils.JOURNEY_START_DATE, TestUtils.JOURNEY_END_DATE, INTEREST_1.getId(), TestUtils.PAGE_1_DEFAULT);
-
-        assertNotNull(journeys);
-        assertEquals(0, journeys.getContent().size());
-    }
-    @Test
-    public void testFindByFiltersInterestsAllNoInterestsPaged(){
-        TestUtils.deleteJourneys(jdbcTemplate);
-        insertJourney(Map.of("user", USER_2, "destination", UNI_3, "startDate", TestUtils.JOURNEY_START_DATE.plusDays(15)));
-        insertJourney(Map.of("user", USER_3, "destination", UNI_ORIGIN, "endDate", TestUtils.JOURNEY_END_DATE.plusDays(-15)));
-
-        Page<Journey> journeys = journeyDao.findByFilters(USER_1.getId(), CITY_DESTINATION.getId(), TestUtils.JOURNEY_START_DATE.plusDays(20), TestUtils.JOURNEY_END_DATE.plusDays(-20), null, TestUtils.PAGE_1_DEFAULT);
-
-        assertNotNull(journeys);
-        assertEquals(0, journeys.getContent().size());
-    }
 
     @Test
     public void testRecommendedJourneysBasic(){

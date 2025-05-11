@@ -13,11 +13,8 @@ public interface JourneyDao {
     void updateDeletionMessage(long id, String message);
     Optional<Journey> findById(long id);
     Optional<Journey> findByUserId(long userId);
-    Optional<Journey> findByUserEmail(String email);
     Page<Journey> findRecommended(String email, PageParams pageParams);
     Page<Journey> findAll(PageParams pageParams);
-    Page<Journey> findOthers(long userId, PageParams pageParams);
-    Page<Journey> findByFilters(Long userId, Long cityId, LocalDate startDate, LocalDate endDate, Long interest, PageParams pageParams);
     Page<Journey> findByOriginCity(long originCityId, PageParams pageParams);
     Page<Journey> search(String search, PageParams pageParams);
     Page<Journey> search(String search, Long userId, SortFieldJourney orderBy, SortDirection direction,

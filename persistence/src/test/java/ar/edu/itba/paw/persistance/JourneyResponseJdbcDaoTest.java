@@ -93,8 +93,8 @@ public class JourneyResponseJdbcDaoTest {
     }
 
     @Test
-    public void testListAllByJourneyIdPaged(){
-        Page<JourneyResponse> page1 = responseDao.listAllByJourneyId(JOURNEY_1.getId(), TestUtils.PAGE_1_BIG);
+    public void testFindAllByJourneyIdPaged(){
+        Page<JourneyResponse> page1 = responseDao.findAllByJourneyId(JOURNEY_1.getId(), TestUtils.PAGE_1_BIG);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -106,10 +106,10 @@ public class JourneyResponseJdbcDaoTest {
         }
     }
     @Test
-    public void testListAllByJourneyIdPagedNoResponses(){
+    public void testFindAllByJourneyIdPagedNoResponses(){
         JdbcTestUtils.deleteFromTableWhere(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE, "deleted = FALSE");
 
-        Page<JourneyResponse> page1 = responseDao.listAllByJourneyId(JOURNEY_1.getId(), new PageParams(1, 2));
+        Page<JourneyResponse> page1 = responseDao.findAllByJourneyId(JOURNEY_1.getId(), new PageParams(1, 2));
 
         assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE));
         assertNotNull(page1);

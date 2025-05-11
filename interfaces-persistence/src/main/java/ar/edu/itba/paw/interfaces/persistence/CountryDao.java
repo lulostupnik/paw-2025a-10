@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CountryDao {
-    //todo: Contentido estatico
     List<Country> findAll();
-    boolean existsByName(String name);
     Optional<Country> findByName(String name);
 }

@@ -599,7 +599,7 @@ public class JourneyServiceImplTest {
     @Test
     public void testListAllResponsesFromJourney(){
         Mockito.when(
-            replyDao.listAllByJourneyId(Mockito.eq(JOURNEY_ID), Mockito.eq(PAGE_1_DEFAULT))
+            replyDao.findAllByJourneyId(Mockito.eq(JOURNEY_ID), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(REPLY_PAGE);
 
         Page<JourneyResponse> page = journeyService.listAllResponsesFromJourney(JOURNEY_ID, PAGE_1_DEFAULT);

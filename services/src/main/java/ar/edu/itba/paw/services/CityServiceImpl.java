@@ -107,9 +107,10 @@ public class CityServiceImpl implements CityService {
     private String listToJson(final List<City> cities) {
         StringBuilder json = new StringBuilder("[");
         for (City city : cities) {
-            json.append(city.toJSON()).append(",");
+            json.append(city.toJSON()).append(", ");
         }
         if (json.length() > 1) {
+            json.deleteCharAt(json.length() - 1); // Remove last space
             json.deleteCharAt(json.length() - 1); // Remove last comma
         }
         json.append("]");

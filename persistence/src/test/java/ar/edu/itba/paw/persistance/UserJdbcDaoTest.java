@@ -320,69 +320,6 @@ public class UserJdbcDaoTest {
 
 
     @Test
-    public void testUpdateGeneric(){
-        userDao.update(USER_1.getId(), TestUtils.USER_FAKE_FIRSTNAME, TestUtils.USER_FAKE_LASTNAME, TestUtils.USER_FAKE_NAME, UNIVERSITY_2.getId(), CAREER_2.getId(), Locale.of(TestUtils.USER_FAKE_LOCALE));
-        
-        assertEqualsUser(
-            jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()),
-            Map.of(
-                "firstname", TestUtils.USER_FAKE_FIRSTNAME, 
-                "lastname", TestUtils.USER_FAKE_LASTNAME, 
-                "username", TestUtils.USER_FAKE_NAME, 
-                "university", UNIVERSITY_2, 
-                "career", CAREER_2, 
-                "locale", TestUtils.USER_FAKE_LOCALE
-            )
-        );
-    }
-    @Test
-    public void testUpdateFirstname(){
-        userDao.update(USER_1.getId(), TestUtils.USER_FIRSTNAME, null, null, null, null, null);
-        
-        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
-    }
-    @Test
-    public void testUpdateLastname(){
-        userDao.update(USER_1.getId(), null, TestUtils.USER_LASTNAME, null, null, null, null);
-        
-        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
-    }
-    @Test
-    public void testUpdateUsername(){
-        userDao.update(USER_1.getId(), null, null, TestUtils.USER_1_NAME, null, null, null);
-        
-        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
-    }
-    @Test
-    public void testUpdateGenericUniversity(){
-        userDao.update(USER_1.getId(), null, null, null, UNIVERSITY_1.getId(), null, null);
-        
-        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
-    }
-    @Test
-    public void testUpdateCareerGeneric(){
-        userDao.update(USER_1.getId(), null, null, null, null, CAREER_1.getId(), null);
-        
-        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
-    }
-    @Test
-    public void testUpdateLocaleGeneric(){
-        userDao.update(USER_1.getId(), null, null, null, null, null, Locale.of(TestUtils.USER_LOCALE));
-        
-        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
-    }
-    @Test
-    public void testUpdateWrongUser(){
-        userDao.update(12341234, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.USER_1_NAME, UNIVERSITY_1.getId(), CAREER_1.getId(), Locale.of(TestUtils.USER_LOCALE));
-    }
-    @Test
-    public void testUpdateNoArguments(){
-        userDao.update(USER_1.getId(), null, null, null, null, null, null);
-        
-        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
-    }
-
-    @Test
     public void testFindAllPaged(){
         Page<User> page1 = userDao.findAll(TestUtils.PAGE_1_DEFAULT);
         Page<User> page2 = userDao.findAll(TestUtils.PAGE_2_DEFAULT);
@@ -497,10 +434,10 @@ public class UserJdbcDaoTest {
             TestUtils.assertEqualsUser(userData.get(user.getId()), user);
         }
     }
-/*
+
     @Test
     public void testBlockUser(){
-        userDao.block(USER_1.getId());
+        userDao.updateBlock(USER_1.getId(), true);
 
         User user = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId());
         assertEqualsUser(user, Map.of("blocked", true));
@@ -510,13 +447,13 @@ public class UserJdbcDaoTest {
         Map<String, Object> params = Map.of("email", TestUtils.USER_NEW1_MAIL, "username", TestUtils.USER_NEW1_NAME, "blocked", true);
         long id = insertUser(params);
 
-        userDao.block(id);
+        userDao.updateBlock(id, true);
 
         assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, id), params);
     }
     @Test
     public void testBlockUserWrongId(){
-        userDao.block(12341234);
+        userDao.updateBlock(12341234l, true);
 
         assertUserDBDefaultStatus();
     }
@@ -525,22 +462,22 @@ public class UserJdbcDaoTest {
     public void testUnblockUser(){
         long id = insertUser(Map.of("email", TestUtils.USER_NEW1_MAIL, "username", TestUtils.USER_NEW1_NAME, "blocked", true));
 
-        userDao.unblockUser(id);
+        userDao.updateBlock(id, false);
 
         assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, id), Map.of("email", TestUtils.USER_NEW1_MAIL, "username", TestUtils.USER_NEW1_NAME));
     }
     @Test
     public void testUnblockUserUnblocked(){
-        userDao.unblockUser(USER_1.getId());
+        userDao.updateBlock(USER_1.getId(), false);
         
         assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
     }
     @Test
     public void testUnblockUserWrongId(){
-        userDao.unblockUser(12341234);
+        userDao.updateBlock(12341234l, false);
         
         assertUserDBDefaultStatus();
-    }*/
+    }
 
     @Test
     public void testExistsByTokenNotExpired(){
@@ -563,23 +500,6 @@ public class UserJdbcDaoTest {
         boolean isValid = userDao.existsByTokenNotExpired(TestUtils.USER_VALID_TOKEN_DEFAULT);
 
         assertFalse(isValid);
-    }
-
-    @Test
-    public void testClearTokenByToken(){
-        long id = insertUser(Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
-
-        userDao.clearTokenByToken(TestUtils.USER_VALID_TOKEN_DEFAULT);
-
-        assertTrue(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_TOKEN_BY_ID, String.class, id) == null);
-    }
-    @Test
-    public void testClearTokenByTokenWrongToken(){
-        long id = insertUser(Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
-
-        userDao.clearTokenByToken("USER_VALID_TOKEN_DEFAULT");
-
-        assertFalse(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_TOKEN_BY_ID, String.class, id) == null);
     }
 
     @Test
@@ -802,3 +722,90 @@ public void testUpdateUniversityNameWrongUser(){
 //
 //        assertUserDBDefaultStatus();
 //    }
+
+//
+//    @Test
+//    public void testClearTokenByToken(){
+//        long id = insertUser(Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
+//
+//        userDao.clearTokenByToken(TestUtils.USER_VALID_TOKEN_DEFAULT);
+//
+//        assertTrue(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_TOKEN_BY_ID, String.class, id) == null);
+//    }
+//    @Test
+//    public void testClearTokenByTokenWrongToken(){
+//        long id = insertUser(Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
+//
+//        userDao.clearTokenByToken("USER_VALID_TOKEN_DEFAULT");
+//
+//        assertFalse(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_TOKEN_BY_ID, String.class, id) == null);
+//    }
+
+
+/*
+
+    @Test
+    public void testUpdateGeneric(){
+        userDao.update(USER_1.getId(), TestUtils.USER_FAKE_FIRSTNAME, TestUtils.USER_FAKE_LASTNAME, TestUtils.USER_FAKE_NAME, UNIVERSITY_2.getId(), CAREER_2.getId(), Locale.of(TestUtils.USER_FAKE_LOCALE));
+
+        assertEqualsUser(
+            jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()),
+            Map.of(
+                "firstname", TestUtils.USER_FAKE_FIRSTNAME,
+                "lastname", TestUtils.USER_FAKE_LASTNAME,
+                "username", TestUtils.USER_FAKE_NAME,
+                "university", UNIVERSITY_2,
+                "career", CAREER_2,
+                "locale", TestUtils.USER_FAKE_LOCALE
+            )
+        );
+    }
+
+    @Test
+    public void testUpdateFirstname(){
+        userDao.update(USER_1.getId(), TestUtils.USER_FIRSTNAME, null, null, null, null, null);
+
+        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+    }
+    @Test
+    public void testUpdateLastname(){
+        userDao.update(USER_1.getId(), null, TestUtils.USER_LASTNAME, null, null, null, null);
+
+        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+    }
+    @Test
+    public void testUpdateUsername(){
+        userDao.update(USER_1.getId(), null, null, TestUtils.USER_1_NAME, null, null, null);
+
+        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+    }
+    @Test
+    public void testUpdateGenericUniversity(){
+        userDao.update(USER_1.getId(), null, null, null, UNIVERSITY_1.getId(), null, null);
+
+        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+    }
+    @Test
+    public void testUpdateCareerGeneric(){
+        userDao.update(USER_1.getId(), null, null, null, null, CAREER_1.getId(), null);
+
+        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+    }
+    @Test
+    public void testUpdateLocaleGeneric(){
+        userDao.update(USER_1.getId(), null, null, null, null, null, Locale.of(TestUtils.USER_LOCALE));
+
+        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+    }
+    @Test
+    public void testUpdateWrongUser(){
+        userDao.update(12341234, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.USER_1_NAME, UNIVERSITY_1.getId(), CAREER_1.getId(), Locale.of(TestUtils.USER_LOCALE));
+    }
+    @Test
+    public void testUpdateNoArguments(){
+        userDao.update(USER_1.getId(), null, null, null, null, null, null);
+
+        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+    }
+
+ */

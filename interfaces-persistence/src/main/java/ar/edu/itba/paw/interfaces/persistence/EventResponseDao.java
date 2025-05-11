@@ -14,7 +14,6 @@ public interface EventResponseDao {
     void updateDeletionMessage(long id, String message);
     void deleteAllByEventId(long eventId);
     Optional<EventResponse> findById(long id);
-    Optional<EventResponse> findByIdDeletedOrNot(long id);
 
     long findEventIdById(long id);
 
