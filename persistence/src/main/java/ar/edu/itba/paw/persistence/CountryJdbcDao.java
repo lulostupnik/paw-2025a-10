@@ -33,7 +33,6 @@ public class CountryJdbcDao implements CountryDao {
         return jdbcTemplate.query("SELECT * FROM countries", COUNTRY_ROW_MAPPER);
     }
 
-
     @Override
     public Optional<Country> findByName(final String name) {
         return jdbcTemplate.query("SELECT * FROM countries WHERE name = ?", COUNTRY_ROW_MAPPER, name).stream().findFirst();
