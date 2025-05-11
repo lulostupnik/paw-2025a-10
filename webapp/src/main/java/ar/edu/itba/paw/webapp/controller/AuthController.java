@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.webapp.auth.LoginHelper;
 import ar.edu.itba.paw.webapp.form.CreateUserForm;
 
 import ar.edu.itba.paw.webapp.form.EmailForm;
@@ -14,12 +15,16 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import java.util.List;
@@ -38,26 +43,27 @@ public class AuthController {
     private final UserService userService;
     private final InterestService interestService;
     private final AuthenticationManager authenticationManager;
-    private final EmailService emailService;
+    private final LoginHelper loginHelper;
 
     @Autowired
     public AuthController(final UniversityService universityService, final CareerService carreerService, UserService userService,
-                          InterestService interestService, final AuthenticationManager authenticationManager, EmailService emailService) {
+                          InterestService interestService, final AuthenticationManager authenticationManager, LoginHelper loginHelper) {
         this.universityService = universityService;
         this.careerService = carreerService;
         this.userService = userService;
         this.interestService = interestService;
         this.authenticationManager = authenticationManager;
-        this.emailService = emailService;
+        this.loginHelper = loginHelper;
     }
     @GetMapping(value ="/validate")
     public ModelAndView validateEmail(@RequestParam("token") String token) {
         Optional<UserAuthInfo> user = userService.validateEmail(token);
-        if(user.isEmpty()) {
+        if(user.isEmpty()) { //@TODO: exception
+            LOGGER.debug("User not found or token expired");
             return new ModelAndView("redirect:/login");
         }
-        setAuth(user.get().getEmail(),user.get().getPassword());
-
+        loginHelper.loginUser(user.get().getEmail());
+        LOGGER.debug("User {} validated", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         return new ModelAndView("redirect:/explore");
     }
 
@@ -154,9 +160,4 @@ public class AuthController {
         return new ModelAndView("redirect:/login?registrationSuccess=true");
     }
 
-    private void setAuth(String email, String password) {
-        Authentication authToken = new UsernamePasswordAuthenticationToken(email, password);
-        Authentication authentication = authenticationManager.authenticate(authToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
 }

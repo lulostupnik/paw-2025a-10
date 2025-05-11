@@ -26,7 +26,6 @@ public class ExceptionHandlerAdvice {
         this.userService = userService;
     }
 
-
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(code = HttpStatus.NOT_FOUND)
     public ModelAndView error404(NotFoundException ex) {

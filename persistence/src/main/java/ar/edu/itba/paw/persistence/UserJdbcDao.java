@@ -341,6 +341,11 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public Optional<UserAuthInfo> validateEmail(String token) {
+        Optional<UserAuthInfo> userAuthInfo = jdbcTemplate.query(
+                "SELECT email, password, roles, blocked, true AS verified FROM users WHERE token = ?",
+                USER_PASSWORD_ROW_MAPPER,
+                token
+        ).stream().findFirst();
         int updatedRows = jdbcTemplate.update(
                 """
                 UPDATE users
@@ -351,12 +356,11 @@ public class UserJdbcDao implements UserDao {
         );
         if(updatedRows == 0) {
             LOGGER.warn("Token validation failed: token {} not found", token);
+            throw new RuntimeException();
         }
-        return jdbcTemplate.query(
-                "SELECT email, password, roles, blocked, validated AS verified FROM users WHERE token = ?",
-                USER_PASSWORD_ROW_MAPPER,
-                token
-        ).stream().findFirst();
+
+        LOGGER.debug("UserAuthInfo: {}", userAuthInfo);
+        return userAuthInfo;
     }
 
     @Override

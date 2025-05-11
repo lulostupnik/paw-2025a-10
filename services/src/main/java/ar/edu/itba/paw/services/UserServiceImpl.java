@@ -153,26 +153,22 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void refreshToken(String oldToken) {
         String uid = UUID.randomUUID().toString();
+        User user = userDao.findByToken(oldToken).orElseThrow(()-> new RuntimeException("User not found"));
         LocalDate date = LocalDate.now().plusDays(1);
         userDao.refreshToken(uid, date,oldToken);
-        Optional<User> user = userDao.findByToken(oldToken);
-        if(user.isEmpty()){
-            throw new InvalidTokenException("Invalid Token");
-        }
-        emailService.sendValidationEmail(user.get(),uid);
+        emailService.sendValidationEmail(user,uid);
     }
 
     @Override
     @Transactional
     public void refreshPassToken(String oldToken) {
         String uid = UUID.randomUUID().toString();
+
+        User user = userDao.findByToken(oldToken).orElseThrow(() -> new RuntimeException("User not found"));
         LocalDate date = LocalDate.now().plusDays(1);
+
         userDao.refreshToken(uid, date,oldToken);
-        Optional<User> user = userDao.findByToken(oldToken);
-        if(user.isEmpty()){
-            throw new InvalidTokenException("Invalid Token");
-        }
-        emailService.sendForgotPassEmail(user.get(),uid);
+        emailService.sendForgotPassEmail(user, uid);
 
     }
 
