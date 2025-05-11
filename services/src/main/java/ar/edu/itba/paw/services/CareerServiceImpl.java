@@ -88,30 +88,5 @@ public class CareerServiceImpl implements CareerService {
         careerDao.delete(id);
     }
 
-    @Override
-    public String getCareersJSON(final String search,final PageParams pageParams) {
-        LOGGER.debug("Getting all careers with search {}", search);
-        if (search == null || search.isEmpty()) {
-
-            List<Career> careers = careerDao.findAll(pageParams).getContent();
-            return listToJson(careers);
-        }
-        List<Career> careers = careerDao.search(search,pageParams).getContent();
-        return listToJson(careers);
-    }
-
-    private String listToJson(final List<Career> careers) {
-        StringBuilder json = new StringBuilder("[");
-        for (Career career : careers) {
-            json.append(career.toJSON()).append(", ");        
-        }
-        if (json.length() > 1) {
-            json.deleteCharAt(json.length() - 1); // Remove the last space
-            json.deleteCharAt(json.length() - 1); // Remove the last comma
-        }
-        json.append("]");
-        LOGGER.debug("JSON careers: {}", json);
-        return json.toString();
-    }
 
 }

@@ -1,16 +1,19 @@
 package ar.edu.itba.paw.webapp.utils;
 
-public class JsonUtils {
-    public static String escapeJson(String value) {
-        if (value == null) return "";
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-        return value.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\b", "\\b")
-                .replace("\f", "\\f")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
+public final class JsonUtils {
+        private static final ObjectMapper mapper = new ObjectMapper();
+    private JsonUtils() {
+        throw new AssertionError("Utility class should not be instantiated");
+    }
+        public static String toJson(Object obj) {
+            try {
+                return mapper.writeValueAsString(obj);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("Error serializando a JSON", e);
+            }
+        }
     }
 
-}

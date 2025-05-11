@@ -8,6 +8,7 @@ import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.form.CreateUniversityForm;
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
+import ar.edu.itba.paw.webapp.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class UniversityController {
     public String getUniversitiesJSON(@RequestParam(value = "search", required = false) String search,
                                      @PageParamCustomizer(defaultSize = 30) PageParams pageParams) {
 
-        return universityService.getUniversitiesJSON(search, pageParams);
+        return JsonUtils.toJson( universityService.getAllUniversities(search, pageParams).getContent());
     }
 
     @GetMapping(value = "/create")

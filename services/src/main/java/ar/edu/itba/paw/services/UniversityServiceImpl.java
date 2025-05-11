@@ -57,30 +57,6 @@ public class UniversityServiceImpl implements UniversityService {
         }
         return universityDao.search(search, pageParams);
     }
-    @Override
-    public String getUniversitiesJSON(final String search, final PageParams pageParams){
-        LOGGER.debug("Getting all universities with search {} and pageParams {}", search, pageParams);
-        List<University> universities;
-        if (search == null || search.isEmpty()) {
-            universities = universityDao.findAll(pageParams).getContent();
-            return UniversitiesToJson(universities);
-        }
-        universities = universityDao.search(search,pageParams).getContent();
-        return UniversitiesToJson(universities);
-    }
-
-    private String UniversitiesToJson(final List<University> universities) {
-        StringBuilder json = new StringBuilder("[");
-        for (University university : universities) {
-            json.append(university.toJSON()).append(",");
-        }
-        if (json.length() > 1) {
-            json.deleteCharAt(json.length() - 1); // Remove last comma
-        }
-        json.append("]");
-        LOGGER.debug("JSON universities: {}", json);
-        return json.toString();
-    }
 
     @Override
     @Transactional

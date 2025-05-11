@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -33,6 +34,17 @@ public class ExceptionHandlerAdvice {
 
         ModelAndView mav = new ModelAndView(ERROR_VIEW);
         mav.addObject("errorType", "404");
+        return mav;
+    }
+
+    @ExceptionHandler(TypeMismatchException.class)
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    public ModelAndView error400TypeMismatch(TypeMismatchException ex) {
+        LOGGER.warn("TypeMismatchException: {}", ex.getMessage());
+        LOGGER.debug("Stack trace for TypeMismatchException", ex);
+
+        ModelAndView mav = new ModelAndView(ERROR_VIEW);
+        mav.addObject("errorType", "400");
         return mav;
     }
 

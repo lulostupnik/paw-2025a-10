@@ -30,8 +30,6 @@ public class CareerServiceImplTest {
     private static final Career CAREER_2 = new Career(ID_2, null);
     private static final List<Career> CAREERS = List.of(CAREER_1, CAREER_2);
     private static final Page<Career> CAREER_PAGE = new Page<Career>(CAREERS, 1, 1);
-    private static final String CAREERS_JSON = "[{\"name\":\"career\", \"id\":0}, {\"name\":\"\", \"id\":1}]";
-    private static final String EMPTY_JSON = "[]";
     private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
     @InjectMocks
     private CareerServiceImpl careerService;
@@ -175,48 +173,4 @@ public class CareerServiceImplTest {
         careerService.delete(ID_1);
     }
 
-    @Test
-    public void testGetCareersJSON(){
-        Mockito.when(
-            careerDao.search(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(CAREER_PAGE);
-
-        String json_derulo = careerService.getCareersJSON(NAME, PAGE_1_DEFAULT);
-
-        assertNotNull(json_derulo);
-        assertEquals(CAREERS_JSON, json_derulo);
-    }
-    @Test
-    public void testGetCareersJSONMissingQuery(){
-        Mockito.when(
-            careerDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(CAREER_PAGE);
-
-        String json_derulo = careerService.getCareersJSON(null, PAGE_1_DEFAULT);
-
-        assertNotNull(json_derulo);
-        assertEquals(CAREERS_JSON, json_derulo);
-    }
-    @Test
-    public void testGetCareersJSONEmptyQuery(){
-        Mockito.when(
-            careerDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(CAREER_PAGE);
-
-        String json_derulo = careerService.getCareersJSON("", PAGE_1_DEFAULT);
-
-        assertNotNull(json_derulo);
-        assertEquals(CAREERS_JSON, json_derulo);
-    }
-    @Test
-    public void testGetCareersJSONNoCareers(){
-        Mockito.when(
-            careerDao.search(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(new Page<Career>(List.of(), 1, 0));
-
-        String json_derulo = careerService.getCareersJSON(NAME, PAGE_1_DEFAULT);
-
-        assertNotNull(json_derulo);
-        assertEquals(EMPTY_JSON, json_derulo);
-    }
 }
