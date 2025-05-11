@@ -63,7 +63,6 @@ public class EventResponseJdbcDao implements EventResponseDao {
 
     @Override
     public EventResponse create(final long userId, final String username, final long eventId, final String message, final LocalDateTime dateTime) {
-        LOGGER.debug("Registering new event response for event {} by user {} ({}) who says {} on {}", eventId, userId, username, message, dateTime);
         final Map<String, Object> args = new HashMap<>();
         args.put("user_id", userId);
         args.put("event_id", eventId);
@@ -72,9 +71,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
         args.put("deleted", false);
 
         final Number keys = jdbcInsert.executeAndReturnKey(args);
-        final EventResponse response = new EventResponse(keys.longValue(), userId, username, eventId, message, dateTime);
-        LOGGER.info("Successfully registered event response {}", response);
-        return response;
+        return new EventResponse(keys.longValue(), userId, username, eventId, message, dateTime);
     }
 
 
@@ -98,7 +95,6 @@ public class EventResponseJdbcDao implements EventResponseDao {
 
     @Override
     public void updateDeletionMessage(final long id, final String message) {
-        LOGGER.info("Setting event response delete message '{}' for response {}", message, id);
         final int updatedRows = jdbcTemplate.update("UPDATE event_responses SET deleted_message = ? WHERE id = ?;", message, id);
         if (updatedRows == 0) {
             LOGGER.warn("No event_response found with id {}", id);
@@ -107,7 +103,6 @@ public class EventResponseJdbcDao implements EventResponseDao {
 
     @Override
     public void deleteAllByEventId(final long eventId) {
-        LOGGER.info("Setting event responses for event {} as deleted", eventId);
         final int updatedRows = jdbcTemplate.update("UPDATE event_responses SET deleted = TRUE WHERE event_id = ?;", eventId);
         if (updatedRows == 0) {
             LOGGER.warn("No event found with id {}", eventId);
@@ -116,7 +111,6 @@ public class EventResponseJdbcDao implements EventResponseDao {
 
     @Override
     public void delete(final long id) {
-        LOGGER.info("Setting event response {} as deleted", id);
         final int updatedRows = jdbcTemplate.update("UPDATE event_responses SET deleted = TRUE WHERE id = ?;", id);
         if (updatedRows == 0) {
             LOGGER.warn("No event_response found with id {}", id);

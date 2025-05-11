@@ -173,12 +173,9 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public Journey create(final User user, final University destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
-        LOGGER.debug("Registering new journey of {} to {} from {} to {} ({})", user, destinationUniversity, startDate, endDate, description);
-
         // FIXME: HACER UNA SOLA QUERY UPDATE RETURNING y ver si updatedRows != 0
         final Optional<Journey> journey = findByUserIdDeleted(user.getId());
         if(journey.isPresent()){
-            LOGGER.debug("Journey found");
             update(journey.get().getId(), destinationUniversity, startDate, endDate, description);
             return findByUserId(journey.get().getUser().getId()).orElseThrow(RuntimeException::new);
         }
@@ -191,7 +188,6 @@ public class JourneyJdbcDao implements JourneyDao {
         args.put("deleted", false);
         final Number id = jdbcInsert.executeAndReturnKey(args);
         final Journey newJourney = new Journey(id.longValue(), user, startDate, endDate, destinationUniversity, description);
-        LOGGER.info("Successfully registered journey {}", newJourney);
         return newJourney;
     }
 
@@ -222,7 +218,6 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public void delete(final long id) {
-        LOGGER.info("Setting journey {} as deleted", id);
         final int updatedRows = jdbcTemplate.update("UPDATE journeys SET deleted = TRUE WHERE id = ?;", id);
         if (updatedRows == 0) {
             LOGGER.warn("No journey found with id {}", id);
@@ -231,7 +226,6 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public void updateDeletionMessage(final long id, final String message) {
-        LOGGER.info("Setting deletion message {} for journey {}", message, id);
         final int updatedRows = jdbcTemplate.update("UPDATE journeys SET deleted_message = ? WHERE id = ?;", message, id);
         if (updatedRows == 0) {
             LOGGER.warn("No journey found with id {}", id);
@@ -444,7 +438,6 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public void update(final long journeyId, final University destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
-        LOGGER.info("Updating uni {}, startDate {}, endDate {}, desc '{}' for journey {}", destinationUniversity, startDate, endDate, description, journeyId);
         final int updatedRows = jdbcTemplate.update("""
         UPDATE journeys
            SET destination_university_id = ?,
@@ -469,8 +462,6 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public Page<Journey> findRecommended(final String email, final PageParams pageParams) {
-        LOGGER.debug("Querying recommended journeys for user {} - page {}, size {}", email, pageParams.getPage(), pageParams.getSize());
-
         final String baseQuery = """
            WITH user_data AS (
                SELECT id, university

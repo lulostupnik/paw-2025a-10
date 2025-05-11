@@ -67,19 +67,16 @@ public class InterestJdbcDao implements InterestDao {
 
     @Override
     public Interest create(final String interest) {
-        LOGGER.debug("Creating new interest {}", interest);
         final Map<String, Object> params = new HashMap<>();
         params.put("name", interest);
         final Number keys = jdbcInsert.executeAndReturnKey(params);
         final Interest newInterest = new Interest(keys.longValue(), interest);
-        LOGGER.info("Created interest {}", interest);
         return newInterest;
     }
 
 
     @Override
     public void update(final long id, final String interest) {
-        LOGGER.info("Editing interest {} to {}", id, interest);
         final int rowsAffected = jdbcTemplate.update("UPDATE category SET name = ? WHERE id = ?", interest ,id);
         if (rowsAffected == 0) {
             LOGGER.warn("Interest update failed: Interest with ID {} not found", id);
@@ -88,7 +85,6 @@ public class InterestJdbcDao implements InterestDao {
 
     @Override
     public void createUserInterests(final long[] interests, final long userId) {
-        LOGGER.debug("Registering to DB new interests {} for user {}...", interests, userId);
         for (long interest : interests) {
             jdbcTemplate.update("INSERT INTO user_interest (user_id, category_id) VALUES (?, ?)", userId, interest);
         }
@@ -96,15 +92,12 @@ public class InterestJdbcDao implements InterestDao {
 
     @Override
     public void updateScoreByInterest(final Interest interest, final long userId) {
-        LOGGER.info("Registering to DB new interest {} score increase for user {}", interest, userId);
         jdbcTemplate.update("UPDATE user_interest SET score = score + 1 WHERE user_id = ? AND category_id = ?",
                 userId, interest.getId());
     }
 
     @Override
     public void updateUserInterests(final long[] interestIds, final long userId) {
-        LOGGER.debug("Updating interests for user {}", userId);
-
         final List<Long> currentInterestIds = jdbcTemplate.queryForList(
                 "SELECT category_id FROM user_interest WHERE user_id = ?",
                 Long.class,
@@ -154,7 +147,6 @@ public class InterestJdbcDao implements InterestDao {
 
     @Override
     public void updateScoreByInterests(final List<Interest> interests, final long userId) {
-        LOGGER.debug("Registering to DB multiple score increases for intrests of user {}", userId);
         for (Interest interest : interests) {
             updateScoreByInterest(interest, userId);
         }
@@ -191,7 +183,6 @@ public class InterestJdbcDao implements InterestDao {
 
     @Override
     public void delete(final long id) {
-        LOGGER.info("Deleting interest with ID: {}", id);
         final int rowsAffected = jdbcTemplate.update("DELETE FROM category WHERE id = ?", id);
         if (rowsAffected == 0) {
             LOGGER.warn("Interest delete failed: Interest with ID {} not found", id);

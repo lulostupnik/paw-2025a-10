@@ -254,7 +254,6 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public Event create(final User user, final City city, final LocalDate date, final String description, final long flyerImageId, final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
-        LOGGER.debug("Registering new event for user {} in {} (addr {}) on {} {} ( {} ) with image {}, title {}, limit {}", user, city, address, date, time, description, flyerImageId, title, attendeesLimit);
         final HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("user_id", user.getId());
         parameters.put("city_id", city.getId());
@@ -385,17 +384,12 @@ public class EventJdbcDao implements EventDao {
                 maybeEvent.get().isAttending(),
                 maybeEvent.get().isCreator()
         );
-
-        LOGGER.debug("Found event statistics for event {}: creator events {}, creator attended {}, top attendee country {} ({})",
-                eventId, creatorEventCount, creatorAttendanceCount, topAttendeeCountry, topAttendeeCountryCount);
-
         return Optional.of(eventStatistics);
     }
     
 
     @Override
     public void delete(final long id) {
-        LOGGER.info("Marking event {} as deleted", id);
         final int updatedRows = jdbcTemplate.update("UPDATE events SET deleted = TRUE WHERE id = ?;", id);
         if (updatedRows == 0) {
             LOGGER.warn("Deletion failed: no event found with id {}", id);
@@ -403,7 +397,6 @@ public class EventJdbcDao implements EventDao {
     }
     @Override
     public void updateDeletionMessage(final long id, final String message) {
-        LOGGER.info("Setting deletion message {} for event {}", message, id);
         final int updatedRows = jdbcTemplate.update("UPDATE events SET deleted_message = ? WHERE id = ?;", message, id);
         if (updatedRows == 0) {
             LOGGER.warn("Deletion message failed: no event found with id {}", id);
@@ -565,7 +558,6 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public void update(final long cityId, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit, final long eventId, final long flyerImageId) {
-        LOGGER.info("Updating event {} with city {}, date {}, desc '{}', title '{}', time {}, addr '{}', limit {}, image {}", eventId, cityId, date, description, title, time, address, attendeesLimit, flyerImageId);
         final int rowsAffected = jdbcTemplate.update("""
             UPDATE events
                SET city_id = ?,
