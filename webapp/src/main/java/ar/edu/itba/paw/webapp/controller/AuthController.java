@@ -58,7 +58,7 @@ public class AuthController {
             LOGGER.debug("Invalid password reset token attempt: {}", token);
             return new ModelAndView("auth/invalid-token");
         }
-        if(!userService.isTokenExpired(token)) {
+        if(userService.isTokenExpired(token)) {
             LOGGER.debug("Password reset token expired: {}", token);
             return new ModelAndView("auth/expired-token");
         }
@@ -74,7 +74,7 @@ public class AuthController {
             LOGGER.debug("Invalid password reset token attempt: {}", token);
             return new ModelAndView("auth/invalid-token");
         }
-        if(!userService.isTokenExpired(token)) {
+        if(userService.isTokenExpired(token)) {
             LOGGER.debug("Password reset token expired: {}", token);
             return new ModelAndView("auth/expired-token");
         }
