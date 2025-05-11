@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
+import ar.edu.itba.paw.models.enums.SortFieldJourney;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -254,7 +255,6 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public Event create(final User user, final City city, final LocalDate date, final String description, final long flyerImageId, final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
-        LOGGER.debug("Registering new event for user {} in {} (addr {}) on {} {} ( {} ) with image {}, title {}, limit {}", user, city, address, date, time, description, flyerImageId, title, attendeesLimit);
         final HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("user_id", user.getId());
         parameters.put("city_id", city.getId());
@@ -385,17 +385,12 @@ public class EventJdbcDao implements EventDao {
                 maybeEvent.get().isAttending(),
                 maybeEvent.get().isCreator()
         );
-
-        LOGGER.debug("Found event statistics for event {}: creator events {}, creator attended {}, top attendee country {} ({})",
-                eventId, creatorEventCount, creatorAttendanceCount, topAttendeeCountry, topAttendeeCountryCount);
-
         return Optional.of(eventStatistics);
     }
     
 
     @Override
     public void delete(final long id) {
-        LOGGER.info("Marking event {} as deleted", id);
         final int updatedRows = jdbcTemplate.update("UPDATE events SET deleted = TRUE WHERE id = ?;", id);
         if (updatedRows == 0) {
             LOGGER.warn("Deletion failed: no event found with id {}", id);
@@ -403,7 +398,6 @@ public class EventJdbcDao implements EventDao {
     }
     @Override
     public void updateDeletionMessage(final long id, final String message) {
-        LOGGER.info("Setting deletion message {} for event {}", message, id);
         final int updatedRows = jdbcTemplate.update("UPDATE events SET deleted_message = ? WHERE id = ?;", message, id);
         if (updatedRows == 0) {
             LOGGER.warn("Deletion message failed: no event found with id {}", id);
@@ -450,6 +444,16 @@ public class EventJdbcDao implements EventDao {
 
     }
 
+    private String getSortColumn(SortFieldEvent sortBy) {
+        if (sortBy == null) {
+            return "e.id";
+        }
+        return switch (sortBy) {
+            case ATTENDEES -> "e.attendees_count";
+            case DATE      -> "e.event_date";
+            default        -> "e.id";
+        };
+    }
 
     @Override
     public Page<Event> findAllWithFilters(final Long userId, final String search,
@@ -529,25 +533,12 @@ public class EventJdbcDao implements EventDao {
             queryBuilder.append(" AND ").append(String.join(" AND ", filters));
         }
 
-        if (sortBy != null) {
-            String sortByStr = "e.id";
-            if(sortBy.equals(SortFieldEvent.ATTENDEES)){
-                sortByStr= "e.attendees_count";
-            }
-            if(sortBy.equals(SortFieldEvent.DATE)){
-                sortByStr= "e.event_date";
-            }
 
-            queryBuilder.append(" ORDER BY ").append(sortByStr);
+        String dir = (direction == SortDirection.DESC) ? "DESC" : "ASC";
+        String column = getSortColumn(sortBy);
+        queryBuilder.append(" ORDER BY ").append(column).append(" ").append(dir);
 
-            if (direction != null && direction.equals(SortDirection.DESC)) {
-                queryBuilder.append(" DESC");
-            } else {
-                queryBuilder.append(" ASC");
-            }
-        } else {
-            queryBuilder.append(" ORDER BY e.id");
-        }
+
 
         final int totalItems = jdbcTemplate.queryForObject(countQueryBuilder.toString(), Integer.class, params.toArray());
 
@@ -565,7 +556,6 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public void update(final long cityId, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit, final long eventId, final long flyerImageId) {
-        LOGGER.info("Updating event {} with city {}, date {}, desc '{}', title '{}', time {}, addr '{}', limit {}, image {}", eventId, cityId, date, description, title, time, address, attendeesLimit, flyerImageId);
         final int rowsAffected = jdbcTemplate.update("""
             UPDATE events
                SET city_id = ?,

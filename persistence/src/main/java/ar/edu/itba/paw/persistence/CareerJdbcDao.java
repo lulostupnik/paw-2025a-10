@@ -73,15 +73,11 @@ public class CareerJdbcDao implements CareerDao {
 
     @Override
     public Career create(final String name) {
-        LOGGER.debug("Creating or reactivating career with name: {}", name);
-
         final int rowsUpdated = jdbcTemplate.update(
                 "UPDATE careers SET deleted = FALSE WHERE name = ? AND deleted = TRUE",
                 name
         );
-
         if (rowsUpdated > 0) {
-            LOGGER.info("Reactivated existing deleted career {}", name);
             return findByName(name).orElseThrow(() -> new RuntimeException("Failed to retrieve reactivated career"));
         }
 
@@ -90,24 +86,19 @@ public class CareerJdbcDao implements CareerDao {
         args.put("deleted", false);
 
         final Number key = jdbcInsert.executeAndReturnKey(args);
-        final Career career = new Career(key.longValue(), name);
-        LOGGER.info("Successfully created career {}", career);
-        return career;
+        return new Career(key.longValue(), name);
     }
 
     @Override
-    public Career update(final long id, final String name) {
-        LOGGER.info("Updating career id '{}' and name '{}'",id,name);
+    public void update(final long id, final String name) {
         final int rowsAffected = jdbcTemplate.update("UPDATE careers SET name = ? WHERE id = ?", name, id);
         if (rowsAffected == 0) {
             LOGGER.warn("Career update failed: Career with ID {} not found", id);
         }
-        return findById(id).orElseThrow(() -> new IllegalArgumentException("Career not found"));
     }
 
     @Override
     public void delete(final long id) {
-        LOGGER.info("Marking career with ID: {} as deleted", id);
         final int rowsAffected = jdbcTemplate.update("UPDATE careers SET deleted = TRUE WHERE id = ?", id);
         if (rowsAffected == 0) {
             LOGGER.warn("Career deletion failed: Career with ID {} not found", id);

@@ -19,18 +19,25 @@
         Your account has been blocked by an administrator because it violated our community guidelines.
     </p>
 
-
     <p th:text="#{email.user.blocked.consequences}" style="margin-top: 20px;">
         While your account is blocked, you will not be able to create or participate in events and journeys. Your existing content may be hidden from other users.
     </p>
 
 </div>
 
-<div style="margin-top: 30px; text-align: center; color: #666; font-size: 14px;">
-    <p th:text="#{email.footer.message}">
-        If you believe this action was taken in error, please contact our support team.
+<div style="text-align: center; margin: 30px 0;">
+    <p th:text="#{email.user.blocked.contact}" style="margin-bottom: 15px; font-weight: bold;">
+        If you believe this action was taken in error, please contact our support team:
     </p>
+    <a th:href="'mailto:paw.2025a.10@gmail.com?subject=' + #{email.user.blocked.subject}"
+       style="display: inline-block; background-color: #3366ff; color: white; padding: 12px 25px;
+                  text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 16px;"
+       th:text="#{email.user.blocked.cta}">
+        Contact Support
+    </a>
 </div>
+
+
 
 </body>
 </html>

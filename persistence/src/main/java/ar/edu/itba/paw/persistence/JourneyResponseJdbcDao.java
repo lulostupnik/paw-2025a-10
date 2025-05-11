@@ -63,18 +63,14 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
 
     @Override
     public JourneyResponse create(final long userId, final String username, final long journeyId, final String message, final LocalDateTime dateTime) {
-        LOGGER.debug("Registering new journey response to journey {} from user {} ({}) saying '{}' on {}", journeyId, userId, username, message, dateTime);
         final Map<String, Object> args = new HashMap<>();
-
         args.put("user_id", userId);
         args.put("journey_id", journeyId);
         args.put("message", message);
         args.put("date_time", Timestamp.valueOf(dateTime));
         args.put("deleted", false);
-
         final Number keys = jdbcInsert.executeAndReturnKey(args);
         final JourneyResponse response = new JourneyResponse(keys.longValue(), userId, username, journeyId, message, dateTime);
-        LOGGER.info("Successfully registered journey response {}", response);
         return response;
     }
 
@@ -91,7 +87,6 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
 
     @Override
     public void delete(final long id) {
-        LOGGER.info("Setting journey response {} as deleted", id);
         final int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted = TRUE WHERE id = ?;", id);
         if (updatedRows == 0) {
             LOGGER.warn("No journey_response found with id {}", id);
@@ -109,8 +104,6 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
 
     @Override
     public void updateDeletionMessage(final long id, final String message) {
-        LOGGER.info("Setting deletion message '{}' for journey response {}", message, id);
-
         final int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted_message = ? WHERE id = ?;", message, id);
         if (updatedRows == 0) {
             LOGGER.warn("No journey_response found with id {}", id);
@@ -119,7 +112,6 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
 
     @Override
     public void deleteByJourneyId(final long journeyId) {
-        LOGGER.info("Setting responses to journey {} as deleted", journeyId);
         final int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted = TRUE WHERE journey_id = ?;", journeyId);
         if (updatedRows == 0) {
             LOGGER.warn("No journey_response found with id {}", journeyId);

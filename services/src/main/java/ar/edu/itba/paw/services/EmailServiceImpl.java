@@ -19,10 +19,10 @@ import org.thymeleaf.context.Context;
 import javax.activation.DataSource;
 import javax.mail.internet.MimeMessage;
 import javax.mail.util.ByteArrayDataSource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.*;
 
 
 @Service
@@ -50,7 +50,6 @@ public class EmailServiceImpl implements EmailService {
         this.messageSource = messageSource;
         this.imageService = imageService;
     }
-
 
 
     private void sendHtmlMessage(final Optional<byte[]> maybeImage,final Optional<String> maybeImageCid,final User emailRecipient, final String templateName, final Map<String, Object> variables,final String subjectKey, final Optional<Object[]> maybeSubjectArgs) {
@@ -262,15 +261,6 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendEventReminderNotification(final Event event,final List<User> attendees) {
-        Optional<byte[]> eventImage = Optional.empty();
-        Optional<String> eventImageCid = Optional.empty();
-
-        if (event.getFlyerImageId() > 0) {
-            eventImage = Optional.ofNullable(imageService.getImage(event.getFlyerImageId())
-                    .map(Image::getData)
-                    .orElse(null));
-            eventImageCid = Optional.of("eventImage");
-        }
 
         for (User attendee : attendees) {
             Map<String, Object> variables = new HashMap<>();
@@ -278,8 +268,8 @@ public class EmailServiceImpl implements EmailService {
             variables.put("event", event);
 
             sendHtmlMessage(
-                    eventImage,
-                    eventImageCid,
+                    Optional.empty(),
+                    Optional.empty(),
                     attendee,
                     "event-reminder",
                     variables,

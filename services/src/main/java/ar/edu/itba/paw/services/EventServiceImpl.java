@@ -16,10 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+
 
 @Service
 @Transactional(readOnly = true)
@@ -50,7 +53,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public Event createEvent(final String email,final  String cityName,final  LocalDate date,final byte[] flyer,final  String description,final  String title, final LocalTime time, final String address,final  Integer attendeesLimit) {
+    public Event createEvent(final String email, final  String cityName, final LocalDate date, final byte[] flyer, final  String description, final  String title, final LocalTime time, final String address, final  Integer attendeesLimit) {
 
         LOGGER.debug("Creating event for user {}", email);
 
@@ -71,7 +74,6 @@ public class EventServiceImpl implements EventService {
         LOGGER.debug("Replying to event {}", eventId);
         LOGGER.debug("Looking for event {}", eventId);
         Event event = eventDao.findById(eventId).orElseThrow(() -> new RuntimeException("Event not found"));
-
         LOGGER.debug("Looking for user {}", email);
         User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
 
