@@ -160,16 +160,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean isValidPasswordResetToken(String token) {
+       return userDao.isTokenValid(token);
+    }
+
+    @Override
+    public boolean isTokenExpired(String token) {
+        return userDao.hasExpired(token);
+    }
+
+    @Override
     @Transactional
     public void newPassword(final String token, final String newPassword) {
-        if(userDao.hasExpired(token)){
-            throw new ExpiredPassTokenException("Token expired", token);
-        }
-        if(!userDao.isTokenValid(token)){
-            throw new InvalidTokenException("Token already used");
-        }
         userDao.updatePasswordByToken(token, passwordEncoder.encode(newPassword));
-
     }
 
     @Override

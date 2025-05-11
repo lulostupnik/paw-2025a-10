@@ -54,16 +54,36 @@ public class AuthController {
 
     @GetMapping(value ="/reset-password")
     public ModelAndView changePassForm(@RequestParam("token") String token, @ModelAttribute("updatePasswordForm")UpdatePasswordForm form) {
+        if (!userService.isValidPasswordResetToken(token)) {
+            LOGGER.debug("Invalid password reset token attempt: {}", token);
+            return new ModelAndView("auth/invalid-token");
+        }
+        if(!userService.isTokenExpired(token)) {
+            LOGGER.debug("Password reset token expired: {}", token);
+            return new ModelAndView("auth/expired-token");
+        }
+
         ModelAndView mav = new ModelAndView("auth/reset-password");
         mav.addObject("token", token);
         return mav;
     }
+
     @PostMapping(value ="/reset-password")
-    public ModelAndView changePass(@RequestParam("token") String token, @Valid@ModelAttribute("updatePasswordForm")UpdatePasswordForm form, final BindingResult errors) {
+    public ModelAndView changePass(@RequestParam("token") String token, @Valid @ModelAttribute("updatePasswordForm")UpdatePasswordForm form, final BindingResult errors) {
+        if (!userService.isValidPasswordResetToken(token)) {
+            LOGGER.debug("Invalid password reset token attempt: {}", token);
+            return new ModelAndView("auth/invalid-token");
+        }
+        if(!userService.isTokenExpired(token)) {
+            LOGGER.debug("Password reset token expired: {}", token);
+            return new ModelAndView("auth/expired-token");
+        }
+
         if(errors.hasErrors()) {
             LOGGER.debug("Found {} errors in Update Password form data", errors.getErrorCount());
             return changePassForm(token, form);
         }
+
         userService.newPassword(token, form.getPassword());
         return new ModelAndView("redirect:login?resetPassword=true");
     }
