@@ -197,16 +197,20 @@
                 </div>
             </div>
 
-            <div class="checkbox-container">
-                <label class="checkbox-label">
-                    <input name="j_rememberme"
-                           type="checkbox"
-                           class="checkbox-input" />
-                    <span class="checkbox-custom"></span>
-                    <span><spring:message code="remember_me" text="Remember me"/></span>
-                </label>
-                <a href="<c:url value='/forgot_pass'/>" class="auth-link forgot-password">
-                    <spring:message code="login.forgot_password" text="Forgot pass"/>
+
+
+            <div class="login-group">
+                <div class="checkbox-container">
+                    <label class="checkbox-wrapper">
+                        <input name="j_rememberme" type="checkbox" class="checkbox-input" />
+                        <span class="checkbox-mark"></span>
+                    </label>
+                    <label class="checkbox-label" for="j_rememberme">
+                        <spring:message code="remember_me" text="Remember me"/>
+                    </label>
+                </div>
+                <a href="<c:url value='/forgot_pass'/>" class="forgot-password">
+                    <spring:message code="login.forgot_password" text="Forgot password?"/>
                 </a>
             </div>
 

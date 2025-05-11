@@ -231,13 +231,6 @@
     margin: 0;
     font-size: 0.875rem;
 }
-/* Checkbox styling */
-.checkbox-container {
-    display: flex;
-    align-items: center;
-    margin-top: 0.5rem;
-    gap: 0.5rem; /* Reduced gap between checkbox and text */
-}
 
 .checkbox-label {
     display: flex;
@@ -256,6 +249,102 @@
     opacity: 0;
     width: 0;
     height: 0;
+}
+
+/* Login group styling */
+.login-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 1rem 0;
+}
+
+/* Checkbox container */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+}
+
+/* Custom checkbox styling */
+.checkbox-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+}
+
+
+.checkbox-mark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid #cbd5e0;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.checkbox-input:checked + .checkbox-mark {
+    background-color: #4361ee;
+    border-color: #4361ee;
+}
+
+.checkbox-input:focus + .checkbox-mark {
+    box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.3);
+}
+
+.checkbox-mark:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox-input:checked + .checkbox-mark:after {
+    display: block;
+}
+
+.checkbox-label {
+    font-size: 0.9rem;
+    color: #4a5568;
+    user-select: none;
+    cursor: pointer;
+}
+
+/* Forgot password link */
+.forgot-password {
+    font-size: 0.9rem;
+    color: #4361ee;
+    text-decoration: none;
+    transition: color 0.2s;
+    font-weight: 500;
+}
+
+.forgot-password:hover {
+    color: #3a56d4;
+    text-decoration: underline;
+}
+
+/* For mobile screens */
+@media (max-width: 480px) {
+    .login-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .forgot-password {
+        align-self: flex-end;
+    }
 }
 
 /*.checkbox-label {*/
