@@ -127,7 +127,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     }
 
     @Override
-    public int countByJourneyId(long journeyId) {
+    public int countByJourneyId(final long journeyId) {
         return jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM journey_responses WHERE journey_id = ? AND deleted = FALSE",
                 Integer.class,

@@ -174,7 +174,8 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public Journey create(final User user, final University destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
         LOGGER.debug("Registering new journey of {} to {} from {} to {} ({})", user, destinationUniversity, startDate, endDate, description);
-        // FIXME: no se si es la responsabilidad del DAO validar esto
+
+        // FIXME: HACER UNA SOLA QUERY UPDATE RETURNING y ver si updatedRows != 0
         final Optional<Journey> journey = findByUserIdDeleted(user.getId());
         if(journey.isPresent()){
             LOGGER.debug("Journey found");
@@ -246,7 +247,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
 
     @Override
-    public Page<Journey> findAll(PageParams pageParams) {
+    public Page<Journey> findAll(final PageParams pageParams) {
         return executePagedQuery(
                 jdbcTemplate, JOURNEY_ROW_MAPPER,
                 "SELECT COUNT(*) FROM journeys WHERE deleted = FALSE",
@@ -256,7 +257,7 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
     @Override
-    public Page<Journey> findOthers(final long userId, PageParams pageParams) {
+    public Page<Journey> findOthers(final long userId, final PageParams pageParams) {
         return executePagedQuery(
                 jdbcTemplate, JOURNEY_ROW_MAPPER,
                 "SELECT COUNT(*) FROM journeys j WHERE j.deleted = FALSE AND j.user_id != ?",
@@ -266,7 +267,7 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
     @Override
-    public Page<Journey> findByFilters(final Long userId, final Long cityId, final LocalDate startDate, final LocalDate endDate, final Long interest, PageParams pageParams) {
+    public Page<Journey> findByFilters(final Long userId, final Long cityId, final LocalDate startDate, final LocalDate endDate, final Long interest, final PageParams pageParams) {
 
         final List<String> filters = new ArrayList<>();
         final List<Object> params = new ArrayList<>();
@@ -324,7 +325,7 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
     // TODO: ¿Cual prefieren? La de arriba usa String.join que no se si eso si se puede o no. -> Asumo que si, no creo que sea como un '+', pero qcy
-    public Page<Journey> findByFilters3(final Long userId, final Long cityId, final LocalDate startDate, final LocalDate endDate, final Long interest, PageParams pageParams) {
+    public Page<Journey> findByFilters3(final Long userId, final Long cityId, final LocalDate startDate, final LocalDate endDate, final Long interest, final PageParams pageParams) {
 
         final List<Object> params = new ArrayList<>();
 
@@ -378,7 +379,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
 
     @Override
-    public Page<Journey> findByOriginCity(final long originCityId, PageParams pageParams) {
+    public Page<Journey> findByOriginCity(final long originCityId, final PageParams pageParams) {
         return executePagedQuery(
                 jdbcTemplate, JOURNEY_ROW_MAPPER, """
                 SELECT COUNT(*)
@@ -392,11 +393,11 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
         @Override
-        public Page<Journey> search(final String search, Long userId, SortFieldJourney orderBy, SortDirection direction,
-                                    String city, LocalDate startDate, LocalDate endDate, String interest,
-                                    boolean isPast, boolean isUpcoming, boolean isMyDestination, boolean isOngoing,
-                                    PageParams pageParams) {
-            final String searchPattern = likePattern(search);
+        public Page<Journey> search(final String searchTerm, final Long userId, final SortFieldJourney orderBy, final SortDirection direction,
+                                    final String city, final LocalDate startDate, final LocalDate endDate, final String interest,
+                                    final boolean isPast, final boolean isUpcoming, final boolean isMyDestination, final boolean isOngoing,
+                                    final PageParams pageParams) {
+            final String searchPattern = likePattern(searchTerm);
 
             final List<String> filters = new ArrayList<>();
             final List<Object> params = new ArrayList<>();
@@ -433,7 +434,7 @@ public class JourneyJdbcDao implements JourneyDao {
                 params.add(Date.valueOf(startDate));
             }
 
-            if(search != null && !search.isEmpty()) {
+            if(searchTerm != null && !searchTerm.isEmpty()) {
                 if(city == null) {
                     countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id ");
                 }

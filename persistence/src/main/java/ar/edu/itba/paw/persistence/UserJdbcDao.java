@@ -132,7 +132,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public boolean isUserValidByEmail(String email) {
+    public boolean isUserValidByEmail(final String email) {
         return jdbcTemplate.queryForObject("SELECT validated FROM users WHERE email = ? ", Boolean.class, email);
     }
 
@@ -156,7 +156,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public void refreshToken(String newToken, LocalDate date, String oldToken){
+    public void refreshToken(final String newToken, final LocalDate date, final String oldToken){
        jdbcTemplate.update("UPDATE users SET token = ?, token_expiration = ? WHERE token = ?", newToken, date ,oldToken);
     }
 
@@ -197,7 +197,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public void newPassword(String token, String newPassword) {
+    public void newPassword(final String token, final String newPassword) {
         jdbcTemplate.update("""
         UPDATE users SET password = ? WHERE token = ?
     """, newPassword, token);
@@ -270,12 +270,12 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public Page<User> findAll(PageParams pageParams) {
+    public Page<User> findAll(final PageParams pageParams) {
         return executePagedQuery(jdbcTemplate, USER_ROW_MAPPER, "SELECT COUNT(*) FROM users", SQL_FIND_ALL_PAGED, pageParams);
     }
 
     @Override
-    public Page<User> search(final String search, PageParams pageParams) {
+    public Page<User> search(final String search, final PageParams pageParams) {
         final String searchPattern = likePattern(search);
 
         return executePagedQuery(
@@ -290,7 +290,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public boolean isValidated(String token) {
+    public boolean isValidated(final String token) {
         String sql = """
         SELECT validated
         FROM users
@@ -312,7 +312,7 @@ public class UserJdbcDao implements UserDao {
 
 
     @Override
-    public boolean isTokenValid(String token) {
+    public boolean isTokenValid(final String token) {
         String sql = """
         SELECT COUNT(*)
         FROM users
@@ -328,7 +328,7 @@ public class UserJdbcDao implements UserDao {
 
 
     @Override
-    public void validateToken(String token) {
+    public void validateToken(final String token) {
         jdbcTemplate.update(
                 """
                 UPDATE users
@@ -340,7 +340,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public Optional<UserAuthInfo> validateEmail(String token) {
+    public Optional<UserAuthInfo> validateEmail(final String token) {
         Optional<UserAuthInfo> userAuthInfo = jdbcTemplate.query(
                 "SELECT email, password, roles, blocked, true AS verified FROM users WHERE token = ?",
                 USER_PASSWORD_ROW_MAPPER,
@@ -364,7 +364,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public boolean hasExpired(String token) { // todo: business logic? -> por ahí este método debería retornar el LocalDate y que el servicio lo compare
+    public boolean hasExpired(final String token) { // todo: business logic? -> por ahí este método debería retornar el LocalDate y que el servicio lo compare
         int count = jdbcTemplate.queryForObject(
                 """
                 SELECT COUNT(*)
@@ -379,7 +379,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public void updateProfilePicture(long userId, long profilePictureId) {
+    public void updateProfilePicture(final long userId, final long profilePictureId) {
         LOGGER.debug("Updating profile picture for user ID: {} to image ID: {}", userId, profilePictureId);
         final int rowsAffected = jdbcTemplate.update("UPDATE users SET profile_picture_id = ? WHERE id = ?", profilePictureId, userId);
         if (rowsAffected == 0) {
@@ -424,7 +424,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public Optional<User> findByToken(String token) {
+    public Optional<User> findByToken(final String token) {
         return jdbcTemplate.query(
                 SQL_FIND_BY_TOKEN,
                 USER_ROW_MAPPER,
