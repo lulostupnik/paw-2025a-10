@@ -19,7 +19,6 @@ import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 public class UniversityJdbcDao implements UniversityDao {
     private final static Logger LOGGER = LoggerFactory.getLogger(UniversityJdbcDao.class);
 
-    private final CityDao cityDao;
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
 
@@ -77,8 +76,7 @@ public class UniversityJdbcDao implements UniversityDao {
 
 
     @Autowired
-    public UniversityJdbcDao(final CityDao cityDao, final DataSource dataSource){
-        this.cityDao = cityDao;
+    public UniversityJdbcDao(final DataSource dataSource){
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("universities")
@@ -118,43 +116,30 @@ public class UniversityJdbcDao implements UniversityDao {
 
 
     @Override
-    public University create(final String name, final String abbreviation, final String city) {
-        LOGGER.debug("Creating or reactivating university {} ({})", name, abbreviation);
-
-        final City cityObj = cityDao.findByName(city).orElseThrow(IllegalArgumentException::new);
+    public University create(final String name, final String abbreviation, final City city) {
 
         int rowsUpdated = jdbcTemplate.update(
                 "UPDATE universities SET deleted = FALSE, abbreviation = ?, city_id = ? WHERE name = ? AND deleted = TRUE",
-                abbreviation, cityObj.getId(), name
+                abbreviation, city.getId(), name
         );
-
-        if (rowsUpdated == 0) {
-            rowsUpdated = jdbcTemplate.update(
-                    "UPDATE universities SET deleted = FALSE, name = ?, city_id = ? WHERE abbreviation = ? AND deleted = TRUE",
-                    name, cityObj.getId(), abbreviation
-            );
-        }
 
         if (rowsUpdated > 0) {
             LOGGER.info("Reactivated existing deleted university");
-            return findByName(name).orElseThrow(() -> new RuntimeException("Failed to retrieve reactivated university")); 
-            // FIXME: extra query, use RETURNING in update -> That'll break testing because hsql doesn't like it
+            return findByName(name).get();
         }
 
         final HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("name", name);
         parameters.put("abbreviation", abbreviation);
-        parameters.put("city_id", cityObj.getId());
+        parameters.put("city_id", city.getId());
         parameters.put("deleted", false);
         final long id = jdbcInsert.executeAndReturnKey(parameters).longValue();
-        LOGGER.info("Successfully created university with ID: {}", id);
-        return new University(id, name, abbreviation, cityObj);
+        return new University(id, name, abbreviation, city);
     }
 
 
     @Override
     public void update(final long id, final String name, final String abbreviation, final String cityName) {
-        LOGGER.info("Updating university with ID: {}. New values: name '{}', abbr '{}', city {}", id,  name, abbreviation, cityName);
         final int updatedRows = jdbcTemplate.update("""
                 UPDATE universities
                 SET name = ?, abbreviation = ?, city_id = (SELECT id FROM cities WHERE name = ?)
@@ -162,13 +147,12 @@ public class UniversityJdbcDao implements UniversityDao {
                 """, name, abbreviation, cityName, id
         );
         if (updatedRows == 0) {
-            LOGGER.warn("No uni found with id {}", id);
+            LOGGER.warn("University update failed: University with ID {} not found", id);
         }
     }
 
     @Override
     public void delete(final long id) {
-        LOGGER.info("Marking university with ID: {} as deleted", id);
         final int rowsAffected = jdbcTemplate.update("UPDATE universities SET deleted = TRUE WHERE id = ?", id);
         if (rowsAffected == 0) {
             LOGGER.warn("University deletion failed: University with ID {} not found", id);

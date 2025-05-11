@@ -1,10 +1,13 @@
 package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
+import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
+import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
+import ar.edu.itba.paw.models.exceptions.CityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +26,12 @@ public class UniversityServiceImpl implements UniversityService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UniversityServiceImpl.class);
 
     private final UniversityDao universityDao;
+    private final CityService cityService;
 
     @Autowired
-    public UniversityServiceImpl(final UniversityDao universityDao) {
+    public UniversityServiceImpl(final UniversityDao universityDao, final CityService cityService) {
         this.universityDao = universityDao;
+        this.cityService = cityService;
     }
 
     @Override
@@ -90,7 +95,8 @@ public class UniversityServiceImpl implements UniversityService {
                 @CacheEvict(value = "universities", allEntries = true)
             }
     )
-    public University createUniversity(final String name, final String abbreviation,final  String city) {
+    public University createUniversity(final String name, final String abbreviation, final String cityName) {
+        City city = cityService.findByName(cityName).orElseThrow(CityNotFoundException::new);
         return universityDao.create(name, abbreviation, city);
     }
 
