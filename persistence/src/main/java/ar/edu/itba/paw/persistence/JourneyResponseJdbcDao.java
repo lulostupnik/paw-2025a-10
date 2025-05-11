@@ -79,7 +79,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     }
 
     @Override
-    public Page<JourneyResponse> listAllByJourneyId(final long journeyId, final PageParams pageParams) {
+    public Page<JourneyResponse> findAllByJourneyId(final long journeyId, final PageParams pageParams) {
         return executePagedQuery(
                 jdbcTemplate,
                 JOURNEY_RESPONSE_ROW_MAPPER,
