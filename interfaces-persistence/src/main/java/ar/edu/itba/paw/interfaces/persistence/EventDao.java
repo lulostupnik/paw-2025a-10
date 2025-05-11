@@ -35,4 +35,7 @@ public interface EventDao {
 
     int countEventsAttendedByUser(long userId);
 
+    Page<Event> findAllEventsByAttendee(long userId, PageParams pageParams);
+
+
 }

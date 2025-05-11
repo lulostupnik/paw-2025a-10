@@ -364,7 +364,7 @@ public class JourneyServiceImplTest {
         
         assertFalse(hasJourney);
     }
-    @Test
+    @Test(expected = RuntimeException.class)
     public void testUserHasJourneyWrongUser(){
         Mockito.when(
             userService.findByEmail(Mockito.eq(EMAIL))
@@ -429,14 +429,11 @@ public class JourneyServiceImplTest {
         assertNotNull(journeys);
         assertEquals(JOURNEYS, journeys);
     }
-    @Test
+    @Test(expected = RuntimeException.class)
     public void testGetRecommendedJourneysWrongUser(){
         Mockito.when(
             userService.findByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.empty());
-        Mockito.when(
-            journeyDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(JOURNEY_PAGE);
 
         List<Journey> journeys = journeyService.getRecommendedJourneys(EMAIL, 2);
 

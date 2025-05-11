@@ -161,7 +161,6 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
     private final static String SQL_LIST_ALL_BY_USER = SQL_EVENTS_BASE + " WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE ";
 
     private final static String SQL_PAGE_BY_EVENT = SQL_LIST_ALL_BY_EVENT + " LIMIT ? OFFSET ?";
-    private final static String SQL_PAGE_BY_USER = SQL_LIST_ALL_BY_USER + " ORDER BY e.event_date DESC LIMIT ? OFFSET ?";
 
 
 
@@ -186,10 +185,13 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
 
     @Override
     public void delete(final long userId, final long eventId) {
-        jdbcTemplate.update("DELETE FROM event_attendances WHERE user_id = ? AND event_id = ?", userId, eventId);
-        final int rowsAffected = jdbcTemplate.update("UPDATE events SET attendees_count = attendees_count - 1 WHERE id = ?", eventId);
-        if (rowsAffected == 0) {
-            LOGGER.warn("Event attendance cancel failed: Event with ID {} not found", eventId);
+        LOGGER.info("Registering user {} will cancel attendance to event {}", userId, eventId);
+        int rowsAffected = jdbcTemplate.update("DELETE FROM event_attendances WHERE user_id = ? AND event_id = ?", userId, eventId);
+        if (rowsAffected > 0){
+            rowsAffected = jdbcTemplate.update("UPDATE events SET attendees_count = attendees_count - 1 WHERE id = ?", eventId);
+            if (rowsAffected == 0) {
+                LOGGER.warn("Event attendance cancel failed: Event with ID {} not found", eventId);
+            }
         }
     }
 
@@ -231,19 +233,6 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
         );
     }
 
-    @Override
-    public Page<Event> findAllEventsByAttendee(final long userId, final PageParams pageParams) {
-        final int totalItems = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM event_attendances ea JOIN events e ON ea.event_id = e.id WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE",
-                Integer.class,
-                userId, userId
-        );
-
-        return new Page<>(
-                jdbcTemplate.query(SQL_PAGE_BY_USER, EVENT_ROW_MAPPER, userId, userId, pageParams.getSize(), offset(pageParams)),
-                pageParams.getPage(),
-                pageCount(totalItems, pageParams.getSize())
-        );
-    }
+//
 
 }

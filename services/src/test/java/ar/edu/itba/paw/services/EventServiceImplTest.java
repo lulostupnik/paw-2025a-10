@@ -446,7 +446,7 @@ public class EventServiceImplTest {
 
         eventService.attendEvent(EMAIL, EVENT_ID);
     }
-    @Test(expected = NoSuchElementException.class)
+    @Test(expected = RuntimeException.class)
     public void testAttendEventEmailNotFound(){
         Mockito.when(
             userService.findByEmail(Mockito.eq(EMAIL))
@@ -531,7 +531,7 @@ public class EventServiceImplTest {
     @Test
     public void testGetUserAttendingEventsPaged(){
         Mockito.when(
-            attendanceDao.findAllEventsByAttendee(Mockito.eq(USER_ID), Mockito.eq(PAGE_1_DEFAULT))
+            eventDao.findAllEventsByAttendee(Mockito.eq(USER_ID), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
         Page<Event> page = eventService.getUserAttendingEvents(USER_ID, PAGE_1_DEFAULT);

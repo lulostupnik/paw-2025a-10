@@ -52,13 +52,13 @@ public class UserServiceImpl implements UserService {
         LOGGER.debug("Creating new user with email: {} and username: {}", email, username);
         University university = universityService.findByName(universityName)
                 .orElseThrow(() -> {
-                    LOGGER.error("University not found: '{}' during user creation for email: {}", universityName, email);
+                    LOGGER.warn("University not found: '{}' during user creation for email: {}", universityName, email);
                     return new RuntimeException("University not found");
                 });
 
         Career career = careerService.findByName(careerName)
                 .orElseThrow(() -> {
-                    LOGGER.error("Career not found: '{}' during user creation for email: {}", careerName, email);
+                    LOGGER.warn("Career not found: '{}' during user creation for email: {}", careerName, email);
                     return new RuntimeException("Career not found");
                 });
 
@@ -86,12 +86,12 @@ public class UserServiceImpl implements UserService {
     public Optional<UserAuthInfo> validateEmail(final String token) {
         LOGGER.debug("Validating user with token: {}", token);
         if (userDao.existsByTokenExpired(token)) {
-            LOGGER.error("Token expired error, with token: {}", token);
+            LOGGER.warn("Token expired warn, with token: {}", token);
             throw new ExpiredTokenException("Token expired", token);
         }
         Optional<Boolean> maybeValidated = userDao.findValidatedByTokenNotExpired(token);
         if(maybeValidated.isPresent() && maybeValidated.get()){
-            LOGGER.error("Token in use error, with token: {}", token);
+            LOGGER.warn("Token in use warn, with token: {}", token);
             throw new InvalidTokenException("Token already used");
         }
         Optional<UserAuthInfo> user = userDao.updateValidationAndFindAuthInfoByToken(token);
@@ -147,7 +147,7 @@ public class UserServiceImpl implements UserService {
     public void blockUser(final long userId) {
         LOGGER.debug("Attempting to block user with ID: {}", userId);
         User user = findById(userId).orElseThrow(() -> {
-            LOGGER.error("User does not exist for ID: {}", userId);
+            LOGGER.warn("User does not exist for ID: {}", userId);
             return new IllegalStateException("User does not exist");
         });
         emailService.sendUserBlockedNotification(user);
@@ -160,7 +160,7 @@ public class UserServiceImpl implements UserService {
     public void unblockUser(final long userId) {
         LOGGER.debug("Attempting to unblock user with ID: {}", userId);
         User user = findById(userId).orElseThrow(() -> {
-            LOGGER.error("User does not exist for ID: {}", userId);
+            LOGGER.warn("User does not exist for ID: {}", userId);
             return new IllegalStateException("User does not exist");
         });
         emailService.sendUserUnblockedNotification(user);
@@ -174,7 +174,7 @@ public class UserServiceImpl implements UserService {
         LOGGER.debug("Attempting to refresh token, for oldToken: {}", oldToken);
         String uid = UUID.randomUUID().toString();
         User user = userDao.findByToken(oldToken).orElseThrow(() -> {
-            LOGGER.error("User does not exist for token: {}", oldToken);
+            LOGGER.warn("User does not exist for token: {}", oldToken);
             return new IllegalStateException("User does not exist");
         });
         LocalDate date = LocalDate.now().plusDays(1);
@@ -190,7 +190,7 @@ public class UserServiceImpl implements UserService {
         String uid = UUID.randomUUID().toString();
 
         User user = userDao.findByToken(oldToken).orElseThrow(() -> {
-            LOGGER.error("User does not exist for token: {}", oldToken);
+            LOGGER.warn("User does not exist for token: {}", oldToken);
             return new IllegalStateException("User does not exist");
         });
         LocalDate date = LocalDate.now().plusDays(1);
@@ -225,11 +225,11 @@ public class UserServiceImpl implements UserService {
     public void forgotPass(final String email) {
         LOGGER.debug("Attempting to send forgot password email to: {}", email);
         User user = userDao.findByEmail(email).orElseThrow(()-> {
-            LOGGER.error("User with email {} not found", email);
+            LOGGER.warn("User with email {} not found", email);
             throw new RuntimeException("User does not exist");
         });
         if(!userDao.findValidationStatusByEmail(email)){
-            LOGGER.error("User with email {} not validated", email);
+            LOGGER.warn("User with email {} not validated", email);
             throw new UserValidatedException("User not validated");
         }
         String uuid = UUID.randomUUID().toString();

@@ -72,7 +72,7 @@ public class UniversityServiceImpl implements UniversityService {
     public University createUniversity(final String name, final String abbreviation, final String cityName) {
         LOGGER.debug("Creating university with name {}, abbreviation {}, city {}", name, abbreviation, cityName);
         City city = cityService.findByName(cityName).orElseThrow(() -> {
-            LOGGER.error("City not found with name: {}", cityName);
+            LOGGER.warn("City not found with name: {}", cityName);
             return new CityNotFoundException();
         });
         University university = universityDao.create(name, abbreviation, city);

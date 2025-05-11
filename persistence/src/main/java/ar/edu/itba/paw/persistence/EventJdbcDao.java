@@ -13,7 +13,6 @@ import javax.sql.DataSource;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
-import ar.edu.itba.paw.models.enums.SortFieldJourney;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -146,14 +145,6 @@ public class EventJdbcDao implements EventDao {
                    WHERE e.user_id != ? AND e.deleted = FALSE AND e.event_date >= CURRENT_DATE
                    """;
 
-    private final static String SQL_SEARCH_EVENTS_WITH_ATTENDANCE = SQL_FIND_EVENTS_WITH_ATTENDANCE + """
-                   AND (
-                            LOWER(e.title) LIKE LOWER(?)
-                    --        OR LOWER(e.description) LIKE LOWER(?)
-                            OR LOWER(c.name) LIKE LOWER(?)
-                            OR LOWER(us.username) LIKE LOWER(?)
-                        )
-                   """;
 
     private final static String SQL_SELECT_WITH_USER_INFO = "SELECT (ea.user_id IS NOT NULL) AS is_attending, (e.user_id = ?) AS is_owner, " + SQL_ALIASES;
 
@@ -205,6 +196,7 @@ public class EventJdbcDao implements EventDao {
     LIMIT ? OFFSET ?
     """;
 
+
     private final static String SQL_TOP_EVENTS = SQL_SELECT_BASE +
             """
                 FROM events e
@@ -243,6 +235,12 @@ public class EventJdbcDao implements EventDao {
                   e.event_date
                 LIMIT ? OFFSET ?
             """;
+
+    private final static String SQL_ATTENDANCE_PAGE_BY_USER = SQL_SELECT_BASE + SQL_FROM_BASE + """
+        JOIN event_attendances ea ON e.id = ea.event_id
+        WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE
+        ORDER BY e.event_date DESC LIMIT ? OFFSET ?
+        """;
 
 
     @Autowired
@@ -636,6 +634,21 @@ public class EventJdbcDao implements EventDao {
                 userId, userId, userId, pageParams.getSize(), offset(pageParams)
         );
         return new Page<>(events, pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
+    }
+
+    @Override
+    public Page<Event> findAllEventsByAttendee(final long userId, final PageParams pageParams) {
+        final int totalItems = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM event_attendances ea JOIN events e ON ea.event_id = e.id WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE",
+                Integer.class,
+                userId, userId
+        );
+
+        return new Page<>(
+                jdbcTemplate.query(SQL_ATTENDANCE_PAGE_BY_USER, EVENT_ROW_MAPPER, userId, userId, pageParams.getSize(), offset(pageParams)),
+                pageParams.getPage(),
+                pageCount(totalItems, pageParams.getSize())
+        );
     }
 
 }
