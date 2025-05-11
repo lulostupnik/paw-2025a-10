@@ -46,22 +46,22 @@
 <body>
 <c:set var="interestPageSize" value="8" scope="request" />
 <c:set var="chatPageSize" value="4" scope="request" />
-<!-- Hidden elements to store i18n messages for JavaScript -->
+
 <div style="display: none;">
-    <!-- Journey deletion messages -->
+
     <span id="i18n-journey.confirmDelete" data-message="<spring:message code='journey.confirmDelete' />"></span>
     <span id="i18n-journey.deleteWarning" data-message="<spring:message code='journey.deleteWarning' />"></span>
 
-    <!-- Journey response deletion messages -->
+
     <span id="i18n-journeyResponse.confirmDelete" data-message="<spring:message code='journeyResponse.confirmDelete' />"></span>
     <span id="i18n-journeyResponse.deleteWarning" data-message="<spring:message code='journeyResponse.deleteWarning' />"></span>
 </div>
 
 <div class="layout-container">
-    <!-- Main Content -->
+
     <div class="main-content">
         <div class="content-container">
-            <!-- Back to Journeys Button -->
+
             <div class="back-navigation">
                 <c:if test="${ isOwner}">
                     <button onclick="goBack()" class="back-link">
@@ -83,9 +83,9 @@
                 </c:if>
             </div>
 
-            <!-- Journey Detail Card -->
+
             <div class="content-card journey-detail-card">
-                <!-- Journey Actions (Edit/Delete) -->
+
                 <div class="journey-actions">
                     <c:if test="${isOwner || pageContext.request.isUserInRole('ADMIN')}">
                         <c:url var="deleteUrl" value='/journeys/${journey.id}/delete'/>
@@ -112,7 +112,7 @@
                     </c:if>
                 </div>
 
-                <!-- Journey Detail Header -->
+
                 <div class="journey-detail-header">
                     <div class="journey-user-info">
                         <div class="user-avatar">
@@ -162,7 +162,7 @@
                     </div>
                 </div>
 
-                <!-- Journey Description Section -->
+
                 <section class="content-section">
                     <div class="section-content">
                         <div class="journey-description-card">
@@ -171,7 +171,7 @@
                     </div>
                 </section>
 
-                <!-- User Interests Section -->
+
                 <section class="content-section">
                     <div class="section-header">
                         <h2 class="section-title">
@@ -215,7 +215,7 @@
                     </div>
                 </section>
 
-                <!-- Journey Responses Section -->
+
                 <section class="content-section">
                     <div class="section-header">
                         <h2 class="section-title">
@@ -239,7 +239,7 @@
                         </button>
                     </div>
 
-                    <!-- Responses List -->
+
                     <div id="comments-list" class="section-content responses-list">
                         <c:if test="${empty journeyResponsesPage.content}">
                             <div class="empty-state">
@@ -255,11 +255,11 @@
                         </c:if>
 
                         <c:if test="${not empty journeyResponsesPage.content}">
-                            <!-- Sort responses by date (newest first) -->
+
                             <c:set var="sortedResponses" value="${journeyResponsesPage.content}" />
                             <c:forEach var="response" items="${sortedResponses}">
                                 <div class="chat-message">
-                                    <!-- Delete Comment Button (Circle with Trash Icon) -->
+
 
                                     <div class="response-header">
                                         <div class="response-user">
@@ -306,7 +306,7 @@
                         </jsp:include>
                     </div>
 
-                    <!-- Leave a comment div -->
+
                     <div class="section-content">
                         <div class="reply-form-container">
                             <h3 class="reply-title">
@@ -318,7 +318,7 @@
                             </h3>
                             <c:url var="replyUrl" value="/journeys/${journey.id}"/>
                             <form:form modelAttribute="replyJourneyForm" action="${replyUrl}" method="post" enctype="multipart/form-data" cssClass="reply-form">
-                                <!-- Message Field -->
+
                                 <c:set var="messageLabel"><spring:message code="reply.message"/></c:set>
                                 <c:set var="messageHint"><spring:message code="reply.message.hint"/></c:set>
                                 <jsp:include page="../components/text-area.jsp">
@@ -327,7 +327,7 @@
                                     <jsp:param name="placeholder" value="${messageHint}" />
                                 </jsp:include>
 
-                                <!-- Submit Button -->
+
                                 <div class="form-actions">
                                     <c:set var="submitButtonLabel"><spring:message code="reply.submit"/></c:set>
                                     <jsp:include page="../components/button.jsp">

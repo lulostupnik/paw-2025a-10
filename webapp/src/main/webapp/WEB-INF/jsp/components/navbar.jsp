@@ -48,14 +48,14 @@
 <header class="topbar">
     <div class="topbar-container">
         <div class="topbar-left">
-            <!-- Mobile menu toggle -->
+
             <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-label="Toggle Menu">
                 <svg xmlns="http://www.w3.org/2000/svg" class="mobile-menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
             </button>
 
-            <!-- Logo -->
+
             <div class="topbar-logo">
                 <c:choose>
                 <c:when test="${not empty user}">
@@ -74,7 +74,7 @@
 
         </div>
 
-        <!-- Main Navigation -->
+
         <nav class="topbar-nav" id="topbar-nav">
             <div class="topbar-nav-container">
                 <a href="<c:out value='${exploreUrl}'/>"
@@ -112,11 +112,11 @@
             </div>
         </nav>
 
-        <!-- Auth Section -->
+
         <div class="topbar-auth">
             <c:choose>
                 <c:when test="${not empty user}">
-                    <!-- User is logged in - show profile -->
+
                     <div class="topbar-user-profile">
                         <div class="dropdown">
                             <button class="topbar-profile-button" id="profile-dropdown-toggle">
@@ -155,7 +155,7 @@
                     </div>
                 </c:when>
                 <c:otherwise>
-                    <!-- User is not logged in - show login/register buttons -->
+
                     <div class="auth-buttons">
                         <a href="<c:out value='${loginUrl}'/>" class="btn-primary">
                             <spring:message code="auth.login"/>
@@ -169,10 +169,10 @@
         </div>
     </div>
 
-    <!-- Mobile Navigation Overlay -->
+
     <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
 
-    <!-- Mobile Navigation Menu -->
+
     <div class="mobile-nav" id="mobile-nav">
         <div class="mobile-nav-header">
             <div class="mobile-nav-logo">
@@ -220,28 +220,28 @@
                 </a>
             </sec:authorize>
         </div>
-<%--        <div class="mobile-nav-footer">--%>
-<%--            <c:choose>--%>
-<%--                <c:when test="${not empty username}">--%>
-<%--                    <a href="<c:out value='${logoutUrl}'/>" class="mobile-nav-logout">--%>
-<%--                        <svg xmlns="http://www.w3.org/2000/svg" class="mobile-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">--%>
-<%--                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />--%>
-<%--                        </svg>--%>
-<%--                        <span><spring:message code="nav.logout"/></span>--%>
-<%--                    </a>--%>
-<%--                </c:when>--%>
-<%--                <c:otherwise>--%>
-<%--                    <div class="mobile-auth-buttons">--%>
-<%--                        <a href="<c:url value='${loginUrl}'/>" class="btn-primary mobile-btn">--%>
-<%--                            <spring:message code="auth.login"/>--%>
-<%--                        </a>--%>
-<%--                        <a href="<c:url value='${registerUrl}'/>" class="btn-outline mobile-btn">--%>
-<%--                            <spring:message code="auth.register"/>--%>
-<%--                        </a>--%>
-<%--                    </div>--%>
-<%--                </c:otherwise>--%>
-<%--            </c:choose>--%>
-<%--        </div>--%>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     </div>
 </header>
 

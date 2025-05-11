@@ -90,7 +90,7 @@
   </div>
 </div>
 
-<!-- Block Confirmation Modal -->
+
 <div id="blockModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">

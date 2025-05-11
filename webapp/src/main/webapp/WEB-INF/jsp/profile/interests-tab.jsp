@@ -19,7 +19,7 @@
                     <jsp:param name="baseUrl" value="/profile/interests" />
                 </jsp:include>
 
-                <!-- Edit button when user has interests -->
+
                 <div class="action-buttons">
                     <a href="<c:url value='/interests/edit'/>" class="btn-primary">
                         <spring:message code="profile.edit.interests"/>
@@ -37,7 +37,7 @@
                         <spring:message code="profile.no.interests"/>
                     </p>
 
-                    <!-- Add button when user has no interests -->
+
                     <div class="action-buttons">
                         <a href="<c:url value='/interests/edit'/>" class="btn-primary">
                             <spring:message code="profile.add.interests"/>

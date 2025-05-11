@@ -15,7 +15,7 @@
       </c:otherwise>
     </c:choose>
   </title>
-  <!-- Include custom CSS -->
+
   <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/form-enhancements.css'/>" />
@@ -67,7 +67,7 @@
     </c:choose>
 
     <form:form modelAttribute="createUniversityForm" action="${formAction}" method="post" class="auth-form" id="universityForm" novalidate="true">
-      <!-- Name Field -->
+
       <div class="form-group">
         <form:label path="name" cssClass="form-label required-field">
           <spring:message code="createUniversity.name"/>
@@ -76,7 +76,7 @@
         <form:errors path="name" cssClass="error-message" />
       </div>
 
-      <!-- Abbreviation Field -->
+
       <div class="form-group">
         <form:label path="abbreviation" cssClass="form-label required-field">
           <spring:message code="createUniversity.abbreviation"/>
@@ -85,7 +85,7 @@
         <form:errors path="abbreviation" cssClass="error-message" />
       </div>
 
-      <!-- City Field with Enhanced Autocomplete -->
+
       <div class="form-group">
         <form:label path="city" cssClass="form-label required-field">
           <spring:message code="createUniversity.city"/>
@@ -106,7 +106,7 @@
               </div>
             </c:forEach>
           </div>
-          <!-- Container for selected city tag -->
+
           <div id="selectedCity" class="selected-tags"></div>
         </div>
         <form:errors path="city" cssClass="error-message" />
@@ -132,9 +132,9 @@
   </div>
 </div>
 
-<!-- Include JavaScript files -->
 
-<!-- Include JavaScript files -->
+
+
 <script>
     window.apiBaseUrl = '<c:url value="/" />';
     universitySelectedCity = '<c:out value="${createUniversityForm.city}"/>';

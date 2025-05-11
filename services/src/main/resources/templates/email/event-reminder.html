@@ -24,22 +24,17 @@
         We wanted to remind you about an upcoming event you've registered for:
     </p>
 
-    <!-- Event Details Card -->
-    <div style="border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; margin-bottom: 25px;">
-        <!-- Event Image (if available) - Improved for responsiveness -->
-        <div th:if="${event.flyerImageId > 0}" style="width: 100%; background-color: #f0f0f0; text-align: center;">
+        <div style="border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; margin-bottom: 25px;">
+                <div th:if="${event.flyerImageId > 0}" style="width: 100%; background-color: #f0f0f0; text-align: center;">
             <img src="cid:eventImage" alt="Event Flyer" style="max-width: 100%; max-height: 400px; width: auto; height: auto; display: inline-block;" />
         </div>
 
-        <!-- Event Title -->
-        <div style="padding: 15px; background-color: #3366ff; color: white;">
+                <div style="padding: 15px; background-color: #3366ff; color: white;">
             <h2 th:text="${event.title}" style="margin: 0; font-size: 22px;">Event Title</h2>
         </div>
 
-        <!-- Event Details -->
-        <div style="padding: 20px;">
-            <!-- Date -->
-            <div style="display: flex; margin-bottom: 12px;">
+                <div style="padding: 20px;">
+                        <div style="display: flex; margin-bottom: 12px;">
                 <div style="min-width: 24px; margin-right: 10px;">
                     <span style="font-size: 18px;">📅</span>
                 </div>
@@ -49,8 +44,7 @@
                 </div>
             </div>
 
-            <!-- Time (if available) -->
-            <div th:if="${event.time.isPresent()}" style="display: flex; margin-bottom: 12px;">
+                        <div th:if="${event.time.isPresent()}" style="display: flex; margin-bottom: 12px;">
                 <div style="min-width: 24px; margin-right: 10px;">
                     <span style="font-size: 18px;">🕒</span>
                 </div>
@@ -60,8 +54,7 @@
                 </div>
             </div>
 
-            <!-- Location -->
-            <div style="display: flex; margin-bottom: 12px;">
+                        <div style="display: flex; margin-bottom: 12px;">
                 <div style="min-width: 24px; margin-right: 10px;">
                     <span style="font-size: 18px;">📍</span>
                 </div>
@@ -71,8 +64,7 @@
                 </div>
             </div>
 
-            <!-- Organizer -->
-            <div style="display: flex; margin-bottom: 12px;">
+                        <div style="display: flex; margin-bottom: 12px;">
                 <div style="min-width: 24px; margin-right: 10px;">
                     <span style="font-size: 18px;">👤</span>
                 </div>
@@ -82,8 +74,7 @@
                 </div>
             </div>
 
-            <!-- Attendees (if limit is set) -->
-            <div th:if="${event.attendeesLimit.isPresent()}" style="display: flex; margin-bottom: 12px;">
+                        <div th:if="${event.attendeesLimit.isPresent()}" style="display: flex; margin-bottom: 12px;">
                 <div style="min-width: 24px; margin-right: 10px;">
                     <span style="font-size: 18px;">👥</span>
                 </div>
@@ -94,8 +85,7 @@
             </div>
         </div>
 
-        <!-- Event Description -->
-        <div style="padding: 0 20px 20px 20px;">
+                <div style="padding: 0 20px 20px 20px;">
             <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; border-left: 4px solid #3366ff;">
                 <h4 style="margin-top: 0; margin-bottom: 10px; color: #333;" th:text="#{email.event.description}">Description:</h4>
                 <p style="margin: 0; color: #333;" th:text="${event.description}">Event description goes here.</p>
@@ -103,8 +93,7 @@
         </div>
     </div>
 
-    <!-- Event Status Alert (if event is full) -->
-    <div th:if="${event.getFull()}" style="background-color: #fff8e6; padding: 15px; border-radius: 8px; margin-bottom: 25px; border-left: 4px solid #ffcc00;">
+        <div th:if="${event.getFull()}" style="background-color: #fff8e6; padding: 15px; border-radius: 8px; margin-bottom: 25px; border-left: 4px solid #ffcc00;">
         <p style="margin: 0; color: #333; font-weight: bold;" th:text="#{email.event.reminder.full_notice}">
             Note: This event has reached its attendee limit. Please arrive early to ensure your spot.
         </p>
@@ -134,139 +123,4 @@
 </div>
 </body>
 </html>
-<!--<!DOCTYPE html>-->
-<!--<html xmlns="http://www.w3.org/1999/xhtml"-->
-<!--      xmlns:th="http://www.thymeleaf.org">-->
-<!--<head>-->
-<!--    <meta charset="UTF-8">-->
-<!--    <title th:text="#{email.event.reminder.title(${event.title})}">Event Reminder: Event Title</title>-->
-<!--</head>-->
-<!--<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; color: #333; margin: 0;">-->
-<!--<div style="text-align: center; margin-bottom: 30px;">-->
-<!--    <a href="http://pawserver.it.itba.edu.ar/paw-2025a-10/" style="text-decoration: none;">-->
-<!--        <h1 style="font-size: 28px; font-weight: bold; color: #000000; margin: 0;">-->
-<!--            Go<span style="color: #3366ff;">Together</span>-->
-<!--        </h1>-->
-<!--    </a>-->
-<!--    <h2 th:text="#{email.event.reminder.heading}">Event Reminder</h2>-->
-<!--</div>-->
 
-<!--<div style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: #333;">-->
-<!--    <p th:text="#{email.event.reminder.greeting(${firstname})}" style="margin-bottom: 20px;">-->
-<!--        Hello User,-->
-<!--    </p>-->
-
-<!--    <p th:text="#{email.event.reminder.intro}" style="margin-bottom: 20px;">-->
-<!--        We wanted to remind you about an upcoming event you've registered for:-->
-<!--    </p>-->
-
-<!--    &lt;!&ndash; Event Details Card &ndash;&gt;-->
-<!--    <div style="border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; margin-bottom: 25px;">-->
-<!--        &lt;!&ndash; Event Image (if available) &ndash;&gt;-->
-<!--        <div th:if="${event.flyerImageId > 0}" style="width: 100%; height: 200px; overflow: hidden; background-color: #f0f0f0;">-->
-<!--            <img src="cid:eventImage" alt="Event Flyer" style="width: 100%; object-fit: cover;" />-->
-<!--        </div>-->
-
-<!--        &lt;!&ndash; Event Title &ndash;&gt;-->
-<!--        <div style="padding: 15px; background-color: #3366ff; color: white;">-->
-<!--            <h2 th:text="${event.title}" style="margin: 0; font-size: 22px;">Event Title</h2>-->
-<!--        </div>-->
-
-<!--        &lt;!&ndash; Event Details &ndash;&gt;-->
-<!--        <div style="padding: 20px;">-->
-<!--            &lt;!&ndash; Date &ndash;&gt;-->
-<!--            <div style="display: flex; margin-bottom: 12px;">-->
-<!--                <div style="min-width: 24px; margin-right: 10px;">-->
-<!--                    <span style="font-size: 18px;">📅</span>-->
-<!--                </div>-->
-<!--                <div>-->
-<!--                    <strong th:text="#{email.event.date}">Date:</strong>-->
-<!--                    <span th:text="${event.date}">2025-01-01</span>-->
-<!--                </div>-->
-<!--            </div>-->
-
-<!--            &lt;!&ndash; Time (if available) &ndash;&gt;-->
-<!--            <div th:if="${event.time.isPresent()}" style="display: flex; margin-bottom: 12px;">-->
-<!--                <div style="min-width: 24px; margin-right: 10px;">-->
-<!--                    <span style="font-size: 18px;">🕒</span>-->
-<!--                </div>-->
-<!--                <div>-->
-<!--                    <strong th:text="#{email.event.time}">Time:</strong>-->
-<!--                    <span th:text="${event.time.get()}">14:00</span>-->
-<!--                </div>-->
-<!--            </div>-->
-
-<!--            &lt;!&ndash; Location &ndash;&gt;-->
-<!--            <div style="display: flex; margin-bottom: 12px;">-->
-<!--                <div style="min-width: 24px; margin-right: 10px;">-->
-<!--                    <span style="font-size: 18px;">📍</span>-->
-<!--                </div>-->
-<!--                <div>-->
-<!--                    <strong th:text="#{email.event.location}">Location:</strong>-->
-<!--                    <span th:text="${event.address + ', ' + event.eventCity.name}">123 Main St, City</span>-->
-<!--                </div>-->
-<!--            </div>-->
-
-<!--            &lt;!&ndash; Organizer &ndash;&gt;-->
-<!--            <div style="display: flex; margin-bottom: 12px;">-->
-<!--                <div style="min-width: 24px; margin-right: 10px;">-->
-<!--                    <span style="font-size: 18px;">👤</span>-->
-<!--                </div>-->
-<!--                <div>-->
-<!--                    <strong th:text="#{email.event.organizer}">Organizer:</strong>-->
-<!--                    <span th:text="${event.user.firstname + ' ' + event.user.lastname}">John Doe</span>-->
-<!--                </div>-->
-<!--            </div>-->
-
-<!--            &lt;!&ndash; Attendees (if limit is set) &ndash;&gt;-->
-<!--            <div th:if="${event.attendeesLimit.isPresent()}" style="display: flex; margin-bottom: 12px;">-->
-<!--                <div style="min-width: 24px; margin-right: 10px;">-->
-<!--                    <span style="font-size: 18px;">👥</span>-->
-<!--                </div>-->
-<!--                <div>-->
-<!--                    <strong th:text="#{email.event.attendees}">Attendees:</strong>-->
-<!--                    <span th:text="${event.attendeesCount + ' / ' + event.attendeesLimit.get()}">10 / 20</span>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-
-<!--        &lt;!&ndash; Event Description &ndash;&gt;-->
-<!--        <div style="padding: 0 20px 20px 20px;">-->
-<!--            <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; border-left: 4px solid #3366ff;">-->
-<!--                <h4 style="margin-top: 0; margin-bottom: 10px; color: #333;" th:text="#{email.event.description}">Description:</h4>-->
-<!--                <p style="margin: 0; color: #333;" th:text="${event.description}">Event description goes here.</p>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-
-<!--    &lt;!&ndash; Event Status Alert (if event is full) &ndash;&gt;-->
-<!--    <div th:if="${event.getFull()}" style="background-color: #fff8e6; padding: 15px; border-radius: 8px; margin-bottom: 25px; border-left: 4px solid #ffcc00;">-->
-<!--        <p style="margin: 0; color: #333; font-weight: bold;" th:text="#{email.event.reminder.full_notice}">-->
-<!--            Note: This event has reached its attendee limit. Please arrive early to ensure your spot.-->
-<!--        </p>-->
-<!--    </div>-->
-
-<!--    <p th:text="#{email.event.reminder.closing}" style="margin-bottom: 20px;">-->
-<!--        We look forward to seeing you there!-->
-<!--    </p>-->
-
-<!--    <div style="text-align: center; margin-top: 30px; margin-bottom: 30px;">-->
-<!--        <a th:href="@{http://pawserver.it.itba.edu.ar/paw-2025a-10/events/{id}(id=${event.id})}"-->
-<!--           style="display: inline-block; background-color: #3366ff; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;"-->
-<!--           th:text="#{email.event.view_details}">-->
-<!--            View Event Details-->
-<!--        </a>-->
-<!--    </div>-->
-
-<!--    <p th:text="#{email.event.reminder.signature}" style="margin-top: 30px; color: #666;">-->
-<!--        Best regards,<br/>The GoTogether Team-->
-<!--    </p>-->
-<!--</div>-->
-
-<!--<div style="text-align: center; margin-top: 20px; font-size: 12px; color: #777;">-->
-<!--    <p th:text="#{email.footer.unsubscribe_info}">-->
-<!--        You received this email because you registered for this event. If you no longer wish to receive these notifications, please update your preferences in your account settings.-->
-<!--    </p>-->
-<!--</div>-->
-<!--</body>-->
-<!--</html>-->

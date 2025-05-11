@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
-<%-- Pagination parameters --%>
+
 <c:set var="currentPage" value="${param.currentPage != null ? param.currentPage : 1}" />
 <c:set var="itemsPerPage" value="${param.itemsPerPage != null ? param.itemsPerPage : 10}" />
 <c:set var="totalPages" value="${param.totalPages != null ? param.totalPages : 1}" />
@@ -13,7 +13,7 @@
     <spring:message code="pagination.page" /> <c:out value="${currentPage}"/> <spring:message code="pagination.of" /> <c:out value="${totalPages}"/>
   </div>
   <div class="pagination-controls">
-    <%-- Previous button --%>
+
     <c:choose>
       <c:when test="${currentPage <= 1}">
         <span class="pagination-button prev-button disabled" aria-disabled="true">
@@ -35,7 +35,7 @@
       </c:otherwise>
     </c:choose>
 
-    <%-- Next button --%>
+
     <c:choose>
       <c:when test="${currentPage >= totalPages}">
         <span class="pagination-button next-button disabled" aria-disabled="true">

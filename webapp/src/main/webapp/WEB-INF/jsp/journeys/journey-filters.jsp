@@ -26,7 +26,7 @@
 
     <form id="filter-form" action="<c:url value='/journeys'/>" method="get" class="filters-form">
       <div class="filters-grid">
-        <!-- Destination Filter -->
+
         <div class="filter-group">
           <label for="destination" class="filter-label"><spring:message code="journey.filter.destination"/></label>
           <div class="filter-input-container">
@@ -38,7 +38,7 @@
           </div>
         </div>
 
-        <!-- Date Range Filter -->
+
         <div class="filter-group">
           <label for="startDate" class="filter-label"><spring:message code="journey.filter.startDate"/></label>
           <div class="filter-date-range">

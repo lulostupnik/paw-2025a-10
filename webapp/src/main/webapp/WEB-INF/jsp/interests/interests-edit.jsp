@@ -6,7 +6,7 @@
 <html lang="${pageContext.response.locale}">
 <head>
   <title><spring:message code="editInterests.title" text="Edit Interests"/></title>
-  <!-- Include custom CSS -->
+
   <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/form-enhancements.css'/>" />
@@ -37,18 +37,18 @@
     <c:url var="formAction" value="/interests/edit"/>
 
     <form:form modelAttribute="editInterestsForm" action="${formAction}" method="post" class="auth-form" id="interestsForm" novalidate="true">
-      <!-- Interests Field -->
+
       <div class="form-group">
         <form:label path="interests" cssClass="form-label required-field">
           <spring:message code="event.interest"/>
         </form:label>
 
-        <!-- Hidden select that will hold the actual form data -->
+
         <form:select path="interests" multiple="true" id="interestsSelect" style="display: none;" >
           <form:options items="${interests}" itemValue="id" itemLabel="name"/>
         </form:select>
 
-        <!-- Custom UI for interests selection -->
+
         <div class="autocomplete-wrapper">
           <input type="text" id="interestSearch" class="autocomplete-input ${not empty errors.getFieldError('interests') ? 'error' : ''}"
                  placeholder="<spring:message code="event.interest.search" text="Search interests..."/>" />
@@ -60,7 +60,7 @@
               </div>
             </c:forEach>
           </div>
-          <!-- Selected interests will appear here as tags -->
+
           <div id="selectedInterests" class="selected-tags required-selected-tags"></div>
 
           <form:errors path="interests" cssClass="error-message" />
@@ -80,7 +80,7 @@
   </div>
 </div>
 
-<!-- Include JavaScript files -->
+
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
 <script>
   window.apiBaseUrl = '<c:url value="/" />';

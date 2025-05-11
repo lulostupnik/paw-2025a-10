@@ -6,7 +6,7 @@
 <html lang="${pageContext.response.locale}">
 <head>
     <title><spring:message code="journey.edit.title"/></title>
-    <!-- Include custom CSS -->
+
     <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/form-enhancements.css'/>" />
@@ -33,7 +33,7 @@
 
         <c:url var="updateJourneyUrl" value="/journeys/${journeyId}/update"/>
         <form:form modelAttribute="createJourneyForm" action="${updateJourneyUrl}" method="post" class="auth-form" id="journeyForm" novalidate="true">
-            <!-- Start Date Field -->
+
             <div class="form-group">
                 <form:label path="startDate" cssClass="form-label required-field">
                     <spring:message code="createJourney.startDate"/>
@@ -42,7 +42,7 @@
                 <form:errors path="startDate" cssClass="error-message" />
             </div>
 
-            <!-- End Date Field -->
+
             <div class="form-group">
                 <form:label path="endDate" cssClass="form-label required-field">
                     <spring:message code="createJourney.endDate"/>
@@ -51,7 +51,7 @@
                 <form:errors path="endDate" cssClass="error-message" />
             </div>
 
-            <!-- Destination University Field with Enhanced Autocomplete -->
+
             <div class="form-group">
                 <form:label path="destinationUniversity" cssClass="form-label required-field">
                     <spring:message code="createJourney.destinationUniversity"/>
@@ -72,13 +72,13 @@
                             </div>
                         </c:forEach>
                     </div>
-                    <!-- Container for selected universities -->
+
                     <div id="selectedUniversities" class="selected-tags"></div>
                 </div>
                 <form:errors path="destinationUniversity" cssClass="error-message" />
             </div>
 
-            <!-- Description Field -->
+
             <div class="form-group">
                 <form:label path="description" cssClass="form-label required-field">
                     <spring:message code="createJourney.description"/>
@@ -106,7 +106,7 @@
     </div>
 </div>
 
-<!-- Include modularized JavaScript files -->
+
 <script>
     window.apiBaseUrl = '<c:url value="/" />';
     journeySelectedUniversity = '<c:out value="${createJourneyForm.destinationUniversity}"/>';

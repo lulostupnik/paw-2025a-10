@@ -14,7 +14,7 @@
 <div class="event-card-wrapper">
     <a href="<c:url value="/journeys/${param.journeyId}"/>" onclick="saveLink()" class="event-card-link">
         <div class="featured-event-card">
-            <!-- Image Container with improved aspect ratio for profile pictures -->
+
             <div class="event-image-container">
                 <c:if test="${not empty param.profilePictureId}">
                     <img src="<c:url value="/images/${param.profilePictureId}"/>"
@@ -28,7 +28,7 @@
                 </c:if>
             </div>
 
-            <!-- Journey Info with improved layout -->
+
             <div class="event-card-content">
                 <div class="event-card-header">
                     <div class="event-location">
@@ -52,10 +52,10 @@
                     </div>
                 </div>
 
-                <!-- Format dates -->
+
                 <fmt:parseDate value="${param.startDate}" pattern="yyyy-MM-dd" var="parsedStartDate" />
                 <fmt:parseDate value="${param.endDate}" pattern="yyyy-MM-dd" var="parsedEndDate" />
-                <!-- Parse and format dates -->
+
                 <fmt:parseDate value="${param.startDate}" pattern="yyyy-MM-dd" var="parsedStartDate" />
                 <fmt:parseDate value="${param.endDate}" pattern="yyyy-MM-dd" var="parsedEndDate" />
                 <fmt:formatDate value="${parsedStartDate}" pattern="MMMM d, yyyy" var="formattedStartDate" />

@@ -22,7 +22,7 @@
     </a>
   </div>
 
-  <!-- If journey not found -->
+
   <div class="card">
     <div class="mb-6">
       <h2><spring:message code="journey.not.found.title"/></h2>

@@ -67,12 +67,12 @@
       <jsp:param name="baseUrl" value="/dashboard/cities?search=${param.search}" />
     </jsp:include>
 
-<%--    <jsp:include page="../../components/pagination-controls.jsp">--%>
-<%--      <jsp:param name="currentPage" value="${pagedCities.currentPage}" />--%>
-<%--      <jsp:param name="itemsPerPage" value="10" />--%>
-<%--      <jsp:param name="totalPages" value="${pagedCities.totalPages}" />--%>
-<%--      <jsp:param name="search" value="${param.search}" />--%>
-<%--      <jsp:param name="currentUrl" value="/dashboard/cities" />--%>
-<%--    </jsp:include>--%>
+
+
+
+
+
+
+
   </div>
 </div>

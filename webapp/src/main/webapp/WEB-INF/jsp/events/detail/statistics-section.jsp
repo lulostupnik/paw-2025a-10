@@ -3,11 +3,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<%--
-Parameters:
-- showList: Whether to show the full attendees list (default: true)
-- showToggle: Whether to show the toggle button (default: true)
---%>
+
 
 <c:if test="${empty param.showList}">
     <c:set var="showList" value="true" />
@@ -27,7 +23,7 @@ Parameters:
     <div class="section-header">
         <div class="attendees-header">
             <h2 class="section-title">
-                <!-- Users icon SVG -->
+
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                     <circle cx="9" cy="7" r="4"></circle>
@@ -40,13 +36,13 @@ Parameters:
             <c:if test="${showToggle eq 'true' and showList eq 'true'}">
                 <button class="toggle-button" data-toggle="attendees-list" onclick="toggleSection('attendees-list')">
                     <span class="collapse-icon">
-                        <!-- Chevron up icon SVG -->
+
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="18 15 12 9 6 15"></polyline>
                         </svg>
                     </span>
                     <span class="expand-icon" style="display: none;">
-                        <!-- Chevron down icon SVG -->
+
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
@@ -86,13 +82,13 @@ Parameters:
         </div>
     </div>
 
-    <!-- Attendees List - Only shown if showList is true -->
+
     <c:if test="${showList eq 'true'}">
         <div id="attendees-list" class="attendees-grid">
             <c:if test="${empty attendeesPage.content}">
                 <div class="empty-state">
                     <div class="empty-icon">
-                        <!-- Users icon SVG -->
+
                         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                             <circle cx="9" cy="7" r="4"></circle>
