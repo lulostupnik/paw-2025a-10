@@ -68,9 +68,13 @@ public class CityServiceImpl implements CityService {
             }
     )
     public void updateCity(final long id,final String name,final String countryName) {
+        LOGGER.debug("Updating city with id {}, name {}, country {}", id, name, countryName);
         Country country = countryService.findByName(countryName)
-                .orElseThrow(() -> new IllegalArgumentException("Country not found"));
+                .orElseThrow(() -> {
+                    LOGGER.error("Country {} not found", countryName);
+                    return new IllegalArgumentException("Country not found");});
         cityDao.update(id, name, country);
+        LOGGER.info("City with id {} updated successfully", id);
     }
 
     @Override
@@ -85,11 +89,14 @@ public class CityServiceImpl implements CityService {
     )
 
     public long createCity(final String cityName,final String countryName) {
+        LOGGER.debug("Creating city with name {} and country {}", cityName, countryName);
         Country country = countryService.findByName(countryName)
                 .orElseThrow(() -> new IllegalArgumentException("Country not found"));
-        return cityDao.create(cityName, country);
+        long city = cityDao.create(cityName, country);
+        LOGGER.info("City with name {} and country {} created successfully", cityName, countryName);
+        return city;
     }
-
+//FIXME:esta raro esto de devolver long
 
     @Override
     @Transactional
@@ -104,11 +111,14 @@ public class CityServiceImpl implements CityService {
             }
     )
     public void delete(final long id) {
+        LOGGER.debug("Deleting city with id {}", id);
         cityDao.delete(id);
+        LOGGER.info("City with id {} deleted successfully", id);
     }
 
     @Override
     public Page<City> searchBySubstring(final String substring,final PageParams pageParams) {
+        LOGGER.debug("Searching cities with substring {}", substring);
         return cityDao.search(substring, pageParams);
     }
 

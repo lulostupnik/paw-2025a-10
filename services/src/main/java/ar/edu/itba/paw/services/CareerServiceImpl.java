@@ -61,7 +61,10 @@ public class CareerServiceImpl implements CareerService {
                     @CachePut(value = "careersByName", key = "#result.name")
     })
     public Career create(final String name) {
-        return careerDao.create(name);
+        LOGGER.debug("Creating career {}", name);
+        Career career = careerDao.create(name);
+        LOGGER.info("Career {} created", name);
+        return career;
     }
 
     @Override
@@ -74,7 +77,9 @@ public class CareerServiceImpl implements CareerService {
             }
     )
     public void update(final long id,final String name) {
+        LOGGER.debug("Updating career {} to {}", id, name);
         careerDao.update(id, name);
+        LOGGER.info("Career {} updated to {}", id, name);
     }
 
     @Override
@@ -85,7 +90,9 @@ public class CareerServiceImpl implements CareerService {
                 @CacheEvict(value = "careers", allEntries = true)
     })
     public void delete(final long id) {
+        LOGGER.debug("Deleting career {}", id);
         careerDao.delete(id);
+        LOGGER.info("Career {} deleted", id);
     }
 
 

@@ -32,6 +32,7 @@ public class CountryServiceImpl implements CountryService {
     @Override
     @Cacheable(value="countriesByName", key="#name")
     public Optional<Country> findByName(final String name) {
+        LOGGER.debug("Getting country {}", name);
         return countryDao.findByName(name);
     }
 
