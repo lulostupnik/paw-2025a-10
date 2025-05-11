@@ -75,13 +75,13 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public Optional<UserAuthInfo> validateEmail(final String token) {
-        if (userDao.hasExpired(token)) {
+        if (userDao.existsByTokenExpired(token)) {
             throw new ExpiredTokenException("Token expired", token);
         }
-        if(userDao.isValidated(token)){
+        if(userDao.findValidatedByTokenNotExpired(token)){
             throw new InvalidTokenException("Token already used");
         }
-        return userDao.validateEmail(token);
+        return userDao.updateValidationAndFindAuthInfoByToken(token);
     }
 
 
@@ -142,7 +142,7 @@ public class UserServiceImpl implements UserService {
         String uid = UUID.randomUUID().toString();
         User user = userDao.findByToken(oldToken).orElseThrow(()-> new RuntimeException("User not found"));
         LocalDate date = LocalDate.now().plusDays(1);
-        userDao.refreshToken(uid, date,oldToken);
+        userDao.updateTokenAndExpirationByToken(uid, date,oldToken);
         emailService.sendValidationEmail(user,uid);
     }
 
@@ -154,7 +154,7 @@ public class UserServiceImpl implements UserService {
         User user = userDao.findByToken(oldToken).orElseThrow(() -> new RuntimeException("User not found"));
         LocalDate date = LocalDate.now().plusDays(1);
 
-        userDao.refreshToken(uid, date,oldToken);
+        userDao.updateTokenAndExpirationByToken(uid, date,oldToken);
         emailService.sendForgotPassEmail(user, uid);
 
     }
@@ -162,10 +162,10 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void newPassword(final String token, final String newPassword) {
-        if(userDao.hasExpired(token)){
+        if(userDao.existsByTokenExpired(token)){
             throw new ExpiredPassTokenException("Token expired", token);
         }
-        if(!userDao.isTokenValid(token)){
+        if(!userDao.existsByTokenNotExpired(token)){
             throw new InvalidTokenException("Token already used");
         }
         userDao.updatePasswordByToken(token, passwordEncoder.encode(newPassword));
@@ -181,7 +181,7 @@ public class UserServiceImpl implements UserService {
         });
 
 
-        if(!userDao.isValidByEmail(email)){
+        if(!userDao.findValidationStatusByEmail(email)){
             throw new UserValidatedException("User not validated");
         }
 

@@ -317,26 +317,6 @@ public class UserJdbcDaoTest {
         assertFalse(exists);
     }
 
-    @Test
-    public void testUpdateProfilePicture(){        
-        userDao.updateProfilePicture(USER_1.getId(), PROFILEPIC_2.getId());
-        
-        assertEqualsUser(
-            jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()),
-            Map.of("profilepic", PROFILEPIC_2)
-        );
-    }
-    @Test(expected = DataAccessException.class)
-    public void testUpdateProfilePictureWrongPicture(){
-        userDao.updateProfilePicture(USER_1.getId(), 123411234);
-    }
-    @Test
-    public void testUpdateProfilePictureWrongUser(){
-        userDao.updateProfilePicture(1234, PROFILEPIC_2.getId());
-
-        assertUserDBDefaultStatus();
-    }
-
 
 
     @Test
@@ -563,72 +543,72 @@ public class UserJdbcDaoTest {
     }*/
 
     @Test
-    public void testIsTokenValid(){
+    public void testExistsByTokenNotExpired(){
         insertUser(Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL));
 
-        boolean isValid = userDao.isTokenValid(TestUtils.USER_VALID_TOKEN_DEFAULT);
+        boolean isValid = userDao.existsByTokenNotExpired(TestUtils.USER_VALID_TOKEN_DEFAULT);
 
         assertTrue(isValid);
     }
     @Test
-    public void testIsTokenValidNotInUse(){
-        boolean isValid = userDao.isTokenValid(TestUtils.USER_VALID_TOKEN_DEFAULT);
+    public void testExistsByTokenNotExpiredNotInUse(){
+        boolean isValid = userDao.existsByTokenNotExpired(TestUtils.USER_VALID_TOKEN_DEFAULT);
 
         assertFalse(isValid);
     }
     @Test
-    public void testIsTokenValidExpired(){
+    public void testExistsByTokenNotExpiredExpired(){
         insertUser(Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
 
-        boolean isValid = userDao.isTokenValid(TestUtils.USER_VALID_TOKEN_DEFAULT);
+        boolean isValid = userDao.existsByTokenNotExpired(TestUtils.USER_VALID_TOKEN_DEFAULT);
 
         assertFalse(isValid);
     }
 
     @Test
-    public void testValidateToken(){
+    public void testClearTokenByToken(){
         long id = insertUser(Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
 
-        userDao.validateToken(TestUtils.USER_VALID_TOKEN_DEFAULT);
+        userDao.clearTokenByToken(TestUtils.USER_VALID_TOKEN_DEFAULT);
 
         assertTrue(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_TOKEN_BY_ID, String.class, id) == null);
     }
     @Test
-    public void testValidateTokenWrongToken(){
+    public void testClearTokenByTokenWrongToken(){
         long id = insertUser(Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
 
-        userDao.validateToken("USER_VALID_TOKEN_DEFAULT");
+        userDao.clearTokenByToken("USER_VALID_TOKEN_DEFAULT");
 
         assertFalse(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_TOKEN_BY_ID, String.class, id) == null);
     }
 
     @Test
-    public void testHasExpired(){
+    public void testExistsByTokenExpired(){
         insertUser(Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL));
 
-        boolean isExpired = userDao.hasExpired(TestUtils.USER_VALID_TOKEN_DEFAULT);
+        boolean isExpired = userDao.existsByTokenExpired(TestUtils.USER_VALID_TOKEN_DEFAULT);
 
         assertFalse(isExpired);
     }
     @Test
-    public void testHasExpiredExpired(){
+    public void testExistsByTokenExpiredExpired(){
         insertUser(Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
 
-        boolean isExpired = userDao.hasExpired(TestUtils.USER_VALID_TOKEN_DEFAULT);
+        boolean isExpired = userDao.existsByTokenExpired(TestUtils.USER_VALID_TOKEN_DEFAULT);
 
         assertTrue(isExpired);
     }
     @Test
-    public void testHasExpiredMissing(){
-        boolean isExpired = userDao.hasExpired(TestUtils.USER_VALID_TOKEN_DEFAULT);
+    public void testExistsByTokenExpiredMissing(){
+        boolean isExpired = userDao.existsByTokenExpired(TestUtils.USER_VALID_TOKEN_DEFAULT);
 
         assertFalse(isExpired);
     }
     @Test
-    public void testHasExpiredEmpty(){
+    public void testExistsByTokenExpiredEmpty(){
         insertUser(Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
 
-        boolean isExpired = userDao.hasExpired("");
+        boolean isExpired = userDao.existsByTokenExpired("");
 
         assertFalse(isExpired);
     }
@@ -798,6 +778,27 @@ public void testUpdateUniversityNameWrongUser(){
 //    @Test
 //    public void testUpdateLocaleMissingUser(){
 //        userDao.updateLocale(1321423, Locale.of(TestUtils.USER_LOCALE));
+//
+//        assertUserDBDefaultStatus();
+//    }
+
+//
+//    @Test
+//    public void testUpdateProfilePicture(){
+//        userDao.updateProfilePicture(USER_1.getId(), PROFILEPIC_2.getId());
+//
+//        assertEqualsUser(
+//            jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()),
+//            Map.of("profilepic", PROFILEPIC_2)
+//        );
+//    }
+//    @Test(expected = DataAccessException.class)
+//    public void testUpdateProfilePictureWrongPicture(){
+//        userDao.updateProfilePicture(USER_1.getId(), 123411234);
+//    }
+//    @Test
+//    public void testUpdateProfilePictureWrongUser(){
+//        userDao.updateProfilePicture(1234, PROFILEPIC_2.getId());
 //
 //        assertUserDBDefaultStatus();
 //    }

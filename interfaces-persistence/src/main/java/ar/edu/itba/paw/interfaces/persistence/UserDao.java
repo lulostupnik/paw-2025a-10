@@ -15,11 +15,11 @@ public interface UserDao {
 
     void updateToken(long id, String uuid, LocalDate date);
 
-    boolean isValidByEmail(String email);
+    boolean findValidationStatusByEmail(String email);
 
     Optional<User> findByEmail(String email);
 
-    Optional<UserAuthInfo> validateEmail(String token);
+    Optional<UserAuthInfo> updateValidationAndFindAuthInfoByToken(String token);
 
     Optional<UserAuthInfo> findAuthInfoByEmail(String email);
 
@@ -29,14 +29,11 @@ public interface UserDao {
 
     void updatePassword(long id, String password);
 
-    void updateProfilePicture(long id, long profilePictureId);
-
     void update(long id, String firstname, String lastname, String username, Long universityId, Long careerId, Locale locale);
-
 
     void updateBlock(long id, boolean bool);
 
-    boolean isValidated(String token); // todo: rename to findValidatedByToken ?
+    boolean findValidatedByTokenNotExpired(String token); // todo: rename to findValidatedByToken ?
 
     Optional<User> findByToken(String token);
 
@@ -44,18 +41,18 @@ public interface UserDao {
 
     Page<User> search(String search, PageParams pageParams);
 
-    boolean isTokenValid(String token); // todo: rename to existsByToken() ?
+    boolean existsByTokenNotExpired(String token); // todo: rename to existsByToken() ?
 
-    boolean hasExpired(String token);
+    boolean existsByTokenExpired(String token);
 
-    void validateToken(String token); // todo: renombrar a updateToken o algo así?
+    void clearTokenByToken(String token); // todo: renombrar a updateToken o algo así?
 
-    void refreshToken(String newToken, LocalDate date, String oldToken); // todo: idem anterior
-
-    // van en este dao?
+    void updateTokenAndExpirationByToken(String newToken, LocalDate date, String oldToken); // todo: idem anterior
 
     List<User> findAllJourneyResponders(long journeyId);
 
     List<User> findAllEventResponders(long eventId);
 
 }
+
+//    void updateProfilePicture(long id, long profilePictureId);

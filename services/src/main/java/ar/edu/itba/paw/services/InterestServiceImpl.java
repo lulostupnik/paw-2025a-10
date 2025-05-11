@@ -90,12 +90,12 @@ public class InterestServiceImpl implements InterestService {
     @Transactional
     public void saveUserInterests(final long[] interests,final  long userId) {
         LOGGER.debug("Adding interest list to user {}", userId);
-        interestDao.saveUserInterests(interests, userId);
+        interestDao.createUserInterests(interests, userId);
     }
 
     @Override
     public void saveUserInterests(final List<String> interests,final  long userId) {
-        interestDao.saveUserInterests(interests, userId);
+        interestDao.createUserInterests(interests, userId);
     }
 
     @Override

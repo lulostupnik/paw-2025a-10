@@ -87,7 +87,7 @@ public class InterestJdbcDao implements InterestDao {
     }
 
     @Override
-    public void saveUserInterests(final long[] interests, final long userId) {
+    public void createUserInterests(final long[] interests, final long userId) {
         LOGGER.debug("Registering to DB new interests {} for user {}...", interests, userId);
         for (long interest : interests) {
             jdbcTemplate.update("INSERT INTO user_interest (user_id, category_id) VALUES (?, ?)", userId, interest);
@@ -161,7 +161,7 @@ public class InterestJdbcDao implements InterestDao {
     }
 
     @Override
-    public void saveUserInterests(final List<String> interestNames, final long userId){
+    public void createUserInterests(final List<String> interestNames, final long userId){
        for(String interestName : interestNames) {
            jdbcTemplate.update(
                    "INSERT INTO user_interest (user_id, category_id) VALUES (?, (SELECT id FROM category WHERE name = ?))",

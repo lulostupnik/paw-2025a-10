@@ -155,8 +155,8 @@ public class InterestJdbcDaoTest {
     }
 
     @Test
-    public void testSaveUserInterests(){  
-        interestDao.saveUserInterests(interestData.keySet().stream().mapToLong(l->l).toArray(), USER_2.getId());
+    public void testCreateUserInterests(){
+        interestDao.createUserInterests(interestData.keySet().stream().mapToLong(l->l).toArray(), USER_2.getId());
 
         assertEquals(TestUtils.TOTAL_USER_INTERESTS + 3, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_INTEREST_TABLE));
         List<Interest> interests = jdbcTemplate.query(TestUtils.INTEREST_SELECT_BY_USER_ID,
@@ -169,17 +169,17 @@ public class InterestJdbcDaoTest {
         }
     }
     @Test(expected = DataAccessException.class)
-    public void testSaveUserInterestsWrongInterest(){
+    public void testCreateUserInterestsWrongInterest(){
         long[] array = new long[3];
         array[0] = INTEREST_1.getId();
         array[1] = INTEREST_2.getId();
         array[2] = 12341234;
         
-        interestDao.saveUserInterests(array, USER_1.getId());
+        interestDao.createUserInterests(array, USER_1.getId());
     }
     @Test
-    public void testSaveUserInterestsEmptyInterests(){
-        interestDao.saveUserInterests(new long[0], USER_1.getId());
+    public void testCreateUserInterestsEmptyInterests(){
+        interestDao.createUserInterests(new long[0], USER_1.getId());
         
         assertEquals(TestUtils.TOTAL_INTERESTS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.INTEREST_TABLE));
         assertEquals(TestUtils.TOTAL_USER_INTERESTS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_INTEREST_TABLE));
