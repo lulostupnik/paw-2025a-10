@@ -47,7 +47,7 @@
             <!-- Back Button -->
             <div class="back-button-container">
                 <c:if test="${not isEventOwner}">
-                    <button onclick="goBack()" class="back-button">
+                    <button onclick="goBack()" class="back-link">
                         <!-- Back arrow SVG -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M19 12H5"></path>
@@ -57,7 +57,7 @@
                     </button>
                 </c:if>
                 <c:if test="${isEventOwner}">
-                    <button onclick="goBack()" class="back-button">
+                    <button onclick="goBack()" class="back-link">
                         <!-- Back arrow SVG -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M19 12H5"></path>
@@ -182,7 +182,7 @@
                                 <line x1="8" y1="2" x2="8" y2="6"></line>
                                 <line x1="3" y1="10" x2="21" y2="10"></line>
                             </svg>
-                            <fmt:parseDate value="${param.date}" pattern="yyyy-MM-dd" var="parsedDate" />
+                            <fmt:parseDate value="${event.date}" pattern="yyyy-MM-dd" var="parsedDate" />
                             <fmt:formatDate value="${parsedDate}" pattern="MMMM d, yyyy" var="formattedDate" />
                             <span><c:out value="${formattedDate}" /></span>
                         </div>
