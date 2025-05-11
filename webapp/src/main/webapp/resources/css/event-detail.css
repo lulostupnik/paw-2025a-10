@@ -5,22 +5,6 @@
     margin-bottom: 1.5rem;
 }
 
-.back-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #4f46e5;
-    text-decoration: none;
-    font-weight: 500;
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-    transition: all 0.2s ease;
-    background-color: rgba(79, 70, 229, 0.1);
-}
-
-.back-button:hover {
-    background-color: rgba(79, 70, 229, 0.2);
-}
 
 /* Main Container */
 .event-detail-container {

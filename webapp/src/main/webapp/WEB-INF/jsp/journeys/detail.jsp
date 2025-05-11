@@ -149,8 +149,8 @@
                                         <line x1="8" y1="2" x2="8" y2="6"></line>
                                         <line x1="3" y1="10" x2="21" y2="10"></line>
                                     </svg>
-                                    <fmt:parseDate value="${param.startDate}" pattern="yyyy-MM-dd" var="parsedStartDate" />
-                                    <fmt:parseDate value="${param.endDate}" pattern="yyyy-MM-dd" var="parsedEndDate" />
+                                    <fmt:parseDate value="${journey.startDate}" pattern="yyyy-MM-dd" var="parsedStartDate" />
+                                    <fmt:parseDate value="${journey.endDate}" pattern="yyyy-MM-dd" var="parsedEndDate" />
                                     <fmt:formatDate value="${parsedStartDate}" pattern="MMMM d, yyyy" var="formattedStartDate" />
                                     <fmt:formatDate value="${parsedEndDate}" pattern="MMMM d, yyyy" var="formattedEndDate" />
                                     <span class="date-range">
