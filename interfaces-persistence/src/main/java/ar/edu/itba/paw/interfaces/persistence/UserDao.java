@@ -9,13 +9,13 @@ import java.util.Optional;
 public interface UserDao {
     User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale, String validateToken, LocalDate validateTokenExpiration);
 
-    void newPassword(String token, String newPassword); // todo: o en servicios verificar token y después hacer changePassword ?
+    void updatePasswordByToken(String token, String newPassword);
 
     Optional<User> findById(long id);
 
     void updateToken(long id, String uuid, LocalDate date);
 
-    boolean isUserValidByEmail(String email);
+    boolean isValidByEmail(String email);
 
     Optional<User> findByEmail(String email);
 
@@ -33,9 +33,8 @@ public interface UserDao {
 
     void update(long id, String firstname, String lastname, String username, Long universityId, Long careerId, Locale locale);
 
-    void blockUser(long id); // rename to updateB
 
-    void unblockUser(long id);
+    void updateBlock(long id, boolean bool);
 
     boolean isValidated(String token); // todo: rename to findValidatedByToken ?
 
@@ -45,7 +44,6 @@ public interface UserDao {
 
     Page<User> search(String search, PageParams pageParams);
 
-    // podríamos generalizar en findBy(String field, String value) o algo por el estilo
     boolean isTokenValid(String token); // todo: rename to existsByToken() ?
 
     boolean hasExpired(String token);

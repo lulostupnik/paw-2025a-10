@@ -15,7 +15,7 @@ public interface JourneyService {
     Optional<Journey> getJourneyById(long id);
     Optional<Journey> getJourneyByEmail(String email);
     Page<Journey> getAllJourneys(String search, User user, SortFieldJourney sortBy, SortDirection direction, String destination, LocalDate startDate, LocalDate endDate, String interest, boolean isPast, boolean isUpcoming, boolean isMyDestination, boolean isOngoing, PageParams pageParams);
-    boolean userHasJourney(String email); // ja
+    boolean userHasJourney(String email);
     boolean userHasJourney(User user);
     List<Journey> getRecommendedJourneys(String email, int limit);
     void delete(long id, String message);
