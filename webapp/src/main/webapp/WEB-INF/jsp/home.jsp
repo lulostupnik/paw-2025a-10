@@ -12,8 +12,78 @@
     <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
     <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
 </head>
+<style>
+    .popup-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .popup-container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+    }
+
+    .popup-icon {
+        color: #4CAF50;
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 16px;
+    }
+
+    .popup-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .popup-message {
+        margin-bottom: 16px;
+        color: #666;
+    }
+
+    .popup-button {
+        background-color: #4361ee;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+    .popup-button:hover {
+        background-color: #3a56d4;
+    }
+</style>
 
 <body>
+<c:if test="${validationSuccess eq true}">
+    <div id="successPopup" class="popup-overlay" style="display: flex;">
+        <div class="popup-container">
+            <svg xmlns="http://www.w3.org/2000/svg" class="popup-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 class="popup-title"><spring:message code="validation.success.title" /></h3>
+            <p class="popup-message">
+                <spring:message code="validation.success.message" />
+            </p>
+            <button type="button" class="popup-button" id="closePopup"><spring:message code="validation.success.button" /></button>
+        </div>
+    </div>
+</c:if>
 <div class="layout-container">
     <!-- Include the sidebar component -->
 
@@ -217,4 +287,41 @@
     </div>
 </div>
 </body>
+<%-- Add this script at the end of your body tag, just before the closing </body> --%>
+<script>
+    // Get the popup and close button elements
+    const successPopup = document.getElementById('successPopup');
+    const closePopupBtn = document.getElementById('closePopup');
+
+    // Add click event listener to close button
+    if (closePopupBtn) {
+        closePopupBtn.addEventListener('click', function() {
+            successPopup.style.display = 'none';
+        });
+    }
+
+    // Close popup when clicking outside the popup container
+    if (successPopup) {
+        successPopup.addEventListener('click', function(event) {
+            if (event.target === successPopup) {
+                successPopup.style.display = 'none';
+            }
+        });
+    }
+
+    // Auto-close the popup after 5 seconds
+    if (successPopup && successPopup.style.display === 'flex') {
+        setTimeout(function() {
+            successPopup.style.display = 'none';
+        }, 5000);
+    }
+
+    // Add escape key listener to close popup
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && successPopup && successPopup.style.display === 'flex') {
+            successPopup.style.display = 'none';
+        }
+    });
+</script>
 </html>
+
