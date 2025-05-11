@@ -68,6 +68,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit);
         LOGGER.info("Event {} created", event.getId());
         eventAttendanceDao.create(user.getId(), event.getId());
+        eventDao.incrementAttendeesCount(event.getId());
         return event;
     }
 
@@ -148,6 +149,7 @@ public class EventServiceImpl implements EventService {
             return;
         }
         eventAttendanceDao.create(userId, eventId);
+        eventDao.incrementAttendeesCount(eventId);
         LOGGER.info("User {} is now attending event {}", userId, eventId);
     }
 
