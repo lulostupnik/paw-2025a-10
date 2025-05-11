@@ -49,7 +49,7 @@ public class Event {
         sb.append(", date: \"");
         sb.append(date);
         sb.append("\", time: \"");
-        sb.append(time != null ? time : "all-day");
+        sb.append(time.isPresent() ? time : "all-day");
         sb.append("\", address: \"");
         sb.append(address);
         sb.append("\", attendeesLimit: ");
