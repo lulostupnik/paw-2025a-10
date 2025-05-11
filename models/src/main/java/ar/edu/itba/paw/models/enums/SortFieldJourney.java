@@ -8,7 +8,7 @@ public enum SortFieldJourney {
 
     START_DATE("start_date"),
     END_DATE("end_date");
-//    RESPONDERS("responders");
+
 
     private final String param;
 

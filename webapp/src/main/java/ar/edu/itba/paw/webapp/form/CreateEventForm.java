@@ -1,11 +1,7 @@
 package ar.edu.itba.paw.webapp.form;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
-
 import javax.validation.constraints.*;
-//import javax.validation.constraints.Pattern;
-
 import ar.edu.itba.paw.webapp.validation.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.NumberFormat;

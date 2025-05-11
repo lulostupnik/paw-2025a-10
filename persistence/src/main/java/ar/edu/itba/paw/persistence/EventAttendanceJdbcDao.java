@@ -211,7 +211,6 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
     @Override
     public int countByEventId(final long eventId) {
         return jdbcTemplate.query("SELECT attendees_count FROM events WHERE id = ?", (rs, rowNum) -> rs.getInt("attendees_count"), eventId).stream().findFirst().orElse(0);
-        // return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM event_attendances WHERE event_id = ?",  Integer.class, eventId);
     }
 
     public List<Event> getAttendingEvents(final long userId) {
@@ -219,7 +218,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
     }
 
     @Override
-    public Page<User> findAllAttendeesByEventId(final long eventId, PageParams pageParams) {
+    public Page<User> findAllAttendeesByEventId(final long eventId, final PageParams pageParams) {
         final int totalItems = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM event_attendances WHERE event_id = ?",
                 Integer.class,
@@ -235,7 +234,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
     }
 
     @Override
-    public Page<Event> findAllEventsByAttendee(final long userId, PageParams pageParams) {
+    public Page<Event> findAllEventsByAttendee(final long userId, final PageParams pageParams) {
         final int totalItems = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM event_attendances ea JOIN events e ON ea.event_id = e.id WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE",
                 Integer.class,

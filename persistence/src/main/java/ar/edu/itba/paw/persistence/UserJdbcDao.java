@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.persistence;
 
-import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
@@ -132,7 +131,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public boolean isUserValidByEmail(final String email) {
+    public boolean isValidByEmail(final String email) {
         return jdbcTemplate.queryForObject("SELECT validated FROM users WHERE email = ? ", Boolean.class, email);
     }
 
@@ -197,7 +196,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public void newPassword(final String token, final String newPassword) {
+    public void updatePasswordByToken(final String token, final String newPassword) {
         jdbcTemplate.update("""
         UPDATE users SET password = ? WHERE token = ?
     """, newPassword, token);
@@ -298,15 +297,12 @@ public class UserJdbcDao implements UserDao {
         AND token_expiration > NOW()
     """;
 
-        // Use query to handle an empty result set without throwing an exception
         List<Boolean> results = jdbcTemplate.query(sql, (rs, rowNum) -> rs.getBoolean("validated"), token);
 
-        // If no results, return false
         if (results.isEmpty()) {
             return false;
         }
 
-        // Return the first result
         return Boolean.TRUE.equals(results.get(0));
     }
 
@@ -399,27 +395,16 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public void blockUser(final long userId){
+    public void updateBlock(final long userId, final boolean bool){
         LOGGER.info("Blocking user with ID: {}", userId);
         final int rowsAffected = jdbcTemplate.update(
-                "UPDATE users SET blocked = TRUE WHERE id = ?",
+                "UPDATE users SET blocked = ? WHERE id = ?",
+                bool,
                 userId
         );
 
         if (rowsAffected == 0) {
             LOGGER.warn("User block failed: User with ID {} not found", userId);
-        }
-    }
-    @Override
-    public void unblockUser(final long userId){
-        LOGGER.info("Unblocking user with ID: {}", userId);
-        final int rowsAffected = jdbcTemplate.update(
-                "UPDATE users SET blocked = FALSE WHERE id = ?",
-                userId
-        );
-
-        if (rowsAffected == 0) {
-            LOGGER.warn("User unblock failed: User with ID {} not found", userId);
         }
     }
 
@@ -433,111 +418,3 @@ public class UserJdbcDao implements UserDao {
     }
 
 }
-
-// ES POSIBLE QUE SE VUELVAN A USAR
-
-//@Override
-//public void updateCareer(long userId, String careerName) {
-//    LOGGER.info("Updating career for user ID: {} to university with name: {}", userId, careerName);
-//
-//    final int rowsAffected = jdbcTemplate.update("""
-//                UPDATE users
-//                SET career_id = (SELECT id FROM careers WHERE name = ?)
-//                WHERE id = ?
-//                """, careerName, userId);
-//    if (rowsAffected == 0) {
-//        LOGGER.warn("User {} not found", userId);
-//    }
-//}
-
-//
-//    @Override
-//    public void updateCareer(final long userId, final long careerId) {
-//        LOGGER.info("Updating career for user ID: {} to career ID: {}", userId, careerId);
-//        final int rowsAffected = jdbcTemplate.update("UPDATE users SET career_id = ? WHERE id = ?", careerId, userId);
-//        if (rowsAffected == 0) {
-//            LOGGER.warn("User {} not found", userId);
-//        }
-//        // return update(userId, null, null, null, null, careerId, null);
-//    }
-
-
-//    @Override
-//    public void updateUniversity(final long userId, final String universityName) {
-//        LOGGER.info("Updating university for user ID: {} to university with name: {}", userId, universityName);
-//
-//        final int rowsAffected = jdbcTemplate.update("""
-//                UPDATE users
-//                SET university = (SELECT id FROM universities WHERE name = ?)
-//                WHERE id = ?
-//                """, universityName, userId);
-//        if (rowsAffected == 0) {
-//            LOGGER.warn("User {} not found", userId);
-//        }
-//    }
-
-//
-//    @Override
-//    public void updateUniversity(final long userId, final long universityId) {
-//        LOGGER.info("Updating university for user ID: {} to university ID: {}", userId, universityId);
-//        final int rowsAffected = jdbcTemplate.update("UPDATE users SET university = ? WHERE id = ?", universityId, userId);
-//        if (rowsAffected == 0) {
-//            LOGGER.warn("User {} not found", userId);
-//        }
-//        // return update(userId, null, null, null, universityId, null, null);
-//    }
-
-//
-//    @Override
-//    public void updateProfileInfo(final long userId, final String firstname, final String lastname, final String username) {
-//        LOGGER.debug("Updating profile info for user ID: {} (name '{}', '{}', username '{}')", userId, firstname, lastname, username);
-//
-//        final StringBuilder queryBuilder = new StringBuilder("UPDATE users SET ");
-//        final List<Object> parameters = new ArrayList<>();
-//        boolean hasUpdates = false;
-//
-//        if (firstname != null) {
-//            queryBuilder.append("firstname = ?");
-//            parameters.add(firstname);
-//            hasUpdates = true;
-//        }
-//
-//        if (lastname != null) {
-//            if (hasUpdates) queryBuilder.append(", ");
-//            queryBuilder.append("lastname = ?");
-//            parameters.add(lastname);
-//            hasUpdates = true;
-//        }
-//
-//        if (username != null) {
-//            if (hasUpdates) queryBuilder.append(", ");
-//            queryBuilder.append("username = ?");
-//            parameters.add(username);
-//            hasUpdates = true;
-//        }
-//
-//        if (!hasUpdates) {
-//            LOGGER.warn("No profile info updates provided for user with ID: {}", userId);
-//            return;
-//        }
-//
-//        queryBuilder.append(" WHERE id = ?");
-//        parameters.add(userId);
-//
-//        final int rowsAffected = jdbcTemplate.update(queryBuilder.toString(), parameters.toArray());
-//        if (rowsAffected == 0) {
-//            LOGGER.warn("User {} not found", userId);
-//        }
-//        // return update(userId, firstname, lastname, username, null, null, null);
-//    }
-//
-//    @Override
-//    public void updateLocale(final long userId, final Locale locale) {
-//        LOGGER.info("Updating locale for user ID: {} to {}", userId, locale);
-//        final int rowsAffected = jdbcTemplate.update("UPDATE users SET language = ? WHERE id = ?", locale.getLanguage(), userId);
-//        if (rowsAffected == 0) {
-//            LOGGER.warn("User {} not found", userId);
-//        }
-//        // return update(userId, null, null, null, null, null, locale);
-//    }
-//

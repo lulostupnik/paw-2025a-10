@@ -16,6 +16,8 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    gap: 1rem; /* Reduced gap between checkbox and text */
+
 }
 
 .form-input,

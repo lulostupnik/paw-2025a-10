@@ -17,7 +17,7 @@ public interface EventDao {
     Optional<Integer> findAttendanceLimitById(long eventId);
     List<Event> findAllBetweenDates(LocalDate startDate, LocalDate endDate);
     Page<Event> findRecommended(long userId, PageParams pageParams);
-    Page<Event> findTop(PageParams pageParams);                           //top events
+    Page<Event> findTop(PageParams pageParams);
     Page<Event> findTopByUser(long userId, PageParams pageParams);
     Page<Event> findByUserEmail(String email, PageParams pageParams);
     Page<Event> findAll(PageParams pageParams);
@@ -29,9 +29,3 @@ public interface EventDao {
 
     Optional<EventWithStatistics> findEventWithStatistics(Long userId, long eventId);
 }
-
-//    Page<Event> getOthersEvents(long userId, PageParams pageParams);
-//    Page<Event> findByUserId(long userId, PageParams pageParams);
-
-//    Page<UserEvent> getEventsWithAttendanceStatus(long userId, PageParams pageParams);
-//    Page<UserEvent> getEventsWithAttendanceStatus(String search, long userId, PageParams pageParams);

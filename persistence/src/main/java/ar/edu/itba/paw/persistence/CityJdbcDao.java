@@ -43,7 +43,6 @@ public class CityJdbcDao implements CityDao {
     private final static String SQL_FIND_ALL = SQL_BASE + " ORDER BY ci.name";
 
     private final static String SQL_FIND_ALL_PAGED = SQL_FIND_ALL + " LIMIT ? OFFSET ?";
-    private final static String SQL_FIND_BY_COUNTRY = SQL_BASE + "AND co.name = ?";
     private final static String SQL_SEARCH_PAGED = SQL_BASE + " AND (LOWER(ci.name) LIKE LOWER(?) OR LOWER(co.name) LIKE LOWER(?)) LIMIT ? OFFSET ? ";
 
 
@@ -94,6 +93,7 @@ public class CityJdbcDao implements CityDao {
         }
     }
 
+    // todo: esto debería retornar un City
     @Override
     public long create(final String name, final Country country) {
         LOGGER.debug("Creating or reactivating city {} in country {}", name, country.getName());
@@ -117,7 +117,6 @@ public class CityJdbcDao implements CityDao {
         params.put("country_id", country.getId());
         params.put("deleted", false);
         final long id = jdbcInsert.executeAndReturnKey(params).longValue();
-        LOGGER.info("Registered city '{}', '{}' with id {}", name, country, id);
         return id;
     }
 
@@ -134,22 +133,15 @@ public class CityJdbcDao implements CityDao {
     @Override
     public Page<City> search(final String searchTerm, final PageParams pageParams) {
         final String searchPattern = likePattern(searchTerm);
-        final int totalItems = jdbcTemplate.queryForObject(
-                """
+        return executePagedQuery(
+                jdbcTemplate, CITY_ROW_MAPPER, """
                 SELECT COUNT(*)
                 FROM cities ci JOIN countries co ON ci.country_id = co.id
                 WHERE deleted = FALSE AND (
                     LOWER(ci.name) LIKE LOWER(?)
                     OR LOWER(co.name) LIKE LOWER(?)
                     )
-                """,
-                Integer.class,
-                searchPattern, searchPattern
-        );
-        return new Page<>(
-                jdbcTemplate.query(SQL_SEARCH_PAGED, CITY_ROW_MAPPER, searchPattern, searchPattern, pageParams.getSize(), offset(pageParams)),
-                pageParams.getPage(),
-                pageCount(totalItems, pageParams.getSize())
+                """, SQL_SEARCH_PAGED, pageParams, searchPattern, searchPattern
         );
     }
 
