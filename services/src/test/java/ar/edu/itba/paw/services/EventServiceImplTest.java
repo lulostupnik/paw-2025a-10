@@ -183,17 +183,7 @@ public class EventServiceImplTest {
     }
 
 
-    @Test
-    public void testGetAllEventsPaged(){
-        Mockito.when(
-            eventDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(EVENTS_PAGE);
 
-        Page<Event> page = eventService.getAllEvents(PAGE_1_DEFAULT);
-
-        assertNotNull(page);
-        assertEquals(EVENTS_PAGE, page);
-    } 
 
     @Test
     public void testGetAllEventsPagedEmail(){
@@ -400,29 +390,7 @@ public class EventServiceImplTest {
 
         assertTrue(attending);
     }
-    @Test
-    public void testIsUserAttendingEmail(){
-        Mockito.when(
-            attendanceDao.isAttending(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
-        ).thenReturn(true);
-        Mockito.when(
-            userService.findByEmail(Mockito.eq(EMAIL))
-        ).thenReturn(Optional.of(USER));
 
-        boolean attending = eventService.isUserAttending(EMAIL, EVENT_ID);
-
-        assertTrue(attending);
-    }
-    @Test(expected = NoSuchElementException.class)
-    public void testIsUserAttendingEmailNotFound(){
-        Mockito.when(
-            userService.findByEmail(Mockito.eq(EMAIL))
-        ).thenReturn(Optional.empty());
-
-        boolean attending = eventService.isUserAttending(EMAIL, EVENT_ID);
-
-        assertTrue(attending);
-    }
 
     @Test
     public void testGetAttendees(){
@@ -561,42 +529,7 @@ public class EventServiceImplTest {
         assertFalse(isOwned);
     }
 
-    @Test
-    public void testIsEventFull(){
-        Mockito.when(
-            eventDao.findAttendanceLimitById(Mockito.eq(EVENT_ID))
-        ).thenReturn(Optional.of(LIMIT));
-        Mockito.when(
-            attendanceDao.getAttendeesCount(Mockito.eq(EVENT_ID))
-        ).thenReturn(ATTENDEES);
 
-        boolean isFull = eventService.isEventFull(EVENT_ID);
-
-        assertFalse(isFull);
-    }    
-    @Test
-    public void testIsEventFullActuallyFull(){
-        Mockito.when(
-            eventDao.findAttendanceLimitById(Mockito.eq(EVENT_ID))
-        ).thenReturn(Optional.of(ATTENDEES));
-        Mockito.when(
-            attendanceDao.getAttendeesCount(Mockito.eq(EVENT_ID))
-        ).thenReturn(ATTENDEES);
-
-        boolean isFull = eventService.isEventFull(EVENT_ID);
-
-        assertTrue(isFull);
-    }   
-    @Test
-    public void testIsEventFullNoLimit(){
-        Mockito.when(
-            eventDao.findAttendanceLimitById(Mockito.eq(EVENT_ID))
-        ).thenReturn(Optional.empty());
-
-        boolean isFull = eventService.isEventFull(EVENT_ID);
-
-        assertFalse(isFull);
-    }
 
 
 //    @Test

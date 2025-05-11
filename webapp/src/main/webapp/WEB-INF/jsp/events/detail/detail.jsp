@@ -78,7 +78,7 @@
                         <!-- Action Controls - FIXED POSITIONING -->
                         <div class="action-controls">
                             <!-- Attendance Control for non-event owners -->
-                            <c:if test="${not isEventOwner and not empty user and event.isFuture}">
+                            <c:if test="${not isEventOwner and not empty user and event.isFuture and not event.full}">
                                 <c:choose>
                                     <c:when test="${attend}">
                                         <div class="attendance-status">
