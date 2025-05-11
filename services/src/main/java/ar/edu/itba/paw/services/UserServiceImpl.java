@@ -161,12 +161,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean isValidPasswordResetToken(String token) {
-       return userDao.isTokenValid(token);
+       return userDao.existsByTokenNotExpired(token);
     }
 
     @Override
     public boolean isTokenExpired(String token) {
-        return userDao.hasExpired(token);
+        return userDao.existsByTokenExpired(token);
     }
 
     @Override
