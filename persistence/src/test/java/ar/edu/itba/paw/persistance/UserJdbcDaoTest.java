@@ -132,8 +132,9 @@ public class UserJdbcDaoTest {
         params.put("profile_picture_id", overrideParams.getOrDefault("profilepic", PROFILEPIC_1.getId()));
         params.put("roles", overrideParams.getOrDefault("roles", TestUtils.USER_ROLE));
         params.put("blocked", overrideParams.getOrDefault("blocked", false));
-        params.put("validate_token", overrideParams.getOrDefault("token", TestUtils.USER_VALID_TOKEN_DEFAULT));
-        params.put("validate_token_expiration_date", Date.valueOf((LocalDate)overrideParams.getOrDefault("tokenExpiration", TestUtils.USER_EXPIRATION_DEFAULT)));
+        params.put("token", overrideParams.getOrDefault("token", TestUtils.USER_VALID_TOKEN_DEFAULT));
+        params.put("token_expiration", Date.valueOf((LocalDate)overrideParams.getOrDefault("tokenExpiration", TestUtils.USER_EXPIRATION_DEFAULT)));
+        params.put("validated",overrideParams.getOrDefault("validated", true));
         return insert.executeAndReturnKey(params).longValue();
     }
 
@@ -600,7 +601,7 @@ public class UserJdbcDaoTest {
 
         userDao.validateToken(TestUtils.USER_VALID_TOKEN_DEFAULT);
 
-        assertTrue(jdbcTemplate.queryForObject("SELECT validate_token FROM users WHERE id = ?", String.class, id) == null);
+        assertTrue(jdbcTemplate.queryForObject("SELECT token FROM users WHERE id = ?", String.class, id) == null);
     }
     @Test
     public void testValidateTokenWrongToken(){
@@ -608,7 +609,7 @@ public class UserJdbcDaoTest {
 
         userDao.validateToken("USER_VALID_TOKEN_DEFAULT");
 
-        assertFalse(jdbcTemplate.queryForObject("SELECT validate_token FROM users WHERE id = ?", String.class, id) == null);
+        assertFalse(jdbcTemplate.queryForObject("SELECT token FROM users WHERE id = ?", String.class, id) == null);
     }
 
     @Test
