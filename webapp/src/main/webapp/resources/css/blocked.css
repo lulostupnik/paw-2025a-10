@@ -1,6 +1,6 @@
-/* Blocked User Page Styles */
 
-/* Main Container */
+
+
 .auth-container {
     display: flex;
     flex-direction: column;
@@ -11,7 +11,7 @@
     background-color: #f5f7fa;
 }
 
-/* Auth Card */
+
 .auth-card {
     width: 100%;
     max-width: 600px;
@@ -22,7 +22,7 @@
     margin-bottom: 1.5rem;
 }
 
-/* Auth Header */
+
 .auth-header {
     padding: 2rem;
     text-align: center;
@@ -54,7 +54,7 @@
     margin-bottom: 0;
 }
 
-/* Alert */
+
 .alert {
     display: flex;
     padding: 1.25rem;
@@ -97,12 +97,12 @@
     margin-bottom: 0;
 }
 
-/* Form Card Content */
+
 .form-card-content {
     padding: 1.5rem;
 }
 
-/* Blocked Info */
+
 .blocked-info {
     margin-bottom: 1.5rem;
 }
@@ -122,7 +122,7 @@
     margin-bottom: 1rem;
 }
 
-/* Contact Info */
+
 .contact-info {
     background-color: #f8f9fa;
     border-radius: 6px;
@@ -160,7 +160,7 @@
     text-decoration: underline;
 }
 
-/* Form Card Footer */
+
 .form-card-footer {
     padding: 1.5rem;
     background-color: #f8f9fa;
@@ -168,7 +168,7 @@
     text-align: center;
 }
 
-/* Button */
+
 .btn-outline {
     display: inline-block;
     font-weight: 500;
@@ -193,7 +193,7 @@
     border-color: #6c757d;
 }
 
-/* Reference ID */
+
 .reference-id {
     font-size: 0.75rem;
     color: #6c757d;
@@ -201,7 +201,7 @@
     margin-top: 1rem;
 }
 
-/* Responsive adjustments */
+
 @media (max-width: 768px) {
     .auth-card {
         max-width: 100%;

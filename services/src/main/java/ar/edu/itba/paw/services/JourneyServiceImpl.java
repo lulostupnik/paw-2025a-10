@@ -135,17 +135,6 @@ public class JourneyServiceImpl implements JourneyService {
                                         final boolean isPast, final boolean isUpcoming,final  boolean isMyDestination, final boolean isOngoing,
                                         final PageParams pageParams) {
         LOGGER.debug("Getting filtered journeys");
-//        if(direction == null || direction.isEmpty()){
-//            direction = "asc";
-//        } else if(! direction.equals("asc") && ! direction.equals("desc")){
-//            throw new IllegalArgumentException("Invalid direction parameter");
-//        }
-//
-//        if(sortBy == null || sortBy.isEmpty()){
-//            sortBy = "start_date";
-//        } else if (! sortBy.equals("start_date") && ! sortBy.equals("end_date") && ! sortBy.equals("city") && ! sortBy.equals("interest")) {
-//            throw new IllegalArgumentException("Invalid sortBy parameter");
-//        }
 
         return journeyDao.search(search, user != null ? user.getId() : null, sortBy, direction, destination,
                 startDate, endDate, interest, isPast, isUpcoming, isMyDestination, isOngoing,

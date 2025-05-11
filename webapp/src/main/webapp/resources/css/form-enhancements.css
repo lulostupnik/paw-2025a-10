@@ -1,4 +1,4 @@
-/* Enhance autocomplete and multi-select styling */
+
 .autocomplete-container {
     position: relative;
     width: 100%;
@@ -33,7 +33,7 @@
     border-radius: 0 0 var(--radius) var(--radius);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     margin-top: -1px;
-    display: none; /* Ensure hidden by default */
+    display: none;
 }
 
 
@@ -95,7 +95,7 @@
     transform: scale(1.1);
     color: #ff0000;
 }
-/* Enhanced form elements for right side */
+
 .form-select {
     padding: 0.875rem 1rem;
     font-size: 0.9375rem;
@@ -110,7 +110,7 @@
     box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
 }
 
-/* Enhanced file upload area */
+
 .file-upload-label {
     padding: 2rem;
     border: 2px dashed var(--border-color);
@@ -138,25 +138,25 @@
     color: var(--text-muted);
 }
 
-/* Improved form group spacing */
+
 .auth-column .form-group {
     margin-bottom: 1.75rem;
 }
 
-/* Improved form labels */
+
 .form-label {
     font-size: 0.9375rem;
     margin-bottom: 0.625rem;
     color: var(--text-color);
 }
 
-/* Improved form inputs */
+
 .form-input {
     padding: 0.875rem 1rem;
     font-size: 0.9375rem;
 }
 
-/* Empty state for selected interests */
+
 .empty-interests {
     padding: 0.5rem 0;
     font-size: 0.875rem;
@@ -166,7 +166,7 @@
 }
 
 
-/* Autocomplete dropdown styling */
+
 .autocomplete-wrapper {
     position: relative;
     width: 100%;
@@ -193,7 +193,7 @@
 
 
 
-/* Highlight effect for selection */
+
 .highlight-selection {
     animation: highlight 1s ease;
 }

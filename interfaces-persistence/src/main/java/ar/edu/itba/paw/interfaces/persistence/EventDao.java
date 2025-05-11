@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface EventDao {
     Event create(User user, City city, LocalDate date, String description, long flyerImageId, String title, LocalTime time, String address, Integer attendeesLimit);
-    void update(long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId, long flyerImageId/*, long userId*/);
+    void update(long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId, long flyerImageId);
     void delete(long id);
     void updateDeletionMessage(long id, String message);
     Optional<Event> findById(long id);
