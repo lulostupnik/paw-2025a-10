@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 public class EventResponse {
     private final long id;
     private final long userId;
-    private final String username;
+    private final String username;  //@TODO no tiene sentido esto, esta el id
     private final long eventId;
     private final String message;
     private final LocalDateTime dateTime;
