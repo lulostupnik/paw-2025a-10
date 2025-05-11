@@ -67,14 +67,14 @@ public class CareerServiceImpl implements CareerService {
     @Override
     @Transactional
     @Caching(
-            put = { @CachePut(value = "careersById", key = "#id") },
             evict = {
+                    @CacheEvict(value = "careersById", key = "#id"),
                     @CacheEvict(value = "careersByName", allEntries = true),
                     @CacheEvict(value = "careers", allEntries = true)
             }
     )
-    public Career update(final long id,final String name) {
-        return careerDao.update(id, name);
+    public void update(final long id,final String name) {
+        careerDao.update(id, name);
     }
 
     @Override

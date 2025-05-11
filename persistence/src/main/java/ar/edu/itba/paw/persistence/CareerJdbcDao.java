@@ -90,12 +90,11 @@ public class CareerJdbcDao implements CareerDao {
     }
 
     @Override
-    public Career update(final long id, final String name) {
+    public void update(final long id, final String name) {
         final int rowsAffected = jdbcTemplate.update("UPDATE careers SET name = ? WHERE id = ?", name, id);
         if (rowsAffected == 0) {
             LOGGER.warn("Career update failed: Career with ID {} not found", id);
         }
-        return findById(id).orElseThrow(() -> new IllegalArgumentException("Career not found"));
     }
 
     @Override
