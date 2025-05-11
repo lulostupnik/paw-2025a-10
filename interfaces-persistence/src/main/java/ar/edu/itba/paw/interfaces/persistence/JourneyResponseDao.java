@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface JourneyResponseDao {
     JourneyResponse create(long userId, String username, long journeyId, String message, LocalDateTime dateTime);
-    Page<JourneyResponse> listAllByJourneyId(long journeyId, PageParams pageParams);
+    Page<JourneyResponse> findAllByJourneyId(long journeyId, PageParams pageParams);
     Optional<JourneyResponse> findById(long id);
 
     void delete(long id);

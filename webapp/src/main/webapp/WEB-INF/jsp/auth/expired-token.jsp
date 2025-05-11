@@ -41,7 +41,7 @@
       </div>
     </div>
 
-    <!-- New Token Sent Notification with improved contrast -->
+
     <div class="alert alert-success">
       <div class="alert-icon">
         <svg xmlns="http://www.w3.org/2000/svg" class="alert-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -30,7 +30,7 @@ public class CareerServiceImplTest {
     private static final Career CAREER_2 = new Career(ID_2, null);
     private static final List<Career> CAREERS = List.of(CAREER_1, CAREER_2);
     private static final Page<Career> CAREER_PAGE = new Page<Career>(CAREERS, 1, 1);
-    private static final String CAREERS_JSON = "[{\"name\":\"career\",\"id\":0},{\"name\":\"\",\"id\":1}]";
+    private static final String CAREERS_JSON = "[{\"name\":\"career\", \"id\":0}, {\"name\":\"\", \"id\":1}]";
     private static final String EMPTY_JSON = "[]";
     private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
     @InjectMocks

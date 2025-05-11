@@ -51,6 +51,8 @@ public class EmailServiceImpl implements EmailService {
         this.imageService = imageService;
     }
 
+
+
     private void sendHtmlMessage(final Optional<byte[]> maybeImage,final Optional<String> maybeImageCid,final User emailRecipient, final String templateName, final Map<String, Object> variables,final String subjectKey, final Optional<Object[]> maybeSubjectArgs) {
         try {
             LOGGER.debug("Sending email to: {}", emailRecipient.getEmail());

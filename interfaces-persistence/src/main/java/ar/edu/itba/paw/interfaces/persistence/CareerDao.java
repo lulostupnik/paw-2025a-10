@@ -3,7 +3,6 @@ package ar.edu.itba.paw.interfaces.persistence;
 import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
-
 import java.util.Optional;
 
 public interface CareerDao {

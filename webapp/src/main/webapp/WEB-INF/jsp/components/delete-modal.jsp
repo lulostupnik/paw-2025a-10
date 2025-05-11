@@ -15,9 +15,9 @@
     <div class="attendance-modal-body">
       <p id="delete-modal-warning">${param.warning}</p>
 
-      <!-- This div will be populated with the appropriate form -->
+
       <div id="delete-form-container">
-        <!-- Forms will be moved here dynamically -->
+
       </div>
     </div>
     <div class="attendance-modal-footer">

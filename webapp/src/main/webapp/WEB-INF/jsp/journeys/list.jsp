@@ -17,7 +17,7 @@
 <c:set var="searchPlaceholderCode" value="journeys.search.journey" scope="request" />
 
 <div class="layout-container">
-    <!-- Main Content -->
+
     <div class="main-content">
         <jsp:include page="../components/navbar.jsp" />
         <div class="content-container">
@@ -33,7 +33,7 @@
                         <input type="hidden" name="page" value="1">
                         <input type="hidden" name="pageSize" value="${param.pageSize != null ? param.pageSize : 10}">
 
-                        <!-- Preserve sort parameters -->
+
                         <c:if test="${not empty param.sort}">
                             <input type="hidden" name="sort" value="<c:out value="${param.sort}"/>">
                         </c:if>
@@ -41,7 +41,7 @@
                             <input type="hidden" name="direction" value="<c:out value="${param.direction}"/>">
                         </c:if>
 
-                        <!-- Preserve filter parameters -->
+
                         <c:if test="${not empty param.destination}">
                             <input type="hidden" name="destination" value="<c:out value="${param.destination}"/>">
                         </c:if>
@@ -58,7 +58,7 @@
                             <input type="hidden" name="interestName" value="<c:out value="${param.interestName}"/>">
                         </c:if>
 
-                        <!-- Preserve tab parameters -->
+
                         <c:if test="${not empty param.isMyDestination}">
                             <input type="hidden" name="isMyDestination" value="<c:out value="${param.isMyDestination}"/>">
                         </c:if>
@@ -117,7 +117,7 @@
                 </div>
             </div>
 
-            <!-- Journey Tabs -->
+
             <div class="journey-tabs">
                 <ul class="tabs-list">
                     <li class="tab-item ${empty param.isMyDestination && empty param.isUpcoming && empty param.isPast && empty param.isOngoing ? 'active' : ''}">
@@ -150,7 +150,7 @@
                 </ul>
             </div>
 
-            <!-- Filter Section - Initially Hidden -->
+
             <div id="filterSection" class="filter-section hidden">
                 <h3 class="filter-title">
                     <spring:message code="journey.filter.title"/>
@@ -161,7 +161,7 @@
                            class="filter-form" id="journeyFilterForm">
 
                     <div class="filter-grid">
-                        <!-- Destination filter with autocomplete -->
+
                         <div class="filter-item">
                             <c:set var="destinationLabel"><spring:message code="createJourney.destinationCity"/></c:set>
                             <form:label for="citySearch" class="form-label" path="destination">${destinationLabel}</form:label>
@@ -203,7 +203,7 @@
                             <form:errors path="" cssClass="error-message" />
                         </div>
 
-                        <!-- Interest filter with autocomplete -->
+
                         <div class="filter-item">
                             <c:set var="interestsLabel"><spring:message code="journey.filter.interest"/></c:set>
                             <form:label for="interest-search" class="form-label" path="interests">${interestsLabel}</form:label>
@@ -229,12 +229,12 @@
                         </div>
                     </div>
 
-                    <!-- Preserve search parameter -->
+
                     <c:if test="${not empty param.search}">
                         <input type="hidden" name="search" value="<c:out value="${param.search}"/>">
                     </c:if>
 
-                    <!-- Preserve sort parameters -->
+
                     <c:if test="${not empty param.sort}">
                         <input type="hidden" name="sort" value="<c:out value="${param.sort}"/>">
                     </c:if>
@@ -242,7 +242,7 @@
                         <input type="hidden" name="direction" value="<c:out value="${param.direction}"/>">
                     </c:if>
 
-                    <!-- Preserve tab parameters -->
+
                     <c:if test="${not empty param.isMyDestination}">
                         <form:hidden path="isMyDestination" value="${param.isMyDestination}" />
                     </c:if>
@@ -256,7 +256,7 @@
                         <form:hidden path="isPast" value="${param.isPast}" />
                     </c:if>
 
-                    <!-- Preserve pagination parameters -->
+
                     <input type="hidden" name="page" value="1">
                     <c:if test="${not empty param.pageSize}">
                         <input type="hidden" name="pageSize" value="<c:out value="${param.pageSize}"/>">
@@ -276,7 +276,7 @@
             </div>
 
             <div class="events-container">
-                <!-- Journeys List with grid layout -->
+
                 <div class="events-grid">
                     <c:if test="${empty journeys.content}">
                         <div class="empty-state">
@@ -302,7 +302,7 @@
                 </div>
             </div>
 
-            <!-- Construct baseUrl with all query parameters -->
+
             <c:set var="paginationBaseUrl" value="/journeys?" />
             <c:if test="${not empty param.search}">
                 <c:set var="paginationBaseUrl" value="${paginationBaseUrl}search=${param.search}&" />
@@ -347,7 +347,7 @@
                 <jsp:param name="pageSize" value="${pageSize}" />
                 <jsp:param name="baseUrl" value="${paginationBaseUrl}" />
             </jsp:include>
-            <!-- End Journeys List -->
+
         </div>
     </div>
 </div>
@@ -363,6 +363,6 @@
 <script src="<c:url value='/resources/js/journeys/journey-cards.js'/>"></script>
 <script src="<c:url value='/resources/js/journeys/filter.js'/>"></script>
 
-<!-- Custom JavaScript for the autocomplete functionality -->
+
 </body>
 </html>

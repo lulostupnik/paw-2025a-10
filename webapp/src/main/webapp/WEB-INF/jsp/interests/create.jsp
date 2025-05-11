@@ -15,7 +15,7 @@
       </c:otherwise>
     </c:choose>
   </title>
-  <!-- Include custom CSS -->
+
   <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/form-enhancements.css'/>" />
@@ -67,7 +67,7 @@
     </c:choose>
 
     <form:form modelAttribute="createInterestForm" action="${formAction}" method="post" class="auth-form" id="cityForm" novalidate="true">
-      <!-- City Name Field -->
+
       <div class="form-group">
         <form:label path="name" cssClass="form-label required-field">
           <spring:message code="createInterest.name" text="City Name"/>
@@ -96,7 +96,7 @@
   </div>
 </div>
 
-<!-- Include JavaScript files -->
+
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const cityForm = document.getElementById("cityForm");

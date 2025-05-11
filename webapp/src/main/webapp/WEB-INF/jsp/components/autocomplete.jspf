@@ -2,17 +2,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
-<%--
-  Parámetros esperados:
-    inputId: ID base (ej: "career")
-    path: path del form
-    items: lista de objetos
-    labelCode: código i18n del label
-    placeholderCode: código i18n del placeholder
-    selectedId: ID del contenedor de selección (opcional)
-    formGroupClass: clases adicionales para el form-group (opcional)
-    required: "true" si debe agregarse required-field y required-selected-tags
---%>
+
 
 <div class="form-group ${formGroupClass}">
   <form:label path="${path}" cssClass="form-label ${required == 'true' ? 'required-field' : ''}">

@@ -219,12 +219,6 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
 
-    @Override
-    public Optional<Journey> findByUserEmail(final String email) {
-        return jdbcTemplate.query(SQL_FIND_BY_USER_EMAIL, JOURNEY_ROW_MAPPER, email).stream().findFirst();
-    }
-
-
 
     @Override
     public void delete(final long id) {
@@ -253,74 +247,6 @@ public class JourneyJdbcDao implements JourneyDao {
                 "SELECT COUNT(*) FROM journeys WHERE deleted = FALSE",
                 SQL_FIND_ALL_PAGED,
                 pageParams
-        );
-    }
-
-    @Override
-    public Page<Journey> findOthers(final long userId, final PageParams pageParams) {
-        return executePagedQuery(
-                jdbcTemplate, JOURNEY_ROW_MAPPER,
-                "SELECT COUNT(*) FROM journeys j WHERE j.deleted = FALSE AND j.user_id != ?",
-                SQL_FIND_OTHERS_PAGED,
-                pageParams, userId
-        );
-    }
-
-    @Override
-    public Page<Journey> findByFilters(final Long userId, final Long cityId, final LocalDate startDate, final LocalDate endDate, final Long interest, final PageParams pageParams) {
-
-        final List<String> filters = new ArrayList<>();
-        final List<Object> params = new ArrayList<>();
-
-        final StringBuilder countQueryBuilder = new StringBuilder("SELECT COUNT(*) FROM journeys j");
-        final StringBuilder queryBuilder = new StringBuilder((interest != null) ? SQL_BASE_INTEREST : SQL_BASE);
-
-
-        if (interest != null) {
-            countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id");
-            filters.add("ui.category_id = ?");
-            params.add(interest);
-        }
-
-        if (cityId != null) {
-            countQueryBuilder.append(" JOIN universities un ON j.destination_university_id = un.id JOIN cities ci2 ON un.city_id = ci2.id");
-            filters.add("ci2.id = ?");
-            params.add(cityId);
-        }
-
-        if (userId != null) {
-            filters.add("j.user_id != ?");
-            params.add(userId);
-        }
-
-        if (endDate != null) {
-            filters.add("j.start_date <= ?");
-            params.add(Date.valueOf(endDate));
-        }
-
-        if (startDate != null) {
-            filters.add("j.end_date >= ?");
-            params.add(Date.valueOf(startDate));
-        }
-
-        countQueryBuilder.append(" WHERE j.deleted = FALSE ");
-
-        if(!filters.isEmpty()) {
-            countQueryBuilder.append(" AND  ").append(String.join(" AND ", filters));
-            queryBuilder.append(" AND ").append(String.join(" AND ", filters));
-        }
-
-        final int totalItems = jdbcTemplate.queryForObject(countQueryBuilder.toString(), Integer.class, params.toArray());
-
-        queryBuilder.append(" ORDER BY j.id ASC LIMIT ? OFFSET ?");
-
-        params.add(pageParams.getSize());
-        params.add(offset(pageParams));
-
-        return new Page<>(
-                jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray()),
-                pageParams.getPage(),
-                pageCount(totalItems, pageParams.getSize())
         );
     }
 

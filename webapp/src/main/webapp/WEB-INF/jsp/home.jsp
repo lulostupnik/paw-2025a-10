@@ -85,9 +85,9 @@
     </div>
 </c:if>
 <div class="layout-container">
-    <!-- Include the sidebar component -->
 
-    <!-- Main Content -->
+
+
     <div class="main-content">
         <jsp:include page="components/navbar.jsp" />
         <div class="content-container">
@@ -95,19 +95,19 @@
                 <h2 class="page-title"><spring:message code="nav.explore"/></h2>
             </div>
 
-<%--            <!-- Hero Section -->--%>
-<%--            <div class="hero-section">--%>
-<%--                <div class="hero-content">--%>
-<%--                    <h1 class="hero-title">--%>
-<%--                        <spring:message code="dashboard.welcome"/>--%>
-<%--                    </h1>--%>
-<%--                    <p class="hero-description">--%>
-<%--                        <spring:message code="dashboard.subtitle" />--%>
-<%--                    </p>--%>
-<%--                </div>--%>
-<%--            </div>--%>
 
-            <!-- Recommended Journeys Section -->
+
+
+
+
+
+
+
+
+
+
+
+
             <section class="content-section">
                 <div class="section-header">
                     <h2 class="section-title">
@@ -124,7 +124,7 @@
                     <spring:message code="dashboard.recommended.journeys.desc" />
                 </p>
 
-                <!-- Recommended Journeys Cards -->
+
                 <div class="cards-grid">
                     <c:if test="${empty journeys}">
                         <div class="empty-state">
@@ -165,7 +165,7 @@
                 </div>
             </section>
 
-            <!-- Recommended Events Section -->
+
             <section class="content-section">
                 <div class="section-header">
                     <h2 class="section-title">
@@ -182,7 +182,7 @@
                     <spring:message code="dashboard.recommended.events.desc"/>
                 </p>
 
-                <!-- Recommended Events Cards -->
+
                 <div class="cards-grid">
                     <c:if test="${empty events}">
                         <div class="empty-state">
@@ -223,7 +223,7 @@
 
             </section>
 
-            <!-- Quick Actions Section -->
+
             <section class="quick-actions-section">
                 <h2 class="section-title">
                     <spring:message code="dashboard.quick.actions"/>
@@ -287,7 +287,7 @@
     </div>
 </div>
 </body>
-<%-- Add this script at the end of your body tag, just before the closing </body> --%>
+
 <script>
     // Get the popup and close button elements
     const successPopup = document.getElementById('successPopup');

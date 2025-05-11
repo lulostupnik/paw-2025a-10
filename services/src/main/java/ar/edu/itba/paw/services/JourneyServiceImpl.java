@@ -233,7 +233,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     public Page<JourneyResponse> listAllResponsesFromJourney(final long journeyId, final PageParams pageParams) {
-        return journeyResponseDao.listAllByJourneyId(journeyId, pageParams);
+        return journeyResponseDao.findAllByJourneyId(journeyId, pageParams);
     }
 
     @Override

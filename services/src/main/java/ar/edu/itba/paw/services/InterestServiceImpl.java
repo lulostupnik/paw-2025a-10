@@ -143,9 +143,10 @@ public class InterestServiceImpl implements InterestService {
     private String listToJson(final List<Interest> interests) {
         StringBuilder json = new StringBuilder("[");
         for (Interest interest : interests) {
-            json.append(interest.toJSON()).append(",");
+            json.append(interest.toJSON()).append(", ");
         }
         if (json.length() > 1) {
+            json.deleteCharAt(json.length() - 1); // Remove last space
             json.deleteCharAt(json.length() - 1); // Remove last comma
         }
         json.append("]");

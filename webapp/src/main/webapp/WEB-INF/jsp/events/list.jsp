@@ -17,7 +17,7 @@
 <c:set var="searchPlaceholderCode" value="events.search.event" scope="request" />
 
 <div class="layout-container">
-  <!-- Main Content -->
+
   <div class="main-content">
     <jsp:include page="../components/navbar.jsp" />
     <div class="content-container">
@@ -33,7 +33,7 @@
             <input type="hidden" name="page" value="1">
             <input type="hidden" name="pageSize" value="${param.pageSize != null ? param.pageSize : 4}">
 
-            <!-- Preserve sort parameters -->
+
             <c:if test="${not empty param.sort}">
               <input type="hidden" name="sort" value="<c:out value="${param.sort}"/>">
             </c:if>
@@ -41,7 +41,7 @@
               <input type="hidden" name="direction" value="<c:out value="${param.direction}"/>">
             </c:if>
 
-            <!-- Preserve filter parameters - Fixed field names to match the filter form -->
+
             <c:if test="${not empty param.destination}">
               <input type="hidden" name="destination" value="<c:out value="${param.destination}"/>">
             </c:if>
@@ -61,7 +61,7 @@
               <input type="hidden" name="interestName" value="<c:out value="${param.interestName}"/>">
             </c:if>
 
-            <!-- Preserve tab parameters -->
+
             <c:if test="${not empty param.isUpcoming}">
               <input type="hidden" name="isUpcoming" value="<c:out value="${param.isUpcoming}"/>">
             </c:if>
@@ -112,7 +112,7 @@
         </div>
       </div>
 
-      <!-- Event Tabs -->
+
       <div class="event-tabs">
         <ul class="tabs-list">
           <li class="tab-item ${empty param.isUpcoming && empty param.attending && empty param.isPast ? 'active' : ''}">
@@ -140,7 +140,7 @@
         </ul>
       </div>
 
-      <!-- Filter Section - Initially Hidden -->
+
       <div id="filterSection" class="filter-section hidden">
         <h3 class="filter-title">
           <spring:message code="event.filter.title"/>
@@ -151,7 +151,7 @@
                    class="filter-form" id="eventFilterForm">
 
           <div class="filter-grid">
-            <!-- City filter with autocomplete -->
+
             <div class="filter-item">
               <c:set var="cityLabel"><spring:message code="createJourney.city"/></c:set>
               <form:label for="citySearch" class="form-label" path="destination">${cityLabel}</form:label>
@@ -193,7 +193,7 @@
               <form:errors path="" cssClass="error-message" />
             </div>
 
-            <!-- Interest filter with autocomplete -->
+
             <div class="filter-item">
               <c:set var="interestsLabel"><spring:message code="event.filter.interest"/></c:set>
               <form:label for="interest-search" class="form-label" path="interests">${interestsLabel}</form:label>
@@ -219,12 +219,12 @@
             </div>
           </div>
 
-          <!-- Preserve search parameter -->
+
           <c:if test="${not empty param.search}">
             <input type="hidden" name="search" value="<c:out value="${param.search}"/>">
           </c:if>
 
-          <!-- Preserve sort parameters -->
+
           <c:if test="${not empty param.sort}">
             <input type="hidden" name="sort" value="<c:out value="${param.sort}"/>">
           </c:if>
@@ -232,7 +232,7 @@
             <input type="hidden" name="direction" value="<c:out value="${param.direction}"/>">
           </c:if>
 
-          <!-- Preserve tab parameters -->
+
           <c:if test="${not empty param.isUpcoming}">
             <form:hidden path="isUpcoming" value="${param.isUpcoming}" />
           </c:if>
@@ -243,7 +243,7 @@
             <form:hidden path="isPast" value="${param.isPast}" />
           </c:if>
 
-          <!-- Preserve pagination parameters -->
+
           <input type="hidden" name="page" value="1">
           <c:if test="${not empty param.pageSize}">
             <input type="hidden" name="pageSize" value="<c:out value="${param.pageSize}"/>">
@@ -262,7 +262,7 @@
         </form:form>
       </div>
 
-      <!-- Events Grid -->
+
       <div class="events-container">
         <div class="events-grid">
           <c:if test="${empty eventsWithAttendance}">
@@ -285,7 +285,7 @@
             </jsp:include>
           </c:forEach>
         </div>
-        <!-- Construct baseUrl with all query parameters -->
+
         <c:set var="paginationBaseUrl" value="/events?" />
         <c:if test="${not empty param.search}">
           <c:set var="paginationBaseUrl" value="${paginationBaseUrl}search=${param.search}&" />
@@ -327,9 +327,9 @@
               <c:set var="paginationBaseUrl" value="${paginationBaseUrl}attending=${param.attending}&" />
           </c:if>
 
-<%--        <c:if test="${not empty param.pageSize}">--%>
-<%--          <c:set var="paginationBaseUrl" value="${paginationBaseUrl}pageSize=${param.pageSize}&" />--%>
-<%--        </c:if>--%>
+
+
+
 
         <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
           <jsp:param name="pageObjectTotalPages" value="${eventsPage.totalPages}" />

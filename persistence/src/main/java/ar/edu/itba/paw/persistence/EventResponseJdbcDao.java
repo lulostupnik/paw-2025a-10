@@ -59,10 +59,6 @@ public class EventResponseJdbcDao implements EventResponseDao {
     public Optional<EventResponse> findById(final long id) {
         return jdbcTemplate.query(SQL_FIND_EVENT_RESPONSE, EVENT_RESPONSE_ROW_MAPPER, id).stream().findFirst();
     }
-    @Override
-    public Optional<EventResponse> findByIdDeletedOrNot(final long id) {
-        return jdbcTemplate.query(SQL_FIND_EVENT_RESPONSE_DELETED_OR_NOT, EVENT_RESPONSE_ROW_MAPPER, id).stream().findFirst();
-    }
 
 
     @Override

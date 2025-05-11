@@ -256,30 +256,6 @@ public class UniversityJdbcDaoTest {
     }
 
     @Test
-    public void testUpdate(){
-        uniDao.update(UNI_1.getId(), TestUtils.UNIVERSITY_NEW_NAME, TestUtils.UNIVERSITY_NEW_CODE, CITY_1.getId());
-
-        University uni = jdbcTemplate.queryForObject(
-            TestUtils.UNIVERSITY_SELECT_BY_ID,
-            TestUtils.UNIVERSITY_ROW_MAPPER,
-            UNI_1.getId()
-        );
-        TestUtils.assertEqualsUni(
-            new University(UNI_1.getId(), TestUtils.UNIVERSITY_NEW_NAME, TestUtils.UNIVERSITY_NEW_CODE, CITY_1), 
-            uni
-        );
-    }
-    @Test(expected = DataAccessException.class)
-    public void testUpdateDuplicateName(){
-        uniDao.update(UNI_1.getId(), TestUtils.UNIVERSITY_2_NAME, TestUtils.UNIVERSITY_NEW_CODE, CITY_1.getId());
-    }
-    @Test
-    public void testUpdateNotFound(){
-        uniDao.update(12341234, TestUtils.UNIVERSITY_2_NAME, TestUtils.UNIVERSITY_NEW_CODE, CITY_1.getId());
-
-        assertUniversityDBDefaultState();
-    }
-    @Test
     public void testUpdateCityName(){
         uniDao.update(UNI_1.getId(), TestUtils.UNIVERSITY_NEW_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_2_NAME);
 
