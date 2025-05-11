@@ -4,6 +4,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale}">
 <head>
@@ -181,7 +182,9 @@
                                 <line x1="8" y1="2" x2="8" y2="6"></line>
                                 <line x1="3" y1="10" x2="21" y2="10"></line>
                             </svg>
-                            <span><c:out value="${event.date}" /></span>
+                            <fmt:parseDate value="${param.date}" pattern="yyyy-MM-dd" var="parsedDate" />
+                            <fmt:formatDate value="${parsedDate}" pattern="MMMM d, yyyy" var="formattedDate" />
+                            <span><c:out value="${formattedDate}" /></span>
                         </div>
                         <div class="meta-item">
                             <!-- Clock icon SVG -->
