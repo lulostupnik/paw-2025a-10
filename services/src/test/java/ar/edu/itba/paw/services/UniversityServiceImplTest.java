@@ -22,6 +22,7 @@ import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
+import ar.edu.itba.paw.models.exceptions.CityNotFoundException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UniversityServiceImplTest {
@@ -149,16 +150,26 @@ public class UniversityServiceImplTest {
 
     @Test
     public void testCreateUniversity(){
+        Mockito.when(
+            cityService.findByName(Mockito.eq(CITY_NAME))
+        ).thenReturn(Optional.of(CITY));
+        Mockito.when(
+            uniDao.create(Mockito.eq(NAME), Mockito.eq(ABBREVIATION), Mockito.eq(CITY))
+        ).thenReturn(UNI_1);
+
+        University uni = uniService.createUniversity(NAME, ABBREVIATION, CITY_NAME);
+
+        assertNotNull(uni);
+        assertEquals(UNI_1, uni);
+    }
+    @Test(expected = CityNotFoundException.class)
+    public void testCreateUniversityCityNotFound(){
+        Mockito.when(
+            cityService.findByName(Mockito.eq(CITY_NAME))
+        ).thenReturn(Optional.empty());
+
         uniService.createUniversity(NAME, ABBREVIATION, CITY_NAME);
     }
-
-    // FIXME: create ya no recibe String cityName, sino que recibe City city
-//    @Test(expected = DataIntegrityViolationException.class)
-//    public void testCreateUniversityDuplicated(){
-//        Mockito.doThrow(new DataIntegrityViolationException("error")).when(uniDao).create(NAME, ABBREVIATION, CITY_NAME);
-//
-//        uniService.createUniversity(NAME, ABBREVIATION, CITY_NAME);
-//    }
 
     @Test
     public void testUpdateUniversity(){

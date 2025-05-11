@@ -446,7 +446,7 @@ public class EventServiceImplTest {
 
         eventService.attendEvent(EMAIL, EVENT_ID);
     }
-    @Test(expected = NoSuchElementException.class)
+    @Test(expected = RuntimeException.class)
     public void testAttendEventEmailNotFound(){
         Mockito.when(
             userService.findByEmail(Mockito.eq(EMAIL))

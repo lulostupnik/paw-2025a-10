@@ -185,10 +185,13 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
 
     @Override
     public void delete(final long userId, final long eventId) {
-        jdbcTemplate.update("DELETE FROM event_attendances WHERE user_id = ? AND event_id = ?", userId, eventId);
-        final int rowsAffected = jdbcTemplate.update("UPDATE events SET attendees_count = attendees_count - 1 WHERE id = ?", eventId);
-        if (rowsAffected == 0) {
-            LOGGER.warn("Event attendance cancel failed: Event with ID {} not found", eventId);
+        LOGGER.info("Registering user {} will cancel attendance to event {}", userId, eventId);
+        int rowsAffected = jdbcTemplate.update("DELETE FROM event_attendances WHERE user_id = ? AND event_id = ?", userId, eventId);
+        if (rowsAffected > 0){
+            rowsAffected = jdbcTemplate.update("UPDATE events SET attendees_count = attendees_count - 1 WHERE id = ?", eventId);
+            if (rowsAffected == 0) {
+                LOGGER.warn("Event attendance cancel failed: Event with ID {} not found", eventId);
+            }
         }
     }
 

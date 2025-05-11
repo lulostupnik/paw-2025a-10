@@ -44,11 +44,14 @@ public class TestUtils {
     public static final String EVENT_ATTENDANCE_TABLE = "event_attendances";
 
     public static final int PAGE_SIZE_DEFAULT = 2;
+    public static final int PAGE_SIZE_SINGLE = 1;
     public static final int PAGE_SIZE_BIG = 100;
     public static final PageParams PAGE_1_DEFAULT = new PageParams(1, PAGE_SIZE_DEFAULT);
     public static final PageParams PAGE_2_DEFAULT = new PageParams(2, PAGE_SIZE_DEFAULT);
     public static final PageParams PAGE_1_BIG = new PageParams(1, PAGE_SIZE_BIG);
     public static final PageParams PAGE_2_BIG = new PageParams(2, PAGE_SIZE_BIG);
+    public static final PageParams PAGE_1_SINGLE = new PageParams(1, PAGE_SIZE_SINGLE);
+    public static final PageParams PAGE_2_SINGLE = new PageParams(2, PAGE_SIZE_SINGLE);
     public static final String MESSAGE_DEFAULT = "message";
 
     public static final String CAREER_1_NAME = "career 1";
@@ -163,9 +166,16 @@ public class TestUtils {
     public static final LocalDate EVENT_DATE_LATER = EVENT_DATE_DEFAULT.plusDays(10);
     public static final int EVENT_ATTENDANCE_LIMIT_DEFAULT = 30;
     public static final int EVENT_ATTENDANCE_DEFAULT = 10;
+    public static final int EVENT_1_ATTENDEES = 3;
+    public static final int EVENT_2_ATTENDEES = 1;
+    public static final int EVENT_3_ATTENDEES = 0;
+    public static final int USER_1_ATTENDANCES = 2;
+    public static final int USER_2_ATTENDANCES = 1;
+    public static final int USER_3_ATTENDANCES = 1;
 
     public static final int TOTAL_EVENTS_NOT_DELETED = 4;
     public static final int TOTAL_EVENTS_UPCOMING = 3;
+    public static final int TOTAL_EVENT_ATTENDANCES = 4;
 
 
     //QUERIES
@@ -362,6 +372,11 @@ public class TestUtils {
     public static final String EVENT_SELECT_BY_TITLE = EVENT_SELECT + "WHERE e.title = ?";
     public static final String EVENT_COUNT_NOT_DELETED = "SELECT COUNT(*) FROM events WHERE deleted=FALSE";
     public static final String EVENT_GET_DELETED_MESSAGE = "SELECT deleted_message FROM events WHERE id = ?";
+
+    public static final String EVENT_ATTENDANCE_EXISTS = "SELECT COUNT(*) FROM event_attendances WHERE user_id = ? AND event_id = ?";
+    public static final String EVENT_GET_ATTENDEES_COUNT_BY_ID = "SELECT attendees_count FROM events WHERE id = ?";
+    public static final String EVENT_GET_ATTENDEES_BY_ID = "SELECT COUNT(*) FROM event_attendances WHERE event_id = ?";
+    public static final String USER_GET_ATTENDANCES_COUNT_BY_ID = "SELECT COUNT(*) FROM event_attendances WHERE user_id = ?";
 
     //ROWMAPPERS
     public static final RowMapper<Interest> INTEREST_ROW_MAPPER = (rs, n) ->
