@@ -23,11 +23,7 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class InterestServiceImpl implements InterestService {
     private static final Logger LOGGER = LoggerFactory.getLogger(InterestServiceImpl.class);
-
     private final InterestDao interestDao;
-
-
-
     @Autowired
     public InterestServiceImpl(final InterestDao interestDao) {
         this.interestDao = interestDao;
@@ -57,6 +53,7 @@ public class InterestServiceImpl implements InterestService {
 
     @Override
     public Page<Interest> findAllInterestsByUserId(final long id, PageParams pageParams) {
+        LOGGER.debug("Getting interests of user {} with pageParams {}", id, pageParams);
         return interestDao.findAllByUserId(id, pageParams);
     }
 
@@ -72,7 +69,10 @@ public class InterestServiceImpl implements InterestService {
             }
     )
     public Interest createUserInterest(final String name) {
-        return interestDao.create(name);
+        LOGGER.debug("Creating interest {}", name);
+        Interest interest = interestDao.create(name);
+        LOGGER.info("Interest {} created", interest);
+        return interest;
     }
 
     @Transactional
@@ -83,7 +83,9 @@ public class InterestServiceImpl implements InterestService {
     })
     @Override
     public void editUserInterest(final long id, String interest) {
+        LOGGER.debug("Editing interest {} with name {}", id, interest);
         interestDao.update(id, interest);
+        LOGGER.info("Interest {} updated", id);
     }
 
     @Override
@@ -91,11 +93,14 @@ public class InterestServiceImpl implements InterestService {
     public void saveUserInterests(final long[] interests,final  long userId) {
         LOGGER.debug("Adding interest list to user {}", userId);
         interestDao.createUserInterests(interests, userId);
+        LOGGER.info("Interests {} added to user {}", interests, userId);
     }
 
     @Override
     public void saveUserInterests(final List<String> interests,final  long userId) {
+        LOGGER.debug("Adding interest list to user {}", userId);
         interestDao.createUserInterests(interests, userId);
+        LOGGER.info("Interests {} added to user {}", interests, userId);
     }
 
     @Override
@@ -103,6 +108,7 @@ public class InterestServiceImpl implements InterestService {
     public void updateScoreByInterest(final Interest interest,final long userId) {
         LOGGER.debug("Increasing score of interest {} for user {}", interest, userId);
         interestDao.updateScoreByInterest(interest, userId);
+        LOGGER.info("Interest {} score updated for user {}", interest, userId);
     }
 
     @Override
@@ -110,6 +116,7 @@ public class InterestServiceImpl implements InterestService {
     public void updateScoreByInterests(final List<Interest> interests,final long userId) {
         LOGGER.debug("Increasing score of interests {} for user {}", interests, userId);
         interestDao.updateScoreByInterests(interests, userId);
+        LOGGER.info("Interests {} score updated for user {}", interests, userId);
         // FIXME: OJO!, CREO QUE EL INTEREST DAO NO PUEDE TOCAR LA TABLA DE USER
         // -> esto debería estar en el user dao
         //@TODO
@@ -118,7 +125,9 @@ public class InterestServiceImpl implements InterestService {
     @Override
     @Transactional
     public void updateUserInterests(final long[] interestIds, final long userId) {
+        LOGGER.debug("Updating interests {} for user {}", interestIds, userId);
         interestDao.updateUserInterests(interestIds, userId);
+        LOGGER.info("Interests {} updated for user {}", interestIds, userId);
     }
 
     @Override
@@ -132,6 +141,7 @@ public class InterestServiceImpl implements InterestService {
 
     @Override
     public String getInterestsJSON(final String search,final  PageParams pageParams) {
+        LOGGER.debug("Getting all interests with search {} and pageParams {}", search, pageParams);
         if(search == null || search.isEmpty()) {
             List<Interest> interests = interestDao.findAll(pageParams).getContent();
             return listToJson(interests);
@@ -162,7 +172,9 @@ public class InterestServiceImpl implements InterestService {
             @CacheEvict(value = "interestsByName", allEntries = true)
     })
     public void delete(final long id) {
+        LOGGER.debug("Deleting interest {}", id);
         interestDao.delete(id);
+        LOGGER.info("Interest {} deleted", id);
     }
 
 
