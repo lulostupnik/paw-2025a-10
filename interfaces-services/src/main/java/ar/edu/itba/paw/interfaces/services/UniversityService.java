@@ -14,7 +14,3 @@ public interface UniversityService {
     void updateUniversity(long id, String name, String abbreviation, String city);
     void delete(long id);
 }
-
-//    Optional<University> findByAbbreviation(String abbreviation);
-//    Optional<University> findByAny(String queryString);
-//    Page<University> searchUniversities(String search, PageParams pageParams);

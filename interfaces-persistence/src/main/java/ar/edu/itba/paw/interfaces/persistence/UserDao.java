@@ -59,18 +59,3 @@ public interface UserDao {
     List<User> findAllEventResponders(long eventId);
 
 }
-
-//     void updateCareer(long userId, String careerName);
-
-//     void updateCareer(long userId, long careerId);
-
-//
-//    void updateUniversity(long userId, long universityId);
-//
-//    void updateUniversity(long userId, String universityName);
-//
-
-//
-//    void updateProfileInfo(long userId, String firstname, String lastname, String username);
-//
-//    void updateLocale(long userId, Locale locale);

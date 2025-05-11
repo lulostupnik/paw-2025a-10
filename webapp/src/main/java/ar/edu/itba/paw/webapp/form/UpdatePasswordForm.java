@@ -1,10 +1,7 @@
 package ar.edu.itba.paw.webapp.form;
-
-import ar.edu.itba.paw.webapp.validation.PasswordsMatch;
-
 import javax.validation.constraints.Size;
 
-//@PasswordsMatch
+
 public class UpdatePasswordForm {
     @Size(min = 8, max = 100)
     private String password;

@@ -27,8 +27,3 @@ public interface JourneyService {
     Page<JourneyResponse> listAllResponsesFromJourney(long eventId, PageParams pageParams);
     int getJourneyResponseCount(long id);
 }
-
-//    void updateJourneyDates(long journeyId, LocalDate startDate, LocalDate endDate);
-//    void updateJourneyDescription(long journeyId, String description);
-//    void updateJourneyDestination(long journeyId, String universityName);
-//    void updateJourneyDestination(long journeyId, long universityId);
