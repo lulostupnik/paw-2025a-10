@@ -4,6 +4,8 @@ import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.interfaces.services.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -12,6 +14,7 @@ import java.util.Objects;
 
 @Component
 public class AccessHelper {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccessHelper.class);
 
     private final EventService eventService;
     private final JourneyService journeyService;
@@ -41,8 +44,9 @@ public class AccessHelper {
     public boolean isUserBlocked(){
         if (Objects.equals(SecurityContextHolder.getContext().getAuthentication().getName(), "AnonymousUser")) return false;
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userService.findByEmail(email).orElseThrow(() ->
-                new IllegalArgumentException("No user by the name " + email)).isBlocked();
+        return userService.findByEmail(email).orElseThrow(() ->{
+                LOGGER.warn("User not found: {}", email);
+                return new IllegalArgumentException("No user by the name " + email);}).isBlocked();
     }
 
     public boolean isReplyFromJourney(long journeyId, long replyId){
