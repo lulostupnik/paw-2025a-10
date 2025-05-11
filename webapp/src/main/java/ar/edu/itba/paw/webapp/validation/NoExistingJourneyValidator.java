@@ -7,8 +7,11 @@ import javax.validation.ConstraintValidatorContext;
 
 public class NoExistingJourneyValidator implements ConstraintValidator<NoExistingJourney, String> {
 
+    private final JourneyService journeyService;
     @Autowired
-    private JourneyService journeyService;
+    public NoExistingJourneyValidator(JourneyService journeyService) {
+        this.journeyService = journeyService;
+    }
 
     @Override
     public void initialize(NoExistingJourney constraintAnnotation) {

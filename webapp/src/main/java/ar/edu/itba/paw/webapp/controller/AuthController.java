@@ -58,7 +58,7 @@ public class AuthController {
         }
         setAuth(user.get().getEmail(),user.get().getPassword());
 
-        return new ModelAndView("/auth/validate-user");
+        return new ModelAndView("redirect:/explore");
     }
 
     @GetMapping(value ="/not-verified")

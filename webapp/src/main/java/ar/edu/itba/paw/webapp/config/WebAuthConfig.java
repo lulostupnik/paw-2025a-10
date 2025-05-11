@@ -21,6 +21,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import java.util.concurrent.TimeUnit;
 
@@ -29,17 +30,21 @@ import java.util.concurrent.TimeUnit;
 @ComponentScan("ar.edu.itba.paw.webapp.auth")
 @PropertySource("classpath:application.properties")
 public class WebAuthConfig extends WebSecurityConfigurerAdapter {
+    private PawUserDetailsService userDetailsService;
+    private AccessHelper accessHelper;
+    private CustomAuthenticationFailureHandler failureHandler;
+
+    @Autowired
+    public WebAuthConfig(PawUserDetailsService userDetailsService, AccessHelper accessHelper, CustomAuthenticationFailureHandler failureHandler ){
+        this.accessHelper = accessHelper;
+        this.userDetailsService = userDetailsService;
+        this.failureHandler = failureHandler;
+
+    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebAuthConfig.class);
 
-    @Autowired
-    private PawUserDetailsService userDetailsService;
 
-    @Autowired
-    private AccessHelper accessHelper;
-
-    @Autowired
-    private CustomAuthenticationFailureHandler failureHandler;
 
     @Value("${auth.key}")
     private String authKey;

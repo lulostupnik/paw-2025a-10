@@ -8,8 +8,12 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.List;
 
 public class ValidInterestValidator implements ConstraintValidator<ValidInterest, List<String>> {
+
+    private final InterestService interestService;
     @Autowired
-    private InterestService interestService;
+    public ValidInterestValidator(InterestService interestService) {
+        this.interestService = interestService;
+    }
 
     @Override
     public void initialize(ValidInterest constraintAnnotation) {

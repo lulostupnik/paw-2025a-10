@@ -8,8 +8,11 @@ import javax.validation.ConstraintValidatorContext;
 
 public class ExistingUniversityValidator implements ConstraintValidator<ExistingUniversity, String> {
 
+    private final UniversityService universityService;
     @Autowired
-    private UniversityService universityService;
+    public ExistingUniversityValidator(UniversityService universityService) {
+        this.universityService = universityService;
+    }
 
     @Override
     public void initialize(ExistingUniversity constraintAnnotation) {

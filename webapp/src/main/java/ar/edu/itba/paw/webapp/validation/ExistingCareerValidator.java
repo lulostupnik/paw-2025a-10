@@ -8,8 +8,11 @@ import javax.validation.ConstraintValidatorContext;
 
 public class ExistingCareerValidator implements ConstraintValidator<ExistingCareer, String> {
 
+    private final CareerService careerService;
     @Autowired
-    private CareerService careerService;
+    public ExistingCareerValidator(CareerService careerService) {
+        this.careerService = careerService;
+    }
 
     @Override
     public void initialize(ExistingCareer constraintAnnotation) {

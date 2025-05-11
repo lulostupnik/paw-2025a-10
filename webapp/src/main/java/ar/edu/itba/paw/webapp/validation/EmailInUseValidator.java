@@ -7,8 +7,12 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 public class EmailInUseValidator implements ConstraintValidator<EmailInUse, String> {
+
+    private final UserService userService;
     @Autowired
-    private UserService userService;
+    public EmailInUseValidator(UserService userService) {
+        this.userService = userService;
+    }
 
     @Override
     public void initialize(EmailInUse constraintAnnotation) {

@@ -8,8 +8,11 @@ import javax.validation.ConstraintValidatorContext;
 
 public class InterestNotExistsValidator implements ConstraintValidator<InterestNotExists, String> {
 
+    private final InterestService interestService;
     @Autowired
-    private InterestService interestService;
+    public InterestNotExistsValidator(InterestService interestService) {
+        this.interestService = interestService;
+    }
 
     @Override
     public void initialize(InterestNotExists constraintAnnotation) {

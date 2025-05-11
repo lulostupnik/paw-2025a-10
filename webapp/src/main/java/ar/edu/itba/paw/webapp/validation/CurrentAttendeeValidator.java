@@ -11,8 +11,11 @@ import java.util.Optional;
 
 public class CurrentAttendeeValidator implements ConstraintValidator<CurrentAttendees, EditEventForm> {
 
+    private final EventService eventService;
     @Autowired
-    private EventService eventService;
+    public CurrentAttendeeValidator(EventService eventService) {
+        this.eventService = eventService;
+    }
     @Override
     public void initialize(CurrentAttendees constraintAnnotation) {}
 

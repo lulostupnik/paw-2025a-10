@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -81,8 +80,7 @@ public class EventController {
     @GetMapping(value = "/create")
     public ModelAndView createEventForm(@ModelAttribute("createEventForm") final CreateEventForm form) {
         LOGGER.debug("Getting event creation form");
-        ModelAndView mav = new ModelAndView("events/create");
-        return mav;
+        return new ModelAndView("events/create");
     }
 
     @PostMapping(path = "/create",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

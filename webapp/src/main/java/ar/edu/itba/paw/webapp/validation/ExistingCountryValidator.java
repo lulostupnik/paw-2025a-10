@@ -8,8 +8,11 @@ import javax.validation.ConstraintValidatorContext;
 
 public class ExistingCountryValidator implements ConstraintValidator<ExistingCountry, String> {
 
+    private final CountryService countryService;
     @Autowired
-    private CountryService countryService;
+    public ExistingCountryValidator(CountryService countryService) {
+        this.countryService = countryService;
+    }
 
     @Override
     public void initialize(ExistingCountry constraintAnnotation) {

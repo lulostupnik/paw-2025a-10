@@ -8,8 +8,11 @@ import javax.validation.ConstraintValidatorContext;
 
 public class EmailNotInUseValidator implements ConstraintValidator<EmailNotInUse, String> {
 
+    private final UserService userService;
     @Autowired
-    private UserService userService;
+    public EmailNotInUseValidator(UserService userService) {
+        this.userService = userService;
+    }
 
     @Override
     public void initialize(EmailNotInUse constraintAnnotation) {

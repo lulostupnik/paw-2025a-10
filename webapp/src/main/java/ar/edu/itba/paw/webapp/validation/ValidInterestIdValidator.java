@@ -7,8 +7,13 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 public class ValidInterestIdValidator implements ConstraintValidator<ValidInterest, long[]> {
+
+    private final InterestService interestService;
+
     @Autowired
-    private InterestService interestService;
+    public ValidInterestIdValidator(InterestService interestService) {
+        this.interestService = interestService;
+    }
 
     @Override
     public void initialize(ValidInterest constraintAnnotation) {

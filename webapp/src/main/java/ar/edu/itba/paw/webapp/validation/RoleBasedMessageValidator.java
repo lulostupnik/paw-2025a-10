@@ -20,8 +20,11 @@ import java.util.Collection;
 @Component
 public class RoleBasedMessageValidator implements ConstraintValidator<RoleBasedMessage, DeleteForm> {
 
+    private final EventService eventService;
     @Autowired
-    private EventService eventService;
+    public RoleBasedMessageValidator(EventService eventService) {
+        this.eventService = eventService;
+    }
 
     @Override
     public void initialize(RoleBasedMessage constraintAnnotation) {

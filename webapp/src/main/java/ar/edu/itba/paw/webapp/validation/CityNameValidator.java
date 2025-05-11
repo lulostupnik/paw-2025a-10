@@ -8,8 +8,13 @@ import javax.validation.ConstraintValidatorContext;
 
 
 public class CityNameValidator implements ConstraintValidator<ExistingCity, String> {
+
+    private final CityService cityService;
+
     @Autowired
-    private CityService cityService;
+    public CityNameValidator(CityService cityService) {
+        this.cityService = cityService;
+    }
 
     @Override
     public boolean isValid(String city, ConstraintValidatorContext constraintValidatorContext) {
