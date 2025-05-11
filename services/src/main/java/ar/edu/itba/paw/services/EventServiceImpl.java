@@ -57,11 +57,11 @@ public class EventServiceImpl implements EventService {
 
         LOGGER.debug("Creating event for user {}", email);
         City city = cityService.findByName(cityName).orElseThrow(() ->{
-            LOGGER.error("City not found {}", cityName);
+            LOGGER.warn("City not found {}", cityName);
             return new RuntimeException("City not found");}
         );
         User user = userService.findByEmail(email).orElseThrow(()-> {
-                LOGGER.error("User not found {}", email);
+                LOGGER.warn("User not found {}", email);
                 return new RuntimeException("User not found");}
         );
         long flyerImageId = imageService.storeImage(flyer);
@@ -76,11 +76,11 @@ public class EventServiceImpl implements EventService {
     public void replyToEvent(final String email, final long eventId, final String message) {
         LOGGER.debug("Replying to event {}", eventId);
         Event event = eventDao.findById(eventId).orElseThrow(() -> {
-            LOGGER.error("Event not found {}", eventId);
+            LOGGER.warn("Event not found {}", eventId);
             return new RuntimeException("Event not found");}
         );
         User user = userService.findByEmail(email).orElseThrow(()->{
-                LOGGER.error("User not found {}", email);
+                LOGGER.warn("User not found {}", email);
                 return new RuntimeException("User not found");});
         eventResponseDao.create(user.getId(), user.getUsername(), eventId, message, LocalDateTime.now());
         LOGGER.info("Event response {} created", eventId);
@@ -166,7 +166,7 @@ public class EventServiceImpl implements EventService {
     public void attendEvent(final String email,final  long eventId) {
         long userId = userService.findByEmail(email).orElseThrow(
                 () -> {
-                    LOGGER.error("User not found {}", email);
+                    LOGGER.warn("User not found {}", email);
                     return new RuntimeException("User not found");
                 }
         ).getId();
@@ -224,7 +224,7 @@ public class EventServiceImpl implements EventService {
     public List<Event> getRecommendedEvents(final long userId,final  int limit) {
         LOGGER.debug("Getting recommended events for user {} with limit {}", userId, limit);
         if (limit <= 0) {
-            LOGGER.error("Limit must be greater than 0");
+            LOGGER.warn("Limit must be greater than 0");
             throw new IllegalArgumentException("Limit must be greater than 0");
         }
         List<Event> events = eventDao.findRecommended(userId, new PageParams(1, limit)).getContent();
@@ -239,7 +239,7 @@ public class EventServiceImpl implements EventService {
     public List<Event> getTopEvents(final int limit){
         LOGGER.debug("Getting top events");
         if (limit <= 0) {
-            LOGGER.error("Limit must be greater than 0");
+            LOGGER.warn("Limit must be greater than 0");
             throw new IllegalArgumentException("Limit must be greater than 0");
         }
         return eventDao.findTop(new PageParams(1, limit)).getContent();
@@ -270,12 +270,12 @@ public class EventServiceImpl implements EventService {
         LOGGER.debug("Editing event {}", eventId);
         Event currentEvent = eventDao.findById(eventId)
                 .orElseThrow(() ->{
-                    LOGGER.error("Event not found {}", eventId);
+                    LOGGER.warn("Event not found {}", eventId);
                     return new IllegalArgumentException("Event not found");}
                 );
 
         long resolvedCityId = cityService.findByName(cityName).orElseThrow(() -> {
-            LOGGER.error("City not found {}", cityName);
+            LOGGER.warn("City not found {}", cityName);
             return new RuntimeException("City not found");}
         ).getId();
 
@@ -313,18 +313,18 @@ public class EventServiceImpl implements EventService {
         LOGGER.debug("Deleting event response {}", id);
         EventResponse deletedComment = findEventResponseById(id)
                 .orElseThrow(() ->{
-                    LOGGER.error("Event response not found {}", id);
+                    LOGGER.warn("Event response not found {}", id);
                     return new IllegalArgumentException("Event response doesn't exist");});
 
         Event event = eventDao.findById(deletedComment.getEventId())
                 .orElseThrow(() ->  {
-                    LOGGER.error("Event from event response not found {}", deletedComment.getEventId());
+                    LOGGER.warn("Event from event response not found {}", deletedComment.getEventId());
                     return new IllegalStateException("Event from event response doesn't exist");});
 
 
         User commentAuthor = userService.findById(deletedComment.getUserId())
                 .orElseThrow(() -> {
-                    LOGGER.error("User from event response not found {}", deletedComment.getUserId());
+                    LOGGER.warn("User from event response not found {}", deletedComment.getUserId());
                     return new IllegalArgumentException("User from event response doesn't exist");}
                 );
 

@@ -83,7 +83,7 @@ public class EmailServiceImpl implements EmailService {
             }
             emailSender.send(message);
         } catch (Exception e) {
-            LOGGER.error("Failed to send email", e);
+            LOGGER.warn("Failed to send email", e);
         }
     }
 
