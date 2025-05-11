@@ -73,7 +73,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .invalidSessionUrl("/")
                 .and().authorizeRequests()
-                .antMatchers("/register", "/login", "/reset-password", "/forgot_pass", "/validate").anonymous() // Fixed the paths
+                .antMatchers("/register", "/login", "/reset-password", "/forgot_pass", "/validate", "/not-verified").anonymous()//FIXME: not verified aca?
                 .antMatchers("/universities", "/careers", "/interests", "/cities").permitAll()
                 .antMatchers(HttpMethod.POST, "/events/{id}/delete", "/journeys/{id}/delete",
                         "users/block", "users/unblock").access("hasRole('ADMIN') and !@accessHelper.isUserBlocked()")
@@ -83,7 +83,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/events/create", "/journeys/create").access("isAuthenticated() and !@accessHelper.isUserBlocked()")
                 .antMatchers("/journeys/{journeyId}/reply/{id}/delete").access("hasRole('ADMIN') and !@accessHelper.isUserBlocked() and @accessHelper.isReplyFromJourney(#journeyId, #id)")
                 .antMatchers("/events/{eventId}/reply/{id}/delete").access("hasRole('ADMIN') and !@accessHelper.isUserBlocked() and @accessHelper.isReplyFromEvent(#eventId, #id)")
-                .antMatchers("/events/*", "/journeys/*", "/events/*/attend").access("isAuthenticated() and !@accessHelper.isUserBlocked()")
+                .antMatchers(HttpMethod.POST, "/journeys/*", "/events/*/attend").access("isAuthenticated() and !@accessHelper.isUserBlocked()")
                 .antMatchers(HttpMethod.GET,"/events", "/", "/events/{id}", "/journeys", "/journeys/{id}", "/images/{id}","/universities","/universities/{id}", "/blocked").permitAll()
                 .antMatchers("/**").access("isAuthenticated() and !@accessHelper.isUserBlocked()")
                 .and().formLogin()

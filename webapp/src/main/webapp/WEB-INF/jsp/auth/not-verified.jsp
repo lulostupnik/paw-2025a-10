@@ -41,7 +41,7 @@
 <%--            <c:when test="${not empty reason}">--%>
 <%--              <c:out value="${reason}" escapeXml="true" />--%>
 <%--            </c:when>--%>
-            <c:otherwise>
+<%--            <c:otherwise>--%>
               <spring:message code="notvalid.default.reason"/>
 <%--            </c:otherwise>--%>
 <%--          </c:choose>--%>

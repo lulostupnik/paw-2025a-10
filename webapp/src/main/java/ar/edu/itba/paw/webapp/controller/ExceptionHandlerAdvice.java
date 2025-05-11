@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.util.NestedServletException;
 
 @ControllerAdvice
 public class ExceptionHandlerAdvice {
@@ -19,7 +20,8 @@ public class ExceptionHandlerAdvice {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionHandlerAdvice.class);
     private static final String ERROR_VIEW = "errors/error";
     @Autowired
-    private UserService userSerivice;
+    private UserService userService;
+
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(code = HttpStatus.NOT_FOUND)
@@ -98,7 +100,7 @@ public class ExceptionHandlerAdvice {
     public ModelAndView error400ExpiredToken(ExpiredTokenException ex) {
         LOGGER.warn("ExpiredToken: {}", ex.getMessage());
         LOGGER.debug("Stack trace for ExpiredToken", ex);
-        userSerivice.refreshToken(ex.getOldToken());
+        userService.refreshToken(ex.getOldToken());
         return new ModelAndView("auth/expired-token");
     }
 
@@ -107,7 +109,7 @@ public class ExceptionHandlerAdvice {
     public ModelAndView error400ExpiredPassToken(ExpiredPassTokenException ex) {
         LOGGER.warn("ExpiredToken: {}", ex.getMessage());
         LOGGER.debug("Stack trace for ExpiredToken", ex);
-        userSerivice.refreshPassToken(ex.getOldToken());
+        userService.refreshPassToken(ex.getOldToken());
         return new ModelAndView("auth/expired-token");
     }
 

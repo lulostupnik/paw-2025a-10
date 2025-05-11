@@ -38,8 +38,8 @@
         <h4 class="alert-title"><spring:message code="validated.alert.title"/></h4>
         <p class="alert-message">
           <spring:message code="validated.alert.message"/>
-          <c:if test="${not empty username}">
-            <strong><c:out value="${username}" escapeXml="true" /></strong>
+          <c:if test="${not empty user}">
+            <strong><c:out value="${user.username}" escapeXml="true" /></strong>
           </c:if>
         </p>
       </div>
@@ -95,7 +95,7 @@
       </div>
     </div>
 
-    <a href="<c:url value='/dashboard'/>" class="continue-button">
+    <a href="<c:url value='/explore'/>" class="continue-button">
       <spring:message code="validated.continue.to.dashboard"/>
     </a>
   </div>
