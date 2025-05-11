@@ -196,16 +196,15 @@ public class EventJdbcDao implements EventDao {
     AND us.id != ?
     AND e.deleted = FALSE
     ORDER BY
-        (e.attendees_limit IS NOT NULL AND e.attendees_count >= e.attendees_limit) ASC, 
+        (e.attendees_limit IS NOT NULL AND e.attendees_count >= e.attendees_limit) ASC,
         is_attending ASC,
         is_owner ASC,
-        COALESCE(e.attendees_count, 0) DESC, 
+        COALESCE(e.attendees_count, 0) DESC,
         e.event_date
     LIMIT ? OFFSET ?
     """;
 
-    private final static String SQL_TOP_EVENTS_SELECT = "SELECT " + SQL_ALIASES;
-    private final static String SQL_TOP_EVENTS = SQL_TOP_EVENTS_SELECT +
+    private final static String SQL_TOP_EVENTS = SQL_SELECT_BASE +
             """
                 FROM events e
                 JOIN users us ON e.user_id = us.id
@@ -220,7 +219,7 @@ public class EventJdbcDao implements EventDao {
                 ORDER BY (e.attendees_limit IS NOT NULL AND e.attendees_count >= e.attendees_limit) ASC, COALESCE(e.attendees_count, 0) DESC, e.event_date
                 LIMIT ? OFFSET ?
         """;
-    private final static String SQL_TOP_EVENTS_LOGGED_USER = SQL_TOP_EVENTS_SELECT +
+    private final static String SQL_TOP_EVENTS_LOGGED_USER = SQL_SELECT_BASE +
             """
                 ,(ea.user_id IS NOT NULL) AS is_attending
                 ,(e.user_id = ?) AS is_owner
@@ -237,9 +236,9 @@ public class EventJdbcDao implements EventDao {
                 AND us.id != ?
                 AND e.deleted = FALSE
                 ORDER BY
-                 (e.attendees_limit IS NOT NULL AND e.attendees_count >= e.attendees_limit) ASC, 
+                 (e.attendees_limit IS NOT NULL AND e.attendees_count >= e.attendees_limit) ASC,
                   is_attending ASC,
-                  COALESCE(e.attendees_count, 0) DESC, 
+                  COALESCE(e.attendees_count, 0) DESC,
                   e.event_date
                 LIMIT ? OFFSET ?
             """;
@@ -273,8 +272,7 @@ public class EventJdbcDao implements EventDao {
         }
         parameters.put("deleted", false);
         final Number keys = jdbcInsert.executeAndReturnKey(parameters);
-        final Event event = new Event(keys.longValue(), user, date, description, flyerImageId, city, title, Optional.ofNullable(time), address, Optional.ofNullable(attendeesLimit), 0);
-        return event;
+        return new Event(keys.longValue(), user, date, description, flyerImageId, city, title, Optional.ofNullable(time), address, Optional.ofNullable(attendeesLimit), 0);
     }
 
 
@@ -294,6 +292,45 @@ public class EventJdbcDao implements EventDao {
         return jdbcTemplate.query(SQL_FIND_ALL_BETWEEN_DATES, EVENT_ROW_MAPPER, startDate, endDate);
     }
 
+    @Override
+    public int countEventsCreatedByUser(final long userId) {
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM events WHERE user_id = ? AND deleted = FALSE", Integer.class, userId);
+    }
+
+    @Override
+    public int countEventsAttendedByUser(final long userId) {
+        return jdbcTemplate.queryForObject("""
+                        SELECT COUNT(*) FROM event_attendances ea
+                        JOIN events e ON ea.event_id = e.id
+                        WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE
+                        """,
+                Integer.class,
+                userId, userId
+        );
+
+    }
+
+    @Override
+    public Optional<CountryAttendeeCount> findTopAttendeeCountry(final long eventId) {
+        return jdbcTemplate.query(
+                """
+                SELECT co.name as country_name, COUNT(*) as attendee_count
+                FROM event_attendances ea
+                JOIN users u ON ea.user_id = u.id
+                JOIN universities uni ON u.university = uni.id
+                JOIN cities ci ON uni.city_id = ci.id
+                JOIN countries co ON ci.country_id = co.id
+                WHERE ea.event_id = ?
+                GROUP BY co.name
+                ORDER BY attendee_count DESC
+                LIMIT 1
+                """,
+                (rs, rowNum) -> new CountryAttendeeCount(
+                        rs.getString("country_name"), rs.getInt("attendee_count")
+                ),
+                eventId
+        ).stream().findFirst();
+    }
 
     @Override
     public Optional<EventWithStatistics> findEventWithStatistics(final Long userId, final long eventId) {
@@ -325,47 +362,18 @@ public class EventJdbcDao implements EventDao {
 
         final long creatorId = maybeEvent.get().getEvent().getUser().getId();
 
-        final int creatorEventCount = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM events WHERE user_id = ? AND deleted = FALSE",
-                Integer.class,
-                creatorId
-        );
+        final int creatorEventCount = countEventsCreatedByUser(creatorId);
 
-        final int creatorAttendanceCount = jdbcTemplate.queryForObject("""
-                        SELECT COUNT(*) FROM event_attendances ea
-                        JOIN events e ON ea.event_id = e.id
-                        WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE
-                        """,
-                Integer.class,
-                creatorId, creatorId
-        );
+        final int creatorAttendanceCount = countEventsAttendedByUser(creatorId);
 
-        final List<Object[]> topCountry = jdbcTemplate.query(
-                """
-                SELECT co.name as country_name, COUNT(*) as attendee_count
-                FROM event_attendances ea
-                JOIN users u ON ea.user_id = u.id
-                JOIN universities uni ON u.university = uni.id
-                JOIN cities ci ON uni.city_id = ci.id
-                JOIN countries co ON ci.country_id = co.id
-                WHERE ea.event_id = ?
-                GROUP BY co.name
-                ORDER BY attendee_count DESC
-                LIMIT 1
-                """,
-                (rs, rowNum) -> new Object[] {
-                        rs.getString("country_name"),
-                        rs.getInt("attendee_count")
-                },
-                eventId
-        );
+        Optional<CountryAttendeeCount> maybeTopCountry = findTopAttendeeCountry(eventId);
 
         String topAttendeeCountry = null;
         int topAttendeeCountryCount = 0;
 
-        if (!topCountry.isEmpty()) {
-            topAttendeeCountry = (String) topCountry.getFirst()[0];
-            topAttendeeCountryCount = (Integer) topCountry.getFirst()[1];
+        if (maybeTopCountry.isPresent()) {
+            topAttendeeCountry = maybeTopCountry.get().getCountryName();
+            topAttendeeCountryCount = maybeTopCountry.get().getCount();
         }
 
         EventWithStatistics eventStatistics = new EventWithStatistics(
@@ -635,7 +643,7 @@ public class EventJdbcDao implements EventDao {
         );
 
         final List<Event> events = jdbcTemplate.query(SQL_TOP_EVENTS_LOGGED_USER, EVENT_ROW_MAPPER,
-                userId,userId, userId, pageParams.getSize(), offset(pageParams) //@TODO esto podria ser offset?
+                userId, userId, userId, pageParams.getSize(), offset(pageParams)
         );
         return new Page<>(events, pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
     }
