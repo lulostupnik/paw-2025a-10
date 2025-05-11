@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import ar.edu.itba.paw.interfaces.services.EventService;
@@ -55,10 +56,13 @@ public class LandingController {
     }
 
     @GetMapping("/explore")
-    public ModelAndView explore(@ModelAttribute("user") User user) {
+    public ModelAndView explore(
+            @RequestParam(value = "validationSuccess", required = false, defaultValue = "false") final boolean validationSuccess,
+            @ModelAttribute("user") User user) {
         LOGGER.debug("Getting dashboard page...");
 
         ModelAndView mav = new ModelAndView("home");
+        mav.addObject("validationSuccess", validationSuccess);
         populateHomePage(mav, user);
 
         return mav;
