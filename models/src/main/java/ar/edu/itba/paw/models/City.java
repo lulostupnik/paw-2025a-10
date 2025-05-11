@@ -26,10 +26,6 @@ public class City {
             sb.append(id);
             sb.append("}");
             return sb.toString();
-
-//            return "{\"name\":\"" + escapeJson(name) + "\","
-//                    + "\"country\":\"" + escapeJson(country) + "\","
-//                    + "\"id\":" + id + "}";
         }
 
         private String escapeJson(String value) {

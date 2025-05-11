@@ -118,22 +118,16 @@ public class EventJdbcDao implements EventDao {
             """;
 
     private final static String SQL_NOT_DELETED = " WHERE e.deleted = FALSE ";
-    private final static String SQL_BASE = SQL_SELECT_BASE + SQL_FROM_BASE; // + SQL_NOT_DELETED;
+    private final static String SQL_BASE = SQL_SELECT_BASE + SQL_FROM_BASE;
     private final static String SQL_BASE_INTEREST = SQL_BASE + " JOIN user_interest ui ON us.id = ui.user_id " ;
     private static final String SQL_BASE_NOT_DELETED = SQL_BASE + SQL_NOT_DELETED;
 
     private final static String SQL_FIND_BY_ID = SQL_BASE_NOT_DELETED + " AND e.id = ? ";
     private final static String SQL_FIND_BY_EMAIL = SQL_BASE_NOT_DELETED + " AND us.email = ?";
-    private final static String SQL_FIND_MY_EVENTS = SQL_BASE_NOT_DELETED + " AND e.user_id = ? "; // "ORDER BY e.event_date DESC"
-    private final static String SQL_FIND_OTHERS_EVENTS = SQL_BASE_NOT_DELETED + " AND e.user_id != ? AND e.event_date >= CURRENT_DATE ORDER BY e.event_date DESC ";
     private final static String SQL_FIND_ALL_BETWEEN_DATES = SQL_BASE_NOT_DELETED + " AND e.event_date BETWEEN ? AND ? ";
 
     private final static String SQL_FIND_ALL_PAGED = SQL_BASE_NOT_DELETED + " ORDER BY e.event_date DESC LIMIT ? OFFSET ? ";
-    private final static String SQL_FIND_OTHERS_PAGED = SQL_FIND_OTHERS_EVENTS + " LIMIT ? OFFSET ?";
-    private final static String SQL_FIND_ALL_BY_USER_PAGED = SQL_FIND_MY_EVENTS + " ORDER BY e.event_date DESC LIMIT ? OFFSET ? ";
     private final static String SQL_FIND_ALL_BY_EMAIL_PAGED = SQL_FIND_BY_EMAIL + " ORDER BY e.event_date DESC LIMIT ? OFFSET ? ";
-
-
 
     private final static String SQL_SEARCH_PAGED = SQL_BASE_NOT_DELETED + """
                     AND (
@@ -167,21 +161,6 @@ public class EventJdbcDao implements EventDao {
                    WHERE e.id = ?
                    """;
 
-    private final static String SQL_SEARCH_OTHERS_EVENTS_WITH_ATTENDANCE =
-            "SELECT (ea.user_id IS NOT NULL) AS is_attending, "
-                    + SQL_ALIASES + SQL_FROM_BASE + """
-                   LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
-                   WHERE e.user_id != ?
-                   AND e.deleted = FALSE
-                   AND e.event_date >= CURRENT_DATE
-                   AND (
-                            LOWER(e.title) LIKE LOWER(?)
-                            OR LOWER(c.name) LIKE LOWER(?)
-                            OR LOWER(us.username) LIKE LOWER(?)
-                        )
-                     ORDER BY e.event_date DESC LIMIT ? OFFSET ?
-                   """;
-
     private final static String SQL_SEARCH_WHERE_CLAUSE =
             """
             (
@@ -190,64 +169,6 @@ public class EventJdbcDao implements EventDao {
     OR LOWER(us.username) LIKE LOWER(?)
     )
     """;
-
-    private final static String SQL_COUNT_OTHERS_EVENTS_WITH_ATTENDANCE =
-            """
-            SELECT COUNT(*)
-            FROM events e
-            JOIN cities c ON e.city_id = c.id
-            JOIN users us ON e.user_id = us.id
-            LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
-            WHERE e.deleted = FALSE AND e.user_id != ? AND e.event_date >= CURRENT_DATE AND (
-                    LOWER(e.title) LIKE LOWER(?)
-                    OR LOWER(c.name) LIKE LOWER(?)
-                    OR LOWER(us.username) LIKE LOWER(?)
-                )
-            """;
-
-    /*
-     """
-    SELECT COUNT(*)
-    FROM events e
-    JOIN cities c ON e.city_id = c.id
-    JOIN users us ON e.user_id = us.id
-    LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
-    WHERE e.deleted = FALSE AND e.user_id != ? AND e.event_date >= CURRENT_DATE AND (
-            LOWER(e.title) LIKE LOWER(?)
-            OR LOWER(c.name) LIKE LOWER(?)
-            OR LOWER(us.username) LIKE LOWER(?)
-        )
-    """
-    */
-
-    private final static String SQL_SEARCH_ALL_EVENTS_WITH_ATTENDANCE =
-            "SELECT FALSE AS is_attending, "
-                    + SQL_ALIASES + SQL_FROM_BASE + """
-                    WHERE e.deleted = FALSE
-                    AND e.event_date >= CURRENT_DATE
-                    AND (
-                            LOWER(e.title) LIKE LOWER(?)
-                            OR LOWER(c.name) LIKE LOWER(?)
-                            OR LOWER(us.username) LIKE LOWER(?)
-                           )
-                    ORDER BY e.event_date DESC LIMIT ? OFFSET ?
-                    """;
-
-    private final static String SQL_COUNT_ALL_EVENTS_WITH_ATTENDANCE =
-            """
-            SELECT COUNT(*)
-            FROM events e
-            JOIN cities c ON e.city_id = c.id
-            JOIN users us ON e.user_id = us.id
-            WHERE e.deleted = FALSE AND e.event_date >= CURRENT_DATE AND (
-                    LOWER(e.title) LIKE LOWER(?)
-                    OR LOWER(c.name) LIKE LOWER(?)
-                    OR LOWER(us.username) LIKE LOWER(?)
-                )
-            """;
-
-    private final static String SQL_FIND_WITH_ATTENDANCE_PAGED = SQL_FIND_EVENTS_WITH_ATTENDANCE + " ORDER BY e.event_date DESC LIMIT ? OFFSET ?";
-    private final static String SQL_SEARCH_WITH_ATTENDANCE_PAGED = SQL_SEARCH_EVENTS_WITH_ATTENDANCE + " ORDER BY e.event_date DESC LIMIT ? OFFSET ?";
 
     private final static String SQL_RECOMMENDED_EVENTS = """
         WITH user_data AS (
@@ -283,11 +204,7 @@ public class EventJdbcDao implements EventDao {
     LIMIT ? OFFSET ?
     """;
 
-    // TODO: events ya tiene un campo para esto
-    private final static String SQL_TOP_EVENTS_SELECT = """
-        WITH event_attendees as (SELECT COUNT(user_id) AS attendees, event_id FROM event_attendances GROUP BY event_id)
-        SELECT
-        """ + SQL_ALIASES;
+    private final static String SQL_TOP_EVENTS_SELECT = "SELECT " + SQL_ALIASES;
     private final static String SQL_TOP_EVENTS = SQL_TOP_EVENTS_SELECT +
             """
                 FROM events e
@@ -298,7 +215,6 @@ public class EventJdbcDao implements EventDao {
                 JOIN countries co2 ON co2.id = ci2.country_id
                 JOIN cities c ON e.city_id = c.id
                 JOIN countries co ON c.country_id = co.id
-                LEFT JOIN event_attendees a ON a.event_id = e.id
                 WHERE e.event_date >= CURRENT_DATE
                 AND e.deleted = FALSE
                 ORDER BY (e.attendees_limit IS NOT NULL AND e.attendees_count >= e.attendees_limit) ASC, COALESCE(e.attendees_count, 0) DESC, e.event_date
@@ -316,7 +232,6 @@ public class EventJdbcDao implements EventDao {
                 JOIN countries co2 ON co2.id = ci2.country_id
                 JOIN cities c ON e.city_id = c.id
                 JOIN countries co ON c.country_id = co.id
-                LEFT JOIN event_attendees a ON a.event_id = e.id
                 LEFT JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = ?
                 WHERE e.event_date >= CURRENT_DATE
                 AND us.id != ?
@@ -641,7 +556,7 @@ public class EventJdbcDao implements EventDao {
 
 
     @Override
-    public void update(final long cityId, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit, final long eventId, final long flyerImageId/*, long userId*/) {
+    public void update(final long cityId, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit, final long eventId, final long flyerImageId) {
         LOGGER.info("Updating event {} with city {}, date {}, desc '{}', title '{}', time {}, addr '{}', limit {}, image {}", eventId, cityId, date, description, title, time, address, attendeesLimit, flyerImageId);
         final int rowsAffected = jdbcTemplate.update("""
             UPDATE events

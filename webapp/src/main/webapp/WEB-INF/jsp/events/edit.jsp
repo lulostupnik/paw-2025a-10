@@ -254,8 +254,14 @@
                     </button>
                 </div>
                 <form:errors path="flyer" cssClass="error-message" />
-                <p class="form-hint"><spring:message code="event.flyer.edit.hint" text="Leave empty to keep current flyer"/></p>
-            </div>
+                <div class="form-hint">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="form-hint-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="form-hint-text">
+            <spring:message code="event.flyer.edit.hint" text="Leave empty to keep current flyer"/>
+        </span>
+                </div>            </div>
 
             <button type="submit" class="form-button">
                 <spring:message code="event.update.button" text="Update Event"/>

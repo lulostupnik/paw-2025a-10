@@ -170,7 +170,6 @@ public class EventController {
     @GetMapping(value = "/{eventId}/reply/{id}/delete")
     public ModelAndView deleteEventReplyForm(@PathVariable(value = "eventId") long eventId,
                                              @PathVariable("id") long id,
-                                             @ModelAttribute("user") User user,
                                              @ModelAttribute("deleteReplyForm") ReplyForm form) {
         LOGGER.debug("Showing delete form for reply {} from event {}", id, eventId);
 
@@ -287,10 +286,8 @@ public class EventController {
             @PathVariable("id") long id, @Valid @ModelAttribute("deleteReplyForm") ReplyForm form,
                                          BindingResult errors, RedirectAttributes redirectAttributes) {
         if (errors.hasErrors()) {
-            redirectAttributes.addFlashAttribute("deleteReplyErrors", errors);
-            redirectAttributes.addFlashAttribute("deleteReplyForm", form);
-            redirectAttributes.addAttribute("replyId",id );
-            return new ModelAndView( "redirect:/events/" + eventId);
+            LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
+            return deleteEventReplyForm(eventId, id, form);
         }
         eventService.deleteResponse(id, form.getMessage());
         return new ModelAndView( "redirect:/events/" + eventId);

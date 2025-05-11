@@ -22,8 +22,6 @@ public class Interest {
         sb.append(id);
         sb.append("}");
         return sb.toString();
-//        return "{\"name\":\"" + escapeJson(name) + "\","
-//                + "\"id\":" + id + "}";
     }
 
     private String escapeJson(String value) {

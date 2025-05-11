@@ -1,12 +1,12 @@
-/* Event Detail Page Styles */
 
-/* Back Button */
+
+
 .back-button-container {
     margin-bottom: 1.5rem;
 }
 
 
-/* Main Container */
+
 .event-detail-container {
     background-color: #ffffff;
     border-radius: 1rem;
@@ -15,13 +15,13 @@
     margin-bottom: 2rem;
 }
 
-/* Top Section */
+
 .event-top-section {
     padding: 2rem;
     border-bottom: 1px solid #f3f4f6;
 }
 
-/* Event Header */
+
 .event-header {
     display: flex;
     justify-content: space-between;
@@ -38,7 +38,7 @@
     max-width: 80%;
 }
 
-/* Action Controls - Updated for consistent button positioning */
+
 .action-controls {
     display: flex;
     align-items: center;
@@ -46,7 +46,7 @@
     flex-shrink: 0;
 }
 
-/* Event Actions */
+
 .event-actions {
     display: flex;
     align-items: center;
@@ -105,7 +105,7 @@
     height: 18px;
 }
 
-/* Attendance Control - Standardized styles for both states */
+
 .attendance-status,
 form[action*="/attend-detail"] {
     position: relative;
@@ -190,7 +190,7 @@ form[action*="/attend-detail"] {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Delete button */
+
 .delete-button {
     display: flex;
     align-items: center;
@@ -212,7 +212,7 @@ form[action*="/attend-detail"] {
     box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);
 }
 
-/* Event Meta */
+
 .event-meta {
     display: flex;
     flex-wrap: wrap;
@@ -230,7 +230,7 @@ form[action*="/attend-detail"] {
     font-size: 1rem;
 }
 
-/* Event Flyer */
+
 .event-flyer {
     width: 100%;
     height: 400px;
@@ -262,7 +262,7 @@ form[action*="/attend-detail"] {
     opacity: 0.7;
 }
 
-/* Event Description */
+
 .event-description {
     background-color: #f9fafb;
     border-radius: 0.75rem;
@@ -294,7 +294,7 @@ form[action*="/attend-detail"] {
     word-wrap: break-word;
 }
 
-/* Tabs Container */
+
 .tabs-container {
     display: flex;
     flex-direction: column;
@@ -331,7 +331,7 @@ form[action*="/attend-detail"] {
     background-color: rgba(79, 70, 229, 0.05);
 }
 
-/* Tab Contents */
+
 .tabs-content {
     padding: 2rem;
 }
@@ -340,7 +340,7 @@ form[action*="/attend-detail"] {
     display: none;
 }
 
-/* Content Sections */
+
 .content-section {
     margin-bottom: 2rem;
 }
@@ -369,7 +369,7 @@ form[action*="/attend-detail"] {
     margin-left: 0.25rem;
 }
 
-/* Toggle Button - Improved */
+
 .toggle-button {
     display: flex;
     align-items: center;
@@ -394,7 +394,7 @@ form[action*="/attend-detail"] {
     color: #4f46e5;
 }
 
-/* Attendees Grid */
+
 .attendees-grid {
     display: grid;
     grid-template-columns: repeat(1, 1fr);
@@ -473,7 +473,7 @@ form[action*="/attend-detail"] {
     text-overflow: ellipsis;
 }
 
-/* Chat List - Improved */
+
 .chat-list {
     display: flex;
     flex-direction: column;
@@ -588,7 +588,7 @@ form[action*="/attend-detail"] {
     white-space: pre-line;
 }
 
-/* Reply Container */
+
 .reply-container {
     background-color: #f9fafb;
     border-radius: 0.75rem;
@@ -621,7 +621,7 @@ form[action*="/attend-detail"] {
     margin-top: 1rem;
 }
 
-/* Empty State */
+
 .empty-state {
     display: flex;
     flex-direction: column;
@@ -645,7 +645,7 @@ form[action*="/attend-detail"] {
     margin: 0;
 }
 
-/* Responsive Adjustments */
+
 @media (max-width: 768px) {
     .event-title {
         font-size: 1.75rem;
@@ -920,7 +920,7 @@ form[action*="/attend-detail"] {
         grid-template-columns: 1fr;
     }
 }
-/* Event Creator Styles - Updated with specific class names */
+
 .event-creator {
     margin: 1.5rem 0;
     padding: 1rem;

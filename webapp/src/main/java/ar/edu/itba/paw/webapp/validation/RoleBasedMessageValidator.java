@@ -12,10 +12,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Collection;
 
-/**
- * Custom validator that implements role-based message validation logic.
- * For ADMIN users: message must not be null or empty
- */
+
 
 @Component
 public class RoleBasedMessageValidator implements ConstraintValidator<RoleBasedMessage, DeleteForm> {

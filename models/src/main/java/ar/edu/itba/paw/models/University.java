@@ -38,12 +38,6 @@ public class University{
         sb.append("\"");
         sb.append("}");
         return sb.toString();
-//        return "{"
-//                + "\"id\":" + id + ","
-//                + "\"name\":\"" + escapeJson(name) + "\","
-//                + "\"abbreviation\":\"" + escapeJson(abbreviation) + "\","
-//                + "\"city\":\"" + escapeJson(city != null ? city.getName() : null) + "\""
-//                + "}";
     }
 
     private String escapeJson(String value) {

@@ -59,14 +59,9 @@ public class EventServiceImpl implements EventService {
 
         LOGGER.debug("Looking for user {}", email);
         User user = userService.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
-
         long flyerImageId = imageService.storeImage(flyer);
-
         Event event = eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit);
-
-        // Automatically add the creator to the attendees list
         eventAttendanceDao.create(user.getId(), event.getId());
-
         return event;
     }
 
