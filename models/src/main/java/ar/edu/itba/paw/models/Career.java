@@ -15,8 +15,16 @@ public class Career {
     }
 
     public String toJSON() {
-        return "{\"name\":\"" + escapeJson(name) + "\","
-                + "\"id\":" + id + "}";
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"name\":\"");
+        sb.append(escapeJson(name));
+        sb.append("\", \"id\":");
+        sb.append(id);
+        sb.append("}");
+        return sb.toString();
+//
+//        return "{\"name\":\"" + escapeJson(name) + "\","
+//                + "\"id\":" + id + "}";
     }
 
     private String escapeJson(String value) {

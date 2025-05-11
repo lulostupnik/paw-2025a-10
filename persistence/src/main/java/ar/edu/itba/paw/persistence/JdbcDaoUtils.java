@@ -19,7 +19,6 @@ public final class JdbcDaoUtils {
         StringBuilder sb = new StringBuilder();
         sb.append("%").append(text.replace("%", "\\%").replace("_", "\\_")).append("%");
         return sb.toString();
-        //         return "%" + text.replace("%", "\\%").replace("_", "\\_") + "%";
     }
 
 

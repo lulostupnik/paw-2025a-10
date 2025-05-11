@@ -13,16 +13,37 @@ public class University{
 
     @Override
     public String toString() {
-        return name + " (" + abbreviation + ")";
+        StringBuilder sb = new StringBuilder();
+        sb.append(name);
+        sb.append(" (");
+        sb.append(abbreviation);
+        sb.append(")");
+        return sb.toString();
     }
 
     public String toJSON() {
-        return "{"
-                + "\"id\":" + id + ","
-                + "\"name\":\"" + escapeJson(name) + "\","
-                + "\"abbreviation\":\"" + escapeJson(abbreviation) + "\","
-                + "\"city\":\"" + escapeJson(city != null ? city.getName() : null) + "\""
-                + "}";
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        sb.append("\"id\":");
+        sb.append(id);
+        sb.append(",");
+        sb.append("\"name\":\"");
+        sb.append(escapeJson(name));
+        sb.append("\",");
+        sb.append("\"abbreviation\":\"");
+        sb.append(escapeJson(abbreviation));
+        sb.append("\",");
+        sb.append("\"city\":\"");
+        sb.append(escapeJson(city != null ? city.getName() : null));
+        sb.append("\"");
+        sb.append("}");
+        return sb.toString();
+//        return "{"
+//                + "\"id\":" + id + ","
+//                + "\"name\":\"" + escapeJson(name) + "\","
+//                + "\"abbreviation\":\"" + escapeJson(abbreviation) + "\","
+//                + "\"city\":\"" + escapeJson(city != null ? city.getName() : null) + "\""
+//                + "}";
     }
 
     private String escapeJson(String value) {

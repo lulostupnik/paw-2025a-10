@@ -31,7 +31,7 @@ public class EditEventForm {
     @FutureDate
     private LocalDate date;
 
-    @ImageSize() // 2MB
+    @ImageSize()
     @ContentType({"image/jpeg", "image/jpg", "image/png"})
     private MultipartFile flyer;
 

@@ -22,7 +22,6 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomAuthenticationFailureHandler.class);
 
     public CustomAuthenticationFailureHandler() {
-        // Setting default failure URL
         setDefaultFailureUrl("/login?error=true");
     }
 

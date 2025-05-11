@@ -17,9 +17,19 @@ public class City {
 
 
         public String toJSON() {
-            return "{\"name\":\"" + escapeJson(name) + "\","
-                    + "\"country\":\"" + escapeJson(country) + "\","
-                    + "\"id\":" + id + "}";
+            StringBuilder sb = new StringBuilder();
+            sb.append("{\"name\":\"");
+            sb.append(escapeJson(name));
+            sb.append("\"country\":\"");
+            sb.append(escapeJson(country));
+            sb.append("\", \"id\":");
+            sb.append(id);
+            sb.append("}");
+            return sb.toString();
+
+//            return "{\"name\":\"" + escapeJson(name) + "\","
+//                    + "\"country\":\"" + escapeJson(country) + "\","
+//                    + "\"id\":" + id + "}";
         }
 
         private String escapeJson(String value) {

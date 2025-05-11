@@ -26,7 +26,3 @@ public interface JourneyDao {
                          PageParams pageParams);
     Optional<Journey> findOverlapping(long id, LocalDate startDate, LocalDate endDate);
 }
-
-//    void updateDates(long journeyId, LocalDate startDate, LocalDate endDate);
-//    void updateDescription(long journeyId, String description);
-//    void updateDestinationUniversity(long journeyId, long universityId);
