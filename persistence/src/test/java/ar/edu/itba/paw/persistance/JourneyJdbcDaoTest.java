@@ -407,62 +407,6 @@ public class JourneyJdbcDaoTest {
         );
     }
 
-//    @Test
-//    public void testSearchJourneys(){
-//        insertJourney(Map.of("userId", USER_ANOTHER_ID));
-//
-//        Page<Journey> page = journeyDao.searchJourneys(USERNAME_1.substring(0, 6), 1, 5);
-//
-//        assertNotNull(page);
-//        assertEquals(1,page.getCurrentPage());
-//        assertEquals(1,page.getTotalPages());
-//        assertNotNull(page.getContent());
-//        assertEquals(2, page.getContent().size());
-//    }
-//    @Test
-//    public void testSearchJourneysNoJourneys(){
-//        Page<Journey> page = journeyDao.searchJourneys(USERNAME_1.substring(0, 6), 1, 5);
-//
-//        assertNotNull(page);
-//        assertEquals(1,page.getCurrentPage());
-//        assertEquals(0,page.getTotalPages());
-//        assertNotNull(page.getContent());
-//        assertEquals(0, page.getContent().size());
-//    }
-//    @Test
-//    public void testSearchJourneysDeleted(){
-//        Page<Journey> page = journeyDao.searchJourneys(DELETED_USER_NAME, 1, 5);
-//
-//        assertNotNull(page);
-//        assertEquals(1,page.getCurrentPage());
-//        assertEquals(0,page.getTotalPages());
-//        assertNotNull(page.getContent());
-//        assertEquals(0, page.getContent().size());
-//    }
-//
-//    @Test
-//    public void testFindByFiltersDestination(){
-//        insertJourney(Map.of("userId", USER3_ID, "destination", UNI_ORIGIN));
-//
-//        List<Journey> journeys = journeyDao.findByFilters(Long.toString(DESTINATION_CITY_ID), null, null, null);
-//
-//        assertNotNull(journeys);
-//        assertEquals(2, journeys.size());
-//        //TODO if-else
-//        for (Journey j : journeys){
-//            assertEquals(TestUtils.JOURNEY_DESCRIPTION, j.getDescription());
-//            assertEquals(DESTINATION_UNI_ID, j.getDestinationUniversity().getId());
-//            assertEquals(TestUtils.JOURNEY_START_DATE, j.getStartDate());
-//            assertEquals(TestUtils.JOURNEY_END_DATE, j.getEndDate());
-//            if (j.getId() == id1) {
-//                assertEquals(USER1_ID, j.getUser().getId());
-//            } else {
-//                assertEquals(id2, j.getId());
-//                assertEquals(USER2_ID, j.getUser().getId());
-//            }
-//        }
-//    }
-
     @Test
     public void testRecommendedJourneysBasic(){
         //JOURNEY_2 should have internal score of 95 (30 match city, 50 match uni, 15 overlap)

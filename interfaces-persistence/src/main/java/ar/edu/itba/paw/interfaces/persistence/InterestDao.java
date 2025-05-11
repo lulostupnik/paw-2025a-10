@@ -16,8 +16,6 @@ public interface InterestDao {
      Page<Interest> search(String searchTerm, PageParams pageParams);
      void delete(long id);
 
-     // TODO:
-     // ¿Esto va en este DAO?
      List<Interest> findAllByUserId(long id);
      Page<Interest> findAllByUserId(long id, PageParams pageParams);
 

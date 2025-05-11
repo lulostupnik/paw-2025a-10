@@ -101,7 +101,6 @@ public class JourneyController {
                                    @ModelAttribute("replyJourneyForm") ReplyForm rjf,
                                    @PageParamCustomizer(defaultSize = 4) PageParams  repliesPage,
                                    @PageParamCustomizer(defaultSize = 8, pageParamName = "interestsPage", sizeParamName = "interestsSize") PageParams interestsPage) {
-
         LOGGER.debug("Getting info for journey {}", id);
 
         Journey journey = js.getJourneyById(id).orElseThrow(JourneyNotFoundException::new);

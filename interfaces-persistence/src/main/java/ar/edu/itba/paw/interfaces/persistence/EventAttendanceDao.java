@@ -9,11 +9,7 @@ public interface EventAttendanceDao {
     boolean exists(long userId, long eventId);
     int countByEventId(long eventId);
 
-
-    // Esto va en este DAO?
     Page<Event> findAllEventsByAttendee(long userId, PageParams pageParams);
     Page<User> findAllAttendeesByEventId(long eventId, PageParams pageParams);
-
     List<User> findAllAttendeesByEventId(long eventId);
-
 }
