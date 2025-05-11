@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS users (
         profile_picture_id INTEGER NOT NULL,
         language VARCHAR(2) NOT NULL DEFAULT 'en' CHECK (language IN ('en', 'es')),
         blocked BOOLEAN NOT NULL DEFAULT FALSE,
-        token VARCHAR(100) DEFAULT NULL,
+        token VARCHAR(100) UNIQUE DEFAULT NULL,
         token_expiration_date DATE DEFAULT NULL,
         validated BOOLEAN NOT NULL,
 
