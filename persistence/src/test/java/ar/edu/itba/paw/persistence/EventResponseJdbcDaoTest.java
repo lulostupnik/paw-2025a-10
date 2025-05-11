@@ -1,4 +1,4 @@
-package ar.edu.itba.paw.persistance;
+package ar.edu.itba.paw.persistence;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import javax.sql.DataSource;
 
@@ -31,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ar.edu.itba.paw.models.EventResponse;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.User;
-import ar.edu.itba.paw.persistence.EventResponseJdbcDao;
 
 @SuppressWarnings("null")
 @Transactional
