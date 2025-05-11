@@ -204,11 +204,7 @@ public class EventJdbcDao implements EventDao {
     LIMIT ? OFFSET ?
     """;
 
-    // TODO: events ya tiene un campo para esto
-    private final static String SQL_TOP_EVENTS_SELECT = """
-        WITH event_attendees as (SELECT COUNT(user_id) AS attendees, event_id FROM event_attendances GROUP BY event_id)
-        SELECT
-        """ + SQL_ALIASES;
+    private final static String SQL_TOP_EVENTS_SELECT = "SELECT " + SQL_ALIASES;
     private final static String SQL_TOP_EVENTS = SQL_TOP_EVENTS_SELECT +
             """
                 FROM events e
@@ -219,7 +215,6 @@ public class EventJdbcDao implements EventDao {
                 JOIN countries co2 ON co2.id = ci2.country_id
                 JOIN cities c ON e.city_id = c.id
                 JOIN countries co ON c.country_id = co.id
-                LEFT JOIN event_attendees a ON a.event_id = e.id
                 WHERE e.event_date >= CURRENT_DATE
                 AND e.deleted = FALSE
                 ORDER BY (e.attendees_limit IS NOT NULL AND e.attendees_count >= e.attendees_limit) ASC, COALESCE(e.attendees_count, 0) DESC, e.event_date
@@ -237,7 +232,6 @@ public class EventJdbcDao implements EventDao {
                 JOIN countries co2 ON co2.id = ci2.country_id
                 JOIN cities c ON e.city_id = c.id
                 JOIN countries co ON c.country_id = co.id
-                LEFT JOIN event_attendees a ON a.event_id = e.id
                 LEFT JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = ?
                 WHERE e.event_date >= CURRENT_DATE
                 AND us.id != ?
