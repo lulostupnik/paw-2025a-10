@@ -103,7 +103,7 @@ public class AuthController {
             return forgotPassForm(form);
         }
         userService.forgotPass(form.getEmail());
-        return new ModelAndView("redirect:auth/login?emailSuccess=true");
+        return new ModelAndView("redirect:/login?emailSuccess=true");
     }
 
 
