@@ -40,6 +40,7 @@ public class EventJdbcDaoTest {
 
     private static User USER_1;
     private static User USER_2;
+    private static User USER_3;
     private static City CITY_1;
     private static City CITY_2;
     private static Image IMAGE_1;
@@ -122,6 +123,7 @@ public class EventJdbcDaoTest {
 
         USER_1 = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_MAIL);
         USER_2 = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_2_MAIL);
+        USER_3 = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_3_MAIL);
         CITY_1 = jdbcTemplate.queryForObject(TestUtils.CITY_SELECT_BY_NAME, TestUtils.CITY_ROW_MAPPER, TestUtils.CITY_1_NAME);
         CITY_2 = jdbcTemplate.queryForObject(TestUtils.CITY_SELECT_BY_NAME, TestUtils.CITY_ROW_MAPPER, TestUtils.CITY_2_NAME);
         IMAGE_1 = jdbcTemplate.queryForObject(TestUtils.IMAGE_SELECT_BY_DATA, TestUtils.IMAGE_ROW_MAPPER, TestUtils.IMAGE_1_DATA);
@@ -826,38 +828,33 @@ public class EventJdbcDaoTest {
     //@TODO no se si las siguientes 3 funciones estan bien. (estaban en otro dao)
     @Test
     public void testFindAllEventsByAttendeePaged(){
-        insert.execute(Map.of("event_id", EVENT_3.getId() ,"user_id", USER_1.getId()));
-        insert.execute(Map.of("event_id", EVENT_2.getId() ,"user_id", USER_1.getId()));
-
-        Page<Event> page1 = eventDao.findAllEventsByAttendee(USER_1.getId(), new PageParams(1, 1));
-        Page<Event> page2 = eventDao.findAllEventsByAttendee(USER_1.getId(), new PageParams(2, 1));
+        Page<Event> page1 = eventDao.findAllEventsByAttendee(USER_1.getId(), TestUtils.PAGE_1_SINGLE);
+        Page<Event> page2 = eventDao.findAllEventsByAttendee(USER_1.getId(), TestUtils.PAGE_2_SINGLE);
 
         assertNotNull(page1);
         assertNotNull(page2);
         assertEquals(1, page1.getCurrentPage());
         assertEquals(2, page2.getCurrentPage());
-        assertEquals(2, page1.getTotalPages());
-        assertEquals(2, page2.getTotalPages());
+        assertEquals(1, page1.getTotalPages());
+        assertEquals(1, page2.getTotalPages());
         assertNotNull(page1.getContent());
         assertNotNull(page2.getContent());
         assertEquals(1, page1.getContent().size());
-        assertEquals(1, page2.getContent().size());
+        assertEquals(0, page2.getContent().size());
     }
     @Test
     public void testFindAllPagedByAttendee(){
-        Page<Event> events = eventDao.findAllEventsByAttendee(USER_1.getId(), new PageParams(1,1));
+        Page<Event> events = eventDao.findAllEventsByAttendee(USER_1.getId(), TestUtils.PAGE_1_SINGLE);
 
         assertNotNull(events);
         assertEquals(1, events.getCurrentPage());
-        assertEquals(0, events.getTotalPages());
+        assertEquals(1, events.getTotalPages());
         assertNotNull(events.getContent());
-        assertEquals(0, events.getContent().size());
+        assertEquals(1, events.getContent().size());
     }
     @Test
     public void testFindAllEventsByAttendeeWrongUserPaged(){
-        insert.execute(Map.of("event_id", EVENT_3.getId() ,"user_id", USER_1.getId()));
-
-        Page<Event> events = eventDao.findAllEventsByAttendee(12341234, new PageParams(1, 1));
+        Page<Event> events = eventDao.findAllEventsByAttendee(12341234, TestUtils.PAGE_1_SINGLE);
 
         assertNotNull(events);
         assertEquals(1, events.getCurrentPage());

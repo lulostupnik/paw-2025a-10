@@ -530,6 +530,7 @@ public class UserJdbcDaoTest {
 
         assertFalse(isExpired);
     }
+
 }
 
 
