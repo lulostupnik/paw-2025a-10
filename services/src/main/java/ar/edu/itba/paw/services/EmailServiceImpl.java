@@ -41,17 +41,17 @@ public class EmailServiceImpl implements EmailService {
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailServiceImpl.class);
 
     @Autowired
-    public EmailServiceImpl(JavaMailSender emailSender,
-                            TemplateEngine templateEngine,
-                            MessageSource messageSource,
-                            ImageService imageService) {
+    public EmailServiceImpl(final JavaMailSender emailSender,
+                            final TemplateEngine templateEngine,
+                            final MessageSource messageSource,
+                            final ImageService imageService) {
         this.emailSender = emailSender;
         this.templateEngine = templateEngine;
         this.messageSource = messageSource;
         this.imageService = imageService;
     }
 
-    private void sendHtmlMessage(Optional<byte[]> maybeImage,Optional<String> maybeImageCid, User emailRecipient, String templateName, Map<String, Object> variables, String subjectKey, Optional<Object[]> maybeSubjectArgs) {
+    private void sendHtmlMessage(final Optional<byte[]> maybeImage,final Optional<String> maybeImageCid,final User emailRecipient, final String templateName, final Map<String, Object> variables,final String subjectKey, final Optional<Object[]> maybeSubjectArgs) {
         try {
             LOGGER.debug("Sending email to: {}", emailRecipient.getEmail());
             LOGGER.debug("Locale of recipient: {}", emailRecipient.getLocale());
@@ -86,9 +86,9 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    private Map<String, Object> buildVariables(String firstName, String lastName, String username,
-                                               String career, String originUniversity, String message,
-                                               byte[] profilePicture, String idKey, long id) {
+    private Map<String, Object> buildVariables(final String firstName,final String lastName,final String username,
+                                               final String career,final String originUniversity,final String message,
+                                               final byte[] profilePicture,final String idKey,final long id) {
         return Map.of(
                 "firstname", firstName,
                 "lastname", lastName,
@@ -103,10 +103,9 @@ public class EmailServiceImpl implements EmailService {
 
 
     @Override
-    public void sendEventCommentDeletionNotification(EventResponse deletedComment, Event event , User commentAuthor, String adminMessage) {
+    public void sendEventCommentDeletionNotification(final EventResponse deletedComment,final Event event , final User commentAuthor,final  String adminMessage) {
 
         LOGGER.debug("Retrieved User (comment author): {}", commentAuthor);
-
         Map<String, Object> variables = new HashMap<>();
         variables.put("isEvent", true);
         variables.put("contentTitle", event.getTitle());
@@ -133,8 +132,7 @@ public class EmailServiceImpl implements EmailService {
 
 
     @Override
-    public void sendJourneyCommentDeletionNotification(/*long journeyResponseId,*/ JourneyResponse deletedComment,  Journey journey, User commentAuthor , String adminMessage) {
-
+    public void sendJourneyCommentDeletionNotification(final JourneyResponse deletedComment,final  Journey journey, final User commentAuthor ,final String adminMessage) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("isEvent", false);
         variables.put("contentId", journey.getId());
@@ -148,7 +146,7 @@ public class EmailServiceImpl implements EmailService {
 
 
     @Override
-    public void answerEventNotification(List<User> oldRepliers, String message, User commenter, Event event) {
+    public void answerEventNotification(final List<User> oldRepliers,final String message,final User commenter, final Event event) {
         User eventUser = event.getUser();
 
 
@@ -176,7 +174,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void answerJourneyNotification(List<User> oldRepliers, String message, User commenter, Journey journey) {
+    public void answerJourneyNotification(final List<User> oldRepliers,final String message,final User commenter,final Journey journey) {
         User journeyUser = journey.getUser();
         byte[] profilePictureData = imageService.getImage(commenter.getProfilePictureId()).orElseThrow(() -> new IllegalStateException("User does not have profile picture")).getData();
 
@@ -202,7 +200,7 @@ public class EmailServiceImpl implements EmailService {
 
     }
     @Override
-    public void sendEventDeletionNotification(Event event, String adminMessage) {
+    public void sendEventDeletionNotification(final Event event,final String adminMessage) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("eventTitle", event.getTitle());
         variables.put("eventId", event.getId());
@@ -213,7 +211,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendJourneyDeletionNotification(Journey journey, String adminMessage) {
+    public void sendJourneyDeletionNotification(final Journey journey,final String adminMessage) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("journeyId", journey.getId());
         variables.put("adminMessage", adminMessage);
@@ -224,7 +222,7 @@ public class EmailServiceImpl implements EmailService {
 
 
     @Override
-    public void sendUserBlockedNotification(User blockedUser) {
+    public void sendUserBlockedNotification(final User blockedUser) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("username", blockedUser.getUsername());
 
@@ -232,7 +230,7 @@ public class EmailServiceImpl implements EmailService {
                 "email.user.blocked.title", Optional.empty());
     }
     @Override
-    public void sendUserUnblockedNotification(User unblockedUser) {
+    public void sendUserUnblockedNotification(final User unblockedUser) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("username", unblockedUser.getUsername());
 
@@ -241,7 +239,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendValidationEmail(User user, String token) {
+    public void sendValidationEmail(final User user,final String token) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("firstName", user.getUsername());
         variables.put("validationToken", token);
@@ -250,7 +248,7 @@ public class EmailServiceImpl implements EmailService {
                 "email.validation.title", Optional.empty());
     }
     @Override
-    public void sendForgotPassEmail(User user, String token) {
+    public void sendForgotPassEmail(final User user, final String token) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("firstName", user.getUsername());
         variables.put("resetToken", token);
@@ -261,7 +259,7 @@ public class EmailServiceImpl implements EmailService {
 
 
     @Override
-    public void sendEventReminderNotification(Event event, List<User> attendees) {
+    public void sendEventReminderNotification(final Event event,final List<User> attendees) {
         Optional<byte[]> eventImage = Optional.empty();
         Optional<String> eventImageCid = Optional.empty();
 

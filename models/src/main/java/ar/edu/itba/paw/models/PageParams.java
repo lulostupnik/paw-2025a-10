@@ -2,6 +2,8 @@ package ar.edu.itba.paw.models;
 
 import lombok.Getter;
 
+import java.util.Objects;
+
 @Getter
 public class PageParams {
     private final int page;
@@ -18,5 +20,9 @@ public class PageParams {
     @Override
     public boolean equals(Object other){
         return ((other instanceof PageParams p) && p.getPage() == this.page && p.getSize() == this.size);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(page, size);
     }
 }

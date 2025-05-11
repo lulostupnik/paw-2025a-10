@@ -23,23 +23,22 @@ public class UniversityServiceImpl implements UniversityService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UniversityServiceImpl.class);
 
     private final UniversityDao universityDao;
-    private static final int DEFAULT_PAGE_SIZE = 30;
 
     @Autowired
-    public UniversityServiceImpl(UniversityDao universityDao) {
+    public UniversityServiceImpl(final UniversityDao universityDao) {
         this.universityDao = universityDao;
     }
 
     @Override
     @Cacheable(value = "universitiesByName", key = "#name")
-    public Optional<University> findByName(String name) {
+    public Optional<University> findByName(final String name) {
         LOGGER.debug("Getting university with name {}", name);
         return universityDao.findByName(name);
     }
 
     @Override
     @Cacheable(value = "universitiesById", key = "#id")
-    public Optional<University> findById(long id) {
+    public Optional<University> findById(final long id) {
         return universityDao.findById(id);
     }
 
@@ -47,7 +46,7 @@ public class UniversityServiceImpl implements UniversityService {
 
 
     @Override
-    public Page<University> getAllUniversities(String search, PageParams pageParams) {
+    public Page<University> getAllUniversities(final String search, final PageParams pageParams) {
         LOGGER.debug("Getting all universities with search {}", search);
         if (search == null || search.isEmpty()) {
             return universityDao.findAll(pageParams);
@@ -55,7 +54,7 @@ public class UniversityServiceImpl implements UniversityService {
         return universityDao.search(search, pageParams);
     }
     @Override
-    public String getUniversitiesJSON(String search, PageParams pageParams){
+    public String getUniversitiesJSON(final String search, final PageParams pageParams){
         LOGGER.debug("Getting all universities with search {}", search);
         List<University> universities;
         if (search == null || search.isEmpty()) {
@@ -67,7 +66,7 @@ public class UniversityServiceImpl implements UniversityService {
         return UniversitiesToJson(universities);
     }
 
-    private String UniversitiesToJson(List<University> universities) {
+    private String UniversitiesToJson(final List<University> universities) {
         StringBuilder json = new StringBuilder("[");
         for (University university : universities) {
             json.append(university.toJSON()).append(",");
@@ -91,7 +90,7 @@ public class UniversityServiceImpl implements UniversityService {
                 @CacheEvict(value = "universities", allEntries = true)
             }
     )
-    public University createUniversity(String name, String abbreviation, String city) {
+    public University createUniversity(final String name, final String abbreviation,final  String city) {
         return universityDao.create(name, abbreviation, city);
     }
 
@@ -102,7 +101,7 @@ public class UniversityServiceImpl implements UniversityService {
             @CacheEvict(value = "universitiesById", key = "#id"),
             @CacheEvict(value = "universitiesByName", allEntries = true)
     })
-    public void updateUniversity(long id, String name, String abbreviation, String cityName) {
+    public void updateUniversity(final long id, final String name, final String abbreviation, final String cityName) {
         universityDao.update(id, name, abbreviation, cityName);
     }
 
@@ -115,28 +114,9 @@ public class UniversityServiceImpl implements UniversityService {
                     @CacheEvict(value = "universitiesByName", allEntries = true)
             }
     )
-    public void delete(long id) {
+    public void delete(final long id) {
         universityDao.delete(id);
     }
 
 
 }
-
-//
-//    @Override
-//    public Page<University> searchUniversities(String search, PageParams pageParams) {
-//        return universityDao.searchBySubstring(search, pageParams);
-//    }
-
-//
-//    @Override
-//    public Optional<University> findByAbbreviation(String abbreviation) {
-//        LOGGER.debug("Getting university with abbreviation {}", abbreviation);
-//        return universityDao.findByAbbreviation(abbreviation);
-//    }
-//
-//    @Override
-//    public Optional<University> findByAny(String queryString){
-//        LOGGER.debug("Getting university like {}", queryString);
-//        return universityDao.findByAny(queryString);
-//    }

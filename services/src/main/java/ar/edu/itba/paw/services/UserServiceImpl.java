@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UniversityService universityService, UserDao userDao, ImageService imageService, CareerService careerService, InterestService interestService, PasswordEncoder passwordEncoder, EmailService emailService) {
+    public UserServiceImpl(final UniversityService universityService, final UserDao userDao, final ImageService imageService, final CareerService careerService, final InterestService interestService,final  PasswordEncoder passwordEncoder, final EmailService emailService) {
         this.universityService = universityService;
         this.userDao = userDao;
         this.imageService = imageService;
@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, byte[] profilePicture, List<String> interests, String password, Locale locale) {
+    public User createUser(final String email,final  String username,final  String firstname,final  String lastname,final  String universityName, final String careerName,final  byte[] profilePicture, final List<String> interests,final  String password, final Locale locale) {
         LOGGER.debug("Creating user for {}", email);
 
         University university = universityService.findByName(universityName).orElseThrow(() -> new RuntimeException("University not found")); // TODO: ¿Acá cuando tira excepción debería haber un log?
@@ -67,14 +67,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void changePassword(long id, String newPassword) {
+    public void changePassword(final long id,final  String newPassword) {
         LOGGER.debug("Changing password for user with ID: {}", id);
         userDao.updatePassword(id, passwordEncoder.encode(newPassword));
     }
 
     @Override
     @Transactional
-    public Optional<UserAuthInfo> validateEmail(String token) {
+    public Optional<UserAuthInfo> validateEmail(final String token) {
         if (userDao.hasExpired(token)) {
             throw new ExpiredTokenException("Token expired", token);
         }
@@ -85,10 +85,10 @@ public class UserServiceImpl implements UserService {
     }
     //Ver que onda porque la logica es igual, lo unico que cambia es que la de arriba tilda un boolean en is valid
     //para saber que el usuario valido su email y la de abajo falla
-
+    //@TODO
     @Override
     @Transactional
-    public void validateToken(String token){
+    public void validateToken(final String token){
         if(userDao.hasExpired(token)){
             throw new ExpiredTokenException("Token expired", token);
         }
@@ -101,33 +101,33 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public Optional<User> findByEmail(String email) {
+    public Optional<User> findByEmail(final String email) {
         return userDao.findByEmail(email);
     }
 
     @Override
-    public Optional<UserAuthInfo> findByEmailWithPass(String email) {
+    public Optional<UserAuthInfo> findByEmailWithPass(final String email) {
         return userDao.findAuthInfoByEmail(email);
     }
 
     @Override
-    public Optional<User> findById(long id) {
+    public Optional<User> findById(final long id) {
         return userDao.findById(id);
     }
 
     @Override
-    public boolean existsByUsername(String username) {
+    public boolean existsByUsername(final String username) {
         return userDao.existsByUsername(username);
     }
 
     @Override
-    public boolean existsByEmail(String email) {
+    public boolean existsByEmail(final String email) {
         return userDao.existsByEmail(email);
     }
 
 
     @Override
-    public Page<User> getAllUsers(String search, PageParams pageParams) {
+    public Page<User> getAllUsers(final String search,final  PageParams pageParams) {
 
         if (search == null || search.isEmpty()) {
             return userDao.findAll(pageParams);
@@ -137,7 +137,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void blockUser(long userId) {
+    public void blockUser(final long userId) {
         emailService.sendUserBlockedNotification(findById(userId).orElseThrow(()-> new IllegalStateException("User does not exist")));
 
         userDao.blockUser(userId);
@@ -145,13 +145,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void unblockUser(long userId) {
+    public void unblockUser(final long userId) {
         emailService.sendUserUnblockedNotification(findById(userId).orElseThrow(()-> new IllegalStateException("User does not exist")));
         userDao.unblockUser(userId);
     }
     @Override
     @Transactional
-    public void refreshToken(String oldToken) {
+    public void refreshToken(final String oldToken) {
         String uid = UUID.randomUUID().toString();
         User user = userDao.findByToken(oldToken).orElseThrow(()-> new RuntimeException("User not found"));
         LocalDate date = LocalDate.now().plusDays(1);
@@ -161,7 +161,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void refreshPassToken(String oldToken) {
+    public void refreshPassToken(final String oldToken) {
         String uid = UUID.randomUUID().toString();
 
         User user = userDao.findByToken(oldToken).orElseThrow(() -> new RuntimeException("User not found"));
@@ -174,7 +174,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void newPassword(String token, String newPassword) {
+    public void newPassword(final String token, final String newPassword) {
         if(userDao.hasExpired(token)){
             throw new ExpiredPassTokenException("Token expired", token);
         }
@@ -187,7 +187,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void forgotPass(String email) {
+    public void forgotPass(final String email) {
         User user = userDao.findByEmail(email).orElseThrow(()-> {
             LOGGER.warn("User with email {} not found", email);
             throw new RuntimeException("User does not exist");
@@ -206,77 +206,3 @@ public class UserServiceImpl implements UserService {
     }
 
 }
-
-//
-//@Override
-//@Transactional
-//public void updateCareer(long userId, String newCareerName) {
-//    LOGGER.debug("Updating career for user {} to {}", userId, newCareerName);
-//    userDao.updateCareer(userId, newCareerName);
-//}
-
-//
-//    @Override
-//    @Transactional
-//    public void updateCareer(long userId, long careerId) {
-//        LOGGER.debug("Updating career for user {} to career ID {}", userId, careerId);
-//        userDao.updateCareer(userId, careerId);
-//        LOGGER.info("Successfully updated career for user {} to career ID {}", userId, careerId);
-//    }
-
-//
-//@Override
-//@Transactional
-//public void updateUniversity(long userId, String newUniversityName) {
-//    LOGGER.debug("Updating university for user {} to {}", userId, newUniversityName);
-//    userDao.updateUniversity(userId, newUniversityName);
-//}
-
-
-//
-//    @Override
-//    @Transactional
-//    public void updateUniversity(long userId, long universityId) {
-//        LOGGER.debug("Updating university for user {} to university ID {}", userId, universityId);
-//        userDao.updateUniversity(userId, universityId);
-//    }
-
-//
-//    @Override
-//    public byte[] getProfilePictureData(User user) {
-//        return imageService.getImage(user.getProfilePictureId())
-//                .orElseThrow(() -> new IllegalStateException("User does not have a profile picture"))
-//                .getData();
-//    }
-
-//
-//    @Override
-//    @Transactional
-//    public void updateProfileInfo(long userId, String firstname, String lastname, String username) {
-//        LOGGER.debug("Updating profile info for user {}: firstname={}, lastname={}, username={}", userId, firstname, lastname, username);
-//        userDao.updateProfileInfo(userId, firstname, lastname, username);
-//    }
-
-//
-//    @Override
-//    @Transactional
-//    public void updateLocale(long userId, Locale locale) {
-//        LOGGER.debug("Updating locale for user {} to {}", userId, locale);
-//        userDao.updateLocale(userId, locale);
-//    }
-
-//
-//    @Override
-//    @Transactional
-//    public void updateProfilePicture(long userId, byte[] profilePicture) {
-//        LOGGER.debug("Updating profile picture for user {}", userId);
-//        long profilePictureId = imageService.storeImage(profilePicture);
-//        userDao.updateProfilePicture(userId, profilePictureId);
-//    }
-
-
-//    @Override
-//    public Optional<User> findByUsername(String username) {
-//        return userDao.findByUsername(username);
-//    }
-
