@@ -378,8 +378,8 @@ public class JourneyJdbcDaoTest {
     }
 
     @Test
-    public void testUpdateData(){
-        journeyDao.updateData(
+    public void testUpdate(){
+        journeyDao.update(
             JOURNEY_1.getId(), 
             UNI_3, 
             TestUtils.JOURNEY_START_DATE.plusDays(10), 
@@ -400,8 +400,8 @@ public class JourneyJdbcDaoTest {
         );
     }
     @Test
-    public void testUpdateDataNotFound(){
-        journeyDao.updateData(
+    public void testUpdateNotFound(){
+        journeyDao.update(
             12341234, 
             UNI_3, 
             TestUtils.JOURNEY_START_DATE.plusDays(10),
@@ -417,8 +417,8 @@ public class JourneyJdbcDaoTest {
         assertEqualsJourney(journey);
     }
     @Test
-    public void testUpdateDataDeleted(){
-        journeyDao.updateData(
+    public void testUpdateDeleted(){
+        journeyDao.update(
             JOURNEY_DELETED.getId(), 
             UNI_3, 
             TestUtils.JOURNEY_START_DATE.plusDays(10), 

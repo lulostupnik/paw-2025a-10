@@ -14,7 +14,6 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
 
@@ -52,12 +51,12 @@ public class InterestJdbcDao implements InterestDao {
     }
 
     @Override
-    public Optional<Interest> findById(final Long id) {
+    public Optional<Interest> findById(final long id) {
         return jdbcTemplate.query(SQL_FIND_BY_ID, INTEREST_ROW_MAPPER, id).stream().findFirst();
     }
 
     @Override
-    public List<Interest> findByUserId(final Long id) {
+    public List<Interest> findAllByUserId(final long id) {
         return jdbcTemplate.query(SQL_FIND_ALL_BY_USER, INTEREST_ROW_MAPPER, id);
     }
 
@@ -67,7 +66,7 @@ public class InterestJdbcDao implements InterestDao {
     }
 
     @Override
-    public Interest createUserInterest(final String interest) {
+    public Interest create(final String interest) {
         LOGGER.debug("Creating new interest {}", interest);
         final Map<String, Object> params = new HashMap<>();
         params.put("name", interest);
@@ -77,17 +76,9 @@ public class InterestJdbcDao implements InterestDao {
         return newInterest;
     }
 
-    @Override
-    public void deleteUserInterest(final long id) {
-        LOGGER.info("Deleting interest with id {}", id);
-        final int rowsAffected = jdbcTemplate.update("DELETE FROM category WHERE id = ?", id);
-        if (rowsAffected == 0) {
-            LOGGER.warn("Interest deletion failed: Interest with ID {} not found", id);
-        }
-    }
 
     @Override
-    public void editUserInterest(final long id, final String interest) {
+    public void update(final long id, final String interest) {
         LOGGER.info("Editing interest {} to {}", id, interest);
         final int rowsAffected = jdbcTemplate.update("UPDATE category SET name = ? WHERE id = ?", interest ,id);
         if (rowsAffected == 0) {
@@ -180,7 +171,7 @@ public class InterestJdbcDao implements InterestDao {
     }
 
     @Override
-    public Page<Interest> getAllInterests(PageParams pageParams) {
+    public Page<Interest> findAll(PageParams pageParams) {
         final int totalInterests = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category", Integer.class);
         return new Page<>(
                 jdbcTemplate.query(SQL_FIND_ALL_PAGED, INTEREST_ROW_MAPPER, pageParams.getSize(), offset(pageParams)),
@@ -190,8 +181,8 @@ public class InterestJdbcDao implements InterestDao {
     }
 
     @Override
-    public Page<Interest> searchBySubstring(final String search, PageParams pageParams) {
-        final String searchPattern = likePattern(search);
+    public Page<Interest> search(final String searchTerm, PageParams pageParams) {
+        final String searchPattern = likePattern(searchTerm);
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category WHERE name LIKE ?", Integer.class, searchPattern);
 
         return new Page<>(
@@ -210,7 +201,7 @@ public class InterestJdbcDao implements InterestDao {
         }
     }
     @Override
-    public Page<Interest> findAllInterestsByUserId(final long id, PageParams pageParams) {
+    public Page<Interest> findAllByUserId(final long id, PageParams pageParams) {
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user_interest WHERE user_id = ?", Integer.class, id);
         return new Page<>(
                 jdbcTemplate.query(SQL_FIND_ALL_PAGED_BY_USER, INTEREST_ROW_MAPPER, id, pageParams.getSize(), offset(pageParams)),

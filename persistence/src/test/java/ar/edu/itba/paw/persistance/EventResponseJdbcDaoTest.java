@@ -150,25 +150,25 @@ public class EventResponseJdbcDaoTest {
     }
 
     @Test
-    public void testGetCount(){
+    public void testCountByEventId(){
         insert.execute(Map.of("user_id", USER_1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", false));
         insert.execute(Map.of("user_id", USER_1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", false));
         insert.execute(Map.of("user_id", USER_1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", false));
         insert.execute(Map.of("user_id", USER_1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", true));
         
-        int replyCount = replyDao.getCount(EVENT1_ID);
+        int replyCount = replyDao.countByEventId(EVENT1_ID);
 
         assertEquals(3, replyCount);
     }
     @Test
-    public void testGetCountNoReplies(){       
-        int replyCount = replyDao.getCount(EVENT1_ID);
+    public void testCountByEventIdNoReplies(){
+        int replyCount = replyDao.countByEventId(EVENT1_ID);
 
         assertEquals(0, replyCount);
     }
     @Test
-    public void testGetCountWrongEvent(){       
-        int replyCount = replyDao.getCount(12341234);
+    public void testCountByEventIdWrongEvent(){
+        int replyCount = replyDao.countByEventId(12341234);
 
         assertEquals(0, replyCount);
     }

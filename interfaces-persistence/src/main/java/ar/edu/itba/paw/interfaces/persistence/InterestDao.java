@@ -3,24 +3,31 @@ package ar.edu.itba.paw.interfaces.persistence;
 import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
-
 import java.util.List;
 import java.util.Optional;
 
 public interface InterestDao {
-     Optional<Interest> findById(Long id);
-     List<Interest> findByUserId(Long id);
+     Optional<Interest> findById(long id);
      Optional<Interest> findByName(String name);
-     Interest createUserInterest(String interest);
-     void deleteUserInterest(long id);
+     Interest create(String interest);
+     void update(long id, String interest);
+
+     Page<Interest> findAll(PageParams pageParams);
+     Page<Interest> search(String searchTerm, PageParams pageParams);
+     void delete(long id);
+
+     // TODO:
+     // ¿Esto va en este DAO?
+     List<Interest> findAllByUserId(long id);
+     Page<Interest> findAllByUserId(long id, PageParams pageParams);
+
+     // MOVER A OTRO UserInterestDao:
      void saveUserInterests(List<String> interests, long userId);
-     void editUserInterest(long id, String interest);
      void saveUserInterests(long[] interests, long userId);
      void updateScoreByInterest(Interest interest, long userId);
      void updateUserInterests(long[] interestIds, long userId);
      void updateScoreByInterests(List<Interest> interests, long userId);
-     Page<Interest> getAllInterests(PageParams pageParams);
-     Page<Interest> searchBySubstring(String search, PageParams pageParams);
-     Page<Interest> findAllInterestsByUserId(long id, PageParams pageParams);
-     void delete(long id);
+
+
+
 }

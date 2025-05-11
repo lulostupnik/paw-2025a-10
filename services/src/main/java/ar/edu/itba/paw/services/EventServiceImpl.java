@@ -334,7 +334,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public int getResponseCount(long eventId){
-        return eventResponseDao.getCount(eventId);
+        return eventResponseDao.countByEventId(eventId);
     }
 
 

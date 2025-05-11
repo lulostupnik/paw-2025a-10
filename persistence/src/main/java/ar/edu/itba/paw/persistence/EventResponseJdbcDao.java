@@ -84,7 +84,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
 
 
     @Override
-    public int getCount(final long eventId) {
+    public int countByEventId(final long eventId) {
         return jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM event_responses WHERE event_id = ? AND deleted = FALSE",
                 Integer.class,

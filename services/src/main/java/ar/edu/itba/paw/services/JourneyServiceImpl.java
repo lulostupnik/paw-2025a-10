@@ -212,7 +212,7 @@ public class JourneyServiceImpl implements JourneyService {
                     LOGGER.warn("University not found: {}", destinationUniversity);
                     return new IllegalArgumentException("University not found");
                 });
-        journeyDao.updateData(journeyId, university, startDate, endDate, description);
+        journeyDao.update(journeyId, university, startDate, endDate, description);
     }
 
 

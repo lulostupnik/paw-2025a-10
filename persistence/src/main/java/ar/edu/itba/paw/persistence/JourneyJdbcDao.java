@@ -178,7 +178,7 @@ public class JourneyJdbcDao implements JourneyDao {
         final Optional<Journey> journey = findByUserIdDeleted(user.getId());
         if(journey.isPresent()){
             LOGGER.debug("Journey found");
-            updateData(journey.get().getId(), destinationUniversity, startDate, endDate, description);
+            update(journey.get().getId(), destinationUniversity, startDate, endDate, description);
             return findByUserId(journey.get().getUser().getId()).orElseThrow(RuntimeException::new);
         }
         final Map<String, Object> args = new HashMap<>();
@@ -533,7 +533,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
 
     @Override
-    public void updateData(final long journeyId, final University destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
+    public void update(final long journeyId, final University destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
         LOGGER.info("Updating uni {}, startDate {}, endDate {}, desc '{}' for journey {}", destinationUniversity, startDate, endDate, description, journeyId);
         final int updatedRows = jdbcTemplate.update("""
         UPDATE journeys
