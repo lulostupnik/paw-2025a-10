@@ -261,7 +261,7 @@
           </div>
         </form:form>
       </div>
-
+      <c:set var="eventsWithAttendance" value="${eventsPage.content}"/>
 
       <div class="events-container">
         <div class="events-grid">

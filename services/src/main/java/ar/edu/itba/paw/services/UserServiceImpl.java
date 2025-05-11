@@ -78,7 +78,8 @@ public class UserServiceImpl implements UserService {
         if (userDao.existsByTokenExpired(token)) {
             throw new ExpiredTokenException("Token expired", token);
         }
-        if(userDao.findValidatedByTokenNotExpired(token)){
+        Optional<Boolean> maybeValidated = userDao.findValidatedByTokenNotExpired(token);
+        if(maybeValidated.isPresent() && maybeValidated.get()){
             throw new InvalidTokenException("Token already used");
         }
         return userDao.updateValidationAndFindAuthInfoByToken(token);

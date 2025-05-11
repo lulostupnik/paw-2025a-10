@@ -55,13 +55,13 @@ public class EventController {
         LOGGER.debug("Getting events list with search: {}, filter: {}, pageParams: {}, sortBy: {}, direction: {}",
                 search, filterForm, pageParams, sortBy, direction);
 
-        Page<Event> userEventsPage = eventService.getEventsPage(search, user, SortFieldEvent.from(sortBy), SortDirection.from(direction),
-                filterForm.getDestination(), filterForm.getStartDate(), filterForm.getEndDate(), filterForm.getInterests(),
-                filterForm.getIsPast(), filterForm.getIsUpcoming(), filterForm.getAttending(), pageParams);
+        if(! errors.hasErrors()) {
+            Page<Event> userEventsPage = eventService.getEventsPage(search, user, SortFieldEvent.from(sortBy), SortDirection.from(direction),
+                    filterForm.getDestination(), filterForm.getStartDate(), filterForm.getEndDate(), filterForm.getInterests(),
+                    filterForm.getIsPast(), filterForm.getIsUpcoming(), filterForm.getAttending(), pageParams);
+            mav.addObject("eventsPage", userEventsPage);
+        }
 
-
-        mav.addObject("eventsPage", userEventsPage);
-        mav.addObject("eventsWithAttendance", userEventsPage.getContent());
         mav.addObject("currentPage", pageParams.getPage());
         mav.addObject("pageSize", pageParams.getSize());
         return mav;

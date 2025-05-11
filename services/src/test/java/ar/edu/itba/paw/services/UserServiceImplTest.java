@@ -124,7 +124,7 @@ public class UserServiceImplTest {
         ).thenReturn(false);
         Mockito.when(
             userDao.findValidatedByTokenNotExpired(Mockito.eq(TOKEN))
-        ).thenReturn(false);
+        ).thenReturn(Optional.of(false));
 
         userService.validateEmail(TOKEN);
     }
@@ -135,7 +135,7 @@ public class UserServiceImplTest {
         ).thenReturn(false);
         Mockito.when(
             userDao.findValidatedByTokenNotExpired(Mockito.eq(TOKEN))
-        ).thenReturn(true);
+        ).thenReturn(Optional.of(true));
 
         userService.validateEmail(TOKEN);
     }

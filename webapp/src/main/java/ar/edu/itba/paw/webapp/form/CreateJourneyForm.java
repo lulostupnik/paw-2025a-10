@@ -20,13 +20,14 @@ public class CreateJourneyForm {
     @FutureDate
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
-    @NotNull
+
     @Size(min = 2, max = 100)
     @NotNull
     @ExistingUniversity
     private String destinationUniversity;
 
     @Size(min = 2, max = 2047)
+    @NotNull
     private String description;
     
     public LocalDate getStartDate(){

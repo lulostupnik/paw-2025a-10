@@ -9,7 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 public class CreateEventForm {
-    @NotNull
     @Size(min = 2, max = 100)
     @NotNull
     @ExistingCity
@@ -35,6 +34,7 @@ public class CreateEventForm {
     private MultipartFile flyer;
 
     @Size(min = 2, max = 2047)
+    @NotNull
     private String description;
 
     @DateTimeFormat(pattern = "HH:mm")

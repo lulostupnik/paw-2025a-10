@@ -31,7 +31,7 @@ public interface UserDao {
 
     void updateBlock(long id, boolean bool);
 
-    boolean findValidatedByTokenNotExpired(String token);
+    Optional<Boolean> findValidatedByTokenNotExpired(String token);
 
     Optional<User> findByToken(String token);
 

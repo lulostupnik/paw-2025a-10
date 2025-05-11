@@ -15,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.validation.Valid;
 import java.util.Optional;
 
 @Controller
@@ -81,7 +82,7 @@ public class ProfileController {
         return new ModelAndView("profile/change-password");
     }
     @PostMapping(value="/changePassword")
-    public ModelAndView changePassword(@ModelAttribute("updatePasswordForm") UpdatePasswordForm updatePasswordForm,
+    public ModelAndView changePassword(@Valid @ModelAttribute("updatePasswordForm") UpdatePasswordForm updatePasswordForm,
                                        BindingResult errors,
                                        @ModelAttribute("user") User user) {
         if(errors.hasErrors()) {

@@ -12,11 +12,6 @@ public class CreateCareerForm {
     @NotEmpty
     private String name;
 
-    public CreateCareerForm() {
-    }
-    public CreateCareerForm(String name) {
-        this.name = name;
-    }
     public String getName() {
         return name;
     }

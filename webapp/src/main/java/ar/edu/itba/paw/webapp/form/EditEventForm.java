@@ -11,9 +11,9 @@ import java.time.LocalTime;
 
 @CurrentAttendees
 public class EditEventForm {
-    @NotNull
+
     @PositiveOrZero
-    private Long id;
+    private long id;
 
     @Size(min = 2, max = 100)
     @NotNull
@@ -32,10 +32,12 @@ public class EditEventForm {
     private LocalDate date;
 
     @ImageSize()
+    @NotNull
     @ContentType({"image/jpeg", "image/jpg", "image/png"})
     private MultipartFile flyer;
 
     @Size(min = 2, max = 2047)
+    @NotNull
     private String description;
 
     @DateTimeFormat(pattern = "HH:mm")

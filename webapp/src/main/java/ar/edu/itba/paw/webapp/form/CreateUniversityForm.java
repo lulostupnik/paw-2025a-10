@@ -24,14 +24,6 @@ public class CreateUniversityForm {
     @ExistingCity
     private String cityName;
 
-    public CreateUniversityForm() {
-    }
-
-    public CreateUniversityForm(String name, String abbreviation, String cityName) {
-        this.name = name;
-        this.abbreviation = abbreviation;
-        this.cityName = cityName;
-    }
 
     public String getName() {
         return name;
