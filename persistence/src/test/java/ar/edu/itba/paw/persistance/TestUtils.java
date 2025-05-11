@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ import ar.edu.itba.paw.models.Country;
 import ar.edu.itba.paw.models.Image;
 import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.Journey;
+import ar.edu.itba.paw.models.JourneyResponse;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
@@ -138,6 +140,13 @@ public class TestUtils {
 
     public static final int TOTAL_JOURNEYS = 3;
 
+    public static final String RESPONSE_MESSAGE = "message";
+    public static final LocalDateTime RESPONSE_TIMESTAMP = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
+    public static final LocalDateTime RESPONSE_TIMESTAMP_2 = RESPONSE_TIMESTAMP.plusHours(1);
+    public static final LocalDateTime RESPONSE_TIMESTAMP_3 = RESPONSE_TIMESTAMP.plusHours(2);
+
+    public static final int TOTAL_JOURNEY_RESPONSES = 3;
+
     //QUERIES
     public static final String USER_SELECT = """
     SELECT 
@@ -168,6 +177,7 @@ public class TestUtils {
 
     public static final String USER_SELECT_BY_ID = USER_SELECT + "WHERE id = ?";
     public static final String USER_SELECT_BY_EMAIL = USER_SELECT + "WHERE email = ?";
+    public static final String USER_SELECT_TOKEN_BY_ID = "SELECT token FROM users WHERE id = ?";
 
     public static final String UNIVERSITY_SELECT = """
     SELECT
@@ -186,6 +196,7 @@ public class TestUtils {
     public static final String UNIVERSITY_SELECT_BY_ABBR = UNIVERSITY_SELECT + "WHERE u.abbreviation = ?";
     public static final String UNIVERSITY_SELECT_BY_NAME = UNIVERSITY_SELECT + "WHERE u.name = ?";
     public static final String UNIVERSITY_SELECT_BY_ID = UNIVERSITY_SELECT + "WHERE u.id = ?";
+    public static final String UNIVERSITY_COUNT_NOT_DELETED = "SELECT COUNT(*) FROM universities WHERE deleted = FALSE";
 
     public static final String COUNTRY_SELECT = "SELECT id AS country_id, name AS country_name, code AS country_code FROM countries ";
     public static final String COUNTRY_SELECT_BY_ID = COUNTRY_SELECT + "WHERE id = ?";
@@ -195,10 +206,13 @@ public class TestUtils {
     public static final String CITY_SELECT = "SELECT c.id AS city_id, c.name AS city_name, co.name AS country_name FROM cities c JOIN countries co ON co.id = c.country_id ";
     public static final String CITY_SELECT_BY_ID = CITY_SELECT + "WHERE c.id = ?";
     public static final String CITY_SELECT_BY_NAME = CITY_SELECT + "WHERE c.name = ?";
+    public static final String CITIES_COUNT_NOT_DELETED = "SELECT COUNT(*) FROM cities WHERE deleted = FALSE";
 
     public static final String CAREER_SELECT = "SELECT id AS career_id, name AS career_name FROM careers ";
     public static final String CAREER_SELECT_BY_ID = CAREER_SELECT + "WHERE id = ?";
     public static final String CAREER_SELECT_BY_NAME = CAREER_SELECT + "WHERE name = ?";
+    public static final String CAREER_IS_DELETED_BY_ID = "SELECT deleted FROM careers WHERE id = ?";
+    public static final String CAREER_COUNT_NOT_DELETED = "SELECT COUNT(*) FROM careers WHERE deleted = FALSE";
 
     public static final String IMAGE_SELECT = "SELECT id AS image_id, content AS image_data FROM images ";
     public static final String IMAGE_SELECT_BY_ID = IMAGE_SELECT + "WHERE id = ?";
@@ -207,7 +221,12 @@ public class TestUtils {
     public static final String INTEREST_SELECT = "SELECT id AS interest_id, name AS interest_name FROM category ";
     public static final String INTEREST_SELECT_BY_ID = INTEREST_SELECT + "WHERE id = ?";
     public static final String INTEREST_SELECT_BY_NAME = INTEREST_SELECT + "WHERE name = ?";
-
+    public static final String INTEREST_SELECT_SCORE = "SELECT score FROM user_interest WHERE category_id = ? AND user_id = ?";
+    public static final String INTEREST_SELECT_BY_USER_ID = """
+        SELECT cat.id as interest_id, cat.name as interest_name
+        FROM category cat JOIN user_interest ui ON ui.category_id = cat.id 
+        WHERE ui.user_id = ? 
+    """;
     public static final String JOURNEY_SELECT = """
     SELECT
         j.id AS journey_id,
@@ -252,6 +271,28 @@ public class TestUtils {
 
     public static final String JOURNEY_SELECT_BY_USERMAIL = JOURNEY_SELECT + "WHERE u.email = ?";
     public static final String JOURNEY_SELECT_BY_ID = JOURNEY_SELECT + "WHERE j.id = ?";
+    public static final String JOURNEY_GET_ID_BY_USER_ID = "SELECT id FROM journeys WHERE user_id = ?";
+    public static final String JOURNEY_IS_DELETED_BY_ID = "SELECT deleted FROM journeys WHERE id = ?";
+    public static final String JOURNEY_GET_DELETED_MESSAGE_BY_ID = "SELECT deleted_message FROM journeys WHERE id = ?";
+
+    public static final String JOURNEY_REPLY_SELECT = """
+    SELECT 
+        r.id AS id, 
+        r.user_id AS user_id, 
+        r.journey_id AS journey_id, 
+        r.message AS message, 
+        r. date_time AS date_time, 
+        u.username 
+    FROM 
+        journey_responses r
+        JOIN users u ON r.user_id = u.id
+    """;
+
+    public static final String JOURNEY_REPLY_SELECT_BY_ID = JOURNEY_REPLY_SELECT + "WHERE id = ?";
+    public static final String JOURNEY_REPLY_SELECT_BY_USER_JOURNEY = JOURNEY_REPLY_SELECT + "WHERE user_id = ? AND journey_id = ?";
+    public static final String JOURNEY_REPLY_COUNT_NOT_DELETED = "SELECT COUNT(*) FROM journey_responses WHERE deleted = FALSE";
+    public static final String JOURNEY_REPLY_IS_DELETED_BY_ID = "SELECT deleted FROM journey_responses WHERE id = ?";
+    public static final String JOURNEY_REPLY_DELETED_MESSAGE_BY_ID = "SELECT deleted_message FROM journey_responses WHERE id = ?";
 
 
     //ROWMAPPERS
@@ -330,7 +371,16 @@ public class TestUtils {
         UNIVERSITY_DESTINATION_ROW_MAPPER.mapRow(rs, n),
         rs.getString("description")
     );
-
+    
+    public static final RowMapper<JourneyResponse> JOURNEY_REPLY_ROW_MAPPER = (rs, n) ->
+    new JourneyResponse(
+        rs.getLong("id"), 
+        rs.getLong("user_id"), 
+        rs.getString("username"),
+        rs.getLong("journey_id"), 
+        rs.getString("message"),
+        rs.getTimestamp("date_time").toLocalDateTime()
+    );
 
     //DELETES
     public static final void deleteJourneyReplies(JdbcTemplate template){
@@ -379,12 +429,28 @@ public class TestUtils {
         assertEquals(expected.getId(), actual.getId());
         assertEquals(expected.getName(), actual.getName());
     }
+
     public static void assertEqualsCity(City expected, City actual){
         assertNotNull(expected);
         assertNotNull(actual);
         assertEquals(expected.getId(), actual.getId());
         assertEquals(expected.getName(), actual.getName());
         assertEquals(expected.getCountry(), actual.getCountry());
+    }
+
+    public static void assertEqualsCountry(Country expected, Country actual){
+        assertNotNull(expected);
+        assertNotNull(actual);
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getName(), actual.getName());
+        assertEquals(expected.getCode(), actual.getCode());
+    }
+
+    public static void assertEqualsInterest(Interest expected, Interest actual){
+        assertNotNull(expected);
+        assertNotNull(actual);
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getName(), actual.getName());
     }
 
     public static void assertEqualsUni(University expected, University actual){
@@ -422,4 +488,14 @@ public class TestUtils {
         assertEqualsUni(expected.getDestinationUniversity(), actual.getDestinationUniversity());
     }
 
+    public static void assertEqualsJourneyReply(JourneyResponse expected, JourneyResponse actual){
+        assertNotNull(actual);
+        assertNotNull(expected);
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getDateTime(), actual.getDateTime());
+        assertEquals(expected.getJourneyId(), actual.getJourneyId());
+        assertEquals(expected.getMessage(), actual.getMessage());
+        assertEquals(expected.getUserId(), actual.getUserId());
+        assertEquals(expected.getUsername(), actual.getUsername());
+    }
 }

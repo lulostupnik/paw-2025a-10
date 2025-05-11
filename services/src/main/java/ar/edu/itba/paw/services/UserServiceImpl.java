@@ -190,7 +190,7 @@ public class UserServiceImpl implements UserService {
     public void forgotPass(String email) {
         User user = userDao.findByEmail(email).orElseThrow(()-> {
             LOGGER.warn("User with email {} not found", email);
-            return new RuntimeException("User does not exist");
+            throw new RuntimeException("User does not exist");
         });
 
 

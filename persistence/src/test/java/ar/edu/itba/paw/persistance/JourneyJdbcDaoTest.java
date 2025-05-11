@@ -106,7 +106,7 @@ public class JourneyJdbcDaoTest {
         assertNotNull(maybeJourney);
         assertTrue(maybeJourney.isPresent());
         final Journey journey = maybeJourney.get();
-        assertEqualsJourney(journey); 
+        TestUtils.assertEqualsJourney(JOURNEY_1, journey); 
     }
 
     private Journey insertJourney(Map<String, Object> overrideParams){
@@ -131,7 +131,7 @@ public class JourneyJdbcDaoTest {
             TestUtils.JOURNEY_START_DATE, TestUtils.JOURNEY_END_DATE, TestUtils.JOURNEY_DESCRIPTION
         );
 
-        assertEqualsJourney(journey, Map.of("id", jdbcTemplate.queryForObject("SELECT id FROM journeys WHERE user_id = ?", Long.class, USER_1.getId())));
+        assertEqualsJourney(journey, Map.of("id", jdbcTemplate.queryForObject(TestUtils.JOURNEY_GET_ID_BY_USER_ID, Long.class, USER_1.getId())));
         assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_TABLE));
     }
     @Test(expected = DataAccessException.class)
@@ -267,38 +267,38 @@ public class JourneyJdbcDaoTest {
         journeyDao.delete(JOURNEY_1.getId());
 
         assertEquals(TestUtils.TOTAL_JOURNEYS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_TABLE));
-        assertTrue(jdbcTemplate.queryForObject("SELECT deleted FROM journeys WHERE id = ?", Boolean.class, JOURNEY_1.getId()));
+        assertTrue(jdbcTemplate.queryForObject(TestUtils.JOURNEY_IS_DELETED_BY_ID, Boolean.class, JOURNEY_1.getId()));
     }
     @Test
     public void testDeleteWrongId(){
         journeyDao.delete(12341243);
 
         assertEquals(TestUtils.TOTAL_JOURNEYS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_TABLE));
-        assertFalse(jdbcTemplate.queryForObject("SELECT deleted FROM journeys WHERE id = ?", Boolean.class, JOURNEY_1.getId()));
+        assertFalse(jdbcTemplate.queryForObject(TestUtils.JOURNEY_IS_DELETED_BY_ID, Boolean.class, JOURNEY_1.getId()));
     }
     @Test
     public void testDeleteDeleted(){
         journeyDao.delete(JOURNEY_DELETED.getId());
 
         assertEquals(TestUtils.TOTAL_JOURNEYS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_TABLE));
-        assertTrue(jdbcTemplate.queryForObject("SELECT deleted FROM journeys WHERE id = ?", Boolean.class, JOURNEY_DELETED.getId()));
-        assertFalse(jdbcTemplate.queryForObject("SELECT deleted FROM journeys WHERE id = ?", Boolean.class, JOURNEY_1.getId()));
+        assertTrue(jdbcTemplate.queryForObject(TestUtils.JOURNEY_IS_DELETED_BY_ID, Boolean.class, JOURNEY_DELETED.getId()));
+        assertFalse(jdbcTemplate.queryForObject(TestUtils.JOURNEY_IS_DELETED_BY_ID, Boolean.class, JOURNEY_1.getId()));
     }
 
     @Test
     public void testUpdateDeletionMessage(){
-        journeyDao.updateDeletionMessage(JOURNEY_1.getId(), "WRONG");
+        journeyDao.updateDeletionMessage(JOURNEY_1.getId(), TestUtils.MESSAGE_DEFAULT);
 
         assertEquals(TestUtils.TOTAL_JOURNEYS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_TABLE));
-        assertFalse(jdbcTemplate.queryForObject("SELECT deleted FROM journeys WHERE id = ?", Boolean.class, JOURNEY_1.getId()));
-        assertEquals("WRONG", jdbcTemplate.queryForObject("SELECT deleted_message FROM journeys WHERE id = ?", String.class, JOURNEY_1.getId()));
+        assertFalse(jdbcTemplate.queryForObject(TestUtils.JOURNEY_IS_DELETED_BY_ID, Boolean.class, JOURNEY_1.getId()));
+        assertEquals(TestUtils.MESSAGE_DEFAULT, jdbcTemplate.queryForObject(TestUtils.JOURNEY_GET_DELETED_MESSAGE_BY_ID, String.class, JOURNEY_1.getId()));
     }
     @Test
     public void testUpdateDeletionMessageWrongId(){
-        journeyDao.updateDeletionMessage(12341243, "WRONG");
+        journeyDao.updateDeletionMessage(12341243, TestUtils.MESSAGE_DEFAULT);
 
         assertEquals(TestUtils.TOTAL_JOURNEYS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_TABLE));
-        assertFalse(jdbcTemplate.queryForObject("SELECT deleted FROM journeys WHERE id = ?", Boolean.class, JOURNEY_1.getId()));
+        assertFalse(jdbcTemplate.queryForObject(TestUtils.JOURNEY_IS_DELETED_BY_ID, Boolean.class, JOURNEY_1.getId()));
     }
 
     @Test
@@ -427,7 +427,7 @@ public class JourneyJdbcDaoTest {
         );
 
         assertFalse(jdbcTemplate.queryForObject(
-            "SELECT deleted FROM journeys WHERE id = ?", 
+            TestUtils.JOURNEY_IS_DELETED_BY_ID, 
             Boolean.class, 
             JOURNEY_DELETED.getId())
         );
@@ -533,7 +533,6 @@ public class JourneyJdbcDaoTest {
         assertNotNull(journeys);
         assertEquals(1, journeys.getContent().size());
         TestUtils.assertEqualsJourney(JOURNEY_2, journeys.getContent().getFirst());
-
     }
     @Test
     public void testFindByFiltersInterestsPaged(){
@@ -636,7 +635,6 @@ public class JourneyJdbcDaoTest {
 
         Page<Journey> page1 = journeyDao.findRecommended(TestUtils.USER_1_MAIL, TestUtils.PAGE_1_BIG);
 
-        //TODO for-loop
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
         assertEquals(1, page1.getTotalPages());
@@ -669,7 +667,6 @@ public class JourneyJdbcDaoTest {
         assertNotNull(page1.getContent());
         assertEquals(6, page1.getContent().size());
 
-        //TODO for-loop
         TestUtils.assertEqualsJourney(newJourney1, page1.getContent().get(0));
         TestUtils.assertEqualsJourney(newJourney2, page1.getContent().get(1));
         TestUtils.assertEqualsJourney(JOURNEY_2, page1.getContent().get(2));

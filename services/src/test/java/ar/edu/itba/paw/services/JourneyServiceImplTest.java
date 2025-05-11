@@ -6,11 +6,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.enums.SortDirection;
+import ar.edu.itba.paw.models.enums.SortFieldJourney;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -38,7 +42,7 @@ public class JourneyServiceImplTest {
     private static final long JOURNEY_ID = 6;
     private static final long JOURNEY_ID2 = 7;
     private static final long INTEREST_ID = 8;
-    //private static final long REPLY_ID = 9;
+    private static final long REPLY_ID = 9;
 
     private static final String UNI_NAME = "uni";
     private static final String UNI_ABBR = "uni";
@@ -51,7 +55,6 @@ public class JourneyServiceImplTest {
     private static final String COUNTRY_NAME = "cuntry";
     private static final String CAREER_NAME = "career";
     private static final String INTEREST_NAME = "interesting";
-
 
     private static final City CITY = new City(CITY_NAME, COUNTRY_NAME, CITY_ID);
     private static final University UNI = new University(UNI_ID, UNI_NAME, UNI_ABBR, CITY);
@@ -70,9 +73,10 @@ public class JourneyServiceImplTest {
     private static final List<Journey> JOURNEYS = List.of(JOURNEY);
     private static final Page<Journey> JOURNEY_PAGE = new Page<Journey>(JOURNEYS, 1, 1);
 
-    //private static final LocalDateTime REPLY_TIMESTAMP = LocalDateTime.now();
-    //private static final JourneyResponse REPLY = new JourneyResponse(REPLY_ID, USER_ID, USERNAME, JOURNEY_ID, DESCRIPTION, REPLY_TIMESTAMP);
-    //private static final List<JourneyResponse> REPLIES = List.of(REPLY);
+    private static final LocalDateTime REPLY_TIMESTAMP = LocalDateTime.now();
+    private static final JourneyResponse REPLY = new JourneyResponse(REPLY_ID, USER_ID, USERNAME, JOURNEY_ID, DESCRIPTION, REPLY_TIMESTAMP);
+    private static final List<JourneyResponse> REPLIES = List.of(REPLY);
+    private static final Page<JourneyResponse> REPLY_PAGE = new Page<JourneyResponse>(REPLIES, 1, 1);
 
     private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
 
@@ -255,39 +259,84 @@ public class JourneyServiceImplTest {
         journeyService.getJourneyByEmail(EMAIL);
     }
 
-//    @Test
-//    public void testGetAllJourneysFilteredWithQuery(){
-//        Mockito.when(
-//            journeyDao.searchJourneys(Mockito.eq(DESCRIPTION), Mockito.eq(1), Mockito.eq(2))
-//        ).thenReturn(JOURNEY_PAGE);
-//
-//        Page<Journey> page = journeyService.getAllJourneys(DESCRIPTION, null, null, null, null, null, new PageParams(1,2));
-//
-//        assertNotNull(page);
-//        assertEquals(JOURNEY_PAGE, page);
-//    }
-//    @Test
-//    public void testGetAllJourneysFilteredEmptyQuery(){
-//        Mockito.when(
-//            journeyDao.findByFilters(Mockito.eq(USER_ID), Mockito.eq(CITY_ID), Mockito.eq(START_DATE), Mockito.eq(END_DATE), Mockito.eq(INTEREST_ID), Mockito.eq(1), Mockito.eq(2))
-//        ).thenReturn(JOURNEY_PAGE);
-//
-//        Page<Journey> page = journeyService.getAllJourneys("", USER, CITY_ID, START_DATE, END_DATE, INTEREST_ID, new PageParams(1,2));
-//
-//        assertNotNull(page);
-//        assertEquals(JOURNEY_PAGE, page);
-//    }
-//    @Test
-//    public void testGetAllJourneysFilteredMissingQuery(){
-//        Mockito.when(
-//            journeyDao.findByFilters(Mockito.eq(null), Mockito.eq(CITY_ID), Mockito.eq(START_DATE), Mockito.eq(END_DATE), Mockito.eq(INTEREST_ID), Mockito.eq(1), Mockito.eq(2))
-//        ).thenReturn(JOURNEY_PAGE);
-//
-//        Page<Journey> page = journeyService.getAllJourneys(null, null, CITY_ID, START_DATE, END_DATE, INTEREST_ID, new PageParams(1,2));
-//
-//        assertNotNull(page);
-//        assertEquals(JOURNEY_PAGE, page);
-//    }
+    @Test
+    public void testGetAllJourneys(){
+        Mockito.when(
+            journeyDao.search(
+                Mockito.eq(DESCRIPTION), 
+                Mockito.eq(USER_ID),
+                Mockito.eq(SortFieldJourney.END_DATE),
+                Mockito.eq(SortDirection.DESC),
+                Mockito.eq(UNI_NAME),
+                Mockito.eq(START_DATE),
+                Mockito.eq(END_DATE),
+                Mockito.eq(INTEREST_NAME),
+                Mockito.eq(false),
+                Mockito.eq(true),
+                Mockito.eq(true),
+                Mockito.eq(false),
+                Mockito.eq(PAGE_1_DEFAULT)
+            )
+        ).thenReturn(JOURNEY_PAGE);
+
+        Page<Journey> page = journeyService.getAllJourneys(
+            DESCRIPTION, 
+            USER, 
+            SortFieldJourney.from("end_date"), 
+            SortDirection.from("desc"), 
+            UNI_NAME, 
+            START_DATE, 
+            END_DATE, 
+            INTEREST_NAME, 
+            false, 
+            true, 
+            true, 
+            false, 
+            PAGE_1_DEFAULT
+        );
+
+        assertNotNull(page);
+        assertEquals(JOURNEY_PAGE, page);
+    }
+    @Test
+    public void testGetAllJourneysNoUser(){
+        Mockito.when(
+            journeyDao.search(
+                Mockito.eq(DESCRIPTION), 
+                Mockito.eq(null),
+                Mockito.eq(SortFieldJourney.from(null)),
+                Mockito.eq(SortDirection.from(null)),
+                Mockito.eq(UNI_NAME),
+                Mockito.eq(START_DATE),
+                Mockito.eq(END_DATE),
+                Mockito.eq(INTEREST_NAME),
+                Mockito.eq(false),
+                Mockito.eq(true),
+                Mockito.eq(true),
+                Mockito.eq(false),
+                Mockito.eq(PAGE_1_DEFAULT)
+            )
+        ).thenReturn(JOURNEY_PAGE);
+
+        Page<Journey> page = journeyService.getAllJourneys(
+            DESCRIPTION, 
+            null, 
+            SortFieldJourney.from(""), 
+            SortDirection.from(""), 
+            UNI_NAME, 
+            START_DATE, 
+            END_DATE, 
+            INTEREST_NAME, 
+            false, 
+            true, 
+            true, 
+            false, 
+            PAGE_1_DEFAULT
+        );
+
+        assertNotNull(page);
+        assertEquals(JOURNEY_PAGE, page);
+    }
 
     @Test
     public void testUserHasJourney(){
@@ -399,19 +448,6 @@ public class JourneyServiceImplTest {
         journeyService.getRecommendedJourneys(EMAIL, 0);
     }
 
-//
-//    @Test
-//    public void testGetJourneyResponses(){
-//        Mockito.when(
-//            responseService.listAllResponsesFromJourney(Mockito.eq(JOURNEY_ID))
-//        ).thenReturn(REPLIES);
-//
-//        List<JourneyResponse> replies = journeyService.getJourneyResponses(JOURNEY_ID);
-//
-//        assertNotNull(replies);
-//        assertEquals(REPLIES, replies);
-//    }
-
     @Test
     public void testDelete(){
         Mockito.when(
@@ -487,9 +523,101 @@ public class JourneyServiceImplTest {
 
         assertTrue(hasJourney);
     }
-}
 
+    @Test
+    public void testFindJourneyResponseById(){
+        Mockito.when(
+            replyDao.findById(Mockito.eq(REPLY_ID))
+        ).thenReturn(Optional.of(REPLY));
 
+        Optional<JourneyResponse> maybeReply = journeyService.findJourneyResponseById(REPLY_ID);
+
+        assertNotNull(maybeReply);
+        assertTrue(maybeReply.isPresent());
+        assertEquals(REPLY, maybeReply.get());
+    }
+
+    @Test
+    public void testDeleteJourneyResponse(){
+        Mockito.when(
+            replyDao.findById(Mockito.eq(REPLY_ID))
+        ).thenReturn(Optional.of(REPLY));
+        Mockito.when(
+            journeyDao.findById(Mockito.eq(JOURNEY_ID))
+        ).thenReturn(Optional.of(JOURNEY));
+        Mockito.when(
+            userService.findById(Mockito.eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+
+        journeyService.deleteJourneyResponse(REPLY_ID, DESCRIPTION);
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testDeleteJourneyResponseNoUser(){
+        Mockito.when(
+            replyDao.findById(Mockito.eq(REPLY_ID))
+        ).thenReturn(Optional.of(REPLY));
+        Mockito.when(
+            journeyDao.findById(Mockito.eq(JOURNEY_ID))
+        ).thenReturn(Optional.of(JOURNEY));
+        Mockito.when(
+            userService.findById(Mockito.eq(USER_ID))
+        ).thenReturn(Optional.empty());
+
+        journeyService.deleteJourneyResponse(REPLY_ID, DESCRIPTION);
+    }
+    @Test(expected = IllegalStateException.class)
+    public void testDeleteJourneyResponseNoJourney(){
+        Mockito.when(
+            replyDao.findById(Mockito.eq(REPLY_ID))
+        ).thenReturn(Optional.of(REPLY));
+        Mockito.when(
+            journeyDao.findById(Mockito.eq(JOURNEY_ID))
+        ).thenReturn(Optional.empty());
+
+        journeyService.deleteJourneyResponse(REPLY_ID, DESCRIPTION);
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testDeleteJourneyResponseNoReply(){
+        Mockito.when(
+            replyDao.findById(Mockito.eq(REPLY_ID))
+        ).thenReturn(Optional.empty());
+
+        journeyService.deleteJourneyResponse(REPLY_ID, DESCRIPTION);
+    }
+
+    @Test
+    public void testGetJourneyIdByResponseId(){
+        Mockito.when(
+            replyDao.findJourneyIdByResponseId(Mockito.eq(REPLY_ID))
+        ).thenReturn(JOURNEY_ID);
+
+        long id = journeyService.getJourneyIdByResponseId(REPLY_ID);
+
+        assertEquals(JOURNEY_ID, id);
+    }
+
+    @Test
+    public void testListAllResponsesFromJourney(){
+        Mockito.when(
+            replyDao.listAllByJourneyId(Mockito.eq(JOURNEY_ID), Mockito.eq(PAGE_1_DEFAULT))
+        ).thenReturn(REPLY_PAGE);
+
+        Page<JourneyResponse> page = journeyService.listAllResponsesFromJourney(JOURNEY_ID, PAGE_1_DEFAULT);
+
+        assertNotNull(page);
+        assertEquals(REPLY_PAGE, page);
+    }
+
+    @Test
+    public void testGetJourneyReponseCount(){
+        Mockito.when(
+            replyDao.countByJourneyId(Mockito.eq(JOURNEY_ID))
+        ).thenReturn(REPLIES.size());
+
+        int replies = journeyService.getJourneyResponseCount(JOURNEY_ID);
+
+        assertEquals(REPLIES.size(), replies);
+    }
 //
 //    @Test
 //    public void testUpdateJourneyDates(){
@@ -583,3 +711,4 @@ public class JourneyServiceImplTest {
 //
 //        journeyService.updateJourneyDestination(JOURNEY_ID, UNI_ID);
 //    }
+}

@@ -50,8 +50,9 @@
         language VARCHAR(2) DEFAULT 'en' NOT NULL,
         roles VARCHAR(50) DEFAULT 'user' NOT NULL,
         blocked BOOLEAN DEFAULT FALSE NOT NULL,
-        validate_token VARCHAR(100) DEFAULT NULL,
-        validate_token_expiration_date Date DEFAULT NULL,
+        token VARCHAR(100) DEFAULT NULL,
+        token_expiration Date DEFAULT NULL,
+        validated BOOLEAN DEFAULT TRUE NOT NULL,
 
         FOREIGN KEY(university) REFERENCES universities ON DELETE RESTRICT,
         FOREIGN KEY(career_id) REFERENCES careers,

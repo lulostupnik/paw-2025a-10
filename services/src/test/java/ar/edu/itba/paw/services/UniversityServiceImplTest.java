@@ -8,7 +8,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Optional;
 
-import ar.edu.itba.paw.models.PageParams;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -21,18 +20,24 @@ import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
 import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UniversityServiceImplTest {
 
     private static final String NAME = "uni";
-    private static final long ID = 0;
+    private static final long ID_1 = 0;
+    private static final long ID_2 = 1;
     private static final String ABBREVIATION = "ab";
     private static final String CITY_NAME = "citi";
-    private static final City CITY = new City(CITY_NAME, NAME, ID);
-    private static final University UNI = new University(ID, NAME, ABBREVIATION, CITY);
+    private static final City CITY = new City(CITY_NAME, NAME, ID_1);
+    private static final University UNI_1 = new University(ID_1, NAME, ABBREVIATION, CITY);
+    private static final University UNI_2 = new University(ID_2, null, null, null);
     private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
+    private static final Page<University> UNI_PAGE = new Page<>(List.of(UNI_1, UNI_2), 1, 1);
+    private static final String UNI_JSON = "[{\"id\":0,\"name\":\"uni\",\"abbreviation\":\"ab\",\"city\":\"citi\"},{\"id\":1,\"name\":\"\",\"abbreviation\":\"\",\"city\":\"\"}]";
+    private static final String EMPTY_JSON = "[]";
 
     @InjectMocks
     private UniversityServiceImpl uniService;
@@ -47,13 +52,13 @@ public class UniversityServiceImplTest {
     public void testFindByName(){
         Mockito.when(
             uniDao.findByName(Mockito.eq(NAME))
-        ).thenReturn(Optional.of(UNI));
+        ).thenReturn(Optional.of(UNI_1));
 
         Optional<University> maybeUni = uniService.findByName(NAME);
 
         assertNotNull(maybeUni);
         assertTrue(maybeUni.isPresent());
-        assertEquals(UNI, maybeUni.get());
+        assertEquals(UNI_1, maybeUni.get());
     }
     @Test
     public void testFindByNameNotFound(){
@@ -71,22 +76,22 @@ public class UniversityServiceImplTest {
     @Test
     public void testFindById(){
         Mockito.when(
-            uniDao.findById(Mockito.eq(ID))
-        ).thenReturn(Optional.of(UNI));
+            uniDao.findById(Mockito.eq(ID_1))
+        ).thenReturn(Optional.of(UNI_1));
 
-        Optional<University> maybeUni = uniService.findById(ID);
+        Optional<University> maybeUni = uniService.findById(ID_1);
 
         assertNotNull(maybeUni);
         assertTrue(maybeUni.isPresent());
-        assertEquals(UNI, maybeUni.get());
+        assertEquals(UNI_1, maybeUni.get());
     }
     @Test
     public void testFindByIdNotFound(){
         Mockito.when(
-            uniDao.findById(Mockito.eq(ID))
+            uniDao.findById(Mockito.eq(ID_1))
         ).thenReturn(Optional.empty());
 
-        Optional<University> maybeUni = uniService.findById(ID);
+        Optional<University> maybeUni = uniService.findById(ID_1);
 
         assertNotNull(maybeUni);
         assertFalse(maybeUni.isPresent());
@@ -95,7 +100,7 @@ public class UniversityServiceImplTest {
 
     @Test
     public void testGetAllUniversitiesPagedMissingQuery(){
-        Page<University> testPage = new Page<University>(List.of(UNI), 1, 1);
+        Page<University> testPage = new Page<University>(List.of(UNI_1), 1, 1);
         Mockito.when(
             uniDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
@@ -107,11 +112,11 @@ public class UniversityServiceImplTest {
         assertEquals(1, unis.getCurrentPage());
         assertEquals(1, unis.getTotalPages());
         assertEquals(1, unis.getContent().size());
-        assertEquals(UNI, unis.getContent().getFirst());
+        assertEquals(UNI_1, unis.getContent().getFirst());
     }
     @Test
     public void testGetAllUniversitiesPagedEmptyQuery(){
-        Page<University> testPage = new Page<University>(List.of(UNI), 1, 1);
+        Page<University> testPage = new Page<University>(List.of(UNI_1), 1, 1);
         Mockito.when(
             uniDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
@@ -123,11 +128,11 @@ public class UniversityServiceImplTest {
         assertEquals(1, unis.getCurrentPage());
         assertEquals(1, unis.getTotalPages());
         assertEquals(1, unis.getContent().size());
-        assertEquals(UNI, unis.getContent().getFirst());
+        assertEquals(UNI_1, unis.getContent().getFirst());
     }
     @Test
     public void testGetAllUniversitiesPagedQuery(){
-        Page<University> testPage = new Page<University>(List.of(UNI), 1, 1);
+        Page<University> testPage = new Page<University>(List.of(UNI_1), 1, 1);
         Mockito.when(
             uniDao.search(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
@@ -139,7 +144,7 @@ public class UniversityServiceImplTest {
         assertEquals(1, unis.getCurrentPage());
         assertEquals(1, unis.getTotalPages());
         assertEquals(1, unis.getContent().size());
-        assertEquals(UNI, unis.getContent().getFirst());
+        assertEquals(UNI_1, unis.getContent().getFirst());
     }
 
     @Test
@@ -155,12 +160,57 @@ public class UniversityServiceImplTest {
 
     @Test
     public void testUpdateUniversity(){
-        uniService.updateUniversity(ID, NAME, ABBREVIATION, CITY_NAME);
+        uniService.updateUniversity(ID_1, NAME, ABBREVIATION, CITY_NAME);
     }
 
     @Test
     public void testDeleteUniversity(){
-        uniService.delete(ID);
+        uniService.delete(ID_1);
+    }
+
+    @Test
+    public void testGetInterestsJSON(){
+        Mockito.when(
+            uniDao.search(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
+        ).thenReturn(UNI_PAGE);
+
+        String json_derulo = uniService.getUniversitiesJSON(NAME, PAGE_1_DEFAULT);
+
+        assertNotNull(json_derulo);
+        assertEquals(UNI_JSON, json_derulo);
+    }
+    @Test
+    public void testGetInterestsJSONMissingQuery(){
+        Mockito.when(
+            uniDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
+        ).thenReturn(UNI_PAGE);
+
+        String json_derulo = uniService.getUniversitiesJSON(null, PAGE_1_DEFAULT);
+
+        assertNotNull(json_derulo);
+        assertEquals(UNI_JSON, json_derulo);
+    }
+    @Test
+    public void testGetInterestsJSONEmptyQuery(){
+        Mockito.when(
+            uniDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
+        ).thenReturn(UNI_PAGE);
+
+        String json_derulo = uniService.getUniversitiesJSON("", PAGE_1_DEFAULT);
+
+        assertNotNull(json_derulo);
+        assertEquals(UNI_JSON, json_derulo);
+    }
+    @Test
+    public void testGetInterestsJSONNoCareers(){
+        Mockito.when(
+            uniDao.search(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
+        ).thenReturn(new Page<University>(List.of(), 1, 0));
+
+        String json_derulo = uniService.getUniversitiesJSON(NAME, PAGE_1_DEFAULT);
+
+        assertNotNull(json_derulo);
+        assertEquals(EMPTY_JSON, json_derulo);
     }
 }
 
