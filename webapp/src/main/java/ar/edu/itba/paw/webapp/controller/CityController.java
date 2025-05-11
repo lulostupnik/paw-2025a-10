@@ -9,6 +9,7 @@ import ar.edu.itba.paw.webapp.form.CreateCityForm;
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Controller
@@ -62,27 +62,22 @@ public class CityController {
     }
     @GetMapping(value= "/{id}")
     public ModelAndView getCity(@PathVariable(value = "id") final long id) {
-        City city = cityService.findById(id).orElseThrow(NoSuchElementException::new);
+        City city = cityService.findById(id).orElseThrow(() -> new NotFoundException("City not found"));
         ModelAndView mav = new ModelAndView(CITY_DETAIL);
         mav.addObject("city", city);
         return mav;
     }
 
     @GetMapping(value = "/{id}/edit")
-    public ModelAndView updateCityForm(@PathVariable("id") Long id) {
-        Optional<City> optionalCity = cityService.findById(id);
-
-        if (optionalCity.isEmpty()) {
-            return new ModelAndView("redirect:/cities");
+    public ModelAndView updateCityForm(@PathVariable("id") Long id,
+                                       @ModelAttribute(CITY_CREATE_FORM) final CreateCityForm form, BindingResult errors) {
+        City city = cityService.findById(id).orElseThrow(() -> new NotFoundException("City not found"));
+        if(!errors.hasErrors()){
+            form.setName(city.getName());
+            form.setCountry(city.getCountry());
         }
 
-        City city = optionalCity.get();
-        CreateCityForm form = new CreateCityForm();
-        form.setName(city.getName());
-        form.setCountry(city.getCountry());
-
         ModelAndView mav = new ModelAndView(CREATE_CITY);
-        mav.addObject(CITY_CREATE_FORM, form);
         mav.addObject("isUpdate", true);
         mav.addObject("cityId", id);
         mav.addObject("countries", countryService.getAllCountries());
@@ -93,14 +88,10 @@ public class CityController {
     @PostMapping(value = "/{id}/edit")
     public ModelAndView updateCity(@PathVariable("id") Long id,
                                      @Valid @ModelAttribute(CITY_CREATE_FORM) final CreateCityForm form,
-                                     final BindingResult errors,
-                                     @ModelAttribute("user") User user) {
+                                     final BindingResult errors) {
 
         if (errors.hasErrors()) {
-            ModelAndView mav = new ModelAndView(CREATE_CITY);
-            mav.addObject("isUpdate", true);
-            mav.addObject("cityId", id);
-            return mav;
+            return updateCityForm(id, form, errors);
         }
 
         cityService.updateCity(id,

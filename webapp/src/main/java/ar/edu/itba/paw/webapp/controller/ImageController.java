@@ -6,6 +6,7 @@ import ar.edu.itba.paw.models.Image;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,7 @@ public class ImageController {
     public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
         LOGGER.debug("Getting image {}", id);
         try {
-            Image image = imageService.getImage(id).orElseThrow(); // Luego lanzar una excepción personalizada: ImageNotFoundException
+            Image image = imageService.getImage(id).orElseThrow(() -> new NotFoundException("Image not found")); // Luego lanzar una excepción personalizada: ImageNotFoundException
             return ResponseEntity.ok()
                     .contentType(MediaType.IMAGE_JPEG)
                     .header(HttpHeaders.CONTENT_DISPOSITION,

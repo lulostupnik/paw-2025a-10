@@ -23,7 +23,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
 
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 
@@ -36,22 +35,14 @@ public class EventController {
 
 
     private final EventService eventService;
-    private final CityService cityService;
-    private final UniversityService universityService;
-    private final CareerService careerService;
-    private final InterestService interestService;
     private static final String REDIRECT = "redirect:/events/";
 
     @Autowired
-    public EventController(CityService cityService, UniversityService universityService, CareerService careerService, EventService eventService, InterestService interestService) {
+    public EventController(EventService eventService) {
         this.eventService = eventService;
-        this.cityService = cityService;
-        this.universityService = universityService;
-        this.careerService = careerService;
-        this.interestService = interestService;
     }
 
-    @RequestMapping
+    @RequestMapping//@TODO:revisar el errors en este
     public ModelAndView getEvents(@ModelAttribute("user") User user,
                                   @PageParamCustomizer(defaultSize = 8) PageParams  pageParams,
                                   @RequestParam(value = "search", required = false) String search,
@@ -109,7 +100,7 @@ public class EventController {
         return new ModelAndView(REDIRECT + event.getId());
     }
 
-    private ModelAndView populateEventDetails( EventWithStatistics eventWithStatistics, long id, User user,
+    private ModelAndView populateEventDetails( EventWithStatistics eventWithStatistics, long id,
                                               PageParams pageParams, PageParams attendeesPageParams) {
         ModelAndView mav = new ModelAndView("events/detail/detail");
         Event event = eventWithStatistics.getEvent();
@@ -144,11 +135,11 @@ public class EventController {
         @PageParamCustomizer(defaultSize = 6, pageParamName = "attendeesPage", sizeParamName = "attendeesSize") PageParams attendeesPage)
     {
         LOGGER.debug("Getting info for event {}", id);
-        EventWithStatistics eventWithStatistics = eventService.findEventWithStatistics(user, id).orElseThrow(()-> new EventNotFoundException("Event not found"));
+        EventWithStatistics eventWithStatistics = eventService.findEventWithStatistics(user, id).orElseThrow(EventNotFoundException::new);
 
 
         return populateEventDetails(eventWithStatistics,
-                id, user, repliesPage, attendeesPage );
+                id, repliesPage, attendeesPage );
     }
 
     @PostMapping("/{id}/delete")
@@ -167,7 +158,7 @@ public class EventController {
                                         @ModelAttribute("deleteForm") final ReplyForm form) {
         LOGGER.debug("Showing delete form for event {}", id);
 
-        Event event = eventService.getEventById(id).orElseThrow(()-> new EventNotFoundException("Event not found"));
+        Event event = eventService.getEventById(id).orElseThrow(EventNotFoundException::new);
         long commentsCount = eventService.getResponseCount(event.getId());
 
         ModelAndView mav = new ModelAndView("events/delete");
@@ -183,9 +174,9 @@ public class EventController {
                                              @ModelAttribute("deleteReplyForm") ReplyForm form) {
         LOGGER.debug("Showing delete form for reply {} from event {}", id, eventId);
 
-        Event event = eventService.getEventById(eventId).orElseThrow(()-> new EventNotFoundException("Event not found"));
+        Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
 
-        EventResponse eventResponse = eventService.findEventResponseById(id).orElseThrow(() -> new EventResponseNotFoundException("Event response not found"));
+        EventResponse eventResponse = eventService.findEventResponseById(id).orElseThrow(EventResponseNotFoundException::new);
 
 
         ModelAndView mav = new ModelAndView("events/delete-reply");
@@ -224,7 +215,7 @@ public class EventController {
     @PostMapping(value="/{id}/dont-attend",produces = "application/json")
     public ModelAndView dontAttendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer,
                                         @ModelAttribute("user") User user) {
-        LOGGER.debug("Attending event {}", id);
+        LOGGER.debug("Cancel event attendance {}", id);
 
         eventService.cancelAttendance(user.getEmail(), id);
         if (referer != null && !referer.isEmpty()) {
