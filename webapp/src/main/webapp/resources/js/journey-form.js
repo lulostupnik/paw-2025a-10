@@ -1,8 +1,4 @@
-/**
- * Journey Creation Form Initialization
- *
- * Initializes and coordinates all components for the journey creation form
- */
+
 document.addEventListener("DOMContentLoaded", () => {
     console.log("Initializing journey creation form components...")
 

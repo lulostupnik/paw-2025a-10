@@ -30,7 +30,7 @@
     color: white;
 }
 
-/* Tab Content */
+
 .tab-content {
     display: none;
     background-color: white;
@@ -43,7 +43,7 @@
     display: block;
 }
 
-/* Content Header */
+
 .content-header {
     display: flex;
     justify-content: space-between;
@@ -58,7 +58,7 @@
     margin: 0;
 }
 
-/* Search and Action Bar */
+
 .action-bar {
     display: flex;
     align-items: center;
@@ -81,7 +81,7 @@
 
 .search-input {
     padding: 0.75rem 1rem;
-    padding-right: 3rem; /* Make room for the button */
+    padding-right: 3rem;
     border: 1px solid rgb(226, 232, 240);
     border-radius: 0.5rem;
     width: 100%;
@@ -154,7 +154,7 @@
     color: white;
 }
 
-/* Table Styles */
+
 .table-container {
     overflow-x: auto;
     padding: 1rem;
@@ -187,7 +187,7 @@
     background-color: rgb(249, 250, 251);
 }
 
-/* Status Badges */
+
 .status-badge {
     display: inline-block;
     padding: 0.25rem 0.75rem;
@@ -211,7 +211,7 @@
     color: rgb(22, 101, 52);
 }
 
-/* Attendee Progress */
+
 .attendee-progress {
     display: flex;
     flex-direction: column;
@@ -237,7 +237,7 @@
     border-radius: 9999px;
 }
 
-/* Action Button */
+
 .action-button {
     background: none;
     border: none;
@@ -256,7 +256,7 @@
     color: rgb(15, 23, 42);
 }
 
-/* Dropdown Menu */
+
 .dropdown-menu-dashboard {
     position: absolute;
     background-color: white;
@@ -291,7 +291,7 @@
     color: rgb(239, 68, 68);
 }
 
-/* Pagination */
+
 .pagination-container {
     display: flex;
     justify-content: space-between;
@@ -345,7 +345,7 @@
     background-color: rgba(0, 0, 0, 0.05);
 }
 
-/* Icons */
+
 .filter-icon::before,
 .plus-icon::before,
 .more-icon::before,
@@ -395,14 +395,14 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 5l7 7-7 7' /%3E%3C/svg%3E");
 }
 
-/* No Results */
+
 .no-results {
     padding: 2rem;
     text-align: center;
     color: rgb(100, 116, 139);
 }
 
-/* Responsive */
+
 @media (max-width: 768px) {
     .content-header {
         flex-direction: column;

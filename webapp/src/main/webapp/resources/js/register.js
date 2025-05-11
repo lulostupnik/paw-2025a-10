@@ -1,8 +1,4 @@
-/**
- * Registration Page Initialization
- *
- * Initializes and coordinates all components for the registration page
- */
+
 document.addEventListener("DOMContentLoaded", () => {
     console.log("Initializing registration components...")
 

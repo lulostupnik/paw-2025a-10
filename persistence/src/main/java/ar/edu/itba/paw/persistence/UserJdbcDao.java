@@ -131,7 +131,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public boolean isValidByEmail(final String email) {
+    public boolean findValidationStatusByEmail(final String email) {
         return jdbcTemplate.queryForObject("SELECT validated FROM users WHERE email = ? ", Boolean.class, email);
     }
 
@@ -155,7 +155,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public void refreshToken(final String newToken, final LocalDate date, final String oldToken){
+    public void updateTokenAndExpirationByToken(final String newToken, final LocalDate date, final String oldToken){
        jdbcTemplate.update("UPDATE users SET token = ?, token_expiration = ? WHERE token = ?", newToken, date ,oldToken);
     }
 
@@ -289,7 +289,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public boolean isValidated(final String token) {
+    public boolean findValidatedByTokenNotExpired(final String token) {
         String sql = """
         SELECT validated
         FROM users
@@ -303,12 +303,12 @@ public class UserJdbcDao implements UserDao {
             return false;
         }
 
-        return Boolean.TRUE.equals(results.get(0));
+        return Boolean.TRUE.equals(results.getFirst());
     }
 
 
     @Override
-    public boolean isTokenValid(final String token) {
+    public boolean existsByTokenNotExpired(final String token) {
         String sql = """
         SELECT COUNT(*)
         FROM users
@@ -324,7 +324,7 @@ public class UserJdbcDao implements UserDao {
 
 
     @Override
-    public void validateToken(final String token) {
+    public void clearTokenByToken(final String token) {
         jdbcTemplate.update(
                 """
                 UPDATE users
@@ -336,7 +336,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public Optional<UserAuthInfo> validateEmail(final String token) {
+    public Optional<UserAuthInfo> updateValidationAndFindAuthInfoByToken(final String token) {
         Optional<UserAuthInfo> userAuthInfo = jdbcTemplate.query(
                 "SELECT email, password, roles, blocked, true AS verified FROM users WHERE token = ?",
                 USER_PASSWORD_ROW_MAPPER,
@@ -360,7 +360,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public boolean hasExpired(final String token) { // todo: business logic? -> por ahí este método debería retornar el LocalDate y que el servicio lo compare
+    public boolean existsByTokenExpired(final String token) {
         int count = jdbcTemplate.queryForObject(
                 """
                 SELECT COUNT(*)
@@ -372,15 +372,6 @@ public class UserJdbcDao implements UserDao {
                 token
         );
         return count > 0;
-    }
-
-    @Override
-    public void updateProfilePicture(final long userId, final long profilePictureId) {
-        LOGGER.debug("Updating profile picture for user ID: {} to image ID: {}", userId, profilePictureId);
-        final int rowsAffected = jdbcTemplate.update("UPDATE users SET profile_picture_id = ? WHERE id = ?", profilePictureId, userId);
-        if (rowsAffected == 0) {
-            LOGGER.warn("User {} not found", userId);
-        }
     }
 
 
@@ -418,3 +409,13 @@ public class UserJdbcDao implements UserDao {
     }
 
 }
+
+
+//    @Override
+//    public void updateProfilePicture(final long userId, final long profilePictureId) {
+//        LOGGER.debug("Updating profile picture for user ID: {} to image ID: {}", userId, profilePictureId);
+//        final int rowsAffected = jdbcTemplate.update("UPDATE users SET profile_picture_id = ? WHERE id = ?", profilePictureId, userId);
+//        if (rowsAffected == 0) {
+//            LOGGER.warn("User {} not found", userId);
+//        }
+//    }

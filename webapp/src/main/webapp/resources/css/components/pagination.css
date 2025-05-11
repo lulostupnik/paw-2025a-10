@@ -1,4 +1,4 @@
-/* Reset and base styles */
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -12,7 +12,7 @@ body {
     color: #333;
 }
 
-/* Pagination container */
+
 .pagination-container {
     display: flex;
     justify-content: center;
@@ -21,14 +21,14 @@ body {
     margin: 0 auto;
 }
 
-/* Pagination controls */
+
 .pagination-controls {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-/* Pagination buttons */
+
 .pagination-button {
     display: flex;
     align-items: center;

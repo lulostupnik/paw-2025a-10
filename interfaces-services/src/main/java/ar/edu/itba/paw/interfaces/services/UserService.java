@@ -24,7 +24,9 @@ public interface UserService {
     Optional<UserAuthInfo> validateEmail(String token);
     void refreshToken(String oldToken);
     void refreshPassToken(String oldToken);
+    boolean isValidPasswordResetToken(String token);
     void newPassword(String token, String newPassword);
     void forgotPass(String email);
+    boolean isTokenExpired(String token);
     }
 

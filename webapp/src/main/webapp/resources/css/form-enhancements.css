@@ -15,7 +15,7 @@
     border-radius: var(--radius);
     transition: all 0.2s ease;
 }
-/* Form hint styling */
+
 .form-hint {
     display: flex;
     align-items: center;

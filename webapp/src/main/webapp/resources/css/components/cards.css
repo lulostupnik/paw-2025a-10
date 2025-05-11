@@ -1,4 +1,4 @@
-/* Card styles - UPDATED */
+
 .card {
     max-width: 42rem;
     margin: 1.25rem auto 0;
@@ -15,7 +15,7 @@
     }
 }
 
-/* Form card - NEW */
+
 .form-card {
     background-color: white;
     border-radius: 0.75rem;
@@ -52,7 +52,7 @@
     gap: 0.75rem;
 }
 
-/* Journey card */
+
 .journey-card {
     padding: 1.5rem;
     background-color: white;
@@ -69,15 +69,15 @@
 }
 
 
-/* Profile image - IMPROVED to show full face */
+
 .profile-image {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Changed from 'fill' to 'cover' to maintain aspect ratio */
-    object-position: center; /* Changed to center to ensure balanced image display */
+    object-fit: cover;
+    object-position: center;
 }
 
 
@@ -111,7 +111,7 @@
     align-items: center;
 }
 
-/* User name styling - IMPROVED */
+
 .user-name {
     font-size: 0.875rem;
     color: #4f46e5;
@@ -121,7 +121,7 @@
 .event-name {
     margin-bottom: 0.75rem;
 }
-/* Add these styles to fix the event card footer */
+
 .event-card-footer {
     display: flex;
     flex-wrap: wrap;
@@ -184,18 +184,18 @@
     overflow: hidden;
     text-overflow: ellipsis;
     position: relative;
-    max-height: 4.5em; /* Approximately 3 lines of text */
+    max-height: 4.5em;
     line-height: 1.5;
     overflow-wrap: break-word;
     word-wrap: break-word;
-    word-break: break-word; /* Allow breaking words if needed */
+    word-break: break-word;
 }
 
-/* Event full badge */
+
 .event-full-badge {
     position: absolute;
     bottom: 12px;
-    right: 60px; /* Position next to the attend button */
+    right: 60px;
     background-color: #aaaaaa;
     color: white;
     font-size: 0.75rem;
@@ -205,7 +205,7 @@
     z-index: 2;
 }
 
-/* Disabled attend button */
+
 .attend-button.disabled {
     background-color: #e5e7eb;
     color: #9ca3af;
@@ -223,16 +223,16 @@
     flex-shrink: 0;
 }
 
-/* Add responsive adjustments */
+
 @media (min-width: 640px) {
     .organizer-name {
-        max-width: 120px; /* Reduced from 150px to ensure text fits better */
+        max-width: 120px;
     }
 }
 
 @media (min-width: 768px) {
     .organizer-name {
-        max-width: 140px; /* Reduced from 180px */
+        max-width: 140px;
     }
 }
 
@@ -254,7 +254,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    max-height: 450px; /* Set a maximum height for cards */
+    max-height: 450px;
 }
 
 .featured-event-card:hover {
@@ -262,7 +262,7 @@
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-/* Username/name truncation */
+
 .event-card-wrapper,
 .journey-card-wrapper {
     width: 100%;
@@ -275,9 +275,9 @@
 
 
 
-/* Add ellipsis at the end of truncated text */
+
 .event-card-description.has-overflow::after {
-    content: "..."; /* This was missing in your CSS */
+    content: "...";
     position: absolute;
     bottom: 0;
     right: 0;
@@ -285,7 +285,7 @@
     background: linear-gradient(to right, transparent, white 50%);
 }
 
-/* Username/name truncation */
+
 .user-name,
 .organizer-name,
 .university-name {
@@ -302,7 +302,7 @@
 
 
 
-/* Responsive adjustments */
+
 @media (max-width: 768px) {
     .user-name,
     .organizer-name,
@@ -328,7 +328,7 @@
 
 
 
-/* Responsive adjustments */
+
 @media (max-width: 768px) {
     .user-name,
     .organizer-name,
@@ -349,7 +349,7 @@
     }
 }
 
-/* Date range styling - IMPROVED */
+
 .date-range {
     font-size: 0.875rem;
     color: #4b5563;
@@ -376,7 +376,7 @@
 }
 
 
-/* Grid layout for cards - IMPROVED */
+
 .events-grid {
     display: grid;
     grid-template-columns: repeat(1, 1fr);
@@ -403,7 +403,7 @@
     }
 }
 
-/* Favorite Badge */
+
 .favorite-badge {
     position: absolute;
     top: 12px;
@@ -416,7 +416,7 @@
     z-index: 2;
 }
 
-/* Attend Button */
+
 .attend-button {
     position: absolute;
     bottom: 12px;
@@ -450,7 +450,7 @@
     color: white;
 }
 
-/* Event info container */
+
 .event-info-container {
     padding: 1rem;
     flex-grow: 1;
@@ -479,7 +479,7 @@
 
 
 
-/* Detail card - UPDATED */
+
 .detail-card {
     background-color: white;
     border: 1px solid #e5e7eb;
@@ -521,7 +521,7 @@
     margin: 0;
 }
 
-/* Category Navigation */
+
 .category-nav {
     position: sticky;
     top: 0;
@@ -537,11 +537,11 @@
     overflow-x: auto;
     gap: 2rem;
     padding-bottom: 0.5rem;
-    scrollbar-width: none; /* Firefox */
+    scrollbar-width: none;
 }
 
 .category-scroll::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Edge */
+    display: none;
 }
 
 .category-item {
@@ -570,14 +570,14 @@
     justify-content: center;
 }
 
-/* Event card link */
-/* Event card link - FIXED */
+
+
 .event-card-link {
     display: block;
     text-decoration: none;
     color: inherit;
     height: 100%;
-    width: 100%; /* Ensure full width */
+    width: 100%;
 }
 
 .event-card-link:hover {
@@ -603,7 +603,7 @@
         grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 }
-/* Event card - FIXED */
+
 .event-card {
     position: relative;
     background: #ffffff;
@@ -611,7 +611,7 @@
     overflow: hidden;
     transition: transform 0.2s, box-shadow 0.2s;
     height: 100%;
-    width: 100%; /* Ensure full width */
+    width: 100%;
     display: flex;
     flex-direction: column;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -620,9 +620,9 @@
 .event-image-container {
     position: relative;
     width: 100%;
-    padding-top: 56.25%; /* 16:9 aspect ratio */
+    padding-top: 56.25%;
     overflow: hidden;
-    border-radius: 8px 8px 0 0; /* Rounded corners only at the top */
+    border-radius: 8px 8px 0 0;
 }
 
 
@@ -631,7 +631,7 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
-/* Attendance Modal Styles */
+
 .attendance-modal {
     display: none;
     position: fixed;
@@ -727,7 +727,7 @@
     border-top: 1px solid #e5e7eb;
     background-color: #f9fafb;
 }
-/* Responsive adjustments */
+
 @media (max-width: 640px) {
     .attendance-modal-content {
         width: 95%;
@@ -748,7 +748,7 @@
     }
 }
 
-/* Card grid layout - NEW */
+
 .card-grid {
     display: grid;
     grid-template-columns: repeat(1, 1fr);
@@ -756,7 +756,7 @@
     margin-bottom: 2rem;
 }
 
-/* Card spacing - NEW */
+
 .card-spacing {
     margin-bottom: 1.5rem;
 }
@@ -765,12 +765,12 @@
     margin-bottom: 0;
 }
 
-/* Form inside card - NEW */
+
 .card .form-group:last-child {
     margin-bottom: 0;
 }
 
-/* Responsive adjustments */
+
 @media (min-width: 640px) {
     .journey-card-content,
     .event-card-content {
@@ -787,19 +787,19 @@
         grid-template-columns: repeat(3, 1fr);
     }
 }
-/* Event card wrapper - NEW */
+
 .event-card-wrapper {
     width: 100%;
     height: 100%;
     display: flex;
 }
 
-/* Fix for grid items */
+
 .events-grid > * {
     width: 100%;
-    min-width: 0; /* Prevent content from causing overflow */
+    min-width: 0;
 }
-/* Journey card styles */
+
 .journey-card-wrapper {
     width: 100%;
     height: 100%;
@@ -826,11 +826,11 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-/* Journey image container */
+
 .journey-image-container {
     position: relative;
     width: 100%;
-    padding-top: 66.67%; /* 3:2 aspect ratio */
+    padding-top: 66.67%;
     overflow: hidden;
 }
 
@@ -843,7 +843,7 @@
     object-fit: fill;
 }
 
-/* Journey info container */
+
 .journey-info-container {
     padding: 1rem;
     flex-grow: 1;
@@ -922,7 +922,7 @@
     }
 }
 
-/* Filter section styles */
+
 .filter-section {
     background-color: #f9fafb;
     border-radius: 0.75rem;
@@ -973,7 +973,7 @@
     margin-top: 1.5rem;
 }
 
-/* No journeys message */
+
 .no-journeys {
     text-align: center;
     padding: 3rem 0;
@@ -984,7 +984,7 @@
     margin: 0;
 }
 
-/* Journeys header */
+
 .journeys-header {
     display: flex;
     justify-content: space-between;

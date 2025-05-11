@@ -1,12 +1,12 @@
-/* Single Option Autocomplete Styles */
 
-/* Container for the autocomplete component */
+
+
 .autocomplete-wrapper {
     position: relative;
     width: 100%;
 }
 
-/* Input field styling */
+
 .autocomplete-input {
     width: 100%;
     padding: 0.75rem 1rem;
@@ -25,7 +25,7 @@
     outline: none;
 }
 
-/* Style for input when it has a selection */
+
 .autocomplete-input.has-selection {
     background-color: #fff;
     border-color: var(--primary-color, #4f46e5);
@@ -33,7 +33,7 @@
     font-weight: 500;
 }
 
-/* Dropdown styling */
+
 .autocomplete-dropdown {
     position: absolute;
     z-index: 100;
@@ -45,10 +45,10 @@
     border-radius: 0 0 var(--radius, 0.5rem) var(--radius, 0.5rem);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     margin-top: -1px;
-    display: none; /* Hidden by default */
+    display: none;
 }
 
-/* Dropdown items */
+
 .autocomplete-item {
     padding: 0.75rem 1rem;
     cursor: pointer;
@@ -64,14 +64,14 @@
     background-color: var(--primary-light, #eef2ff);
 }
 
-/* Selected item in dropdown */
+
 .autocomplete-item.selected {
     background-color: var(--primary-light, #eef2ff);
     color: var(--primary-color, #4f46e5);
     font-weight: 500;
 }
 
-/* No results and loading states */
+
 .autocomplete-item.no-results,
 .autocomplete-item.loading {
     font-style: italic;
@@ -79,9 +79,9 @@
     cursor: default;
 }
 
-/* Clear button */
+
 .autocomplete-clear-button {
-    display: none; /* Hidden by default, shown when there's a selection */
+    display: none;
     position: absolute;
     right: 10px;
     top: 50%;
@@ -99,13 +99,13 @@
     background-color: rgba(0, 0, 0, 0.05);
 }
 
-/* Error state */
+
 .autocomplete-input.error {
     border-color: var(--error-color, #ef4444);
     background-color: var(--error-light, #fee2e2);
 }
 
-/* Animation for selection */
+
 @keyframes highlight {
     0% {
         background-color: var(--primary-light, #eef2ff);

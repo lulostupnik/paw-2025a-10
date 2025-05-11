@@ -1,4 +1,4 @@
-/* Error page specific styles */
+
 :root {
     --error-blue: #3b82f6;
     --error-red: #ef4444;
@@ -77,7 +77,7 @@
     transform: scale(1.05);
 }
 
-/* Error type specific colors */
+
 .error-type-404 .error-icon {
     color: var(--error-purple);
 }
@@ -144,7 +144,7 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
-/* Primary action button colors by error type */
+
 .error-type-404 .primary-action {
     background-color: var(--error-purple);
 }
@@ -203,7 +203,7 @@
     background-color: rgba(243, 244, 246, 0.5);
 }
 
-/* Secondary action hover colors by error type */
+
 .error-type-404 .secondary-action-link:hover {
     color: var(--error-purple);
 }
@@ -281,7 +281,7 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
-/* Search button colors by error type */
+
 .error-type-404 .search-button {
     background-color: var(--error-purple);
 }
@@ -356,7 +356,7 @@
     margin-top: 0.125rem;
 }
 
-/* Help icon colors by error type */
+
 .error-type-404 .help-icon {
     color: var(--error-purple);
 }
@@ -405,7 +405,7 @@
     white-space: pre;
 }
 
-/* Language selector */
+
 .language-selector {
     position: absolute;
     top: 1rem;
