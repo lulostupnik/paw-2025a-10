@@ -83,6 +83,7 @@ public class CityServiceImpl implements CityService {
                     @CacheEvict(value = "universitiesByName", allEntries = true)
             }
     )
+
     public long createCity(String cityName, String countryName) {
         Country country = countryService.findByName(countryName)
                 .orElseThrow(() -> new IllegalArgumentException("Country not found"));
@@ -96,7 +97,6 @@ public class CityServiceImpl implements CityService {
         if (search == null || search.isEmpty()) {
             cities = cityDao.getAllCities(pageParams).getContent();
             return listToJson(cities);
-
         }
         cities = cityDao.searchBySubstring(search, pageParams).getContent();
         return listToJson(cities);

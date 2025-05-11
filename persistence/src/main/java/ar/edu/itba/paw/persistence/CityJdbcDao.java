@@ -55,7 +55,7 @@ public class CityJdbcDao implements CityDao {
                 .withTableName("cities")
                 .usingGeneratedKeyColumns("id");
     }
-    
+
     @Override
     public Optional<City> findById(final long id) {
         return jdbcTemplate.query(SQL_FIND_BY_ID, CITY_ROW_MAPPER, id)

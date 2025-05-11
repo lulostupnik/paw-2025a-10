@@ -5,6 +5,7 @@ import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
 import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
+import ar.edu.itba.paw.models.exceptions.EventResponseNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
 
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
@@ -186,7 +187,7 @@ public class EventController {
 
         Event event = eventService.getEventById(eventId).orElseThrow(()-> new EventNotFoundException("Event not found"));
 
-        EventResponse eventResponse = eventService.findEventResponseById(id).orElseThrow(() -> new EventNotFoundException("Event response not found"));
+        EventResponse eventResponse = eventService.findEventResponseById(id).orElseThrow(() -> new EventResponseNotFoundException("Event response not found"));
 
 
         ModelAndView mav = new ModelAndView("events/delete-reply");
