@@ -484,8 +484,8 @@ public class UserJdbcDaoTest {
     }
 
    @Test
-   public void testListJourneyResponders(){
-        List<User> repliesUser = userDao.listJourneyResponders(JOURNEY_1.getId());
+   public void testFindAllJourneyResponders(){
+        List<User> repliesUser = userDao.findAllJourneyResponders(JOURNEY_1.getId());
 
         assertNotNull(repliesUser);
         assertEquals(TestUtils.TOTAL_JOURNEY_RESPONSES, repliesUser.size());
@@ -494,7 +494,7 @@ public class UserJdbcDaoTest {
         }
    }
     @Test
-    public void testListEventResponders(){
+    public void testFindAllEventResponders(){
         //TODO replace event insert
         long eventId = new SimpleJdbcInsert(ds).withTableName(TestUtils.EVENT_TABLE).usingGeneratedKeyColumns("id")
             .executeAndReturnKey(Map.of(
@@ -509,7 +509,7 @@ public class UserJdbcDaoTest {
         eventReplyInsert.execute(Map.of("user_id", USER_2.getId(), "event_id", eventId, "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
         eventReplyInsert.execute(Map.of("user_id", USER_3.getId(), "event_id", eventId, "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
 
-        List<User> repliesUser = userDao.listEventResponders(eventId);
+        List<User> repliesUser = userDao.findAllEventResponders(eventId);
 
         assertNotNull(repliesUser);
         assertEquals(2, repliesUser.size());
@@ -563,24 +563,24 @@ public class UserJdbcDaoTest {
     }
 
     @Test
-    public void testIsValid(){
+    public void testIsTokenValid(){
         insertUser(Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL));
 
-        boolean isValid = userDao.isValid(TestUtils.USER_VALID_TOKEN_DEFAULT);
+        boolean isValid = userDao.isTokenValid(TestUtils.USER_VALID_TOKEN_DEFAULT);
 
         assertTrue(isValid);
     }
     @Test
-    public void testIsValidNotInUse(){
-        boolean isValid = userDao.isValid(TestUtils.USER_VALID_TOKEN_DEFAULT);
+    public void testIsTokenValidNotInUse(){
+        boolean isValid = userDao.isTokenValid(TestUtils.USER_VALID_TOKEN_DEFAULT);
 
         assertFalse(isValid);
     }
     @Test
-    public void testIsValidExpired(){
+    public void testIsTokenValidExpired(){
         insertUser(Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
 
-        boolean isValid = userDao.isValid(TestUtils.USER_VALID_TOKEN_DEFAULT);
+        boolean isValid = userDao.isTokenValid(TestUtils.USER_VALID_TOKEN_DEFAULT);
 
         assertFalse(isValid);
     }

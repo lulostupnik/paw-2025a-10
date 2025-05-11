@@ -290,7 +290,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public boolean isUserValidated(String token) {
+    public boolean isValidated(String token) {
         String sql = """
         SELECT validated
         FROM users
@@ -312,7 +312,7 @@ public class UserJdbcDao implements UserDao {
 
 
     @Override
-    public boolean isValid(String token) {
+    public boolean isTokenValid(String token) {
         String sql = """
         SELECT COUNT(*)
         FROM users
@@ -389,12 +389,12 @@ public class UserJdbcDao implements UserDao {
 
 
     @Override
-    public List<User> listJourneyResponders(final long journeyId/*, List<Long> userIds*/) {
+    public List<User> findAllJourneyResponders(final long journeyId/*, List<Long> userIds*/) {
         return jdbcTemplate.query(SQL_JOIN_JOURNEY_RESPONDERS, USER_ROW_MAPPER, journeyId);
     }
 
     @Override
-    public List<User> listEventResponders(final long eventId) {
+    public List<User> findAllEventResponders(final long eventId) {
         return jdbcTemplate.query(SQL_JOIN_EVENT_RESPONDERS, USER_ROW_MAPPER, eventId);
     }
 
