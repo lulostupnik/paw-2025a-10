@@ -20,7 +20,7 @@ public class City {
             StringBuilder sb = new StringBuilder();
             sb.append("{\"name\":\"");
             sb.append(escapeJson(name));
-            sb.append("\"country\":\"");
+            sb.append("\", \"country\":");
             sb.append(escapeJson(country));
             sb.append("\", \"id\":");
             sb.append(id);

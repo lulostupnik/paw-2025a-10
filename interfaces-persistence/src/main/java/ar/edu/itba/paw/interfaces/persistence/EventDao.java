@@ -27,5 +27,12 @@ public interface EventDao {
                                    boolean isPast, boolean isUpcoming, boolean isAttending, PageParams pageParams);
     Page<Event> search(String search, PageParams pageParams);
 
+    int countEventsCreatedByUser(long userId);
+
+    Optional<CountryAttendeeCount> findTopAttendeeCountry(long eventId);
+
     Optional<EventWithStatistics> findEventWithStatistics(Long userId, long eventId);
+
+    int countEventsAttendedByUser(long userId);
+
 }
