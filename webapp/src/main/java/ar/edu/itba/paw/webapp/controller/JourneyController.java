@@ -55,9 +55,11 @@ public class JourneyController {
         if(! hasJourney && fjf.getIsMyDestination()){
             throw new InvalidException("You must have a journey to filter by destination");
         }
-        mav.addObject("journeys", js.getAllJourneys(search, user, SortFieldJourney.from(sortBy), SortDirection.from(direction),
-                fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests(),fjf.getIsPast(), fjf.getIsUpcoming(), fjf.getIsMyDestination(),
-                fjf.getIsOngoing(), pageParams));
+        if(! errors.hasErrors()) {
+            mav.addObject("journeys", js.getAllJourneys(search, user, SortFieldJourney.from(sortBy), SortDirection.from(direction),
+                    fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests(), fjf.getIsPast(), fjf.getIsUpcoming(), fjf.getIsMyDestination(),
+                    fjf.getIsOngoing(), pageParams));
+        }
         mav.addObject("hasJourney", hasJourney);
         mav.addObject("pageSize", pageParams.getSize());
         mav.addObject("currentPage", pageParams.getPage());

@@ -14,8 +14,6 @@ public class EmailForm {
     @NotEmpty
     private String email;
 
-
-
     public String getEmail() {
         return email;
     }

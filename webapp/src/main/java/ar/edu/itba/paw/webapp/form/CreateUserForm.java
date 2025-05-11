@@ -13,6 +13,7 @@ public class CreateUserForm {
     @Email
     @Size(min = 2, max = 100)
     @EmailNotInUse
+    @NotNull
     private String email;
 
     @Size(min = 2, max = 50)
@@ -22,18 +23,23 @@ public class CreateUserForm {
 
     @Size(min = 2, max = 50)
     @UsernameNotInUse
+    @NotNull
     private String username;
 
     @Size(min = 2, max = 100)
+    @NotNull
     private String firstName;
 
     @Size(min = 8, max = 100)
+    @NotNull
     private String password;
 
     @Size(min = 8, max = 100)
+    @NotNull
     private String confirmPassword;
 
     @Size(min = 2, max = 100)
+    @NotNull
     private String lastName;
 
     @NotNull
@@ -43,6 +49,7 @@ public class CreateUserForm {
     private MultipartFile profilePicture;
 
     @Size(min = 2, max = 100)
+    @NotNull
     @ExistingUniversity
     private String originUniversity;
 
