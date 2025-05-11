@@ -47,7 +47,7 @@ public class UserJdbcDao implements UserDao {
             rs.getBoolean("user_blocked")
     );
 
-    private final static RowMapper<UserAuthInfo> USER_PASSWORD_ROW_MAPPER = (rs, rowNum)-> new UserAuthInfo(
+    private final static RowMapper<UserAuthInfo> USER_AUTH_INFO_ROW_MAPPER = (rs, rowNum)-> new UserAuthInfo(
             rs.getString("email"),
             rs.getString("password"),
             rs.getString("roles"),
@@ -145,7 +145,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public Optional<UserAuthInfo> findAuthInfoByEmail(final String email) {
-        return jdbcTemplate.query("SELECT email, password, roles, blocked, validated AS verified FROM users WHERE email = ?", USER_PASSWORD_ROW_MAPPER, email).stream().findFirst();
+        return jdbcTemplate.query("SELECT email, password, roles, blocked, validated AS verified FROM users WHERE email = ?", USER_AUTH_INFO_ROW_MAPPER, email).stream().findFirst();
     }
 
     @Override
@@ -264,7 +264,7 @@ public class UserJdbcDao implements UserDao {
                 WHERE token = ?
                 RETURNING email, password, roles, blocked, true AS verified
                 """,
-                USER_PASSWORD_ROW_MAPPER,
+                USER_AUTH_INFO_ROW_MAPPER,
                 token
         ).stream().findFirst();
 
@@ -318,95 +318,3 @@ public class UserJdbcDao implements UserDao {
     }
 
 }
-
-
-//    @Override
-//    public void updateProfilePicture(final long userId, final long profilePictureId) {
-//        LOGGER.debug("Updating profile picture for user ID: {} to image ID: {}", userId, profilePictureId);
-//        final int rowsAffected = jdbcTemplate.update("UPDATE users SET profile_picture_id = ? WHERE id = ?", profilePictureId, userId);
-//        if (rowsAffected == 0) {
-//            LOGGER.warn("User {} not found", userId);
-//        }
-//    }
-
-
-//    @Override
-//    public void update(final long userId, final String firstname, final String lastname, final String username,
-//                       final Long universityId, final Long careerId, final Locale locale) {
-//        LOGGER.info("Updating user with ID {}. New information provided: name '{}' '{}', username '{}', uniId {}, careerId {}, locale '{}'", userId, firstname, lastname, username, universityId, careerId, locale);
-//
-//        final StringBuilder queryBuilder = new StringBuilder("UPDATE users SET ");
-//        final List<Object> parameters = new ArrayList<>();
-//        boolean hasUpdates = false;
-//
-//        if (firstname != null) {
-//            queryBuilder.append("firstname = ?");
-//            parameters.add(firstname);
-//            hasUpdates = true;
-//        }
-//
-//        if (lastname != null) {
-//            if (hasUpdates) queryBuilder.append(", ");
-//            queryBuilder.append("lastname = ?");
-//            parameters.add(lastname);
-//            hasUpdates = true;
-//        }
-//
-//        if (username != null) {
-//            if (hasUpdates) queryBuilder.append(", ");
-//            queryBuilder.append("username = ?");
-//            parameters.add(username);
-//            hasUpdates = true;
-//        }
-//
-//        if (universityId != null) {
-//            if (hasUpdates) queryBuilder.append(", ");
-//            queryBuilder.append("university = ?");
-//            parameters.add(universityId);
-//            hasUpdates = true;
-//        }
-//
-//        if (careerId != null) {
-//            if (hasUpdates) queryBuilder.append(", ");
-//            queryBuilder.append("career_id = ?");
-//            parameters.add(careerId);
-//            hasUpdates = true;
-//        }
-//
-//        if (locale != null) {
-//            if (hasUpdates) queryBuilder.append(", ");
-//            queryBuilder.append("language = ?");
-//            parameters.add(locale.getLanguage());
-//            hasUpdates = true;
-//        }
-//
-//        if (!hasUpdates) {
-//            LOGGER.warn("No updates provided for user with ID: {}", userId);
-//            return;
-//        }
-//
-//        queryBuilder.append(" WHERE id = ?");
-//        parameters.add(userId);
-//
-//        final int updatedRows = jdbcTemplate.update(queryBuilder.toString(), parameters.toArray());
-//        if (updatedRows == 0) {
-//            LOGGER.warn("User was not updated: user with ID: {} not found", userId);
-//        }
-//
-//    }
-
-
-//    @Override
-//    public void clearTokenByToken(final String token) {
-//        int updatedRows = jdbcTemplate.update(
-//                """
-//                UPDATE users
-//                SET token = NULL, token_expiration = NULL
-//                WHERE token = ?
-//                """,
-//                token
-//        );
-//        if(updatedRows == 0){
-//              LOGGER.warn("Token clear failed: user with token: {} not found", token);
-//        }
-//    }

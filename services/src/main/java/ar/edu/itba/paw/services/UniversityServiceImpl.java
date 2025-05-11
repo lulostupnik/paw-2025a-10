@@ -44,15 +44,14 @@ public class UniversityServiceImpl implements UniversityService {
     @Override
     @Cacheable(value = "universitiesById", key = "#id")
     public Optional<University> findById(final long id) {
+        LOGGER.debug("Getting university with id {}", id);
         return universityDao.findById(id);
     }
 
 
-
-
     @Override
     public Page<University> getAllUniversities(final String search, final PageParams pageParams) {
-        LOGGER.debug("Getting all universities with search {}", search);
+        LOGGER.debug("Getting all universities with search {} and pageParams {}", search, pageParams);
         if (search == null || search.isEmpty()) {
             return universityDao.findAll(pageParams);
         }
@@ -60,14 +59,13 @@ public class UniversityServiceImpl implements UniversityService {
     }
     @Override
     public String getUniversitiesJSON(final String search, final PageParams pageParams){
-        LOGGER.debug("Getting all universities with search {}", search);
+        LOGGER.debug("Getting all universities with search {} and pageParams {}", search, pageParams);
         List<University> universities;
         if (search == null || search.isEmpty()) {
             universities = universityDao.findAll(pageParams).getContent();
             return UniversitiesToJson(universities);
         }
         universities = universityDao.search(search,pageParams).getContent();
-
         return UniversitiesToJson(universities);
     }
 
@@ -96,9 +94,14 @@ public class UniversityServiceImpl implements UniversityService {
             }
     )
     public University createUniversity(final String name, final String abbreviation, final String cityName) {
-        City city = cityService.findByName(cityName).orElseThrow(CityNotFoundException::new);
-        return universityDao.create(name, abbreviation, city);
-    }
+        LOGGER.debug("Creating university with name {}, abbreviation {}, city {}", name, abbreviation, cityName);
+        City city = cityService.findByName(cityName).orElseThrow(() -> {
+            LOGGER.error("City not found with name: {}", cityName);
+            return new CityNotFoundException();
+        });
+        University university = universityDao.create(name, abbreviation, city);
+        LOGGER.info("University created successfully with name: {}, abbreviation: {}, in city: {}", name, abbreviation, cityName);
+        return university;    }
 
     @Override
     @Transactional
@@ -108,7 +111,9 @@ public class UniversityServiceImpl implements UniversityService {
             @CacheEvict(value = "universitiesByName", allEntries = true)
     })
     public void updateUniversity(final long id, final String name, final String abbreviation, final String cityName) {
+        LOGGER.debug("Updating university with id {}, name {}, abbreviation {}, city {}", id, name, abbreviation, cityName);
         universityDao.update(id, name, abbreviation, cityName);
+        LOGGER.info("University updated successfully with id: {}, name: {}, abbreviation: {}, city: {}", id, name, abbreviation, cityName);
     }
 
     @Override
@@ -121,7 +126,9 @@ public class UniversityServiceImpl implements UniversityService {
             }
     )
     public void delete(final long id) {
+        LOGGER.debug("Deleting university with id {}", id);
         universityDao.delete(id);
+        LOGGER.info("University deleted successfully with id: {}", id);
     }
 
 

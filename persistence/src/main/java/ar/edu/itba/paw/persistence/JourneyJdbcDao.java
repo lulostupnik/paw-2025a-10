@@ -82,28 +82,20 @@ public class JourneyJdbcDao implements JourneyDao {
     private static final String SQL_FIND_BY_ID = SQL_BASE + " AND j.id = ?";
     private final static String SQL_FIND_BY_USER_ID = SQL_BASE + " AND u.id = ?";
     private final static String SQL_FIND_BY_USER_ID_DELETED = SQL_SELECT_BASE + SQL_FROM_BASE + " WHERE u.id = ?" ; // "AND j.deleted = TRUE"; ?
-    private final static String SQL_FIND_BY_USER_EMAIL = SQL_BASE + " AND u.email = ?";
     private final static String SQL_FIND_OVERLAPPING = SQL_BASE + " AND j.user_id = ? AND j.end_date >= ? AND j.start_date <= ?";
-    private final static String SQL_FIND_OTHERS_BY_USER_ID = SQL_BASE + " AND u.id != ?";
     private final static String SQL_FIND_BY_ORIGIN_CITY = SQL_BASE + " AND ci1.id = ?";
-    private final static String SQL_FIND_BY_ORIGIN_UNIVERSITY = SQL_BASE + " AND un1.id = ?";
 
     private final static String SQL_FIND_BY_ORIGIN_CITY_PAGED = SQL_FIND_BY_ORIGIN_CITY + " ORDER BY j.id ASC LIMIT ? OFFSET ?";
 
     private final static String SQL_PAGE = " ORDER BY j.id ASC LIMIT ? OFFSET ? ";
     private final static String SQL_FIND_ALL_PAGED = SQL_BASE + SQL_PAGE;
-    private final static String SQL_FIND_OTHERS_PAGED = SQL_BASE + " AND j.user_id != ? " + SQL_PAGE;
     private final static String SQL_BASE_INTEREST = SQL_SELECT_BASE + SQL_FROM_BASE + " JOIN user_interest ui ON u.id = ui.user_id JOIN category c ON ui.category_id = c.id" + SQL_NOT_DELETED;
 
     private final static String SQL_SEARCH_WHERE_CLAUSE =
             """
             (
                 LOWER(u.username) LIKE LOWER(?)
-            --  OR LOWER(u.firstname) LIKE LOWER(?)
-            --  OR LOWER(u.lastname) LIKE LOWER(?)
-            --  OR LOWER(j.description) LIKE LOWER(?)
                 OR LOWER(un2.name) LIKE LOWER(?)
-            --  OR LOWER(un2.abbreviation) LIKE LOWER(?)
                 OR LOWER(ci2.name) LIKE LOWER(?)
             )
             """;
@@ -173,7 +165,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
     @Override
     public Journey create(final User user, final University destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
-        // FIXME: HACER UNA SOLA QUERY UPDATE RETURNING y ver si updatedRows != 0
+
         final Optional<Journey> journey = findByUserIdDeleted(user.getId());
         if(journey.isPresent()){
             update(journey.get().getId(), destinationUniversity, startDate, endDate, description);
@@ -187,8 +179,7 @@ public class JourneyJdbcDao implements JourneyDao {
         args.put("description", description);
         args.put("deleted", false);
         final Number id = jdbcInsert.executeAndReturnKey(args);
-        final Journey newJourney = new Journey(id.longValue(), user, startDate, endDate, destinationUniversity, description);
-        return newJourney;
+        return new Journey(id.longValue(), user, startDate, endDate, destinationUniversity, description);
     }
 
     private Optional<Journey> findByUserIdDeleted(final long id) {
@@ -202,10 +193,8 @@ public class JourneyJdbcDao implements JourneyDao {
     
     @Override
     public Optional<Journey> findOverlapping(final long userId, final LocalDate startDate, final LocalDate endDate) {
-        // FIXME: ¿usar Date?
-        final Date newStartDate = Date.valueOf(startDate);
-        final Date newEndDate = Date.valueOf(endDate);
-        return jdbcTemplate.query(SQL_FIND_OVERLAPPING, JOURNEY_ROW_MAPPER, userId, newStartDate, newEndDate).stream().findFirst();
+        return jdbcTemplate.query(SQL_FIND_OVERLAPPING, JOURNEY_ROW_MAPPER, userId, Date.valueOf(startDate), Date.valueOf(endDate))
+                .stream().findFirst();
     }
 
 
@@ -244,59 +233,6 @@ public class JourneyJdbcDao implements JourneyDao {
         );
     }
 
-    // TODO: ¿Cual prefieren? La de arriba usa String.join que no se si eso si se puede o no. -> Asumo que si, no creo que sea como un '+', pero qcy
-    public Page<Journey> findByFilters3(final Long userId, final Long cityId, final LocalDate startDate, final LocalDate endDate, final Long interest, final PageParams pageParams) {
-
-        final List<Object> params = new ArrayList<>();
-
-        final StringBuilder countQueryBuilder = new StringBuilder("SELECT COUNT(*) FROM journeys j");
-        final StringBuilder queryBuilder = new StringBuilder((interest != null) ? SQL_BASE_INTEREST : SQL_BASE);
-        final StringBuilder filterClause = new StringBuilder(" ");
-
-        if (interest != null) {
-            countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id");
-            filterClause.append(" AND ui.category_id = ? ");
-            params.add(interest);
-        }
-
-        if (cityId != null) {
-            countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id");
-            filterClause.append(" AND ci2.id = ? ");
-            params.add(cityId);
-        }
-
-        if (userId != null) {
-            filterClause.append(" AND j.user_id != ? ");
-            params.add(userId);
-        }
-
-        if (endDate != null) {
-            filterClause.append(" AND j.start_date <= ? ");
-            params.add(Date.valueOf(endDate));
-        }
-
-        if (startDate != null) {
-            filterClause.append(" AND j.end_date >= ? ");
-            params.add(Date.valueOf(startDate));
-        }
-
-        countQueryBuilder.append(" WHERE j.deleted = FALSE ").append(filterClause);
-        queryBuilder.append(filterClause);
-        queryBuilder.append(" ORDER BY j.id ASC LIMIT ? OFFSET ?");
-
-        final int totalItems = jdbcTemplate.queryForObject(countQueryBuilder.toString(), Integer.class, params.toArray());
-
-
-        params.add(pageParams.getSize());
-        params.add(offset(pageParams));
-
-        return new Page<>(
-                jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray()),
-                pageParams.getPage(),
-                pageCount(totalItems, pageParams.getSize())
-        );
-    }
-
 
     @Override
     public Page<Journey> findByOriginCity(final long originCityId, final PageParams pageParams) {
@@ -312,113 +248,114 @@ public class JourneyJdbcDao implements JourneyDao {
         );
     }
 
-        private String getOrderByColumn(SortFieldJourney orderBy) {
-            if(orderBy == null){
-                return "j.id";
-            }
-            return switch (orderBy) {
-                case START_DATE -> "start_date";
-                case END_DATE   -> "end_date";
-                default         -> "j.id";
-            };
+    private String getOrderByColumn(SortFieldJourney orderBy) {
+        if(orderBy == null){
+            return "j.id";
         }
-        @Override
-        public Page<Journey> search(final String searchTerm, final Long userId, final SortFieldJourney orderBy, final SortDirection direction,
-                                    final String city, final LocalDate startDate, final LocalDate endDate, final String interest,
-                                    final boolean isPast, final boolean isUpcoming, final boolean isMyDestination, final boolean isOngoing,
-                                    final PageParams pageParams) {
-            final String searchPattern = likePattern(searchTerm);
+        return switch (orderBy) {
+            case START_DATE -> "start_date";
+            case END_DATE   -> "end_date";
+            default         -> "j.id";
+        };
+    }
 
-            final List<String> filters = new ArrayList<>();
-            final List<Object> params = new ArrayList<>();
+    @Override
+    public Page<Journey> search(final String searchTerm, final Long userId, final SortFieldJourney orderBy, final SortDirection direction,
+                                final String city, final LocalDate startDate, final LocalDate endDate, final String interest,
+                                final boolean isPast, final boolean isUpcoming, final boolean isMyDestination, final boolean isOngoing,
+                                final PageParams pageParams) {
+        final String searchPattern = likePattern(searchTerm);
 
-            final StringBuilder countQueryBuilder = new StringBuilder("SELECT COUNT(*) FROM journeys j");
-            final StringBuilder queryBuilder = new StringBuilder((interest != null && !interest.isEmpty() ) ? SQL_BASE_INTEREST : SQL_BASE);
+        final List<String> filters = new ArrayList<>();
+        final List<Object> params = new ArrayList<>();
 
-            if (interest != null && !interest.isEmpty()) {
-                countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id JOIN category c ON ui.category_id = c.id ");
-                filters.add("c.name = ?");
-                params.add(interest);
-            }
+        final StringBuilder countQueryBuilder = new StringBuilder("SELECT COUNT(*) FROM journeys j");
+        final StringBuilder queryBuilder = new StringBuilder((interest != null && !interest.isEmpty() ) ? SQL_BASE_INTEREST : SQL_BASE);
 
-            if (city != null && !city.isEmpty()) {
-                countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id");
-                filters.add("ci2.name = ?");
-                params.add(city);
-            }
-
-            if (userId != null) {
-                filters.add("j.user_id != ?");
-                params.add(userId);
-            }
-
-            if (endDate != null) {
-                filters.add("j.start_date <= ?");
-                params.add(Date.valueOf(endDate));
-            }
-
-            if (startDate != null) {
-                filters.add("j.end_date >= ?");
-                params.add(Date.valueOf(startDate));
-            }
-
-            if(searchTerm != null && !searchTerm.isEmpty()) {
-                if(city == null) {
-                    countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id ");
-                }
-                if(interest == null) {
-                    countQueryBuilder.append(" JOIN users u ON j.user_id = u.id ");
-                }
-                filters.add(SQL_SEARCH_WHERE_CLAUSE);
-                params.add(searchPattern);
-                params.add(searchPattern);
-                params.add(searchPattern);
-            }
-            if(isOngoing){
-                filters.add("j.start_date <= ? AND j.end_date >= ?");
-                params.add(Date.valueOf(LocalDate.now()));
-                params.add(Date.valueOf(LocalDate.now()));
-            } else {
-                if (isUpcoming) {
-                    filters.add("j.start_date > ?");
-                    params.add(Date.valueOf(LocalDate.now()));
-                }
-                if (isPast) {
-                    filters.add("j.end_date < ?");
-                    params.add(Date.valueOf(LocalDate.now()));
-                }
-            }
-            if (isMyDestination) {
-                countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id");
-                filters.add(" ci2.id = ( SELECT ci2.id FROM journeys j JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id WHERE j.user_id = ? LIMIT 1) ");
-                params.add(userId);
-            }
-
-            countQueryBuilder.append(" WHERE j.deleted = FALSE ");
-
-            if(!filters.isEmpty()) {
-                countQueryBuilder.append(" AND  ").append(String.join(" AND ", filters));
-                queryBuilder.append(" AND ").append(String.join(" AND ", filters));
-            }
-
-            String column = getOrderByColumn(orderBy);
-            String dir = (direction == SortDirection.DESC) ? "DESC" : "ASC";
-            queryBuilder.append(" ORDER BY ").append(column).append(" ").append(dir);
-
-
-            final int totalItems = jdbcTemplate.queryForObject(countQueryBuilder.toString(), Integer.class, params.toArray());
-
-            queryBuilder.append(" LIMIT ? OFFSET ? ");
-
-            params.add(pageParams.getSize());
-            params.add(offset(pageParams));
-
-            return new Page<>(
-                    jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray()),
-                    pageParams.getPage(),
-                    pageCount(totalItems, pageParams.getSize())
-            );
+        if (interest != null && !interest.isEmpty()) {
+            countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id JOIN category c ON ui.category_id = c.id ");
+            filters.add("c.name = ?");
+            params.add(interest);
         }
+
+        if (city != null && !city.isEmpty()) {
+            countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id");
+            filters.add("ci2.name = ?");
+            params.add(city);
+        }
+
+        if (userId != null) {
+            filters.add("j.user_id != ?");
+            params.add(userId);
+        }
+
+        if (endDate != null) {
+            filters.add("j.start_date <= ?");
+            params.add(Date.valueOf(endDate));
+        }
+
+        if (startDate != null) {
+            filters.add("j.end_date >= ?");
+            params.add(Date.valueOf(startDate));
+        }
+
+        if(searchTerm != null && !searchTerm.isEmpty()) {
+            if(city == null) {
+                countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id ");
+            }
+            if(interest == null) {
+                countQueryBuilder.append(" JOIN users u ON j.user_id = u.id ");
+            }
+            filters.add(SQL_SEARCH_WHERE_CLAUSE);
+            params.add(searchPattern);
+            params.add(searchPattern);
+            params.add(searchPattern);
+        }
+        if(isOngoing){
+            filters.add("j.start_date <= ? AND j.end_date >= ?");
+            params.add(Date.valueOf(LocalDate.now()));
+            params.add(Date.valueOf(LocalDate.now()));
+        } else {
+            if (isUpcoming) {
+                filters.add("j.start_date > ?");
+                params.add(Date.valueOf(LocalDate.now()));
+            }
+            if (isPast) {
+                filters.add("j.end_date < ?");
+                params.add(Date.valueOf(LocalDate.now()));
+            }
+        }
+        if (isMyDestination) {
+            countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id");
+            filters.add(" ci2.id = ( SELECT ci2.id FROM journeys j JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id WHERE j.user_id = ? LIMIT 1) ");
+            params.add(userId);
+        }
+
+        countQueryBuilder.append(" WHERE j.deleted = FALSE ");
+
+        if(!filters.isEmpty()) {
+            countQueryBuilder.append(" AND  ").append(String.join(" AND ", filters));
+            queryBuilder.append(" AND ").append(String.join(" AND ", filters));
+        }
+
+        String column = getOrderByColumn(orderBy);
+        String dir = (direction == SortDirection.DESC) ? "DESC" : "ASC";
+        queryBuilder.append(" ORDER BY ").append(column).append(" ").append(dir);
+
+
+        final int totalItems = jdbcTemplate.queryForObject(countQueryBuilder.toString(), Integer.class, params.toArray());
+
+        queryBuilder.append(" LIMIT ? OFFSET ? ");
+
+        params.add(pageParams.getSize());
+        params.add(offset(pageParams));
+
+        return new Page<>(
+                jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray()),
+                pageParams.getPage(),
+                pageCount(totalItems, pageParams.getSize())
+        );
+    }
 
     @Override
     public Page<Journey> search(final String searchTerm, final PageParams pageParams){
