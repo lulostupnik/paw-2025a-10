@@ -33,30 +33,33 @@ public interface UserDao {
 
     void update(long id, String firstname, String lastname, String username, Long universityId, Long careerId, Locale locale);
 
-    void blockUser(long id);
+    void blockUser(long id); // rename to updateB
 
     void unblockUser(long id);
 
-    boolean isUserValidated(String token);
+    boolean isValidated(String token); // todo: rename to findValidatedByToken ?
 
     Optional<User> findByToken(String token);
-
-    List<User> listJourneyResponders(long journeyId/*, List<Long> userIds*/);
-
-    List<User> listEventResponders(long eventId/*, List<Long> userIds*/);
 
     Page<User> findAll(PageParams pageParams);
 
     Page<User> search(String search, PageParams pageParams);
 
     // podríamos generalizar en findBy(String field, String value) o algo por el estilo
-    boolean isValid(String token);
+    boolean isTokenValid(String token); // todo: rename to existsByToken() ?
 
     boolean hasExpired(String token);
 
-    void validateToken(String token);
+    void validateToken(String token); // todo: renombrar a updateToken o algo así?
 
-    void refreshToken(String newToken, LocalDate date, String oldToken);
+    void refreshToken(String newToken, LocalDate date, String oldToken); // todo: idem anterior
+
+    // van en este dao?
+
+    List<User> findAllJourneyResponders(long journeyId);
+
+    List<User> findAllEventResponders(long eventId);
+
 }
 
 //     void updateCareer(long userId, String careerName);

@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
         if (userDao.hasExpired(token)) {
             throw new ExpiredTokenException("Token expired", token);
         }
-        if(userDao.isUserValidated(token)){
+        if(userDao.isValidated(token)){
             throw new InvalidTokenException("Token already used");
         }
         return userDao.validateEmail(token);
@@ -92,7 +92,7 @@ public class UserServiceImpl implements UserService {
         if(userDao.hasExpired(token)){
             throw new ExpiredTokenException("Token expired", token);
         }
-        if(!userDao.isValid(token)){
+        if(!userDao.isTokenValid(token)){
             throw new InvalidTokenException("Token already used");
         }
         userDao.validateToken(token);
@@ -178,7 +178,7 @@ public class UserServiceImpl implements UserService {
         if(userDao.hasExpired(token)){
             throw new ExpiredPassTokenException("Token expired", token);
         }
-        if(!userDao.isValid(token)){
+        if(!userDao.isTokenValid(token)){
             throw new InvalidTokenException("Token already used");
         }
         userDao.newPassword(token, passwordEncoder.encode(newPassword));

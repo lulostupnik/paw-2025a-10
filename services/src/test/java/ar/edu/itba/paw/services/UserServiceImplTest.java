@@ -124,7 +124,7 @@ public class UserServiceImplTest {
             userDao.hasExpired(Mockito.eq(TOKEN))
         ).thenReturn(false);
         Mockito.when(
-            userDao.isUserValidated(Mockito.eq(TOKEN))
+            userDao.isValidated(Mockito.eq(TOKEN))
         ).thenReturn(false);
 
         userService.validateEmail(TOKEN);
@@ -135,7 +135,7 @@ public class UserServiceImplTest {
             userDao.hasExpired(Mockito.eq(TOKEN))
         ).thenReturn(false);
         Mockito.when(
-            userDao.isUserValidated(Mockito.eq(TOKEN))
+            userDao.isValidated(Mockito.eq(TOKEN))
         ).thenReturn(true);
 
         userService.validateEmail(TOKEN);
@@ -155,7 +155,7 @@ public class UserServiceImplTest {
             userDao.hasExpired(Mockito.eq(TOKEN))
         ).thenReturn(false);
         Mockito.when(
-            userDao.isValid(Mockito.eq(TOKEN))
+            userDao.isTokenValid(Mockito.eq(TOKEN))
         ).thenReturn(true);
 
         userService.validateToken(TOKEN);
@@ -166,7 +166,7 @@ public class UserServiceImplTest {
             userDao.hasExpired(Mockito.eq(TOKEN))
         ).thenReturn(false);
         Mockito.when(
-            userDao.isValid(Mockito.eq(TOKEN))
+            userDao.isTokenValid(Mockito.eq(TOKEN))
         ).thenReturn(false);
 
         userService.validateToken(TOKEN);
@@ -441,7 +441,7 @@ public class UserServiceImplTest {
             userDao.hasExpired(Mockito.eq(TOKEN))
         ).thenReturn(false);
         Mockito.when(
-            userDao.isValid(Mockito.eq(TOKEN))
+            userDao.isTokenValid(Mockito.eq(TOKEN))
         ).thenReturn(true);
 
         userService.newPassword(TOKEN, PASSWORD);
@@ -452,7 +452,7 @@ public class UserServiceImplTest {
             userDao.hasExpired(Mockito.eq(TOKEN))
         ).thenReturn(false);
         Mockito.when(
-            userDao.isValid(Mockito.eq(TOKEN))
+            userDao.isTokenValid(Mockito.eq(TOKEN))
         ).thenReturn(false);
 
         userService.newPassword(TOKEN, PASSWORD);

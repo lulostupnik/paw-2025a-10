@@ -156,7 +156,7 @@ public class EventServiceImplTest {
             userService.findByEmail(EMAIL)
         ).thenReturn(Optional.of(USER));
         Mockito.when(
-            userDao.listEventResponders(Mockito.eq(EVENT_ID))
+            userDao.findAllEventResponders(Mockito.eq(EVENT_ID))
         ).thenReturn(USERS);
 
         eventService.replyToEvent(EMAIL, EVENT_ID, DESCRIPTION);

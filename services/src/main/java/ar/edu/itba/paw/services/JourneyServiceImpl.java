@@ -95,7 +95,7 @@ public class JourneyServiceImpl implements JourneyService {
         interestService.updateScoreByInterests(interests, user.getId());
 
         emailService.answerJourneyNotification(
-                userDao.listJourneyResponders(journeyId),
+                userDao.findAllJourneyResponders(journeyId),
                 message,
                 user,
                 journey
