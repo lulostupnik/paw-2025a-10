@@ -168,50 +168,6 @@ public class UniversityServiceImplTest {
         uniService.delete(ID_1);
     }
 
-    @Test
-    public void testGetInterestsJSON(){
-        Mockito.when(
-            uniDao.search(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(UNI_PAGE);
-
-        String json_derulo = uniService.getUniversitiesJSON(NAME, PAGE_1_DEFAULT);
-
-        assertNotNull(json_derulo);
-        assertEquals(UNI_JSON, json_derulo);
-    }
-    @Test
-    public void testGetInterestsJSONMissingQuery(){
-        Mockito.when(
-            uniDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(UNI_PAGE);
-
-        String json_derulo = uniService.getUniversitiesJSON(null, PAGE_1_DEFAULT);
-
-        assertNotNull(json_derulo);
-        assertEquals(UNI_JSON, json_derulo);
-    }
-    @Test
-    public void testGetInterestsJSONEmptyQuery(){
-        Mockito.when(
-            uniDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(UNI_PAGE);
-
-        String json_derulo = uniService.getUniversitiesJSON("", PAGE_1_DEFAULT);
-
-        assertNotNull(json_derulo);
-        assertEquals(UNI_JSON, json_derulo);
-    }
-    @Test
-    public void testGetInterestsJSONNoCareers(){
-        Mockito.when(
-            uniDao.search(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(new Page<University>(List.of(), 1, 0));
-
-        String json_derulo = uniService.getUniversitiesJSON(NAME, PAGE_1_DEFAULT);
-
-        assertNotNull(json_derulo);
-        assertEquals(EMPTY_JSON, json_derulo);
-    }
 }
 
 //

@@ -157,6 +157,14 @@
                         <span><fmt:message key="error.405.help.1" /></span>
                     </li>
                 </c:if>
+                <c:if test="${errorType == '400'}">
+                    <li class="help-item">
+                        <svg class="help-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m9 18 6-6-6-6"></path>
+                        </svg>
+                        <span><fmt:message key="error.405.help.1" /></span>
+                    </li>
+                </c:if>
 
                 <li class="help-item">
                     <svg class="help-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

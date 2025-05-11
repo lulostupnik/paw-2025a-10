@@ -203,51 +203,6 @@ public class InterestServiceImplTest {
         assertEquals(testPage, page);
     }
 
-    @Test
-    public void testGetInterestsJSON(){
-        Mockito.when(
-            interestDao.search(Mockito.eq(INTEREST_NAME), Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(INTEREST_PAGE);
-
-        String json_derulo = interestService.getInterestsJSON(INTEREST_NAME, PAGE_1_DEFAULT);
-
-        assertNotNull(json_derulo);
-        assertEquals(json_derulo, INTEREST_JSON);
-    }
-    @Test
-    public void testGetInterestsJSONMissingQuery(){
-        Mockito.when(
-            interestDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(INTEREST_PAGE);
-
-        String json_derulo = interestService.getInterestsJSON(null, PAGE_1_DEFAULT);
-
-        assertNotNull(json_derulo);
-        assertEquals(json_derulo, INTEREST_JSON);
-    }
-    @Test
-    public void testGetInterestsJSONEmptyQuery(){
-        Mockito.when(
-            interestDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(INTEREST_PAGE);
-
-        String json_derulo = interestService.getInterestsJSON("", PAGE_1_DEFAULT);
-
-        assertNotNull(json_derulo);
-        assertEquals(json_derulo, INTEREST_JSON);
-    }
-    @Test
-    public void testGetInterestsJSONNoCareers(){
-        Mockito.when(
-            interestDao.search(Mockito.eq(INTEREST_NAME), Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(new Page<Interest>(List.of(), 1, 0));
-
-        String json_derulo = interestService.getInterestsJSON(INTEREST_NAME, PAGE_1_DEFAULT);
-
-        assertNotNull(json_derulo);
-        assertEquals(json_derulo, EMPTY_JSON);
-    }
-
     @Test 
     public void testDelete(){
         interestService.delete(ID_1);

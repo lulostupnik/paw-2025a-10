@@ -58,6 +58,9 @@
 .error-type-500 .error-card::before {
     background: linear-gradient(to right, var(--error-red), #f87171);
 }
+.error-type-400 .error-card::before {
+    background: linear-gradient(to right, var(--error-blue), #93c5fd);
+}
 
 .error-icon-container {
     display: flex;
@@ -88,6 +91,9 @@
 
 .error-type-500 .error-icon {
     color: var(--error-red);
+}
+.error-type-400 .error-icon {
+    color: var(--error-blue);
 }
 
 .error-type-general .error-icon {
@@ -147,6 +153,9 @@
 
 .error-type-404 .primary-action {
     background-color: var(--error-purple);
+}
+.error-type-400 .primary-action {
+    background-color: var(--error-blue);
 }
 
 .error-type-403 .primary-action {
@@ -215,6 +224,9 @@
 .error-type-500 .secondary-action-link:hover {
     color: var(--error-red);
 }
+.error-type-400 .secondary-action-link:hover {
+    color: var(--error-blue);
+}
 
 .error-type-general .secondary-action-link:hover {
     color: var(--error-blue);
@@ -257,6 +269,10 @@
     border-color: var(--error-purple);
     box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
 }
+.error-type-400 .search-input:focus {
+    border-color: var(--error-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
 
 .error-type-403 .search-input:focus {
     border-color: var(--error-amber);
@@ -284,6 +300,9 @@
 
 .error-type-404 .search-button {
     background-color: var(--error-purple);
+}
+.error-type-400 .search-button {
+    background-color: var(--error-blue);
 }
 
 .error-type-403 .search-button {
@@ -361,7 +380,9 @@
     color: var(--error-purple);
 }
 
-
+.error-type-400 .help-icon {
+    color: var(--error-blue);
+}
 
 .error-type-403 .help-icon {
     color: var(--error-amber);

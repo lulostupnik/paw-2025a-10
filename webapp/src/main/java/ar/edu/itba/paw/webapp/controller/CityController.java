@@ -7,8 +7,10 @@ import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.form.CreateCityForm;
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
+import ar.edu.itba.paw.webapp.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -29,6 +31,7 @@ public class CityController {
     private static final String CITY_DETAIL = "cities/detail";
     private static final String CITY_CREATE_FORM = "createCityForm";
 
+    @Autowired
     public CityController(CityService cityService, CountryService countryService) {
         this.cityService = cityService;
         this.countryService = countryService;
@@ -38,7 +41,7 @@ public class CityController {
     @ResponseBody
     public String getCitiesJson(@RequestParam(value = "search", required = false) String search,
                                 @PageParamCustomizer(defaultSize = 30) PageParams pageParams) {
-        return cityService.getCitiesJson(search, pageParams);
+        return JsonUtils.toJson( cityService.getAllCities(search, pageParams).getContent());
     }
 
     @GetMapping(value = "/create")

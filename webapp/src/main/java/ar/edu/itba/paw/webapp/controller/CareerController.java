@@ -9,8 +9,10 @@ import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.exceptions.CareerNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
+import ar.edu.itba.paw.webapp.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -31,15 +33,16 @@ public class CareerController {
     private static final String CAREER_DETAIL = "/careers/detail";
 
 
+    @Autowired
     public CareerController(CareerService careerService) {
         this.careerService = careerService;
     }
 
-    @GetMapping(value = "", produces = "application/json; charset=UTF-8")
+    @GetMapping( produces = "application/json; charset=UTF-8")
     @ResponseBody
     public String getCareersJSON(@RequestParam(value = "search", required = false) String search,
                                  @PageParamCustomizer(defaultSize = 30) PageParams pageParams) {
-        return careerService.getCareersJSON(search, pageParams);
+        return JsonUtils.toJson( careerService.getAllCareers(search, pageParams).getContent());
     }
 
 
