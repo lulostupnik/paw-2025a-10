@@ -127,7 +127,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public void updateToken(final long id, final String uuid, final LocalDate date) {
-        int updatedRows = jdbcTemplate.update("UPDATE users SET token = ?, token_expiration = ? WHERE id = ?", uuid, date, id);
+        final int updatedRows = jdbcTemplate.update("UPDATE users SET token = ?, token_expiration = ? WHERE id = ?", uuid, date, id);
         if(updatedRows == 0){
             LOGGER.warn("Update token failed: user with ID: {} not found", id);
         }
@@ -158,7 +158,10 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public void updateTokenAndExpirationByToken(final String newToken, final LocalDate date, final String oldToken){
-       jdbcTemplate.update("UPDATE users SET token = ?, token_expiration = ? WHERE token = ?", newToken, date ,oldToken);
+       final int updatedRows = jdbcTemplate.update("UPDATE users SET token = ?, token_expiration = ? WHERE token = ?", newToken, date ,oldToken);
+       if(updatedRows == 0){
+           LOGGER.warn("Update token failed: user with token: {} not found", oldToken);
+       }
     }
 
     @Override
@@ -295,12 +298,12 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public void updateBlock(final long userId, final boolean bool){
-        final int rowsAffected = jdbcTemplate.update(
+        final int updatedRows = jdbcTemplate.update(
                 "UPDATE users SET blocked = ? WHERE id = ?",
                 bool,
                 userId
         );
-        if (rowsAffected == 0) {
+        if (updatedRows == 0) {
             LOGGER.warn("User block failed: User with ID {} not found", userId);
         }
     }
@@ -395,7 +398,7 @@ public class UserJdbcDao implements UserDao {
 
 //    @Override
 //    public void clearTokenByToken(final String token) {
-//        jdbcTemplate.update(
+//        int updatedRows = jdbcTemplate.update(
 //                """
 //                UPDATE users
 //                SET token = NULL, token_expiration = NULL
@@ -403,4 +406,7 @@ public class UserJdbcDao implements UserDao {
 //                """,
 //                token
 //        );
+//        if(updatedRows == 0){
+//              LOGGER.warn("Token clear failed: user with token: {} not found", token);
+//        }
 //    }

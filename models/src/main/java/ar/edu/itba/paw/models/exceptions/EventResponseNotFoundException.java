@@ -6,6 +6,8 @@ public class EventResponseNotFoundException extends RuntimeException {
     public EventResponseNotFoundException(String message) {
         super(message);
     }
-    public  EventResponseNotFoundException() {}
+    public  EventResponseNotFoundException() {
+        super("Event response not found");
+    }
 
 }
