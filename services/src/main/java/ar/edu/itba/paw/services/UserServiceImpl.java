@@ -83,20 +83,7 @@ public class UserServiceImpl implements UserService {
         }
         return userDao.validateEmail(token);
     }
-    //Ver que onda porque la logica es igual, lo unico que cambia es que la de arriba tilda un boolean en is valid
-    //para saber que el usuario valido su email y la de abajo falla
-    //@TODO
-    @Override
-    @Transactional
-    public void validateToken(final String token){
-        if(userDao.hasExpired(token)){
-            throw new ExpiredTokenException("Token expired", token);
-        }
-        if(!userDao.isTokenValid(token)){
-            throw new InvalidTokenException("Token already used");
-        }
-        userDao.validateToken(token);
-    }
+
 
 
 
@@ -140,14 +127,14 @@ public class UserServiceImpl implements UserService {
     public void blockUser(final long userId) {
         emailService.sendUserBlockedNotification(findById(userId).orElseThrow(()-> new IllegalStateException("User does not exist")));
 
-        userDao.blockUser(userId);
+        userDao.updateBlock(userId, true);
     }
 
     @Override
     @Transactional
     public void unblockUser(final long userId) {
         emailService.sendUserUnblockedNotification(findById(userId).orElseThrow(()-> new IllegalStateException("User does not exist")));
-        userDao.unblockUser(userId);
+        userDao.updateBlock(userId, false);
     }
     @Override
     @Transactional
@@ -181,7 +168,7 @@ public class UserServiceImpl implements UserService {
         if(!userDao.isTokenValid(token)){
             throw new InvalidTokenException("Token already used");
         }
-        userDao.newPassword(token, passwordEncoder.encode(newPassword));
+        userDao.updatePasswordByToken(token, passwordEncoder.encode(newPassword));
 
     }
 
@@ -194,7 +181,7 @@ public class UserServiceImpl implements UserService {
         });
 
 
-        if(!userDao.isUserValidByEmail(email)){
+        if(!userDao.isValidByEmail(email)){
             throw new UserValidatedException("User not validated");
         }
 

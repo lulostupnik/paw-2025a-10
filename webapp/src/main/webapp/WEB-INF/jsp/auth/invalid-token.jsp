@@ -41,7 +41,6 @@
         </p>
       </div>
     </div>
-s
     <div class="form-card-content">
       <div class="blocked-info">
         <h3 class="blocked-section-title"><spring:message code="invalidtoken.what.happened"/></h3>
@@ -49,16 +48,6 @@ s
 
         <h3 class="blocked-section-title"><spring:message code="invalidtoken.what.to.do"/></h3>
         <p class="blocked-text"><spring:message code="invalidtoken.instructions"/></p>
-
-<%--        <div class="contact-info">--%>
-<%--          <h4 class="contact-title"><spring:message code="invalidtoken.contact.us"/></h4>--%>
-<%--          <div class="contact-method">--%>
-<%--            <svg xmlns="http://www.w3.org/2000/svg" class="contact-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">--%>
-<%--              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />--%>
-<%--            </svg>--%>
-<%--         --%>
-<%--          </div>--%>
-<%--        </div>--%>
       </div>
     </div>
 
@@ -66,13 +55,6 @@ s
       <spring:message code="invalidtoken.back.to.home"/>
     </a>
   </div>
-
-<%--  <!-- Reference ID for support -->--%>
-<%--  <c:if test="${not empty referenceId}">--%>
-<%--    <div class="reference-id">--%>
-<%--      <spring:message code="invalidtoken.reference"/> <strong><c:out value="${referenceId}" escapeXml="true" /></strong>--%>
-<%--    </div>--%>
-<%--  </c:if>--%>
 </div>
 
 </body>

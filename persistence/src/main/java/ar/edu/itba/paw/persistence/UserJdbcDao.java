@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.persistence;
 
-import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
@@ -132,7 +131,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public boolean isUserValidByEmail(final String email) {
+    public boolean isValidByEmail(final String email) {
         return jdbcTemplate.queryForObject("SELECT validated FROM users WHERE email = ? ", Boolean.class, email);
     }
 
@@ -197,7 +196,7 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public void newPassword(final String token, final String newPassword) {
+    public void updatePasswordByToken(final String token, final String newPassword) {
         jdbcTemplate.update("""
         UPDATE users SET password = ? WHERE token = ?
     """, newPassword, token);
@@ -399,27 +398,16 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public void blockUser(final long userId){
+    public void updateBlock(final long userId, final boolean bool){
         LOGGER.info("Blocking user with ID: {}", userId);
         final int rowsAffected = jdbcTemplate.update(
-                "UPDATE users SET blocked = TRUE WHERE id = ?",
+                "UPDATE users SET blocked = ? WHERE id = ?",
+                bool,
                 userId
         );
 
         if (rowsAffected == 0) {
             LOGGER.warn("User block failed: User with ID {} not found", userId);
-        }
-    }
-    @Override
-    public void unblockUser(final long userId){
-        LOGGER.info("Unblocking user with ID: {}", userId);
-        final int rowsAffected = jdbcTemplate.update(
-                "UPDATE users SET blocked = FALSE WHERE id = ?",
-                userId
-        );
-
-        if (rowsAffected == 0) {
-            LOGGER.warn("User unblock failed: User with ID {} not found", userId);
         }
     }
 

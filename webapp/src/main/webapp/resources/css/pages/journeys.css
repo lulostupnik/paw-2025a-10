@@ -647,7 +647,7 @@
 }
 
 .delete-form {
-    max-width: 600px;
+    max-width: 100%;
 }
 /* Summary sections for delete confirmation */
 .journey-summary, .reply-summary {

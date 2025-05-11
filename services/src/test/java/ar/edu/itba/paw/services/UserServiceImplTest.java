@@ -150,37 +150,6 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void testValidateToken(){
-        Mockito.when(
-            userDao.hasExpired(Mockito.eq(TOKEN))
-        ).thenReturn(false);
-        Mockito.when(
-            userDao.isTokenValid(Mockito.eq(TOKEN))
-        ).thenReturn(true);
-
-        userService.validateToken(TOKEN);
-    }
-    @Test(expected = InvalidTokenException.class)
-    public void testValidateTokenAlreadyValidated(){
-        Mockito.when(
-            userDao.hasExpired(Mockito.eq(TOKEN))
-        ).thenReturn(false);
-        Mockito.when(
-            userDao.isTokenValid(Mockito.eq(TOKEN))
-        ).thenReturn(false);
-
-        userService.validateToken(TOKEN);
-    }
-    @Test(expected = ExpiredTokenException.class)
-    public void testValidateTokenExpiredToken(){
-        Mockito.when(
-            userDao.hasExpired(Mockito.eq(TOKEN))
-        ).thenReturn(true);
-
-        userService.validateToken(TOKEN);
-    }
-
-    @Test
     public void testFindByEmail(){
         Mockito.when(
             userDao.findByEmail(Mockito.eq(EMAIL))
@@ -472,7 +441,7 @@ public class UserServiceImplTest {
             userDao.findByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.of(USER));
         Mockito.when(
-            userDao.isUserValidByEmail(Mockito.eq(EMAIL))
+            userDao.isValidByEmail(Mockito.eq(EMAIL))
         ).thenReturn(true);
 
         userService.forgotPass(EMAIL);
@@ -483,7 +452,7 @@ public class UserServiceImplTest {
             userDao.findByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.of(USER));
         Mockito.when(
-            userDao.isUserValidByEmail(Mockito.eq(EMAIL))
+            userDao.isValidByEmail(Mockito.eq(EMAIL))
         ).thenReturn(false);
 
         userService.forgotPass(EMAIL);
