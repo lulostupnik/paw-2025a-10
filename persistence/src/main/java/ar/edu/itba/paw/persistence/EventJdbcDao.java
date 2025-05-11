@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
+import ar.edu.itba.paw.models.enums.SortFieldJourney;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -450,6 +451,16 @@ public class EventJdbcDao implements EventDao {
 
     }
 
+    private String getSortColumn(SortFieldEvent sortBy) {
+        if (sortBy == null) {
+            return "e.id";
+        }
+        return switch (sortBy) {
+            case ATTENDEES -> "e.attendees_count";
+            case DATE      -> "e.event_date";
+            default        -> "e.id";
+        };
+    }
 
     @Override
     public Page<Event> findAllWithFilters(final Long userId, final String search,
@@ -529,25 +540,12 @@ public class EventJdbcDao implements EventDao {
             queryBuilder.append(" AND ").append(String.join(" AND ", filters));
         }
 
-        if (sortBy != null) {
-            String sortByStr = "e.id";
-            if(sortBy.equals(SortFieldEvent.ATTENDEES)){
-                sortByStr= "e.attendees_count";
-            }
-            if(sortBy.equals(SortFieldEvent.DATE)){
-                sortByStr= "e.event_date";
-            }
 
-            queryBuilder.append(" ORDER BY ").append(sortByStr);
+        String dir = (direction == SortDirection.DESC) ? "DESC" : "ASC";
+        String column = getSortColumn(sortBy);
+        queryBuilder.append(" ORDER BY ").append(column).append(" ").append(dir);
 
-            if (direction != null && direction.equals(SortDirection.DESC)) {
-                queryBuilder.append(" DESC");
-            } else {
-                queryBuilder.append(" ASC");
-            }
-        } else {
-            queryBuilder.append(" ORDER BY e.id");
-        }
+
 
         final int totalItems = jdbcTemplate.queryForObject(countQueryBuilder.toString(), Integer.class, params.toArray());
 
