@@ -31,7 +31,7 @@ import ar.edu.itba.paw.models.Page;
 @Rollback
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
-public class CarreerJdbcDaoTest {
+public class CareerJdbcDaoTest {
 
     private static Career CAREER_1;
     private static Career CAREER_2;

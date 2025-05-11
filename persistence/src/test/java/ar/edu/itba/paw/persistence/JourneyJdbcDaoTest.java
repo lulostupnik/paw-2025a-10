@@ -189,37 +189,6 @@ public class JourneyJdbcDaoTest {
         assertFalse(maybeJourney.isPresent());
     }
 
-    @Test
-    public void testFindOverlappingWithOverlapLeft(){
-        Optional<Journey> maybeJourney = journeyDao.findOverlapping(USER_1.getId(), LocalDate.now(), TestUtils.JOURNEY_START_DATE.plusDays(7));
-
-        assertEqualsMaybeJourney(maybeJourney);
-    }
-    @Test
-    public void testFindOverlappingWithOverlapRight(){
-        Optional<Journey> maybeJourney = journeyDao.findOverlapping(USER_1.getId(), TestUtils.JOURNEY_END_DATE.plusDays(-7), TestUtils.JOURNEY_END_DATE.plusDays(7));
-
-        assertEqualsMaybeJourney(maybeJourney);
-    }
-    @Test
-    public void testFindOverlappingWithOverlapContained(){
-        Optional<Journey> maybeJourney = journeyDao.findOverlapping(USER_1.getId(), TestUtils.JOURNEY_START_DATE.plusDays(7), TestUtils.JOURNEY_END_DATE.plusDays(-7));
-
-        assertEqualsMaybeJourney(maybeJourney);
-    }
-    @Test
-    public void testFindOverlappingWithOverlapContainer(){
-        Optional<Journey> maybeJourney = journeyDao.findOverlapping(USER_1.getId(), TestUtils.JOURNEY_START_DATE.plusDays(-7), TestUtils.JOURNEY_END_DATE.plusDays(7));
-
-        assertEqualsMaybeJourney(maybeJourney);
-    }
-    @Test
-    public void testFindOverlappingWithoutOverlap(){
-        Optional<Journey> maybeJourney = journeyDao.findOverlapping(USER_1.getId(), LocalDate.now(), TestUtils.JOURNEY_START_DATE.plusDays(-7));
-
-        assertNotNull(maybeJourney);
-        assertFalse(maybeJourney.isPresent());
-    }
 
     @Test
     public void testFindByUserId(){

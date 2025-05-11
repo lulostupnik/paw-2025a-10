@@ -106,9 +106,6 @@ public class JourneyServiceImplTest {
             uniService.findByName(Mockito.eq(UNI_NAME))
         ).thenReturn(Optional.of(UNI));
         Mockito.when(
-            journeyDao.findOverlapping(USER_ID, START_DATE, END_DATE)
-        ).thenReturn(Optional.empty());
-        Mockito.when(
             journeyDao.create(USER, UNI, START_DATE, END_DATE, DESCRIPTION)
         ).thenReturn(JOURNEY);
 
@@ -122,9 +119,6 @@ public class JourneyServiceImplTest {
         Mockito.when(
             uniService.findByName(Mockito.eq(UNI_NAME))
         ).thenReturn(Optional.of(UNI));
-        Mockito.when(
-            journeyDao.findOverlapping(USER_ID, START_DATE, END_DATE)
-        ).thenReturn(Optional.of(JOURNEY));
 
         journeyService.createJourney(USER, UNI_NAME, START_DATE, END_DATE, DESCRIPTION);
     }
@@ -606,7 +600,7 @@ public class JourneyServiceImplTest {
     }
 
     @Test
-    public void testGetJourneyReponseCount(){
+    public void testGetJourneyResponseCount(){
         Mockito.when(
             replyDao.countByJourneyId(Mockito.eq(JOURNEY_ID))
         ).thenReturn(REPLIES.size());
@@ -615,97 +609,4 @@ public class JourneyServiceImplTest {
 
         assertEquals(REPLIES.size(), replies);
     }
-//
-//    @Test
-//    public void testUpdateJourneyDates(){
-//        Mockito.when(
-//            journeyDao.findById(Mockito.eq(JOURNEY_ID))
-//        ).thenReturn(Optional.of(JOURNEY));
-//        Mockito.when(
-//            journeyDao.findOverlappingJourney(Mockito.eq(USER_ID), Mockito.eq(START_DATE), Mockito.eq(END_DATE))
-//        ).thenReturn(Optional.empty());
-//
-//        journeyService.updateJourneyDates(JOURNEY_ID, START_DATE, END_DATE);
-//    }
-//    @Test(expected = RuntimeException.class)
-//    public void testUpdateJourneyDatesOverlappingOther(){
-//        Mockito.when(
-//            journeyDao.findById(Mockito.eq(JOURNEY_ID))
-//        ).thenReturn(Optional.of(JOURNEY));
-//        Mockito.when(
-//            journeyDao.findOverlappingJourney(Mockito.eq(USER_ID), Mockito.eq(START_DATE), Mockito.eq(END_DATE))
-//        ).thenReturn(Optional.of(JOURNEY2));
-//
-//        journeyService.updateJourneyDates(JOURNEY_ID, START_DATE, END_DATE);
-//    }
-//    @Test
-//    public void testUpdateJourneyDatesOverlappingItself(){
-//        Mockito.when(
-//            journeyDao.findById(Mockito.eq(JOURNEY_ID))
-//        ).thenReturn(Optional.of(JOURNEY));
-//        Mockito.when(
-//            journeyDao.findOverlappingJourney(Mockito.eq(USER_ID), Mockito.eq(START_DATE), Mockito.eq(END_DATE))
-//        ).thenReturn(Optional.of(JOURNEY));
-//
-//        journeyService.updateJourneyDates(JOURNEY_ID, START_DATE, END_DATE);
-//    }
-//    @Test(expected = RuntimeException.class)
-//    public void testUpdateJourneyDatesMissingJourney(){
-//        Mockito.when(
-//            journeyDao.findById(Mockito.eq(JOURNEY_ID))
-//        ).thenReturn(Optional.empty());
-//
-//        journeyService.updateJourneyDates(JOURNEY_ID, START_DATE, END_DATE);
-//    }
-//    @Test(expected = RuntimeException.class)
-//    public void testUpdateJourneyDatesMissingDates(){
-//        journeyService.updateJourneyDates(JOURNEY_ID, null, null);
-//    }
-//    @Test(expected = RuntimeException.class)
-//    public void testUpdateJourneyDatesDatesFlipped(){
-//        journeyService.updateJourneyDates(JOURNEY_ID, END_DATE, START_DATE);
-//    }
-//    @Test(expected = RuntimeException.class)
-//    public void testUpdateJourneyDatesBeforeNow(){
-//        journeyService.updateJourneyDates(JOURNEY_ID, START_DATE.plusDays(-100), END_DATE);
-//    }
-//
-//    @Test
-//    public void testUpdateJourneyDescription(){
-//        journeyService.updateJourneyDescription(JOURNEY_ID, DESCRIPTION);
-//    }
-//
-//    @Test
-//    public void testUpdateDestinationName(){
-//        Mockito.when(
-//            uniService.findByName(Mockito.eq(UNI_NAME))
-//        ).thenReturn(Optional.of(UNI));
-//
-//        journeyService.updateJourneyDestination(JOURNEY_ID, UNI_NAME);
-//    }
-//    @Test(expected = RuntimeException.class)
-//    public void testUpdateDestinationNameMissing(){
-//        Mockito.when(
-//            uniService.findByName(Mockito.eq(UNI_NAME))
-//        ).thenReturn(Optional.empty());
-//
-//        journeyService.updateJourneyDestination(JOURNEY_ID, UNI_NAME);
-//    }
-//
-//    @Test
-//    public void testUpdateDestinationID(){
-//        Mockito.when(
-//            uniService.findById(Mockito.eq(UNI_ID))
-//        ).thenReturn(Optional.of(UNI));
-//
-//        journeyService.updateJourneyDestination(JOURNEY_ID, UNI_ID);
-//    }
-//    @Test(expected = RuntimeException.class)
-//    public void testUpdateDestinationIdMissing(){
-//        Mockito.when(
-//            uniService.findById(Mockito.eq(UNI_ID))
-//        ).thenReturn(Optional.empty());
-//
-//        journeyService.updateJourneyDestination(JOURNEY_ID, UNI_ID);
-//    }
 }

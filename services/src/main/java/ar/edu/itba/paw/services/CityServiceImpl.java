@@ -88,15 +88,14 @@ public class CityServiceImpl implements CityService {
             }
     )
 
-    public long createCity(final String cityName,final String countryName) {
+    public City createCity(final String cityName,final String countryName) {
         LOGGER.debug("Creating city with name {} and country {}", cityName, countryName);
         Country country = countryService.findByName(countryName)
                 .orElseThrow(() -> new IllegalArgumentException("Country not found"));
-        long city = cityDao.create(cityName, country);
+        City city = cityDao.create(cityName, country);
         LOGGER.info("City with name {} and country {} created successfully", cityName, countryName);
         return city;
     }
-//FIXME:esta raro esto de devolver long
 
     @Override
     @Transactional

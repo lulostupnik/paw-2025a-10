@@ -43,7 +43,7 @@ public interface UserDao {
 
     boolean existsByTokenExpired(String token);
 
-    void updateTokenAndExpirationByToken(String newToken, LocalDate date, String oldToken); // todo: idem anterior
+    void updateTokenAndExpirationByToken(String newToken, LocalDate date, String oldToken);
 
     List<User> findAllJourneyResponders(long journeyId);
 

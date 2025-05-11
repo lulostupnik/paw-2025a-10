@@ -42,7 +42,7 @@ public class EventController {
         this.eventService = eventService;
     }
 
-    @RequestMapping//@TODO:revisar el errors en este
+    @RequestMapping
     public ModelAndView getEvents(@ModelAttribute("user") User user,
                                   @PageParamCustomizer(defaultSize = 8) PageParams  pageParams,
                                   @RequestParam(value = "search", required = false) String search,

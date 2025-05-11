@@ -51,10 +51,7 @@ public class JourneyController {
         LOGGER.debug("Getting journeys with filters: {}", fjf);
         final ModelAndView mav = new ModelAndView("journeys/list");
 
-        boolean hasJourney = user != null && js.userHasJourney(user); //FIXME: va en servicios?
-        if(! hasJourney && fjf.getIsMyDestination()){
-            throw new InvalidException("You must have a journey to filter by destination");
-        }
+        boolean hasJourney = user != null && js.userHasJourney(user);
         if(! errors.hasErrors()) {
             mav.addObject("journeys", js.getAllJourneys(search, user, SortFieldJourney.from(sortBy), SortDirection.from(direction),
                     fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests(), fjf.getIsPast(), fjf.getIsUpcoming(), fjf.getIsMyDestination(),

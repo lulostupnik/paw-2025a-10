@@ -92,26 +92,22 @@ public class CityJdbcDao implements CityDao {
         }
     }
 
-    // todo: esto debería retornar un City
     @Override
-    public long create(final String name, final Country country) {
+    public City create(final String name, final Country country) {
         final int rowsUpdated = jdbcTemplate.update(
                 "UPDATE cities SET deleted = FALSE WHERE name = ? AND country_id = ? AND deleted = TRUE",
                 name, country.getId()
         );
         if (rowsUpdated > 0) {
-            return jdbcTemplate.queryForObject(
-                    "SELECT id FROM cities WHERE name = ? AND country_id = ?",
-                    Long.class,
-                    name, country.getId()
-            );
+            return findByName(name).orElseThrow(() -> new RuntimeException("Failed to retrieve reactivated city"));
         }
 
         final Map<String, Object> params = new HashMap<>();
         params.put("name", name);
         params.put("country_id", country.getId());
         params.put("deleted", false);
-        return jdbcInsert.executeAndReturnKey(params).longValue();
+        final long id = jdbcInsert.executeAndReturnKey(params).longValue();
+        return new City(name, country.getName(), id);
     }
 
     @Override

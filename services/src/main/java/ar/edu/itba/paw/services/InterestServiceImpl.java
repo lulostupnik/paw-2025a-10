@@ -117,9 +117,6 @@ public class InterestServiceImpl implements InterestService {
         LOGGER.debug("Increasing score of interests {} for user {}", interests, userId);
         interestDao.updateScoreByInterests(interests, userId);
         LOGGER.info("Interests {} score updated for user {}", interests, userId);
-        // FIXME: OJO!, CREO QUE EL INTEREST DAO NO PUEDE TOCAR LA TABLA DE USER
-        // -> esto debería estar en el user dao
-        //@TODO
     }
 
     @Override
