@@ -100,7 +100,7 @@
     </a>
   </div>
 
-  <!-- Validation timestamp -->
+
   <c:if test="${not empty validationTime}">
     <div class="validation-time">
       <spring:message code="validated.timestamp"/> <strong><c:out value="${validationTime}" escapeXml="true" /></strong>

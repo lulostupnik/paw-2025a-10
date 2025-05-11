@@ -2,11 +2,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<%--
-Parameters:
-- path: Form path for the date input
-- label: Label text
---%>
+
 
 <div class="form-group">
   <form:label path="${param.path}" cssClass="form-label">

@@ -37,14 +37,14 @@
       <div class="alert-content">
         <h4 class="alert-title"><spring:message code="notvalid.access.denied"/></h4>
         <p class="alert-message">
-<%--          <c:choose>--%>
-<%--            <c:when test="${not empty reason}">--%>
-<%--              <c:out value="${reason}" escapeXml="true" />--%>
-<%--            </c:when>--%>
-<%--            <c:otherwise>--%>
+
+
+
+
+
               <spring:message code="notvalid.default.reason"/>
-<%--            </c:otherwise>--%>
-<%--          </c:choose>--%>
+
+
         </p>
       </div>
     </div>
@@ -57,17 +57,17 @@
         <h3 class="blocked-section-title"><spring:message code="notvalid.what.to.do"/></h3>
         <p class="blocked-text"><spring:message code="notvalid.instructions"/></p>
 
-<%--        <div class="contact-info">--%>
-<%--          <h4 class="contact-title"><spring:message code="notvalid.contact.us"/></h4>--%>
-<%--          <div class="contact-method">--%>
-<%--            <svg xmlns="http://www.w3.org/2000/svg" class="contact-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">--%>
-<%--              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />--%>
-<%--            </svg>--%>
-<%--            <a href="mailto:${email}" class="contact-link">--%>
-<%--              <c:out value="${email}" escapeXml="true" />--%>
-<%--            </a>--%>
-<%--          </div>--%>
-<%--        </div>--%>
+
+
+
+
+
+
+
+
+
+
+
       </div>
     </div>
 
@@ -76,12 +76,12 @@
     </a>
   </div>
 
-<%--  <!-- Reference ID for support -->--%>
-<%--  <c:if test="${not empty referenceId}">--%>
-<%--    <div class="reference-id">--%>
-<%--      <spring:message code="notvalid.reference"/> <strong><c:out value="${referenceId}" escapeXml="true" /></strong>--%>
-<%--    </div>--%>
-<%--  </c:if>--%>
+
+
+
+
+
+
 </div>
 
 </body>

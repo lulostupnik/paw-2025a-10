@@ -15,7 +15,7 @@
       </c:otherwise>
     </c:choose>
   </title>
-  <!-- Include custom CSS -->
+
   <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/form-enhancements.css'/>" />
@@ -68,7 +68,7 @@
     </c:choose>
 
     <form:form modelAttribute="createCityForm" action="${formAction}" method="post" class="auth-form" id="cityForm" novalidate="true">
-      <!-- City Name Field -->
+
       <div class="form-group">
         <form:label path="name" cssClass="form-label required-field">
           <spring:message code="createCity.name" text="City Name"/>
@@ -77,7 +77,7 @@
         <form:errors path="name" cssClass="error-message" />
       </div>
 
-      <!-- Country Field with Enhanced Autocomplete -->
+
       <div class="form-group">
         <form:label path="country" cssClass="form-label required-field">
           <spring:message code="createCity.country" text="Country"/>
@@ -97,7 +97,7 @@
               </div>
             </c:forEach>
           </div>
-          <!-- Container for selected country tag -->
+
           <div id="selectedCountry" class="selected-tags"></div>
         </div>
         <form:errors path="country" cssClass="error-message" />
@@ -124,7 +124,7 @@
   </div>
 </div>
 
-<!-- Include JavaScript files -->
+
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
 <script src="<c:url value="/resources/js/city-form.js"/>"></script>
 

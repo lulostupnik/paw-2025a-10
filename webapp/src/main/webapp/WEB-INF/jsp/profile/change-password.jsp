@@ -15,7 +15,7 @@
             </c:otherwise>
         </c:choose>
     </title>
-    <!-- Include custom CSS -->
+
     <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/form-enhancements.css'/>" />
@@ -50,8 +50,8 @@
 
 
         <form:form modelAttribute="updatePasswordForm" action="${formAction}" method="post" class="auth-form" id="cityForm" novalidate="true">
-            <!-- City Name Field -->
-            <!-- Enhanced Password Field with Strength Meter -->
+
+
             <div class="form-group">
                 <form:label path="password" cssClass="form-label required-field">
                     <spring:message code="profile.new.password"/>
@@ -74,7 +74,7 @@
                 </div>
                 <form:errors path="password" cssClass="error-message" />
 
-                <!-- Single password strength meter -->
+
                 <div class="password-strength">
                     <div class="password-meter">
                         <div class="password-bar" id="passwordStrengthBar"></div>
@@ -83,12 +83,12 @@
                         <div class="password-status">
                             <span id="passwordStrengthLabel"></span>
                         </div>
-                        <!-- Removed the password message span -->
+
                     </div>
                 </div>
             </div>
 
-            <!-- Password Confirmation Field -->
+
             <div class="form-group">
 
                 <form:label path="confirmPassword" class="form-label required-field">

@@ -4,10 +4,14 @@ import ar.edu.itba.paw.webapp.validation.EmailInUse;
 import ar.edu.itba.paw.webapp.validation.EmailNotInUse;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 public class EmailForm {
     @Email
     @EmailInUse
+    @NotNull
+    @NotEmpty
     private String email;
 
 

@@ -2,11 +2,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<%--
-Parameters:
-- path: Form path for the checkbox
-- label: Label text
---%>
+
 
 <div class="checkbox-container">
   <label class="checkbox-label">

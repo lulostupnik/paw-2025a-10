@@ -76,7 +76,7 @@
         </a>
     </div>
 
-    <!-- Reference ID for support -->
+
     <c:if test="${not empty referenceId}">
         <div class="reference-id">
             <spring:message code="blocked.reference"/> <strong><c:out value="${referenceId}" escapeXml="true" /></strong>

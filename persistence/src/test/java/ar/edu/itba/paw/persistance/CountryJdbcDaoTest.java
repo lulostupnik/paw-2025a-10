@@ -69,6 +69,7 @@ public class CountryJdbcDaoTest {
         assertEquals(0, countries.size());
     }
 
+
     @Test
     public void testFindByName(){
         Optional<Country> result = countryDao.findByName(TestUtils.COUNTRY_1_NAME);

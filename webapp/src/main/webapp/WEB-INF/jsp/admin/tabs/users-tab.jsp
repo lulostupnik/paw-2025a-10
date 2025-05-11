@@ -82,7 +82,7 @@
     </jsp:include>
   </div>
 
-  <!-- Block/Unblock User Modal -->
+
   <div id="blockUserModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">

@@ -31,24 +31,24 @@
     }
 </script>
 <div style="display: none;">
-    <!-- Event deletion messages -->
+
     <span id="i18n-event.confirmDelete" data-message="<spring:message code='event.confirmDelete' />"></span>
     <span id="i18n-event.deleteWarning" data-message="<spring:message code='event.deleteWarning' />"></span>
 
-    <!-- Event response deletion messages -->
+
     <span id="i18n-eventResponse.confirmDelete" data-message="<spring:message code='eventResponse.confirmDelete' />"></span>
     <span id="i18n-eventResponse.deleteWarning" data-message="<spring:message code='eventResponse.deleteWarning' />"></span>
 </div>
 
 <div class="layout-container">
-    <!-- Main Content -->
+
     <div class="main-content">
         <div class="content-container">
-            <!-- Back Button -->
+
             <div class="back-button-container">
                 <c:if test="${not isEventOwner}">
                     <button onclick="goBack()" class="back-link">
-                        <!-- Back arrow SVG -->
+
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M19 12H5"></path>
                             <path d="M12 19l-7-7 7-7"></path>
@@ -58,7 +58,7 @@
                 </c:if>
                 <c:if test="${isEventOwner}">
                     <button onclick="goBack()" class="back-link">
-                        <!-- Back arrow SVG -->
+
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M19 12H5"></path>
                             <path d="M12 19l-7-7 7-7"></path>
@@ -68,23 +68,23 @@
                 </c:if>
             </div>
 
-            <!-- Event Detail Container -->
+
             <div class="event-detail-container">
-                <!-- Top Section -->
+
                 <div class="event-top-section">
-                    <!-- Event Header -->
+
                     <div class="event-header">
                         <h1 class="event-title"><c:out value="${event.title}" /></h1>
 
-                        <!-- Action Controls - FIXED POSITIONING -->
+
                         <div class="action-controls">
-                            <!-- Attendance Control for non-event owners -->
+
                             <c:if test="${not isEventOwner and not empty user and event.isFuture and not event.full}">
                                 <c:choose>
                                     <c:when test="${attend}">
                                         <div class="attendance-status">
                                             <div class="attending-detail-badge">
-                                                <!-- Check icon SVG -->
+
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <polyline points="20 6 9 17 4 12"></polyline>
                                                 </svg>
@@ -92,7 +92,7 @@
                                             </div>
                                             <form action="<c:url value='/events/${event.id}/dont-attend'/>" method="post" class="cancel-attendance">
                                                 <button type="submit" class="cancel-button" aria-label="<spring:message code='event.cancel.attendance' text='Cancel Attendance'/>">
-                                                    <!-- X icon SVG -->
+
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                         <line x1="18" y1="6" x2="6" y2="18"></line>
                                                         <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -105,7 +105,7 @@
                                         <c:if test="${not isFull}">
                                             <form action="<c:url value='/events/${event.id}/attend'/>" method="post">
                                                 <button type="submit" class="btn-primary btn-with-icon">
-                                                    <!-- Calendar plus icon SVG -->
+
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                         <path d="M21 14V6a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h8"></path>
                                                         <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -120,7 +120,7 @@
                                         </c:if>
                                         <c:if test="${isFull}">
                                             <div class="event-full">
-                                                <!-- Alert icon SVG -->
+
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <circle cx="12" cy="12" r="10"></circle>
                                                     <line x1="12" y1="8" x2="12" y2="12"></line>
@@ -133,12 +133,12 @@
                                 </c:choose>
                             </c:if>
 
-                            <!-- Event Owner/Admin Actions -->
+
                             <c:if test="${isEventOwner || pageContext.request.isUserInRole('ADMIN')}">
                                 <div class="event-actions">
                                     <c:if test="${isEventOwner}">
                                         <a href="<c:url value='/events/${event.id}/update'/>" class="btn-edit">
-                                            <!-- Edit icon SVG -->
+
                                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
                                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -150,7 +150,7 @@
                                     <c:url var="deleteUrl" value='/events/${event.id}/delete'/>
 
                                     <a type="button" class="btn-delete" href="${deleteUrl}">
-                                        <!-- Delete icon SVG -->
+
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
                                             <path d="M3 6h18"></path>
                                             <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
@@ -164,10 +164,10 @@
                         </div>
                     </div>
 
-                    <!-- Event Meta Info -->
+
                     <div class="event-meta">
                         <div class="meta-item">
-                            <!-- Location icon SVG -->
+
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path>
                                 <circle cx="12" cy="10" r="3"></circle>
@@ -175,7 +175,7 @@
                             <span><c:out value="${event.eventCity.name}" /></span>
                         </div>
                         <div class="meta-item">
-                            <!-- Calendar icon SVG -->
+
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                                 <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -187,7 +187,7 @@
                             <span><c:out value="${formattedDate}" /></span>
                         </div>
                         <div class="meta-item">
-                            <!-- Clock icon SVG -->
+
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <polyline points="12 6 12 12 16 14"></polyline>
@@ -203,7 +203,7 @@
                         </div>
                         <c:if test="${not empty event.address}">
                             <div class="meta-item">
-                                <!-- Map icon SVG -->
+
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
                                     <line x1="8" y1="2" x2="8" y2="18"></line>
@@ -214,10 +214,10 @@
                         </c:if>
                     </div>
 
-                    <!-- Event Creator Info - Internationalized -->
+
                     <div class="event-creator">
                         <h3 class="creator-title">
-                            <!-- User icon SVG -->
+
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
@@ -233,7 +233,7 @@
                                         </div>
                                     </c:when>
                                     <c:otherwise>
-                                        <!-- Default user avatar placeholder -->
+
                                         <div class="creator-avatar-placeholder">
                                             <span>${fn:substring(event.user.firstname, 0, 1)}${fn:substring(event.user.lastname, 0, 1)}</span>
                                         </div>
@@ -246,7 +246,7 @@
                                 <div class="creator-details">
                                     <c:if test="${not empty event.user.university}">
                                         <div class="creator-detail">
-                                            <!-- School icon SVG -->
+
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                 <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
                                                 <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
@@ -256,7 +256,7 @@
                                     </c:if>
                                     <c:if test="${not empty event.user.career}">
                                         <div class="creator-detail">
-                                            <!-- Briefcase icon SVG -->
+
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                 <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
                                                 <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
@@ -268,14 +268,14 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Event Flyer -->
+
                     <div class="event-flyer">
                         <c:if test="${not empty event.flyerImageId}">
                             <img src="<c:url value='/images/${event.flyerImageId}'/>" alt="Event Flyer" class="flyer-image">
                         </c:if>
                         <c:if test="${empty event.flyerImageId}">
                             <div class="flyer-placeholder">
-                                <!-- Image icon SVG -->
+
                                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
                                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                                     <circle cx="8.5" cy="8.5" r="1.5"></circle>
@@ -286,10 +286,10 @@
                         </c:if>
                     </div>
 
-                    <!-- Event Description -->
+
                     <div class="event-description">
                         <h3 class="description-title">
-                            <!-- Info icon SVG -->
+
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <line x1="12" y1="16" x2="12" y2="12"></line>
@@ -303,11 +303,11 @@
                     </div>
                 </div>
 
-                        <!-- Tab Navigation for event owners -->
+
                         <div class="tabs-container">
                             <div class="tabs-header">
                                 <button id="details-tab" class="tab-btn" data-tab="details">
-                                    <!-- Users icon SVG -->
+
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                                         <circle cx="9" cy="7" r="4"></circle>
@@ -317,7 +317,7 @@
                                     <span><spring:message code="event.details" text="Details" /></span>
                                 </button>
                                 <button id="chat-tab" class="tab-btn" data-tab="chat">
-                                    <!-- Message icon SVG -->
+
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                                     </svg>
@@ -325,11 +325,11 @@
                                 </button>
                             </div>
 
-                            <!-- Tab Contents -->
+
                             <div class="tabs-content">
-                                <!-- Details Tab Content -->
+
                                 <div id="details-content" class="tab-content">
-                                    <!-- Attendees Section -->
+
                                     <c:set var="showListValue" value="${isEventOwner ? 'true' : 'false'}" />
                                     <jsp:include page="statistics-section.jsp">
                                         <jsp:param name="showList" value="${showListValue}" />
@@ -337,7 +337,7 @@
                                     </jsp:include>
                                 </div>
 
-                                <!-- Chat Tab Content -->
+
                                 <div id="chat-content" class="tab-content">
                                     <jsp:include page="chat-section.jsp">
                                         <jsp:param name="chatListId" value="chat-list" />
@@ -351,7 +351,7 @@
     </div>
 </div>
 
-<!-- JavaScript for the page -->
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Only initialize tabs if they exist (for event owners)

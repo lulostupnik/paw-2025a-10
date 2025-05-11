@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<%-- Set the locale based on the session language --%>
+
 <c:set var="lang" value="${not empty sessionScope.lang ? sessionScope.lang : pageContext.response.locale}" />
 <fmt:setLocale value="${lang}" />
 <fmt:setBundle basename="i18n.messages" />

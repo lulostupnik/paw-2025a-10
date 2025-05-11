@@ -7,9 +7,9 @@
   <c:set var="titleMessageCode" value="admin.manage.events" scope="request" />
   <c:set var="searchUrl" value="/dashboard/events" scope="request" />
   <c:set var="searchPlaceholderCode" value="admin.search.events" scope="request" />
-<%--  <c:set var="showAddButton" value="true" scope="request" />--%>
-<%--  <c:set var="addButtonUrl" value="/events/create" scope="request" />--%>
-<%--  <c:set var="addButtonTextCode" value="event.create.button" scope="request" />--%>
+
+
+
 
   <div class="content-header">
     <h2><spring:message code="${titleMessageCode}" /></h2>
@@ -24,12 +24,12 @@
             <img src="<c:url value='/resources/icons/search.svg'/>" alt="<spring:message code="admin.search.button" />" class="search-icon" />
           </button>
         </form>
-<%--        <c:if test="${showAddButton}">--%>
-<%--          <a href="<c:url value='${addButtonUrl}'/>" class="add-button">--%>
-<%--            <i class="plus-icon"></i>--%>
-<%--            <spring:message code="${addButtonTextCode}"/>--%>
-<%--          </a>--%>
-<%--        </c:if>--%>
+
+
+
+
+
+
       </div>
     </div>
   </div>
@@ -85,14 +85,14 @@
       <jsp:param name="baseUrl" value="/dashboard/events?search=${param.search}" />
     </jsp:include>
 
-<%--    <jsp:include page="../../components/pagination-controls.jsp">--%>
-<%--      <jsp:param name="currentPage" value="${pagedEvents.currentPage}" />--%>
-<%--      <jsp:param name="itemsPerPage" value="10" />--%>
-<%--      <jsp:param name="totalPages" value="${pagedEvents.totalPages}" />--%>
-<%--      <jsp:param name="search" value="${param.search}" />--%>
-<%--      <jsp:param name="currentUrl" value="/dashboard/events" />--%>
-<%--    </jsp:include>--%>
-<%--    --%>
+
+
+
+
+
+
+
+
   </div>
 </div>
 <script>

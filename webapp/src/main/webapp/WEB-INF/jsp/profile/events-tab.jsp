@@ -22,7 +22,7 @@
     </button>
   </div>
 
-  <!-- Created Events -->
+
   <div class="events-tab-content active" id="created-events">
     <div class="cards-grid">
       <c:if test="${empty events.content}">
@@ -69,7 +69,7 @@
     </jsp:include>
   </div>
 
-  <!-- Attending Events -->
+
   <div class="events-tab-content" id="attending-events">
     <div class="cards-grid">
       <c:if test="${empty userAttendingEvents.content}">

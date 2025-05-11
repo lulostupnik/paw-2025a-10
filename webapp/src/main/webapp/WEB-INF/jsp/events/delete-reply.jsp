@@ -16,7 +16,7 @@
 <div class="layout-container">
   <div class="main-content">
     <div class="content-container">
-      <!-- Back Navigation -->
+
       <div class="back-navigation">
         <a href="<c:url value='/events/${event.id}'/>" class="back-link">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
@@ -27,7 +27,7 @@
         </a>
       </div>
 
-      <!-- Delete Reply Form -->
+
       <div class="content-card">
         <div class="card-header">
           <h1 class="card-title"><spring:message code="eventResponse.delete" /></h1>

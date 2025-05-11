@@ -52,7 +52,7 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
+
 <div id="deleteModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
