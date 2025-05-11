@@ -16,9 +16,9 @@ import java.util.Optional;
 public class CountryServiceImpl implements CountryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CountryServiceImpl.class);
 
-    CountryDao countryDao;
+    private final CountryDao countryDao;
 
-    public CountryServiceImpl(final ar.edu.itba.paw.interfaces.persistence.CountryDao countryDao) {
+    public CountryServiceImpl(final CountryDao countryDao) {
         this.countryDao = countryDao;
     }
 
@@ -31,7 +31,7 @@ public class CountryServiceImpl implements CountryService {
 
     @Override
     @Cacheable(value="countriesByName", key="#name")
-    public Optional<Country> findByName(String name) {
+    public Optional<Country> findByName(final String name) {
         return countryDao.findByName(name);
     }
 

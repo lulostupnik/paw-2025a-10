@@ -31,7 +31,7 @@ public class CareerServiceImpl implements CareerService {
 
     @Override
     @Cacheable(value = "careersById", key = "#id")
-    public Optional<Career> findById(long id) {
+    public Optional<Career> findById(final long id) {
         LOGGER.debug("Getting career by id {}", id);
         return careerDao.findById(id);
     }
@@ -40,13 +40,13 @@ public class CareerServiceImpl implements CareerService {
 
     @Override
     @Cacheable(value = "careersByName", key = "#name")
-    public Optional<Career> findByName(String name) {
+    public Optional<Career> findByName(final String name) {
         LOGGER.debug("Getting career by name {}", name);
         return careerDao.findByName(name);
     }
 
     @Override
-    public Page<Career> getAllCareers(String search, PageParams pageParams) {
+    public Page<Career> getAllCareers(final String search, final PageParams pageParams) {
         LOGGER.debug("Getting all careers with search {}", search);
         if (search == null || search.isEmpty()) {
             return careerDao.findAll(pageParams);
@@ -60,7 +60,7 @@ public class CareerServiceImpl implements CareerService {
                     @CachePut(value = "careersById", key = "#result.id"),
                     @CachePut(value = "careersByName", key = "#result.name")
     })
-    public Career create(String name) {
+    public Career create(final String name) {
         return careerDao.create(name);
     }
 
@@ -73,7 +73,7 @@ public class CareerServiceImpl implements CareerService {
                     @CacheEvict(value = "careers", allEntries = true)
             }
     )
-    public Career update(long id, String name) {
+    public Career update(final long id,final String name) {
         return careerDao.update(id, name);
     }
 
@@ -84,12 +84,12 @@ public class CareerServiceImpl implements CareerService {
                 @CacheEvict(value = "careersByName", allEntries = true),
                 @CacheEvict(value = "careers", allEntries = true)
     })
-    public void delete(long id) {
+    public void delete(final long id) {
         careerDao.delete(id);
     }
 
     @Override
-    public String getCareersJSON(String search, PageParams pageParams) {
+    public String getCareersJSON(final String search,final PageParams pageParams) {
         LOGGER.debug("Getting all careers with search {}", search);
         if (search == null || search.isEmpty()) {
 
@@ -100,7 +100,7 @@ public class CareerServiceImpl implements CareerService {
         return listToJson(careers);
     }
 
-    private String listToJson(List<Career> careers) {
+    private String listToJson(final List<Career> careers) {
         StringBuilder json = new StringBuilder("[");
         for (Career career : careers) {
             json.append(career.toJSON()).append(",");        

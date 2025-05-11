@@ -25,38 +25,38 @@ public class InterestServiceImpl implements InterestService {
     private static final Logger LOGGER = LoggerFactory.getLogger(InterestServiceImpl.class);
 
     private final InterestDao interestDao;
-    private static final int DEFAULT_PAGE_SIZE = 30;
+
 
 
     @Autowired
-    public InterestServiceImpl(InterestDao interestDao) {
+    public InterestServiceImpl(final InterestDao interestDao) {
         this.interestDao = interestDao;
     }
 
     @Override
     @Cacheable(value = "interestsById", key = "#id")
-    public Optional<Interest> findById(long id) {
+    public Optional<Interest> findById(final long id) {
         LOGGER.debug("Getting interest {}", id);
         return this.interestDao.findById(id);
     }
 
 
     @Override
-    public List<Interest> findByUserId(long id) {
+    public List<Interest> findByUserId(final long id) {
         LOGGER.debug("Getting interests of user {}", id);
         return interestDao.findAllByUserId(id);
     }
 
     @Override
     @Cacheable(value = "interestsByName", key = "#name")
-    public Optional<Interest> findByName(String name) {
+    public Optional<Interest> findByName(final String name) {
         LOGGER.debug("Getting interest {}", name);
         return interestDao.findByName(name);
     }
 
 
     @Override
-    public Page<Interest> findAllInterestsByUserId(long id, PageParams pageParams) {
+    public Page<Interest> findAllInterestsByUserId(final long id, PageParams pageParams) {
         return interestDao.findAllByUserId(id, pageParams);
     }
 
@@ -71,7 +71,7 @@ public class InterestServiceImpl implements InterestService {
                 @CacheEvict(value = "interests", allEntries = true)
             }
     )
-    public Interest createUserInterest(String name) {
+    public Interest createUserInterest(final String name) {
         return interestDao.create(name);
     }
 
@@ -82,47 +82,47 @@ public class InterestServiceImpl implements InterestService {
             @CacheEvict(value = "interestsByName", allEntries = true)
     })
     @Override
-    public void editUserInterest(long id, String interest) {
+    public void editUserInterest(final long id, String interest) {
         interestDao.update(id, interest);
     }
 
     @Override
     @Transactional
-    public void saveUserInterests(long[] interests, long userId) {
+    public void saveUserInterests(final long[] interests,final  long userId) {
         LOGGER.debug("Adding interest list to user {}", userId);
         interestDao.saveUserInterests(interests, userId);
     }
 
     @Override
-    public void saveUserInterests(List<String> interests, long userId) {
+    public void saveUserInterests(final List<String> interests,final  long userId) {
         interestDao.saveUserInterests(interests, userId);
     }
 
     @Override
     @Transactional
-    public void updateScoreByInterest(Interest interest, long userId) {
+    public void updateScoreByInterest(final Interest interest,final long userId) {
         LOGGER.debug("Increasing score of interest {} for user {}", interest, userId);
         interestDao.updateScoreByInterest(interest, userId);
     }
 
     @Override
     @Transactional
-    public void updateScoreByInterests(List<Interest> interests, long userId) {
+    public void updateScoreByInterests(final List<Interest> interests,final long userId) {
         LOGGER.debug("Increasing score of interests {} for user {}", interests, userId);
         interestDao.updateScoreByInterests(interests, userId);
         // FIXME: OJO!, CREO QUE EL INTEREST DAO NO PUEDE TOCAR LA TABLA DE USER
         // -> esto debería estar en el user dao
-
+        //@TODO
     }
 
     @Override
     @Transactional
-    public void updateUserInterests(long[] interestIds, long userId) {
+    public void updateUserInterests(final long[] interestIds, final long userId) {
         interestDao.updateUserInterests(interestIds, userId);
     }
 
     @Override
-    public Page<Interest> getAllInterests(String search, PageParams pageParams) {
+    public Page<Interest> getAllInterests(final String search,final  PageParams pageParams) {
         LOGGER.debug("Finding all interests with search {}", search);
         if (search == null || search.isEmpty()) {
             return interestDao.findAll(pageParams);
@@ -131,7 +131,7 @@ public class InterestServiceImpl implements InterestService {
     }
 
     @Override
-    public String getInterestsJSON(String search, PageParams pageParams) {
+    public String getInterestsJSON(final String search,final  PageParams pageParams) {
         if(search == null || search.isEmpty()) {
             List<Interest> interests = interestDao.findAll(pageParams).getContent();
             return listToJson(interests);
@@ -140,7 +140,7 @@ public class InterestServiceImpl implements InterestService {
         return listToJson(interests);
     }
 
-    private String listToJson(List<Interest> interests) {
+    private String listToJson(final List<Interest> interests) {
         StringBuilder json = new StringBuilder("[");
         for (Interest interest : interests) {
             json.append(interest.toJSON()).append(",");
@@ -160,7 +160,7 @@ public class InterestServiceImpl implements InterestService {
             @CacheEvict(value = "interests", allEntries = true),
             @CacheEvict(value = "interestsByName", allEntries = true)
     })
-    public void delete(long id) {
+    public void delete(final long id) {
         interestDao.delete(id);
     }
 

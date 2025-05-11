@@ -25,14 +25,14 @@ public class CityServiceImpl implements CityService {
 
 
     @Autowired
-    public CityServiceImpl(CityDao cityDao, CountryService countryService) {
+    public CityServiceImpl(final CityDao cityDao,final CountryService countryService) {
         this.cityDao = cityDao;
         this.countryService = countryService;
     }
 
     @Override
     @Cacheable(value = "citiesByName", key = "#name")
-    public Optional<City> findByName(String name) {
+    public Optional<City> findByName(final String name) {
         LOGGER.debug("Finding city by name {}", name);
         return cityDao.findByName(name);
     }
@@ -40,14 +40,14 @@ public class CityServiceImpl implements CityService {
 
     @Override
     @Cacheable(value = "citiesById", key = "#id")
-    public Optional<City> findById(long id) {
+    public Optional<City> findById(final long id) {
         LOGGER.debug("Finding city by id {}", id);
         return cityDao.findById(id);
     }
 
 
     @Override
-    public Page<City> getAllCities(String search, PageParams pageParams) {
+    public Page<City> getAllCities(final String search,final PageParams pageParams) {
         LOGGER.debug("Finding all cities with search {}", search);
         if (search == null || search.isEmpty()) {
             return cityDao.findAll(pageParams);
@@ -67,7 +67,7 @@ public class CityServiceImpl implements CityService {
                     @CacheEvict(value = "universitiesByName", allEntries = true)
             }
     )
-    public void updateCity(long id, String name, String countryName) {
+    public void updateCity(final long id,final String name,final String countryName) {
         Country country = countryService.findByName(countryName)
                 .orElseThrow(() -> new IllegalArgumentException("Country not found"));
         cityDao.update(id, name, country);
@@ -84,14 +84,14 @@ public class CityServiceImpl implements CityService {
             }
     )
 
-    public long createCity(String cityName, String countryName) {
+    public long createCity(final String cityName,final String countryName) {
         Country country = countryService.findByName(countryName)
                 .orElseThrow(() -> new IllegalArgumentException("Country not found"));
         return cityDao.create(cityName, country);
     }
 
     @Override
-    public String getCitiesJson(String search, PageParams pageParams) {
+    public String getCitiesJson(final String search,final PageParams pageParams) {
         LOGGER.debug("Finding all cities with search {}", search);
         List<City> cities;
         if (search == null || search.isEmpty()) {
@@ -104,7 +104,7 @@ public class CityServiceImpl implements CityService {
 
     }
 
-    private String listToJson(List<City> cities) {
+    private String listToJson(final List<City> cities) {
         StringBuilder json = new StringBuilder("[");
         for (City city : cities) {
             json.append(city.toJSON()).append(",");
@@ -129,12 +129,12 @@ public class CityServiceImpl implements CityService {
                     @CacheEvict(value = "universitiesByName", allEntries = true)
             }
     )
-    public void delete(long id) {
+    public void delete(final long id) {
         cityDao.delete(id);
     }
 
     @Override
-    public Page<City> searchBySubstring(String substring, PageParams pageParams) {
+    public Page<City> searchBySubstring(final String substring,final PageParams pageParams) {
         return cityDao.search(substring, pageParams);
     }
 

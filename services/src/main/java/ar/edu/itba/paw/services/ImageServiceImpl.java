@@ -30,7 +30,7 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     @Transactional
-    public long storeImage(byte[] imageData) {
+    public long storeImage(final byte[] imageData) {
         LOGGER.debug("Storing image of size {}", imageData.length);
         long imageId = imageDao.create(imageData);
 
@@ -48,7 +48,7 @@ public class ImageServiceImpl implements ImageService {
     @Override
     @Transactional(readOnly = true)
     @Cacheable(value = "images", key = "#id")
-    public Optional<Image> getImage(Long id) {
+    public Optional<Image> getImage(final long id) {
         LOGGER.debug("Getting image {}", id);
         return imageDao.findById(id);
     }
@@ -56,7 +56,7 @@ public class ImageServiceImpl implements ImageService {
     @Override
     @Transactional
     @CacheEvict(value = "images", key = "#id")
-    public void deleteImage(Long id) {
+    public void deleteImage(final long id) {
         LOGGER.debug("Deleting image {}", id);
         imageDao.delete(id);
     }

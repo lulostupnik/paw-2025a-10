@@ -14,8 +14,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ar.edu.itba.paw.interfaces.persistence.EventResponseDao;
 
-import static ar.edu.itba.paw.persistence.JdbcDaoUtils.offset;
-import static ar.edu.itba.paw.persistence.JdbcDaoUtils.pageCount;
+import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
 @Repository
 public class EventResponseJdbcDao implements EventResponseDao {
@@ -111,7 +110,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
     }
 
     @Override
-    public void deleteAllByEventId(long eventId) {
+    public void deleteAllByEventId(final long eventId) {
         LOGGER.info("Setting event responses for event {} as deleted", eventId);
         final int updatedRows = jdbcTemplate.update("UPDATE event_responses SET deleted = TRUE WHERE event_id = ?;", eventId);
         if (updatedRows == 0) {
@@ -129,18 +128,11 @@ public class EventResponseJdbcDao implements EventResponseDao {
     }
 
     @Override
-    public Page<EventResponse> listAllByEventId(final long eventId, PageParams pageParams) {
-
-        final int totalItems = jdbcTemplate.queryForObject(
+    public Page<EventResponse> listAllByEventId(final long eventId, final PageParams pageParams) {
+        return executePagedQuery(
+                jdbcTemplate, EVENT_RESPONSE_ROW_MAPPER,
                 "SELECT COUNT(*) FROM event_responses WHERE event_id = ? AND deleted = FALSE",
-                Integer.class,
-                eventId
-        );
-
-        return new Page<>(
-                jdbcTemplate.query(SQL_LIST_ALL_BY_EVENT_PAGED, EVENT_RESPONSE_ROW_MAPPER, eventId, pageParams.getSize(), offset(pageParams)),
-                pageParams.getPage(),
-                pageCount(totalItems, pageParams.getSize())
+                SQL_LIST_ALL_BY_EVENT_PAGED, pageParams, eventId
         );
     }
 
