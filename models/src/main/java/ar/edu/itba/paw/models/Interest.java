@@ -14,24 +14,4 @@ public class Interest {
         return name;
     }
 
-    public String toJSON() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{\"name\":\"");
-        sb.append(escapeJson(name));
-        sb.append("\", \"id\":");
-        sb.append(id);
-        sb.append("}");
-        return sb.toString();
-    }
-
-    private String escapeJson(String value) {
-        if (value == null) return "";
-        return value.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\b", "\\b")
-                .replace("\f", "\\f")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
-    }
 }

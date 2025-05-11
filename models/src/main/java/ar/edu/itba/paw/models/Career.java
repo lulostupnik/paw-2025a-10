@@ -1,5 +1,7 @@
 package ar.edu.itba.paw.models;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -14,24 +16,4 @@ public class Career {
         return name;
     }
 
-    public String toJSON() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{\"name\":\"");
-        sb.append(escapeJson(name));
-        sb.append("\", \"id\":");
-        sb.append(id);
-        sb.append("}");
-        return sb.toString();
-    }
-
-    private String escapeJson(String value) {
-        if (value == null) return "";
-        return value.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\b", "\\b")
-                .replace("\f", "\\f")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
-    }
 }

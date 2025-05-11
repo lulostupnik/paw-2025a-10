@@ -7,6 +7,8 @@ import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.form.CreateInterestForm;
 import ar.edu.itba.paw.webapp.form.EditInterestForm;
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
+import ar.edu.itba.paw.webapp.utils.JsonUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -24,6 +26,7 @@ public class InterestController {
 
     private final InterestService interestService;
 
+    @Autowired
     public InterestController(InterestService interestService) {
         this.interestService = interestService;
     }
@@ -32,7 +35,7 @@ public class InterestController {
     @ResponseBody
     public String getInterestsJSON(@RequestParam(value = "search", required = false) String search,
                                    @PageParamCustomizer(defaultSize = 30) PageParams pageParams) {
-        return interestService.getInterestsJSON(search, pageParams);
+        return JsonUtils.toJson( interestService.getAllInterests(search, pageParams).getContent());
     }
 
 

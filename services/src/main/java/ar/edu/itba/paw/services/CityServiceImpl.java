@@ -90,33 +90,6 @@ public class CityServiceImpl implements CityService {
         return cityDao.create(cityName, country);
     }
 
-    @Override
-    public String getCitiesJson(final String search,final PageParams pageParams) {
-        LOGGER.debug("Finding all cities with search {}", search);
-        List<City> cities;
-        if (search == null || search.isEmpty()) {
-            cities = cityDao.findAll(pageParams).getContent();
-            return listToJson(cities);
-        }
-        cities = cityDao.search(search, pageParams).getContent();
-        return listToJson(cities);
-
-
-    }
-
-    private String listToJson(final List<City> cities) {
-        StringBuilder json = new StringBuilder("[");
-        for (City city : cities) {
-            json.append(city.toJSON()).append(", ");
-        }
-        if (json.length() > 1) {
-            json.deleteCharAt(json.length() - 1); // Remove last space
-            json.deleteCharAt(json.length() - 1); // Remove last comma
-        }
-        json.append("]");
-        LOGGER.debug("JSON universities: {}", json);
-        return json.toString();
-    }
 
     @Override
     @Transactional

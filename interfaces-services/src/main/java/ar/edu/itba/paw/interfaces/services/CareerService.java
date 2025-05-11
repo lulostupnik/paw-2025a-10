@@ -13,5 +13,4 @@ public interface CareerService {
     Career create(String name);
     void update(long id, String name);
     void delete(long id);
-    String getCareersJSON(String search, PageParams pageParams);
 }
