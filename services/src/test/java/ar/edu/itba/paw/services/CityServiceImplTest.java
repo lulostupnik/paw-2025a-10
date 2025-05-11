@@ -94,7 +94,7 @@ public class CityServiceImplTest {
     public void testGetAllCitiesPagedMissingQuery(){
         Page<City> testPage = new Page<City>(List.of(CITY), 1, 1);
         Mockito.when(
-            cityDao.getAllCities(Mockito.eq(PAGE_1_DEFAULT))
+            cityDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
         Page<City> cities = cityService.getAllCities(null, PAGE_1_DEFAULT);
@@ -106,7 +106,7 @@ public class CityServiceImplTest {
     public void testGetAllCitiesPagedEmptyQuery(){
         Page<City> testPage = new Page<City>(List.of(CITY), 1, 1);
         Mockito.when(
-            cityDao.getAllCities(Mockito.eq(PAGE_1_DEFAULT))
+            cityDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
         Page<City> cities = cityService.getAllCities("", PAGE_1_DEFAULT);
@@ -118,7 +118,7 @@ public class CityServiceImplTest {
     public void testGetAllCitiesPagedQuery(){
         Page<City> testPage = new Page<City>(List.of(CITY), 1, 1);
         Mockito.when(
-            cityDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
+            cityDao.search(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
         Page<City> cities = cityService.getAllCities(NAME, PAGE_1_DEFAULT);
@@ -131,7 +131,7 @@ public class CityServiceImplTest {
     public void testSearchBySubstring(){
         Page<City> testPage = new Page<City>(List.of(CITY), 1, 1);
         Mockito.when(
-            cityDao.searchBySubstring(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
+            cityDao.search(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
 
         Page<City> cities = cityService.searchBySubstring(NAME, PAGE_1_DEFAULT);
@@ -162,7 +162,7 @@ public class CityServiceImplTest {
             countryService.findByName(Mockito.eq(COUNTRY_NAME))
         ).thenReturn(Optional.of(COUNTRY));
         Mockito.doThrow(new DataIntegrityViolationException("data"))
-            .when(cityDao).updateCity(Mockito.eq(ID), Mockito.eq(NAME), Mockito.eq(COUNTRY));
+            .when(cityDao).update(Mockito.eq(ID), Mockito.eq(NAME), Mockito.eq(COUNTRY));
 
         cityService.updateCity(ID, NAME, COUNTRY_NAME);
     }
@@ -189,7 +189,7 @@ public class CityServiceImplTest {
             countryService.findByName(Mockito.eq(COUNTRY_NAME))
         ).thenReturn(Optional.of(COUNTRY));
         Mockito.doThrow(new DataIntegrityViolationException("data"))
-            .when(cityDao).createCity(Mockito.eq(NAME), Mockito.eq(COUNTRY));
+            .when(cityDao).create(Mockito.eq(NAME), Mockito.eq(COUNTRY));
 
         cityService.createCity(NAME, COUNTRY_NAME);
     }

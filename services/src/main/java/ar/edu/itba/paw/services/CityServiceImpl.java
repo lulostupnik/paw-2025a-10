@@ -50,9 +50,9 @@ public class CityServiceImpl implements CityService {
     public Page<City> getAllCities(String search, PageParams pageParams) {
         LOGGER.debug("Finding all cities with search {}", search);
         if (search == null || search.isEmpty()) {
-            return cityDao.getAllCities(pageParams);
+            return cityDao.findAll(pageParams);
         }
-        return cityDao.searchBySubstring(search, pageParams);
+        return cityDao.search(search, pageParams);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class CityServiceImpl implements CityService {
     public void updateCity(long id, String name, String countryName) {
         Country country = countryService.findByName(countryName)
                 .orElseThrow(() -> new IllegalArgumentException("Country not found"));
-        cityDao.updateCity(id, name, country);
+        cityDao.update(id, name, country);
     }
 
     @Override
@@ -87,7 +87,7 @@ public class CityServiceImpl implements CityService {
     public long createCity(String cityName, String countryName) {
         Country country = countryService.findByName(countryName)
                 .orElseThrow(() -> new IllegalArgumentException("Country not found"));
-        return cityDao.createCity(cityName, country);
+        return cityDao.create(cityName, country);
     }
 
     @Override
@@ -95,10 +95,10 @@ public class CityServiceImpl implements CityService {
         LOGGER.debug("Finding all cities with search {}", search);
         List<City> cities;
         if (search == null || search.isEmpty()) {
-            cities = cityDao.getAllCities(pageParams).getContent();
+            cities = cityDao.findAll(pageParams).getContent();
             return listToJson(cities);
         }
-        cities = cityDao.searchBySubstring(search, pageParams).getContent();
+        cities = cityDao.search(search, pageParams).getContent();
         return listToJson(cities);
 
 
@@ -135,7 +135,7 @@ public class CityServiceImpl implements CityService {
 
     @Override
     public Page<City> searchBySubstring(String substring, PageParams pageParams) {
-        return cityDao.searchBySubstring(substring, pageParams);
+        return cityDao.search(substring, pageParams);
     }
 
 }

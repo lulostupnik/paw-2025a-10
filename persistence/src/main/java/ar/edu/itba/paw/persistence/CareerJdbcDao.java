@@ -50,7 +50,7 @@ public class CareerJdbcDao implements CareerDao {
     }
 
     @Override
-    public Page<Career> getAllCareers(PageParams pageParams) {
+    public Page<Career> findAll(PageParams pageParams) {
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM careers WHERE deleted = FALSE", Integer.class);
 
         return new Page<>(
@@ -62,7 +62,7 @@ public class CareerJdbcDao implements CareerDao {
     }
 
     @Override
-    public Page<Career> searchBySubstring(final String substring, PageParams pageParams) {
+    public Page<Career> search(final String substring, PageParams pageParams) {
         final String searchPattern = likePattern(substring);
         final int totalCareers = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM careers WHERE LOWER(name) LIKE LOWER(?)", Integer.class, searchPattern);
         return new Page<>(

@@ -75,7 +75,7 @@ public class CityJdbcDao implements CityDao {
     }
 
     @Override
-    public Page<City> getAllCities(PageParams pageParams) {
+    public Page<City> findAll(final PageParams pageParams) {
         final int totalCities = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM cities WHERE deleted = FALSE ", Integer.class);
         return new Page<>(
                 jdbcTemplate.query(SQL_FIND_ALL_PAGED, CITY_ROW_MAPPER, pageParams.getSize(), offset(pageParams)),
@@ -86,7 +86,7 @@ public class CityJdbcDao implements CityDao {
 
 
     @Override
-    public void updateCity(final long id, final String name, final Country country) {
+    public void update(final long id, final String name, final Country country) {
         LOGGER.info("Updating city id '{}' and name '{}', country {}",id,name, country);
         final int rowsAffected = jdbcTemplate.update("UPDATE cities SET name = ?, country_id = ? WHERE id = ?", name, country.getId(), id);
         if (rowsAffected == 0) {
@@ -95,7 +95,7 @@ public class CityJdbcDao implements CityDao {
     }
 
     @Override
-    public long createCity(final String name, final Country country) {
+    public long create(final String name, final Country country) {
         LOGGER.debug("Creating or reactivating city {} in country {}", name, country.getName());
 
         final int rowsUpdated = jdbcTemplate.update(
@@ -132,8 +132,8 @@ public class CityJdbcDao implements CityDao {
 
 
     @Override
-    public Page<City> searchBySubstring(final String substring, PageParams pageParams) {
-        final String searchPattern = likePattern(substring);
+    public Page<City> search(final String searchTerm, final PageParams pageParams) {
+        final String searchPattern = likePattern(searchTerm);
         final int totalItems = jdbcTemplate.queryForObject(
                 """
                 SELECT COUNT(*)
