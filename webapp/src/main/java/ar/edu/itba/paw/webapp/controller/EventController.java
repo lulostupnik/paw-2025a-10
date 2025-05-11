@@ -81,7 +81,6 @@ public class EventController {
     public ModelAndView createEventForm(@ModelAttribute("createEventForm") final CreateEventForm form) {
         LOGGER.debug("Getting event creation form");
         ModelAndView mav = new ModelAndView("events/create");
-//        addDropdownAttributes(mav);
         return mav;
     }
 
@@ -134,7 +133,7 @@ public class EventController {
         }
         mav.addObject("attend", eventWithStatistics.isAttending());
         mav.addObject("isEventOwner", eventWithStatistics.isCreator());
-        mav.addObject("isFull", eventService.isEventFull(event));
+        mav.addObject("isFull", event.getFull());
         return mav;
     }
 

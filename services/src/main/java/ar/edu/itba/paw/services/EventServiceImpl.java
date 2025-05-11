@@ -82,7 +82,7 @@ public class EventServiceImpl implements EventService {
 
         LOGGER.info("Event reply is valid, commiting new reply to persistence");
         eventResponseDao.create(user.getId(), user.getUsername(), eventId, message, LocalDateTime.now());
-        LOGGER.info("Sending email notification for the event"); //@TODO mejorar
+        LOGGER.info("Sending email notification for the event {}", eventId);
 
         emailService.answerEventNotification(
                 userDao.listEventResponders(eventId),
@@ -99,19 +99,12 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public Page<Event> getAllEvents(PageParams pageParams){
-        return eventDao.listAll(pageParams);
-    }
-
-    @Override
     public Optional<EventWithStatistics> findEventWithStatistics(User user, long eventId) {
         if(user == null){
             return eventDao.findEventWithStatistics(null, eventId);
         }
         return eventDao.findEventWithStatistics(user.getId(), eventId);
     }
-
-
 
     @Override
     public Page<Event> getAllEventsSearch(String search,PageParams pageParams) {
@@ -184,12 +177,6 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public boolean isUserAttending(String email, long eventId) {
-        long userId = userService.findByEmail(email).orElseThrow().getId();
-        return isUserAttending(userId, eventId);
-    }
-
-    @Override
     public List<User> getEventAttendees(long eventId) {
         return eventAttendanceDao.getAttendees(eventId);
     }
@@ -203,15 +190,10 @@ public class EventServiceImpl implements EventService {
         return eventAttendanceDao.getAttendeesCount(eventId);
     }
 
-
-
-
     @Override
     public Page<Event> getUserAttendingEvents(long userId, PageParams pageParams) {
         return eventAttendanceDao.getAttendingEvents(userId, pageParams);
     }
-
-
 
     @Override
     public List<Event> getRecommendedEvents(long userId, int limit) {
@@ -247,22 +229,6 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public boolean isEventFull(long eventId) {
-        Optional<Integer> limit = eventDao.getEventAttendanceLimit(eventId);
-        return limit.isPresent() && eventAttendanceDao.getAttendeesCount(eventId) >= limit.get();
-    }
-
-    @Override
-    public boolean isEventFull(Event event) {
-        Optional<Integer> limit = event.getAttendeesLimit();
-        if (limit.isEmpty()) {
-            return false;
-        }
-        return event.getAttendeesCount() >= limit.get();
-    }
-
-
-    @Override
     public Page<Event> getEventsPage(String search, User user, SortFieldEvent sortBy, SortDirection direction, String destination, LocalDate startDate, LocalDate endDate, String interest,
                                      boolean isPast, boolean isUpcoming, boolean attending,
                                      PageParams pageParams) {
@@ -294,7 +260,6 @@ public class EventServiceImpl implements EventService {
 
 
     }
-
 
 
     @Transactional
