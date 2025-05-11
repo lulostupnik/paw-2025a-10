@@ -3,8 +3,6 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
-<link rel="stylesheet" href="<c:url value='/resources/css/blocked.css'/>" />
-
 <html lang="<c:out value="${pageContext.response.locale}" />">
 <head>
   <meta charset="UTF-8">
@@ -14,6 +12,7 @@
   <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/cards.css'/>" />
+  <link rel="stylesheet" href="<c:url value='/resources/css/blocked.css'/>" />
 </head>
 <body>
 <div class="auth-container">
@@ -37,12 +36,12 @@
       <div class="alert-content">
         <h4 class="alert-title"><spring:message code="expiredtoken.alert.title"/></h4>
         <p class="alert-message">
-              <spring:message code="expiredtoken.default.reason"/>
+          <spring:message code="expiredtoken.default.reason"/>
         </p>
       </div>
     </div>
 
-    <!-- New Token Sent Notification -->
+    <!-- New Token Sent Notification with improved contrast -->
     <div class="alert alert-success">
       <div class="alert-icon">
         <svg xmlns="http://www.w3.org/2000/svg" class="alert-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
