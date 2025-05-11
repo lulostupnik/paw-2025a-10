@@ -15,8 +15,6 @@ import ar.edu.itba.paw.models.Country;
 @Repository
 public class CountryJdbcDao implements CountryDao {
 
-    //private final static Logger LOGGER = LoggerFactory.getLogger(CountryJdbcDao.class);
-
     private final JdbcTemplate jdbcTemplate;
 
     private final static RowMapper<Country> COUNTRY_ROW_MAPPER = (rs, rowNum) -> new Country(

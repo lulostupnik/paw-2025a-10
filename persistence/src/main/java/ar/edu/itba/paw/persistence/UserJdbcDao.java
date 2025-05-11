@@ -385,7 +385,7 @@ public class UserJdbcDao implements UserDao {
 
 
     @Override
-    public List<User> findAllJourneyResponders(final long journeyId/*, List<Long> userIds*/) {
+    public List<User> findAllJourneyResponders(final long journeyId) {
         return jdbcTemplate.query(SQL_JOIN_JOURNEY_RESPONDERS, USER_ROW_MAPPER, journeyId);
     }
 

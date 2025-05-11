@@ -37,7 +37,7 @@ public class CreateUserForm {
     private String lastName;
 
     @NotNull
-    @ImageSize() // 2MB
+    @ImageSize()
     @ContentType({"image/jpeg", "image/jpg", "image/png"})
     @ImageNotEmpty
     private MultipartFile profilePicture;

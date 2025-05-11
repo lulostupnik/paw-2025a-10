@@ -137,29 +137,3 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
 
 }
 
-//@ans devolver USERS - dao de users.
-    /*@Override
-    public List<EmailRecipient> listAllEmailsRespondersMinusUsers(long eventId, List<Long> userIds) {
-        StringBuilder query = new StringBuilder("""
-        SELECT DISTINCT us.email, us.language
-        FROM journey_responses jr
-        JOIN users us ON jr.user_id = us.id
-        WHERE jr.journey_id = ?
-    """);
-
-        List<Object> params = new ArrayList<>();
-        params.add(eventId);
-
-        if (userIds != null && !userIds.isEmpty()) {
-            query.append(" AND jr.user_id NOT IN (");
-            query.append("?,".repeat(userIds.size()));
-            query.setLength(query.length() - 1); // Remove last comma
-            query.append(")");
-            params.addAll(userIds);
-        }
-
-       return jdbcTemplate.query(query.toString(),EMAIL_RECIPIENT_ROW_MAPPER, params.toArray());
-    }
-
-
-    }*/
