@@ -1,7 +1,5 @@
 
-    /**
-     * Sets up enhanced date input handling
-     */
+    
     let DateValidation = (() => {
         function init(dateField) {
             if (dateField) {
@@ -66,11 +64,7 @@
             }
         }
 
-        /**
-         * Validates the date field in real-time
-         * @param {HTMLElement} dateField The date input field
-         * @returns {(boolean, string)} Whether the date is valid, plus error message
-         */
+        
         function validateDateField(dateField) {
 
             if (dateField.validity.badInput) {
@@ -82,14 +76,7 @@
             if (!dateField.value.trim()) {
                 // Check if date is required
                 const dateLabel = document.querySelector(`label[for="${dateField.id}"]`)
-                /*
-                if (dateLabel && dateLabel.classList.contains("required-field")) {
-                    return{
-                        isValid: false, error: document.getElementById("i18n-required-field")
-                            ? document.getElementById("i18n-required-field").value
-                            : "This field is required"
-                    }
-                }*/
+                
                 return {isValid: true, error: ""};
             }
 

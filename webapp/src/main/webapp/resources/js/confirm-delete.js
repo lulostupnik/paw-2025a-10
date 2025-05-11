@@ -2,11 +2,7 @@
 let currentFormId = '';
 let currentDeleteType = '';
 
-/**
- * Opens the delete modal with the appropriate title and warning based on the delete type
- * @param {string} formId - The ID of the form to submit
- * @param {string} deleteType - The type of item being deleted (event, eventResponse, journey, journeyResponse)
- */
+
 function openDeleteModal(formId, deleteType) {
     // Store the current context
     currentFormId = formId;

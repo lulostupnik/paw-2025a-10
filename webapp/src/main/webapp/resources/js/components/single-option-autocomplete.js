@@ -1,14 +1,6 @@
-/**
- * Single Option Autocomplete Component
- *
- * Provides autocomplete functionality specifically for single-select fields
- * Displays suggestions but allows free-form input without requiring selection
- */
+
 let SingleOptionAutocomplete = (() => {
-    /**
-     * Initialize single option autocomplete component
-     * @param {Object} options Configuration options
-     */
+    
     function init(options = {}) {
         // Default configuration
         const config = {
@@ -132,9 +124,7 @@ let SingleOptionAutocomplete = (() => {
             search(this.value)
         })
 
-        /**
-         * Update the select element with the current input value
-         */
+        
         function updateSelectWithInputValue() {
             const inputValue = searchInput.value.trim()
 
@@ -146,9 +136,7 @@ let SingleOptionAutocomplete = (() => {
             selectElement.dispatchEvent(event)
         }
 
-        /**
-         * Show loading indicator in dropdown
-         */
+        
         function showLoadingIndicator() {
             // Clear existing content
             while (dropdownContainer.firstChild) {
@@ -162,9 +150,7 @@ let SingleOptionAutocomplete = (() => {
             dropdownContainer.appendChild(loadingItem)
         }
 
-        /**
-         * Hide loading indicator
-         */
+        
         function hideLoadingIndicator() {
             const loadingItem = dropdownContainer.querySelector(".loading")
             if (loadingItem) {
@@ -172,9 +158,7 @@ let SingleOptionAutocomplete = (() => {
             }
         }
 
-        /**
-         * Handle selection of an item
-         */
+        
         function handleItemSelection(value, text) {
             console.log("Handling item selection:", value, text)
 
@@ -200,9 +184,7 @@ let SingleOptionAutocomplete = (() => {
             dropdownContainer.style.display = "none"
         }
 
-        /**
-         * Ensure an option with the given value exists in the select element
-         */
+        
         function ensureOptionExists(value, text) {
             // Check if option already exists
             let optionExists = false
@@ -257,9 +239,7 @@ let SingleOptionAutocomplete = (() => {
             })
         }
 
-        /**
-         * Add a single item to the dropdown
-         */
+        
         function addDropdownItem(value, text) {
             const option = document.createElement("div")
             option.className = "autocomplete-item"
@@ -309,9 +289,7 @@ let SingleOptionAutocomplete = (() => {
             }
         }
 
-        /**
-         * Filter dropdown options based on search text
-         */
+        
         function filterOptions(searchText) {
             console.log("Filtering options for:", searchText)
 

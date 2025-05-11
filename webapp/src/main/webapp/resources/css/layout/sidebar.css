@@ -1,6 +1,6 @@
-/* Sidebar styles - Redesigned for better responsiveness and visual appeal */
 
-/* Sidebar toggle button (mobile only) */
+
+
 .sidebar-toggle {
     position: fixed;
     top: 1rem;
@@ -29,7 +29,7 @@
     color: #4b5563;
 }
 
-/* Sidebar overlay (for mobile) */
+
 .sidebar-overlay {
     position: fixed;
     top: 0;
@@ -48,7 +48,7 @@ body.sidebar-active .sidebar-overlay {
     visibility: visible;
 }
 
-/* Main sidebar container */
+
 .sidebar {
     display: flex;
     flex-direction: column;
@@ -62,14 +62,14 @@ body.sidebar-active .sidebar-overlay {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-/* Inner sidebar container for better structure */
+
 .sidebar-inner {
     display: flex;
     flex-direction: column;
     height: 100%;
 }
 
-/* Sidebar brand/logo section */
+
 .sidebar-brand {
     display: flex;
     align-items: center;
@@ -86,7 +86,7 @@ body.sidebar-active .sidebar-overlay {
     margin: 0;
 }
 
-/* Close button (mobile only) */
+
 .sidebar-close {
     display: none;
     background: none;
@@ -101,7 +101,7 @@ body.sidebar-active .sidebar-overlay {
     height: 1.25rem;
 }
 
-/* Navigation section */
+
 .sidebar-nav {
     flex: 1;
     overflow: auto;
@@ -112,7 +112,7 @@ body.sidebar-active .sidebar-overlay {
     padding: 0 0.75rem;
 }
 
-/* Navigation items */
+
 .sidebar-nav-item {
     display: flex;
     align-items: center;
@@ -154,7 +154,7 @@ body.sidebar-active .sidebar-overlay {
     text-overflow: ellipsis;
 }
 
-/* Footer section with logout button */
+
 .sidebar-footer {
     padding: 1rem 0.75rem;
     border-top: 1px solid #e5e7eb;
@@ -181,7 +181,7 @@ body.sidebar-active .sidebar-overlay {
     color: #ef4444;
 }
 
-/* Mobile styles */
+
 @media (max-width: 1024px) {
     .sidebar {
         transform: translateX(-100%);
@@ -201,7 +201,7 @@ body.sidebar-active .sidebar-overlay {
     }
 }
 
-/* Tablet styles */
+
 @media (min-width: 1025px) and (max-width: 1280px) {
     .sidebar {
         width: 14rem;
@@ -212,7 +212,7 @@ body.sidebar-active .sidebar-overlay {
     }
 }
 
-/* Desktop styles */
+
 @media (min-width: 1281px) {
     .sidebar-toggle {
         display: none;

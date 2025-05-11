@@ -1,13 +1,6 @@
-/**
- * Password Strength Component
- *
- * Provides password strength visualization and confirmation matching
- */
+
 let PasswordStrength = (() => {
-    /**
-     * Initialize password strength component
-     * @param {Object} options Configuration options
-     */
+    
 
     let passwordField
     let confirmPasswordField
@@ -87,9 +80,7 @@ let PasswordStrength = (() => {
             }
         }
 
-        /**
-         * Load internationalized messages from hidden input fields
-         */
+        
         function loadI18nMessages() {
             const messages = {
                 veryWeak: getI18nValue("i18n-password-very-weak", "Very Weak"),
@@ -107,17 +98,13 @@ let PasswordStrength = (() => {
             return messages
         }
 
-        /**
-         * Get internationalized value from hidden input
-         */
+        
         function getI18nValue(id, defaultValue) {
             const element = document.getElementById(id)
             return element && element.value ? element.value : defaultValue
         }
 
-        /**
-         * Set up password visibility toggle
-         */
+        
         function setupPasswordToggle(field, toggleBtn, eyeIconId, eyeSlashIconId) {
             toggleBtn.addEventListener("click", function () {
                 const eyeIcon = document.getElementById(eyeIconId)
@@ -137,9 +124,7 @@ let PasswordStrength = (() => {
             })
         }
 
-        /**
-         * Update password strength UI
-         */
+        
         function updatePasswordStrengthUI(password) {
             if (!passwordStrengthBar) return
 
@@ -185,9 +170,7 @@ let PasswordStrength = (() => {
             }
         }
 
-        /**
-         * Check if passwords match
-         */
+        
         function checkPasswordsMatch() {
             if (!confirmPasswordField || !passwordMatchMessage) return
 
@@ -211,10 +194,7 @@ let PasswordStrength = (() => {
         }
     }
 
-    /**
-     * Evaluate password strength - simplified version
-     * This only calculates a visual strength score without specific requirements
-     */
+    
     function evaluatePasswordStrength(password) {
         if (!password) return 0
 

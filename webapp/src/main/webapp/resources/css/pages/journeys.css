@@ -1,6 +1,6 @@
-/* Journey Detail Page Styles */
 
-/* Layout and Container */
+
+
 .layout-container {
     display: flex;
     min-height: 100vh;
@@ -12,7 +12,7 @@
     margin: 0 auto;
 }
 
-/* Back Navigation */
+
 .back-navigation {
     margin-bottom: 1.5rem;
 }
@@ -40,7 +40,7 @@
     height: 20px;
 }
 
-/* Journey Detail Card */
+
 .content-card {
     background-color: #ffffff;
     border-radius: 1rem;
@@ -54,7 +54,7 @@
     padding: 0;
 }
 
-/* Journey Header */
+
 .journey-detail-header {
     background: #ffffff;
     color: #111827;
@@ -151,7 +151,7 @@
     font-weight: 500;
 }
 
-/* Content Sections */
+
 .content-section {
     padding: 2rem;
     border-bottom: 1px solid #f3f4f6;
@@ -213,7 +213,7 @@
     height: 20px;
 }
 
-/* Journey Description */
+
 .journey-description-card {
     background-color: #f9fafb;
     border-radius: 0.75rem;
@@ -231,7 +231,7 @@
     word-wrap: break-word;
 }
 
-/* Responses List */
+
 .responses-list {
     display: flex;
     flex-direction: column;
@@ -260,7 +260,7 @@
     background: #a5b4fc;
 }
 
-/* Response Card */
+
 .response-card {
     background-color: #f9fafb;
     border-radius: 0.75rem;
@@ -318,7 +318,7 @@
     white-space: pre-line;
 }
 
-/* Empty State */
+
 .empty-state {
     display: flex;
     flex-direction: column;
@@ -348,7 +348,7 @@
     margin: 0;
 }
 
-/* Reply Form */
+
 .reply-form-container {
     background-color: #f9fafb;
     border-radius: 0.75rem;
@@ -380,7 +380,7 @@
     gap:0.5rem;
 }
 
-/* Delete Button */
+
 .btn-attendance {
     display: flex;
     align-items: center;
@@ -394,7 +394,7 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Journey Actions */
+
 .journey-actions {
     position: absolute;
     top: 1rem;
@@ -444,7 +444,7 @@
     font-size: 0.875rem;
 }
 
-/* Delete Journey Button (Top Right) */
+
 .delete-journey-btn {
     position: absolute;
     top: 1rem;
@@ -452,7 +452,7 @@
     z-index: 10;
 }
 
-/* Delete Comment Button */
+
 .delete-comment-btn {
     position: absolute;
     top: 0.75rem;
@@ -481,7 +481,7 @@
     color: #dc2626;
 }
 
-/* Utility Classes */
+
 .flex {
     display: flex;
 }
@@ -502,7 +502,7 @@
     align-items: center;
 }
 
-/* Responsive Adjustments */
+
 @media (max-width: 768px) {
     .main-content {
         padding: 1rem;
@@ -566,9 +566,9 @@
     }
 }
 
-/* Add these styles at the end of the file */
 
-/* Interests Container */
+
+
 .interests-container {
     display: flex;
     flex-wrap: wrap;
@@ -605,9 +605,9 @@
     }
 }
 
-/* Add these styles to the existing journeys.css file */
 
-/* Delete Page Styles */
+
+
 .card-header {
     padding: 1.5rem 2rem;
     border-bottom: 1px solid #f3f4f6;
@@ -649,7 +649,7 @@
 .delete-form {
     max-width: 100%;
 }
-/* Summary sections for delete confirmation */
+
 .journey-summary, .reply-summary {
     background-color: #f9fafb;
     border-radius: 0.75rem;

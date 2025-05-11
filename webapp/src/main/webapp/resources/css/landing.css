@@ -1,4 +1,4 @@
-/* Base Styles */
+
 :root {
     --primary-color: #3b82f6;
     --primary-dark: #2563eb;
@@ -42,7 +42,7 @@ img {
 }
 
 
-/* Typography */
+
 h1,
 h2,
 h3,
@@ -93,7 +93,7 @@ p {
     border-radius: 4px;
 }
 
-/* Header */
+
 header {
     background-color: var(--white);
     box-shadow: var(--shadow-sm);
@@ -139,7 +139,7 @@ nav a:hover {
     color: var(--primary-color);
 }
 
-/* Buttons */
+
 .cta-button {
     display: inline-block;
     padding: 0.75rem 1.5rem;
@@ -181,7 +181,7 @@ nav a:hover {
     justify-content: center;
 }
 
-/* Hero Section */
+
 .hero {
     padding: 5rem 0;
     position: relative;
@@ -232,7 +232,7 @@ nav a:hover {
     box-shadow: var(--shadow-lg);
 }
 
-/* Features Section */
+
 .features {
     padding: 5rem 0;
     background-color: var(--white);
@@ -270,7 +270,7 @@ nav a:hover {
     height: 2rem;
 }
 
-/* Testimonials Section */
+
 .testimonials {
     padding: 5rem 0;
     background-color: var(--background-color);
@@ -365,7 +365,7 @@ nav a:hover {
     background-color: var(--primary-color);
 }
 
-/* CTA Section */
+
 .cta-section {
     padding: 5rem 0;
     color: var(--white);
@@ -383,7 +383,7 @@ nav a:hover {
     margin: 0 auto 2rem;
 }
 
-/* Footer */
+
 footer {
     background-color: var(--text-color);
     color: var(--white);
@@ -484,7 +484,7 @@ footer {
     color: var(--white);
 }
 
-/* Responsive Design */
+
 @media (max-width: 992px) {
     .hero .container {
         grid-template-columns: 1fr;
@@ -539,16 +539,16 @@ footer {
     }
 }
 
-/* New Outline Button Style for Sign Up */
+
 .btn-outline-signup {
     display: inline-block;
     padding: 0.75rem 2.5rem;
     font-size: 1.125rem;
     font-weight: 600;
-    color: #6366f1; /* Indigo/purple color */
+    color: #6366f1;
     background-color: white;
-    border: 2px solid #6366f1; /* Indigo/purple border */
-    border-radius: 2rem; /* More rounded corners */
+    border: 2px solid #6366f1;
+    border-radius: 2rem;
     text-decoration: none;
     text-align: center;
     transition: all 0.2s ease;
@@ -561,9 +561,9 @@ footer {
     box-shadow: 0 4px 6px rgba(99, 102, 241, 0.1);
 }
 
-/* Landing Page Styles */
 
-/* Base Styles */
+
+
 .landing-page {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: #1f2937;
@@ -572,7 +572,7 @@ footer {
 
 
 
-/* Navigation */
+
 .landing-header {
     background-color: white;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -585,15 +585,15 @@ footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 0; /* Increased padding for better spacing */
+    padding: 1.5rem 0;
     flex-wrap: wrap;
-    gap: 1.5rem; /* Increased gap for better spacing */
+    gap: 1.5rem;
 }
 
 .landing-logo a {
     display: flex;
     align-items: center;
-    gap: 0.75rem; /* Increased gap */
+    gap: 0.75rem;
     text-decoration: none;
     color: #4f46e5;
     font-weight: 700;
@@ -607,8 +607,8 @@ footer {
 
 .landing-menu {
     display: flex;
-    gap: 2rem; /* Increased gap between menu items */
-    margin-right: auto; /* Push menu to the left */
+    gap: 2rem;
+    margin-right: auto;
 }
 
 .menu-link {
@@ -616,7 +616,7 @@ footer {
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s;
-    padding: 0.5rem 0.75rem; /* Added padding for larger hit area */
+    padding: 0.5rem 0.75rem;
 }
 
 .menu-link:hover {
@@ -625,11 +625,11 @@ footer {
 
 .landing-auth {
     display: flex;
-    gap: 1.25rem; /* Increased gap between auth buttons */
-    margin-left: auto; /* Push to the right */
+    gap: 1.25rem;
+    margin-left: auto;
 }
 
-/* Hero Section */
+
 .hero-section {
     padding: 4rem 0;
     background-color: #f9fafb;
@@ -699,7 +699,7 @@ footer {
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-/* Features Section */
+
 .features-section-landing {
     padding: 5rem 0;
     background-color: white;
@@ -780,7 +780,7 @@ footer {
     line-height: 1.6;
 }
 
-/* How It Works Section */
+
 .how-it-works-section {
     padding: 5rem 0;
     background-color: #f9fafb;
@@ -843,7 +843,7 @@ footer {
     line-height: 1.6;
 }
 
-/* Featured Journeys Section */
+
 .featured-section {
     padding: 5rem 0;
     background-color: white;
@@ -875,7 +875,7 @@ footer {
 .journey-image-container {
     position: relative;
     width: 100%;
-    padding-top: 56.25%; /* 16:9 aspect ratio */
+    padding-top: 56.25%;
     overflow: hidden;
 }
 
@@ -1005,7 +1005,7 @@ footer {
     text-align: center;
 }
 
-/* Testimonials Section */
+
 .testimonials-section {
     padding: 5rem 0;
     background-color: #f9fafb;
@@ -1108,7 +1108,7 @@ footer {
 
 
 
-/* Footer */
+
 .landing-footer {
     background-color: #f9fafb;
     padding: 4rem 0 2rem;
@@ -1207,7 +1207,7 @@ footer {
 }
 
 .btn-cta-signup {
-    background-color: #5b21b6; /* Match the signup button color */
+    background-color: #5b21b6;
     font-size: 1.125rem;
     padding: 1rem 2rem;
     font-weight: 600;
@@ -1221,7 +1221,7 @@ footer {
     box-shadow: 0 6px 8px rgba(91, 33, 182, 0.3);
 }
 
-/* Featured Events Section */
+
 .featured-events {
     display: grid;
     grid-template-columns: repeat(1, 1fr);
@@ -1248,7 +1248,7 @@ footer {
 .event-image-container {
     position: relative;
     width: 100%;
-    padding-top: 56.25%; /* 16:9 aspect ratio */
+    padding-top: 56.25%;
     overflow: hidden;
 }
 
@@ -1306,7 +1306,7 @@ footer {
     flex-shrink: 0;
 }
 
-/* Responsive adjustments */
+
 @media (min-width: 640px) {
     .featured-events {
         grid-template-columns: repeat(2, minmax(0, 1fr));
