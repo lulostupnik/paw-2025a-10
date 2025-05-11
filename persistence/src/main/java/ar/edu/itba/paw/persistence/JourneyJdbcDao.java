@@ -404,9 +404,7 @@ public class JourneyJdbcDao implements JourneyDao {
             final List<Object> params = new ArrayList<>();
 
             final StringBuilder countQueryBuilder = new StringBuilder("SELECT COUNT(*) FROM journeys j");
-//            final StringBuilder queryBuilder = new StringBuilder((interest != null || orderBy.equals("interest")) ? SQL_BASE_INTEREST : SQL_BASE);
-            final StringBuilder queryBuilder =new StringBuilder(SQL_BASE);
-
+            final StringBuilder queryBuilder = new StringBuilder((interest != null && !interest.isEmpty() ) ? SQL_BASE_INTEREST : SQL_BASE);
 
             if (interest != null && !interest.isEmpty()) {
                 countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id JOIN category c ON ui.category_id = c.id ");
