@@ -550,6 +550,13 @@ public class EventJdbcDao implements EventDao {
 
     }
 
+    @Override
+    public void incrementAttendeesCount(final long eventId) {
+        final int rowsAffected = jdbcTemplate.update("UPDATE events SET attendees_count = attendees_count + 1 WHERE id = ?", eventId);
+        if (rowsAffected == 0) {
+            LOGGER.warn("Incrementing attendees count failed: Event with ID {} not found", eventId);
+        }
+    }
 
 
     @Override

@@ -173,15 +173,14 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
 
     @Override
     public void create(final long userId, final long eventId) {
-        final int rowsAffected = jdbcTemplate.update("UPDATE events SET attendees_count = attendees_count + 1 WHERE id = ?", eventId); // todo -> subir al servicio
-        if (rowsAffected == 0) {
-            LOGGER.warn("Event attendance failed: Event with ID {} not found", eventId);
-        }
+
         final Map<String, Object> params = new HashMap<>();
         params.put("user_id", userId);
         params.put("event_id", eventId);
         jdbcInsert.execute(params);
+
     }
+
 
     @Override
     public void delete(final long userId, final long eventId) {
