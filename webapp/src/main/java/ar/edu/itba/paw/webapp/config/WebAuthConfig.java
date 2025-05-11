@@ -77,7 +77,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/register", "/login", "/reset-password", "/forgot_pass", "/validate", "/not-verified").anonymous()//FIXME: not verified aca?
                 .antMatchers("/universities", "/careers", "/interests", "/cities").permitAll()
                 .antMatchers(HttpMethod.POST, "/events/{id}/delete", "/journeys/{id}/delete",
-                        "users/block", "users/unblock").access("hasRole('ADMIN') and !@accessHelper.isUserBlocked()")
+                        "users/{id}/block", "users/{id}/unblock").access("hasRole('ADMIN') and !@accessHelper.isUserBlocked()")
                 .antMatchers("/dashboard/**","interests/**", "careers/**", "/universities/**","cities/**", "users/**").access("hasRole('ADMIN') and !@accessHelper.isUserBlocked()")
                 .antMatchers("/journeys/{id}/update").access("@accessHelper.isUserJourneyOwner(#id) and !@accessHelper.isUserBlocked()")
                 .antMatchers("/events/{id}/update").access("@accessHelper.isUserEventOwner(#id) and !@accessHelper.isUserBlocked()")
