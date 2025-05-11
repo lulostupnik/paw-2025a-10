@@ -29,23 +29,23 @@ public class UserController {
         return mav;
     }
 
-    @PostMapping(value = "/block")
-    public ModelAndView blockUser(@RequestParam("id") long id, @RequestHeader(value = "Referer",required = false) String referer) {
+    @PostMapping(value = "/{id}/block")
+    public ModelAndView blockUser(@PathVariable("id") long id, @RequestHeader(value = "Referer",required = false) String referer) {
         userService.blockUser(id);
         if(referer != null) {
             return new ModelAndView("redirect:" + referer);
         } else {
-            throw new RuntimeException("Referer header is missing");
+            return new ModelAndView("redirect:dashboard/users");
         }
     }
 
-    @PostMapping(value = "/unblock")
-    public ModelAndView unblockUser(@RequestParam("id") long id, @RequestHeader(value = "Referer",required = false) String referer) {
+    @PostMapping(value = "/{id}/unblock")
+    public ModelAndView unblockUser(@PathVariable("id") long id, @RequestHeader(value = "Referer",required = false) String referer) {
         userService.unblockUser(id);
         if(referer != null) {
             return new ModelAndView("redirect:" + referer);
         } else {
-            throw new RuntimeException("Referer header is missing");
+            return new ModelAndView("redirect:dashboard/users");
         }
     }
 
