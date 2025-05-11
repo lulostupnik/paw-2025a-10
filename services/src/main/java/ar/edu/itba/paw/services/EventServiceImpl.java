@@ -191,7 +191,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Page<Event> getUserAttendingEvents(final long userId, PageParams pageParams) {
-        return eventAttendanceDao.findAllEventsByAttendee(userId, pageParams);
+        return eventDao.findAllEventsByAttendee(userId, pageParams);
     }
 
     @Override

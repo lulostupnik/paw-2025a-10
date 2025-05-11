@@ -824,6 +824,49 @@ public class EventJdbcDaoTest {
             TestUtils.assertEqualsEvent(eventData.get(e.getId()), e);
         }
     }
+
+    //@TODO no se si las siguientes 3 funciones estan bien. (estaban en otro dao)
+    @Test
+    public void testFindAllEventsByAttendeePaged(){
+        insert.execute(Map.of("event_id", EVENT_3.getId() ,"user_id", USER_1.getId()));
+        insert.execute(Map.of("event_id", EVENT_2.getId() ,"user_id", USER_1.getId()));
+
+        Page<Event> page1 = eventDao.findAllEventsByAttendee(USER_1.getId(), new PageParams(1, 1));
+        Page<Event> page2 = eventDao.findAllEventsByAttendee(USER_1.getId(), new PageParams(2, 1));
+
+        assertNotNull(page1);
+        assertNotNull(page2);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(2, page1.getTotalPages());
+        assertEquals(2, page2.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertNotNull(page2.getContent());
+        assertEquals(1, page1.getContent().size());
+        assertEquals(1, page2.getContent().size());
+    }
+    @Test
+    public void testFindAllPagedByAttendee(){
+        Page<Event> events = eventDao.findAllEventsByAttendee(USER_1.getId(), new PageParams(1,1));
+
+        assertNotNull(events);
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(0, events.getTotalPages());
+        assertNotNull(events.getContent());
+        assertEquals(0, events.getContent().size());
+    }
+    @Test
+    public void testFindAllEventsByAttendeeWrongUserPaged(){
+        insert.execute(Map.of("event_id", EVENT_3.getId() ,"user_id", USER_1.getId()));
+
+        Page<Event> events = eventDao.findAllEventsByAttendee(12341234, new PageParams(1, 1));
+
+        assertNotNull(events);
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(0, events.getTotalPages());
+        assertNotNull(events.getContent());
+        assertEquals(0, events.getContent().size());
+    }
 }
 
 //

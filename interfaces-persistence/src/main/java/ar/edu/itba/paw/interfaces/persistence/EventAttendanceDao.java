@@ -8,8 +8,8 @@ public interface EventAttendanceDao {
     void delete(long userId, long eventId);
     boolean exists(long userId, long eventId);
     int countByEventId(long eventId);
-
-    Page<Event> findAllEventsByAttendee(long userId, PageParams pageParams);
+//@TODO mover los dos siguientes a User Dao.
     Page<User> findAllAttendeesByEventId(long eventId, PageParams pageParams);
     List<User> findAllAttendeesByEventId(long eventId);
+
 }

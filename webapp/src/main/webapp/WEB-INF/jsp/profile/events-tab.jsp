@@ -111,7 +111,7 @@
       <jsp:param name="pageObjectTotalPages" value="${userAttendingEvents.totalPages}" />
       <jsp:param name="currentPage" value="${currentPageUserAttending}" />
       <jsp:param name="pageSize" value="${pageSize}" />
-      <jsp:param name="baseUrl" value="/profile/events?page=${currentPageUserEvents}&size=${pageSize}" />
+      <jsp:param name="baseUrl" value="/profile/events?page=${currentPageUserEvents}&size=${pageSize}&eventsTab=attending" />
       <jsp:param name="paramName" value="attendingPage" />
     </jsp:include>
   </div>

@@ -205,6 +205,7 @@ public class EventJdbcDao implements EventDao {
     LIMIT ? OFFSET ?
     """;
 
+
     private final static String SQL_TOP_EVENTS = SQL_SELECT_BASE +
             """
                 FROM events e
@@ -243,6 +244,12 @@ public class EventJdbcDao implements EventDao {
                   e.event_date
                 LIMIT ? OFFSET ?
             """;
+
+    private final static String SQL_ATTENDANCE_PAGE_BY_USER = SQL_SELECT_BASE + SQL_FROM_BASE + """
+        JOIN event_attendances ea ON e.id = ea.event_id
+        WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE
+        ORDER BY e.event_date DESC LIMIT ? OFFSET ?
+        """;
 
 
     @Autowired
@@ -636,6 +643,21 @@ public class EventJdbcDao implements EventDao {
                 userId, userId, userId, pageParams.getSize(), offset(pageParams)
         );
         return new Page<>(events, pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
+    }
+
+    @Override
+    public Page<Event> findAllEventsByAttendee(final long userId, final PageParams pageParams) {
+        final int totalItems = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM event_attendances ea JOIN events e ON ea.event_id = e.id WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE",
+                Integer.class,
+                userId, userId
+        );
+
+        return new Page<>(
+                jdbcTemplate.query(SQL_ATTENDANCE_PAGE_BY_USER, EVENT_ROW_MAPPER, userId, userId, pageParams.getSize(), offset(pageParams)),
+                pageParams.getPage(),
+                pageCount(totalItems, pageParams.getSize())
+        );
     }
 
 }
