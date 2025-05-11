@@ -1,13 +1,6 @@
-/**
- * List Autocomplete Component
- *
- * Provides multi-select or single-select functionality with autocomplete
- */
+
 let ListAutocomplete = (() => {
-    /**
-     * Initialize list autocomplete component
-     * @param {Object} options Configuration options
-     */
+    
 
     function init(options = {}) {
         // Default configuration
@@ -143,9 +136,7 @@ let ListAutocomplete = (() => {
             search(this.value)
         })
 
-        /**
-         * Show loading indicator in dropdown
-         */
+        
         function showLoadingIndicator() {
             // Clear existing content
             while (dropdownContainer.firstChild) {
@@ -159,9 +150,7 @@ let ListAutocomplete = (() => {
             dropdownContainer.appendChild(loadingItem)
         }
 
-        /**
-         * Hide loading indicator
-         */
+        
         function hideLoadingIndicator() {
             const loadingItem = dropdownContainer.querySelector(".loading")
             if (loadingItem) {
@@ -169,9 +158,7 @@ let ListAutocomplete = (() => {
             }
         }
 
-        /**
-         * Handle selection of an item
-         */
+        
         function handleItemSelection(value, text) {
             console.log("Handling item selection:", value, text)
 
@@ -211,9 +198,7 @@ let ListAutocomplete = (() => {
             console.log("Selection complete, current values:", selectedValues)
         }
 
-        /**
-         * Ensure an option with the given value exists in the select element
-         */
+        
         function ensureOptionExists(value, text) {
             // Check if option already exists
             let optionExists = false
@@ -286,9 +271,7 @@ let ListAutocomplete = (() => {
             updateSelectElement()
         }
 
-        /**
-         * Add a single item to the dropdown
-         */
+        
         function addDropdownItem(value, text) {
             const option = document.createElement("div")
             option.className = "autocomplete-item"
@@ -420,9 +403,7 @@ let ListAutocomplete = (() => {
             // Debug the state of the select element
         }
 
-        /**
-         * Filter dropdown options based on search text
-         */
+        
         function filterOptions(searchText) {
             console.log("Filtering options for:", searchText)
 
@@ -515,9 +496,7 @@ let ListAutocomplete = (() => {
             }
         }
 
-        /**
-         * Update the selected tags UI
-         */
+        
         function updateSelectedTags() {
             console.log("Updating selected tags UI")
 

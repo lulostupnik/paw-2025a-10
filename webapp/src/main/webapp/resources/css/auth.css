@@ -241,7 +241,7 @@
     width: 18px;
     height: 18px;
     accent-color: #4361ee;
-    margin-right: 0; /* Remove any default margin */
+    margin-right: 0;
 }
 
 .checkbox-input {
@@ -251,7 +251,7 @@
     height: 0;
 }
 
-/* Login group styling */
+
 .login-group {
     display: flex;
     align-items: center;
@@ -259,7 +259,7 @@
     margin: 1rem 0;
 }
 
-/* Checkbox container */
+
 .checkbox-container {
     display: flex;
     align-items: center;
@@ -267,7 +267,7 @@
 
 }
 
-/* Custom checkbox styling */
+
 .checkbox-wrapper {
     position: relative;
     display: inline-block;
@@ -320,7 +320,7 @@
     cursor: pointer;
 }
 
-/* Forgot password link */
+
 .forgot-password {
     font-size: 0.9rem;
     color: #4361ee;
@@ -334,7 +334,7 @@
     text-decoration: underline;
 }
 
-/* For mobile screens */
+
 @media (max-width: 480px) {
     .login-group {
         flex-direction: column;
@@ -347,26 +347,26 @@
     }
 }
 
-/*.checkbox-label {*/
-/*    display: flex;*/
-/*    align-items: center;*/
-/*    cursor: pointer;*/
-/*    user-select: none;*/
-/*    font-size: 0.875rem;*/
-/*    color: var(--text-color);*/
-/*}*/
 
-/*.checkbox-custom {*/
-/*    position: relative;*/
-/*    display: inline-block;*/
-/*    width: 1.25rem;*/
-/*    height: 1.25rem;*/
-/*    background-color: var(--white);*/
-/*    border: 1px solid var(--border-color);*/
-/*    border-radius: var(--radius-sm);*/
-/*    margin-right: 0.75rem;*/
-/*    transition: all 0.2s ease;*/
-/*}*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 .checkbox-input:checked ~ .checkbox-custom:after {
     content: "";

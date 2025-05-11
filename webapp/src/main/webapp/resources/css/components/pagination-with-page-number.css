@@ -1,4 +1,4 @@
-/* Updated Pagination Styles */
+
 .pagination {
     margin-top: 1.5rem;
     display: flex;
@@ -69,7 +69,7 @@
     font-size: 0.875rem;
 }
 
-/* Navigation buttons (prev/next) */
+
 .page-nav {
     display: inline-flex;
     justify-content: center;
@@ -101,7 +101,7 @@
     border-color: var(--color-gray-200);
 }
 
-/* Responsive adjustments */
+
 @media (max-width: 640px) {
     .pagination {
         gap: 0.25rem;

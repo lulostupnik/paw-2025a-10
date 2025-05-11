@@ -1,8 +1,4 @@
-/**
- * Journey Filters Initialization
- *
- * Initializes and coordinates components for the journey filters
- */
+
 document.addEventListener("DOMContentLoaded", () => {
     console.log("Initializing journey filters components...")
 

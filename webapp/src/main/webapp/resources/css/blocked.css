@@ -1,6 +1,3 @@
-
-
-
 .auth-container {
     display: flex;
     flex-direction: column;
@@ -11,7 +8,6 @@
     background-color: #f5f7fa;
 }
 
-
 .auth-card {
     width: 100%;
     max-width: 600px;
@@ -21,7 +17,6 @@
     overflow: hidden;
     margin-bottom: 1.5rem;
 }
-
 
 .auth-header {
     padding: 2rem;
@@ -54,7 +49,6 @@
     margin-bottom: 0;
 }
 
-
 .alert {
     display: flex;
     padding: 1.25rem;
@@ -63,9 +57,41 @@
     margin-bottom: 1.5rem;
 }
 
+/* Error alert - keeping original styles */
 .alert-error {
     background-color: #f8d7da;
     border: 1px solid #f5c6cb;
+}
+
+.alert-error .alert-svg {
+    color: #dc3545;
+}
+
+.alert-error .alert-title {
+    color: #721c24;
+}
+
+.alert-error .alert-message {
+    color: #721c24;
+}
+
+/* Success alert - improved contrast */
+.alert-success {
+    background-color: #e8f5e9;
+    border: 1px solid #66bb6a;
+}
+
+.alert-success .alert-svg {
+    color: #2e7d32;
+}
+
+.alert-success .alert-title {
+    color: #2e7d32;
+    font-weight: 600;
+}
+
+.alert-success .alert-message {
+    color: #2e7d32;
 }
 
 .alert-icon {
@@ -76,7 +102,6 @@
 .alert-svg {
     width: 24px;
     height: 24px;
-    color: #dc3545;
 }
 
 .alert-content {
@@ -86,22 +111,18 @@
 .alert-title {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #721c24;
     margin-top: 0;
     margin-bottom: 0.5rem;
 }
 
 .alert-message {
     font-size: 0.875rem;
-    color: #721c24;
     margin-bottom: 0;
 }
-
 
 .form-card-content {
     padding: 1.5rem;
 }
-
 
 .blocked-info {
     margin-bottom: 1.5rem;
@@ -121,7 +142,6 @@
     line-height: 1.5;
     margin-bottom: 1rem;
 }
-
 
 .contact-info {
     background-color: #f8f9fa;
@@ -160,14 +180,12 @@
     text-decoration: underline;
 }
 
-
 .form-card-footer {
     padding: 1.5rem;
     background-color: #f8f9fa;
     border-top: 1px solid #e9ecef;
     text-align: center;
 }
-
 
 .btn-outline {
     display: inline-block;
@@ -193,13 +211,13 @@
     border-color: #6c757d;
 }
 
-
 .reference-id {
     font-size: 0.75rem;
     color: #6c757d;
     text-align: center;
     margin-top: 1rem;
 }
+
 
 
 @media (max-width: 768px) {

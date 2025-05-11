@@ -1,4 +1,4 @@
-/* Updated Profile CSS with white rounded containers */
+
 :root {
     --profile-radius: 0.75rem;
     --profile-radius-sm: 0.375rem;
@@ -7,14 +7,14 @@
     --profile-transition: all 0.2s ease;
 }
 
-/* Layout */
+
 body {
     background-color: var(--color-background);
     color: var(--color-gray-900);
 }
 
 
-/* Profile Header - White background with rounded corners */
+
 .profile-header-wrapper {
     position: relative;
     padding: 2rem 0;
@@ -148,7 +148,7 @@ body {
     color: var(--color-text-muted);
 }
 
-/* Profile Tabs - White background */
+
 .profile-tabs-container {
     position: sticky;
     top: 0;
@@ -203,7 +203,7 @@ body {
     color: currentColor;
 }
 
-/* Profile Sections */
+
 
 
 
@@ -218,17 +218,17 @@ body {
     }
 }
 
-/* Profile Card - White background with rounded corners */
+
 .profile-card {
     background-color: var(--color-white);
     border-radius: var(--profile-radius);
     padding: 2rem;
     box-shadow: var(--profile-shadow);
     margin-bottom: 2rem;
-    transition: none; /* Remove hover transition */
+    transition: none;
 }
 
-/* Remove hover effect from profile card */
+
 .profile-card:hover {
     box-shadow: var(--profile-shadow);
 }
@@ -260,7 +260,7 @@ body {
     margin-bottom: 1.5rem;
 }
 
-/* Section actions */
+
 .section-actions {
     display: flex;
     justify-content: flex-end;
@@ -279,7 +279,7 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Info List */
+
 .info-list {
     display: flex;
     flex-direction: column;
@@ -290,7 +290,7 @@ body {
     padding: 1rem;
     border-radius: var(--profile-radius-sm);
     background-color: var(--color-gray-50);
-    transition: none; /* Remove hover transition */
+    transition: none;
 }
 
 .info-label {
@@ -309,7 +309,7 @@ body {
     word-break: break-word;
 }
 
-/* Cards Grid */
+
 .cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -317,7 +317,7 @@ body {
     margin-top: 0.5rem;
 }
 
-/* Empty State - White background with rounded corners */
+
 .empty-state {
     text-align: center;
     padding: 3rem 2rem;
@@ -325,10 +325,10 @@ body {
     border: 1px dashed var(--color-gray-200);
     border-radius: var(--profile-radius);
     grid-column: 1 / -1;
-    transition: none; /* Remove hover transition */
+    transition: none;
 }
 
-/* Remove hover effect from empty state */
+
 .empty-state:hover {
     border-color: var(--color-gray-200);
     background-color: var(--color-white);
@@ -372,7 +372,7 @@ body {
     box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
 }
 
-/* Events Filter Tabs */
+
 .events-filter-tabs {
     display: flex;
     gap: 0.5rem;
@@ -414,7 +414,7 @@ body {
 
 
 
-/* Error Container - White background with rounded corners */
+
 .error-container {
     text-align: center;
     padding: 3rem 1.5rem;
@@ -423,7 +423,7 @@ body {
     box-shadow: var(--profile-shadow);
 }
 
-/* Responsive adjustments */
+
 @media (min-width: 768px) {
     .profile-header {
         flex-direction: row;
