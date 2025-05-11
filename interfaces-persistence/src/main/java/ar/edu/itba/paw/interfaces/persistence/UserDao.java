@@ -29,11 +29,9 @@ public interface UserDao {
 
     void updatePassword(long id, String password);
 
-    void update(long id, String firstname, String lastname, String username, Long universityId, Long careerId, Locale locale);
-
     void updateBlock(long id, boolean bool);
 
-    boolean findValidatedByTokenNotExpired(String token); // todo: rename to findValidatedByToken ?
+    boolean findValidatedByTokenNotExpired(String token);
 
     Optional<User> findByToken(String token);
 
@@ -41,11 +39,9 @@ public interface UserDao {
 
     Page<User> search(String search, PageParams pageParams);
 
-    boolean existsByTokenNotExpired(String token); // todo: rename to existsByToken() ?
+    boolean existsByTokenNotExpired(String token);
 
     boolean existsByTokenExpired(String token);
-
-    void clearTokenByToken(String token); // todo: renombrar a updateToken o algo así?
 
     void updateTokenAndExpirationByToken(String newToken, LocalDate date, String oldToken); // todo: idem anterior
 
@@ -56,3 +52,7 @@ public interface UserDao {
 }
 
 //    void updateProfilePicture(long id, long profilePictureId);
+
+//    void update(long id, String firstname, String lastname, String username, Long universityId, Long careerId, Locale locale);
+
+//    void clearTokenByToken(String token);

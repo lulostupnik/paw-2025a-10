@@ -151,14 +151,6 @@ public class UniversityJdbcDao implements UniversityDao {
         return new University(id, name, abbreviation, cityObj);
     }
 
-    @Override
-    public void update(final long id, final String name, final String abbreviation, final long cityId) {
-        LOGGER.info("Updating university with ID: {}. New values: name '{}', abbr '{}', city {}", id,  name, abbreviation, cityId);
-        final int updatedRows = jdbcTemplate.update("UPDATE universities SET name = ?, abbreviation = ?, city_id = ? WHERE id = ? ", name, abbreviation, cityId, id);
-        if (updatedRows == 0) {
-            LOGGER.warn("No university found with id {}", id);
-        }    
-    }
 
     @Override
     public void update(final long id, final String name, final String abbreviation, final String cityName) {
