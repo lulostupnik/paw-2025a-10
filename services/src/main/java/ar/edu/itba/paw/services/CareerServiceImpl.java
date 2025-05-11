@@ -103,7 +103,8 @@ public class CareerServiceImpl implements CareerService {
     private String listToJson(List<Career> careers) {
         StringBuilder json = new StringBuilder("[");
         for (Career career : careers) {
-            json.append(career.toJSON()).append(",");        }
+            json.append(career.toJSON()).append(",");        
+        }
         if (json.length() > 1) {
             json.deleteCharAt(json.length() - 1); // Remove the last comma
         }

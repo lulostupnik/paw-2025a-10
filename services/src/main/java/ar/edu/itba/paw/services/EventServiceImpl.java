@@ -128,6 +128,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public void attendEvent(long userId, long eventId) {
+        futureEvent(eventId);
         if(eventAttendanceDao.exists(userId, eventId)){
             LOGGER.debug("User {} is already attending event {}", userId, eventId);
             return;
@@ -155,7 +156,6 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public void attendEvent(String email, long eventId) {
-        futureEvent(eventId);
         long userId = userService.findByEmail(email).orElseThrow().getId();
         attendEvent(userId, eventId);
     }

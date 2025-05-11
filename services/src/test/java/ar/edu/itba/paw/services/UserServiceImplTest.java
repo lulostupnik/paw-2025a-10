@@ -5,11 +5,17 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.ExpiredPassTokenException;
+import ar.edu.itba.paw.models.exceptions.ExpiredTokenException;
+import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
+import ar.edu.itba.paw.models.exceptions.UserValidatedException;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -36,13 +42,12 @@ public class UserServiceImplTest {
     private static final Career CAREER = new Career((long)0, null);
     private static final Image IMAGE = new Image((long)0, new byte[0]);
     private static final String PASSWORD = "null";
-    private static final String ROLE = "admin";
     private static final Locale LOCALE = Locale.of("en");
     private static final long USER_ID = 0;
-    private static final boolean BLOCKED = false;
     private static final Interest INTEREST = new Interest((long)0, "name");
     private static final User USER = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE.getId(), LOCALE, false);
     private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
+    private static final String TOKEN = "null";
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -62,29 +67,29 @@ public class UserServiceImplTest {
     @Mock
     private EmailService emailService;
 
-//    @Test
-//    public void testCreateUser(){
-//        Mockito.when(
-//            universityService.findByName(Mockito.eq(UNIVERSITY.getName()))
-//        ).thenReturn(Optional.of(UNIVERSITY));
-//        Mockito.when(
-//            careerService.findByName(Mockito.eq(CAREER.getName()))
-//        ).thenReturn(Optional.of(CAREER));
-//        Mockito.when(
-//            imageService.storeImage(Mockito.eq(IMAGE.getData()))
-//        ).thenReturn(IMAGE.getId());
-//        Mockito.when(
-//            passwordEncoder.encode(Mockito.eq(PASSWORD))
-//        ).thenReturn(PASSWORD);
-//        Mockito.when(
-////            userDao.create(Mockito.eq(EMAIL), Mockito.eq(USERNAME), Mockito.eq(FIRSTNAME), Mockito.eq(LASTNAME), Mockito.eq(UNIVERSITY), Mockito.eq(CAREER), Mockito.eq(IMAGE.getId()), Mockito.eq(PASSWORD), Mockito.eq(LOCALE))
-//        ).thenReturn(USER);
-//
-//        User user = userService.createUser(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY.getName(), CAREER.getName(), IMAGE.getData(), List.of(INTEREST.getName()), PASSWORD, LOCALE);
-//
-//        assertNotNull(user);
-//        assertEquals(USER, user);
-//    }
+    @Test
+    public void testCreateUser(){
+        Mockito.when(
+            universityService.findByName(Mockito.eq(UNIVERSITY.getName()))
+        ).thenReturn(Optional.of(UNIVERSITY));
+        Mockito.when(
+            careerService.findByName(Mockito.eq(CAREER.getName()))
+        ).thenReturn(Optional.of(CAREER));
+        Mockito.when(
+            imageService.storeImage(Mockito.eq(IMAGE.getData()))
+        ).thenReturn(IMAGE.getId());
+        Mockito.when(
+            passwordEncoder.encode(Mockito.eq(PASSWORD))
+        ).thenReturn(PASSWORD);
+        Mockito.when(
+            userDao.create(Mockito.eq(EMAIL), Mockito.eq(USERNAME), Mockito.eq(FIRSTNAME), Mockito.eq(LASTNAME), Mockito.eq(UNIVERSITY), Mockito.eq(CAREER), Mockito.eq(IMAGE.getId()), Mockito.eq(PASSWORD), Mockito.eq(LOCALE), Mockito.anyString(), Mockito.any(LocalDate.class))
+        ).thenReturn(USER);
+
+        User user = userService.createUser(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY.getName(), CAREER.getName(), IMAGE.getData(), List.of(INTEREST.getName()), PASSWORD, LOCALE);
+
+        assertNotNull(user);
+        assertEquals(USER, user);
+    }
     @Test(expected = RuntimeException.class)
     public void testCreateUserMissingCareer(){
         Mockito.when(
@@ -106,6 +111,73 @@ public class UserServiceImplTest {
 
         assertNotNull(user);
         assertEquals(USER, user);
+    }
+
+    @Test
+    public void testChangePassword(){
+        userService.changePassword(USER_ID, PASSWORD);
+    }
+
+    @Test
+    public void testValidateEmail(){
+        Mockito.when(
+            userDao.hasExpired(Mockito.eq(TOKEN))
+        ).thenReturn(false);
+        Mockito.when(
+            userDao.isUserValidated(Mockito.eq(TOKEN))
+        ).thenReturn(false);
+
+        userService.validateEmail(TOKEN);
+    }
+    @Test(expected = InvalidTokenException.class)
+    public void testValidateEmailAlreadyValidated(){
+        Mockito.when(
+            userDao.hasExpired(Mockito.eq(TOKEN))
+        ).thenReturn(false);
+        Mockito.when(
+            userDao.isUserValidated(Mockito.eq(TOKEN))
+        ).thenReturn(true);
+
+        userService.validateEmail(TOKEN);
+    }
+    @Test(expected = ExpiredTokenException.class)
+    public void testValidateEmailExpiredToken(){
+        Mockito.when(
+            userDao.hasExpired(Mockito.eq(TOKEN))
+        ).thenReturn(true);
+
+        userService.validateEmail(TOKEN);
+    }
+
+    @Test
+    public void testValidateToken(){
+        Mockito.when(
+            userDao.hasExpired(Mockito.eq(TOKEN))
+        ).thenReturn(false);
+        Mockito.when(
+            userDao.isValid(Mockito.eq(TOKEN))
+        ).thenReturn(true);
+
+        userService.validateToken(TOKEN);
+    }
+    @Test(expected = InvalidTokenException.class)
+    public void testValidateTokenAlreadyValidated(){
+        Mockito.when(
+            userDao.hasExpired(Mockito.eq(TOKEN))
+        ).thenReturn(false);
+        Mockito.when(
+            userDao.isValid(Mockito.eq(TOKEN))
+        ).thenReturn(false);
+
+        userService.validateToken(TOKEN);
+    }
+    @Test(expected = ExpiredTokenException.class)
+    public void testValidateTokenExpiredToken(){
+        Mockito.when(
+            userDao.hasExpired(Mockito.eq(TOKEN))
+        ).thenReturn(true);
+
+        userService.validateToken(TOKEN);
     }
 
     @Test
@@ -222,8 +294,6 @@ public class UserServiceImplTest {
         assertFalse(exists);
     }
 
-
-
     @Test
     public void testGetAllUsersPaged(){
         Page<User> testPage = new Page<User>(List.of(USER), 1, 1);
@@ -330,6 +400,101 @@ public class UserServiceImplTest {
         ).thenReturn(Optional.empty());
 
         userService.unblockUser(USER_ID);
+    }
+
+    @Test
+    public void testRefreshToken(){
+        Mockito.when(
+            userDao.findByToken(Mockito.eq(TOKEN))
+        ).thenReturn(Optional.of(USER));
+
+        userService.refreshToken(TOKEN);
+    }
+    @Test(expected = InvalidTokenException.class)
+    public void testRefreshTokenUserNotFound(){
+        Mockito.when(
+            userDao.findByToken(Mockito.eq(TOKEN))
+        ).thenReturn(Optional.empty());
+
+        userService.refreshToken(TOKEN);
+    }
+    @Test
+    public void testRefreshPassToken(){
+        Mockito.when(
+            userDao.findByToken(Mockito.eq(TOKEN))
+        ).thenReturn(Optional.of(USER));
+
+        userService.refreshPassToken(TOKEN);
+    }
+    @Test(expected = InvalidTokenException.class)
+    public void testRefreshTokenPassUserNotFound(){
+        Mockito.when(
+            userDao.findByToken(Mockito.eq(TOKEN))
+        ).thenReturn(Optional.empty());
+
+        userService.refreshPassToken(TOKEN);
+    }
+
+    @Test
+    public void testNewPassword(){
+        Mockito.when(
+            userDao.hasExpired(Mockito.eq(TOKEN))
+        ).thenReturn(false);
+        Mockito.when(
+            userDao.isValid(Mockito.eq(TOKEN))
+        ).thenReturn(true);
+
+        userService.newPassword(TOKEN, PASSWORD);
+    }
+    @Test(expected = InvalidTokenException.class)
+    public void testNewPasswordUserNotValid(){
+        Mockito.when(
+            userDao.hasExpired(Mockito.eq(TOKEN))
+        ).thenReturn(false);
+        Mockito.when(
+            userDao.isValid(Mockito.eq(TOKEN))
+        ).thenReturn(false);
+
+        userService.newPassword(TOKEN, PASSWORD);
+    }
+    @Test(expected = ExpiredPassTokenException.class)
+    public void testNewPasswordTokenExpired(){
+        Mockito.when(
+            userDao.hasExpired(Mockito.eq(TOKEN))
+        ).thenReturn(true);
+
+        userService.newPassword(TOKEN, PASSWORD);
+    }
+
+    @Test
+    public void testForgotPass(){
+        Mockito.when(
+            userDao.findByEmail(Mockito.eq(EMAIL))
+        ).thenReturn(Optional.of(USER));
+        Mockito.when(
+            userDao.isUserValidByEmail(Mockito.eq(EMAIL))
+        ).thenReturn(true);
+
+        userService.forgotPass(EMAIL);
+    }
+    @Test(expected = UserValidatedException.class)
+    public void testForgotPassUserNotValid(){
+        Mockito.when(
+            userDao.findByEmail(Mockito.eq(EMAIL))
+        ).thenReturn(Optional.of(USER));
+        Mockito.when(
+            userDao.isUserValidByEmail(Mockito.eq(EMAIL))
+        ).thenReturn(false);
+
+        userService.forgotPass(EMAIL);
+    }
+    @Test(expected = RuntimeException.class)
+    public void testForgotPassUserNotFound(){
+        Mockito.when(
+            userDao.findByEmail(Mockito.eq(EMAIL))
+        ).thenReturn(Optional.empty());
+
+        userService.forgotPass(EMAIL);
     }
 }
 

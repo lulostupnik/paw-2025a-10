@@ -28,10 +28,16 @@ public class CityServiceImplTest {
 
     private static final String NAME = "city";
     private static final String COUNTRY_NAME = "cuntry";
-    private static final long ID = 0;
-    private static final City CITY = new City(NAME, COUNTRY_NAME, ID);
-    private static final Country COUNTRY = new Country(ID, COUNTRY_NAME, COUNTRY_NAME);
+    private static final long ID_1 = 0;
+    private static final long ID_2 = 1;
+    private static final City CITY_1 = new City(NAME, COUNTRY_NAME, ID_1);
+    private static final City CITY_2 = new City(null, null, ID_2);
+    private static final Country COUNTRY = new Country(ID_1, COUNTRY_NAME, COUNTRY_NAME);
     private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
+    private static final List<City> CITIES = List.of(CITY_1, CITY_2);
+    private static final Page<City> CITY_PAGE = new Page<City>(CITIES, 1, 1);
+    private static final String CITY_JSON = "[{\"name\":\"city\",\"country\":\"cuntry\",\"id\":0},{\"name\":\"\",\"country\":\"\",\"id\":1}]";
+    private static final String EMPTY_JSON = "[]";
 
 
     @InjectMocks
@@ -46,13 +52,13 @@ public class CityServiceImplTest {
     public void testFindByName(){
         Mockito.when(
             cityDao.findByName(Mockito.eq(NAME))
-        ).thenReturn(Optional.of(CITY));
+        ).thenReturn(Optional.of(CITY_1));
 
         Optional<City> maybeCity = cityService.findByName(NAME);
 
         assertNotNull(maybeCity);
         assertTrue(maybeCity.isPresent());
-        assertEquals(CITY, maybeCity.get());
+        assertEquals(CITY_1, maybeCity.get());
     }
     @Test
     public void testFindByNameNotFound(){
@@ -69,22 +75,22 @@ public class CityServiceImplTest {
     @Test
     public void testFindById(){
         Mockito.when(
-            cityDao.findById(Mockito.eq(ID))
-        ).thenReturn(Optional.of(CITY));
+            cityDao.findById(Mockito.eq(ID_1))
+        ).thenReturn(Optional.of(CITY_1));
 
-        Optional<City> maybeCity = cityService.findById(ID);
+        Optional<City> maybeCity = cityService.findById(ID_1);
 
         assertNotNull(maybeCity);
         assertTrue(maybeCity.isPresent());
-        assertEquals(CITY, maybeCity.get());
+        assertEquals(CITY_1, maybeCity.get());
     }
     @Test
     public void testFindByIdNotFound(){
         Mockito.when(
-            cityDao.findById(Mockito.eq(ID))
+            cityDao.findById(Mockito.eq(ID_1))
         ).thenReturn(Optional.empty());
 
-        Optional<City> maybeCity = cityService.findById(ID);
+        Optional<City> maybeCity = cityService.findById(ID_1);
 
         assertNotNull(maybeCity);
         assertFalse(maybeCity.isPresent());
@@ -92,7 +98,7 @@ public class CityServiceImplTest {
 
     @Test
     public void testGetAllCitiesPagedMissingQuery(){
-        Page<City> testPage = new Page<City>(List.of(CITY), 1, 1);
+        Page<City> testPage = new Page<City>(List.of(CITY_1), 1, 1);
         Mockito.when(
             cityDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
@@ -104,7 +110,7 @@ public class CityServiceImplTest {
     }
     @Test
     public void testGetAllCitiesPagedEmptyQuery(){
-        Page<City> testPage = new Page<City>(List.of(CITY), 1, 1);
+        Page<City> testPage = new Page<City>(List.of(CITY_1), 1, 1);
         Mockito.when(
             cityDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
@@ -116,7 +122,7 @@ public class CityServiceImplTest {
     }
     @Test
     public void testGetAllCitiesPagedQuery(){
-        Page<City> testPage = new Page<City>(List.of(CITY), 1, 1);
+        Page<City> testPage = new Page<City>(List.of(CITY_1), 1, 1);
         Mockito.when(
             cityDao.search(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
@@ -129,7 +135,7 @@ public class CityServiceImplTest {
 
     @Test
     public void testSearchBySubstring(){
-        Page<City> testPage = new Page<City>(List.of(CITY), 1, 1);
+        Page<City> testPage = new Page<City>(List.of(CITY_1), 1, 1);
         Mockito.when(
             cityDao.search(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(testPage);
@@ -146,7 +152,7 @@ public class CityServiceImplTest {
             countryService.findByName(Mockito.eq(COUNTRY_NAME))
         ).thenReturn(Optional.of(COUNTRY));
 
-        cityService.updateCity(ID, NAME, COUNTRY_NAME);
+        cityService.updateCity(ID_1, NAME, COUNTRY_NAME);
     }
     @Test(expected = IllegalArgumentException.class)
     public void testUpdateCityMissingCountry(){
@@ -154,7 +160,7 @@ public class CityServiceImplTest {
             countryService.findByName(Mockito.eq(COUNTRY_NAME))
         ).thenReturn(Optional.empty());
 
-        cityService.updateCity(ID, NAME, COUNTRY_NAME);
+        cityService.updateCity(ID_1, NAME, COUNTRY_NAME);
     }
     @Test(expected = DataIntegrityViolationException.class)
     public void testUpdateCityDuplicated(){
@@ -162,9 +168,9 @@ public class CityServiceImplTest {
             countryService.findByName(Mockito.eq(COUNTRY_NAME))
         ).thenReturn(Optional.of(COUNTRY));
         Mockito.doThrow(new DataIntegrityViolationException("data"))
-            .when(cityDao).update(Mockito.eq(ID), Mockito.eq(NAME), Mockito.eq(COUNTRY));
+            .when(cityDao).update(Mockito.eq(ID_1), Mockito.eq(NAME), Mockito.eq(COUNTRY));
 
-        cityService.updateCity(ID, NAME, COUNTRY_NAME);
+        cityService.updateCity(ID_1, NAME, COUNTRY_NAME);
     }
 
     @Test
@@ -196,6 +202,51 @@ public class CityServiceImplTest {
 
     @Test
     public void testDeleteCity(){
-        cityService.delete(ID);
+        cityService.delete(ID_1);
+    }
+
+    @Test
+    public void testGetCitiesJSON(){
+        Mockito.when(
+            cityDao.search(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
+        ).thenReturn(CITY_PAGE);
+
+        String json_derulo = cityService.getCitiesJson(NAME, PAGE_1_DEFAULT);
+
+        assertNotNull(json_derulo);
+        assertEquals(CITY_JSON, json_derulo);
+    }
+    @Test
+    public void testGetCitiesJSONMissingQuery(){
+        Mockito.when(
+            cityDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
+        ).thenReturn(CITY_PAGE);
+
+        String json_derulo = cityService.getCitiesJson(null, PAGE_1_DEFAULT);
+
+        assertNotNull(json_derulo);
+        assertEquals(CITY_JSON, json_derulo);
+    }
+    @Test
+    public void testGetCitiesJSONEmptyQuery(){
+        Mockito.when(
+            cityDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
+        ).thenReturn(CITY_PAGE);
+
+        String json_derulo = cityService.getCitiesJson("", PAGE_1_DEFAULT);
+
+        assertNotNull(json_derulo);
+        assertEquals(CITY_JSON, json_derulo);
+    }
+    @Test
+    public void testGetCitiesJSONNoCareers(){
+        Mockito.when(
+            cityDao.search(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
+        ).thenReturn(new Page<City>(List.of(), 1, 0));
+
+        String json_derulo = cityService.getCitiesJson(NAME, PAGE_1_DEFAULT);
+
+        assertNotNull(json_derulo);
+        assertEquals(EMPTY_JSON, json_derulo);
     }
 }

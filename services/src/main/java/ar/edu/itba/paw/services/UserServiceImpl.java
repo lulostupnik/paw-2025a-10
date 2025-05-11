@@ -154,11 +154,11 @@ public class UserServiceImpl implements UserService {
     public void refreshToken(String oldToken) {
         String uid = UUID.randomUUID().toString();
         LocalDate date = LocalDate.now().plusDays(1);
-        userDao.refreshToken(uid, date,oldToken);
         Optional<User> user = userDao.findByToken(oldToken);
         if(user.isEmpty()){
             throw new InvalidTokenException("Invalid Token");
         }
+        userDao.refreshToken(uid, date,oldToken);
         emailService.sendValidationEmail(user.get(),uid);
     }
 
@@ -167,11 +167,11 @@ public class UserServiceImpl implements UserService {
     public void refreshPassToken(String oldToken) {
         String uid = UUID.randomUUID().toString();
         LocalDate date = LocalDate.now().plusDays(1);
-        userDao.refreshToken(uid, date,oldToken);
         Optional<User> user = userDao.findByToken(oldToken);
         if(user.isEmpty()){
             throw new InvalidTokenException("Invalid Token");
         }
+        userDao.refreshToken(uid, date,oldToken);
         emailService.sendForgotPassEmail(user.get(),uid);
 
     }
@@ -194,7 +194,7 @@ public class UserServiceImpl implements UserService {
     public void forgotPass(String email) {
         User user = userDao.findByEmail(email).orElseThrow(()-> {
             LOGGER.warn("User with email {} not found", email);
-            return new RuntimeException("User does not exist");
+            throw new RuntimeException("User does not exist");
         });
 
 

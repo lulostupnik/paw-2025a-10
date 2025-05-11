@@ -18,10 +18,10 @@ public class University{
 
     public String toJSON() {
         return "{"
-                + "\"id\": " + id + ", "
-                + "\"name\": \"" + escapeJson(name) + "\", "
-                + "\"abbreviation\": \"" + escapeJson(abbreviation) + "\", "
-                + "\"city\": \"" + escapeJson(city.getName()) + "\""
+                + "\"id\":" + id + ","
+                + "\"name\":\"" + escapeJson(name) + "\","
+                + "\"abbreviation\":\"" + escapeJson(abbreviation) + "\","
+                + "\"city\":\"" + escapeJson(city != null ? city.getName() : null) + "\""
                 + "}";
     }
 
