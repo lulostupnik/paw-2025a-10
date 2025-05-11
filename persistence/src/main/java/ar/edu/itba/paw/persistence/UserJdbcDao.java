@@ -47,7 +47,7 @@ public class UserJdbcDao implements UserDao {
             rs.getBoolean("user_blocked")
     );
 
-    private final static RowMapper<UserAuthInfo> USER_PASSWORD_ROW_MAPPER = (rs, rowNum)-> new UserAuthInfo(
+    private final static RowMapper<UserAuthInfo> USER_AUTH_INFO_ROW_MAPPER = (rs, rowNum)-> new UserAuthInfo(
             rs.getString("email"),
             rs.getString("password"),
             rs.getString("roles"),
@@ -145,7 +145,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public Optional<UserAuthInfo> findAuthInfoByEmail(final String email) {
-        return jdbcTemplate.query("SELECT email, password, roles, blocked, validated AS verified FROM users WHERE email = ?", USER_PASSWORD_ROW_MAPPER, email).stream().findFirst();
+        return jdbcTemplate.query("SELECT email, password, roles, blocked, validated AS verified FROM users WHERE email = ?", USER_AUTH_INFO_ROW_MAPPER, email).stream().findFirst();
     }
 
     @Override
@@ -264,7 +264,7 @@ public class UserJdbcDao implements UserDao {
                 WHERE token = ?
                 RETURNING email, password, roles, blocked, true AS verified
                 """,
-                USER_PASSWORD_ROW_MAPPER,
+                USER_AUTH_INFO_ROW_MAPPER,
                 token
         ).stream().findFirst();
 
