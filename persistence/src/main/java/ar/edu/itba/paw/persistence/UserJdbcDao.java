@@ -126,8 +126,11 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public void updateToken(final long id, final String uid, final LocalDate date) {
-        jdbcTemplate.update("UPDATE users SET token = ?, token_expiration = ? WHERE id = ?", uid, date, id);
+    public void updateToken(final long id, final String uuid, final LocalDate date) {
+        int updatedRows = jdbcTemplate.update("UPDATE users SET token = ?, token_expiration = ? WHERE id = ?", uuid, date, id);
+        if(updatedRows == 0){
+            LOGGER.warn("Update token failed: user with ID: {} not found", id);
+        }
     }
 
     @Override
@@ -147,7 +150,6 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public void updatePassword(final long id, final String password) {
-        LOGGER.info("Updating password for user with ID: {} (has password {})", id, password != null && !password.isEmpty()); // todo: no entiendo el has password
         final int updatedRows = jdbcTemplate.update("UPDATE users SET password = ? WHERE id = ?", password, id);
         if (updatedRows == 0) {
             LOGGER.warn("Password change failed: user with ID: {} not found", id);
@@ -173,7 +175,6 @@ public class UserJdbcDao implements UserDao {
     @Override
     public User create(final String email, final String username, final String firstname, final String lastname, final University university,
                        final Career career, final long profilePictureId, final String password, final Locale locale,final String validateToken, final LocalDate expirationDate) {
-        LOGGER.debug("Registering new user to DB");
         final Map<String, Object> args = new HashMap<>();
         args.put("email", email);
         args.put("username", username);
@@ -189,17 +190,16 @@ public class UserJdbcDao implements UserDao {
         args.put("token", validateToken);
         args.put("token_expiration", Date.valueOf(expirationDate));
         args.put("validated",false);
-        final Number id = jdbcInsert.executeAndReturnKey(args);
-        final User user = new User(id.longValue(), email, username, firstname, lastname, university, career, profilePictureId, locale,false);
-        LOGGER.info("Successfully registered new user {}", user);
-        return user;
+        final long id = jdbcInsert.executeAndReturnKey(args).longValue();
+        return new User(id, email, username, firstname, lastname, university, career, profilePictureId, locale,false);
     }
 
     @Override
     public void updatePasswordByToken(final String token, final String newPassword) {
-        jdbcTemplate.update("""
-        UPDATE users SET password = ? WHERE token = ?
-    """, newPassword, token);
+        int updatedRows = jdbcTemplate.update("UPDATE users SET password = ? WHERE token = ?", newPassword, token);
+        if(updatedRows == 0) {
+            LOGGER.warn("Password change failed: user with token: {} not found", token);
+        }
     }
 
 
@@ -224,37 +224,31 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public boolean findValidatedByTokenNotExpired(final String token) {
-        String sql = """
-        SELECT validated
-        FROM users
-        WHERE token = ?
-        AND token_expiration > NOW()
-    """;
+    public Optional<Boolean> findValidatedByTokenNotExpired(final String token) {
 
-        List<Boolean> results = jdbcTemplate.query(sql, (rs, rowNum) -> rs.getBoolean("validated"), token);
+        return jdbcTemplate.query(
+                """
+                SELECT validated
+                FROM users
+                WHERE token = ?
+                AND token_expiration > NOW()
+                """, (rs, rowNum) -> rs.getBoolean("validated"), token)
+                .stream().findFirst();
 
-        if (results.isEmpty()) {
-            return false;
-        }
-
-        return Boolean.TRUE.equals(results.getFirst());
     }
 
 
     @Override
     public boolean existsByTokenNotExpired(final String token) {
-        String sql = """
-        SELECT COUNT(*)
-        FROM users
-        WHERE token = ?
-        AND token_expiration > NOW()
-        AND validated = TRUE
-    """;
-
-        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, token);
-
-        return count != null && count > 0;
+        return jdbcTemplate.queryForObject(
+            """
+            SELECT COUNT(*)
+            FROM users
+            WHERE token = ?
+            AND token_expiration > NOW()
+            AND validated = TRUE
+            """, Boolean.class, token
+        );
     }
 
 
