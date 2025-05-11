@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import java.util.Collections;
 import java.util.List;
 
 import ar.edu.itba.paw.interfaces.services.JourneyService;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -33,7 +31,7 @@ public class LandingController {
     }
 
     @GetMapping("/")
-    public ModelAndView landing(@ModelAttribute("user") User user) {
+    public ModelAndView landing() {
         LOGGER.debug("Loading landing page");
         ModelAndView mav = new ModelAndView("index");
         List<Event> recommendedEvents = eventService.getTopEvents(3);
@@ -59,7 +57,6 @@ public class LandingController {
     public ModelAndView explore(
             @RequestParam(value = "validationSuccess", required = false, defaultValue = "false") final boolean validationSuccess,
             @ModelAttribute("user") User user) {
-        LOGGER.debug("Getting dashboard page...");
 
         ModelAndView mav = new ModelAndView("home");
         mav.addObject("validationSuccess", validationSuccess);

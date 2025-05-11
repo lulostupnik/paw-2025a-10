@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.util.NestedServletException;
 
 @ControllerAdvice
 public class ExceptionHandlerAdvice {
@@ -54,7 +53,7 @@ public class ExceptionHandlerAdvice {
         LOGGER.warn("EventNotFoundException: {}", ex.getMessage());
         LOGGER.debug("Stack trace for EventNotFoundException", ex);
 
-        return new ModelAndView("events/not_found");
+        return new ModelAndView("not-found");
     }
 
     @ExceptionHandler(JourneyNotFoundException.class)
@@ -63,7 +62,14 @@ public class ExceptionHandlerAdvice {
         LOGGER.warn("JourneyNotFoundException: {}", ex.getMessage());
         LOGGER.debug("Stack trace for JourneyNotFoundException", ex);
 
-        return new ModelAndView("journeys/not_found");
+        return new ModelAndView("not-found");
+    }
+    @ExceptionHandler(CareerNotFoundException.class)
+    @ResponseStatus(code= HttpStatus.NOT_FOUND)
+    public ModelAndView error404Career(CareerNotFoundException ex) {
+        LOGGER.warn("CareerNotFoundException: {}", ex.getMessage());
+        LOGGER.debug("Stack trace for CareerNotFoundException", ex);
+        return new ModelAndView("careers/not-found");
     }
 
     @ExceptionHandler(AccessDeniedException.class)

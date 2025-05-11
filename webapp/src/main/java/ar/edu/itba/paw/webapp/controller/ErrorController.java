@@ -32,7 +32,6 @@ public class ErrorController {
     public ModelAndView error500() {
         ModelAndView mav = new ModelAndView(ERROR_VIEW);
         mav.addObject("errorType", "500");
-//        mav.addObject("errorIcon", "server-off");
         return mav;
     }
 

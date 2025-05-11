@@ -61,8 +61,7 @@ public class AuthController {
     @PostMapping(value ="/reset-password")
     public ModelAndView changePass(@RequestParam("token") String token, @Valid@ModelAttribute("updatePasswordForm")UpdatePasswordForm form, final BindingResult errors) {
         if(errors.hasErrors()) {
-            LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
-            LOGGER.debug("Errors: {}", errors);
+            LOGGER.debug("Found {} errors in Update Password form data", errors.getErrorCount());
             return changePassForm(token, form);
         }
         userService.newPassword(token, form.getPassword());
@@ -96,9 +95,8 @@ public class AuthController {
     @PostMapping("/forgot_pass")
     public ModelAndView forgotPass(@Valid @ModelAttribute ("emailForm") final EmailForm form,
                                    final BindingResult errors) {
-        LOGGER.debug("Loading forgot password form");
         if (errors.hasErrors()) {
-            LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
+            LOGGER.debug("Found {} errors in Forgot Password form data", errors.getErrorCount());
             LOGGER.debug("Errors: {}", errors);
             return forgotPassForm(form);
         }
@@ -109,7 +107,6 @@ public class AuthController {
 
     @RequestMapping("/blocked")
     public ModelAndView blockedForm() {
-        LOGGER.debug("Loading blocked view");
         ModelAndView mav = new ModelAndView("auth/blocked-user");
         mav.addObject("email", "paw.2025a.10@gmail.com" );
         return mav;
@@ -117,7 +114,6 @@ public class AuthController {
 
     @GetMapping(value = "/register")
     public ModelAndView registerForm(@ModelAttribute ("createUserForm") final CreateUserForm form) {
-        LOGGER.debug("Loading register form");
         return new ModelAndView("auth/register");
     }
 
