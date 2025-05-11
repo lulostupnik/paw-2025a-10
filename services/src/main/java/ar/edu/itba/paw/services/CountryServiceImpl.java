@@ -30,12 +30,6 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Override
-    public boolean existsByName(String name) {
-        LOGGER.debug("Checking if country {} exists", name);
-        return countryDao.existsByName(name);
-    }
-
-    @Override
     @Cacheable(value="countriesByName", key="#name")
     public Optional<Country> findByName(String name) {
         return countryDao.findByName(name);

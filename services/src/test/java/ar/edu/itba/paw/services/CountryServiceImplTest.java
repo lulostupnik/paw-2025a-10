@@ -78,25 +78,4 @@ public class CountryServiceImplTest {
         assertNotNull(maybeCountry);
         assertFalse(maybeCountry.isPresent());
     }
-
-    @Test
-    public void testExistsByName(){
-        Mockito.when(
-            countryDao.existsByName(Mockito.eq(NAME))
-        ).thenReturn(true);
-
-        boolean exists = countryService.existsByName(NAME);
-
-        assertTrue(exists);
-    }
-    @Test
-    public void testExistsByNameNotFound(){
-        Mockito.when(
-            countryDao.existsByName(Mockito.eq(NAME))
-        ).thenReturn(false);
-
-        boolean exists = countryService.existsByName(NAME);
-
-        assertFalse(exists);
-    }
 }

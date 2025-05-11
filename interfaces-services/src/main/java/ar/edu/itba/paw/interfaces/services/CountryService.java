@@ -7,6 +7,5 @@ import java.util.Optional;
 
 public interface CountryService {
     List<Country> getAllCountries();
-    boolean existsByName(String name);
     Optional<Country> findByName(String name);
 }
