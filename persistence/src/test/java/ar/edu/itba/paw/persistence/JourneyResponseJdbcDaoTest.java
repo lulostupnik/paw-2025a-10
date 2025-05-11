@@ -1,4 +1,4 @@
-package ar.edu.itba.paw.persistance;
+package ar.edu.itba.paw.persistence;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ar.edu.itba.paw.models.Journey;
 import ar.edu.itba.paw.models.JourneyResponse;
 import ar.edu.itba.paw.models.Page;
-import ar.edu.itba.paw.persistence.JourneyResponseJdbcDao;
 
 @Transactional
 @Rollback

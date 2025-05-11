@@ -13,7 +13,6 @@ import javax.sql.DataSource;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
-import ar.edu.itba.paw.models.enums.SortFieldJourney;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -146,14 +145,6 @@ public class EventJdbcDao implements EventDao {
                    WHERE e.user_id != ? AND e.deleted = FALSE AND e.event_date >= CURRENT_DATE
                    """;
 
-    private final static String SQL_SEARCH_EVENTS_WITH_ATTENDANCE = SQL_FIND_EVENTS_WITH_ATTENDANCE + """
-                   AND (
-                            LOWER(e.title) LIKE LOWER(?)
-                    --        OR LOWER(e.description) LIKE LOWER(?)
-                            OR LOWER(c.name) LIKE LOWER(?)
-                            OR LOWER(us.username) LIKE LOWER(?)
-                        )
-                   """;
 
     private final static String SQL_SELECT_WITH_USER_INFO = "SELECT (ea.user_id IS NOT NULL) AS is_attending, (e.user_id = ?) AS is_owner, " + SQL_ALIASES;
 
