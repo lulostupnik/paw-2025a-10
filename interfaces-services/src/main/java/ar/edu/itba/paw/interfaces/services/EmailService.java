@@ -17,12 +17,9 @@ public interface EmailService {
 
     void sendJourneyDeletionNotification(Journey journey, String adminMessage);
 
-    void sendEventModificationNotification(Event event, String adminMessage);
     void sendForgotPassEmail(User user, String token);
-    void sendJourneyModificationNotification(Journey journey, String adminMessage);
     void sendUserBlockedNotification(User blockedUser/*, String adminMessage*/);
     void sendEventCommentDeletionNotification(EventResponse deletedComment, Event event, User commentAuthor, String adminMessage);
-//    void sendJourneyCommentDeletionNotification(/*JourneyResponse deletedComment, Journey journey, User commentAuthor,*/ long journeyResponseId, String adminMessage) ;
      void sendJourneyCommentDeletionNotification(/*long journeyResponseId,*/ JourneyResponse deletedComment,  Journey journey, User commentAuthor , String adminMessage);
      void sendValidationEmail(User user, String token);
      void sendUserUnblockedNotification(User unblockedUser);

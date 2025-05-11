@@ -222,28 +222,6 @@ public class EmailServiceImpl implements EmailService {
                 "email.journey.deletion.title", Optional.empty());
     }
 
-    @Override
-    public void sendEventModificationNotification(Event event, String adminMessage) {
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("eventTitle", event.getTitle());
-        variables.put("eventId", event.getId());
-        variables.put("adminMessage", adminMessage);
-
-        sendHtmlMessage(Optional.empty(),Optional.empty(), event.getUser(), "event-modified", variables,
-                "email.event.modification.title", Optional.of(new Object[]{event.getTitle()}));
-    }
-
-    @Override
-    public void sendJourneyModificationNotification(Journey journey, String adminMessage) {
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("journeyId", journey.getId());
-        variables.put("adminMessage", adminMessage);
-
-        sendHtmlMessage(Optional.empty(),Optional.empty(), journey.getUser(), "journey-modified", variables,
-                "email.journey.modification.title", Optional.empty());
-    }
-
-
 
     @Override
     public void sendUserBlockedNotification(User blockedUser) {
