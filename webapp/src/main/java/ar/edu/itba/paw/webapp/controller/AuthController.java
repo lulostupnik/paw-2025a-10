@@ -44,7 +44,7 @@ public class AuthController {
         }
         loginHelper.loginUser(user.get().getEmail());
         LOGGER.debug("User {} validated", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        return new ModelAndView("redirect:/explore");
+        return new ModelAndView("redirect:/explore?validationSuccess=true");
     }
 
     @GetMapping(value ="/not-verified")
