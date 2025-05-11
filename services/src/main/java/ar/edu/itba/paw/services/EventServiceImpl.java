@@ -100,7 +100,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Page<Event> getAllEvents(PageParams pageParams){
-        return eventDao.listAll(pageParams);
+        return eventDao.findAll(pageParams);
     }
 
     @Override
@@ -117,15 +117,15 @@ public class EventServiceImpl implements EventService {
     public Page<Event> getAllEventsSearch(String search,PageParams pageParams) {
         LOGGER.debug("Getting all events with search {}", search);
         if (search == null || search.isEmpty()) {
-            return eventDao.listAll(pageParams);
+            return eventDao.findAll(pageParams);
         }
-        return eventDao.searchEvents(search, pageParams);
+        return eventDao.search(search, pageParams);
     }
 
 
     @Override
     public Page<Event> getAllEvents(String email, PageParams pageParams) {
-        return eventDao.getEvents(email, pageParams);
+        return eventDao.findByUserEmail(email, pageParams);
     }
 
 
@@ -137,7 +137,7 @@ public class EventServiceImpl implements EventService {
             LOGGER.debug("User {} is already attending event {}", userId, eventId);
             return;
         }
-        Optional<Integer> limit = eventDao.getEventAttendanceLimit(eventId);
+        Optional<Integer> limit = eventDao.findAttendanceLimitById(eventId);
         if(limit.isEmpty()){
             eventAttendanceDao.attend(userId, eventId);
             return;
@@ -219,10 +219,10 @@ public class EventServiceImpl implements EventService {
             throw new IllegalArgumentException("Limit must be greater than 0");
         }
         LOGGER.debug("Fetching recommended events for user id: {}, with limit: {}", userId, limit);
-        List<Event> events = eventDao.getRecommendedEvents(userId, new PageParams(1, limit)).getContent();
+        List<Event> events = eventDao.findRecommended(userId, new PageParams(1, limit)).getContent();
         if (events.isEmpty()) {
             LOGGER.debug("No recommended events found for user {}. Falling back to top events.", userId);
-            events = eventDao.getTopUserEvents(userId,new PageParams(1, limit)).getContent();
+            events = eventDao.findTopByUser(userId,new PageParams(1, limit)).getContent();
         } else {
             LOGGER.debug("Found {} recommended events for user {}", events.size(), userId);
         }
@@ -236,7 +236,7 @@ public class EventServiceImpl implements EventService {
         if (limit <= 0) {
             throw new IllegalArgumentException("Limit must be greater than 0");
         }
-        return eventDao.getTopEvents(new PageParams(1, limit)).getContent();
+        return eventDao.findTop(new PageParams(1, limit)).getContent();
     }
 
     @Override
@@ -248,7 +248,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public boolean isEventFull(long eventId) {
-        Optional<Integer> limit = eventDao.getEventAttendanceLimit(eventId);
+        Optional<Integer> limit = eventDao.findAttendanceLimitById(eventId);
         return limit.isPresent() && eventAttendanceDao.getAttendeesCount(eventId) >= limit.get();
     }
 
@@ -267,7 +267,7 @@ public class EventServiceImpl implements EventService {
                                      boolean isPast, boolean isUpcoming, boolean attending,
                                      PageParams pageParams) {
 
-        return eventDao.getEvents(user == null ? null : user.getId(), search, sortBy, direction, destination, startDate, endDate, interest,
+        return eventDao.findAllWithFilters(user == null ? null : user.getId(), search, sortBy, direction, destination, startDate, endDate, interest,
                 isPast, isUpcoming, attending, pageParams);
     }
 
@@ -288,7 +288,7 @@ public class EventServiceImpl implements EventService {
             imageService.deleteImage(currentEvent.getFlyerImageId());
         }
         // hacer void ?
-        eventDao.updateData(resolvedCityId, date, description,
+        eventDao.update(resolvedCityId, date, description,
                 title, time, address, attendeesLimit, eventId, flyerImageId
        );
 
@@ -303,10 +303,10 @@ public class EventServiceImpl implements EventService {
         LOGGER.debug("Deleting event {}", id);
         Event event = eventDao.findById(id).orElseThrow(() -> new RuntimeException("Event not found"));
         if(message != null && !message.isEmpty()){
-            eventDao.deletionMessage(id, message);
+            eventDao.updateDeletionMessage(id, message);
             emailService.sendEventDeletionNotification(event,message);
         }
-        eventResponseDao.deleteByEventId(id);
+        eventResponseDao.deleteAllByEventId(id);
         eventDao.delete(id);
     }
 
@@ -328,7 +328,7 @@ public class EventServiceImpl implements EventService {
 
         emailService.sendEventCommentDeletionNotification(deletedComment,event,commentAuthor, message );
 
-        eventResponseDao.deletionMessage(id, message);
+        eventResponseDao.updateDeletionMessage(id, message);
         eventResponseDao.delete(id);
     }
 
@@ -341,12 +341,12 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public long getEventIdByResponseId(long eventResponseId) {
-        return eventResponseDao.getEventIdByResponseId(eventResponseId);
+        return eventResponseDao.findEventIdById(eventResponseId);
     }
 
     @Override
     public Page<EventResponse> listAllResponseFromEvent(long eventId, PageParams pageParams) {
-        return eventResponseDao.listAllFromEvent(eventId,pageParams);
+        return eventResponseDao.listAllByEventId(eventId,pageParams);
     }
 
     @Override

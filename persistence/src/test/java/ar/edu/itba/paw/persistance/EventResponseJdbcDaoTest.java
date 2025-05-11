@@ -95,14 +95,14 @@ public class EventResponseJdbcDaoTest {
     }
 
     @Test
-    public void testListAllFromEventPaged(){
+    public void testListAllByEventIdPaged(){
         insert.execute(Map.of("user_id", USER_1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", false));
         insert.execute(Map.of("user_id", USER_1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", false));
         insert.execute(Map.of("user_id", USER_1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", false));
         insert.execute(Map.of("user_id", USER_1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", true));
 
-        Page<EventResponse> page1 = replyDao.listAllFromEvent(EVENT1_ID, new PageParams(1, 2));
-        Page<EventResponse> page2 = replyDao.listAllFromEvent(EVENT1_ID, new PageParams(2, 2));
+        Page<EventResponse> page1 = replyDao.listAllByEventId(EVENT1_ID, new PageParams(1, 2));
+        Page<EventResponse> page2 = replyDao.listAllByEventId(EVENT1_ID, new PageParams(2, 2));
 
         assertNotNull(page1);
         assertNotNull(page2);
@@ -127,10 +127,10 @@ public class EventResponseJdbcDaoTest {
         }
     }
     @Test
-    public void testListAllFromEventPagedNoReplies(){
+    public void testListAllByEventIdPagedNoReplies(){
         insert.execute(Map.of("user_id", USER_1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", true));
 
-        Page<EventResponse> page1 = replyDao.listAllFromEvent(EVENT1_ID, new PageParams(1, 2));
+        Page<EventResponse> page1 = replyDao.listAllByEventId(EVENT1_ID, new PageParams(1, 2));
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -139,8 +139,8 @@ public class EventResponseJdbcDaoTest {
         assertEquals(0, page1.getContent().size());
     }
     @Test
-    public void testListAllFromEventPagedNoEvent(){
-        Page<EventResponse> page1 = replyDao.listAllFromEvent(1234234, new PageParams(1, 2));
+    public void testListAllByEventPagedNoEventId(){
+        Page<EventResponse> page1 = replyDao.listAllByEventId(1234234, new PageParams(1, 2));
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -174,16 +174,16 @@ public class EventResponseJdbcDaoTest {
     }
 
     @Test
-    public void testGetEventIdByResponseId(){
+    public void testFindEventIdById(){
         long replyId = insert.executeAndReturnKey(Map.of("user_id", USER_1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", false)).longValue();
         
-        long eventId = replyDao.getEventIdByResponseId(replyId);
+        long eventId = replyDao.findEventIdById(replyId);
 
         assertEquals(EVENT1_ID, eventId);
     }
     @Test(expected = NoSuchElementException.class)
-    public void testGetEventIdByResponseIdNoResponse(){
-        replyDao.getEventIdByResponseId(12341234);
+    public void testFindEventIdByResponseIdNo(){
+        replyDao.findEventIdById(12341234);
     }
 
     @Test
@@ -216,53 +216,53 @@ public class EventResponseJdbcDaoTest {
     }
 
     @Test
-    public void testDeletionMessage(){
+    public void testUpdateDeletionMessage(){
         long replyId1 = insert.executeAndReturnKey(Map.of("user_id", USER_1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", true)).longValue();
         insert.execute(Map.of("user_id", USER_1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", false));
 
-        replyDao.deletionMessage(replyId1, "REPLY_MESSAGE");
+        replyDao.updateDeletionMessage(replyId1, "REPLY_MESSAGE");
 
         assertEquals("REPLY_MESSAGE", jdbcTemplate.queryForObject("SELECT deleted_message FROM event_responses WHERE id = ?", String.class, replyId1));
     }
     @Test
-    public void testDeletionMessageNoMessage(){
+    public void testUpdateDeletionMessageNoMessage(){
         long replyId1 = insert.executeAndReturnKey(Map.of("user_id", USER_1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", true)).longValue();
         insert.execute(Map.of("user_id", USER_1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", false));
 
-        replyDao.deletionMessage(replyId1, null);
+        replyDao.updateDeletionMessage(replyId1, null);
 
         assertEquals(null, jdbcTemplate.queryForObject("SELECT deleted_message FROM event_responses WHERE id = ?", String.class, replyId1));
     }
     @Test
-    public void testDeletionMessageWrongReply(){
+    public void testUpdateDeletionMessageWrongReply(){
         insert.execute(Map.of("user_id", USER_1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", true));
         insert.execute(Map.of("user_id", USER_1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", false));
 
-        replyDao.deletionMessage(123123, "REPLY_MESSAGE");
+        replyDao.updateDeletionMessage(123123, "REPLY_MESSAGE");
         //TODO asserts
     }
 
     @Test
-    public void testDeleteByEventId(){
+    public void testDeleteAllByEventId(){
         insert.execute(Map.of("user_id", USER_1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", true));
         insert.execute(Map.of("user_id", USER_1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", false));
 
-        replyDao.deleteByEventId(EVENT1_ID);
+        replyDao.deleteAllByEventId(EVENT1_ID);
         
         assertEquals(0, jdbcTemplate.query("SELECT * from event_responses WHERE deleted = FALSE AND event_id = ?", (rs, rowNum) -> 1, EVENT1_ID).size());
     }
     @Test
-    public void testDeleteByEventIdNotFound(){
-        replyDao.deleteByEventId(12341234);
+    public void testDeleteAllByEventIdNotFound(){
+        replyDao.deleteAllByEventId(12341234);
         
         assertEquals(0, jdbcTemplate.query("SELECT * from event_responses WHERE deleted = FALSE AND event_id = ?", (rs, rowNum) -> 1, EVENT1_ID).size());
     }
 
     @Test
-    public void testFindByIdDeletedOrNotDeleted(){
+    public void testFindByIdDeletedOrNot(){
         long id = insert.executeAndReturnKey(Map.of("user_id", USER_1.getId(), "event_id", EVENT1_ID, "message", REPLY_MESSAGE, "date_time", Timestamp.valueOf(REPLY_TIMESTAMP), "deleted", true)).longValue();
 
-        Optional<EventResponse> maybeResponse = replyDao.findByIdDeletedOrNotDeleted(id);
+        Optional<EventResponse> maybeResponse = replyDao.findByIdDeletedOrNot(id);
 
         assertNotNull(maybeResponse);
         assertTrue(maybeResponse.isPresent());

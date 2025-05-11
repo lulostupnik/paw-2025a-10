@@ -186,7 +186,7 @@ public class EventServiceImplTest {
     @Test
     public void testGetAllEventsPaged(){
         Mockito.when(
-            eventDao.listAll(Mockito.eq(PAGE_1_DEFAULT))
+            eventDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
         Page<Event> page = eventService.getAllEvents(PAGE_1_DEFAULT);
@@ -198,7 +198,7 @@ public class EventServiceImplTest {
     @Test
     public void testGetAllEventsPagedEmail(){
         Mockito.when(
-            eventDao.getEvents(Mockito.eq(EMAIL), Mockito.eq(PAGE_1_DEFAULT))
+            eventDao.findByUserEmail(Mockito.eq(EMAIL), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
         Page<Event> page = eventService.getAllEvents(EMAIL, PAGE_1_DEFAULT);
@@ -210,7 +210,7 @@ public class EventServiceImplTest {
     @Test
     public void testGetAllEventsSearchMissingQuery(){
         Mockito.when(
-            eventDao.listAll(Mockito.eq(PAGE_1_DEFAULT))
+            eventDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
         Page<Event> page = eventService.getAllEventsSearch(null, PAGE_1_DEFAULT);
@@ -221,7 +221,7 @@ public class EventServiceImplTest {
     @Test
     public void testGetAllEventsSearchEmptyQuery(){
         Mockito.when(
-            eventDao.listAll(Mockito.eq(PAGE_1_DEFAULT))
+            eventDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
         Page<Event> page = eventService.getAllEventsSearch("", PAGE_1_DEFAULT);
@@ -232,7 +232,7 @@ public class EventServiceImplTest {
     @Test
     public void testGetAllEventsSearchQuery(){
         Mockito.when(
-            eventDao.searchEvents(Mockito.eq(DESCRIPTION), Mockito.eq(PAGE_1_DEFAULT))
+            eventDao.search(Mockito.eq(DESCRIPTION), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
         Page<Event> page = eventService.getAllEventsSearch(DESCRIPTION, PAGE_1_DEFAULT);
@@ -246,7 +246,7 @@ public class EventServiceImplTest {
     @Test
     public void testGetAllEventsEmailPaged(){
         Mockito.when(
-            eventDao.getEvents(Mockito.eq(EMAIL), Mockito.eq(PAGE_1_DEFAULT))
+            eventDao.findByUserEmail(Mockito.eq(EMAIL), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
         Page<Event> page = eventService.getAllEvents(EMAIL, PAGE_1_DEFAULT);
@@ -261,7 +261,7 @@ public class EventServiceImplTest {
             attendanceDao.isAttending(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
         ).thenReturn(false);
         Mockito.when(
-            eventDao.getEventAttendanceLimit(Mockito.eq(EVENT_ID))
+            eventDao.findAttendanceLimitById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.of(LIMIT));
         Mockito.when(
             attendanceDao.getAttendeesCount(Mockito.eq(EVENT_ID))
@@ -275,7 +275,7 @@ public class EventServiceImplTest {
             attendanceDao.isAttending(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
         ).thenReturn(false);
         Mockito.when(
-            eventDao.getEventAttendanceLimit(Mockito.eq(EVENT_ID))
+            eventDao.findAttendanceLimitById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.of(LIMIT));
         Mockito.when(
             attendanceDao.getAttendeesCount(Mockito.eq(EVENT_ID))
@@ -289,7 +289,7 @@ public class EventServiceImplTest {
             attendanceDao.isAttending(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
         ).thenReturn(false);
         Mockito.when(
-            eventDao.getEventAttendanceLimit(Mockito.eq(EVENT_ID))
+            eventDao.findAttendanceLimitById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.empty());
 
         eventService.attendEvent(USER_ID, EVENT_ID);
@@ -312,7 +312,7 @@ public class EventServiceImplTest {
             attendanceDao.isAttending(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
         ).thenReturn(false);
         Mockito.when(
-            eventDao.getEventAttendanceLimit(Mockito.eq(EVENT_ID))
+            eventDao.findAttendanceLimitById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.of(LIMIT));
         Mockito.when(
             attendanceDao.getAttendeesCount(Mockito.eq(EVENT_ID))
@@ -329,7 +329,7 @@ public class EventServiceImplTest {
             attendanceDao.isAttending(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
         ).thenReturn(false);
         Mockito.when(
-            eventDao.getEventAttendanceLimit(Mockito.eq(EVENT_ID))
+            eventDao.findAttendanceLimitById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.of(LIMIT));
         Mockito.when(
             attendanceDao.getAttendeesCount(Mockito.eq(EVENT_ID))
@@ -346,7 +346,7 @@ public class EventServiceImplTest {
             attendanceDao.isAttending(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
         ).thenReturn(false);
         Mockito.when(
-            eventDao.getEventAttendanceLimit(Mockito.eq(EVENT_ID))
+            eventDao.findAttendanceLimitById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.empty());
 
         eventService.attendEvent(EMAIL, EVENT_ID);
@@ -487,7 +487,7 @@ public class EventServiceImplTest {
     @Test
     public void testGetRecommendedEvents(){
         Mockito.when(
-            eventDao.getRecommendedEvents(Mockito.eq(USER_ID), Mockito.eq(PAGE_1_DEFAULT))
+            eventDao.findRecommended(Mockito.eq(USER_ID), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
         List<Event> userevents = eventService.getRecommendedEvents(USER_ID, 2);
@@ -498,10 +498,10 @@ public class EventServiceImplTest {
     @Test
     public void testGetRecommendedEventsMissing(){
         Mockito.when(
-            eventDao.getRecommendedEvents(Mockito.eq(USER_ID), Mockito.eq(PAGE_1_DEFAULT))
+            eventDao.findRecommended(Mockito.eq(USER_ID), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(new Page<>(List.of(), 1, 0));
         Mockito.when(
-            eventDao.getTopUserEvents(Mockito.eq(USER_ID), Mockito.eq(PAGE_1_DEFAULT))
+            eventDao.findTopByUser(Mockito.eq(USER_ID), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
         List<Event> userevents = eventService.getRecommendedEvents(USER_ID, 2);
@@ -517,7 +517,7 @@ public class EventServiceImplTest {
     @Test
     public void testGetTopEvents(){
         Mockito.when(
-            eventDao.getTopEvents(Mockito.eq(PAGE_1_DEFAULT))
+            eventDao.findTop(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
         List<Event> events = eventService.getTopEvents(2);
@@ -564,7 +564,7 @@ public class EventServiceImplTest {
     @Test
     public void testIsEventFull(){
         Mockito.when(
-            eventDao.getEventAttendanceLimit(Mockito.eq(EVENT_ID))
+            eventDao.findAttendanceLimitById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.of(LIMIT));
         Mockito.when(
             attendanceDao.getAttendeesCount(Mockito.eq(EVENT_ID))
@@ -577,7 +577,7 @@ public class EventServiceImplTest {
     @Test
     public void testIsEventFullActuallyFull(){
         Mockito.when(
-            eventDao.getEventAttendanceLimit(Mockito.eq(EVENT_ID))
+            eventDao.findAttendanceLimitById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.of(ATTENDEES));
         Mockito.when(
             attendanceDao.getAttendeesCount(Mockito.eq(EVENT_ID))
@@ -590,7 +590,7 @@ public class EventServiceImplTest {
     @Test
     public void testIsEventFullNoLimit(){
         Mockito.when(
-            eventDao.getEventAttendanceLimit(Mockito.eq(EVENT_ID))
+            eventDao.findAttendanceLimitById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.empty());
 
         boolean isFull = eventService.isEventFull(EVENT_ID);

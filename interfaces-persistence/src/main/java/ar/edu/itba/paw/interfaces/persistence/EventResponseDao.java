@@ -9,13 +9,15 @@ import java.util.Optional;
 public interface EventResponseDao {
     EventResponse create(long userId, String username, long eventId, String message, LocalDateTime dateTime);
     int countByEventId(long eventId);
-    Page<EventResponse> listAllFromEvent(long eventId, PageParams pageParams);
+    Page<EventResponse> listAllByEventId(long eventId, PageParams pageParams);
     void delete(long id);
-    long getEventIdByResponseId(long eventId);
-    void deletionMessage(long id, String message);
-    void deleteByEventId(long eventId);
-    Optional<EventResponse> findById(long responseId);
-    Optional<EventResponse> findByIdDeletedOrNotDeleted(long responseId);
+    void updateDeletionMessage(long id, String message);
+    void deleteAllByEventId(long eventId);
+    Optional<EventResponse> findById(long id);
+    Optional<EventResponse> findByIdDeletedOrNot(long id);
+
+    long findEventIdById(long id);
+
 
 
 }
