@@ -7,6 +7,7 @@ import ar.edu.itba.paw.models.exceptions.ExpiredPassTokenException;
 import ar.edu.itba.paw.models.exceptions.ExpiredTokenException;
 import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
 import ar.edu.itba.paw.models.exceptions.UserValidatedException;
+import org.apache.commons.logging.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,18 +49,24 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User createUser(final String email,final  String username,final  String firstname,final  String lastname,final  String universityName, final String careerName,final  byte[] profilePicture, final List<String> interests,final  String password, final Locale locale) {
-        LOGGER.debug("Creating user for {}", email);
+        LOGGER.debug("Creating new user with email: {} and username: {}", email, username);
+        University university = universityService.findByName(universityName)
+                .orElseThrow(() -> {
+                    LOGGER.error("University not found: '{}' during user creation for email: {}", universityName, email);
+                    return new RuntimeException("University not found");
+                });
 
-        University university = universityService.findByName(universityName).orElseThrow(() -> new RuntimeException("University not found")); // TODO: ¿Acá cuando tira excepción debería haber un log?
-
-        Career career = careerService.findByName(careerName).orElseThrow(() -> new RuntimeException("Career not found"));
+        Career career = careerService.findByName(careerName)
+                .orElseThrow(() -> {
+                    LOGGER.error("Career not found: '{}' during user creation for email: {}", careerName, email);
+                    return new RuntimeException("Career not found");
+                });
 
         long profilePictureId = imageService.storeImage(profilePicture);
-
         String uid = UUID.randomUUID().toString();
         LocalDate tomorrow = LocalDate.now().plusDays(1);
         User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId, passwordEncoder.encode(password), locale,uid,tomorrow);
-
+        LOGGER.info("Successfully created user with ID: {} and email: {}", user.getId(), email);
         interestService.saveUserInterests(interests, user.getId());
         emailService.sendValidationEmail(user,uid);
         return user;
@@ -68,21 +75,28 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void changePassword(final long id,final  String newPassword) {
-        LOGGER.debug("Changing password for user with ID: {}", id);
+        LOGGER.debug("Password change for user with id: {}", id);
         userDao.updatePassword(id, passwordEncoder.encode(newPassword));
+        LOGGER.info("Password changed successfully for user ID: {}", id);
+
     }
 
     @Override
     @Transactional
     public Optional<UserAuthInfo> validateEmail(final String token) {
+        LOGGER.debug("Validating user with token: {}", token);
         if (userDao.existsByTokenExpired(token)) {
+            LOGGER.error("Token expired error, with token: {}", token);
             throw new ExpiredTokenException("Token expired", token);
         }
         Optional<Boolean> maybeValidated = userDao.findValidatedByTokenNotExpired(token);
         if(maybeValidated.isPresent() && maybeValidated.get()){
+            LOGGER.error("Token in use error, with token: {}", token);
             throw new InvalidTokenException("Token already used");
         }
-        return userDao.updateValidationAndFindAuthInfoByToken(token);
+        Optional<UserAuthInfo> user = userDao.updateValidationAndFindAuthInfoByToken(token);
+        LOGGER.info("User validated, with token: {}", token);
+        return user;
     }
 
 
@@ -90,33 +104,38 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> findByEmail(final String email) {
+        LOGGER.debug("Searching for user with email: {}", email);
         return userDao.findByEmail(email);
     }
 
     @Override
     public Optional<UserAuthInfo> findByEmailWithPass(final String email) {
+        LOGGER.debug("Searching for authUser with email: {}", email);
         return userDao.findAuthInfoByEmail(email);
     }
 
     @Override
     public Optional<User> findById(final long id) {
+        LOGGER.debug("Searching for user with id: {}", id);
         return userDao.findById(id);
     }
 
     @Override
     public boolean existsByUsername(final String username) {
+        LOGGER.debug("Checking for user existence, with username: {}", username);
         return userDao.existsByUsername(username);
     }
 
     @Override
     public boolean existsByEmail(final String email) {
+        LOGGER.debug("Checking for user existence, with username: {}", email);
         return userDao.existsByEmail(email);
     }
 
 
     @Override
     public Page<User> getAllUsers(final String search,final  PageParams pageParams) {
-
+        LOGGER.debug("Getting all the users with search param: {} and pageParams:", search, pageParams);
         if (search == null || search.isEmpty()) {
             return userDao.findAll(pageParams);
         }
@@ -126,74 +145,98 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void blockUser(final long userId) {
-        emailService.sendUserBlockedNotification(findById(userId).orElseThrow(()-> new IllegalStateException("User does not exist")));
-
+        LOGGER.debug("Attempting to block user with ID: {}", userId);
+        User user = findById(userId).orElseThrow(() -> {
+            LOGGER.error("User does not exist for ID: {}", userId);
+            return new IllegalStateException("User does not exist");
+        });
+        emailService.sendUserBlockedNotification(user);
         userDao.updateBlock(userId, true);
+        LOGGER.info("User blocked successfully with ID: {}", userId);
     }
 
     @Override
     @Transactional
     public void unblockUser(final long userId) {
-        emailService.sendUserUnblockedNotification(findById(userId).orElseThrow(()-> new IllegalStateException("User does not exist")));
+        LOGGER.debug("Attempting to unblock user with ID: {}", userId);
+        User user = findById(userId).orElseThrow(() -> {
+            LOGGER.error("User does not exist for ID: {}", userId);
+            return new IllegalStateException("User does not exist");
+        });
+        emailService.sendUserUnblockedNotification(user);
         userDao.updateBlock(userId, false);
+        LOGGER.info("User unblocked successfully with ID: {}", userId);
     }
+
     @Override
     @Transactional
     public void refreshToken(final String oldToken) {
+        LOGGER.debug("Attempting to refresh token, for oldToken: {}", oldToken);
         String uid = UUID.randomUUID().toString();
-        User user = userDao.findByToken(oldToken).orElseThrow(()-> new RuntimeException("User not found"));
+        User user = userDao.findByToken(oldToken).orElseThrow(() -> {
+            LOGGER.error("User does not exist for token: {}", oldToken);
+            return new IllegalStateException("User does not exist");
+        });
         LocalDate date = LocalDate.now().plusDays(1);
         userDao.updateTokenAndExpirationByToken(uid, date,oldToken);
         emailService.sendValidationEmail(user,uid);
+        LOGGER.info("Token refreshed successfully for oldToken: {}", oldToken);
     }
 
     @Override
     @Transactional
     public void refreshPassToken(final String oldToken) {
+        LOGGER.debug("Attempting to refresh token, for oldToken: {}", oldToken);
         String uid = UUID.randomUUID().toString();
 
-        User user = userDao.findByToken(oldToken).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userDao.findByToken(oldToken).orElseThrow(() -> {
+            LOGGER.error("User does not exist for token: {}", oldToken);
+            return new IllegalStateException("User does not exist");
+        });
         LocalDate date = LocalDate.now().plusDays(1);
 
         userDao.updateTokenAndExpirationByToken(uid, date,oldToken);
         emailService.sendForgotPassEmail(user, uid);
-
+        LOGGER.info("Token refreshed successfully for oldToken: {}", oldToken);
     }
 
     @Override
     public boolean isValidPasswordResetToken(String token) {
-       return userDao.existsByTokenNotExpired(token);
+        LOGGER.debug("Checkin if password reset token is valid: {}", token);
+        return userDao.existsByTokenNotExpired(token);
     }
 
     @Override
     public boolean isTokenExpired(String token) {
+        LOGGER.debug("Checkin if token has expired: {}", token);
         return userDao.existsByTokenExpired(token);
     }
 
     @Override
     @Transactional
     public void newPassword(final String token, final String newPassword) {
+        LOGGER.debug("updating new password for token: {}", token);
         userDao.updatePasswordByToken(token, passwordEncoder.encode(newPassword));
+        LOGGER.info("Password updated successfully for token: {}", token);
     }
 
     @Override
     @Transactional
     public void forgotPass(final String email) {
+        LOGGER.debug("Attempting to send forgot password email to: {}", email);
         User user = userDao.findByEmail(email).orElseThrow(()-> {
-            LOGGER.warn("User with email {} not found", email);
+            LOGGER.error("User with email {} not found", email);
             throw new RuntimeException("User does not exist");
         });
-
-
         if(!userDao.findValidationStatusByEmail(email)){
+            LOGGER.error("User with email {} not validated", email);
             throw new UserValidatedException("User not validated");
         }
-
         String uuid = UUID.randomUUID().toString();
         LocalDate date = LocalDate.now().plusDays(1);
         userDao.updateToken(user.getId(), uuid, date);
         emailService.sendForgotPassEmail(user, uuid);
-
+        LOGGER.info("Forgot password email sent successfully to: {}", email);
     }
 
 }
