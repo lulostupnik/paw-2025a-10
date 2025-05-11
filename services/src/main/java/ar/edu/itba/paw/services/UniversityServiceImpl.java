@@ -57,30 +57,6 @@ public class UniversityServiceImpl implements UniversityService {
         }
         return universityDao.search(search, pageParams);
     }
-    @Override
-    public String getUniversitiesJSON(final String search, final PageParams pageParams){
-        LOGGER.debug("Getting all universities with search {} and pageParams {}", search, pageParams);
-        List<University> universities;
-        if (search == null || search.isEmpty()) {
-            universities = universityDao.findAll(pageParams).getContent();
-            return UniversitiesToJson(universities);
-        }
-        universities = universityDao.search(search,pageParams).getContent();
-        return UniversitiesToJson(universities);
-    }
-
-    private String UniversitiesToJson(final List<University> universities) {
-        StringBuilder json = new StringBuilder("[");
-        for (University university : universities) {
-            json.append(university.toJSON()).append(",");
-        }
-        if (json.length() > 1) {
-            json.deleteCharAt(json.length() - 1); // Remove last comma
-        }
-        json.append("]");
-        LOGGER.debug("JSON universities: {}", json);
-        return json.toString();
-    }
 
     @Override
     @Transactional
@@ -96,7 +72,7 @@ public class UniversityServiceImpl implements UniversityService {
     public University createUniversity(final String name, final String abbreviation, final String cityName) {
         LOGGER.debug("Creating university with name {}, abbreviation {}, city {}", name, abbreviation, cityName);
         City city = cityService.findByName(cityName).orElseThrow(() -> {
-            LOGGER.error("City not found with name: {}", cityName);
+            LOGGER.warn("City not found with name: {}", cityName);
             return new CityNotFoundException();
         });
         University university = universityDao.create(name, abbreviation, city);

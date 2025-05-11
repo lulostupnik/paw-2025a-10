@@ -1,4 +1,4 @@
-package ar.edu.itba.paw.persistance;
+package ar.edu.itba.paw.persistence;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Country;
 import ar.edu.itba.paw.models.Page;
-import ar.edu.itba.paw.persistence.CityJdbcDao;
 
 @Sql(scripts = "classpath:schema.sql")
 @Transactional

@@ -205,48 +205,4 @@ public class CityServiceImplTest {
         cityService.delete(ID_1);
     }
 
-    @Test
-    public void testGetCitiesJSON(){
-        Mockito.when(
-            cityDao.search(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(CITY_PAGE);
-
-        String json_derulo = cityService.getCitiesJson(NAME, PAGE_1_DEFAULT);
-
-        assertNotNull(json_derulo);
-        assertEquals(CITY_JSON, json_derulo);
-    }
-    @Test
-    public void testGetCitiesJSONMissingQuery(){
-        Mockito.when(
-            cityDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(CITY_PAGE);
-
-        String json_derulo = cityService.getCitiesJson(null, PAGE_1_DEFAULT);
-
-        assertNotNull(json_derulo);
-        assertEquals(CITY_JSON, json_derulo);
-    }
-    @Test
-    public void testGetCitiesJSONEmptyQuery(){
-        Mockito.when(
-            cityDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(CITY_PAGE);
-
-        String json_derulo = cityService.getCitiesJson("", PAGE_1_DEFAULT);
-
-        assertNotNull(json_derulo);
-        assertEquals(CITY_JSON, json_derulo);
-    }
-    @Test
-    public void testGetCitiesJSONNoCareers(){
-        Mockito.when(
-            cityDao.search(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(new Page<City>(List.of(), 1, 0));
-
-        String json_derulo = cityService.getCitiesJson(NAME, PAGE_1_DEFAULT);
-
-        assertNotNull(json_derulo);
-        assertEquals(EMPTY_JSON, json_derulo);
-    }
 }

@@ -68,9 +68,13 @@ public class CityServiceImpl implements CityService {
             }
     )
     public void updateCity(final long id,final String name,final String countryName) {
+        LOGGER.debug("Updating city with id {}, name {}, country {}", id, name, countryName);
         Country country = countryService.findByName(countryName)
-                .orElseThrow(() -> new IllegalArgumentException("Country not found"));
+                .orElseThrow(() -> {
+                    LOGGER.warn("Country {} not found", countryName);
+                    return new IllegalArgumentException("Country not found");});
         cityDao.update(id, name, country);
+        LOGGER.info("City with id {} updated successfully", id);
     }
 
     @Override
@@ -85,38 +89,14 @@ public class CityServiceImpl implements CityService {
     )
 
     public long createCity(final String cityName,final String countryName) {
+        LOGGER.debug("Creating city with name {} and country {}", cityName, countryName);
         Country country = countryService.findByName(countryName)
                 .orElseThrow(() -> new IllegalArgumentException("Country not found"));
-        return cityDao.create(cityName, country);
+        long city = cityDao.create(cityName, country);
+        LOGGER.info("City with name {} and country {} created successfully", cityName, countryName);
+        return city;
     }
-
-    @Override
-    public String getCitiesJson(final String search,final PageParams pageParams) {
-        LOGGER.debug("Finding all cities with search {}", search);
-        List<City> cities;
-        if (search == null || search.isEmpty()) {
-            cities = cityDao.findAll(pageParams).getContent();
-            return listToJson(cities);
-        }
-        cities = cityDao.search(search, pageParams).getContent();
-        return listToJson(cities);
-
-
-    }
-
-    private String listToJson(final List<City> cities) {
-        StringBuilder json = new StringBuilder("[");
-        for (City city : cities) {
-            json.append(city.toJSON()).append(", ");
-        }
-        if (json.length() > 1) {
-            json.deleteCharAt(json.length() - 1); // Remove last space
-            json.deleteCharAt(json.length() - 1); // Remove last comma
-        }
-        json.append("]");
-        LOGGER.debug("JSON universities: {}", json);
-        return json.toString();
-    }
+//FIXME:esta raro esto de devolver long
 
     @Override
     @Transactional
@@ -131,11 +111,14 @@ public class CityServiceImpl implements CityService {
             }
     )
     public void delete(final long id) {
+        LOGGER.debug("Deleting city with id {}", id);
         cityDao.delete(id);
+        LOGGER.info("City with id {} deleted successfully", id);
     }
 
     @Override
     public Page<City> searchBySubstring(final String substring,final PageParams pageParams) {
+        LOGGER.debug("Searching cities with substring {}", substring);
         return cityDao.search(substring, pageParams);
     }
 

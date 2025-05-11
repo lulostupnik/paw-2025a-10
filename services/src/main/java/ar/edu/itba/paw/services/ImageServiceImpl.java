@@ -41,7 +41,7 @@ public class ImageServiceImpl implements ImageService {
         } else {
             LOGGER.warn("Cache 'images' not found, skipping cache operation");
         }
-
+        LOGGER.info("Image {} stored", imageId);
         return imageId;
     }
 
@@ -59,6 +59,7 @@ public class ImageServiceImpl implements ImageService {
     public void deleteImage(final long id) {
         LOGGER.debug("Deleting image {}", id);
         imageDao.delete(id);
+        LOGGER.info("Image {} deleted", id);
     }
 
 
