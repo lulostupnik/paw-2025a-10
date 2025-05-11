@@ -24,10 +24,6 @@
         We wanted to remind you about an upcoming event you've registered for:
     </p>
 
-        <div style="border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; margin-bottom: 25px;">
-                <div th:if="${event.flyerImageId > 0}" style="width: 100%; background-color: #f0f0f0; text-align: center;">
-            <img src="cid:eventImage" alt="Event Flyer" style="max-width: 100%; max-height: 400px; width: auto; height: auto; display: inline-block;" />
-        </div>
 
                 <div style="padding: 15px; background-color: #3366ff; color: white;">
             <h2 th:text="${event.title}" style="margin: 0; font-size: 22px;">Event Title</h2>
@@ -116,11 +112,6 @@
     </p>
 </div>
 
-<div style="text-align: center; margin-top: 20px; font-size: 12px; color: #777;">
-    <p th:text="#{email.footer.unsubscribe_info}">
-        You received this email because you registered for this event. If you no longer wish to receive these notifications, please update your preferences in your account settings.
-    </p>
-</div>
 </body>
 </html>
 
