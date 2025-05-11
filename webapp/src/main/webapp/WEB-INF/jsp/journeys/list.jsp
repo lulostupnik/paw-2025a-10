@@ -278,6 +278,11 @@
             <div class="events-container">
                 <!-- Journeys List with grid layout -->
                 <div class="events-grid">
+                    <c:if test="${empty journeys.content}">
+                        <div class="empty-state">
+                            <p class="empty-message"><spring:message code="journey.no.journeys"/></p>
+                        </div>
+                    </c:if>
                     <c:forEach var="journey" items="${journeys.content}">
                         <jsp:include page="journey-card.jsp">
                             <jsp:param name="journeyId" value="${journey.id}" />
@@ -294,11 +299,6 @@
                             <jsp:param name="isOwner" value="false"/>
                         </jsp:include>
                     </c:forEach>
-                    <c:if test="${empty journeys.content}">
-                        <div class="no-journeys">
-                            <p class="no-journeys-message"><spring:message code="journey.no.journeys"/></p>
-                        </div>
-                    </c:if>
                 </div>
             </div>
 
