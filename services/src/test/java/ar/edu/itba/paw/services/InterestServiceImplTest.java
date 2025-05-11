@@ -32,7 +32,7 @@ public class InterestServiceImplTest {
     private static final Interest INTEREST_2 = new Interest(ID_2, null);
     private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
     private static final Page<Interest> INTEREST_PAGE = new Page<Interest>(List.of(INTEREST_1, INTEREST_2), 1, 1);
-    private static final String INTEREST_JSON = "[{\"name\":\"interesting\",\"id\":0},{\"name\":\"\",\"id\":1}]";
+    private static final String INTEREST_JSON = "[{\"name\":\"interesting\", \"id\":0}, {\"name\":\"\", \"id\":1}]";
     private static final String EMPTY_JSON = "[]";
 
 

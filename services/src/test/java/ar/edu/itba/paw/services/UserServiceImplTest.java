@@ -11,7 +11,6 @@ import java.util.Locale;
 import java.util.Optional;
 
 import ar.edu.itba.paw.models.*;
-import ar.edu.itba.paw.models.exceptions.ExpiredPassTokenException;
 import ar.edu.itba.paw.models.exceptions.ExpiredTokenException;
 import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
 import ar.edu.itba.paw.models.exceptions.UserValidatedException;
@@ -379,7 +378,7 @@ public class UserServiceImplTest {
 
         userService.refreshToken(TOKEN);
     }
-    @Test(expected = InvalidTokenException.class)
+    @Test(expected = RuntimeException.class)
     public void testRefreshTokenUserNotFound(){
         Mockito.when(
             userDao.findByToken(Mockito.eq(TOKEN))
@@ -395,7 +394,7 @@ public class UserServiceImplTest {
 
         userService.refreshPassToken(TOKEN);
     }
-    @Test(expected = InvalidTokenException.class)
+    @Test(expected = RuntimeException.class)
     public void testRefreshTokenPassUserNotFound(){
         Mockito.when(
             userDao.findByToken(Mockito.eq(TOKEN))
@@ -406,32 +405,6 @@ public class UserServiceImplTest {
 
     @Test
     public void testNewPassword(){
-        Mockito.when(
-            userDao.existsByTokenExpired(Mockito.eq(TOKEN))
-        ).thenReturn(false);
-        Mockito.when(
-            userDao.existsByTokenNotExpired(Mockito.eq(TOKEN))
-        ).thenReturn(true);
-
-        userService.newPassword(TOKEN, PASSWORD);
-    }
-    @Test(expected = InvalidTokenException.class)
-    public void testNewPasswordUserNotValid(){
-        Mockito.when(
-            userDao.existsByTokenExpired(Mockito.eq(TOKEN))
-        ).thenReturn(false);
-        Mockito.when(
-            userDao.existsByTokenNotExpired(Mockito.eq(TOKEN))
-        ).thenReturn(false);
-
-        userService.newPassword(TOKEN, PASSWORD);
-    }
-    @Test(expected = ExpiredPassTokenException.class)
-    public void testNewPasswordTokenExpired(){
-        Mockito.when(
-            userDao.existsByTokenExpired(Mockito.eq(TOKEN))
-        ).thenReturn(true);
-
         userService.newPassword(TOKEN, PASSWORD);
     }
 

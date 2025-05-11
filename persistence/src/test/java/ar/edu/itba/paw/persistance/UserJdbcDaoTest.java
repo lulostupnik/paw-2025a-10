@@ -434,10 +434,10 @@ public class UserJdbcDaoTest {
             TestUtils.assertEqualsUser(userData.get(user.getId()), user);
         }
     }
-/*
+
     @Test
     public void testBlockUser(){
-        userDao.block(USER_1.getId());
+        userDao.updateBlock(USER_1.getId(), true);
 
         User user = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId());
         assertEqualsUser(user, Map.of("blocked", true));
@@ -447,13 +447,13 @@ public class UserJdbcDaoTest {
         Map<String, Object> params = Map.of("email", TestUtils.USER_NEW1_MAIL, "username", TestUtils.USER_NEW1_NAME, "blocked", true);
         long id = insertUser(params);
 
-        userDao.block(id);
+        userDao.updateBlock(id, true);
 
         assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, id), params);
     }
     @Test
     public void testBlockUserWrongId(){
-        userDao.block(12341234);
+        userDao.updateBlock(12341234l, true);
 
         assertUserDBDefaultStatus();
     }
@@ -462,22 +462,22 @@ public class UserJdbcDaoTest {
     public void testUnblockUser(){
         long id = insertUser(Map.of("email", TestUtils.USER_NEW1_MAIL, "username", TestUtils.USER_NEW1_NAME, "blocked", true));
 
-        userDao.unblockUser(id);
+        userDao.updateBlock(id, false);
 
         assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, id), Map.of("email", TestUtils.USER_NEW1_MAIL, "username", TestUtils.USER_NEW1_NAME));
     }
     @Test
     public void testUnblockUserUnblocked(){
-        userDao.unblockUser(USER_1.getId());
+        userDao.updateBlock(USER_1.getId(), false);
         
         assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
     }
     @Test
     public void testUnblockUserWrongId(){
-        userDao.unblockUser(12341234);
+        userDao.updateBlock(12341234l, false);
         
         assertUserDBDefaultStatus();
-    }*/
+    }
 
     @Test
     public void testExistsByTokenNotExpired(){
