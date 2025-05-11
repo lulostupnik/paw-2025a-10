@@ -13,7 +13,6 @@ public interface InterestService {
     Optional<Interest> findByName(String name);
     Page<Interest> findAllInterestsByUserId(long id, PageParams pageParams);
     Interest createUserInterest(String interest);
-    void deleteUserInterest(long id);
     void editUserInterest(long id, String interest);
     void saveUserInterests(long[] interests, long userId);
     void saveUserInterests(List<String> interests, long userId);

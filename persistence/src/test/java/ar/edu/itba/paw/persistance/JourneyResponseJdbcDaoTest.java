@@ -8,7 +8,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -111,26 +110,9 @@ public class JourneyResponseJdbcDaoTest {
     }
 
     @Test
-    public void testListAllFromJourney(){
-        List<JourneyResponse> responses = responseDao.listAllFromJourney(JOURNEY1_ID);
-
-        assertNotNull(responses);
-        assertEquals(TOTAL_RESPONSES, responses.size());
-    }
-    @Test
-    public void testListAllFromJourneyNoResponses(){
-        TestUtils.deleteJourneyReplies(jdbcTemplate);
-
-        List<JourneyResponse> responses = responseDao.listAllFromJourney(JOURNEY1_ID);
-
-        assertNotNull(responses);
-        assertEquals(0, responses.size());
-    }
-
-    @Test
-    public void testListAllFromJourneyPaged(){
-        Page<JourneyResponse> page1 = responseDao.listAllFromJourney(JOURNEY1_ID, new PageParams(1, 2));
-        Page<JourneyResponse> page2 = responseDao.listAllFromJourney(JOURNEY1_ID, new PageParams(2, 2));
+    public void testListAllByJourneyIdPaged(){
+        Page<JourneyResponse> page1 = responseDao.listAllByJourneyId(JOURNEY1_ID, new PageParams(1, 2));
+        Page<JourneyResponse> page2 = responseDao.listAllByJourneyId(JOURNEY1_ID, new PageParams(2, 2));
 
         //TODO awful
         assertNotNull(page1);
@@ -163,10 +145,10 @@ public class JourneyResponseJdbcDaoTest {
         assertEquals(USER3_NAME, page2.getContent().get(0).getUsername());
     }
     @Test
-    public void testListAllFromJourneyPagedNoResponses(){
+    public void testListAllByJourneyIdPagedNoResponses(){
         JdbcTestUtils.deleteFromTableWhere(jdbcTemplate, RESPONSE_TABLE, "deleted = FALSE");
 
-        Page<JourneyResponse> page1 = responseDao.listAllFromJourney(JOURNEY1_ID, new PageParams(1, 2));
+        Page<JourneyResponse> page1 = responseDao.listAllByJourneyId(JOURNEY1_ID, new PageParams(1, 2));
 
         assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, RESPONSE_TABLE));
         assertNotNull(page1);
@@ -177,14 +159,14 @@ public class JourneyResponseJdbcDaoTest {
     }
 
     @Test
-    public void testGetJourneyIdByResponseId(){
-        long id = responseDao.getJourneyIdByResponseId(RESPONSE1_ID);
+    public void testFindJourneyIdByResponseId(){
+        long id = responseDao.findJourneyIdByResponseId(RESPONSE1_ID);
 
         assertEquals(JOURNEY1_ID, id);
     }
     @Test(expected = NoSuchElementException.class)
-    public void testGetJourneyIdByResponseIdWrongId(){
-        responseDao.getJourneyIdByResponseId(12341234);
+    public void testFindJourneyIdByResponseIdWrongId(){
+        responseDao.findJourneyIdByResponseId(12341234);
     }
 
     @Test
@@ -215,30 +197,30 @@ public class JourneyResponseJdbcDaoTest {
         assertEquals(TOTAL_RESPONSES, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journey_responses WHERE deleted = FALSE", Integer.class).intValue());
     }
     @Test
-    public void testDeletionMessage(){
+    public void testUpdateDeletionMessage(){
         int beforeRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, RESPONSE_TABLE);
 
-        responseDao.deletionMessage(RESPONSE1_ID, DELETION_MESSAGE);
+        responseDao.updateDeletionMessage(RESPONSE1_ID, DELETION_MESSAGE);
 
         assertEquals(beforeRows, JdbcTestUtils.countRowsInTable(jdbcTemplate, RESPONSE_TABLE));
         assertEquals(TOTAL_RESPONSES, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journey_responses WHERE deleted = FALSE", Integer.class).intValue());
         assertEquals(DELETION_MESSAGE, jdbcTemplate.queryForObject("SELECT deleted_message FROM journey_responses WHERE id = ?", String.class, RESPONSE1_ID));
     }
     @Test
-    public void testDeletionMessageDeleted(){
+    public void testUpdateDeletionMessageDeleted(){
         int beforeRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, RESPONSE_TABLE);
 
-        responseDao.deletionMessage(RESPONSE_DELETED_ID, DELETION_MESSAGE);
+        responseDao.updateDeletionMessage(RESPONSE_DELETED_ID, DELETION_MESSAGE);
 
         assertEquals(beforeRows, JdbcTestUtils.countRowsInTable(jdbcTemplate, RESPONSE_TABLE));
         assertEquals(TOTAL_RESPONSES, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journey_responses WHERE deleted = FALSE", Integer.class).intValue());
         assertEquals(DELETION_MESSAGE, jdbcTemplate.queryForObject("SELECT deleted_message FROM journey_responses WHERE id = ?", String.class, RESPONSE_DELETED_ID));
     }
     @Test
-    public void testDeletionMessageWrongId(){
+    public void testUpdateDeletionMessageWrongId(){
         int beforeRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, RESPONSE_TABLE);
 
-        responseDao.deletionMessage(12341234, DELETION_MESSAGE);
+        responseDao.updateDeletionMessage(12341234, DELETION_MESSAGE);
 
         assertEquals(beforeRows, JdbcTestUtils.countRowsInTable(jdbcTemplate, RESPONSE_TABLE));
         assertEquals(TOTAL_RESPONSES, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journey_responses WHERE deleted = FALSE", Integer.class).intValue());
@@ -248,7 +230,7 @@ public class JourneyResponseJdbcDaoTest {
     public void testDeleteByJourneyId(){
         int beforeRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, RESPONSE_TABLE);
 
-        responseDao.deleteResponsesByJourneyId(JOURNEY1_ID);
+        responseDao.deleteByJourneyId(JOURNEY1_ID);
 
         assertEquals(beforeRows, JdbcTestUtils.countRowsInTable(jdbcTemplate, RESPONSE_TABLE));
         assertEquals(0, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journey_responses WHERE deleted = FALSE", Integer.class).intValue());
@@ -257,7 +239,7 @@ public class JourneyResponseJdbcDaoTest {
     public void testDeleteByJourneyIdWrongId(){
         int beforeRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, RESPONSE_TABLE);
 
-        responseDao.deleteResponsesByJourneyId(12341234);
+        responseDao.deleteByJourneyId(12341234);
 
         assertEquals(beforeRows, JdbcTestUtils.countRowsInTable(jdbcTemplate, RESPONSE_TABLE));
         assertEquals(TOTAL_RESPONSES, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journey_responses WHERE deleted = FALSE", Integer.class).intValue());
@@ -287,7 +269,7 @@ public class JourneyResponseJdbcDaoTest {
 
     @Test
     public void testGetCount(){
-        int count = responseDao.getJourneyResponseCount(JOURNEY1_ID);
+        int count = responseDao.countByJourneyId(JOURNEY1_ID);
 
         assertEquals(3, count);
     }

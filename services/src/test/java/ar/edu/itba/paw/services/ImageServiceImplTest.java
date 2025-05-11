@@ -40,7 +40,7 @@ public class ImageServiceImplTest {
     @Test
     public void testStoreImageNoCache(){
         Mockito.when(
-            imageDao.saveImage(Mockito.eq(IMAGE_DATA))
+            imageDao.create(Mockito.eq(IMAGE_DATA))
         ).thenReturn(IMAGE_ID);
 
         long id = imageService.storeImage(IMAGE_DATA);
@@ -50,7 +50,7 @@ public class ImageServiceImplTest {
     @Test
     public void testStoreImageCache(){
         Mockito.when(
-            imageDao.saveImage(Mockito.eq(IMAGE_DATA))
+            imageDao.create(Mockito.eq(IMAGE_DATA))
         ).thenReturn(IMAGE_ID);
         Mockito.when(
             cacheManager.getCache(IMAGE_CACHE)
@@ -64,7 +64,7 @@ public class ImageServiceImplTest {
     @Test
     public void testGetImage(){
         Mockito.when(
-            imageDao.getImageById(IMAGE_ID)
+            imageDao.findById(IMAGE_ID)
         ).thenReturn(Optional.of(IMAGE));
 
         Optional<Image> maybeImage = imageService.getImage(IMAGE_ID);
@@ -76,7 +76,7 @@ public class ImageServiceImplTest {
     @Test
     public void testGetImageMissing(){
         Mockito.when(
-            imageDao.getImageById(IMAGE_ID)
+            imageDao.findById(IMAGE_ID)
         ).thenReturn(Optional.empty());
 
         Optional<Image> maybeImage = imageService.getImage(IMAGE_ID);

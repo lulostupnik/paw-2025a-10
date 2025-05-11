@@ -178,7 +178,7 @@ public class JourneyJdbcDao implements JourneyDao {
         final Optional<Journey> journey = findByUserIdDeleted(user.getId());
         if(journey.isPresent()){
             LOGGER.debug("Journey found");
-            updateData(journey.get().getId(), destinationUniversity, startDate, endDate, description);
+            update(journey.get().getId(), destinationUniversity, startDate, endDate, description);
             return findByUserId(journey.get().getUser().getId()).orElseThrow(RuntimeException::new);
         }
         final Map<String, Object> args = new HashMap<>();
@@ -204,7 +204,7 @@ public class JourneyJdbcDao implements JourneyDao {
     }
     
     @Override
-    public Optional<Journey> findOverlappingJourney(final long userId, final LocalDate startDate, final LocalDate endDate) {
+    public Optional<Journey> findOverlapping(final long userId, final LocalDate startDate, final LocalDate endDate) {
         // FIXME: ¿usar Date?
         final Date newStartDate = Date.valueOf(startDate);
         final Date newEndDate = Date.valueOf(endDate);
@@ -235,7 +235,7 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
     @Override
-    public void deletionMessage(final long id, final String message) {
+    public void updateDeletionMessage(final long id, final String message) {
         LOGGER.info("Setting deletion message {} for journey {}", message, id);
         final int updatedRows = jdbcTemplate.update("UPDATE journeys SET deleted_message = ? WHERE id = ?;", message, id);
         if (updatedRows == 0) {
@@ -246,50 +246,14 @@ public class JourneyJdbcDao implements JourneyDao {
 
 
     @Override
-    public void updateDates(final long journeyId, final LocalDate startDate, final LocalDate endDate) {
-        LOGGER.info("Updating dates for journey ID: {} to start: {}, end: {}", journeyId, startDate, endDate);
-        final int updatedRows = jdbcTemplate.update(
-                "UPDATE journeys SET start_date = ?, end_date = ? WHERE id = ?",
-                Date.valueOf(startDate), Date.valueOf(endDate), journeyId
-        );
-        if (updatedRows == 0) {
-            LOGGER.warn("No journey found with id {}", journeyId);
-        }
-    }
-
-    @Override
-    public void updateDescription(final long journeyId, final String description) {
-        LOGGER.info("Updating description for journey ID: {}", journeyId);
-        final int updatedRows = jdbcTemplate.update(
-                "UPDATE journeys SET description = ? WHERE id = ?",
-                description, journeyId
-        );
-        if (updatedRows == 0) {
-            LOGGER.warn("No journey found with id {}", journeyId);
-        }
-    }
-
-    @Override
-    public void updateDestinationUniversity(final long journeyId, final long universityId) {
-        LOGGER.info("Updating destination university for journey ID: {} to university ID: {}", journeyId, universityId);
-        final int updatedRows = jdbcTemplate.update(
-                "UPDATE journeys SET destination_university_id = ? WHERE id = ?",
-                universityId, journeyId
-        );
-        if (updatedRows == 0) {
-            LOGGER.warn("No journey found with id {}", journeyId);
-        }
-    }
-
-    @Override
-    public Page<Journey> listAll(PageParams pageParams) {
+    public Page<Journey> findAll(PageParams pageParams) {
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journeys WHERE deleted = FALSE", Integer.class);
         final List<Journey> list = jdbcTemplate.query(SQL_FIND_ALL_PAGED, JOURNEY_ROW_MAPPER, pageParams.getSize(), (pageParams.getPage()-1) * pageParams.getSize());
         return new Page<>(list, pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
     }
 
     @Override
-    public Page<Journey> getOthersJourneys(final long userId, PageParams pageParams) {
+    public Page<Journey> findOthers(final long userId, PageParams pageParams) {
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journeys j WHERE j.deleted = FALSE AND j.user_id != ?", Integer.class, userId);
         final List<Journey> list = jdbcTemplate.query(SQL_FIND_OTHERS_PAGED, JOURNEY_ROW_MAPPER, userId, pageParams.getSize(), offset(pageParams));
         return new Page<>(list, pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
@@ -430,10 +394,10 @@ public class JourneyJdbcDao implements JourneyDao {
     }
 
         @Override
-        public Page<Journey> searchJourneys(final String search, Long userId, SortFieldJourney orderBy, SortDirection direction,
-                                            String city, LocalDate startDate, LocalDate endDate, String interest,
-                                            boolean isPast, boolean isUpcoming, boolean isMyDestination, boolean isOngoing,
-                                            PageParams pageParams) {
+        public Page<Journey> search(final String search, Long userId, SortFieldJourney orderBy, SortDirection direction,
+                                    String city, LocalDate startDate, LocalDate endDate, String interest,
+                                    boolean isPast, boolean isUpcoming, boolean isMyDestination, boolean isOngoing,
+                                    PageParams pageParams) {
             final String searchPattern = likePattern(search);
 
             final List<String> filters = new ArrayList<>();
@@ -545,7 +509,7 @@ public class JourneyJdbcDao implements JourneyDao {
         }
 
     @Override
-    public Page<Journey> searchJourneys(final String search, PageParams pageParams){
+    public Page<Journey> search(final String search, PageParams pageParams){
         final String searchPattern = likePattern(search);
 
         final int totalItems = jdbcTemplate.queryForObject(
@@ -569,7 +533,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
 
     @Override
-    public void updateData(final long journeyId, final University destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
+    public void update(final long journeyId, final University destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
         LOGGER.info("Updating uni {}, startDate {}, endDate {}, desc '{}' for journey {}", destinationUniversity, startDate, endDate, description, journeyId);
         final int updatedRows = jdbcTemplate.update("""
         UPDATE journeys
@@ -712,7 +676,7 @@ public class JourneyJdbcDao implements JourneyDao {
             return jdbcTemplate.query(query, JOURNEY_ROW_MAPPER, email);
     }*/
     @Override
-    public Page<Journey> getRecommendedJourneys(final String email, PageParams pageParams) {
+    public Page<Journey> findRecommended(final String email, PageParams pageParams) {
         LOGGER.debug("Querying recommended journeys for user {} - page {}, size {}", email, pageParams.getPage(), pageParams.getSize());
 
         final int offset = offset(pageParams);
@@ -878,3 +842,40 @@ private void updateJourneyField(long journeyId, String setClause, Object[] param
     }
 }
  */
+
+//
+//@Override
+//public void updateDates(final long journeyId, final LocalDate startDate, final LocalDate endDate) {
+//    LOGGER.info("Updating dates for journey ID: {} to start: {}, end: {}", journeyId, startDate, endDate);
+//    final int updatedRows = jdbcTemplate.update(
+//            "UPDATE journeys SET start_date = ?, end_date = ? WHERE id = ?",
+//            Date.valueOf(startDate), Date.valueOf(endDate), journeyId
+//    );
+//    if (updatedRows == 0) {
+//        LOGGER.warn("No journey found with id {}", journeyId);
+//    }
+//}
+//
+//@Override
+//public void updateDescription(final long journeyId, final String description) {
+//    LOGGER.info("Updating description for journey ID: {}", journeyId);
+//    final int updatedRows = jdbcTemplate.update(
+//            "UPDATE journeys SET description = ? WHERE id = ?",
+//            description, journeyId
+//    );
+//    if (updatedRows == 0) {
+//        LOGGER.warn("No journey found with id {}", journeyId);
+//    }
+//}
+//
+//@Override
+//public void updateDestinationUniversity(final long journeyId, final long universityId) {
+//    LOGGER.info("Updating destination university for journey ID: {} to university ID: {}", journeyId, universityId);
+//    final int updatedRows = jdbcTemplate.update(
+//            "UPDATE journeys SET destination_university_id = ? WHERE id = ?",
+//            universityId, journeyId
+//    );
+//    if (updatedRows == 0) {
+//        LOGGER.warn("No journey found with id {}", journeyId);
+//    }
+//}

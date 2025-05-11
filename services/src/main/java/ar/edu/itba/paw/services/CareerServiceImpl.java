@@ -23,7 +23,6 @@ public class CareerServiceImpl implements CareerService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CareerServiceImpl.class);
 
     private final CareerDao careerDao;
-    private static final int DEFAULT_PAGE_SIZE = 30;
 
     @Autowired
     public CareerServiceImpl(CareerDao careerDao) {
@@ -50,9 +49,9 @@ public class CareerServiceImpl implements CareerService {
     public Page<Career> getAllCareers(String search, PageParams pageParams) {
         LOGGER.debug("Getting all careers with search {}", search);
         if (search == null || search.isEmpty()) {
-            return careerDao.getAllCareers(pageParams);
+            return careerDao.findAll(pageParams);
         }
-        return careerDao.searchBySubstring(search, pageParams);
+        return careerDao.search(search, pageParams);
     }
 
     @Override
@@ -94,10 +93,10 @@ public class CareerServiceImpl implements CareerService {
         LOGGER.debug("Getting all careers with search {}", search);
         if (search == null || search.isEmpty()) {
 
-            List<Career> careers = careerDao.getAllCareers(pageParams).getContent();
+            List<Career> careers = careerDao.findAll(pageParams).getContent();
             return listToJson(careers);
         }
-        List<Career> careers = careerDao.searchBySubstring(search,pageParams).getContent();
+        List<Career> careers = careerDao.search(search,pageParams).getContent();
         return listToJson(careers);
     }
 

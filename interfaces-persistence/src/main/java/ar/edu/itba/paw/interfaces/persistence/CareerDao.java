@@ -9,8 +9,8 @@ import java.util.Optional;
 public interface CareerDao {
     Optional<Career> findById(long id);
     Optional<Career> findByName(String name);
-    Page<Career> getAllCareers(PageParams pageParams);
-    Page<Career> searchBySubstring(String substring, PageParams pageParams);
+    Page<Career> findAll(PageParams pageParams);
+    Page<Career> search(String substring, PageParams pageParams);
     Career create(String name);
     Career update(long id, String name);
     void delete(long id);

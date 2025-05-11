@@ -102,7 +102,7 @@ public class JourneyServiceImplTest {
             uniService.findByName(Mockito.eq(UNI_NAME))
         ).thenReturn(Optional.of(UNI));
         Mockito.when(
-            journeyDao.findOverlappingJourney(USER_ID, START_DATE, END_DATE)
+            journeyDao.findOverlapping(USER_ID, START_DATE, END_DATE)
         ).thenReturn(Optional.empty());
         Mockito.when(
             journeyDao.create(USER, UNI, START_DATE, END_DATE, DESCRIPTION)
@@ -119,7 +119,7 @@ public class JourneyServiceImplTest {
             uniService.findByName(Mockito.eq(UNI_NAME))
         ).thenReturn(Optional.of(UNI));
         Mockito.when(
-            journeyDao.findOverlappingJourney(USER_ID, START_DATE, END_DATE)
+            journeyDao.findOverlapping(USER_ID, START_DATE, END_DATE)
         ).thenReturn(Optional.of(JOURNEY));
 
         journeyService.createJourney(USER, UNI_NAME, START_DATE, END_DATE, DESCRIPTION);
@@ -187,7 +187,7 @@ public class JourneyServiceImplTest {
     @Test
     public void testGetAllJourneysPagedMissingQuery(){
         Mockito.when(
-            journeyDao.listAll(Mockito.eq(PAGE_1_DEFAULT))
+            journeyDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
         Page<Journey> page = journeyService.getAllJourneys(null, PAGE_1_DEFAULT);
@@ -198,7 +198,7 @@ public class JourneyServiceImplTest {
     @Test
     public void testGetAllJourneysPagedEmptyQuery(){
         Mockito.when(
-            journeyDao.listAll(Mockito.eq(PAGE_1_DEFAULT))
+            journeyDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
         Page<Journey> page = journeyService.getAllJourneys("", PAGE_1_DEFAULT);
@@ -209,7 +209,7 @@ public class JourneyServiceImplTest {
     @Test
     public void testGetAllJourneysPagedQuery(){
         Mockito.when(
-            journeyDao.searchJourneys(Mockito.eq(DESCRIPTION), Mockito.eq(PAGE_1_DEFAULT))
+            journeyDao.search(Mockito.eq(DESCRIPTION), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
         Page<Journey> page = journeyService.getAllJourneys(DESCRIPTION, PAGE_1_DEFAULT);
@@ -335,7 +335,7 @@ public class JourneyServiceImplTest {
             journeyDao.findByUserId(Mockito.eq(USER_ID))
         ).thenReturn(Optional.of(JOURNEY));
         Mockito.when(
-            journeyDao.getRecommendedJourneys(Mockito.eq(EMAIL), Mockito.eq(PAGE_1_DEFAULT))
+            journeyDao.findRecommended(Mockito.eq(EMAIL), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
         List<Journey> journeys = journeyService.getRecommendedJourneys(EMAIL, 2);
@@ -372,7 +372,7 @@ public class JourneyServiceImplTest {
             journeyDao.findByOriginCity(Mockito.eq(CITY_ID), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(new Page<Journey>(List.of(), 1, 2));
         Mockito.when(
-            journeyDao.listAll(Mockito.eq(PAGE_1_DEFAULT))
+            journeyDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
         List<Journey> journeys = journeyService.getRecommendedJourneys(EMAIL, 2);
@@ -386,7 +386,7 @@ public class JourneyServiceImplTest {
             userService.findByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.empty());
         Mockito.when(
-            journeyDao.listAll(Mockito.eq(PAGE_1_DEFAULT))
+            journeyDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
         List<Journey> journeys = journeyService.getRecommendedJourneys(EMAIL, 2);

@@ -71,137 +71,137 @@ public class EventAttendanceJdbcDaoTest {
     }
 
     @Test
-    public void testAttend(){
-        attendanceDao.attend(USER_2.getId(), EVENT1_ID);
+    public void testCreate(){
+        attendanceDao.create(USER_2.getId(), EVENT1_ID);
 
         assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, ATTENDANCE_TABLE));
         assertEquals(EVENT1_ID, jdbcTemplate.queryForObject("SELECT event_id FROM event_attendances WHERE user_id = ?", Long.class, USER_2.getId()).longValue());
         assertEquals(1, jdbcTemplate.queryForObject("SELECT attendees_count FROM events WHERE id = ?", Long.class, EVENT1_ID).longValue());
     }
     @Test(expected = DataAccessException.class)
-    public void testAttendDuplicated(){
+    public void testCreateDuplicated(){
         insert.execute(Map.of("event_id", EVENT1_ID ,"user_id", USER_2.getId()));
 
-        attendanceDao.attend(USER_2.getId(), EVENT1_ID);
+        attendanceDao.create(USER_2.getId(), EVENT1_ID);
     }
     @Test(expected = DataAccessException.class)
-    public void testAttendWrongUser(){
-        attendanceDao.attend(12341243, EVENT1_ID);
+    public void testCreateWrongUser(){
+        attendanceDao.create(12341243, EVENT1_ID);
     }
     @Test(expected = DataAccessException.class)
-    public void testAttendWrongEvent(){
-        attendanceDao.attend(USER_2.getId(), 1231234);
+    public void testCreateWrongEvent(){
+        attendanceDao.create(USER_2.getId(), 1231234);
     }
 
     @Test
-    public void testCancel(){
+    public void testDelete(){
         insert.execute(Map.of("event_id", EVENT1_ID ,"user_id", USER_2.getId()));
         jdbcTemplate.update("UPDATE events SET attendees_count = attendees_count + 1 WHERE id = ?", EVENT1_ID);
-        attendanceDao.cancel(USER_2.getId(), EVENT1_ID);
+        attendanceDao.delete(USER_2.getId(), EVENT1_ID);
 
         assertEquals(0, JdbcTestUtils.countRowsInTable(jdbcTemplate, ATTENDANCE_TABLE));
         assertEquals(0, jdbcTemplate.queryForObject("SELECT attendees_count FROM events WHERE id = ?", Long.class, EVENT1_ID).longValue());
     }
     @Test
-    public void testCancelNotParticipating(){
-        attendanceDao.cancel(USER_2.getId(), EVENT1_ID);
+    public void testDeleteNotParticipating(){
+        attendanceDao.delete(USER_2.getId(), EVENT1_ID);
 
         assertEquals(0, JdbcTestUtils.countRowsInTable(jdbcTemplate, ATTENDANCE_TABLE));
     }   
     @Test
-    public void testCancelWrongEvent(){
+    public void testDeleteWrongEvent(){
         //TODO assert
-        attendanceDao.cancel(USER_2.getId(), 12341234);
+        attendanceDao.delete(USER_2.getId(), 12341234);
     }  
     @Test
-    public void testCancelWrongUser(){
+    public void testDeleteWrongUser(){
         //TODO assert
-        attendanceDao.cancel(1241234, EVENT1_ID);
+        attendanceDao.delete(1241234, EVENT1_ID);
     }  
 
     @Test
-    public void testIsAttendingFalse(){
-        boolean attending = attendanceDao.isAttending(USER_1.getId(), EVENT1_ID);
+    public void testExistsFalse(){
+        boolean attending = attendanceDao.exists(USER_1.getId(), EVENT1_ID);
 
         assertFalse(attending);
     }
     @Test
-    public void testIsAttendingTrue(){
+    public void testExistsTrue(){
         insert.execute(Map.of("event_id", EVENT1_ID ,"user_id", USER_1.getId()));
 
-        boolean attending = attendanceDao.isAttending(USER_1.getId(), EVENT1_ID);
+        boolean attending = attendanceDao.exists(USER_1.getId(), EVENT1_ID);
 
         assertTrue(attending);
     }
     @Test
-    public void testIsAttendingMissingEvent(){
+    public void testExistsMissingEvent(){
         insert.execute(Map.of("event_id", EVENT1_ID ,"user_id", USER_1.getId()));
 
-        boolean attending = attendanceDao.isAttending(USER_1.getId(), 12341234);
+        boolean attending = attendanceDao.exists(USER_1.getId(), 12341234);
 
         assertFalse(attending);
     }
     @Test
-    public void testIsAttendingMissingUser(){
+    public void testExistsMissingUser(){
         insert.execute(Map.of("event_id", EVENT1_ID ,"user_id", USER_1.getId()));
 
-        boolean attending = attendanceDao.isAttending(1241234, EVENT1_ID);
+        boolean attending = attendanceDao.exists(1241234, EVENT1_ID);
 
         assertFalse(attending);
     }
 
     @Test
-    public void testGetAttendees(){
+    public void testFindAllAttendeesByEventId(){
         insert.execute(Map.of("event_id", EVENT1_ID ,"user_id", USER_1.getId()));
         insert.execute(Map.of("event_id", EVENT1_ID ,"user_id", USER_2.getId()));
 
-        List<User> attendees = attendanceDao.getAttendees(EVENT1_ID);
+        List<User> attendees = attendanceDao.findAllAttendeesByEventId(EVENT1_ID);
 
         assertNotNull(attendees);
         assertEquals(2, attendees.size());
     }
     @Test
-    public void testGetAttendeesNoAttendees(){
-        List<User> attendees = attendanceDao.getAttendees(EVENT1_ID);
+    public void testFindAllAttendeesNoAttendeesByEventId(){
+        List<User> attendees = attendanceDao.findAllAttendeesByEventId(EVENT1_ID);
 
         assertNotNull(attendees);
         assertEquals(0, attendees.size());
     }
     @Test
-    public void testGetAttendeesMissingEvent(){
-        List<User> attendees = attendanceDao.getAttendees(412341234);
+    public void testFindAllAttendeesByEventIdMissingEvent(){
+        List<User> attendees = attendanceDao.findAllAttendeesByEventId(412341234);
 
         assertNotNull(attendees);
         assertEquals(0, attendees.size());
     }
 
     @Test
-    public void testGetAttendeesCount(){
+    public void testFindAllAttendeesByEventIdCount(){
         insert.execute(Map.of("event_id", EVENT1_ID ,"user_id", USER_1.getId()));
         insert.execute(Map.of("event_id", EVENT1_ID ,"user_id", USER_2.getId()));
         jdbcTemplate.update("UPDATE events SET attendees_count = attendees_count + 2 WHERE id = ?", EVENT1_ID);
-        int attendees = attendanceDao.getAttendeesCount(EVENT1_ID);
+        int attendees = attendanceDao.countByEventId(EVENT1_ID);
 
         assertNotNull(attendees);
         assertEquals(2, attendees);
     }
     @Test
-    public void testGetAttendeesCountNoAttendees(){
-        int attendees = attendanceDao.getAttendeesCount(EVENT1_ID);
+    public void testFindAllAttendeesCountNoAttendeesByEventId(){
+        int attendees = attendanceDao.countByEventId(EVENT1_ID);
 
         assertNotNull(attendees);
         assertEquals(0, attendees);
     }
     @Test
-    public void testGetAttendeesCountMissingEvent(){
-        int attendees = attendanceDao.getAttendeesCount(412341234);
+    public void testFindAllAttendeesByEventIdCountMissingEvent(){
+        int attendees = attendanceDao.countByEventId(412341234);
 
         assertNotNull(attendees);
         assertEquals(0, attendees);
     }
 
     @Test
-    public void testGetAttendingEvents(){
+    public void testFindAllEventsByAttendee(){
         insert.execute(Map.of("event_id", EVENT3_ID ,"user_id", USER_1.getId()));
         insert.execute(Map.of("event_id", EVENT2_ID ,"user_id", USER_1.getId()));
 
@@ -210,13 +210,13 @@ public class EventAttendanceJdbcDaoTest {
         assertEquals(2, events.size());
     }
     @Test
-    public void testGetAttendingEventsNoAttending(){
+    public void testFindAllByAttendee(){
         List<Event> events = attendanceDao.getAttendingEvents(USER_1.getId());
         
         assertEquals(0, events.size());
     }
     @Test
-    public void testGetAttendingEventsWrongUser(){
+    public void testFindAllEventsByAttendeeWrongUser(){
         insert.execute(Map.of("event_id", EVENT3_ID ,"user_id", USER_1.getId()));
 
         List<Event> events = attendanceDao.getAttendingEvents(12341234);
@@ -225,13 +225,13 @@ public class EventAttendanceJdbcDaoTest {
     }
 
     @Test
-    public void testGetAttendeesPaged(){
+    public void testFindAllAttendeesByEventIdPaged(){
         insert.execute(Map.of("event_id", EVENT1_ID ,"user_id", USER_1.getId()));
         insert.execute(Map.of("event_id", EVENT1_ID ,"user_id", USER_2.getId()));
         insert.execute(Map.of("event_id", EVENT1_ID ,"user_id", USER_3.getId()));
 
-        Page<User> page1 = attendanceDao.getAttendees(EVENT1_ID, new PageParams(1, 2));
-        Page<User> page2 = attendanceDao.getAttendees(EVENT1_ID, new PageParams(2, 2));
+        Page<User> page1 = attendanceDao.findAllAttendeesByEventId(EVENT1_ID, new PageParams(1, 2));
+        Page<User> page2 = attendanceDao.findAllAttendeesByEventId(EVENT1_ID, new PageParams(2, 2));
 
         assertNotNull(page1);
         assertNotNull(page2);
@@ -245,8 +245,8 @@ public class EventAttendanceJdbcDaoTest {
         assertEquals(1, page2.getContent().size());
     }
     @Test
-    public void testGetAttendeesPagedNoAttendees(){
-        Page<User> attendees = attendanceDao.getAttendees(EVENT1_ID, new PageParams(1, 2));
+    public void testFindAllAttendeesPagedNoAttendeesByEventId(){
+        Page<User> attendees = attendanceDao.findAllAttendeesByEventId(EVENT1_ID, new PageParams(1, 2));
 
         assertNotNull(attendees);
         assertEquals(1, attendees.getCurrentPage());
@@ -255,8 +255,8 @@ public class EventAttendanceJdbcDaoTest {
         assertEquals(0, attendees.getContent().size());
     }
     @Test
-    public void testGetAttendeesPagedMissingEvent(){
-        Page<User> attendees = attendanceDao.getAttendees(412341234,new PageParams( 1, 2));
+    public void testFindAllAttendeesByEventIdPagedMissingEvent(){
+        Page<User> attendees = attendanceDao.findAllAttendeesByEventId(412341234,new PageParams( 1, 2));
 
         assertNotNull(attendees);
         assertEquals(1, attendees.getCurrentPage());
@@ -266,12 +266,12 @@ public class EventAttendanceJdbcDaoTest {
     }
 
     @Test
-    public void testGetAttendingEventsPaged(){
+    public void testFindAllEventsByAttendeePaged(){
         insert.execute(Map.of("event_id", EVENT3_ID ,"user_id", USER_1.getId()));
         insert.execute(Map.of("event_id", EVENT2_ID ,"user_id", USER_1.getId()));
 
-        Page<Event> page1 = attendanceDao.getAttendingEvents(USER_1.getId(), new PageParams(1, 1));
-        Page<Event> page2 = attendanceDao.getAttendingEvents(USER_1.getId(), new PageParams(2, 1));
+        Page<Event> page1 = attendanceDao.findAllEventsByAttendee(USER_1.getId(), new PageParams(1, 1));
+        Page<Event> page2 = attendanceDao.findAllEventsByAttendee(USER_1.getId(), new PageParams(2, 1));
         
         assertNotNull(page1);
         assertNotNull(page2);
@@ -285,8 +285,8 @@ public class EventAttendanceJdbcDaoTest {
         assertEquals(1, page2.getContent().size());    
     }
     @Test
-    public void testGetAttendingEventsNoAttendingPaged(){
-        Page<Event> events = attendanceDao.getAttendingEvents(USER_1.getId(), new PageParams(1,1));
+    public void testFindAllPagedByAttendee(){
+        Page<Event> events = attendanceDao.findAllEventsByAttendee(USER_1.getId(), new PageParams(1,1));
         
         assertNotNull(events);
         assertEquals(1, events.getCurrentPage());
@@ -295,10 +295,10 @@ public class EventAttendanceJdbcDaoTest {
         assertEquals(0, events.getContent().size());
     }
     @Test
-    public void testGetAttendingEventsWrongUserPaged(){
+    public void testFindAllEventsByAttendeeWrongUserPaged(){
         insert.execute(Map.of("event_id", EVENT3_ID ,"user_id", USER_1.getId()));
 
-        Page<Event> events = attendanceDao.getAttendingEvents(12341234, new PageParams(1, 1));
+        Page<Event> events = attendanceDao.findAllEventsByAttendee(12341234, new PageParams(1, 1));
         
         assertNotNull(events);
         assertEquals(1, events.getCurrentPage());

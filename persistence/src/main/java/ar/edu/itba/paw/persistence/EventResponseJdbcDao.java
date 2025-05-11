@@ -61,7 +61,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
         return jdbcTemplate.query(SQL_FIND_EVENT_RESPONSE, EVENT_RESPONSE_ROW_MAPPER, id).stream().findFirst();
     }
     @Override
-    public Optional<EventResponse> findByIdDeletedOrNotDeleted(final long id) {
+    public Optional<EventResponse> findByIdDeletedOrNot(final long id) {
         return jdbcTemplate.query(SQL_FIND_EVENT_RESPONSE_DELETED_OR_NOT, EVENT_RESPONSE_ROW_MAPPER, id).stream().findFirst();
     }
 
@@ -84,7 +84,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
 
 
     @Override
-    public int getCount(final long eventId) {
+    public int countByEventId(final long eventId) {
         return jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM event_responses WHERE event_id = ? AND deleted = FALSE",
                 Integer.class,
@@ -93,7 +93,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
     }
 
     @Override
-    public long getEventIdByResponseId(final long eventResponseId) {
+    public long findEventIdById(final long eventResponseId) {
         return jdbcTemplate.query(
                 "SELECT event_id FROM event_responses WHERE id = ? ORDER BY date_time ",
                 (rs, rowNum) -> rs.getLong("event_id"),
@@ -102,7 +102,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
     }
 
     @Override
-    public void deletionMessage(final long id, final String message) {
+    public void updateDeletionMessage(final long id, final String message) {
         LOGGER.info("Setting event response delete message '{}' for response {}", message, id);
         final int updatedRows = jdbcTemplate.update("UPDATE event_responses SET deleted_message = ? WHERE id = ?;", message, id);
         if (updatedRows == 0) {
@@ -111,7 +111,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
     }
 
     @Override
-    public void deleteByEventId(long eventId) {
+    public void deleteAllByEventId(long eventId) {
         LOGGER.info("Setting event responses for event {} as deleted", eventId);
         final int updatedRows = jdbcTemplate.update("UPDATE event_responses SET deleted = TRUE WHERE event_id = ?;", eventId);
         if (updatedRows == 0) {
@@ -129,7 +129,7 @@ public class EventResponseJdbcDao implements EventResponseDao {
     }
 
     @Override
-    public Page<EventResponse> listAllFromEvent(final long eventId, PageParams pageParams) {
+    public Page<EventResponse> listAllByEventId(final long eventId, PageParams pageParams) {
 
         final int totalItems = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM event_responses WHERE event_id = ? AND deleted = FALSE",

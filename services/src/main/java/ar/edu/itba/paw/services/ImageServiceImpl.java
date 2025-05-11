@@ -32,7 +32,7 @@ public class ImageServiceImpl implements ImageService {
     @Transactional
     public long storeImage(byte[] imageData) {
         LOGGER.debug("Storing image of size {}", imageData.length);
-        long imageId = imageDao.saveImage(imageData);
+        long imageId = imageDao.create(imageData);
 
         Image image = new Image(imageId, imageData);
         Cache cache = cacheManager.getCache("images"); //TODO: preguntar si es buena practica
@@ -50,7 +50,7 @@ public class ImageServiceImpl implements ImageService {
     @Cacheable(value = "images", key = "#id")
     public Optional<Image> getImage(Long id) {
         LOGGER.debug("Getting image {}", id);
-        return imageDao.getImageById(id);
+        return imageDao.findById(id);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class ImageServiceImpl implements ImageService {
     @CacheEvict(value = "images", key = "#id")
     public void deleteImage(Long id) {
         LOGGER.debug("Deleting image {}", id);
-        imageDao.deleteImage(id);
+        imageDao.delete(id);
     }
 
 

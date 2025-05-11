@@ -192,32 +192,32 @@ public class JourneyJdbcDaoTest {
     }
 
     @Test
-    public void testFindOverlappingJourneyWithOverlapLeft(){
-        Optional<Journey> maybeJourney = journeyDao.findOverlappingJourney(USER_1.getId(), LocalDate.now(), TestUtils.JOURNEY_START_DATE.plusDays(7));
+    public void testFindOverlappingWithOverlapLeft(){
+        Optional<Journey> maybeJourney = journeyDao.findOverlapping(USER_1.getId(), LocalDate.now(), TestUtils.JOURNEY_START_DATE.plusDays(7));
 
         assertEqualsMaybeJourney(maybeJourney);
     }
     @Test
-    public void testFindOverlappingJourneyWithOverlapRight(){
-        Optional<Journey> maybeJourney = journeyDao.findOverlappingJourney(USER_1.getId(), TestUtils.JOURNEY_END_DATE.plusDays(-7), TestUtils.JOURNEY_END_DATE.plusDays(7));
+    public void testFindOverlappingWithOverlapRight(){
+        Optional<Journey> maybeJourney = journeyDao.findOverlapping(USER_1.getId(), TestUtils.JOURNEY_END_DATE.plusDays(-7), TestUtils.JOURNEY_END_DATE.plusDays(7));
 
         assertEqualsMaybeJourney(maybeJourney);
     }
     @Test
-    public void testFindOverlappingJourneyWithOverlapContained(){
-        Optional<Journey> maybeJourney = journeyDao.findOverlappingJourney(USER_1.getId(), TestUtils.JOURNEY_START_DATE.plusDays(7), TestUtils.JOURNEY_END_DATE.plusDays(-7));
+    public void testFindOverlappingWithOverlapContained(){
+        Optional<Journey> maybeJourney = journeyDao.findOverlapping(USER_1.getId(), TestUtils.JOURNEY_START_DATE.plusDays(7), TestUtils.JOURNEY_END_DATE.plusDays(-7));
 
         assertEqualsMaybeJourney(maybeJourney);
     }
     @Test
-    public void testFindOverlappingJourneyWithOverlapContainer(){
-        Optional<Journey> maybeJourney = journeyDao.findOverlappingJourney(USER_1.getId(), TestUtils.JOURNEY_START_DATE.plusDays(-7), TestUtils.JOURNEY_END_DATE.plusDays(7));
+    public void testFindOverlappingWithOverlapContainer(){
+        Optional<Journey> maybeJourney = journeyDao.findOverlapping(USER_1.getId(), TestUtils.JOURNEY_START_DATE.plusDays(-7), TestUtils.JOURNEY_END_DATE.plusDays(7));
 
         assertEqualsMaybeJourney(maybeJourney);
     }
     @Test
-    public void testFindOverlappingJourneyWithoutOverlap(){
-        Optional<Journey> maybeJourney = journeyDao.findOverlappingJourney(USER_1.getId(), LocalDate.now(), TestUtils.JOURNEY_START_DATE.plusDays(-7));
+    public void testFindOverlappingWithoutOverlap(){
+        Optional<Journey> maybeJourney = journeyDao.findOverlapping(USER_1.getId(), LocalDate.now(), TestUtils.JOURNEY_START_DATE.plusDays(-7));
 
         assertNotNull(maybeJourney);
         assertFalse(maybeJourney.isPresent());
@@ -286,91 +286,25 @@ public class JourneyJdbcDaoTest {
     }
 
     @Test
-    public void testDeletionMessage(){
-        journeyDao.deletionMessage(JOURNEY_1.getId(), "WRONG");
+    public void testUpdateDeletionMessage(){
+        journeyDao.updateDeletionMessage(JOURNEY_1.getId(), "WRONG");
 
         assertEquals(TestUtils.TOTAL_JOURNEYS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_TABLE));
         assertFalse(jdbcTemplate.queryForObject("SELECT deleted FROM journeys WHERE id = ?", Boolean.class, JOURNEY_1.getId()));
         assertEquals("WRONG", jdbcTemplate.queryForObject("SELECT deleted_message FROM journeys WHERE id = ?", String.class, JOURNEY_1.getId()));
     }
     @Test
-    public void testDeletionMessageWrongId(){
-        journeyDao.deletionMessage(12341243, "WRONG");
+    public void testUpdateDeletionMessageWrongId(){
+        journeyDao.updateDeletionMessage(12341243, "WRONG");
 
         assertEquals(TestUtils.TOTAL_JOURNEYS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_TABLE));
         assertFalse(jdbcTemplate.queryForObject("SELECT deleted FROM journeys WHERE id = ?", Boolean.class, JOURNEY_1.getId()));
     }
 
     @Test
-    public void testUpdateDates(){
-        journeyDao.updateDates(
-            JOURNEY_1.getId(), 
-            TestUtils.JOURNEY_START_DATE.plusDays(10), 
-            TestUtils.JOURNEY_END_DATE.plusDays(10)
-        );
-
-        Journey journey = jdbcTemplate.queryForObject(
-            TestUtils.JOURNEY_SELECT_BY_ID, 
-            TestUtils.JOURNEY_ROW_MAPPER, 
-            JOURNEY_1.getId());
-        assertEqualsJourney(journey, Map.of("startDate", TestUtils.JOURNEY_START_DATE.plusDays(10), "endDate", TestUtils.JOURNEY_END_DATE.plusDays(10)));
-    }
-    @Test(expected=NullPointerException.class)
-    public void testUpdateDatesMissingStartDate(){
-        journeyDao.updateDates(JOURNEY_1.getId(), null, TestUtils.JOURNEY_END_DATE);
-    }
-    @Test(expected=NullPointerException.class)
-    public void testUpdateDatesMissingEndDate(){
-        journeyDao.updateDates(JOURNEY_1.getId(), TestUtils.JOURNEY_START_DATE, null);
-    }
-    @Test
-    public void testUpdateDatesWrongId(){
-        journeyDao.updateDates(1231234, TestUtils.JOURNEY_START_DATE, TestUtils.JOURNEY_END_DATE);
-
-        Journey journey = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, JOURNEY_1.getId());
-        assertEqualsJourney(journey);
-    }
-
-    @Test
-    public void testUpdateDescription(){
-        journeyDao.updateDescription(JOURNEY_1.getId(), "JOURNEY_DESCRIPTION");
-
-        Journey journey = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, JOURNEY_1.getId());
-        assertEqualsJourney(journey, Map.of("description", "JOURNEY_DESCRIPTION")); 
-    }
-    @Test
-    public void testUpdateDescriptionWrongId(){
-        journeyDao.updateDescription(12341234, "NEW DESCRIPTION");
-
-        Journey journey = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, JOURNEY_1.getId());
-        assertEqualsJourney(journey); 
-    }
-    
-    @Test
-    public void testUpdateDestinationUniversity(){
-        journeyDao.updateDestinationUniversity(JOURNEY_1.getId(), UNI_3.getId());
-
-        Journey journey = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, JOURNEY_1.getId());
-        assertEqualsJourney(journey, Map.of("destination", UNI_3)); 
-    }
-    @Test
-    public void testUpdateDestinationUniversityInvalidId(){
-        journeyDao.updateDestinationUniversity(12341234, 1234123);
-        
-        assertEqualsJourney(jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, JOURNEY_1.getId()));
-    }
-    @Test
-    public void testUpdateDestinationUniversityInvalidJourney(){
-        journeyDao.updateDestinationUniversity(12341234, UNI_3.getId());
-
-        Journey journey = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, JOURNEY_1.getId());
-        assertEqualsJourney(journey); 
-    }
-
-    @Test
-    public void testListAllPaged(){
-        Page<Journey> page1 = journeyDao.listAll(new PageParams(1, 1));
-        Page<Journey> page2 = journeyDao.listAll(new PageParams(2, 1));
+    public void testFindAllPaged(){
+        Page<Journey> page1 = journeyDao.findAll(new PageParams(1, 1));
+        Page<Journey> page2 = journeyDao.findAll(new PageParams(2, 1));
 
         assertNotNull(page1);
         assertNotNull(page2);
@@ -387,10 +321,10 @@ public class JourneyJdbcDaoTest {
     }
     
     @Test
-    public void testListAllPagedNoJourneys(){
+    public void testFindAllPagedNoJourneys(){
         TestUtils.deleteJourneys(jdbcTemplate);
 
-        Page<Journey> page1 = journeyDao.listAll(TestUtils.PAGE_1_DEFAULT);
+        Page<Journey> page1 = journeyDao.findAll(TestUtils.PAGE_1_DEFAULT);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -400,8 +334,8 @@ public class JourneyJdbcDaoTest {
     }
 
     @Test
-    public void testGetOthersJourneysPaged(){
-        Page<Journey> page1 = journeyDao.getOthersJourneys(USER_1.getId(), new PageParams(1, 1));
+    public void testFindOthersPaged(){
+        Page<Journey> page1 = journeyDao.findOthers(USER_1.getId(), new PageParams(1, 1));
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -411,9 +345,9 @@ public class JourneyJdbcDaoTest {
         TestUtils.assertEqualsJourney(JOURNEY_2, page1.getContent().getFirst());
     }
     @Test
-    public void testGetOthersJourneysPagedNoJourneys(){
+    public void testFindOthersJourneysPagedNo(){
         TestUtils.deleteJourneys(jdbcTemplate);
-        Page<Journey> page1 = journeyDao.getOthersJourneys(USER_1.getId(), new PageParams(1,1));
+        Page<Journey> page1 = journeyDao.findOthers(USER_1.getId(), new PageParams(1,1));
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -444,8 +378,8 @@ public class JourneyJdbcDaoTest {
     }
 
     @Test
-    public void testUpdateData(){
-        journeyDao.updateData(
+    public void testUpdate(){
+        journeyDao.update(
             JOURNEY_1.getId(), 
             UNI_3, 
             TestUtils.JOURNEY_START_DATE.plusDays(10), 
@@ -466,8 +400,8 @@ public class JourneyJdbcDaoTest {
         );
     }
     @Test
-    public void testUpdateDataNotFound(){
-        journeyDao.updateData(
+    public void testUpdateNotFound(){
+        journeyDao.update(
             12341234, 
             UNI_3, 
             TestUtils.JOURNEY_START_DATE.plusDays(10),
@@ -483,8 +417,8 @@ public class JourneyJdbcDaoTest {
         assertEqualsJourney(journey);
     }
     @Test
-    public void testUpdateDataDeleted(){
-        journeyDao.updateData(
+    public void testUpdateDeleted(){
+        journeyDao.update(
             JOURNEY_DELETED.getId(), 
             UNI_3, 
             TestUtils.JOURNEY_START_DATE.plusDays(10), 
@@ -650,7 +584,7 @@ public class JourneyJdbcDaoTest {
         //should have internal score of 80 (30 match city, 50 match uni)
         Journey newJourney = insertJourney(Map.of("user", USER_3, "startDate", TestUtils.JOURNEY_END_DATE.plusDays(2), "endDate", TestUtils.JOURNEY_END_DATE.plusDays(40)));
 
-        Page<Journey> page1 = journeyDao.getRecommendedJourneys(TestUtils.USER_1_MAIL, TestUtils.PAGE_1_BIG);
+        Page<Journey> page1 = journeyDao.findRecommended(TestUtils.USER_1_MAIL, TestUtils.PAGE_1_BIG);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -663,7 +597,7 @@ public class JourneyJdbcDaoTest {
     @Test
     public void testRecommendedJourneysNoJourneys(){
         TestUtils.deleteJourneys(jdbcTemplate);
-        Page<Journey> page1 = journeyDao.getRecommendedJourneys(TestUtils.USER_1_MAIL, TestUtils.PAGE_1_BIG);
+        Page<Journey> page1 = journeyDao.findRecommended(TestUtils.USER_1_MAIL, TestUtils.PAGE_1_BIG);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -680,7 +614,7 @@ public class JourneyJdbcDaoTest {
         //should have an internal score of 15 (date overlap only)
         Journey newJourney2 = insertJourney(Map.of("user", USER_4, "destination", UNI_ORIGIN, "startDate", TestUtils.JOURNEY_END_DATE.plusDays(-10), "endDate", TestUtils.JOURNEY_END_DATE.plusDays(-2)));
 
-        Page<Journey> page1 = journeyDao.getRecommendedJourneys(TestUtils.USER_1_MAIL, TestUtils.PAGE_1_BIG);
+        Page<Journey> page1 = journeyDao.findRecommended(TestUtils.USER_1_MAIL, TestUtils.PAGE_1_BIG);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -700,7 +634,7 @@ public class JourneyJdbcDaoTest {
         Journey newJourney3 = insertJourney(Map.of("user", USER_COMMON_INTERESTS_1));
         //JOURNEY_2 should have internal score of 95 (50 + 30 match dest uni, 15 overlap)
 
-        Page<Journey> page1 = journeyDao.getRecommendedJourneys(TestUtils.USER_1_MAIL, TestUtils.PAGE_1_BIG);
+        Page<Journey> page1 = journeyDao.findRecommended(TestUtils.USER_1_MAIL, TestUtils.PAGE_1_BIG);
 
         //TODO for-loop
         assertNotNull(page1);
@@ -727,7 +661,7 @@ public class JourneyJdbcDaoTest {
         //should have internal score of 45 (30 city match, 15 overlap)
         Journey newJourney5 = insertJourney(Map.of("user", USER_5, "destination", UNI_3));
 
-        Page<Journey> page1 = journeyDao.getRecommendedJourneys(TestUtils.USER_1_MAIL, TestUtils.PAGE_1_BIG);
+        Page<Journey> page1 = journeyDao.findRecommended(TestUtils.USER_1_MAIL, TestUtils.PAGE_1_BIG);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -744,3 +678,70 @@ public class JourneyJdbcDaoTest {
         TestUtils.assertEqualsJourney(newJourney3, page1.getContent().get(5));
     }
 }
+
+//
+//    @Test
+//    public void testUpdateDates(){
+//        journeyDao.updateDates(
+//            JOURNEY_1.getId(),
+//            TestUtils.JOURNEY_START_DATE.plusDays(10),
+//            TestUtils.JOURNEY_END_DATE.plusDays(10)
+//        );
+//
+//        Journey journey = jdbcTemplate.queryForObject(
+//            TestUtils.JOURNEY_SELECT_BY_ID,
+//            TestUtils.JOURNEY_ROW_MAPPER,
+//            JOURNEY_1.getId());
+//        assertEqualsJourney(journey, Map.of("startDate", TestUtils.JOURNEY_START_DATE.plusDays(10), "endDate", TestUtils.JOURNEY_END_DATE.plusDays(10)));
+//    }
+//    @Test(expected=NullPointerException.class)
+//    public void testUpdateDatesMissingStartDate(){
+//        journeyDao.updateDates(JOURNEY_1.getId(), null, TestUtils.JOURNEY_END_DATE);
+//    }
+//    @Test(expected=NullPointerException.class)
+//    public void testUpdateDatesMissingEndDate(){
+//        journeyDao.updateDates(JOURNEY_1.getId(), TestUtils.JOURNEY_START_DATE, null);
+//    }
+//    @Test
+//    public void testUpdateDatesWrongId(){
+//        journeyDao.updateDates(1231234, TestUtils.JOURNEY_START_DATE, TestUtils.JOURNEY_END_DATE);
+//
+//        Journey journey = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, JOURNEY_1.getId());
+//        assertEqualsJourney(journey);
+//    }
+//
+//    @Test
+//    public void testUpdateDescription(){
+//        journeyDao.updateDescription(JOURNEY_1.getId(), "JOURNEY_DESCRIPTION");
+//
+//        Journey journey = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, JOURNEY_1.getId());
+//        assertEqualsJourney(journey, Map.of("description", "JOURNEY_DESCRIPTION"));
+//    }
+//    @Test
+//    public void testUpdateDescriptionWrongId(){
+//        journeyDao.updateDescription(12341234, "NEW DESCRIPTION");
+//
+//        Journey journey = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, JOURNEY_1.getId());
+//        assertEqualsJourney(journey);
+//    }
+//
+//    @Test
+//    public void testUpdateDestinationUniversity(){
+//        journeyDao.updateDestinationUniversity(JOURNEY_1.getId(), UNI_3.getId());
+//
+//        Journey journey = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, JOURNEY_1.getId());
+//        assertEqualsJourney(journey, Map.of("destination", UNI_3));
+//    }
+//    @Test
+//    public void testUpdateDestinationUniversityInvalidId(){
+//        journeyDao.updateDestinationUniversity(12341234, 1234123);
+//
+//        assertEqualsJourney(jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, JOURNEY_1.getId()));
+//    }
+//    @Test
+//    public void testUpdateDestinationUniversityInvalidJourney(){
+//        journeyDao.updateDestinationUniversity(12341234, UNI_3.getId());
+//
+//        Journey journey = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, JOURNEY_1.getId());
+//        assertEqualsJourney(journey);
+//    }

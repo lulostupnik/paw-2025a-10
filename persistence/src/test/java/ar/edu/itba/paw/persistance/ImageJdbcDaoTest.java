@@ -49,8 +49,8 @@ public class ImageJdbcDaoTest {
     }
 
     @Test
-    public void testGetImageById(){
-        Optional<Image> maybeImage = imageDao.getImageById(IMAGE_1.getId());
+    public void testFindById(){
+        Optional<Image> maybeImage = imageDao.findById(IMAGE_1.getId());
 
         assertNotNull(maybeImage);
         assertTrue(maybeImage.isPresent());
@@ -59,16 +59,16 @@ public class ImageJdbcDaoTest {
         assertTrue(Arrays.equals(TestUtils.IMAGE_1_DATA, image.getData()));
     }
     @Test
-    public void testGetImageByIdWrongId(){
-        Optional<Image> maybeImage = imageDao.getImageById(12341234);
+    public void testFindByIdWrongId(){
+        Optional<Image> maybeImage = imageDao.findById(12341234);
 
         assertNotNull(maybeImage);
         assertFalse(maybeImage.isPresent());
     }
 
     @Test
-    public void testSaveImage(){
-        long id = imageDao.saveImage(TestUtils.IMAGE_2_DATA);
+    public void testCreate(){
+        long id = imageDao.create(TestUtils.IMAGE_2_DATA);
 
         Image image = jdbcTemplate.queryForObject(TestUtils.IMAGE_SELECT_BY_ID, TestUtils.IMAGE_ROW_MAPPER, id);
         assertNotNull(image);
@@ -76,19 +76,19 @@ public class ImageJdbcDaoTest {
         assertEquals(TestUtils.TOTAL_IMAGES + 1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.IMAGE_TABLE));
     }
     @Test(expected = NullPointerException.class)
-    public void testSaveImageMissingData(){
-        imageDao.saveImage(null);
+    public void testCreateMissingData(){
+        imageDao.create(null);
     }
 
     @Test
-    public void testDeleteImage(){
-        imageDao.deleteImage(IMAGE_2.getId());
+    public void testDelete(){
+        imageDao.delete(IMAGE_2.getId());
 
         assertEquals(TestUtils.TOTAL_IMAGES - 1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.IMAGE_TABLE));
     }
     @Test
-    public void testDeleteImageWrongImage(){
-        imageDao.deleteImage(123123);
+    public void testDeleteImageWrong(){
+        imageDao.delete(123123);
 
         assertEquals(TestUtils.TOTAL_IMAGES, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.IMAGE_TABLE));
     }

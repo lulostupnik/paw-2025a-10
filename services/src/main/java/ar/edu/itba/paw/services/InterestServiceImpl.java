@@ -44,7 +44,7 @@ public class InterestServiceImpl implements InterestService {
     @Override
     public List<Interest> findByUserId(long id) {
         LOGGER.debug("Getting interests of user {}", id);
-        return interestDao.findByUserId(id);
+        return interestDao.findAllByUserId(id);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class InterestServiceImpl implements InterestService {
 
     @Override
     public Page<Interest> findAllInterestsByUserId(long id, PageParams pageParams) {
-        return interestDao.findAllInterestsByUserId(id, pageParams);
+        return interestDao.findAllByUserId(id, pageParams);
     }
 
     @Override
@@ -72,18 +72,7 @@ public class InterestServiceImpl implements InterestService {
             }
     )
     public Interest createUserInterest(String name) {
-        return interestDao.createUserInterest(name);
-    }
-
-    @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "interestsById", key = "#id"),
-            @CacheEvict(value = "interests", allEntries = true),
-            @CacheEvict(value = "interestsByName", allEntries = true)
-    })
-    @Override
-    public void deleteUserInterest(long id) {
-        interestDao.deleteUserInterest(id);
+        return interestDao.create(name);
     }
 
     @Transactional
@@ -94,7 +83,7 @@ public class InterestServiceImpl implements InterestService {
     })
     @Override
     public void editUserInterest(long id, String interest) {
-        interestDao.editUserInterest(id, interest);
+        interestDao.update(id, interest);
     }
 
     @Override
@@ -136,18 +125,18 @@ public class InterestServiceImpl implements InterestService {
     public Page<Interest> getAllInterests(String search, PageParams pageParams) {
         LOGGER.debug("Finding all interests with search {}", search);
         if (search == null || search.isEmpty()) {
-            return interestDao.getAllInterests(pageParams);
+            return interestDao.findAll(pageParams);
         }
-        return interestDao.searchBySubstring(search,pageParams);
+        return interestDao.search(search,pageParams);
     }
 
     @Override
     public String getInterestsJSON(String search, PageParams pageParams) {
         if(search == null || search.isEmpty()) {
-            List<Interest> interests = interestDao.getAllInterests(pageParams).getContent();
+            List<Interest> interests = interestDao.findAll(pageParams).getContent();
             return listToJson(interests);
         }
-        List<Interest> interests = interestDao.searchBySubstring(search,pageParams).getContent();
+        List<Interest> interests = interestDao.search(search,pageParams).getContent();
         return listToJson(interests);
     }
 

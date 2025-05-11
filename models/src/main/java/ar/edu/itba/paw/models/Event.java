@@ -25,7 +25,7 @@ public class Event {
 
 
     public boolean getFull(){
-        return attendeesLimit.isPresent() && attendeesLimit.get() < attendeesCount;
+        return attendeesLimit.isPresent() && attendeesLimit.get() <= attendeesCount;
     }
 
     public boolean getIsFuture() {

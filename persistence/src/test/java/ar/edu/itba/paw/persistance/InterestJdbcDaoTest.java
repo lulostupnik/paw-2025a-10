@@ -91,8 +91,8 @@ public class InterestJdbcDaoTest {
 
 
     @Test
-    public void testFindByUserId(){        
-        List<Interest> interests = interestDao.findByUserId(USER_1.getId());
+    public void testFindAllByUserId(){
+        List<Interest> interests = interestDao.findAllByUserId(USER_1.getId());
 
         assertNotNull(interests);
         assertEquals(TestUtils.USER_1_INTERESTS, interests.size());
@@ -101,8 +101,8 @@ public class InterestJdbcDaoTest {
         }
     }
     @Test
-    public void testFindByUserIdNoUserInterests(){
-        List<Interest> interests = interestDao.findByUserId(USER_2.getId());
+    public void testFindAllByUserIdNoUserInterests(){
+        List<Interest> interests = interestDao.findAllByUserId(USER_2.getId());
 
         assertNotNull(interests);
         assertEquals(0, interests.size());
@@ -129,37 +129,24 @@ public class InterestJdbcDaoTest {
 
 
     @Test
-    public void testCreateUserInterest(){
-        Interest interest = interestDao.createUserInterest(TestUtils.INTEREST_NEW1_NAME);
+    public void testCreate(){
+        Interest interest = interestDao.create(TestUtils.INTEREST_NEW1_NAME);
 
         assertNotNull(interest);
         assertEquals(TestUtils.INTEREST_NEW1_NAME, interest.getName());
     }
     @Test(expected = DataAccessException.class)
-    public void testCreateUserInterestMissingName(){
-        interestDao.createUserInterest(null);
+    public void testCreateMissingName(){
+        interestDao.create(null);
     }
     @Test(expected = DataAccessException.class)
-    public void testCreateUserInterestDuplicate(){
-        interestDao.createUserInterest(TestUtils.INTEREST_1_NAME);
+    public void testCreateDuplicate(){
+        interestDao.create(TestUtils.INTEREST_1_NAME);
     }
 
     @Test
-    public void testDeleteUserInterest(){
-        interestDao.deleteUserInterest(INTEREST_1.getId());
-
-        assertEquals(TestUtils.TOTAL_INTERESTS - 1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.INTEREST_TABLE));
-    }
-    @Test
-    public void testDeleteUserInterestWrongInterest(){   
-        interestDao.deleteUserInterest(12341234);
-
-        assertEquals(TestUtils.TOTAL_INTERESTS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.INTEREST_TABLE));
-    }
-
-    @Test
-    public void testEditUserInterest(){
-        interestDao.editUserInterest(INTEREST_1.getId(), TestUtils.INTEREST_NEW1_NAME);
+    public void testUpdate(){
+        interestDao.update(INTEREST_1.getId(), TestUtils.INTEREST_NEW1_NAME);
 
         Interest interest = jdbcTemplate.queryForObject(
             TestUtils.INTEREST_SELECT_BY_ID, 
@@ -171,8 +158,8 @@ public class InterestJdbcDaoTest {
         assertEquals(TestUtils.INTEREST_NEW1_NAME, interest.getName());
     }
     @Test
-    public void testEditUserInterestNotFound(){
-        interestDao.editUserInterest(12341234, TestUtils.INTEREST_1_NAME);
+    public void testUpdateNotFound(){
+        interestDao.update(12341234, TestUtils.INTEREST_1_NAME);
 
         List<Interest> interests = jdbcTemplate.query(TestUtils.INTEREST_SELECT + "ORDER BY id ASC", TestUtils.INTEREST_ROW_MAPPER);
 
@@ -312,9 +299,9 @@ public class InterestJdbcDaoTest {
     }
 
     @Test
-    public void testGetAllInterestsPaged(){
-        Page<Interest> page1 = interestDao.getAllInterests(TestUtils.PAGE_1_DEFAULT);
-        Page<Interest> page2 = interestDao.getAllInterests(TestUtils.PAGE_2_DEFAULT);
+    public void testFindAllPaged(){
+        Page<Interest> page1 = interestDao.findAll(TestUtils.PAGE_1_DEFAULT);
+        Page<Interest> page2 = interestDao.findAll(TestUtils.PAGE_2_DEFAULT);
 
         assertNotNull(page1);
         assertNotNull(page2);
@@ -334,10 +321,10 @@ public class InterestJdbcDaoTest {
         assertEquals(TestUtils.INTEREST_3_NAME, page2.getContent().get(0).getName());
     }
     @Test
-    public void testGetAllInterestsPagedNoInterests(){
+    public void testFindAllInterestsPagedNo(){
         TestUtils.deleteInterests(jdbcTemplate);
 
-        Page<Interest> page1 = interestDao.getAllInterests(new PageParams(1, 2));
+        Page<Interest> page1 = interestDao.findAll(new PageParams(1, 2));
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -347,41 +334,41 @@ public class InterestJdbcDaoTest {
     }
 
     @Test
-    public void testSearchBySubstringNoFiltering(){
-        Page<Interest> page1 = interestDao.searchBySubstring(TestUtils.INTEREST_1_NAME.substring(0, 5), new PageParams(1, 3));
+    public void testSearchNoFiltering(){
+        Page<Interest> page1 = interestDao.search(TestUtils.INTEREST_1_NAME.substring(0, 5), new PageParams(1, 3));
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
         assertEquals(3, page1.getContent().size());
     }
     @Test
-    public void testSearchBySubstringFiltering(){
-        Page<Interest> page1 = interestDao.searchBySubstring(TestUtils.INTEREST_1_NAME.substring(TestUtils.INTEREST_1_NAME.length()-1, TestUtils.INTEREST_1_NAME.length()), new PageParams(1, 3));
+    public void testSearchFiltering(){
+        Page<Interest> page1 = interestDao.search(TestUtils.INTEREST_1_NAME.substring(TestUtils.INTEREST_1_NAME.length()-1, TestUtils.INTEREST_1_NAME.length()), new PageParams(1, 3));
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
         assertEquals(1, page1.getContent().size());
     }
     @Test
-    public void testSearchBySubstringEmpty(){
-        Page<Interest> page1 = interestDao.searchBySubstring("", new PageParams(1, 3));
+    public void testSearchEmpty(){
+        Page<Interest> page1 = interestDao.search("", new PageParams(1, 3));
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
         assertEquals(3, page1.getContent().size());
     }
     @Test
-    public void testSearchBySubstringMissing(){
-        Page<Interest> page1 = interestDao.searchBySubstring(null, new PageParams(1, 3));
+    public void testSearchMissing(){
+        Page<Interest> page1 = interestDao.search(null, new PageParams(1, 3));
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
         assertEquals(3, page1.getContent().size());
     }
     @Test
-    public void testSearchBySubstringPaging(){
-        Page<Interest> page1 = interestDao.searchBySubstring("", TestUtils.PAGE_1_DEFAULT);
-        Page<Interest> page2 = interestDao.searchBySubstring("", TestUtils.PAGE_2_DEFAULT);
+    public void testSearchPaging(){
+        Page<Interest> page1 = interestDao.search("", TestUtils.PAGE_1_DEFAULT);
+        Page<Interest> page2 = interestDao.search("", TestUtils.PAGE_2_DEFAULT);
 
         assertNotNull(page1);
         assertNotNull(page2);
@@ -406,7 +393,7 @@ public class InterestJdbcDaoTest {
 
     @Test
     public void testFindAllInterestsByUserId(){
-        Page<Interest> interests = interestDao.findAllInterestsByUserId(USER_1.getId(), TestUtils.PAGE_1_BIG);
+        Page<Interest> interests = interestDao.findAllByUserId(USER_1.getId(), TestUtils.PAGE_1_BIG);
 
         assertNotNull(interests);
         assertEquals(1, interests.getCurrentPage());

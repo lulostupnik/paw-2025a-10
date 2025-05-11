@@ -80,12 +80,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     }
 
     @Override
-    public List<JourneyResponse> listAllFromJourney(final long journeyId){
-        return jdbcTemplate.query(SQL_FIND_ALL_BY_JOURNEY, JOURNEY_RESPONSE_ROW_MAPPER, journeyId);
-    }
-
-    @Override
-    public Page<JourneyResponse> listAllFromJourney(final long journeyId, PageParams pageParams) {
+    public Page<JourneyResponse> listAllByJourneyId(final long journeyId, PageParams pageParams) {
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journey_responses WHERE journey_id = ? AND deleted = FALSE", Integer.class, journeyId);
 
         return new Page<>(
@@ -105,7 +100,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     }
 
     @Override
-    public long getJourneyIdByResponseId(final long journeyResponseId) {
+    public long findJourneyIdByResponseId(final long journeyResponseId) {
         return jdbcTemplate.query(
                 "SELECT journey_id FROM journey_responses WHERE id = ?",
                 (rs, rowNum) -> rs.getLong("journey_id"),
@@ -114,7 +109,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     }
 
     @Override
-    public void deletionMessage(final long id, final String message) {
+    public void updateDeletionMessage(final long id, final String message) {
         LOGGER.info("Setting deletion message '{}' for journey response {}", message, id);
 
         final int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted_message = ? WHERE id = ?;", message, id);
@@ -124,7 +119,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     }
 
     @Override
-    public void deleteResponsesByJourneyId(final long journeyId) {
+    public void deleteByJourneyId(final long journeyId) {
         LOGGER.info("Setting responses to journey {} as deleted", journeyId);
         final int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted = TRUE WHERE journey_id = ?;", journeyId);
         if (updatedRows == 0) {
@@ -133,7 +128,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     }
 
     @Override
-    public int getJourneyResponseCount(long journeyId) {
+    public int countByJourneyId(long journeyId) {
         return jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM journey_responses WHERE journey_id = ? AND deleted = FALSE",
                 Integer.class,

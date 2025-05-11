@@ -1,15 +1,14 @@
 package ar.edu.itba.paw.interfaces.persistence;
 
 import ar.edu.itba.paw.models.*;
-
 import java.util.Optional;
 
 public interface CityDao {
-    Optional<City> findBy(Long id, String name, String country);
-    Optional<City> findByName(String name); // method to find a city by its name
-    Page<City> searchBySubstring(String substring, PageParams pageParams);
-    Page<City> getAllCities(PageParams pageParams);
-    void updateCity(long id, String name, Country country); // method to update a city by its id
-    long createCity(String nameEn, Country country);
+    Optional<City> findById(long id);
+    Optional<City> findByName(String name);
+    Page<City> search(String substring, PageParams pageParams);
+    Page<City> findAll(PageParams pageParams);
+    void update(long id, String name, Country country); // method to update a city by its id
+    long create(String nameEn, Country country);
     void delete(long id);
 }

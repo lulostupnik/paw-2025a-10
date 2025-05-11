@@ -173,9 +173,9 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
     }
 
     @Override
-    public void attend(final long userId, final long eventId) {
+    public void create(final long userId, final long eventId) {
         LOGGER.info("Registering user {} will attend event {}", userId, eventId);
-        final int rowsAffected = jdbcTemplate.update("UPDATE events SET attendees_count = attendees_count + 1 WHERE id = ?", eventId);
+        final int rowsAffected = jdbcTemplate.update("UPDATE events SET attendees_count = attendees_count + 1 WHERE id = ?", eventId); // todo -> subir al servicio
         if (rowsAffected == 0) {
             LOGGER.warn("Event attendance failed: Event with ID {} not found", eventId);
         }
@@ -186,7 +186,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
     }
 
     @Override
-    public void cancel(final long userId, final long eventId) {
+    public void delete(final long userId, final long eventId) {
         LOGGER.info("Registering user {} will cancel attendance to event {}", userId, eventId);
         jdbcTemplate.update("DELETE FROM event_attendances WHERE user_id = ? AND event_id = ?", userId, eventId);
         final int rowsAffected = jdbcTemplate.update("UPDATE events SET attendees_count = attendees_count - 1 WHERE id = ?", eventId);
@@ -197,19 +197,19 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
 
 
     @Override
-    public boolean isAttending(final long userId, final long eventId) {
+    public boolean exists(final long userId, final long eventId) {
         return jdbcTemplate.queryForObject(
                 "SELECT COUNT(1) FROM event_attendances WHERE user_id = ? AND event_id = ?",
                 Boolean.class, userId, eventId);
     }
 
     @Override
-    public List<User> getAttendees(final long eventId) {
+    public List<User> findAllAttendeesByEventId(final long eventId) {
         return jdbcTemplate.query(SQL_LIST_ALL_BY_EVENT, USER_ROW_MAPPER, eventId);
     }
 
     @Override
-    public int getAttendeesCount(final long eventId) {
+    public int countByEventId(final long eventId) {
         return jdbcTemplate.query("SELECT attendees_count FROM events WHERE id = ?", (rs, rowNum) -> rs.getInt("attendees_count"), eventId).stream().findFirst().orElse(0);
         // return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM event_attendances WHERE event_id = ?",  Integer.class, eventId);
     }
@@ -219,7 +219,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
     }
 
     @Override
-    public Page<User> getAttendees(final long eventId, PageParams pageParams) {
+    public Page<User> findAllAttendeesByEventId(final long eventId, PageParams pageParams) {
         final int totalItems = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM event_attendances WHERE event_id = ?",
                 Integer.class,
@@ -235,7 +235,7 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
     }
 
     @Override
-    public Page<Event> getAttendingEvents(final long userId, PageParams pageParams) {
+    public Page<Event> findAllEventsByAttendee(final long userId, PageParams pageParams) {
         final int totalItems = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM event_attendances ea JOIN events e ON ea.event_id = e.id WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE",
                 Integer.class,

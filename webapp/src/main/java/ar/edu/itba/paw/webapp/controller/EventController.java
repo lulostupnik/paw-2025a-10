@@ -5,6 +5,7 @@ import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
 import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
+import ar.edu.itba.paw.models.exceptions.EventResponseNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
 
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
@@ -81,7 +82,6 @@ public class EventController {
     public ModelAndView createEventForm(@ModelAttribute("createEventForm") final CreateEventForm form) {
         LOGGER.debug("Getting event creation form");
         ModelAndView mav = new ModelAndView("events/create");
-//        addDropdownAttributes(mav);
         return mav;
     }
 
@@ -134,7 +134,7 @@ public class EventController {
         }
         mav.addObject("attend", eventWithStatistics.isAttending());
         mav.addObject("isEventOwner", eventWithStatistics.isCreator());
-        mav.addObject("isFull", eventService.isEventFull(event));
+        mav.addObject("isFull", event.getFull());
         return mav;
     }
 
@@ -187,7 +187,7 @@ public class EventController {
 
         Event event = eventService.getEventById(eventId).orElseThrow(()-> new EventNotFoundException("Event not found"));
 
-        EventResponse eventResponse = eventService.findEventResponseById(id).orElseThrow(() -> new NotFoundException("Event response not found"));
+        EventResponse eventResponse = eventService.findEventResponseById(id).orElseThrow(() -> new EventResponseNotFoundException("Event response not found"));
 
 
         ModelAndView mav = new ModelAndView("events/delete-reply");
