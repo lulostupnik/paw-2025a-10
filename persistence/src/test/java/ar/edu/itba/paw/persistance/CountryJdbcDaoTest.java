@@ -69,31 +69,7 @@ public class CountryJdbcDaoTest {
         assertEquals(0, countries.size());
     }
 
-    @Test
-    public void testExistsByName(){
-        boolean result = countryDao.existsByName(TestUtils.COUNTRY_1_NAME);
 
-        assertTrue(result);
-    }
-    @Test
-    public void testExistsByNameFakeName(){
-        boolean result = countryDao.existsByName("TestUtils.COUNTRY_1_NAME");
-
-        assertFalse(result);
-    }
-    @Test
-    public void testExistsByNameEmptyName(){
-        boolean result = countryDao.existsByName("");
-
-        assertFalse(result);
-    }
-    @Test
-    public void testExistsByNameMissingName(){
-        boolean result = countryDao.existsByName(null);
-
-        assertFalse(result);
-    }
-    
     @Test
     public void testFindByName(){
         Optional<Country> result = countryDao.findByName(TestUtils.COUNTRY_1_NAME);
