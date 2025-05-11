@@ -36,7 +36,7 @@ public class InterestJdbcDao implements InterestDao {
 
     private final static String SQL_FIND_ALL_PAGED = SQL_BASE + " ORDER BY name ASC LIMIT ? OFFSET ?";
 
-    private final static String SQL_SEARCH_PAGED = SQL_BASE + " WHERE name LIKE ? ORDER BY name ASC LIMIT ? OFFSET ?";
+    private final static String SQL_SEARCH_PAGED = SQL_BASE + " WHERE LOWER(name) LIKE LOWER(?) ORDER BY name ASC LIMIT ? OFFSET ?";
 
     private final static String SQL_FIND_ALL_BY_USER = SQL_BASE + " WHERE id IN (SELECT category_id FROM user_interest WHERE user_id = ?)";
 
@@ -171,24 +171,21 @@ public class InterestJdbcDao implements InterestDao {
     }
 
     @Override
-    public Page<Interest> findAll(PageParams pageParams) {
-        final int totalInterests = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category", Integer.class);
-        return new Page<>(
-                jdbcTemplate.query(SQL_FIND_ALL_PAGED, INTEREST_ROW_MAPPER, pageParams.getSize(), offset(pageParams)),
-                pageParams.getPage(),
-                pageCount(totalInterests, pageParams.getSize())
+    public Page<Interest> findAll(final PageParams pageParams) {
+        return executePagedQuery(
+                jdbcTemplate, INTEREST_ROW_MAPPER,
+                "SELECT COUNT(*) FROM category", SQL_FIND_ALL_PAGED,
+                pageParams
         );
     }
 
     @Override
-    public Page<Interest> search(final String searchTerm, PageParams pageParams) {
+    public Page<Interest> search(final String searchTerm, final PageParams pageParams) {
         final String searchPattern = likePattern(searchTerm);
-        final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category WHERE name LIKE ?", Integer.class, searchPattern);
-
-        return new Page<>(
-                jdbcTemplate.query(SQL_SEARCH_PAGED, INTEREST_ROW_MAPPER, searchPattern, pageParams.getSize(), offset(pageParams)),
-                pageParams.getPage(),
-                pageCount(totalItems, pageParams.getSize())
+        return executePagedQuery(
+                jdbcTemplate, INTEREST_ROW_MAPPER,
+                "SELECT COUNT(*) FROM category WHERE LOWER(name) LIKE LOWER(?)", SQL_SEARCH_PAGED,
+                pageParams, searchPattern
         );
     }
 
@@ -200,13 +197,13 @@ public class InterestJdbcDao implements InterestDao {
             LOGGER.warn("Interest delete failed: Interest with ID {} not found", id);
         }
     }
+
     @Override
-    public Page<Interest> findAllByUserId(final long id, PageParams pageParams) {
-        final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user_interest WHERE user_id = ?", Integer.class, id);
-        return new Page<>(
-                jdbcTemplate.query(SQL_FIND_ALL_PAGED_BY_USER, INTEREST_ROW_MAPPER, id, pageParams.getSize(), offset(pageParams)),
-                pageParams.getPage(),
-                pageCount(totalItems, pageParams.getSize())
+    public Page<Interest> findAllByUserId(final long id, final PageParams pageParams) {
+        return executePagedQuery(
+                jdbcTemplate, INTEREST_ROW_MAPPER,
+                "SELECT COUNT(*) FROM user_interest WHERE user_id = ?", SQL_FIND_ALL_PAGED_BY_USER,
+                pageParams, id
         );
     }
 

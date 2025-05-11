@@ -195,7 +195,7 @@ public class JourneyJdbcDao implements JourneyDao {
         return newJourney;
     }
 
-    private Optional<Journey> findByUserIdDeleted(long id) {
+    private Optional<Journey> findByUserIdDeleted(final long id) {
         return jdbcTemplate.query(SQL_FIND_BY_USER_ID_DELETED, JOURNEY_ROW_MAPPER, id).stream().findFirst();
     }
 

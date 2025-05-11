@@ -37,14 +37,7 @@
       <div class="alert-content">
         <h4 class="alert-title"><spring:message code="expiredtoken.alert.title"/></h4>
         <p class="alert-message">
-<%--          <c:choose>--%>
-<%--            <c:when test="${not empty reason}">--%>
-<%--              <c:out value="${reason}" escapeXml="true" />--%>
-<%--            </c:when>--%>
-<%--            <c:otherwise>--%>
               <spring:message code="expiredtoken.default.reason"/>
-<%--            </c:otherwise>--%>
-<%--          </c:choose>--%>
         </p>
       </div>
     </div>
@@ -60,9 +53,6 @@
         <h4 class="alert-title"><spring:message code="expiredtoken.newtoken.title"/></h4>
         <p class="alert-message">
           <spring:message code="expiredtoken.newtoken.message"/>
-<%--          <c:if test="${not empty userEmail}">--%>
-<%--            <strong><c:out value="${userEmail}" escapeXml="true" /></strong>--%>
-<%--          </c:if>--%>
         </p>
       </div>
     </div>
@@ -74,18 +64,6 @@
 
         <h3 class="blocked-section-title"><spring:message code="expiredtoken.what.to.do"/></h3>
         <p class="blocked-text"><spring:message code="expiredtoken.instructions.with.newtoken"/></p>
-
-<%--        <div class="contact-info">--%>
-<%--          <h4 class="contact-title"><spring:message code="expiredtoken.contact.us"/></h4>--%>
-<%--&lt;%&ndash;          <div class="contact-method">&ndash;%&gt;--%>
-<%--&lt;%&ndash;            <svg xmlns="http://www.w3.org/2000/svg" class="contact-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">&ndash;%&gt;--%>
-<%--&lt;%&ndash;              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />&ndash;%&gt;--%>
-<%--&lt;%&ndash;            </svg>&ndash;%&gt;--%>
-<%--&lt;%&ndash;            <a href="mailto:${email}" class="contact-link">&ndash;%&gt;--%>
-<%--&lt;%&ndash;              <c:out value="${email}" escapeXml="true" />&ndash;%&gt;--%>
-<%--&lt;%&ndash;            </a>&ndash;%&gt;--%>
-<%--&lt;%&ndash;          </div>&ndash;%&gt;--%>
-<%--        </div>--%>
       </div>
     </div>
 
@@ -93,13 +71,6 @@
       <spring:message code="expiredtoken.back.to.home"/>
     </a>
   </div>
-
-<%--  <!-- Reference ID for support -->--%>
-<%--  <c:if test="${not empty referenceId}">--%>
-<%--    <div class="reference-id">--%>
-<%--      <spring:message code="expiredtoken.reference"/> <strong><c:out value="${referenceId}" escapeXml="true" /></strong>--%>
-<%--    </div>--%>
-<%--  </c:if>--%>
 </div>
 
 </body>
