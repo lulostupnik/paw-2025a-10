@@ -454,7 +454,7 @@ public class EventJdbcDao implements EventDao {
         final List<Object> params = new ArrayList<>();
 
         final StringBuilder countQueryBuilder = new StringBuilder("SELECT COUNT(*) FROM events e");
-        final StringBuilder queryBuilder = new StringBuilder((interest != null) ? SQL_BASE_INTEREST : SQL_BASE);
+        final StringBuilder queryBuilder = new StringBuilder((interest != null && !interest.isEmpty()) ? SQL_BASE_INTEREST : SQL_BASE);
 
 
         if (interest != null && ! interest.isEmpty()) {
