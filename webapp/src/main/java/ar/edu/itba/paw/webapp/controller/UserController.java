@@ -5,6 +5,7 @@ import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -23,7 +24,7 @@ public class UserController {
 
     @GetMapping(value= "/{id}")
     public ModelAndView getUser(@PathVariable(value = "id") final long id) {
-        User user = userService.findById(id).orElseThrow(() -> new NoSuchElementException("User not found"));
+        User user = userService.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
         ModelAndView mav = new ModelAndView("users/detail");
         mav.addObject("user", user);
         return mav;

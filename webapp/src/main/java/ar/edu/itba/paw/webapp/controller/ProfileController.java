@@ -85,7 +85,7 @@ public class ProfileController {
                                        BindingResult errors,
                                        @ModelAttribute("user") User user) {
         if(errors.hasErrors()) {
-            return new ModelAndView("redirect:/profile/changePassword");
+            return getChangePassword(updatePasswordForm);
         }
         userService.changePassword(user.getId(), updatePasswordForm.getPassword());
         return new ModelAndView("redirect:/profile/info");

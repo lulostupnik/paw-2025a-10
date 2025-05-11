@@ -7,8 +7,7 @@ import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.form.CreateInterestForm;
 import ar.edu.itba.paw.webapp.form.EditInterestForm;
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -22,14 +21,13 @@ import java.util.NoSuchElementException;
 @Controller
 @RequestMapping("/interests")
 public class InterestController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(InterestController.class);
 
     private final InterestService interestService;
 
     public InterestController(InterestService interestService) {
-
         this.interestService = interestService;
     }
+
     @GetMapping(value = "", produces = "application/json; charset=UTF-8")
     @ResponseBody
     public String getInterestsJSON(@RequestParam(value = "search", required = false) String search,
@@ -55,7 +53,7 @@ public class InterestController {
     }
     @GetMapping(value= "/{id}")
     public ModelAndView getInterests(@PathVariable(value = "id") final long id) {
-        Interest interest = interestService.findById(id).orElseThrow(NoSuchElementException::new);
+        Interest interest = interestService.findById(id).orElseThrow(() -> new NotFoundException("Interest not found"));
         ModelAndView mav = new ModelAndView("interests/detail");
         mav.addObject("interest", interest);
         return mav;
@@ -66,17 +64,13 @@ public class InterestController {
     public ModelAndView updateInterestForm(@PathVariable("id") Long id,
                                             @ModelAttribute("createInterestForm") final CreateInterestForm form,
                                            BindingResult errors ) {
-        Interest interest = interestService.findById(id).orElseThrow(NoSuchElementException::new);
-        if (interest == null) {
-            return new ModelAndView("redirect:/interests");
-        }
+        Interest interest = interestService.findById(id).orElseThrow(() -> new NotFoundException("Interest not found"));
 
         if(!errors.hasErrors()){
             form.setName(interest.getName());
         }
 
         ModelAndView mav = new ModelAndView("interests/create");
-        mav.addObject("createInterestForm",form);
         mav.addObject("isUpdate", true);
         mav.addObject("interestId", id);
         return mav;
@@ -109,20 +103,14 @@ public class InterestController {
 
     @GetMapping(value = "/edit")
     public ModelAndView updateInterestForm( @ModelAttribute("user") User user,
-                                            @ModelAttribute("editInterestsForm") final EditInterestForm form,
-                                            BindingResult errors ) {
+                                            @ModelAttribute("editInterestsForm") final EditInterestForm form) {
         Page<Interest> pagedInterests = interestService.findAllInterestsByUserId(user.getId(), new PageParams(1, 20));
         if (pagedInterests.getContent().isEmpty()) {
             return new ModelAndView("redirect:/profile/info");
         }
-//
-//        if(errors.hasErrors()){
-//            return new ModelAndView("redirect:/profile/profile");
-//        }
         ModelAndView mav = new ModelAndView("interests/interests-edit");
         mav.addObject("editInterestsForm",form);
         mav.addObject("userInterests", pagedInterests.getContent());
-//        mav.addObject("interests", interestService.getAllInterests(null,new PageParams(1, 20)).getContent());
         return mav;
     }
 
@@ -133,7 +121,7 @@ public class InterestController {
                                        final BindingResult errors) {
 
         if (errors.hasErrors()) {
-            return updateInterestForm(user, form, errors);
+            return updateInterestForm(user, form);
         }
         interestService.updateUserInterests(form.getInterests(), user.getId());
 
