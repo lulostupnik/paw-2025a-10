@@ -34,7 +34,7 @@ public class AdminController {
 
     @RequestMapping("/events")
     public ModelAndView dashboardEvents(
-            @PageParamCustomizer(defaultSize = 10, defaultPage = -1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
+            @PageParamCustomizer(defaultPage = -1, sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
@@ -44,7 +44,7 @@ public class AdminController {
 
     @RequestMapping("/users")
     public ModelAndView dashboardUsers(
-            @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
+            @PageParamCustomizer(sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
@@ -55,7 +55,7 @@ public class AdminController {
 
     @RequestMapping("/journeys")
     public ModelAndView dashboardJourneys(
-            @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
+            @PageParamCustomizer(sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
@@ -67,7 +67,7 @@ public class AdminController {
 
     @RequestMapping("/careers")
     public ModelAndView dashboardCareers(
-         @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
+         @PageParamCustomizer(sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
@@ -78,7 +78,7 @@ public class AdminController {
 
     @RequestMapping("/universities")
     public ModelAndView dashboardUniversities(
-         @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
+         @PageParamCustomizer(sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
@@ -89,7 +89,7 @@ public class AdminController {
 
     @RequestMapping("/interests")
     public ModelAndView dashboardInterests(
-         @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
+         @PageParamCustomizer(sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
@@ -100,7 +100,7 @@ public class AdminController {
 
     @RequestMapping("/cities")
     public ModelAndView dashboardCities(
-         @PageParamCustomizer(defaultSize = 10, defaultPage = 1, pageParamName = "page", sizeParamName = "pageSize") PageParams  pageParams,
+         @PageParamCustomizer( sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);

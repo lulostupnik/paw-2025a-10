@@ -11,25 +11,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 
@@ -38,21 +27,12 @@ public class AuthController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
 
-    private final UniversityService universityService;
-    private final CareerService careerService;
     private final UserService userService;
-    private final InterestService interestService;
-    private final AuthenticationManager authenticationManager;
     private final LoginHelper loginHelper;
 
     @Autowired
-    public AuthController(final UniversityService universityService, final CareerService carreerService, UserService userService,
-                          InterestService interestService, final AuthenticationManager authenticationManager, LoginHelper loginHelper) {
-        this.universityService = universityService;
-        this.careerService = carreerService;
+    public AuthController(final UserService userService, final LoginHelper loginHelper) {
         this.userService = userService;
-        this.interestService = interestService;
-        this.authenticationManager = authenticationManager;
         this.loginHelper = loginHelper;
     }
     @GetMapping(value ="/validate")
