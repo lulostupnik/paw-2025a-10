@@ -16,8 +16,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static ar.edu.itba.paw.persistence.JdbcDaoUtils.offset;
-import static ar.edu.itba.paw.persistence.JdbcDaoUtils.pageCount;
+import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
 @Repository
 public class JourneyResponseJdbcDao implements JourneyResponseDao {
@@ -80,13 +79,13 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     }
 
     @Override
-    public Page<JourneyResponse> listAllByJourneyId(final long journeyId, PageParams pageParams) {
-        final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM journey_responses WHERE journey_id = ? AND deleted = FALSE", Integer.class, journeyId);
-
-        return new Page<>(
-                jdbcTemplate.query(SQL_FIND_ALL_BY_JOURNEY_PAGED, JOURNEY_RESPONSE_ROW_MAPPER, journeyId, pageParams.getSize(), offset(pageParams)),
-                pageParams.getPage(),
-                pageCount(totalItems, pageParams.getSize())
+    public Page<JourneyResponse> listAllByJourneyId(final long journeyId, final PageParams pageParams) {
+        return executePagedQuery(
+                jdbcTemplate,
+                JOURNEY_RESPONSE_ROW_MAPPER,
+                "SELECT COUNT(*) FROM journey_responses WHERE journey_id = ? AND deleted = FALSE",
+                SQL_FIND_ALL_BY_JOURNEY_PAGED,
+                pageParams, journeyId
         );
     }
 
