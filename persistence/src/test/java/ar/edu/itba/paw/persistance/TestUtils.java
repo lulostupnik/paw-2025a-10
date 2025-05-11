@@ -5,8 +5,10 @@ import static org.junit.Assert.assertNotNull;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -15,6 +17,7 @@ import org.springframework.test.jdbc.JdbcTestUtils;
 import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Country;
+import ar.edu.itba.paw.models.Event;
 import ar.edu.itba.paw.models.Image;
 import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.Journey;
@@ -38,6 +41,7 @@ public class TestUtils {
     public static final String EVENT_TABLE = "events";
     public static final String JOURNEY_REPLY_TABLE = "journey_responses";
     public static final String EVENT_REPLY_TABLE = "event_responses";
+    public static final String EVENT_ATTENDANCE_TABLE = "event_attendances";
 
     public static final int PAGE_SIZE_DEFAULT = 2;
     public static final int PAGE_SIZE_BIG = 100;
@@ -146,6 +150,23 @@ public class TestUtils {
     public static final LocalDateTime RESPONSE_TIMESTAMP_3 = RESPONSE_TIMESTAMP.plusHours(2);
 
     public static final int TOTAL_JOURNEY_RESPONSES = 3;
+
+    public static final String EVENT_TITLE_DEFAULT = "warm event"; //cool conflicted in search so...
+    public static final String EVENT_TITLE_2 = "another event"; 
+    public static final String EVENT_TITLE_3 = "one more event";
+    public static final String EVENT_TITLE_DELETED = "deleted";
+    public static final String EVENT_TITLE_PAST = "older event";
+    public static final String EVENT_DESCRIPTION_DEFAULT = "cool event";
+    public static final String EVENT_ADDRESS_DEFAULT = "cool place";
+    public static final LocalTime EVENT_TIME_DEFAULT = LocalTime.of(0, 0, 0);
+    public static final LocalDate EVENT_DATE_DEFAULT = LocalDate.now().plusDays(7);
+    public static final LocalDate EVENT_DATE_LATER = EVENT_DATE_DEFAULT.plusDays(10);
+    public static final int EVENT_ATTENDANCE_LIMIT_DEFAULT = 30;
+    public static final int EVENT_ATTENDANCE_DEFAULT = 10;
+
+    public static final int TOTAL_EVENTS_NOT_DELETED = 4;
+    public static final int TOTAL_EVENTS_UPCOMING = 3;
+
 
     //QUERIES
     public static final String USER_SELECT = """
@@ -294,6 +315,53 @@ public class TestUtils {
     public static final String JOURNEY_REPLY_IS_DELETED_BY_ID = "SELECT deleted FROM journey_responses WHERE id = ?";
     public static final String JOURNEY_REPLY_DELETED_MESSAGE_BY_ID = "SELECT deleted_message FROM journey_responses WHERE id = ?";
 
+    public static final String EVENT_SELECT = """
+    SELECT 
+        e.id AS id,
+        e.event_date AS event_date,
+        e.event_time AS event_time,
+        e.address AS address,
+        e.attendees_limit AS attendees_limit,
+        e.attendees_count AS attendees_count,
+        e.description AS description,
+        e.title AS title,
+        e.flyer_image_id AS flyer_image_id,
+        e.deleted AS deleted,
+        e.deleted_message AS deleted_message,
+        cd.id AS dest_city_id,
+        cd.name AS dest_city_name,
+        cod.name AS dest_country_name,
+        u.id AS user_id,
+        u.email AS email,
+        u.username AS username,
+        u.firstname AS firstname,
+        u.lastname AS lastname,
+        u.language AS language,
+        u.profile_picture_id AS profile_picture_id,
+        u.blocked AS blocked,
+        un.id AS university_id,
+        un.name AS university_name,
+        un.abbreviation AS university_abbreviation,
+        ci.id AS city_id,
+        ci.name AS city_name,
+        co.name AS country_name,
+        ca.name AS career_name,
+        ca.id AS career_id
+    FROM 
+        events e
+        JOIN cities cd ON e.city_id = cd.id
+        JOIN countries cod ON cd.country_id = cod.id
+        JOIN users u ON e.user_id = u.id
+        JOIN universities un ON u.university = un.id
+        JOIN cities ci ON ci.id = un.city_id
+        JOIN countries co ON cd.country_id = co.id
+        JOIN careers ca ON ca.id = u.career_id
+    """;
+
+    public static final String EVENT_SELECT_BY_ID = EVENT_SELECT + "WHERE e.id = ?";
+    public static final String EVENT_SELECT_BY_TITLE = EVENT_SELECT + "WHERE e.title = ?";
+    public static final String EVENT_COUNT_NOT_DELETED = "SELECT COUNT(*) FROM events WHERE deleted=FALSE";
+    public static final String EVENT_GET_DELETED_MESSAGE = "SELECT deleted_message FROM events WHERE id = ?";
 
     //ROWMAPPERS
     public static final RowMapper<Interest> INTEREST_ROW_MAPPER = (rs, n) ->
@@ -382,7 +450,38 @@ public class TestUtils {
         rs.getTimestamp("date_time").toLocalDateTime()
     );
 
+    public static final RowMapper<Event> EVENT_ROW_MAPPER = (rs, n) ->
+    new Event(
+        rs.getLong("id"), 
+        USER_ROW_MAPPER.mapRow(rs, n), 
+        rs.getDate("event_date").toLocalDate(), 
+        rs.getString("description"), 
+        rs.getInt("flyer_image_id"),
+        CITY_DESTINATION_ROW_MAPPER.mapRow(rs, n), 
+        rs.getString("title"), 
+        rs.getTime("event_time") != null ? Optional.of(rs.getTime("event_time").toLocalTime()) : Optional.empty(),
+        rs.getString("address"), 
+        rs.getInt("attendees_limit") != 0 ? Optional.of(rs.getInt("attendees_limit")) : Optional.empty(), 
+        rs.getInt("attendees_count")
+    );
+
     //DELETES
+    public static final void deleteEventAttendances(JdbcTemplate template){   
+        JdbcTestUtils.deleteFromTables(template, EVENT_ATTENDANCE_TABLE);
+    } 
+    public static final void deleteEventReplies(JdbcTemplate template){   
+        JdbcTestUtils.deleteFromTables(template, EVENT_REPLY_TABLE);
+    }   
+    public static final void deleteEvents(JdbcTemplate template){   
+        deleteEventAttendances(template);
+        deleteEventReplies(template);
+        JdbcTestUtils.deleteFromTables(template, EVENT_TABLE);
+    }
+    public static final void deleteEventsValid(JdbcTemplate template){   
+        deleteEventAttendances(template);
+        deleteEventReplies(template);
+        JdbcTestUtils.deleteFromTableWhere(template, EVENT_TABLE, "deleted = FALSE AND event_date >= CURRENT_DATE");
+    }
     public static final void deleteJourneyReplies(JdbcTemplate template){
         JdbcTestUtils.deleteFromTables(template, JOURNEY_REPLY_TABLE);
     }
@@ -396,6 +495,7 @@ public class TestUtils {
     public static final void deleteUsers(JdbcTemplate template){
         deleteJourneys(template);
         deleteUserInterests(template);
+        deleteEvents(template);
         JdbcTestUtils.deleteFromTables(template, USER_TABLE);
     }
     public static final void deleteInterests(JdbcTemplate template){
@@ -413,6 +513,7 @@ public class TestUtils {
     }
     public static final void deleteCities(JdbcTemplate template){
         deleteUniversities(template);
+        deleteEvents(template);
         JdbcTestUtils.deleteFromTables(template, CITY_TABLE);
     }
     public static final void deleteCountries(JdbcTemplate template){
@@ -422,7 +523,6 @@ public class TestUtils {
 
 
     //COMPARATORS
-
     public static void assertEqualsCareer(Career expected, Career actual){
         assertNotNull(expected);
         assertNotNull(actual);
@@ -497,5 +597,23 @@ public class TestUtils {
         assertEquals(expected.getMessage(), actual.getMessage());
         assertEquals(expected.getUserId(), actual.getUserId());
         assertEquals(expected.getUsername(), actual.getUsername());
+    }
+
+    public static void assertEqualsEvent(Event expected, Event actual){
+        assertNotNull(actual);
+        assertNotNull(expected);
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getAddress(), actual.getAddress());
+        assertEquals(expected.getAttendeesCount(), actual.getAttendeesCount());
+        assertEquals(expected.getAttendeesLimit(), actual.getAttendeesLimit());
+        assertEquals(expected.getDate(), actual.getDate());
+        assertEquals(expected.getDescription(), actual.getDescription());
+        assertEquals(expected.getFlyerImageId(), actual.getFlyerImageId());
+        assertEquals(expected.getFull(), actual.getFull());
+        assertEquals(expected.getIsFuture(), actual.getIsFuture());
+        assertEquals(expected.getTime(), actual.getTime());
+        assertEquals(expected.getTitle(), actual.getTitle());
+        assertEqualsUser(expected.getUser(), actual.getUser());
+        assertEqualsCity(expected.getEventCity(), actual.getEventCity());
     }
 }

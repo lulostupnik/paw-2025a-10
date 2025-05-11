@@ -36,7 +36,7 @@ public class CityServiceImplTest {
     private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
     private static final List<City> CITIES = List.of(CITY_1, CITY_2);
     private static final Page<City> CITY_PAGE = new Page<City>(CITIES, 1, 1);
-    private static final String CITY_JSON = "[{\"name\":\"city\",\"country\":\"cuntry\",\"id\":0},{\"name\":\"\",\"country\":\"\",\"id\":1}]";
+    private static final String CITY_JSON = "[{\"name\":\"city\", \"country\":\"cuntry\", \"id\":0}, {\"name\":\"\", \"country\":\"\", \"id\":1}]";
     private static final String EMPTY_JSON = "[]";
 
 

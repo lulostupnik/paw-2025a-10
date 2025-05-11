@@ -283,8 +283,8 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public Optional<Integer> findAttendanceLimitById(final long eventId) {
-        return jdbcTemplate.query("SELECT attendees_limit FROM events WHERE id = ?", (rs, rowNum) -> rs.getInt("attendees_limit"), eventId)
-                .stream().findFirst();
+        //Using optional and query for object because a rowmapper returns 0 on null integer instead of null
+        return Optional.ofNullable(jdbcTemplate.queryForObject("SELECT attendees_limit FROM events WHERE id = ?", Integer.class, eventId));
     }
 
     @Override
