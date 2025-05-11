@@ -11,10 +11,21 @@
     <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
     <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
 </head>
-<body>
 <jsp:include page="../components/i18n-hidden-inputs.jsp"/>
 <c:set var="searchUrl" value="/journeys" scope="request" />
 <c:set var="searchPlaceholderCode" value="journeys.search.journey" scope="request" />
+<c:set var="escapedInterest"><c:out value="${param.interests}"/></c:set>
+<c:set var="escapedCity"><c:out value="${param.city}"/></c:set>
+<c:set var="escapedStartDate"><c:out value="${param.startDate}"/></c:set>
+<c:set var="escapedEndDate"><c:out value="${param.endDate}"/></c:set>
+    <c:set var="escapedSearch"><c:out value="${param.search}"/></c:set>
+    <c:set var="isMyDestination"><c:out value="${param.isMyDestination}"/></c:set>
+    <c:set var="isUpcoming"><c:out value="${param.isUpcoming}"/></c:set>
+    <c:set var="isOngoing"><c:out value="${param.isOngoing}"/></c:set>
+    <c:set var="isPast"><c:out value="${param.isPast}"/></c:set>
+    <c:set var="direction"><c:out value="${param.direction}"/></c:set>
+    <c:set var="sort"><c:out value="${param.sort}"/></c:set>
+    <c:set var="pageSize"><c:out value="${param.pageSize}"/></c:set>
 
 <div class="layout-container">
 
@@ -29,47 +40,44 @@
                     <form action="<c:url value='${searchUrl}'/>" method="get" class="search-form">
                         <input type="text" name="search" class="search-input"
                                placeholder="<spring:message code='${searchPlaceholderCode}' />"
-                               value="<c:out value="${param.search}"/>">
+                               value="<c:out value="${escapedSearch}"/>">
                         <input type="hidden" name="page" value="1">
-                        <input type="hidden" name="pageSize" value="${param.pageSize != null ? param.pageSize : 10}">
+                        <input type="hidden" name="pageSize" value="${pageSize != null ? pageSize : 10}">
 
 
-                        <c:if test="${not empty param.sort}">
-                            <input type="hidden" name="sort" value="<c:out value="${param.sort}"/>">
+                        <c:if test="${not empty sort}">
+                            <input type="hidden" name="sort" value="<c:out value="${sort}"/>">
                         </c:if>
-                        <c:if test="${not empty param.direction}">
-                            <input type="hidden" name="direction" value="<c:out value="${param.direction}"/>">
-                        </c:if>
-
-
-                        <c:if test="${not empty param.destination}">
-                            <input type="hidden" name="destination" value="<c:out value="${param.destination}"/>">
-                        </c:if>
-                        <c:if test="${not empty param.startDate}">
-                            <input type="hidden" name="startDate" value="<c:out value="${param.startDate}"/>">
-                        </c:if>
-                        <c:if test="${not empty param.endDate}">
-                            <input type="hidden" name="endDate" value="<c:out value="${param.endDate}"/>">
-                        </c:if>
-                        <c:if test="${not empty param.interests}">
-                            <input type="hidden" name="interests" value="<c:out value="${param.interests}"/>">
-                        </c:if>
-                        <c:if test="${not empty param.interestName}">
-                            <input type="hidden" name="interestName" value="<c:out value="${param.interestName}"/>">
+                        <c:if test="${not empty direction}">
+                            <input type="hidden" name="direction" value="<c:out value="${direction}"/>">
                         </c:if>
 
 
-                        <c:if test="${not empty param.isMyDestination}">
-                            <input type="hidden" name="isMyDestination" value="<c:out value="${param.isMyDestination}"/>">
+                        <c:if test="${not empty escapedCity}">
+                            <input type="hidden" name="destination" value="<c:out value="${escapedCity}"/>">
                         </c:if>
-                        <c:if test="${not empty param.isUpcoming}">
-                            <input type="hidden" name="isUpcoming" value="<c:out value="${param.isUpcoming}"/>">
+                        <c:if test="${not empty escapedStartDate}">
+                            <input type="hidden" name="startDate" value="<c:out value="${escapedStartDate}"/>">
                         </c:if>
-                        <c:if test="${not empty param.isPast}">
-                            <input type="hidden" name="isPast" value="<c:out value="${param.isPast}"/>">
+                        <c:if test="${not empty escapedEndDate}">
+                            <input type="hidden" name="endDate" value="<c:out value="${escapedEndDate}"/>">
                         </c:if>
-                        <c:if test="${not empty param.isOngoing}">
-                            <input type="hidden" name="isOngoing" value="<c:out value="${param.isOngoing}"/>">
+                        <c:if test="${not empty escapedInterest}">
+                            <input type="hidden" name="interests" value="<c:out value="${escapedInterest}"/>">
+                        </c:if>
+
+
+                        <c:if test="${not empty isMyDestination}">
+                            <input type="hidden" name="isMyDestination" value="<c:out value="${isMyDestination}"/>">
+                        </c:if>
+                        <c:if test="${not empty isUpcoming}">
+                            <input type="hidden" name="isUpcoming" value="<c:out value="${isUpcoming}"/>">
+                        </c:if>
+                        <c:if test="${not empty isPast}">
+                            <input type="hidden" name="isPast" value="<c:out value="${isPast}"/>">
+                        </c:if>
+                        <c:if test="${not empty isOngoing}">
+                            <input type="hidden" name="isOngoing" value="<c:out value="${isOngoing}"/>">
                         </c:if>
 
                         <button type="submit" class="btn-secondary" aria-label="<spring:message code="admin.search.button" />">
@@ -87,23 +95,23 @@
                             <spring:message code="journey.sort.toggle"/>
                         </button>
                         <div id="sortDropdown" class="dropdown-content" style="display: none;">
-                            <a href="<c:url value="/journeys?sort=start_date&direction=asc${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.isMyDestination ? '&isMyDestination='.concat(param.isMyDestination) : ''}${not empty param.isUpcoming ? '&isUpcoming='.concat(param.isUpcoming) : ''}${not empty param.isPast ? '&isPast='.concat(param.isPast) : ''}${not empty param.isOngoing ? '&isOngoing='.concat(param.isOngoing) : ''}"/>"
+                            <a href="<c:url value="/journeys?sort=start_date&direction=asc${not empty escapedSearch ? '&search='.concat(escapedSearch) : ''}${not empty escapedCity ? '&destination='.concat(escapedCity) : ''}${not empty escapedCityName ? '&destinationName='.concat(escapedCityName) : ''}${not empty escapedStartDate ? '&startDate='.concat(escapedStartDate) : ''}${not empty escapedEndDate ? '&endDate='.concat(escapedEndDate) : ''}${not empty escapedInterest ? '&interests='.concat(escapedInterest) : ''}${not empty isMyDestination ? '&isMyDestination='.concat(isMyDestination) : ''}${not empty isUpcoming ? '&isUpcoming='.concat(isUpcoming) : ''}${not empty isPast ? '&isPast='.concat(isPast) : ''}${not empty isOngoing ? '&isOngoing='.concat(isOngoing) : ''}"/>"
                                class="${
-  (empty param.sort or
-   (param.sort != 'start_date' and param.sort != 'end_date') or
-   (param.sort == 'start_date' and (empty param.direction or param.direction != 'desc'))
+  (empty sort or
+   (sort != 'start_date' and sort != 'end_date') or
+   (sort == 'start_date' and (empty direction or direction != 'desc'))
   ) ? 'active' : ''}">
 
                             <spring:message code="journey.sort.startDate.asc"/>
                             </a>
-                            <a href="<c:url value="/journeys?sort=start_date&direction=desc${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.isMyDestination ? '&isMyDestination='.concat(param.isMyDestination) : ''}${not empty param.isUpcoming ? '&isUpcoming='.concat(param.isUpcoming) : ''}${not empty param.isPast ? '&isPast='.concat(param.isPast) : ''}${not empty param.isOngoing ? '&isOngoing='.concat(param.isOngoing) : ''}"/>" class="${param.sort == 'start_date' && param.direction == 'desc' ? 'active' : ''}">
+                            <a href="<c:url value="/journeys?sort=start_date&direction=desc${not empty escapedSearch ? '&search='.concat(escapedSearch) : ''}${not empty escapedCity ? '&destination='.concat(escapedCity) : ''}${not empty escapedCityName ? '&destinationName='.concat(escapedCityName) : ''}${not empty escapedStartDate ? '&startDate='.concat(escapedStartDate) : ''}${not empty escapedEndDate ? '&endDate='.concat(escapedEndDate) : ''}${not empty escapedInterest ? '&interests='.concat(escapedInterest) : ''}${not empty isMyDestination ? '&isMyDestination='.concat(isMyDestination) : ''}${not empty isUpcoming ? '&isUpcoming='.concat(isUpcoming) : ''}${not empty isPast ? '&isPast='.concat(isPast) : ''}${not empty isOngoing ? '&isOngoing='.concat(isOngoing) : ''}"/>" class="${sort == 'start_date' && direction == 'desc' ? 'active' : ''}">
                                 <spring:message code="journey.sort.startDate.desc"/>
                             </a>
-                            <a href="<c:url value="/journeys?sort=end_date&direction=asc${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.isMyDestination ? '&isMyDestination='.concat(param.isMyDestination) : ''}${not empty param.isUpcoming ? '&isUpcoming='.concat(param.isUpcoming) : ''}${not empty param.isPast ? '&isPast='.concat(param.isPast) : ''}${not empty param.isOngoing ? '&isOngoing='.concat(param.isOngoing) : ''}"/>"
-                               class="${param.sort == 'end_date' and (empty param.direction or param.direction != 'desc') ? 'active' : ''}">
+                            <a href="<c:url value="/journeys?sort=end_date&direction=asc${not empty escapedSearch ? '&search='.concat(escapedSearch) : ''}${not empty escapedCity ? '&destination='.concat(escapedCity) : ''}${not empty escapedCityName ? '&destinationName='.concat(escapedCityName) : ''}${not empty escapedStartDate ? '&startDate='.concat(escapedStartDate) : ''}${not empty escapedEndDate ? '&endDate='.concat(escapedEndDate) : ''}${not empty escapedInterest ? '&interests='.concat(escapedInterest) : ''}${not empty isMyDestination ? '&isMyDestination='.concat(isMyDestination) : ''}${not empty isUpcoming ? '&isUpcoming='.concat(isUpcoming) : ''}${not empty isPast ? '&isPast='.concat(isPast) : ''}${not empty isOngoing ? '&isOngoing='.concat(isOngoing) : ''}"/>"
+                               class="${sort == 'end_date' and (empty direction or direction != 'desc') ? 'active' : ''}">
                                 <spring:message code="journey.sort.endDate.asc"/>
                             </a>
-                            <a href="<c:url value="/journeys?sort=end_date&direction=desc${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.isMyDestination ? '&isMyDestination='.concat(param.isMyDestination) : ''}${not empty param.isUpcoming ? '&isUpcoming='.concat(param.isUpcoming) : ''}${not empty param.isPast ? '&isPast='.concat(param.isPast) : ''}${not empty param.isOngoing ? '&isOngoing='.concat(param.isOngoing) : ''}"/>" class="${param.sort == 'end_date' && param.direction == 'desc' ? 'active' : ''}">
+                            <a href="<c:url value="/journeys?sort=end_date&direction=desc${not empty escapedSearch ? '&search='.concat(escapedSearch) : ''}${not empty escapedCity ? '&destination='.concat(escapedCity) : ''}${not empty escapedCityName ? '&destinationName='.concat(escapedCityName) : ''}${not empty escapedStartDate ? '&startDate='.concat(escapedStartDate) : ''}${not empty escapedEndDate ? '&endDate='.concat(escapedEndDate) : ''}${not empty escapedInterest ? '&interests='.concat(escapedInterest) : ''}${not empty isMyDestination ? '&isMyDestination='.concat(isMyDestination) : ''}${not empty isUpcoming ? '&isUpcoming='.concat(isUpcoming) : ''}${not empty isPast ? '&isPast='.concat(isPast) : ''}${not empty isOngoing ? '&isOngoing='.concat(isOngoing) : ''}"/>" class="${sort == 'end_date' && direction == 'desc' ? 'active' : ''}">
                                 <spring:message code="journey.sort.endDate.desc"/>
                             </a>
 
@@ -121,30 +129,30 @@
 
             <div class="journey-tabs">
                 <ul class="tabs-list">
-                    <li class="tab-item ${empty param.isMyDestination && empty param.isUpcoming && empty param.isPast && empty param.isOngoing ? 'active' : ''}">
-                        <a href="<c:url value="/journeys?${not empty param.search ? 'search='.concat(param.search).concat('&') : ''}${not empty param.destination ? 'destination='.concat(param.destination).concat('&') : ''}${not empty param.destinationName ? 'destinationName='.concat(param.destinationName).concat('&') : ''}${not empty param.startDate ? 'startDate='.concat(param.startDate).concat('&') : ''}${not empty param.endDate ? 'endDate='.concat(param.endDate).concat('&') : ''}${not empty param.interests ? 'interests='.concat(param.interests).concat('&') : ''}${not empty param.interestName ? 'interestName='.concat(param.interestName).concat('&') : ''}${not empty param.sort ? 'sort='.concat(param.sort).concat('&') : ''}${not empty param.direction ? 'direction='.concat(param.direction).concat('&') : ''}page=1${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>" class="tab-link">
+                    <li class="tab-item ${empty isMyDestination && empty isUpcoming && empty isPast && empty isOngoing ? 'active' : ''}">
+                        <a href="<c:url value="/journeys?${not empty escapedSearch ? 'search='.concat(escapedSearch).concat('&') : ''}${not empty escapedCity ? 'destination='.concat(escapedCity).concat('&') : ''}${not empty escapedCityName ? 'destinationName='.concat(escapedCityName).concat('&') : ''}${not empty escapedStartDate ? 'startDate='.concat(escapedStartDate).concat('&') : ''}${not empty escapedEndDate ? 'endDate='.concat(escapedEndDate).concat('&') : ''}${not empty escapedInterest ? 'interests='.concat(escapedInterest).concat('&') : ''}${not empty sort ? 'sort='.concat(sort).concat('&') : ''}${not empty direction ? 'direction='.concat(direction).concat('&') : ''}page=1${not empty pageSize ? '&pageSize='.concat(pageSize) : ''}"/>" class="tab-link">
                             <spring:message code="journey.tabs.all"/>
                         </a>
                     </li>
                     <c:if test="${hasJourney}">
-                    <li class="tab-item ${not empty param.isMyDestination ? 'active' : ''}">
-                        <a href="<c:url value="/journeys?isMyDestination=true${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.sort ? '&sort='.concat(param.sort) : ''}${not empty param.direction ? '&direction='.concat(param.direction) : ''}&page=1${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>" class="tab-link">
+                    <li class="tab-item ${not empty isMyDestination ? 'active' : ''}">
+                        <a href="<c:url value="/journeys?isMyDestination=true${not empty escapedSearch ? '&search='.concat(escapedSearch) : ''}${not empty escapedCity ? '&destination='.concat(escapedCity) : ''}${not empty escapedCityName ? '&destinationName='.concat(escapedCityName) : ''}${not empty escapedStartDate ? '&startDate='.concat(escapedStartDate) : ''}${not empty escapedEndDate ? '&endDate='.concat(escapedEndDate) : ''}${not empty escapedInterest ? '&interests='.concat(escapedInterest) : ''}${not empty sort ? '&sort='.concat(sort) : ''}${not empty direction ? '&direction='.concat(direction) : ''}&page=1${not empty pageSize ? '&pageSize='.concat(pageSize) : ''}"/>" class="tab-link">
                             <spring:message code="journey.tabs.myDestination"/>
                         </a>
                     </li>
                     </c:if>
-                    <li class="tab-item ${not empty param.isOngoing ? 'active' : ''}">
-                        <a href="<c:url value="/journeys?isOngoing=true${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.sort ? '&sort='.concat(param.sort) : ''}${not empty param.direction ? '&direction='.concat(param.direction) : ''}&page=1${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>" class="tab-link">
+                    <li class="tab-item ${not empty isOngoing ? 'active' : ''}">
+                        <a href="<c:url value="/journeys?isOngoing=true${not empty escapedSearch ? '&search='.concat(escapedSearch) : ''}${not empty escapedCity ? '&destination='.concat(escapedCity) : ''}${not empty escapedCityName ? '&destinationName='.concat(escapedCityName) : ''}${not empty escapedStartDate ? '&startDate='.concat(escapedStartDate) : ''}${not empty escapedEndDate ? '&endDate='.concat(escapedEndDate) : ''}${not empty escapedInterest ? '&interests='.concat(escapedInterest) : ''}${not empty sort ? '&sort='.concat(sort) : ''}${not empty direction ? '&direction='.concat(direction) : ''}&page=1${not empty pageSize ? '&pageSize='.concat(pageSize) : ''}"/>" class="tab-link">
                             <spring:message code="journey.tabs.ongoing"/>
                         </a>
                     </li>
-                    <li class="tab-item ${not empty param.isUpcoming ? 'active' : ''}">
-                        <a href="<c:url value="/journeys?isUpcoming=true${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.sort ? '&sort='.concat(param.sort) : ''}${not empty param.direction ? '&direction='.concat(param.direction) : ''}&page=1${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>" class="tab-link">
+                    <li class="tab-item ${not empty isUpcoming ? 'active' : ''}">
+                        <a href="<c:url value="/journeys?isUpcoming=true${not empty escapedSearch ? '&search='.concat(escapedSearch) : ''}${not empty escapedCity ? '&destination='.concat(escapedCity) : ''}${not empty escapedCityName ? '&destinationName='.concat(escapedCityName) : ''}${not empty escapedStartDate ? '&startDate='.concat(escapedStartDate) : ''}${not empty escapedEndDate ? '&endDate='.concat(escapedEndDate) : ''}${not empty escapedInterest ? '&interests='.concat(escapedInterest) : ''}${not empty sort ? '&sort='.concat(sort) : ''}${not empty direction ? '&direction='.concat(direction) : ''}&page=1${not empty pageSize ? '&pageSize='.concat(pageSize) : ''}"/>" class="tab-link">
                             <spring:message code="journey.tabs.upcoming"/>
                         </a>
                     </li>
-                    <li class="tab-item ${not empty param.isPast ? 'active' : ''}">
-                        <a href="<c:url value="/journeys?isPast=true${not empty param.search ? '&search='.concat(param.search) : ''}${not empty param.destination ? '&destination='.concat(param.destination) : ''}${not empty param.destinationName ? '&destinationName='.concat(param.destinationName) : ''}${not empty param.startDate ? '&startDate='.concat(param.startDate) : ''}${not empty param.endDate ? '&endDate='.concat(param.endDate) : ''}${not empty param.interests ? '&interests='.concat(param.interests) : ''}${not empty param.interestName ? '&interestName='.concat(param.interestName) : ''}${not empty param.sort ? '&sort='.concat(param.sort) : ''}${not empty param.direction ? '&direction='.concat(param.direction) : ''}&page=1${not empty param.pageSize ? '&pageSize='.concat(param.pageSize) : ''}"/>" class="tab-link">
+                    <li class="tab-item ${not empty isPast ? 'active' : ''}">
+                        <a href="<c:url value="/journeys?isPast=true${not empty escapedSearch ? '&search='.concat(escapedSearch) : ''}${not empty escapedCity ? '&destination='.concat(escapedCity) : ''}${not empty escapedCityName ? '&destinationName='.concat(escapedCityName) : ''}${not empty escapedStartDate ? '&startDate='.concat(escapedStartDate) : ''}${not empty escapedEndDate ? '&endDate='.concat(escapedEndDate) : ''}${not empty escapedInterest ? '&interests='.concat(escapedInterest) : ''}${not empty sort ? '&sort='.concat(sort) : ''}${not empty direction ? '&direction='.concat(direction) : ''}&page=1${not empty pageSize ? '&pageSize='.concat(pageSize) : ''}"/>" class="tab-link">
                             <spring:message code="journey.tabs.past"/>
                         </a>
                     </li>
@@ -170,11 +178,11 @@
                                 <c:set var="citySearch"><spring:message code='journey.filter.destination.placeholder'/></c:set>
                                 <form:input path="destination" type="text" id="citySearch" class="autocomplete-input"
                                        placeholder="${citySearch}"
-                                       value="${param.destination}" />
+                                       value="${escapedCity}" />
                                 <select id="city" class="hidden-select" style="display: none;">
                                     <option value=""></option>
                                     <c:forEach var="city" items="${cities}">
-                                        <option value="<c:out value="${city.name}"/>" ${param.destination == city.id ? 'selected' : ''}><c:out value="${city.name}"/></option>
+                                        <option value="<c:out value="${city.name}"/>" ${escapedCity == city.id ? 'selected' : ''}><c:out value="${city.name}"/></option>
                                     </c:forEach>
                                 </select>
                                 <div id="cityDropdown" class="autocomplete-dropdown" style="display: none;">
@@ -218,7 +226,7 @@
                                 <c:set var="interestSearch"><spring:message code='journey.filter.interest.placeholder'/></c:set>
                                 <form:input path="interests" type="text" id="interest-search" class="autocomplete-input"
                                        placeholder="${interestSearch}"
-                                       value="${param.interests}" />
+                                       value="${escapedInterest}" />
                                 <div id="interest-dropdown" class="autocomplete-dropdown" style="display: none;">
                                     <c:forEach var="interest" items="${interests}">
                                         <div class="autocomplete-item" data-value="${interest.id}"><c:out value="${interest.name}"/></div>
@@ -231,36 +239,36 @@
                     </div>
 
 
-                    <c:if test="${not empty param.search}">
-                        <input type="hidden" name="search" value="<c:out value="${param.search}"/>">
+                    <c:if test="${not empty escapedSearch}">
+                        <input type="hidden" name="search" value="<c:out value="${escapedSearch}"/>">
                     </c:if>
 
 
-                    <c:if test="${not empty param.sort}">
-                        <input type="hidden" name="sort" value="<c:out value="${param.sort}"/>">
+                    <c:if test="${not empty sort}">
+                        <input type="hidden" name="sort" value="<c:out value="${sort}"/>">
                     </c:if>
-                    <c:if test="${not empty param.direction}">
-                        <input type="hidden" name="direction" value="<c:out value="${param.direction}"/>">
+                    <c:if test="${not empty direction}">
+                        <input type="hidden" name="direction" value="<c:out value="${direction}"/>">
                     </c:if>
 
 
-                    <c:if test="${not empty param.isMyDestination}">
-                        <form:hidden path="isMyDestination" value="${param.isMyDestination}" />
+                    <c:if test="${not empty isMyDestination}">
+                        <form:hidden path="isMyDestination" value="${isMyDestination}" />
                     </c:if>
-                    <c:if test="${not empty param.isUpcoming}">
-                        <form:hidden path="isUpcoming" value="${param.isUpcoming}" />
+                    <c:if test="${not empty isUpcoming}">
+                        <form:hidden path="isUpcoming" value="${isUpcoming}" />
                     </c:if>
-                    <c:if test="${not empty param.isOngoing}">
-                        <form:hidden path="isOngoing" value="${param.isOngoing}" />
+                    <c:if test="${not empty isOngoing}">
+                        <form:hidden path="isOngoing" value="${isOngoing}" />
                     </c:if>
-                    <c:if test="${not empty param.isPast}">
-                        <form:hidden path="isPast" value="${param.isPast}" />
+                    <c:if test="${not empty isPast}">
+                        <form:hidden path="isPast" value="${isPast}" />
                     </c:if>
 
 
                     <input type="hidden" name="page" value="1">
-                    <c:if test="${not empty param.pageSize}">
-                        <input type="hidden" name="pageSize" value="<c:out value="${param.pageSize}"/>">
+                    <c:if test="${not empty pageSize}">
+                        <input type="hidden" name="pageSize" value="<c:out value="${pageSize}"/>">
                     </c:if>
 
                     <div class="filter-actions">
@@ -305,41 +313,41 @@
 
 
             <c:set var="paginationBaseUrl" value="/journeys?" />
-            <c:if test="${not empty param.search}">
-                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}search=${param.search}&" />
+            <c:if test="${not empty escapedSearch}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}search=${escapedSearch}&" />
             </c:if>
-            <c:if test="${not empty param.destination}">
-                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}destination=${param.destination}&" />
+            <c:if test="${not empty escapedCity}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}destination=${escapedCity}&" />
             </c:if>
-            <c:if test="${not empty param.startDate}">
-                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}startDate=${param.startDate}&" />
+            <c:if test="${not empty escapedStartDate}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}startDate=${escapedStartDate}&" />
             </c:if>
-            <c:if test="${not empty param.endDate}">
-                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}endDate=${param.endDate}&" />
+            <c:if test="${not empty escapedEndDate}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}endDate=${escapedEndDate}&" />
             </c:if>
-            <c:if test="${not empty param.interests}">
-                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}interests=${param.interests}&" />
+            <c:if test="${not empty escapedInterest}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}interests=${escapedInterest}&" />
             </c:if>
-            <c:if test="${not empty param.sort}">
-                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}sort=${param.sort}&" />
+            <c:if test="${not empty sort}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}sort=${sort}&" />
             </c:if>
-            <c:if test="${not empty param.direction}">
-                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}direction=${param.direction}&" />
+            <c:if test="${not empty direction}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}direction=${direction}&" />
             </c:if>
-            <c:if test="${not empty param.isMyDestination}">
-                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}isMyDestination=${param.isMyDestination}&" />
+            <c:if test="${not empty isMyDestination}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}isMyDestination=${isMyDestination}&" />
             </c:if>
-            <c:if test="${not empty param.isUpcoming}">
-                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}isUpcoming=${param.isUpcoming}&" />
+            <c:if test="${not empty isUpcoming}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}isUpcoming=${isUpcoming}&" />
             </c:if>
-            <c:if test="${not empty param.isOngoing}">
-                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}isOngoing=${param.isOngoing}&" />
+            <c:if test="${not empty isOngoing}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}isOngoing=${isOngoing}&" />
             </c:if>
-            <c:if test="${not empty param.isPast}">
-                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}isPast=${param.isPast}&" />
+            <c:if test="${not empty isPast}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}isPast=${isPast}&" />
             </c:if>
-            <c:if test="${not empty param.pageSize}">
-                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}pageSize=${param.pageSize}&" />
+            <c:if test="${not empty pageSize}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}pageSize=${pageSize}&" />
             </c:if>
 
             <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
@@ -353,11 +361,16 @@
     </div>
 </div>
 <script>
+    function htmlDecode(input) {
+        const doc = new DOMParser().parseFromString(input, "text/html");
+        return doc.documentElement.textContent;
+    }
+
+    journeySelectedInterests = htmlDecode('<c:out value="${filterJourneyForm.interests}"/>');
     window.apiBaseUrl = '<c:url value="/" />';
     window.journeyBaseUrl = '<c:url value="/journeys"/>';
     window.closeImage = '<c:url value="/resources/icons/x.svg"/>';
-    journeySelectedInterests = '<c:out value="${filterJourneyForm.interests}"/>';
-    journeySelectedCity = '<c:out value="${filterJourneyForm.destination}"/>';
+    journeySelectedCity = htmlDecode('<c:out value="${filterJourneyForm.destination}"/>');
 </script>
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
