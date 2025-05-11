@@ -1,6 +1,4 @@
-/**
- * Event Creation Form with overridden native date validation
- */
+
 document.addEventListener("DOMContentLoaded", () => {
     console.log("Initializing event creation form with overridden date validation...")
 
@@ -69,9 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    /**
-     * Sets up real-time validation for date and number fields
-     */
+    
     function setupRealTimeValidation() {
         // Real-time validation for attendees limit field
         const attendeesLimitField = document.getElementById("attendeesLimit")
@@ -82,10 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    /**
-     * Validates the attendees limit field in real-time
-     * @param {HTMLElement} attendeesLimitField The attendees limit input field
-     */
+    
     function validateAttendeesLimitField(attendeesLimitField) {
         // Skip validation if the field is disabled
         if (attendeesLimitField.disabled) return

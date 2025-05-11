@@ -1,13 +1,6 @@
-/**
- * Autocomplete Component
- *
- * Enhances select fields with autocomplete functionality
- */
+
 let Autocomplete = (() => {
-    /**
-     * Initialize autocomplete component
-     * @param {Object} options Configuration options
-     */
+    
     function init(options = {}) {
         // Default configuration
         const config = {
@@ -108,9 +101,7 @@ let Autocomplete = (() => {
             })
         })
 
-        /**
-         * Filter dropdown items based on search text
-         */
+        
         function filterDropdownItems(searchText) {
             let visibleCount = 0
 

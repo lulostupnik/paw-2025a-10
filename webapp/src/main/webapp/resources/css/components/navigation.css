@@ -1,4 +1,4 @@
-/* Navigation styles */
+
 .back-link {
     display: inline-flex;
     align-items: center;
@@ -35,7 +35,7 @@
     gap: 0.75rem;
 }
 
-/* Dropdown styling */
+
 .dropdown {
     position: relative;
 }
@@ -53,7 +53,7 @@
     background-color: #dbeafe;
 }
 
-/* List styles */
+
 .list-container {
     display: flex;
     flex-direction: column;

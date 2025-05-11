@@ -1,11 +1,11 @@
-/* Home page specific styles - Redesigned */
 
-/* Hero Section */
+
+
 .hero-section {
     background-color: #f8fafc;
     border-radius: 1rem;
     padding: 3rem 2rem;
-    margin-bottom: 3.5rem; /* Increased from 2.5rem to maintain proper spacing */
+    margin-bottom: 3.5rem;
     text-align: center;
     background-image: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 197, 253, 0.1) 100%);
     border: 1px solid rgba(59, 130, 246, 0.1);
@@ -32,7 +32,7 @@
     line-height: 1.6;
 }
 
-/* Stats Section */
+
 .stats-section {
     display: grid;
     grid-template-columns: repeat(1, 1fr);
@@ -91,9 +91,9 @@
     margin: 0;
 }
 
-/* Content Sections */
+
 .content-section {
-    margin-bottom: 3.5rem; /* Increased from 3rem for better spacing */
+    margin-bottom: 3.5rem;
 }
 
 .section-header {
@@ -141,11 +141,11 @@
 
 .cards-grid {
     display: grid;
-    grid-template-columns: repeat(1, minmax(0, 1fr)); /* Use minmax to prevent overflow */
+    grid-template-columns: repeat(1, minmax(0, 1fr));
     gap: 1.5rem;
 }
 
-/* Card Styles */
+
 .card {
     background-color: white;
     border-radius: 0.75rem;
@@ -287,7 +287,7 @@
     margin-left: 0.25rem;
 }
 
-/* Event Card Specific */
+
 .event-card .card-image {
     height: 12rem;
     overflow: hidden;
@@ -299,7 +299,7 @@
     object-fit: cover;
 }
 
-/* Empty State */
+
 .empty-state {
     grid-column: 1 / -1;
     text-align: center;
@@ -312,7 +312,7 @@
 .empty-icon {
     display: flex;
     justify-content: center;
-    margin-bottom: 1.5rem; /* Increased from 1rem to create more space */
+    margin-bottom: 1.5rem;
 }
 
 .empty-svg {
@@ -324,7 +324,7 @@
 .empty-message {
     font-size: 1rem;
     color: #6b7280;
-    margin: 0 0 2rem; /* Increased from 1.5rem to create more space before the button */
+    margin: 0 0 2rem;
 }
 
 .empty-action-btn {
@@ -346,13 +346,13 @@
     text-decoration: none;
 }
 
-/* Quick Actions Section */
+
 .quick-actions-section {
     margin-bottom: 3rem;
 }
 
 .quick-actions-section .section-title {
-    margin-bottom: 1.5rem; /* Added margin-bottom to create space between title and grid */
+    margin-bottom: 1.5rem;
 }
 
 .quick-actions-grid {
@@ -410,7 +410,7 @@
     margin: 0;
 }
 
-/* Responsive Styles */
+
 @media (min-width: 640px) {
     .hero-section {
         padding: 4rem 2rem;
@@ -462,7 +462,7 @@
     }
 }
 
-/* Utility Classes */
+
 .page-title {
     font-size: 1.5rem;
     font-weight: 700;

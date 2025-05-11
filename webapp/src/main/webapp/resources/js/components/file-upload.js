@@ -1,13 +1,6 @@
-/**
- * File Upload Component
- *
- * Handles file selection, preview, and validation
- */
+
 let FileUpload = (() => {
-    /**
-     * Initialize file upload component
-     * @param {Object} options Configuration options
-     */
+    
     function init(options = {}) {
         // Default configuration
         const config = {
@@ -86,10 +79,7 @@ let FileUpload = (() => {
                     }
                 }
 
-                /*reader.onerror = (error) => {
-                    console.error("FileUpload: Error reading file", error)
-                    alert("Error reading file. Please try again.")
-                }*/
+                
 
                 reader.readAsDataURL(file)
             } else {
