@@ -56,6 +56,9 @@ public class UserJdbcDaoTest {
 
     private Journey JOURNEY_1;
 
+    private Map<Long, User> userData;
+
+
     @Autowired
     private DataSource ds;
 
@@ -98,17 +101,6 @@ public class UserJdbcDaoTest {
         TestUtils.assertEqualsUser(USER_I1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_I1.getId()));
         TestUtils.assertEqualsUser(USER_I2, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_I2.getId()));
         TestUtils.assertEqualsUser(USER_I3, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_I3.getId()));
-    }
-
-    private static void assertEqualsMaybeUser(Optional<User> maybeUser){
-        assertEqualsMaybeUser(maybeUser, Map.of());
-    }
-
-    private static void assertEqualsMaybeUser(Optional<User> maybeUser, Map<String, Object> overrideParams){
-        assertNotNull(maybeUser);
-        assertTrue(maybeUser.isPresent());
-        final User user = maybeUser.get();
-        assertEqualsUser(user, overrideParams); 
     }
 
     private static void assertEqualsUserPassword(UserAuthInfo up){
@@ -157,6 +149,7 @@ public class UserJdbcDaoTest {
         USER_I2 = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_COMMON_INTERESTS_2_MAIL);
         USER_I3 = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_COMMON_INTERESTS_3_MAIL);
         JOURNEY_1 = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_USERMAIL, TestUtils.JOURNEY_ROW_MAPPER, TestUtils.USER_1_MAIL);
+        userData = Map.of(USER_1.getId(), USER_1, USER_2.getId(), USER_2, USER_3.getId(), USER_3, USER_4.getId(), USER_4, USER_I1.getId(), USER_I1, USER_I2.getId(), USER_I2, USER_I3.getId(), USER_I3);
     }
 
     @Test
@@ -230,7 +223,9 @@ public class UserJdbcDaoTest {
     public void testFindUserById(){
         Optional<User> maybeUser = userDao.findById(USER_1.getId());
 
-        assertEqualsMaybeUser(maybeUser);
+        assertNotNull(maybeUser);
+        assertTrue(maybeUser.isPresent());
+        TestUtils.assertEqualsUser(USER_1, maybeUser.get());     
     }
     @Test
     public void testFindUserByIdMissing(){
@@ -243,7 +238,9 @@ public class UserJdbcDaoTest {
     public void testFindUserByEmail(){
         final Optional<User> maybeUser = userDao.findByEmail(TestUtils.USER_1_MAIL);
 
-        assertEqualsMaybeUser(maybeUser);
+        assertNotNull(maybeUser);
+        assertTrue(maybeUser.isPresent());
+        TestUtils.assertEqualsUser(USER_1, maybeUser.get());     
     }
     @Test
     public void testFindUserByEmailMissing(){
@@ -324,8 +321,8 @@ public class UserJdbcDaoTest {
     public void testUpdateProfilePicture(){        
         userDao.updateProfilePicture(USER_1.getId(), PROFILEPIC_2.getId());
         
-        assertEqualsMaybeUser(
-            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+        assertEqualsUser(
+            jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()),
             Map.of("profilepic", PROFILEPIC_2)
         );
     }
@@ -346,8 +343,8 @@ public class UserJdbcDaoTest {
     public void testUpdateGeneric(){
         userDao.update(USER_1.getId(), TestUtils.USER_FAKE_FIRSTNAME, TestUtils.USER_FAKE_LASTNAME, TestUtils.USER_FAKE_NAME, UNIVERSITY_2.getId(), CAREER_2.getId(), Locale.of(TestUtils.USER_FAKE_LOCALE));
         
-        assertEqualsMaybeUser(
-            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+        assertEqualsUser(
+            jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()),
             Map.of(
                 "firstname", TestUtils.USER_FAKE_FIRSTNAME, 
                 "lastname", TestUtils.USER_FAKE_LASTNAME, 
@@ -362,37 +359,37 @@ public class UserJdbcDaoTest {
     public void testUpdateFirstname(){
         userDao.update(USER_1.getId(), TestUtils.USER_FIRSTNAME, null, null, null, null, null);
         
-        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst());
+        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
     }
     @Test
     public void testUpdateLastname(){
         userDao.update(USER_1.getId(), null, TestUtils.USER_LASTNAME, null, null, null, null);
         
-        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst());
+        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
     }
     @Test
     public void testUpdateUsername(){
         userDao.update(USER_1.getId(), null, null, TestUtils.USER_1_NAME, null, null, null);
         
-        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst());
+        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
     }
     @Test
     public void testUpdateGenericUniversity(){
         userDao.update(USER_1.getId(), null, null, null, UNIVERSITY_1.getId(), null, null);
         
-        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst());
+        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
     }
     @Test
     public void testUpdateCareerGeneric(){
         userDao.update(USER_1.getId(), null, null, null, null, CAREER_1.getId(), null);
         
-        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst());
+        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
     }
     @Test
     public void testUpdateLocaleGeneric(){
         userDao.update(USER_1.getId(), null, null, null, null, null, Locale.of(TestUtils.USER_LOCALE));
         
-        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst());
+        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
     }
     @Test
     public void testUpdateWrongUser(){
@@ -402,7 +399,7 @@ public class UserJdbcDaoTest {
     public void testUpdateNoArguments(){
         userDao.update(USER_1.getId(), null, null, null, null, null, null);
         
-        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst());    
+        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
     }
 
     @Test
@@ -420,9 +417,12 @@ public class UserJdbcDaoTest {
         assertNotNull(page2.getContent());
         assertEquals(2, page1.getContent().size());
         assertEquals(2, page2.getContent().size());
-        assertEqualsUser(page1.getContent().getFirst());
-        assertEqualsUser(page1.getContent().getLast(), TestUtils.USER_2_PARAMS);
-        assertEqualsUser(page2.getContent().getFirst(), TestUtils.USER_3_PARAMS);
+        for (User u : page1.getContent()){
+            TestUtils.assertEqualsUser(userData.get(u.getId()), u);
+        }
+        for (User u : page2.getContent()){
+            TestUtils.assertEqualsUser(userData.get(u.getId()), u);
+        }
     }
     @Test
     public void testFindAllPagedWrongPage(){
@@ -439,9 +439,9 @@ public class UserJdbcDaoTest {
         assertNotNull(page2.getContent());
         assertEquals(TestUtils.TOTAL_USERS, page1.getContent().size());
         assertEquals(0, page2.getContent().size());
-        assertEqualsUser(page1.getContent().get(0));
-        assertEqualsUser(page1.getContent().get(1), TestUtils.USER_2_PARAMS);
-        assertEqualsUser(page1.getContent().get(2), TestUtils.USER_3_PARAMS);
+        for (User u : page1.getContent()){
+            TestUtils.assertEqualsUser(userData.get(u.getId()), u);
+        }
     }
 
     @Test
@@ -458,10 +458,13 @@ public class UserJdbcDaoTest {
         assertNotNull(page1.getContent());
         assertNotNull(page2.getContent());
         assertEquals(TestUtils.PAGE_SIZE_DEFAULT, page1.getContent().size());
-        assertEquals(2, page2.getContent().size());
-        TestUtils.assertEqualsUser(USER_I3, page1.getContent().getFirst());
-        TestUtils.assertEqualsUser(USER_I2, page1.getContent().getLast());
-        TestUtils.assertEqualsUser(USER_I1, page2.getContent().getFirst());
+        assertEquals(TestUtils.PAGE_SIZE_DEFAULT, page2.getContent().size());
+        for (User u : page1.getContent()){
+            TestUtils.assertEqualsUser(userData.get(u.getId()), u);
+        }
+        for (User u : page2.getContent()){
+            TestUtils.assertEqualsUser(userData.get(u.getId()), u);
+        }
     }
     @Test
     public void testSearchPaged2(){
@@ -477,21 +480,15 @@ public class UserJdbcDaoTest {
         assertNotNull(page2.getContent());
         assertEquals(1, page1.getContent().size());
         assertEquals(0, page2.getContent().size());
-        assertEqualsUser(page1.getContent().getFirst());
+        TestUtils.assertEqualsUser(USER_1, page1.getContent().get(0));
     }
 
    @Test
    public void testListJourneyResponders(){
-        //TODO replace reply insert
-        SimpleJdbcInsert journeyReplyInsert = new SimpleJdbcInsert(ds).withTableName(TestUtils.JOURNEY_REPLY_TABLE).usingGeneratedKeyColumns("id");
-        journeyReplyInsert.execute(Map.of("user_id", USER_2.getId(), "journey_id", JOURNEY_1.getId(), "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
-        journeyReplyInsert.execute(Map.of("user_id", USER_3.getId(), "journey_id", JOURNEY_1.getId(), "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
-
         List<User> repliesUser = userDao.listJourneyResponders(JOURNEY_1.getId());
 
         assertNotNull(repliesUser);
-        assertEquals(2, repliesUser.size());
-        Map<Long, User> userData = Map.of(USER_2.getId(), USER_2, USER_3.getId(), USER_3);
+        assertEquals(TestUtils.TOTAL_JOURNEY_RESPONSES, repliesUser.size());
         for (User user : repliesUser) {
             TestUtils.assertEqualsUser(userData.get(user.getId()), user);
         }
@@ -516,7 +513,6 @@ public class UserJdbcDaoTest {
 
         assertNotNull(repliesUser);
         assertEquals(2, repliesUser.size());
-        Map<Long, User> userData = Map.of(USER_2.getId(), USER_2, USER_3.getId(), USER_3);
         for (User user : repliesUser) {
             TestUtils.assertEqualsUser(userData.get(user.getId()), user);
         }
@@ -526,8 +522,8 @@ public class UserJdbcDaoTest {
     public void testBlockUser(){
         userDao.blockUser(USER_1.getId());
 
-        Optional<User> maybeUser = jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst();
-        assertEqualsMaybeUser(maybeUser, Map.of("blocked", true));
+        User user = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId());
+        assertEqualsUser(user, Map.of("blocked", true));
     }
     @Test
     public void testBlockUserBlocked(){
@@ -536,8 +532,7 @@ public class UserJdbcDaoTest {
 
         userDao.blockUser(id);
 
-        Optional<User> maybeUser = jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, id).stream().findFirst();
-        assertEqualsMaybeUser(maybeUser, params);
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, id), params);
     }
     @Test
     public void testBlockUserWrongId(){
@@ -552,18 +547,13 @@ public class UserJdbcDaoTest {
 
         userDao.unblockUser(id);
 
-        Optional<User> maybeUser = jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, id).stream().findFirst();
-        assertEqualsMaybeUser(maybeUser, Map.of("email", TestUtils.USER_NEW1_MAIL, "username", TestUtils.USER_NEW1_NAME));
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, id), Map.of("email", TestUtils.USER_NEW1_MAIL, "username", TestUtils.USER_NEW1_NAME));
     }
     @Test
     public void testUnblockUserUnblocked(){
         userDao.unblockUser(USER_1.getId());
         
-        Optional<User> maybeUser = jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst();
-        assertNotNull(maybeUser);
-        assertTrue(maybeUser.isPresent());
-        User user = maybeUser.get();
-        assertEqualsUser(user);
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
     }
     @Test
     public void testUnblockUserWrongId(){
@@ -601,7 +591,7 @@ public class UserJdbcDaoTest {
 
         userDao.validateToken(TestUtils.USER_VALID_TOKEN_DEFAULT);
 
-        assertTrue(jdbcTemplate.queryForObject("SELECT token FROM users WHERE id = ?", String.class, id) == null);
+        assertTrue(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_TOKEN_BY_ID, String.class, id) == null);
     }
     @Test
     public void testValidateTokenWrongToken(){
@@ -609,7 +599,7 @@ public class UserJdbcDaoTest {
 
         userDao.validateToken("USER_VALID_TOKEN_DEFAULT");
 
-        assertFalse(jdbcTemplate.queryForObject("SELECT token FROM users WHERE id = ?", String.class, id) == null);
+        assertFalse(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_TOKEN_BY_ID, String.class, id) == null);
     }
 
     @Test

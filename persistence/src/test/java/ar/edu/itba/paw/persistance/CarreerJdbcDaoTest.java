@@ -35,6 +35,7 @@ import ar.edu.itba.paw.persistence.CareerJdbcDao;
 public class CarreerJdbcDaoTest {
 
     private static Career CAREER_1;
+    private static Career CAREER_2;
     private static Career CAREER_DELETED;
 
     @Autowired
@@ -52,6 +53,7 @@ public class CarreerJdbcDaoTest {
         insert = new SimpleJdbcInsert(ds).withTableName(TestUtils.CAREER_TABLE).usingGeneratedKeyColumns("id");
         
         CAREER_1 = jdbcTemplate.queryForObject(TestUtils.CAREER_SELECT_BY_NAME, TestUtils.CAREER_ROW_MAPPER, TestUtils.CAREER_1_NAME);
+        CAREER_2 = jdbcTemplate.queryForObject(TestUtils.CAREER_SELECT_BY_NAME, TestUtils.CAREER_ROW_MAPPER, TestUtils.CAREER_2_NAME);
         CAREER_DELETED = jdbcTemplate.queryForObject(TestUtils.CAREER_SELECT_BY_NAME, TestUtils.CAREER_ROW_MAPPER, TestUtils.CAREER_DELETED_NAME);
     }
 
@@ -61,8 +63,7 @@ public class CarreerJdbcDaoTest {
         
         assertNotNull(maybeCareer);
         assertTrue(maybeCareer.isPresent());
-        assertEquals(CAREER_1.getId(), maybeCareer.get().getId());
-        assertEquals(TestUtils.CAREER_1_NAME, maybeCareer.get().getName());
+        TestUtils.assertEqualsCareer(CAREER_1, maybeCareer.get());
     }
     @Test
     public void testFindByIdMissingCareer(){
@@ -85,8 +86,7 @@ public class CarreerJdbcDaoTest {
 
         assertNotNull(maybeCareer);
         assertTrue(maybeCareer.isPresent());
-        assertEquals(CAREER_1.getId(), maybeCareer.get().getId());
-        assertEquals(TestUtils.CAREER_1_NAME, maybeCareer.get().getName());
+        TestUtils.assertEqualsCareer(CAREER_1, maybeCareer.get());
     }
     @Test
     public void testFindByNameMissingCareer(){
@@ -128,11 +128,9 @@ public class CarreerJdbcDaoTest {
         assertNotNull(page2.getContent());
         assertEquals(2, page1.getContent().size());
         assertEquals(1, page2.getContent().size());
-        assertEquals(TestUtils.CAREER_1_NAME, page1.getContent().get(0).getName());
-        assertEquals(CAREER_1.getId(), page1.getContent().get(0).getId());
-        assertEquals(TestUtils.CAREER_2_NAME, page1.getContent().get(1).getName());
-        assertEquals(TestUtils.CAREER_INSERT1_NAME, page2.getContent().getFirst().getName());
-        assertEquals(bonusId, page2.getContent().getFirst().getId());
+        TestUtils.assertEqualsCareer(CAREER_1, page1.getContent().get(0));
+        TestUtils.assertEqualsCareer(CAREER_2, page1.getContent().get(1));
+        TestUtils.assertEqualsCareer(new Career(bonusId, TestUtils.CAREER_INSERT1_NAME), page2.getContent().get(0));
     }
     @Test
     public void testGetAllCareersNoCareers(){
@@ -168,6 +166,7 @@ public class CarreerJdbcDaoTest {
         assertNotNull(career);
         assertEquals(CAREER_DELETED.getId(), career.getId());
         assertEquals(TestUtils.CAREER_DELETED_NAME, career.getName());
+        assertFalse(jdbcTemplate.queryForObject(TestUtils.CAREER_IS_DELETED_BY_ID, Boolean.class, CAREER_DELETED.getId()));
         assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CAREER_TABLE));
     }
     @Test(expected = DataAccessException.class)
@@ -180,8 +179,8 @@ public class CarreerJdbcDaoTest {
         Career career = careerDao.update(CAREER_1.getId(), TestUtils.CAREER_INSERT1_NAME);
 
         assertNotNull(career);
-        assertEquals(TestUtils.CAREER_INSERT1_NAME, career.getName());
-        assertEquals(CAREER_1.getId(), career.getId());
+        TestUtils.assertEqualsCareer(new Career(CAREER_1.getId(), TestUtils.CAREER_INSERT1_NAME), career);
+
     }
     @Test(expected = DataAccessException.class)
     public void testUpdateDuplicate(){
@@ -199,6 +198,8 @@ public class CarreerJdbcDaoTest {
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
         assertEquals(TestUtils.TOTAL_CAREERS, page1.getContent().size());
+        TestUtils.assertEqualsCareer(CAREER_1, page1.getContent().get(0));
+
     }
     @Test
     public void testSearchBySubstringFiltering(){
@@ -207,6 +208,7 @@ public class CarreerJdbcDaoTest {
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
         assertEquals(1, page1.getContent().size());
+        TestUtils.assertEqualsCareer(CAREER_1, page1.getContent().get(0));
     }
     @Test
     public void testSearchBySubstringEmpty(){
@@ -214,7 +216,10 @@ public class CarreerJdbcDaoTest {
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
-        assertEquals(3, page1.getContent().size());
+        assertEquals(TestUtils.TOTAL_CAREERS + 1, page1.getContent().size());
+        TestUtils.assertEqualsCareer(CAREER_1, page1.getContent().get(0));
+        TestUtils.assertEqualsCareer(CAREER_2, page1.getContent().get(1));
+        TestUtils.assertEqualsCareer(CAREER_DELETED, page1.getContent().get(2));
     }
     @Test
     public void testSearchBySubstringMissing(){
@@ -222,7 +227,10 @@ public class CarreerJdbcDaoTest {
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
-        assertEquals(3, page1.getContent().size());
+        assertEquals(TestUtils.TOTAL_CAREERS + 1, page1.getContent().size());
+        TestUtils.assertEqualsCareer(CAREER_1, page1.getContent().get(0));
+        TestUtils.assertEqualsCareer(CAREER_2, page1.getContent().get(1));
+        TestUtils.assertEqualsCareer(CAREER_DELETED, page1.getContent().get(2));
     }
     @Test
     public void testSearchBySubstringPaging(){
@@ -235,6 +243,9 @@ public class CarreerJdbcDaoTest {
         assertEquals(2, page2.getTotalPages());
         assertEquals(2, page1.getContent().size());
         assertEquals(1, page2.getContent().size());
+        TestUtils.assertEqualsCareer(CAREER_1, page1.getContent().get(0));
+        TestUtils.assertEqualsCareer(CAREER_2, page1.getContent().get(1));
+        TestUtils.assertEqualsCareer(CAREER_DELETED, page2.getContent().get(0));
     }
 
     @Test
@@ -247,9 +258,10 @@ public class CarreerJdbcDaoTest {
         assertEquals(
             TestUtils.TOTAL_CAREERS - 1, 
             Optional.ofNullable(
-                jdbcTemplate.queryForObject("SELECT COUNT(*) FROM careers WHERE deleted = FALSE", Integer.class)
+                jdbcTemplate.queryForObject(TestUtils.CAREER_COUNT_NOT_DELETED, Integer.class)
             ).get().intValue()
         );
+        assertTrue(jdbcTemplate.queryForObject(TestUtils.CAREER_IS_DELETED_BY_ID, Boolean.class, CAREER_1.getId()));
     }
     @Test
     public void testDeleteDeleted(){
@@ -261,9 +273,10 @@ public class CarreerJdbcDaoTest {
         assertEquals(
             TestUtils.TOTAL_CAREERS, 
             Optional.ofNullable(
-                jdbcTemplate.queryForObject("SELECT COUNT(*) FROM careers WHERE deleted = FALSE", Integer.class)
+                jdbcTemplate.queryForObject(TestUtils.CAREER_COUNT_NOT_DELETED, Integer.class)
             ).get().intValue()
-        );    }
+        );    
+    }
     @Test
     public void testDeleteWrongCareer(){
         int beforeRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CAREER_TABLE);
@@ -274,8 +287,8 @@ public class CarreerJdbcDaoTest {
         assertEquals(
             TestUtils.TOTAL_CAREERS, 
             Optional.ofNullable(
-                jdbcTemplate.queryForObject("SELECT COUNT(*) FROM careers WHERE deleted = FALSE", Integer.class)
+                jdbcTemplate.queryForObject(TestUtils.CAREER_COUNT_NOT_DELETED, Integer.class)
             ).get().intValue()
-        );    }
-    
+        );    
+    }
 }

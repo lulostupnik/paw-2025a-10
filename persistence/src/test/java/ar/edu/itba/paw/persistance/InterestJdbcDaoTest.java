@@ -5,7 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,7 +18,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -42,7 +40,7 @@ public class InterestJdbcDaoTest {
     private static Interest INTEREST_1;
     private static Interest INTEREST_2;
     private static Interest INTEREST_3;
-    Map<Long, String> interestParams;
+    Map<Long, Interest> interestData;
 
 
     @Autowired
@@ -52,21 +50,17 @@ public class InterestJdbcDaoTest {
     private InterestJdbcDao interestDao;
 
     private JdbcTemplate jdbcTemplate;
-    private SimpleJdbcInsert insertInterest;
-    private SimpleJdbcInsert insertUserInterest;
 
     @Before
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
-        insertInterest = new SimpleJdbcInsert(ds).withTableName(TestUtils.INTEREST_TABLE).usingGeneratedKeyColumns("id");
-        insertUserInterest = new SimpleJdbcInsert(ds).withTableName(TestUtils.USER_INTEREST_TABLE);   
 
         USER_1 = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_MAIL);
         USER_2 = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_2_MAIL);
         INTEREST_1 = jdbcTemplate.queryForObject(TestUtils.INTEREST_SELECT_BY_NAME, TestUtils.INTEREST_ROW_MAPPER, TestUtils.INTEREST_1_NAME);
         INTEREST_2 = jdbcTemplate.queryForObject(TestUtils.INTEREST_SELECT_BY_NAME, TestUtils.INTEREST_ROW_MAPPER, TestUtils.INTEREST_2_NAME);
         INTEREST_3 = jdbcTemplate.queryForObject(TestUtils.INTEREST_SELECT_BY_NAME, TestUtils.INTEREST_ROW_MAPPER, TestUtils.INTEREST_3_NAME);
-        interestParams = Map.of(INTEREST_1.getId(), INTEREST_1.getName(), INTEREST_2.getId(), INTEREST_2.getName(), INTEREST_3.getId(), INTEREST_3.getName());
+        interestData = Map.of(INTEREST_1.getId(), INTEREST_1, INTEREST_2.getId(), INTEREST_2, INTEREST_3.getId(), INTEREST_3);
     }
 
 
@@ -76,9 +70,7 @@ public class InterestJdbcDaoTest {
 
         assertNotNull(maybeInterest);
         assertTrue(maybeInterest.isPresent());
-        Interest interest = maybeInterest.get();
-        assertEquals(INTEREST_1.getId(), interest.getId());
-        assertEquals(TestUtils.INTEREST_1_NAME, interest.getName());
+        TestUtils.assertEqualsInterest(INTEREST_1, maybeInterest.get());
     }
     @Test
     public void testFindByIdWrongId(){
@@ -88,8 +80,6 @@ public class InterestJdbcDaoTest {
         assertFalse(maybeInterest.isPresent());
     }
 
-
-
     @Test
     public void testFindAllByUserId(){
         List<Interest> interests = interestDao.findAllByUserId(USER_1.getId());
@@ -97,7 +87,7 @@ public class InterestJdbcDaoTest {
         assertNotNull(interests);
         assertEquals(TestUtils.USER_1_INTERESTS, interests.size());
         for (Interest i : interests){
-            assertEquals(interestParams.get(i.getId()), i.getName());
+            TestUtils.assertEqualsInterest(interestData.get(i.getId()), i);
         }
     }
     @Test
@@ -114,9 +104,7 @@ public class InterestJdbcDaoTest {
 
         assertNotNull(maybeInterest);
         assertTrue(maybeInterest.isPresent());
-        Interest interest = maybeInterest.get();
-        assertEquals(INTEREST_1.getId(), interest.getId());
-        assertEquals(TestUtils.INTEREST_1_NAME, interest.getName());
+        TestUtils.assertEqualsInterest(INTEREST_1, maybeInterest.get());
     }
     @Test
     public void testFindByNameWrongName(){
@@ -126,14 +114,12 @@ public class InterestJdbcDaoTest {
         assertFalse(maybeInterest.isPresent());
     }
 
-
-
     @Test
     public void testCreate(){
         Interest interest = interestDao.create(TestUtils.INTEREST_NEW1_NAME);
 
         assertNotNull(interest);
-        assertEquals(TestUtils.INTEREST_NEW1_NAME, interest.getName());
+        TestUtils.assertEqualsInterest(new Interest(interest.getId(), TestUtils.INTEREST_NEW1_NAME), interest);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateMissingName(){
@@ -153,9 +139,7 @@ public class InterestJdbcDaoTest {
             TestUtils.INTEREST_ROW_MAPPER, 
             INTEREST_1.getId()
         );
-        assertNotNull(interest);
-        assertEquals(INTEREST_1.getId(), interest.getId());
-        assertEquals(TestUtils.INTEREST_NEW1_NAME, interest.getName());
+        TestUtils.assertEqualsInterest(new Interest(INTEREST_1.getId(), TestUtils.INTEREST_NEW1_NAME), interest);
     }
     @Test
     public void testUpdateNotFound(){
@@ -165,39 +149,30 @@ public class InterestJdbcDaoTest {
 
         assertNotNull(interests);
         assertEquals(TestUtils.TOTAL_INTERESTS, interests.size());
-        assertEquals(INTEREST_1.getId(), interests.get(0).getId());
-        assertEquals(TestUtils.INTEREST_1_NAME, interests.get(0).getName());
-        assertEquals(INTEREST_2.getId(), interests.get(1).getId());
-        assertEquals(TestUtils.INTEREST_2_NAME, interests.get(1).getName());
+        TestUtils.assertEqualsInterest(INTEREST_1, interests.get(0));
+        TestUtils.assertEqualsInterest(INTEREST_2, interests.get(1));
+        TestUtils.assertEqualsInterest(INTEREST_3, interests.get(2));
     }
 
     @Test
-    public void testSaveUserInterests(){
-        List<Long> ids = new ArrayList<>();
-        ids.add(INTEREST_1.getId());
-        ids.add(INTEREST_2.getId());
-        ids.add(INTEREST_3.getId());
-        
-        interestDao.saveUserInterests(ids.stream().mapToLong(l->l).toArray(), USER_2.getId());
+    public void testSaveUserInterests(){  
+        interestDao.saveUserInterests(interestData.keySet().stream().mapToLong(l->l).toArray(), USER_2.getId());
 
         assertEquals(TestUtils.TOTAL_USER_INTERESTS + 3, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_INTEREST_TABLE));
-        List<Interest> interests = jdbcTemplate.query("""
-            SELECT cat.id as interest_id, cat.name as interest_name
-            FROM category cat JOIN user_interest ui ON ui.category_id = cat.id 
-            WHERE ui.user_id = ? """,
+        List<Interest> interests = jdbcTemplate.query(TestUtils.INTEREST_SELECT_BY_USER_ID,
             TestUtils.INTEREST_ROW_MAPPER, USER_2.getId()
         );
         assertNotNull(interests);
-        assertEquals(ids.size(), interests.size());
+        assertEquals(interestData.size(), interests.size());
         for (Interest i : interests){
-            ids.contains(i.getId());
+            TestUtils.assertEqualsInterest(interestData.get(i.getId()), i);
         }
     }
     @Test(expected = DataAccessException.class)
     public void testSaveUserInterestsWrongInterest(){
         long[] array = new long[3];
-        array[0] = insertInterest.executeAndReturnKey(Map.of("name", TestUtils.INTEREST_1_NAME)).longValue();
-        array[1] = insertInterest.executeAndReturnKey(Map.of("name", TestUtils.INTEREST_2_NAME)).longValue();
+        array[0] = INTEREST_1.getId();
+        array[1] = INTEREST_2.getId();
         array[2] = 12341234;
         
         interestDao.saveUserInterests(array, USER_1.getId());
@@ -212,90 +187,242 @@ public class InterestJdbcDaoTest {
 
     @Test
     public void testUpdateScoreByInterest(){
-        insertUserInterest.execute(Map.of("user_id", USER_2.getId(), "category_id", INTEREST_1.getId(), "score", 0));
-        insertUserInterest.execute(Map.of("user_id", USER_2.getId(), "category_id", INTEREST_2.getId(), "score", 3));
-        
-        interestDao.updateScoreByInterest(INTEREST_1, USER_2.getId());
+        interestDao.updateScoreByInterest(INTEREST_1, USER_1.getId());
 
-        assertEquals(1, jdbcTemplate.queryForObject("SELECT score FROM user_interest WHERE category_id = ? AND user_id = ?", Integer.class, INTEREST_1.getId(), USER_2.getId()).intValue());
-        assertEquals(3, jdbcTemplate.queryForObject("SELECT score FROM user_interest WHERE category_id = ? AND user_id = ?", Integer.class, INTEREST_2.getId(), USER_2.getId()).intValue());
+        assertEquals(
+            TestUtils.USER_1_INTEREST_1_SCORE + 1, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_1.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
+        assertEquals(
+            TestUtils.USER_1_INTEREST_2_SCORE, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_2.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
+        assertEquals(
+            TestUtils.USER_1_INTEREST_3_SCORE, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_3.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
     }
     @Test
-    public void testUpdateScoreByInterest2(){
-        insertUserInterest.execute(Map.of("user_id", USER_2.getId(), "category_id", INTEREST_1.getId(), "score", 0));
-        insertUserInterest.execute(Map.of("user_id", USER_2.getId(), "category_id", INTEREST_2.getId(), "score", 3));
-        
-        interestDao.updateScoreByInterest(INTEREST_2, USER_2.getId());
+    public void testUpdateScoreByInterest2(){        
+        interestDao.updateScoreByInterest(INTEREST_2, USER_1.getId());
 
-        assertEquals(0, jdbcTemplate.queryForObject("SELECT score FROM user_interest WHERE category_id = ? AND user_id = ?", Integer.class, INTEREST_1.getId(), USER_2.getId()).intValue());
-        assertEquals(4, jdbcTemplate.queryForObject("SELECT score FROM user_interest WHERE category_id = ? AND user_id = ?", Integer.class, INTEREST_2.getId(), USER_2.getId()).intValue());
+        assertEquals(
+            TestUtils.USER_1_INTEREST_1_SCORE, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_1.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
+        assertEquals(
+            TestUtils.USER_1_INTEREST_2_SCORE + 1, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_2.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
+        assertEquals(
+            TestUtils.USER_1_INTEREST_3_SCORE, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_3.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
     }
     @Test
-    public void testUpdateScoreByInterestWrongInterest(){
-        insertUserInterest.execute(Map.of("user_id", USER_2.getId(), "category_id", INTEREST_1.getId(), "score", 0));
-        insertUserInterest.execute(Map.of("user_id", USER_2.getId(), "category_id", INTEREST_2.getId(), "score", 3));
-        
-        interestDao.updateScoreByInterest(new Interest((long)12341234, null), USER_1.getId());
+    public void testUpdateScoreByInterestWrongInterest(){        
+        interestDao.updateScoreByInterest(new Interest(12341234l, null), USER_1.getId());
 
-        assertEquals(0, jdbcTemplate.queryForObject("SELECT score FROM user_interest WHERE category_id = ? AND user_id = ?", Integer.class, INTEREST_1.getId(), USER_2.getId()).intValue());
-        assertEquals(3, jdbcTemplate.queryForObject("SELECT score FROM user_interest WHERE category_id = ? AND user_id = ?", Integer.class, INTEREST_2.getId(), USER_2.getId()).intValue());
+        assertEquals(
+            TestUtils.USER_1_INTEREST_1_SCORE, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_1.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
+        assertEquals(
+            TestUtils.USER_1_INTEREST_2_SCORE, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_2.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
+        assertEquals(
+            TestUtils.USER_1_INTEREST_3_SCORE, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_3.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
     }
     @Test
     public void testUpdateScoreByInterestWrongUser(){
         interestDao.updateScoreByInterest(INTEREST_1, (long)12341234);
 
-        assertEquals(TestUtils.USER_1_INTEREST_1_SCORE, jdbcTemplate.queryForObject("SELECT score FROM user_interest WHERE category_id = ? AND user_id = ?", Integer.class, INTEREST_1.getId(), USER_1.getId()).intValue());
-        assertEquals(TestUtils.USER_1_INTEREST_2_SCORE, jdbcTemplate.queryForObject("SELECT score FROM user_interest WHERE category_id = ? AND user_id = ?", Integer.class, INTEREST_2.getId(), USER_1.getId()).intValue());
-        assertEquals(TestUtils.USER_1_INTEREST_3_SCORE, jdbcTemplate.queryForObject("SELECT score FROM user_interest WHERE category_id = ? AND user_id = ?", Integer.class, INTEREST_3.getId(), USER_1.getId()).intValue());
+        assertEquals(
+            TestUtils.USER_1_INTEREST_1_SCORE, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_1.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
+        assertEquals(
+            TestUtils.USER_1_INTEREST_2_SCORE, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_2.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
+        assertEquals(
+            TestUtils.USER_1_INTEREST_3_SCORE, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_3.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
     }
 
     @Test
     public void testUpdateScoreByInterestsMultiple(){
-        insertUserInterest.execute(Map.of("user_id", USER_2.getId(), "category_id", INTEREST_1.getId(), "score", 0));
-        insertUserInterest.execute(Map.of("user_id", USER_2.getId(), "category_id", INTEREST_2.getId(), "score", 3));
-        insertUserInterest.execute(Map.of("user_id", USER_2.getId(), "category_id", INTEREST_3.getId(), "score", 3));
         List<Interest> interests = List.of(INTEREST_1, INTEREST_2);
         
-        interestDao.updateScoreByInterests(interests, USER_2.getId());
+        interestDao.updateScoreByInterests(interests, USER_1.getId());
 
         assertEquals(TestUtils.TOTAL_INTERESTS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.INTEREST_TABLE));
-        assertEquals(TestUtils.TOTAL_USER_INTERESTS + 3, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_INTEREST_TABLE));
+        assertEquals(TestUtils.TOTAL_USER_INTERESTS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_INTEREST_TABLE));
 
-        assertEquals(1, jdbcTemplate.queryForObject("SELECT score FROM user_interest WHERE category_id = ? AND user_id = ?", Integer.class, INTEREST_1.getId(), USER_2.getId()).intValue());
-        assertEquals(4, jdbcTemplate.queryForObject("SELECT score FROM user_interest WHERE category_id = ? AND user_id = ?", Integer.class, INTEREST_2.getId(), USER_2.getId()).intValue());
-        assertEquals(3, jdbcTemplate.queryForObject("SELECT score FROM user_interest WHERE category_id = ? AND user_id = ?", Integer.class, INTEREST_3.getId(), USER_2.getId()).intValue());
+        assertEquals(
+            TestUtils.USER_1_INTEREST_1_SCORE + 1, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_1.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
+        assertEquals(
+            TestUtils.USER_1_INTEREST_2_SCORE + 1, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_2.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
+        assertEquals(
+            TestUtils.USER_1_INTEREST_3_SCORE, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_3.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
     }
     @Test
     public void testUpdateScoreByInterestsMultipleDuplicated(){
-        insertUserInterest.execute(Map.of("user_id", USER_2.getId(), "category_id", INTEREST_1.getId(), "score", 0));
-        insertUserInterest.execute(Map.of("user_id", USER_2.getId(), "category_id", INTEREST_2.getId(), "score", 3));
-        insertUserInterest.execute(Map.of("user_id", USER_2.getId(), "category_id", INTEREST_3.getId(), "score", 3));
         List<Interest> interests = List.of(INTEREST_1, INTEREST_2, INTEREST_2);
         
-        interestDao.updateScoreByInterests(interests, USER_2.getId());
+        interestDao.updateScoreByInterests(interests, USER_1.getId());
 
         assertEquals(TestUtils.TOTAL_INTERESTS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.INTEREST_TABLE));
-        assertEquals(TestUtils.TOTAL_USER_INTERESTS + 3, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_INTEREST_TABLE));
-
-        assertEquals(1, jdbcTemplate.queryForObject("SELECT score FROM user_interest WHERE category_id = ? AND user_id = ?", Integer.class, INTEREST_1.getId(), USER_2.getId()).intValue());
-        assertEquals(5, jdbcTemplate.queryForObject("SELECT score FROM user_interest WHERE category_id = ? AND user_id = ?", Integer.class, INTEREST_2.getId(), USER_2.getId()).intValue());
-        assertEquals(3, jdbcTemplate.queryForObject("SELECT score FROM user_interest WHERE category_id = ? AND user_id = ?", Integer.class, INTEREST_3.getId(), USER_2.getId()).intValue());
+        assertEquals(TestUtils.TOTAL_USER_INTERESTS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_INTEREST_TABLE));
+        assertEquals(
+            TestUtils.USER_1_INTEREST_1_SCORE + 1, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_1.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
+        assertEquals(
+            TestUtils.USER_1_INTEREST_2_SCORE + 2, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_2.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
+        assertEquals(
+            TestUtils.USER_1_INTEREST_3_SCORE, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_3.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
     }
     @Test
     public void testUpdateScoreByInterestsMultipleEmpty(){
-        insertUserInterest.execute(Map.of("user_id", USER_2.getId(), "category_id", INTEREST_1.getId(), "score", 0));
-        insertUserInterest.execute(Map.of("user_id", USER_2.getId(), "category_id", INTEREST_2.getId(), "score", 3));
-        insertUserInterest.execute(Map.of("user_id", USER_2.getId(), "category_id", INTEREST_3.getId(), "score", 3));
         List<Interest> interests = List.of();
         
-        interestDao.updateScoreByInterests(interests, USER_2.getId());
+        interestDao.updateScoreByInterests(interests, USER_1.getId());
 
         assertEquals(TestUtils.TOTAL_INTERESTS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.INTEREST_TABLE));
-        assertEquals(TestUtils.TOTAL_USER_INTERESTS + 3, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_INTEREST_TABLE));
+        assertEquals(TestUtils.TOTAL_USER_INTERESTS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_INTEREST_TABLE));
 
-        assertEquals(0, jdbcTemplate.queryForObject("SELECT score FROM user_interest WHERE category_id = ? AND user_id = ?", Integer.class, INTEREST_1.getId(), USER_2.getId()).intValue());
-        assertEquals(3, jdbcTemplate.queryForObject("SELECT score FROM user_interest WHERE category_id = ? AND user_id = ?", Integer.class, INTEREST_2.getId(), USER_2.getId()).intValue());
-        assertEquals(3, jdbcTemplate.queryForObject("SELECT score FROM user_interest WHERE category_id = ? AND user_id = ?", Integer.class, INTEREST_3.getId(), USER_2.getId()).intValue());
+        assertEquals(
+            TestUtils.USER_1_INTEREST_1_SCORE, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_1.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
+        assertEquals(
+            TestUtils.USER_1_INTEREST_2_SCORE, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_2.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
+        assertEquals(
+            TestUtils.USER_1_INTEREST_3_SCORE, 
+            jdbcTemplate.queryForObject(
+                TestUtils.INTEREST_SELECT_SCORE, 
+                Integer.class, 
+                INTEREST_3.getId(), 
+                USER_1.getId()
+            ).intValue()
+        );
     }
 
     @Test
@@ -313,15 +440,12 @@ public class InterestJdbcDaoTest {
         assertNotNull(page2.getContent());
         assertEquals(2, page1.getContent().size());
         assertEquals(1, page2.getContent().size());
-        assertEquals(INTEREST_1.getId(), page1.getContent().get(0).getId());
-        assertEquals(TestUtils.INTEREST_1_NAME, page1.getContent().get(0).getName());
-        assertEquals(INTEREST_2.getId(), page1.getContent().get(1).getId());
-        assertEquals(TestUtils.INTEREST_2_NAME, page1.getContent().get(1).getName());
-        assertEquals(INTEREST_3.getId(), page2.getContent().get(0).getId());
-        assertEquals(TestUtils.INTEREST_3_NAME, page2.getContent().get(0).getName());
+        TestUtils.assertEqualsInterest(INTEREST_1, page1.getContent().get(0));
+        TestUtils.assertEqualsInterest(INTEREST_2, page1.getContent().get(1));
+        TestUtils.assertEqualsInterest(INTEREST_3, page2.getContent().get(0));
     }
     @Test
-    public void testFindAllInterestsPagedNo(){
+    public void testFindAllInterestsPagedNoInterests(){
         TestUtils.deleteInterests(jdbcTemplate);
 
         Page<Interest> page1 = interestDao.findAll(new PageParams(1, 2));
@@ -340,6 +464,9 @@ public class InterestJdbcDaoTest {
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
         assertEquals(3, page1.getContent().size());
+        TestUtils.assertEqualsInterest(INTEREST_1, page1.getContent().get(0));
+        TestUtils.assertEqualsInterest(INTEREST_2, page1.getContent().get(1));
+        TestUtils.assertEqualsInterest(INTEREST_3, page1.getContent().get(2));
     }
     @Test
     public void testSearchFiltering(){
@@ -348,6 +475,7 @@ public class InterestJdbcDaoTest {
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
         assertEquals(1, page1.getContent().size());
+        TestUtils.assertEqualsInterest(INTEREST_1, page1.getContent().get(0));
     }
     @Test
     public void testSearchEmpty(){
@@ -356,6 +484,9 @@ public class InterestJdbcDaoTest {
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
         assertEquals(3, page1.getContent().size());
+        TestUtils.assertEqualsInterest(INTEREST_1, page1.getContent().get(0));
+        TestUtils.assertEqualsInterest(INTEREST_2, page1.getContent().get(1));
+        TestUtils.assertEqualsInterest(INTEREST_3, page1.getContent().get(2));
     }
     @Test
     public void testSearchMissing(){
@@ -364,6 +495,9 @@ public class InterestJdbcDaoTest {
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
         assertEquals(3, page1.getContent().size());
+        TestUtils.assertEqualsInterest(INTEREST_1, page1.getContent().get(0));
+        TestUtils.assertEqualsInterest(INTEREST_2, page1.getContent().get(1));
+        TestUtils.assertEqualsInterest(INTEREST_3, page1.getContent().get(2));
     }
     @Test
     public void testSearchPaging(){
@@ -376,6 +510,9 @@ public class InterestJdbcDaoTest {
         assertEquals(2, page2.getTotalPages());
         assertEquals(2, page1.getContent().size());
         assertEquals(1, page2.getContent().size());
+        TestUtils.assertEqualsInterest(INTEREST_1, page1.getContent().get(0));
+        TestUtils.assertEqualsInterest(INTEREST_2, page1.getContent().get(1));
+        TestUtils.assertEqualsInterest(INTEREST_3, page2.getContent().get(0));
     }
 
     @Test
@@ -399,13 +536,9 @@ public class InterestJdbcDaoTest {
         assertEquals(1, interests.getCurrentPage());
         assertEquals(1, interests.getTotalPages());
         assertNotNull(interests.getContent());
-        assertEquals(TestUtils.USER_1_INTERESTS, interests.getContent().size());
-        assertEquals(INTEREST_1.getId(), interests.getContent().get(0).getId());
-        assertEquals(TestUtils.INTEREST_1_NAME, interests.getContent().get(0).getName());
-        assertEquals(INTEREST_2.getId(), interests.getContent().get(1).getId());
-        assertEquals(TestUtils.INTEREST_2_NAME, interests.getContent().get(1).getName());
-        assertEquals(INTEREST_3.getId(), interests.getContent().get(2).getId());
-        assertEquals(TestUtils.INTEREST_3_NAME, interests.getContent().get(2).getName());
+        TestUtils.assertEqualsInterest(INTEREST_1, interests.getContent().get(0));
+        TestUtils.assertEqualsInterest(INTEREST_2, interests.getContent().get(1));
+        TestUtils.assertEqualsInterest(INTEREST_3, interests.getContent().get(2));
     }
 
 }
