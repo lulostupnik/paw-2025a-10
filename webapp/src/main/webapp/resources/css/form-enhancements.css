@@ -15,6 +15,26 @@
     border-radius: var(--radius);
     transition: all 0.2s ease;
 }
+/* Form hint styling */
+.form-hint {
+    display: flex;
+    align-items: center;
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    color: #64748b;
+    gap: 0.5rem;
+}
+
+.form-hint-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    color: #4361ee;
+}
+
+.form-hint-text {
+    line-height: 1.4;
+}
 
 .autocomplete-input:focus {
     border-color: var(--primary-color);
