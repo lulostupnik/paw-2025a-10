@@ -30,7 +30,7 @@ import ar.edu.itba.paw.models.Page;
 public class CareerJdbcDaoTest {
 
     @Autowired
-    private DataSource ds;
+    private  DataSource ds;
 
     @Autowired
     private CareerJdbcDao careerDao;
@@ -98,24 +98,28 @@ public class CareerJdbcDaoTest {
     }
 
     @Test
-    public void testGetAllCareers(){
+    public void testGetAllCareersPageOne(){
         long bonusId = insert.executeAndReturnKey(Map.of("name", TestUtils.CAREER_INSERT1_NAME, "deleted", false)).longValue();
 
         Page<Career> page1 = careerDao.findAll(new PageParams(1, 2));
-        Page<Career> page2 = careerDao.findAll(new PageParams(2, 2));
-
         assertNotNull(page1);
-        assertNotNull(page2);
         assertEquals(1, page1.getCurrentPage());
-        assertEquals(2, page2.getCurrentPage());
         assertEquals(2, page1.getTotalPages());
-        assertEquals(2, page2.getTotalPages());
         assertNotNull(page1.getContent());
-        assertNotNull(page2.getContent());
         assertEquals(2, page1.getContent().size());
-        assertEquals(1, page2.getContent().size());
         TestUtils.assertEqualsCareer(TestUtils.CAREER_1, page1.getContent().get(0));
         TestUtils.assertEqualsCareer(TestUtils.CAREER_2, page1.getContent().get(1));
+    }
+    @Test
+    public void testGetAllCareersPageTwo(){
+        long bonusId = insert.executeAndReturnKey(Map.of("name", TestUtils.CAREER_INSERT1_NAME, "deleted", false)).longValue();
+
+        Page<Career> page2 = careerDao.findAll(new PageParams(2, 2));
+        assertNotNull(page2);
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(2, page2.getTotalPages());
+        assertNotNull(page2.getContent());
+        assertEquals(1, page2.getContent().size());
         TestUtils.assertEqualsCareer(new Career(bonusId, TestUtils.CAREER_INSERT1_NAME), page2.getContent().get(0));
     }
     @Test
@@ -224,18 +228,22 @@ public class CareerJdbcDaoTest {
         TestUtils.assertEqualsCareer(TestUtils.CAREER_DELETED, page1.getContent().get(2));
     }
     @Test
-    public void testSearchBySubstringPaging(){
+    public void testSearchBySubstringPageOne(){
         Page<Career> page1 = careerDao.search("", new PageParams(1, 2));
-        Page<Career> page2 = careerDao.search("", new PageParams(2, 2));
 
         assertNotNull(page1);
-        assertNotNull(page2);
         assertEquals(2, page1.getTotalPages());
-        assertEquals(2, page2.getTotalPages());
         assertEquals(2, page1.getContent().size());
-        assertEquals(1, page2.getContent().size());
         TestUtils.assertEqualsCareer(TestUtils.CAREER_1, page1.getContent().get(0));
         TestUtils.assertEqualsCareer(TestUtils.CAREER_2, page1.getContent().get(1));
+    }
+
+    @Test
+    public void testSearchBySubstringPageTwo(){
+        Page<Career> page2 = careerDao.search("", new PageParams(2, 2));
+        assertNotNull(page2);
+        assertEquals(2, page2.getTotalPages());
+        assertEquals(1, page2.getContent().size());
         TestUtils.assertEqualsCareer(TestUtils.CAREER_DELETED, page2.getContent().get(0));
     }
 

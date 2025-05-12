@@ -86,7 +86,6 @@ public class EventAttendanceJdbcDaoTest {
         int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_ATTENDANCE_TABLE);
 
         attendanceDao.delete(TestUtils.USER_2_ID, 12341234);
-
         assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_ATTENDANCE_TABLE));
         assertEquals(TestUtils.USER_2_ATTENDANCES, jdbcTemplate.queryForObject(TestUtils.USER_GET_ATTENDANCES_COUNT_BY_ID, Integer.class, TestUtils.USER_2_ID).intValue());
     }  

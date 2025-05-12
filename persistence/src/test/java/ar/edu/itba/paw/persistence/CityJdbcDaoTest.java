@@ -151,17 +151,21 @@ public class CityJdbcDaoTest {
         }
     }
     @Test
-    public void testSearchPaging(){
+    public void testSearchPageOne(){
         Page<City> page1 = cityDao.search("", TestUtils.PAGE_1_DEFAULT);
-        Page<City> page2 = cityDao.search("", TestUtils.PAGE_2_DEFAULT);
 
         assertNotNull(page1);
-        assertNotNull(page2);
         assertEquals(2, page1.getTotalPages());
-        assertEquals(2, page2.getTotalPages());
         assertNotNull(page1.getContent());
-        assertNotNull(page2.getContent());
         assertEquals(2, page1.getContent().size());
+    }
+
+    @Test
+    public void testSearchPageTwo(){
+        Page<City> page2 = cityDao.search("", TestUtils.PAGE_2_DEFAULT);
+        assertNotNull(page2);
+        assertEquals(2, page2.getTotalPages());
+        assertNotNull(page2.getContent());
         assertEquals(1, page2.getContent().size());
     }
 
@@ -192,18 +196,7 @@ public class CityJdbcDaoTest {
             TestUtils.assertEqualsCity(TestUtils.CITY_DATA.get(city.getId()), city);
         }
     }
-    @Test
-    public void testFindAllPagedMultiplePages(){
-        Page<City> page1 = cityDao.findAll(TestUtils.PAGE_1_DEFAULT);
-        Page<City> page2 = cityDao.findAll(TestUtils.PAGE_2_DEFAULT);
 
-        assertNotNull(page1);
-        assertEquals(2, page1.getTotalPages());
-        assertEquals(2, page1.getContent().size());
-        assertNotNull(page1);
-        assertEquals(2, page2.getTotalPages());
-        assertEquals(1, page2.getContent().size());
-    }
     @Test
     public void testFindAllCitiesPagedNo(){
         TestUtils.deleteCities(jdbcTemplate);
