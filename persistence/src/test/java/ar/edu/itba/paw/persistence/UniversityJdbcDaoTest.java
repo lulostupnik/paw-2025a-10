@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
@@ -192,28 +191,37 @@ public class UniversityJdbcDaoTest {
     }
 
     @Test
-    public void testFindAllPaged(){
+    public void testFindAllPage1(){
         long bonusId = insert.executeAndReturnKey(Map.of("name", TestUtils.UNIVERSITY_NEW_NAME, "abbreviation", TestUtils.UNIVERSITY_NEW_CODE, "CITY_ID", TestUtils.CITY_1_ID, "deleted", false)).longValue();
         University bonus = jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ID, TestUtils.UNIVERSITY_ROW_MAPPER, bonusId);
         
         Page<University> page1 = uniDao.findAll(new PageParams(1,2));
-        Page<University> page2 = uniDao.findAll(new PageParams(2,2));
 
         assertNotNull(page1);
-        assertNotNull(page2);
         assertEquals(1, page1.getCurrentPage());
-        assertEquals(2, page2.getCurrentPage());
         assertEquals(2, page1.getTotalPages());
-        assertEquals(2, page2.getTotalPages());
         assertNotNull(page1.getContent());
-        assertNotNull(page2.getContent());
         assertEquals(2, page1.getContent().size());
-        assertEquals(2, page2.getContent().size());
         assertNotNull(bonus);
         Map<Long, University> uniData = Map.of(TestUtils.UNIVERSITY_1_ID, TestUtils.UNI_1, TestUtils.UNIVERSITY_2_ID, TestUtils.UNI_2, TestUtils.UNIVERSITY_3_ID, TestUtils.UNI_3, bonus.getId(), bonus);
         for (University uni : page1.getContent()){
             TestUtils.assertEqualsUni(uniData.get(uni.getId()), uni);
         }
+    }
+    @Test
+    public void testFindAllPage2(){
+        long bonusId = insert.executeAndReturnKey(Map.of("name", TestUtils.UNIVERSITY_NEW_NAME, "abbreviation", TestUtils.UNIVERSITY_NEW_CODE, "CITY_ID", TestUtils.CITY_1_ID, "deleted", false)).longValue();
+        University bonus = jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ID, TestUtils.UNIVERSITY_ROW_MAPPER, bonusId);
+        
+        Page<University> page2 = uniDao.findAll(new PageParams(2,2));
+
+        assertNotNull(page2);
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(2, page2.getTotalPages());
+        assertNotNull(page2.getContent());
+        assertEquals(2, page2.getContent().size());
+        assertNotNull(bonus);
+        Map<Long, University> uniData = Map.of(TestUtils.UNIVERSITY_1_ID, TestUtils.UNI_1, TestUtils.UNIVERSITY_2_ID, TestUtils.UNI_2, TestUtils.UNIVERSITY_3_ID, TestUtils.UNI_3, bonus.getId(), bonus);
         for (University uni : page2.getContent()){
             TestUtils.assertEqualsUni(uniData.get(uni.getId()), uni);
         }
