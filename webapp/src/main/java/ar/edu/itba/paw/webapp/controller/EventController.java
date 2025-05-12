@@ -14,16 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
-import java.util.NoSuchElementException;
 
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 
@@ -172,7 +169,7 @@ public class EventController {
                                              @ModelAttribute("deleteReplyForm") ReplyForm form) {
         Event event = eventService.getEventById(eventId).orElseThrow(() -> {
             LOGGER.error("event not found");
-            return new EventNotFoundException("event not found");});
+            return new EventNotFoundException();});
         EventResponse eventResponse = eventService.findEventResponseById(id).orElseThrow(() -> {
             LOGGER.error("eventResponse not found");
             return new EventResponseNotFoundException("eventResponse not found");});
@@ -222,7 +219,7 @@ public class EventController {
 
         Event event = eventService.getEventById(eventId).orElseThrow(() -> {
             LOGGER.error("event not found");
-            return new EventNotFoundException("event not found");});
+            return new EventNotFoundException();});
 
         if(!errors.hasErrors()) {
             form.setCity(event.getEventCity().getName());

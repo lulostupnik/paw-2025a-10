@@ -101,7 +101,7 @@ public class JourneyController {
     }
     @GetMapping(value = "/{id}/delete")
     public ModelAndView deleteJourneyForm(@PathVariable long id,
-                                          @ModelAttribute("deleteForm") final ReplyForm form,
+                                          @ModelAttribute("deleteForm") final DeleteJourneyForm form,
                                           @ModelAttribute("user") User user) {
 
         Journey journey = js.getJourneyById(id).orElseThrow(() -> {
@@ -175,7 +175,7 @@ public class JourneyController {
     public ModelAndView deleteJourneyReplyForm(@PathVariable(value = "journeyId") long journeyId,
                                                @PathVariable("id") long id,
                                                @ModelAttribute("deleteReplyForm") ReplyForm form) {
-        Journey journey = js.getJourneyById(id).orElseThrow(() -> {
+        Journey journey = js.getJourneyById(journeyId).orElseThrow(() -> {
             LOGGER.error("Journey with ID {} not found", id);
             return new JourneyNotFoundException("Journey with ID " + id + " not found");
         });
