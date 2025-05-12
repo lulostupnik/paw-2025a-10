@@ -90,7 +90,7 @@ public class ProfileController {
         if(errors.hasErrors()) {
             return getChangePassword(updatePasswordForm);
         }
-        userService.changePassword(user.getId(), updatePasswordForm.getPassword());
+        userService.updatePassword(user.getId(), updatePasswordForm.getPassword());
         return new ModelAndView("redirect:/profile/info");
     }
 

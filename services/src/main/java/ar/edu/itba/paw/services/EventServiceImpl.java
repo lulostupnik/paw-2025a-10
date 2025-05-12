@@ -59,7 +59,7 @@ public class EventServiceImpl implements EventService {
             LOGGER.error("City not found {}", cityName);
             return new RuntimeException("City not found");}
         );
-        User user = userService.findByEmail(email).orElseThrow(()-> {
+        User user = userService.findUserByEmail(email).orElseThrow(()-> {
                 LOGGER.error("User not found {}", email);
                 return new RuntimeException("User not found");}
         );
@@ -79,7 +79,7 @@ public class EventServiceImpl implements EventService {
             LOGGER.error("Event not found {}", eventId);
             return new RuntimeException("Event not found");}
         );
-        User user = userService.findByEmail(email).orElseThrow(()->{
+        User user = userService.findUserByEmail(email).orElseThrow(()->{
                 LOGGER.error("User not found {}", email);
                 return new RuntimeException("User not found");});
         eventResponseDao.create(user.getId(), user.getUsername(), eventId, message, LocalDateTime.now());
@@ -197,7 +197,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public void attendEvent(final String email,final  long eventId) {
-        long userId = userService.findByEmail(email).orElseThrow(
+        long userId = userService.findUserByEmail(email).orElseThrow(
                 () -> {
                     LOGGER.warn("User not found {}", email);
                     return new RuntimeException("User not found");
@@ -220,7 +220,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public void cancelAttendance(final String email,final  long eventId) {
         LOGGER.debug("User {} is canceling attendance for event {}", email, eventId);
-        long userId = userService.findByEmail(email).orElseThrow().getId();
+        long userId = userService.findUserByEmail(email).orElseThrow().getId();
         cancelAttendance(userId, eventId);
         LOGGER.info("User {} has canceled attendance for event {}", userId, eventId);
     }
@@ -348,7 +348,7 @@ public class EventServiceImpl implements EventService {
                     return new IllegalStateException("Event from event response doesn't exist");});
 
 
-        User commentAuthor = userService.findById(deletedComment.getUserId())
+        User commentAuthor = userService.findUserById(deletedComment.getUserId())
                 .orElseThrow(() -> {
                     LOGGER.error("User from event response not found {}", deletedComment.getUserId());
                     return new IllegalArgumentException("User from event response doesn't exist");}
@@ -402,7 +402,7 @@ public class EventServiceImpl implements EventService {
         LOGGER.info("Found {} events occurring in the next 24 hours", upcomingEvents.size());
 
         for (Event event : upcomingEvents) {
-            emailService.sendEventReminderNotification(event, userService.getEventAttendees(event.getId()));
+            emailService.sendEventReminderNotification(event, userService.findEventAttendees(event.getId()));
         }
 
         LOGGER.info("Completed scheduled task: sent reminder emails for upcoming events");
