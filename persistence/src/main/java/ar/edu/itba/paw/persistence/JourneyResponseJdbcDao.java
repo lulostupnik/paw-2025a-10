@@ -67,7 +67,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
         args.put("user_id", userId);
         args.put("journey_id", journeyId);
         args.put("message", message);
-        args.put("date_time", Timestamp.valueOf(dateTime));
+        args.put("date_time", dateTime != null ? Timestamp.valueOf(dateTime):null);
         args.put("deleted", false);
         final Number keys = jdbcInsert.executeAndReturnKey(args);
         return new JourneyResponse(keys.longValue(), userId, username, journeyId, message, dateTime);

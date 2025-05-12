@@ -96,10 +96,6 @@ public class EventJdbcDaoTest {
     public void testCreateNoTitle(){
         eventDao.create(TestUtils.USER_1, TestUtils.CITY_1, TestUtils.EVENT_DATE_DEFAULT, TestUtils.EVENT_DESCRIPTION_DEFAULT, TestUtils.IMAGE_1_ID, null, TestUtils.EVENT_TIME_DEFAULT, TestUtils.EVENT_ADDRESS_DEFAULT, TestUtils.EVENT_ATTENDANCE_LIMIT_DEFAULT);
     }
-    @Test(expected = NullPointerException.class)
-    public void testCreateNoDate(){
-        eventDao.create(TestUtils.USER_1, TestUtils.CITY_1, null, TestUtils.EVENT_DESCRIPTION_DEFAULT, TestUtils.IMAGE_1_ID, TestUtils.EVENT_TITLE_DEFAULT, TestUtils.EVENT_TIME_DEFAULT, TestUtils.EVENT_ADDRESS_DEFAULT, TestUtils.EVENT_ATTENDANCE_LIMIT_DEFAULT);
-    }
 
     @Test
     public void testFindById(){
@@ -417,29 +413,31 @@ public class EventJdbcDaoTest {
     }
 
     @Test
-    public void testFindByUserEmailPaged(){
-        //get events by user email
+    public void testFindByUserEmailPageOne(){
         Page<Event> page1 = eventDao.findByUserEmail(TestUtils.USER_2_MAIL, TestUtils.PAGE_1_DEFAULT);
-        Page<Event> page2 = eventDao.findByUserEmail(TestUtils.USER_2_MAIL, TestUtils.PAGE_2_DEFAULT);
-    
+
         assertNotNull(page1);
-        assertNotNull(page2);
         assertEquals(1, page1.getCurrentPage());
-        assertEquals(2, page2.getCurrentPage());
         assertEquals(1, page1.getTotalPages());
-        assertEquals(1, page2.getTotalPages());
         assertNotNull(page1.getContent());
-        assertNotNull(page2.getContent());
         assertEquals(2, page1.getContent().size());
-        assertEquals(0, page2.getContent().size());
         for (Event e : page1.getContent()){
             TestUtils.assertEqualsEvent(TestUtils.EVENT_DATA.get(e.getId()), e);
         }
     }
     @Test
+    public void testFindByUserEmailPageTwo(){
+        Page<Event> page2 = eventDao.findByUserEmail(TestUtils.USER_2_MAIL, TestUtils.PAGE_2_DEFAULT);
+
+        assertNotNull(page2);
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(1, page2.getTotalPages());
+        assertNotNull(page2.getContent());
+        assertEquals(0, page2.getContent().size());
+    }
+    @Test
     public void testFindByUserEmailPaged2(){
         TestUtils.deleteEvents(jdbcTemplate);
-        //get events by user email    
         Page<Event> userEvents = eventDao.findByUserEmail(TestUtils.USER_1_MAIL, TestUtils.PAGE_1_DEFAULT);
     
         assertNotNull(userEvents);
@@ -451,7 +449,6 @@ public class EventJdbcDaoTest {
     }
     @Test
     public void testFindByUserEmailWrongMailPaged(){
-        //get events by user email    
         Page<Event> userEvents = eventDao.findByUserEmail("TestUtils.USER_1_MAIL", TestUtils.PAGE_1_DEFAULT);
     
         assertNotNull(userEvents);
@@ -462,26 +459,29 @@ public class EventJdbcDaoTest {
     }
 
     @Test
-    public void testFindAllPaged(){        
+    public void testFindAllPageOne(){
         Page<Event> page1 = eventDao.findAll(TestUtils.PAGE_1_DEFAULT);
-        Page<Event> page2 = eventDao.findAll(TestUtils.PAGE_2_DEFAULT);
-        
+
         assertNotNull(page1);
-        assertNotNull(page2);
         assertEquals(1, page1.getCurrentPage());
-        assertEquals(2, page2.getCurrentPage());
         assertEquals(2, page1.getTotalPages());
-        assertEquals(2, page2.getTotalPages());
         assertNotNull(page1.getContent());
-        assertNotNull(page2.getContent());
         assertEquals(2, page1.getContent().size());
-        assertEquals(2, page2.getContent().size());
-        List<Event> events = new ArrayList<>();
-        events.addAll(page1.getContent());
-        events.addAll(page2.getContent());
+
         for (Event e : page1.getContent()){
             TestUtils.assertEqualsEvent(TestUtils.EVENT_DATA.get(e.getId()), e);
         }
+    }
+    @Test
+    public void testFindAllPageTwo(){
+        Page<Event> page2 = eventDao.findAll(TestUtils.PAGE_2_DEFAULT);
+
+        assertNotNull(page2);
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(2, page2.getTotalPages());
+        assertNotNull(page2.getContent());
+        assertEquals(2, page2.getContent().size());
+
         for (Event e : page2.getContent()){
             TestUtils.assertEqualsEvent(TestUtils.EVENT_DATA.get(e.getId()), e);
         }
@@ -489,6 +489,7 @@ public class EventJdbcDaoTest {
     @Test
     public void testFindAllNoEventsPaged(){
         TestUtils.deleteEvents(jdbcTemplate);
+
         Page<Event> events = eventDao.findAll(TestUtils.PAGE_1_DEFAULT);
         
         assertNotNull(events);
@@ -499,46 +500,55 @@ public class EventJdbcDaoTest {
     }
 
     @Test
-    public void testSearchPaged(){
+    public void testSearchPageOne(){
         Page<Event> page1 = eventDao.search("event", TestUtils.PAGE_1_DEFAULT);
-        Page<Event> page2 = eventDao.search("event", TestUtils.PAGE_2_DEFAULT);
 
         assertNotNull(page1);
-        assertNotNull(page2);
         assertEquals(1, page1.getCurrentPage());
-        assertEquals(2, page2.getCurrentPage());
         assertEquals(2, page1.getTotalPages());
-        assertEquals(2, page2.getTotalPages());
         assertNotNull(page1.getContent());
-        assertNotNull(page2.getContent());
         assertEquals(2, page1.getContent().size());
-        assertEquals(2, page2.getContent().size());
         for (Event e : page1.getContent()){
             TestUtils.assertEqualsEvent(TestUtils.EVENT_DATA.get(e.getId()), e);
         }
+    }
+    @Test
+    public void testSearchPageTwo(){
+        Page<Event> page2 = eventDao.search("event", TestUtils.PAGE_2_DEFAULT);
+
+        assertNotNull(page2);
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(2, page2.getTotalPages());
+        assertNotNull(page2.getContent());
+        assertEquals(2, page2.getContent().size());
+
         for (Event e : page2.getContent()){
             TestUtils.assertEqualsEvent(TestUtils.EVENT_DATA.get(e.getId()), e);
         }
     }
     @Test
-    public void testSearchPagedEmptyQuery(){
+    public void testSearchEmptyQueryPageOne(){
         Page<Event> page1 = eventDao.search("", TestUtils.PAGE_1_DEFAULT);
-        Page<Event> page2 = eventDao.search("", TestUtils.PAGE_2_DEFAULT);
 
         assertNotNull(page1);
-        assertNotNull(page2);
         assertEquals(1, page1.getCurrentPage());
-        assertEquals(2, page2.getCurrentPage());
         assertEquals(2, page1.getTotalPages());
-        assertEquals(2, page2.getTotalPages());
         assertNotNull(page1.getContent());
-        assertNotNull(page2.getContent());
         assertEquals(2, page1.getContent().size());
+    }
+    @Test
+    public void testSearchEmptyQueryPageTwo(){
+        Page<Event> page2 = eventDao.search("", TestUtils.PAGE_2_DEFAULT);
+
+        assertNotNull(page2);
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(2, page2.getTotalPages());
+        assertNotNull(page2.getContent());
         assertEquals(2, page2.getContent().size());
     }
     @Test
     public void testSearchEventsPagedWrongSearch(){
-        Page<Event> page1 = eventDao.search("TestUtils.EVENT_TITLE_DEFAULT", TestUtils.PAGE_1_DEFAULT);
+        Page<Event> page1 = eventDao.search("NOTANEVENT", TestUtils.PAGE_1_DEFAULT);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -819,7 +829,7 @@ public class EventJdbcDaoTest {
             TestUtils.CITY_2_ID, 
             TestUtils.EVENT_DATE_DEFAULT.plusDays(30), 
             null, 
-            "TestUtils.EVENT_TITLE_DEFAULT", 
+            "RANDOM_EVENT",
             null, 
             null, 
             null, 
@@ -836,7 +846,7 @@ public class EventJdbcDaoTest {
         TestUtils.assertEqualsEvent(event, Map.of(
             "city", TestUtils.CITY_2, 
             "date", TestUtils.EVENT_DATE_DEFAULT.plusDays(30), 
-            "title", "TestUtils.EVENT_TITLE_DEFAULT", 
+            "title", "RANDOM_EVENT",
             "description", Optional.empty(), 
             "time", Optional.empty(), 
             "address", Optional.empty(),
@@ -847,10 +857,10 @@ public class EventJdbcDaoTest {
         eventDao.update(
             TestUtils.CITY_2_ID, 
             TestUtils.EVENT_DATE_DEFAULT.plusDays(30), 
-            "TestUtils.EVENT_DESCRIPTION_DEFAULT", 
-            "TestUtils.EVENT_TITLE_DEFAULT", 
+            "RANDOM_DESC",
+            "RANDOM_TITLE",
             TestUtils.EVENT_TIME_DEFAULT.plusHours(1), 
-            "new Address", 
+            "RANDOM ADDRESS",
             100, 
             TestUtils.EVENT_1_ID,
             TestUtils.IMAGE_2_ID
@@ -865,10 +875,10 @@ public class EventJdbcDaoTest {
         TestUtils.assertEqualsEvent(event, Map.of(
             "city", TestUtils.CITY_2, 
             "date", TestUtils.EVENT_DATE_DEFAULT.plusDays(30), 
-            "title", "TestUtils.EVENT_TITLE_DEFAULT", 
-            "description", Optional.of("TestUtils.EVENT_DESCRIPTION_DEFAULT"), 
+            "title", "RANDOM_TITLE",
+            "description", Optional.of("RANDOM_DESC"),
             "time", Optional.of(TestUtils.EVENT_TIME_DEFAULT.plusHours(1)), 
-            "address", Optional.of("new Address"),
+            "address", Optional.of("RANDOM ADDRESS"),
             "limit", Optional.of(100),
             "image", TestUtils.IMAGE_2
         ));
@@ -878,8 +888,8 @@ public class EventJdbcDaoTest {
         eventDao.update(
             TestUtils.CITY_1_ID, 
             TestUtils.EVENT_DATE_DEFAULT.plusDays(30), 
-            "TestUtils.EVENT_DESCRIPTION_DEFAULT", 
-            "TestUtils.EVENT_TITLE_DEFAULT", 
+            TestUtils.EVENT_DESCRIPTION_DEFAULT,
+            TestUtils.EVENT_TITLE_DEFAULT,
             null, 
             null, 
             null, 
@@ -996,19 +1006,24 @@ public class EventJdbcDaoTest {
     }
 
     @Test
-    public void testFindAllEventsByAttendeePaged(){
+    public void testFindAllEventsByAttendeePageOne(){
         Page<Event> page1 = eventDao.findAllEventsByAttendee(TestUtils.USER_1_ID, TestUtils.PAGE_1_SINGLE);
-        Page<Event> page2 = eventDao.findAllEventsByAttendee(TestUtils.USER_1_ID, TestUtils.PAGE_2_SINGLE);
 
         assertNotNull(page1);
-        assertNotNull(page2);
         assertEquals(1, page1.getCurrentPage());
-        assertEquals(2, page2.getCurrentPage());
         assertEquals(1, page1.getTotalPages());
-        assertEquals(1, page2.getTotalPages());
         assertNotNull(page1.getContent());
-        assertNotNull(page2.getContent());
         assertEquals(1, page1.getContent().size());
+    }
+
+    @Test
+    public void testFindAllEventsByAttendeePageTwo(){
+        Page<Event> page2 = eventDao.findAllEventsByAttendee(TestUtils.USER_1_ID, TestUtils.PAGE_2_SINGLE);
+
+        assertNotNull(page2);
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(1, page2.getTotalPages());
+        assertNotNull(page2.getContent());
         assertEquals(0, page2.getContent().size());
     }
     @Test

@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +35,7 @@ public class AuthController {
     }
     @GetMapping(value ="/validate")
     public ModelAndView validateEmail(@RequestParam("token") String token) {
-        UserAuthInfo user = userService.validateEmail(token);
+        UserAuthInfo user = userService.verifyEmailToken(token);
         loginHelper.loginUser(user.getEmail());
         return new ModelAndView("redirect:/explore?validationSuccess=true");
     }
@@ -62,7 +61,7 @@ public class AuthController {
             return changePassForm(token, form);
         }
 
-        userService.newPassword(token, form.getPassword());
+        userService.resetPassword(token, form.getPassword());
         return new ModelAndView("redirect:login?resetPassword=true");
     }
 
@@ -94,7 +93,7 @@ public class AuthController {
         if (errors.hasErrors()) {
             return forgotPassForm(form);
         }
-        userService.forgotPass(form.getEmail());
+        userService.initiatePasswordReset(form.getEmail());
         return new ModelAndView("redirect:/login?emailSuccess=true");
     }
 

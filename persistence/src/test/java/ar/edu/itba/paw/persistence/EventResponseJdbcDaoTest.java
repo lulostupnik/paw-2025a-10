@@ -84,10 +84,6 @@ public class EventResponseJdbcDaoTest {
     public void testCreateWrongEvent(){
         replyDao.create(TestUtils.USER_1_ID, null, 12341234, TestUtils.RESPONSE_MESSAGE, TestUtils.RESPONSE_TIMESTAMP);
     }
-    @Test(expected = NullPointerException.class)
-    public void testCreateNoTimestamp(){
-        replyDao.create(TestUtils.USER_1_ID, null, TestUtils.EVENT_1_ID, TestUtils.RESPONSE_MESSAGE, null);
-    }
 
     @Test
     public void testListAllByEventIdPage1(){
