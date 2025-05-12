@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class ImageServiceImpl implements ImageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageServiceImpl.class);
@@ -46,7 +47,6 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     @Cacheable(value = "images", key = "#id")
     public Optional<Image> getImage(final long id) {
         LOGGER.debug("Getting image {}", id);
