@@ -28,7 +28,6 @@ public class ImageController {
 
     @GetMapping("/{id}")
     public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
-        LOGGER.debug("Getting image {}", id);
         try {
             Image image = imageService.getImage(id).orElseThrow(() -> new NotFoundException("Image not found")); // Luego lanzar una excepción personalizada: ImageNotFoundException
             return ResponseEntity.ok()

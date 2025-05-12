@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -81,13 +82,11 @@ public class EventController {
     public ModelAndView createEvent(@Valid @ModelAttribute("createEventForm") final CreateEventForm eventForm,
                                     final BindingResult errors, @ModelAttribute("user") User user) {
 
-        LOGGER.debug("CREATING EVENT FROM FORM {}", eventForm);
         if (errors.hasErrors()) {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
             return createEventForm(eventForm);
         }
         byte[] flyerBytes = getBytes(eventForm.getFlyer());
-
         Event event = eventService.createEvent(
             user.getEmail(),
             eventForm.getCity(), 
@@ -99,7 +98,6 @@ public class EventController {
             eventForm.getAddress(), 
             eventForm.getAttendeesLimit()
         );
-        LOGGER.info("Successfully created event {}", event);
         return new ModelAndView(REDIRECT + event.getId());
     }
 
@@ -112,16 +110,11 @@ public class EventController {
         mav.addObject("attendedEventsCount", eventWithStatistics.getAttendedEventsCount());
         mav.addObject("topAttendeeCountry", eventWithStatistics.getTopAttendeeCountry());
         mav.addObject("topAttendeeCountryCount", eventWithStatistics.getTopAttendeeCountryCount());
-
-        LOGGER.info("Found event {}", event);
         mav.addObject("attendeesPage", userService.getEventAttendees(event.getId(), attendeesPageParams));
-
         mav.addObject("attendeesCount", eventService.getEventAttendeesCount(event.getId()));
         Page<EventResponse> eventResponsesPage = eventService.listAllResponseFromEvent(event.getId(), pageParams);
         mav.addObject("eventResponsesPage", eventResponsesPage);
         mav.addObject("commentsCount", eventService.getResponseCount(event.getId()));
-
-
         if(eventWithStatistics.isCreator()){
             mav.addObject("attendees", userService.getEventAttendees(id));
         }
@@ -138,10 +131,9 @@ public class EventController {
         @PageParamCustomizer(defaultSize = 4) PageParams  repliesPage,
         @PageParamCustomizer(defaultSize = 6, pageParamName = "attendeesPage", sizeParamName = "attendeesSize") PageParams attendeesPage)
     {
-        LOGGER.debug("Getting info for event {}", id);
-        EventWithStatistics eventWithStatistics = eventService.findEventWithStatistics(user, id).orElseThrow(EventNotFoundException::new);
-
-
+        EventWithStatistics eventWithStatistics = eventService.findEventWithStatistics(user,id).orElseThrow(() -> {
+            LOGGER.error("eventWithStatistics not found");
+            return new EventNotFoundException("eventWithStatistics not found");});
         return populateEventDetails(eventWithStatistics,
                 id, repliesPage, attendeesPage );
     }
@@ -160,9 +152,9 @@ public class EventController {
     @GetMapping(value = "/{id}/delete")
     public ModelAndView deleteEventForm(@PathVariable long id, @ModelAttribute("user") User user,
                                         @ModelAttribute("deleteForm") final ReplyForm form) {
-        LOGGER.debug("Showing delete form for event {}", id);
-
-        Event event = eventService.getEventById(id).orElseThrow(EventNotFoundException::new);
+        Event event = eventService.getEventById(id).orElseThrow(() -> {
+            LOGGER.error("event not found");
+            return new EventNotFoundException("event not found");});
         long commentsCount = eventService.getResponseCount(event.getId());
 
         ModelAndView mav = new ModelAndView("events/delete");
@@ -175,13 +167,12 @@ public class EventController {
     public ModelAndView deleteEventReplyForm(@PathVariable(value = "eventId") long eventId,
                                              @PathVariable("id") long id,
                                              @ModelAttribute("deleteReplyForm") ReplyForm form) {
-        LOGGER.debug("Showing delete form for reply {} from event {}", id, eventId);
-
-        Event event = eventService.getEventById(eventId).orElseThrow(EventNotFoundException::new);
-
-        EventResponse eventResponse = eventService.findEventResponseById(id).orElseThrow(EventResponseNotFoundException::new);
-
-
+        Event event = eventService.getEventById(id).orElseThrow(() -> {
+            LOGGER.error("event not found");
+            return new EventNotFoundException("event not found");});
+        EventResponse eventResponse = eventService.findEventResponseById(id).orElseThrow(() -> {
+            LOGGER.error("eventResponse not found");
+            return new EventResponseNotFoundException("eventResponse not found");});
         ModelAndView mav = new ModelAndView("events/delete-reply");
         mav.addObject("event", event);
         mav.addObject("eventResponse", eventResponse);
@@ -192,12 +183,9 @@ public class EventController {
     @PostMapping(value = "/{id}")
     public ModelAndView reply(@PathVariable int id, @Valid @ModelAttribute("replyEventForm") final ReplyForm form,
                               final BindingResult errors, @ModelAttribute("user") User user) {
-        LOGGER.debug("Replying to event {} from form {}", id, form);
-
         if (errors.hasErrors()) {
             return getEvent(id, form, user, new PageParams(1, 4), new PageParams(1, 6));
         }
-
         eventService.replyToEvent(user.getEmail(), id, form.getMessage());
         return new ModelAndView(REDIRECT + id);
     }
@@ -205,9 +193,7 @@ public class EventController {
     @PostMapping(value="/{id}/attend",produces = "application/json")
     public ModelAndView attendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer,
                                     @ModelAttribute("user") User user) {
-        LOGGER.debug("Attending event {}", id);
         eventService.attendEvent(user.getEmail(), id);
-
         if (referer != null && !referer.isEmpty()) {
             return new ModelAndView("redirect:" + referer);
         } else {
@@ -218,8 +204,6 @@ public class EventController {
     @PostMapping(value="/{id}/dont-attend",produces = "application/json")
     public ModelAndView dontAttendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer,
                                         @ModelAttribute("user") User user) {
-        LOGGER.debug("Cancel event attendance {}", id);
-
         eventService.cancelAttendance(user.getEmail(), id);
         if (referer != null && !referer.isEmpty()) {
             return new ModelAndView("redirect:" + referer);
@@ -233,11 +217,11 @@ public class EventController {
                                             @ModelAttribute("editEventForm") EditEventForm form,
                                             BindingResult errors) {
 
-        LOGGER.debug("User {} requested to update event {}", user.getEmail(), eventId);
+        Event event = eventService.getEventById(eventId).orElseThrow(() -> {
+            LOGGER.error("event not found");
+            return new EventNotFoundException("event not found");});
 
-        Event event = eventService.getEventById(eventId).orElseThrow(NoSuchElementException::new);
         if(!errors.hasErrors()) {
-            // 3. Prefill a CreateEventForm with existing event data
             form.setCity(event.getEventCity().getName());
             form.setDate(event.getDate());
             form.setDescription(event.getDescription());
@@ -248,7 +232,6 @@ public class EventController {
         }
 
         ModelAndView mav = new ModelAndView("events/edit");
-//        addDropdownAttributes(mav);
         mav.addObject("eventId", eventId);
         return mav;
     }
@@ -260,13 +243,10 @@ public class EventController {
                                     @Valid @ModelAttribute("editEventForm") EditEventForm form,
                                     BindingResult errors) {
 
-        LOGGER.debug("User {} submitted update for event {}", user.getEmail(), eventId);
         if(errors.hasErrors()) {
             return showUpdateEventForm(eventId, user, form, errors);
         }
-
         byte[] flyerContent = ImageUtils.getBytes(form.getFlyer());
-
         eventService.editEvent(
                 eventId,
                 form.getCity(),
@@ -278,10 +258,6 @@ public class EventController {
                 form.getAddress(),
                 form.getAttendeesLimit()
         );
-
-        LOGGER.info("Event {} updated successfully", eventId);
-
-        // 5. Redirect to the event detail page (or somewhere you want)
         return new ModelAndView(REDIRECT + eventId);
     }
 
@@ -290,7 +266,6 @@ public class EventController {
             @PathVariable("id") long id, @Valid @ModelAttribute("deleteReplyForm") ReplyForm form,
                                          BindingResult errors, RedirectAttributes redirectAttributes) {
         if (errors.hasErrors()) {
-            LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
             return deleteEventReplyForm(eventId, id, form);
         }
         eventService.deleteResponse(id, form.getMessage());

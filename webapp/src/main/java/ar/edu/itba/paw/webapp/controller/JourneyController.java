@@ -48,9 +48,7 @@ public class JourneyController {
                                     @RequestParam(value = "sort", required = false) String sortBy,
                                     @RequestParam(value = "direction", required = false) String direction) {
 
-        LOGGER.debug("Getting journeys with filters: {}", fjf);
         final ModelAndView mav = new ModelAndView("journeys/list");
-
         boolean hasJourney = user != null && js.userHasJourney(user);
         if(! errors.hasErrors()) {
             mav.addObject("journeys", js.getAllJourneys(search, user, SortFieldJourney.from(sortBy), SortDirection.from(direction),
@@ -60,24 +58,19 @@ public class JourneyController {
         mav.addObject("hasJourney", hasJourney);
         mav.addObject("pageSize", pageParams.getSize());
         mav.addObject("currentPage", pageParams.getPage());
-
         return mav;
     }
 
     @PostMapping(value = "/create")
     public ModelAndView createJourney(@Valid @ModelAttribute("createJourneyForm") final CreateJourneyForm jf,
                                       final BindingResult errors, @ModelAttribute("user") User user) {
-        LOGGER.debug("Creating journey from form: {}", jf);
-
         if (errors.hasErrors()) {
-            LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
             return createJourneyForm(jf, user);
         }
 
         final Journey journey = js.createJourney(user,
                 jf.getDestinationUniversity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription());
 
-        LOGGER.info("Successfully created journey {}", journey);
         return new ModelAndView(REDIRECT_JOURNEY + journey.getId());
     }
 
@@ -85,7 +78,6 @@ public class JourneyController {
     public ModelAndView createJourneyForm(@ModelAttribute("createJourneyForm") final CreateJourneyForm jf, @ModelAttribute("user") User user) {
 
         if (js.userHasJourney(user)) {
-            LOGGER.debug("User already has a journey, redirecting to journey list");
             return new ModelAndView("redirect:/journeys");
         }
 
@@ -98,12 +90,11 @@ public class JourneyController {
                                    @ModelAttribute("replyJourneyForm") ReplyForm rjf,
                                    @PageParamCustomizer(defaultSize = 4) PageParams  repliesPage,
                                    @PageParamCustomizer(defaultSize = 8, pageParamName = "interestsPage", sizeParamName = "interestsSize") PageParams interestsPage) {
-        LOGGER.debug("Getting info for journey {}", id);
-
-        Journey journey = js.getJourneyById(id).orElseThrow(JourneyNotFoundException::new);
-
+        Journey journey = js.getJourneyById(id).orElseThrow(() -> {
+            LOGGER.error("Journey with ID {} not found", id);
+            return new JourneyNotFoundException("Journey with ID " + id + " not found");
+        });
         Page<JourneyResponse> journeyResponses = js.listAllResponsesFromJourney(journey.getId(), repliesPage);
-
         final ModelAndView mav = new ModelAndView("journeys/detail");
         mav.addObject("journey", journey);
         mav.addObject("journeyResponsesPage", journeyResponses);
@@ -115,10 +106,11 @@ public class JourneyController {
     @GetMapping(value = "/{id}/delete")
     public ModelAndView deleteJourneyForm(@PathVariable long id,
                                           @ModelAttribute("deleteForm") final ReplyForm form) {
-        LOGGER.debug("Showing delete form for journey {}", id);
 
-        Journey journey = js.getJourneyById(id).orElseThrow(JourneyNotFoundException::new);
-
+        Journey journey = js.getJourneyById(id).orElseThrow(() -> {
+            LOGGER.error("Journey with ID {} not found", id);
+            return new JourneyNotFoundException("Journey with ID " + id + " not found");
+        });
         ModelAndView mav = new ModelAndView("journeys/delete");
         mav.addObject("journey", journey);
         return mav;
@@ -128,9 +120,7 @@ public class JourneyController {
     @PostMapping(value = "/{id}/delete")
     public ModelAndView deleteJourney(@PathVariable long id, @Valid @ModelAttribute("deleteForm") final ReplyForm form,
                                       final BindingResult errors) {
-        LOGGER.debug("Deleting journey {}", id);
         if(errors.hasErrors()) {
-            LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
             return deleteJourneyForm(id, form);
         }
         js.delete(id, form.getMessage());
@@ -140,13 +130,10 @@ public class JourneyController {
     @PostMapping(value = "/{id}")
     public ModelAndView replyToJourney(@PathVariable int id, @Valid @ModelAttribute("replyJourneyForm")  ReplyForm rjf,
                                         BindingResult errors, @ModelAttribute("user") User user) {
-
-        LOGGER.debug("Replying to journey {} from form {}", id, rjf);
         if (errors.hasErrors()) {
             return getJourney(id, user, rjf, new PageParams(1, 4), new PageParams(1, 8));
         }
         js.replyToJourney(user.getEmail(), id, rjf.getMessage());
-
         return new ModelAndView(REDIRECT_JOURNEY + id);
     }
 
@@ -176,31 +163,25 @@ public class JourneyController {
                                       @ModelAttribute("user") User user,
                                       @Valid @ModelAttribute("createJourneyForm") CreateJourneyForm form,
                                       BindingResult errors) {
-
-        LOGGER.debug("User {} submitted update for journey {}", user.getEmail(), journeyId);
-
         if (errors.hasErrors()) {
             return showUpdateJourneyForm(journeyId, form, errors);
         }
-
         js.editJourney(journeyId,
                 form.getDestinationUniversity(),
                 form.getStartDate(),
                 form.getEndDate(),
                 form.getDescription());
-
-        LOGGER.info("Journey {} updated successfully", journeyId);
         return new ModelAndView(REDIRECT_JOURNEY + journeyId);
     }
     @GetMapping(value = "/{journeyId}/reply/{id}/delete")
     public ModelAndView deleteJourneyReplyForm(@PathVariable(value = "journeyId") long journeyId,
                                                @PathVariable("id") long id,
                                                @ModelAttribute("deleteReplyForm") ReplyForm form) {
-        LOGGER.debug("Showing delete form for reply {} from journey {}", id, journeyId);
-
-        Journey journey = js.getJourneyById(journeyId).orElseThrow(JourneyNotFoundException::new);
+        Journey journey = js.getJourneyById(id).orElseThrow(() -> {
+            LOGGER.error("Journey with ID {} not found", id);
+            return new JourneyNotFoundException("Journey with ID " + id + " not found");
+        });
         JourneyResponse journeyResponse = js.findJourneyResponseById(id).orElseThrow(() -> new NotFoundException("Reply not found"));
-
         ModelAndView mav = new ModelAndView("journeys/delete-reply");
         mav.addObject("journey", journey);
         mav.addObject("journeyResponse", journeyResponse);
@@ -213,7 +194,6 @@ public class JourneyController {
                                            @Valid @ModelAttribute("deleteReplyForm") ReplyForm form,
                                            BindingResult errors) {
         if (errors.hasErrors()) {
-            LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
             return deleteJourneyReplyForm(journeyId, id, form);
         }
         js.deleteJourneyResponse(id, form.getMessage());
