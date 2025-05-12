@@ -56,11 +56,11 @@ public class EventServiceImpl implements EventService {
 
         LOGGER.debug("Creating event for user {}", email);
         City city = cityService.findByName(cityName).orElseThrow(() ->{
-            LOGGER.warn("City not found {}", cityName);
+            LOGGER.error("City not found {}", cityName);
             return new RuntimeException("City not found");}
         );
         User user = userService.findByEmail(email).orElseThrow(()-> {
-                LOGGER.warn("User not found {}", email);
+                LOGGER.error("User not found {}", email);
                 return new RuntimeException("User not found");}
         );
         long flyerImageId = imageService.storeImage(flyer);
@@ -76,11 +76,11 @@ public class EventServiceImpl implements EventService {
     public void replyToEvent(final String email, final long eventId, final String message) {
         LOGGER.debug("Replying to event {}", eventId);
         Event event = eventDao.findById(eventId).orElseThrow(() -> {
-            LOGGER.warn("Event not found {}", eventId);
+            LOGGER.error("Event not found {}", eventId);
             return new RuntimeException("Event not found");}
         );
         User user = userService.findByEmail(email).orElseThrow(()->{
-                LOGGER.warn("User not found {}", email);
+                LOGGER.error("User not found {}", email);
                 return new RuntimeException("User not found");});
         eventResponseDao.create(user.getId(), user.getUsername(), eventId, message, LocalDateTime.now());
         LOGGER.info("Event response {} created", eventId);

@@ -17,12 +17,9 @@ import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
 @Repository
 public class CareerJdbcDao implements CareerDao {
-
     private final static Logger LOGGER = LoggerFactory.getLogger(CareerJdbcDao.class);
-
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
-
     private final static RowMapper<Career> CAREER_ROW_MAPPER = (rs, rowNum) -> new Career(
             rs.getLong("id"),
             rs.getString("name")
