@@ -169,6 +169,11 @@ body {
     -ms-overflow-style: none;
     padding: 0 1rem;
 }
+.profile-tabs-right {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+}
 
 .profile-tabs::-webkit-scrollbar {
     display: none;

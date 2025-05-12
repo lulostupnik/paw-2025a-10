@@ -32,15 +32,23 @@ public class ProfileController {
     @Autowired
     public ProfileController(JourneyService journeyService, EventService eventService, InterestService interestService, UserService userService) {
         this.journeyService = journeyService;
-
         this.eventService = eventService;
         this.interestService = interestService;
         this.userService = userService;
     }
-    @GetMapping(value = "/info")
-    public ModelAndView getInfo() {
 
-        return new ModelAndView(PROFILE);
+    private void addUserJourneyToMav(User user, ModelAndView mav){
+        Optional<Journey> maybeJourney = journeyService.getJourneyByEmail(user.getEmail());
+        maybeJourney.map(journey -> mav.addObject("userJourney", journey)).orElseGet(() -> mav.addObject("userJourney", null));
+    }
+
+    @GetMapping(value = "/info")
+    public ModelAndView getInfo(
+            @ModelAttribute("user") User user
+    ) {
+        ModelAndView mav = new ModelAndView(PROFILE);
+        addUserJourneyToMav(user, mav);
+        return mav;
     }
 
 
@@ -50,18 +58,11 @@ public class ProfileController {
             @PageParamCustomizer(defaultSize = 4) PageParams pageParams) {
 
         ModelAndView mav = new ModelAndView(PROFILE);
+        addUserJourneyToMav(user, mav);
         mav.addObject("interests",interestService.findAllInterestsByUserId(user.getId(), pageParams));
         return mav;
     }
 
-
-    @GetMapping(value = "/journey")
-    public ModelAndView getJourney(
-            @ModelAttribute("user") User user) {
-        ModelAndView mav = new ModelAndView(PROFILE);
-        Optional<Journey> maybeJourney = journeyService.getJourneyByEmail(user.getEmail());
-        return maybeJourney.map(journey -> mav.addObject("userJourney", journey)).orElseGet(() -> mav.addObject("userJourney", null));
-    }
 
     @GetMapping(value = "/events")
     public ModelAndView getEvents(
@@ -74,6 +75,7 @@ public class ProfileController {
         mav.addObject("userAttendingEvents", eventService.getUserAttendingEvents(user.getId(), attendingPage));
         mav.addObject("currentPageUserEvents", pageParam.getPage());
         mav.addObject("currentPageUserAttending", attendingPage.getPage());
+        addUserJourneyToMav(user, mav);
         return mav;
     }
 
