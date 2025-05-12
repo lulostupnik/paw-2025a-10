@@ -3,6 +3,7 @@ package ar.edu.itba.paw.webapp.form;
 import ar.edu.itba.paw.webapp.validation.*;
 import org.springframework.web.multipart.MultipartFile;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
@@ -16,7 +17,7 @@ public class CreateUserForm {
     @NotNull
     private String email;
 
-    @Size(min = 2, max = 50)
+    @Size(max = 100)
     @NotNull
     @ExistingCareer
     private String career;
@@ -48,7 +49,8 @@ public class CreateUserForm {
     @ImageNotEmpty
     private MultipartFile profilePicture;
 
-    @Size(min = 2, max = 100)
+    @Size( max = 100)
+    @NotEmpty
     @NotNull
     @ExistingUniversity
     private String originUniversity;

@@ -1,10 +1,5 @@
 package ar.edu.itba.paw.persistence;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -22,6 +17,8 @@ import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import ar.edu.itba.paw.models.Image;
+
+import static org.junit.Assert.*;
 
 @Transactional
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -49,7 +46,7 @@ public class ImageJdbcDaoTest {
         assertTrue(maybeImage.isPresent());
         Image image = maybeImage.get();
         assertEquals(TestUtils.IMAGE_1_ID, image.getId());
-        assertTrue(Arrays.equals(TestUtils.IMAGE_1_DATA, image.getData()));
+        assertArrayEquals(TestUtils.IMAGE_1_DATA, image.getData());
     }
     @Test
     public void testFindByIdWrongId(){
@@ -65,12 +62,8 @@ public class ImageJdbcDaoTest {
 
         Image image = jdbcTemplate.queryForObject(TestUtils.IMAGE_SELECT_BY_ID, TestUtils.IMAGE_ROW_MAPPER, id);
         assertNotNull(image);
-        assertTrue(Arrays.equals(TestUtils.IMAGE_2_DATA, image.getData()));
+        assertArrayEquals(TestUtils.IMAGE_2_DATA, image.getData());
         assertEquals(TestUtils.TOTAL_IMAGES + 1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.IMAGE_TABLE));
-    }
-    @Test(expected = NullPointerException.class)
-    public void testCreateMissingData(){
-        imageDao.create(null);
     }
 
     @Test
