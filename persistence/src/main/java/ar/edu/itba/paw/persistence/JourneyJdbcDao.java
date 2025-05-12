@@ -81,7 +81,7 @@ public class JourneyJdbcDao implements JourneyDao {
 
     private static final String SQL_FIND_BY_ID = SQL_BASE + " AND j.id = ?";
     private final static String SQL_FIND_BY_USER_ID = SQL_BASE + " AND u.id = ?";
-    private final static String SQL_FIND_BY_USER_ID_DELETED = SQL_SELECT_BASE + SQL_FROM_BASE + " WHERE u.id = ?" ; // "AND j.deleted = TRUE"; ?
+    private final static String SQL_FIND_BY_USER_ID_DELETED = SQL_SELECT_BASE + SQL_FROM_BASE + " WHERE u.id = ?" ;
     private final static String SQL_FIND_BY_ORIGIN_CITY = SQL_BASE + " AND ci1.id = ?";
 
     private final static String SQL_FIND_BY_ORIGIN_CITY_PAGED = SQL_FIND_BY_ORIGIN_CITY + " ORDER BY j.id ASC LIMIT ? OFFSET ?";

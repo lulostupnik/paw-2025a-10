@@ -132,21 +132,13 @@ public class EventJdbcDaoTest {
         TestUtils.deleteEvents(jdbcTemplate);
         List<Map<String, Object>> maps = new ArrayList<>();
         List<Event> eventData = new ArrayList<>();
-        //not full, 20, soon
         maps.add(Map.of("limit", Optional.of(30), "willAttend", 20));
-        //not full, 20, later
         maps.add(Map.of("limit", Optional.of(30), "willAttend", 20, "date", TestUtils.EVENT_DATE_LATER));
-        //not full, 10, soon
         maps.add(Map.of("limit", Optional.of(30), "willAttend", 10));
-        //not full, 10, later
         maps.add(Map.of("limit", Optional.of(30), "willAttend", 10, "date", TestUtils.EVENT_DATE_LATER));
-        //full, 20, soon
         maps.add(Map.of("limit", Optional.of(20), "willAttend", 20));
-        //full, 20, later
         maps.add(Map.of("limit", Optional.of(20), "willAttend", 20, "date", TestUtils.EVENT_DATE_LATER));
-        //full, 10, soon
         maps.add(Map.of("limit", Optional.of(10), "willAttend", 10));
-        //full, 10, later
         maps.add(Map.of("limit", Optional.of(10), "willAttend", 10, "date", TestUtils.EVENT_DATE_LATER));
         for (Map<String, Object> params : maps) {
             eventData.add(TestUtils.insertEvent(ds, params));
@@ -179,37 +171,21 @@ public class EventJdbcDaoTest {
         TestUtils.deleteEvents(jdbcTemplate);
         List<Map<String, Object>> maps = new ArrayList<>();
         List<Event> eventData = new ArrayList<>();
-        //00 not full, not attending, 20, soon
         maps.add(Map.of("limit", Optional.of(30), "willAttend", 20));
-        //01 not full, not attending, 20, later
         maps.add(Map.of("limit", Optional.of(30), "willAttend", 20, "date", TestUtils.EVENT_DATE_LATER));
-        //02 not full, not attending, 10, soon
         maps.add(Map.of("limit", Optional.of(30), "willAttend", 10));
-        //03 not full, not attending, 10, later
         maps.add(Map.of("limit", Optional.of(30), "willAttend", 10, "date", TestUtils.EVENT_DATE_LATER));
-        //04 not full, attending, 20, soon
         maps.add(Map.of("limit", Optional.of(30), "willAttend", 20, "attending", TestUtils.USER_2));
-        //05 not full, attending, 20, later
         maps.add(Map.of("limit", Optional.of(30), "willAttend", 20, "attending", TestUtils.USER_2, "date", TestUtils.EVENT_DATE_LATER));
-        //06 not full, attending, 10, soon
         maps.add(Map.of("limit", Optional.of(30), "willAttend", 10, "attending", TestUtils.USER_2));
-        //07 not full, attending, 10, later
         maps.add(Map.of("limit", Optional.of(30), "willAttend", 10, "attending", TestUtils.USER_2, "date", TestUtils.EVENT_DATE_LATER));
-        //08 full, 20, not attending, soon
         maps.add(Map.of("limit", Optional.of(20), "willAttend", 20));
-        //09 full, 20, not attending, later
         maps.add(Map.of("limit", Optional.of(20), "willAttend", 20, "date", TestUtils.EVENT_DATE_LATER));
-        //10 full, 10, not attending, soon
         maps.add(Map.of("limit", Optional.of(10), "willAttend", 10));
-        //11 full, 10, not attending, later
         maps.add(Map.of("limit", Optional.of(10), "willAttend", 10, "date", TestUtils.EVENT_DATE_LATER));
-        //12 full, 20, attending, soon
         maps.add(Map.of("limit", Optional.of(20), "willAttend", 20, "attending", TestUtils.USER_2));
-        //13 full, 20, attending, later
         maps.add(Map.of("limit", Optional.of(20), "willAttend", 20, "attending", TestUtils.USER_2, "date", TestUtils.EVENT_DATE_LATER));
-        //14 full, 10, attending, soon
         maps.add(Map.of("limit", Optional.of(10), "willAttend", 10, "attending", TestUtils.USER_2));
-        //15 full, 10, attending, later
         maps.add(Map.of("limit", Optional.of(10), "willAttend", 10, "attending", TestUtils.USER_2, "date", TestUtils.EVENT_DATE_LATER));
         for (Map<String, Object> params : maps) {
             eventData.add(TestUtils.insertEvent(ds, params));
@@ -958,37 +934,21 @@ public class EventJdbcDaoTest {
         TestUtils.deleteEvents(jdbcTemplate);
         List<Map<String, Object>> maps = new ArrayList<>();
         List<Event> eventData = new ArrayList<>();
-        //not full, not attending, 20, soon (first)
         maps.add(Map.of("user", TestUtils.USER_2, "limit", Optional.of(30), "willAttend", 20));
-        //not full, not attending, 20, later (second)
         maps.add(Map.of("user", TestUtils.USER_2, "limit", Optional.of(30), "willAttend", 20, "date", TestUtils.EVENT_DATE_LATER));
-        //not full, not attending, 10, soon (third)
         maps.add(Map.of("user", TestUtils.USER_2, "limit", Optional.of(30), "willAttend", 10));
-        //not full, not attending, 10, later (fourth)
         maps.add(Map.of("user", TestUtils.USER_2, "limit", Optional.of(30), "willAttend", 10, "date", TestUtils.EVENT_DATE_LATER));
-        //not full, attending, 20, soon (fifth)
         maps.add(Map.of("user", TestUtils.USER_2, "limit", Optional.of(30), "willAttend", 20, "attending", TestUtils.USER_1));
-        //not full, attending, 20, later (sixth)
         maps.add(Map.of("user", TestUtils.USER_2, "limit", Optional.of(30), "willAttend", 20, "attending", TestUtils.USER_1, "date", TestUtils.EVENT_DATE_LATER));
-        //not full, attending, 10, soon (seventh)
         maps.add(Map.of("user", TestUtils.USER_2, "limit", Optional.of(30), "willAttend", 10, "attending", TestUtils.USER_1));
-        //not full, attending, 10, later (eigth)
         maps.add(Map.of("user", TestUtils.USER_2, "limit", Optional.of(30), "willAttend", 10, "attending", TestUtils.USER_1, "date", TestUtils.EVENT_DATE_LATER));
-        //full, not attending, 20, soon (ninth)
         maps.add(Map.of("user", TestUtils.USER_2, "limit", Optional.of(20), "willAttend", 20));
-        //full, not attending, 20, later (tenth)
         maps.add(Map.of("user", TestUtils.USER_2, "limit", Optional.of(20), "willAttend", 20, "date", TestUtils.EVENT_DATE_LATER));
-        //full, not attending, 10, soon (eleventh)
         maps.add(Map.of("user", TestUtils.USER_2, "limit", Optional.of(10), "willAttend", 10));
-        //full, not attending, 10, later (twelfth)
         maps.add(Map.of("user", TestUtils.USER_2, "limit", Optional.of(10), "willAttend", 10, "date", TestUtils.EVENT_DATE_LATER));
-        //full, attending, 20, soon (thirteenth)
         maps.add(Map.of("user", TestUtils.USER_2, "limit", Optional.of(20), "willAttend", 20, "attending", TestUtils.USER_1));
-        //full, attending, 20, later (fourteenth)
         maps.add(Map.of("user", TestUtils.USER_2, "limit", Optional.of(20), "willAttend", 20, "attending", TestUtils.USER_1, "date", TestUtils.EVENT_DATE_LATER));
-        //full, attending, 10, soon (fifteenth)
         maps.add(Map.of("user", TestUtils.USER_2, "limit", Optional.of(10), "willAttend", 10, "attending", TestUtils.USER_1));
-        //full, attending, 10, later (sixteenth)
         maps.add(Map.of("user", TestUtils.USER_2, "limit", Optional.of(10), "willAttend", 10, "attending", TestUtils.USER_1, "date", TestUtils.EVENT_DATE_LATER));
         for (Map<String, Object> params : maps) {
             eventData.add(TestUtils.insertEvent(ds, params));

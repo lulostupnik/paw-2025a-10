@@ -41,7 +41,7 @@ public class RoleBasedMessageValidator implements ConstraintValidator<RoleBasedM
         } else if ("journey".equalsIgnoreCase(type)) {
             isOwner = journeyService.isJourneyOwnedByUser(userEmail, id);
         } else {
-            return false; // unknown type
+            return false;
         }
 
         if (isOwner) return true;

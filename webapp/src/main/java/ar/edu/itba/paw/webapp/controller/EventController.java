@@ -242,7 +242,6 @@ public class EventController {
         return mav;
     }
 
-    //OBS para checkear. no se porque me deja subir una imagen vacia si uso el create event form.
     @PostMapping(value = "/{id}/update")
     public ModelAndView updateEvent(@PathVariable("id") int eventId,
                                     @ModelAttribute("user") User user,

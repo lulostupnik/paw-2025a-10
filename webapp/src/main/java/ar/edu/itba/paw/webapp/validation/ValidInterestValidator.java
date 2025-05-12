@@ -32,7 +32,7 @@ public class ValidInterestValidator implements ConstraintValidator<ValidInterest
             }
             return true;
         } catch (Exception e) {
-            return true; // Si hay error, dejamos que pase y se maneje en el servicio
+            return true;
         }
     }
 }

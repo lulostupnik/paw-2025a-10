@@ -76,7 +76,6 @@ public class CareerController {
     public ModelAndView updateCareerForm(@PathVariable("id") Long id, @ModelAttribute("createCareerForm") final CreateCareerForm form,
                                          final BindingResult errors) {
 
-        // Create and populate form with existing university data
         if(! errors.hasErrors()) {
             Career career = careerService.findById(id).orElseThrow(() -> new NotFoundException("Career not found"));
             form.setName(career.getName());

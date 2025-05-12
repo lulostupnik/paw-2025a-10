@@ -16,7 +16,6 @@ public class InterestNotExistsValidator implements ConstraintValidator<InterestN
 
     @Override
     public void initialize(InterestNotExists constraintAnnotation) {
-        // No initialization needed
     }
 
     @Override

@@ -313,8 +313,6 @@ public class EventServiceImpl implements EventService {
             imageService.deleteImage(currentEvent.getFlyerImageId());
             LOGGER.info("Flyer image {} deleted", currentEvent.getFlyerImageId());
         }
-        // hacer void ?
-
         LOGGER.info("Event {} updated", eventId);
     }
 

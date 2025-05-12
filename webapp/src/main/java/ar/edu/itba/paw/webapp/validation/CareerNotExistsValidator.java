@@ -17,7 +17,6 @@ public class CareerNotExistsValidator implements ConstraintValidator<CareerNotEx
 
     @Override
     public void initialize(CareerNotExists constraintAnnotation) {
-        // Initialization logic if needed
     }
 
     @Override
