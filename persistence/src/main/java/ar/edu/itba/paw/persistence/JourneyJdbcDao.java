@@ -295,7 +295,7 @@ public class JourneyJdbcDao implements JourneyDao {
         }
 
         if(searchTerm != null && !searchTerm.isEmpty()) {
-            if(city == null) {
+            if(city == null && !isMyDestination) {
                 countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id ");
             }
             if(interest == null) {
