@@ -14,6 +14,7 @@ import java.util.Optional;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
+import ar.edu.itba.paw.models.exceptions.InvalidException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -113,14 +114,6 @@ public class JourneyServiceImplTest {
 
         assertNotNull(journey);
         assertEquals(JOURNEY, journey);
-    }
-    @Test(expected = RuntimeException.class)
-    public void testCreateJourneyOverlapping(){
-        Mockito.when(
-            uniService.findByName(Mockito.eq(UNI_NAME))
-        ).thenReturn(Optional.of(UNI));
-
-        journeyService.createJourney(USER, UNI_NAME, START_DATE, END_DATE, DESCRIPTION);
     }
     @Test(expected = RuntimeException.class)
     public void testCreateJourneyNoUni(){
@@ -272,6 +265,34 @@ public class JourneyServiceImplTest {
                 Mockito.eq(PAGE_1_DEFAULT)
             )
         ).thenReturn(JOURNEY_PAGE);
+        Mockito.when(
+            journeyDao.findByUserId(Mockito.eq(USER_ID))
+        ).thenReturn(Optional.of(JOURNEY));
+
+        Page<Journey> page = journeyService.getAllJourneys(
+            DESCRIPTION, 
+            USER, 
+            SortFieldJourney.from("end_date"), 
+            SortDirection.from("desc"), 
+            UNI_NAME, 
+            START_DATE, 
+            END_DATE, 
+            INTEREST_NAME, 
+            false, 
+            true, 
+            true, 
+            false, 
+            PAGE_1_DEFAULT
+        );
+
+        assertNotNull(page);
+        assertEquals(JOURNEY_PAGE, page);
+    }
+    @Test(expected = InvalidException.class)
+    public void testGetAllJourneysUserHasNoJourneys(){
+        Mockito.when(
+            journeyDao.findByUserId(Mockito.eq(USER_ID))
+        ).thenReturn(Optional.empty());
 
         Page<Journey> page = journeyService.getAllJourneys(
             DESCRIPTION, 

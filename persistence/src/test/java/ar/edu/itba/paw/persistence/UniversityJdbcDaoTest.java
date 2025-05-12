@@ -10,7 +10,6 @@ import java.util.Optional;
 
 import javax.sql.DataSource;
 
-import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import org.junit.Before;
@@ -34,13 +33,6 @@ import ar.edu.itba.paw.models.University;
 @ContextConfiguration(classes = TestConfig.class)
 public class UniversityJdbcDaoTest {
 
-    private static University UNI_1;
-    private static University UNI_2;
-    private static University UNI_3;
-    private static University UNI_DELETED;
-    private static City CITY_1;
-    private static City CITY_2;
-
     @Autowired
     private DataSource ds;
 
@@ -51,24 +43,15 @@ public class UniversityJdbcDaoTest {
     private SimpleJdbcInsert insert;
 
     private void assertUniversityDBDefaultState(){
-        TestUtils.assertEqualsUni(UNI_1, jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ID, TestUtils.UNIVERSITY_ROW_MAPPER, UNI_1.getId()));
-        TestUtils.assertEqualsUni(UNI_2, jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ID, TestUtils.UNIVERSITY_ROW_MAPPER, UNI_2.getId()));
-        TestUtils.assertEqualsUni(UNI_3, jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ID, TestUtils.UNIVERSITY_ROW_MAPPER, UNI_3.getId()));
+        TestUtils.assertEqualsUni(TestUtils.UNI_1, jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ID, TestUtils.UNIVERSITY_ROW_MAPPER, TestUtils.UNIVERSITY_1_ID));
+        TestUtils.assertEqualsUni(TestUtils.UNI_2, jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ID, TestUtils.UNIVERSITY_ROW_MAPPER, TestUtils.UNIVERSITY_2_ID));
+        TestUtils.assertEqualsUni(TestUtils.UNI_3, jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ID, TestUtils.UNIVERSITY_ROW_MAPPER, TestUtils.UNIVERSITY_3_ID));
     }
 
     @Before
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
         insert = new SimpleJdbcInsert(ds).withTableName(TestUtils.UNIVERSITY_TABLE).usingGeneratedKeyColumns("id");
-
-        CITY_1 = jdbcTemplate.queryForObject(TestUtils.CITY_SELECT_BY_NAME, TestUtils.CITY_ROW_MAPPER, TestUtils.CITY_1_NAME);
-        CITY_2 = jdbcTemplate.queryForObject(TestUtils.CITY_SELECT_BY_NAME, TestUtils.CITY_ROW_MAPPER, TestUtils.CITY_2_NAME);
-
-        UNI_1 = jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ABBR, TestUtils.UNIVERSITY_ROW_MAPPER, TestUtils.UNIVERSITY_1_CODE);
-        UNI_2 = jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ABBR, TestUtils.UNIVERSITY_ROW_MAPPER, TestUtils.UNIVERSITY_2_CODE);
-        UNI_3 = jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ABBR, TestUtils.UNIVERSITY_ROW_MAPPER, TestUtils.UNIVERSITY_3_CODE);
-
-        UNI_DELETED = jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ABBR, TestUtils.UNIVERSITY_ROW_MAPPER, TestUtils.UNIVERSITY_DELETED_CODE);
     }
 
     @Test
@@ -77,7 +60,7 @@ public class UniversityJdbcDaoTest {
 
         assertNotNull(maybeUni);
         assertTrue(maybeUni.isPresent());
-        TestUtils.assertEqualsUni(UNI_1, maybeUni.get());
+        TestUtils.assertEqualsUni(TestUtils.UNI_1, maybeUni.get());
     }
     @Test
     public void testFindByName2(){
@@ -85,7 +68,7 @@ public class UniversityJdbcDaoTest {
 
         assertNotNull(maybeUni);
         assertTrue(maybeUni.isPresent());
-        TestUtils.assertEqualsUni(UNI_2, maybeUni.get());
+        TestUtils.assertEqualsUni(TestUtils.UNI_2, maybeUni.get());
     }
     @Test
     public void testFindByNameDeleted(){
@@ -118,11 +101,11 @@ public class UniversityJdbcDaoTest {
 
     @Test
     public void testFindById(){
-        Optional<University> maybeUni = uniDao.findById(UNI_1.getId());
+        Optional<University> maybeUni = uniDao.findById(TestUtils.UNIVERSITY_1_ID);
 
         assertNotNull(maybeUni);
         assertTrue(maybeUni.isPresent());
-        TestUtils.assertEqualsUni(UNI_1, maybeUni.get());
+        TestUtils.assertEqualsUni(TestUtils.UNI_1, maybeUni.get());
     }
     @Test
     public void testFindByIdWrongId(){
@@ -133,7 +116,7 @@ public class UniversityJdbcDaoTest {
     }
     @Test
     public void testFindByIdDeleted(){
-        Optional<University> maybeUni = uniDao.findById(UNI_DELETED.getId());
+        Optional<University> maybeUni = uniDao.findById(TestUtils.UNIVERSITY_DELETED_ID);
 
         assertNotNull(maybeUni);
         assertFalse(maybeUni.isPresent());
@@ -148,7 +131,7 @@ public class UniversityJdbcDaoTest {
         assertEquals(1, unis.getTotalPages());
         assertNotNull(unis.getContent());
         assertEquals(1, unis.getContent().size());
-        TestUtils.assertEqualsUni(UNI_1, unis.getContent().get(0));
+        TestUtils.assertEqualsUni(TestUtils.UNI_1, unis.getContent().get(0));
     }
     @Test
     public void testSearchUsingNameSubstring(){
@@ -159,7 +142,7 @@ public class UniversityJdbcDaoTest {
         assertEquals(1, unis.getTotalPages());
         assertNotNull(unis.getContent());
         assertEquals(1, unis.getContent().size());
-        TestUtils.assertEqualsUni(UNI_2, unis.getContent().get(0));
+        TestUtils.assertEqualsUni(TestUtils.UNI_2, unis.getContent().get(0));
     }
     @Test
     public void testSearchMultipleResults(){
@@ -170,8 +153,8 @@ public class UniversityJdbcDaoTest {
         assertEquals(1, unis.getTotalPages());
         assertNotNull(unis.getContent());
         assertEquals(2, unis.getContent().size());
-        TestUtils.assertEqualsUni(UNI_1, unis.getContent().get(0));
-        TestUtils.assertEqualsUni(UNI_2, unis.getContent().get(1));
+        TestUtils.assertEqualsUni(TestUtils.UNI_1, unis.getContent().get(0));
+        TestUtils.assertEqualsUni(TestUtils.UNI_2, unis.getContent().get(1));
     }
     @Test
     public void testSearchWrongQuery(){
@@ -216,7 +199,7 @@ public class UniversityJdbcDaoTest {
 
     @Test
     public void testFindAllPaged(){
-        long bonusId = insert.executeAndReturnKey(Map.of("name", TestUtils.UNIVERSITY_NEW_NAME, "abbreviation", TestUtils.UNIVERSITY_NEW_CODE, "CITY_ID", CITY_1.getId(), "deleted", false)).longValue();
+        long bonusId = insert.executeAndReturnKey(Map.of("name", TestUtils.UNIVERSITY_NEW_NAME, "abbreviation", TestUtils.UNIVERSITY_NEW_CODE, "CITY_ID", TestUtils.CITY_1_ID, "deleted", false)).longValue();
         University bonus = jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ID, TestUtils.UNIVERSITY_ROW_MAPPER, bonusId);
         
         Page<University> page1 = uniDao.findAll(new PageParams(1,2));
@@ -233,7 +216,7 @@ public class UniversityJdbcDaoTest {
         assertEquals(2, page1.getContent().size());
         assertEquals(2, page2.getContent().size());
         assertNotNull(bonus);
-        Map<Long, University> uniData = Map.of(UNI_1.getId(), UNI_1, UNI_2.getId(), UNI_2, UNI_3.getId(), UNI_3, bonus.getId(), bonus);
+        Map<Long, University> uniData = Map.of(TestUtils.UNIVERSITY_1_ID, TestUtils.UNI_1, TestUtils.UNIVERSITY_2_ID, TestUtils.UNI_2, TestUtils.UNIVERSITY_3_ID, TestUtils.UNI_3, bonus.getId(), bonus);
         for (University uni : page1.getContent()){
             TestUtils.assertEqualsUni(uniData.get(uni.getId()), uni);
         }
@@ -256,18 +239,18 @@ public class UniversityJdbcDaoTest {
 
     @Test
     public void testUpdateCityName(){
-        uniDao.update(UNI_1.getId(), TestUtils.UNIVERSITY_NEW_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_2_NAME);
+        uniDao.update(TestUtils.UNIVERSITY_1_ID, TestUtils.UNIVERSITY_NEW_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_2_NAME);
 
         University uni = jdbcTemplate.queryForObject(
             TestUtils.UNIVERSITY_SELECT_BY_ID,
             TestUtils.UNIVERSITY_ROW_MAPPER,
-            UNI_1.getId()
+            TestUtils.UNIVERSITY_1_ID
         );
-        TestUtils.assertEqualsUni(new University(UNI_1.getId(), TestUtils.UNIVERSITY_NEW_NAME, TestUtils.UNIVERSITY_NEW_CODE, CITY_2), uni);
+        TestUtils.assertEqualsUni(new University(TestUtils.UNIVERSITY_1_ID, TestUtils.UNIVERSITY_NEW_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_2), uni);
     }
     @Test(expected = DataAccessException.class)
     public void testUpdateCityNameDuplicateName(){
-        uniDao.update(UNI_1.getId(), TestUtils.UNIVERSITY_2_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1_NAME);
+        uniDao.update(TestUtils.UNIVERSITY_1_ID, TestUtils.UNIVERSITY_2_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1_NAME);
 
         assertUniversityDBDefaultState();
     }
@@ -293,13 +276,13 @@ public class UniversityJdbcDaoTest {
 //    public void testCreateDeletedByName(){
 //        University uni = uniDao.create(TestUtils.UNIVERSITY_DELETED_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1_NAME);
 //
-//        TestUtils.assertEqualsUni(new University(UNI_DELETED.getId(), UNI_DELETED.getName(), TestUtils.UNIVERSITY_NEW_CODE, CITY_1), uni);
+//        TestUtils.assertEqualsUni(new University(TestUtils.UNIVERSITY_DELETED_ID, UNI_DELETED.getName(), TestUtils.UNIVERSITY_NEW_CODE, CITY_1), uni);
 //    }
 //    @Test
 //    public void testCreateDeletedByAbbreviation(){
 //        University uni = uniDao.create(TestUtils.UNIVERSITY_NEW_NAME, TestUtils.UNIVERSITY_DELETED_CODE, TestUtils.CITY_1_NAME);
 //
-//        TestUtils.assertEqualsUni(new University(UNI_DELETED.getId(), TestUtils.UNIVERSITY_NEW_NAME, UNI_DELETED.getAbbreviation(), CITY_1), uni);
+//        TestUtils.assertEqualsUni(new University(TestUtils.UNIVERSITY_DELETED_ID, TestUtils.UNIVERSITY_NEW_NAME, UNI_DELETED.getAbbreviation(), CITY_1), uni);
 //    }
 //    @Test
 //    public void testCreateDeletedByBoth(){
@@ -312,7 +295,7 @@ public class UniversityJdbcDaoTest {
     public void testDelete(){
         int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.UNIVERSITY_TABLE);
 
-        uniDao.delete(UNI_1.getId());
+        uniDao.delete(TestUtils.UNIVERSITY_1_ID);
 
         assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.UNIVERSITY_TABLE));
         assertEquals(
@@ -340,7 +323,7 @@ public class UniversityJdbcDaoTest {
     public void testDeleteDeleted(){
         int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.UNIVERSITY_TABLE);
 
-        uniDao.delete(UNI_DELETED.getId());
+        uniDao.delete(TestUtils.UNIVERSITY_DELETED_ID);
 
         assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.UNIVERSITY_TABLE));
         assertEquals(
@@ -361,8 +344,8 @@ public class UniversityJdbcDaoTest {
 //    University uni = maybeUni.get();
 //    assertEquals(TestUtils.UNIVERSITY_1_NAME, uni.getName());
 //    assertEquals(TestUtils.UNIVERSITY_1_CODE, uni.getAbbreviation());
-//    assertEquals(UNI_1.getId(), uni.getId());
-//    assertEquals(CITY_1.getId(), uni.getCity().getId());
+//    assertEquals(TestUtils.UNIVERSITY_1_ID, uni.getId());
+//    assertEquals(TestUtils.CITY_1_ID, uni.getCity().getId());
 //}
 //@Test
 //public void testFindByAbbreviation2(){
@@ -372,8 +355,8 @@ public class UniversityJdbcDaoTest {
 //    University uni = maybeUni.get();
 //    assertEquals(TestUtils.UNIVERSITY_2_NAME, uni.getName());
 //    assertEquals(TestUtils.UNIVERSITY_2_CODE, uni.getAbbreviation());
-//    assertEquals(UNI_2.getId(), uni.getId());
-//    assertEquals(CITY_2.getId(), uni.getCity().getId());
+//    assertEquals(TestUtils.UNIVERSITY_2_ID, uni.getId());
+//    assertEquals(TestUtils.CITY_2_ID, uni.getCity().getId());
 //}
 //@Test
 //public void testFindByAbbreviationDeleted(){
@@ -410,8 +393,8 @@ public class UniversityJdbcDaoTest {
 //    University uni = maybeUni.get();
 //    assertEquals(TestUtils.UNIVERSITY_1_NAME, uni.getName());
 //    assertEquals(TestUtils.UNIVERSITY_1_CODE, uni.getAbbreviation());
-//    assertEquals(UNI_1.getId(), uni.getId());
-//    assertEquals(CITY_1.getId(), uni.getCity().getId());
+//    assertEquals(TestUtils.UNIVERSITY_1_ID, uni.getId());
+//    assertEquals(TestUtils.CITY_1_ID, uni.getCity().getId());
 //}
 //@Test
 //public void testFindByAnyUsingNameSubstring(){
@@ -421,8 +404,8 @@ public class UniversityJdbcDaoTest {
 //    University uni = maybeUni.get();
 //    assertEquals(TestUtils.UNIVERSITY_2_NAME, uni.getName());
 //    assertEquals(TestUtils.UNIVERSITY_2_CODE, uni.getAbbreviation());
-//    assertEquals(UNI_2.getId(), uni.getId());
-//    assertEquals(CITY_2.getId(), uni.getCity().getId());
+//    assertEquals(TestUtils.UNIVERSITY_2_ID, uni.getId());
+//    assertEquals(TestUtils.CITY_2_ID, uni.getCity().getId());
 //}
 //@Test
 //public void testFindByAnyWrongQuery(){

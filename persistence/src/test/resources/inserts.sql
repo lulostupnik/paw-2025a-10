@@ -1,62 +1,62 @@
-INSERT INTO careers(name, deleted) VALUES('career 1', FALSE);
-INSERT INTO careers(name, deleted) VALUES('career 2', FALSE);
-INSERT INTO careers(name, deleted) VALUES('deleted', TRUE);
+INSERT INTO careers(id, name, deleted) VALUES(10000, 'career 1', FALSE);
+INSERT INTO careers(id, name, deleted) VALUES(20000, 'career 2', FALSE);
+INSERT INTO careers(id, name, deleted) VALUES(30000, 'deleted', TRUE);
 
-INSERT INTO countries(name, code) VALUES('cuntry', 'aa');
-INSERT INTO countries(name, code) VALUES('cuntry2', 'bb');
+INSERT INTO countries(id, name, code) VALUES(10000, 'cuntry', 'aa');
+INSERT INTO countries(id, name, code) VALUES(20000, 'cuntry2', 'bb');
 
-INSERT INTO cities(name, country_id, deleted) VALUES('city1', (SELECT id FROM countries WHERE code = 'aa'), FALSE);
-INSERT INTO cities(name, country_id, deleted) VALUES('city2', (SELECT id FROM countries WHERE code = 'aa'), FALSE);
-INSERT INTO cities(name, country_id, deleted) VALUES('city3', (SELECT id FROM countries WHERE code = 'bb'), FALSE);
-INSERT INTO cities(name, country_id, deleted) VALUES('deleted city', (SELECT id FROM countries WHERE code = 'bb'), TRUE);
+INSERT INTO cities(id, name, country_id, deleted) VALUES(10000, 'city1', 10000, FALSE);
+INSERT INTO cities(id, name, country_id, deleted) VALUES(20000, 'city2', 10000, FALSE);
+INSERT INTO cities(id, name, country_id, deleted) VALUES(30000, 'city3', 20000, FALSE);
+INSERT INTO cities(id, name, country_id, deleted) VALUES(40000, 'deleted city', 20000, TRUE);
 
-INSERT INTO universities(name, abbreviation, city_id, deleted) VALUES('Instituto de muy largo', 'ITBA', (SELECT id FROM cities WHERE name = 'city1'), FALSE);
-INSERT INTO universities(name, abbreviation, city_id, deleted) VALUES('Universidad de muy largo', 'UBA', (SELECT id FROM cities WHERE name = 'city2'), FALSE);
-INSERT INTO universities(name, abbreviation, city_id, deleted) VALUES('Another one', 'MAS', (SELECT id FROM cities WHERE name = 'city2'), FALSE);
-INSERT INTO universities(name, abbreviation, city_id, deleted) VALUES('Deleted uni', 'DEL', (SELECT id FROM cities WHERE name = 'city1'), TRUE);
+INSERT INTO universities(id, name, abbreviation, city_id, deleted) VALUES(10000, 'Instituto de muy largo', 'ITBA', 10000, FALSE);
+INSERT INTO universities(id, name, abbreviation, city_id, deleted) VALUES(20000, 'Universidad de muy largo', 'UBA', 20000, FALSE);
+INSERT INTO universities(id, name, abbreviation, city_id, deleted) VALUES(30000, 'Another one', 'MAS', 20000, FALSE);
+INSERT INTO universities(id, name, abbreviation, city_id, deleted) VALUES(40000, 'Deleted uni', 'DEL', 10000, TRUE);
 
-INSERT INTO images(content) VALUES('ffffffff');
-INSERT INTO images(content) VALUES('ffffffffffffffff');
+INSERT INTO images(id, content) VALUES(10000, 'ffffffff');
+INSERT INTO images(id, content) VALUES(20000, 'ffffffffffffffff');
 
-INSERT INTO category(name) VALUES('interest 1');
-INSERT INTO category(name) VALUES('interest 2');
-INSERT INTO category(name) VALUES('interest 3');
+INSERT INTO category(id, name) VALUES(10000, 'interest 1');
+INSERT INTO category(id, name) VALUES(20000, 'interest 2');
+INSERT INTO category(id, name) VALUES(30000, 'interest 3');
 
-INSERT INTO users(email, username, firstname, lastname, password, language, university, career_id, profile_picture_id, roles, blocked) VALUES('user1@mail.com', 'user1', 'user', 'user', 'superSecret', 'es', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers WHERE name = 'career 1'), (SELECT id FROM images LIMIT 1), 'user', FALSE);
-INSERT INTO users(email, username, firstname, lastname, password, language, university, career_id, profile_picture_id, roles, blocked) VALUES('user2@mail.com', 'user2', 'user', 'user', 'superSecret', 'es', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers WHERE name = 'career 1'), (SELECT id FROM images LIMIT 1), 'user', FALSE);
-INSERT INTO users(email, username, firstname, lastname, password, language, university, career_id, profile_picture_id, roles, blocked) VALUES('user3@mail.com', 'user3', 'user', 'user', 'superSecret', 'es', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers WHERE name = 'career 1'), (SELECT id FROM images LIMIT 1), 'user', FALSE);
-INSERT INTO users(email, username, firstname, lastname, password, language, university, career_id, profile_picture_id, roles, blocked) VALUES('user4@mail.com', 'user4', 'user', 'user', 'superSecret', 'es', (SELECT id FROM universities WHERE abbreviation = 'UBA'), (SELECT id FROM careers WHERE name = 'career 1'), (SELECT id FROM images LIMIT 1), 'user', FALSE);
-INSERT INTO users(username, email, firstname, lastname, password, language, university, career_id, profile_picture_id, roles, blocked) VALUES('1interest', '1interest@mail.com', 'user', 'name', 'superSecret', 'en', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1), 'user', FALSE);
-INSERT INTO users(username, email, firstname, lastname, password, language, university, career_id, profile_picture_id, roles, blocked) VALUES('2interest', '2interest@mail.com', 'user', 'name', 'superSecret', 'en', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1), 'user', FALSE);
-INSERT INTO users(username, email, firstname, lastname, password, language, university, career_id, profile_picture_id, roles, blocked) VALUES('3interest', '3interest@mail.com', 'user', 'name', 'superSecret', 'en', (SELECT id FROM universities WHERE abbreviation = 'ITBA'), (SELECT id FROM careers LIMIT 1), (SELECT id FROM images LIMIT 1), 'user', FALSE);
+INSERT INTO users(id, email, username, firstname, lastname, password, language, university, career_id, profile_picture_id, roles, blocked) VALUES(10000, 'user1@mail.com', 'user1', 'user', 'user', 'superSecret', 'es', 10000, 10000, 10000, 'user', FALSE);
+INSERT INTO users(id, email, username, firstname, lastname, password, language, university, career_id, profile_picture_id, roles, blocked) VALUES(20000, 'user2@mail.com', 'user2', 'user', 'user', 'superSecret', 'es', 10000, 10000, 10000, 'user', FALSE);
+INSERT INTO users(id, email, username, firstname, lastname, password, language, university, career_id, profile_picture_id, roles, blocked) VALUES(30000, 'user3@mail.com', 'user3', 'user', 'user', 'superSecret', 'es', 10000, 10000, 10000, 'user', FALSE);
+INSERT INTO users(id, email, username, firstname, lastname, password, language, university, career_id, profile_picture_id, roles, blocked) VALUES(40000, 'user4@mail.com', 'user4', 'user', 'user', 'superSecret', 'es', 20000, 10000, 10000, 'user', FALSE);
+INSERT INTO users(id, username, email, firstname, lastname, password, language, university, career_id, profile_picture_id, roles, blocked) VALUES(50000, '1interest', '1interest@mail.com', 'user', 'user', 'superSecret', 'en', 10000, 10000, 10000, 'user', FALSE);
+INSERT INTO users(id, username, email, firstname, lastname, password, language, university, career_id, profile_picture_id, roles, blocked) VALUES(60000, '2interest', '2interest@mail.com', 'user', 'user', 'superSecret', 'en', 10000, 10000, 10000, 'user', FALSE);
+INSERT INTO users(id, username, email, firstname, lastname, password, language, university, career_id, profile_picture_id, roles, blocked) VALUES(70000, '3interest', '3interest@mail.com', 'user', 'user', 'superSecret', 'en', 10000, 10000, 10000, 'user', FALSE);
 
-INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = 'user1'), (SELECT id FROM category WHERE name = 'interest 1'), 4);
-INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = 'user1'), (SELECT id FROM category WHERE name = 'interest 2'), 2);
-INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = 'user1'), (SELECT id FROM category WHERE name = 'interest 3'), 1);
-INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = '1interest'), (SELECT id FROM category WHERE name = 'interest 1'), 1);
-INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = '2interest'), (SELECT id FROM category WHERE name = 'interest 2'), 1);
-INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = '2interest'), (SELECT id FROM category WHERE name = 'interest 1'), 1);
-INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = '3interest'), (SELECT id FROM category WHERE name = 'interest 1'), 1);
-INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = '3interest'), (SELECT id FROM category WHERE name = 'interest 2'), 1);
-INSERT INTO user_interest(user_id, category_id, score) VALUES((SELECT id FROM users WHERE username = '3interest'), (SELECT id FROM category WHERE name = 'interest 3'), 1);
+INSERT INTO user_interest(user_id, category_id, score) VALUES(10000, 10000, 4);
+INSERT INTO user_interest(user_id, category_id, score) VALUES(10000, 20000, 2);
+INSERT INTO user_interest(user_id, category_id, score) VALUES(10000, 30000, 1);
+INSERT INTO user_interest(user_id, category_id, score) VALUES(50000, 10000, 1);
+INSERT INTO user_interest(user_id, category_id, score) VALUES(60000, 20000, 1);
+INSERT INTO user_interest(user_id, category_id, score) VALUES(60000, 10000, 1);
+INSERT INTO user_interest(user_id, category_id, score) VALUES(70000, 10000, 1);
+INSERT INTO user_interest(user_id, category_id, score) VALUES(70000, 20000, 1);
+INSERT INTO user_interest(user_id, category_id, score) VALUES(70000, 30000, 1);
 
-INSERT INTO journeys(user_id, destination_university_id, start_date, end_date, description, deleted) VALUES((SELECT id FROM users WHERE username = 'user4'), (SELECT id FROM universities WHERE abbreviation = 'ITBA'), CURRENT_DATE, CURRENT_DATE, 'deleted', TRUE);
-INSERT INTO journeys(user_id, destination_university_id, start_date, end_date, description, deleted) VALUES((SELECT id FROM users WHERE username = 'user1'), (SELECT id FROM universities WHERE abbreviation = 'UBA'), CURRENT_DATE + INTERVAL '7' DAY, CURRENT_DATE + INTERVAL '7' DAY + INTERVAL '1' MONTH, 'Cool journey', FALSE);
-INSERT INTO journeys(user_id, destination_university_id, start_date, end_date, description, deleted) VALUES((SELECT id FROM users WHERE username = 'user2'), (SELECT id FROM universities WHERE abbreviation = 'UBA'), CURRENT_DATE + INTERVAL '7' DAY, CURRENT_DATE + INTERVAL '7' DAY + INTERVAL '1' MONTH, 'Cool journey', FALSE);
+INSERT INTO journeys(id, user_id, destination_university_id, start_date, end_date, description, deleted) VALUES(10000, 40000, 10000, CURRENT_DATE, CURRENT_DATE, 'deleted', TRUE);
+INSERT INTO journeys(id, user_id, destination_university_id, start_date, end_date, description, deleted) VALUES(20000, 10000, 20000, CURRENT_DATE + INTERVAL '7' DAY, CURRENT_DATE + INTERVAL '7' DAY + INTERVAL '1' MONTH, 'Cool journey', FALSE);
+INSERT INTO journeys(id, user_id, destination_university_id, start_date, end_date, description, deleted) VALUES(30000, 20000, 20000, CURRENT_DATE + INTERVAL '7' DAY, CURRENT_DATE + INTERVAL '7' DAY + INTERVAL '1' MONTH, 'Cool journey', FALSE);
 
-INSERT INTO journey_responses(user_id, journey_id, message, date_time, deleted) VALUES((SELECT id FROM users WHERE username = 'user1'), (SELECT id FROM journeys WHERE user_id = (SELECT id FROM users WHERE username = 'user1')), 'COOL!', CURRENT_DATE + INTERVAL '0' HOUR, FALSE);
-INSERT INTO journey_responses(user_id, journey_id, message, date_time, deleted) VALUES((SELECT id FROM users WHERE username = 'user2'), (SELECT id FROM journeys WHERE user_id = (SELECT id FROM users WHERE username = 'user1')), 'COOL!', CURRENT_DATE + INTERVAL '1' HOUR, FALSE);
-INSERT INTO journey_responses(user_id, journey_id, message, date_time, deleted) VALUES((SELECT id FROM users WHERE username = 'user3'), (SELECT id FROM journeys WHERE user_id = (SELECT id FROM users WHERE username = 'user1')), 'COOL!', CURRENT_DATE + INTERVAL '2' HOUR, FALSE);
-INSERT INTO journey_responses(user_id, journey_id, message, date_time, deleted) VALUES((SELECT id FROM users WHERE username = 'user3'), (SELECT id FROM journeys WHERE user_id = (SELECT id FROM users WHERE username = 'user1')), 'COOL!', CURRENT_DATE + INTERVAL '0' HOUR, TRUE);
+INSERT INTO journey_responses(id, user_id, journey_id, message, date_time, deleted) VALUES(10000, 10000, 20000, 'COOL!', CURRENT_DATE + INTERVAL '0' HOUR, FALSE);
+INSERT INTO journey_responses(id, user_id, journey_id, message, date_time, deleted) VALUES(20000, 20000, 20000, 'COOL!', CURRENT_DATE + INTERVAL '1' HOUR, FALSE);
+INSERT INTO journey_responses(id, user_id, journey_id, message, date_time, deleted) VALUES(30000, 30000, 20000, 'COOL!', CURRENT_DATE + INTERVAL '2' HOUR, FALSE);
+INSERT INTO journey_responses(id, user_id, journey_id, message, date_time, deleted) VALUES(40000, 30000, 20000, 'COOL!', CURRENT_DATE + INTERVAL '0' HOUR, TRUE);
 
-INSERT INTO events(user_id, city_id, event_date, event_time, address, attendees_limit, attendees_count, description, title, flyer_image_id, deleted) VALUES((SELECT id FROM users WHERE username = 'user1'), (SELECT id FROM cities WHERE name = 'city1'), CURRENT_DATE + INTERVAL '7' DAY, TIME '00:00:00', 'cool place', 30, 3, 'cool event', 'warm event', (SELECT id FROM images LIMIT 1), FALSE);
-INSERT INTO events(user_id, city_id, event_date, event_time, address, attendees_limit, attendees_count, description, title, flyer_image_id, deleted) VALUES((SELECT id FROM users WHERE username = 'user2'), (SELECT id FROM cities WHERE name = 'city1'), CURRENT_DATE + INTERVAL '7' DAY, TIME '00:00:00', 'cool place', NULL, 1, 'cool event', 'another event', (SELECT id FROM images LIMIT 1), FALSE);
-INSERT INTO events(user_id, city_id, event_date, event_time, address, attendees_limit, attendees_count, description, title, flyer_image_id, deleted) VALUES((SELECT id FROM users WHERE username = 'user2'), (SELECT id FROM cities WHERE name = 'city1'), CURRENT_DATE + INTERVAL '7' DAY, TIME '00:00:00', 'cool place', 30, 0, 'cool event', 'one more event', (SELECT id FROM images LIMIT 1), FALSE);
-INSERT INTO events(user_id, city_id, event_date, event_time, address, attendees_limit, attendees_count, description, title, flyer_image_id, deleted) VALUES((SELECT id FROM users WHERE username = 'user1'), (SELECT id FROM cities WHERE name = 'city1'), CURRENT_DATE - INTERVAL '100' DAY, TIME '00:00:00', 'cool place', 30, 0, 'cool event', 'older event', (SELECT id FROM images LIMIT 1), FALSE);
-INSERT INTO events(user_id, city_id, event_date, event_time, address, attendees_limit, attendees_count, description, title, flyer_image_id, deleted) VALUES((SELECT id FROM users WHERE username = 'user2'), (SELECT id FROM cities WHERE name = 'city1'), CURRENT_DATE + INTERVAL '7' DAY, TIME '00:00:00', 'cool place', 30, 0, 'cool event', 'deleted', (SELECT id FROM images LIMIT 1), TRUE);
+INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attendees_limit, attendees_count, description, title, flyer_image_id, deleted) VALUES(10000, 10000, 10000, CURRENT_DATE + INTERVAL '7' DAY, TIME '00:00:00', 'cool place', 30, 3, 'cool event', 'warm event', 10000, FALSE);
+INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attendees_limit, attendees_count, description, title, flyer_image_id, deleted) VALUES(20000, 20000, 10000, CURRENT_DATE + INTERVAL '7' DAY, TIME '00:00:00', 'cool place', NULL, 1, 'cool event', 'another event', 10000, FALSE);
+INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attendees_limit, attendees_count, description, title, flyer_image_id, deleted) VALUES(30000, 20000, 10000, CURRENT_DATE + INTERVAL '7' DAY, TIME '00:00:00', 'cool place', 30, 0, 'cool event', 'one more event', 10000, FALSE);
+INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attendees_limit, attendees_count, description, title, flyer_image_id, deleted) VALUES(40000, 10000, 10000, CURRENT_DATE - INTERVAL '100' DAY, TIME '00:00:00', 'cool place', 30, 0, 'cool event', 'older event', 10000, FALSE);
+INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attendees_limit, attendees_count, description, title, flyer_image_id, deleted) VALUES(50000, 20000, 10000, CURRENT_DATE + INTERVAL '7' DAY, TIME '00:00:00', 'cool place', 30, 0, 'cool event', 'deleted', 10000, TRUE);
 
-INSERT INTO event_attendances(user_id, event_id) VALUES((SELECT id FROM users WHERE username = 'user1'), (SELECT id FROM events WHERE title = 'warm event'));
-INSERT INTO event_attendances(user_id, event_id) VALUES((SELECT id FROM users WHERE username = 'user2'), (SELECT id FROM events WHERE title = 'warm event'));
-INSERT INTO event_attendances(user_id, event_id) VALUES((SELECT id FROM users WHERE username = 'user3'), (SELECT id FROM events WHERE title = 'warm event'));
-INSERT INTO event_attendances(user_id, event_id) VALUES((SELECT id FROM users WHERE username = 'user1'), (SELECT id FROM events WHERE title = 'another event'));
+INSERT INTO event_attendances(user_id, event_id) VALUES(10000, 10000);
+INSERT INTO event_attendances(user_id, event_id) VALUES(20000, 10000);
+INSERT INTO event_attendances(user_id, event_id) VALUES(30000, 10000);
+INSERT INTO event_attendances(user_id, event_id) VALUES(10000, 20000);
 
