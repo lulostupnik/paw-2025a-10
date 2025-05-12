@@ -78,7 +78,9 @@ public class CareerJdbcDao implements CareerDao {
                 name
         );
         if (rowsUpdated > 0) {
-            return findByName(name).orElseThrow(() -> new RuntimeException("Failed to retrieve reactivated career"));
+            return findByName(name).orElseThrow(() ->{
+                LOGGER.error("Failed to retrieve reactivated career with name {}", name);
+                return new RuntimeException("Failed to retrieve reactivated career");});
         }
 
         final Map<String, Object> args = new HashMap<>();
