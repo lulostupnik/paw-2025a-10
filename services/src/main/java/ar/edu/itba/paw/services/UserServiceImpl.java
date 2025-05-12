@@ -243,7 +243,7 @@ public class UserServiceImpl implements UserService {
     public void newPassword(final String token, final String newPassword) {
         checkPasswordTokenValidity(token);
         LOGGER.debug("updating new password for token: {}", token);
-        userDao.updatePasswordByToken(token, passwordEncoder.encode(newPassword));
+        userDao.updatePasswordAndClearTokenByToken(token, passwordEncoder.encode(newPassword));
         LOGGER.info("Password updated successfully for token: {}", token);
     }
 

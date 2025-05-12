@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface UserDao {
     User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale, String validateToken, LocalDate validateTokenExpiration);
 
-    void updatePasswordByToken(String token, String newPassword);
+    void updatePasswordAndClearTokenByToken(String token, String newPassword);
 
     Optional<User> findById(long id);
 

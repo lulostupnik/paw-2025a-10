@@ -16,14 +16,14 @@ public class EmailInUseValidator implements ConstraintValidator<EmailInUse, Stri
 
     @Override
     public void initialize(EmailInUse constraintAnnotation) {
-        // No initialization needed
+
     }
 
     @Override
     public boolean isValid(String email, ConstraintValidatorContext context) {
         if (email == null || email.isEmpty()) {
-            return true; // Skip validation for empty emails
+            return true;
         }
-        return userService.existsByEmail(email); // Return true if email exists
+        return userService.existsByEmail(email);
     }
 }
