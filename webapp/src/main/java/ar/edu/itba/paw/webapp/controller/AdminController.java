@@ -80,7 +80,7 @@ public class AdminController {
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
-        mav.addObject("pagedUniversities", universityService.getAllUniversities(search, pageParams));
+        mav.addObject("pagedUniversities", universityService.findUniversities(search, pageParams));
 
         return mav;
     }
