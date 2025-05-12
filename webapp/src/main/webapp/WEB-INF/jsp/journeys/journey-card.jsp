@@ -58,8 +58,8 @@
 
                 <fmt:parseDate value="${param.startDate}" pattern="yyyy-MM-dd" var="parsedStartDate" />
                 <fmt:parseDate value="${param.endDate}" pattern="yyyy-MM-dd" var="parsedEndDate" />
-                <fmt:formatDate value="${parsedStartDate}" pattern="MMMM d, yyyy" var="formattedStartDate" />
-                <fmt:formatDate value="${parsedEndDate}" pattern="MMMM d, yyyy" var="formattedEndDate" />
+                <fmt:formatDate value="${parsedStartDate}" pattern="MMM d, yyyy" var="formattedStartDate" />
+                <fmt:formatDate value="${parsedEndDate}" pattern="MMM d, yyyy" var="formattedEndDate" />
 
                 <div class="card-dates">
                     <svg xmlns="http://www.w3.org/2000/svg" class="card-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
