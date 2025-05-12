@@ -122,18 +122,6 @@
 </c:if>
 
 
-<div id="emailValidationPopup" class="popup-overlay">
-    <div class="popup-container">
-        <svg xmlns="http://www.w3.org/2000/svg" class="popup-icon" style="color: #f59e0b;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-        <h3 class="popup-title"><spring:message code="email.validation.title" text="Invalid Email" /></h3>
-        <p class="popup-message" id="emailValidationMessage">
-            <spring:message code="email.validation.message" text="Please enter a valid email address." />
-        </p>
-        <button type="button" class="popup-button" id="closeEmailValidationPopup"><spring:message code="email.validation.button" text="OK" /></button>
-    </div>
-</div>
 
 <div class="auth-container">
     <div class="auth-card">
