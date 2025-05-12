@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import java.util.List;
 
-public final class JdbcDaoUtils {
+class JdbcDaoUtils {
 
     private JdbcDaoUtils() {
         throw new AssertionError("Utility class should not be instantiated");

@@ -34,7 +34,7 @@ import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.UserAuthInfo;
 
-public class TestUtils {
+class TestUtils {
 
     private TestUtils() {
         throw new AssertionError("Utility class should not be instantiated");

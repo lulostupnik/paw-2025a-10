@@ -8,15 +8,6 @@ CREATE TABLE IF NOT EXISTS category (
         name varchar(100) NOT NULL UNIQUE
 );
 
-CREATE TABLE IF NOT EXISTS user_interest (
-        user_id INTEGER NOT NULL,
-        category_id INTEGER NOT NULL,
-        score INTEGER NOT NULL DEFAULT 0,
-
-        PRIMARY KEY (user_id, category_id),
-        FOREIGN KEY (category_id) REFERENCES category ON DELETE CASCADE
-);
-
 
 CREATE TABLE IF NOT EXISTS countries (
         id SERIAL PRIMARY KEY,
@@ -72,6 +63,17 @@ CREATE TABLE IF NOT EXISTS users (
     FOREIGN KEY (career_id) REFERENCES careers(id) ON DELETE RESTRICT,
     FOREIGN KEY(profile_picture_id) REFERENCES images ON DELETE RESTRICT
     );
+
+    CREATE TABLE IF NOT EXISTS user_interest (
+                                             user_id INTEGER NOT NULL,
+                                             category_id INTEGER NOT NULL,
+                                             score INTEGER NOT NULL DEFAULT 0,
+
+                                             PRIMARY KEY (user_id, category_id),
+    FOREIGN KEY (category_id) REFERENCES category ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
 
 
 CREATE TABLE IF NOT EXISTS journeys (
