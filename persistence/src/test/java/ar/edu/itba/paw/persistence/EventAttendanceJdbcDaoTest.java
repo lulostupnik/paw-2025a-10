@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -23,8 +22,6 @@ import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import ar.edu.itba.paw.models.Event;
-import ar.edu.itba.paw.models.Page;
-import ar.edu.itba.paw.models.User;
 
 @Transactional
 @Rollback
