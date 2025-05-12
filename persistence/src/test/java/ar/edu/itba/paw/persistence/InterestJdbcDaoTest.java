@@ -3,6 +3,7 @@ package ar.edu.itba.paw.persistence;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -296,6 +297,32 @@ public class InterestJdbcDaoTest {
     }
 
     @Test
+    public void testUpdateUserInterests(){
+        interestDao.updateUserInterests(new long[]{TestUtils.INTEREST_1_ID}, TestUtils.USER_1_ID);
+
+        TestUtils.assertEqualsInterest(TestUtils.INTEREST_1, jdbcTemplate.queryForObject(TestUtils.INTEREST_SELECT_BY_USER_ID, TestUtils.INTEREST_ROW_MAPPER, TestUtils.USER_1_ID));
+    }
+    @Test
+    public void testUpdateUserInterestsSameInterests(){
+        interestDao.updateUserInterests(new long[]{TestUtils.INTEREST_1_ID, TestUtils.INTEREST_2_ID, TestUtils.INTEREST_3_ID}, TestUtils.USER_1_ID);
+
+        assertEquals(3, jdbcTemplate.query(TestUtils.INTEREST_SELECT_BY_USER_ID, TestUtils.INTEREST_ROW_MAPPER, TestUtils.USER_1_ID).size());
+    }
+    @Test
+    public void testUpdateUserInterestsNoInterests(){
+        interestDao.updateUserInterests(new long[]{}, TestUtils.USER_1_ID);
+
+        assertEquals(0, jdbcTemplate.query(TestUtils.INTEREST_SELECT_BY_USER_ID, TestUtils.INTEREST_ROW_MAPPER, TestUtils.USER_1_ID).size());
+    }
+    @Test
+    public void testUpdateUserInterestsInsertNew(){
+        interestDao.updateUserInterests(new long[]{TestUtils.INTEREST_3_ID}, TestUtils.USER_2_ID);
+
+        assertEquals(1, jdbcTemplate.query(TestUtils.INTEREST_SELECT_BY_USER_ID, TestUtils.INTEREST_ROW_MAPPER, TestUtils.USER_2_ID).size());
+    }
+
+
+    @Test
     public void testUpdateScoreByInterestsMultiple(){
         List<Interest> interests = List.of(TestUtils.INTEREST_1, TestUtils.INTEREST_2);
         
@@ -404,6 +431,13 @@ public class InterestJdbcDaoTest {
                 TestUtils.USER_1_ID
             ).intValue()
         );
+    }
+
+    @Test
+    public void testCreateUserInterestsNames(){
+        interestDao.createUserInterests(List.of(TestUtils.INTEREST_1_NAME, TestUtils.INTEREST_2_NAME), TestUtils.USER_2_ID);
+
+        assertEquals(2, jdbcTemplate.query(TestUtils.INTEREST_SELECT_BY_USER_ID, TestUtils.INTEREST_ROW_MAPPER, TestUtils.USER_2_ID).size());
     }
 
     @Test
