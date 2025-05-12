@@ -53,7 +53,7 @@ INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attend
 INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attendees_limit, attendees_count, description, title, flyer_image_id, deleted) VALUES(20000, 20000, 10000, CURRENT_DATE + INTERVAL '7' DAY, TIME '00:00:00', 'cool place', NULL, 1, 'cool event', 'another event', 10000, FALSE);
 INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attendees_limit, attendees_count, description, title, flyer_image_id, deleted) VALUES(30000, 20000, 10000, CURRENT_DATE + INTERVAL '7' DAY, TIME '00:00:00', 'cool place', 30, 0, 'cool event', 'one more event', 10000, FALSE);
 INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attendees_limit, attendees_count, description, title, flyer_image_id, deleted) VALUES(40000, 10000, 10000, CURRENT_DATE - INTERVAL '100' DAY, TIME '00:00:00', 'cool place', 30, 0, 'cool event', 'older event', 10000, FALSE);
-INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attendees_limit, attendees_count, description, title, flyer_image_id, deleted) VALUES(50000, 20000, 10000, CURRENT_DATE + INTERVAL '7' DAY, TIME '00:00:00', 'cool place', 30, 0, 'cool event', 'deleted', 10000, TRUE);
+INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attendees_limit, attendees_count, description, title, flyer_image_id, deleted) VALUES(50000, 20000, 10000, CURRENT_DATE + INTERVAL '7' DAY, NULL, 'cool place', 30, 0, 'cool event', 'deleted', 10000, TRUE);
 
 INSERT INTO event_attendances(user_id, event_id) VALUES(10000, 10000);
 INSERT INTO event_attendances(user_id, event_id) VALUES(20000, 10000);
