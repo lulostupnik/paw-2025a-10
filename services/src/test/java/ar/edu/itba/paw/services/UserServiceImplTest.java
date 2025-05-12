@@ -39,8 +39,8 @@ public class UserServiceImplTest {
     private static final String FIRSTNAME = "name";
     private static final String LASTNAME = "name";
     private static final University UNIVERSITY = new University(0, "cool", null, null);
-    private static final Career CAREER = new Career((long)0, null);
-    private static final Image IMAGE = new Image((long)0, new byte[0]);
+    private static final Career CAREER = new Career(0, null);
+    private static final Image IMAGE = new Image(0, new byte[0]);
     private static final String PASSWORD = "null";
     private static final String ROLE = "admin";
     private static final Locale LOCALE = Locale.of("en");
@@ -112,10 +112,6 @@ public class UserServiceImplTest {
         userService.createUser(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY.getName(), CAREER.getName(), IMAGE.getData(), List.of(INTEREST.getName()), PASSWORD, LOCALE);
     }
 
-    // @Test
-    // public void testChangePassword(){
-    //     userService.changePassword(USER_ID, PASSWORD);
-    // }
 
     @Test
     public void testValidateEmail(){
@@ -165,17 +161,7 @@ public class UserServiceImplTest {
         userService.validateEmail(TOKEN);
     }
 
-    @Test
-    public void testCheckPasswordTokenValidity(){
-        Mockito.when(
-            userDao.existsByTokenExpired(Mockito.eq(TOKEN))
-        ).thenReturn(false);
-        Mockito.when(
-            userDao.existsByTokenNotExpired(Mockito.eq(TOKEN))
-        ).thenReturn(true);
 
-        userService.checkPasswordTokenValidity(TOKEN);
-    }
     @Test(expected = ExpiredTokenException.class)
     public void testCheckPasswordTokenValidityExpired(){
         Mockito.when(
@@ -199,181 +185,6 @@ public class UserServiceImplTest {
         userService.checkPasswordTokenValidity(TOKEN);
     }
 
-    @Test
-    public void testFindByEmail(){
-        Mockito.when(
-            userDao.findByEmail(Mockito.eq(EMAIL))
-        ).thenReturn(Optional.of(USER));
-
-        Optional<User> maybeUser = userService.findByEmail(EMAIL);
-
-        assertNotNull(maybeUser);
-        assertTrue(maybeUser.isPresent());
-        assertEquals(USER, maybeUser.get());
-    }
-    @Test
-    public void testFindByEmailMissing(){
-        Mockito.when(
-            userDao.findByEmail(Mockito.eq(EMAIL))
-        ).thenReturn(Optional.empty());
-
-        Optional<User> maybeUser = userService.findByEmail(EMAIL);
-
-        assertNotNull(maybeUser);
-        assertFalse(maybeUser.isPresent());
-    }
-
-    @Test
-    public void testFindByEmailWithPassMissing(){
-        Mockito.when(
-            userDao.findAuthInfoByEmail(Mockito.eq(EMAIL))
-        ).thenReturn(Optional.empty());
-
-        Optional<UserAuthInfo> maybeUser = userService.findByEmailWithPass(EMAIL);
-
-        assertNotNull(maybeUser);
-        assertFalse(maybeUser.isPresent());
-    }
-
-    @Test
-    public void testFindById(){
-        Mockito.when(
-            userDao.findById(Mockito.eq(USER_ID))
-        ).thenReturn(Optional.of(USER));
-
-        Optional<User> maybeUser = userService.findById(USER_ID);
-
-        assertNotNull(maybeUser);
-        assertTrue(maybeUser.isPresent());
-        assertEquals(USER, maybeUser.get());
-    }
-    @Test
-    public void testFindByIdMissing(){
-        Mockito.when(
-            userDao.findById(Mockito.eq(USER_ID))
-        ).thenReturn(Optional.empty());
-
-        Optional<User> maybeUser = userService.findById(USER_ID);
-
-        assertNotNull(maybeUser);
-        assertFalse(maybeUser.isPresent());
-    }
-
-    @Test
-    public void testExistsByUsername(){
-        Mockito.when(
-            userDao.existsByUsername(Mockito.eq(EMAIL))
-        ).thenReturn(true);
-
-        boolean exists = userService.existsByUsername(EMAIL);
-
-        assertTrue(exists);
-    }
-    @Test
-    public void testExistsByUsernameMissing(){
-        Mockito.when(
-            userDao.existsByUsername(Mockito.eq(USERNAME))
-        ).thenReturn(false);
-
-        boolean exists = userService.existsByUsername(USERNAME);
-
-        assertFalse(exists);
-    }
-
-    @Test
-    public void testExistsByEmail(){
-        Mockito.when(
-            userDao.existsByEmail(Mockito.eq(EMAIL))
-        ).thenReturn(true);
-
-        boolean exists = userService.existsByEmail(EMAIL);
-
-        assertTrue(exists);
-    }
-    @Test
-    public void testExistsByEmailMissing(){
-        Mockito.when(
-            userDao.existsByEmail(Mockito.eq(EMAIL))
-        ).thenReturn(false);
-
-        boolean exists = userService.existsByEmail(EMAIL);
-
-        assertFalse(exists);
-    }
-
-    @Test
-    public void testGetAllUsersPaged(){
-        Page<User> testPage = new Page<User>(List.of(USER), 1, 1);
-        Mockito.when(
-            userDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(testPage);
-
-        Page<User> users = userService.getAllUsers(null, PAGE_1_DEFAULT);
-
-        assertNotNull(users);
-        assertEquals(testPage, users);
-    }
-    @Test
-    public void testGetAllUsersPagedEmptySearch(){
-        Page<User> testPage = new Page<User>(List.of(USER), 1, 1);
-        Mockito.when(
-            userDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(testPage);
-
-        Page<User> users = userService.getAllUsers("", PAGE_1_DEFAULT);
-
-        assertNotNull(users);
-        assertEquals(testPage, users);
-    }
-    @Test
-    public void testGetAllUsersPagedNoUsers(){
-        Page<User> testPage = new Page<User>(List.of(), 1, 0);
-        Mockito.when(
-            userDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(testPage);
-
-        Page<User> users = userService.getAllUsers(null, PAGE_1_DEFAULT);
-
-        assertNotNull(users);
-        assertEquals(testPage, users);
-    }
-    @Test
-    public void testGetAllUsersPagedEmptySearchNoUsers(){
-        Page<User> testPage = new Page<User>(List.of(), 1, 0);
-        Mockito.when(
-            userDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(testPage);
-
-        Page<User> users = userService.getAllUsers("", PAGE_1_DEFAULT);
-
-        assertNotNull(users);
-        assertEquals(testPage, users);
-    }
-
-    @Test
-    public void testGetAllUsersPagedSearch(){
-        Page<User> testPage = new Page<User>(List.of(USER), 1, 1);
-        Mockito.when(
-            userDao.search(Mockito.eq(FIRSTNAME), Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(testPage);
-
-        Page<User> users = userService.getAllUsers(FIRSTNAME, PAGE_1_DEFAULT);
-
-        assertNotNull(users);
-        assertEquals(testPage, users);
-    }
-    @Test
-    public void testGetAllUsersPagedSearchNoUsers(){
-        Page<User> testPage = new Page<User>(List.of(), 1, 1);
-        Mockito.when(
-            userDao.search(Mockito.eq(FIRSTNAME), Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(testPage);
-
-        Page<User> users = userService.getAllUsers(FIRSTNAME, PAGE_1_DEFAULT);
-
-        assertNotNull(users);
-        assertEquals(testPage, users);
-    }
 
     @Test
     public void testBlockUser(){

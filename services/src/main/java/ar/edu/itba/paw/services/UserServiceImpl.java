@@ -212,14 +212,14 @@ public class UserServiceImpl implements UserService {
         LOGGER.info("Token refreshed successfully for oldToken: {}", oldToken);
     }
 
-    @Override
-    public boolean isValidPasswordResetToken(String token) {
+
+    private boolean isValidPasswordResetToken(String token) {
         LOGGER.debug("Checkin if password reset token is valid: {}", token);
         return userDao.existsByTokenNotExpired(token);
     }
 
-    @Override
-    public boolean isTokenExpired(String token) {
+
+    private boolean isTokenExpired(String token) {
         LOGGER.debug("Checkin if token has expired: {}", token);
         return userDao.existsByTokenExpired(token);
     }

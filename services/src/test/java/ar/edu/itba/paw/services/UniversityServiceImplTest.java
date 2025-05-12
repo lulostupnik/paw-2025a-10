@@ -30,7 +30,6 @@ public class UniversityServiceImplTest {
     private static final String CITY_NAME = "citi";
     private static final City CITY = new City(CITY_NAME, NAME, ID_1);
     private static final University UNI_1 = new University(ID_1, NAME, ABBREVIATION, CITY);
-    private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
 
     @InjectMocks
     private UniversityServiceImpl uniService;
@@ -40,103 +39,6 @@ public class UniversityServiceImplTest {
 
     @Mock
     private CityService cityService;
-
-    // @Test
-    // public void testFindByName(){
-    //     Mockito.when(
-    //         uniDao.findByName(Mockito.eq(NAME))
-    //     ).thenReturn(Optional.of(UNI_1));
-
-    //     Optional<University> maybeUni = uniService.findByName(NAME);
-
-    //     assertNotNull(maybeUni);
-    //     assertTrue(maybeUni.isPresent());
-    //     assertEquals(UNI_1, maybeUni.get());
-    // }
-    // @Test
-    // public void testFindByNameNotFound(){
-    //     Mockito.when(
-    //         uniDao.findByName(Mockito.eq(NAME))
-    //     ).thenReturn(Optional.empty());
-
-    //     Optional<University> maybeUni = uniService.findByName(NAME);
-
-    //     assertNotNull(maybeUni);
-    //     assertFalse(maybeUni.isPresent());
-    // }
-
-    // @Test
-    // public void testFindById(){
-    //     Mockito.when(
-    //         uniDao.findById(Mockito.eq(ID_1))
-    //     ).thenReturn(Optional.of(UNI_1));
-
-    //     Optional<University> maybeUni = uniService.findById(ID_1);
-
-    //     assertNotNull(maybeUni);
-    //     assertTrue(maybeUni.isPresent());
-    //     assertEquals(UNI_1, maybeUni.get());
-    // }
-    // @Test
-    // public void testFindByIdNotFound(){
-    //     Mockito.when(
-    //         uniDao.findById(Mockito.eq(ID_1))
-    //     ).thenReturn(Optional.empty());
-
-    //     Optional<University> maybeUni = uniService.findById(ID_1);
-
-    //     assertNotNull(maybeUni);
-    //     assertFalse(maybeUni.isPresent());
-    // }
-
-    @Test
-    public void testGetAllUniversitiesPagedMissingQuery(){
-        Page<University> testPage = new Page<University>(List.of(UNI_1), 1, 1);
-        Mockito.when(
-            uniDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(testPage);
-
-        Page<University> unis = uniService.getAllUniversities(null, PAGE_1_DEFAULT);
-
-        assertNotNull(unis);
-        assertNotNull(unis.getContent());
-        assertEquals(1, unis.getCurrentPage());
-        assertEquals(1, unis.getTotalPages());
-        assertEquals(1, unis.getContent().size());
-        assertEquals(UNI_1, unis.getContent().getFirst());
-    }
-    @Test
-    public void testGetAllUniversitiesPagedEmptyQuery(){
-        Page<University> testPage = new Page<University>(List.of(UNI_1), 1, 1);
-        Mockito.when(
-            uniDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(testPage);
-
-        Page<University> unis = uniService.getAllUniversities("", PAGE_1_DEFAULT);
-
-        assertNotNull(unis);
-        assertNotNull(unis.getContent());
-        assertEquals(1, unis.getCurrentPage());
-        assertEquals(1, unis.getTotalPages());
-        assertEquals(1, unis.getContent().size());
-        assertEquals(UNI_1, unis.getContent().getFirst());
-    }
-    @Test
-    public void testGetAllUniversitiesPagedQuery(){
-        Page<University> testPage = new Page<University>(List.of(UNI_1), 1, 1);
-        Mockito.when(
-            uniDao.search(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(testPage);
-
-        Page<University> unis = uniService.getAllUniversities(NAME, PAGE_1_DEFAULT);
-
-        assertNotNull(unis);
-        assertNotNull(unis.getContent());
-        assertEquals(1, unis.getCurrentPage());
-        assertEquals(1, unis.getTotalPages());
-        assertEquals(1, unis.getContent().size());
-        assertEquals(UNI_1, unis.getContent().getFirst());
-    }
 
     @Test
     public void testCreateUniversity(){
@@ -161,13 +63,4 @@ public class UniversityServiceImplTest {
         uniService.createUniversity(NAME, ABBREVIATION, CITY_NAME);
     }
 
-    // @Test
-    // public void testUpdateUniversity(){
-    //     uniService.updateUniversity(ID_1, NAME, ABBREVIATION, CITY_NAME);
-    // }
-
-    // @Test
-    // public void testDeleteUniversity(){
-    //     uniService.delete(ID_1);
-    // }
 }

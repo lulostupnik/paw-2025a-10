@@ -169,14 +169,14 @@ public class EventServiceImpl implements EventService {
             LOGGER.warn("User {} is already attending event {}", userId, eventId);
             return;
         }
-        Optional<Integer> limit = eventDao.findAttendanceLimitById(eventId);
-        if(limit.isEmpty()){
+        Optional<Integer> maybeLimit = eventDao.findAttendanceLimitById(eventId);
+        if(maybeLimit.isEmpty()){
             eventAttendanceDao.create(userId, eventId);
             return;
         }
-        if (eventAttendanceDao.countByEventId(eventId) >= limit.get()) {
-            LOGGER.warn("Event attendance limit of {} reached", limit.get());
-            return;
+        if (eventAttendanceDao.countByEventId(eventId) >= maybeLimit.get()) {
+            LOGGER.warn("Event attendance limit of {} reached", maybeLimit.get());
+            throw new InvalidException("Event attendance limit of " + maybeLimit.get() + " reached");
         }
         eventAttendanceDao.create(userId, eventId);
         eventDao.incrementAttendeesCount(eventId);
