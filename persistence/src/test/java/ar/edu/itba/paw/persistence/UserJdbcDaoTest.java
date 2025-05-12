@@ -15,6 +15,7 @@ import java.util.Optional;
 import javax.sql.DataSource;
 
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.persistence.config.TestConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -485,15 +486,6 @@ public class UserJdbcDaoTest {
         assertFalse(maybeValidated.isPresent());
     }
 
-    //HSQL does not support 'RETURNING'
-    // @Test
-    // public void testUpdateValidationAndFindAuthInfoByToken(){
-    //     Optional<UserAuthInfo> maybeInfo = userDao.updateValidationAndFindAuthInfoByToken(TestUtils.USER_TOKEN_DEFAULT);
-
-    //     assertNotNull(maybeInfo);
-    //     assertTrue(maybeInfo.isPresent());
-    //     assertTrue(maybeInfo.get().isVerified());
-    // }
 
     @Test
     public void findByToken(){

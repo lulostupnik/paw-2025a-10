@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import javax.sql.DataSource;
 
+import ar.edu.itba.paw.persistence.config.TestConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ar.edu.itba.paw.models.Image;
 
 @Transactional
-@Rollback
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
 public class ImageJdbcDaoTest {

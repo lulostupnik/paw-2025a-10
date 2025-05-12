@@ -11,6 +11,7 @@ import java.util.Optional;
 import javax.sql.DataSource;
 
 import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.persistence.config.TestConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +28,6 @@ import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.Page;
 
 @Transactional
-@Rollback
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
 public class InterestJdbcDaoTest {

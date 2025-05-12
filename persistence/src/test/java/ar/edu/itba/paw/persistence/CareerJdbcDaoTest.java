@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import javax.sql.DataSource;
 import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.persistence.config.TestConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
@@ -25,7 +25,6 @@ import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.Page;
 
 @Transactional
-@Rollback
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
 public class CareerJdbcDaoTest {

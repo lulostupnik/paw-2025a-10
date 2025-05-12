@@ -36,6 +36,10 @@ import ar.edu.itba.paw.models.UserAuthInfo;
 
 public class TestUtils {
 
+    private TestUtils() {
+        throw new AssertionError("Utility class should not be instantiated");
+    }
+
     //CONSTANTS
     public static final String CAREER_TABLE = "careers";
     public static final String CITY_TABLE = "cities";

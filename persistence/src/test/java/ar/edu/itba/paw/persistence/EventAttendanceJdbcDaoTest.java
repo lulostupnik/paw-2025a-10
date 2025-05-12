@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import ar.edu.itba.paw.persistence.config.TestConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ar.edu.itba.paw.models.Event;
 
 @Transactional
-@Rollback
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
 public class EventAttendanceJdbcDaoTest {
@@ -167,69 +167,4 @@ public class EventAttendanceJdbcDaoTest {
         assertEquals(0, events.size());
     }
 
-    /*
-    @Test
-    public void testFindAllAttendeesByEventIdPaged(){
-        Page<User> page1 = attendanceDao.findAllAttendeesByEventId(TestUtils.EVENT_1_ID, TestUtils.PAGE_1_DEFAULT);
-        Page<User> page2 = attendanceDao.findAllAttendeesByEventId(TestUtils.EVENT_1_ID, TestUtils.PAGE_2_DEFAULT);
-
-        assertNotNull(page1);
-        assertNotNull(page2);
-        assertEquals(1, page1.getCurrentPage());
-        assertEquals(2, page2.getCurrentPage());
-        assertEquals(2, page1.getTotalPages());
-        assertEquals(2, page2.getTotalPages());
-        assertNotNull(page1.getContent());
-        assertNotNull(page2.getContent());
-        assertEquals(2, page1.getContent().size());
-        assertEquals(1, page2.getContent().size());
-    }
-    @Test
-    public void testFindAllAttendeesPagedNoAttendeesByEventId(){
-        Page<User> attendees = attendanceDao.findAllAttendeesByEventId(TestUtils.EVENT_3_ID, TestUtils.PAGE_1_DEFAULT);
-
-        assertNotNull(attendees);
-        assertEquals(1, attendees.getCurrentPage());
-        assertEquals(0, attendees.getTotalPages());
-        assertNotNull(attendees.getContent());
-        assertEquals(0, attendees.getContent().size());
-    }
-    @Test
-    public void testFindAllAttendeesByEventIdPagedMissingEvent(){
-        Page<User> attendees = attendanceDao.findAllAttendeesByEventId(412341234, TestUtils.PAGE_1_DEFAULT);
-
-        assertNotNull(attendees);
-        assertEquals(1, attendees.getCurrentPage());
-        assertEquals(0, attendees.getTotalPages());
-        assertNotNull(attendees.getContent());
-        assertEquals(0, attendees.getContent().size());
-    }
-    */
-
-    // @Test
-    // public void testFindAllEventsByAttendeePaged(){
-    //     Page<Event> page1 = attendanceDao.findAllEventsByAttendee(TestUtils.USER_1_ID, TestUtils.PAGE_1_SINGLE);
-    //     Page<Event> page2 = attendanceDao.findAllEventsByAttendee(TestUtils.USER_1_ID, TestUtils.PAGE_2_SINGLE);
-        
-    //     assertNotNull(page1);
-    //     assertNotNull(page2);
-    //     assertEquals(1, page1.getCurrentPage());
-    //     assertEquals(2, page2.getCurrentPage());
-    //     assertEquals(1, page1.getTotalPages());
-    //     assertEquals(1, page2.getTotalPages());
-    //     assertNotNull(page1.getContent());
-    //     assertNotNull(page2.getContent());
-    //     assertEquals(1, page1.getContent().size());
-    //     assertEquals(0, page2.getContent().size());    
-    // }
-    // @Test
-    // public void testFindAllEventsByAttendeePagedWrongUser(){
-    //     Page<Event> events = attendanceDao.findAllEventsByAttendee(12341234, TestUtils.PAGE_1_SINGLE);
-        
-    //     assertNotNull(events);
-    //     assertEquals(1, events.getCurrentPage());
-    //     assertEquals(0, events.getTotalPages());
-    //     assertNotNull(events.getContent());
-    //     assertEquals(0, events.getContent().size());    
-    // }
 }
