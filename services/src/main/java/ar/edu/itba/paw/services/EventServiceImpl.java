@@ -301,15 +301,20 @@ public class EventServiceImpl implements EventService {
         ).getId();
 
         long flyerImageId = currentEvent.getFlyerImageId();
-        if(flyer != null && flyer.length > 0) {
+        boolean changeImage = flyer != null && flyer.length > 0;
+        if(changeImage){
             flyerImageId = imageService.storeImage(flyer);
+        }
+
+        eventDao.update(resolvedCityId, date, description,
+                title, time, address, attendeesLimit, eventId, flyerImageId);
+
+        if(changeImage) {
             imageService.deleteImage(currentEvent.getFlyerImageId());
             LOGGER.info("Flyer image {} deleted", currentEvent.getFlyerImageId());
         }
         // hacer void ?
-        eventDao.update(resolvedCityId, date, description,
-                title, time, address, attendeesLimit, eventId, flyerImageId
-       );
+
         LOGGER.info("Event {} updated", eventId);
     }
 

@@ -6,6 +6,7 @@ import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
 import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.models.exceptions.EventResponseNotFoundException;
+import ar.edu.itba.paw.models.exceptions.InvalidException;
 import ar.edu.itba.paw.webapp.form.*;
 
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -167,12 +169,17 @@ public class EventController {
     public ModelAndView deleteEventReplyForm(@PathVariable(value = "eventId") long eventId,
                                              @PathVariable("id") long id,
                                              @ModelAttribute("deleteReplyForm") ReplyForm form) {
+        if(eventService.getEventIdByResponseId(id) != eventId){
+            LOGGER.error("Event ID {} and response ID {} do not match", eventId, id);
+            throw new InvalidException();
+        }
         Event event = eventService.getEventById(eventId).orElseThrow(() -> {
             LOGGER.error("event not found");
             return new EventNotFoundException();});
         EventResponse eventResponse = eventService.findEventResponseById(id).orElseThrow(() -> {
             LOGGER.error("eventResponse not found");
-            return new EventResponseNotFoundException("eventResponse not found");});
+            return new NotFoundException("eventResponse not found");});
+
         ModelAndView mav = new ModelAndView("events/delete-reply");
         mav.addObject("event", event);
         mav.addObject("eventResponse", eventResponse);
