@@ -94,7 +94,7 @@
           <select id="city" class="form-select ${not empty errors.getFieldError('city') ? 'error' : ''}" style="display: none;">
             <option value=""><spring:message code="createUniversity.city.select"/></option>
             <c:forEach var="item" items="${cities}">
-              <option value="${item.name}"><c:out value="${item.name}"/></option>
+              <option value="<c:out value="${item.name}"/>"/><c:out value="${item.name}"/></option>
             </c:forEach>
           </select>
             <c:set var="citySearch"><spring:message code="createUniversity.city.search"/></c:set>

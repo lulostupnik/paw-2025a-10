@@ -86,7 +86,7 @@
           <select  id="country" class="form-select ${not empty errors.getFieldError('country') ? 'error' : ''}" style="display: none;">
             <option value=""><spring:message code="createCity.country.select" text="Select a country"/></option>
             <c:forEach var="item" items="${countries}">
-              <option value="${item.name}"><c:out value="${item.name}"/></option>
+              <option value="<c:out value="${item.name}"/>"><c:out value="${item.name}"/></option>
             </c:forEach>
           </select>
           <c:set var="countrySearch"><spring:message code="createCity.country.search" text="Type to search country..."/></c:set>

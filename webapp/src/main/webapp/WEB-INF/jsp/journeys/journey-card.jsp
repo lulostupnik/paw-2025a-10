@@ -33,9 +33,11 @@
                 <div class="event-card-header">
                     <div class="event-location">
                         <h3>
+                            <c:set var="city"> <c:out value="${param.city}"/></c:set>
+                            <c:set var="country"> <c:out value="${param.country}"/></c:set>
+
                             <spring:message code="journey.destinationCityAndCountry"
-                                            arguments="${param.city},${param.country}"
-                                            htmlEscape="true"/>
+                                            arguments="${city},${country}"/>
                         </h3>
                     </div>
                     <p class="event-card-subtitle mt-2">

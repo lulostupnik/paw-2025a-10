@@ -134,7 +134,7 @@
                     <select  id="city" class="form-select ${not empty errors.getFieldError('city') ? 'error' : ''}" style="display: none;">
                         <option value=""><spring:message code="createJourney.destinationCity.select"/></option>
                         <c:forEach var="item" items="${cities}">
-                            <option value="${item.name}"><c:out value="${item.name}"/></option>
+                            <option value="<c:out value="${item.name}"/>"><c:out value="${item.name}"/></option>
                         </c:forEach>
                     </select>
                     <c:set var="citySearch"><spring:message code="event.city.search"/></c:set>
