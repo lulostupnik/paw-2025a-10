@@ -22,6 +22,7 @@ public interface UserService {
     void unblockUser(long userId);
     void changePassword(long id, String newPassword);
     UserAuthInfo validateEmail(String token);
+    void checkPasswordTokenValidity(String token);
     void refreshToken(String oldToken);
     void refreshPassToken(String oldToken);
     boolean isValidPasswordResetToken(String token);
