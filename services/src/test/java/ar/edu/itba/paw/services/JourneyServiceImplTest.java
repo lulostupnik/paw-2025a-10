@@ -98,7 +98,7 @@ public class JourneyServiceImplTest {
     @Mock
     InterestService interestService;
     @Mock
-    UserDao userDao; //TODO No
+    UserDao userDao;
 
     
     @Test

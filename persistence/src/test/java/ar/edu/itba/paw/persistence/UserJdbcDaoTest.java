@@ -307,24 +307,10 @@ public class UserJdbcDaoTest {
    }
     @Test
     public void testFindAllEventResponders(){
-        //TODO replace event insert
-        long eventId = new SimpleJdbcInsert(ds).withTableName(TestUtils.EVENT_TABLE).usingGeneratedKeyColumns("id")
-            .executeAndReturnKey(Map.of(
-                "user_id", TestUtils.USER_1_ID, 
-                "city_id", jdbcTemplate.queryForObject("SELECT id FROM cities LIMIT 1", Long.class), 
-                "event_date", LocalDate.now().plusDays(10).toString(),
-                "title", "title",
-                "description", "event",
-                "deleted", false))
-            .longValue();
-        SimpleJdbcInsert eventReplyInsert = new SimpleJdbcInsert(ds).withTableName(TestUtils.EVENT_REPLY_TABLE).usingGeneratedKeyColumns("id");
-        eventReplyInsert.execute(Map.of("user_id", TestUtils.USER_2_ID, "event_id", eventId, "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
-        eventReplyInsert.execute(Map.of("user_id", TestUtils.USER_3_ID, "event_id", eventId, "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
-
-        List<User> repliesUser = userDao.findAllEventResponders(eventId);
+        List<User> repliesUser = userDao.findAllEventResponders(TestUtils.EVENT_1_ID);
 
         assertNotNull(repliesUser);
-        assertEquals(2, repliesUser.size());
+        assertEquals(1, repliesUser.size());
         for (User user : repliesUser) {
             TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(user.getId()), user);
         }
