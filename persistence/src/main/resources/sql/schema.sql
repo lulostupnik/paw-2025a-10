@@ -50,15 +50,6 @@ CREATE TABLE IF NOT EXISTS careers (
         deleted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
--- CREATE TABLE IF NOT EXISTS career_in_university (
---         id SERIAL PRIMARY KEY,
---         career_id INTEGER NOT NULL,
---         university_id INTEGER NOT NULL,
---         FOREIGN KEY (career_id) REFERENCES career(id) ON DELETE CASCADE,
---         FOREIGN KEY (university_id) REFERENCES university(id) ON DELETE CASCADE,
---         UNIQUE (career_id, university_id)
--- );
-
 
 CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -69,6 +60,8 @@ CREATE TABLE IF NOT EXISTS users (
         university INTEGER NOT NULL,
         career_id INTEGER NOT NULL,
         profile_picture_id INTEGER NOT NULL,
+        password VARCHAR(100) NOT NULL DEFAULT '$2b$10$KbQiA8xVuOPQkfiYJ0X0FubQbQjEJpTr6QOBD3qL6sYzFoq2nJ8fK',
+        roles VARCHAR(50) DEFAULT 'user' CHECK (roles IN ('user', 'admin')),
         language VARCHAR(2) NOT NULL DEFAULT 'en' CHECK (language IN ('en', 'es')),
         blocked BOOLEAN NOT NULL DEFAULT FALSE,
         token VARCHAR(100) UNIQUE DEFAULT NULL,
@@ -79,23 +72,6 @@ CREATE TABLE IF NOT EXISTS users (
         FOREIGN KEY (career_id) REFERENCES careers(id) ON DELETE RESTRICT
 );
 
--- CREATE TABLE IF NOT EXISTS area_of_study (
---         id SERIAL PRIMARY KEY,
---         name VARCHAR(255) NOT NULL UNIQUE
--- );
-
--- CREATE TABLE IF NOT EXISTS career_area (
---         id SERIAL PRIMARY KEY,
---         career_id INTEGER NOT NULL,
---         area_of_study_id INTEGER NOT NULL,
---         UNIQUE(career_id, area_of_study_id),
---         FOREIGN KEY (career_id) REFERENCES career(id) ON DELETE CASCADE,
---         FOREIGN KEY (area_of_study_id) REFERENCES area_of_study(id) ON DELETE CASCADE
--- );
-
-
-
-
 
 CREATE TABLE IF NOT EXISTS journeys (
     id SERIAL PRIMARY KEY,
@@ -104,6 +80,8 @@ CREATE TABLE IF NOT EXISTS journeys (
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     description VARCHAR(2047),
+    deleted BOOLEAN NOT NULL,
+    deleted_message VARCHAR(1000),
     FOREIGN KEY (destination_university_id) REFERENCES universities(id) ON DELETE RESTRICT,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT
     );
@@ -115,7 +93,8 @@ CREATE TABLE IF NOT EXISTS journey_responses (
         journey_id INTEGER NOT NULL,
         message VARCHAR(1023) NOT NULL,
         date_time TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
-        -- agregar created_at -> ¿Se puede autogenerar con el motor de la base de datos?
+        deleted BOOLEAN NOT NULL DEFAULT FALSE,
+        deleted_message VARCHAR(1000),
 
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
         FOREIGN KEY (journey_id) REFERENCES journeys(id) ON DELETE CASCADE
@@ -133,6 +112,9 @@ CREATE TABLE IF NOT EXISTS events (
         address VARCHAR(255),
         flyer_image_id INTEGER,
         attendees_count INTEGER DEFAULT 0,
+        title VARCHAR(255),
+        deleted BOOLEAN NOT NULL DEFAULT FALSE,
+        deleted_message VARCHAR(1000),
 
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT,
     FOREIGN KEY (city_id) REFERENCES cities(id) ON DELETE RESTRICT,
@@ -140,11 +122,13 @@ CREATE TABLE IF NOT EXISTS events (
     );
 
 CREATE TABLE IF NOT EXISTS event_responses (
-                                               id SERIAL PRIMARY KEY,
-                                               user_id INTEGER NOT NULL,
-                                               event_id INTEGER NOT NULL,
-                                               message VARCHAR(1023) NOT NULL,
-                                               date_time TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    event_id INTEGER NOT NULL,
+    message VARCHAR(1023) NOT NULL,
+    date_time TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
+    deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    deleted_message VARCHAR(1000),
 
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
