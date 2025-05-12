@@ -143,7 +143,7 @@ public class JourneyController {
                                               BindingResult errors) {
 
         Journey journey = js.getJourneyById(journeyId)
-                .orElseThrow(JourneyNotFoundException::new);
+                .orElseThrow(()-> new JourneyNotFoundException("Journey with id %d not found to update".formatted(journeyId)));
 
         if(!errors.hasErrors()) {
             form.setStartDate(journey.getStartDate());
