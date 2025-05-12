@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-//                 "interests", "interestsById", "interestsByName",
 
 @Service
 @Transactional(readOnly = true)
@@ -63,9 +62,6 @@ public class InterestServiceImpl implements InterestService {
             put = {
                 @CachePut(value = "interestsByName", key = "#name"),
                 @CachePut(value = "interestsById", key = "#result.id")
-            },
-            evict = {
-                @CacheEvict(value = "interests", allEntries = true)
             }
     )
     public Interest createUserInterest(final String name) {
@@ -78,7 +74,6 @@ public class InterestServiceImpl implements InterestService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = "interestsById", key = "#id"),
-            @CacheEvict(value = "interests", allEntries = true),
             @CacheEvict(value = "interestsByName", allEntries = true)
     })
     @Override
@@ -141,7 +136,6 @@ public class InterestServiceImpl implements InterestService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = "interestsById", key = "#id"),
-            @CacheEvict(value = "interests", allEntries = true),
             @CacheEvict(value = "interestsByName", allEntries = true)
     })
     public void delete(final long id) {

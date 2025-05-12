@@ -12,7 +12,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -61,8 +60,6 @@ public class CityServiceImpl implements CityService {
             evict = {
                     @CacheEvict(value = "citiesByName", allEntries = true),
                     @CacheEvict(value = "citiesById", key = "#id"),
-                    @CacheEvict(value = "cities", allEntries = true),
-                    @CacheEvict(value = "universities", allEntries = true),
                     @CacheEvict(value = "universitiesById", allEntries = true),
                     @CacheEvict(value = "universitiesByName", allEntries = true)
             }
@@ -81,8 +78,6 @@ public class CityServiceImpl implements CityService {
     @Transactional
     @Caching(
             evict = {
-                    @CacheEvict(value= "cities", allEntries = true),
-                    @CacheEvict(value = "universities", allEntries = true),
                     @CacheEvict(value = "universitiesById", allEntries = true),
                     @CacheEvict(value = "universitiesByName", allEntries = true)
             }
@@ -105,8 +100,6 @@ public class CityServiceImpl implements CityService {
             evict = {
                     @CacheEvict(value = "citiesById", key = "#id"),
                     @CacheEvict(value = "citiesByName", allEntries = true),
-                    @CacheEvict(value = "cities", allEntries = true),
-                    @CacheEvict(value = "universities", allEntries = true),
                     @CacheEvict(value = "universitiesById", allEntries = true),
                     @CacheEvict(value = "universitiesByName", allEntries = true)
             }
