@@ -1,8 +1,6 @@
 package ar.edu.itba.paw.webapp.validation;
 
-import ar.edu.itba.paw.interfaces.services.CareerService;
 import ar.edu.itba.paw.interfaces.services.CityService;
-import ar.edu.itba.paw.models.City;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.validation.ConstraintValidator;
@@ -27,7 +25,7 @@ public class CityNotExistsValidator implements ConstraintValidator<CityNotExists
         if (value == null || value.isEmpty()) {
             return true;
         }
-        return cityService.findByName(value).isEmpty();
+        return cityService.findCityByName(value).isEmpty();
     }
 
 }

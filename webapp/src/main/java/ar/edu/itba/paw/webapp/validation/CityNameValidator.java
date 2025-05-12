@@ -21,7 +21,6 @@ public class CityNameValidator implements ConstraintValidator<ExistingCity, Stri
         if (city == null || city.isEmpty()) {
             return true;
         }
-
-        return cityService.findByName(city).isPresent();
+        return cityService.findCityByName(city).isPresent();
     }
 }

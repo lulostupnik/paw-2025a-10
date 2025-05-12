@@ -23,6 +23,5 @@ public class UpdatePasswordMatchValidator implements ConstraintValidator<Passwor
                     .addConstraintViolation();
         }
         return matches;
-        //return form.getPassword().equals(form.getConfirmPassword());
     }
 }

@@ -59,7 +59,7 @@ public class ProfileController {
 
         ModelAndView mav = new ModelAndView(PROFILE);
         addUserJourneyToMav(user, mav);
-        mav.addObject("interests",interestService.findAllInterestsByUserId(user.getId(), pageParams));
+        mav.addObject("interests",interestService.findInterestsByUserId(user.getId(), pageParams));
         return mav;
     }
 
@@ -71,8 +71,8 @@ public class ProfileController {
             @PageParamCustomizer(defaultSize = 6) PageParams pageParam) {
 
         ModelAndView mav = new ModelAndView(PROFILE);
-        mav.addObject("events", eventService.getAllEvents(user.getEmail(), pageParam));
-        mav.addObject("userAttendingEvents", eventService.getUserAttendingEvents(user.getId(), attendingPage));
+        mav.addObject("events", eventService.findEvents(user.getEmail(), pageParam));
+        mav.addObject("userAttendingEvents", eventService.findEventsByAttendee(user.getId(), attendingPage));
         mav.addObject("currentPageUserEvents", pageParam.getPage());
         mav.addObject("currentPageUserAttending", attendingPage.getPage());
         addUserJourneyToMav(user, mav);

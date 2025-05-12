@@ -23,6 +23,7 @@ public class ExistingCountryValidator implements ConstraintValidator<ExistingCou
         if (country == null || country.isEmpty()) {
             return true;
         }
-        return countryService.findByName(country).isPresent();
+
+        return countryService.findCountryByName(country).isPresent();
     }
 }

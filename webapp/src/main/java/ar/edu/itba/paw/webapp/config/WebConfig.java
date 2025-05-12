@@ -49,7 +49,7 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 @EnableWebMvc
 @EnableAsync
 @EnableScheduling
-@ComponentScan({ "ar.edu.itba.paw.webapp.controller", "ar.edu.itba.paw.services", "ar.edu.itba.paw.persistence"}) // , "ar.edu.itba.paw.services"
+@ComponentScan({ "ar.edu.itba.paw.webapp.controller", "ar.edu.itba.paw.services", "ar.edu.itba.paw.persistence"})
 @Configuration
 @PropertySource("classpath:application.properties")
 public class WebConfig implements WebMvcConfigurer {
@@ -149,7 +149,7 @@ public class WebConfig implements WebMvcConfigurer {
         props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.debug", "true"); // Opcional: para ver logs
+        props.put("mail.debug", "true");
         return mailSender;
     }
 
@@ -166,7 +166,7 @@ public class WebConfig implements WebMvcConfigurer {
         templateResolver.setSuffix(".html");
         templateResolver.setTemplateMode(TemplateMode.HTML);
         templateResolver.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        templateResolver.setCacheable(false);
+        templateResolver.setCacheable(true);
         return templateResolver;
     }
 

@@ -244,7 +244,7 @@ class TestUtils {
 
     public static final int TOTAL_JOURNEY_RESPONSES = 3;
 
-    public static final String EVENT_TITLE_DEFAULT = "warm event"; //cool conflicted in search so...
+    public static final String EVENT_TITLE_DEFAULT = "warm event";
     public static final String EVENT_TITLE_2 = "another event"; 
     public static final String EVENT_TITLE_3 = "one more event";
     public static final String EVENT_TITLE_DELETED = "deleted";

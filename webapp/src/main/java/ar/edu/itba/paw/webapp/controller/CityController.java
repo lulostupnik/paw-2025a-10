@@ -38,12 +38,12 @@ public class CityController {
     @ResponseBody
     public String getCitiesJson(@RequestParam(value = "search", required = false) String search,
                                 @PageParamCustomizer(defaultSize = 30) PageParams pageParams) {
-        return JsonUtils.toJson( cityService.getAllCities(search, pageParams).getContent());
+        return JsonUtils.toJson( cityService.searchCities(search, pageParams).getContent());
     }
 
     @GetMapping(value = "/create")
     public ModelAndView createCitiesForm(@ModelAttribute(CITY_CREATE_FORM) final CreateCityForm form) {
-        return new ModelAndView(CREATE_CITY).addObject("countries",countryService.getAllCountries());
+        return new ModelAndView(CREATE_CITY).addObject("countries",countryService.findCountries());
     }
 
     @PostMapping(path = "/create")
@@ -62,7 +62,7 @@ public class CityController {
     }
     @GetMapping(value= "/{id}")
     public ModelAndView getCity(@PathVariable(value = "id") final long id) {
-        City city = cityService.findById(id).orElseThrow(() -> {
+        City city = cityService.findCityById(id).orElseThrow(() -> {
             LOGGER.error("City not found");
             return new NotFoundException("City not found");
         });
@@ -74,7 +74,7 @@ public class CityController {
     @GetMapping(value = "/{id}/edit")
     public ModelAndView updateCityForm(@PathVariable("id") Long id,
                                        @ModelAttribute(CITY_CREATE_FORM) final CreateCityForm form, BindingResult errors) {
-        City city = cityService.findById(id).orElseThrow(() -> {
+        City city = cityService.findCityById(id).orElseThrow(() -> {
             LOGGER.error("City not found");
             return new NotFoundException("City not found");
         });
@@ -86,7 +86,7 @@ public class CityController {
         ModelAndView mav = new ModelAndView(CREATE_CITY);
         mav.addObject("isUpdate", true);
         mav.addObject("cityId", id);
-        mav.addObject("countries", countryService.getAllCountries());
+        mav.addObject("countries", countryService.findCountries());
         return mav;
     }
 
@@ -111,7 +111,7 @@ public class CityController {
 
     @PostMapping(value = "/{id}/delete")
     public ModelAndView deleteCity(@PathVariable long id) {
-        cityService.delete(id);
+        cityService.deleteCity(id);
         return new ModelAndView("redirect:/dashboard/cities");
     }
 

@@ -25,7 +25,7 @@ public class CurrentAttendeeValidator implements ConstraintValidator<CurrentAtte
             return true;
         }
         System.out.println(form.getId());
-        Optional<Event> event = eventService.getEventById(form.getId());
+        Optional<Event> event = eventService.findEventById(form.getId());
 
         System.out.println("Event: " + event);
 

@@ -32,7 +32,7 @@ public class CityServiceImplTest {
     @Test(expected = IllegalArgumentException.class)
     public void testUpdateCityMissingCountry(){
         Mockito.when(
-            countryService.findByName(Mockito.eq(COUNTRY_NAME))
+            countryService.findCountryByName(Mockito.eq(COUNTRY_NAME))
         ).thenReturn(Optional.empty());
 
         cityService.updateCity(ID_1, NAME, COUNTRY_NAME);
@@ -41,7 +41,7 @@ public class CityServiceImplTest {
     @Test(expected = IllegalArgumentException.class)
     public void testCreateCityMissingCountry(){
         Mockito.when(
-            countryService.findByName(Mockito.eq(COUNTRY_NAME))
+            countryService.findCountryByName(Mockito.eq(COUNTRY_NAME))
         ).thenReturn(Optional.empty());
 
         cityService.createCity(NAME, COUNTRY_NAME);

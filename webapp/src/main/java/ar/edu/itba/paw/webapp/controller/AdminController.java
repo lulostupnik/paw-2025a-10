@@ -37,7 +37,7 @@ public class AdminController {
             @PageParamCustomizer(defaultPage = -1, sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
-        mav.addObject("pagedEvents", eventService.getAllEventsSearch(search, pageParams));
+        mav.addObject("pagedEvents", eventService.searchEvents(search, pageParams));
         return mav;
     }
 
@@ -57,7 +57,7 @@ public class AdminController {
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
-        mav.addObject("pagedJourneys", journeyService.getAllJourneys(search,pageParams));
+        mav.addObject("pagedJourneys", journeyService.findJourneys(search,pageParams));
 
 
         return mav;
@@ -69,7 +69,7 @@ public class AdminController {
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
-        mav.addObject("pagedCareers", careerService.getAllCareers(search,pageParams));
+        mav.addObject("pagedCareers", careerService.searchCareers(search,pageParams));
 
         return mav;
     }
@@ -80,7 +80,7 @@ public class AdminController {
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
-        mav.addObject("pagedUniversities", universityService.getAllUniversities(search, pageParams));
+        mav.addObject("pagedUniversities", universityService.findUniversities(search, pageParams));
 
         return mav;
     }
@@ -91,7 +91,7 @@ public class AdminController {
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
-        mav.addObject("pagedInterests", interestService.getAllInterests(search, pageParams));
+        mav.addObject("pagedInterests", interestService.findInterests(search, pageParams));
 
         return mav;
     }
@@ -101,7 +101,7 @@ public class AdminController {
          @PageParamCustomizer( sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
-        mav.addObject("pagedCities", cityService.getAllCities(search, pageParams));
+        mav.addObject("pagedCities", cityService.searchCities(search, pageParams));
         return mav;
     }
 

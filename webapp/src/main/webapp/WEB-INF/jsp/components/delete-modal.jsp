@@ -13,7 +13,7 @@
       </button>
     </div>
     <div class="attendance-modal-body">
-      <p id="delete-modal-warning">${param.warning}</p>
+      <p id="delete-modal-warning"><c:out value="{param.warning}"/></p>
 
 
       <div id="delete-form-container">
