@@ -287,7 +287,7 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public List<Event> findAllBetweenDates(final LocalDate startDate, final LocalDate endDate) {
-        return jdbcTemplate.query(SQL_FIND_ALL_BETWEEN_DATES, EVENT_ROW_MAPPER, startDate, endDate);
+        return jdbcTemplate.query(SQL_FIND_ALL_BETWEEN_DATES, EVENT_ROW_MAPPER, Date.valueOf(startDate), Date.valueOf(endDate));
     }
 
     @Override

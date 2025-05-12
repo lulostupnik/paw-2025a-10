@@ -262,6 +262,41 @@ public class EventJdbcDaoTest {
     }
 
     @Test
+    public void testFindAllBetweenDates(){
+        List<Event> events = eventDao.findAllBetweenDates(TestUtils.EVENT_DATE_OLDER, TestUtils.EVENT_DATE_DEFAULT.plusDays(-1));
+
+        assertNotNull(events);
+        assertEquals(1, events.size());
+        TestUtils.assertEqualsEvent(TestUtils.EVENT_OLDER, events.getFirst());
+    }
+    @Test
+    public void testFindAllBetweenDates2(){
+        List<Event> events = eventDao.findAllBetweenDates(TestUtils.EVENT_DATE_DEFAULT, TestUtils.EVENT_DATE_LATER);
+
+        assertNotNull(events);
+        assertEquals(3, events.size());
+    }
+
+    @Test
+    public void testCountEventsCreatedByUser(){
+        int eventCount = eventDao.countEventsCreatedByUser(TestUtils.USER_1_ID);
+
+        assertEquals(TestUtils.USER_1_CREATED_EVENTS, eventCount);
+    }
+    @Test
+    public void testCountEventsCreatedByUser2(){
+        int eventCount = eventDao.countEventsCreatedByUser(TestUtils.USER_1_ID);
+
+        assertEquals(TestUtils.USER_2_CREATED_EVENTS, eventCount);
+    }
+    @Test
+    public void testCountEventsCreatedByUserNotFound(){
+        int eventCount = eventDao.countEventsCreatedByUser(12341234l);
+
+        assertEquals(0, eventCount);
+    }
+
+    @Test
     public void testDelete(){
         int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_TABLE);
 
