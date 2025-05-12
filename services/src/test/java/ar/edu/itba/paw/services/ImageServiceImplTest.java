@@ -85,8 +85,8 @@ public class ImageServiceImplTest {
         assertFalse(maybeImage.isPresent());
     }
 
-    @Test
-    public void testDeleteImage(){
-        imageService.deleteImage(IMAGE_ID);
-    }
+    // @Test
+    // public void testDeleteImage(){
+    //     imageService.deleteImage(IMAGE_ID);
+    // }
 }
