@@ -134,7 +134,7 @@ public class JourneyServiceImplTest {
     }
 
     @Test
-    public void testReplyToJourney(){
+    public void testCreateJourneyResponse(){
         Mockito.when(
             journeyDao.findById(Mockito.eq(JOURNEY_ID))
         ).thenReturn(Optional.of(JOURNEY));
@@ -145,10 +145,10 @@ public class JourneyServiceImplTest {
             interestService.findByUserId(Mockito.eq(USER_ID))
         ).thenReturn(INTERESTS);
 
-        journeyService.replyToJourney(EMAIL, JOURNEY_ID, DESCRIPTION);
+        journeyService.createJourneyResponse(EMAIL, JOURNEY_ID, DESCRIPTION);
     }
     @Test(expected = RuntimeException.class)
-    public void testReplyToJourneyUserNotFound(){
+    public void testCreateJourneyResponseUserNotFound(){
         Mockito.when(
             journeyDao.findById(Mockito.eq(JOURNEY_ID))
         ).thenReturn(Optional.of(JOURNEY));
@@ -156,15 +156,15 @@ public class JourneyServiceImplTest {
             userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.empty());
 
-        journeyService.replyToJourney(EMAIL, JOURNEY_ID, DESCRIPTION);
+        journeyService.createJourneyResponse(EMAIL, JOURNEY_ID, DESCRIPTION);
     }
     @Test(expected = RuntimeException.class)
-    public void testReplyToJourneyNotFound(){
+    public void testCreateJourneyResponseNotFound(){
         Mockito.when(
             journeyDao.findById(Mockito.eq(JOURNEY_ID))
         ).thenReturn(Optional.empty());
 
-        journeyService.replyToJourney(EMAIL, JOURNEY_ID, DESCRIPTION);
+        journeyService.createJourneyResponse(EMAIL, JOURNEY_ID, DESCRIPTION);
     }
 
 
@@ -194,7 +194,7 @@ public class JourneyServiceImplTest {
     }
 
     @Test
-    public void testGetAllJourneys(){
+    public void testFindJourneys(){
         Mockito.when(
             journeyDao.search(
                 Mockito.eq(DESCRIPTION), 
@@ -216,7 +216,7 @@ public class JourneyServiceImplTest {
             journeyDao.findByUserId(Mockito.eq(USER_ID))
         ).thenReturn(Optional.of(JOURNEY));
 
-        Page<Journey> page = journeyService.getAllJourneys(
+        Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION, 
             USER, 
             SortFieldJourney.from("end_date"), 
@@ -236,12 +236,12 @@ public class JourneyServiceImplTest {
         assertEquals(JOURNEY_PAGE, page);
     }
     @Test(expected = InvalidException.class)
-    public void testGetAllJourneysUserHasNoJourneys(){
+    public void testFindJourneysUserHasNoJourneys(){
         Mockito.when(
             journeyDao.findByUserId(Mockito.eq(USER_ID))
         ).thenReturn(Optional.empty());
 
-        Page<Journey> page = journeyService.getAllJourneys(
+        Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION, 
             USER, 
             SortFieldJourney.from("end_date"), 
@@ -261,7 +261,7 @@ public class JourneyServiceImplTest {
         assertEquals(JOURNEY_PAGE, page);
     }
     @Test
-    public void testGetAllJourneysNoUser(){
+    public void testFindJourneysNoUser(){
         Mockito.when(
             journeyDao.search(
                 Mockito.eq(DESCRIPTION), 
@@ -280,7 +280,7 @@ public class JourneyServiceImplTest {
             )
         ).thenReturn(JOURNEY_PAGE);
 
-        Page<Journey> page = journeyService.getAllJourneys(
+        Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION, 
             null, 
             SortFieldJourney.from(""), 
@@ -301,7 +301,7 @@ public class JourneyServiceImplTest {
     }
 
     @Test
-    public void testUserHasJourney(){
+    public void testExistsByUserEmail(){
         Mockito.when(
             userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.of(USER));
@@ -309,12 +309,12 @@ public class JourneyServiceImplTest {
             journeyDao.findByUserId(Mockito.eq(USER_ID))
         ).thenReturn(Optional.of(JOURNEY));
 
-        boolean hasJourney = journeyService.userHasJourney(EMAIL);
+        boolean hasJourney = journeyService.existsByUserEmail(EMAIL);
         
         assertTrue(hasJourney);
     }
     @Test
-    public void testUserHasJourneyNoJourney(){
+    public void testExistsByUserEmail2(){
         Mockito.when(
             userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.of(USER));
@@ -322,7 +322,7 @@ public class JourneyServiceImplTest {
             journeyDao.findByUserId(Mockito.eq(USER_ID))
         ).thenReturn(Optional.empty());
 
-        boolean hasJourney = journeyService.userHasJourney(EMAIL);
+        boolean hasJourney = journeyService.existsByUserEmail(EMAIL);
         
         assertFalse(hasJourney);
     }
@@ -332,13 +332,13 @@ public class JourneyServiceImplTest {
             userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.empty());
 
-        boolean hasJourney = journeyService.userHasJourney(EMAIL);
+        boolean hasJourney = journeyService.existsByUserEmail(EMAIL);
         
         assertFalse(hasJourney);
     }
 
     @Test
-    public void testGetRecommendedJourneysWithEmail(){
+    public void testFindRecommendedJourneysWithEmail(){
         Mockito.when(
             userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.of(USER));
@@ -349,13 +349,13 @@ public class JourneyServiceImplTest {
             journeyDao.findRecommended(Mockito.eq(EMAIL), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
-        List<Journey> journeys = journeyService.getRecommendedJourneys(EMAIL, 2);
+        List<Journey> journeys = journeyService.findRecommendedJourneys(EMAIL, 2);
 
         assertNotNull(journeys);
         assertEquals(JOURNEYS, journeys);
     }
     @Test
-    public void testGetRecommendedJourneysWithUserNoJourneysButJourneyInCity(){
+    public void testFindRecommendedJourneysWithUserNoJourneysButJourneyInCity(){
         Mockito.when(
             userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.of(USER));
@@ -366,13 +366,13 @@ public class JourneyServiceImplTest {
             journeyDao.findByOriginCity(Mockito.eq(CITY_ID), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
-        List<Journey> journeys = journeyService.getRecommendedJourneys(EMAIL, 2);
+        List<Journey> journeys = journeyService.findRecommendedJourneys(EMAIL, 2);
 
         assertNotNull(journeys);
         assertEquals(JOURNEYS, journeys);
     }
     @Test
-    public void testGetRecommendedJourneysWithUserNoJourneysNoJourneyInCity(){
+    public void testFindRecommendedJourneysWithUserNoJourneysNoJourneyInCity(){
         Mockito.when(
             userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.of(USER));
@@ -386,43 +386,43 @@ public class JourneyServiceImplTest {
             journeyDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
-        List<Journey> journeys = journeyService.getRecommendedJourneys(EMAIL, 2);
+        List<Journey> journeys = journeyService.findRecommendedJourneys(EMAIL, 2);
 
         assertNotNull(journeys);
         assertEquals(JOURNEYS, journeys);
     }
     @Test(expected = RuntimeException.class)
-    public void testGetRecommendedJourneysWrongUser(){
+    public void testFindRecommendedJourneysWrongUser(){
         Mockito.when(
             userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.empty());
 
-        List<Journey> journeys = journeyService.getRecommendedJourneys(EMAIL, 2);
+        List<Journey> journeys = journeyService.findRecommendedJourneys(EMAIL, 2);
 
         assertNotNull(journeys);
         assertEquals(JOURNEYS, journeys);
     }
     @Test(expected = RuntimeException.class)
-    public void testGetRecommendedJourneysWrongLimit(){
-        journeyService.getRecommendedJourneys(EMAIL, 0);
+    public void testFindRecommendedJourneysWrongLimit(){
+        journeyService.findRecommendedJourneys(EMAIL, 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testDeleteNotFound(){
+    public void testDeleteJourneyNotFound(){
         Mockito.when(
             journeyDao.findById(Mockito.eq(JOURNEY_ID))
         ).thenReturn(Optional.empty());
         
-        journeyService.delete(JOURNEY_ID, DESCRIPTION);
+        journeyService.deleteJourney(JOURNEY_ID, DESCRIPTION);
     }
 
     @Test(expected = RuntimeException.class)
-    public void testEditJourneyMissingUni(){
+    public void testUpdateJourneyMissingUni(){
         Mockito.when(
             uniService.findByName(Mockito.eq(UNI_NAME))
         ).thenReturn(Optional.empty());
 
-        journeyService.editJourney(JOURNEY_ID, UNI_NAME, START_DATE, END_DATE, DESCRIPTION);
+        journeyService.updateJourney(JOURNEY_ID, UNI_NAME, START_DATE, END_DATE, DESCRIPTION);
     }
 
     @Test
@@ -431,14 +431,14 @@ public class JourneyServiceImplTest {
             journeyDao.findByUserId(Mockito.eq(USER_ID))
         ).thenReturn(Optional.of(JOURNEY));
 
-        boolean hasJourney = journeyService.userHasJourney(USER);
+        boolean hasJourney = journeyService.existsByUser(USER);
 
         assertTrue(hasJourney);
     }
 
 
     @Test
-    public void testDeleteJourneyResponse(){
+    public void testDeleteJourneyJourneyResponse(){
         Mockito.when(
             replyDao.findById(Mockito.eq(REPLY_ID))
         ).thenReturn(Optional.of(REPLY));
@@ -452,7 +452,7 @@ public class JourneyServiceImplTest {
         journeyService.deleteJourneyResponse(REPLY_ID, DESCRIPTION);
     }
     @Test(expected = IllegalArgumentException.class)
-    public void testDeleteJourneyResponseNoUser(){
+    public void testDeleteJourneyJourneyResponseNoUser(){
         Mockito.when(
             replyDao.findById(Mockito.eq(REPLY_ID))
         ).thenReturn(Optional.of(REPLY));
@@ -466,7 +466,7 @@ public class JourneyServiceImplTest {
         journeyService.deleteJourneyResponse(REPLY_ID, DESCRIPTION);
     }
     @Test(expected = IllegalStateException.class)
-    public void testDeleteJourneyResponseNoJourney(){
+    public void testDeleteJourneyJourneyResponseNoJourney(){
         Mockito.when(
             replyDao.findById(Mockito.eq(REPLY_ID))
         ).thenReturn(Optional.of(REPLY));
@@ -477,7 +477,7 @@ public class JourneyServiceImplTest {
         journeyService.deleteJourneyResponse(REPLY_ID, DESCRIPTION);
     }
     @Test(expected = IllegalArgumentException.class)
-    public void testDeleteJourneyResponseNoReply(){
+    public void testDeleteJourneyJourneyResponseNoReply(){
         Mockito.when(
             replyDao.findById(Mockito.eq(REPLY_ID))
         ).thenReturn(Optional.empty());

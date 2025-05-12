@@ -46,9 +46,9 @@ public class JourneyController {
                                     @RequestParam(value = "direction", required = false) String direction) {
 
         final ModelAndView mav = new ModelAndView("journeys/list");
-        boolean hasJourney = user != null && js.userHasJourney(user);
+        boolean hasJourney = user != null && js.existsByUser(user);
         if(! errors.hasErrors()) {
-            mav.addObject("journeys", js.getAllJourneys(search, user, SortFieldJourney.from(sortBy), SortDirection.from(direction),
+            mav.addObject("journeys", js.findJourneys(search, user, SortFieldJourney.from(sortBy), SortDirection.from(direction),
                     fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests(), fjf.getIsPast(), fjf.getIsUpcoming(), fjf.getIsMyDestination(),
                     fjf.getIsOngoing(), pageParams));
         }
@@ -74,7 +74,7 @@ public class JourneyController {
     @GetMapping(value = "/create")
     public ModelAndView createJourneyForm(@ModelAttribute("createJourneyForm") final CreateJourneyForm jf, @ModelAttribute("user") User user) {
 
-        if (js.userHasJourney(user)) {
+        if (js.existsByUser(user)) {
             return new ModelAndView("redirect:/journeys");
         }
 
@@ -91,11 +91,11 @@ public class JourneyController {
             LOGGER.error("Journey with ID {} not found", id);
             return new JourneyNotFoundException("Journey with ID " + id + " not found");
         });
-        Page<JourneyResponse> journeyResponses = js.listAllResponsesFromJourney(journey.getId(), repliesPage);
+        Page<JourneyResponse> journeyResponses = js.findJourneyResponses(journey.getId(), repliesPage);
         final ModelAndView mav = new ModelAndView("journeys/detail");
         mav.addObject("journey", journey);
         mav.addObject("journeyResponsesPage", journeyResponses);
-        mav.addObject("commentsCount", js.getJourneyResponseCount(journey.getId()));
+        mav.addObject("commentsCount", js.countJourneyResponses(journey.getId()));
         mav.addObject("isOwner", user != null && js.isJourneyOwnedByUser(user.getEmail(),journey.getId()));
         mav.addObject("interestPage", interestService.findAllInterestsByUserId(journey.getUser().getId(), interestsPage));
         return mav;
@@ -122,7 +122,7 @@ public class JourneyController {
         if(errors.hasErrors()) {
             return deleteJourneyForm(id, form, user);
         }
-        js.delete(id, form.getMessage());
+        js.deleteJourney(id, form.getMessage());
         return new ModelAndView("redirect:/journeys");
     }
 
@@ -132,7 +132,7 @@ public class JourneyController {
         if (errors.hasErrors()) {
             return getJourney(id, user, rjf, new PageParams(1, 4), new PageParams(1, 8));
         }
-        js.replyToJourney(user.getEmail(), id, rjf.getMessage());
+        js.createJourneyResponse(user.getEmail(), id, rjf.getMessage());
         return new ModelAndView(REDIRECT_JOURNEY + id);
     }
 
@@ -165,7 +165,7 @@ public class JourneyController {
         if (errors.hasErrors()) {
             return showUpdateJourneyForm(journeyId, form, errors);
         }
-        js.editJourney(journeyId,
+        js.updateJourney(journeyId,
                 form.getDestinationUniversity(),
                 form.getStartDate(),
                 form.getEndDate(),
@@ -176,7 +176,7 @@ public class JourneyController {
     public ModelAndView deleteJourneyReplyForm(@PathVariable(value = "journeyId") long journeyId,
                                                @PathVariable("id") long id,
                                                @ModelAttribute("deleteReplyForm") ReplyForm form) {
-        if(js.getJourneyIdByResponseId(id) != journeyId){
+        if(js.findJourneyIdByResponseId(id) != journeyId){
             LOGGER.error("Journey ID {} and response ID {} do not match", journeyId, id);
             throw new InvalidException();
         }

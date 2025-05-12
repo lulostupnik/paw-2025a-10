@@ -23,7 +23,7 @@ public class NoExistingJourneyValidator implements ConstraintValidator<NoExistin
             return true; // Dejamos que @Email maneje esto
         }
         try {
-            return !journeyService.userHasJourney(email);
+            return !journeyService.existsByUserEmail(email);
         } catch (Exception e) {
             return true; // Si hay error, dejamos que pase y se maneje en el servicio
         }

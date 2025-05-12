@@ -57,7 +57,7 @@ public class AdminController {
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
-        mav.addObject("pagedJourneys", journeyService.getAllJourneys(search,pageParams));
+        mav.addObject("pagedJourneys", journeyService.findJourneys(search,pageParams));
 
 
         return mav;
