@@ -11,6 +11,10 @@ import java.util.Optional;
 import javax.sql.DataSource;
 
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.enums.SortDirection;
+import ar.edu.itba.paw.models.enums.SortFieldEvent;
+import ar.edu.itba.paw.models.enums.SortFieldJourney;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -235,6 +239,27 @@ public class JourneyJdbcDaoTest {
     }
 
     @Test
+    public void testSearchSimple(){
+        Page<Journey> page = journeyDao.search(TestUtils.CITY_2_NAME, TestUtils.PAGE_1_BIG);
+
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(1, page.getTotalPages());
+        assertEquals(2, page.getContent().size());
+    }
+    @Test
+    public void testSearchSimpleNoSearch(){
+        Page<Journey> page = journeyDao.search("", TestUtils.PAGE_1_BIG);
+
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(1, page.getTotalPages());
+        assertEquals(2, page.getContent().size());
+    }
+
+    @Test
     public void testUpdate(){
         journeyDao.update(
             TestUtils.JOURNEY_1_ID, 
@@ -401,71 +426,253 @@ public class JourneyJdbcDaoTest {
         TestUtils.assertEqualsJourney(newJourney5, page1.getContent().get(3));
         TestUtils.assertEqualsJourney(newJourney3, page1.getContent().get(4));
     }
-}
 
-//
-//    @Test
-//    public void testUpdateDates(){
-//        journeyDao.updateDates(
-//            TestUtils.JOURNEY_1_ID,
-//            TestUtils.JOURNEY_START_DATE.plusDays(10),
-//            TestUtils.JOURNEY_END_DATE.plusDays(10)
-//        );
-//
-//        Journey journey = jdbcTemplate.queryForObject(
-//            TestUtils.JOURNEY_SELECT_BY_ID,
-//            TestUtils.JOURNEY_ROW_MAPPER,
-//            TestUtils.JOURNEY_1_ID);
-//        assertEqualsJourney(journey, Map.of("startDate", TestUtils.JOURNEY_START_DATE.plusDays(10), "endDate", TestUtils.JOURNEY_END_DATE.plusDays(10)));
-//    }
-//    @Test(expected=NullPointerException.class)
-//    public void testUpdateDatesMissingStartDate(){
-//        journeyDao.updateDates(TestUtils.JOURNEY_1_ID, null, TestUtils.JOURNEY_END_DATE);
-//    }
-//    @Test(expected=NullPointerException.class)
-//    public void testUpdateDatesMissingEndDate(){
-//        journeyDao.updateDates(TestUtils.JOURNEY_1_ID, TestUtils.JOURNEY_START_DATE, null);
-//    }
-//    @Test
-//    public void testUpdateDatesWrongId(){
-//        journeyDao.updateDates(1231234, TestUtils.JOURNEY_START_DATE, TestUtils.JOURNEY_END_DATE);
-//
-//        Journey journey = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, TestUtils.JOURNEY_1_ID);
-//        assertEqualsJourney(journey);
-//    }
-//
-//    @Test
-//    public void testUpdateDescription(){
-//        journeyDao.updateDescription(TestUtils.JOURNEY_1_ID, "JOURNEY_DESCRIPTION");
-//
-//        Journey journey = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, TestUtils.JOURNEY_1_ID);
-//        assertEqualsJourney(journey, Map.of("description", "JOURNEY_DESCRIPTION"));
-//    }
-//    @Test
-//    public void testUpdateDescriptionWrongId(){
-//        journeyDao.updateDescription(12341234, "NEW DESCRIPTION");
-//
-//        Journey journey = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, TestUtils.JOURNEY_1_ID);
-//        assertEqualsJourney(journey);
-//    }
-//
-//    @Test
-//    public void testUpdateDestinationUniversity(){
-//        journeyDao.updateDestinationUniversity(TestUtils.JOURNEY_1_ID, TestUtils.UNI_3_ID);
-//
-//        Journey journey = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, TestUtils.JOURNEY_1_ID);
-//        assertEqualsJourney(journey, Map.of("destination", TestUtils.UNI_3));
-//    }
-//    @Test
-//    public void testUpdateDestinationUniversityInvalidId(){
-//        journeyDao.updateDestinationUniversity(12341234, 1234123);
-//
-//        assertEqualsJourney(jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, TestUtils.JOURNEY_1_ID));
-//    }
-//    @Test
-//    public void testUpdateDestinationUniversityInvalidJourney(){
-//        journeyDao.updateDestinationUniversity(12341234, TestUtils.UNI_3_ID);
-//
-//        Journey journey = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_ID, TestUtils.JOURNEY_ROW_MAPPER, TestUtils.JOURNEY_1_ID);
-//        assertEqualsJourney(journey);
-//    }
+    @Test
+    public void testFindAllWithFilters(){
+        Page<Journey> page = journeyDao.search(
+            null, 
+            TestUtils.USER_1_ID,
+            SortFieldJourney.START_DATE, 
+            SortDirection.ASC, 
+            TestUtils.CITY_1_NAME, 
+            TestUtils.JOURNEY_START_DATE, 
+            TestUtils.JOURNEY_END_DATE, 
+            TestUtils.INTEREST_1_NAME, 
+            false, 
+            true, 
+            true, 
+            true,
+            TestUtils.PAGE_1_BIG
+        );
+
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(0, page.getTotalPages());
+        assertEquals(0, page.getContent().size());
+    }
+    @Test
+    public void testFindAllWithFiltersComplex(){
+        Page<Journey> page = journeyDao.search(
+            TestUtils.USER_1_NAME, 
+            TestUtils.USER_1_ID, 
+            SortFieldJourney.START_DATE, 
+            SortDirection.ASC, 
+            TestUtils.CITY_1_NAME, 
+            TestUtils.JOURNEY_START_DATE, 
+            TestUtils.JOURNEY_END_DATE, 
+            null, 
+            false, 
+            true, 
+            true,
+            false, 
+            TestUtils.PAGE_1_BIG
+        );
+
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(0, page.getTotalPages());
+        assertEquals(0, page.getContent().size());
+    }
+    @Test
+    public void testFindAllWithFiltersComplexNoDestinationPastAttendingNoUser(){
+        Page<Journey> page = journeyDao.search(
+            TestUtils.USER_1_NAME,
+            null, 
+            SortFieldJourney.START_DATE, 
+            SortDirection.ASC, 
+            "", 
+            TestUtils.JOURNEY_START_DATE, 
+            TestUtils.JOURNEY_END_DATE, 
+            null, 
+            true, 
+            false, 
+            true, 
+            false,
+            TestUtils.PAGE_1_BIG
+        );
+
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(0, page.getTotalPages());
+        assertEquals(0, page.getContent().size());
+    }
+    @Test
+    public void testFindAllWithFiltersComplexNoUserUpcoming(){
+        Page<Journey> page = journeyDao.search(
+            TestUtils.USER_2_NAME, 
+            null, 
+            SortFieldJourney.START_DATE, 
+            SortDirection.ASC, 
+            "", 
+            TestUtils.JOURNEY_START_DATE, 
+            TestUtils.JOURNEY_END_DATE, 
+            null, 
+            false, 
+            true, 
+            false, 
+            false,
+            TestUtils.PAGE_1_BIG
+        );
+
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(1, page.getTotalPages());
+        assertEquals(1, page.getContent().size());
+        TestUtils.assertEqualsJourney(TestUtils.JOURNEY_2, page.getContent().get(0));
+    }
+    @Test
+    public void testFindAllWithFiltersComplexNoUserUpcomingNoInterest(){
+        Page<Journey> page = journeyDao.search(
+            TestUtils.USER_1_NAME, 
+            null, 
+            SortFieldJourney.START_DATE, 
+            SortDirection.ASC, 
+            "", 
+            TestUtils.JOURNEY_START_DATE, 
+            TestUtils.JOURNEY_END_DATE, 
+            "", 
+            false, 
+            true, 
+            false, 
+            false,
+            TestUtils.PAGE_1_BIG
+        );
+
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(1, page.getTotalPages());
+        assertEquals(1, page.getContent().size());
+        TestUtils.assertEqualsJourney(TestUtils.JOURNEY_1, page.getContent().get(0));
+    }
+    @Test
+    public void testFindAllWithFiltersNotUpcomingNotAttending(){
+        Page<Journey> page = journeyDao.search(
+            null,
+            TestUtils.USER_1_ID,  
+            SortFieldJourney.END_DATE, 
+            SortDirection.ASC, 
+            TestUtils.CITY_1_NAME, 
+            TestUtils.JOURNEY_START_DATE, 
+            TestUtils.JOURNEY_END_DATE, 
+            null, 
+            false, 
+            false, 
+            false,
+            false, 
+            TestUtils.PAGE_1_BIG
+        );
+
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(0, page.getTotalPages());
+        assertEquals(0, page.getContent().size());
+    }
+    @Test
+    public void testFindAllWithFiltersNotUpcomingNotAttendingReverseSort(){
+        Page<Journey> page = journeyDao.search(
+            null,
+            TestUtils.USER_1_ID,  
+            SortFieldJourney.START_DATE, 
+            SortDirection.DESC, 
+            TestUtils.CITY_1_NAME, 
+            TestUtils.JOURNEY_START_DATE, 
+            TestUtils.JOURNEY_END_DATE, 
+            null, 
+            false, 
+            false, 
+            false,
+            false, 
+            TestUtils.PAGE_1_BIG
+        );
+
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(0, page.getTotalPages());
+        assertEquals(0, page.getContent().size());
+    }
+    @Test
+    public void testFindAllWithFiltersNoParams(){
+        Page<Journey> page = journeyDao.search(
+            null, 
+            null, 
+            null, 
+            SortDirection.DESC, 
+            null, 
+            null, 
+            null,
+            null, 
+            false, 
+            false, 
+            false, 
+            false, 
+            TestUtils.PAGE_1_BIG
+        );
+
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(1, page.getTotalPages());
+        assertEquals(2, page.getContent().size());
+        TestUtils.assertEqualsJourney(TestUtils.JOURNEY_2, page.getContent().get(0));
+        TestUtils.assertEqualsJourney(TestUtils.JOURNEY_1, page.getContent().get(1));
+    }
+    @Test
+    public void testFindAllWithFiltersNoParamsEmpty(){
+        Page<Journey> page = journeyDao.search(
+            "", 
+            null, 
+            SortFieldJourney.START_DATE, 
+            SortDirection.DESC, 
+            "", 
+            null, 
+            null,
+            "", 
+            false, 
+            false, 
+            false, 
+            false, 
+            TestUtils.PAGE_1_BIG
+        );
+
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(1, page.getTotalPages());
+        assertEquals(2, page.getContent().size());
+        TestUtils.assertEqualsJourney(TestUtils.JOURNEY_1, page.getContent().get(0));
+        TestUtils.assertEqualsJourney(TestUtils.JOURNEY_2, page.getContent().get(1));
+    }
+    @Test
+    public void testFindAllWithFiltersNoParamsFilter(){
+        Page<Journey> page = journeyDao.search(
+            TestUtils.USER_2_NAME, 
+            null, 
+            SortFieldJourney.START_DATE, 
+            SortDirection.DESC, 
+            null, 
+            null, 
+            null,
+            null, 
+            false, 
+            false, 
+            false, 
+            false, 
+            TestUtils.PAGE_1_BIG
+        );
+
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(1, page.getTotalPages());
+        assertEquals(1, page.getContent().size());
+        assertEquals(1, page.getContent().size());
+        TestUtils.assertEqualsJourney(TestUtils.JOURNEY_2, page.getContent().get(0));
+    }
+}

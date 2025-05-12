@@ -297,10 +297,8 @@ public class JourneyJdbcDao implements JourneyDao {
         if(searchTerm != null && !searchTerm.isEmpty()) {
             if((city == null || city.isEmpty()) && !isMyDestination) {
                 countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id ");
-            }
-            if(interest == null) {
-                countQueryBuilder.append(" JOIN users u ON j.user_id = u.id ");
-            }
+            }                
+            countQueryBuilder.append(" JOIN users u ON j.user_id = u.id ");
             filters.add(SQL_SEARCH_WHERE_CLAUSE);
             params.add(searchPattern);
             params.add(searchPattern);
