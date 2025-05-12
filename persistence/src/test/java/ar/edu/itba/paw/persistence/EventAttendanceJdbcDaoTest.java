@@ -147,25 +147,6 @@ public class EventAttendanceJdbcDaoTest {
         assertEquals(0, attendees);
     }
 
-    @Test
-    public void testFindAllEventsByAttendee(){
-        List<Event> events = attendanceDao.getAttendingEvents(TestUtils.USER_1_ID);
-        
-        assertEquals(TestUtils.USER_1_ATTENDANCES - 1, events.size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_2, events.getFirst());
-    }
-    @Test
-    public void testFindAllByAttendee(){
-        List<Event> events = attendanceDao.getAttendingEvents(TestUtils.USER_4_ID);
-        
-        assertEquals(0, events.size());
-    }
-    @Test
-    public void testFindAllEventsByAttendeeWrongUser(){
-        List<Event> events = attendanceDao.getAttendingEvents(12341234);
-        
-        assertEquals(0, events.size());
-    }
 
     /*
     @Test

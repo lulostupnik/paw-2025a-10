@@ -16,9 +16,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ar.edu.itba.paw.interfaces.persistence.EventAttendanceDao;
 
-import static ar.edu.itba.paw.persistence.JdbcDaoUtils.offset;
-import static ar.edu.itba.paw.persistence.JdbcDaoUtils.pageCount;
-
 @Repository
 public class EventAttendanceJdbcDao implements EventAttendanceDao {
     private final static Logger LOGGER = LoggerFactory.getLogger(EventAttendanceJdbcDao.class);
@@ -176,12 +173,6 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
         return jdbcTemplate.query("SELECT attendees_count FROM events WHERE id = ?", (rs, rowNum) -> rs.getInt("attendees_count"), eventId).stream().findFirst().orElse(0);
     }
 
-    // FIXME: Eliminar y/o mover de DAO
-    public List<Event> getAttendingEvents(final long userId) {
-        return jdbcTemplate.query(SQL_LIST_ALL_BY_USER, EVENT_ROW_MAPPER, userId, userId);
-    }
 
-
-//
 
 }
