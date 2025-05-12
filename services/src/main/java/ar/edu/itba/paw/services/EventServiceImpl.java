@@ -298,7 +298,9 @@ public class EventServiceImpl implements EventService {
     @Override
     public void delete(final long id, final String message) {
         LOGGER.debug("Deleting event {}", id);
-        Event event = eventDao.findById(id).orElseThrow(() -> new RuntimeException("Event not found"));
+        Event event = eventDao.findById(id).orElseThrow(() -> {
+            LOGGER.warn("Event not found {}", id);
+            return new RuntimeException("Event not found");});
         if(message != null && !message.isEmpty()){
             eventDao.updateDeletionMessage(id, message);
             emailService.sendEventDeletionNotification(event,message);
@@ -314,18 +316,18 @@ public class EventServiceImpl implements EventService {
         LOGGER.debug("Deleting event response {}", id);
         EventResponse deletedComment = findEventResponseById(id)
                 .orElseThrow(() ->{
-                    LOGGER.warn("Event response not found {}", id);
+                    LOGGER.error("Event response not found {}", id);
                     return new IllegalArgumentException("Event response doesn't exist");});
 
         Event event = eventDao.findById(deletedComment.getEventId())
                 .orElseThrow(() ->  {
-                    LOGGER.warn("Event from event response not found {}", deletedComment.getEventId());
+                    LOGGER.error("Event from event response not found {}", deletedComment.getEventId());
                     return new IllegalStateException("Event from event response doesn't exist");});
 
 
         User commentAuthor = userService.findById(deletedComment.getUserId())
                 .orElseThrow(() -> {
-                    LOGGER.warn("User from event response not found {}", deletedComment.getUserId());
+                    LOGGER.error("User from event response not found {}", deletedComment.getUserId());
                     return new IllegalArgumentException("User from event response doesn't exist");}
                 );
 

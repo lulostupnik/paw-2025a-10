@@ -41,7 +41,6 @@ public class ExceptionHandlerAdvice {
     public ModelAndView error400TypeMismatch(TypeMismatchException ex) {
         LOGGER.error("TypeMismatchException: {}", ex.getMessage());
         LOGGER.debug("Stack trace for TypeMismatchException", ex);
-
         ModelAndView mav = new ModelAndView(ERROR_VIEW);
         mav.addObject("errorType", "400");
         return mav;
@@ -52,7 +51,6 @@ public class ExceptionHandlerAdvice {
     public ModelAndView error400(InvalidException ex) {
         LOGGER.error("InvalidException: {}", ex.getMessage());
         LOGGER.debug("Stack trace for InvalidException", ex);
-
         ModelAndView mav = new ModelAndView(ERROR_VIEW);
         mav.addObject("errorType", "400");
         return mav;
@@ -61,16 +59,13 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(EventNotFoundException.class)
     @ResponseStatus(code = HttpStatus.NOT_FOUND)
     public ModelAndView error404Event(EventNotFoundException ex) {
-        LOGGER.error("EventNotFoundException: {}", ex.getMessage());
         LOGGER.debug("Stack trace for EventNotFoundException", ex);
-
         return new ModelAndView("not-found");
     }
 
     @ExceptionHandler(JourneyNotFoundException.class)
     @ResponseStatus(code = HttpStatus.NOT_FOUND)
     public ModelAndView error404Journey(JourneyNotFoundException ex) {
-        LOGGER.error("JourneyNotFoundException: {}", ex.getMessage());
         LOGGER.debug("Stack trace for JourneyNotFoundException", ex);
 
         return new ModelAndView("not-found");
@@ -78,7 +73,6 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(CareerNotFoundException.class)
     @ResponseStatus(code= HttpStatus.NOT_FOUND)
     public ModelAndView error404Career(CareerNotFoundException ex) {
-        LOGGER.error("CareerNotFoundException: {}", ex.getMessage());
         LOGGER.debug("Stack trace for CareerNotFoundException", ex);
         return new ModelAndView("careers/not-found");
     }
@@ -88,7 +82,6 @@ public class ExceptionHandlerAdvice {
     public ModelAndView error403(AccessDeniedException ex) {
         LOGGER.error("AccessDeniedException: {}", ex.getMessage());
         LOGGER.debug("Stack trace for AccessDeniedException", ex);
-
         ModelAndView mav = new ModelAndView(ERROR_VIEW);
         mav.addObject("errorType", "403");
         mav.addObject("errorIcon", "shield-off");
@@ -100,7 +93,6 @@ public class ExceptionHandlerAdvice {
     public ModelAndView error500(Exception ex) {
         LOGGER.error("Unhandled exception: {}", ex.toString());
         LOGGER.debug("Stack trace for general Exception", ex);
-
         ModelAndView mav = new ModelAndView(ERROR_VIEW);
         mav.addObject("errorType", "500");
         return mav;
@@ -109,16 +101,13 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(InvalidTokenException.class)
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     public ModelAndView error400Token(InvalidTokenException ex) {
-        LOGGER.error("InvalidTokenException: {}", ex.getMessage());
         LOGGER.debug("Stack trace for InvalidTokenException", ex);
-
         return new ModelAndView("auth/invalid-token");
     }
 
     @ExceptionHandler(ExpiredTokenException.class)
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     public ModelAndView error400ExpiredToken(ExpiredTokenException ex) {
-        LOGGER.error("ExpiredToken: {}", ex.getMessage());
         LOGGER.debug("Stack trace for ExpiredToken", ex);
         userService.refreshToken(ex.getOldToken());
         return new ModelAndView("auth/expired-token");
@@ -127,7 +116,6 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(ExpiredPassTokenException.class)
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     public ModelAndView error400ExpiredPassToken(ExpiredPassTokenException ex) {
-        LOGGER.error("ExpiredToken: {}", ex.getMessage());
         LOGGER.debug("Stack trace for ExpiredToken", ex);
         userService.refreshPassToken(ex.getOldToken());
         return new ModelAndView("auth/expired-token");
@@ -136,9 +124,7 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(UserValidatedException.class)
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     public ModelAndView userValidatedExcpetion(UserValidatedException ex) {
-        LOGGER.error("UserValidatedException: {}", ex.getMessage());
         LOGGER.debug("Stack trace for UserValidatedException", ex);
-
         return new ModelAndView("auth/not-verified");
     }
 }

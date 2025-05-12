@@ -151,7 +151,10 @@ public class EmailServiceImpl implements EmailService {
         User eventUser = event.getUser();
 
 
-        byte[] profilePictureData = imageService.getImage(commenter.getProfilePictureId()).orElseThrow(() -> new IllegalStateException("User does not have profile picture")).getData();
+        byte[] profilePictureData = imageService.getImage(commenter.getProfilePictureId()).orElseThrow(() -> {
+            LOGGER.error("User does not have profile picture");
+            return new IllegalStateException("User does not have profile picture");
+        }).getData();
 
         Map<String, Object> variables = buildVariables(
                 commenter.getFirstname(), commenter.getLastname(),
@@ -177,7 +180,9 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void answerJourneyNotification(final List<User> oldRepliers,final String message,final User commenter,final Journey journey) {
         User journeyUser = journey.getUser();
-        byte[] profilePictureData = imageService.getImage(commenter.getProfilePictureId()).orElseThrow(() -> new IllegalStateException("User does not have profile picture")).getData();
+        byte[] profilePictureData = imageService.getImage(commenter.getProfilePictureId()).orElseThrow(() -> {
+            LOGGER.error("User does not have profile picture");
+            return new IllegalStateException("User does not have profile picture");}).getData();
 
         Map<String, Object> variables = buildVariables(
                 commenter.getFirstname(), commenter.getLastname(),
