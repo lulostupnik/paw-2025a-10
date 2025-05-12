@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
                     return new RuntimeException("Career not found");
                 });
 
-        long profilePictureId = imageService.storeImage(profilePicture);
+        long profilePictureId = imageService.createImage(profilePicture);
         String uid = UUID.randomUUID().toString();
         LocalDate tomorrow = LocalDate.now().plusDays(1);
         User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId, passwordEncoder.encode(password), locale,uid,tomorrow);

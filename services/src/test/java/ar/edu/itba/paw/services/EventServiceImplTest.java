@@ -114,7 +114,7 @@ public class EventServiceImplTest {
             userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.of(USER));
         Mockito.when(
-            imageService.storeImage(Mockito.eq(IMAGE_DATA))
+            imageService.createImage(Mockito.eq(IMAGE_DATA))
         ).thenReturn(IMAGE_ID);
         Mockito.when(
             eventDao.create(Mockito.eq(USER), Mockito.eq(CITY), Mockito.eq(EVENT_DATE), Mockito.eq(DESCRIPTION), Mockito.eq(IMAGE_ID), Mockito.eq(TITLE), Mockito.eq(TIME), Mockito.eq(ADDRESS), Mockito.eq(LIMIT))

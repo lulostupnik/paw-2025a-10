@@ -156,7 +156,7 @@ public class EmailServiceImpl implements EmailService {
         User eventUser = event.getUser();
 
 
-        byte[] profilePictureData = imageService.getImage(commenter.getProfilePictureId()).orElseThrow(() -> {
+        byte[] profilePictureData = imageService.findImage(commenter.getProfilePictureId()).orElseThrow(() -> {
             LOGGER.error("User does not have profile picture");
             return new IllegalStateException("User does not have profile picture");
         }).getData();
@@ -185,7 +185,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void answerJourneyNotification(final List<User> oldRepliers, final String message, final User commenter, final Journey journey) {
         User journeyUser = journey.getUser();
-        byte[] profilePictureData = imageService.getImage(commenter.getProfilePictureId()).orElseThrow(() -> {
+        byte[] profilePictureData = imageService.findImage(commenter.getProfilePictureId()).orElseThrow(() -> {
             LOGGER.error("User does not have profile picture");
             return new IllegalStateException("User does not have profile picture");}).getData();
 
