@@ -24,6 +24,6 @@ public class InterestNotExistsValidator implements ConstraintValidator<InterestN
         if (email == null || email.isEmpty()) {
             return true;
         }
-        return interestService.findByName(email).isEmpty();
+        return interestService.findInterestByName(email).isEmpty();
     }
 }

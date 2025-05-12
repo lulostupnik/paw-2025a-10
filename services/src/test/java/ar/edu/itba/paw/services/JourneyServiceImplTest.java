@@ -142,7 +142,7 @@ public class JourneyServiceImplTest {
             userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.of(USER));
         Mockito.when(
-            interestService.findByUserId(Mockito.eq(USER_ID))
+            interestService.findInterestsByUserId(Mockito.eq(USER_ID))
         ).thenReturn(INTERESTS);
 
         journeyService.createJourneyResponse(EMAIL, JOURNEY_ID, DESCRIPTION);

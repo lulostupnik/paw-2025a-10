@@ -19,8 +19,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 
-import java.util.NoSuchElementException;
-
 
 @Controller
 @RequestMapping("/interests")
@@ -38,7 +36,7 @@ public class InterestController {
     @ResponseBody
     public String getInterestsJSON(@RequestParam(value = "search", required = false) String search,
                                    @PageParamCustomizer(defaultSize = 30) PageParams pageParams) {
-        return JsonUtils.toJson( interestService.getAllInterests(search, pageParams).getContent());
+        return JsonUtils.toJson( interestService.findInterests(search, pageParams).getContent());
     }
 
 
@@ -54,12 +52,12 @@ public class InterestController {
         if (errors.hasErrors()) {
             return createInterestsForm(intForm);
         }
-        Interest interest = interestService.createUserInterest(intForm.getName());
+        Interest interest = interestService.createInterest(intForm.getName());
         return new ModelAndView("redirect:/interests/{id}", "id", interest.getId());
     }
     @GetMapping(value= "/{id}")
     public ModelAndView getInterests(@PathVariable(value = "id") final long id) {
-        Interest interest = interestService.findById(id).orElseThrow(() -> {
+        Interest interest = interestService.findInterestById(id).orElseThrow(() -> {
             LOGGER.error("Interest not found");
             return new NotFoundException("Interest not found");});
         ModelAndView mav = new ModelAndView("interests/detail");
@@ -72,7 +70,7 @@ public class InterestController {
     public ModelAndView updateInterestForm(@PathVariable("id") Long id,
                                             @ModelAttribute("createInterestForm") final CreateInterestForm form,
                                            BindingResult errors ) {
-        Interest interest = interestService.findById(id).orElseThrow(() -> {
+        Interest interest = interestService.findInterestById(id).orElseThrow(() -> {
             LOGGER.error("Interest not found");
             return new NotFoundException("Interest not found");});
         if(!errors.hasErrors()){
@@ -96,7 +94,7 @@ public class InterestController {
           return updateInterestForm(id, form, errors);
         }
 
-        interestService.editUserInterest(
+        interestService.updateInterest(
                 id,
                 form.getName()
         );
@@ -106,14 +104,14 @@ public class InterestController {
 
     @PostMapping(value = "/{id}/delete")
     public ModelAndView deleteInterest(@PathVariable long id) {
-        interestService.delete(id);
+        interestService.deleteInterest(id);
         return new ModelAndView("redirect:/dashboard/interests");
     }
 
     @GetMapping(value = "/edit")
     public ModelAndView updateInterestForm( @ModelAttribute("user") User user,
                                             @ModelAttribute("editInterestsForm") final EditInterestForm form) {
-        Page<Interest> pagedInterests = interestService.findAllInterestsByUserId(user.getId(), new PageParams(1, 20));
+        Page<Interest> pagedInterests = interestService.findInterestsByUserId(user.getId(), new PageParams(1, 20));
         ModelAndView mav = new ModelAndView("interests/interests-edit");
         mav.addObject("editInterestsForm",form);
         mav.addObject("userInterests", pagedInterests.getContent());

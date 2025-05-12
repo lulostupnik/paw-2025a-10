@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
         LocalDate tomorrow = LocalDate.now().plusDays(1);
         User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId, passwordEncoder.encode(password), locale,uid,tomorrow);
         LOGGER.info("Successfully created user with ID: {} and email: {}", user.getId(), email);
-        interestService.saveUserInterests(interests, user.getId());
+        interestService.createUserInterests(interests, user.getId());
         LOGGER.info("User interests saved successfully for user ID: {}", user.getId());
         emailService.sendValidationEmail(user,uid);
         LOGGER.info("Validation email sent successfully to user ID: {}", user.getId());

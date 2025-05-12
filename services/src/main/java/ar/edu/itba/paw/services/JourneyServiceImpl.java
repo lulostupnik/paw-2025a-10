@@ -93,8 +93,8 @@ public class JourneyServiceImpl implements JourneyService {
 
         journeyResponseDao.create(user.getId(), user.getUsername(), journeyId, message, LocalDateTime.now());
         LOGGER.info("Journey response created: {}", message);
-        List<Interest> interests = interestService.findByUserId(journey.getUser().getId());
-        interestService.updateScoreByInterests(interests, user.getId());
+        List<Interest> interests = interestService.findInterestsByUserId(journey.getUser().getId());
+        interestService.updateUserInterestScores(interests, user.getId());
         LOGGER.info("Interest score updated for user {}", user.getId());
         emailService.answerJourneyNotification(
                 userDao.findAllJourneyResponders(journeyId),

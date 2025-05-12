@@ -91,7 +91,7 @@ public class AdminController {
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
-        mav.addObject("pagedInterests", interestService.getAllInterests(search, pageParams));
+        mav.addObject("pagedInterests", interestService.findInterests(search, pageParams));
 
         return mav;
     }
