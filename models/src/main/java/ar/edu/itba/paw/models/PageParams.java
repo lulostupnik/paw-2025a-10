@@ -1,10 +1,12 @@
 package ar.edu.itba.paw.models;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.Objects;
 
 @Getter
+@ToString
 public class PageParams {
     private final int page;
     private final int size;
