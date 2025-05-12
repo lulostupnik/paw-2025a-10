@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
-
+@PropertySource("classpath:email.properties")
 @Service
 @Async
 public class EmailServiceImpl implements EmailService {
@@ -34,9 +34,15 @@ public class EmailServiceImpl implements EmailService {
     private final MessageSource messageSource;
     private final ImageService imageService;
 
+    @Value("${support.email}")
+    private String supportEmail;
 
     @Value("${email.from}")
     private String fromEmail;
+
+    @Value("${base.link}")
+    private String baseUrl;
+
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailServiceImpl.class);
 
@@ -50,7 +56,6 @@ public class EmailServiceImpl implements EmailService {
         this.messageSource = messageSource;
         this.imageService = imageService;
     }
-
 
     private void sendHtmlMessage(final Optional<byte[]> maybeImage,final Optional<String> maybeImageCid,final User emailRecipient, final String templateName, final Map<String, Object> variables,final String subjectKey, final Optional<Object[]> maybeSubjectArgs) {
         try {
@@ -87,9 +92,9 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    private Map<String, Object> buildVariables(final String firstName,final String lastName,final String username,
-                                               final String career,final String originUniversity,final String message,
-                                               final byte[] profilePicture,final String idKey,final long id) {
+    private Map<String, Object> buildAnswerVariables(final String firstName, final String lastName, final String username,
+                                                     final String career, final String originUniversity, final String message,
+                                                     final byte[] profilePicture, final String idKey, final long id) {
         return Map.of(
                 "firstname", firstName,
                 "lastname", lastName,
@@ -98,7 +103,8 @@ public class EmailServiceImpl implements EmailService {
                 "university", originUniversity,
                 "message", message,
                 "hasProfileImage", profilePicture != null && profilePicture.length > 0,
-                idKey, id
+                idKey, id,
+                "baseUrl", baseUrl
         );
     }
 
@@ -114,6 +120,8 @@ public class EmailServiceImpl implements EmailService {
         variables.put("commentDate", deletedComment.getFormattedDate());
         variables.put("commentMessage", deletedComment.getMessage());
         variables.put("adminMessage", adminMessage);
+        variables.put("baseUrl", baseUrl);
+
 
         LOGGER.debug("Sending comment deletion email with variables: {}", variables);
 
@@ -140,6 +148,8 @@ public class EmailServiceImpl implements EmailService {
         variables.put("commentDate", deletedComment.getFormattedDate());
         variables.put("commentMessage", deletedComment.getMessage());
         variables.put("adminMessage", adminMessage);
+        variables.put("baseUrl", baseUrl);
+
 
         sendHtmlMessage(Optional.empty(), Optional.empty(), commentAuthor, "comment-deletion", variables,
                 "email.comment.deletion.title", Optional.empty());
@@ -156,7 +166,7 @@ public class EmailServiceImpl implements EmailService {
             return new IllegalStateException("User does not have profile picture");
         }).getData();
 
-        Map<String, Object> variables = buildVariables(
+        Map<String, Object> variables = buildAnswerVariables(
                 commenter.getFirstname(), commenter.getLastname(),
                 commenter.getUsername(), commenter.getCareer().getName(),
                 commenter.getUniversity().getName(),message,
@@ -184,7 +194,7 @@ public class EmailServiceImpl implements EmailService {
             LOGGER.error("User does not have profile picture");
             return new IllegalStateException("User does not have profile picture");}).getData();
 
-        Map<String, Object> variables = buildVariables(
+        Map<String, Object> variables = buildAnswerVariables(
                 commenter.getFirstname(), commenter.getLastname(),
                 commenter.getUsername(), commenter.getCareer().getName(),
                 commenter.getUniversity().getName(),message,
@@ -211,6 +221,8 @@ public class EmailServiceImpl implements EmailService {
         variables.put("eventTitle", event.getTitle());
         variables.put("eventId", event.getId());
         variables.put("adminMessage", adminMessage);
+        variables.put("baseUrl", baseUrl);
+
 
         sendHtmlMessage(Optional.empty(),Optional.empty(), event.getUser(), "event-deletion", variables,
                 "email.event.deletion.title",Optional.of(new Object[]{event.getTitle()}));
@@ -221,6 +233,7 @@ public class EmailServiceImpl implements EmailService {
         Map<String, Object> variables = new HashMap<>();
         variables.put("journeyId", journey.getId());
         variables.put("adminMessage", adminMessage);
+        variables.put("baseUrl", baseUrl);
 
         sendHtmlMessage(Optional.empty(),Optional.empty(), journey.getUser(), "journey-deletion", variables,
                 "email.journey.deletion.title", Optional.empty());
@@ -231,6 +244,9 @@ public class EmailServiceImpl implements EmailService {
     public void sendUserBlockedNotification(final User blockedUser) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("username", blockedUser.getUsername());
+        variables.put("baseUrl", baseUrl);
+        variables.put("supportEmail", supportEmail);
+
 
         sendHtmlMessage(Optional.empty(), Optional.empty(), blockedUser, "user-blocked", variables,
                 "email.user.blocked.title", Optional.empty());
@@ -239,6 +255,8 @@ public class EmailServiceImpl implements EmailService {
     public void sendUserUnblockedNotification(final User unblockedUser) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("username", unblockedUser.getUsername());
+        variables.put("baseUrl", baseUrl);
+
 
         sendHtmlMessage(Optional.empty(), Optional.empty(), unblockedUser, "user-unblocked", variables,
                 "email.user.unblocked.title", Optional.empty());
@@ -249,6 +267,8 @@ public class EmailServiceImpl implements EmailService {
         Map<String, Object> variables = new HashMap<>();
         variables.put("firstName", user.getUsername());
         variables.put("validationToken", token);
+        variables.put("baseUrl", baseUrl);
+
 
         sendHtmlMessage(Optional.empty(), Optional.empty(), user, "validation", variables,
                 "email.validation.title", Optional.empty());
@@ -258,6 +278,8 @@ public class EmailServiceImpl implements EmailService {
         Map<String, Object> variables = new HashMap<>();
         variables.put("firstName", user.getUsername());
         variables.put("resetToken", token);
+        variables.put("baseUrl", baseUrl);
+
 
         sendHtmlMessage(Optional.empty(), Optional.empty(), user, "forgot-password", variables,
                 "email.reset.title", Optional.empty());
@@ -271,6 +293,8 @@ public class EmailServiceImpl implements EmailService {
             Map<String, Object> variables = new HashMap<>();
             variables.put("firstname", attendee.getFirstname());
             variables.put("event", event);
+            variables.put("baseUrl", baseUrl);
+
 
             sendHtmlMessage(
                     Optional.empty(),

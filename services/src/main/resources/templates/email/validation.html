@@ -7,7 +7,7 @@
 </head>
 <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; color: #333; margin: 0;">
 <div style="text-align: center; margin-bottom: 30px;">
-    <a href="http://pawserver.it.itba.edu.ar/paw-2025a-10/" style="text-decoration: none;">
+    <a th:href="${baseUrl}" style="text-decoration: none;">
         <h1 style="font-size: 28px; font-weight: bold; color: #000000; margin: 0;">
             Go<span style="color: #3366ff;">Together</span>
         </h1>
@@ -25,7 +25,7 @@
     </p>
 
     <div style="text-align: center; margin-top: 40px;">
-        <a th:href="@{http://pawserver.it.itba.edu.ar/paw-2025a-10/validate(token=${validationToken})}"
+        <a th:href="@{${baseUrl + 'validate'}(token=${validationToken})}"
            style="display: inline-block; background-color: #3366ff; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;"
            th:text="#{email.validation.cta}">
         </a>

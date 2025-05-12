@@ -7,7 +7,7 @@
 </head>
 <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; color: #333; margin: 0;">
 <div style="text-align: center; margin-bottom: 30px;">
-    <a href="http://pawserver.it.itba.edu.ar/paw-2025a-10/" style="text-decoration: none;">
+    <a th:href="${baseUrl}" style="text-decoration: none;">
         <h1 style="font-size: 28px; font-weight: bold; color: #000000; margin: 0;">
             Go<span style="color: #3366ff;">Together</span>
         </h1>
@@ -29,15 +29,13 @@
     <p th:text="#{email.user.blocked.contact}" style="margin-bottom: 15px; font-weight: bold;">
         If you believe this action was taken in error, please contact our support team:
     </p>
-    <a th:href="'mailto:paw.2025a.10@gmail.com?subject=' + #{email.user.blocked.subject}"
+    <a th:href="@{${'mailto:' + supportEmail}(subject=#{email.user.blocked.subject})}"
        style="display: inline-block; background-color: #3366ff; color: white; padding: 12px 25px;
                   text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 16px;"
        th:text="#{email.user.blocked.cta}">
         Contact Support
     </a>
 </div>
-
-
 
 </body>
 </html>
