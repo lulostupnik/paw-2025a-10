@@ -5,7 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,73 +44,9 @@ public class UserJdbcDaoTest {
 
     private JdbcTemplate jdbcTemplate;
 
-    private SimpleJdbcInsert insert;
-
-    private static void assertEqualsUser(User user){
-        assertEqualsUser(user, Map.of());
-    }
-
-    private static void assertEqualsUser(User user, Map<String, Object> overrideParams){
-        assertNotNull(user);
-        assertEquals(overrideParams.getOrDefault("email", TestUtils.USER_1_MAIL), user.getEmail());
-        assertEquals(overrideParams.getOrDefault("username", TestUtils.USER_1_NAME), user.getUsername());
-        assertEquals(overrideParams.getOrDefault("firstname", TestUtils.USER_FIRSTNAME), user.getFirstname());
-        assertEquals(overrideParams.getOrDefault("lastname", TestUtils.USER_LASTNAME), user.getLastname());
-        assertEquals(Locale.of((String)overrideParams.getOrDefault("locale", TestUtils.USER_LOCALE)), user.getLocale());
-        assertEquals(((Career)overrideParams.getOrDefault("career", TestUtils.CAREER_1)).getName(), user.getCareer().getName());
-        assertEquals(((Career)overrideParams.getOrDefault("career", TestUtils.CAREER_1)).getId(), user.getCareer().getId());
-        assertEquals(((University)overrideParams.getOrDefault("university", TestUtils.UNI_1)).getId(), user.getUniversity().getId());
-        assertEquals(((University)overrideParams.getOrDefault("university", TestUtils.UNI_1)).getName(), user.getUniversity().getName());
-        assertEquals(((University)overrideParams.getOrDefault("university", TestUtils.UNI_1)).getAbbreviation(), user.getUniversity().getAbbreviation());
-        assertEquals(((University)overrideParams.getOrDefault("university", TestUtils.UNI_1)).getCity().getId(), user.getUniversity().getCity().getId());
-        assertEquals(((University)overrideParams.getOrDefault("university", TestUtils.UNI_1)).getCity().getName(), user.getUniversity().getCity().getName());
-        assertEquals(((University)overrideParams.getOrDefault("university", TestUtils.UNI_1)).getCity().getCountry(), user.getUniversity().getCity().getCountry());
-        assertEquals(((Image)overrideParams.getOrDefault("profilepic", TestUtils.IMAGE_1)).getId(), user.getProfilePictureId());
-        assertEquals(overrideParams.getOrDefault("blocked", false), user.isBlocked());
-    }
-
-    private void assertUserDBDefaultStatus(){
-        assertEquals(TestUtils.TOTAL_USERS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_TABLE));
-        TestUtils.assertEqualsUser(TestUtils.USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID));
-        TestUtils.assertEqualsUser(TestUtils.USER_2, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_2_ID));
-        TestUtils.assertEqualsUser(TestUtils.USER_3, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_3_ID));
-        TestUtils.assertEqualsUser(TestUtils.USER_4, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_4_ID));
-        TestUtils.assertEqualsUser(TestUtils.USER_I1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_I1_ID));
-        TestUtils.assertEqualsUser(TestUtils.USER_I2, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_I2_ID));
-        TestUtils.assertEqualsUser(TestUtils.USER_I3, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_I3_ID));
-    }
-
-    private static void assertEqualsUserPassword(UserAuthInfo up){
-        assertNotNull(up);
-        assertEquals(TestUtils.USER_1_MAIL, up.getEmail());
-        assertEquals(TestUtils.USER_PASSWORD, up.getPassword());
-        assertEquals(TestUtils.USER_ROLE, up.getRole());
-        assertEquals(TestUtils.USER_BLOCKED, up.isBlocked());
-    }
-
-    private long insertUser(Map<String, Object> overrideParams){
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("email", overrideParams.getOrDefault("email", TestUtils.USER_1_MAIL));
-        params.put("username", overrideParams.getOrDefault("username", TestUtils.USER_1_NAME));
-        params.put("firstname", overrideParams.getOrDefault("firstname", TestUtils.USER_FIRSTNAME));
-        params.put("lastname", overrideParams.getOrDefault("lastname", TestUtils.USER_LASTNAME));
-        params.put("password", overrideParams.getOrDefault("password", TestUtils.USER_PASSWORD));
-        params.put("language", overrideParams.getOrDefault("locale", TestUtils.USER_LOCALE));
-        params.put("university", overrideParams.getOrDefault("university", TestUtils.UNIVERSITY_1_ID));
-        params.put("career_id", overrideParams.getOrDefault("career", TestUtils.CAREER_1_ID));
-        params.put("profile_picture_id", overrideParams.getOrDefault("profilepic", TestUtils.IMAGE_1_ID));
-        params.put("roles", overrideParams.getOrDefault("roles", TestUtils.USER_ROLE));
-        params.put("blocked", overrideParams.getOrDefault("blocked", false));
-        params.put("token", overrideParams.getOrDefault("token", TestUtils.USER_VALID_TOKEN_DEFAULT));
-        params.put("token_expiration", Date.valueOf((LocalDate)overrideParams.getOrDefault("tokenExpiration", TestUtils.USER_EXPIRATION_DEFAULT)));
-        params.put("validated",overrideParams.getOrDefault("validated", true));
-        return insert.executeAndReturnKey(params).longValue();
-    }
-
     @Before
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
-        insert = new SimpleJdbcInsert(ds).withTableName(TestUtils.USER_TABLE).usingGeneratedKeyColumns("id");
     }
 
     @Test
@@ -120,7 +55,7 @@ public class UserJdbcDaoTest {
 
         final User user = userDao.create(TestUtils.USER_1_MAIL, TestUtils.USER_1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
 
-        assertEqualsUser(user);
+        TestUtils.assertEqualsUser(user, Map.of("id", user.getId()));
         assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_TABLE));
     }
 
@@ -218,7 +153,7 @@ public class UserJdbcDaoTest {
         assertNotNull(maybeUser);
         assertTrue(maybeUser.isPresent());
         final UserAuthInfo user = maybeUser.get();
-        assertEqualsUserPassword(user);
+        TestUtils.assertEqualsUserPassword(user);
     }
     @Test
     public void testFindUserByEmailWithPasswordMissing(){
@@ -278,8 +213,6 @@ public class UserJdbcDaoTest {
 
         assertFalse(exists);
     }
-
-
 
     @Test
     public void testFindAllPaged(){
@@ -402,48 +335,49 @@ public class UserJdbcDaoTest {
         userDao.updateBlock(TestUtils.USER_1_ID, true);
 
         User user = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID);
-        assertEqualsUser(user, Map.of("blocked", true));
+        TestUtils.assertEqualsUser(user, Map.of("blocked", true));
     }
     @Test
     public void testBlockUserBlocked(){
-        Map<String, Object> params = Map.of("email", TestUtils.USER_NEW1_MAIL, "username", TestUtils.USER_NEW1_NAME, "blocked", true);
-        long id = insertUser(params);
+        Map<String, Object> params = new HashMap<>(Map.of("email", TestUtils.USER_NEW1_MAIL, "username", TestUtils.USER_NEW1_NAME, "blocked", true));
+        User user = TestUtils.insertUser(ds, params);
+        params.put("id", user.getId());
 
-        userDao.updateBlock(id, true);
+        userDao.updateBlock(user.getId(), true);
 
-        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, id), params);
+        TestUtils.assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, user.getId()), params);
     }
     @Test
     public void testBlockUserWrongId(){
         userDao.updateBlock(12341234l, true);
 
-        assertUserDBDefaultStatus();
+        TestUtils.assertUserDBDefaultStatus(jdbcTemplate);
     }
 
     @Test
     public void testUnblockUser(){
-        long id = insertUser(Map.of("email", TestUtils.USER_NEW1_MAIL, "username", TestUtils.USER_NEW1_NAME, "blocked", true));
+        User user = TestUtils.insertUser(ds, Map.of("email", TestUtils.USER_NEW1_MAIL, "username", TestUtils.USER_NEW1_NAME, "blocked", true));
 
-        userDao.updateBlock(id, false);
+        userDao.updateBlock(user.getId(), false);
 
-        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, id), Map.of("email", TestUtils.USER_NEW1_MAIL, "username", TestUtils.USER_NEW1_NAME));
+        TestUtils.assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, user.getId()), Map.of("email", TestUtils.USER_NEW1_MAIL, "username", TestUtils.USER_NEW1_NAME, "id", user.getId()));
     }
     @Test
     public void testUnblockUserUnblocked(){
         userDao.updateBlock(TestUtils.USER_1_ID, false);
         
-        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID));
+        TestUtils.assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID));
     }
     @Test
     public void testUnblockUserWrongId(){
         userDao.updateBlock(12341234l, false);
         
-        assertUserDBDefaultStatus();
+        TestUtils.assertUserDBDefaultStatus(jdbcTemplate);
     }
 
     @Test
     public void testExistsByTokenNotExpired(){
-        insertUser(Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL));
+        TestUtils.insertUser(ds, Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL));
 
         boolean isValid = userDao.existsByTokenNotExpired(TestUtils.USER_VALID_TOKEN_DEFAULT);
 
@@ -457,7 +391,7 @@ public class UserJdbcDaoTest {
     }
     @Test
     public void testExistsByTokenNotExpiredExpired(){
-        insertUser(Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
+        TestUtils.insertUser(ds, Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
 
         boolean isValid = userDao.existsByTokenNotExpired(TestUtils.USER_VALID_TOKEN_DEFAULT);
 
@@ -466,7 +400,7 @@ public class UserJdbcDaoTest {
 
     @Test
     public void testExistsByTokenExpired(){
-        insertUser(Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL));
+        TestUtils.insertUser(ds, Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL));
 
         boolean isExpired = userDao.existsByTokenExpired(TestUtils.USER_VALID_TOKEN_DEFAULT);
 
@@ -474,7 +408,7 @@ public class UserJdbcDaoTest {
     }
     @Test
     public void testExistsByTokenExpiredExpired(){
-        insertUser(Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
+        TestUtils.insertUser(ds, Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
 
         boolean isExpired = userDao.existsByTokenExpired(TestUtils.USER_VALID_TOKEN_DEFAULT);
 
@@ -488,7 +422,7 @@ public class UserJdbcDaoTest {
     }
     @Test
     public void testExistsByTokenExpiredEmpty(){
-        insertUser(Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
+        TestUtils.insertUser(ds, Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
 
         boolean isExpired = userDao.existsByTokenExpired("");
 
@@ -628,7 +562,7 @@ public void testUpdateUniversityNameWrongUser(){
 //    }
 //    @Test(expected = DataAccessException.class)
 //    public void testUpdateProfileInfoDuplicatedUsername(){
-//        final long id = insertUser(Map.of("username", TestUtils.USER_FAKE_NAME));
+//        final long id = TestUtils.insertUser(ds, Map.of("username", TestUtils.USER_FAKE_NAME));
 //
 //        userDao.updateProfileInfo(id, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.USER_1_NAME);
 //    }
@@ -670,7 +604,7 @@ public void testUpdateUniversityNameWrongUser(){
 //    public void testUpdateProfilePicture(){
 //        userDao.updateProfilePicture(TestUtils.USER_1_ID, PROFILEPIC_2.getId());
 //
-//        assertEqualsUser(
+//        TestUtils.assertEqualsUser(
 //            jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID),
 //            Map.of("profilepic", PROFILEPIC_2)
 //        );
@@ -689,7 +623,7 @@ public void testUpdateUniversityNameWrongUser(){
 //
 //    @Test
 //    public void testClearTokenByToken(){
-//        long id = insertUser(Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
+//        long id = TestUtils.insertUser(ds, Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
 //
 //        userDao.clearTokenByToken(TestUtils.USER_VALID_TOKEN_DEFAULT);
 //
@@ -697,7 +631,7 @@ public void testUpdateUniversityNameWrongUser(){
 //    }
 //    @Test
 //    public void testClearTokenByTokenWrongToken(){
-//        long id = insertUser(Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
+//        long id = TestUtils.insertUser(ds, Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
 //
 //        userDao.clearTokenByToken("USER_VALID_TOKEN_DEFAULT");
 //
@@ -711,7 +645,7 @@ public void testUpdateUniversityNameWrongUser(){
     public void testUpdateGeneric(){
         userDao.update(TestUtils.USER_1_ID, TestUtils.USER_FAKE_FIRSTNAME, TestUtils.USER_FAKE_LASTNAME, TestUtils.USER_FAKE_NAME, UNIVERSITY_2.getId(), CAREER_2.getId(), Locale.of(TestUtils.USER_FAKE_LOCALE));
 
-        assertEqualsUser(
+        TestUtils.assertEqualsUser(
             jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID),
             Map.of(
                 "firstname", TestUtils.USER_FAKE_FIRSTNAME,
