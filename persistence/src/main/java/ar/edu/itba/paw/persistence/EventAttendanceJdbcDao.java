@@ -38,33 +38,6 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
             Locale.of(rs.getString("user_language")),
             rs.getBoolean("user_blocked"));
 
-    private final static String SQL_USERS_BASE =
-                    """
-                    SELECT
-                        u.id AS user_id,
-                        u.email AS user_email,
-                        u.firstname AS user_firstname,
-                        u.lastname AS user_lastname,
-                        u.username AS user_username,
-                        u.university AS user_university,
-                        u.language AS user_language,
-                        u.blocked AS user_blocked,
-                        c.name AS career_name,
-                        c.id AS career_id,
-                        u.profile_picture_id AS user_profile_picture_id,
-                        un.name AS university_name,
-                        un.abbreviation AS university_abbreviation,
-                        ci.id AS city_id,
-                        ci.name AS city_name,
-                        co.name AS country_name
-                    FROM users u
-                    JOIN universities un ON u.university = un.id
-                    JOIN careers c ON c.id = u.career_id
-                    JOIN cities ci ON ci.id = un.city_id
-                    JOIN countries co ON co.id = ci.country_id
-                    JOIN event_attendances ea ON u.id = ea.user_id
-                    """;
-
 
     private static final RowMapper<Event> EVENT_ROW_MAPPER = (rs, rowNum) -> new Event(
             rs.getLong("event_id"),
@@ -157,10 +130,8 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                     JOIN event_attendances ea ON e.id = ea.event_id
                     """;
 
-    private final static String SQL_LIST_ALL_BY_EVENT = SQL_USERS_BASE + " WHERE ea.event_id = ? ";
     private final static String SQL_LIST_ALL_BY_USER = SQL_EVENTS_BASE + " WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE ";
 
-    private final static String SQL_PAGE_BY_EVENT = SQL_LIST_ALL_BY_EVENT + " LIMIT ? OFFSET ?";
 
 
 
@@ -203,34 +174,15 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
     }
 
     @Override
-    public List<User> findAllAttendeesByEventId(final long eventId) {
-        return jdbcTemplate.query(SQL_LIST_ALL_BY_EVENT, USER_ROW_MAPPER, eventId);
-    }
-
-    @Override
     public int countByEventId(final long eventId) {
         return jdbcTemplate.query("SELECT attendees_count FROM events WHERE id = ?", (rs, rowNum) -> rs.getInt("attendees_count"), eventId).stream().findFirst().orElse(0);
     }
 
+    // FIXME: Eliminar y/o mover de DAO
     public List<Event> getAttendingEvents(final long userId) {
         return jdbcTemplate.query(SQL_LIST_ALL_BY_USER, EVENT_ROW_MAPPER, userId, userId);
     }
 
-    @Override
-    public Page<User> findAllAttendeesByEventId(final long eventId, final PageParams pageParams) {
-        final int totalItems = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM event_attendances WHERE event_id = ?",
-                Integer.class,
-                eventId
-        );
-
-
-        return new Page<>(
-                jdbcTemplate.query(SQL_PAGE_BY_EVENT, USER_ROW_MAPPER, eventId, pageParams.getSize(), offset(pageParams)),
-                pageParams.getPage(),
-                pageCount(totalItems,pageParams.getSize())
-        );
-    }
 
 //
 

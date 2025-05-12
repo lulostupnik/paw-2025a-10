@@ -86,6 +86,8 @@ public class UserJdbcDao implements UserDao {
             JOIN countries co ON co.id = ci.country_id
             """;
 
+
+
     private final static String SQL_BASE = SQL_SELECT_BASE + SQL_FROM_BASE;
     private final static String SQL_BASE_DISTINCT = "SELECT DISTINCT " + SQL_SELECT_BASE.substring(6) + SQL_FROM_BASE;
 
@@ -110,6 +112,9 @@ public class UserJdbcDao implements UserDao {
     private final static String SQL_SEARCH_USERS_COUNT =
             "SELECT COUNT(*) FROM users us JOIN universities un ON us.university = un.id " + SQL_SEARCH_WHERE_CLAUSE;
 
+    private final static String SQL_FIND_ALL_BY_EVENT = SQL_SELECT_BASE + SQL_FROM_BASE + " JOIN event_attendances ea ON u.id = ea.user_id  WHERE ea.event_id = ? ";
+
+    private final static String SQL_PAGE_BY_EVENT = SQL_FIND_ALL_BY_EVENT + " LIMIT ? OFFSET ?";
 
     @Autowired
     public UserJdbcDao(final DataSource dataSource) {
@@ -316,5 +321,22 @@ public class UserJdbcDao implements UserDao {
                 token
         ).stream().findFirst();
     }
+
+
+    @Override
+    public List<User> findAllAttendeesByEventId(final long eventId) {
+        return jdbcTemplate.query(SQL_FIND_ALL_BY_EVENT, USER_ROW_MAPPER, eventId);
+    }
+
+
+    @Override
+    public Page<User> findAllAttendeesByEventId(final long eventId, final PageParams pageParams) {
+        return executePagedQuery(
+                jdbcTemplate, USER_ROW_MAPPER,
+                "SELECT COUNT(*) FROM event_attendances WHERE event_id = ?", SQL_PAGE_BY_EVENT,
+                pageParams, eventId
+        );
+    }
+
 
 }

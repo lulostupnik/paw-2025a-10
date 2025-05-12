@@ -200,17 +200,6 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<User> getEventAttendees(final long eventId) {
-        LOGGER.debug("Getting attendees for event {}", eventId);
-        return eventAttendanceDao.findAllAttendeesByEventId(eventId);
-    }
-
-    @Override
-    public Page<User> getEventAttendees(final long eventId, PageParams pageParams) {
-        LOGGER.debug("Getting attendees for event {} with pageParams {}", eventId, pageParams);
-        return eventAttendanceDao.findAllAttendeesByEventId(eventId, pageParams);
-    }
-    @Override
     public int getEventAttendeesCount(final long eventId) {
         LOGGER.debug("Getting attendees count for event {}", eventId);
         return eventAttendanceDao.countByEventId(eventId);
@@ -377,7 +366,7 @@ public class EventServiceImpl implements EventService {
         LOGGER.info("Found {} events occurring in the next 24 hours", upcomingEvents.size());
 
         for (Event event : upcomingEvents) {
-            emailService.sendEventReminderNotification(event, eventAttendanceDao.findAllAttendeesByEventId(event.getId()));
+            emailService.sendEventReminderNotification(event, userService.getEventAttendees(event.getId()));
         }
 
         LOGGER.info("Completed scheduled task: sent reminder emails for upcoming events");

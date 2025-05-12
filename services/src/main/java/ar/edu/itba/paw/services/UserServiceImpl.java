@@ -212,6 +212,20 @@ public class UserServiceImpl implements UserService {
         return userDao.existsByTokenExpired(token);
     }
 
+
+    @Override
+    public List<User> getEventAttendees(final long eventId) {
+        LOGGER.debug("Getting attendees for event {}", eventId);
+        return userDao.findAllAttendeesByEventId(eventId);
+    }
+
+    @Override
+    public Page<User> getEventAttendees(final long eventId, PageParams pageParams) {
+        LOGGER.debug("Getting attendees for event {} with pageParams {}", eventId, pageParams);
+        return userDao.findAllAttendeesByEventId(eventId, pageParams);
+    }
+
+
     @Override
     @Transactional
     public void newPassword(final String token, final String newPassword) {

@@ -49,10 +49,7 @@ public interface UserDao {
 
     List<User> findAllEventResponders(long eventId);
 
+    Page<User> findAllAttendeesByEventId(long eventId, PageParams pageParams);
+    List<User> findAllAttendeesByEventId(long eventId);
+
 }
-
-//    void updateProfilePicture(long id, long profilePictureId);
-
-//    void update(long id, String firstname, String lastname, String username, Long universityId, Long careerId, Locale locale);
-
-//    void clearTokenByToken(String token);
