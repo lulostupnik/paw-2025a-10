@@ -11,6 +11,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title><spring:message code="notvalid.title"/></title>
+  <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
+  <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
   <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/cards.css'/>" />
