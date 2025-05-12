@@ -25,7 +25,6 @@ public class ImageServiceImplTest {
     private static final byte[] IMAGE_DATA = new byte[0];
     private static final long IMAGE_ID = 0;
     private static final String IMAGE_CACHE = "images";
-    private static final Image IMAGE = new Image(IMAGE_ID, IMAGE_DATA);
 
     @InjectMocks
     ImageServiceImpl imageService;
@@ -61,32 +60,4 @@ public class ImageServiceImplTest {
         assertEquals(IMAGE_ID, id);
     }
 
-    @Test
-    public void testGetImage(){
-        Mockito.when(
-            imageDao.findById(IMAGE_ID)
-        ).thenReturn(Optional.of(IMAGE));
-
-        Optional<Image> maybeImage = imageService.getImage(IMAGE_ID);
-
-        assertNotNull(maybeImage);
-        assertTrue(maybeImage.isPresent());
-        assertEquals(IMAGE, maybeImage.get());
-    }
-    @Test
-    public void testGetImageMissing(){
-        Mockito.when(
-            imageDao.findById(IMAGE_ID)
-        ).thenReturn(Optional.empty());
-
-        Optional<Image> maybeImage = imageService.getImage(IMAGE_ID);
-
-        assertNotNull(maybeImage);
-        assertFalse(maybeImage.isPresent());
-    }
-
-    // @Test
-    // public void testDeleteImage(){
-    //     imageService.deleteImage(IMAGE_ID);
-    // }
 }

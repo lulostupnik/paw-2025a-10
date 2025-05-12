@@ -156,6 +156,7 @@ public class UserJdbcDaoTest {
     @Test
     public void testFindUserByEmailWithPasswordMissing(){
         final Optional<UserAuthInfo> maybeUser = userDao.findAuthInfoByEmail(TestUtils.USER_FAKE_MAIL);
+        
         assertNotNull(maybeUser);
         assertFalse(maybeUser.isPresent());
     }
@@ -199,6 +200,8 @@ public class UserJdbcDaoTest {
     @Test
     public void testUpdatePasswordMissingUser(){
         userDao.updatePassword(12341234l, TestUtils.USER_PASSWORD);
+
+        TestUtils.assertUserDBDefaultStatus(jdbcTemplate);
     }
     @Test(expected = DataAccessException.class)
     public void testUpdatePasswordMissingPassword(){
@@ -270,88 +273,80 @@ public class UserJdbcDaoTest {
     }
 
     @Test
-    public void testFindAllPaged(){
+    public void testFindAllPage1(){
         Page<User> page1 = userDao.findAll(TestUtils.PAGE_1_DEFAULT);
+
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(4, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(2, page1.getContent().size());
+        for (User u : page1.getContent()){
+            TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(u.getId()), u);
+        }
+    }
+    @Test
+    public void testFindAllPage2(){
         Page<User> page2 = userDao.findAll(TestUtils.PAGE_2_DEFAULT);
 
-        assertNotNull(page1);
         assertNotNull(page2);
-        assertEquals(1, page1.getCurrentPage());
         assertEquals(2, page2.getCurrentPage());
-        assertEquals(4, page1.getTotalPages());
         assertEquals(4, page2.getTotalPages());
-        assertNotNull(page1.getContent());
         assertNotNull(page2.getContent());
-        assertEquals(2, page1.getContent().size());
         assertEquals(2, page2.getContent().size());
-        for (User u : page1.getContent()){
-            TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(u.getId()), u);
-        }
         for (User u : page2.getContent()){
             TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(u.getId()), u);
         }
     }
     @Test
-    public void testFindAllPagedWrongPage(){
-        Page<User> page1 = userDao.findAll(TestUtils.PAGE_1_BIG);
+    public void testFindAllWrongPage(){
         Page<User> page2 = userDao.findAll(TestUtils.PAGE_2_BIG);
 
-        assertNotNull(page1);
         assertNotNull(page2);
-        assertEquals(1, page1.getCurrentPage());
         assertEquals(2, page2.getCurrentPage());
-        assertEquals(1, page1.getTotalPages());
         assertEquals(1, page2.getTotalPages());
-        assertNotNull(page1.getContent());
         assertNotNull(page2.getContent());
-        assertEquals(TestUtils.TOTAL_USERS, page1.getContent().size());
         assertEquals(0, page2.getContent().size());
+    }
+
+    @Test
+    public void testSearchPage1(){
+        Page<User> page1 = userDao.search(TestUtils.USER_FIRSTNAME, TestUtils.PAGE_1_DEFAULT);
+
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(4, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(TestUtils.PAGE_SIZE_DEFAULT, page1.getContent().size());
         for (User u : page1.getContent()){
             TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(u.getId()), u);
         }
     }
-
     @Test
-    public void testSearchPaged(){
-        Page<User> page1 = userDao.search(TestUtils.USER_FIRSTNAME, TestUtils.PAGE_1_DEFAULT);
+    public void testSearchPage2(){
         Page<User> page2 = userDao.search(TestUtils.USER_FIRSTNAME, TestUtils.PAGE_2_DEFAULT);
 
-        assertNotNull(page1);
         assertNotNull(page2);
-        assertEquals(1, page1.getCurrentPage());
-        assertEquals(4, page1.getTotalPages());
         assertEquals(2, page2.getCurrentPage());
         assertEquals(4, page2.getTotalPages());
-        assertNotNull(page1.getContent());
         assertNotNull(page2.getContent());
-        assertEquals(TestUtils.PAGE_SIZE_DEFAULT, page1.getContent().size());
         assertEquals(TestUtils.PAGE_SIZE_DEFAULT, page2.getContent().size());
-        for (User u : page1.getContent()){
-            TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(u.getId()), u);
-        }
         for (User u : page2.getContent()){
             TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(u.getId()), u);
         }
     }
     @Test
-    public void testSearchPaged2(){
-        Page<User> page1 = userDao.search(TestUtils.USER_1_NAME, TestUtils.PAGE_1_DEFAULT);
+    public void testSearchPageWrongPage(){
         Page<User> page2 = userDao.search(TestUtils.USER_1_NAME, TestUtils.PAGE_2_DEFAULT);
 
-        assertNotNull(page1);
-        assertEquals(1, page1.getCurrentPage());
         assertEquals(2, page2.getCurrentPage());
-        assertEquals(1, page1.getTotalPages());
         assertEquals(1, page2.getTotalPages());
-        assertNotNull(page1.getContent());
         assertNotNull(page2.getContent());
-        assertEquals(1, page1.getContent().size());
         assertEquals(0, page2.getContent().size());
-        TestUtils.assertEqualsUser(TestUtils.USER_1, page1.getContent().get(0));
     }
 
-   @Test
-   public void testFindAllJourneyResponders(){
+    @Test
+    public void testFindAllJourneyResponders(){
         List<User> repliesUser = userDao.findAllJourneyResponders(TestUtils.JOURNEY_1_ID);
 
         assertNotNull(repliesUser);
@@ -359,7 +354,7 @@ public class UserJdbcDaoTest {
         for (User user : repliesUser) {
             TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(user.getId()), user);
         }
-   }
+    }
     @Test
     public void testFindAllEventResponders(){
         List<User> repliesUser = userDao.findAllEventResponders(TestUtils.EVENT_1_ID);

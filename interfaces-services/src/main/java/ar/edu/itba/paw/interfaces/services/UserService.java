@@ -23,10 +23,8 @@ public interface UserService {
     void checkPasswordTokenValidity(String token);
     void refreshToken(String oldToken);
     void refreshPassToken(String oldToken);
-    boolean isValidPasswordResetToken(String token);
     void newPassword(String token, String newPassword);
     void forgotPass(String email);
-    boolean isTokenExpired(String token);
     List<User> getEventAttendees(long eventId);
     Page<User> getEventAttendees(long eventId, PageParams pageParams);
     }

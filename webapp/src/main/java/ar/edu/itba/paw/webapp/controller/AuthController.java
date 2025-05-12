@@ -56,12 +56,7 @@ public class AuthController {
 
     @PostMapping(value ="/reset-password")
     public ModelAndView changePass(@RequestParam("token") String token, @Valid @ModelAttribute("updatePasswordForm")UpdatePasswordForm form, final BindingResult errors) {
-        if (!userService.isValidPasswordResetToken(token)) {
-            return new ModelAndView("auth/invalid-token");
-        }
-        if(userService.isTokenExpired(token)) {
-            return new ModelAndView("auth/expired-token");
-        }
+        userService.checkPasswordTokenValidity(token);
 
         if(errors.hasErrors()) {
             return changePassForm(token, form);
