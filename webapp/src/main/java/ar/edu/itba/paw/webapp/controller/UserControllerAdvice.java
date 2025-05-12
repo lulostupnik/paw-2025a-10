@@ -25,7 +25,7 @@ public class UserControllerAdvice {
     public User user() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return (auth != null && !"anonymousUser".equals(auth.getPrincipal()) )
-                ?  userService.findByEmail(auth.getName()).orElseThrow(()-> {
+                ?  userService.findUserByEmail(auth.getName()).orElseThrow(()-> {
                     LOGGER.error("Authenticated user with email {} not found in database", auth.getName());
                     return new IllegalStateException();
                 }) : null;

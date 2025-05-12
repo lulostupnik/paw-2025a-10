@@ -11,8 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.NoSuchElementException;
-
 @Controller
 @RequestMapping("/users")
 public class UserController {
@@ -26,7 +24,7 @@ public class UserController {
 
     @GetMapping(value= "/{id}")
     public ModelAndView getUser(@PathVariable(value = "id") final long id) {
-        User user = userService.findById(id).orElseThrow((
+        User user = userService.findUserById(id).orElseThrow((
 
         ) -> {
             LOGGER.error("User not found");

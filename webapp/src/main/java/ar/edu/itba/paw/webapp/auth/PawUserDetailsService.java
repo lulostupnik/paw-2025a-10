@@ -29,7 +29,7 @@ public class PawUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        final UserAuthInfo user = us.findByEmailWithPass(username).orElseThrow(() -> {
+        final UserAuthInfo user = us.findAuthInfoByEmail(username).orElseThrow(() -> {
             LOGGER.warn("Failed login attempt: No user found with username '{}'", username);
             return new UsernameNotFoundException("No user by the name " + username);
         });

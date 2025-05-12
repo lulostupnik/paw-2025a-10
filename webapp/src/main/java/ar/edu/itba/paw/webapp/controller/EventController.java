@@ -5,7 +5,6 @@ import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
 import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
-import ar.edu.itba.paw.models.exceptions.EventResponseNotFoundException;
 import ar.edu.itba.paw.models.exceptions.InvalidException;
 import ar.edu.itba.paw.webapp.form.*;
 
@@ -109,13 +108,13 @@ public class EventController {
         mav.addObject("attendedEventsCount", eventWithStatistics.getAttendedEventsCount());
         mav.addObject("topAttendeeCountry", eventWithStatistics.getTopAttendeeCountry());
         mav.addObject("topAttendeeCountryCount", eventWithStatistics.getTopAttendeeCountryCount());
-        mav.addObject("attendeesPage", userService.getEventAttendees(event.getId(), attendeesPageParams));
+        mav.addObject("attendeesPage", userService.findEventAttendees(event.getId(), attendeesPageParams));
         mav.addObject("attendeesCount", eventService.getEventAttendeesCount(event.getId()));
         Page<EventResponse> eventResponsesPage = eventService.listAllResponseFromEvent(event.getId(), pageParams);
         mav.addObject("eventResponsesPage", eventResponsesPage);
         mav.addObject("commentsCount", eventService.getResponseCount(event.getId()));
         if(eventWithStatistics.isCreator()){
-            mav.addObject("attendees", userService.getEventAttendees(id));
+            mav.addObject("attendees", userService.findEventAttendees(id));
         }
         mav.addObject("attend", eventWithStatistics.isAttending());
         mav.addObject("isEventOwner", eventWithStatistics.isCreator());

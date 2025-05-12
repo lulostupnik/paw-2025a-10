@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void changePassword(final long id, final String newPassword) {
+    public void updatePassword(final long id, final String newPassword) {
         LOGGER.debug("Password change for user with id: {}", id);
         userDao.updatePassword(id, passwordEncoder.encode(newPassword));
         LOGGER.info("Password changed successfully for user ID: {}", id);
@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserAuthInfo validateEmail(final String token) {
+    public UserAuthInfo verifyEmailToken(final String token) {
         LOGGER.debug("Validating user with token: {}", token);
         handleTokenExpiration(token);
         Optional<Boolean> maybeValidated = userDao.findValidatedByTokenNotExpired(token);
@@ -115,19 +115,19 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public Optional<User> findByEmail(final String email) {
+    public Optional<User> findUserByEmail(final String email) {
         LOGGER.debug("Searching for user with email: {}", email);
         return userDao.findByEmail(email);
     }
 
     @Override
-    public Optional<UserAuthInfo> findByEmailWithPass(final String email) {
+    public Optional<UserAuthInfo> findAuthInfoByEmail(final String email) {
         LOGGER.debug("Searching for authUser with email: {}", email);
         return userDao.findAuthInfoByEmail(email);
     }
 
     @Override
-    public Optional<User> findById(final long id) {
+    public Optional<User> findUserById(final long id) {
         LOGGER.debug("Searching for user with id: {}", id);
         return userDao.findById(id);
     }
@@ -146,7 +146,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public Page<User> getAllUsers(final String search,final  PageParams pageParams) {
+    public Page<User> findUsers(final String search, final  PageParams pageParams) {
         LOGGER.debug("Getting all the users with search param: {} and pageParams: {}", search, pageParams);
         if (search == null || search.isEmpty()) {
             return userDao.findAll(pageParams);
@@ -158,7 +158,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void blockUser(final long userId) {
         LOGGER.debug("Attempting to block user with ID: {}", userId);
-        User user = findById(userId).orElseThrow(() -> {
+        User user = findUserById(userId).orElseThrow(() -> {
             LOGGER.error("User does not exist for ID: {}", userId);
             return new IllegalStateException("User does not exist");
         });
@@ -171,7 +171,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void unblockUser(final long userId) {
         LOGGER.debug("Attempting to unblock user with ID: {}", userId);
-        User user = findById(userId).orElseThrow(() -> {
+        User user = findUserById(userId).orElseThrow(() -> {
             LOGGER.error("User does not exist for ID: {}", userId);
             return new IllegalStateException("User does not exist");
         });
@@ -197,7 +197,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void refreshPassToken(final String oldToken) {
+    public void refreshPasswordToken(final String oldToken) {
         LOGGER.debug("Attempting to refresh token, for oldToken: {}", oldToken);
         String uid = UUID.randomUUID().toString();
 
@@ -226,13 +226,13 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public List<User> getEventAttendees(final long eventId) {
+    public List<User> findEventAttendees(final long eventId) {
         LOGGER.debug("Getting attendees for event {}", eventId);
         return userDao.findAllAttendeesByEventId(eventId);
     }
 
     @Override
-    public Page<User> getEventAttendees(final long eventId, PageParams pageParams) {
+    public Page<User> findEventAttendees(final long eventId, PageParams pageParams) {
         LOGGER.debug("Getting attendees for event {} with pageParams {}", eventId, pageParams);
         return userDao.findAllAttendeesByEventId(eventId, pageParams);
     }
@@ -240,7 +240,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void newPassword(final String token, final String newPassword) {
+    public void resetPassword(final String token, final String newPassword) {
         checkPasswordTokenValidity(token);
         LOGGER.debug("updating new password for token: {}", token);
         userDao.updatePasswordAndClearTokenByToken(token, passwordEncoder.encode(newPassword));
@@ -249,7 +249,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void forgotPass(final String email) {
+    public void initiatePasswordReset(final String email) {
         LOGGER.debug("Attempting to send forgot password email to: {}", email);
         User user = userDao.findByEmail(email).orElseThrow(()-> {
             LOGGER.error("User with email {} not found", email);

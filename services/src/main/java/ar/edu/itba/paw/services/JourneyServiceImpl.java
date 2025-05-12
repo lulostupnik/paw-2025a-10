@@ -85,7 +85,7 @@ public class JourneyServiceImpl implements JourneyService {
                     return new RuntimeException("Journey not found");}
                 );
 
-        User user = userService.findByEmail(email)
+        User user = userService.findUserByEmail(email)
                 .orElseThrow(()-> {
                     LOGGER.warn("User with email {} not found", email);
                     return new RuntimeException("User not found");}
@@ -125,7 +125,7 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     public Optional<Journey> getJourneyByEmail(final String email) {
         LOGGER.debug("Getting journey by email {}", email);
-        long userId = userService.findByEmail(email).orElseThrow(() -> {
+        long userId = userService.findUserByEmail(email).orElseThrow(() -> {
             LOGGER.warn("User with email {} not found", email);
             return new RuntimeException("User not found");
         }).getId();
@@ -154,7 +154,7 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     public boolean userHasJourney(final String email) {
         LOGGER.debug("Checking if user has journey {}", email);
-        User user = userService.findByEmail(email).orElseThrow(() -> {
+        User user = userService.findUserByEmail(email).orElseThrow(() -> {
             LOGGER.warn("User with email '{}' not found", email);
             return new RuntimeException("User not found");
         });
@@ -178,7 +178,7 @@ public class JourneyServiceImpl implements JourneyService {
         if(userHasJourney(email)){
             return journeyDao.findRecommended(email, new PageParams(1, limit)).getContent();
         }
-        Optional<User> maybeUser = userService.findByEmail(email);
+        Optional<User> maybeUser = userService.findUserByEmail(email);
         if(maybeUser.isEmpty()){
             return journeyDao.findAll(new PageParams(1, limit)).getContent();
         }
@@ -246,7 +246,7 @@ public class JourneyServiceImpl implements JourneyService {
         Journey journey = journeyDao.findById(deletedComment.getJourneyId()).orElseThrow(()->{
             LOGGER.error("Journey from journey response doesn't exist");
             return new IllegalStateException("Journey from journey response doesn't exist");});
-        User commentAuthor = userService.findById(deletedComment.getUserId()).orElseThrow(() -> {
+        User commentAuthor = userService.findUserById(deletedComment.getUserId()).orElseThrow(() -> {
             LOGGER.error("User from journey response doesn't exists");
             return new IllegalArgumentException("User from journey response doesn't exists");});
 
