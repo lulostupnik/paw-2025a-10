@@ -165,10 +165,11 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public Journey create(final User user, final University destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
 
-        final Optional<Journey> journey = findByUserIdDeleted(user.getId());
-        if(journey.isPresent()){
-            update(journey.get().getId(), destinationUniversity, startDate, endDate, description);
-            return findByUserId(journey.get().getUser().getId()).orElseThrow(RuntimeException::new);
+        final Optional<Journey> maybeJourney = findByUserIdDeleted(user.getId());
+        if(maybeJourney.isPresent()){
+            Journey journey = maybeJourney.get();
+            update(journey.getId(), destinationUniversity, startDate, endDate, description);
+            return new Journey(journey.getId(), journey.getUser(), startDate, endDate, destinationUniversity, description);
         }
         final Map<String, Object> args = new HashMap<>();
         args.put("user_id", user.getId());
