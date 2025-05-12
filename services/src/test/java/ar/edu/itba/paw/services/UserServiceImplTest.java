@@ -114,7 +114,7 @@ public class UserServiceImplTest {
 
 
     @Test
-    public void testValidateEmail(){
+    public void testVerifyEmailToken(){
         Mockito.when(
             userDao.existsByTokenExpired(Mockito.eq(TOKEN))
         ).thenReturn(false);
@@ -125,10 +125,10 @@ public class UserServiceImplTest {
             userDao.updateValidationAndFindAuthInfoByToken(Mockito.eq(TOKEN))
         ).thenReturn(Optional.of(USER_AUTH_INFO));
 
-        userService.validateEmail(TOKEN);
+        userService.verifyEmailToken(TOKEN);
     }
     @Test(expected = RuntimeException.class)
-    public void testValidateEmailInvalidToken(){
+    public void testVerifyEmailTokenInvalidToken(){
         Mockito.when(
             userDao.existsByTokenExpired(Mockito.eq(TOKEN))
         ).thenReturn(false);
@@ -139,10 +139,10 @@ public class UserServiceImplTest {
             userDao.updateValidationAndFindAuthInfoByToken(Mockito.eq(TOKEN))
         ).thenReturn(Optional.empty());
 
-        userService.validateEmail(TOKEN);
+        userService.verifyEmailToken(TOKEN);
     }
     @Test(expected = InvalidTokenException.class)
-    public void testValidateEmailAlreadyValidated(){
+    public void testVerifyEmailTokenAlreadyValidated(){
         Mockito.when(
             userDao.existsByTokenExpired(Mockito.eq(TOKEN))
         ).thenReturn(false);
@@ -150,15 +150,15 @@ public class UserServiceImplTest {
             userDao.findValidatedByTokenNotExpired(Mockito.eq(TOKEN))
         ).thenReturn(Optional.of(true));
 
-        userService.validateEmail(TOKEN);
+        userService.verifyEmailToken(TOKEN);
     }
     @Test(expected = IllegalStateException.class)
-    public void testValidateEmailExpiredToken(){
+    public void testVerifyEmailTokenExpiredToken(){
         Mockito.when(
             userDao.existsByTokenExpired(Mockito.eq(TOKEN))
         ).thenReturn(true);
 
-        userService.validateEmail(TOKEN);
+        userService.verifyEmailToken(TOKEN);
     }
 
 
@@ -237,12 +237,12 @@ public class UserServiceImplTest {
         userService.refreshToken(TOKEN);
     }
     @Test
-    public void testRefreshPassToken(){
+    public void testRefreshPasswordToken(){
         Mockito.when(
             userDao.findByToken(Mockito.eq(TOKEN))
         ).thenReturn(Optional.of(USER));
 
-        userService.refreshPassToken(TOKEN);
+        userService.refreshPasswordToken(TOKEN);
     }
     @Test(expected = RuntimeException.class)
     public void testRefreshTokenPassUserNotFound(){
@@ -250,11 +250,11 @@ public class UserServiceImplTest {
             userDao.findByToken(Mockito.eq(TOKEN))
         ).thenReturn(Optional.empty());
 
-        userService.refreshPassToken(TOKEN);
+        userService.refreshPasswordToken(TOKEN);
     }
 
     @Test
-    public void testForgotPass(){
+    public void testInitiatePasswordReset(){
         Mockito.when(
             userDao.findByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.of(USER));
@@ -262,10 +262,10 @@ public class UserServiceImplTest {
             userDao.findValidationStatusByEmail(Mockito.eq(EMAIL))
         ).thenReturn(true);
 
-        userService.forgotPass(EMAIL);
+        userService.initiatePasswordReset(EMAIL);
     }
     @Test(expected = UserValidatedException.class)
-    public void testForgotPassUserNotValid(){
+    public void testInitiatePasswordResetUserNotValid(){
         Mockito.when(
             userDao.findByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.of(USER));
@@ -273,14 +273,14 @@ public class UserServiceImplTest {
             userDao.findValidationStatusByEmail(Mockito.eq(EMAIL))
         ).thenReturn(false);
 
-        userService.forgotPass(EMAIL);
+        userService.initiatePasswordReset(EMAIL);
     }
     @Test(expected = RuntimeException.class)
-    public void testForgotPassUserNotFound(){
+    public void testInitiatePasswordResetUserNotFound(){
         Mockito.when(
             userDao.findByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.empty());
 
-        userService.forgotPass(EMAIL);
+        userService.initiatePasswordReset(EMAIL);
     }
 }

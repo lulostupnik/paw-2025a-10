@@ -139,7 +139,7 @@ public class JourneyServiceImplTest {
             journeyDao.findById(Mockito.eq(JOURNEY_ID))
         ).thenReturn(Optional.of(JOURNEY));
         Mockito.when(
-            userService.findByEmail(Mockito.eq(EMAIL))
+            userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.of(USER));
         Mockito.when(
             interestService.findByUserId(Mockito.eq(USER_ID))
@@ -153,7 +153,7 @@ public class JourneyServiceImplTest {
             journeyDao.findById(Mockito.eq(JOURNEY_ID))
         ).thenReturn(Optional.of(JOURNEY));
         Mockito.when(
-            userService.findByEmail(Mockito.eq(EMAIL))
+            userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.empty());
 
         journeyService.replyToJourney(EMAIL, JOURNEY_ID, DESCRIPTION);
@@ -172,7 +172,7 @@ public class JourneyServiceImplTest {
     @Test
     public void testGetJourneyByEmail(){
         Mockito.when(
-            userService.findByEmail(Mockito.eq(EMAIL))
+            userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.of(USER));
         Mockito.when(
             journeyDao.findByUserId(Mockito.eq(USER_ID))
@@ -187,7 +187,7 @@ public class JourneyServiceImplTest {
     @Test(expected = RuntimeException.class)
     public void testGetJourneyByEmailUserNotFound(){
         Mockito.when(
-            userService.findByEmail(Mockito.eq(EMAIL))
+            userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.empty());
 
         journeyService.getJourneyByEmail(EMAIL);
@@ -303,7 +303,7 @@ public class JourneyServiceImplTest {
     @Test
     public void testUserHasJourney(){
         Mockito.when(
-            userService.findByEmail(Mockito.eq(EMAIL))
+            userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.of(USER));
         Mockito.when(
             journeyDao.findByUserId(Mockito.eq(USER_ID))
@@ -316,7 +316,7 @@ public class JourneyServiceImplTest {
     @Test
     public void testUserHasJourneyNoJourney(){
         Mockito.when(
-            userService.findByEmail(Mockito.eq(EMAIL))
+            userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.of(USER));
         Mockito.when(
             journeyDao.findByUserId(Mockito.eq(USER_ID))
@@ -329,7 +329,7 @@ public class JourneyServiceImplTest {
     @Test(expected = RuntimeException.class)
     public void testUserHasJourneyWrongUser(){
         Mockito.when(
-            userService.findByEmail(Mockito.eq(EMAIL))
+            userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.empty());
 
         boolean hasJourney = journeyService.userHasJourney(EMAIL);
@@ -340,7 +340,7 @@ public class JourneyServiceImplTest {
     @Test
     public void testGetRecommendedJourneysWithEmail(){
         Mockito.when(
-            userService.findByEmail(Mockito.eq(EMAIL))
+            userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.of(USER));
         Mockito.when(
             journeyDao.findByUserId(Mockito.eq(USER_ID))
@@ -357,7 +357,7 @@ public class JourneyServiceImplTest {
     @Test
     public void testGetRecommendedJourneysWithUserNoJourneysButJourneyInCity(){
         Mockito.when(
-            userService.findByEmail(Mockito.eq(EMAIL))
+            userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.of(USER));
         Mockito.when(
             journeyDao.findByUserId(Mockito.eq(USER_ID))
@@ -374,7 +374,7 @@ public class JourneyServiceImplTest {
     @Test
     public void testGetRecommendedJourneysWithUserNoJourneysNoJourneyInCity(){
         Mockito.when(
-            userService.findByEmail(Mockito.eq(EMAIL))
+            userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.of(USER));
         Mockito.when(
             journeyDao.findByUserId(Mockito.eq(USER_ID))
@@ -394,7 +394,7 @@ public class JourneyServiceImplTest {
     @Test(expected = RuntimeException.class)
     public void testGetRecommendedJourneysWrongUser(){
         Mockito.when(
-            userService.findByEmail(Mockito.eq(EMAIL))
+            userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.empty());
 
         List<Journey> journeys = journeyService.getRecommendedJourneys(EMAIL, 2);
@@ -446,7 +446,7 @@ public class JourneyServiceImplTest {
             journeyDao.findById(Mockito.eq(JOURNEY_ID))
         ).thenReturn(Optional.of(JOURNEY));
         Mockito.when(
-            userService.findById(Mockito.eq(USER_ID))
+            userService.findUserById(Mockito.eq(USER_ID))
         ).thenReturn(Optional.of(USER));
 
         journeyService.deleteJourneyResponse(REPLY_ID, DESCRIPTION);
@@ -460,7 +460,7 @@ public class JourneyServiceImplTest {
             journeyDao.findById(Mockito.eq(JOURNEY_ID))
         ).thenReturn(Optional.of(JOURNEY));
         Mockito.when(
-            userService.findById(Mockito.eq(USER_ID))
+            userService.findUserById(Mockito.eq(USER_ID))
         ).thenReturn(Optional.empty());
 
         journeyService.deleteJourneyResponse(REPLY_ID, DESCRIPTION);

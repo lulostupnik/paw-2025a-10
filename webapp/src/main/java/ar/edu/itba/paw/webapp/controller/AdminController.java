@@ -46,7 +46,7 @@ public class AdminController {
             @PageParamCustomizer(sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
-        mav.addObject("pagedUsers", userService.getAllUsers(search, pageParams));
+        mav.addObject("pagedUsers", userService.findUsers(search, pageParams));
 
         return mav;
     }

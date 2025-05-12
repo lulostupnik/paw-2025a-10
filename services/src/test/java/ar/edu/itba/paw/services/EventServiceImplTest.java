@@ -111,7 +111,7 @@ public class EventServiceImplTest {
             cityService.findByName(Mockito.eq(CITY_NAME))
         ).thenReturn(Optional.of(CITY));
         Mockito.when(
-            userService.findByEmail(Mockito.eq(EMAIL))
+            userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.of(USER));
         Mockito.when(
             imageService.storeImage(Mockito.eq(IMAGE_DATA))
@@ -131,7 +131,7 @@ public class EventServiceImplTest {
             cityService.findByName(Mockito.eq(CITY_NAME))
         ).thenReturn(Optional.of(CITY));
         Mockito.when(
-            userService.findByEmail(Mockito.eq(EMAIL))
+            userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.empty());
 
         eventService.createEvent(EMAIL, CITY_NAME, EVENT_DATE, IMAGE_DATA, DESCRIPTION, TITLE, TIME, ADDRESS, LIMIT);
@@ -151,7 +151,7 @@ public class EventServiceImplTest {
             eventDao.findById(EVENT_ID)
         ).thenReturn(Optional.of(EVENT));
         Mockito.when(
-            userService.findByEmail(EMAIL)
+            userService.findUserByEmail(EMAIL)
         ).thenReturn(Optional.of(USER));
         Mockito.when(
             userDao.findAllEventResponders(Mockito.eq(EVENT_ID))
@@ -165,7 +165,7 @@ public class EventServiceImplTest {
             eventDao.findById(EVENT_ID)
         ).thenReturn(Optional.of(EVENT));
         Mockito.when(
-            userService.findByEmail(EMAIL)
+            userService.findUserByEmail(EMAIL)
         ).thenReturn(Optional.empty());
 
         eventService.replyToEvent(EMAIL, EVENT_ID, DESCRIPTION);
@@ -361,7 +361,7 @@ public class EventServiceImplTest {
     @Test(expected = NoSuchElementException.class)
     public void testCancelAttendanceEmailNotFound(){
         Mockito.when(
-            userService.findByEmail(Mockito.eq(EMAIL))
+            userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.empty());
 
         eventService.cancelAttendance(EMAIL, EVENT_ID);
@@ -558,7 +558,7 @@ public class EventServiceImplTest {
             eventDao.findById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT));
         Mockito.when(
-            userService.findById(Mockito.eq(USER_ID))
+            userService.findUserById(Mockito.eq(USER_ID))
         ).thenReturn(Optional.empty());
 
         eventService.deleteResponse(RESPONSE_ID, DESCRIPTION);

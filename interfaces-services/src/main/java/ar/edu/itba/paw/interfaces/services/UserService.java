@@ -10,22 +10,30 @@ import java.util.Optional;
 
 public interface UserService {
     User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, byte[] profilePicture, List<String> interests, String password, Locale locale);
-    Optional<User> findByEmail(String email);
-    Optional<UserAuthInfo> findByEmailWithPass(String email);
-    Optional<User> findById(long id);
+
+    void updatePassword(long id, String newPassword);
+    void resetPassword(String token, String newPassword);
+    void initiatePasswordReset(String email);
+
+
+    Optional<User> findUserByEmail(String email);
+    Optional<UserAuthInfo> findAuthInfoByEmail(String email);
+    Optional<User> findUserById(long id);
+
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
-    Page<User> getAllUsers(String search, PageParams pageParams);
+
+    Page<User> findUsers(String search, PageParams pageParams);
+    List<User> findEventAttendees(long eventId);
+    Page<User> findEventAttendees(long eventId, PageParams pageParams);
+
     void blockUser(long userId);
     void unblockUser(long userId);
-    void changePassword(long id, String newPassword);
-    UserAuthInfo validateEmail(String token);
-    void checkPasswordTokenValidity(String token);
-    void refreshToken(String oldToken);
-    void refreshPassToken(String oldToken);
-    void newPassword(String token, String newPassword);
-    void forgotPass(String email);
-    List<User> getEventAttendees(long eventId);
-    Page<User> getEventAttendees(long eventId, PageParams pageParams);
-    }
 
+    UserAuthInfo verifyEmailToken(String token);
+    void checkPasswordTokenValidity(String token);
+
+    void refreshToken(String oldToken);
+    void refreshPasswordToken(String oldToken);
+
+}

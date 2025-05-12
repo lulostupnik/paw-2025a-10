@@ -44,7 +44,7 @@ public class AccessHelper {
     public boolean isUserBlocked(){
         if (Objects.equals(SecurityContextHolder.getContext().getAuthentication().getName(), "AnonymousUser")) return false;
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userService.findByEmail(email).orElseThrow(() ->{
+        return userService.findUserByEmail(email).orElseThrow(() ->{
                 LOGGER.warn("User not found: {}", email);
                 return new IllegalArgumentException("No user by the name " + email);}).isBlocked();
     }
