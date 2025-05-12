@@ -71,12 +71,12 @@ public class InterestServiceImpl implements InterestService {
         return interest;
     }
 
+    @Override
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = "interestsById", key = "#id"),
             @CacheEvict(value = "interestsByName", allEntries = true)
     })
-    @Override
     public void editUserInterest(final long id, String interest) {
         LOGGER.debug("Editing interest {} with name {}", id, interest);
         interestDao.update(id, interest);
@@ -92,6 +92,7 @@ public class InterestServiceImpl implements InterestService {
     }
 
     @Override
+    @Transactional
     public void saveUserInterests(final List<String> interests,final  long userId) {
         LOGGER.debug("Adding interest list to user {}", userId);
         interestDao.createUserInterests(interests, userId);

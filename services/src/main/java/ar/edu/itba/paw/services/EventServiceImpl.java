@@ -50,8 +50,8 @@ public class EventServiceImpl implements EventService {
         this.eventAttendanceDao = eventAttendanceDao;
     }
 
-    @Transactional
     @Override
+    @Transactional
     public Event createEvent(final String email, final  String cityName, final LocalDate date, final byte[] flyer, final  String description, final  String title, final LocalTime time, final String address, final  Integer attendeesLimit) {
 
         LOGGER.debug("Creating event for user {}", email);
@@ -71,8 +71,8 @@ public class EventServiceImpl implements EventService {
         return event;
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void replyToEvent(final String email, final long eventId, final String message) {
         LOGGER.debug("Replying to event {}", eventId);
         Event event = eventDao.findById(eventId).orElseThrow(() -> {
@@ -160,9 +160,8 @@ public class EventServiceImpl implements EventService {
     }
 
 
-
-    @Transactional
     @Override
+    @Transactional
     public void attendEvent(final long userId,final  long eventId) {
         LOGGER.debug("User {} is attending event {}", userId, eventId);
         futureEvent(eventId);
@@ -194,8 +193,9 @@ public class EventServiceImpl implements EventService {
             throw new InvalidException("Event (id " + eventId + ") is not in the future");
         }
     }
-    @Transactional
+
     @Override
+    @Transactional
     public void attendEvent(final String email,final  long eventId) {
         long userId = userService.findByEmail(email).orElseThrow(
                 () -> {
@@ -206,8 +206,9 @@ public class EventServiceImpl implements EventService {
         attendEvent(userId, eventId);
         LOGGER.info("User {} is now attending event {}", userId, eventId);
     }
-    @Transactional
+
     @Override
+    @Transactional
     public void cancelAttendance(final long userId,final  long eventId) {
         LOGGER.debug("User {} is canceling attendance for event {}", userId, eventId);
         futureEvent(eventId);
@@ -215,8 +216,8 @@ public class EventServiceImpl implements EventService {
         LOGGER.info("User {} has canceled attendance for event {}", userId, eventId);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void cancelAttendance(final String email,final  long eventId) {
         LOGGER.debug("User {} is canceling attendance for event {}", email, eventId);
         long userId = userService.findByEmail(email).orElseThrow().getId();
@@ -283,9 +284,8 @@ public class EventServiceImpl implements EventService {
                 isPast, isUpcoming, attending, pageParams);
     }
 
-
-    @Transactional
     @Override
+    @Transactional
     public void editEvent(final long eventId, final String cityName,final  LocalDate date,final  byte[] flyer, final String description,
                           final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
         LOGGER.debug("Editing event {}", eventId);
@@ -318,9 +318,8 @@ public class EventServiceImpl implements EventService {
         LOGGER.info("Event {} updated", eventId);
     }
 
-
-    @Transactional
     @Override
+    @Transactional
     public void delete(final long id, final String message) {
         LOGGER.debug("Deleting event {}", id);
         Event event = eventDao.findById(id).orElseThrow(() -> {
@@ -334,9 +333,8 @@ public class EventServiceImpl implements EventService {
         eventDao.delete(id);
     }
 
-
-    @Transactional
     @Override
+    @Transactional
     public void deleteResponse(final long id, final String message) {
         LOGGER.debug("Deleting event response {}", id);
         EventResponse deletedComment = findEventResponseById(id)
@@ -391,7 +389,7 @@ public class EventServiceImpl implements EventService {
     }
 
 
-
+    @Override
     @Scheduled(cron = "0 0 12 * * ?")
     @Transactional(readOnly = true)
     public void sendEventReminders(){

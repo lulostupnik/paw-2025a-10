@@ -46,7 +46,7 @@ public class CityServiceImpl implements CityService {
 
 
     @Override
-    public Page<City> getAllCities(final String search,final PageParams pageParams) {
+    public Page<City> getAllCities(final String search, final PageParams pageParams) {
         LOGGER.debug("Finding all cities with search {}", search);
         if (search == null || search.isEmpty()) {
             return cityDao.findAll(pageParams);
@@ -82,7 +82,6 @@ public class CityServiceImpl implements CityService {
                     @CacheEvict(value = "universitiesByName", allEntries = true)
             }
     )
-
     public City createCity(final String cityName,final String countryName) {
         LOGGER.debug("Creating city with name {} and country {}", cityName, countryName);
         Country country = countryService.findByName(countryName)
@@ -108,12 +107,6 @@ public class CityServiceImpl implements CityService {
         LOGGER.debug("Deleting city with id {}", id);
         cityDao.delete(id);
         LOGGER.info("City with id {} deleted successfully", id);
-    }
-
-    @Override
-    public Page<City> searchBySubstring(final String substring,final PageParams pageParams) {
-        LOGGER.debug("Searching cities with substring {}", substring);
-        return cityDao.search(substring, pageParams);
     }
 
 }
