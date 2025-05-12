@@ -60,7 +60,7 @@
                     <select id="destinationUniversity" class="form-select ${not empty errors.getFieldError('destinationUniversity') ? 'error' : ''}" style="display: none;">
                         <option value=""><spring:message code="createJourney.destinationUniversity.select"/></option>
                         <c:forEach var="item" items="${universities}">
-                            <option value="${item.name}"><c:out value="${item.name}"/></option>
+                            <option value="<c:out value="${item.name}"/>"><c:out value="${item.name}"/></option>
                         </c:forEach>
                     </select>
                     <c:set var="universitySearch"><spring:message code="createJourney.destinationUniversity.search"/></c:set>

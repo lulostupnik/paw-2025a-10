@@ -164,14 +164,14 @@
                             <select id="career" class="form-select ${not empty errors.getFieldError('career') ? 'error' : ''}" style="display: none;">
                                 <option value=""><spring:message code="event.career.select"/></option>
                                 <c:forEach var="item" items="${careers}">
-                                    <option value="${item.name}"><c:out value="${item.name}"/></option>
+                                    <option value="<c:out value="${item.name}"/>"><c:out value="${item.name}"/></option>
                                 </c:forEach>
                             </select>
                             <c:set var="searchPlaceholder"><spring:message code="event.career.search" text="Type to search..."/></c:set>
                             <form:input type="text" path="career" id="careerSearch" class="autocomplete-input ${not empty errors.getFieldError('career') ? 'error' : ''}" placeholder="${searchPlaceholder}" />
                             <div id="careerDropdown" class="autocomplete-dropdown" style="display: none;">
                                 <c:forEach var="item" items="${careers}">
-                                    <div class="autocomplete-item" data-value="${item.name}">
+                                    <div class="autocomplete-item" data-value="<c:out value="${item.name}"/>">
                                         <c:out value="${item.name}"/>
                                     </div>
                                 </c:forEach>
@@ -191,14 +191,14 @@
                             <select  id="originUniversity" class="form-select ${not empty errors.getFieldError('originUniversity') ? 'error' : ''}" style="display: none;">
                                 <option value=""><spring:message code="createJourney.originUniversity.select"/></option>
                                 <c:forEach var="item" items="${universities}">
-                                    <option value="${item.name}"><c:out value="${item.name}"/></option>
+                                    <option value="<c:out value="${item.name}"/>"><c:out value="${item.name}"/></option>
                                 </c:forEach>
                             </select>
                             <c:set var="searchUni"><spring:message code="createJourney.originUniversity.search" text="Type to search..."/></c:set>
                             <form:input path="originUniversity" type="text" id="universitySearch" class="autocomplete-input ${not empty errors.getFieldError('originUniversity') ? 'error' : ''}" placeholder="${searchUni}" />
                             <div id="universityDropdown" class="autocomplete-dropdown" style="display: none;">
                                 <c:forEach var="item" items="${universities}">
-                                    <div class="autocomplete-item" data-value="${item.name}">
+                                    <div class="autocomplete-item" data-value="<c:out value="${item.name}"/>">
                                         <c:out value="${item.name}"/>
                                     </div>
                                 </c:forEach>
@@ -231,7 +231,7 @@
 
                             <div id="interestDropdown" class="autocomplete-dropdown" style="display: none;">
                                 <c:forEach var="item" items="${interests}">
-                                    <div class="autocomplete-item" data-value="${item.id}">
+                                    <div class="autocomplete-item" data-value="<c:out value="${item.id}"/>">
                                         <c:out value="${item.name}"/>
                                     </div>
                                 </c:forEach>

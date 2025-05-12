@@ -55,7 +55,7 @@
 
           <div id="interestDropdown" class="autocomplete-dropdown" style="display: none;">
             <c:forEach var="item" items="${interests}">
-              <div class="autocomplete-item" data-value="${item.id}">
+              <div class="autocomplete-item" data-value="<c:out value ="${item.id}"/>">
                 <c:out value="${item.name}"/>
               </div>
             </c:forEach>
