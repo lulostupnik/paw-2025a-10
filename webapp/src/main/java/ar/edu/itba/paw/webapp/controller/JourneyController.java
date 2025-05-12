@@ -4,12 +4,10 @@ import javax.validation.Valid;
 
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
-import ar.edu.itba.paw.models.exceptions.InvalidException;
 import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
-import ar.edu.itba.paw.webapp.form.FilterJourneyForm;
-import ar.edu.itba.paw.webapp.form.ReplyForm;
+import ar.edu.itba.paw.webapp.form.*;
 
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
 import org.slf4j.Logger;
@@ -20,8 +18,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
-import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
 
 
 @Controller
@@ -114,24 +110,26 @@ public class JourneyController {
     }
     @GetMapping(value = "/{id}/delete")
     public ModelAndView deleteJourneyForm(@PathVariable long id,
-                                          @ModelAttribute("deleteForm") final ReplyForm form) {
+                                          @ModelAttribute("deleteForm") final DeleteJourneyForm form,
+                                          @ModelAttribute("user") User user) {
         LOGGER.debug("Showing delete form for journey {}", id);
 
         Journey journey = js.getJourneyById(id).orElseThrow(JourneyNotFoundException::new);
 
         ModelAndView mav = new ModelAndView("journeys/delete");
         mav.addObject("journey", journey);
+        mav.addObject("isJourneyOwner", js.isJourneyOwnedByUser(user.getEmail(), id));
         return mav;
     }
 
 
     @PostMapping(value = "/{id}/delete")
-    public ModelAndView deleteJourney(@PathVariable long id, @Valid @ModelAttribute("deleteForm") final ReplyForm form,
-                                      final BindingResult errors) {
+    public ModelAndView deleteJourney(@PathVariable long id, @Valid @ModelAttribute("deleteForm") final DeleteJourneyForm form,
+                                      final BindingResult errors, @ModelAttribute("user") User user) {
         LOGGER.debug("Deleting journey {}", id);
         if(errors.hasErrors()) {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
-            return deleteJourneyForm(id, form);
+            return deleteJourneyForm(id, form, user);
         }
         js.delete(id, form.getMessage());
         return new ModelAndView("redirect:/journeys");

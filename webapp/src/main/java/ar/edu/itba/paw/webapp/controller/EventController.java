@@ -149,7 +149,7 @@ public class EventController {
     @PostMapping("/{id}/delete")
     public ModelAndView deleteEvent(@PathVariable long id,
             @ModelAttribute("user") User user,
-            @Valid @ModelAttribute("deleteForm") final ReplyForm form,
+            @Valid @ModelAttribute("deleteForm") final DeleteEventForm form,
                                     final BindingResult errors) {
         if (errors.hasErrors()) {
             return deleteEventForm(id, user, form);
@@ -159,7 +159,7 @@ public class EventController {
     }
     @GetMapping(value = "/{id}/delete")
     public ModelAndView deleteEventForm(@PathVariable long id, @ModelAttribute("user") User user,
-                                        @ModelAttribute("deleteForm") final ReplyForm form) {
+                                        @ModelAttribute("deleteForm") final DeleteEventForm form) {
         LOGGER.debug("Showing delete form for event {}", id);
 
         Event event = eventService.getEventById(id).orElseThrow(EventNotFoundException::new);
@@ -168,6 +168,7 @@ public class EventController {
         ModelAndView mav = new ModelAndView("events/delete");
         mav.addObject("event", event);
         mav.addObject("commentsCount", commentsCount);
+        mav.addObject("isEventOwner", eventService.isEventOwnedByUser(user.getEmail(), event.getId()));
         return mav;
     }
 
@@ -288,7 +289,7 @@ public class EventController {
     @PostMapping("{eventId}/reply/{id}/delete")
     public ModelAndView deleteEventReply(@PathVariable(value = "eventId") long eventId,
             @PathVariable("id") long id, @Valid @ModelAttribute("deleteReplyForm") ReplyForm form,
-                                         BindingResult errors, RedirectAttributes redirectAttributes) {
+                                         BindingResult errors) {
         if (errors.hasErrors()) {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
             return deleteEventReplyForm(eventId, id, form);

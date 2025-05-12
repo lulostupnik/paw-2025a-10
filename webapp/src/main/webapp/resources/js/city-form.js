@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ? document.getElementById("country.emptyMessage").value
         : "No countries found";
 
-    window.countryAutocomplete = ListAutocomplete.init({
+    window.countryAutocomplete = SingleOptionAutocomplete.init({
         selectId: "country",
         searchId: "countrySearch",
         dropdownId: "countryDropdown",

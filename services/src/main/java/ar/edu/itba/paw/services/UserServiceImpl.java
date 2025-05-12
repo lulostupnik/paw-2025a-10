@@ -96,11 +96,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void checkPasswordTokenValidity(String token) {
+        handleTokenExpiration(token);
         if (!isValidPasswordResetToken(token)) {
             LOGGER.warn("Invalid password reset token attempt: {}", token);
             throw new InvalidTokenException("Invalid password reset token");
         }
-        handleTokenExpiration(token);
     }
 
     private void handleTokenExpiration(String token) {

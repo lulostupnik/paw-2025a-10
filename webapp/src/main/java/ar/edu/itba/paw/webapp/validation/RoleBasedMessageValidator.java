@@ -1,57 +1,63 @@
 package ar.edu.itba.paw.webapp.validation;
 
 import ar.edu.itba.paw.interfaces.services.EventService;
+import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.webapp.form.DeleteForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.Collection;
 
 
 
 @Component
 public class RoleBasedMessageValidator implements ConstraintValidator<RoleBasedMessage, DeleteForm> {
 
-    private final EventService eventService;
     @Autowired
-    public RoleBasedMessageValidator(EventService eventService) {
-        this.eventService = eventService;
-    }
+    private EventService eventService;
+
+    @Autowired
+    private JourneyService journeyService;
+
+    private String type;
 
     @Override
     public void initialize(RoleBasedMessage constraintAnnotation) {
+        this.type = constraintAnnotation.type();
     }
 
     @Override
     public boolean isValid(DeleteForm form, ConstraintValidatorContext context) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
+        int id = form.getId();
 
-        int eventId = form.getId();
-        boolean isOwner = eventService.isEventOwnedByUser(userEmail, eventId);
-        if(isOwner){
-            return true;
+        boolean isOwner;
+        if ("event".equalsIgnoreCase(type)) {
+            isOwner = eventService.isEventOwnedByUser(userEmail, id);
+        } else if ("journey".equalsIgnoreCase(type)) {
+            isOwner = journeyService.isJourneyOwnedByUser(userEmail, id);
+        } else {
+            return false; // unknown type
         }
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        boolean isAdmin = authorities.stream()
+
+        if (isOwner) return true;
+
+        boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
         if (isAdmin) {
-            boolean isValid = form.getMessage() != null && !form.getMessage().trim().isEmpty();
-
-            if (!isValid) {
+            boolean hasMessage = form.getMessage() != null && !form.getMessage().trim().isEmpty();
+            if (!hasMessage) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate("Please provide a reason for deletion")
                         .addPropertyNode("message")
                         .addConstraintViolation();
             }
-
-            return isValid;
+            return hasMessage;
         }
 
         return false;

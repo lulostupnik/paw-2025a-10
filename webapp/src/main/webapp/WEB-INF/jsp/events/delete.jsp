@@ -57,13 +57,16 @@
 
                     <c:url var="deleteUrl" value='/events/${event.id}/delete'/>
                     <form:form modelAttribute="deleteForm" action="${deleteUrl}" method="post" class="delete-form">
+                        <form:hidden path="id" value="${event.id}" />
                         <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
                         <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>
-                        <jsp:include page="../components/text-area.jsp">
-                            <jsp:param name="path" value="message" />
-                            <jsp:param name="label" value="${messageLabel}" />
-                            <jsp:param name="placeholder" value="${messagePlaceholder}" />
-                        </jsp:include>
+                        <c:if test="${!isEventOwner}">
+                            <jsp:include page="../components/text-area.jsp">
+                                <jsp:param name="path" value="message" />
+                                <jsp:param name="label" value="${messageLabel}" />
+                                <jsp:param name="placeholder" value="${messagePlaceholder}" />
+                            </jsp:include>
+                        </c:if>
 
                         <div class="form-actions">
                             <a href="<c:url value='/events/${event.id}'/>" class="btn-secondary">
