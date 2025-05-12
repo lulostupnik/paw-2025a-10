@@ -93,7 +93,7 @@
         deleted_message VARCHAR(1000),
         FOREIGN KEY(user_id) REFERENCES users ON DELETE CASCADE,
         FOREIGN KEY(journey_id) REFERENCES journeys ON DELETE CASCADE
-    )
+    );
 
     CREATE TABLE IF NOT EXISTS events(
         id IDENTITY PRIMARY KEY,
