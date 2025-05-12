@@ -1,12 +1,8 @@
 package ar.edu.itba.paw.services;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,9 +20,9 @@ import ar.edu.itba.paw.models.PageParams;
 public class InterestServiceImplTest {
 
     private static final String INTEREST_NAME = "interesting";
-//  private static final List<String> INTEREST_NAMES = List.of(INTEREST_NAME);
+    // private static final List<String> INTEREST_NAMES = List.of(INTEREST_NAME);
     private static final long ID_1 = 0;
-    private static final long USER_ID = 2;
+    // private static final long USER_ID = 2;
     private static final Interest INTEREST_1 = new Interest(ID_1, INTEREST_NAME);
     private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
 

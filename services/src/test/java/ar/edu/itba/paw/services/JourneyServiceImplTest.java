@@ -35,20 +35,20 @@ import ar.edu.itba.paw.interfaces.services.UserService;
 public class JourneyServiceImplTest {
 
     private static final long USER_ID = 0;
-    private static final long USER_ID2 = 1;
+    // private static final long USER_ID2 = 1;
     private static final long UNI_ID = 2;
     private static final long CITY_ID = 3;
     private static final long CAREER_ID = 4;
     private static final long IMAGE_ID = 5;
     private static final long JOURNEY_ID = 6;
-    private static final long JOURNEY_ID2 = 7;
+    // private static final long JOURNEY_ID2 = 7;
     private static final long INTEREST_ID = 8;
     private static final long REPLY_ID = 9;
 
     private static final String UNI_NAME = "uni";
     private static final String UNI_ABBR = "uni";
     private static final String EMAIL = "mail1";
-    private static final String EMAIL2 = "mail2";
+    // private static final String EMAIL2 = "mail2";
     private static final String USERNAME = "user1";
     private static final String FIRSTNAME = "user";
     private static final String LASTNAME = "user";
@@ -62,7 +62,7 @@ public class JourneyServiceImplTest {
     private static final Career CAREER = new Career(CAREER_ID, CAREER_NAME);
     private static final Locale LOCALE = Locale.of("en");
     private static final User USER = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, IMAGE_ID, LOCALE, false);
-    private static final User USER2 = new User(USER_ID2, EMAIL2, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, IMAGE_ID, LOCALE, false);
+    // private static final User USER2 = new User(USER_ID2, EMAIL2, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, IMAGE_ID, LOCALE, false);
     private static final Interest INTEREST = new Interest(INTEREST_ID, INTEREST_NAME);
     private static final List<Interest> INTERESTS = List.of(INTEREST);
 
@@ -70,14 +70,14 @@ public class JourneyServiceImplTest {
     private static final LocalDate END_DATE = START_DATE.plusDays(10);
     private static final String DESCRIPTION = "desc";
     private static final Journey JOURNEY = new Journey(JOURNEY_ID, USER, START_DATE, END_DATE, UNI, DESCRIPTION);
-    private static final Journey JOURNEY2 = new Journey(JOURNEY_ID2, USER2, START_DATE, END_DATE, UNI, DESCRIPTION);
+    // private static final Journey JOURNEY2 = new Journey(JOURNEY_ID2, USER2, START_DATE, END_DATE, UNI, DESCRIPTION);
     private static final List<Journey> JOURNEYS = List.of(JOURNEY);
     private static final Page<Journey> JOURNEY_PAGE = new Page<Journey>(JOURNEYS, 1, 1);
 
     private static final LocalDateTime REPLY_TIMESTAMP = LocalDateTime.now();
     private static final JourneyResponse REPLY = new JourneyResponse(REPLY_ID, USER_ID, USERNAME, JOURNEY_ID, DESCRIPTION, REPLY_TIMESTAMP);
-    private static final List<JourneyResponse> REPLIES = List.of(REPLY);
-    private static final Page<JourneyResponse> REPLY_PAGE = new Page<JourneyResponse>(REPLIES, 1, 1);
+    // private static final List<JourneyResponse> REPLIES = List.of(REPLY);
+    // private static final Page<JourneyResponse> REPLY_PAGE = new Page<JourneyResponse>(REPLIES, 1, 1);
 
     private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
 
