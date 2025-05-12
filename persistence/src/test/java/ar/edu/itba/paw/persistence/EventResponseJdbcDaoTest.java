@@ -1,10 +1,5 @@
 package ar.edu.itba.paw.persistence;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.sql.Timestamp;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -28,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ar.edu.itba.paw.models.EventResponse;
 import ar.edu.itba.paw.models.Page;
+
+import static org.junit.Assert.*;
 
 @Transactional
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -174,7 +171,7 @@ public class EventResponseJdbcDaoTest {
         replyDao.delete(TestUtils.EVENT_RESPONSE_1_ID);
 
         assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_REPLY_TABLE));
-        assertTrue(jdbcTemplate.queryForObject(TestUtils.EVENT_RESPONSE_IS_DELETED, Boolean.class, TestUtils.EVENT_RESPONSE_1_ID));
+        assertEquals(Boolean.TRUE, jdbcTemplate.queryForObject(TestUtils.EVENT_RESPONSE_IS_DELETED, Boolean.class, TestUtils.EVENT_RESPONSE_1_ID));
     }
     @Test
     public void testDeleteDeleted(){
@@ -184,7 +181,7 @@ public class EventResponseJdbcDaoTest {
 
         assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_REPLY_TABLE));
         assertEquals(TestUtils.EVENT_RESPONSE_DELETED_ID, Optional.ofNullable(jdbcTemplate.queryForObject(TestUtils.EVENT_GET_DELETED_ID, Long.class)).get().longValue());
-        assertTrue(jdbcTemplate.queryForObject("SELECT deleted FROM event_responses WHERE id = ?", Boolean.class, TestUtils.EVENT_RESPONSE_DELETED_ID));
+        assertEquals(Boolean.TRUE, jdbcTemplate.queryForObject("SELECT deleted FROM event_responses WHERE id = ?", Boolean.class, TestUtils.EVENT_RESPONSE_DELETED_ID));
     }
     @Test
     public void testDeleteWrongReply(){
@@ -201,16 +198,16 @@ public class EventResponseJdbcDaoTest {
     public void testUpdateDeletionMessageNoMessage(){
         replyDao.updateDeletionMessage(TestUtils.EVENT_RESPONSE_DELETED_ID, null);
 
-        assertEquals(null, jdbcTemplate.queryForObject(TestUtils.EVENT_RESPONSE_GET_DELETE_MESSAGE, String.class, TestUtils.EVENT_RESPONSE_1_ID));
+        assertNull(jdbcTemplate.queryForObject(TestUtils.EVENT_RESPONSE_GET_DELETE_MESSAGE, String.class, TestUtils.EVENT_RESPONSE_1_ID));
     }
     @Test
     public void testUpdateDeletionMessageWrongReply(){
         replyDao.updateDeletionMessage(123123, "TestUtils.RESPONSE_MESSAGE");
-        
-        assertEquals(null, jdbcTemplate.queryForObject(TestUtils.EVENT_RESPONSE_GET_DELETE_MESSAGE, String.class, TestUtils.EVENT_RESPONSE_1_ID));
-        assertEquals(null, jdbcTemplate.queryForObject(TestUtils.EVENT_RESPONSE_GET_DELETE_MESSAGE, String.class, TestUtils.EVENT_RESPONSE_2_ID));
-        assertEquals(null, jdbcTemplate.queryForObject(TestUtils.EVENT_RESPONSE_GET_DELETE_MESSAGE, String.class, TestUtils.EVENT_RESPONSE_3_ID));
-        assertEquals(null, jdbcTemplate.queryForObject(TestUtils.EVENT_RESPONSE_GET_DELETE_MESSAGE, String.class, TestUtils.EVENT_RESPONSE_DELETED_ID));
+
+        assertNull(jdbcTemplate.queryForObject(TestUtils.EVENT_RESPONSE_GET_DELETE_MESSAGE, String.class, TestUtils.EVENT_RESPONSE_1_ID));
+        assertNull(jdbcTemplate.queryForObject(TestUtils.EVENT_RESPONSE_GET_DELETE_MESSAGE, String.class, TestUtils.EVENT_RESPONSE_2_ID));
+        assertNull(jdbcTemplate.queryForObject(TestUtils.EVENT_RESPONSE_GET_DELETE_MESSAGE, String.class, TestUtils.EVENT_RESPONSE_3_ID));
+        assertNull(jdbcTemplate.queryForObject(TestUtils.EVENT_RESPONSE_GET_DELETE_MESSAGE, String.class, TestUtils.EVENT_RESPONSE_DELETED_ID));
     }
 
     @Test

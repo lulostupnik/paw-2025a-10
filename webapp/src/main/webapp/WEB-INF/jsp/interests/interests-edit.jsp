@@ -83,13 +83,21 @@
 
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
 <script>
+  function htmlDecode(input) {
+    const doc = new DOMParser().parseFromString(input, "text/html");
+    return doc.documentElement.textContent;
+  }
   window.apiBaseUrl = '<c:url value="/" />';
   previousInterests = [
     <c:forEach var="interest" items="${userInterests}" varStatus="status">
-    { "name" : "<c:out value="${interest.name}"/>" , "id" : "<c:out value="${interest.id}"/>" }<c:if test="${!status.last}">,</c:if>
+    {
+      "name": htmlDecode("<c:out value='${interest.name}'/>"),
+      "id": htmlDecode("<c:out value='${interest.id}'/>")
+    }<c:if test="${!status.last}">,</c:if>
     </c:forEach>
   ];
 </script>
+
 <script src="<c:url value='/resources/js/edit-interest.js'/>"></script>
 
 </body>
