@@ -12,7 +12,6 @@ import javax.sql.DataSource;
 
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
-import ar.edu.itba.paw.models.enums.SortFieldEvent;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
 
 import org.junit.Before;

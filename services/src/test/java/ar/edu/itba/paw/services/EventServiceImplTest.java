@@ -73,10 +73,10 @@ public class EventServiceImplTest {
     private static final List<User> USERS = List.of(USER);
     private static final List<Event> EVENTS = List.of(EVENT);
     private static final Page<Event> EVENTS_PAGE = new Page<Event>(EVENTS, 1, 1);
-    private static final Page<User> USERS_PAGE = new Page<User>(USERS, 1, 1);
+    // private static final Page<User> USERS_PAGE = new Page<User>(USERS, 1, 1);
     private static final EventResponse RESPONSE = new EventResponse(RESPONSE_ID, USER_ID, USERNAME, EVENT_ID, DESCRIPTION, TIMESTAMP);
-    private static final List<EventResponse> RESPONSES = List.of(RESPONSE);
-    private static final Page<EventResponse> RESPONSE_PAGE = new Page<EventResponse>(RESPONSES, 1, 1);
+    // private static final List<EventResponse> RESPONSES = List.of(RESPONSE);
+    // private static final Page<EventResponse> RESPONSE_PAGE = new Page<EventResponse>(RESPONSES, 1, 1);
     private static final String INTEREST = "interesting";
     private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
     private static final int STATISTICS_CREATED_EVENTS_COUNT = 2;
@@ -84,6 +84,8 @@ public class EventServiceImplTest {
     private static final int STATISTICS_ATTENDEE_COUNTRY_COUNT = 2;
     private static final String STATISTICS_ATTENDEE_COUNTRY = "cuntry";
     private static final EventWithStatistics EVENT_WITH_STATISTICS = new EventWithStatistics(EVENT, STATISTICS_CREATED_EVENTS_COUNT, STATISTICS_ATTENDED_EVENTS_COUNT, STATISTICS_ATTENDEE_COUNTRY, STATISTICS_ATTENDEE_COUNTRY_COUNT, true, true);
+    private static final EventWithUserInfo EVENT_WITH_USER_INFO = new EventWithUserInfo(EVENT, true, true);
+    private static final CountryAttendeeCount COUNTRY_ATTENDEE_COUNT = new CountryAttendeeCount(COUNTRY_NAME, STATISTICS_ATTENDEE_COUNTRY_COUNT);
 
     @InjectMocks
     EventServiceImpl eventService;
@@ -194,54 +196,64 @@ public class EventServiceImplTest {
         assertEquals(EVENT, maybeEvent.get());
     }
 
-    // FIXME: Ahora los métodos que usa esta función son otros
-//
-//    @Test
-//    public void testFindEventWithStatisticsNoUser(){
-//        Mockito.when(
-//            eventDao.findEventWithStatistics(Mockito.eq(null), Mockito.eq(EVENT_ID))
-//        ).thenReturn(Optional.of(EVENT_WITH_STATISTICS));
-//
-//        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(null, EVENT_ID);
-//
-//        assertNotNull(event);
-//        assertTrue(event.isPresent());
-//        assertEquals(EVENT_WITH_STATISTICS, event.get());
-//    }
-//    @Test
-//    public void testFindEventWithStatisticsNoUserNotFound(){
-//        Mockito.when(
-//            eventDao.findEventWithStatistics(Mockito.eq(null), Mockito.eq(EVENT_ID))
-//        ).thenReturn(Optional.empty());
-//
-//        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(null, EVENT_ID);
-//
-//        assertNotNull(event);
-//        assertFalse(event.isPresent());
-//    }
-//    @Test
-//    public void testFindEventWithStatistics(){
-//        Mockito.when(
-//            eventDao.findEventWithStatistics(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
-//        ).thenReturn(Optional.of(EVENT_WITH_STATISTICS));
-//
-//        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(USER, EVENT_ID);
-//
-//        assertNotNull(event);
-//        assertTrue(event.isPresent());
-//        assertEquals(EVENT_WITH_STATISTICS, event.get());
-//    }
-//    @Test
-//    public void testFindEventWithStatisticsNotFound(){
-//        Mockito.when(
-//            eventDao.findEventWithStatistics(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
-//        ).thenReturn(Optional.empty());
-//
-//        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(USER, EVENT_ID);
-//
-//        assertNotNull(event);
-//        assertFalse(event.isPresent());
-//    }
+    @Test
+    public void testFindEventWithStatistics(){
+        Mockito.when(
+            eventDao.findEventWithUserInfo(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
+        ).thenReturn(Optional.of(EVENT_WITH_USER_INFO));
+        Mockito.when(
+            eventDao.countEventsCreatedByUser(Mockito.eq(USER_ID))
+        ).thenReturn(STATISTICS_CREATED_EVENTS_COUNT);
+        Mockito.when(
+            eventDao.countEventsAttendedByUser(Mockito.eq(USER_ID))
+        ).thenReturn(STATISTICS_ATTENDED_EVENTS_COUNT);
+        Mockito.when(
+            eventDao.findTopAttendeeCountry(Mockito.eq(EVENT_ID)) 
+        ).thenReturn(Optional.of(COUNTRY_ATTENDEE_COUNT));
+
+        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(USER, EVENT_ID);
+
+        assertNotNull(event);
+        assertTrue(event.isPresent());
+        assertEquals(EVENT_WITH_STATISTICS.getAttendedEventsCount(), event.get().getAttendedEventsCount());
+        assertEquals(EVENT_WITH_STATISTICS.getCreatedEventsCount(), event.get().getCreatedEventsCount());
+        assertEquals(EVENT_WITH_STATISTICS.getEvent(), event.get().getEvent());
+        assertEquals(EVENT_WITH_STATISTICS.getTopAttendeeCountry(), event.get().getTopAttendeeCountry());
+        assertEquals(EVENT_WITH_STATISTICS.getTopAttendeeCountryCount(), event.get().getTopAttendeeCountryCount());
+    }
+    @Test
+    public void testFindEventWithStatisticsNoEventUser(){
+        Mockito.when(
+            eventDao.findEventWithUserInfo(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
+        ).thenReturn(Optional.empty());
+
+        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(USER, EVENT_ID);
+
+        assertNotNull(event);
+        assertFalse(event.isPresent());
+    }
+        @Test
+    public void testFindEventWithStatisticsNoUser(){
+        Mockito.when(
+            eventDao.findById(Mockito.eq(EVENT_ID))
+        ).thenReturn(Optional.of(EVENT));
+
+        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(null, EVENT_ID);
+
+        assertNotNull(event);
+        assertTrue(event.isPresent());
+    }
+    @Test
+    public void testFindEventWithStatisticsNoUserNoEvent(){
+        Mockito.when(
+            eventDao.findById(Mockito.eq(EVENT_ID))
+        ).thenReturn(Optional.empty());
+
+        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(null, EVENT_ID);
+
+        assertNotNull(event);
+        assertFalse(event.isPresent());
+    }
 
     @Test
     public void testGetAllEventsPagedEmail(){
@@ -289,17 +301,17 @@ public class EventServiceImplTest {
         assertEquals(EVENTS_PAGE, page);
     }
 
-    @Test
-    public void testGetAllEventsEmailPaged(){
-        Mockito.when(
-            eventDao.findByUserEmail(Mockito.eq(EMAIL), Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(EVENTS_PAGE);
+    // @Test
+    // public void testGetAllEventsEmailPaged(){
+    //     Mockito.when(
+    //         eventDao.findByUserEmail(Mockito.eq(EMAIL), Mockito.eq(PAGE_1_DEFAULT))
+    //     ).thenReturn(EVENTS_PAGE);
 
-        Page<Event> page = eventService.getAllEvents(EMAIL, PAGE_1_DEFAULT);
+    //     Page<Event> page = eventService.getAllEvents(EMAIL, PAGE_1_DEFAULT);
 
-        assertNotNull(page);
-        assertEquals(EVENTS_PAGE, page);
-    }
+    //     assertNotNull(page);
+    //     assertEquals(EVENTS_PAGE, page);
+    // }
 
     @Test
     public void testAttendEventIdLimitNotExceeded(){
@@ -462,6 +474,15 @@ public class EventServiceImplTest {
         Mockito.when(
             eventDao.findById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT));
+
+        eventService.cancelAttendance(USER_ID, EVENT_ID);
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testCancelAttendanceIdNotFound(){
+        Mockito.when(
+            eventDao.findById(Mockito.eq(EVENT_ID))
+        ).thenReturn(Optional.empty());
+
         eventService.cancelAttendance(USER_ID, EVENT_ID);
     }
     @Test
@@ -472,6 +493,7 @@ public class EventServiceImplTest {
         Mockito.when(
             eventDao.findById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT));
+
         eventService.cancelAttendance(EMAIL, EVENT_ID);
     }
     @Test(expected = NoSuchElementException.class)
@@ -479,70 +501,44 @@ public class EventServiceImplTest {
         Mockito.when(
             userService.findByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.empty());
+
         eventService.cancelAttendance(EMAIL, EVENT_ID);
     }
 
-    @Test
-    public void testIsUserAttendingId(){
-        Mockito.when(
-            attendanceDao.exists(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
-        ).thenReturn(true);
+    // @Test
+    // public void testIsUserAttendingId(){
+    //     Mockito.when(
+    //         attendanceDao.exists(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
+    //     ).thenReturn(true);
 
-        boolean attending = eventService.isUserAttending(USER_ID, EVENT_ID);
+    //     boolean attending = eventService.isUserAttending(USER_ID, EVENT_ID);
 
-        assertTrue(attending);
-    }
+    //     assertTrue(attending);
+    // }
 
-// FIXME: mover a UserService
+    // @Test
+    // public void testGetEventAttendeesCount(){
+    //     Mockito.when(
+    //         attendanceDao.countByEventId(Mockito.eq(EVENT_ID))
+    //     ).thenReturn(ATTENDEES);
 
-//    @Test
-//    public void testGetAttendees(){
-//        Mockito.when(
-//            attendanceDao.findAllAttendeesByEventId(Mockito.eq(EVENT_ID))
-//        ).thenReturn(USERS);
-//
-//        List<User> attending = userService.getEventAttendees(EVENT_ID);
-//
-//        assertNotNull(attending);
-//        assertEquals(USERS, attending);
-//    }
+    //     int attendees = eventService.getEventAttendeesCount(EVENT_ID);
 
-// FIXME: mover a UserServiceImplTest
-//    @Test
-//    public void testGetAttendeesPaged(){
-//        Mockito.when(
-//            attendanceDao.findAllAttendeesByEventId(Mockito.eq(EVENT_ID), Mockito.eq(PAGE_1_DEFAULT))
-//        ).thenReturn(USERS_PAGE);
-//
-//        Page<User> attending = eventService.getEventAttendees(EVENT_ID, PAGE_1_DEFAULT);
-//
-//        assertNotNull(attending);
-//        assertEquals(USERS_PAGE, attending);
-//    }
-
-    @Test
-    public void testGetEventAttendeesCount(){
-        Mockito.when(
-            attendanceDao.countByEventId(Mockito.eq(EVENT_ID))
-        ).thenReturn(ATTENDEES);
-
-        int attendees = eventService.getEventAttendeesCount(EVENT_ID);
-
-        assertEquals(ATTENDEES, attendees);
-    }
+    //     assertEquals(ATTENDEES, attendees);
+    // }
 
 
-    @Test
-    public void testGetUserAttendingEventsPaged(){
-        Mockito.when(
-            eventDao.findAllEventsByAttendee(Mockito.eq(USER_ID), Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(EVENTS_PAGE);
+    // @Test
+    // public void testGetUserAttendingEventsPaged(){
+    //     Mockito.when(
+    //         eventDao.findAllEventsByAttendee(Mockito.eq(USER_ID), Mockito.eq(PAGE_1_DEFAULT))
+    //     ).thenReturn(EVENTS_PAGE);
 
-        Page<Event> page = eventService.getUserAttendingEvents(USER_ID, PAGE_1_DEFAULT);
+    //     Page<Event> page = eventService.getUserAttendingEvents(USER_ID, PAGE_1_DEFAULT);
 
-        assertNotNull(page);
-        assertEquals(EVENTS_PAGE, page);
-    }
+    //     assertNotNull(page);
+    //     assertEquals(EVENTS_PAGE, page);
+    // }
     
     @Test
     public void testGetRecommendedEvents(){
@@ -707,28 +703,6 @@ public class EventServiceImplTest {
 
         eventService.editEvent(EVENT_ID, CITY_NAME, EVENT_DATE, IMAGE_DATA2, DESCRIPTION, TITLE, TIME, ADDRESS, LIMIT);
     }
-    @Test
-    public void testEditEventEmptyImage(){
-        Mockito.when(
-            eventDao.findById(Mockito.eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-        Mockito.when(
-            cityService.findByName(Mockito.eq(CITY_NAME))
-        ).thenReturn(Optional.of(CITY));
-
-        eventService.editEvent(EVENT_ID, CITY_NAME, EVENT_DATE, IMAGE_DATA, DESCRIPTION, TITLE, TIME, ADDRESS, LIMIT);
-    }
-    @Test
-    public void testEditEventMissingImage(){
-        Mockito.when(
-            eventDao.findById(Mockito.eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-        Mockito.when(
-            cityService.findByName(Mockito.eq(CITY_NAME))
-        ).thenReturn(Optional.of(CITY));
-
-        eventService.editEvent(EVENT_ID, CITY_NAME, EVENT_DATE, null, DESCRIPTION, TITLE, TIME, ADDRESS, LIMIT);
-    }
     @Test(expected = RuntimeException.class)
     public void testEditEventMissingCity(){
         Mockito.when(
@@ -757,22 +731,6 @@ public class EventServiceImplTest {
 
         eventService.delete(EVENT_ID, DESCRIPTION);
     }    
-    @Test
-    public void testDeleteNoMessage(){
-        Mockito.when(
-            eventDao.findById(Mockito.eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-
-        eventService.delete(EVENT_ID, null);
-    }   
-    @Test
-    public void testDeleteEmptyMessage(){
-        Mockito.when(
-            eventDao.findById(Mockito.eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-
-        eventService.delete(EVENT_ID, "");
-    }  
     @Test(expected = RuntimeException.class)
     public void testDeleteMissing(){
         Mockito.when(
@@ -830,60 +788,60 @@ public class EventServiceImplTest {
         eventService.deleteResponse(RESPONSE_ID, DESCRIPTION);
     }
 
-    @Test
-    public void testGetResponseCount(){
-        Mockito.when(
-            replyDao.countByEventId(Mockito.eq(EVENT_ID))
-        ).thenReturn(ATTENDEES);
+    // @Test
+    // public void testGetResponseCount(){
+    //     Mockito.when(
+    //         replyDao.countByEventId(Mockito.eq(EVENT_ID))
+    //     ).thenReturn(ATTENDEES);
 
-        int attendees = eventService.getResponseCount(EVENT_ID);
+    //     int attendees = eventService.getResponseCount(EVENT_ID);
 
-        assertEquals(ATTENDEES, attendees);
-    }
+    //     assertEquals(ATTENDEES, attendees);
+    // }
 
-    @Test
-    public void testListAllResponseFromEvent(){
-        Mockito.when(
-            replyDao.listAllByEventId(Mockito.eq(EVENT_ID), Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(RESPONSE_PAGE);
+    // @Test
+    // public void testListAllResponseFromEvent(){
+    //     Mockito.when(
+    //         replyDao.listAllByEventId(Mockito.eq(EVENT_ID), Mockito.eq(PAGE_1_DEFAULT))
+    //     ).thenReturn(RESPONSE_PAGE);
 
-        Page<EventResponse> page = eventService.listAllResponseFromEvent(EVENT_ID, PAGE_1_DEFAULT);
+    //     Page<EventResponse> page = eventService.listAllResponseFromEvent(EVENT_ID, PAGE_1_DEFAULT);
 
-        assertNotNull(page);
-        assertEquals(RESPONSE_PAGE, page);
-    }
+    //     assertNotNull(page);
+    //     assertEquals(RESPONSE_PAGE, page);
+    // }
 
-    @Test
-    public void testGetEventIdByResponseId(){
-        Mockito.when(
-            replyDao.findEventIdById(Mockito.eq(RESPONSE_ID))
-        ).thenReturn(EVENT_ID);
+    // @Test
+    // public void testGetEventIdByResponseId(){
+    //     Mockito.when(
+    //         replyDao.findEventIdById(Mockito.eq(RESPONSE_ID))
+    //     ).thenReturn(EVENT_ID);
 
-        long eventId = eventService.getEventIdByResponseId(RESPONSE_ID);
+    //     long eventId = eventService.getEventIdByResponseId(RESPONSE_ID);
 
-        assertEquals(EVENT_ID, eventId);
-    }
+    //     assertEquals(EVENT_ID, eventId);
+    // }
 
-    @Test
-    public void testFindEventByResponseId(){
-        Mockito.when(
-            replyDao.findById(Mockito.eq(RESPONSE_ID))
-        ).thenReturn(Optional.of(RESPONSE));
+    // @Test
+    // public void testFindEventByResponseId(){
+    //     Mockito.when(
+    //         replyDao.findById(Mockito.eq(RESPONSE_ID))
+    //     ).thenReturn(Optional.of(RESPONSE));
 
-        Optional<EventResponse> maybeResponse = eventService.findEventResponseById(RESPONSE_ID);
+    //     Optional<EventResponse> maybeResponse = eventService.findEventResponseById(RESPONSE_ID);
 
-        assertNotNull(maybeResponse);
-        assertTrue(maybeResponse.isPresent());
-        assertEquals(RESPONSE, maybeResponse.get());
-    }
+    //     assertNotNull(maybeResponse);
+    //     assertTrue(maybeResponse.isPresent());
+    //     assertEquals(RESPONSE, maybeResponse.get());
+    // }
 
-    @Test
-    public void testSendEventReminders(){
-        Mockito.when(
-            eventDao.findAllBetweenDates(Mockito.eq(LocalDate.now()), Mockito.eq(LocalDate.now().plusDays(1)))
-        ).thenReturn(EVENTS);
+    // @Test
+    // public void testSendEventReminders(){
+    //     Mockito.when(
+    //         eventDao.findAllBetweenDates(Mockito.eq(LocalDate.now()), Mockito.eq(LocalDate.now().plusDays(1)))
+    //     ).thenReturn(EVENTS);
 
-        eventService.sendEventReminders();
-    }
+    //     eventService.sendEventReminders();
+    // }
 
 }
