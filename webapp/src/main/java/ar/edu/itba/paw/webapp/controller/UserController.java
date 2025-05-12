@@ -31,7 +31,7 @@ public class UserController {
             return new NotFoundException("User not found");
         });
         ModelAndView mav = new ModelAndView("users/detail");
-        mav.addObject("user", user);
+        mav.addObject("userToDisplay", user);
         return mav;
     }
 
