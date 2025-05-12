@@ -264,7 +264,7 @@ public class EventController {
     @PostMapping("{eventId}/reply/{id}/delete")
     public ModelAndView deleteEventReply(@PathVariable(value = "eventId") long eventId,
             @PathVariable("id") long id, @Valid @ModelAttribute("deleteReplyForm") ReplyForm form,
-                                         BindingResult errors, RedirectAttributes redirectAttributes) {
+                                         BindingResult errors) {
         if (errors.hasErrors()) {
             return deleteEventReplyForm(eventId, id, form);
         }

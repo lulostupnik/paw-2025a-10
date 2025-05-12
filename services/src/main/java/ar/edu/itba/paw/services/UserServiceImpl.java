@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User createUser(final String email,final  String username,final  String firstname,final  String lastname,final  String universityName, final String careerName,final  byte[] profilePicture, final List<String> interests,final  String password, final Locale locale) {
+    public User createUser(final String email,final  String username,final  String firstname, final  String lastname,final  String universityName, final String careerName,final  byte[] profilePicture, final List<String> interests,final  String password, final Locale locale) {
         LOGGER.debug("Creating new user with email: {} and username: {}", email, username);
         University university = universityService.findByName(universityName)
                 .orElseThrow(() -> {
@@ -66,13 +66,15 @@ public class UserServiceImpl implements UserService {
         User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId, passwordEncoder.encode(password), locale,uid,tomorrow);
         LOGGER.info("Successfully created user with ID: {} and email: {}", user.getId(), email);
         interestService.saveUserInterests(interests, user.getId());
+        LOGGER.info("User interests saved successfully for user ID: {}", user.getId());
         emailService.sendValidationEmail(user,uid);
+        LOGGER.info("Validation email sent successfully to user ID: {}", user.getId());
         return user;
     }
 
     @Override
     @Transactional
-    public void changePassword(final long id,final  String newPassword) {
+    public void changePassword(final long id, final String newPassword) {
         LOGGER.debug("Password change for user with id: {}", id);
         userDao.updatePassword(id, passwordEncoder.encode(newPassword));
         LOGGER.info("Password changed successfully for user ID: {}", id);
@@ -95,7 +97,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void checkPasswordTokenValidity(String token) {
+    public void checkPasswordTokenValidity(final String token) {
         if (!isValidPasswordResetToken(token)) {
             LOGGER.warn("Invalid password reset token attempt: {}", token);
             throw new InvalidTokenException("Invalid password reset token");
