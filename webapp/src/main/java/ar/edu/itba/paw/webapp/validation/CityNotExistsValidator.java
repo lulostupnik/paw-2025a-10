@@ -20,7 +20,6 @@ public class CityNotExistsValidator implements ConstraintValidator<CityNotExists
 
     @Override
     public void initialize(CityNotExists constraintAnnotation) {
-        // Initialization logic if needed
     }
 
     @Override

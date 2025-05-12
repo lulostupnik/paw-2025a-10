@@ -11,6 +11,7 @@
     <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
     <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
 </head>
+<body>
 <jsp:include page="../components/i18n-hidden-inputs.jsp"/>
 <c:set var="searchUrl" value="/journeys" scope="request" />
 <c:set var="searchPlaceholderCode" value="journeys.search.journey" scope="request" />
@@ -40,7 +41,7 @@
                     <form action="<c:url value='${searchUrl}'/>" method="get" class="search-form">
                         <input type="text" name="search" class="search-input"
                                placeholder="<spring:message code='${searchPlaceholderCode}' />"
-                               value="<c:out value="${escapedSearch}"/>">
+                               value="${escapedSearch}"/>
                         <input type="hidden" name="page" value="1">
                         <input type="hidden" name="pageSize" value="${pageSize != null ? pageSize : 10}">
 
@@ -240,7 +241,7 @@
 
 
                     <c:if test="${not empty escapedSearch}">
-                        <input type="hidden" name="search" value="<c:out value="${escapedSearch}"/>">
+                        <input type="hidden" name="search" value="${escapedSearch}"/>
                     </c:if>
 
 

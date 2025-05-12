@@ -19,7 +19,6 @@ public interface InterestDao {
      List<Interest> findAllByUserId(long id);
      Page<Interest> findAllByUserId(long id, PageParams pageParams);
 
-     // MOVER A OTRO UserInterestDao:
      void createUserInterests(List<String> interests, long userId);
      void createUserInterests(long[] interests, long userId);
      void updateScoreByInterest(Interest interest, long userId);

@@ -16,7 +16,6 @@ public class ExistingCareerValidator implements ConstraintValidator<ExistingCare
 
     @Override
     public void initialize(ExistingCareer constraintAnnotation) {
-        // No initialization needed
     }
 
     @Override

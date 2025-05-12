@@ -84,7 +84,6 @@ public class UniversityController {
     @GetMapping(value = "/{id}/edit")
     public ModelAndView updateUniversityForm(@PathVariable("id") Long id, @ModelAttribute(CREATE_UNIVERSITY_FORM) CreateUniversityForm form, BindingResult errors) {
 
-        // Create and populate form with existing university data
         if(! errors.hasErrors()) {
             University university = universityService.findById(id).orElseThrow(()-> {
                 LOGGER.error("University not found");

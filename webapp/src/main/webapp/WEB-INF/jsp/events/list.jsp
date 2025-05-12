@@ -42,7 +42,7 @@
           <form action="<c:url value='${searchUrl}'/>" method="get" class="search-form">
             <input type="text" name="search" class="search-input"
                    placeholder="<spring:message code='${searchPlaceholderCode}' />"
-                   value="<c:out value="${search}"/>">
+                   value="${search}"/>
             <input type="hidden" name="page" value="1">
             <input type="hidden" name="pageSize" value="${pageSize != null ? pageSize : 4}">
 
@@ -240,7 +240,7 @@
 
 
           <c:if test="${not empty search}">
-            <input type="hidden" name="search" value="<c:out value="${search}"/>">
+            <input type="hidden" name="search" value="${search}"/>
           </c:if>
 
 

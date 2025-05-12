@@ -18,14 +18,12 @@ public class AccessHelper {
 
     private final EventService eventService;
     private final JourneyService journeyService;
-    private final UniversityService universityService;
     private final UserService userService;
 
     @Autowired
     public AccessHelper(final JourneyService journeyService, final EventService eventService, UniversityService universityService, UserService userService) {
         this.journeyService = journeyService;
         this.eventService = eventService;
-        this.universityService = universityService;
         this.userService = userService;
     }
 
