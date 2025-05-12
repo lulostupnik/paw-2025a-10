@@ -125,7 +125,7 @@
 </div>
 
 
-<script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
+<script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
 <script src="<c:url value="/resources/js/city-form.js"/>"></script>
 
 </body>

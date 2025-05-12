@@ -13,4 +13,6 @@ public @interface RoleBasedMessage {
     String message() default "Message is required for admin users";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
+
+    String type();
 }
