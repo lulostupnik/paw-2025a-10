@@ -37,8 +37,6 @@ public interface EventDao {
 
     Optional<CountryAttendeeCount> findTopAttendeeCountry(long eventId);
 
-    Optional<EventWithStatistics> findEventWithStatistics(Long userId, long eventId);
-
     int countEventsAttendedByUser(long userId);
 
     Page<Event> findAllEventsByAttendee(long userId, PageParams pageParams);
