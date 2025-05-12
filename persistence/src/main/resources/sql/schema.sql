@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS users (
         profile_picture_id INTEGER NOT NULL,
         password VARCHAR(100) NOT NULL DEFAULT '$2b$10$KbQiA8xVuOPQkfiYJ0X0FubQbQjEJpTr6QOBD3qL6sYzFoq2nJ8fK',
         roles VARCHAR(50) DEFAULT 'user' CHECK (roles IN ('user', 'admin')),
-        language VARCHAR(2) NOT NULL DEFAULT 'en' CHECK (language IN ('en', 'es')),
+        language VARCHAR(2) NOT NULL DEFAULT 'en',
         blocked BOOLEAN NOT NULL DEFAULT FALSE,
         token VARCHAR(100) UNIQUE DEFAULT NULL,
         token_expiration_date DATE DEFAULT NULL,
