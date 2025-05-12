@@ -12,6 +12,7 @@ public class CreateEventForm {
     @Size(max = 100)
     @NotNull
     @ExistingCity
+    @NotEmpty
     private String city;
 
     @Size(max = 50)

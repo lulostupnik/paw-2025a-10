@@ -31,7 +31,11 @@ public class LandingController {
     }
 
     @GetMapping("/")
-    public ModelAndView landing() {
+    public ModelAndView landing(@ModelAttribute("user") User user) {
+        if (user != null) {
+            return new ModelAndView("redirect:/explore");
+        }
+
         ModelAndView mav = new ModelAndView("index");
         List<Event> recommendedEvents = eventService.getTopEvents(3);
         mav.addObject("recommendedEvents", recommendedEvents);
