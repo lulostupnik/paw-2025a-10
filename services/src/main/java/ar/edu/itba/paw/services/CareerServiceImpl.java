@@ -72,8 +72,7 @@ public class CareerServiceImpl implements CareerService {
     @Caching(
             evict = {
                     @CacheEvict(value = "careersById", key = "#id"),
-                    @CacheEvict(value = "careersByName", allEntries = true),
-                    @CacheEvict(value = "careers", allEntries = true)
+                    @CacheEvict(value = "careersByName", allEntries = true)
             }
     )
     public void update(final long id,final String name) {
@@ -86,8 +85,7 @@ public class CareerServiceImpl implements CareerService {
     @Transactional
     @Caching(evict = {
                 @CacheEvict(value = "careersById", key = "#id"),
-                @CacheEvict(value = "careersByName", allEntries = true),
-                @CacheEvict(value = "careers", allEntries = true)
+                @CacheEvict(value = "careersByName", allEntries = true)
     })
     public void delete(final long id) {
         LOGGER.debug("Deleting career {}", id);

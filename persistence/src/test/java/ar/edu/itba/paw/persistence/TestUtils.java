@@ -488,6 +488,7 @@ public class TestUtils {
 
     public static final String EVENT_ATTENDANCE_EXISTS = "SELECT COUNT(*) FROM event_attendances WHERE user_id = ? AND event_id = ?";
     public static final String EVENT_GET_ATTENDEES_BY_ID = "SELECT COUNT(*) FROM event_attendances WHERE event_id = ?";
+    public static final String EVENT_GET_ATTENDEES_COUNT_BY_ID = "SELECT attendees_count FROM events WHERE id = ?";
     public static final String USER_GET_ATTENDANCES_COUNT_BY_ID = "SELECT COUNT(*) FROM event_attendances WHERE user_id = ?";
 
     public static final String EVENT_RESPONSE_IS_DELETED = "SELECT deleted FROM event_responses WHERE id = ?";

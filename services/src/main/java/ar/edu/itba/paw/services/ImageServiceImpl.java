@@ -37,7 +37,7 @@ public class ImageServiceImpl implements ImageService {
         Image image = new Image(imageId, imageData);
         Cache cache = cacheManager.getCache("images");
         if (cache != null) {
-            cache.put(imageId, Optional.of(image));
+            cache.put(imageId, image);
         } else {
             LOGGER.warn("Cache 'images' not found, skipping cache operation");
         }

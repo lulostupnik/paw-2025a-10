@@ -17,7 +17,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -64,9 +63,6 @@ public class UniversityServiceImpl implements UniversityService {
             put = {
                 @CachePut(value = "universitiesById", key = "#result.id"),
                 @CachePut(value = "universitiesByName", key = "#result.name")
-            },
-            evict = {
-                @CacheEvict(value = "universities", allEntries = true)
             }
     )
     public University createUniversity(final String name, final String abbreviation, final String cityName) {
@@ -77,12 +73,12 @@ public class UniversityServiceImpl implements UniversityService {
         });
         University university = universityDao.create(name, abbreviation, city);
         LOGGER.info("University created successfully with name: {}, abbreviation: {}, in city: {}", name, abbreviation, cityName);
-        return university;    }
+        return university;
+    }
 
     @Override
     @Transactional
     @Caching(evict = {
-            @CacheEvict(value = "universities", allEntries = true),
             @CacheEvict(value = "universitiesById", key = "#id"),
             @CacheEvict(value = "universitiesByName", allEntries = true)
     })
@@ -96,7 +92,6 @@ public class UniversityServiceImpl implements UniversityService {
     @Transactional
     @Caching(
             evict = {
-                    @CacheEvict(value = "universities", allEntries = true),
                     @CacheEvict(value = "universitiesById", key = "#id"),
                     @CacheEvict(value = "universitiesByName", allEntries = true)
             }
