@@ -187,6 +187,8 @@ public class TestUtils {
     public static final int USER_1_INTEREST_1_SCORE = 4;
     public static final int USER_1_INTEREST_2_SCORE = 2;
     public static final int USER_1_INTEREST_3_SCORE = 1;
+    public static final int USER_1_CREATED_EVENTS = 2;
+    public static final int USER_2_CREATED_EVENTS = 2;
     public static final long USER_1_ID = 10000;
     public static final long USER_2_ID = 20000;
     public static final long USER_3_ID = 30000;
