@@ -168,7 +168,6 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
 
-    //@Todo tendria mas sentido q reciba pageParams y que el controller le mande 1, limit.
     @Override
     public List<Journey> getRecommendedJourneys(final String email, final int limit) {
         LOGGER.debug("Getting recommended journeys for {}", email);

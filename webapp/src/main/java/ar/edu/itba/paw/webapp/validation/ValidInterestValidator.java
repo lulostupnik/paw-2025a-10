@@ -22,7 +22,7 @@ public class ValidInterestValidator implements ConstraintValidator<ValidInterest
     @Override
     public boolean isValid(List<String> interests, ConstraintValidatorContext context) {
         if (interests == null || interests.isEmpty()) {
-            return false;
+            return true;
         }
         try {
             for(String interest : interests) {

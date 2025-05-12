@@ -187,6 +187,8 @@ public class TestUtils {
     public static final int USER_1_INTEREST_1_SCORE = 4;
     public static final int USER_1_INTEREST_2_SCORE = 2;
     public static final int USER_1_INTEREST_3_SCORE = 1;
+    public static final int USER_1_CREATED_EVENTS = 2;
+    public static final int USER_2_CREATED_EVENTS = 2;
     public static final long USER_1_ID = 10000;
     public static final long USER_2_ID = 20000;
     public static final long USER_3_ID = 30000;
@@ -486,6 +488,7 @@ public class TestUtils {
 
     public static final String EVENT_ATTENDANCE_EXISTS = "SELECT COUNT(*) FROM event_attendances WHERE user_id = ? AND event_id = ?";
     public static final String EVENT_GET_ATTENDEES_BY_ID = "SELECT COUNT(*) FROM event_attendances WHERE event_id = ?";
+    public static final String EVENT_GET_ATTENDEES_COUNT_BY_ID = "SELECT attendees_count FROM events WHERE id = ?";
     public static final String USER_GET_ATTENDANCES_COUNT_BY_ID = "SELECT COUNT(*) FROM event_attendances WHERE user_id = ?";
 
     public static final String EVENT_RESPONSE_IS_DELETED = "SELECT deleted FROM event_responses WHERE id = ?";

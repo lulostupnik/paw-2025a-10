@@ -14,7 +14,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -72,8 +71,7 @@ public class CareerServiceImpl implements CareerService {
     @Caching(
             evict = {
                     @CacheEvict(value = "careersById", key = "#id"),
-                    @CacheEvict(value = "careersByName", allEntries = true),
-                    @CacheEvict(value = "careers", allEntries = true)
+                    @CacheEvict(value = "careersByName", allEntries = true)
             }
     )
     public void update(final long id,final String name) {
@@ -86,8 +84,7 @@ public class CareerServiceImpl implements CareerService {
     @Transactional
     @Caching(evict = {
                 @CacheEvict(value = "careersById", key = "#id"),
-                @CacheEvict(value = "careersByName", allEntries = true),
-                @CacheEvict(value = "careers", allEntries = true)
+                @CacheEvict(value = "careersByName", allEntries = true)
     })
     public void delete(final long id) {
         LOGGER.debug("Deleting career {}", id);
