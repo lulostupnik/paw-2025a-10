@@ -5,13 +5,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.sql.Date;
-import java.sql.Time;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 
@@ -135,7 +132,7 @@ public class EventJdbcDaoTest {
     public void testFindTop(){
         TestUtils.deleteEvents(jdbcTemplate);
         List<Map<String, Object>> maps = new ArrayList<>();
-        Map<Long, Event> eventData = new HashMap<>();
+        List<Event> eventData = new ArrayList<>();
         //not full, 20, soon
         maps.add(Map.of("limit", Optional.of(30), "willAttend", 20));
         //not full, 20, later
@@ -153,8 +150,7 @@ public class EventJdbcDaoTest {
         //full, 10, later
         maps.add(Map.of("limit", Optional.of(10), "willAttend", 10, "date", TestUtils.EVENT_DATE_LATER));
         for (Map<String, Object> params : maps) {
-            Event temp = TestUtils.insertEvent(ds, params);
-            eventData.put(temp.getId(), temp);
+            eventData.add(TestUtils.insertEvent(ds, params));
         }
 
         Page<Event> events = eventDao.findTop(TestUtils.PAGE_1_BIG);
@@ -162,8 +158,9 @@ public class EventJdbcDaoTest {
         assertNotNull(events);
         assertNotNull(events.getContent());
         assertEquals(eventData.size(), events.getContent().size());
-        for (Event e : events.getContent()){
-            TestUtils.assertEqualsEvent(eventData.get(e.getId()), e);
+        ListIterator<Event> iterator = eventData.listIterator(); 
+        while (iterator.hasNext()){
+            TestUtils.assertEqualsEvent(events.getContent().get(iterator.nextIndex()), iterator.next());
         }
     }
     @Test
@@ -182,7 +179,7 @@ public class EventJdbcDaoTest {
     public void testFindTopByUser(){
         TestUtils.deleteEvents(jdbcTemplate);
         List<Map<String, Object>> maps = new ArrayList<>();
-        Map<Long, Event> eventData = new HashMap<>();
+        List<Event> eventData = new ArrayList<>();
         //00 not full, not attending, 20, soon
         maps.add(Map.of("limit", Optional.of(30), "willAttend", 20));
         //01 not full, not attending, 20, later
@@ -216,8 +213,7 @@ public class EventJdbcDaoTest {
         //15 full, 10, attending, later
         maps.add(Map.of("limit", Optional.of(10), "willAttend", 10, "attending", TestUtils.USER_2, "date", TestUtils.EVENT_DATE_LATER));
         for (Map<String, Object> params : maps) {
-            Event temp = TestUtils.insertEvent(ds, params);
-            eventData.put(temp.getId(), temp);
+            eventData.add(TestUtils.insertEvent(ds, params));
         }
 
         Page<Event> events = eventDao.findTopByUser(TestUtils.USER_2_ID, TestUtils.PAGE_1_BIG);
@@ -225,8 +221,9 @@ public class EventJdbcDaoTest {
         assertNotNull(events);
         assertNotNull(events.getContent());
         assertEquals(eventData.size(), events.getContent().size());
-        for (Event e : events.getContent()){
-            TestUtils.assertEqualsEvent(eventData.get(e.getId()), e);
+        ListIterator<Event> iterator = eventData.listIterator(); 
+        while (iterator.hasNext()){
+            TestUtils.assertEqualsEvent(events.getContent().get(iterator.nextIndex()), iterator.next());
         }
     }
     @Test
@@ -323,9 +320,9 @@ public class EventJdbcDaoTest {
         assertNotNull(page2.getContent());
         assertEquals(2, page1.getContent().size());
         assertEquals(0, page2.getContent().size());
-        // for (Event e : events){
-        //     TestUtils.assertEqualsEvent(e, eventInfo.get(e.getId()));
-        // }
+        for (Event e : page1.getContent()){
+            TestUtils.assertEqualsEvent(TestUtils.EVENT_DATA.get(e.getId()), e);
+        }
     }
     @Test
     public void testFindByUserEmailPaged2(){
@@ -370,9 +367,12 @@ public class EventJdbcDaoTest {
         List<Event> events = new ArrayList<>();
         events.addAll(page1.getContent());
         events.addAll(page2.getContent());
-        // for (Event e : events){
-        //     TestUtils.assertEqualsEvent(e, eventInfo.get(e.getId()));
-        // }
+        for (Event e : page1.getContent()){
+            TestUtils.assertEqualsEvent(TestUtils.EVENT_DATA.get(e.getId()), e);
+        }
+        for (Event e : page2.getContent()){
+            TestUtils.assertEqualsEvent(TestUtils.EVENT_DATA.get(e.getId()), e);
+        }
     }
     @Test
     public void testFindAllNoEventsPaged(){
@@ -401,9 +401,12 @@ public class EventJdbcDaoTest {
         assertNotNull(page2.getContent());
         assertEquals(2, page1.getContent().size());
         assertEquals(2, page2.getContent().size());
-        // for (Event e : events){
-        //     TestUtils.assertEqualsEvent(e);
-        // }
+        for (Event e : page1.getContent()){
+            TestUtils.assertEqualsEvent(TestUtils.EVENT_DATA.get(e.getId()), e);
+        }
+        for (Event e : page2.getContent()){
+            TestUtils.assertEqualsEvent(TestUtils.EVENT_DATA.get(e.getId()), e);
+        }
     }
     @Test
     public void testSearchPagedEmptyQuery(){
@@ -578,7 +581,7 @@ public class EventJdbcDaoTest {
     public void testFindRecommendedOrder(){
         TestUtils.deleteEvents(jdbcTemplate);
         List<Map<String, Object>> maps = new ArrayList<>();
-        Map<Long, Event> eventData = new HashMap<>();
+        List<Event> eventData = new ArrayList<>();
         //not full, not attending, 20, soon (first)
         maps.add(Map.of("user", TestUtils.USER_2, "limit", Optional.of(30), "willAttend", 20));
         //not full, not attending, 20, later (second)
@@ -612,8 +615,7 @@ public class EventJdbcDaoTest {
         //full, attending, 10, later (sixteenth)
         maps.add(Map.of("user", TestUtils.USER_2, "limit", Optional.of(10), "willAttend", 10, "attending", TestUtils.USER_1, "date", TestUtils.EVENT_DATE_LATER));
         for (Map<String, Object> params : maps) {
-            Event temp = TestUtils.insertEvent(ds, params);
-            eventData.put(temp.getId(), temp);
+            eventData.add(TestUtils.insertEvent(ds, params));
         }
 
         Page<Event> events = eventDao.findRecommended(TestUtils.USER_1_ID, TestUtils.PAGE_1_BIG);
@@ -621,8 +623,9 @@ public class EventJdbcDaoTest {
         assertNotNull(events);
         assertNotNull(events.getContent());
         assertEquals(eventData.size(), events.getContent().size());
-        for (Event e : events.getContent()){
-            TestUtils.assertEqualsEvent(eventData.get(e.getId()), e);
+        ListIterator<Event> iterator = eventData.listIterator(); 
+        while (iterator.hasNext()){
+            TestUtils.assertEqualsEvent(events.getContent().get(iterator.nextIndex()), iterator.next());
         }
     }
 

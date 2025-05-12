@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -49,6 +50,23 @@ public class EventResponseJdbcDaoTest {
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
         insert = new SimpleJdbcInsert(ds).withTableName(TestUtils.EVENT_REPLY_TABLE).usingGeneratedKeyColumns("id");
+    }
+    
+
+    @Test
+    public void testFindById(){
+        Optional<EventResponse> response = replyDao.findById(TestUtils.EVENT_RESPONSE_1_ID);
+
+        assertNotNull(response);
+        assertTrue(response.isPresent());
+        TestUtils.assertEqualsEventReply(TestUtils.EVENT_RESPONSE_1, response.get());
+    }
+    @Test
+    public void testFindByIdNotFound(){
+        Optional<EventResponse> response = replyDao.findById(12341234l);
+
+        assertNotNull(response);
+        assertFalse(response.isPresent());
     }
 
     @Test
