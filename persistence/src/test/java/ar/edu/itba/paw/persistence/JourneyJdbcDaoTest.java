@@ -14,20 +14,19 @@ import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
 
+import ar.edu.itba.paw.persistence.config.TestConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-@Rollback
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
 public class JourneyJdbcDaoTest {
@@ -185,24 +184,27 @@ public class JourneyJdbcDaoTest {
     }
 
     @Test
-    public void testFindAllPaged(){
+    public void testFindAllPage1(){
         Page<Journey> page1 = journeyDao.findAll(new PageParams(1, 1));
-        Page<Journey> page2 = journeyDao.findAll(new PageParams(2, 1));
 
         assertNotNull(page1);
-        assertNotNull(page2);
         assertEquals(1, page1.getCurrentPage());
-        assertEquals(2, page2.getCurrentPage());
         assertEquals(2, page1.getTotalPages());
-        assertEquals(2, page2.getTotalPages());
         assertNotNull(page1.getContent());
-        assertNotNull(page2.getContent());
         assertEquals(1, page1.getContent().size());
-        assertEquals(1, page2.getContent().size());
         TestUtils.assertEqualsJourney(TestUtils.JOURNEY_1, page1.getContent().getFirst());
-        TestUtils.assertEqualsJourney(TestUtils.JOURNEY_2, page2.getContent().getFirst());
     }
-    
+    @Test
+    public void testFindAllPage2(){
+        Page<Journey> page2 = journeyDao.findAll(new PageParams(2, 1));
+
+        assertNotNull(page2);
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(2, page2.getTotalPages());
+        assertNotNull(page2.getContent());
+        assertEquals(1, page2.getContent().size());
+        TestUtils.assertEqualsJourney(TestUtils.JOURNEY_2, page2.getContent().getFirst());
+    }    
     @Test
     public void testFindAllPagedNoJourneys(){
         TestUtils.deleteJourneys(jdbcTemplate);

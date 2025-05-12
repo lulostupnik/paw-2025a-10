@@ -1,7 +1,7 @@
 package ar.edu.itba.paw.webapp.paging;
 
 
-public final class PaginationConstants {
+class PaginationConstants {
     public static final int DEFAULT_PAGE = 1;
     public static final int DEFAULT_SIZE = 10;
     public static final int MIN_SIZE = 1;

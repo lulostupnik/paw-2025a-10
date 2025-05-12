@@ -6,8 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -15,6 +13,7 @@ import java.util.Optional;
 import javax.sql.DataSource;
 
 import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.persistence.config.TestConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
@@ -32,7 +30,6 @@ import ar.edu.itba.paw.models.EventResponse;
 import ar.edu.itba.paw.models.Page;
 
 @Transactional
-@Rollback
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
 public class EventResponseJdbcDaoTest {
@@ -93,24 +90,28 @@ public class EventResponseJdbcDaoTest {
     }
 
     @Test
-    public void testListAllByEventIdPaged(){
+    public void testListAllByEventIdPage1(){
         Page<EventResponse> page1 = replyDao.listAllByEventId(TestUtils.EVENT_1_ID, new PageParams(1, 2));
-        Page<EventResponse> page2 = replyDao.listAllByEventId(TestUtils.EVENT_1_ID, new PageParams(2, 2));
 
         assertNotNull(page1);
-        assertNotNull(page2);
         assertEquals(1, page1.getCurrentPage());
-        assertEquals(2, page2.getCurrentPage());
         assertEquals(2, page1.getTotalPages());
-        assertEquals(2, page2.getTotalPages());
         assertNotNull(page1.getContent());
-        assertNotNull(page2.getContent());
         assertEquals(2, page1.getContent().size());
+        for (EventResponse reply : page1.getContent()){
+            TestUtils.assertEqualsEventReply(TestUtils.EVENT_RESPONSE_DATA.get(reply.getId()), reply);
+        }
+    }
+    @Test
+    public void testListAllByEventIdPage2(){
+        Page<EventResponse> page2 = replyDao.listAllByEventId(TestUtils.EVENT_1_ID, new PageParams(2, 2));
+
+        assertNotNull(page2);
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(2, page2.getTotalPages());
+        assertNotNull(page2.getContent());
         assertEquals(1, page2.getContent().size());
-        List<EventResponse> replies = new ArrayList<>(page1.getContent());
-        replies.addAll(page2.getContent());
-        assertEquals(3, replies.size());
-        for (EventResponse reply : replies){
+        for (EventResponse reply : page2.getContent()){
             TestUtils.assertEqualsEventReply(TestUtils.EVENT_RESPONSE_DATA.get(reply.getId()), reply);
         }
     }
@@ -209,6 +210,7 @@ public class EventResponseJdbcDaoTest {
     @Test
     public void testUpdateDeletionMessageWrongReply(){
         replyDao.updateDeletionMessage(123123, "TestUtils.RESPONSE_MESSAGE");
+        
         assertEquals(null, jdbcTemplate.queryForObject(TestUtils.EVENT_RESPONSE_GET_DELETE_MESSAGE, String.class, TestUtils.EVENT_RESPONSE_1_ID));
         assertEquals(null, jdbcTemplate.queryForObject(TestUtils.EVENT_RESPONSE_GET_DELETE_MESSAGE, String.class, TestUtils.EVENT_RESPONSE_2_ID));
         assertEquals(null, jdbcTemplate.queryForObject(TestUtils.EVENT_RESPONSE_GET_DELETE_MESSAGE, String.class, TestUtils.EVENT_RESPONSE_3_ID));

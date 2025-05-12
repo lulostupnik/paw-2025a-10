@@ -11,13 +11,13 @@ import java.util.Optional;
 import javax.sql.DataSource;
 
 import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.persistence.config.TestConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
@@ -27,7 +27,6 @@ import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.Page;
 
 @Transactional
-@Rollback
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
 public class InterestJdbcDaoTest {
@@ -329,7 +328,6 @@ public class InterestJdbcDaoTest {
 
         assertEquals(TestUtils.TOTAL_INTERESTS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.INTEREST_TABLE));
         assertEquals(TestUtils.TOTAL_USER_INTERESTS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_INTEREST_TABLE));
-
         assertEquals(
             TestUtils.USER_1_INTEREST_1_SCORE + 1, 
             jdbcTemplate.queryForObject(
@@ -440,22 +438,26 @@ public class InterestJdbcDaoTest {
     }
 
     @Test
-    public void testFindAllPaged(){
+    public void testFindAllPage1(){
         Page<Interest> page1 = interestDao.findAll(TestUtils.PAGE_1_DEFAULT);
-        Page<Interest> page2 = interestDao.findAll(TestUtils.PAGE_2_DEFAULT);
 
         assertNotNull(page1);
-        assertNotNull(page2);
         assertEquals(1, page1.getCurrentPage());
-        assertEquals(2, page2.getCurrentPage());
         assertEquals(2, page1.getTotalPages());
-        assertEquals(2, page2.getTotalPages());
         assertNotNull(page1.getContent());
-        assertNotNull(page2.getContent());
         assertEquals(2, page1.getContent().size());
-        assertEquals(1, page2.getContent().size());
         TestUtils.assertEqualsInterest(TestUtils.INTEREST_1, page1.getContent().get(0));
         TestUtils.assertEqualsInterest(TestUtils.INTEREST_2, page1.getContent().get(1));
+    }
+    @Test
+    public void testFindAllPage2(){
+        Page<Interest> page2 = interestDao.findAll(TestUtils.PAGE_2_DEFAULT);
+
+        assertNotNull(page2);
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(2, page2.getTotalPages());
+        assertNotNull(page2.getContent());
+        assertEquals(1, page2.getContent().size());
         TestUtils.assertEqualsInterest(TestUtils.INTEREST_3, page2.getContent().get(0));
     }
     @Test
@@ -514,21 +516,24 @@ public class InterestJdbcDaoTest {
         TestUtils.assertEqualsInterest(TestUtils.INTEREST_3, page1.getContent().get(2));
     }
     @Test
-    public void testSearchPaging(){
+    public void testSearchPaging1(){
         Page<Interest> page1 = interestDao.search("", TestUtils.PAGE_1_DEFAULT);
-        Page<Interest> page2 = interestDao.search("", TestUtils.PAGE_2_DEFAULT);
 
         assertNotNull(page1);
-        assertNotNull(page2);
         assertEquals(2, page1.getTotalPages());
-        assertEquals(2, page2.getTotalPages());
         assertEquals(2, page1.getContent().size());
-        assertEquals(1, page2.getContent().size());
         TestUtils.assertEqualsInterest(TestUtils.INTEREST_1, page1.getContent().get(0));
         TestUtils.assertEqualsInterest(TestUtils.INTEREST_2, page1.getContent().get(1));
+    }
+    @Test
+    public void testSearchPaging2(){
+        Page<Interest> page2 = interestDao.search("", TestUtils.PAGE_2_DEFAULT);
+
+        assertNotNull(page2);
+        assertEquals(2, page2.getTotalPages());
+        assertEquals(1, page2.getContent().size());
         TestUtils.assertEqualsInterest(TestUtils.INTEREST_3, page2.getContent().get(0));
     }
-
     @Test
     public void testDelete(){
         interestDao.delete(TestUtils.INTEREST_3_ID);
