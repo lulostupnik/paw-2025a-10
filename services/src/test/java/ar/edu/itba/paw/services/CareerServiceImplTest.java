@@ -36,53 +36,6 @@ public class CareerServiceImplTest {
     @Mock
     private CareerDao careerDao;
 
-    // @Test
-    // public void testFindById(){
-    //     Mockito.when(
-    //         careerDao.findById(Mockito.eq(ID_1))
-    //     ).thenReturn(Optional.of(CAREER_1));
-
-    //     Optional<Career> maybeCareer = careerService.findById(ID_1);
-
-    //     assertNotNull(maybeCareer);
-    //     assertTrue(maybeCareer.isPresent());
-    //     assertEquals(CAREER_1, maybeCareer.get());
-    // }
-    // @Test
-    // public void testFindByIdMissing(){
-    //     Mockito.when(
-    //         careerDao.findById(Mockito.eq(ID_1))
-    //     ).thenReturn(Optional.empty());
-
-    //     Optional<Career> maybeCareer = careerService.findById(ID_1);
-
-    //     assertNotNull(maybeCareer);
-    //     assertFalse(maybeCareer.isPresent());
-    // }
-
-    // @Test
-    // public void testFindByName(){
-    //     Mockito.when(
-    //         careerDao.findByName(Mockito.eq(NAME))
-    //     ).thenReturn(Optional.of(CAREER_1));
-
-    //     Optional<Career> maybeCareer = careerService.findByName(NAME);
-
-    //     assertNotNull(maybeCareer);
-    //     assertTrue(maybeCareer.isPresent());
-    //     assertEquals(CAREER_1, maybeCareer.get());
-    // }
-    // @Test
-    // public void testFindByNameMissing(){
-    //     Mockito.when(
-    //         careerDao.findByName(Mockito.eq(NAME))
-    //     ).thenReturn(Optional.empty());
-
-    //     Optional<Career> maybeCareer = careerService.findByName(NAME);
-
-    //     assertNotNull(maybeCareer);
-    //     assertFalse(maybeCareer.isPresent());
-    // }
 
     @Test
     public void testGetAllCareersNoFilter(){
