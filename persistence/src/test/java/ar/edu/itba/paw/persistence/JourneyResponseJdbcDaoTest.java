@@ -116,9 +116,7 @@ public class JourneyResponseJdbcDaoTest {
             TestUtils.TOTAL_JOURNEY_RESPONSES - 1, 
             Optional.ofNullable(jdbcTemplate.queryForObject(TestUtils.JOURNEY_REPLY_COUNT_NOT_DELETED, Integer.class)).get().intValue()
         );
-        assertTrue(
-            jdbcTemplate.queryForObject(TestUtils.JOURNEY_REPLY_IS_DELETED_BY_ID, Boolean.class, TestUtils.JOURNEY_RESPONSE_1_ID)
-        );
+        assertEquals(Boolean.TRUE, jdbcTemplate.queryForObject(TestUtils.JOURNEY_REPLY_IS_DELETED_BY_ID, Boolean.class, TestUtils.JOURNEY_RESPONSE_1_ID));
     }
     @Test
     public void testDeleteDeleted(){
