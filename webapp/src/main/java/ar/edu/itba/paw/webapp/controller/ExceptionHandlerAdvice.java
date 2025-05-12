@@ -70,6 +70,7 @@ public class ExceptionHandlerAdvice {
 
         return new ModelAndView("not-found");
     }
+
     @ExceptionHandler(CareerNotFoundException.class)
     @ResponseStatus(code= HttpStatus.NOT_FOUND)
     public ModelAndView error404Career(CareerNotFoundException ex) {
