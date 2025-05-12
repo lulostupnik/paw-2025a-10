@@ -132,7 +132,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public void updateToken(final long id, final String uuid, final LocalDate date) {
-        final int updatedRows = jdbcTemplate.update("UPDATE users SET token = ?, token_expiration = ? WHERE id = ?", uuid, date, id);
+        final int updatedRows = jdbcTemplate.update("UPDATE users SET token = ?, token_expiration = ? WHERE id = ?", uuid, Date.valueOf(date), id);
         if(updatedRows == 0){
             LOGGER.warn("Update token failed: user with ID: {} not found", id);
         }
@@ -163,7 +163,7 @@ public class UserJdbcDao implements UserDao {
 
     @Override
     public void updateTokenAndExpirationByToken(final String newToken, final LocalDate date, final String oldToken){
-       final int updatedRows = jdbcTemplate.update("UPDATE users SET token = ?, token_expiration = ? WHERE token = ?", newToken, date ,oldToken);
+       final int updatedRows = jdbcTemplate.update("UPDATE users SET token = ?, token_expiration = ? WHERE token = ?", newToken, Date.valueOf(date), oldToken);
        if(updatedRows == 0){
            LOGGER.warn("Update token failed: user with token: {} not found", oldToken);
        }

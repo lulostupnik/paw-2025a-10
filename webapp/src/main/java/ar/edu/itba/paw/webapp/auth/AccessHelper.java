@@ -49,14 +49,5 @@ public class AccessHelper {
                 return new IllegalArgumentException("No user by the name " + email);}).isBlocked();
     }
 
-    public boolean isReplyFromJourney(long journeyId, long replyId){
-        return journeyId == journeyService.getJourneyIdByResponseId(replyId);
-
-    }
-
-    public boolean isReplyFromEvent(long eventId, long replyId){
-        return eventId == eventService.getEventIdByResponseId(replyId);
-
-    }
 
 }

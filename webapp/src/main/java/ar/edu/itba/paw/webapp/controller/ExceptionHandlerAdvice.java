@@ -20,12 +20,7 @@ public class ExceptionHandlerAdvice {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionHandlerAdvice.class);
     private static final String ERROR_VIEW = "errors/error";
-    private final UserService userService;
 
-    @Autowired
-    public ExceptionHandlerAdvice(UserService userService) {
-        this.userService = userService;
-    }
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(code = HttpStatus.NOT_FOUND)
