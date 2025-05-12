@@ -18,6 +18,7 @@ import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Country;
 import ar.edu.itba.paw.models.Event;
+import ar.edu.itba.paw.models.EventResponse;
 import ar.edu.itba.paw.models.Image;
 import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.Journey;
@@ -58,35 +59,72 @@ public class TestUtils {
     public static final String CAREER_2_NAME = "career 2";
     public static final String CAREER_INSERT1_NAME = "career 3";
     public static final String CAREER_DELETED_NAME = "deleted";
-    public static final int TOTAL_CAREERS = 2;
+    public static final int CAREER_1_ID = 10000;
+    public static final int CAREER_2_ID = 20000;
+    public static final int CAREER_DELETED_ID = 30000;
+    public static final Career CAREER_1 = new Career(CAREER_1_ID, CAREER_1_NAME);
+    public static final Career CAREER_2 = new Career(CAREER_2_ID, CAREER_2_NAME);
+    public static final Career CAREER_DELETED = new Career(CAREER_DELETED_ID, CAREER_DELETED_NAME);
     
+    public static final int TOTAL_CAREERS = 2;
+
+    public static final String COUNTRY_1_NAME = "cuntry";
+    public static final String COUNTRY_1_CODE = "aa";   
+    public static final long COUNTRY_1_ID = 10000; 
+    public static final long COUNTRY_2_ID = 20000; 
+    public static final String COUNTRY_2_NAME = "cuntry2";
+    public static final String COUNTRY_2_CODE = "bb";
+    public static final Country COUNTRY_1 = new Country(COUNTRY_1_ID, COUNTRY_1_NAME, COUNTRY_1_CODE);
+    public static final Country COUNTRY_2 = new Country(COUNTRY_2_ID, COUNTRY_2_NAME, COUNTRY_2_CODE);
+    public static final Map<Long, Country> COUNTRY_DATA = Map.of(COUNTRY_1_ID, COUNTRY_1, COUNTRY_2_ID, COUNTRY_2);
+
+    public static final int TOTAL_COUNTRIES = 2;
+
     public static final String CITY_1_NAME = "city1";
     public static final String CITY_2_NAME = "city2";
     public static final String CITY_3_NAME = "city3";
     public static final String CITY_DELETED_NAME = "deleted city";
     public static final String NEW_CITY_NAME = "new!";
-    public static final int TOTAL_CITIES = 3;
+    public static final long CITY_1_ID = 10000;
+    public static final long CITY_2_ID = 20000;
+    public static final long CITY_3_ID = 30000;
+    public static final long CITY_DELETED_ID = 40000;
+    public static final City CITY_1 = new City(CITY_1_NAME, COUNTRY_1_NAME, CITY_1_ID);
+    public static final City CITY_2 = new City(CITY_2_NAME, COUNTRY_1_NAME, CITY_2_ID);
+    public static final City CITY_3 = new City(CITY_3_NAME, COUNTRY_2_NAME, CITY_3_ID);
+    public static final City CITY_DELETED = new City(CITY_DELETED_NAME, COUNTRY_2_NAME, CITY_DELETED_ID);
+    public static final Map<Long, City> CITY_DATA = Map.of(CITY_1_ID, CITY_1, CITY_2_ID, CITY_2, CITY_3_ID, CITY_3);
 
-    public static final String COUNTRY_1_NAME = "cuntry";
-    public static final String COUNTRY_1_CODE = "aa";    
-    public static final String COUNTRY_2_NAME = "cuntry2";
-    public static final String COUNTRY_2_CODE = "bb";
-    public static final int TOTAL_COUNTRIES = 2;
+    public static final int TOTAL_CITIES = 3;
 
     public static final String UNIVERSITY_1_NAME = "Instituto de muy largo";
     public static final String UNIVERSITY_1_CODE = "ITBA";    
+    public static final long UNIVERSITY_1_ID = 10000;
     public static final String UNIVERSITY_2_NAME = "Universidad de muy largo";
-    public static final String UNIVERSITY_2_CODE = "UBA";  
+    public static final String UNIVERSITY_2_CODE = "UBA"; 
+    public static final long UNIVERSITY_2_ID = 20000;
     public static final String UNIVERSITY_3_NAME = "Another one";
-    public static final String UNIVERSITY_3_CODE = "MAS";   
+    public static final String UNIVERSITY_3_CODE = "MAS"; 
+    public static final long UNIVERSITY_3_ID = 30000;
     public static final String UNIVERSITY_DELETED_NAME = "Deleted uni";
     public static final String UNIVERSITY_DELETED_CODE = "DEL";
+    public static final long UNIVERSITY_DELETED_ID = 40000;
     public static final String UNIVERSITY_NEW_NAME = "Yet another one";
     public static final String UNIVERSITY_NEW_CODE = "ONE";
+    public static final University UNI_1 = new University(UNIVERSITY_1_ID, UNIVERSITY_1_NAME, UNIVERSITY_1_CODE, CITY_1);
+    public static final University UNI_2 = new University(UNIVERSITY_2_ID, UNIVERSITY_2_NAME, UNIVERSITY_2_CODE, CITY_2);
+    public static final University UNI_3 = new University(UNIVERSITY_3_ID, UNIVERSITY_3_NAME, UNIVERSITY_3_CODE, CITY_2);
+    public static final University UNI_DELETED = new University(UNIVERSITY_DELETED_ID, UNIVERSITY_DELETED_NAME, UNIVERSITY_DELETED_CODE, CITY_1);
+    
     public static final int TOTAL_UNIVERSITIES = 3;
 
     public static final byte[] IMAGE_1_DATA = new byte[]{-1, -1, -1, -1};
     public static final byte[] IMAGE_2_DATA = new byte[]{-1, -1, -1, -1, -1, -1, -1, -1};
+    public static final long IMAGE_1_ID = 10000;
+    public static final long IMAGE_2_ID = 20000;
+    public static final Image IMAGE_1 = new Image(IMAGE_1_ID, IMAGE_1_DATA);
+    public static final Image IMAGE_2 = new Image(IMAGE_2_ID, IMAGE_2_DATA);
+
     public static final int TOTAL_IMAGES = 2;
 
     public static final String INTEREST_1_NAME = "interest 1";
@@ -94,6 +132,14 @@ public class TestUtils {
     public static final String INTEREST_3_NAME = "interest 3";
     public static final String INTEREST_NEW1_NAME = "interest new 1";
     public static final String INTEREST_NEW2_NAME = "interest new 2";
+    public static final long INTEREST_1_ID = 10000;
+    public static final long INTEREST_2_ID = 20000;
+    public static final long INTEREST_3_ID = 30000;
+    public static final Interest INTEREST_1 = new Interest(INTEREST_1_ID, INTEREST_1_NAME);
+    public static final Interest INTEREST_2 = new Interest(INTEREST_2_ID, INTEREST_2_NAME);
+    public static final Interest INTEREST_3 = new Interest(INTEREST_3_ID, INTEREST_3_NAME);
+    public static final Map<Long, Interest> INTEREST_DATA = Map.of(INTEREST_1_ID, INTEREST_1, INTEREST_2_ID, INTEREST_2, INTEREST_3_ID, INTEREST_3);
+
     public static final int TOTAL_INTERESTS = 3;
 
     public static final String USER_1_NAME = "user1";
@@ -133,24 +179,54 @@ public class TestUtils {
     public static final int USER_1_INTEREST_1_SCORE = 4;
     public static final int USER_1_INTEREST_2_SCORE = 2;
     public static final int USER_1_INTEREST_3_SCORE = 1;
+    public static final long USER_1_ID = 10000;
+    public static final long USER_2_ID = 20000;
+    public static final long USER_3_ID = 30000;
+    public static final long USER_4_ID = 40000;
+    public static final long USER_I1_ID = 50000;
+    public static final long USER_I2_ID = 60000;
+    public static final long USER_I3_ID = 70000;
+    public static final User USER_1 = new User(USER_1_ID, USER_1_MAIL, USER_1_NAME, USER_FIRSTNAME, USER_LASTNAME, UNI_1, CAREER_1, IMAGE_1_ID, Locale.of(USER_LOCALE), false);
+    public static final User USER_2 = new User(USER_2_ID, USER_2_MAIL, USER_2_NAME, USER_FIRSTNAME, USER_LASTNAME, UNI_1, CAREER_1, IMAGE_1_ID, Locale.of(USER_LOCALE), false);
+    public static final User USER_3 = new User(USER_3_ID, USER_3_MAIL, USER_3_NAME, USER_FIRSTNAME, USER_LASTNAME, UNI_1, CAREER_1, IMAGE_1_ID, Locale.of(USER_LOCALE), false);
+    public static final User USER_4 = new User(USER_4_ID, USER_4_MAIL, USER_4_NAME, USER_FIRSTNAME, USER_LASTNAME, UNI_2, CAREER_1, IMAGE_1_ID, Locale.of(USER_LOCALE), false);
+    public static final User USER_I1 = new User(USER_I1_ID, USER_COMMON_INTERESTS_1_MAIL, USER_COMMON_INTERESTS_1_NAME, USER_FIRSTNAME, USER_LASTNAME, UNI_1, CAREER_1, IMAGE_1_ID, Locale.of(USER_LOCALE_DEFAULT), false);
+    public static final User USER_I2 = new User(USER_I2_ID, USER_COMMON_INTERESTS_2_MAIL, USER_COMMON_INTERESTS_2_NAME, USER_FIRSTNAME, USER_LASTNAME, UNI_1, CAREER_1, IMAGE_1_ID, Locale.of(USER_LOCALE_DEFAULT), false);
+    public static final User USER_I3 = new User(USER_I3_ID, USER_COMMON_INTERESTS_3_MAIL, USER_COMMON_INTERESTS_3_NAME, USER_FIRSTNAME, USER_LASTNAME, UNI_1, CAREER_1, IMAGE_1_ID, Locale.of(USER_LOCALE_DEFAULT), false);
+    public static final Map<Long, User> USER_DATA = Map.of(USER_1_ID, USER_1, USER_2_ID, USER_2, USER_3_ID, USER_3, USER_4_ID, USER_4, USER_I1_ID, USER_I1, USER_I2_ID, USER_I2, USER_I3_ID, USER_I3);
+
+
     public static final int TOTAL_USERS = 7;
     public static final int USER_1_INTERESTS = 3;
-    public static final Map<String, Object> USER_2_PARAMS = Map.of("email", TestUtils.USER_2_MAIL, "username", TestUtils.USER_2_NAME);
-    public static final Map<String, Object> USER_3_PARAMS = Map.of("email", TestUtils.USER_3_MAIL, "username", TestUtils.USER_3_NAME);
-    public static final Map<String, Object> USER_4_PARAMS = Map.of("email", TestUtils.USER_4_MAIL, "username", TestUtils.USER_4_NAME);
-
     public static final int TOTAL_USER_INTERESTS = 9;
 
     public static final String JOURNEY_DESCRIPTION = "Cool journey";
+    public static final String JOURNEY_DESCRIPTION_DELETED = "deleted";
+    public static final LocalDate JOURNEY_DELETED_DATE = LocalDate.now();
     public static final LocalDate JOURNEY_START_DATE = LocalDate.now().plusDays(7);
     public static final LocalDate JOURNEY_END_DATE = JOURNEY_START_DATE.plusMonths(1);
+    public static final long JOURNEY_DELETED_ID = 10000;
+    public static final long JOURNEY_1_ID = 20000;
+    public static final long JOURNEY_2_ID = 30000;
+    public static final Journey JOURNEY_DELETED = new Journey(JOURNEY_DELETED_ID, USER_4, JOURNEY_DELETED_DATE, JOURNEY_DELETED_DATE, UNI_1, JOURNEY_DESCRIPTION_DELETED);
+    public static final Journey JOURNEY_1 = new Journey(JOURNEY_1_ID, USER_1, JOURNEY_START_DATE, JOURNEY_END_DATE, UNI_2, JOURNEY_DESCRIPTION);
+    public static final Journey JOURNEY_2 = new Journey(JOURNEY_2_ID, USER_2, JOURNEY_START_DATE, JOURNEY_END_DATE, UNI_2, JOURNEY_DESCRIPTION);
 
     public static final int TOTAL_JOURNEYS = 3;
 
-    public static final String RESPONSE_MESSAGE = "message";
+    public static final String RESPONSE_MESSAGE = "COOL!";
     public static final LocalDateTime RESPONSE_TIMESTAMP = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
     public static final LocalDateTime RESPONSE_TIMESTAMP_2 = RESPONSE_TIMESTAMP.plusHours(1);
     public static final LocalDateTime RESPONSE_TIMESTAMP_3 = RESPONSE_TIMESTAMP.plusHours(2);
+    public static final long JOURNEY_RESPONSE_1_ID = 10000;
+    public static final long JOURNEY_RESPONSE_2_ID = 20000;
+    public static final long JOURNEY_RESPONSE_3_ID = 30000;
+    public static final long JOURNEY_RESPONSE_DELETED_ID = 40000;
+    public static final JourneyResponse JOURNEY_RESPONSE_1 = new JourneyResponse(JOURNEY_RESPONSE_1_ID, USER_1_ID, USER_1_NAME, JOURNEY_1_ID, RESPONSE_MESSAGE, RESPONSE_TIMESTAMP);
+    public static final JourneyResponse JOURNEY_RESPONSE_2 = new JourneyResponse(JOURNEY_RESPONSE_2_ID, USER_2_ID, USER_2_NAME, JOURNEY_1_ID, RESPONSE_MESSAGE, RESPONSE_TIMESTAMP_2);
+    public static final JourneyResponse JOURNEY_RESPONSE_3 = new JourneyResponse(JOURNEY_RESPONSE_3_ID, USER_3_ID, USER_3_NAME, JOURNEY_1_ID, RESPONSE_MESSAGE, RESPONSE_TIMESTAMP_3);
+    public static final JourneyResponse JOURNEY_RESPONSE_DELETED = new JourneyResponse(JOURNEY_RESPONSE_DELETED_ID, USER_3_ID, USER_3_NAME, JOURNEY_1_ID, RESPONSE_MESSAGE, RESPONSE_TIMESTAMP);
+    public static final Map<Long, JourneyResponse> RESPONSE_DATA = Map.of(JOURNEY_RESPONSE_1_ID, JOURNEY_RESPONSE_1, JOURNEY_RESPONSE_2_ID, JOURNEY_RESPONSE_2, JOURNEY_RESPONSE_3_ID, JOURNEY_RESPONSE_3);
 
     public static final int TOTAL_JOURNEY_RESPONSES = 3;
 
@@ -163,19 +239,43 @@ public class TestUtils {
     public static final String EVENT_ADDRESS_DEFAULT = "cool place";
     public static final LocalTime EVENT_TIME_DEFAULT = LocalTime.of(0, 0, 0);
     public static final LocalDate EVENT_DATE_DEFAULT = LocalDate.now().plusDays(7);
+    public static final LocalDate EVENT_DATE_OLDER = LocalDate.now().plusDays(-100);
     public static final LocalDate EVENT_DATE_LATER = EVENT_DATE_DEFAULT.plusDays(10);
     public static final int EVENT_ATTENDANCE_LIMIT_DEFAULT = 30;
     public static final int EVENT_ATTENDANCE_DEFAULT = 10;
+    public static final long EVENT_1_ID = 10000;
+    public static final long EVENT_2_ID = 20000;
+    public static final long EVENT_3_ID = 30000;
+    public static final long EVENT_OLDER_ID = 40000;
+    public static final long EVENT_DELETED_ID = 50000;
     public static final int EVENT_1_ATTENDEES = 3;
     public static final int EVENT_2_ATTENDEES = 1;
     public static final int EVENT_3_ATTENDEES = 0;
+    public static final int EVENT_OLDER_ATTENDEES = 0;
+    public static final int EVENT_DELETED_ATTENDEES = 0;
     public static final int USER_1_ATTENDANCES = 2;
     public static final int USER_2_ATTENDANCES = 1;
     public static final int USER_3_ATTENDANCES = 1;
-
+    public static final int EVENT_1_REPLIES = 3;
+    public static final Event EVENT_1 = new Event(EVENT_1_ID, USER_1, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_DEFAULT, Optional.of(EVENT_TIME_DEFAULT), EVENT_ADDRESS_DEFAULT, Optional.of(EVENT_ATTENDANCE_LIMIT_DEFAULT), EVENT_1_ATTENDEES);
+    public static final Event EVENT_2 = new Event(EVENT_2_ID, USER_2, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_2, Optional.of(EVENT_TIME_DEFAULT), EVENT_ADDRESS_DEFAULT, Optional.empty(), EVENT_2_ATTENDEES);
+    public static final Event EVENT_3 = new Event(EVENT_3_ID, USER_2, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_3, Optional.of(EVENT_TIME_DEFAULT), EVENT_ADDRESS_DEFAULT, Optional.of(EVENT_ATTENDANCE_LIMIT_DEFAULT), EVENT_3_ATTENDEES);
+    public static final Event EVENT_OLDER = new Event(EVENT_OLDER_ID, USER_1, EVENT_DATE_OLDER, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_PAST, Optional.of(EVENT_TIME_DEFAULT), EVENT_ADDRESS_DEFAULT, Optional.of(EVENT_ATTENDANCE_LIMIT_DEFAULT), EVENT_OLDER_ATTENDEES);
+    public static final Event EVENT_DELETED = new Event(EVENT_DELETED_ID, USER_2, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_DELETED, Optional.of(EVENT_TIME_DEFAULT), EVENT_ADDRESS_DEFAULT, Optional.of(EVENT_ATTENDANCE_LIMIT_DEFAULT), EVENT_DELETED_ATTENDEES);
+    public static final long EVENT_RESPONSE_1_ID = 10000;
+    public static final long EVENT_RESPONSE_2_ID = 20000;
+    public static final long EVENT_RESPONSE_3_ID = 30000;
+    public static final long EVENT_RESPONSE_DELETED_ID = 40000;
+    public static final EventResponse EVENT_RESPONSE_1 = new EventResponse(EVENT_RESPONSE_1_ID, USER_1_ID, USER_1_NAME, EVENT_1_ID, RESPONSE_MESSAGE, RESPONSE_TIMESTAMP);
+    public static final EventResponse EVENT_RESPONSE_2 = new EventResponse(EVENT_RESPONSE_2_ID, USER_1_ID, USER_1_NAME, EVENT_1_ID, RESPONSE_MESSAGE, RESPONSE_TIMESTAMP);
+    public static final EventResponse EVENT_RESPONSE_3 = new EventResponse(EVENT_RESPONSE_3_ID, USER_1_ID, USER_1_NAME, EVENT_1_ID, RESPONSE_MESSAGE, RESPONSE_TIMESTAMP);
+    public static final EventResponse EVENT_RESPONSE_DELETED = new EventResponse(EVENT_RESPONSE_DELETED_ID, USER_1_ID, USER_1_NAME, EVENT_1_ID, RESPONSE_MESSAGE, RESPONSE_TIMESTAMP);
+    public static final Map<Long, EventResponse> EVENT_RESPONSE_DATA = Map.of(EVENT_RESPONSE_1_ID, EVENT_RESPONSE_1, EVENT_RESPONSE_2_ID, EVENT_RESPONSE_2, EVENT_RESPONSE_3_ID, EVENT_RESPONSE_3);
+    
     public static final int TOTAL_EVENTS_NOT_DELETED = 4;
     public static final int TOTAL_EVENTS_UPCOMING = 3;
     public static final int TOTAL_EVENT_ATTENDANCES = 4;
+    public static final int TOTAL_EVENT_REPLIES = 3;
 
 
     //QUERIES
@@ -312,7 +412,7 @@ public class TestUtils {
         r.user_id AS user_id, 
         r.journey_id AS journey_id, 
         r.message AS message, 
-        r. date_time AS date_time, 
+        r.date_time AS date_time, 
         u.username 
     FROM 
         journey_responses r
@@ -374,11 +474,37 @@ public class TestUtils {
     public static final String EVENT_GET_DELETED_MESSAGE = "SELECT deleted_message FROM events WHERE id = ?";
 
     public static final String EVENT_ATTENDANCE_EXISTS = "SELECT COUNT(*) FROM event_attendances WHERE user_id = ? AND event_id = ?";
-    public static final String EVENT_GET_ATTENDEES_COUNT_BY_ID = "SELECT attendees_count FROM events WHERE id = ?";
     public static final String EVENT_GET_ATTENDEES_BY_ID = "SELECT COUNT(*) FROM event_attendances WHERE event_id = ?";
     public static final String USER_GET_ATTENDANCES_COUNT_BY_ID = "SELECT COUNT(*) FROM event_attendances WHERE user_id = ?";
 
+    public static final String EVENT_RESPONSE_IS_DELETED = "SELECT deleted FROM event_responses WHERE id = ?";
+    public static final String EVENT_GET_DELETED_ID = "SELECT id FROM event_responses WHERE deleted = TRUE";
+    public static final String EVENT_RESPONSE_GET_DELETE_MESSAGE = "SELECT deleted_message FROM event_responses WHERE id = ?";
+    public static final String EVENT_RESPONSE_SELECT = """
+    SELECT 
+        r.id AS id, 
+        r.user_id AS user_id,
+        r.event_id AS event_id,
+        r.message AS message, 
+        r.date_time AS date_time,
+        u.username AS username
+    FROM 
+        event_responses r
+        JOIN users u ON r.user_id = u.id
+    """;
+    public static final String EVENT_RESPONSE_SELECT_BY_ID_NOT_DELETED = EVENT_RESPONSE_SELECT + "WHERE deleted = FALSE AND event_id = ?";
+            
+
     //ROWMAPPERS
+    public static final RowMapper<EventResponse> EVENT_RESPONSE_ROW_MAPPER = (rs, n) ->
+    new EventResponse(
+        rs.getLong("id"),
+        rs.getLong("user_id"),
+        rs.getString("username"),
+        rs.getLong("event_id"),
+        rs.getString("message"),
+        rs.getTimestamp("date_time").toLocalDateTime()
+    );
     public static final RowMapper<Interest> INTEREST_ROW_MAPPER = (rs, n) ->
     new Interest(
         rs.getLong("interest_id"),
@@ -630,5 +756,15 @@ public class TestUtils {
         assertEquals(expected.getTitle(), actual.getTitle());
         assertEqualsUser(expected.getUser(), actual.getUser());
         assertEqualsCity(expected.getEventCity(), actual.getEventCity());
+    }
+
+    public static void assertEqualsEventReply(EventResponse expected, EventResponse actual){
+        assertNotNull(actual);
+        assertNotNull(expected);
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getDateTime(), actual.getDateTime());
+        assertEquals(expected.getEventId(), actual.getEventId());
+        assertEquals(expected.getMessage(), actual.getMessage());
+        assertEquals(expected.getUserId(), actual.getUserId());
     }
 }

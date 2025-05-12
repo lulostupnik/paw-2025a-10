@@ -24,6 +24,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
+import ar.edu.itba.paw.models.UserAuthInfo;
 import ar.edu.itba.paw.interfaces.services.CareerService;
 import ar.edu.itba.paw.interfaces.services.EmailService;
 import ar.edu.itba.paw.interfaces.services.ImageService;
@@ -41,12 +42,14 @@ public class UserServiceImplTest {
     private static final Career CAREER = new Career((long)0, null);
     private static final Image IMAGE = new Image((long)0, new byte[0]);
     private static final String PASSWORD = "null";
+    private static final String ROLE = "admin";
     private static final Locale LOCALE = Locale.of("en");
     private static final long USER_ID = 0;
     private static final Interest INTEREST = new Interest((long)0, "name");
     private static final User USER = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE.getId(), LOCALE, false);
     private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
     private static final String TOKEN = "null";
+    private static final UserAuthInfo USER_AUTH_INFO= new UserAuthInfo(EMAIL, PASSWORD, ROLE, false, true);
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -125,6 +128,23 @@ public class UserServiceImplTest {
         Mockito.when(
             userDao.findValidatedByTokenNotExpired(Mockito.eq(TOKEN))
         ).thenReturn(Optional.of(false));
+        Mockito.when(
+            userDao.updateValidationAndFindAuthInfoByToken(Mockito.eq(TOKEN))
+        ).thenReturn(Optional.of(USER_AUTH_INFO));
+
+        userService.validateEmail(TOKEN);
+    }
+    @Test(expected = RuntimeException.class)
+    public void testValidateEmailInvalidToken(){
+        Mockito.when(
+            userDao.existsByTokenExpired(Mockito.eq(TOKEN))
+        ).thenReturn(false);
+        Mockito.when(
+            userDao.findValidatedByTokenNotExpired(Mockito.eq(TOKEN))
+        ).thenReturn(Optional.of(false));
+        Mockito.when(
+            userDao.updateValidationAndFindAuthInfoByToken(Mockito.eq(TOKEN))
+        ).thenReturn(Optional.empty());
 
         userService.validateEmail(TOKEN);
     }

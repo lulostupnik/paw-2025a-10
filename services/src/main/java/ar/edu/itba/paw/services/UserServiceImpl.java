@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public Optional<UserAuthInfo> validateEmail(final String token) {
+    public UserAuthInfo validateEmail(final String token) {
         LOGGER.debug("Validating user with token: {}", token);
         if (userDao.existsByTokenExpired(token)) {
             LOGGER.warn("Token expired warn, with token: {}", token);
@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService {
             LOGGER.warn("Token in use warn, with token: {}", token);
             throw new InvalidTokenException("Token already used");
         }
-        Optional<UserAuthInfo> user = userDao.updateValidationAndFindAuthInfoByToken(token);
+        UserAuthInfo user = userDao.updateValidationAndFindAuthInfoByToken(token).orElseThrow(()-> new RuntimeException("Invalid token"));
         LOGGER.info("User validated, with token: {}", token);
         return user;
     }
@@ -211,6 +211,20 @@ public class UserServiceImpl implements UserService {
         LOGGER.debug("Checkin if token has expired: {}", token);
         return userDao.existsByTokenExpired(token);
     }
+
+
+    @Override
+    public List<User> getEventAttendees(final long eventId) {
+        LOGGER.debug("Getting attendees for event {}", eventId);
+        return userDao.findAllAttendeesByEventId(eventId);
+    }
+
+    @Override
+    public Page<User> getEventAttendees(final long eventId, PageParams pageParams) {
+        LOGGER.debug("Getting attendees for event {} with pageParams {}", eventId, pageParams);
+        return userDao.findAllAttendeesByEventId(eventId, pageParams);
+    }
+
 
     @Override
     @Transactional

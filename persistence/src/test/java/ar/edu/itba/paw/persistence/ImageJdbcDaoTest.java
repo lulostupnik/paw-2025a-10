@@ -29,9 +29,6 @@ import ar.edu.itba.paw.models.Image;
 @ContextConfiguration(classes = TestConfig.class)
 public class ImageJdbcDaoTest {
 
-    private static Image IMAGE_1;
-    private static Image IMAGE_2;
-
     @Autowired
     private DataSource ds;
 
@@ -43,18 +40,16 @@ public class ImageJdbcDaoTest {
     @Before
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
-        IMAGE_1 = jdbcTemplate.queryForObject(TestUtils.IMAGE_SELECT_BY_DATA, TestUtils.IMAGE_ROW_MAPPER, TestUtils.IMAGE_1_DATA);
-        IMAGE_2 = jdbcTemplate.queryForObject(TestUtils.IMAGE_SELECT_BY_DATA, TestUtils.IMAGE_ROW_MAPPER, TestUtils.IMAGE_2_DATA);
     }
 
     @Test
     public void testFindById(){
-        Optional<Image> maybeImage = imageDao.findById(IMAGE_1.getId());
+        Optional<Image> maybeImage = imageDao.findById(TestUtils.IMAGE_1_ID);
 
         assertNotNull(maybeImage);
         assertTrue(maybeImage.isPresent());
         Image image = maybeImage.get();
-        assertEquals(IMAGE_1.getId(), image.getId());
+        assertEquals(TestUtils.IMAGE_1_ID, image.getId());
         assertTrue(Arrays.equals(TestUtils.IMAGE_1_DATA, image.getData()));
     }
     @Test
@@ -81,7 +76,7 @@ public class ImageJdbcDaoTest {
 
     @Test
     public void testDelete(){
-        imageDao.delete(IMAGE_2.getId());
+        imageDao.delete(TestUtils.IMAGE_2_ID);
 
         assertEquals(TestUtils.TOTAL_IMAGES - 1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.IMAGE_TABLE));
     }

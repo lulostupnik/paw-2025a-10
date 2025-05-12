@@ -5,14 +5,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import javax.sql.DataSource;
 
 import ar.edu.itba.paw.models.PageParams;
-import ar.edu.itba.paw.models.User;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +24,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import ar.edu.itba.paw.models.Journey;
 import ar.edu.itba.paw.models.JourneyResponse;
 import ar.edu.itba.paw.models.Page;
 
@@ -35,16 +32,6 @@ import ar.edu.itba.paw.models.Page;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
 public class JourneyResponseJdbcDaoTest {
-
-    private static User USER_1;
-    private static User USER_2;
-    private static User USER_3;
-    private static Journey JOURNEY_1;
-    private static JourneyResponse REPLY_1;
-    private static JourneyResponse REPLY_2;
-    private static JourneyResponse REPLY_3;
-    private static JourneyResponse REPLY_DELETED;
-    private static Map<Long, JourneyResponse> responseData;
     
     @Autowired
     private DataSource ds;
@@ -57,43 +44,33 @@ public class JourneyResponseJdbcDaoTest {
     @Before
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
-        
-        USER_1 = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_MAIL);
-        USER_2 = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_2_MAIL);
-        USER_3 = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_3_MAIL);
-        JOURNEY_1 = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_USERMAIL, TestUtils.JOURNEY_ROW_MAPPER, TestUtils.USER_1_MAIL);
-        REPLY_1 = jdbcTemplate.queryForObject(TestUtils.JOURNEY_REPLY_SELECT_BY_USER_JOURNEY, TestUtils.JOURNEY_REPLY_ROW_MAPPER, USER_1.getId(), JOURNEY_1.getId());
-        REPLY_2 = jdbcTemplate.queryForObject(TestUtils.JOURNEY_REPLY_SELECT_BY_USER_JOURNEY, TestUtils.JOURNEY_REPLY_ROW_MAPPER, USER_2.getId(), JOURNEY_1.getId());
-        REPLY_3 = jdbcTemplate.queryForObject(TestUtils.JOURNEY_REPLY_SELECT_BY_USER_JOURNEY + "AND deleted = FALSE", TestUtils.JOURNEY_REPLY_ROW_MAPPER, USER_3.getId(), JOURNEY_1.getId());
-        REPLY_DELETED = jdbcTemplate.queryForObject(TestUtils.JOURNEY_REPLY_SELECT_BY_USER_JOURNEY + "AND deleted = TRUE", TestUtils.JOURNEY_REPLY_ROW_MAPPER, USER_3.getId(), JOURNEY_1.getId());
-        responseData = Map.of(REPLY_1.getId(), REPLY_1, REPLY_2.getId(), REPLY_2, REPLY_3.getId(), REPLY_3);
     }
 
     @Test
     public void testCreate(){
-        JourneyResponse response = responseDao.create(USER_1.getId(), USER_1.getUsername(), JOURNEY_1.getId(), TestUtils.RESPONSE_MESSAGE, TestUtils.RESPONSE_TIMESTAMP);
+        JourneyResponse response = responseDao.create(TestUtils.USER_1_ID, TestUtils.USER_1.getUsername(), TestUtils.JOURNEY_1_ID, TestUtils.RESPONSE_MESSAGE, TestUtils.RESPONSE_TIMESTAMP);
 
         TestUtils.assertEqualsJourneyReply(
-            new JourneyResponse(response.getId(), USER_1.getId(), USER_1.getUsername(), JOURNEY_1.getId(), TestUtils.RESPONSE_MESSAGE, TestUtils.RESPONSE_TIMESTAMP), 
+            new JourneyResponse(response.getId(), TestUtils.USER_1_ID, TestUtils.USER_1.getUsername(), TestUtils.JOURNEY_1_ID, TestUtils.RESPONSE_MESSAGE, TestUtils.RESPONSE_TIMESTAMP), 
             response
         );
     }
     @Test(expected = DataAccessException.class)
     public void testCreateWrongUser(){
-        responseDao.create(12341234, null, JOURNEY_1.getId(), TestUtils.RESPONSE_MESSAGE, TestUtils.RESPONSE_TIMESTAMP);
+        responseDao.create(12341234, null, TestUtils.JOURNEY_1_ID, TestUtils.RESPONSE_MESSAGE, TestUtils.RESPONSE_TIMESTAMP);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateWrongJourney(){
-        responseDao.create(USER_1.getId(), null, 12341234l, TestUtils.RESPONSE_MESSAGE, TestUtils.RESPONSE_TIMESTAMP);
+        responseDao.create(TestUtils.USER_1_ID, null, 12341234l, TestUtils.RESPONSE_MESSAGE, TestUtils.RESPONSE_TIMESTAMP);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateMissingDate(){
-        responseDao.create(USER_1.getId(), null, JOURNEY_1.getId(), null, TestUtils.RESPONSE_TIMESTAMP);
+        responseDao.create(TestUtils.USER_1_ID, null, TestUtils.JOURNEY_1_ID, null, TestUtils.RESPONSE_TIMESTAMP);
     }
 
     @Test
     public void testFindAllByJourneyIdPaged(){
-        Page<JourneyResponse> page1 = responseDao.findAllByJourneyId(JOURNEY_1.getId(), TestUtils.PAGE_1_BIG);
+        Page<JourneyResponse> page1 = responseDao.findAllByJourneyId(TestUtils.JOURNEY_1_ID, TestUtils.PAGE_1_BIG);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -101,14 +78,14 @@ public class JourneyResponseJdbcDaoTest {
         assertNotNull(page1.getContent());
         assertEquals(TestUtils.TOTAL_JOURNEY_RESPONSES, page1.getContent().size());
         for (JourneyResponse r : page1.getContent()){
-            TestUtils.assertEqualsJourneyReply(responseData.get(r.getId()), r);
+            TestUtils.assertEqualsJourneyReply(TestUtils.RESPONSE_DATA.get(r.getId()), r);
         }
     }
     @Test
     public void testFindAllByJourneyIdPagedNoResponses(){
         JdbcTestUtils.deleteFromTableWhere(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE, "deleted = FALSE");
 
-        Page<JourneyResponse> page1 = responseDao.findAllByJourneyId(JOURNEY_1.getId(), new PageParams(1, 2));
+        Page<JourneyResponse> page1 = responseDao.findAllByJourneyId(TestUtils.JOURNEY_1_ID, new PageParams(1, 2));
 
         assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE));
         assertNotNull(page1);
@@ -120,9 +97,9 @@ public class JourneyResponseJdbcDaoTest {
 
     @Test
     public void testFindJourneyIdByResponseId(){
-        long id = responseDao.findJourneyIdByResponseId(REPLY_1.getId());
+        long id = responseDao.findJourneyIdByResponseId(TestUtils.JOURNEY_RESPONSE_1_ID);
 
-        assertEquals(JOURNEY_1.getId(), id);
+        assertEquals(TestUtils.JOURNEY_1_ID, id);
     }
     @Test(expected = NoSuchElementException.class)
     public void testFindJourneyIdByResponseIdWrongId(){
@@ -133,7 +110,7 @@ public class JourneyResponseJdbcDaoTest {
     public void testDelete(){
         int beforeRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE);
 
-        responseDao.delete(REPLY_1.getId());
+        responseDao.delete(TestUtils.JOURNEY_RESPONSE_1_ID);
 
         assertEquals(beforeRows, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE));
         assertEquals(
@@ -141,14 +118,14 @@ public class JourneyResponseJdbcDaoTest {
             Optional.ofNullable(jdbcTemplate.queryForObject(TestUtils.JOURNEY_REPLY_COUNT_NOT_DELETED, Integer.class)).get().intValue()
         );
         assertTrue(
-            jdbcTemplate.queryForObject(TestUtils.JOURNEY_REPLY_IS_DELETED_BY_ID, Boolean.class, REPLY_1.getId())
+            jdbcTemplate.queryForObject(TestUtils.JOURNEY_REPLY_IS_DELETED_BY_ID, Boolean.class, TestUtils.JOURNEY_RESPONSE_1_ID)
         );
     }
     @Test
     public void testDeleteDeleted(){
         int beforeRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE);
 
-        responseDao.delete(REPLY_DELETED.getId());
+        responseDao.delete(TestUtils.JOURNEY_RESPONSE_DELETED_ID);
 
         assertEquals(beforeRows, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE));
         assertEquals(
@@ -172,7 +149,7 @@ public class JourneyResponseJdbcDaoTest {
     public void testUpdateDeletionMessage(){
         int beforeRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE);
 
-        responseDao.updateDeletionMessage(REPLY_1.getId(), TestUtils.MESSAGE_DEFAULT);
+        responseDao.updateDeletionMessage(TestUtils.JOURNEY_RESPONSE_1_ID, TestUtils.MESSAGE_DEFAULT);
 
         assertEquals(beforeRows, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE));
         assertEquals(
@@ -181,14 +158,14 @@ public class JourneyResponseJdbcDaoTest {
         );
         assertEquals(
             TestUtils.MESSAGE_DEFAULT, 
-            jdbcTemplate.queryForObject(TestUtils.JOURNEY_REPLY_DELETED_MESSAGE_BY_ID, String.class, REPLY_1.getId())
+            jdbcTemplate.queryForObject(TestUtils.JOURNEY_REPLY_DELETED_MESSAGE_BY_ID, String.class, TestUtils.JOURNEY_RESPONSE_1_ID)
         );
     }
     @Test
     public void testUpdateDeletionMessageDeleted(){
         int beforeRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE);
 
-        responseDao.updateDeletionMessage(REPLY_DELETED.getId(), TestUtils.MESSAGE_DEFAULT);
+        responseDao.updateDeletionMessage(TestUtils.JOURNEY_RESPONSE_DELETED_ID, TestUtils.MESSAGE_DEFAULT);
 
         assertEquals(beforeRows, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE));
         assertEquals(
@@ -197,7 +174,7 @@ public class JourneyResponseJdbcDaoTest {
         );
         assertEquals(
             TestUtils.MESSAGE_DEFAULT, 
-            jdbcTemplate.queryForObject(TestUtils.JOURNEY_REPLY_DELETED_MESSAGE_BY_ID, String.class, REPLY_DELETED.getId())
+            jdbcTemplate.queryForObject(TestUtils.JOURNEY_REPLY_DELETED_MESSAGE_BY_ID, String.class, TestUtils.JOURNEY_RESPONSE_DELETED_ID)
         );
     }
     @Test
@@ -217,7 +194,7 @@ public class JourneyResponseJdbcDaoTest {
     public void testDeleteByJourneyId(){
         int beforeRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE);
 
-        responseDao.deleteByJourneyId(JOURNEY_1.getId());
+        responseDao.deleteByJourneyId(TestUtils.JOURNEY_1_ID);
 
         assertEquals(beforeRows, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE));
         assertEquals(
@@ -240,7 +217,7 @@ public class JourneyResponseJdbcDaoTest {
 
     @Test
     public void testFindById(){
-        Optional<JourneyResponse> maybeResponse = responseDao.findById(REPLY_1.getId());
+        Optional<JourneyResponse> maybeResponse = responseDao.findById(TestUtils.JOURNEY_RESPONSE_1_ID);
 
         assertNotNull(maybeResponse);
         assertTrue(maybeResponse.isPresent());
@@ -254,7 +231,7 @@ public class JourneyResponseJdbcDaoTest {
     }
     @Test
     public void testFindByIdDeleted(){
-        Optional<JourneyResponse> maybeResponse = responseDao.findById(REPLY_DELETED.getId());
+        Optional<JourneyResponse> maybeResponse = responseDao.findById(TestUtils.JOURNEY_RESPONSE_DELETED_ID);
 
         assertNotNull(maybeResponse);
         assertFalse(maybeResponse.isPresent());
@@ -262,7 +239,7 @@ public class JourneyResponseJdbcDaoTest {
 
     @Test
     public void testGetCount(){
-        int count = responseDao.countByJourneyId(JOURNEY_1.getId());
+        int count = responseDao.countByJourneyId(TestUtils.JOURNEY_1_ID);
 
         assertEquals(TestUtils.TOTAL_JOURNEY_RESPONSES, count);
     }

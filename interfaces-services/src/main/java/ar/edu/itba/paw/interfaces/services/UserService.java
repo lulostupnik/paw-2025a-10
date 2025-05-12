@@ -5,9 +5,7 @@ import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
 import java.util.List;
 import java.util.Locale;
-
 import ar.edu.itba.paw.models.UserAuthInfo;
-
 import java.util.Optional;
 
 public interface UserService {
@@ -21,12 +19,14 @@ public interface UserService {
     void blockUser(long userId);
     void unblockUser(long userId);
     void changePassword(long id, String newPassword);
-    Optional<UserAuthInfo> validateEmail(String token);
+    UserAuthInfo validateEmail(String token);
     void refreshToken(String oldToken);
     void refreshPassToken(String oldToken);
     boolean isValidPasswordResetToken(String token);
     void newPassword(String token, String newPassword);
     void forgotPass(String email);
     boolean isTokenExpired(String token);
+    List<User> getEventAttendees(long eventId);
+    Page<User> getEventAttendees(long eventId, PageParams pageParams);
     }
 

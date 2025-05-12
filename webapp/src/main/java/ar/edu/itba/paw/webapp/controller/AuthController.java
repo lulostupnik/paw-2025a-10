@@ -37,12 +37,9 @@ public class AuthController {
     }
     @GetMapping(value ="/validate")
     public ModelAndView validateEmail(@RequestParam("token") String token) {
-        Optional<UserAuthInfo> user = userService.validateEmail(token);
-        if(user.isEmpty()) { //@TODO: exception
-            LOGGER.debug("User not found or token expired");
-            return new ModelAndView("redirect:/login");
-        }
-        loginHelper.loginUser(user.get().getEmail());
+        UserAuthInfo user = userService.validateEmail(token);
+
+        loginHelper.loginUser(user.getEmail());
         LOGGER.debug("User {} validated", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         return new ModelAndView("redirect:/explore?validationSuccess=true");
     }
