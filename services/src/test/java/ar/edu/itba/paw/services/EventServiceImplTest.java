@@ -108,7 +108,7 @@ public class EventServiceImplTest {
     @Test
     public void testCreateEvent(){
         Mockito.when(
-            cityService.findByName(Mockito.eq(CITY_NAME))
+            cityService.findCityByName(Mockito.eq(CITY_NAME))
         ).thenReturn(Optional.of(CITY));
         Mockito.when(
             userService.findUserByEmail(Mockito.eq(EMAIL))
@@ -128,7 +128,7 @@ public class EventServiceImplTest {
     @Test(expected = RuntimeException.class)
     public void testCreateEventUserNotFound(){
         Mockito.when(
-            cityService.findByName(Mockito.eq(CITY_NAME))
+            cityService.findCityByName(Mockito.eq(CITY_NAME))
         ).thenReturn(Optional.of(CITY));
         Mockito.when(
             userService.findUserByEmail(Mockito.eq(EMAIL))
@@ -139,7 +139,7 @@ public class EventServiceImplTest {
     @Test(expected = RuntimeException.class)
     public void testCreateEventCityNotFound(){
         Mockito.when(
-            cityService.findByName(Mockito.eq(CITY_NAME))
+            cityService.findCityByName(Mockito.eq(CITY_NAME))
         ).thenReturn(Optional.empty());
 
         eventService.createEvent(EMAIL, CITY_NAME, EVENT_DATE, IMAGE_DATA, DESCRIPTION, TITLE, TIME, ADDRESS, LIMIT);
@@ -526,7 +526,7 @@ public class EventServiceImplTest {
             eventDao.findById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT));
         Mockito.when(
-            cityService.findByName(Mockito.eq(CITY_NAME))
+            cityService.findCityByName(Mockito.eq(CITY_NAME))
         ).thenReturn(Optional.empty());
 
         eventService.updateEvent(EVENT_ID, CITY_NAME, EVENT_DATE, null, DESCRIPTION, TITLE, TIME, ADDRESS, LIMIT);

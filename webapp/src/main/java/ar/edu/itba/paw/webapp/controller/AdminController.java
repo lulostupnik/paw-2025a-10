@@ -69,7 +69,7 @@ public class AdminController {
             @RequestParam(value = "search", required = false) String search) {
 
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
-        mav.addObject("pagedCareers", careerService.getAllCareers(search,pageParams));
+        mav.addObject("pagedCareers", careerService.searchCareers(search,pageParams));
 
         return mav;
     }
@@ -101,7 +101,7 @@ public class AdminController {
          @PageParamCustomizer( sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
-        mav.addObject("pagedCities", cityService.getAllCities(search, pageParams));
+        mav.addObject("pagedCities", cityService.searchCities(search, pageParams));
         return mav;
     }
 

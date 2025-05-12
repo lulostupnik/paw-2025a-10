@@ -24,7 +24,7 @@ public class CareerNotExistsValidator implements ConstraintValidator<CareerNotEx
         if (value == null || value.isEmpty()) {
             return true;
         }
-        return careerService.findByName(value).isEmpty();
+        return careerService.findCareerByName(value).isEmpty();
     }
 
 }

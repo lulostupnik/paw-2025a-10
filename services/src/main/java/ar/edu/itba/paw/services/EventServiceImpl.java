@@ -55,7 +55,7 @@ public class EventServiceImpl implements EventService {
     public Event createEvent(final String email, final  String cityName, final LocalDate date, final byte[] flyer, final  String description, final  String title, final LocalTime time, final String address, final  Integer attendeesLimit) {
 
         LOGGER.debug("Creating event for user {}", email);
-        City city = cityService.findByName(cityName).orElseThrow(() ->{
+        City city = cityService.findCityByName(cityName).orElseThrow(() ->{
             LOGGER.error("City not found {}", cityName);
             return new RuntimeException("City not found");}
         );
@@ -295,7 +295,7 @@ public class EventServiceImpl implements EventService {
                     return new IllegalArgumentException("Event not found");}
                 );
 
-        long resolvedCityId = cityService.findByName(cityName).orElseThrow(() -> {
+        long resolvedCityId = cityService.findCityByName(cityName).orElseThrow(() -> {
             LOGGER.warn("City not found {}", cityName);
             return new RuntimeException("City not found");}
         ).getId();

@@ -75,7 +75,7 @@ public class UserServiceImplTest {
             universityService.findByName(Mockito.eq(UNIVERSITY.getName()))
         ).thenReturn(Optional.of(UNIVERSITY));
         Mockito.when(
-            careerService.findByName(Mockito.eq(CAREER.getName()))
+            careerService.findCareerByName(Mockito.eq(CAREER.getName()))
         ).thenReturn(Optional.of(CAREER));
         Mockito.when(
             imageService.createImage(Mockito.eq(IMAGE.getData()))
@@ -98,7 +98,7 @@ public class UserServiceImplTest {
             universityService.findByName(Mockito.eq(UNIVERSITY.getName()))
         ).thenReturn(Optional.of(UNIVERSITY));
         Mockito.when(
-            careerService.findByName(Mockito.eq(CAREER.getName()))
+            careerService.findCareerByName(Mockito.eq(CAREER.getName()))
         ).thenReturn(Optional.empty());
         
         userService.createUser(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY.getName(), CAREER.getName(), IMAGE.getData(), List.of(INTEREST.getName()) , PASSWORD, LOCALE);

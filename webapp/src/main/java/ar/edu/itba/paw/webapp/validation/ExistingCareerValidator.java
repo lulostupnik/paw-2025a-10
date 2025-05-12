@@ -23,6 +23,6 @@ public class ExistingCareerValidator implements ConstraintValidator<ExistingCare
         if (careerName == null || careerName.isEmpty()) {
             return true;
         }
-        return careerService.findByName(careerName).isPresent();
+        return careerService.findCareerByName(careerName).isPresent();
     }
 }

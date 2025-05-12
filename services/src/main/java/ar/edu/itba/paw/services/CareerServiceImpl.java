@@ -30,7 +30,7 @@ public class CareerServiceImpl implements CareerService {
 
     @Override
     @Cacheable(value = "careersById", key = "#id")
-    public Optional<Career> findById(final long id) {
+    public Optional<Career> findCareerById(final long id) {
         LOGGER.debug("Getting career by id {}", id);
         return careerDao.findById(id);
     }
@@ -39,13 +39,13 @@ public class CareerServiceImpl implements CareerService {
 
     @Override
     @Cacheable(value = "careersByName", key = "#name")
-    public Optional<Career> findByName(final String name) {
+    public Optional<Career> findCareerByName(final String name) {
         LOGGER.debug("Getting career by name {}", name);
         return careerDao.findByName(name);
     }
 
     @Override
-    public Page<Career> getAllCareers(final String search, final PageParams pageParams) {
+    public Page<Career> searchCareers(final String search, final PageParams pageParams) {
         LOGGER.debug("Getting all careers with search {}", search);
         if (search == null || search.isEmpty()) {
             return careerDao.findAll(pageParams);
@@ -59,7 +59,7 @@ public class CareerServiceImpl implements CareerService {
                     @CachePut(value = "careersById", key = "#result.id"),
                     @CachePut(value = "careersByName", key = "#result.name")
     })
-    public Career create(final String name) {
+    public Career createCareer(final String name) {
         LOGGER.debug("Creating career {}", name);
         Career career = careerDao.create(name);
         LOGGER.info("Career {} created", name);
@@ -74,7 +74,7 @@ public class CareerServiceImpl implements CareerService {
                     @CacheEvict(value = "careersByName", allEntries = true)
             }
     )
-    public void update(final long id,final String name) {
+    public void updateCareer(final long id, final String name) {
         LOGGER.debug("Updating career {} to {}", id, name);
         careerDao.update(id, name);
         LOGGER.info("Career {} updated to {}", id, name);
@@ -86,7 +86,7 @@ public class CareerServiceImpl implements CareerService {
                 @CacheEvict(value = "careersById", key = "#id"),
                 @CacheEvict(value = "careersByName", allEntries = true)
     })
-    public void delete(final long id) {
+    public void deleteCareer(final long id) {
         LOGGER.debug("Deleting career {}", id);
         careerDao.delete(id);
         LOGGER.info("Career {} deleted", id);

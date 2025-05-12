@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
                     return new RuntimeException("University not found");
                 });
 
-        Career career = careerService.findByName(careerName)
+        Career career = careerService.findCareerByName(careerName)
                 .orElseThrow(() -> {
                     LOGGER.error("Career not found: '{}' during user creation for email: {}", careerName, email);
                     return new RuntimeException("Career not found");

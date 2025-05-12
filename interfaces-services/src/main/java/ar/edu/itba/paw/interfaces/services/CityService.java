@@ -7,11 +7,11 @@ import ar.edu.itba.paw.models.PageParams;
 import java.util.Optional;
 
 public interface CityService {
-    Optional<City> findByName(String name);
-    Optional<City> findById(long id);
-    Page<City> getAllCities(String search, PageParams pageParams);
+    Optional<City> findCityByName(String name);
+    Optional<City> findCityById(long id);
+    Page<City> searchCities(String search, PageParams pageParams);
     void updateCity(long id, String name, String country);
     City createCity(String name, String country);
 
-    void delete(long id);
+    void deleteCity(long id);
 }
