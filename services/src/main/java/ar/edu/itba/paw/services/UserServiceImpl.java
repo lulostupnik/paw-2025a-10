@@ -3,11 +3,9 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
-import ar.edu.itba.paw.models.exceptions.ExpiredPassTokenException;
 import ar.edu.itba.paw.models.exceptions.ExpiredTokenException;
 import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
 import ar.edu.itba.paw.models.exceptions.UserValidatedException;
-import org.apache.commons.logging.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,21 +83,33 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserAuthInfo validateEmail(final String token) {
         LOGGER.debug("Validating user with token: {}", token);
-        if (userDao.existsByTokenExpired(token)) {
-            LOGGER.warn("Token expired warn, with token: {}", token);
-            throw new ExpiredTokenException("Token expired", token);
-        }
+        handleTokenExpiration(token);
         Optional<Boolean> maybeValidated = userDao.findValidatedByTokenNotExpired(token);
-        if(maybeValidated.isPresent() && maybeValidated.get()){
+        if(maybeValidated.isPresent() && maybeValidated.get() || maybeValidated.isEmpty()){
             LOGGER.warn("Token in use warn, with token: {}", token);
-            throw new InvalidTokenException("Token already used");
+            throw new InvalidTokenException("Invalid token");
         }
         UserAuthInfo user = userDao.updateValidationAndFindAuthInfoByToken(token).orElseThrow(()-> new RuntimeException("Invalid token"));
         LOGGER.info("User validated, with token: {}", token);
         return user;
     }
 
+    @Override
+    public void checkPasswordTokenValidity(String token) {
+        if (!isValidPasswordResetToken(token)) {
+            LOGGER.warn("Invalid password reset token attempt: {}", token);
+            throw new InvalidTokenException("Invalid password reset token");
+        }
+        handleTokenExpiration(token);
+    }
 
+    private void handleTokenExpiration(String token) {
+        if(isTokenExpired(token)) {
+            LOGGER.warn("Password reset token expired: {}", token);
+            refreshToken(token);
+            throw new ExpiredTokenException("Password reset token expired", token);
+        }
+    }
 
 
     @Override
@@ -135,7 +145,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<User> getAllUsers(final String search,final  PageParams pageParams) {
-        LOGGER.debug("Getting all the users with search param: {} and pageParams:", search, pageParams);
+        LOGGER.debug("Getting all the users with search param: {} and pageParams: {}", search, pageParams);
         if (search == null || search.isEmpty()) {
             return userDao.findAll(pageParams);
         }
@@ -229,6 +239,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void newPassword(final String token, final String newPassword) {
+        checkPasswordTokenValidity(token);
         LOGGER.debug("updating new password for token: {}", token);
         userDao.updatePasswordByToken(token, passwordEncoder.encode(newPassword));
         LOGGER.info("Password updated successfully for token: {}", token);

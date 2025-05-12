@@ -42,12 +42,6 @@ public class UniversityJdbcDaoTest {
     private JdbcTemplate jdbcTemplate;
     private SimpleJdbcInsert insert;
 
-    private void assertUniversityDBDefaultState(){
-        TestUtils.assertEqualsUni(TestUtils.UNI_1, jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ID, TestUtils.UNIVERSITY_ROW_MAPPER, TestUtils.UNIVERSITY_1_ID));
-        TestUtils.assertEqualsUni(TestUtils.UNI_2, jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ID, TestUtils.UNIVERSITY_ROW_MAPPER, TestUtils.UNIVERSITY_2_ID));
-        TestUtils.assertEqualsUni(TestUtils.UNI_3, jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ID, TestUtils.UNIVERSITY_ROW_MAPPER, TestUtils.UNIVERSITY_3_ID));
-    }
-
     @Before
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
@@ -252,13 +246,13 @@ public class UniversityJdbcDaoTest {
     public void testUpdateCityNameDuplicateName(){
         uniDao.update(TestUtils.UNIVERSITY_1_ID, TestUtils.UNIVERSITY_2_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1_NAME);
 
-        assertUniversityDBDefaultState();
+        TestUtils.assertUniversityDBDefaultState(jdbcTemplate);
     }
     @Test
     public void testUpdateCityNameNotFound(){
         uniDao.update(12341234, TestUtils.UNIVERSITY_2_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1_NAME);
                 
-        assertUniversityDBDefaultState();
+        TestUtils.assertUniversityDBDefaultState(jdbcTemplate);
     }
 
     // FIXME: el create ya no recibe el String cityName, sino City city

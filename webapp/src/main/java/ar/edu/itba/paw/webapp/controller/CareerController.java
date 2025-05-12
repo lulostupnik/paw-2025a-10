@@ -6,7 +6,6 @@ import ar.edu.itba.paw.models.Career;
 
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
-import ar.edu.itba.paw.models.exceptions.CareerNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
 import ar.edu.itba.paw.webapp.utils.JsonUtils;

@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
-import java.util.Optional;
 
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 
@@ -48,14 +47,8 @@ public class AuthController {
     }
 
     @GetMapping(value ="/reset-password")
-    public ModelAndView changePassForm(@RequestParam("token") String token, @ModelAttribute("updatePasswordForm")UpdatePasswordForm form) {
-        if (!userService.isValidPasswordResetToken(token)) {
-            return new ModelAndView("auth/invalid-token");
-        }
-        if(userService.isTokenExpired(token)) {
-            return new ModelAndView("auth/expired-token");
-        }
-
+    public ModelAndView changePassForm(@RequestParam("token") String token, @ModelAttribute("updatePasswordForm") UpdatePasswordForm form) {
+        userService.checkPasswordTokenValidity(token);
         ModelAndView mav = new ModelAndView("auth/reset-password");
         mav.addObject("token", token);
         return mav;

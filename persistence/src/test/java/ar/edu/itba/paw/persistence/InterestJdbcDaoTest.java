@@ -46,7 +46,6 @@ public class InterestJdbcDaoTest {
         jdbcTemplate = new JdbcTemplate(ds);
     }
 
-
     @Test
     public void testFindById(){
         Optional<Interest> maybeInterest = interestDao.findById(TestUtils.INTEREST_1_ID);

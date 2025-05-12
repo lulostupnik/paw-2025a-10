@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.webapp.form;
 
 import ar.edu.itba.paw.webapp.validation.EmailInUse;
-import ar.edu.itba.paw.webapp.validation.EmailNotInUse;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;

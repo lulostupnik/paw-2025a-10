@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.acls.model.NotFoundException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -60,7 +61,8 @@ public class ExceptionHandlerAdvice {
     @ResponseStatus(code = HttpStatus.NOT_FOUND)
     public ModelAndView error404Event(EventNotFoundException ex) {
         LOGGER.debug("Stack trace for EventNotFoundException", ex);
-        return new ModelAndView("not-found");
+
+        return new ModelAndView("events/not-found");
     }
 
     @ExceptionHandler(JourneyNotFoundException.class)
@@ -68,14 +70,7 @@ public class ExceptionHandlerAdvice {
     public ModelAndView error404Journey(JourneyNotFoundException ex) {
         LOGGER.debug("Stack trace for JourneyNotFoundException", ex);
 
-        return new ModelAndView("not-found");
-    }
-
-    @ExceptionHandler(CareerNotFoundException.class)
-    @ResponseStatus(code= HttpStatus.NOT_FOUND)
-    public ModelAndView error404Career(CareerNotFoundException ex) {
-        LOGGER.debug("Stack trace for CareerNotFoundException", ex);
-        return new ModelAndView("careers/not-found");
+        return new ModelAndView("journeys/not-found");
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -110,21 +105,29 @@ public class ExceptionHandlerAdvice {
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     public ModelAndView error400ExpiredToken(ExpiredTokenException ex) {
         LOGGER.debug("Stack trace for ExpiredToken", ex);
-        userService.refreshToken(ex.getOldToken());
         return new ModelAndView("auth/expired-token");
+    }
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    public ModelAndView error400MissingServletRequestParameter(MissingServletRequestParameterException ex) {
+        LOGGER.error("MissingServletRequestParameterException: {}", ex.getMessage());
+        LOGGER.debug("Stack trace for MissingServletRequestParameterException", ex);
+
+        ModelAndView mav = new ModelAndView(ERROR_VIEW);
+        mav.addObject("errorType", "400");
+        return mav;
     }
 
     @ExceptionHandler(ExpiredPassTokenException.class)
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     public ModelAndView error400ExpiredPassToken(ExpiredPassTokenException ex) {
         LOGGER.debug("Stack trace for ExpiredToken", ex);
-        userService.refreshPassToken(ex.getOldToken());
         return new ModelAndView("auth/expired-token");
     }
 
     @ExceptionHandler(UserValidatedException.class)
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-    public ModelAndView userValidatedExcpetion(UserValidatedException ex) {
+    public ModelAndView userValidatedException(UserValidatedException ex) {
         LOGGER.debug("Stack trace for UserValidatedException", ex);
         return new ModelAndView("auth/not-verified");
     }
