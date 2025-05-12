@@ -1,8 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isErrorPage="true" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
-<%-- Set the locale based on the session language --%>
+
 <c:set var="lang" value="${not empty sessionScope.lang ? sessionScope.lang : pageContext.response.locale}" />
 <fmt:setLocale value="${lang}" />
 <fmt:setBundle basename="i18n.messages" />
@@ -12,11 +13,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><fmt:message key="error.${errorType}.title" /></title>
-    <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title><spring:message code="error.${errorType}.title" /></title>
+    <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>"/>
     <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
     <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
     <style>
@@ -51,6 +49,13 @@
                         <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
                         <path d="M12 12v9"></path>
                         <path d="m8 17 4 4 4-4"></path>
+                    </svg>
+                </c:when>
+                <c:when test="${errorType == '400'}">
+                    <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2a10 10 0 1 1-10 10A10 10 0 0 1 12 2z"></path>
+                        <path d="M12 6v6"></path>
+                        <path d="M12 18h.01"></path>
                     </svg>
                 </c:when>
                 <c:otherwise>
@@ -150,6 +155,14 @@
                         <span><fmt:message key="error.405.help.1" /></span>
                     </li>
                 </c:if>
+                <c:if test="${errorType == '400'}">
+                    <li class="help-item">
+                        <svg class="help-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m9 18 6-6-6-6"></path>
+                        </svg>
+                        <span><fmt:message key="error.405.help.1" /></span>
+                    </li>
+                </c:if>
 
                 <li class="help-item">
                     <svg class="help-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -161,7 +174,7 @@
         </div>
 
         <div class="error-actions">
-            <a href="<c:url value='/explore'/>" class="primary-action">
+            <a href="<c:url value='/'/>" class="primary-action">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                     <polyline points="9 22 9 12 15 12 15 22"></polyline>

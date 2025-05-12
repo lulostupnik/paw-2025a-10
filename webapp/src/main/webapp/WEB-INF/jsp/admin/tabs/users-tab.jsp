@@ -4,6 +4,7 @@
 
 <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
 <link rel="stylesheet" href="<c:url value='/resources/css/detail.css'/>" />
+<link rel="stylesheet" href="<c:url value='/resources/css/dashboard.css'/>" />
 
 <div class="tab-content active" id="users-tab">
   <c:set var="titleMessageCode" value="admin.manage.users" scope="request" />
@@ -30,7 +31,6 @@
     <table class="data-table">
       <thead>
       <tr>
-        <th><spring:message code="admin.column.id" /></th>
         <th><spring:message code="admin.column.name" /></th>
         <th><spring:message code="admin.column.email" /></th>
         <th><spring:message code="admin.column.university" /></th>
@@ -41,7 +41,6 @@
       <c:set var="users" value="${pagedUsers.content}" />
       <c:forEach items="${users}" var="user">
         <tr class="clickable-row" data-href="<c:url value="../users/${user.id}"/>" >
-          <td><c:out value="${user.id}"/></td>
           <td><c:out value="${user.firstname}"/></td>
           <td><c:out value="${user.email}"/></td>
           <td><c:out value="${user.university}"/></td>
@@ -83,7 +82,7 @@
     </jsp:include>
   </div>
 
-  <!-- Block/Unblock User Modal -->
+
   <div id="blockUserModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -139,14 +138,14 @@
           confirmBtn.textContent = '<spring:message code="user.block.confirm"/>';
           confirmBtn.className = 'cta-button delete-button';
           modalWarning.style.display = 'block';
-          blockForm.action = '<c:url value="/users/"/>' + userId + '/block/';
+          blockForm.action = '<c:url value="/users/"/>' + userId + "/block" ;
         } else {
           modalTitle.textContent = '<spring:message code="user.unblock.confirm.title"/>';
           modalMessage.textContent = '<spring:message code="user.unblock.confirm.message" arguments="' + userName + '"/>';
           confirmBtn.textContent = '<spring:message code="user.unblock.confirm"/>';
           confirmBtn.className = 'cta-button primary';
           modalWarning.style.display = 'none';
-          blockForm.action = '<c:url value="/users/"/>' + userId + '/unblock/';
+          blockForm.action = '<c:url value="/users/"/>' + userId + "/unblock";
         }
 
         // Show modal

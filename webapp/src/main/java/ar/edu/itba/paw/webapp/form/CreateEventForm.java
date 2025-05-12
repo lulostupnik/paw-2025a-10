@@ -1,11 +1,7 @@
 package ar.edu.itba.paw.webapp.form;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
-
 import javax.validation.constraints.*;
-//import javax.validation.constraints.Pattern;
-
 import ar.edu.itba.paw.webapp.validation.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.NumberFormat;
@@ -13,9 +9,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 public class CreateEventForm {
-    @Size(min = 2, max = 100)
+    @Size(max = 100)
     @NotNull
     @ExistingCity
+    @NotEmpty
     private String city;
 
     @Size(max = 50)
@@ -32,12 +29,13 @@ public class CreateEventForm {
 
 
     @NotNull
-    @ImageSize() // 2MB
+    @ImageSize()
     @ContentType({"image/jpeg", "image/jpg", "image/png"})
     @ImageNotEmpty
     private MultipartFile flyer;
 
     @Size(min = 2, max = 2047)
+    @NotNull
     private String description;
 
     @DateTimeFormat(pattern = "HH:mm")

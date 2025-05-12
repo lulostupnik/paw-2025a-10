@@ -4,4 +4,7 @@ public class JourneyNotFoundException extends RuntimeException {
     public JourneyNotFoundException(String message) {
         super(message);
     }
+    public JourneyNotFoundException(){
+        super("Journey not found");
+    }
 }

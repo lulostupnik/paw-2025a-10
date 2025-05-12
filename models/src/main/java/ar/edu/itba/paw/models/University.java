@@ -13,6 +13,12 @@ public class University{
 
     @Override
     public String toString() {
-        return name + " (" + abbreviation + ")";
+        StringBuilder sb = new StringBuilder();
+        sb.append(name);
+        sb.append(" (");
+        sb.append(abbreviation);
+        sb.append(")");
+        return sb.toString();
     }
+
 }

@@ -8,12 +8,14 @@ import javax.validation.ConstraintValidatorContext;
 
 public class ExistingCountryValidator implements ConstraintValidator<ExistingCountry, String> {
 
+    private final CountryService countryService;
     @Autowired
-    private CountryService countryService;
+    public ExistingCountryValidator(CountryService countryService) {
+        this.countryService = countryService;
+    }
 
     @Override
     public void initialize(ExistingCountry constraintAnnotation) {
-        // No initialization needed
     }
 
     @Override
@@ -21,9 +23,7 @@ public class ExistingCountryValidator implements ConstraintValidator<ExistingCou
         if (country == null || country.isEmpty()) {
             return true;
         }
-        // Implement the logic to check if the university exists in the database
-        // For example:
-        // return universityService.existsByName(universityName);
-        return countryService.findByName(country).isPresent(); // Placeholder, replace with actual logic
+
+        return countryService.findCountryByName(country).isPresent();
     }
 }

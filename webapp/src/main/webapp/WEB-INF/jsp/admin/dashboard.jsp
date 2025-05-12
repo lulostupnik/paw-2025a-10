@@ -8,8 +8,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><spring:message code="admin.dashboard.title" /></title>
-
-  <!-- Include CSS files -->
+  <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
+  <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
   <link rel="stylesheet" href="<c:url value='/resources/css/main.css' />">
   <link rel="stylesheet" href="<c:url value='/resources/css/pages/dashboard.css' />">
 </head>
@@ -45,7 +45,7 @@
       </a>
     </div>
 
-    <!-- Include the appropriate tab content based on which tab is active -->
+
     <c:if test="${pagedJourneys != null}">
       <jsp:include page="tabs/journeys-tab.jsp" />
     </c:if>
@@ -75,9 +75,9 @@
     </c:if>
   </div>
 </div>
-<!-- Include JavaScript files -->
+
 <script src="<c:url value='/resources/js/dashboard.js' />"></script>
-<script src="<c:url value='/resources/js/pagination.js' />"></script>
+<script src="<c:url value='/resources/js/components/pagination.js' />"></script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const rows = document.querySelectorAll(".clickable-row");

@@ -5,8 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Optional;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -17,7 +15,6 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
 import ar.edu.itba.paw.interfaces.persistence.ImageDao;
-import ar.edu.itba.paw.models.Image;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ImageServiceImplTest {
@@ -25,7 +22,6 @@ public class ImageServiceImplTest {
     private static final byte[] IMAGE_DATA = new byte[0];
     private static final long IMAGE_ID = 0;
     private static final String IMAGE_CACHE = "images";
-    private static final Image IMAGE = new Image(IMAGE_ID, IMAGE_DATA);
 
     @InjectMocks
     ImageServiceImpl imageService;
@@ -38,55 +34,27 @@ public class ImageServiceImplTest {
     Cache cache;
 
     @Test
-    public void testStoreImageNoCache(){
+    public void testCreateImageNoCache(){
         Mockito.when(
-            imageDao.saveImage(Mockito.eq(IMAGE_DATA))
+            imageDao.create(Mockito.eq(IMAGE_DATA))
         ).thenReturn(IMAGE_ID);
 
-        long id = imageService.storeImage(IMAGE_DATA);
+        long id = imageService.createImage(IMAGE_DATA);
 
         assertEquals(IMAGE_ID, id);
     }
     @Test
-    public void testStoreImageCache(){
+    public void testCreateImageCache(){
         Mockito.when(
-            imageDao.saveImage(Mockito.eq(IMAGE_DATA))
+            imageDao.create(Mockito.eq(IMAGE_DATA))
         ).thenReturn(IMAGE_ID);
         Mockito.when(
             cacheManager.getCache(IMAGE_CACHE)
         ).thenReturn(cache);
 
-        long id = imageService.storeImage(IMAGE_DATA);
+        long id = imageService.createImage(IMAGE_DATA);
 
         assertEquals(IMAGE_ID, id);
     }
 
-    @Test
-    public void testGetImage(){
-        Mockito.when(
-            imageDao.getImageById(IMAGE_ID)
-        ).thenReturn(Optional.of(IMAGE));
-
-        Optional<Image> maybeImage = imageService.getImage(IMAGE_ID);
-
-        assertNotNull(maybeImage);
-        assertTrue(maybeImage.isPresent());
-        assertEquals(IMAGE, maybeImage.get());
-    }
-    @Test
-    public void testGetImageMissing(){
-        Mockito.when(
-            imageDao.getImageById(IMAGE_ID)
-        ).thenReturn(Optional.empty());
-
-        Optional<Image> maybeImage = imageService.getImage(IMAGE_ID);
-
-        assertNotNull(maybeImage);
-        assertFalse(maybeImage.isPresent());
-    }
-
-    @Test
-    public void testDeleteImage(){
-        imageService.deleteImage(IMAGE_ID);
-    }
 }

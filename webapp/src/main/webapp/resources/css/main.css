@@ -1,15 +1,15 @@
-/* Main CSS file that imports all other files */
 
-/* 1. Base Styles */
+
+
 @import "base/reset.css";
 @import "base/typography.css";
 @import "base/colors.css";
 
-/* 2. Layout Styles */
+
 @import "layout/container.css";
 @import "layout/grid.css";
 
-/* 3. Component Styles */
+
 @import "components/buttons.css";
 @import "components/cards.css";
 @import "components/forms.css";
@@ -18,7 +18,7 @@
 @import "components/checbox.css";
 @import "components/pagination.css";
 
-/* 4. Page-specific Styles */
+
 @import "pages/home.css";
 @import "pages/events.css";
 @import "pages/journeys.css";
@@ -26,6 +26,6 @@
 @import "pages/login.css";
 @import "pages/dashboard.css";
 
-/* 5. Utilities */
+
 @import "utilities/spacing.css";
 @import "utilities/display.css";

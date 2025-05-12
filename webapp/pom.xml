@@ -13,8 +13,8 @@
   <packaging>war</packaging>
 
   <name>webapp Maven Webapp</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
+  <url>http://pawserver.it.itba.edu.ar/paw-2025a-10/</url>
+
 
   <dependencies>
 
@@ -23,7 +23,7 @@
       <artifactId>spring-webmvc</artifactId>
     </dependency>
 
-    <!-- FIXME: ¿Está bien que esten las siguientes dependencias en este modulo? -->
+
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
@@ -109,8 +109,8 @@
       <artifactId>models</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- interfaces-persistence no va acá, para no violar la separación en capas -->
-    <!-- igual estará disponible para el runtime porque está en persistence, pero no podremos referirnos a sus interfaces desde webapp-->
+
+
     <dependency>
       <groupId>ar.edu.itba.paw</groupId>
       <artifactId>interfaces-services</artifactId>
@@ -123,7 +123,7 @@
       <version>${project.version}</version>
       <scope>runtime</scope>
     </dependency>
-    <!-- No entiendo bien porque acá podemos acceder a persistence en runtime -->
+
     <dependency>
       <groupId>ar.edu.itba.paw</groupId>
       <artifactId>persistence</artifactId>
@@ -131,18 +131,17 @@
       <scope>runtime</scope>
     </dependency>
 
-
   </dependencies>
 
   <build>
     <finalName>webapp</finalName>
-    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
+    <pluginManagement>
       <plugins>
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>
           <version>3.4.0</version>
         </plugin>
-        <!-- see http://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_war_packaging -->
+
         <plugin>
           <artifactId>maven-resources-plugin</artifactId>
           <version>3.3.1</version>

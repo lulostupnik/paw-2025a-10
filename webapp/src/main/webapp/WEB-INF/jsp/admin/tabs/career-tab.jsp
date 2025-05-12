@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<link rel="stylesheet" href="<c:url value='/resources/css/dashboard.css'/>" />
 
 <div class="tab-content active" id="careers-tab">
   <c:set var="titleMessageCode" value="admin.manage.careers" scope="request" />
@@ -37,7 +38,6 @@
     <table class="data-table">
       <thead>
       <tr>
-        <th><spring:message code="admin.column.id" /></th>
         <th><spring:message code="admin.column.name" /></th>
 
       </tr>
@@ -46,7 +46,6 @@
       <c:set var="careers" value="${pagedCareers.content}" />
       <c:forEach items="${careers}" var="career">
         <tr class="clickable-row" data-href="<c:url value="../careers/${career.id}"/>" >
-          <td><c:out value="${career.id}"/></td>
           <td><c:out value="${career.name}"/></td>
         </tr>
       </c:forEach>
@@ -68,13 +67,13 @@
     </jsp:include>
 
 
-<%--    <jsp:include page="../../components/pagination-controls.jsp">--%>
-<%--      <jsp:param name="currentPage" value="${pagedCareers.currentPage}" />--%>
-<%--      <jsp:param name="itemsPerPage" value="10" />--%>
-<%--      <jsp:param name="totalPages" value="${pagedCareers.totalPages}" />--%>
-<%--      <jsp:param name="search" value="${param.search}" />--%>
-<%--      <jsp:param name="currentUrl" value="/dashboard/careers" />--%>
-<%--    </jsp:include>--%>
+
+
+
+
+
+
+
 
   </div>
 </div>

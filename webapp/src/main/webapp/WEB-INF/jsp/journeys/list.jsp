@@ -15,9 +15,21 @@
 <jsp:include page="../components/i18n-hidden-inputs.jsp"/>
 <c:set var="searchUrl" value="/journeys" scope="request" />
 <c:set var="searchPlaceholderCode" value="journeys.search.journey" scope="request" />
+<c:set var="escapedInterest"><c:out value="${param.interests}"/></c:set>
+<c:set var="escapedCity"><c:out value="${param.city}"/></c:set>
+<c:set var="escapedStartDate"><c:out value="${param.startDate}"/></c:set>
+<c:set var="escapedEndDate"><c:out value="${param.endDate}"/></c:set>
+    <c:set var="escapedSearch"><c:out value="${param.search}"/></c:set>
+    <c:set var="isMyDestination"><c:out value="${param.isMyDestination}"/></c:set>
+    <c:set var="isUpcoming"><c:out value="${param.isUpcoming}"/></c:set>
+    <c:set var="isOngoing"><c:out value="${param.isOngoing}"/></c:set>
+    <c:set var="isPast"><c:out value="${param.isPast}"/></c:set>
+    <c:set var="direction"><c:out value="${param.direction}"/></c:set>
+    <c:set var="sort"><c:out value="${param.sort}"/></c:set>
+    <c:set var="pageSize"><c:out value="${param.pageSize}"/></c:set>
 
 <div class="layout-container">
-    <!-- Main Content -->
+
     <div class="main-content">
         <jsp:include page="../components/navbar.jsp" />
         <div class="content-container">
@@ -29,9 +41,46 @@
                     <form action="<c:url value='${searchUrl}'/>" method="get" class="search-form">
                         <input type="text" name="search" class="search-input"
                                placeholder="<spring:message code='${searchPlaceholderCode}' />"
-                               value="<c:out value="${param.search}"/>">
-                        <input type="hidden" name="page" value="1">                        <input type="hidden" name="page" value="1">
-                        <input type="hidden" name="pageSize" value="${param.pageSize != null ? param.pageSize : 10}">
+                               value="${escapedSearch}"/>
+                        <input type="hidden" name="page" value="1">
+                        <input type="hidden" name="pageSize" value="${pageSize != null ? pageSize : 10}">
+
+
+                        <c:if test="${not empty sort}">
+                            <input type="hidden" name="sort" value="<c:out value="${sort}"/>">
+                        </c:if>
+                        <c:if test="${not empty direction}">
+                            <input type="hidden" name="direction" value="<c:out value="${direction}"/>">
+                        </c:if>
+
+
+                        <c:if test="${not empty escapedCity}">
+                            <input type="hidden" name="destination" value="<c:out value="${escapedCity}"/>">
+                        </c:if>
+                        <c:if test="${not empty escapedStartDate}">
+                            <input type="hidden" name="startDate" value="<c:out value="${escapedStartDate}"/>">
+                        </c:if>
+                        <c:if test="${not empty escapedEndDate}">
+                            <input type="hidden" name="endDate" value="<c:out value="${escapedEndDate}"/>">
+                        </c:if>
+                        <c:if test="${not empty escapedInterest}">
+                            <input type="hidden" name="interests" value="<c:out value="${escapedInterest}"/>">
+                        </c:if>
+
+
+                        <c:if test="${not empty isMyDestination}">
+                            <input type="hidden" name="isMyDestination" value="<c:out value="${isMyDestination}"/>">
+                        </c:if>
+                        <c:if test="${not empty isUpcoming}">
+                            <input type="hidden" name="isUpcoming" value="<c:out value="${isUpcoming}"/>">
+                        </c:if>
+                        <c:if test="${not empty isPast}">
+                            <input type="hidden" name="isPast" value="<c:out value="${isPast}"/>">
+                        </c:if>
+                        <c:if test="${not empty isOngoing}">
+                            <input type="hidden" name="isOngoing" value="<c:out value="${isOngoing}"/>">
+                        </c:if>
+
                         <button type="submit" class="btn-secondary" aria-label="<spring:message code="admin.search.button" />">
                             <img src="<c:url value='/resources/icons/search.svg'/>" alt="<spring:message code="admin.search.button" />" class="search-icon" />
                         </button>
@@ -41,6 +90,34 @@
                         <img src="<c:url value='/resources/icons/x.svg'/>" alt="<spring:message code="journey.filter.close"/>" class="btn-icon close-icon" style="display: none;" />
                         <spring:message code="journey.filter.toggle"/>
                     </button>
+                    <div class="sort-dropdown">
+                        <button id="sortToggleBtn" class="btn-secondary btn-with-icon">
+                            <img src="<c:url value='/resources/icons/sort.svg'/>" alt="<spring:message code="journey.sort.toggle"/>" class="btn-icon" />
+                            <spring:message code="journey.sort.toggle"/>
+                        </button>
+                        <div id="sortDropdown" class="dropdown-content" style="display: none;">
+                            <a href="<c:url value="/journeys?sort=start_date&direction=asc${not empty escapedSearch ? '&search='.concat(escapedSearch) : ''}${not empty escapedCity ? '&destination='.concat(escapedCity) : ''}${not empty escapedCityName ? '&destinationName='.concat(escapedCityName) : ''}${not empty escapedStartDate ? '&startDate='.concat(escapedStartDate) : ''}${not empty escapedEndDate ? '&endDate='.concat(escapedEndDate) : ''}${not empty escapedInterest ? '&interests='.concat(escapedInterest) : ''}${not empty isMyDestination ? '&isMyDestination='.concat(isMyDestination) : ''}${not empty isUpcoming ? '&isUpcoming='.concat(isUpcoming) : ''}${not empty isPast ? '&isPast='.concat(isPast) : ''}${not empty isOngoing ? '&isOngoing='.concat(isOngoing) : ''}"/>"
+                               class="${
+  (empty sort or
+   (sort != 'start_date' and sort != 'end_date') or
+   (sort == 'start_date' and (empty direction or direction != 'desc'))
+  ) ? 'active' : ''}">
+
+                            <spring:message code="journey.sort.startDate.asc"/>
+                            </a>
+                            <a href="<c:url value="/journeys?sort=start_date&direction=desc${not empty escapedSearch ? '&search='.concat(escapedSearch) : ''}${not empty escapedCity ? '&destination='.concat(escapedCity) : ''}${not empty escapedCityName ? '&destinationName='.concat(escapedCityName) : ''}${not empty escapedStartDate ? '&startDate='.concat(escapedStartDate) : ''}${not empty escapedEndDate ? '&endDate='.concat(escapedEndDate) : ''}${not empty escapedInterest ? '&interests='.concat(escapedInterest) : ''}${not empty isMyDestination ? '&isMyDestination='.concat(isMyDestination) : ''}${not empty isUpcoming ? '&isUpcoming='.concat(isUpcoming) : ''}${not empty isPast ? '&isPast='.concat(isPast) : ''}${not empty isOngoing ? '&isOngoing='.concat(isOngoing) : ''}"/>" class="${sort == 'start_date' && direction == 'desc' ? 'active' : ''}">
+                                <spring:message code="journey.sort.startDate.desc"/>
+                            </a>
+                            <a href="<c:url value="/journeys?sort=end_date&direction=asc${not empty escapedSearch ? '&search='.concat(escapedSearch) : ''}${not empty escapedCity ? '&destination='.concat(escapedCity) : ''}${not empty escapedCityName ? '&destinationName='.concat(escapedCityName) : ''}${not empty escapedStartDate ? '&startDate='.concat(escapedStartDate) : ''}${not empty escapedEndDate ? '&endDate='.concat(escapedEndDate) : ''}${not empty escapedInterest ? '&interests='.concat(escapedInterest) : ''}${not empty isMyDestination ? '&isMyDestination='.concat(isMyDestination) : ''}${not empty isUpcoming ? '&isUpcoming='.concat(isUpcoming) : ''}${not empty isPast ? '&isPast='.concat(isPast) : ''}${not empty isOngoing ? '&isOngoing='.concat(isOngoing) : ''}"/>"
+                               class="${sort == 'end_date' and (empty direction or direction != 'desc') ? 'active' : ''}">
+                                <spring:message code="journey.sort.endDate.asc"/>
+                            </a>
+                            <a href="<c:url value="/journeys?sort=end_date&direction=desc${not empty escapedSearch ? '&search='.concat(escapedSearch) : ''}${not empty escapedCity ? '&destination='.concat(escapedCity) : ''}${not empty escapedCityName ? '&destinationName='.concat(escapedCityName) : ''}${not empty escapedStartDate ? '&startDate='.concat(escapedStartDate) : ''}${not empty escapedEndDate ? '&endDate='.concat(escapedEndDate) : ''}${not empty escapedInterest ? '&interests='.concat(escapedInterest) : ''}${not empty isMyDestination ? '&isMyDestination='.concat(isMyDestination) : ''}${not empty isUpcoming ? '&isUpcoming='.concat(isUpcoming) : ''}${not empty isPast ? '&isPast='.concat(isPast) : ''}${not empty isOngoing ? '&isOngoing='.concat(isOngoing) : ''}"/>" class="${sort == 'end_date' && direction == 'desc' ? 'active' : ''}">
+                                <spring:message code="journey.sort.endDate.desc"/>
+                            </a>
+
+                        </div>
+                    </div>
                     <c:if test="${hasJourney == false}">
                         <a href="<c:url value="/journeys/create"/>" class="btn btn-primary btn-with-icon">
                             <img src="<c:url value='/resources/icons/plus.svg'/>" alt="<spring:message code="journey.create.button"/>" class="btn-icon" />
@@ -50,7 +127,40 @@
                 </div>
             </div>
 
-            <!-- Filter Section - Initially Hidden -->
+
+            <div class="journey-tabs">
+                <ul class="tabs-list">
+                    <li class="tab-item ${empty isMyDestination && empty isUpcoming && empty isPast && empty isOngoing ? 'active' : ''}">
+                        <a href="<c:url value="/journeys?${not empty escapedSearch ? 'search='.concat(escapedSearch).concat('&') : ''}${not empty escapedCity ? 'destination='.concat(escapedCity).concat('&') : ''}${not empty escapedCityName ? 'destinationName='.concat(escapedCityName).concat('&') : ''}${not empty escapedStartDate ? 'startDate='.concat(escapedStartDate).concat('&') : ''}${not empty escapedEndDate ? 'endDate='.concat(escapedEndDate).concat('&') : ''}${not empty escapedInterest ? 'interests='.concat(escapedInterest).concat('&') : ''}${not empty sort ? 'sort='.concat(sort).concat('&') : ''}${not empty direction ? 'direction='.concat(direction).concat('&') : ''}page=1${not empty pageSize ? '&pageSize='.concat(pageSize) : ''}"/>" class="tab-link">
+                            <spring:message code="journey.tabs.all"/>
+                        </a>
+                    </li>
+                    <c:if test="${hasJourney}">
+                    <li class="tab-item ${not empty isMyDestination ? 'active' : ''}">
+                        <a href="<c:url value="/journeys?isMyDestination=true${not empty escapedSearch ? '&search='.concat(escapedSearch) : ''}${not empty escapedCity ? '&destination='.concat(escapedCity) : ''}${not empty escapedCityName ? '&destinationName='.concat(escapedCityName) : ''}${not empty escapedStartDate ? '&startDate='.concat(escapedStartDate) : ''}${not empty escapedEndDate ? '&endDate='.concat(escapedEndDate) : ''}${not empty escapedInterest ? '&interests='.concat(escapedInterest) : ''}${not empty sort ? '&sort='.concat(sort) : ''}${not empty direction ? '&direction='.concat(direction) : ''}&page=1${not empty pageSize ? '&pageSize='.concat(pageSize) : ''}"/>" class="tab-link">
+                            <spring:message code="journey.tabs.myDestination"/>
+                        </a>
+                    </li>
+                    </c:if>
+                    <li class="tab-item ${not empty isOngoing ? 'active' : ''}">
+                        <a href="<c:url value="/journeys?isOngoing=true${not empty escapedSearch ? '&search='.concat(escapedSearch) : ''}${not empty escapedCity ? '&destination='.concat(escapedCity) : ''}${not empty escapedCityName ? '&destinationName='.concat(escapedCityName) : ''}${not empty escapedStartDate ? '&startDate='.concat(escapedStartDate) : ''}${not empty escapedEndDate ? '&endDate='.concat(escapedEndDate) : ''}${not empty escapedInterest ? '&interests='.concat(escapedInterest) : ''}${not empty sort ? '&sort='.concat(sort) : ''}${not empty direction ? '&direction='.concat(direction) : ''}&page=1${not empty pageSize ? '&pageSize='.concat(pageSize) : ''}"/>" class="tab-link">
+                            <spring:message code="journey.tabs.ongoing"/>
+                        </a>
+                    </li>
+                    <li class="tab-item ${not empty isUpcoming ? 'active' : ''}">
+                        <a href="<c:url value="/journeys?isUpcoming=true${not empty escapedSearch ? '&search='.concat(escapedSearch) : ''}${not empty escapedCity ? '&destination='.concat(escapedCity) : ''}${not empty escapedCityName ? '&destinationName='.concat(escapedCityName) : ''}${not empty escapedStartDate ? '&startDate='.concat(escapedStartDate) : ''}${not empty escapedEndDate ? '&endDate='.concat(escapedEndDate) : ''}${not empty escapedInterest ? '&interests='.concat(escapedInterest) : ''}${not empty sort ? '&sort='.concat(sort) : ''}${not empty direction ? '&direction='.concat(direction) : ''}&page=1${not empty pageSize ? '&pageSize='.concat(pageSize) : ''}"/>" class="tab-link">
+                            <spring:message code="journey.tabs.upcoming"/>
+                        </a>
+                    </li>
+                    <li class="tab-item ${not empty isPast ? 'active' : ''}">
+                        <a href="<c:url value="/journeys?isPast=true${not empty escapedSearch ? '&search='.concat(escapedSearch) : ''}${not empty escapedCity ? '&destination='.concat(escapedCity) : ''}${not empty escapedCityName ? '&destinationName='.concat(escapedCityName) : ''}${not empty escapedStartDate ? '&startDate='.concat(escapedStartDate) : ''}${not empty escapedEndDate ? '&endDate='.concat(escapedEndDate) : ''}${not empty escapedInterest ? '&interests='.concat(escapedInterest) : ''}${not empty sort ? '&sort='.concat(sort) : ''}${not empty direction ? '&direction='.concat(direction) : ''}&page=1${not empty pageSize ? '&pageSize='.concat(pageSize) : ''}"/>" class="tab-link">
+                            <spring:message code="journey.tabs.past"/>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+
             <div id="filterSection" class="filter-section hidden">
                 <h3 class="filter-title">
                     <spring:message code="journey.filter.title"/>
@@ -61,23 +171,24 @@
                            class="filter-form" id="journeyFilterForm">
 
                     <div class="filter-grid">
-                        <!-- Destination filter with autocomplete -->
+
                         <div class="filter-item">
                             <c:set var="destinationLabel"><spring:message code="createJourney.destinationCity"/></c:set>
                             <form:label for="citySearch" class="form-label" path="destination">${destinationLabel}</form:label>
                             <div class="autocomplete-wrapper">
-                                <input type="text" id="citySearch" class="autocomplete-input"
-                                       placeholder="<spring:message code='journey.filter.destination.placeholder'/>"
-                                       value="${param.destinationName}" />
-                                <form:select id="city" name="destination" class="hidden-select" path="destination" style="display: none;">
+                                <c:set var="citySearch"><spring:message code='journey.filter.destination.placeholder'/></c:set>
+                                <form:input path="destination" type="text" id="citySearch" class="autocomplete-input"
+                                       placeholder="${citySearch}"
+                                       value="${escapedCity}" />
+                                <select id="city" class="hidden-select" style="display: none;">
                                     <option value=""></option>
                                     <c:forEach var="city" items="${cities}">
-                                        <option value="${city.id}" ${param.destination == city.id ? 'selected' : ''}><c:out value="${city.name}"/></option>
+                                        <option value="<c:out value="${city.name}"/>" ${escapedCity == city.id ? 'selected' : ''}><c:out value="${city.name}"/></option>
                                     </c:forEach>
-                                </form:select>
+                                </select>
                                 <div id="cityDropdown" class="autocomplete-dropdown" style="display: none;">
                                     <c:forEach var="city" items="${cities}">
-                                        <div class="autocomplete-item" data-value="${city.id}"><c:out value="${city.name}"/></div>
+                                        <div class="autocomplete-item" data-value="<c:out value="${city.name}"/>"><c:out value="${city.name}"/></div>
                                     </c:forEach>
                                 </div>
                                 <div id="citySelectedContainer" class="selected-tags"></div>
@@ -102,20 +213,21 @@
                             <form:errors path="" cssClass="error-message" />
                         </div>
 
-                        <!-- Interest filter with autocomplete -->
+
                         <div class="filter-item">
                             <c:set var="interestsLabel"><spring:message code="journey.filter.interest"/></c:set>
                             <form:label for="interest-search" class="form-label" path="interests">${interestsLabel}</form:label>
                             <div class="autocomplete-wrapper">
-                                <input type="text" id="interest-search" class="autocomplete-input"
-                                       placeholder="<spring:message code='journey.filter.interest.placeholder'/>"
-                                       value="${param.interestName}" />
-                                <form:select path="interests" id="interest-select" name="interest" class="hidden-select" style="display: none;">
+                                <select  id="interest-select" class="hidden-select" style="display: none;">
                                     <option value=""></option>
                                     <c:forEach var="interest" items="${interests}">
-                                        <option value="${interest.id}" ${param.interests == interest.id ? 'selected' : ''}><c:out value="${interest.name}"/></option>
+                                        <option value="<c:out value=" ${interest.name}"/>"><c:out value="${interest.name}"/></option>
                                     </c:forEach>
-                                </form:select>
+                                </select>
+                                <c:set var="interestSearch"><spring:message code='journey.filter.interest.placeholder'/></c:set>
+                                <form:input path="interests" type="text" id="interest-search" class="autocomplete-input"
+                                       placeholder="${interestSearch}"
+                                       value="${escapedInterest}" />
                                 <div id="interest-dropdown" class="autocomplete-dropdown" style="display: none;">
                                     <c:forEach var="interest" items="${interests}">
                                         <div class="autocomplete-item" data-value="${interest.id}"><c:out value="${interest.name}"/></div>
@@ -125,8 +237,40 @@
                             </div>
                             <form:errors path="interests" cssClass="error-message" />
                         </div>
-
                     </div>
+
+
+                    <c:if test="${not empty escapedSearch}">
+                        <input type="hidden" name="search" value="${escapedSearch}"/>
+                    </c:if>
+
+
+                    <c:if test="${not empty sort}">
+                        <input type="hidden" name="sort" value="<c:out value="${sort}"/>">
+                    </c:if>
+                    <c:if test="${not empty direction}">
+                        <input type="hidden" name="direction" value="<c:out value="${direction}"/>">
+                    </c:if>
+
+
+                    <c:if test="${not empty isMyDestination}">
+                        <form:hidden path="isMyDestination" value="${isMyDestination}" />
+                    </c:if>
+                    <c:if test="${not empty isUpcoming}">
+                        <form:hidden path="isUpcoming" value="${isUpcoming}" />
+                    </c:if>
+                    <c:if test="${not empty isOngoing}">
+                        <form:hidden path="isOngoing" value="${isOngoing}" />
+                    </c:if>
+                    <c:if test="${not empty isPast}">
+                        <form:hidden path="isPast" value="${isPast}" />
+                    </c:if>
+
+
+                    <input type="hidden" name="page" value="1">
+                    <c:if test="${not empty pageSize}">
+                        <input type="hidden" name="pageSize" value="<c:out value="${pageSize}"/>">
+                    </c:if>
 
                     <div class="filter-actions">
                         <button type="button" id="resetFiltersBtn" class="btn-danger btn-with-icon">
@@ -142,8 +286,13 @@
             </div>
 
             <div class="events-container">
-                <!-- Journeys List with grid layout -->
+
                 <div class="events-grid">
+                    <c:if test="${empty journeys.content}">
+                        <div class="empty-state">
+                            <p class="empty-message"><spring:message code="journey.no.journeys"/></p>
+                        </div>
+                    </c:if>
                     <c:forEach var="journey" items="${journeys.content}">
                         <jsp:include page="journey-card.jsp">
                             <jsp:param name="journeyId" value="${journey.id}" />
@@ -160,290 +309,75 @@
                             <jsp:param name="isOwner" value="false"/>
                         </jsp:include>
                     </c:forEach>
-                    <c:if test="${empty journeys.content}">
-                        <div class="no-journeys">
-                            <p class="no-journeys-message"><spring:message code="journey.no.journeys"/></p>
-                        </div>
-                    </c:if>
                 </div>
             </div>
+
+
+            <c:set var="paginationBaseUrl" value="/journeys?" />
+            <c:if test="${not empty escapedSearch}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}search=${escapedSearch}&" />
+            </c:if>
+            <c:if test="${not empty escapedCity}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}destination=${escapedCity}&" />
+            </c:if>
+            <c:if test="${not empty escapedStartDate}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}startDate=${escapedStartDate}&" />
+            </c:if>
+            <c:if test="${not empty escapedEndDate}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}endDate=${escapedEndDate}&" />
+            </c:if>
+            <c:if test="${not empty escapedInterest}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}interests=${escapedInterest}&" />
+            </c:if>
+            <c:if test="${not empty sort}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}sort=${sort}&" />
+            </c:if>
+            <c:if test="${not empty direction}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}direction=${direction}&" />
+            </c:if>
+            <c:if test="${not empty isMyDestination}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}isMyDestination=${isMyDestination}&" />
+            </c:if>
+            <c:if test="${not empty isUpcoming}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}isUpcoming=${isUpcoming}&" />
+            </c:if>
+            <c:if test="${not empty isOngoing}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}isOngoing=${isOngoing}&" />
+            </c:if>
+            <c:if test="${not empty isPast}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}isPast=${isPast}&" />
+            </c:if>
+            <c:if test="${not empty pageSize}">
+                <c:set var="paginationBaseUrl" value="${paginationBaseUrl}pageSize=${pageSize}&" />
+            </c:if>
 
             <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
                 <jsp:param name="pageObjectTotalPages" value="${journeys.totalPages}" />
                 <jsp:param name="currentPage" value="${currentPage}" />
                 <jsp:param name="pageSize" value="${pageSize}" />
-                <jsp:param name="baseUrl" value="/journeys" />
+                <jsp:param name="baseUrl" value="${paginationBaseUrl}" />
             </jsp:include>
-            <!-- End Journeys List -->
+
         </div>
     </div>
 </div>
-
-<script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
-<script src="<c:url value='/resources/js/journey-cards.js'/>"></script>
-
-<!-- Custom JavaScript for the autocomplete functionality -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize filter toggle
-        const filterToggleBtn = document.getElementById('filterToggleBtn');
-        const filterSection = document.getElementById('filterSection');
-        const filterForm = document.getElementById('journeyFilterForm');
-        const filterIcon = filterToggleBtn.querySelector('.filter-icon');
-        const closeIcon = filterToggleBtn.querySelector('.close-icon');
+    function htmlDecode(input) {
+        const doc = new DOMParser().parseFromString(input, "text/html");
+        return doc.documentElement.textContent;
+    }
 
-        // Check if there are any filter parameters in the URL
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('destination') || urlParams.has('startDate') ||
-            urlParams.has('endDate') || urlParams.has('interest')) {
-            // Show filter section if filters are applied
-            filterSection.classList.remove('hidden');
-            // Update icons
-            filterIcon.style.display = 'none';
-            closeIcon.style.display = 'inline';
-        }
-
-        // Toggle filter section visibility
-        filterToggleBtn.addEventListener('click', function() {
-            filterSection.classList.toggle('hidden');
-
-            // Toggle icons
-            if (filterSection.classList.contains('hidden')) {
-                filterIcon.style.display = 'inline';
-                closeIcon.style.display = 'none';
-            } else {
-                filterIcon.style.display = 'none';
-                closeIcon.style.display = 'inline';
-            }
-
-            // Optional: Animate the toggle button
-            this.classList.toggle('active');
-        });
-
-        // City Autocomplete
-        initAutocomplete('citySearch', 'cityDropdown', 'city', 'citySelectedContainer', false);
-
-        // Interest Autocomplete
-        initAutocomplete('interest-search', 'interest-dropdown', 'interest-select', 'interestSelectedContainer', false);
-
-        // Initialize with any pre-selected values
-        initializeSelectedValues();
-
-        // Reset button functionality
-        const resetFiltersBtn = document.getElementById('resetFiltersBtn');
-        if (resetFiltersBtn) {
-            resetFiltersBtn.addEventListener('click', function(e) {
-                e.preventDefault(); // Prevent default button behavior
-
-                // Clear all form inputs
-                const inputs = filterForm.querySelectorAll('input');
-                inputs.forEach(input => {
-                    input.value = '';
-                });
-
-                // Clear all select elements
-                const selects = filterForm.querySelectorAll('select');
-                selects.forEach(select => {
-                    Array.from(select.options).forEach(option => {
-                        option.selected = false;
-                    });
-                    // Select the first empty option if it exists
-                    if (select.options.length > 0 && select.options[0].value === '') {
-                        select.options[0].selected = true;
-                    }
-                });
-
-                // Clear all selected tags
-                const selectedContainers = filterForm.querySelectorAll('.selected-items-container');
-                selectedContainers.forEach(container => {
-                    container.innerHTML = '';
-                });
-
-                // Navigate to the base journeys URL
-                window.location.href = '<c:url value="/journeys"/>';
-            });
-        }
-
-        // Function to initialize autocomplete
-        function initAutocomplete(inputId, dropdownId, selectId, containerid, multiSelect) {
-            const input = document.getElementById(inputId);
-            const dropdown = document.getElementById(dropdownId);
-            const select = document.getElementById(selectId);
-            const selectedContainer = document.getElementById(containerid);
-            const options = dropdown.querySelectorAll('.autocomplete-item');
-
-            // Show dropdown on input focus
-            input.addEventListener('focus', function() {
-                dropdown.style.display = 'block';
-                filterOptions(this.value);
-            });
-
-            // Show dropdown when clicking on input
-            input.addEventListener('click', function(e) {
-                e.stopPropagation();
-                dropdown.style.display = 'block';
-                filterOptions(this.value);
-            });
-
-            // Hide dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!input.contains(e.target) && !dropdown.contains(e.target)) {
-                    dropdown.style.display = 'none';
-                }
-            });
-
-            // Filter options as user types
-            input.addEventListener('input', function() {
-                filterOptions(this.value);
-                dropdown.style.display = 'block';
-            });
-
-            // Handle option selection
-            options.forEach(option => {
-                option.addEventListener('click', function() {
-                    const value = this.dataset.value;
-                    const text = this.textContent.trim();
-
-                    // For single select, clear previous selection
-                    if (!multiSelect) {
-                        // Clear all options
-                        Array.from(select.options).forEach(opt => {
-                            opt.selected = false;
-                        });
-
-                        // Clear selected container
-                        selectedContainer.innerHTML = '';
-                    }
-
-                    // Find and select the option
-                    Array.from(select.options).forEach(opt => {
-                        if (opt.value === value) {
-                            opt.selected = true;
-                        }
-                    });
-
-                    // Update input and selected container
-                    input.value = '';
-
-                    // Create selected tag
-                    const tag = document.createElement('div');
-                    tag.className = 'selected-tag';
-                    tag.innerHTML = text;
-
-                    // Add remove button for tag
-                    const removeBtn = document.createElement('button');
-                    removeBtn.type = 'button';
-                    removeBtn.className = 'tag-remove';
-                    removeBtn.innerHTML = '<img src="<c:url value='/resources/icons/x.svg'/>" width="12" height="12"/>';
-                    removeBtn.addEventListener('click', function() {
-                        // Deselect the option
-                        Array.from(select.options).forEach(opt => {
-                            if (opt.value === value) {
-                                opt.selected = false;
-                            }
-                        });
-
-                        // Remove the tag
-                        tag.remove();
-                    });
-
-                    tag.appendChild(removeBtn);
-                    selectedContainer.appendChild(tag);
-
-                    // Hide dropdown
-                    dropdown.style.display = 'none';
-                });
-            });
-
-            // Filter dropdown options based on search text
-            function filterOptions(searchText) {
-                const filter = searchText.toLowerCase();
-                let hasResults = false;
-
-                options.forEach(option => {
-                    const text = option.textContent.toLowerCase();
-                    if (text.includes(filter)) {
-                        option.style.display = '';
-                        hasResults = true;
-                    } else {
-                        option.style.display = 'none';
-                    }
-                });
-
-
-                const noResultsTxt = document.getElementById("i18n-results-match-none")
-                    ? document.getElementById("i18n-results-match-none").value
-                    : "No matching results found"
-
-                // Show no results message if needed
-                let noResultsMsg = dropdown.querySelector('.no-results');
-                if (!hasResults) {
-                    if (!noResultsMsg) {
-                        noResultsMsg = document.createElement('div');
-                        noResultsMsg.className = 'autocomplete-item no-results';
-                        noResultsMsg.textContent = noResultsTxt;
-                        dropdown.appendChild(noResultsMsg);
-                    }
-                    noResultsMsg.style.display = '';
-                } else if (noResultsMsg) {
-                    noResultsMsg.style.display = 'none';
-                }
-            }
-        }
-
-        // Initialize selected values from URL parameters
-        function initializeSelectedValues() {
-            // City
-            const citySelect = document.getElementById('city');
-            const citySelectedContainer = document.getElementById('citySelectedContainer');
-
-            if (citySelect.value) {
-                const selectedOption = Array.from(citySelect.options).find(opt => opt.selected);
-                if (selectedOption) {
-                    const tag = document.createElement('div');
-                    tag.className = 'selected-tag';
-                    tag.innerHTML = selectedOption.textContent;
-
-                    const removeBtn = document.createElement('button');
-                    removeBtn.type = 'button';
-                    removeBtn.className = 'tag-remove';
-                    removeBtn.innerHTML = '<img src="<c:url value='/resources/icons/x.svg'/>"/>';
-                    removeBtn.addEventListener('click', function() {
-                        selectedOption.selected = false;
-                        tag.remove();
-                    });
-
-                    tag.appendChild(removeBtn);
-                    citySelectedContainer.appendChild(tag);
-                }
-            }
-
-            // Interest
-            const interestSelect = document.getElementById('interest-select');
-            const interestSelectedContainer = document.getElementById('interestSelectedContainer');
-
-            if (interestSelect.value) {
-                const selectedOption = Array.from(interestSelect.options).find(opt => opt.selected);
-                if (selectedOption) {
-                    const tag = document.createElement('div');
-                    tag.className = 'selected-tag';
-                    tag.innerHTML = selectedOption.textContent;
-
-                    const removeBtn = document.createElement('button');
-                    removeBtn.type = 'button';
-                    removeBtn.className = 'tag-remove';
-                    removeBtn.innerHTML = '<img src="<c:url value='/resources/icons/x.svg'/>"/>';
-                    removeBtn.addEventListener('click', function() {
-                        selectedOption.selected = false;
-                        tag.remove();
-                    });
-
-                    tag.appendChild(removeBtn);
-                    interestSelectedContainer.appendChild(tag);
-                }
-            }
-        }
-    });
+    journeySelectedInterests = htmlDecode('<c:out value="${filterJourneyForm.interests}"/>');
+    window.apiBaseUrl = '<c:url value="/" />';
+    window.journeyBaseUrl = '<c:url value="/journeys"/>';
+    window.closeImage = '<c:url value="/resources/icons/x.svg"/>';
+    journeySelectedCity = htmlDecode('<c:out value="${filterJourneyForm.destination}"/>');
 </script>
+<script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
+<script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
+<script src="<c:url value='/resources/js/journeys/journey-cards.js'/>"></script>
+<script src="<c:url value='/resources/js/journeys/filter.js'/>"></script>
+
+
 </body>
 </html>

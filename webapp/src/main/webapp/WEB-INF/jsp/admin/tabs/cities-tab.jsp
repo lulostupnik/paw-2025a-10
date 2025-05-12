@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<link rel="stylesheet" href="<c:url value='/resources/css/dashboard.css'/>" />
 
 <div class="tab-content active" id="cities-tab">
   <c:set var="titleMessageCode" value="admin.manage.cities" scope="request" />
@@ -36,7 +37,6 @@
     <table class="data-table">
       <thead>
       <tr>
-        <th><spring:message code="admin.column.id" /></th>
         <th><spring:message code="admin.column.name" /></th>
         <th><spring:message code="admin.column.country" /></th>
 
@@ -46,7 +46,6 @@
       <c:set var="cities" value="${pagedCities.content}" />
       <c:forEach items="${cities}" var="city">
         <tr class="clickable-row" data-href="<c:url value="../cities/${city.id}"/>" >
-          <td><c:out value="${city.id}"/></td>
           <td><c:out value="${city.name}"/></td>
             <td><c:out value="${city.country}"/></td>
         </tr>
@@ -68,12 +67,12 @@
       <jsp:param name="baseUrl" value="/dashboard/cities?search=${param.search}" />
     </jsp:include>
 
-<%--    <jsp:include page="../../components/pagination-controls.jsp">--%>
-<%--      <jsp:param name="currentPage" value="${pagedCities.currentPage}" />--%>
-<%--      <jsp:param name="itemsPerPage" value="10" />--%>
-<%--      <jsp:param name="totalPages" value="${pagedCities.totalPages}" />--%>
-<%--      <jsp:param name="search" value="${param.search}" />--%>
-<%--      <jsp:param name="currentUrl" value="/dashboard/cities" />--%>
-<%--    </jsp:include>--%>
+
+
+
+
+
+
+
   </div>
 </div>

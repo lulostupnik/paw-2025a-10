@@ -1,17 +1,17 @@
 package ar.edu.itba.paw.webapp.validation;
 
-import ar.edu.itba.paw.webapp.validation.ValidInterestValidator;
+import ar.edu.itba.paw.webapp.validation.ValidInterestIdValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = ValidInterestValidator.class)
+@Constraint(validatedBy =  {ValidInterestIdValidator.class, ValidInterestValidator.class})
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidInterest {
-    String message() default "User already has a journey";
+    String message() default "Not a valid interest selection";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

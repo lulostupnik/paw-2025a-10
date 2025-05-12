@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<link rel="stylesheet" href="<c:url value='/resources/css/dashboard.css'/>" />
 
 <div class="tab-content active" id="interests-tab">
     <c:set var="titleMessageCode" value="admin.manage.interests" scope="request" />
@@ -36,7 +37,6 @@
         <table class="data-table">
             <thead>
             <tr>
-                <th><spring:message code="admin.column.id" /></th>
                 <th><spring:message code="admin.column.name" /></th>
 
             </tr>
@@ -45,7 +45,6 @@
             <c:set var="interests" value="${pagedInterests.content}" />
             <c:forEach items="${interests}" var="interest">
                 <tr class="clickable-row" data-href="<c:url value="../interests/${interest.id}"/>" >
-                    <td><c:out value="${interest.id}"/></td>
                     <td><c:out value="${interest.name}"/></td>
                 </tr>
             </c:forEach>
@@ -58,13 +57,13 @@
             </div>
         </c:if>
 
-<%--        <jsp:include page="../../components/pagination-controls.jsp">--%>
-<%--            <jsp:param name="currentPage" value="${pagedInterests.currentPage}" />--%>
-<%--            <jsp:param name="itemsPerPage" value="10" />--%>
-<%--            <jsp:param name="totalPages" value="${pagedInterests.totalPages}" />--%>
-<%--            <jsp:param name="search" value="${param.search}" />--%>
-<%--            <jsp:param name="currentUrl" value="/dashboard/interests" />--%>
-<%--        </jsp:include>--%>
+
+
+
+
+
+
+
 
         <jsp:include page="../../components/pagination-with-page-number.jsp">
             <jsp:param name="pageObjectTotalPages" value="${pagedInterests.totalPages}" />

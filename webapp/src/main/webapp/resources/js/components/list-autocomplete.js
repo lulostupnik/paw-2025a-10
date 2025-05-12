@@ -1,13 +1,6 @@
-/**
- * List Autocomplete Component
- *
- * Provides multi-select or single-select functionality with autocomplete
- */
+
 let ListAutocomplete = (() => {
-    /**
-     * Initialize list autocomplete component
-     * @param {Object} options Configuration options
-     */
+    
 
     function init(options = {}) {
         // Default configuration
@@ -17,14 +10,16 @@ let ListAutocomplete = (() => {
             searchId: "",
             dropdownId: "",
             selectedContainerId: "",
+            selectedValue: null,
             emptyMessage: "No items selected",
-            error:false,
+            error: false,
             onSelect: null,
             onRemove: null,
             multiSelect: true, // New parameter to control single/multi select behavior
             apiEndpoint: null, // API endpoint for dynamic suggestions
             minChars: 2, // Minimum characters before triggering search
             debounceTime: 300, // Debounce time for API requests
+            useId: false, // Use ID for value instead of name
             ...options,
         }
 
@@ -78,21 +73,43 @@ let ListAutocomplete = (() => {
             selectedContainer.classList.remove("hidden")
         }
 
+        // If we have a selected value and an API endpoint, fetch options immediately
+        // to ensure we have the proper display text
+        if (selectedValues.length > 0 && config.apiEndpoint) {
+            fetch(`${config.apiEndpoint}`)
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok")
+                    }
+                    return response.json()
+                })
+                .then((data) => {
+                    // Cache the results
+                    apiCache[""] = data
+
+                    // Update dropdown with results (this will also update selected values)
+                    updateDropdownFromResults(data)
+                })
+                .catch((error) => {
+                    console.error("Error fetching initial autocomplete data:", error)
+                })
+        }
+
         // Show dropdown on focus
         searchInput.addEventListener("focus", function () {
             console.log("Search input focused")
             positionDropdown()
             dropdownContainer.style.display = "block"
-            filterOptions(this.value)
+            search(this.value)
         })
 
         // Show dropdown on click (for better mobile experience)
-        searchInput.addEventListener("click", function (e) {
+        searchInput.addEventListener("click", (e) => {
             console.log("Search input clicked")
             e.stopPropagation() // Prevent immediate closing
             positionDropdown()
             dropdownContainer.style.display = "block"
-            filterOptions(this.value)
+            // filterOptions(this.value)
         })
 
         // Position dropdown relative to search input
@@ -116,57 +133,10 @@ let ListAutocomplete = (() => {
             console.log("Search input changed:", this.value)
             dropdownContainer.style.display = "block"
             positionDropdown()
-
-            const searchText = this.value.trim()
-
-            // If API endpoint is provided and we have enough characters, fetch from API
-            if (config.apiEndpoint && searchText.length >= config.minChars) {
-                // Clear any existing timeout
-                if (debounceTimeout) {
-                    clearTimeout(debounceTimeout)
-                }
-
-                // Set new timeout for debouncing
-                debounceTimeout = setTimeout(() => {
-                    // Check if we already have cached results
-                    if (apiCache[searchText]) {
-                        updateDropdownFromResults(apiCache[searchText])
-                    } else {
-                        // Show loading indicator
-                        showLoadingIndicator()
-
-                        // Fetch from API
-                        fetch(`${config.apiEndpoint}?q=${encodeURIComponent(searchText)}`)
-                            .then((response) => {
-                                if (!response.ok) {
-                                    throw new Error("Network response was not ok")
-                                }
-                                return response.json()
-                            })
-                            .then((data) => {
-                                // Cache the results
-                                apiCache[searchText] = data
-
-                                // Update dropdown with results
-                                updateDropdownFromResults(data)
-                            })
-                            .catch((error) => {
-                                console.error("Error fetching autocomplete data:", error)
-                                // Fall back to client-side filtering
-                                hideLoadingIndicator()
-                                filterOptions(searchText)
-                            })
-                    }
-                }, config.debounceTime)
-            } else {
-                // Use client-side filtering for short queries or when no API is provided
-                filterOptions(searchText)
-            }
+            search(this.value)
         })
 
-        /**
-         * Show loading indicator in dropdown
-         */
+        
         function showLoadingIndicator() {
             // Clear existing content
             while (dropdownContainer.firstChild) {
@@ -180,9 +150,7 @@ let ListAutocomplete = (() => {
             dropdownContainer.appendChild(loadingItem)
         }
 
-        /**
-         * Hide loading indicator
-         */
+        
         function hideLoadingIndicator() {
             const loadingItem = dropdownContainer.querySelector(".loading")
             if (loadingItem) {
@@ -190,14 +158,13 @@ let ListAutocomplete = (() => {
             }
         }
 
-        /**
-         * Handle selection of an item
-         */
+        
         function handleItemSelection(value, text) {
             console.log("Handling item selection:", value, text)
 
             // Check if already selected
             const exists = selectedValues.some((item) => item.value === value)
+            console.log("Item exists in selected values:", exists)
 
             if (!exists) {
                 // For single select, clear existing selections first
@@ -207,6 +174,10 @@ let ListAutocomplete = (() => {
 
                 // Add to selected values
                 selectedValues.push({ value, text })
+                console.log("Added to selected values:", selectedValues)
+
+                // Ensure the option exists in the select element
+                ensureOptionExists(value, text)
 
                 // Update the hidden select
                 updateSelectElement()
@@ -227,9 +198,28 @@ let ListAutocomplete = (() => {
             console.log("Selection complete, current values:", selectedValues)
         }
 
-        /**
-         * Update dropdown with results from API
-         */
+        
+        function ensureOptionExists(value, text) {
+            // Check if option already exists
+            let optionExists = false
+            const options = selectElement.querySelectorAll("option")
+
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value == value) {
+                    optionExists = true
+                    break
+                }
+            }
+
+            // If option doesn't exist, create it
+            if (!optionExists) {
+                const newOption = document.createElement("option")
+                newOption.value = value // change for value
+                newOption.textContent = text
+                selectElement.appendChild(newOption)
+            }
+        }
+
         function updateDropdownFromResults(data) {
             console.log("Updating dropdown from results:", data)
 
@@ -241,6 +231,7 @@ let ListAutocomplete = (() => {
             const noResultsTxt = document.getElementById("i18n-items-match-none")
                 ? document.getElementById("i18n-items-match-none").value
                 : "No matching items found"
+
             // If no results, show message
             if (!data || data.length === 0) {
                 const noResults = document.createElement("div")
@@ -250,18 +241,37 @@ let ListAutocomplete = (() => {
                 return
             }
 
-            // Add each result to dropdown
+            // Add each result to dropdown and ensure it exists in the select element
             data.forEach((item) => {
-                addDropdownItem(
-                    typeof item === "object" ? item.id || item.value || item.name : item,
-                    typeof item === "object" ? item.name || item.text || item.label : item,
-                )
+                let itemValue;
+                if(config.useId){
+                     itemValue = typeof item === "object" ? item.id || item.name || item.value : item
+                } else {
+                     itemValue = typeof item === "object" ? item.name || item.value : item
+                }
+                const itemText = typeof item === "object" ? item.name || item.text || item.label : item
+
+                // Ensure option exists in select element
+                ensureOptionExists(itemValue, itemText)
+
+                // Check if we need to update our selected values with better text
+                selectedValues.forEach((selected, index) => {
+                    if (selected.value === itemValue && selected.text !== itemText) {
+                        selectedValues[index].text = itemText
+                    }
+                })
+
+                addDropdownItem(itemValue, itemText)
             })
+
+            // Update the UI to reflect any text changes
+            updateSelectedTags()
+
+            // Make sure the select element is updated
+            updateSelectElement()
         }
 
-        /**
-         * Add a single item to the dropdown
-         */
+        
         function addDropdownItem(value, text) {
             const option = document.createElement("div")
             option.className = "autocomplete-item"
@@ -280,54 +290,120 @@ let ListAutocomplete = (() => {
             dropdownContainer.appendChild(option)
         }
 
-        /**
-         * Initialize selected values from the select element
-         */
         function initializeSelectedValues() {
             const options = selectElement.querySelectorAll("option")
 
             options.forEach((option) => {
-                    if (option.selected && option.value !== "") {
-                        selectedValues.push({
-                            value: option.value,
-                            text: option.textContent.trim(),
-                        })
-                    }
+                if (option.selected && option.value !== "") {
+                    selectedValues.push({
+                        value: option.value,
+                        text: option.textContent.trim(),
+                    })
+                }
             })
+            console.log(selectElement.value)
+
+            if(!config.multiSelect) {
+                // If we have a selected value but no options are loaded yet (common in API scenarios)
+                if (selectedValues.length === 0 && config.selectedValue) {
+                    // Add the current value from the select element
+                    selectedValues.push({
+                        value: config.selectedValue,
+                        text: selectElement.options[config.selectedValue]?.textContent.trim() || config.selectedValue,
+                    })
+                }
+            } else{
+                if(selectedValues.length === 0 && config.selectedValue) {
+                    // Add the current value from the select element
+                    for(let myValue in config.selectedValue){
+                        if(myValue !== "") {
+                            if( config.useId) {
+                                selectedValues.push({
+                                    value: config.selectedValue[myValue].id,
+                                    text: selectElement.options[config.selectedValue[myValue]]?.textContent.trim() || config.selectedValue[myValue].name,
+                                })
+                            } else {
+                                selectedValues.push({
+                                    value: config.selectedValue[myValue],
+                                    text: selectElement.options[config.selectedValue[myValue]]?.textContent.trim() || config.selectedValue[myValue],
+                                })
+                            }
+                        }
+
+                    }
+                }
+            }
 
             console.log("Initialized selected values:", selectedValues)
         }
 
-        /**
-         * Update the select element based on selectedValues array
-         */
         function updateSelectElement() {
-            // For single select, just set the value
+            // For single select, just set the value and ensure the option is selected
             if (!config.multiSelect) {
+                console.log("Updating single select element: ", selectedValues)
                 if (selectedValues.length > 0) {
+                    // Make sure the option exists
+                    ensureOptionExists(selectedValues[0].value, selectedValues[0].text)
+
+                    // Set the value
                     selectElement.value = selectedValues[0].value
+
+                    // Explicitly set the selected attribute on the matching option
+                    const options = selectElement.querySelectorAll("option")
+                    for (let i = 0; i < options.length; i++) {
+                        // First remove selected from all options
+                        options[i].selected = false
+                        options[i].removeAttribute("selected")
+
+                        // Then set selected on the matching option
+                        if (options[i].value === selectedValues[0].value) {
+                            options[i].selected = true
+                            options[i].setAttribute("selected", "selected")
+                        }
+                    }
                 } else {
                     selectElement.value = ""
+                    // Clear all selected attributes
+                    const options = selectElement.querySelectorAll("option")
+                    for (let i = 0; i < options.length; i++) {
+                        options[i].selected = false
+                        options[i].removeAttribute("selected")
+                    }
+
                 }
                 return
             }
 
             // For multi-select, update all options
             const options = selectElement.querySelectorAll("option")
-            const selectedValueIds = selectedValues.map((item) => item.value)
+            const selectedValueIds = selectedValues.map((item) => item.value.toString())
 
+            // First ensure all selected values have corresponding options
+            selectedValues.forEach((item) => {
+                ensureOptionExists(item.value, item.text)
+            })
+
+            // Then update the selected state of all options
             options.forEach((option) => {
-                option.selected = selectedValueIds.includes(option.value)
+                const isSelected = selectedValueIds.includes(option.value.toString())
+                option.selected = isSelected
+
+                // Explicitly set/remove the selected attribute
+                if (isSelected) {
+                    option.setAttribute("selected", "selected")
+                } else {
+                    option.removeAttribute("selected")
+                }
             })
 
             // Trigger change event on select element
             const event = new Event("change", { bubbles: true })
             selectElement.dispatchEvent(event)
+
+            // Debug the state of the select element
         }
 
-        /**
-         * Filter dropdown options based on search text
-         */
+        
         function filterOptions(searchText) {
             console.log("Filtering options for:", searchText)
 
@@ -369,9 +445,58 @@ let ListAutocomplete = (() => {
             }
         }
 
-        /**
-         * Update the selected tags UI
-         */
+        function search(value) {
+            const searchText = value.trim()
+
+            // If API endpoint is provided and we have enough characters, fetch from API
+            if (
+                config.apiEndpoint
+                // && searchText.length >= config.minChars
+            ) {
+                // Clear any existing timeout
+                if (debounceTimeout) {
+                    clearTimeout(debounceTimeout)
+                }
+
+                // Set new timeout for debouncing
+                debounceTimeout = setTimeout(() => {
+                    // Check if we already have cached results
+                    if (apiCache[searchText]) {
+                        updateDropdownFromResults(apiCache[searchText])
+                    } else {
+                        // Show loading indicator
+                        showLoadingIndicator()
+
+                        // Fetch from API
+                        fetch(`${config.apiEndpoint}?search=${encodeURIComponent(searchText)}`)
+                            .then((response) => {
+                                if (!response.ok) {
+                                    throw new Error("Network response was not ok")
+                                }
+                                return response.json()
+                            })
+                            .then((data) => {
+                                // Cache the results
+                                apiCache[searchText] = data
+
+                                // Update dropdown with results
+                                updateDropdownFromResults(data)
+                            })
+                            .catch((error) => {
+                                console.error("Error fetching autocomplete data:", error)
+                                // Fall back to client-side filtering
+                                hideLoadingIndicator()
+                                filterOptions(searchText)
+                            })
+                    }
+                }, config.debounceTime)
+            } else {
+                // Use client-side filtering for short queries or when no API is provided
+                filterOptions(searchText)
+            }
+        }
+
+        
         function updateSelectedTags() {
             console.log("Updating selected tags UI")
 
@@ -431,7 +556,7 @@ let ListAutocomplete = (() => {
                     updateSelectElement()
                     updateSelectedTags()
                     searchInput.focus() // Return focus to search input
-
+                    console.log("Selected values: ", selectedValues)
                     // Call onRemove callback if provided
                     if (typeof config.onRemove === "function") {
                         config.onRemove(valueToRemove)
@@ -494,6 +619,30 @@ let ListAutocomplete = (() => {
 
         return publicMethods
     }
+
+    // Add this function to debug the select element state
+    // function debugSelectElement() {
+    //     console.log("Select element value:", selectElement.value)
+    //     console.log("Selected values array:", selectedValues)
+    //
+    //     const options = selectElement.querySelectorAll("option")
+    //     console.log("Total options:", options.length)
+    //
+    //     const selectedOptions = []
+    //     options.forEach((option, index) => {
+    //         if (option.selected || option.hasAttribute("selected")) {
+    //             selectedOptions.push({
+    //                 index,
+    //                 value: option.value,
+    //                 text: option.textContent,
+    //                 selected: option.selected,
+    //                 hasAttribute: option.hasAttribute("selected"),
+    //             })
+    //         }
+    //     })
+    //
+    //     console.log("Selected options:", selectedOptions)
+    // }
 
     // Public API
     return {

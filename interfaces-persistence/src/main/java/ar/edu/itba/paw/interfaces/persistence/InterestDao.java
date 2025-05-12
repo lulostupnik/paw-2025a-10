@@ -2,26 +2,28 @@ package ar.edu.itba.paw.interfaces.persistence;
 
 import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.Page;
-
+import ar.edu.itba.paw.models.PageParams;
 import java.util.List;
 import java.util.Optional;
 
 public interface InterestDao {
-
-     Optional<Interest> findById(Long id);
-     List<Interest> findAll();
-     List<Interest> findByUserId(Long id);
+     Optional<Interest> findById(long id);
      Optional<Interest> findByName(String name);
-     List<Interest> findIdByName(String[] names);
-     Interest createUserInterest(String interest);
-     void deleteUserInterest(long id);
-     void editUserInterest(long id, String interest);
-     void saveUserInterests(long[] interests, Long userId);
-     void updateScoreByInterest(Interest interest, Long userId);
-     void updateScoreByInterests(List<Interest> interests, Long userId);
-     Page<Interest> getAllInterests(int page, int pageSize);
-     Page<Interest> searchBySubstring(String search, int page, int pageSize);
-     Page<Interest> findAllInterestsByUserId(long id, int page, int pageSize);
-          
+     Interest create(String interest);
+     void update(long id, String interest);
+
+     Page<Interest> findAll(PageParams pageParams);
+     Page<Interest> search(String searchTerm, PageParams pageParams);
      void delete(long id);
+
+     List<Interest> findAllByUserId(long id);
+     Page<Interest> findAllByUserId(long id, PageParams pageParams);
+     void createUserInterests(List<String> interests, long userId);
+     void createUserInterests(long[] interests, long userId);
+     void updateScoreByInterest(Interest interest, long userId);
+     void updateUserInterests(long[] interestIds, long userId);
+     void updateScoreByInterests(List<Interest> interests, long userId);
+
+
+
 }

@@ -6,7 +6,7 @@
 <html lang="${pageContext.response.locale}">
 <head>
     <title><spring:message code="journey.edit.title"/></title>
-    <!-- Include custom CSS -->
+
     <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/form-enhancements.css'/>" />
@@ -33,7 +33,7 @@
 
         <c:url var="updateJourneyUrl" value="/journeys/${journeyId}/update"/>
         <form:form modelAttribute="createJourneyForm" action="${updateJourneyUrl}" method="post" class="auth-form" id="journeyForm" novalidate="true">
-            <!-- Start Date Field -->
+
             <div class="form-group">
                 <form:label path="startDate" cssClass="form-label required-field">
                     <spring:message code="createJourney.startDate"/>
@@ -42,7 +42,7 @@
                 <form:errors path="startDate" cssClass="error-message" />
             </div>
 
-            <!-- End Date Field -->
+
             <div class="form-group">
                 <form:label path="endDate" cssClass="form-label required-field">
                     <spring:message code="createJourney.endDate"/>
@@ -51,19 +51,20 @@
                 <form:errors path="endDate" cssClass="error-message" />
             </div>
 
-            <!-- Destination University Field with Enhanced Autocomplete -->
+
             <div class="form-group">
                 <form:label path="destinationUniversity" cssClass="form-label required-field">
                     <spring:message code="createJourney.destinationUniversity"/>
                 </form:label>
                 <div class="autocomplete-wrapper">
-                    <form:select path="destinationUniversity" id="destinationUniversity" cssClass="form-select ${not empty errors.getFieldError('destinationUniversity') ? 'error' : ''}" style="display: none;">
-                        <form:option value=""><spring:message code="createJourney.destinationUniversity.select"/></form:option>
+                    <select  id="destinationUniversity" class="form-select ${not empty errors.getFieldError('destinationUniversity') ? 'error' : ''}" style="display: none;">
+                        <option value=""><spring:message code="createJourney.destinationUniversity.select"/></option>
                         <c:forEach var="item" items="${universities}">
                             <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
                         </c:forEach>
-                    </form:select>
-                    <input type="text" id="universitySearch" class="form-input autocomplete-input" placeholder="<spring:message code="createJourney.destinationUniversity.search" text="Type to search university..."/>" />
+                    </select>
+                    <c:set var="universitySearch"><spring:message code="createJourney.destinationUniversity.search"/></c:set>
+                    <form:input path="destinationUniversity" type="text" id="universitySearch" class="form-input autocomplete-input" placeholder="${universitySearch}" />
                     <div id="universityDropdown" class="autocomplete-dropdown" style="display: none;">
                         <c:forEach var="item" items="${universities}">
                             <div class="autocomplete-item" data-value="<c:out value="${item.name}"/>">
@@ -71,13 +72,13 @@
                             </div>
                         </c:forEach>
                     </div>
-                    <!-- Container for selected universities -->
+
                     <div id="selectedUniversities" class="selected-tags"></div>
                 </div>
                 <form:errors path="destinationUniversity" cssClass="error-message" />
             </div>
 
-            <!-- Description Field -->
+
             <div class="form-group">
                 <form:label path="description" cssClass="form-label required-field">
                     <spring:message code="createJourney.description"/>
@@ -97,7 +98,7 @@
         </form:form>
 
         <div class="auth-footer">
-            <a href="<c:url value='/profile/journeys' />" class="auth-link">
+            <a href="<c:url value='/journeys/${journeyId}' />" class="auth-link">
                 <spring:message code="journey.back" text="Back to journeys"/>
             </a>
         </div>
@@ -105,10 +106,19 @@
     </div>
 </div>
 
-<!-- Include modularized JavaScript files -->
+
+<script>
+    function htmlDecode(input) {
+        const doc = new DOMParser().parseFromString(input, "text/html");
+        return doc.documentElement.textContent;
+    }
+    window.apiBaseUrl = '<c:url value="/" />';
+    journeySelectedUniversity = htmlDecode('<c:out value="${createJourneyForm.destinationUniversity}"/>');
+</script>
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
+<script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/components/date-validation.js'/>"></script>
-<script src="<c:url value='/resources/js/journey-form.js'/>"></script>
+<script src="<c:url value='/resources/js/journeys/journey-form.js'/>"></script>
 
 </body>
 </html>

@@ -13,14 +13,121 @@
     <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
     <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
 </head>
+<style>
+    .popup-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .popup-container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+    }
+
+    .popup-icon {
+        color: #4CAF50;
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 16px;
+    }
+
+    .popup-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .popup-message {
+        margin-bottom: 16px;
+        color: #666;
+    }
+
+    .popup-button {
+        background-color: #4361ee;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+    .popup-button:hover {
+        background-color: #3a56d4;
+    }
+</style>
 <body>
-<!-- Navigation -->
+
 <jsp:include page="../components/navbar.jsp" />
+
+
+<c:if test="${registrationSuccess eq true}">
+    <div id="successPopup" class="popup-overlay" style="display: flex;">
+        <div class="popup-container">
+            <svg xmlns="http://www.w3.org/2000/svg" class="popup-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 class="popup-title"><spring:message code="register.success.title" text="Registration Successful" /></h3>
+            <p class="popup-message">
+                <spring:message code="register.success.message" text="A verification email has been sent to your email address. Please check your inbox and follow the instructions to validate your account." />
+            </p>
+            <button type="button" class="popup-button" id="closePopup"><spring:message code="register.success.button" text="Got it" /></button>
+        </div>
+    </div>
+</c:if>
+
+
+<c:if test="${resetPassword eq true}">
+    <div id="resetPasswordPopup" class="popup-overlay" style="display: flex;">
+        <div class="popup-container">
+            <svg xmlns="http://www.w3.org/2000/svg" class="popup-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 class="popup-title"><spring:message code="reset.password.success.title" text="Password Reset Successful" /></h3>
+            <p class="popup-message">
+                <spring:message code="reset.password.success.message" text="Your password has been reset successfully. You can now log in with your new password." />
+            </p>
+            <button type="button" class="popup-button" id="closeResetPopup"><spring:message code="reset.password.success.button" text="Got it" /></button>
+        </div>
+    </div>
+</c:if>
+
+
+<c:if test="${emailSuccess eq true}">
+    <div id="emailSuccessPopup" class="popup-overlay" style="display: flex;">
+        <div class="popup-container">
+            <svg xmlns="http://www.w3.org/2000/svg" class="popup-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 class="popup-title"><spring:message code="email.password.reset.title" text="Email Sent" /></h3>
+            <p class="popup-message">
+                <spring:message code="email.password.reset.message" text="An email with instructions to reset your password has been sent to your email address. Please check your inbox and follow the link to reset your password." />
+            </p>
+            <button type="button" class="popup-button" id="closeEmailSuccessPopup"><spring:message code="email.password.reset.button" text="Got it" /></button>
+        </div>
+    </div>
+</c:if>
+
+
+
 <div class="auth-container">
     <div class="auth-card">
         <div class="auth-header">
             <div class="auth-logo">
-                <!-- You can add your logo here -->
+
                 <svg xmlns="http://www.w3.org/2000/svg" class="auth-logo-img" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -78,14 +185,21 @@
                 </div>
             </div>
 
-            <div class="checkbox-container">
-                <label class="checkbox-label">
-                    <input name="j_rememberme"
-                           type="checkbox"
-                           class="checkbox-input" />
-                    <span class="checkbox-custom"></span>
-                    <span><spring:message code="remember_me" text="Remember me"/></span>
-                </label>
+
+
+            <div class="login-group">
+                <div class="checkbox-container">
+                    <label class="checkbox-wrapper">
+                        <input name="j_rememberme" type="checkbox" class="checkbox-input" />
+                        <span class="checkbox-mark"></span>
+                    </label>
+                    <label class="checkbox-label" for="j_rememberme">
+                        <spring:message code="remember_me" text="Remember me"/>
+                    </label>
+                </div>
+                <a href="<c:url value='/forgot_pass'/>" class="forgot-password">
+                    <spring:message code="login.forgot_password" text="Forgot password?"/>
+                </a>
             </div>
 
             <button type="submit" class="form-button">
@@ -108,16 +222,50 @@
         const form = document.querySelector('.auth-form');
         const emailInput = document.getElementById('j_username');
         const passwordInput = document.getElementById('j_password');
+        const closePopupButton = document.getElementById('closePopup');
+        const closeResetPopupButton = document.getElementById('closeResetPopup');
+        const closeEmailSuccessPopupButton = document.getElementById('closeEmailSuccessPopup');
+        const closeEmailValidationPopupButton = document.getElementById('closeEmailValidationPopup');
+        const emailValidationPopup = document.getElementById('emailValidationPopup');
+        const emailValidationMessage = document.getElementById('emailValidationMessage');
+
+        // Close registration success popup
+        if (closePopupButton) {
+            closePopupButton.addEventListener('click', function() {
+                document.getElementById('successPopup').style.display = 'none';
+            });
+        }
+
+        // Close password reset popup
+        if (closeResetPopupButton) {
+            closeResetPopupButton.addEventListener('click', function() {
+                document.getElementById('resetPasswordPopup').style.display = 'none';
+            });
+        }
+
+        // Close email success popup
+        if (closeEmailSuccessPopupButton) {
+            closeEmailSuccessPopupButton.addEventListener('click', function() {
+                document.getElementById('emailSuccessPopup').style.display = 'none';
+            });
+        }
+
+        // Close email validation popup
+        if (closeEmailValidationPopupButton) {
+            closeEmailValidationPopupButton.addEventListener('click', function() {
+                emailValidationPopup.style.display = 'none';
+            });
+        }
 
         form.addEventListener('submit', function(e) {
             let isValid = true;
 
             // Validate email
             if (!emailInput.value.trim()) {
-                showError(emailInput, '<spring:message code="login.email.required" text="Email is required"/>');
+                showEmailValidationPopup('<spring:message code="login.email.required" text="Email is required"/>');
                 isValid = false;
             } else if (!isValidEmail(emailInput.value.trim())) {
-                showError(emailInput, '<spring:message code="login.email.invalid" text="Please enter a valid email address"/>');
+                showEmailValidationPopup('<spring:message code="login.email.invalid" text="Please enter a valid email address"/>');
                 isValid = false;
             } else {
                 clearError(emailInput);
@@ -148,6 +296,12 @@
                 clearError(this);
             }
         });
+
+        function showEmailValidationPopup(message) {
+            emailInput.classList.add('error');
+            emailValidationMessage.textContent = message;
+            emailValidationPopup.style.display = 'flex';
+        }
 
         function showError(input, message) {
             const formGroup = input.closest('.form-group');
@@ -189,6 +343,7 @@
         const eyeIcon = document.getElementById('eyeIcon');
         const eyeSlashIcon = document.getElementById('eyeSlashIcon');
 
+
         if (togglePasswordBtn && passwordField) {
             togglePasswordBtn.addEventListener('click', function() {
                 const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -202,7 +357,8 @@
 
                 // Update aria-label for accessibility
                 this.setAttribute('aria-label', type === 'password' ?
-                    'Show password' : 'Hide password');
+                    '<spring:message code="password.show" text="Show password"/>' :
+                    '<spring:message code="password.hide" text="Hide password"/>');
             });
         }
     });

@@ -3,8 +3,10 @@ package ar.edu.itba.paw.webapp.form;
 import ar.edu.itba.paw.webapp.validation.*;
 import org.springframework.web.multipart.MultipartFile;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 @PasswordsMatch
 public class CreateUserForm {
@@ -12,42 +14,49 @@ public class CreateUserForm {
     @Email
     @Size(min = 2, max = 100)
     @EmailNotInUse
+    @NotNull
     private String email;
 
-    @Size(min = 2, max = 50)
+    @Size(max = 100)
     @NotNull
     @ExistingCareer
     private String career;
 
     @Size(min = 2, max = 50)
     @UsernameNotInUse
+    @NotNull
     private String username;
 
     @Size(min = 2, max = 100)
+    @NotNull
     private String firstName;
 
     @Size(min = 8, max = 100)
+    @NotNull
     private String password;
 
     @Size(min = 8, max = 100)
+    @NotNull
     private String confirmPassword;
 
     @Size(min = 2, max = 100)
+    @NotNull
     private String lastName;
 
     @NotNull
-    @ImageSize() // 2MB
+    @ImageSize()
     @ContentType({"image/jpeg", "image/jpg", "image/png"})
     @ImageNotEmpty
     private MultipartFile profilePicture;
 
-    @Size(min = 2, max = 100)
+    @Size( max = 100)
+    @NotEmpty
+    @NotNull
     @ExistingUniversity
     private String originUniversity;
 
-    @NotNull
     @ValidInterest
-    private long[] interests;
+    private List<String> interests;
 
     public String getEmail() {
         return email;
@@ -105,11 +114,11 @@ public class CreateUserForm {
         this.originUniversity = originUniversity;
     }
 
-    public long[] getInterests() {
+    public List<String> getInterests() {
         return interests;
     }
 
-    public void setInterests(long[] interests) {
+    public void setInterests(List<String> interests) {
         this.interests = interests;
     }
     public String getPassword() {
@@ -143,13 +152,9 @@ public class CreateUserForm {
         sb.append(career);
         if(interests != null) {
             sb.append("\", interests: {");
-            for (int i = 0; i < interests.length; i++) {
-                sb.append("\"");
-                sb.append(interests[i]);
-                sb.append("\"");
-                if (i + 1 != interests.length) {
-                    sb.append(", ");
-                }
+            for(String interest : interests) {
+                sb.append(interest);
+                sb.append(", ");
             }
             sb.append("}");
         }

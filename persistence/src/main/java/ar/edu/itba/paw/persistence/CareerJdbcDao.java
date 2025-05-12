@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.sql.DataSource;
@@ -18,12 +17,9 @@ import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
 @Repository
 public class CareerJdbcDao implements CareerDao {
-
     private final static Logger LOGGER = LoggerFactory.getLogger(CareerJdbcDao.class);
-
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
-
     private final static RowMapper<Career> CAREER_ROW_MAPPER = (rs, rowNum) -> new Career(
             rs.getLong("id"),
             rs.getString("name")
@@ -44,51 +40,44 @@ public class CareerJdbcDao implements CareerDao {
     }
 
     @Override
-    public List<Career> findAll() {
-        return jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE", CAREER_ROW_MAPPER);
-    }
-
-    @Override
     public Optional<Career> findByName(final String name) {
         return jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE AND name = ?", CAREER_ROW_MAPPER, name)
                 .stream().findFirst();
     }
 
     @Override
-    public Page<Career> getAllCareers(final int page, final int pageSize) {
+    public Page<Career> findAll(final PageParams pageParams) {
         final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM careers WHERE deleted = FALSE", Integer.class);
 
         return new Page<>(
-                jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE LIMIT ? OFFSET ?", CAREER_ROW_MAPPER, pageSize, offset(page, pageSize)),
-                page,
-                pageCount(totalItems, pageSize)
+                jdbcTemplate.query("SELECT * FROM careers WHERE deleted = FALSE LIMIT ? OFFSET ?", CAREER_ROW_MAPPER, pageParams.getSize(), offset(pageParams)),
+                pageParams.getPage(),
+                pageCount(totalItems, pageParams.getSize())
         );
 
     }
 
     @Override
-    public Page<Career> searchBySubstring(final String substring, final int page, final int size) {
+    public Page<Career> search(final String substring, final PageParams pageParams) {
         final String searchPattern = likePattern(substring);
         final int totalCareers = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM careers WHERE LOWER(name) LIKE LOWER(?)", Integer.class, searchPattern);
         return new Page<>(
-                jdbcTemplate.query("SELECT * FROM careers WHERE LOWER(name) LIKE LOWER(?) LIMIT ? OFFSET ?", CAREER_ROW_MAPPER, searchPattern, size, offset(page, size)),
-                page,
-                pageCount(totalCareers, size)
+                jdbcTemplate.query("SELECT * FROM careers WHERE LOWER(name) LIKE LOWER(?) LIMIT ? OFFSET ?", CAREER_ROW_MAPPER, searchPattern, pageParams.getSize(), offset(pageParams)),
+                pageParams.getPage(),
+                pageCount(totalCareers, pageParams.getSize())
         );
     }
 
     @Override
     public Career create(final String name) {
-        LOGGER.debug("Creating or reactivating career with name: {}", name);
-
         final int rowsUpdated = jdbcTemplate.update(
                 "UPDATE careers SET deleted = FALSE WHERE name = ? AND deleted = TRUE",
                 name
         );
-
         if (rowsUpdated > 0) {
-            LOGGER.info("Reactivated existing deleted career {}", name);
-            return findByName(name).orElseThrow(() -> new RuntimeException("Failed to retrieve reactivated career"));
+            return findByName(name).orElseThrow(() ->{
+                LOGGER.error("Failed to retrieve reactivated career with name {}", name);
+                return new RuntimeException("Failed to retrieve reactivated career");});
         }
 
         final Map<String, Object> args = new HashMap<>();
@@ -96,24 +85,19 @@ public class CareerJdbcDao implements CareerDao {
         args.put("deleted", false);
 
         final Number key = jdbcInsert.executeAndReturnKey(args);
-        final Career career = new Career(key.longValue(), name);
-        LOGGER.info("Successfully created career {}", career);
-        return career;
+        return new Career(key.longValue(), name);
     }
 
     @Override
-    public Career update(final long id, final String name) {
-        LOGGER.info("Updating career id '{}' and name '{}'",id,name);
+    public void update(final long id, final String name) {
         final int rowsAffected = jdbcTemplate.update("UPDATE careers SET name = ? WHERE id = ?", name, id);
         if (rowsAffected == 0) {
             LOGGER.warn("Career update failed: Career with ID {} not found", id);
         }
-        return findById(id).orElseThrow(() -> new IllegalArgumentException("Career not found"));
     }
 
     @Override
     public void delete(final long id) {
-        LOGGER.info("Marking career with ID: {} as deleted", id);
         final int rowsAffected = jdbcTemplate.update("UPDATE careers SET deleted = TRUE WHERE id = ?", id);
         if (rowsAffected == 0) {
             LOGGER.warn("Career deletion failed: Career with ID {} not found", id);

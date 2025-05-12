@@ -5,11 +5,16 @@
 <%@ taglib prefix="sprng" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <script src="<c:url value='/resources/js/detect-overflow.js'/>">
 </script>
+<script>
+    function saveLink() {
+        sessionStorage.setItem("rutaAnterior", window.location.href);
+    }
+</script>
 
 <div class="event-card-wrapper">
-    <a href="<c:url value="/journeys/${param.journeyId}"/>" class="event-card-link">
+    <a href="<c:url value="/journeys/${param.journeyId}"/>" onclick="saveLink()" class="event-card-link">
         <div class="featured-event-card">
-            <!-- Image Container with improved aspect ratio for profile pictures -->
+
             <div class="event-image-container">
                 <c:if test="${not empty param.profilePictureId}">
                     <img src="<c:url value="/images/${param.profilePictureId}"/>"
@@ -21,26 +26,18 @@
                         <i class="fas fa-user"></i>
                     </div>
                 </c:if>
-                <c:if test="${ param.isOwner == true}">
-                    <div class="attend-button-container">
-                        <button type="button"
-                                class="attend-button"
-                                onclick="redirectToJourneyUpdate(<c:out value='${param.journeyId}'/>)"
-                                aria-label="<spring:message code='event.edit'/>">
-                            <img src="<c:url value='/resources/icons/edit.svg'/>" alt="<spring:message code='event.edit'/>" class="btn-icon" />
-                        </button>
-                    </div>
-                </c:if>
             </div>
 
-            <!-- Journey Info with improved layout -->
+
             <div class="event-card-content">
                 <div class="event-card-header">
                     <div class="event-location">
                         <h3>
+                            <c:set var="city"> <c:out value="${param.city}"/></c:set>
+                            <c:set var="country"> <c:out value="${param.country}"/></c:set>
+
                             <spring:message code="journey.destinationCityAndCountry"
-                                            arguments="${param.city},${param.country}"
-                                            htmlEscape="true"/>
+                                            arguments="${city},${country}"/>
                         </h3>
                     </div>
                     <p class="event-card-subtitle mt-2">
@@ -57,14 +54,14 @@
                     </div>
                 </div>
 
-                <!-- Format dates -->
+
                 <fmt:parseDate value="${param.startDate}" pattern="yyyy-MM-dd" var="parsedStartDate" />
                 <fmt:parseDate value="${param.endDate}" pattern="yyyy-MM-dd" var="parsedEndDate" />
-                <!-- Parse and format dates -->
+
                 <fmt:parseDate value="${param.startDate}" pattern="yyyy-MM-dd" var="parsedStartDate" />
                 <fmt:parseDate value="${param.endDate}" pattern="yyyy-MM-dd" var="parsedEndDate" />
-                <fmt:formatDate value="${parsedStartDate}" pattern="MMMM d, yyyy" var="formattedStartDate" />
-                <fmt:formatDate value="${parsedEndDate}" pattern="MMMM d, yyyy" var="formattedEndDate" />
+                <fmt:formatDate value="${parsedStartDate}" pattern="MMM d, yyyy" var="formattedStartDate" />
+                <fmt:formatDate value="${parsedEndDate}" pattern="MMM d, yyyy" var="formattedEndDate" />
 
                 <div class="card-dates">
                     <svg xmlns="http://www.w3.org/2000/svg" class="card-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">

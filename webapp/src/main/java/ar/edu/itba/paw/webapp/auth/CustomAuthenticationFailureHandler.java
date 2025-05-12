@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.webapp.auth;
 
+import ar.edu.itba.paw.models.exceptions.UserValidatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AccountStatusException;
@@ -9,6 +10,7 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -20,7 +22,6 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomAuthenticationFailureHandler.class);
 
     public CustomAuthenticationFailureHandler() {
-        // Setting default failure URL
         setDefaultFailureUrl("/login?error=true");
     }
 
@@ -36,12 +37,8 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
         if (cause instanceof DisabledException) {
             LOGGER.info("DisabledException caught: {}", exception.getMessage());
             redirectUrl = "/blocked?reason=" + exception.getMessage();
-        } else if (cause instanceof LockedException) {
-            redirectUrl = "/blocked?reason=account_locked";
-        } else if (cause instanceof AccountStatusException) {
-            redirectUrl = "/blocked?reason=account_issue";
-        } else if (cause instanceof BadCredentialsException) {
-            redirectUrl = "/login?error=bad_credentials";
+        } else if (cause instanceof UserValidatedException) {
+            redirectUrl= "/not-verified";
         }
 
         LOGGER.info("Redirecting to: {}", redirectUrl);

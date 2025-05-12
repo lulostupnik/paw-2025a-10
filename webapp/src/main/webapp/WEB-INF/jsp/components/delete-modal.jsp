@@ -13,11 +13,11 @@
       </button>
     </div>
     <div class="attendance-modal-body">
-      <p id="delete-modal-warning">${param.warning}</p>
+      <p id="delete-modal-warning"><c:out value="{param.warning}"/></p>
 
-      <!-- This div will be populated with the appropriate form -->
+
       <div id="delete-form-container">
-        <!-- Forms will be moved here dynamically -->
+
       </div>
     </div>
     <div class="attendance-modal-footer">

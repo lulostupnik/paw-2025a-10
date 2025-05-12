@@ -2,22 +2,21 @@ package ar.edu.itba.paw.interfaces.persistence;
 
 import ar.edu.itba.paw.models.EventResponse;
 import ar.edu.itba.paw.models.Page;
-
+import ar.edu.itba.paw.models.PageParams;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 public interface EventResponseDao {
     EventResponse create(long userId, String username, long eventId, String message, LocalDateTime dateTime);
-    List<EventResponse> listAllFromEvent(long eventId);
-    int getCount(long eventId);
-    Page<EventResponse> listAllFromEvent(long eventId, int page, int size);
+    int countByEventId(long eventId);
+    Page<EventResponse> listAllByEventId(long eventId, PageParams pageParams);
     void delete(long id);
-    long getEventIdByResponseId(long eventId);
-    void deletionMessage(long id, String message);
-    void deleteByEventId(long eventId);
-    Optional<EventResponse> findById(long responseId);
-    Optional<EventResponse> findByIdDeletedOrNotDeleted(long responseId);
+    void updateDeletionMessage(long id, String message);
+    void deleteAllByEventId(long eventId);
+    Optional<EventResponse> findById(long id);
+
+    long findEventIdById(long id);
+
 
 
 }

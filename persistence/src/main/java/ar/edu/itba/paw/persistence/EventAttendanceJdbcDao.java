@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -15,9 +14,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ar.edu.itba.paw.interfaces.persistence.EventAttendanceDao;
-
-import static ar.edu.itba.paw.persistence.JdbcDaoUtils.offset;
-import static ar.edu.itba.paw.persistence.JdbcDaoUtils.pageCount;
 
 @Repository
 public class EventAttendanceJdbcDao implements EventAttendanceDao {
@@ -37,33 +33,6 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
             rs.getLong("user_profile_picture_id"),
             Locale.of(rs.getString("user_language")),
             rs.getBoolean("user_blocked"));
-
-    private final static String SQL_USERS_BASE =
-                    """
-                    SELECT
-                        u.id AS user_id,
-                        u.email AS user_email,
-                        u.firstname AS user_firstname,
-                        u.lastname AS user_lastname,
-                        u.username AS user_username,
-                        u.university AS user_university,
-                        u.language AS user_language,
-                        u.blocked AS user_blocked,
-                        c.name AS career_name,
-                        c.id AS career_id,
-                        u.profile_picture_id AS user_profile_picture_id,
-                        un.name AS university_name,
-                        un.abbreviation AS university_abbreviation,
-                        ci.id AS city_id,
-                        ci.name AS city_name,
-                        co.name AS country_name
-                    FROM users u
-                    JOIN universities un ON u.university = un.id
-                    JOIN careers c ON c.id = u.career_id
-                    JOIN cities ci ON ci.id = un.city_id
-                    JOIN countries co ON co.id = ci.country_id
-                    JOIN event_attendances ea ON u.id = ea.user_id
-                    """;
 
 
     private static final RowMapper<Event> EVENT_ROW_MAPPER = (rs, rowNum) -> new Event(
@@ -157,11 +126,8 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
                     JOIN event_attendances ea ON e.id = ea.event_id
                     """;
 
-    private final static String SQL_LIST_ALL_BY_EVENT = SQL_USERS_BASE + " WHERE ea.event_id = ? ";
     private final static String SQL_LIST_ALL_BY_USER = SQL_EVENTS_BASE + " WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE ";
 
-    private final static String SQL_PAGE_BY_EVENT = SQL_LIST_ALL_BY_EVENT + " LIMIT ? OFFSET ?";
-    private final static String SQL_PAGE_BY_USER = SQL_LIST_ALL_BY_USER + " ORDER BY e.event_date DESC LIMIT ? OFFSET ?";
 
 
 
@@ -173,81 +139,39 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
     }
 
     @Override
-    public void attend(final long userId, final long eventId) {
-        LOGGER.info("Registering user {} will attend event {}", userId, eventId);
-        final int rowsAffected = jdbcTemplate.update("UPDATE events SET attendees_count = attendees_count + 1 WHERE id = ?", eventId);
-        if (rowsAffected == 0) {
-            LOGGER.warn("Event attendance failed: Event with ID {} not found", eventId);
-        }
+    public void create(final long userId, final long eventId) {
         final Map<String, Object> params = new HashMap<>();
         params.put("user_id", userId);
         params.put("event_id", eventId);
         jdbcInsert.execute(params);
+
     }
 
+
     @Override
-    public void cancel(final long userId, final long eventId) {
-        LOGGER.info("Registering user {} will cancel attendance to event {}", userId, eventId);
-        jdbcTemplate.update("DELETE FROM event_attendances WHERE user_id = ? AND event_id = ?", userId, eventId);
-        final int rowsAffected = jdbcTemplate.update("UPDATE events SET attendees_count = attendees_count - 1 WHERE id = ?", eventId);
-        if (rowsAffected == 0) {
-            LOGGER.warn("Event attendance cancel failed: Event with ID {} not found", eventId);
+    public void delete(final long userId, final long eventId) {
+        int rowsAffected = jdbcTemplate.update("DELETE FROM event_attendances WHERE user_id = ? AND event_id = ?", userId, eventId);
+        if (rowsAffected > 0){
+            rowsAffected = jdbcTemplate.update("UPDATE events SET attendees_count = attendees_count - 1 WHERE id = ?", eventId);
+            if (rowsAffected == 0) {
+                LOGGER.warn("Event attendance cancel failed: Event with ID {} not found", eventId);
+            }
         }
     }
 
 
     @Override
-    public boolean isAttending(final long userId, final long eventId) {
+    public boolean exists(final long userId, final long eventId) {
         return jdbcTemplate.queryForObject(
                 "SELECT COUNT(1) FROM event_attendances WHERE user_id = ? AND event_id = ?",
                 Boolean.class, userId, eventId);
     }
 
     @Override
-    public List<User> getAttendees(final long eventId) {
-        return jdbcTemplate.query(SQL_LIST_ALL_BY_EVENT, USER_ROW_MAPPER, eventId);
-    }
-
-    @Override
-    public int getAttendeesCount(final long eventId) {
+    public int countByEventId(final long eventId) {
         return jdbcTemplate.query("SELECT attendees_count FROM events WHERE id = ?", (rs, rowNum) -> rs.getInt("attendees_count"), eventId).stream().findFirst().orElse(0);
-        // return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM event_attendances WHERE event_id = ?",  Integer.class, eventId);
     }
 
-    @Override
-    public List<Event> getAttendingEvents(final long userId) {
-        return jdbcTemplate.query(SQL_LIST_ALL_BY_USER, EVENT_ROW_MAPPER, userId, userId);
-    }
 
-    @Override
-    public Page<User> getAttendees(final long eventId, final int pageNumber, final int pageSize) {
-        final int totalItems = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM event_attendances WHERE event_id = ?",
-                Integer.class,
-                eventId
-        );
-
-
-        return new Page<>(
-                jdbcTemplate.query(SQL_PAGE_BY_EVENT, USER_ROW_MAPPER, eventId, pageSize, offset(pageNumber, pageSize)),
-                pageNumber,
-                pageCount(totalItems, pageSize)
-        );
-    }
-
-    @Override
-    public Page<Event> getAttendingEvents(final long userId, final int pageNumber, final int pageSize) {
-        final int totalItems = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM event_attendances ea JOIN events e ON ea.event_id = e.id WHERE ea.user_id = ? AND e.user_id != ? AND e.deleted = FALSE",
-                Integer.class,
-                userId, userId
-        );
-
-        return new Page<>(
-                jdbcTemplate.query(SQL_PAGE_BY_USER, EVENT_ROW_MAPPER, userId, userId, pageSize, offset(pageNumber, pageSize)),
-                pageNumber,
-                pageCount(totalItems, pageSize)
-        );
-    }
 
 }

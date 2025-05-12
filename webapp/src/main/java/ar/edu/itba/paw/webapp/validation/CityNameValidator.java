@@ -8,16 +8,19 @@ import javax.validation.ConstraintValidatorContext;
 
 
 public class CityNameValidator implements ConstraintValidator<ExistingCity, String> {
+
+    private final CityService cityService;
+
     @Autowired
-    private CityService cityService;
+    public CityNameValidator(CityService cityService) {
+        this.cityService = cityService;
+    }
 
     @Override
     public boolean isValid(String city, ConstraintValidatorContext constraintValidatorContext) {
         if (city == null || city.isEmpty()) {
             return true;
         }
-        // Assuming a method exists to check if the city is valid
-        // This should be replaced with actual logic to check if the city exists
-        return cityService.findByName(city).isPresent();
+        return cityService.findCityByName(city).isPresent();
     }
 }

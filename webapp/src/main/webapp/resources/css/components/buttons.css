@@ -1,4 +1,4 @@
-/* Button styles - FIXED */
+
 .btn,
 .btn-primary,
 .btn-secondary,
@@ -63,7 +63,7 @@
     background-color: #f3f4f6;
 }
 
-/* Button */
+
 .form-button {
     display: inline-flex;
     justify-content: center;
@@ -123,14 +123,14 @@
     box-shadow: 0 0 0 0.2rem rgba(220, 38, 38, 0.25);
 }
 
-/* Button container - FIXED */
+
 .btn-container {
     margin-top: 1.5rem;
     display: flex;
     gap: 0.75rem;
 }
 
-/* Back button - FIXED */
+
 .back-button {
     display: inline-flex;
     align-items: center;
@@ -150,7 +150,7 @@
     height: 0.75rem;
 }
 
-/* Reply button - FIXED */
+
 .reply-button {
     display: inline-flex;
     justify-content: center;
@@ -172,7 +172,7 @@
     background-color: #1d4ed8;
 }
 
-/* Details button - FIXED */
+
 .details-button {
     display: inline-flex;
     justify-content: center;
@@ -194,7 +194,7 @@
     background-color: #f3f4f6;
 }
 
-/* Filter button - FIXED */
+
 .filter-button {
     display: inline-flex;
     justify-content: center;
@@ -216,7 +216,7 @@
     background-color: #f3f4f6;
 }
 
-/* Create button - FIXED */
+
 .create-button {
     display: inline-flex;
     justify-content: center;
@@ -238,13 +238,13 @@
     background-color: #1d4ed8;
 }
 
-/* Button size variants */
+
 .btn-large {
     padding: 0.75rem 1.5rem;
     font-size: 1.125rem;
 }
 
-/* Explore button - white background with purple text */
+
 .btn-explore-journey {
     display: inline-flex;
     justify-content: center;
@@ -252,8 +252,8 @@
     padding: 0.75rem 1.5rem;
     font-size: 1.125rem;
     font-weight: 600;
-    color: #5e48e8; /* Purple text */
-    background-color: #ffffff; /* White background */
+    color: #5e48e8;
+    background-color: #ffffff;
     border-radius: 0.5rem;
     text-decoration: none;
     border: none;
@@ -262,7 +262,7 @@
 }
 
 .btn-explore-journey:hover {
-    background-color: #f9f8ff; /* Very light purple on hover */
+    background-color: #f9f8ff;
     transform: translateY(-1px);
     box-shadow: 0 4px 6px rgba(94, 72, 232, 0.1);
 }
@@ -277,14 +277,14 @@
     box-shadow: 0 1px 2px rgba(94, 72, 232, 0.1);
 }
 
-/* Hero CTA section - ensure proper spacing between buttons */
+
 .hero-cta {
     display: flex;
     gap: 1rem;
     margin-top: 1.5rem;
 }
 
-/* Button styling with icons */
+
 .btn-with-icon {
     display: inline-flex;
     align-items: center;
@@ -294,30 +294,30 @@
 .btn-icon {
     font-size: 0.875rem;
 }
-/* SVG icon styling for color inheritance */
+
 .btn-with-icon img.btn-icon {
     height: 1em;
     width: 1em;
     filter: invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
 }
 
-/* Apply specific filters for different button types */
+
 .btn-primary img.btn-icon {
-    /* For white icons on primary buttons */
+
     filter: brightness(0) invert(1);
 }
 
 .btn-secondary img.btn-icon {
-    /* For darker icons on secondary buttons */
+
     filter: brightness(0) saturate(100%);
 }
 
 .btn-danger img.btn-icon {
-    /* For white icons on danger buttons */
+
     filter: brightness(0) invert(1);
 }
 
-/* For tag remove buttons */
+
 .tag-remove img {
     height: 0.75em;
     width: 0.75em;
@@ -337,7 +337,7 @@
 }
 
 
-/* Updated edit button container styling */
+
 .edit-button-container {
     position: absolute;
     top: 0.75rem;
@@ -345,7 +345,7 @@
     z-index: 10;
 }
 
-/* Updated edit button styling to match your design system */
+
 .edit-button {
     display: flex;
     align-items: center;
@@ -356,7 +356,7 @@
     border-radius: 50%;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: all 0.2s ease;
-    color: #4f46e5; /* Using your primary color from the button styles */
+    color: #4f46e5;
 }
 
 .edit-button:hover {

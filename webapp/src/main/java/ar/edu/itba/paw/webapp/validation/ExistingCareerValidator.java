@@ -8,12 +8,14 @@ import javax.validation.ConstraintValidatorContext;
 
 public class ExistingCareerValidator implements ConstraintValidator<ExistingCareer, String> {
 
+    private final CareerService careerService;
     @Autowired
-    private CareerService careerService;
+    public ExistingCareerValidator(CareerService careerService) {
+        this.careerService = careerService;
+    }
 
     @Override
     public void initialize(ExistingCareer constraintAnnotation) {
-        // No initialization needed
     }
 
     @Override
@@ -21,6 +23,6 @@ public class ExistingCareerValidator implements ConstraintValidator<ExistingCare
         if (careerName == null || careerName.isEmpty()) {
             return true;
         }
-        return careerService.findByName(careerName).isPresent(); // Placeholder, replace with actual logic
+        return careerService.findCareerByName(careerName).isPresent();
     }
 }

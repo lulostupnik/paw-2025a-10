@@ -1,14 +1,15 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<link rel="stylesheet" href="<c:url value='/resources/css/dashboard.css'/>" />
 
 <div class="tab-content active" id="events-tab">
   <c:set var="titleMessageCode" value="admin.manage.events" scope="request" />
   <c:set var="searchUrl" value="/dashboard/events" scope="request" />
   <c:set var="searchPlaceholderCode" value="admin.search.events" scope="request" />
-<%--  <c:set var="showAddButton" value="true" scope="request" />--%>
-<%--  <c:set var="addButtonUrl" value="/events/create" scope="request" />--%>
-<%--  <c:set var="addButtonTextCode" value="event.create.button" scope="request" />--%>
+
+
+
 
   <div class="content-header">
     <h2><spring:message code="${titleMessageCode}" /></h2>
@@ -23,12 +24,12 @@
             <img src="<c:url value='/resources/icons/search.svg'/>" alt="<spring:message code="admin.search.button" />" class="search-icon" />
           </button>
         </form>
-<%--        <c:if test="${showAddButton}">--%>
-<%--          <a href="<c:url value='${addButtonUrl}'/>" class="add-button">--%>
-<%--            <i class="plus-icon"></i>--%>
-<%--            <spring:message code="${addButtonTextCode}"/>--%>
-<%--          </a>--%>
-<%--        </c:if>--%>
+
+
+
+
+
+
       </div>
     </div>
   </div>
@@ -36,7 +37,6 @@
     <table class="data-table">
       <thead>
       <tr>
-        <th><spring:message code="admin.column.id" /></th>
         <th><spring:message code="admin.column.title" /></th>
         <th><spring:message code="admin.column.organizer" /></th>
         <th><spring:message code="admin.column.location" /></th>
@@ -47,8 +47,7 @@
       <tbody>
       <c:set var="events" value="${pagedEvents.content}" />
       <c:forEach items="${events}" var="event">
-        <tr class="clickable-row" data-href="<c:url value="../events/${event.id}"/>" >
-          <td><c:out value="${event.id}"/></td>
+        <tr class="clickable-row"  onclick="saveLink()" data-href="<c:url value="../events/${event.id}"/>" >
           <td><c:out value="${event.title}"/></td>
           <td><c:out value="${event.user.username}"/></td>
           <td><c:out value="${event.eventCity}"/></td>
@@ -86,13 +85,18 @@
       <jsp:param name="baseUrl" value="/dashboard/events?search=${param.search}" />
     </jsp:include>
 
-<%--    <jsp:include page="../../components/pagination-controls.jsp">--%>
-<%--      <jsp:param name="currentPage" value="${pagedEvents.currentPage}" />--%>
-<%--      <jsp:param name="itemsPerPage" value="10" />--%>
-<%--      <jsp:param name="totalPages" value="${pagedEvents.totalPages}" />--%>
-<%--      <jsp:param name="search" value="${param.search}" />--%>
-<%--      <jsp:param name="currentUrl" value="/dashboard/events" />--%>
-<%--    </jsp:include>--%>
-<%--    --%>
+
+
+
+
+
+
+
+
   </div>
 </div>
+<script>
+  function saveLink() {
+    sessionStorage.setItem("rutaAnterior", window.location.href);
+  }
+</script>

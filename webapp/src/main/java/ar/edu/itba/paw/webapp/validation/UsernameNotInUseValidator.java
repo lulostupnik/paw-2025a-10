@@ -8,12 +8,14 @@ import javax.validation.ConstraintValidatorContext;
 
 public class UsernameNotInUseValidator implements ConstraintValidator<UsernameNotInUse, String> {
 
+    private final UserService userService;
     @Autowired
-    private UserService userService;
+    public UsernameNotInUseValidator(UserService userService) {
+        this.userService = userService;
+    }
 
     @Override
     public void initialize(UsernameNotInUse constraintAnnotation) {
-        // No initialization needed
     }
 
     @Override

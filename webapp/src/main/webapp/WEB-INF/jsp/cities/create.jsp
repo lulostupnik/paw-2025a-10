@@ -15,7 +15,7 @@
       </c:otherwise>
     </c:choose>
   </title>
-  <!-- Include custom CSS -->
+
   <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/form-enhancements.css'/>" />
@@ -68,7 +68,7 @@
     </c:choose>
 
     <form:form modelAttribute="createCityForm" action="${formAction}" method="post" class="auth-form" id="cityForm" novalidate="true">
-      <!-- City Name Field -->
+
       <div class="form-group">
         <form:label path="name" cssClass="form-label required-field">
           <spring:message code="createCity.name" text="City Name"/>
@@ -77,19 +77,20 @@
         <form:errors path="name" cssClass="error-message" />
       </div>
 
-      <!-- Country Field with Enhanced Autocomplete -->
+
       <div class="form-group">
         <form:label path="country" cssClass="form-label required-field">
           <spring:message code="createCity.country" text="Country"/>
         </form:label>
         <div class="autocomplete-wrapper">
-          <form:select path="country" id="country" cssClass="form-select ${not empty errors.getFieldError('country') ? 'error' : ''}" style="display: none;">
-            <form:option value=""><spring:message code="createCity.country.select" text="Select a country"/></form:option>
+          <select  id="country" class="form-select ${not empty errors.getFieldError('country') ? 'error' : ''}" style="display: none;">
+            <option value=""><spring:message code="createCity.country.select" text="Select a country"/></option>
             <c:forEach var="item" items="${countries}">
-              <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
+              <option value="<c:out value="${item.name}"/>"><c:out value="${item.name}"/></option>
             </c:forEach>
-          </form:select>
-          <input type="text" id="countrySearch" class="autocomplete-input" placeholder="<spring:message code="createCity.country.search" text="Type to search country..."/>" />
+          </select>
+          <c:set var="countrySearch"><spring:message code="createCity.country.search" text="Type to search country..."/></c:set>
+          <form:input path="country" type="text" id="countrySearch" class="autocomplete-input" placeholder="${countrySearch}" />
           <div id="countryDropdown" class="autocomplete-dropdown" style="display: none;">
             <c:forEach var="item" items="${countries}">
               <div class="autocomplete-item" data-value="<c:out value="${item.name}"/>">
@@ -97,7 +98,7 @@
               </div>
             </c:forEach>
           </div>
-          <!-- Container for selected country tag -->
+
           <div id="selectedCountry" class="selected-tags"></div>
         </div>
         <form:errors path="country" cssClass="error-message" />
@@ -124,8 +125,8 @@
   </div>
 </div>
 
-<!-- Include JavaScript files -->
-<script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
+
+<script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
 <script src="<c:url value="/resources/js/city-form.js"/>"></script>
 
 </body>

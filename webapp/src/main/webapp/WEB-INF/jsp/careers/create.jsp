@@ -15,7 +15,7 @@
       </c:otherwise>
     </c:choose>
   </title>
-  <!-- Include custom CSS -->
+
   <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/form-enhancements.css'/>" />
@@ -67,7 +67,7 @@
     </c:choose>
 
     <form:form modelAttribute="createCareerForm" action="${formAction}" method="post" class="auth-form" id="careerForm" novalidate="true">
-      <!-- Career Name Field -->
+
       <div class="form-group">
         <form:label path="name" cssClass="form-label required-field">
           <spring:message code="createCareer.name" text="Career Name"/>
@@ -96,7 +96,7 @@
   </div>
 </div>
 
-<!-- Include JavaScript files -->
+
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const careerForm = document.getElementById("careerForm");
@@ -119,35 +119,6 @@
 
     capitalizeFirstLetter(nameInput);
 
-    // Form validation
-    careerForm.addEventListener("submit", (event) => {
-      let isValid = true;
-
-      // Validate name
-      if (!nameInput.value.trim()) {
-        const errorElement = document.createElement("div");
-        errorElement.className = "error-message";
-        errorElement.textContent = "Career name is required";
-
-        const existingError = nameInput.parentNode.querySelector(".error-message");
-        if (!existingError) {
-          nameInput.parentNode.appendChild(errorElement);
-        }
-
-        nameInput.classList.add("error");
-        isValid = false;
-      } else {
-        nameInput.classList.remove("error");
-        const existingError = nameInput.parentNode.querySelector(".error-message");
-        if (existingError) {
-          existingError.remove();
-        }
-      }
-
-      if (!isValid) {
-        event.preventDefault();
-      }
-    });
   });
 </script>
 

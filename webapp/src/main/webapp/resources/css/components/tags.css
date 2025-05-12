@@ -1,4 +1,4 @@
-/* Tag styles */
+
 .tags {
     display: flex;
     flex-wrap: wrap;
@@ -59,7 +59,7 @@
     height: 0.75rem;
 }
 
-/* Interest dropdown */
+
 .interest-container {
     position: relative;
 }

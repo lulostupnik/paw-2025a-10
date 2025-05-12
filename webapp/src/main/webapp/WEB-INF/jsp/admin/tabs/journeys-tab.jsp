@@ -1,7 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<link rel="stylesheet" href="<c:url value='/resources/css/dashboard.css'/>" />
 
+<script>
+  function saveLink() {
+    sessionStorage.setItem("rutaAnterior", window.location.href);
+  }
+</script>
 <div class="tab-content active" id="journeys-tab">
   <c:set var="titleMessageCode" value="admin.manage.journeys" scope="request" />
   <c:set var="searchUrl" value="/dashboard/journeys" scope="request" />
@@ -33,7 +39,6 @@
     <table class="data-table">
       <thead>
       <tr>
-        <th><spring:message code="admin.column.id" /></th>
         <th><spring:message code="admin.column.user" /></th>
         <th><spring:message code="admin.column.destination" /></th>
         <th><spring:message code="admin.column.university" /></th>
@@ -44,8 +49,7 @@
       <tbody>
       <c:set var="journeys" value="${pagedJourneys.content}" />
       <c:forEach items="${journeys}" var="journey">
-        <tr class="clickable-row" data-href="<c:url value="../journeys/${journey.id}"/>" >
-          <td><c:out value="${journey.id}"/></td>
+        <tr class="clickable-row" onclick="saveLink()" data-href="<c:url value="../journeys/${journey.id}"/>" >
           <td><c:out value="${journey.user.username}"/></td>
           <td><c:out value="${journey.destinationUniversity.city}"/></td>
           <td><c:out value="${journey.destinationUniversity.name}"/></td>
@@ -62,13 +66,13 @@
       </div>
     </c:if>
 
-<%--    <jsp:include page="../../components/pagination-controls.jsp">--%>
-<%--      <jsp:param name="currentPage" value="${pagedJourneys.currentPage}" />--%>
-<%--      <jsp:param name="itemsPerPage" value="10" />--%>
-<%--      <jsp:param name="totalPages" value="${pagedJourneys.totalPages}" />--%>
-<%--      <jsp:param name="search" value="${param.search}" />--%>
-<%--      <jsp:param name="currentUrl" value="/dashboard/journeys" />--%>
-<%--    </jsp:include>--%>
+
+
+
+
+
+
+
     <jsp:include page="../../components/pagination-with-page-number.jsp">
       <jsp:param name="pageObjectTotalPages" value="${pagedJourneys.totalPages}" />
       <jsp:param name="currentPage" value="${pagedJourneys.currentPage}" />

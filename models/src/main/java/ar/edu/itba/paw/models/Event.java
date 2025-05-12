@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
 
@@ -23,10 +24,18 @@ public class Event {
     private final int attendeesCount;
 
 
-    //@TODO preguntar si esta bien
     public boolean getFull(){
-        return attendeesLimit.isPresent() && attendeesLimit.get() < attendeesCount;
+        return attendeesLimit.isPresent() && attendeesLimit.get() <= attendeesCount;
     }
+
+    public boolean getIsFuture() {
+        LocalDateTime eventDateTime = time
+                .map(t -> LocalDateTime.of(date, t))
+                .orElse(date.atStartOfDay());
+
+        return eventDateTime.isAfter(LocalDateTime.now());
+    }
+
 
     @Override
     public String toString() {
@@ -40,7 +49,7 @@ public class Event {
         sb.append(", date: \"");
         sb.append(date);
         sb.append("\", time: \"");
-        sb.append(time != null ? time : "all-day");
+        sb.append(time.isPresent() ? time : "all-day");
         sb.append("\", address: \"");
         sb.append(address);
         sb.append("\", attendeesLimit: ");

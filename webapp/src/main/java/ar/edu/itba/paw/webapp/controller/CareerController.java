@@ -4,19 +4,21 @@ import ar.edu.itba.paw.interfaces.services.CareerService;
 
 import ar.edu.itba.paw.models.Career;
 
+import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.form.*;
+import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
+import ar.edu.itba.paw.webapp.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
-
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 
 @Controller
@@ -29,8 +31,16 @@ public class CareerController {
     private static final String CAREER_DETAIL = "/careers/detail";
 
 
+    @Autowired
     public CareerController(CareerService careerService) {
         this.careerService = careerService;
+    }
+
+    @GetMapping( produces = "application/json; charset=UTF-8")
+    @ResponseBody
+    public String getCareersJSON(@RequestParam(value = "search", required = false) String search,
+                                 @PageParamCustomizer(defaultSize = 30) PageParams pageParams) {
+        return JsonUtils.toJson( careerService.searchCareers(search, pageParams).getContent());
     }
 
 
@@ -45,32 +55,31 @@ public class CareerController {
         if (errors.hasErrors()) {
             return createCareersForm(careerForm);
         }
-        Career career = careerService.create(careerForm.getName());
+        Career career = careerService.createCareer(careerForm.getName());
 
         return new ModelAndView("redirect:/careers/{id}", "id", career.getId());
     }
     @GetMapping(value= "/{id}")
     public ModelAndView getCareers(@PathVariable(value = "id") final long id) {
-        Career career = careerService.findById(id).orElseThrow(() -> new NoSuchElementException("Career not found"));
+        Career career = careerService.findCareerById(id).orElseThrow(() -> {
+            LOGGER.error("Career not found");
+            return new NotFoundException("Career not found");}
+        );
         ModelAndView mav = new ModelAndView(CAREER_DETAIL);
         mav.addObject("career", career);
         return mav;
     }
 
     @GetMapping(value = "/{id}/edit")
-    public ModelAndView updateCareerForm(@PathVariable("id") Long id) {
-        Optional<Career> career = careerService.findById(id);
-        if (career.isEmpty()) {
-            return new ModelAndView("redirect:/careers");
+    public ModelAndView updateCareerForm(@PathVariable("id") Long id, @ModelAttribute("createCareerForm") final CreateCareerForm form,
+                                         final BindingResult errors) {
+
+
+        if(! errors.hasErrors()) {
+            Career career = careerService.findCareerById(id).orElseThrow(() -> new NotFoundException("Career not found"));
+            form.setName(career.getName());
         }
-        Career existingCareer = career.get();
-
-        // Create and populate form with existing university data
-        CreateCareerForm form = new CreateCareerForm();
-        form.setName(existingCareer.getName());
-
         ModelAndView mav = new ModelAndView(CAREER_CREATE);
-        mav.addObject("createCareerForm", form);
         mav.addObject("isUpdate", true);
         mav.addObject("careerId", id);
         return mav;
@@ -81,15 +90,11 @@ public class CareerController {
                                          @Valid @ModelAttribute("createCareerForm") final CreateCareerForm form,
                                          final BindingResult errors,
                                          @ModelAttribute("user") User user) {
-
         if (errors.hasErrors()) {
-            ModelAndView mav = new ModelAndView(CAREER_CREATE);
-            mav.addObject("isUpdate", true);
-            mav.addObject("careerId", id);
-            return mav;
+            return createCareersForm(form);
         }
 
-        careerService.update(id,form.getName());
+        careerService.updateCareer(id,form.getName());
 
         return new ModelAndView("redirect:/careers/{id}", "id", id);
     }
@@ -97,7 +102,7 @@ public class CareerController {
 
     @PostMapping(value = "/{id}/delete")
     public ModelAndView deleteCareer(@PathVariable long id) {
-        careerService.delete(id);
+        careerService.deleteCareer(id);
         return new ModelAndView("redirect:" + CAREER_DASHBOARD);
     }
 

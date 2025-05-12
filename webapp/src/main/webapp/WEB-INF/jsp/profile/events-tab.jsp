@@ -22,10 +22,10 @@
     </button>
   </div>
 
-  <!-- Created Events -->
+
   <div class="events-tab-content active" id="created-events">
     <div class="cards-grid">
-      <c:if test="${empty userEvents.content}">
+      <c:if test="${empty events.content}">
         <div class="empty-state">
           <div class="empty-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="empty-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -41,8 +41,8 @@
         </div>
       </c:if>
 
-      <c:if test="${not empty userEvents.content}">
-        <c:forEach items="${userEvents.content}" var="event">
+      <c:if test="${not empty events.content}">
+        <c:forEach items="${events.content}" var="event">
           <jsp:include page="../events/event-card.jsp">
             <jsp:param name="username" value="${event.user.username}"/>
             <jsp:param name="eventId" value="${event.id}" />
@@ -62,14 +62,14 @@
     </div>
 
     <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
-      <jsp:param name="pageObjectTotalPages" value="${userEvents.totalPages}" />
+      <jsp:param name="pageObjectTotalPages" value="${events.totalPages}" />
       <jsp:param name="currentPage" value="${currentPageUserEvents}" />
       <jsp:param name="pageSize" value="${pageSize}" />
       <jsp:param name="baseUrl" value="/profile/events?attendingPage=${currentPageUserAttending}&size=${pageSize}" />
     </jsp:include>
   </div>
 
-  <!-- Attending Events -->
+
   <div class="events-tab-content" id="attending-events">
     <div class="cards-grid">
       <c:if test="${empty userAttendingEvents.content}">
@@ -111,7 +111,7 @@
       <jsp:param name="pageObjectTotalPages" value="${userAttendingEvents.totalPages}" />
       <jsp:param name="currentPage" value="${currentPageUserAttending}" />
       <jsp:param name="pageSize" value="${pageSize}" />
-      <jsp:param name="baseUrl" value="/profile/events?page=${currentPageUserEvents}&size=${pageSize}" />
+      <jsp:param name="baseUrl" value="/profile/events?page=${currentPageUserEvents}&size=${pageSize}&eventsTab=attending" />
       <jsp:param name="paramName" value="attendingPage" />
     </jsp:include>
   </div>

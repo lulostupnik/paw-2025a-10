@@ -1,8 +1,10 @@
 package ar.edu.itba.paw.webapp.auth;
 
 import ar.edu.itba.paw.interfaces.services.UserService;
-import ar.edu.itba.paw.models.User;
-import ar.edu.itba.paw.models.UserPassword;
+import ar.edu.itba.paw.models.UserAuthInfo;
+import ar.edu.itba.paw.models.exceptions.UserValidatedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.GrantedAuthority;
@@ -11,15 +13,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.regex.Pattern;
 
 @Component
 public class PawUserDetailsService implements UserDetailsService {
     private final UserService us;
+    private static final Logger LOGGER = LoggerFactory.getLogger(PawUserDetailsService.class);
+
 
     @Autowired
     public PawUserDetailsService(UserService userService) {
@@ -28,12 +29,20 @@ public class PawUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        final UserPassword user = us.findByEmailWithPass(username).orElseThrow(() ->
-                new UsernameNotFoundException("No user by the name " + username));
+        final UserAuthInfo user = us.findAuthInfoByEmail(username).orElseThrow(() -> {
+            LOGGER.warn("Failed login attempt: No user found with username '{}'", username);
+            return new UsernameNotFoundException("No user by the name " + username);
+        });
         Collection<? extends GrantedAuthority> authorities;
 
+
         if(user.isBlocked()){
+            LOGGER.warn("User is blocked");
             throw new DisabledException("User is blocked");
+        }
+        if(!user.isVerified()){
+            LOGGER.warn("User is not verified");
+            throw new UserValidatedException("User is not verified");
         }
         if(user.getRole().equals("admin")) {
             authorities = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));

@@ -13,10 +13,10 @@
 </head>
 <body>
 <div class="landing-page">
-    <!-- Navigation -->
+
     <jsp:include page="components/navbar.jsp"/>
 
-    <!-- Hero Section -->
+
     <section class="hero-section">
         <div class="container">
             <div class="hero-content">
@@ -37,7 +37,7 @@
         </div>
     </section>
 
-    <!-- Features Section -->
+
     <section class="features-section-landing">
         <div class="container">
             <div class="section-header-landing ">
@@ -76,7 +76,7 @@
         </div>
     </section>
 
-    <!-- How It Works Section -->
+
     <section class="how-it-works-section">
         <div class="container">
             <div class="section-header">
@@ -109,7 +109,7 @@
         </div>
     </section>
 
-    <!-- Featured Journeys Section -->
+
     <section class="featured-section ">
         <div class="container">
             <div class="section-header-landing">
@@ -147,13 +147,6 @@
 
                 <c:if test="${not empty recommendedEvents}">
                     <c:forEach items="${recommendedEvents}" var="event">
-                        <c:set var="attend" value="false" />
-                        <c:forEach items="${eventsAttended}" var="attendedEvent">
-                            <c:if test="${attendedEvent.id == event.id}">
-                                <c:set var="attend" value="true" />
-                            </c:if>
-
-                        </c:forEach>
                         <jsp:include page="events/event-card.jsp">
                             <jsp:param name="eventId" value="${event.id}" />
                             <jsp:param name="city" value="${event.eventCity.name}" />
@@ -174,7 +167,7 @@
         </div>
     </section>
 
-    <!-- Testimonials Section -->
+
     <section class="testimonials-section">
         <div class="container">
             <div class="section-header-landing ">
@@ -220,7 +213,7 @@
         </div>
     </section>
 
-    <!-- CTA Section -->
+
     <section class="cta-section">
         <div class="container">
             <div class="cta-container">
@@ -237,7 +230,7 @@
         </div>
     </section>
 
-    <!-- Footer -->
+
     <footer class="landing-footer">
         <div class="container">
             <div class="footer-content">

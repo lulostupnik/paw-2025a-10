@@ -1,11 +1,8 @@
 package ar.edu.itba.paw.webapp.form;
 
 import java.time.LocalDate;
-
-//import javax.validation.constraints.Pattern;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
 import ar.edu.itba.paw.webapp.validation.ExistingUniversity;
 import ar.edu.itba.paw.webapp.validation.FutureDate;
 import ar.edu.itba.paw.webapp.validation.ValidDateRange;
@@ -24,15 +21,13 @@ public class CreateJourneyForm {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
-//    @Size(min = 2, max = 100)
-//    private String destinationCity;
-
     @Size(min = 2, max = 100)
     @NotNull
     @ExistingUniversity
     private String destinationUniversity;
 
     @Size(min = 2, max = 2047)
+    @NotNull
     private String description;
     
     public LocalDate getStartDate(){
@@ -50,15 +45,6 @@ public class CreateJourneyForm {
     public void setEndDate(LocalDate endDate){
         this.endDate = endDate;
     }
-
-//    public String getDestinationCity(){
-//        return destinationCity;
-//    }
-//
-//    public void setDestinationCity(String destination){
-//        this.destinationCity = destination;
-//    }
-    
     public String getDestinationUniversity(){
         return destinationUniversity;
     }

@@ -36,12 +36,6 @@
         </div>
       </c:if>
 
-      <c:if test="${not empty user.locale}">
-        <div class="info-item">
-          <h3 class="info-label"><spring:message code="profile.language"/></h3>
-          <p class="info-value"><c:out value="${user.locale.displayLanguage}"/></p>
-        </div>
-      </c:if>
     </div>
   </div>
 </div>

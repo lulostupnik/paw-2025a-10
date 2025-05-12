@@ -7,7 +7,7 @@
 </head>
 <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; color: #333; margin: 0;">
 <div style="text-align: center; margin-bottom: 30px;">
-    <a href="http://pawserver.it.itba.edu.ar/paw-2025a-10/" style="text-decoration: none;">
+    <a th:href="${baseUrl}" style="text-decoration: none;">
         <h1 style="font-size: 28px; font-weight: bold; color: #000000; margin: 0;">
             Go<span style="color: #3366ff;">Together</span>
         </h1>
@@ -19,28 +19,22 @@
         Your account has been blocked by an administrator because it violated our community guidelines.
     </p>
 
-<!--    <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #ff3333;">-->
-<!--        <h4 th:text="#{email.user.blocked.reason.heading}" style="margin-top: 0; margin-bottom: 10px; color: #333;">Reason for blocking:</h4>-->
-<!--        <p style="margin: 0; font-style: italic; color: #333;" th:text="${adminMessage}">Admin message explaining the reason for blocking goes here</p>-->
-<!--    </div>-->
-
     <p th:text="#{email.user.blocked.consequences}" style="margin-top: 20px;">
         While your account is blocked, you will not be able to create or participate in events and journeys. Your existing content may be hidden from other users.
     </p>
 
-<!--    <div style="text-align: center; margin-top: 40px;">-->
-<!--        <a th:href="@{http://pawserver.it.itba.edu.ar/paw-2025a-10/contact}"-->
-<!--           style="display: inline-block; background-color: #3366ff; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;"-->
-<!--           th:text="#{email.user.blocked.cta}">-->
-<!--            Contact Support-->
-<!--        </a>-->
-<!--    </div>-->
 </div>
 
-<div style="margin-top: 30px; text-align: center; color: #666; font-size: 14px;">
-    <p th:text="#{email.footer.message}">
-        If you believe this action was taken in error, please contact our support team.
+<div style="text-align: center; margin: 30px 0;">
+    <p th:text="#{email.user.blocked.contact}" style="margin-bottom: 15px; font-weight: bold;">
+        If you believe this action was taken in error, please contact our support team:
     </p>
+    <a th:href="@{${'mailto:' + supportEmail}(subject=#{email.user.blocked.subject})}"
+       style="display: inline-block; background-color: #3366ff; color: white; padding: 12px 25px;
+                  text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 16px;"
+       th:text="#{email.user.blocked.cta}">
+        Contact Support
+    </a>
 </div>
 
 </body>

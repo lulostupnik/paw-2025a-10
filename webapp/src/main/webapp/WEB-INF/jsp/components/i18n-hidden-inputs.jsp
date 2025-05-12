@@ -13,7 +13,7 @@
 <input type="hidden" id="i18n-email-error" value="<spring:message code="valid.email.required" text="Please enter a valid email"/>" />
 <input type="hidden" id="i18n-past-date-error" value="<spring:message code="date.not.past" text="Please, do not enter a date in the past"/>" />
 <input type="hidden" id="i18n-valid-date-error" value="<spring:message code="end.date.before.start" text="End date must be after start date"/>" />
-<%-- Hidden inputs for i18n messages used in JavaScript validation --%>
+
 <input type="hidden" id="i18n-required-field" value="<spring:message code='validation.required' text='This field is required'/>" />
 <input type="hidden" id="i18n-past-date-error" value="<spring:message code='validation.date.past' text='Date cannot be in the past'/>" />
 <input type="hidden" id="i18n-positive-number-error" value="<spring:message code='validation.number.positive' text='Please enter a positive number'/>" />

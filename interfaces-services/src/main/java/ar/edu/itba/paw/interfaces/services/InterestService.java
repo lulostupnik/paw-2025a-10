@@ -8,19 +8,19 @@ import java.util.List;
 import java.util.Optional;
 
 public interface InterestService {
-    Optional<Interest> findById(long id);
-    List<Interest> findAll();
-    List<Interest> findByUserId(long id);
-    Optional<Interest> findByName(String name);
-    List<Interest> findIdByName(String[] names);
-    Page<Interest> findAllInterestsByUserId(long id, PageParams pageParams);
-    Interest createUserInterest(String interest);
-    void deleteUserInterest(long id);
-    void editUserInterest(long id, String interest);
-    void saveUserInterests(long[] interests, long userId);
-    void updateScoreByInterest(Interest interest, long userId);
-    void updateScoreByInterests(List<Interest> interests, long userId);
-    Page<Interest> getAllInterests(String search, PageParams pageParams);
+    Interest createInterest(String interest);
 
-    void delete(long id);
+    void updateInterest(long id, String interest);
+    void deleteInterest(long id);
+
+    void createUserInterests(List<String> interests, long userId);
+
+
+    Optional<Interest> findInterestById(long id);
+    List<Interest> findInterestsByUserId(long id);
+    Optional<Interest> findInterestByName(String name);
+    Page<Interest> findInterestsByUserId(long id, PageParams pageParams);
+    void updateUserInterestScores(List<Interest> interests, long userId);
+    void updateUserInterests(final long[] interestIds, final long userId);
+    Page<Interest> findInterests(String search, PageParams pageParams);
 }

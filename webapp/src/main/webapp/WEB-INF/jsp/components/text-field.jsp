@@ -2,13 +2,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<%--
-Parameters:
-- path: Form path for the input
-- label: Label text
-- placeholder: Placeholder text (optional)
-- type: Input type (default: "text")
---%>
+
 
 <c:set var="escapedPlaceholder">
   <c:out value="${param.placeholder}" />

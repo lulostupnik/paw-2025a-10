@@ -28,11 +28,6 @@
 
                     <div class="features-grid">
                         <div class="feature-card">
-                            <h3 class="feature-title"><spring:message code="interest.detail.id"/></h3>
-                            <p class="feature-description"><c:out value="${career.id}"/></p>
-                        </div>
-
-                        <div class="feature-card">
                             <h3 class="feature-title"><spring:message code="interest.detail.name"/></h3>
                             <p class="feature-description"><c:out value="${career.name}"/></p>
                         </div>
@@ -57,7 +52,7 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
+
 <div id="deleteModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">

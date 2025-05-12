@@ -1,4 +1,4 @@
-/* Auth Pages Styles - For Login and Registration */
+
 :root {
     --primary-color: #4361ee;
     --primary-dark: #3a56d4;
@@ -24,7 +24,7 @@
     --radius-lg: 0.75rem;
 }
 
-/* Auth Container */
+
 .auth-container {
     display: flex;
     flex-direction: column;
@@ -34,7 +34,7 @@
     padding: 2rem 1rem;
 }
 
-/* Auth Card */
+
 .auth-card {
     background-color: var(--white);
     border-radius: var(--radius-lg);
@@ -57,7 +57,7 @@
     background: linear-gradient(to right, var(--primary-color), var(--accent-color));
 }
 
-/* Auth Header */
+
 .auth-header {
     text-align: center;
     margin-bottom: 2rem;
@@ -87,7 +87,7 @@
     font-size: 1rem;
 }
 
-/* Form Styles */
+
 .auth-form {
     display: flex;
     flex-direction: column;
@@ -190,7 +190,7 @@
 
 
 
-/* Alert Box */
+
 .alert {
     padding: 1rem;
     border-radius: var(--radius);
@@ -232,11 +232,16 @@
     font-size: 0.875rem;
 }
 
-/* Checkbox */
-.checkbox-container {
+.checkbox-label {
     display: flex;
     align-items: center;
-    margin-bottom: 1rem;
+}
+
+.checkbox-custom {
+    width: 18px;
+    height: 18px;
+    accent-color: #4361ee;
+    margin-right: 0;
 }
 
 .checkbox-input {
@@ -246,25 +251,146 @@
     height: 0;
 }
 
-.checkbox-label {
+
+.login-group {
     display: flex;
     align-items: center;
-    cursor: pointer;
-    user-select: none;
-    font-size: 0.875rem;
-    color: var(--text-color);
+    justify-content: space-between;
+    margin: 1rem 0;
 }
 
-.checkbox-custom {
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+}
+
+
+.checkbox-wrapper {
     position: relative;
     display: inline-block;
-    width: 1.25rem;
-    height: 1.25rem;
-    background-color: var(--white);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    margin-right: 0.75rem;
+    width: 18px;
+    height: 18px;
+}
+
+
+.checkbox-mark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid #cbd5e0;
+    border-radius: 4px;
     transition: all 0.2s ease;
+}
+
+.checkbox-input:checked + .checkbox-mark {
+    background-color: #4361ee;
+    border-color: #4361ee;
+}
+
+.checkbox-input:focus + .checkbox-mark {
+    box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.3);
+}
+
+.checkbox-mark:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox-input:checked + .checkbox-mark:after {
+    display: block;
+}
+
+.checkbox-label {
+    font-size: 0.9rem;
+    color: #4a5568;
+    user-select: none;
+    cursor: pointer;
+}
+
+
+.forgot-password {
+    font-size: 0.9rem;
+    color: #4361ee;
+    text-decoration: none;
+    transition: color 0.2s;
+    font-weight: 500;
+}
+
+.forgot-password:hover {
+    color: #3a56d4;
+    text-decoration: underline;
+}
+
+
+@media (max-width: 480px) {
+    .login-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .forgot-password {
+        align-self: flex-end;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.checkbox-input:checked ~ .checkbox-custom:after {
+    content: "";
+    position: absolute;
+    display: block;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid #4f46e5;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.auth-link.forgot-password {
+    color: #4f46e5;
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.2s;
+}
+
+.auth-link.forgot-password:hover {
+    color: #4338ca;
+    text-decoration: underline;
 }
 
 .checkbox-input:checked ~ .checkbox-custom {
@@ -290,7 +416,7 @@
 }
 
 
-/* Divider */
+
 .auth-divider {
     display: flex;
     align-items: center;
@@ -315,7 +441,7 @@
     margin-left: 1rem;
 }
 
-/* Footer */
+
 .auth-footer {
     text-align: center;
     margin-top: 1.5rem;
@@ -339,7 +465,7 @@
     background-color: transparent;
 }
 
-/* File Upload */
+
 .file-upload {
     position: relative;
     width: 100%;
@@ -426,7 +552,7 @@
     background-color: var(--error-light);
 }
 
-/* Autocomplete */
+
 .autocomplete-container {
     position: relative;
 }
@@ -513,14 +639,14 @@
     background-color: rgba(67, 97, 238, 0.3);
 }
 
-/* Helper Text */
+
 .helper-text {
     font-size: 0.75rem;
     color: var(--text-muted);
     margin-top: 0.375rem;
 }
 
-/* Back Link */
+
 .back-link {
     display: inline-flex;
     align-items: center;
@@ -546,7 +672,7 @@
     height: 1rem;
 }
 
-/* Responsive Styles */
+
 @media (max-width: 640px) {
     .auth-card {
         padding: 1.5rem;
@@ -561,7 +687,7 @@
     }
 }
 
-/* Two Column Layout for Registration */
+
 .auth-columns {
     display: flex;
     flex-direction: column;
@@ -578,7 +704,7 @@
     }
 }
 
-/* Form Progress */
+
 .form-progress {
     display: flex;
     justify-content: space-between;
@@ -657,7 +783,7 @@
     font-weight: 500;
 }
 
-/* Language Selector Styles */
+
 .language-selector {
     position: absolute;
     top: 1rem;
@@ -734,7 +860,7 @@
     color: var(--primary-color);
     font-weight: 500;
 }
-/* Autocomplete styling to match existing components */
+
 .autocomplete-wrapper {
     position: relative;
     width: 100%;
@@ -756,7 +882,7 @@
 
 
 
-/* Filter grid styling */
+
 .filter-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -773,4 +899,91 @@
     align-items: center;
     gap: 15px;
     max-width: 100%;
+}
+
+.sort-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    position: absolute;
+    right: 0;
+    background-color: white;
+    min-width: 200px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    z-index: 1;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.dropdown-content a {
+    color: #333;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.2s;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown-content a.active {
+    background-color: #e5e7eb;
+    font-weight: 500;
+}
+
+
+.event-tabs {
+    margin: 1.5rem 0;
+}
+
+.tabs-list {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-bottom: 1px solid #e5e7eb;
+    overflow-x: auto;
+}
+
+.tab-item {
+    margin-right: 0.5rem;
+}
+
+.tab-link {
+    display: block;
+    padding: 0.75rem 1.25rem;
+    color: #6b7280;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.tab-item.active .tab-link {
+    color: #4361ee;
+    border-bottom-color: #4361ee;
+    font-weight: 500;
+}
+
+.tab-link:hover {
+    color: #4361ee;
+}
+
+@media (max-width: 640px) {
+    .tabs-list {
+        padding-bottom: 0.5rem;
+    }
+
+    .tab-link {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+}
+
+
+.journey-tabs {
+    margin: 1.5rem 0;
 }

@@ -2,17 +2,15 @@ package ar.edu.itba.paw.interfaces.persistence;
 
 import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.Page;
-
-import java.util.List;
+import ar.edu.itba.paw.models.PageParams;
 import java.util.Optional;
 
 public interface CareerDao {
     Optional<Career> findById(long id);
-    List<Career> findAll();
     Optional<Career> findByName(String name);
-    Page<Career> getAllCareers(int page, int pageSize);
-    Page<Career> searchBySubstring(String substring, int page, int size);
+    Page<Career> findAll(PageParams pageParams);
+    Page<Career> search(String substring, PageParams pageParams);
     Career create(String name);
-    Career update(long id, String name);
+    void update(long id, String name);
     void delete(long id);
 }

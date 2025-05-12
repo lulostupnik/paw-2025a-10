@@ -4,8 +4,8 @@ import ar.edu.itba.paw.models.Image;
 import java.util.Optional;
 
 public interface ImageService {
-    long storeImage(byte[] imageData);
-    Optional<Image> getImage(Long id);
-    void deleteImage(Long id);
+    long createImage(byte[] imageData);
+    Optional<Image> findImage(long id);
+    void deleteImage(long id);
 }
 

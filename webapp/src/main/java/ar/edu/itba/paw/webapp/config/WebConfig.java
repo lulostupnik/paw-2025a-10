@@ -1,13 +1,10 @@
 package ar.edu.itba.paw.webapp.config;
 
-import ar.edu.itba.paw.webapp.resolver.CustomLocaleResolver;
-import ar.edu.itba.paw.webapp.resolver.PageParamsResolver;
+import ar.edu.itba.paw.webapp.paging.PageParamsResolver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
-// import org.springframework.cache.caffeine.CaffeineCacheManager;
-// import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -24,6 +21,7 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.lang.NonNull;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -50,7 +48,8 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 @EnableTransactionManagement
 @EnableWebMvc
 @EnableAsync
-@ComponentScan({ "ar.edu.itba.paw.webapp.controller", "ar.edu.itba.paw.services", "ar.edu.itba.paw.persistence"}) // , "ar.edu.itba.paw.services"
+@EnableScheduling
+@ComponentScan({ "ar.edu.itba.paw.webapp.controller", "ar.edu.itba.paw.services", "ar.edu.itba.paw.persistence"})
 @Configuration
 @PropertySource("classpath:application.properties")
 public class WebConfig implements WebMvcConfigurer {
@@ -115,7 +114,6 @@ public class WebConfig implements WebMvcConfigurer {
         ms.setCacheSeconds((int) TimeUnit.MINUTES.toSeconds(5));
         ms.setBasename("classpath:i18n/messages");
         ms.setDefaultEncoding(StandardCharsets.UTF_8.name());
-
         return ms;
     }
 
@@ -151,7 +149,7 @@ public class WebConfig implements WebMvcConfigurer {
         props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.debug", "true"); // Opcional: para ver logs
+        props.put("mail.debug", "true");
         return mailSender;
     }
 
@@ -168,7 +166,7 @@ public class WebConfig implements WebMvcConfigurer {
         templateResolver.setSuffix(".html");
         templateResolver.setTemplateMode(TemplateMode.HTML);
         templateResolver.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        templateResolver.setCacheable(false); // Disable cache for development
+        templateResolver.setCacheable(true);
         return templateResolver;
     }
 
@@ -179,57 +177,25 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public LocaleResolver localeResolver() {
-        return new CustomLocaleResolver();
-    }
-
-    @Bean
     public PageParamsResolver pageParamsResolver(){
         return new PageParamsResolver();
     }
-
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(pageParamsResolver());
     }
 
-
-
     @Bean
     public CacheManager cacheManager() {
-        // Implementación sencilla para cache:
-        // return new ConcurrentMapCacheManager("cities", "countries", "careers", "universities", "images", "users", "events", "journeys", "interests", "eventResponses", "journeyResponses");
-
         return new ConcurrentMapCacheManager(
-                "usersById", "usersByEmail", "usersByUsername",
-                "universities", "universitiesById", "universitiesByName", "universitiesByAbbreviation", "universitiesByAny",
-                "journeysById",
-                "interests", "interestsById", "interestsByName",
                 "images",
-                "eventsById",
-                "countries",
-                "citiesByName",
-                "careers", "careersByName", "careersById",
-                "journeysByResponseId",
-                "eventsByResponseId"
+                "careersByName", "careersById",
+                "interestsById", "interestsByName",
+                "countries", "countriesByName",
+                "citiesByName", "citiesById",
+                "universitiesById", "universitiesByName"
         );
-
-        // Según lo que entendí, la mejor opción, pero habría que preguntarle al profesor:
-        /*
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager(
-                "cities", "countries", "careers", "universities", "images", "users", "events", "journeys"
-        );
-
-        cacheManager.setCaffeine(Caffeine.newBuilder()
-                .initialCapacity(100)
-                .maximumSize(1000)
-                .expireAfterAccess(30, TimeUnit.MINUTES)
-                .recordStats());
-
-        return cacheManager;
-
-         */
     }
 
 

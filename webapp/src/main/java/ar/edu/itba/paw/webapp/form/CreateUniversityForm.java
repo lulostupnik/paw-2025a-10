@@ -1,6 +1,8 @@
 package ar.edu.itba.paw.webapp.form;
 
+import ar.edu.itba.paw.webapp.validation.CareerNotExists;
 import ar.edu.itba.paw.webapp.validation.ExistingCity;
+import ar.edu.itba.paw.webapp.validation.UniversityNotExists;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -11,6 +13,7 @@ public class CreateUniversityForm {
     @Size(max = 50)
     @NotNull
     @NotEmpty
+    @UniversityNotExists
     private String name;
 
     @Size(max = 50)
@@ -22,16 +25,8 @@ public class CreateUniversityForm {
     @NotNull
     @NotEmpty
     @ExistingCity
-    private String cityName;
+    private String city;
 
-    public CreateUniversityForm() {
-    }
-
-    public CreateUniversityForm(String name, String abbreviation, String cityName) {
-        this.name = name;
-        this.abbreviation = abbreviation;
-        this.cityName = cityName;
-    }
 
     public String getName() {
         return name;
@@ -50,10 +45,10 @@ public class CreateUniversityForm {
     }
 
     public String getCity() {
-        return cityName;
+        return city;
     }
 
     public void setCity(String cityName) {
-        this.cityName = cityName;
+        this.city = cityName;
     }
 }

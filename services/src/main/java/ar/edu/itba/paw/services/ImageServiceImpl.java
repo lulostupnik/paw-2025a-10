@@ -3,7 +3,6 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.ImageDao;
 import ar.edu.itba.paw.interfaces.services.ImageService;
 import ar.edu.itba.paw.models.Image;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +12,10 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class ImageServiceImpl implements ImageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageServiceImpl.class);
@@ -30,37 +29,37 @@ public class ImageServiceImpl implements ImageService {
         this.cacheManager = cacheManager;
     }
 
-    @Transactional
     @Override
-    public long storeImage(byte[] imageData) {
+    @Transactional
+    public long createImage(final byte[] imageData) {
         LOGGER.debug("Storing image of size {}", imageData.length);
-        long imageId = imageDao.saveImage(imageData);
+        long imageId = imageDao.create(imageData);
 
         Image image = new Image(imageId, imageData);
-        Cache cache = cacheManager.getCache("images"); //TODO: preguntar si es buena practica
+        Cache cache = cacheManager.getCache("images");
         if (cache != null) {
-            cache.put(imageId, Optional.of(image));
+            cache.put(imageId, image);
         } else {
             LOGGER.warn("Cache 'images' not found, skipping cache operation");
         }
-
+        LOGGER.info("Image {} stored", imageId);
         return imageId;
     }
 
-    @Transactional(readOnly = true)
-    @Cacheable(value = "images", key = "#id")
     @Override
-    public Optional<Image> getImage(Long id) {
+    @Cacheable(value = "images", key = "#id")
+    public Optional<Image> findImage(final long id) {
         LOGGER.debug("Getting image {}", id);
-        return imageDao.getImageById(id);
+        return imageDao.findById(id);
     }
 
+    @Override
     @Transactional
     @CacheEvict(value = "images", key = "#id")
-    @Override
-    public void deleteImage(Long id) {
+    public void deleteImage(final long id) {
         LOGGER.debug("Deleting image {}", id);
-        imageDao.deleteImage(id);
+        imageDao.delete(id);
+        LOGGER.info("Image {} deleted", id);
     }
 
 

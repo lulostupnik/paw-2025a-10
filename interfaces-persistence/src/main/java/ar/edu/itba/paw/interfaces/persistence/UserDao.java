@@ -1,41 +1,55 @@
 package ar.edu.itba.paw.interfaces.persistence;
 
 import ar.edu.itba.paw.models.*;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 public interface UserDao {
-    User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale);
+    User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale, String validateToken, LocalDate validateTokenExpiration);
+
+    void updatePasswordAndClearTokenByToken(String token, String newPassword);
 
     Optional<User> findById(long id);
+
+    void updateToken(long id, String uuid, LocalDate date);
+
+    boolean findValidationStatusByEmail(String email);
+
     Optional<User> findByEmail(String email);
-    Optional<UserPassword> findByEmailWithPass(String email);
-    Optional<User> findByUsername(String username);
+
+    Optional<UserAuthInfo> updateValidationAndFindAuthInfoByToken(String token);
+
+    Optional<UserAuthInfo> findAuthInfoByEmail(String email);
 
     boolean existsByUsername(String username);
+
     boolean existsByEmail(String email);
 
-    void changePassword(String email, String password);
-    void updateProfileInfo(long userId, String firstname, String lastname, String username);
-    void updateLocale(long userId, Locale locale);
-    void updateUniversity(long userId, long universityId);
-    void updateUniversity(long userId, String universityName);
-    void updateCareer(long userId, long careerId);
-    void updateCareer(long userId, String careerName);
-    void updateProfilePicture(long userId, long profilePictureId);
-    void update(long userId, String firstname, String lastname, String username, Long universityId, Long careerId, Locale locale);
+    void updatePassword(long id, String password);
 
-    void blockUser(long userId);
-    void unblockUser(long userId);
+    void updateBlock(long id, boolean bool);
 
-    List<User> listJourneyRespondersMinusUsers(long journeyId/*, List<Long> userIds*/);
-    List<User> listEventRespondersMinusUsers(long eventId/*, List<Long> userIds*/);
+    Optional<Boolean> findValidatedByTokenNotExpired(String token);
 
-    List<User> getAllUsers();
+    Optional<User> findByToken(String token);
 
-    Page<User> getAllUsers(int page, int size);
-    Page<User> searchUsers(String search, int page, int size);
-    // podríamos generalizar en findBy(String field, String value) o algo por el estilo
+    Page<User> findAll(PageParams pageParams);
+
+    Page<User> search(String search, PageParams pageParams);
+
+    boolean existsByTokenNotExpired(String token);
+
+    boolean existsByTokenExpired(String token);
+
+    void updateTokenAndExpirationByToken(String newToken, LocalDate date, String oldToken);
+
+    List<User> findAllJourneyResponders(long journeyId);
+
+    List<User> findAllEventResponders(long eventId);
+
+    Page<User> findAllAttendeesByEventId(long eventId, PageParams pageParams);
+    List<User> findAllAttendeesByEventId(long eventId);
 
 }

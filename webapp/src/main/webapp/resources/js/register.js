@@ -1,8 +1,4 @@
-/**
- * Registration Page Initialization
- *
- * Initializes and coordinates all components for the registration page
- */
+
 document.addEventListener("DOMContentLoaded", () => {
     console.log("Initializing registration components...")
 
@@ -11,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // const PasswordStrength = window.PasswordStrength || {}
     const ListAutocomplete = window.ListAutocomplete || {}
     const FileUpload = window.FileUpload || {}
+    const apiBaseUrl = window.apiBaseUrl;
 
     // Initialize password strength component
     try {
@@ -26,12 +23,13 @@ document.addEventListener("DOMContentLoaded", () => {
             ? document.getElementById("i18n-career-none").value
             : "No career selected"
 
-        window.careerAutocomplete = ListAutocomplete.init({
+        window.careerAutocomplete = SingleOptionAutocomplete.init({
             selectId: "career",
             searchId: "careerSearch",
             dropdownId: "careerDropdown",
             selectedContainerId: "selectedCareer",
-            apiEndpoint: "/api/careers/search",
+            apiEndpoint: `${apiBaseUrl}careers`,
+            selectedValue: selectedCareer,
             minChars: 2,
             debounceTime: 300,
             emptyMessage: emptyMessage,
@@ -50,13 +48,14 @@ document.addEventListener("DOMContentLoaded", () => {
             ? document.getElementById("i18n-university-none").value
             : "No university selected"
 
-        window.universityAutocomplete = ListAutocomplete.init({
+        window.universityAutocomplete = SingleOptionAutocomplete.init({
             selectId: "originUniversity",
             searchId: "universitySearch",
             dropdownId: "universityDropdown",
             selectedContainerId: "selectedUniversity",
-            apiEndpoint: "/api/universities/search",
-            minChars: 2,
+            apiEndpoint: `${apiBaseUrl}universities`,
+            selectedValue: selectedUniversity,
+            minChars: 1,
             debounceTime: 300,
             emptyMessage: emptyMessage,
             multiSelect: false, // Set to single-select mode
@@ -78,7 +77,8 @@ document.addEventListener("DOMContentLoaded", () => {
             searchId: "interestSearch",
             dropdownId: "interestDropdown",
             selectedContainerId: "selectedInterests",
-            apiEndpoint: "/api/interests/search",
+            apiEndpoint: `${apiBaseUrl}interests`,
+            selectedValue: selectedInterests,
             minChars: 2,
             debounceTime: 300,
             emptyMessage: emptyMessage,

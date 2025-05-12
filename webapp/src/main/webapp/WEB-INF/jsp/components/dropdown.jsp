@@ -2,15 +2,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<%--
-Parameters:
-- path: Form path for the select
-- label: Label text
-- items: Collection of items to display (passed as request attribute)
-- itemValue: Property to use for option value (default: "name")
-- itemLabel: Property to use for option label (default: "name")
-- defaultMessageCode: Message code for default option
---%>
+
 <div class="form-group">
   <form:label path="${param.path}" cssClass="form-label">
     <c:out value="${param.label}" />

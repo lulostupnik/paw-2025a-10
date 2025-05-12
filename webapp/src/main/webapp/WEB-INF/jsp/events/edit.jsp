@@ -6,7 +6,7 @@
 <html lang="${pageContext.response.locale}">
 <head>
     <title><spring:message code="event.edit.title" text="Edit Event"/></title>
-    <!-- Include CSS files -->
+
     <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
     <link rel="stylesheet" href="<c:url value='/resources/css/form-enhancements.css'/>" />
@@ -115,7 +115,7 @@
         <form:form modelAttribute="editEventForm" action="${updateEventUrl}" method="post" enctype="multipart/form-data" class="auth-form" novalidate="true">
 
             <form:input type="hidden" value="${eventId}" path="id"/>
-            <!-- Title Field -->
+
             <div class="form-group">
                 <form:label path="title" cssClass="form-label required-field">
                     <spring:message code="event.name"/>
@@ -126,19 +126,20 @@
                 <form:errors path="title" cssClass="error-message" />
             </div>
 
-            <!-- City Field with Enhanced Autocomplete -->
+
             <div class="form-group">
                 <form:label path="city" cssClass="form-label required-field">
                     <spring:message code="event.city"/>
                 </form:label>
                 <div class="autocomplete-wrapper">
-                    <form:select path="city" id="city" cssClass="form-select ${not empty errors.getFieldError('city') ? 'error' : ''}" style="display: none;">
-                        <form:option value=""><spring:message code="createJourney.destinationCity.select"/></form:option>
+                    <select  id="city" class="form-select ${not empty errors.getFieldError('city') ? 'error' : ''}" style="display: none;">
+                        <option value=""><spring:message code="createJourney.destinationCity.select"/></option>
                         <c:forEach var="item" items="${cities}">
                             <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
                         </c:forEach>
-                    </form:select>
-                    <input type="text" id="citySearch" class="autocomplete-input" placeholder="<spring:message code="event.city.search" text="Type to search city..."/>" />
+                    </select>
+                    <c:set var="citySearch"><spring:message code="event.city.search"/></c:set>
+                    <form:input path="city" type="text" id="citySearch" class="autocomplete-input" placeholder="${citySearch}" />
                     <div id="cityDropdown" class="autocomplete-dropdown" style="display: none;">
                         <c:forEach var="item" items="${cities}">
                             <div class="autocomplete-item" data-value="<c:out value="${item.name}"/>">
@@ -146,14 +147,14 @@
                             </div>
                         </c:forEach>
                     </div>
-                    <!-- Container for selected city tag -->
+
                     <div id="selectedCity" class="selected-tags"></div>
                 </div>
                 <form:errors path="city" cssClass="error-message" />
             </div>
 
             <div class="form-row">
-                <!-- Date Field -->
+
                 <div class="form-group" style="width: 50%;">
                     <form:label path="date" cssClass="form-label required-field">
                         <spring:message code="event.date"/>
@@ -163,7 +164,7 @@
                 </div>
 
                 <div class="form-row" style="width: 50%;">
-                    <!-- Time Field -->
+
                     <div class="form-group">
                         <form:label path="time" name="time-label" cssClass="form-label required-field">
                             <spring:message code="event.time"/>
@@ -181,7 +182,7 @@
                 </div>
             </div>
 
-            <!-- Description Field -->
+
             <div class="form-group">
                 <form:label path="description" cssClass="form-label required-field">
                     <spring:message code="event.description"/>
@@ -194,7 +195,7 @@
                 <form:errors path="description" cssClass="error-message" />
             </div>
 
-            <!-- Address Field -->
+
             <div class="form-group">
                 <form:label path="address" cssClass="form-label">
                     <spring:message code="event.address"/>
@@ -205,7 +206,7 @@
                 <form:errors path="address" cssClass="error-message" />
             </div>
 
-            <!-- Attendees limit Field -->
+
             <div class="form-row">
                 <div class="form-group">
                     <form:label path="attendeesLimit" name="attendees-label" cssClass="form-label required-field">
@@ -224,7 +225,7 @@
                 </div>
             </div>
 
-            <!-- Enhanced file upload area for Flyer -->
+
             <div class="form-group">
                 <form:label path="flyer" cssClass="form-label">
                     <spring:message code="event.flyer"/>
@@ -253,8 +254,14 @@
                     </button>
                 </div>
                 <form:errors path="flyer" cssClass="error-message" />
-                <p class="form-hint"><spring:message code="event.flyer.edit.hint" text="Leave empty to keep current flyer"/></p>
-            </div>
+                <div class="form-hint">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="form-hint-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="form-hint-text">
+            <spring:message code="event.flyer.edit.hint" text="Leave empty to keep current flyer"/>
+        </span>
+                </div>            </div>
 
             <button type="submit" class="form-button">
                 <spring:message code="event.update.button" text="Update Event"/>
@@ -262,17 +269,26 @@
         </form:form>
 
         <div class="auth-footer">
-            <a  class="auth-link" href="<c:url value='/profile/events?eventsTab=created'/>" class="btn-text">
+            <a  class="auth-link" href="<c:url value='/events/${eventId}'/>" class="btn-text">
                 <spring:message code="event.back" text="Back to events"/>
             </a>
         </div>
     </div>
 </div>
 
-<!-- Include modularized JavaScript files -->
+
+<script>
+    function htmlDecode(input) {
+        const doc = new DOMParser().parseFromString(input, "text/html");
+        return doc.documentElement.textContent;
+    }
+    window.apiBaseUrl = '<c:url value="/" />';
+    eventSelectedCity = htmlDecode('<c:out value="${createEventForm.city}"/>');
+</script>
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
+<script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/components/file-upload.js'/>"></script>
 <script src="<c:url value='/resources/js/components/date-validation.js'/>"></script>
-<script src="<c:url value='/resources/js/event-form.js'/>"></script>
+<script src="<c:url value='/resources/js/events/event-form.js'/>"></script>
 </body>
 </html>

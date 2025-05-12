@@ -5,11 +5,11 @@ import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
-import java.util.NoSuchElementException;
 
 @Controller
 @RequestMapping("/users")
@@ -17,13 +17,19 @@ public class UserController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
 
+    @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @GetMapping(value= "/{id}")
     public ModelAndView getUser(@PathVariable(value = "id") final long id) {
-        User user = userService.findById(id).orElseThrow(() -> new NoSuchElementException("User not found"));
+        User user = userService.findUserById(id).orElseThrow((
+
+        ) -> {
+            LOGGER.error("User not found");
+            return new NotFoundException("User not found");
+        });
         ModelAndView mav = new ModelAndView("users/detail");
         mav.addObject("user", user);
         return mav;
@@ -35,7 +41,7 @@ public class UserController {
         if(referer != null) {
             return new ModelAndView("redirect:" + referer);
         } else {
-            throw new RuntimeException("Referer header is missing");
+            return new ModelAndView("redirect:dashboard/users");
         }
     }
 
@@ -45,7 +51,7 @@ public class UserController {
         if(referer != null) {
             return new ModelAndView("redirect:" + referer);
         } else {
-            throw new RuntimeException("Referer header is missing");
+            return new ModelAndView("redirect:dashboard/users");
         }
     }
 

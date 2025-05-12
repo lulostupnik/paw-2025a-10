@@ -3,15 +3,20 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
-import ar.edu.itba.paw.models.PageParams;
-import ar.edu.itba.paw.models.User;
-import ar.edu.itba.paw.webapp.resolver.anotation.PageParamCustomizer;
+import ar.edu.itba.paw.interfaces.services.UserService;
+import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.webapp.form.UpdatePasswordForm;
+import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.validation.Valid;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/profile")
@@ -22,18 +27,28 @@ public class ProfileController {
     private final EventService eventService;
     private final InterestService interestService;
     private static final String PROFILE = "profile/profile";
+    private final UserService userService;
 
     @Autowired
-    public ProfileController(JourneyService journeyService, EventService eventService, InterestService interestService) {
+    public ProfileController(JourneyService journeyService, EventService eventService, InterestService interestService, UserService userService) {
         this.journeyService = journeyService;
-
         this.eventService = eventService;
         this.interestService = interestService;
+        this.userService = userService;
     }
-    @GetMapping(value = "/info")
-    public ModelAndView getInfo() {
 
-        return new ModelAndView(PROFILE);
+    private void addUserJourneyToMav(User user, ModelAndView mav){
+        Optional<Journey> maybeJourney = journeyService.getJourneyByEmail(user.getEmail());
+        maybeJourney.map(journey -> mav.addObject("userJourney", journey)).orElseGet(() -> mav.addObject("userJourney", null));
+    }
+
+    @GetMapping(value = "/info")
+    public ModelAndView getInfo(
+            @ModelAttribute("user") User user
+    ) {
+        ModelAndView mav = new ModelAndView(PROFILE);
+        addUserJourneyToMav(user, mav);
+        return mav;
     }
 
 
@@ -43,22 +58,12 @@ public class ProfileController {
             @PageParamCustomizer(defaultSize = 4) PageParams pageParams) {
 
         ModelAndView mav = new ModelAndView(PROFILE);
-        mav.addObject("interests",interestService.findAllInterestsByUserId(user.getId(), pageParams));
+        addUserJourneyToMav(user, mav);
+        mav.addObject("interests",interestService.findInterestsByUserId(user.getId(), pageParams));
         return mav;
     }
 
 
-    @GetMapping(value = "/journeys")
-    public ModelAndView getJourneys(
-            @ModelAttribute("user") User user,
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "attendingPage", defaultValue = "1") int attendingPage,
-            @RequestParam(value = "size", defaultValue = "4") int size) {
-
-        ModelAndView mav = new ModelAndView(PROFILE);
-        mav.addObject("userJourneys", journeyService.getJourneysByUser(user.getEmail())); // FIXME: cambiar y usar Optional<Journey> getJourneyByEmail
-        return mav;
-    }
     @GetMapping(value = "/events")
     public ModelAndView getEvents(
             @ModelAttribute("user") User user,
@@ -66,10 +71,28 @@ public class ProfileController {
             @PageParamCustomizer(defaultSize = 6) PageParams pageParam) {
 
         ModelAndView mav = new ModelAndView(PROFILE);
-        mav.addObject("userEvents", eventService.getAllEvents(user.getEmail(), pageParam));
-        mav.addObject("userAttendingEvents", eventService.getUserAttendingEvents(user.getId(), attendingPage));
+        mav.addObject("events", eventService.findEvents(user.getEmail(), pageParam));
+        mav.addObject("userAttendingEvents", eventService.findEventsByAttendee(user.getId(), attendingPage));
         mav.addObject("currentPageUserEvents", pageParam.getPage());
         mav.addObject("currentPageUserAttending", attendingPage.getPage());
+        addUserJourneyToMav(user, mav);
         return mav;
     }
+
+    @GetMapping(value="/changePassword")
+    public ModelAndView getChangePassword(@ModelAttribute("updatePasswordForm") UpdatePasswordForm updatePasswordForm) {
+        return new ModelAndView("profile/change-password");
+    }
+    @PostMapping(value="/changePassword")
+    public ModelAndView changePassword(@Valid @ModelAttribute("updatePasswordForm") UpdatePasswordForm updatePasswordForm,
+                                       BindingResult errors,
+                                       @ModelAttribute("user") User user) {
+        if(errors.hasErrors()) {
+            return getChangePassword(updatePasswordForm);
+        }
+        userService.updatePassword(user.getId(), updatePasswordForm.getPassword());
+        return new ModelAndView("redirect:/profile/info");
+    }
+
+
 }

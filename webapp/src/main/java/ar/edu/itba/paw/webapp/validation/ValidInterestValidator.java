@@ -5,29 +5,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.List;
 
-public class ValidInterestValidator implements ConstraintValidator<ValidInterest, long[]> {
+public class ValidInterestValidator implements ConstraintValidator<ValidInterest, List<String>> {
+
+    private final InterestService interestService;
     @Autowired
-    private InterestService interestService;
+    public ValidInterestValidator(InterestService interestService) {
+        this.interestService = interestService;
+    }
 
     @Override
     public void initialize(ValidInterest constraintAnnotation) {
     }
 
     @Override
-    public boolean isValid(long[] interests, ConstraintValidatorContext context) {
-        if (interests == null || interests.length == 0) {
-            return false;
+    public boolean isValid(List<String> interests, ConstraintValidatorContext context) {
+        if (interests == null || interests.isEmpty()) {
+            return true;
         }
         try {
-            for(Number interest : interests) {
-                if (interestService.findById(interest.longValue()).isEmpty()) {
-                    return false; // Si no existe el interes, no es valido
+            for(String interest : interests) {
+                if (interestService.findInterestByName(interest).isEmpty()) {
+                    return false;
                 }
             }
             return true;
         } catch (Exception e) {
-            return true; // Si hay error, dejamos que pase y se maneje en el servicio
+            return true;
         }
     }
 }

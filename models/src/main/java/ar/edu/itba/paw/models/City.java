@@ -7,11 +7,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class City {
     private final String name;
-    private final String country; // podría ser un Country en vez de un String
+    private final String country;
     private final long id;
 
     @Override
     public String toString() {
         return name + ", " + country;
     }
-}
+
+    }
+
+

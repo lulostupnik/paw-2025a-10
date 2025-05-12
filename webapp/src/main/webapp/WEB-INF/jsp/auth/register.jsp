@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale}">
 <head>
@@ -20,7 +21,7 @@
     <div class="auth-card">
         <div class="auth-header">
             <div class="auth-logo">
-                <!-- You can add your logo here -->
+
                 <svg xmlns="http://www.w3.org/2000/svg" class="auth-logo-img" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -29,7 +30,7 @@
             <p class="auth-subtitle"><spring:message code="register.subtitle" text="Create your account to get started"/></p>
         </div>
 
-        <!-- Hidden internationalization messages for JavaScript -->
+
         <input type="hidden" id="i18n-password-very-weak" value="<spring:message code="password.strength.very-weak" text="Very Weak"/>" />
         <input type="hidden" id="i18n-password-weak" value="<spring:message code="password.strength.weak" text="Weak"/>" />
         <input type="hidden" id="i18n-password-medium" value="<spring:message code="password.strength.medium" text="Medium"/>" />
@@ -48,7 +49,7 @@
         <form:form modelAttribute="createUserForm" action="${registerUrl}" method="post" enctype="multipart/form-data" class="auth-form">
             <div class="auth-columns">
                 <div class="auth-column">
-                    <!-- Personal Information -->
+
                     <div class="form-group">
                         <form:label path="email" cssClass="form-label required-field">
                             <spring:message code="createJourney.userEmail"/>
@@ -58,7 +59,7 @@
                         <form:errors path="email" cssClass="error-message" />
                     </div>
 
-                    <!-- Enhanced Password Field with Strength Meter -->
+
                     <div class="form-group">
                         <form:label path="password" cssClass="form-label required-field">
                             <spring:message code="createJourney.password"/>
@@ -81,7 +82,7 @@
                         </div>
                         <form:errors path="password" cssClass="error-message" />
 
-                        <!-- Single password strength meter -->
+
                         <div class="password-strength">
                             <div class="password-meter">
                                 <div class="password-bar" id="passwordStrengthBar"></div>
@@ -90,12 +91,12 @@
                                 <div class="password-status">
                                     <span id="passwordStrengthLabel"></span>
                                 </div>
-                                <!-- Removed the password message span -->
+
                             </div>
                         </div>
                     </div>
 
-                    <!-- Password Confirmation Field -->
+
                     <div class="form-group">
 
                         <form:label path="confirmPassword" class="form-label required-field">
@@ -154,93 +155,95 @@
                         <form:errors path="username" cssClass="error-message" />
                     </div>
 
-                    <!-- Career field with enhanced autocomplete -->
+
                     <div class="form-group">
                         <form:label path="career" cssClass="form-label required-field">
                             <spring:message code="event.career"/>
                         </form:label>
                         <div class="autocomplete-wrapper">
-                            <form:select path="career" id="career" cssClass="form-select ${not empty errors.getFieldError('career') ? 'error' : ''}" style="display: none;">
-                                <form:option value=""><spring:message code="event.career.select"/></form:option>
+                            <select id="career" class="form-select ${not empty errors.getFieldError('career') ? 'error' : ''}" style="display: none;">
+                                <option value=""><spring:message code="event.career.select"/></option>
                                 <c:forEach var="item" items="${careers}">
-                                    <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
+                                    <option value="<c:out value="${item.name}"/>"><c:out value="${item.name}"/></option>
                                 </c:forEach>
-                            </form:select>
-                            <input type="text" id="careerSearch" class="autocomplete-input ${not empty errors.getFieldError('career') ? 'error' : ''}" placeholder="<spring:message code="event.career.search" text="Type to search..."/>" />
+                            </select>
+                            <c:set var="searchPlaceholder"><spring:message code="event.career.search" text="Type to search..."/></c:set>
+                            <form:input type="text" path="career" id="careerSearch" class="autocomplete-input ${not empty errors.getFieldError('career') ? 'error' : ''}" placeholder="${searchPlaceholder}" />
                             <div id="careerDropdown" class="autocomplete-dropdown" style="display: none;">
                                 <c:forEach var="item" items="${careers}">
-                                    <div class="autocomplete-item" data-value="${item.name}">
+                                    <div class="autocomplete-item" data-value="<c:out value="${item.name}"/>">
                                         <c:out value="${item.name}"/>
                                     </div>
                                 </c:forEach>
                             </div>
-                            <!-- Container for selected career tag -->
+
                             <div id="selectedCareer" class="selected-tags required-selected-tags"></div>
                         </div>
                         <form:errors path="career" cssClass="error-message" />
                     </div>
 
-                    <!-- Origin University field with enhanced autocomplete -->
+
                     <div class="form-group">
                         <form:label path="originUniversity" cssClass="form-label required-field">
                             <spring:message code="createJourney.originUniversity"/>
                         </form:label>
                         <div class="autocomplete-wrapper">
-                            <form:select path="originUniversity" id="originUniversity" cssClass="form-select ${not empty errors.getFieldError('originUniversity') ? 'error' : ''}" style="display: none;">
-                                <form:option value=""><spring:message code="createJourney.originUniversity.select"/></form:option>
+                            <select  id="originUniversity" class="form-select ${not empty errors.getFieldError('originUniversity') ? 'error' : ''}" style="display: none;">
+                                <option value=""><spring:message code="createJourney.originUniversity.select"/></option>
                                 <c:forEach var="item" items="${universities}">
-                                    <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
+                                    <option value="<c:out value="${item.name}"/>"><c:out value="${item.name}"/></option>
                                 </c:forEach>
-                            </form:select>
-                            <input type="text" id="universitySearch" class="autocomplete-input ${not empty errors.getFieldError('originUniversity') ? 'error' : ''}" placeholder="<spring:message code="createJourney.originUniversity.search" text="Type to search..."/>" />
+                            </select>
+                            <c:set var="searchUni"><spring:message code="createJourney.originUniversity.search" text="Type to search..."/></c:set>
+                            <form:input path="originUniversity" type="text" id="universitySearch" class="autocomplete-input ${not empty errors.getFieldError('originUniversity') ? 'error' : ''}" placeholder="${searchUni}" />
                             <div id="universityDropdown" class="autocomplete-dropdown" style="display: none;">
                                 <c:forEach var="item" items="${universities}">
-                                    <div class="autocomplete-item" data-value="${item.name}">
+                                    <div class="autocomplete-item" data-value="<c:out value="${item.name}"/>">
                                         <c:out value="${item.name}"/>
                                     </div>
                                 </c:forEach>
                             </div>
-                            <!-- Container for selected university tag -->
+
                             <div id="selectedUniversity" class="selected-tags required-selected-tags"></div>
                         </div>
                         <form:errors path="originUniversity" cssClass="error-message" />
                     </div>
 
-                    <!-- Enhanced interests section with improved autocomplete and multi-select -->
+
                     <div class="form-group">
                         <form:label path="interests" cssClass="form-label required-field">
                             <spring:message code="event.interest"/>
                         </form:label>
 
-                        <!-- Hidden select that will hold the actual form data -->
+
                         <form:select path="interests" multiple="true" id="interestsSelect" style="display: none;" >
-                            <%--                            <c:forEach var="item" items="${interests}">--%>
-                            <%--                            <option value="${interest.id}" ${param.interests == interest.id ? 'selected' : ''}><c:out value="${interest.name}"/></option>--%>
-                            <%--                            </c:forEach>--%>
+
+
+
                             <form:options items="${interests}" itemValue="id" itemLabel="name"/>
-                            <%--@NOTE : si interests no se carga en alguna, hacer el fix de arriba ^--%>
+
                         </form:select>
 
-                        <!-- Custom UI for interests selection -->
+
                         <div class="autocomplete-wrapper">
                             <input type="text" id="interestSearch" class="autocomplete-input ${not empty errors.getFieldError('interests') ? 'error' : ''}"
                                    placeholder="<spring:message code="event.interest.search" text="Search interests..."/>" />
 
                             <div id="interestDropdown" class="autocomplete-dropdown" style="display: none;">
                                 <c:forEach var="item" items="${interests}">
-                                    <div class="autocomplete-item" data-value="${item.name}">
+                                    <div class="autocomplete-item" data-value="<c:out value="${item.id}"/>">
                                         <c:out value="${item.name}"/>
                                     </div>
                                 </c:forEach>
                             </div>
-                            <!-- Selected interests will appear here as tags -->
+
                             <div id="selectedInterests" class="selected-tags required-selected-tags"></div>
 
                             <form:errors path="interests" cssClass="error-message" />
                         </div>
                     </div>
 
-                    <!-- Enhanced file upload area -->
+
                     <div class="form-group">
                         <form:label path="profilePicture" cssClass="form-label required-field">
                             <spring:message code="createJourney.profile_picture"/>
@@ -286,10 +289,23 @@
         </div>
     </div>
 </div>
-
-<!-- Include modularized JavaScript files -->
-<script src="<c:url value='/resources/js/components/password-strength.js'/>"></script>
+<script>
+    function htmlDecode(input) {
+        const doc = new DOMParser().parseFromString(input, "text/html");
+        return doc.documentElement.textContent;
+    }
+    window.apiBaseUrl = '<c:url value="/" />';
+    selectedInterests = [
+        <c:forEach var="interest" items="${createUserForm.interests}" varStatus="status">
+        htmlDecode("<c:out value='${interest}'/>")<c:if test="${!status.last}">,</c:if>
+        </c:forEach>
+    ];
+    selectedCareer = htmlDecode('<c:out value="${createUserForm.career}" />');
+    selectedUniversity = htmlDecode('<c:out value="${createUserForm.originUniversity}" />');
+</script>
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
+<script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
+<script src="<c:url value='/resources/js/components/password-strength.js'/>"></script>
 <script src="<c:url value='/resources/js/components/file-upload.js'/>"></script>
 <script src="<c:url value='/resources/js/register.js'/>"></script>
 

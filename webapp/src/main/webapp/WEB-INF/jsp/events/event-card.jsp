@@ -9,7 +9,7 @@
 <div class="event-card-wrapper">
 
 
-    <a href="<c:url value="/events/${param.eventId}"/>" class="event-card-link">
+    <a href="<c:url value="/events/${param.eventId}"/>" onclick="saveLink()" class="event-card-link">
         <div class="featured-event-card">
             <div class="event-image-container">
                 <c:if test="${not empty param.flyerImageId}">
@@ -25,50 +25,15 @@
                     </div>
                 </c:if>
 
-
-
-                <!-- Attend Button -->
                 <c:if test="${not empty user && isOwner == false}">
                     <div class="attend-button-container">
-                        <!-- Add this inside the attend-button-container div, after the existing button -->
-                        <c:if test="${ param.isFull && !param.attend}">
+                        <c:if test="${ param.isFull}">
                             <div class="event-full-badge">
                                 <spring:message code="event.full" />
                             </div>
                         </c:if>
-                        <c:set var="fullEvent"><spring:message code="event.full" /></c:set>
-                        <c:set var="attendEvent"><spring:message code="event.attend" /></c:set>
-                        <c:set var="attendingEvent"><spring:message code="event.attending" /></c:set>
-
-                        <!-- Modify the attend button to be disabled when the event is full -->
-                        <button type="button"
-                                class="attend-button ${param.attend ? 'attended' : ''} ${param.isFull && !param.attend ? 'disabled' : ''}"
-                                data-event-id="<c:out value="${param.eventId}"/>"
-                                data-event-title="<c:out value="${param.title}"/>"
-                                data-is-attending="<c:out value="${param.attend}"/>"
-                                data-is-full="<c:out value ="${param.isFull}"/>"
-                                onclick="<c:out value="${param.isFull && !param.attend ? 'showFullEventMessage(event)' : 'openAttendanceModal(event, this)'}"/>"
-                                aria-label="<c:out value="${param.isFull && !param.attend ? fullEvent : param.attend ? attendingEvent : attendEvent}"/>">
-                            <c:if test="${param.attend}">
-                                <img src="<c:url value='/resources/icons/check.svg'/>" alt="<spring:message code='event.attending'/>" class="btn-icon" />
-                            </c:if>
-                            <c:if test="${not param.attend}">
-                                <img src="<c:url value='/resources/icons/calendar-plus.svg'/>" alt="${param.isFull ? fullEvent : attendEvent}" class="btn-icon" />
-                            </c:if>
-                        </button>
                     </div>
                 </c:if>
-                <c:if test="${ isOwner == true}">
-                    <div class="attend-button-container">
-                        <button type="button"
-                                class="attend-button"
-                                onclick="redirectToUpdate(<c:out value='${param.eventId}'/>)"
-                                aria-label="<spring:message code='event.edit'/>">
-                            <img src="<c:url value='/resources/icons/edit.svg'/>" alt="<spring:message code='event.edit'/>" class="btn-icon" />
-                        </button>
-                    </div>
-                </c:if>
-
 
             </div>
             <div class="event-card-content">
@@ -98,35 +63,6 @@
     </a>
 </div>
 
-<!-- Attendance Modal -->
-<c:if test="${isOwner == false}">
-    <div id="attendanceModal" class="attendance-modal">
-        <div class="attendance-modal-content">
-            <div class="attendance-modal-header">
-                <h3 id="attendanceModalTitle" class="attendance-modal-title"></h3>
-                <button type="button" class="attendance-modal-close" onclick="closeAttendanceModal()">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="modal-close-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <div class="attendance-modal-body">
-                <p id="attendanceModalMessage"></p>
-            </div>
-            <div class="attendance-modal-footer">
-                <button type="button" class="btn-secondary" onclick="closeAttendanceModal()">
-                    <spring:message code="event.cancel" />
-                </button>
-                <form id="attendanceForm" method="post" action="">
-                    <input type="hidden" name="eventId" id="eventIdInput" value="" />
-                    <button type="submit" id="confirmAttendanceBtn" class="btn-primary">
-                        <spring:message code="event.confirm" />
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</c:if>
 
 <script>
     // Prevent the event card link from triggering when clicking the attend button
@@ -140,47 +76,6 @@
         });
     });
 
-    function openAttendanceModal(event, button) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const eventId = button.getAttribute('data-event-id');
-        const eventTitle = button.getAttribute('data-event-title');
-        const isAttending = button.getAttribute('data-is-attending') === 'true';
-
-        const modal = document.getElementById('attendanceModal');
-        const titleElement = document.getElementById('attendanceModalTitle');
-        const messageElement = document.getElementById('attendanceModalMessage');
-        const form = document.getElementById('attendanceForm');
-        const eventIdInput = document.getElementById('eventIdInput');
-        const confirmButton = document.getElementById('confirmAttendanceBtn');
-
-        // Set the event ID in the form
-        eventIdInput.value = eventId;
-
-        // Set the form action based on attendance status
-        if (isAttending) {
-            form.action = '<c:url value="/events/"/>' + eventId + '/dont-attend';
-            titleElement.textContent = '<spring:message code="event.cancel.attendance" />';
-            messageElement.textContent = '<spring:message code="event.unattend.message" arguments="' + eventTitle + '" />';
-            confirmButton.classList.remove('btn-primary');
-            confirmButton.classList.add('btn-danger');
-            confirmButton.textContent = '<spring:message code="event.unattend.confirm" />';
-        } else {
-            form.action = '<c:url value="/events/"/>' + eventId + '/attend';
-            titleElement.textContent = '<spring:message code="event.attend.title" />';
-            messageElement.textContent = '<spring:message code="event.attend.message" arguments="' + eventTitle + '" />';
-            confirmButton.classList.remove('btn-danger');
-            confirmButton.classList.add('btn-primary');
-            confirmButton.textContent = '<spring:message code="event.attend.confirm" />';
-        }
-
-        // Show the modal
-        modal.classList.add('active');
-
-        // Prevent scrolling on the body
-        document.body.style.overflow = 'hidden';
-    }
     // Add this function to your existing JavaScript
     function showFullEventMessage(event) {
         event.preventDefault();
@@ -206,16 +101,11 @@
         document.body.style.overflow = 'hidden';
     }
 
-    function closeAttendanceModal() {
-        const modal = document.getElementById('attendanceModal');
-        modal.classList.remove('active');
-
-        // Re-enable scrolling on the body
-        document.body.style.overflow = '';
-    }
     function redirectToUpdate(eventId) {
         const baseUrl = '<c:url value="/" />';
         window.location.href = baseUrl + 'events/' + eventId + '/update';
     }
-
+    function saveLink() {
+        sessionStorage.setItem("rutaAnterior", window.location.href);
+    }
 </script>

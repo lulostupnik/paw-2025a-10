@@ -15,7 +15,7 @@
       </c:otherwise>
     </c:choose>
   </title>
-  <!-- Include custom CSS -->
+
   <link rel="stylesheet" href="<c:url value='/resources/css/main.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/auth.css'/>" />
   <link rel="stylesheet" href="<c:url value='/resources/css/form-enhancements.css'/>" />
@@ -67,7 +67,7 @@
     </c:choose>
 
     <form:form modelAttribute="createUniversityForm" action="${formAction}" method="post" class="auth-form" id="universityForm" novalidate="true">
-      <!-- Name Field -->
+
       <div class="form-group">
         <form:label path="name" cssClass="form-label required-field">
           <spring:message code="createUniversity.name"/>
@@ -76,7 +76,7 @@
         <form:errors path="name" cssClass="error-message" />
       </div>
 
-      <!-- Abbreviation Field -->
+
       <div class="form-group">
         <form:label path="abbreviation" cssClass="form-label required-field">
           <spring:message code="createUniversity.abbreviation"/>
@@ -85,19 +85,20 @@
         <form:errors path="abbreviation" cssClass="error-message" />
       </div>
 
-      <!-- City Field with Enhanced Autocomplete -->
-      <div class="form-group"> //@TODO: add emptyMessage for cities
+
+      <div class="form-group">
         <form:label path="city" cssClass="form-label required-field">
           <spring:message code="createUniversity.city"/>
         </form:label>
         <div class="autocomplete-wrapper">
-          <form:select path="city" id="city" cssClass="form-select ${not empty errors.getFieldError('city') ? 'error' : ''}" style="display: none;">
-            <form:option value=""><spring:message code="createUniversity.city.select"/></form:option>
+          <select id="city" class="form-select ${not empty errors.getFieldError('city') ? 'error' : ''}" style="display: none;">
+            <option value=""><spring:message code="createUniversity.city.select"/></option>
             <c:forEach var="item" items="${cities}">
-              <form:option value="${item.name}"><c:out value="${item.name}"/></form:option>
+              <option value="<c:out value="${item.name}"/>"/><c:out value="${item.name}"/></option>
             </c:forEach>
-          </form:select>
-          <input type="text" id="citySearch" class="form-input autocomplete-input" placeholder="<spring:message code="createUniversity.city.search" text="Type to search city..."/>" />
+          </select>
+            <c:set var="citySearch"><spring:message code="createUniversity.city.search"/></c:set>
+          <form:input  path="city" type="text" id="citySearch" class="form-input autocomplete-input" placeholder="${citySearch}" />
           <div id="cityDropdown" class="autocomplete-dropdown" style="display: none;">
             <c:forEach var="item" items="${cities}">
               <div class="autocomplete-item" data-value="<c:out value="${item.name}"/>">
@@ -105,7 +106,7 @@
               </div>
             </c:forEach>
           </div>
-          <!-- Container for selected city tag -->
+
           <div id="selectedCity" class="selected-tags"></div>
         </div>
         <form:errors path="city" cssClass="error-message" />
@@ -131,189 +132,20 @@
   </div>
 </div>
 
-<!-- Include JavaScript files -->
+
+
+
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const universityForm = document.getElementById("universityForm");
-    const nameInput = document.getElementById("name");
-    const abbreviationInput = document.getElementById("abbreviation");
-    const cityInput = document.getElementById("city");
-    const citySearch = document.getElementById("citySearch");
-    const cityDropdown = document.getElementById("cityDropdown");
-    const selectedCity = document.getElementById("selectedCity");
-    const cityItems = document.querySelectorAll("#cityDropdown .autocomplete-item");
-
-    // Focus on the first field when the page loads
-    nameInput.focus();
-
-    // Auto-capitalize first letter of each word
-    function capitalizeFirstLetter(input) {
-      input.addEventListener("blur", function () {
-        if (this.value) {
-          this.value = this.value
-                  .split(" ")
-                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                  .join(" ");
-        }
-      });
-    }
-
-    capitalizeFirstLetter(nameInput);
-    capitalizeFirstLetter(citySearch);
-
-    // Initialize city autocomplete
-    function initCityAutocomplete() {
-      // If there's a selected city value, display it
-      if (cityInput.value && cityInput.value.trim() !== "") {
-        displaySelectedCity(cityInput.value);
-      }
-
-      // Show dropdown when focusing on search input
-      citySearch.addEventListener("focus", function() {
-        cityDropdown.style.display = "block";
-      });
-
-      // Filter cities as user types
-      citySearch.addEventListener("input", function() {
-        const searchValue = this.value.toLowerCase();
-        let hasVisibleItems = false;
-
-        cityItems.forEach(item => {
-          const cityName = item.getAttribute("data-value").toLowerCase();
-          if (cityName.includes(searchValue)) {
-            item.style.display = "block";
-            hasVisibleItems = true;
-          } else {
-            item.style.display = "none";
-          }
-        });
-
-        cityDropdown.style.display = hasVisibleItems ? "block" : "none";
-      });
-
-      // Handle city selection
-      cityItems.forEach(item => {
-        item.addEventListener("click", function() {
-          const selectedValue = this.getAttribute("data-value");
-          cityInput.value = selectedValue;
-          citySearch.value = "";
-          cityDropdown.style.display = "none";
-          displaySelectedCity(selectedValue);
-        });
-      });
-
-      // Close dropdown when clicking outside
-      document.addEventListener("click", function(e) {
-        if (!citySearch.contains(e.target) && !cityDropdown.contains(e.target) && !selectedCity.contains(e.target)) {
-          cityDropdown.style.display = "none";
-        }
-      });
-    }
-
-    // Display selected city as a tag
-    function displaySelectedCity(cityName) {
-      selectedCity.innerHTML = "";
-
-      if (cityName) {
-        const tag = document.createElement("div");
-        tag.className = "selected-tag";
-
-        const tagText = document.createElement("span");
-        tagText.textContent = cityName;
-
-        const removeBtn = document.createElement("button");
-        removeBtn.type = "button";
-        removeBtn.className = "remove-tag";
-        removeBtn.innerHTML = "×";
-        removeBtn.addEventListener("click", function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          cityInput.value = "";
-          selectedCity.innerHTML = "";
-        });
-
-        tag.appendChild(tagText);
-        tag.appendChild(removeBtn);
-        selectedCity.appendChild(tag);
-      }
-    }
-
-    // Initialize autocomplete
-    initCityAutocomplete();
-
-    // Form validation
-    universityForm.addEventListener("submit", (event) => {
-      let isValid = true;
-
-      // Validate name
-      if (!nameInput.value.trim()) {
-        const errorElement = document.createElement("div");
-        errorElement.className = "error-message";
-        errorElement.textContent = "University name is required";
-
-        const existingError = nameInput.parentNode.querySelector(".error-message");
-        if (!existingError) {
-          nameInput.parentNode.appendChild(errorElement);
-        }
-
-        nameInput.classList.add("error");
-        isValid = false;
-      } else {
-        nameInput.classList.remove("error");
-        const existingError = nameInput.parentNode.querySelector(".error-message");
-        if (existingError) {
-          existingError.remove();
-        }
-      }
-
-      // Validate abbreviation
-      if (!abbreviationInput.value.trim()) {
-        const errorElement = document.createElement("div");
-        errorElement.className = "error-message";
-        errorElement.textContent = "Abbreviation is required";
-
-        const existingError = abbreviationInput.parentNode.querySelector(".error-message");
-        if (!existingError) {
-          abbreviationInput.parentNode.appendChild(errorElement);
-        }
-
-        abbreviationInput.classList.add("error");
-        isValid = false;
-      } else {
-        abbreviationInput.classList.remove("error");
-        const existingError = abbreviationInput.parentNode.querySelector(".error-message");
-        if (existingError) {
-          existingError.remove();
-        }
-      }
-
-      // Validate city
-      if (!cityInput.value.trim()) {
-        const errorElement = document.createElement("div");
-        errorElement.className = "error-message";
-        errorElement.textContent = "City is required";
-
-        const existingError = document.querySelector(".form-group:nth-child(3) .error-message");
-        if (!existingError) {
-          document.querySelector(".form-group:nth-child(3)").appendChild(errorElement);
-        }
-
-        citySearch.classList.add("error");
-        isValid = false;
-      } else {
-        citySearch.classList.remove("error");
-        const existingError = document.querySelector(".form-group:nth-child(3) .error-message");
-        if (existingError) {
-          existingError.remove();
-        }
-      }
-
-      if (!isValid) {
-        event.preventDefault();
-      }
-    });
-  });
+  function htmlDecode(input) {
+    const doc = new DOMParser().parseFromString(input, "text/html");
+    return doc.documentElement.textContent;
+  }
+    window.apiBaseUrl = '<c:url value="/" />';
+    universitySelectedCity = htmlDecode('<c:out value="${createUniversityForm.city}"/>');
 </script>
+<script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
+<script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
+<script src="<c:url value='/resources/js/university-form.js'/>"></script>
 
 </body>
 </html>

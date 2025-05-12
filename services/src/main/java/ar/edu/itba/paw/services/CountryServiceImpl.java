@@ -3,7 +3,6 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.CountryDao;
 import ar.edu.itba.paw.interfaces.services.CountryService;
 import ar.edu.itba.paw.models.Country;
-import ar.edu.itba.paw.models.CursorPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
@@ -17,27 +16,23 @@ import java.util.Optional;
 public class CountryServiceImpl implements CountryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CountryServiceImpl.class);
 
-    CountryDao countryDao;
+    private final CountryDao countryDao;
 
-    public CountryServiceImpl(final ar.edu.itba.paw.interfaces.persistence.CountryDao countryDao) {
+    public CountryServiceImpl(final CountryDao countryDao) {
         this.countryDao = countryDao;
     }
 
     @Override
     @Cacheable(value = "countries")
-    public List<Country> getAllCountries() {
+    public List<Country> findCountries() {
         LOGGER.debug("Getting all countries");
         return countryDao.findAll();
     }
 
     @Override
-    public Boolean existsByName(String name) {
-        LOGGER.debug("Checking if country {} exists", name);
-        return countryDao.existsByName(name);
-    }
-
-    @Override
-    public Optional<Country> findByName(String name) {
+    @Cacheable(value="countriesByName", key="#name")
+    public Optional<Country> findCountryByName(final String name) {
+        LOGGER.debug("Getting country {}", name);
         return countryDao.findByName(name);
     }
 

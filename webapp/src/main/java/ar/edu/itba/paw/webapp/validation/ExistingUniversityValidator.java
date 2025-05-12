@@ -8,12 +8,14 @@ import javax.validation.ConstraintValidatorContext;
 
 public class ExistingUniversityValidator implements ConstraintValidator<ExistingUniversity, String> {
 
+    private final UniversityService universityService;
     @Autowired
-    private UniversityService universityService;
+    public ExistingUniversityValidator(UniversityService universityService) {
+        this.universityService = universityService;
+    }
 
     @Override
     public void initialize(ExistingUniversity constraintAnnotation) {
-        // No initialization needed
     }
 
     @Override
@@ -21,9 +23,6 @@ public class ExistingUniversityValidator implements ConstraintValidator<Existing
         if (universityName == null || universityName.isEmpty()) {
             return true;
         }
-        // Implement the logic to check if the university exists in the database
-        // For example:
-        // return universityService.existsByName(universityName);
-        return universityService.findByName(universityName).isPresent(); // Placeholder, replace with actual logic
+        return universityService.findByName(universityName).isPresent();
     }
 }

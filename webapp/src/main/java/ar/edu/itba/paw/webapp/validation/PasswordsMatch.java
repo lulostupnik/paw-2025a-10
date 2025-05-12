@@ -8,7 +8,7 @@ import javax.validation.Payload;
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = PasswordsMatchValidator.class)
+@Constraint(validatedBy = {PasswordsMatchValidator.class, UpdatePasswordMatchValidator.class})
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PasswordsMatch {

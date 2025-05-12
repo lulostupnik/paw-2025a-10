@@ -3,6 +3,7 @@ package ar.edu.itba.paw.persistence;
 import ar.edu.itba.paw.interfaces.persistence.InterestDao;
 import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.PageParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.util.*;
+import java.util.stream.Collectors;
 import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
 
@@ -34,7 +36,7 @@ public class InterestJdbcDao implements InterestDao {
 
     private final static String SQL_FIND_ALL_PAGED = SQL_BASE + " ORDER BY name ASC LIMIT ? OFFSET ?";
 
-    private final static String SQL_SEARCH_PAGED = SQL_BASE + " WHERE name LIKE ? ORDER BY name ASC LIMIT ? OFFSET ?";
+    private final static String SQL_SEARCH_PAGED = SQL_BASE + " WHERE LOWER(name) LIKE LOWER(?) ORDER BY name ASC LIMIT ? OFFSET ?";
 
     private final static String SQL_FIND_ALL_BY_USER = SQL_BASE + " WHERE id IN (SELECT category_id FROM user_interest WHERE user_id = ?)";
 
@@ -49,17 +51,12 @@ public class InterestJdbcDao implements InterestDao {
     }
 
     @Override
-    public Optional<Interest> findById(final Long id) {
+    public Optional<Interest> findById(final long id) {
         return jdbcTemplate.query(SQL_FIND_BY_ID, INTEREST_ROW_MAPPER, id).stream().findFirst();
     }
 
     @Override
-    public List<Interest> findAll() {
-        return jdbcTemplate.query(SQL_BASE, INTEREST_ROW_MAPPER);
-    }
-
-    @Override
-    public List<Interest> findByUserId(final Long id) {
+    public List<Interest> findAllByUserId(final long id) {
         return jdbcTemplate.query(SQL_FIND_ALL_BY_USER, INTEREST_ROW_MAPPER, id);
     }
 
@@ -68,59 +65,17 @@ public class InterestJdbcDao implements InterestDao {
         return jdbcTemplate.query(SQL_FIND_BY_NAME, INTEREST_ROW_MAPPER, name).stream().findFirst();
     }
 
-    // FIXME: No se si esto se está usando en algún lado o no.
     @Override
-    public List<Interest> findIdByName(final String[] names) {
-        if(names == null || names.length == 0) {
-            return new ArrayList<>();
-        }
-
-        // FIXME: Creo que acá no deberiamos validar
-        for(String name : names) {
-            if (name == null || name.isEmpty()) {
-                throw new IllegalArgumentException("Interest name cannot be null or empty");
-            }
-        }
-
-        final StringBuilder query = new StringBuilder(SQL_BASE).append(" WHERE name IN (");
-        for (int i = 0; i < names.length; i++) {
-            query.append("?");
-            if (i < names.length - 1) {
-                query.append(", ");
-            }
-        }
-        query.append(")");
-        final List<Interest> interests = jdbcTemplate.query(query.toString(), INTEREST_ROW_MAPPER, (Object[]) names);
-        if (interests.size() < names.length) { // o != ?
-            //TODO See if this is an actual error to throw (or if normal flow can continue)
-            LOGGER.warn("Couldn't find IDs for all provided interests ({} vs {})", interests.size(), names.length);
-        }
-        return interests;
-    }
-
-    @Override
-    public Interest createUserInterest(final String interest) {
-        LOGGER.debug("Creating new interest {}", interest);
+    public Interest create(final String interest) {
         final Map<String, Object> params = new HashMap<>();
         params.put("name", interest);
         final Number keys = jdbcInsert.executeAndReturnKey(params);
-        final Interest newInterest = new Interest(keys.longValue(), interest);
-        LOGGER.info("Created interest {}", interest);
-        return newInterest;
+        return new Interest(keys.longValue(), interest);
     }
 
-    @Override
-    public void deleteUserInterest(final long id) {
-        LOGGER.info("Deleting interest with id {}", id);
-        final int rowsAffected = jdbcTemplate.update("DELETE FROM category WHERE id = ?", id);
-        if (rowsAffected == 0) {
-            LOGGER.warn("Interest deletion failed: Interest with ID {} not found", id);
-        }
-    }
 
     @Override
-    public void editUserInterest(final long id, final String interest) {
-        LOGGER.info("Editing interest {} to {}", id, interest);
+    public void update(final long id, final String interest) {
         final int rowsAffected = jdbcTemplate.update("UPDATE category SET name = ? WHERE id = ?", interest ,id);
         if (rowsAffected == 0) {
             LOGGER.warn("Interest update failed: Interest with ID {} not found", id);
@@ -128,65 +83,117 @@ public class InterestJdbcDao implements InterestDao {
     }
 
     @Override
-    public void saveUserInterests(final long[] interests, final Long userId) {
-        LOGGER.debug("Registering to DB new interests {} for user {}...", interests, userId);
+    public void createUserInterests(final long[] interests, final long userId) {
         for (long interest : interests) {
             jdbcTemplate.update("INSERT INTO user_interest (user_id, category_id) VALUES (?, ?)", userId, interest);
         }
     }
 
     @Override
-    public void updateScoreByInterest(final Interest interest, final Long userId) {
-        LOGGER.info("Registering to DB new interest {} score increase for user {}", interest, userId);
+    public void updateScoreByInterest(final Interest interest, final long userId) {
         jdbcTemplate.update("UPDATE user_interest SET score = score + 1 WHERE user_id = ? AND category_id = ?",
                 userId, interest.getId());
     }
 
     @Override
-    public void updateScoreByInterests(final List<Interest> interests, final Long userId) {
-        LOGGER.debug("Registering to DB multiple score increases for intrests of user {}", userId);
+    public void updateUserInterests(final long[] interestIds, final long userId) {
+        final List<Long> currentInterestIds = jdbcTemplate.queryForList(
+                "SELECT category_id FROM user_interest WHERE user_id = ?",
+                Long.class,
+                userId
+        );
+
+        final List<Long> interestsToAdd = Arrays.stream(interestIds).boxed()
+                .collect(Collectors.toList());
+
+        final List<Long> interestsToRemove = new ArrayList<>(currentInterestIds);
+
+        interestsToRemove.removeAll(interestsToAdd);
+        interestsToAdd.removeAll(currentInterestIds);
+
+        for (Long interestId : interestsToAdd) {
+            jdbcTemplate.update(
+                    "INSERT INTO user_interest (user_id, category_id) VALUES (?, ?)",
+                    userId, interestId
+            );
+        }
+
+        if(interestsToRemove.isEmpty()){
+            return;
+        }
+
+        final StringBuilder deleteQuery = new StringBuilder(
+                "DELETE FROM user_interest WHERE user_id = ? AND category_id IN ("
+        );
+        for (int i = 0; i < interestsToRemove.size(); i++) {
+            deleteQuery.append("?");
+            if (i < interestsToRemove.size() - 1) {
+                deleteQuery.append(", ");
+            }
+        }
+        deleteQuery.append(")");
+
+        Object[] params = new Object[interestsToRemove.size() + 1];
+        params[0] = userId;
+        for (int i = 0; i < interestsToRemove.size(); i++) {
+            params[i + 1] = interestsToRemove.get(i);
+        }
+
+        jdbcTemplate.update(deleteQuery.toString(), params);
+
+
+    }
+
+    @Override
+    public void updateScoreByInterests(final List<Interest> interests, final long userId) {
         for (Interest interest : interests) {
             updateScoreByInterest(interest, userId);
         }
     }
 
     @Override
-    public Page<Interest> getAllInterests(final int page, final int pageSize) {
-        final int totalInterests = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category", Integer.class);
-        return new Page<>(
-                jdbcTemplate.query(SQL_FIND_ALL_PAGED, INTEREST_ROW_MAPPER, pageSize, offset(page, pageSize)),
-                page,
-                pageCount(totalInterests, pageSize)
+    public void createUserInterests(final List<String> interestNames, final long userId){
+       for(String interestName : interestNames) {
+           jdbcTemplate.update(
+                   "INSERT INTO user_interest (user_id, category_id) VALUES (?, (SELECT id FROM category WHERE name = ?))",
+                   userId, interestName
+           );
+       }
+    }
+
+    @Override
+    public Page<Interest> findAll(final PageParams pageParams) {
+        return executePagedQuery(
+                jdbcTemplate, INTEREST_ROW_MAPPER,
+                "SELECT COUNT(*) FROM category", SQL_FIND_ALL_PAGED,
+                pageParams
         );
     }
 
     @Override
-    public Page<Interest> searchBySubstring(final String search, final int page, final int pageSize) {
-        final String searchPattern = likePattern(search);
-        final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM category WHERE name LIKE ?", Integer.class, searchPattern);
-
-        return new Page<>(
-                jdbcTemplate.query(SQL_SEARCH_PAGED, INTEREST_ROW_MAPPER, searchPattern, pageSize, offset(page, pageSize)),
-                page,
-                pageCount(totalItems, pageSize)
+    public Page<Interest> search(final String searchTerm, final PageParams pageParams) {
+        final String searchPattern = likePattern(searchTerm);
+        return executePagedQuery(
+                jdbcTemplate, INTEREST_ROW_MAPPER,
+                "SELECT COUNT(*) FROM category WHERE LOWER(name) LIKE LOWER(?)", SQL_SEARCH_PAGED,
+                pageParams, searchPattern
         );
     }
 
     @Override
     public void delete(final long id) {
-        LOGGER.info("Deleting interest with ID: {}", id);
         final int rowsAffected = jdbcTemplate.update("DELETE FROM category WHERE id = ?", id);
         if (rowsAffected == 0) {
             LOGGER.warn("Interest delete failed: Interest with ID {} not found", id);
         }
     }
+
     @Override
-    public Page<Interest> findAllInterestsByUserId(final long id, final int page, final int pageSize) {
-        final int totalItems = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user_interest WHERE user_id = ?", Integer.class, id);
-        return new Page<>(
-                jdbcTemplate.query(SQL_FIND_ALL_PAGED_BY_USER, INTEREST_ROW_MAPPER, id, pageSize, offset(page,pageSize)),
-                page,
-                pageCount(totalItems, pageSize)
+    public Page<Interest> findAllByUserId(final long id, final PageParams pageParams) {
+        return executePagedQuery(
+                jdbcTemplate, INTEREST_ROW_MAPPER,
+                "SELECT COUNT(*) FROM user_interest WHERE user_id = ?", SQL_FIND_ALL_PAGED_BY_USER,
+                pageParams, id
         );
     }
 

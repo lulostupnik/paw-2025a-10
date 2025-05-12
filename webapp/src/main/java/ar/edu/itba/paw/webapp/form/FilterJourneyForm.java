@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.webapp.form;
 
-
 import ar.edu.itba.paw.webapp.validation.ValidFilterDateRange;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -9,9 +8,9 @@ import java.time.LocalDate;
 @ValidFilterDateRange
 public class FilterJourneyForm {
 
-    private Long destination;
+    private String destination;
 
-    private Long interests;
+    private String interests;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
@@ -19,17 +18,57 @@ public class FilterJourneyForm {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
 
-    public void setInterests(Long interests) {
+    private boolean isMyDestination;
+
+    private boolean isUpcoming;
+
+    private boolean isPast;
+
+    private boolean isOngoing;
+
+    public boolean getIsOngoing() {
+        return isOngoing;
+    }
+
+
+    public boolean getIsMyDestination() {
+        return isMyDestination;
+    }
+    public void setIsMyDestination(boolean isMyDestination) {
+        this.isMyDestination = isMyDestination;
+    }
+
+    public boolean getIsUpcoming() {
+        return isUpcoming;
+    }
+
+    public void setIsUpcoming(boolean isUpcoming) {
+        this.isUpcoming = isUpcoming;
+    }
+
+    public boolean getIsPast() {
+        return isPast;
+    }
+
+    public void setIsPast(boolean isPast) {
+        this.isPast = isPast;
+    }
+
+    public void setIsOngoing(boolean isOngoing) {
+        this.isOngoing = isOngoing;
+    }
+    public void setInterests(String interests) {
         this.interests = interests;
     }
 
-    public Long getDestination() {
+    public String getDestination() {
         return destination;
     }
 
-    public void setDestination(Long destination) {
+    public void setDestination(String destination) {
         this.destination = destination;
     }
+
 
     public LocalDate getEndDate() {
         return endDate;
@@ -49,7 +88,7 @@ public class FilterJourneyForm {
 
 
 
-    public Long getInterests() {
+    public String getInterests() {
         return interests;
     }
 
@@ -65,6 +104,14 @@ public class FilterJourneyForm {
         sb.append(startDate);
         sb.append("\", endDate: \"");
         sb.append(endDate);
+        sb.append("\", isMyDestination: \"");
+        sb.append(isMyDestination);
+        sb.append("\", isUpcoming: \"");
+        sb.append(isUpcoming);
+        sb.append("\", isPast: \"");
+        sb.append(isPast);
+        sb.append("\", isOngoing: \"");
+        sb.append(isOngoing);
         sb.append("\"}");
         return sb.toString();
     }
