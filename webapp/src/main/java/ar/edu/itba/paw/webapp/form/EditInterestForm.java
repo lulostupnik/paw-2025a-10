@@ -5,7 +5,6 @@ import ar.edu.itba.paw.webapp.validation.ValidInterest;
 import javax.validation.constraints.NotNull;
 
 public class EditInterestForm {
-    @NotNull
     @ValidInterest
     private long[] interests;
 

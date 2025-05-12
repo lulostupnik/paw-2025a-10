@@ -53,7 +53,6 @@ public class CreateUserForm {
     @ExistingUniversity
     private String originUniversity;
 
-    @NotNull
     @ValidInterest
     private List<String> interests;
 

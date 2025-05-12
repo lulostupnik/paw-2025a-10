@@ -114,9 +114,6 @@ public class InterestController {
     public ModelAndView updateInterestForm( @ModelAttribute("user") User user,
                                             @ModelAttribute("editInterestsForm") final EditInterestForm form) {
         Page<Interest> pagedInterests = interestService.findAllInterestsByUserId(user.getId(), new PageParams(1, 20));
-        if (pagedInterests.getContent().isEmpty()) {
-            return new ModelAndView("redirect:/profile/info");
-        }
         ModelAndView mav = new ModelAndView("interests/interests-edit");
         mav.addObject("editInterestsForm",form);
         mav.addObject("userInterests", pagedInterests.getContent());
