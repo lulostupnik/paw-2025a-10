@@ -124,34 +124,7 @@ public class EventAttendanceJdbcDaoTest {
 
         assertFalse(attending);
     }
-    // FIXME: ahora es userDao
-/*
-    @Test
-    public void testFindAllAttendeesByEventId(){
-        List<User> attendees = userDao.findAllAttendeesByEventId(EVENT_1.getId());
-
-        assertNotNull(attendees);
-        assertEquals(TestUtils.EVENT_1_ATTENDEES, attendees.size());
-        Map<Long, User> userData = Map.of(TestUtils.USER_1_ID, TestUtils.USER_1, TestUtils.USER_2_ID, TestUtils.USER_2, TestUtils.USER_3_ID, TestUtils.USER_3);
-        for (User user : attendees){
-            TestUtils.assertEqualsUser(userData.get(user.getId()), user);
-        }
-    }
-    @Test
-    public void testFindAllAttendeesNoAttendeesByEventId(){
-        List<User> attendees = userDao.findAllAttendeesByEventId(EVENT_3.getId());
-
-        assertNotNull(attendees);
-        assertEquals(0, attendees.size());
-    }
-    @Test
-    public void testFindAllAttendeesByEventIdMissingEvent(){
-        List<User> attendees = userDao.findAllAttendeesByEventId(412341234);
-
-        assertNotNull(attendees);
-        assertEquals(0, attendees.size());
-    }
-*/
+    
     @Test
     public void testFindAllAttendeesByEventIdCount(){
         int attendees = attendanceDao.countByEventId(TestUtils.EVENT_1_ID);
