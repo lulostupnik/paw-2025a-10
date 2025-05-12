@@ -22,7 +22,7 @@ public class ValidInterestIdValidator implements ConstraintValidator<ValidIntere
     @Override
     public boolean isValid(long[] interests, ConstraintValidatorContext context) {
         if (interests == null || interests.length == 0) {
-            return false;
+            return true;
         }
         try {
             for(long interest : interests) {
