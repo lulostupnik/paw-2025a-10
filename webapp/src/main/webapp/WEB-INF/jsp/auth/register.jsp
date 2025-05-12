@@ -289,16 +289,19 @@
         </div>
     </div>
 </div>
-
-
 <script>
+    function htmlDecode(input) {
+        const doc = new DOMParser().parseFromString(input, "text/html");
+        return doc.documentElement.textContent;
+    }
     window.apiBaseUrl = '<c:url value="/" />';
     selectedInterests = [
         <c:forEach var="interest" items="${createUserForm.interests}" varStatus="status">
-        "<c:out value="${interest}"/>"<c:if test="${!status.last}">,</c:if>
+        htmlDecode("<c:out value='${interest}'/>")<c:if test="${!status.last}">,</c:if>
         </c:forEach>
-    ];    selectedCareer = '<c:out value="${createUserForm.career}" />';
-    selectedUniversity = '<c:out value="${createUserForm.originUniversity}" />';
+    ];
+    selectedCareer = htmlDecode('<c:out value="${createUserForm.career}" />');
+    selectedUniversity = htmlDecode('<c:out value="${createUserForm.originUniversity}" />');
 </script>
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>

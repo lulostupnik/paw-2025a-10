@@ -415,13 +415,11 @@ let SingleOptionAutocomplete = (() => {
             },
         }
 
-        // Store instance methods on the element for future reference
         searchInput._singleOptionAutocomplete = publicMethods
 
         return publicMethods
     }
 
-    // Public API
     return {
         init: init,
     }

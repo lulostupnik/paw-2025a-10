@@ -362,12 +362,17 @@
   </div>
 </div>
 <script>
+  function htmlDecode(input) {
+    const doc = new DOMParser().parseFromString(input, "text/html");
+    return doc.documentElement.textContent;
+  }
   window.apiBaseUrl = '<c:url value="/" />';
   window.eventBaseUrl = '<c:url value="/events"/>';
   window.closeImage = '<c:url value="/resources/icons/x.svg"/>';
-  eventSelectedInterests = '<c:out value="${filterEventForm.interests}"/>';
-  eventSelectedCity = '<c:out value="${filterEventForm.destination}"/>';
+  eventSelectedInterests = htmlDecode('<c:out value="${filterEventForm.interests}"/>');
+  eventSelectedCity = htmlDecode('<c:out value="${filterEventForm.destination}"/>');
 </script>
+
 <script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/events/event-list.js'/>"></script>
 
