@@ -37,9 +37,7 @@ public class AuthController {
     @GetMapping(value ="/validate")
     public ModelAndView validateEmail(@RequestParam("token") String token) {
         UserAuthInfo user = userService.validateEmail(token);
-
         loginHelper.loginUser(user.getEmail());
-        LOGGER.debug("User {} validated", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         return new ModelAndView("redirect:/explore?validationSuccess=true");
     }
 
@@ -57,10 +55,15 @@ public class AuthController {
     }
 
     @PostMapping(value ="/reset-password")
-    public ModelAndView changePass(@RequestParam("token") String token, @Valid @ModelAttribute("updatePasswordForm") UpdatePasswordForm form, final BindingResult errors) {
+    public ModelAndView changePass(@RequestParam("token") String token, @Valid @ModelAttribute("updatePasswordForm")UpdatePasswordForm form, final BindingResult errors) {
+        if (!userService.isValidPasswordResetToken(token)) {
+            return new ModelAndView("auth/invalid-token");
+        }
+        if(userService.isTokenExpired(token)) {
+            return new ModelAndView("auth/expired-token");
+        }
 
         if(errors.hasErrors()) {
-            LOGGER.debug("Found {} errors in Update Password form data", errors.getErrorCount());
             return changePassForm(token, form);
         }
 
@@ -75,7 +78,6 @@ public class AuthController {
             @RequestParam(value = "resetPassword", required = false, defaultValue = "false") final boolean resetPassword,
             @RequestParam(value = "registrationSuccess", required = false, defaultValue = "false") final boolean registrationSuccess,
                                   @ModelAttribute("user") User user) {
-        LOGGER.debug("Loading login form");
         if (user != null) {
             return new ModelAndView("redirect:/explore");
         }
@@ -88,7 +90,6 @@ public class AuthController {
 
     @GetMapping("/forgot_pass")
     public ModelAndView forgotPassForm(@ModelAttribute ("emailForm") final EmailForm form) {
-        LOGGER.debug("Loading forgot password form");
         return new ModelAndView("auth/email-form");
     }
 
@@ -96,8 +97,6 @@ public class AuthController {
     public ModelAndView forgotPass(@Valid @ModelAttribute ("emailForm") final EmailForm form,
                                    final BindingResult errors) {
         if (errors.hasErrors()) {
-            LOGGER.debug("Found {} errors in Forgot Password form data", errors.getErrorCount());
-            LOGGER.debug("Errors: {}", errors);
             return forgotPassForm(form);
         }
         userService.forgotPass(form.getEmail());
@@ -120,10 +119,7 @@ public class AuthController {
     @PostMapping(value = "/register")
     public ModelAndView registerSubmit(@Valid @ModelAttribute("createUserForm") final CreateUserForm form, final BindingResult errors) {
 
-        LOGGER.info("CREATING USER FROM USERFORM {}", form);
         if (errors.hasErrors()) {
-            LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
-            LOGGER.debug("Errors: {}", errors);
             return registerForm(form);
         }
 

@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.sql.DataSource;
@@ -45,7 +44,6 @@ public class InterestJdbcDaoTest {
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
     }
-
 
     @Test
     public void testFindById(){

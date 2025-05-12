@@ -147,7 +147,7 @@ public class EmailServiceImpl implements EmailService {
 
 
     @Override
-    public void answerEventNotification(final List<User> oldRepliers,final String message,final User commenter, final Event event) {
+    public void answerEventNotification(final List<User> oldRepliers,final String message, final User commenter, final Event event) {
         User eventUser = event.getUser();
 
 
@@ -178,7 +178,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void answerJourneyNotification(final List<User> oldRepliers,final String message,final User commenter,final Journey journey) {
+    public void answerJourneyNotification(final List<User> oldRepliers, final String message, final User commenter, final Journey journey) {
         User journeyUser = journey.getUser();
         byte[] profilePictureData = imageService.getImage(commenter.getProfilePictureId()).orElseThrow(() -> {
             LOGGER.error("User does not have profile picture");

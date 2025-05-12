@@ -8,6 +8,8 @@ import ar.edu.itba.paw.webapp.form.CreateInterestForm;
 import ar.edu.itba.paw.webapp.form.EditInterestForm;
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
 import ar.edu.itba.paw.webapp.utils.JsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
@@ -23,6 +25,7 @@ import java.util.NoSuchElementException;
 @Controller
 @RequestMapping("/interests")
 public class InterestController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(InterestController.class);
 
     private final InterestService interestService;
 
@@ -56,7 +59,9 @@ public class InterestController {
     }
     @GetMapping(value= "/{id}")
     public ModelAndView getInterests(@PathVariable(value = "id") final long id) {
-        Interest interest = interestService.findById(id).orElseThrow(() -> new NotFoundException("Interest not found"));
+        Interest interest = interestService.findById(id).orElseThrow(() -> {
+            LOGGER.error("Interest not found");
+            return new NotFoundException("Interest not found");});
         ModelAndView mav = new ModelAndView("interests/detail");
         mav.addObject("interest", interest);
         return mav;
@@ -67,8 +72,9 @@ public class InterestController {
     public ModelAndView updateInterestForm(@PathVariable("id") Long id,
                                             @ModelAttribute("createInterestForm") final CreateInterestForm form,
                                            BindingResult errors ) {
-        Interest interest = interestService.findById(id).orElseThrow(() -> new NotFoundException("Interest not found"));
-
+        Interest interest = interestService.findById(id).orElseThrow(() -> {
+            LOGGER.error("Interest not found");
+            return new NotFoundException("Interest not found");});
         if(!errors.hasErrors()){
             form.setName(interest.getName());
         }
@@ -122,12 +128,10 @@ public class InterestController {
     public ModelAndView updateInterest(@ModelAttribute("user") User user,
                                        @Valid @ModelAttribute("editInterestsForm") final EditInterestForm form,
                                        final BindingResult errors) {
-
         if (errors.hasErrors()) {
             return updateInterestForm(user, form);
         }
         interestService.updateUserInterests(form.getInterests(), user.getId());
-
         return new ModelAndView("redirect:/profile/interests");
     }
 

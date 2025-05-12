@@ -26,7 +26,12 @@ public class UserController {
 
     @GetMapping(value= "/{id}")
     public ModelAndView getUser(@PathVariable(value = "id") final long id) {
-        User user = userService.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+        User user = userService.findById(id).orElseThrow((
+
+        ) -> {
+            LOGGER.error("User not found");
+            return new NotFoundException("User not found");
+        });
         ModelAndView mav = new ModelAndView("users/detail");
         mav.addObject("user", user);
         return mav;

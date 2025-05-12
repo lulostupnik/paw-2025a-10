@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -102,12 +101,44 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public Optional<EventWithStatistics> findEventWithStatistics(final User user,final  long eventId) {
+    public Optional<EventWithStatistics> findEventWithStatistics(final User user, final long eventId) {
         LOGGER.debug("Getting event with statistics by id {}", eventId);
+
+        String topAttendeeCountry = null;
+        int topAttendeeCountryCount = 0;
+        boolean isAttending = false;
+        boolean isCreator = false;
+        Event event;
+
         if(user == null){
-            return eventDao.findEventWithStatistics(null, eventId);
+            Optional<Event> maybeEvent = eventDao.findById(eventId);
+            if(maybeEvent.isEmpty()){
+                LOGGER.warn("Event not found {}", eventId);
+                return Optional.empty();
+            }
+            event = maybeEvent.get();
+        } else {
+            Optional<EventWithUserInfo> maybeEventWithUserInfo = eventDao.findEventWithUserInfo(user.getId(), eventId);
+            if(maybeEventWithUserInfo.isEmpty()){
+                LOGGER.warn("Event not found {}", eventId);
+                return Optional.empty();
+            }
+
+            event = maybeEventWithUserInfo.get().getEvent();
+            isAttending = maybeEventWithUserInfo.get().isAttending();
+            isCreator = maybeEventWithUserInfo.get().isCreator();
         }
-        return eventDao.findEventWithStatistics(user.getId(), eventId);
+
+        int createdEventsCount = eventDao.countEventsCreatedByUser(event.getUser().getId());
+        int attendedEventsCount = eventDao.countEventsAttendedByUser(event.getUser().getId());
+        Optional<CountryAttendeeCount> maybeCountryAttendeeCount = eventDao.findTopAttendeeCountry(event.getId());
+
+        if(maybeCountryAttendeeCount.isPresent()){
+            topAttendeeCountry = maybeCountryAttendeeCount.get().getCountryName();
+            topAttendeeCountryCount = maybeCountryAttendeeCount.get().getCount();
+        }
+
+        return Optional.of(new EventWithStatistics(event, createdEventsCount, attendedEventsCount, topAttendeeCountry, topAttendeeCountryCount, isAttending, isCreator));
     }
 
 
@@ -123,7 +154,7 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public Page<Event> getAllEvents(final String email,final  PageParams pageParams) {
+    public Page<Event> getAllEvents(final String email,final PageParams pageParams) {
         LOGGER.debug("Getting all events for user {}", email);
         return eventDao.findByUserEmail(email, pageParams);
     }
@@ -206,12 +237,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Page<Event> getUserAttendingEvents(final long userId, PageParams pageParams) {
+    public Page<Event> getUserAttendingEvents(final long userId, final PageParams pageParams) {
         return eventDao.findAllEventsByAttendee(userId, pageParams);
     }
 
     @Override
-    public List<Event> getRecommendedEvents(final long userId,final  int limit) {
+    public List<Event> getRecommendedEvents(final long userId, final  int limit) {
         LOGGER.debug("Getting recommended events for user {} with limit {}", userId, limit);
         if (limit <= 0) {
             LOGGER.warn("Limit must be greater than 0");
@@ -301,7 +332,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public void deleteResponse(final long id,final  String message) {
+    public void deleteResponse(final long id, final String message) {
         LOGGER.debug("Deleting event response {}", id);
         EventResponse deletedComment = findEventResponseById(id)
                 .orElseThrow(() ->{

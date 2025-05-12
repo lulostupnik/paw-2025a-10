@@ -203,8 +203,8 @@ public class UserJdbcDao implements UserDao {
     }
 
     @Override
-    public void updatePasswordByToken(final String token, final String newPassword) {
-        int updatedRows = jdbcTemplate.update("UPDATE users SET password = ? WHERE token = ?", newPassword, token);
+    public void updatePasswordAndClearTokenByToken(final String token, final String newPassword) {
+        int updatedRows = jdbcTemplate.update("UPDATE users SET password = ?, token = NULL, token_expiration = NULL WHERE token = ?", newPassword, token);
         if(updatedRows == 0) {
             LOGGER.warn("Password change failed: user with token: {} not found", token);
         }

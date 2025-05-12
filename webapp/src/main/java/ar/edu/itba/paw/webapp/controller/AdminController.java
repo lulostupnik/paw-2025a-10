@@ -36,7 +36,6 @@ public class AdminController {
     public ModelAndView dashboardEvents(
             @PageParamCustomizer(defaultPage = -1, sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
-
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
         mav.addObject("pagedEvents", eventService.getAllEventsSearch(search, pageParams));
         return mav;
@@ -46,7 +45,6 @@ public class AdminController {
     public ModelAndView dashboardUsers(
             @PageParamCustomizer(sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
-
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
         mav.addObject("pagedUsers", userService.getAllUsers(search, pageParams));
 
@@ -102,7 +100,6 @@ public class AdminController {
     public ModelAndView dashboardCities(
          @PageParamCustomizer( sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
-
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
         mav.addObject("pagedCities", cityService.getAllCities(search, pageParams));
         return mav;

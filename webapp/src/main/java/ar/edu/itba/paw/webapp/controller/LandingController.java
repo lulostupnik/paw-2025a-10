@@ -32,7 +32,6 @@ public class LandingController {
 
     @GetMapping("/")
     public ModelAndView landing() {
-        LOGGER.debug("Loading landing page");
         ModelAndView mav = new ModelAndView("index");
         List<Event> recommendedEvents = eventService.getTopEvents(3);
         mav.addObject("recommendedEvents", recommendedEvents);
@@ -41,15 +40,12 @@ public class LandingController {
 
     private void populateHomePage(ModelAndView mav, User user) {
         List<Event> events = eventService.getRecommendedEvents(user.getId(), 8);
-        LOGGER.debug("Events: {}", events);
         mav.addObject("events", events);
 
         List<Journey> journeys = journeyService.getRecommendedJourneys(user.getEmail(), 4);
-        LOGGER.debug("Journeys: {}", journeys);
         mav.addObject("journeys", journeys);
 
         Boolean hasJourney = journeyService.userHasJourney(user);
-        LOGGER.debug("User has journey {}", hasJourney);
         mav.addObject("hasJourney", hasJourney);
     }
 

@@ -331,59 +331,16 @@ public class EventJdbcDao implements EventDao {
     }
 
     @Override
-    public Optional<EventWithStatistics> findEventWithStatistics(final Long userId, final long eventId) {
-        Optional<EventWithUserInfo> maybeEvent;
-        if(userId == null){
-            maybeEvent = jdbcTemplate.query(
-                    SQL_FIND_BY_ID,
-                    (rs, rowNum) -> new EventWithUserInfo(
-                            EVENT_ROW_MAPPER.mapRow(rs, rowNum),
-                            false,
-                            false
-                    ),
-                    eventId
-            ).stream().findFirst();
-        } else {
-             maybeEvent = jdbcTemplate.query(
-                    SQL_FIND_EVENT_WITH_USER_INFO,
-                    (rs, rowNum) -> new EventWithUserInfo(
-                            EVENT_ROW_MAPPER.mapRow(rs, rowNum),
-                            rs.getBoolean("is_attending"),
-                            rs.getBoolean("is_owner")
-                    ),
-                    userId, userId, eventId
-            ).stream().findFirst();
-        }
-        if (maybeEvent.isEmpty()) {
-            return Optional.empty();
-        }
-
-        final long creatorId = maybeEvent.get().getEvent().getUser().getId();
-
-        final int creatorEventCount = countEventsCreatedByUser(creatorId);
-
-        final int creatorAttendanceCount = countEventsAttendedByUser(creatorId);
-
-        Optional<CountryAttendeeCount> maybeTopCountry = findTopAttendeeCountry(eventId);
-
-        String topAttendeeCountry = null;
-        int topAttendeeCountryCount = 0;
-
-        if (maybeTopCountry.isPresent()) {
-            topAttendeeCountry = maybeTopCountry.get().getCountryName();
-            topAttendeeCountryCount = maybeTopCountry.get().getCount();
-        }
-
-        EventWithStatistics eventStatistics = new EventWithStatistics(
-                maybeEvent.get().getEvent(),
-                creatorEventCount,
-                creatorAttendanceCount,
-                topAttendeeCountry,
-                topAttendeeCountryCount,
-                maybeEvent.get().isAttending(),
-                maybeEvent.get().isCreator()
-        );
-        return Optional.of(eventStatistics);
+    public Optional<EventWithUserInfo> findEventWithUserInfo(final long userId, final long eventId) {
+        return jdbcTemplate.query(
+                SQL_FIND_EVENT_WITH_USER_INFO,
+                (rs, rowNum) -> new EventWithUserInfo(
+                        EVENT_ROW_MAPPER.mapRow(rs, rowNum),
+                        rs.getBoolean("is_attending"),
+                        rs.getBoolean("is_owner")
+                ),
+                userId, userId, eventId
+        ).stream().findFirst();
     }
     
 

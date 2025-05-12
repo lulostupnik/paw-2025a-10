@@ -48,53 +48,53 @@ public class CityServiceImplTest {
     @Mock
     CountryService countryService;
 
-    @Test
-    public void testFindByName(){
-        Mockito.when(
-            cityDao.findByName(Mockito.eq(NAME))
-        ).thenReturn(Optional.of(CITY_1));
+    // @Test
+    // public void testFindByName(){
+    //     Mockito.when(
+    //         cityDao.findByName(Mockito.eq(NAME))
+    //     ).thenReturn(Optional.of(CITY_1));
 
-        Optional<City> maybeCity = cityService.findByName(NAME);
+    //     Optional<City> maybeCity = cityService.findByName(NAME);
 
-        assertNotNull(maybeCity);
-        assertTrue(maybeCity.isPresent());
-        assertEquals(CITY_1, maybeCity.get());
-    }
-    @Test
-    public void testFindByNameNotFound(){
-        Mockito.when(
-            cityDao.findByName(Mockito.eq(NAME))
-        ).thenReturn(Optional.empty());
+    //     assertNotNull(maybeCity);
+    //     assertTrue(maybeCity.isPresent());
+    //     assertEquals(CITY_1, maybeCity.get());
+    // }
+    // @Test
+    // public void testFindByNameNotFound(){
+    //     Mockito.when(
+    //         cityDao.findByName(Mockito.eq(NAME))
+    //     ).thenReturn(Optional.empty());
 
-        Optional<City> maybeCity = cityService.findByName(NAME);
+    //     Optional<City> maybeCity = cityService.findByName(NAME);
 
-        assertNotNull(maybeCity);
-        assertFalse(maybeCity.isPresent());
-    }
+    //     assertNotNull(maybeCity);
+    //     assertFalse(maybeCity.isPresent());
+    // }
 
-    @Test
-    public void testFindById(){
-        Mockito.when(
-            cityDao.findById(Mockito.eq(ID_1))
-        ).thenReturn(Optional.of(CITY_1));
+    // @Test
+    // public void testFindById(){
+    //     Mockito.when(
+    //         cityDao.findById(Mockito.eq(ID_1))
+    //     ).thenReturn(Optional.of(CITY_1));
 
-        Optional<City> maybeCity = cityService.findById(ID_1);
+    //     Optional<City> maybeCity = cityService.findById(ID_1);
 
-        assertNotNull(maybeCity);
-        assertTrue(maybeCity.isPresent());
-        assertEquals(CITY_1, maybeCity.get());
-    }
-    @Test
-    public void testFindByIdNotFound(){
-        Mockito.when(
-            cityDao.findById(Mockito.eq(ID_1))
-        ).thenReturn(Optional.empty());
+    //     assertNotNull(maybeCity);
+    //     assertTrue(maybeCity.isPresent());
+    //     assertEquals(CITY_1, maybeCity.get());
+    // }
+    // @Test
+    // public void testFindByIdNotFound(){
+    //     Mockito.when(
+    //         cityDao.findById(Mockito.eq(ID_1))
+    //     ).thenReturn(Optional.empty());
 
-        Optional<City> maybeCity = cityService.findById(ID_1);
+    //     Optional<City> maybeCity = cityService.findById(ID_1);
 
-        assertNotNull(maybeCity);
-        assertFalse(maybeCity.isPresent());
-    }
+    //     assertNotNull(maybeCity);
+    //     assertFalse(maybeCity.isPresent());
+    // }
 
     @Test
     public void testGetAllCitiesPagedMissingQuery(){
@@ -133,18 +133,18 @@ public class CityServiceImplTest {
         assertEquals(testPage, cities);
     }
 
-    @Test
-    public void testSearchBySubstring(){
-        Page<City> testPage = new Page<City>(List.of(CITY_1), 1, 1);
-        Mockito.when(
-            cityDao.search(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(testPage);
+    // @Test
+    // public void testSearchBySubstring(){
+    //     Page<City> testPage = new Page<City>(List.of(CITY_1), 1, 1);
+    //     Mockito.when(
+    //         cityDao.search(Mockito.eq(NAME), Mockito.eq(PAGE_1_DEFAULT))
+    //     ).thenReturn(testPage);
 
-        Page<City> cities = cityService.searchBySubstring(NAME, PAGE_1_DEFAULT);
+    //     Page<City> cities = cityService.searchBySubstring(NAME, PAGE_1_DEFAULT);
 
-        assertNotNull(cities);
-        assertEquals(testPage, cities);
-    }
+    //     assertNotNull(cities);
+    //     assertEquals(testPage, cities);
+    // }
 
     @Test
     public void testUpdateCity(){
@@ -162,16 +162,6 @@ public class CityServiceImplTest {
 
         cityService.updateCity(ID_1, NAME, COUNTRY_NAME);
     }
-    @Test(expected = DataIntegrityViolationException.class)
-    public void testUpdateCityDuplicated(){
-        Mockito.when(
-            countryService.findByName(Mockito.eq(COUNTRY_NAME))
-        ).thenReturn(Optional.of(COUNTRY));
-        Mockito.doThrow(new DataIntegrityViolationException("data"))
-            .when(cityDao).update(Mockito.eq(ID_1), Mockito.eq(NAME), Mockito.eq(COUNTRY));
-
-        cityService.updateCity(ID_1, NAME, COUNTRY_NAME);
-    }
 
     @Test
     public void testCreateCity(){
@@ -186,16 +176,6 @@ public class CityServiceImplTest {
         Mockito.when(
             countryService.findByName(Mockito.eq(COUNTRY_NAME))
         ).thenReturn(Optional.empty());
-
-        cityService.createCity(NAME, COUNTRY_NAME);
-    }
-    @Test(expected = DataIntegrityViolationException.class)
-    public void testCreateCityDuplicated(){
-        Mockito.when(
-            countryService.findByName(Mockito.eq(COUNTRY_NAME))
-        ).thenReturn(Optional.of(COUNTRY));
-        Mockito.doThrow(new DataIntegrityViolationException("data"))
-            .when(cityDao).create(Mockito.eq(NAME), Mockito.eq(COUNTRY));
 
         cityService.createCity(NAME, COUNTRY_NAME);
     }

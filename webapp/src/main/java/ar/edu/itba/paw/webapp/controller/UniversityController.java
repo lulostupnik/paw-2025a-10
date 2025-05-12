@@ -67,7 +67,6 @@ public class UniversityController {
                 uniForm.getCity()
         );
 
-        LOGGER.info("Created university: {}", university.getName());
         return new ModelAndView("redirect:/universities/{id}", "id", university.getId());
     }
 
@@ -75,7 +74,10 @@ public class UniversityController {
     public ModelAndView getUniversity(@PathVariable("id") Long id) {
         ModelAndView mav = new ModelAndView(DETAIL);
         mav.addObject(UNIVERSITY, universityService.findById(id).orElseThrow(
-                () -> new NotFoundException("University not found")));
+                () -> {
+                    LOGGER.error("University not found");
+                    return new NotFoundException("University not found");}
+        ));
         return mav;
     }
 
@@ -84,7 +86,9 @@ public class UniversityController {
 
         // Create and populate form with existing university data
         if(errors.hasErrors()) {
-            University university = universityService.findById(id).orElseThrow(()-> new NotFoundException("University not found"));
+            University university = universityService.findById(id).orElseThrow(()-> {
+                LOGGER.error("University not found");
+                return new NotFoundException("University not found");});
             form.setName(university.getName());
             form.setAbbreviation(university.getAbbreviation());
             form.setCity(university.getCity().getName());

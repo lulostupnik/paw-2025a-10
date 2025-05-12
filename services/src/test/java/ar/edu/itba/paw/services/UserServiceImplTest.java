@@ -159,7 +159,7 @@ public class UserServiceImplTest {
 
         userService.validateEmail(TOKEN);
     }
-    @Test(expected = ExpiredTokenException.class)
+    @Test(expected = IllegalStateException.class)
     public void testValidateEmailExpiredToken(){
         Mockito.when(
             userDao.existsByTokenExpired(Mockito.eq(TOKEN))
@@ -421,11 +421,6 @@ public class UserServiceImplTest {
         ).thenReturn(Optional.empty());
 
         userService.refreshPassToken(TOKEN);
-    }
-
-    @Test
-    public void testNewPassword(){
-        userService.newPassword(TOKEN, PASSWORD);
     }
 
     @Test

@@ -26,6 +26,7 @@ import java.util.NoSuchElementException;
 @Controller
 @RequestMapping("/careers")
 public class CareerController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CareerController.class);
     private final CareerService careerService;
     private static final String CAREER_DASHBOARD = "/dashboard/careers";
     private static final String CAREER_CREATE = "/careers/create";
@@ -62,7 +63,10 @@ public class CareerController {
     }
     @GetMapping(value= "/{id}")
     public ModelAndView getCareers(@PathVariable(value = "id") final long id) {
-        Career career = careerService.findById(id).orElseThrow(() -> new NotFoundException("Career not found"));
+        Career career = careerService.findById(id).orElseThrow(() -> {
+            LOGGER.error("Career not found");
+            return new NotFoundException("Career not found");}
+        );
         ModelAndView mav = new ModelAndView(CAREER_DETAIL);
         mav.addObject("career", career);
         return mav;

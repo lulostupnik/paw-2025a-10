@@ -70,8 +70,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
         args.put("date_time", Timestamp.valueOf(dateTime));
         args.put("deleted", false);
         final Number keys = jdbcInsert.executeAndReturnKey(args);
-        final JourneyResponse response = new JourneyResponse(keys.longValue(), userId, username, journeyId, message, dateTime);
-        return response;
+        return new JourneyResponse(keys.longValue(), userId, username, journeyId, message, dateTime);
     }
 
     @Override

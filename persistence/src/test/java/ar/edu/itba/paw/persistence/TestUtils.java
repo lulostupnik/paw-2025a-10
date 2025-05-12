@@ -3,15 +3,21 @@ package ar.edu.itba.paw.persistence;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.sql.Date;
+import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.sql.DataSource;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.test.jdbc.JdbcTestUtils;
 
 import ar.edu.itba.paw.models.Career;
@@ -26,6 +32,7 @@ import ar.edu.itba.paw.models.JourneyResponse;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.UserAuthInfo;
 
 public class TestUtils {
 
@@ -262,6 +269,7 @@ public class TestUtils {
     public static final Event EVENT_3 = new Event(EVENT_3_ID, USER_2, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_3, Optional.of(EVENT_TIME_DEFAULT), EVENT_ADDRESS_DEFAULT, Optional.of(EVENT_ATTENDANCE_LIMIT_DEFAULT), EVENT_3_ATTENDEES);
     public static final Event EVENT_OLDER = new Event(EVENT_OLDER_ID, USER_1, EVENT_DATE_OLDER, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_PAST, Optional.of(EVENT_TIME_DEFAULT), EVENT_ADDRESS_DEFAULT, Optional.of(EVENT_ATTENDANCE_LIMIT_DEFAULT), EVENT_OLDER_ATTENDEES);
     public static final Event EVENT_DELETED = new Event(EVENT_DELETED_ID, USER_2, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_DELETED, Optional.of(EVENT_TIME_DEFAULT), EVENT_ADDRESS_DEFAULT, Optional.of(EVENT_ATTENDANCE_LIMIT_DEFAULT), EVENT_DELETED_ATTENDEES);
+    public static final Map<Long, Event> EVENT_DATA = Map.of(EVENT_1_ID, EVENT_1, EVENT_2_ID, EVENT_2, EVENT_3_ID, EVENT_3, EVENT_OLDER_ID, EVENT_OLDER);
     public static final long EVENT_RESPONSE_1_ID = 10000;
     public static final long EVENT_RESPONSE_2_ID = 20000;
     public static final long EVENT_RESPONSE_3_ID = 30000;
@@ -766,5 +774,186 @@ public class TestUtils {
         assertEquals(expected.getEventId(), actual.getEventId());
         assertEquals(expected.getMessage(), actual.getMessage());
         assertEquals(expected.getUserId(), actual.getUserId());
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void assertEqualsEvent(Event event, Map<String, Object> overrides){
+        assertNotNull(event);
+        long id = (long)overrides.getOrDefault("id", EVENT_1_ID);
+        User user = (User)overrides.getOrDefault("user", USER_1);
+        City city = (City)overrides.getOrDefault("city", CITY_1);
+        LocalDate date = (LocalDate)overrides.getOrDefault("date", EVENT_DATE_DEFAULT);
+        Optional<LocalTime> time = (Optional<LocalTime>)overrides.getOrDefault("time", Optional.of(EVENT_TIME_DEFAULT));
+        String address = ((Optional<String>)overrides.getOrDefault("address", Optional.of(EVENT_ADDRESS_DEFAULT))).orElse(null);
+        Optional<Integer> limit = (Optional<Integer>)overrides.getOrDefault("limit", Optional.of(EVENT_ATTENDANCE_LIMIT_DEFAULT));
+        String description = ((Optional<String>)overrides.getOrDefault("description", Optional.of(EVENT_DESCRIPTION_DEFAULT))).orElse(null);
+        String title = (String)overrides.getOrDefault("title", EVENT_TITLE_DEFAULT);
+        Image image = (Image)overrides.getOrDefault("image", IMAGE_1);
+        int attendees = (int)overrides.getOrDefault("attendees", EVENT_1_ATTENDEES);
+        Event newEvent = new Event(id, user, date, description, image.getId(), city, title, time, address, limit, attendees);
+        assertEqualsEvent(newEvent, event);
+    }
+
+    public static void assertEqualsEvent(Event event){
+        assertEqualsEvent(EVENT_1, event);
+    }
+
+    public static void assertEqualsJourney(Journey journey){
+        assertEqualsJourney(JOURNEY_1, journey);
+    }
+
+    public static void assertEqualsJourney(Journey journey, Map<String, Object> overrideParams){
+        assertNotNull(journey);
+        User user = ((User)overrideParams.getOrDefault("user", USER_1));
+        University uni = ((University)overrideParams.getOrDefault("destination", UNI_2));
+        LocalDate startDate = (LocalDate)overrideParams.getOrDefault("startDate", JOURNEY_START_DATE);
+        LocalDate endDate = (LocalDate)overrideParams.getOrDefault("endDate", JOURNEY_END_DATE);
+        String description = (String)overrideParams.getOrDefault("description", JOURNEY_DESCRIPTION);
+        long id = (long)overrideParams.getOrDefault("id", JOURNEY_1_ID);
+        Journey newJourney = new Journey(id, user, startDate, endDate, uni, description);
+
+        assertEqualsJourney(newJourney, journey);
+    }
+
+    public static void assertUniversityDBDefaultState(JdbcTemplate template){
+        assertEqualsUni(UNI_1, template.queryForObject(UNIVERSITY_SELECT_BY_ID, UNIVERSITY_ROW_MAPPER, UNIVERSITY_1_ID));
+        assertEqualsUni(UNI_2, template.queryForObject(UNIVERSITY_SELECT_BY_ID, UNIVERSITY_ROW_MAPPER, UNIVERSITY_2_ID));
+        assertEqualsUni(UNI_3, template.queryForObject(UNIVERSITY_SELECT_BY_ID, UNIVERSITY_ROW_MAPPER, UNIVERSITY_3_ID));
+    }
+
+    public static void assertEqualsUser(User user){
+        assertEqualsUser(user, Map.of());
+    }
+
+    public static void assertEqualsUser(User user, Map<String, Object> overrideParams){
+        assertNotNull(user);
+        long id = (long)overrideParams.getOrDefault("id", USER_1_ID);
+        String email = (String)overrideParams.getOrDefault("email", USER_1_MAIL);
+        String username = (String)overrideParams.getOrDefault("username", USER_1_NAME);
+        String firstname = (String)overrideParams.getOrDefault("firstname", USER_FIRSTNAME);
+        String lastname = (String)overrideParams.getOrDefault("lastname", USER_LASTNAME);
+        Locale locale = Locale.of((String)overrideParams.getOrDefault("locale", USER_LOCALE));
+        Career career = (Career)overrideParams.getOrDefault("career", CAREER_1);
+        University uni = (University)overrideParams.getOrDefault("university", UNI_1);
+        Image image = (Image)overrideParams.getOrDefault("profilepic", IMAGE_1);
+        boolean blocked = (boolean)overrideParams.getOrDefault("blocked", false);
+        User newUser = new User(id, email, username, firstname, lastname, uni, career, image.getId(), locale, blocked);
+        assertEqualsUser(newUser, user);
+    }
+
+    public static void assertUserDBDefaultStatus(JdbcTemplate template){
+        assertEquals(TOTAL_USERS, JdbcTestUtils.countRowsInTable(template, USER_TABLE));
+        assertEqualsUser(USER_1, template.queryForObject(USER_SELECT_BY_ID, USER_ROW_MAPPER, USER_1_ID));
+        assertEqualsUser(USER_2, template.queryForObject(USER_SELECT_BY_ID, USER_ROW_MAPPER, USER_2_ID));
+        assertEqualsUser(USER_3, template.queryForObject(USER_SELECT_BY_ID, USER_ROW_MAPPER, USER_3_ID));
+        assertEqualsUser(USER_4, template.queryForObject(USER_SELECT_BY_ID, USER_ROW_MAPPER, USER_4_ID));
+        assertEqualsUser(USER_I1,template.queryForObject(USER_SELECT_BY_ID, USER_ROW_MAPPER, USER_I1_ID));
+        assertEqualsUser(USER_I2,template.queryForObject(USER_SELECT_BY_ID, USER_ROW_MAPPER, USER_I2_ID));
+        assertEqualsUser(USER_I3,template.queryForObject(USER_SELECT_BY_ID, USER_ROW_MAPPER, USER_I3_ID));
+    }
+
+    public static void assertEqualsUserPassword(UserAuthInfo up){
+        assertNotNull(up);
+        assertEquals(USER_1_MAIL, up.getEmail());
+        assertEquals(USER_PASSWORD, up.getPassword());
+        assertEquals(USER_ROLE, up.getRole());
+        assertEquals(USER_BLOCKED, up.isBlocked());
+    }
+
+    //INSERTERS
+    @SuppressWarnings("unchecked")
+    public static Event insertEvent(DataSource ds, Map<String, Object> overrides){
+        SimpleJdbcInsert insert = new SimpleJdbcInsert(ds).withTableName(EVENT_TABLE).usingGeneratedKeyColumns("id");
+        SimpleJdbcInsert insertAttendance = new SimpleJdbcInsert(ds).withTableName(EVENT_ATTENDANCE_TABLE);
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("user_id", ((User)overrides.getOrDefault("user", USER_1)).getId());
+        params.put("city_id", ((City)overrides.getOrDefault("city", CITY_1)).getId());
+        params.put("event_date", Date.valueOf((LocalDate)overrides.getOrDefault("date", EVENT_DATE_DEFAULT)));
+        Optional<LocalTime> time = (Optional<LocalTime>)overrides.getOrDefault("time", Optional.of(EVENT_TIME_DEFAULT));
+        params.put("event_time", time.isPresent() ? Time.valueOf(time.get()) : null);
+        params.put("address", ((Optional<String>)overrides.getOrDefault("address", Optional.of(EVENT_ADDRESS_DEFAULT))).orElse(null));
+        params.put("attendees_limit", ((Optional<Integer>)overrides.getOrDefault("limit", Optional.of(EVENT_ATTENDANCE_LIMIT_DEFAULT))).orElse(null));
+        params.put("attendees_count", ((Integer)overrides.getOrDefault("willAttend", EVENT_ATTENDANCE_DEFAULT)));
+        params.put("description", ((Optional<String>)overrides.getOrDefault("description", Optional.of(EVENT_DESCRIPTION_DEFAULT))).orElse(null));
+        params.put("title", overrides.getOrDefault("title", EVENT_TITLE_DEFAULT));
+        params.put("flyer_image_id", ((Image)overrides.getOrDefault("image", IMAGE_1)).getId());
+        params.put("deleted", overrides.getOrDefault("deleted", false));
+        params.put("deleted_message", overrides.getOrDefault("deletedMessage", null));
+
+        long key = insert.executeAndReturnKey(params).longValue();
+        if (overrides.get("attending") != null){
+            insertAttendance.execute(Map.of("user_id", ((User)overrides.get("attending")).getId(), "event_id", key));
+        }
+        return new Event(
+            key, 
+            (User)overrides.getOrDefault("user", USER_1),
+            ((Date)params.get("event_date")).toLocalDate(), 
+            (String)params.get("description"),
+            (long)params.get("flyer_image_id"),
+            (City)overrides.getOrDefault("city", CITY_1),
+            (String)params.get("title"),
+            Optional.ofNullable(params.get("event_time") != null ? ((Time)params.get("event_time")).toLocalTime() : null),
+            (String)params.get("address"),
+            Optional.ofNullable((Integer)params.get("attendees_limit")),
+            (int)params.get("attendees_count")
+        );
+    }
+
+    public static Journey insertJourney(DataSource ds, Map<String, Object> overrideParams){
+        SimpleJdbcInsert insert = new SimpleJdbcInsert(ds).withTableName(JOURNEY_TABLE).usingGeneratedKeyColumns("id");
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("user_id", ((User)overrideParams.getOrDefault("user", USER_2)).getId());
+        params.put("destination_university_id", ((University)overrideParams.getOrDefault("destination", UNI_2)).getId());
+        params.put("start_date", Date.valueOf((LocalDate)overrideParams.getOrDefault("startDate", JOURNEY_START_DATE)));
+        params.put("end_date", Date.valueOf((LocalDate)overrideParams.getOrDefault("endDate", JOURNEY_END_DATE)));
+        params.put("description", overrideParams.getOrDefault("description", JOURNEY_DESCRIPTION));
+        params.put("deleted", overrideParams.getOrDefault("deleted", false));
+        params.put("deleted_message", overrideParams.getOrDefault("deletedMessage", null));
+        long id = insert.executeAndReturnKey(params).longValue();
+        
+        return new Journey(
+            id, 
+            ((User)overrideParams.getOrDefault("user", USER_2)), 
+            (LocalDate)overrideParams.getOrDefault("startDate", JOURNEY_START_DATE),
+            (LocalDate)overrideParams.getOrDefault("endDate", JOURNEY_END_DATE),
+            (University)overrideParams.getOrDefault("destination", UNI_2), 
+            (String)overrideParams.getOrDefault("description", JOURNEY_DESCRIPTION)
+        );
+    }
+
+    public static User insertUser(DataSource ds, Map<String, Object> overrideParams){
+        SimpleJdbcInsert insert = new SimpleJdbcInsert(ds).withTableName(TestUtils.USER_TABLE).usingGeneratedKeyColumns("id");
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("email", overrideParams.getOrDefault("email", USER_1_MAIL));
+        params.put("username", overrideParams.getOrDefault("username", USER_1_NAME));
+        params.put("firstname", overrideParams.getOrDefault("firstname", USER_FIRSTNAME));
+        params.put("lastname", overrideParams.getOrDefault("lastname", USER_LASTNAME));
+        params.put("password", overrideParams.getOrDefault("password", USER_PASSWORD));
+        params.put("language", overrideParams.getOrDefault("locale", USER_LOCALE));
+        params.put("university", overrideParams.getOrDefault("university", UNIVERSITY_1_ID));
+        params.put("career_id", overrideParams.getOrDefault("career", CAREER_1_ID));
+        params.put("profile_picture_id", overrideParams.getOrDefault("profilepic", IMAGE_1_ID));
+        params.put("roles", overrideParams.getOrDefault("roles", USER_ROLE));
+        params.put("blocked", overrideParams.getOrDefault("blocked", false));
+        params.put("token", overrideParams.getOrDefault("token", USER_VALID_TOKEN_DEFAULT));
+        params.put("token_expiration", Date.valueOf((LocalDate)overrideParams.getOrDefault("tokenExpiration", USER_EXPIRATION_DEFAULT)));
+        params.put("validated",overrideParams.getOrDefault("validated", true));
+        long id = insert.executeAndReturnKey(params).longValue();
+
+        return new User(
+            id, 
+            (String)overrideParams.getOrDefault("email", USER_1_MAIL), 
+            (String)overrideParams.getOrDefault("username", USER_1_NAME),
+            (String)overrideParams.getOrDefault("firstname", USER_FIRSTNAME),
+            (String)overrideParams.getOrDefault("lastname", USER_LASTNAME),
+            (University)overrideParams.getOrDefault("university", UNI_1),
+            (Career)overrideParams.getOrDefault("career", CAREER_1),
+            (long)overrideParams.getOrDefault("profilepic", IMAGE_1_ID),
+            Locale.of((String)overrideParams.getOrDefault("locale", USER_LOCALE)),
+            (boolean)overrideParams.getOrDefault("blocked", USER_BLOCKED)
+        );
     }
 }
