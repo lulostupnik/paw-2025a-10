@@ -7,6 +7,7 @@ import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
+import ar.edu.itba.paw.models.exceptions.InvalidException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,11 +70,7 @@ public class JourneyServiceImpl implements JourneyService {
                 }
         );
 
-        if (journeyDao.findOverlapping(user.getId(), startDate, endDate).isPresent()) {
-            LOGGER.warn("User has an overlapping journey");
-            throw new RuntimeException("There's already a journey registered in this time period");
-        }
-        Journey journey = journeyDao.create(user, destination, startDate, endDate, description); // FIXME
+        Journey journey = journeyDao.create(user, destination, startDate, endDate, description);
         LOGGER.info("Journey created: {}", journey);
         return journey;
     }
@@ -124,19 +121,15 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.debug("Getting journey by id {}", id);
         return journeyDao.findById(id);
     }
-//FIXME:ESTO ESTA RARI
+
     @Override
     public Optional<Journey> getJourneyByEmail(final String email) {
-        // return journeyDao.findByUserEmail(email);
         LOGGER.debug("Getting journey by email {}", email);
         long userId = userService.findByEmail(email).orElseThrow(() -> {
             LOGGER.warn("User with email {} not found", email);
             return new RuntimeException("User not found");
         }).getId();
         return journeyDao.findByUserId(userId);
-
-        // ó deberíamos hacer lo siguiente?
-        // return journeyDao.findByUserEmail(email); ¿? -> Acá no estaríamos verificando si existe el usuario
     }
 
 
@@ -147,6 +140,10 @@ public class JourneyServiceImpl implements JourneyService {
                                         final boolean isPast, final boolean isUpcoming,final  boolean isMyDestination, final boolean isOngoing,
                                         final PageParams pageParams) {
         LOGGER.debug("Getting filtered journeys");
+        if(user != null && isMyDestination && ! userHasJourney(user)){
+            LOGGER.warn("User has no journeys");
+            throw new InvalidException("User has no journeys");
+        }
         return journeyDao.search(search, user != null ? user.getId() : null, sortBy, direction, destination,
                 startDate, endDate, interest, isPast, isUpcoming, isMyDestination, isOngoing,
                 pageParams);

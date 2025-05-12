@@ -56,12 +56,12 @@ public class CityController {
         if (errors.hasErrors()) {
             return createCitiesForm(cityForm);
         }
-        long cityId = cityService.createCity(
+        City city = cityService.createCity(
                 cityForm.getName(),
                 cityForm.getCountry()
         );
 
-        return new ModelAndView("redirect:/cities/{id}", "id", cityId);
+        return new ModelAndView("redirect:/cities/{id}", "id", city.getId());
     }
     @GetMapping(value= "/{id}")
     public ModelAndView getCity(@PathVariable(value = "id") final long id) {

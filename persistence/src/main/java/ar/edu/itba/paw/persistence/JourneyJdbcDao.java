@@ -82,7 +82,6 @@ public class JourneyJdbcDao implements JourneyDao {
     private static final String SQL_FIND_BY_ID = SQL_BASE + " AND j.id = ?";
     private final static String SQL_FIND_BY_USER_ID = SQL_BASE + " AND u.id = ?";
     private final static String SQL_FIND_BY_USER_ID_DELETED = SQL_SELECT_BASE + SQL_FROM_BASE + " WHERE u.id = ?" ; // "AND j.deleted = TRUE"; ?
-    private final static String SQL_FIND_OVERLAPPING = SQL_BASE + " AND j.user_id = ? AND j.end_date >= ? AND j.start_date <= ?";
     private final static String SQL_FIND_BY_ORIGIN_CITY = SQL_BASE + " AND ci1.id = ?";
 
     private final static String SQL_FIND_BY_ORIGIN_CITY_PAGED = SQL_FIND_BY_ORIGIN_CITY + " ORDER BY j.id ASC LIMIT ? OFFSET ?";
@@ -189,12 +188,6 @@ public class JourneyJdbcDao implements JourneyDao {
     @Override
     public Optional<Journey> findById(final long id) {
         return jdbcTemplate.query(SQL_FIND_BY_ID, JOURNEY_ROW_MAPPER, id).stream().findFirst();
-    }
-    
-    @Override
-    public Optional<Journey> findOverlapping(final long userId, final LocalDate startDate, final LocalDate endDate) {
-        return jdbcTemplate.query(SQL_FIND_OVERLAPPING, JOURNEY_ROW_MAPPER, userId, Date.valueOf(startDate), Date.valueOf(endDate))
-                .stream().findFirst();
     }
 
 

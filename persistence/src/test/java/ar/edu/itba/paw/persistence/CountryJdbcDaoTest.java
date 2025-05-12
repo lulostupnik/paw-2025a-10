@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.sql.DataSource;
@@ -29,9 +28,6 @@ import ar.edu.itba.paw.models.Country;
 @ContextConfiguration(classes = TestConfig.class)
 public class CountryJdbcDaoTest {
 
-    private static Country COUNTRY_1;
-    private static Country COUNTRY_2;
-
     @Autowired
     private DataSource ds;
 
@@ -43,9 +39,6 @@ public class CountryJdbcDaoTest {
     @Before
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
-
-        COUNTRY_1 = jdbcTemplate.queryForObject(TestUtils.COUNTRY_SELECT_BY_CODE, TestUtils.COUNTRY_ROW_MAPPER, TestUtils.COUNTRY_1_CODE);
-        COUNTRY_2 = jdbcTemplate.queryForObject(TestUtils.COUNTRY_SELECT_BY_CODE, TestUtils.COUNTRY_ROW_MAPPER, TestUtils.COUNTRY_2_CODE);
     }
 
     @Test
@@ -54,9 +47,8 @@ public class CountryJdbcDaoTest {
 
         assertNotNull(countries);
         assertEquals(TestUtils.TOTAL_COUNTRIES, countries.size());
-        Map<Long, Country> countryData = Map.of(COUNTRY_1.getId(), COUNTRY_1, COUNTRY_2.getId(), COUNTRY_2);
         for (Country country : countries) {
-            TestUtils.assertEqualsCountry(countryData.get(country.getId()), country);
+            TestUtils.assertEqualsCountry(TestUtils.COUNTRY_DATA.get(country.getId()), country);
         }
     }
     @Test
@@ -75,7 +67,7 @@ public class CountryJdbcDaoTest {
 
         assertNotNull(result);
         assertTrue(result.isPresent());
-        TestUtils.assertEqualsCountry(COUNTRY_1, result.get());
+        TestUtils.assertEqualsCountry(TestUtils.COUNTRY_1, result.get());
     }
     @Test
     public void testFindByNameFakeName(){

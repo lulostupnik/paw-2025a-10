@@ -16,10 +16,10 @@ public class UpdatePasswordMatchValidator implements ConstraintValidator<Passwor
             return false;
 
         boolean matches = form.getPassword().equals(form.getConfirmPassword());
-        if (!matches) {  //@TODO preguntar si esta bien.
+        if (!matches) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
-                    .addPropertyNode("confirmPassword") // binds error to confirmPassword field
+                    .addPropertyNode("confirmPassword")
                     .addConstraintViolation();
         }
         return matches;

@@ -21,5 +21,4 @@ public interface JourneyDao {
                          String city, LocalDate startDate, LocalDate endDate, String interest,
                          boolean isPast, boolean isUpcoming, boolean isMyDestination, boolean isOngoing,
                          PageParams pageParams);
-    Optional<Journey> findOverlapping(long id, LocalDate startDate, LocalDate endDate);
 }

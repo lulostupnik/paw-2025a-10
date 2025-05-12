@@ -11,7 +11,6 @@ import java.util.Optional;
 
 import javax.sql.DataSource;
 
-import ar.edu.itba.paw.models.PageParams;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +19,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,22 +27,11 @@ import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Country;
 import ar.edu.itba.paw.models.Page;
 
-@Sql(scripts = "classpath:schema.sql")
 @Transactional
 @Rollback
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
 public class CityJdbcDaoTest {
-
-
-    private static City CITY_1;
-    private static City CITY_2;
-    private static City CITY_3;
-    private static City CITY_DELETED;
-    private static Country COUNTRY_1;
-    private static Country COUNTRY_2;
-
-    private static Map<Long, City> cityData;
 
     @Autowired
     private DataSource ds;
@@ -57,15 +44,6 @@ public class CityJdbcDaoTest {
     @Before
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
-
-        COUNTRY_1 = jdbcTemplate.queryForObject(TestUtils.COUNTRY_SELECT_BY_CODE, TestUtils.COUNTRY_ROW_MAPPER, TestUtils.COUNTRY_1_CODE);
-        COUNTRY_2 = jdbcTemplate.queryForObject(TestUtils.COUNTRY_SELECT_BY_CODE, TestUtils.COUNTRY_ROW_MAPPER, TestUtils.COUNTRY_2_CODE);
-
-        CITY_1 = jdbcTemplate.queryForObject(TestUtils.CITY_SELECT_BY_NAME, TestUtils.CITY_ROW_MAPPER, TestUtils.CITY_1_NAME);
-        CITY_2 = jdbcTemplate.queryForObject(TestUtils.CITY_SELECT_BY_NAME, TestUtils.CITY_ROW_MAPPER, TestUtils.CITY_2_NAME);
-        CITY_3 = jdbcTemplate.queryForObject(TestUtils.CITY_SELECT_BY_NAME, TestUtils.CITY_ROW_MAPPER, TestUtils.CITY_3_NAME);
-        CITY_DELETED = jdbcTemplate.queryForObject(TestUtils.CITY_SELECT_BY_NAME, TestUtils.CITY_ROW_MAPPER, TestUtils.CITY_DELETED_NAME);
-        cityData = Map.of(CITY_1.getId(), CITY_1, CITY_2.getId(), CITY_2, CITY_3.getId(), CITY_3);
     }
     
     @Test
@@ -74,7 +52,7 @@ public class CityJdbcDaoTest {
 
         assertNotNull(maybeCity);
         assertTrue(maybeCity.isPresent());
-        TestUtils.assertEqualsCity(CITY_1, maybeCity.get());
+        TestUtils.assertEqualsCity(TestUtils.CITY_1, maybeCity.get());
     }
     @Test
     public void testFindByNameMissingCity(){
@@ -105,7 +83,7 @@ public class CityJdbcDaoTest {
         assertNotNull(cities);
         assertEquals(TestUtils.TOTAL_CITIES, cities.size());
         for (City city : cities){
-            TestUtils.assertEqualsCity(cityData.get(city.getId()), city);
+            TestUtils.assertEqualsCity(TestUtils.CITY_DATA.get(city.getId()), city);
         }
     }
     @Test
@@ -120,41 +98,41 @@ public class CityJdbcDaoTest {
 
     @Test
     public void testSearchNoFiltering(){
-        Page<City> page1 = cityDao.search(TestUtils.CITY_1_NAME.substring(0, 3), new PageParams(1, 3));
+        Page<City> page1 = cityDao.search(TestUtils.CITY_1_NAME.substring(0, 3), TestUtils.PAGE_1_BIG);
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
         assertNotNull(page1.getContent());
         assertEquals(TestUtils.TOTAL_CITIES, page1.getContent().size());
         for (City city : page1.getContent()){
-            TestUtils.assertEqualsCity(cityData.get(city.getId()), city);
+            TestUtils.assertEqualsCity(TestUtils.CITY_DATA.get(city.getId()), city);
         }
     }
     @Test
     public void testSearchFiltering(){
-        Page<City> page1 = cityDao.search(TestUtils.CITY_1_NAME.substring(TestUtils.CITY_1_NAME.length()-1, TestUtils.CITY_1_NAME.length()), new PageParams(1,3));
+        Page<City> page1 = cityDao.search(TestUtils.CITY_1_NAME.substring(TestUtils.CITY_1_NAME.length()-1, TestUtils.CITY_1_NAME.length()), TestUtils.PAGE_1_BIG);
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
         assertNotNull(page1.getContent());
         assertEquals(1, page1.getContent().size());
-        TestUtils.assertEqualsCity(CITY_1, page1.getContent().get(0));
+        TestUtils.assertEqualsCity(TestUtils.CITY_1, page1.getContent().get(0));
     }
     @Test
     public void testSearchEmpty(){
-        Page<City> page1 = cityDao.search("", new PageParams(1, 3));
+        Page<City> page1 = cityDao.search("", TestUtils.PAGE_1_BIG);
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
         assertNotNull(page1.getContent());
         assertEquals(TestUtils.TOTAL_CITIES, page1.getContent().size());
         for (City city : page1.getContent()){
-            TestUtils.assertEqualsCity(cityData.get(city.getId()), city);
+            TestUtils.assertEqualsCity(TestUtils.CITY_DATA.get(city.getId()), city);
         }
     }
     @Test
     public void testSearchDeleted(){
-        Page<City> page1 = cityDao.search(TestUtils.CITY_DELETED_NAME, new PageParams(1, 3));
+        Page<City> page1 = cityDao.search(TestUtils.CITY_DELETED_NAME, TestUtils.PAGE_1_BIG);
 
         assertNotNull(page1);
         assertEquals(0, page1.getTotalPages());
@@ -163,20 +141,20 @@ public class CityJdbcDaoTest {
     }
     @Test
     public void testSearchMissing(){
-        Page<City> page1 = cityDao.search(null, new PageParams(1, 3));
+        Page<City> page1 = cityDao.search(null, TestUtils.PAGE_1_BIG);
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
         assertNotNull(page1.getContent());
         assertEquals(TestUtils.TOTAL_CITIES, page1.getContent().size());
         for (City city : page1.getContent()){
-            TestUtils.assertEqualsCity(cityData.get(city.getId()), city);
+            TestUtils.assertEqualsCity(TestUtils.CITY_DATA.get(city.getId()), city);
         }
     }
     @Test
     public void testSearchPaging(){
-        Page<City> page1 = cityDao.search("", new PageParams(1, 2));
-        Page<City> page2 = cityDao.search("", new PageParams(2, 2));
+        Page<City> page1 = cityDao.search("", TestUtils.PAGE_1_DEFAULT);
+        Page<City> page2 = cityDao.search("", TestUtils.PAGE_2_DEFAULT);
 
         assertNotNull(page1);
         assertNotNull(page2);
@@ -190,15 +168,15 @@ public class CityJdbcDaoTest {
 
     @Test
     public void testFindByGenericById(){
-        Optional<City> maybeCity = cityDao.findById(CITY_1.getId());
+        Optional<City> maybeCity = cityDao.findById(TestUtils.CITY_1_ID);
 
         assertNotNull(maybeCity);
         assertTrue(maybeCity.isPresent());
-        TestUtils.assertEqualsCity(CITY_1, maybeCity.get());
+        TestUtils.assertEqualsCity(TestUtils.CITY_1, maybeCity.get());
     }
     @Test
     public void testFindByGenericByIdDeleted(){
-        Optional<City> maybeCity = cityDao.findById(CITY_DELETED.getId());
+        Optional<City> maybeCity = cityDao.findById(TestUtils.CITY_DELETED_ID);
         
         assertNotNull(maybeCity);
         assertFalse(maybeCity.isPresent());
@@ -206,19 +184,19 @@ public class CityJdbcDaoTest {
 
     @Test
     public void testFindAllPagedOnePage(){
-        Page<City> page1 = cityDao.findAll(new PageParams(1, 3));
+        Page<City> page1 = cityDao.findAll(TestUtils.PAGE_1_BIG);
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
         assertEquals(TestUtils.TOTAL_CITIES, page1.getContent().size());
         for (City city : page1.getContent()){
-            TestUtils.assertEqualsCity(cityData.get(city.getId()), city);
+            TestUtils.assertEqualsCity(TestUtils.CITY_DATA.get(city.getId()), city);
         }
     }
     @Test
     public void testFindAllPagedMultiplePages(){
-        Page<City> page1 = cityDao.findAll(new PageParams(1, 2));
-        Page<City> page2 = cityDao.findAll(new PageParams(2, 2));
+        Page<City> page1 = cityDao.findAll(TestUtils.PAGE_1_DEFAULT);
+        Page<City> page2 = cityDao.findAll(TestUtils.PAGE_2_DEFAULT);
 
         assertNotNull(page1);
         assertEquals(2, page1.getTotalPages());
@@ -231,7 +209,7 @@ public class CityJdbcDaoTest {
     public void testFindAllCitiesPagedNo(){
         TestUtils.deleteCities(jdbcTemplate);
 
-        Page<City> page1 = cityDao.findAll(new PageParams(1, 2));
+        Page<City> page1 = cityDao.findAll(TestUtils.PAGE_1_DEFAULT);
         
         assertNotNull(page1);
         assertEquals(0, page1.getTotalPages());
@@ -240,7 +218,7 @@ public class CityJdbcDaoTest {
 
     @Test
     public void testCreate(){
-        long id = cityDao.create(TestUtils.NEW_CITY_NAME, new Country(COUNTRY_1.getId(), null, null));
+        City city = cityDao.create(TestUtils.NEW_CITY_NAME, TestUtils.COUNTRY_1);
 
         assertEquals(
             TestUtils.TOTAL_CITIES + 1, 
@@ -248,16 +226,15 @@ public class CityJdbcDaoTest {
                 jdbcTemplate.queryForObject(TestUtils.CITIES_COUNT_NOT_DELETED, Integer.class)
             ).get().intValue()
         );
-        City city = jdbcTemplate.queryForObject(TestUtils.CITY_SELECT_BY_NAME, TestUtils.CITY_ROW_MAPPER, TestUtils.NEW_CITY_NAME);
-        TestUtils.assertEqualsCity(new City(TestUtils.NEW_CITY_NAME, COUNTRY_1.getName(), id), city);
+        TestUtils.assertEqualsCity(new City(TestUtils.NEW_CITY_NAME, TestUtils.COUNTRY_1_NAME, city.getId()), city);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateDuplicate(){
-        cityDao.create(TestUtils.CITY_1_NAME, new Country(COUNTRY_1.getId(), null, null));
+        cityDao.create(TestUtils.CITY_1_NAME, TestUtils.COUNTRY_1);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateEmpty(){
-        cityDao.create(null, new Country(COUNTRY_1.getId(), null, null));
+        cityDao.create(null, TestUtils.COUNTRY_1);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateWrongCountry(){
@@ -267,7 +244,7 @@ public class CityJdbcDaoTest {
     public void testCreateDuplicateDeleted(){
         int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE);
 
-        cityDao.create(TestUtils.CITY_DELETED_NAME, new Country(COUNTRY_2.getId(), null, null));
+        cityDao.create(TestUtils.CITY_DELETED_NAME, TestUtils.COUNTRY_2);
 
         assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE));
         assertEquals(
@@ -277,14 +254,14 @@ public class CityJdbcDaoTest {
             ).get().intValue()
         );        
         City city = jdbcTemplate.queryForObject(TestUtils.CITY_SELECT_BY_NAME, TestUtils.CITY_ROW_MAPPER, TestUtils.CITY_DELETED_NAME);
-        TestUtils.assertEqualsCity(CITY_DELETED, city);
+        TestUtils.assertEqualsCity(TestUtils.CITY_DELETED, city);
     }
 
     @Test
     public void testDeleteCity(){
         int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE);
 
-        cityDao.delete(CITY_1.getId());
+        cityDao.delete(TestUtils.CITY_1_ID);
 
         assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE));
         assertEquals(
@@ -298,7 +275,7 @@ public class CityJdbcDaoTest {
     public void testDeleteDeleted(){
         int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE);
 
-        cityDao.delete(CITY_1.getId());
+        cityDao.delete(TestUtils.CITY_1_ID);
 
         assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE));
         assertEquals(
@@ -325,16 +302,16 @@ public class CityJdbcDaoTest {
 
     @Test
     public void testUpdate(){
-        cityDao.update(CITY_1.getId(), TestUtils.NEW_CITY_NAME, new Country(COUNTRY_1.getId(), null, null));
+        cityDao.update(TestUtils.CITY_1_ID, TestUtils.NEW_CITY_NAME, TestUtils.COUNTRY_1);
 
-        City city = jdbcTemplate.queryForObject(TestUtils.CITY_SELECT_BY_ID, TestUtils.CITY_ROW_MAPPER, CITY_1.getId());
-        TestUtils.assertEqualsCity(new City(TestUtils.NEW_CITY_NAME, COUNTRY_1.getName(), CITY_1.getId()), city);
+        City city = jdbcTemplate.queryForObject(TestUtils.CITY_SELECT_BY_ID, TestUtils.CITY_ROW_MAPPER, TestUtils.CITY_1_ID);
+        TestUtils.assertEqualsCity(new City(TestUtils.NEW_CITY_NAME, TestUtils.COUNTRY_1_NAME, TestUtils.CITY_1_ID), city);
     }
     @Test
     public void testUpdateWrongId(){
-        cityDao.update(12341234l, TestUtils.NEW_CITY_NAME, new Country(COUNTRY_1.getId(), null, null));
+        cityDao.update(12341234l, TestUtils.NEW_CITY_NAME, TestUtils.COUNTRY_1);
 
-        City city = jdbcTemplate.queryForObject(TestUtils.CITY_SELECT_BY_ID, TestUtils.CITY_ROW_MAPPER, CITY_1.getId());
-        TestUtils.assertEqualsCity(CITY_1, city);
+        City city = jdbcTemplate.queryForObject(TestUtils.CITY_SELECT_BY_ID, TestUtils.CITY_ROW_MAPPER, TestUtils.CITY_1_ID);
+        TestUtils.assertEqualsCity(TestUtils.CITY_1, city);
     }
 }

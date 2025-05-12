@@ -144,7 +144,6 @@ public class EventAttendanceJdbcDao implements EventAttendanceDao {
 
     @Override
     public void create(final long userId, final long eventId) {
-
         final Map<String, Object> params = new HashMap<>();
         params.put("user_id", userId);
         params.put("event_id", eventId);

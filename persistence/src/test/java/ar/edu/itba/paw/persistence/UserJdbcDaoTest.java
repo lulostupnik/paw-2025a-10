@@ -37,26 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration(classes = TestConfig.class)
 public class UserJdbcDaoTest {
 
-    private static University UNIVERSITY_1;
-    private static University UNIVERSITY_2;
-    private static Career CAREER_1;
-    private static Career CAREER_2;
-    private static Image PROFILEPIC_1;
-    private static Image PROFILEPIC_2;
-
-    private User USER_1;
-    private User USER_2;
-    private User USER_3;
-    private User USER_4;
-    private User USER_I1;
-    private User USER_I2;
-    private User USER_I3;
-
-    private Journey JOURNEY_1;
-
-    private Map<Long, User> userData;
-
-
     @Autowired
     private DataSource ds;
 
@@ -78,27 +58,27 @@ public class UserJdbcDaoTest {
         assertEquals(overrideParams.getOrDefault("firstname", TestUtils.USER_FIRSTNAME), user.getFirstname());
         assertEquals(overrideParams.getOrDefault("lastname", TestUtils.USER_LASTNAME), user.getLastname());
         assertEquals(Locale.of((String)overrideParams.getOrDefault("locale", TestUtils.USER_LOCALE)), user.getLocale());
-        assertEquals(((Career)overrideParams.getOrDefault("career", CAREER_1)).getName(), user.getCareer().getName());
-        assertEquals(((Career)overrideParams.getOrDefault("career", CAREER_1)).getId(), user.getCareer().getId());
-        assertEquals(((University)overrideParams.getOrDefault("university", UNIVERSITY_1)).getId(), user.getUniversity().getId());
-        assertEquals(((University)overrideParams.getOrDefault("university", UNIVERSITY_1)).getName(), user.getUniversity().getName());
-        assertEquals(((University)overrideParams.getOrDefault("university", UNIVERSITY_1)).getAbbreviation(), user.getUniversity().getAbbreviation());
-        assertEquals(((University)overrideParams.getOrDefault("university", UNIVERSITY_1)).getCity().getId(), user.getUniversity().getCity().getId());
-        assertEquals(((University)overrideParams.getOrDefault("university", UNIVERSITY_1)).getCity().getName(), user.getUniversity().getCity().getName());
-        assertEquals(((University)overrideParams.getOrDefault("university", UNIVERSITY_1)).getCity().getCountry(), user.getUniversity().getCity().getCountry());
-        assertEquals(((Image)overrideParams.getOrDefault("profilepic", PROFILEPIC_1)).getId(), user.getProfilePictureId());
+        assertEquals(((Career)overrideParams.getOrDefault("career", TestUtils.CAREER_1)).getName(), user.getCareer().getName());
+        assertEquals(((Career)overrideParams.getOrDefault("career", TestUtils.CAREER_1)).getId(), user.getCareer().getId());
+        assertEquals(((University)overrideParams.getOrDefault("university", TestUtils.UNI_1)).getId(), user.getUniversity().getId());
+        assertEquals(((University)overrideParams.getOrDefault("university", TestUtils.UNI_1)).getName(), user.getUniversity().getName());
+        assertEquals(((University)overrideParams.getOrDefault("university", TestUtils.UNI_1)).getAbbreviation(), user.getUniversity().getAbbreviation());
+        assertEquals(((University)overrideParams.getOrDefault("university", TestUtils.UNI_1)).getCity().getId(), user.getUniversity().getCity().getId());
+        assertEquals(((University)overrideParams.getOrDefault("university", TestUtils.UNI_1)).getCity().getName(), user.getUniversity().getCity().getName());
+        assertEquals(((University)overrideParams.getOrDefault("university", TestUtils.UNI_1)).getCity().getCountry(), user.getUniversity().getCity().getCountry());
+        assertEquals(((Image)overrideParams.getOrDefault("profilepic", TestUtils.IMAGE_1)).getId(), user.getProfilePictureId());
         assertEquals(overrideParams.getOrDefault("blocked", false), user.isBlocked());
     }
 
     private void assertUserDBDefaultStatus(){
         assertEquals(TestUtils.TOTAL_USERS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_TABLE));
-        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
-        TestUtils.assertEqualsUser(USER_2, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_2.getId()));
-        TestUtils.assertEqualsUser(USER_3, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_3.getId()));
-        TestUtils.assertEqualsUser(USER_4, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_4.getId()));
-        TestUtils.assertEqualsUser(USER_I1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_I1.getId()));
-        TestUtils.assertEqualsUser(USER_I2, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_I2.getId()));
-        TestUtils.assertEqualsUser(USER_I3, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_I3.getId()));
+        TestUtils.assertEqualsUser(TestUtils.USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID));
+        TestUtils.assertEqualsUser(TestUtils.USER_2, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_2_ID));
+        TestUtils.assertEqualsUser(TestUtils.USER_3, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_3_ID));
+        TestUtils.assertEqualsUser(TestUtils.USER_4, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_4_ID));
+        TestUtils.assertEqualsUser(TestUtils.USER_I1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_I1_ID));
+        TestUtils.assertEqualsUser(TestUtils.USER_I2, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_I2_ID));
+        TestUtils.assertEqualsUser(TestUtils.USER_I3, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_I3_ID));
     }
 
     private static void assertEqualsUserPassword(UserAuthInfo up){
@@ -117,9 +97,9 @@ public class UserJdbcDaoTest {
         params.put("lastname", overrideParams.getOrDefault("lastname", TestUtils.USER_LASTNAME));
         params.put("password", overrideParams.getOrDefault("password", TestUtils.USER_PASSWORD));
         params.put("language", overrideParams.getOrDefault("locale", TestUtils.USER_LOCALE));
-        params.put("university", overrideParams.getOrDefault("university", UNIVERSITY_1.getId()));
-        params.put("career_id", overrideParams.getOrDefault("career", CAREER_1.getId()));
-        params.put("profile_picture_id", overrideParams.getOrDefault("profilepic", PROFILEPIC_1.getId()));
+        params.put("university", overrideParams.getOrDefault("university", TestUtils.UNIVERSITY_1_ID));
+        params.put("career_id", overrideParams.getOrDefault("career", TestUtils.CAREER_1_ID));
+        params.put("profile_picture_id", overrideParams.getOrDefault("profilepic", TestUtils.IMAGE_1_ID));
         params.put("roles", overrideParams.getOrDefault("roles", TestUtils.USER_ROLE));
         params.put("blocked", overrideParams.getOrDefault("blocked", false));
         params.put("token", overrideParams.getOrDefault("token", TestUtils.USER_VALID_TOKEN_DEFAULT));
@@ -132,29 +112,13 @@ public class UserJdbcDaoTest {
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
         insert = new SimpleJdbcInsert(ds).withTableName(TestUtils.USER_TABLE).usingGeneratedKeyColumns("id");
-
-        UNIVERSITY_1 = jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ABBR, TestUtils.UNIVERSITY_ROW_MAPPER, TestUtils.UNIVERSITY_1_CODE);
-        UNIVERSITY_2 = jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ABBR, TestUtils.UNIVERSITY_ROW_MAPPER, TestUtils.UNIVERSITY_2_CODE);
-        CAREER_1 = jdbcTemplate.queryForObject(TestUtils.CAREER_SELECT_BY_NAME, TestUtils.CAREER_ROW_MAPPER, TestUtils.CAREER_1_NAME);
-        CAREER_2 = jdbcTemplate.queryForObject(TestUtils.CAREER_SELECT_BY_NAME, TestUtils.CAREER_ROW_MAPPER, TestUtils.CAREER_2_NAME);
-        PROFILEPIC_1 = jdbcTemplate.queryForObject(TestUtils.IMAGE_SELECT_BY_DATA, TestUtils.IMAGE_ROW_MAPPER, TestUtils.IMAGE_1_DATA);
-        PROFILEPIC_2 = jdbcTemplate.queryForObject(TestUtils.IMAGE_SELECT_BY_DATA, TestUtils.IMAGE_ROW_MAPPER, TestUtils.IMAGE_2_DATA);
-        USER_1 = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_MAIL);
-        USER_2 = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_2_MAIL);
-        USER_3 = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_3_MAIL);
-        USER_4 = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_4_MAIL);
-        USER_I1 = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_COMMON_INTERESTS_1_MAIL);
-        USER_I2 = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_COMMON_INTERESTS_2_MAIL);
-        USER_I3 = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_EMAIL, TestUtils.USER_ROW_MAPPER, TestUtils.USER_COMMON_INTERESTS_3_MAIL);
-        JOURNEY_1 = jdbcTemplate.queryForObject(TestUtils.JOURNEY_SELECT_BY_USERMAIL, TestUtils.JOURNEY_ROW_MAPPER, TestUtils.USER_1_MAIL);
-        userData = Map.of(USER_1.getId(), USER_1, USER_2.getId(), USER_2, USER_3.getId(), USER_3, USER_4.getId(), USER_4, USER_I1.getId(), USER_I1, USER_I2.getId(), USER_I2, USER_I3.getId(), USER_I3);
     }
 
     @Test
     public void testCreateUser(){
         TestUtils.deleteUsers(jdbcTemplate);
 
-        final User user = userDao.create(TestUtils.USER_1_MAIL, TestUtils.USER_1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        final User user = userDao.create(TestUtils.USER_1_MAIL, TestUtils.USER_1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
 
         assertEqualsUser(user);
         assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_TABLE));
@@ -162,68 +126,68 @@ public class UserJdbcDaoTest {
 
     @Test(expected = DataAccessException.class)
     public void testCreateUserNoMail(){
-        userDao.create(null, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(null, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserNoUsername(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, null, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, null, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserNoFirstName(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, null, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, null, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserNoLastName(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, null, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, null, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = NullPointerException.class)
     public void testCreateUserNoUniversity(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, null, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, null, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserInvalidUniversity(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, new University(1034234123, null, null, null), CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, new University(1034234123, null, null, null), TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = NullPointerException.class)
     public void testCreateUserNoCareer(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, null, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, null, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserInvalidCareer(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, new Career((long)1313423,null), PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, new Career((long)1313423,null), TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserInvalidPic(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, 123123123, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, 123123123, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserNoPassword(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), null, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, null, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = NullPointerException.class)
     public void testCreateUserNoLocale(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, null, TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, null, TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserInvalidLocale(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_WRONG_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_WRONG_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserMissingToken(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_WRONG_LOCALE), null, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_WRONG_LOCALE), null, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = NullPointerException.class)
     public void testCreateUserMissingExpiration(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, UNIVERSITY_1, CAREER_1, PROFILEPIC_1.getId(), TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_WRONG_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, null);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_WRONG_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, null);
     }
 
     @Test
     public void testFindUserById(){
-        Optional<User> maybeUser = userDao.findById(USER_1.getId());
+        Optional<User> maybeUser = userDao.findById(TestUtils.USER_1_ID);
 
         assertNotNull(maybeUser);
         assertTrue(maybeUser.isPresent());
-        TestUtils.assertEqualsUser(USER_1, maybeUser.get());     
+        TestUtils.assertEqualsUser(TestUtils.USER_1, maybeUser.get());     
     }
     @Test
     public void testFindUserByIdMissing(){
@@ -238,7 +202,7 @@ public class UserJdbcDaoTest {
 
         assertNotNull(maybeUser);
         assertTrue(maybeUser.isPresent());
-        TestUtils.assertEqualsUser(USER_1, maybeUser.get());     
+        TestUtils.assertEqualsUser(TestUtils.USER_1, maybeUser.get());     
     }
     @Test
     public void testFindUserByEmailMissing(){
@@ -269,7 +233,7 @@ public class UserJdbcDaoTest {
         userDao.updatePassword(TestUtils.USER_1_MAIL, TestUtils.USER_FAKE_PASSWORD);
 
         assertEqualsMaybeUser(
-            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(), 
+            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID).stream().findFirst(), 
             Map.of("password", TestUtils.USER_FAKE_PASSWORD)
         );
     }
@@ -281,13 +245,13 @@ public class UserJdbcDaoTest {
     public void testUpdatePasswordMissingPassword(){
         userDao.updatePassword(TestUtils.USER_1_MAIL, null);
 
-        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst());
+        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID).stream().findFirst());
     }
     @Test
     public void testUpdatePasswordEmptyPassword(){
         userDao.updatePassword(TestUtils.USER_1_MAIL, "");
 
-        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst());
+        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID).stream().findFirst());
     }
 */
     @Test
@@ -333,10 +297,10 @@ public class UserJdbcDaoTest {
         assertEquals(2, page1.getContent().size());
         assertEquals(2, page2.getContent().size());
         for (User u : page1.getContent()){
-            TestUtils.assertEqualsUser(userData.get(u.getId()), u);
+            TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(u.getId()), u);
         }
         for (User u : page2.getContent()){
-            TestUtils.assertEqualsUser(userData.get(u.getId()), u);
+            TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(u.getId()), u);
         }
     }
     @Test
@@ -355,7 +319,7 @@ public class UserJdbcDaoTest {
         assertEquals(TestUtils.TOTAL_USERS, page1.getContent().size());
         assertEquals(0, page2.getContent().size());
         for (User u : page1.getContent()){
-            TestUtils.assertEqualsUser(userData.get(u.getId()), u);
+            TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(u.getId()), u);
         }
     }
 
@@ -375,10 +339,10 @@ public class UserJdbcDaoTest {
         assertEquals(TestUtils.PAGE_SIZE_DEFAULT, page1.getContent().size());
         assertEquals(TestUtils.PAGE_SIZE_DEFAULT, page2.getContent().size());
         for (User u : page1.getContent()){
-            TestUtils.assertEqualsUser(userData.get(u.getId()), u);
+            TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(u.getId()), u);
         }
         for (User u : page2.getContent()){
-            TestUtils.assertEqualsUser(userData.get(u.getId()), u);
+            TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(u.getId()), u);
         }
     }
     @Test
@@ -395,17 +359,17 @@ public class UserJdbcDaoTest {
         assertNotNull(page2.getContent());
         assertEquals(1, page1.getContent().size());
         assertEquals(0, page2.getContent().size());
-        TestUtils.assertEqualsUser(USER_1, page1.getContent().get(0));
+        TestUtils.assertEqualsUser(TestUtils.USER_1, page1.getContent().get(0));
     }
 
    @Test
    public void testFindAllJourneyResponders(){
-        List<User> repliesUser = userDao.findAllJourneyResponders(JOURNEY_1.getId());
+        List<User> repliesUser = userDao.findAllJourneyResponders(TestUtils.JOURNEY_1_ID);
 
         assertNotNull(repliesUser);
         assertEquals(TestUtils.TOTAL_JOURNEY_RESPONSES, repliesUser.size());
         for (User user : repliesUser) {
-            TestUtils.assertEqualsUser(userData.get(user.getId()), user);
+            TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(user.getId()), user);
         }
    }
     @Test
@@ -413,7 +377,7 @@ public class UserJdbcDaoTest {
         //TODO replace event insert
         long eventId = new SimpleJdbcInsert(ds).withTableName(TestUtils.EVENT_TABLE).usingGeneratedKeyColumns("id")
             .executeAndReturnKey(Map.of(
-                "user_id", USER_1.getId(), 
+                "user_id", TestUtils.USER_1_ID, 
                 "city_id", jdbcTemplate.queryForObject("SELECT id FROM cities LIMIT 1", Long.class), 
                 "event_date", LocalDate.now().plusDays(10).toString(),
                 "title", "title",
@@ -421,23 +385,23 @@ public class UserJdbcDaoTest {
                 "deleted", false))
             .longValue();
         SimpleJdbcInsert eventReplyInsert = new SimpleJdbcInsert(ds).withTableName(TestUtils.EVENT_REPLY_TABLE).usingGeneratedKeyColumns("id");
-        eventReplyInsert.execute(Map.of("user_id", USER_2.getId(), "event_id", eventId, "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
-        eventReplyInsert.execute(Map.of("user_id", USER_3.getId(), "event_id", eventId, "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
+        eventReplyInsert.execute(Map.of("user_id", TestUtils.USER_2_ID, "event_id", eventId, "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
+        eventReplyInsert.execute(Map.of("user_id", TestUtils.USER_3_ID, "event_id", eventId, "message", TestUtils.MESSAGE_DEFAULT, "date_time", Timestamp.valueOf(LocalDateTime.now()), "deleted", false, "deleted_message", ""));
 
         List<User> repliesUser = userDao.findAllEventResponders(eventId);
 
         assertNotNull(repliesUser);
         assertEquals(2, repliesUser.size());
         for (User user : repliesUser) {
-            TestUtils.assertEqualsUser(userData.get(user.getId()), user);
+            TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(user.getId()), user);
         }
     }
 
     @Test
     public void testBlockUser(){
-        userDao.updateBlock(USER_1.getId(), true);
+        userDao.updateBlock(TestUtils.USER_1_ID, true);
 
-        User user = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId());
+        User user = jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID);
         assertEqualsUser(user, Map.of("blocked", true));
     }
     @Test
@@ -466,9 +430,9 @@ public class UserJdbcDaoTest {
     }
     @Test
     public void testUnblockUserUnblocked(){
-        userDao.updateBlock(USER_1.getId(), false);
+        userDao.updateBlock(TestUtils.USER_1_ID, false);
         
-        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+        assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID));
     }
     @Test
     public void testUnblockUserWrongId(){
@@ -537,16 +501,16 @@ public class UserJdbcDaoTest {
 //
 //    @Test
 //    public void testUpdateCareerName(){
-//        userDao.updateCareer(USER_1.getId(), CAREER_2.getName());
+//        userDao.updateCareer(TestUtils.USER_1_ID, CAREER_2.getName());
 //
 //        assertEqualsMaybeUser(
-//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID).stream().findFirst(),
 //            Map.of("career", CAREER_2)
 //        );
 //    }
 //    @Test(expected = DataAccessException.class)
 //    public void testUpdateCareerWrongCareerName(){
-//        userDao.updateCareer(USER_1.getId(), "12341234");
+//        userDao.updateCareer(TestUtils.USER_1_ID, "12341234");
 //    }
 //    @Test
 //    public void testUpdateCareerWrongUserName(){
@@ -559,16 +523,16 @@ public class UserJdbcDaoTest {
 //
 //    @Test
 //    public void testUpdateCareer(){
-//        userDao.updateCareer(USER_1.getId(), CAREER_2.getId());
+//        userDao.updateCareer(TestUtils.USER_1_ID, CAREER_2.getId());
 //
 //        assertEqualsMaybeUser(
-//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID).stream().findFirst(),
 //            Map.of("career", CAREER_2)
 //        );
 //    }
 //    @Test(expected = DataAccessException.class)
 //    public void testUpdateCareerWrongCareer(){
-//        userDao.updateCareer(USER_1.getId(), 12341234);
+//        userDao.updateCareer(TestUtils.USER_1_ID, 12341234);
 //    }
 //    @Test
 //    public void testUpdateCareerWrongUser(){
@@ -580,16 +544,16 @@ public class UserJdbcDaoTest {
 /*
 @Test
 public void testUpdateUniversityName(){
-    userDao.updateUniversity(USER_1.getId(), UNIVERSITY_2.getName());
+    userDao.updateUniversity(TestUtils.USER_1_ID, UNIVERSITY_2.getName());
 
     assertEqualsMaybeUser(
-            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID).stream().findFirst(),
             Map.of("university", UNIVERSITY_2)
     );
 }
 @Test(expected = DataAccessException.class)
 public void testUpdateUniversityNameWrongUniversity(){
-    userDao.updateUniversity(USER_1.getId(), "12341234");
+    userDao.updateUniversity(TestUtils.USER_1_ID, "12341234");
 }
 @Test
 public void testUpdateUniversityNameWrongUser(){
@@ -604,16 +568,16 @@ public void testUpdateUniversityNameWrongUser(){
 
     @Test
     public void testUpdateUniversity(){
-        userDao.updateUniversity(USER_1.getId(), UNIVERSITY_2.getId());
+        userDao.updateUniversity(TestUtils.USER_1_ID, UNIVERSITY_2.getId());
 
         assertEqualsMaybeUser(
-            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID).stream().findFirst(),
             Map.of("university", UNIVERSITY_2)
         );
     }
     @Test(expected = DataAccessException.class)
     public void testUpdateUniversityWrongUniversity(){
-        userDao.updateUniversity(USER_1.getId(), 12341234);
+        userDao.updateUniversity(TestUtils.USER_1_ID, 12341234);
     }
     @Test
     public void testUpdateUniversityWrongUser(){
@@ -628,37 +592,37 @@ public void testUpdateUniversityNameWrongUser(){
 
 //    @Test
 //    public void testUpdateProfileInfo(){
-//        userDao.updateProfileInfo(USER_1.getId(), TestUtils.USER_FAKE_FIRSTNAME, TestUtils.USER_FAKE_LASTNAME, TestUtils.USER_FAKE_NAME);
+//        userDao.updateProfileInfo(TestUtils.USER_1_ID, TestUtils.USER_FAKE_FIRSTNAME, TestUtils.USER_FAKE_LASTNAME, TestUtils.USER_FAKE_NAME);
 //
 //        assertEqualsMaybeUser(
-//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID).stream().findFirst(),
 //            Map.of("username", TestUtils.USER_FAKE_NAME, "firstname", TestUtils.USER_FAKE_FIRSTNAME, "lastname", TestUtils.USER_FAKE_LASTNAME)
 //        );
 //    }
 //    @Test
 //    public void testUpdateProfileInfoUsername(){
-//        userDao.updateProfileInfo(USER_1.getId(), null, null, TestUtils.USER_FAKE_NAME);
+//        userDao.updateProfileInfo(TestUtils.USER_1_ID, null, null, TestUtils.USER_FAKE_NAME);
 //
 //        assertEqualsMaybeUser(
-//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID).stream().findFirst(),
 //            Map.of("username", TestUtils.USER_FAKE_NAME)
 //        );
 //    }
 //    @Test
 //    public void testUpdateProfileInfoFirstName(){
-//        userDao.updateProfileInfo(USER_1.getId(), TestUtils.USER_FAKE_FIRSTNAME, null, null);
+//        userDao.updateProfileInfo(TestUtils.USER_1_ID, TestUtils.USER_FAKE_FIRSTNAME, null, null);
 //
 //        assertEqualsMaybeUser(
-//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID).stream().findFirst(),
 //            Map.of("firstname", TestUtils.USER_FAKE_FIRSTNAME)
 //        );
 //    }
 //    @Test
 //    public void testUpdateProfileInfoLastName(){
-//        userDao.updateProfileInfo(USER_1.getId(), null, TestUtils.USER_FAKE_LASTNAME, null);
+//        userDao.updateProfileInfo(TestUtils.USER_1_ID, null, TestUtils.USER_FAKE_LASTNAME, null);
 //
 //        assertEqualsMaybeUser(
-//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID).stream().findFirst(),
 //            Map.of("lastname", TestUtils.USER_FAKE_LASTNAME)
 //        );
 //    }
@@ -670,9 +634,9 @@ public void testUpdateUniversityNameWrongUser(){
 //    }
 //    @Test
 //    public void testUpdateProfileInfoNoParams(){
-//        userDao.updateProfileInfo(USER_1.getId(), null, null, null);
+//        userDao.updateProfileInfo(TestUtils.USER_1_ID, null, null, null);
 //
-//        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst());
+//        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID).stream().findFirst());
 //    }
 //    @Test
 //    public void testUpdateProfileInfoMissingUser(){
@@ -683,16 +647,16 @@ public void testUpdateUniversityNameWrongUser(){
 //
 //    @Test
 //    public void testUpdateLocale(){
-//        userDao.updateLocale(USER_1.getId(), Locale.of(TestUtils.USER_FAKE_LOCALE));
+//        userDao.updateLocale(TestUtils.USER_1_ID, Locale.of(TestUtils.USER_FAKE_LOCALE));
 //
 //        assertEqualsMaybeUser(
-//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()).stream().findFirst(),
+//            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID).stream().findFirst(),
 //            Map.of("locale", TestUtils.USER_FAKE_LOCALE)
 //        );
 //    }
 //    @Test(expected = DataAccessException.class)
 //    public void testUpdateLocaleWrongLocale(){
-//        userDao.updateLocale(USER_1.getId(), Locale.of(TestUtils.USER_WRONG_LOCALE));
+//        userDao.updateLocale(TestUtils.USER_1_ID, Locale.of(TestUtils.USER_WRONG_LOCALE));
 //    }
 //    @Test
 //    public void testUpdateLocaleMissingUser(){
@@ -704,16 +668,16 @@ public void testUpdateUniversityNameWrongUser(){
 //
 //    @Test
 //    public void testUpdateProfilePicture(){
-//        userDao.updateProfilePicture(USER_1.getId(), PROFILEPIC_2.getId());
+//        userDao.updateProfilePicture(TestUtils.USER_1_ID, PROFILEPIC_2.getId());
 //
 //        assertEqualsUser(
-//            jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()),
+//            jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID),
 //            Map.of("profilepic", PROFILEPIC_2)
 //        );
 //    }
 //    @Test(expected = DataAccessException.class)
 //    public void testUpdateProfilePictureWrongPicture(){
-//        userDao.updateProfilePicture(USER_1.getId(), 123411234);
+//        userDao.updateProfilePicture(TestUtils.USER_1_ID, 123411234);
 //    }
 //    @Test
 //    public void testUpdateProfilePictureWrongUser(){
@@ -745,10 +709,10 @@ public void testUpdateUniversityNameWrongUser(){
 
     @Test
     public void testUpdateGeneric(){
-        userDao.update(USER_1.getId(), TestUtils.USER_FAKE_FIRSTNAME, TestUtils.USER_FAKE_LASTNAME, TestUtils.USER_FAKE_NAME, UNIVERSITY_2.getId(), CAREER_2.getId(), Locale.of(TestUtils.USER_FAKE_LOCALE));
+        userDao.update(TestUtils.USER_1_ID, TestUtils.USER_FAKE_FIRSTNAME, TestUtils.USER_FAKE_LASTNAME, TestUtils.USER_FAKE_NAME, UNIVERSITY_2.getId(), CAREER_2.getId(), Locale.of(TestUtils.USER_FAKE_LOCALE));
 
         assertEqualsUser(
-            jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()),
+            jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID),
             Map.of(
                 "firstname", TestUtils.USER_FAKE_FIRSTNAME,
                 "lastname", TestUtils.USER_FAKE_LASTNAME,
@@ -762,49 +726,49 @@ public void testUpdateUniversityNameWrongUser(){
 
     @Test
     public void testUpdateFirstname(){
-        userDao.update(USER_1.getId(), TestUtils.USER_FIRSTNAME, null, null, null, null, null);
+        userDao.update(TestUtils.USER_1_ID, TestUtils.USER_FIRSTNAME, null, null, null, null, null);
 
-        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+        TestUtils.assertEqualsUser(TestUtils.USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID));
     }
     @Test
     public void testUpdateLastname(){
-        userDao.update(USER_1.getId(), null, TestUtils.USER_LASTNAME, null, null, null, null);
+        userDao.update(TestUtils.USER_1_ID, null, TestUtils.USER_LASTNAME, null, null, null, null);
 
-        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+        TestUtils.assertEqualsUser(TestUtils.USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID));
     }
     @Test
     public void testUpdateUsername(){
-        userDao.update(USER_1.getId(), null, null, TestUtils.USER_1_NAME, null, null, null);
+        userDao.update(TestUtils.USER_1_ID, null, null, TestUtils.USER_1_NAME, null, null, null);
 
-        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+        TestUtils.assertEqualsUser(TestUtils.USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID));
     }
     @Test
     public void testUpdateGenericUniversity(){
-        userDao.update(USER_1.getId(), null, null, null, UNIVERSITY_1.getId(), null, null);
+        userDao.update(TestUtils.USER_1_ID, null, null, null, TestUtils.UNIVERSITY_1_ID, null, null);
 
-        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+        TestUtils.assertEqualsUser(TestUtils.USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID));
     }
     @Test
     public void testUpdateCareerGeneric(){
-        userDao.update(USER_1.getId(), null, null, null, null, CAREER_1.getId(), null);
+        userDao.update(TestUtils.USER_1_ID, null, null, null, null, TestUtils.CAREER_1_ID, null);
 
-        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+        TestUtils.assertEqualsUser(TestUtils.USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID));
     }
     @Test
     public void testUpdateLocaleGeneric(){
-        userDao.update(USER_1.getId(), null, null, null, null, null, Locale.of(TestUtils.USER_LOCALE));
+        userDao.update(TestUtils.USER_1_ID, null, null, null, null, null, Locale.of(TestUtils.USER_LOCALE));
 
-        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+        TestUtils.assertEqualsUser(TestUtils.USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID));
     }
     @Test
     public void testUpdateWrongUser(){
-        userDao.update(12341234, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.USER_1_NAME, UNIVERSITY_1.getId(), CAREER_1.getId(), Locale.of(TestUtils.USER_LOCALE));
+        userDao.update(12341234, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.USER_1_NAME, TestUtils.UNIVERSITY_1_ID, TestUtils.CAREER_1_ID, Locale.of(TestUtils.USER_LOCALE));
     }
     @Test
     public void testUpdateNoArguments(){
-        userDao.update(USER_1.getId(), null, null, null, null, null, null);
+        userDao.update(TestUtils.USER_1_ID, null, null, null, null, null, null);
 
-        TestUtils.assertEqualsUser(USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, USER_1.getId()));
+        TestUtils.assertEqualsUser(TestUtils.USER_1, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID));
     }
 
  */
