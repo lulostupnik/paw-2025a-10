@@ -169,6 +169,7 @@ public class JourneyJdbcDao implements JourneyDao {
         if(maybeJourney.isPresent()){
             Journey journey = maybeJourney.get();
             update(journey.getId(), destinationUniversity, startDate, endDate, description);
+            LOGGER.debug("Reactivating journey with id {}", journey.getId());
             return new Journey(journey.getId(), journey.getUser(), startDate, endDate, destinationUniversity, description);
         }
         final Map<String, Object> args = new HashMap<>();

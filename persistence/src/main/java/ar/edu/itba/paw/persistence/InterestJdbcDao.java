@@ -70,8 +70,7 @@ public class InterestJdbcDao implements InterestDao {
         final Map<String, Object> params = new HashMap<>();
         params.put("name", interest);
         final Number keys = jdbcInsert.executeAndReturnKey(params);
-        final Interest newInterest = new Interest(keys.longValue(), interest);
-        return newInterest;
+        return new Interest(keys.longValue(), interest);
     }
 
 

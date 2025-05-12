@@ -123,8 +123,11 @@ public class UniversityJdbcDao implements UniversityDao {
         );
 
         if (rowsUpdated > 0) {
-            LOGGER.info("Reactivated existing deleted university");
-            return findByName(name).get();
+            LOGGER.debug("Reactivated existing deleted university");
+            return findByName(name).orElseThrow(() -> {
+                LOGGER.error("University with name {} and city ID {} not found", name, city.getId());
+                return new RuntimeException("Failed to retrieve reactivated city");
+            });
         }
 
         final HashMap<String, Object> parameters = new HashMap<>();
