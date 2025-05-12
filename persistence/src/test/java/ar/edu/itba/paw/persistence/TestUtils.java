@@ -18,6 +18,7 @@ import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Country;
 import ar.edu.itba.paw.models.Event;
+import ar.edu.itba.paw.models.EventResponse;
 import ar.edu.itba.paw.models.Image;
 import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.Journey;
@@ -255,15 +256,26 @@ public class TestUtils {
     public static final int USER_1_ATTENDANCES = 2;
     public static final int USER_2_ATTENDANCES = 1;
     public static final int USER_3_ATTENDANCES = 1;
+    public static final int EVENT_1_REPLIES = 3;
     public static final Event EVENT_1 = new Event(EVENT_1_ID, USER_1, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_DEFAULT, Optional.of(EVENT_TIME_DEFAULT), EVENT_ADDRESS_DEFAULT, Optional.of(EVENT_ATTENDANCE_LIMIT_DEFAULT), EVENT_1_ATTENDEES);
     public static final Event EVENT_2 = new Event(EVENT_2_ID, USER_2, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_2, Optional.of(EVENT_TIME_DEFAULT), EVENT_ADDRESS_DEFAULT, Optional.empty(), EVENT_2_ATTENDEES);
     public static final Event EVENT_3 = new Event(EVENT_3_ID, USER_2, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_3, Optional.of(EVENT_TIME_DEFAULT), EVENT_ADDRESS_DEFAULT, Optional.of(EVENT_ATTENDANCE_LIMIT_DEFAULT), EVENT_3_ATTENDEES);
     public static final Event EVENT_OLDER = new Event(EVENT_OLDER_ID, USER_1, EVENT_DATE_OLDER, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_PAST, Optional.of(EVENT_TIME_DEFAULT), EVENT_ADDRESS_DEFAULT, Optional.of(EVENT_ATTENDANCE_LIMIT_DEFAULT), EVENT_OLDER_ATTENDEES);
     public static final Event EVENT_DELETED = new Event(EVENT_DELETED_ID, USER_2, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_DELETED, Optional.of(EVENT_TIME_DEFAULT), EVENT_ADDRESS_DEFAULT, Optional.of(EVENT_ATTENDANCE_LIMIT_DEFAULT), EVENT_DELETED_ATTENDEES);
-
+    public static final long EVENT_RESPONSE_1_ID = 10000;
+    public static final long EVENT_RESPONSE_2_ID = 20000;
+    public static final long EVENT_RESPONSE_3_ID = 30000;
+    public static final long EVENT_RESPONSE_DELETED_ID = 40000;
+    public static final EventResponse EVENT_RESPONSE_1 = new EventResponse(EVENT_RESPONSE_1_ID, USER_1_ID, USER_1_NAME, EVENT_1_ID, RESPONSE_MESSAGE, RESPONSE_TIMESTAMP);
+    public static final EventResponse EVENT_RESPONSE_2 = new EventResponse(EVENT_RESPONSE_2_ID, USER_1_ID, USER_1_NAME, EVENT_1_ID, RESPONSE_MESSAGE, RESPONSE_TIMESTAMP);
+    public static final EventResponse EVENT_RESPONSE_3 = new EventResponse(EVENT_RESPONSE_3_ID, USER_1_ID, USER_1_NAME, EVENT_1_ID, RESPONSE_MESSAGE, RESPONSE_TIMESTAMP);
+    public static final EventResponse EVENT_RESPONSE_DELETED = new EventResponse(EVENT_RESPONSE_DELETED_ID, USER_1_ID, USER_1_NAME, EVENT_1_ID, RESPONSE_MESSAGE, RESPONSE_TIMESTAMP);
+    public static final Map<Long, EventResponse> EVENT_RESPONSE_DATA = Map.of(EVENT_RESPONSE_1_ID, EVENT_RESPONSE_1, EVENT_RESPONSE_2_ID, EVENT_RESPONSE_2, EVENT_RESPONSE_3_ID, EVENT_RESPONSE_3);
+    
     public static final int TOTAL_EVENTS_NOT_DELETED = 4;
     public static final int TOTAL_EVENTS_UPCOMING = 3;
     public static final int TOTAL_EVENT_ATTENDANCES = 4;
+    public static final int TOTAL_EVENT_REPLIES = 3;
 
 
     //QUERIES
@@ -465,7 +477,34 @@ public class TestUtils {
     public static final String EVENT_GET_ATTENDEES_BY_ID = "SELECT COUNT(*) FROM event_attendances WHERE event_id = ?";
     public static final String USER_GET_ATTENDANCES_COUNT_BY_ID = "SELECT COUNT(*) FROM event_attendances WHERE user_id = ?";
 
+    public static final String EVENT_RESPONSE_IS_DELETED = "SELECT deleted FROM event_responses WHERE id = ?";
+    public static final String EVENT_GET_DELETED_ID = "SELECT id FROM event_responses WHERE deleted = TRUE";
+    public static final String EVENT_RESPONSE_GET_DELETE_MESSAGE = "SELECT deleted_message FROM event_responses WHERE id = ?";
+    public static final String EVENT_RESPONSE_SELECT = """
+    SELECT 
+        r.id AS id, 
+        r.user_id AS user_id,
+        r.event_id AS event_id,
+        r.message AS message, 
+        r.date_time AS date_time,
+        u.username AS username
+    FROM 
+        event_responses r
+        JOIN users u ON r.user_id = u.id
+    """;
+    public static final String EVENT_RESPONSE_SELECT_BY_ID_NOT_DELETED = EVENT_RESPONSE_SELECT + "WHERE deleted = FALSE AND event_id = ?";
+            
+
     //ROWMAPPERS
+    public static final RowMapper<EventResponse> EVENT_RESPONSE_ROW_MAPPER = (rs, n) ->
+    new EventResponse(
+        rs.getLong("id"),
+        rs.getLong("user_id"),
+        rs.getString("username"),
+        rs.getLong("event_id"),
+        rs.getString("message"),
+        rs.getTimestamp("date_time").toLocalDateTime()
+    );
     public static final RowMapper<Interest> INTEREST_ROW_MAPPER = (rs, n) ->
     new Interest(
         rs.getLong("interest_id"),
@@ -717,5 +756,15 @@ public class TestUtils {
         assertEquals(expected.getTitle(), actual.getTitle());
         assertEqualsUser(expected.getUser(), actual.getUser());
         assertEqualsCity(expected.getEventCity(), actual.getEventCity());
+    }
+
+    public static void assertEqualsEventReply(EventResponse expected, EventResponse actual){
+        assertNotNull(actual);
+        assertNotNull(expected);
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getDateTime(), actual.getDateTime());
+        assertEquals(expected.getEventId(), actual.getEventId());
+        assertEquals(expected.getMessage(), actual.getMessage());
+        assertEquals(expected.getUserId(), actual.getUserId());
     }
 }

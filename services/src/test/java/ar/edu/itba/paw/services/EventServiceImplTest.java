@@ -880,9 +880,6 @@ public class EventServiceImplTest {
         Mockito.when(
             eventDao.findAllBetweenDates(Mockito.eq(LocalDate.now()), Mockito.eq(LocalDate.now().plusDays(1)))
         ).thenReturn(EVENTS);
-        Mockito.when(
-            userDao.findAllAttendeesByEventId(Mockito.eq(EVENT_ID))
-        ).thenReturn(USERS);
 
         eventService.sendEventReminders();
     }
