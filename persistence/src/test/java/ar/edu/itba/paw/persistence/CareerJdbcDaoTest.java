@@ -99,7 +99,7 @@ public class CareerJdbcDaoTest {
 
     @Test
     public void testGetAllCareersPageOne(){
-        long bonusId = insert.executeAndReturnKey(Map.of("name", TestUtils.CAREER_INSERT1_NAME, "deleted", false)).longValue();
+        insert.executeAndReturnKey(Map.of("name", TestUtils.CAREER_INSERT1_NAME, "deleted", false)).longValue();
 
         Page<Career> page1 = careerDao.findAll(new PageParams(1, 2));
         assertNotNull(page1);

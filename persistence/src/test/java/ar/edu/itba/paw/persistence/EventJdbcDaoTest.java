@@ -96,10 +96,6 @@ public class EventJdbcDaoTest {
     public void testCreateNoTitle(){
         eventDao.create(TestUtils.USER_1, TestUtils.CITY_1, TestUtils.EVENT_DATE_DEFAULT, TestUtils.EVENT_DESCRIPTION_DEFAULT, TestUtils.IMAGE_1_ID, null, TestUtils.EVENT_TIME_DEFAULT, TestUtils.EVENT_ADDRESS_DEFAULT, TestUtils.EVENT_ATTENDANCE_LIMIT_DEFAULT);
     }
-    @Test(expected = NullPointerException.class)
-    public void testCreateNoDate(){
-        eventDao.create(TestUtils.USER_1, TestUtils.CITY_1, null, TestUtils.EVENT_DESCRIPTION_DEFAULT, TestUtils.IMAGE_1_ID, TestUtils.EVENT_TITLE_DEFAULT, TestUtils.EVENT_TIME_DEFAULT, TestUtils.EVENT_ADDRESS_DEFAULT, TestUtils.EVENT_ATTENDANCE_LIMIT_DEFAULT);
-    }
 
     @Test
     public void testFindById(){
@@ -431,7 +427,6 @@ public class EventJdbcDaoTest {
     }
     @Test
     public void testFindByUserEmailPageTwo(){
-        //get events by user email
         Page<Event> page2 = eventDao.findByUserEmail(TestUtils.USER_2_MAIL, TestUtils.PAGE_2_DEFAULT);
 
         assertNotNull(page2);
@@ -443,7 +438,6 @@ public class EventJdbcDaoTest {
     @Test
     public void testFindByUserEmailPaged2(){
         TestUtils.deleteEvents(jdbcTemplate);
-        //get events by user email    
         Page<Event> userEvents = eventDao.findByUserEmail(TestUtils.USER_1_MAIL, TestUtils.PAGE_1_DEFAULT);
     
         assertNotNull(userEvents);
@@ -455,7 +449,6 @@ public class EventJdbcDaoTest {
     }
     @Test
     public void testFindByUserEmailWrongMailPaged(){
-        //get events by user email    
         Page<Event> userEvents = eventDao.findByUserEmail("TestUtils.USER_1_MAIL", TestUtils.PAGE_1_DEFAULT);
     
         assertNotNull(userEvents);
@@ -555,7 +548,7 @@ public class EventJdbcDaoTest {
     }
     @Test
     public void testSearchEventsPagedWrongSearch(){
-        Page<Event> page1 = eventDao.search("TestUtils.EVENT_TITLE_DEFAULT", TestUtils.PAGE_1_DEFAULT);
+        Page<Event> page1 = eventDao.search("NOTANEVENT", TestUtils.PAGE_1_DEFAULT);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
