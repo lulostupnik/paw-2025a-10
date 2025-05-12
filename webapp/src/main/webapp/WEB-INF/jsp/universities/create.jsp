@@ -136,8 +136,12 @@
 
 
 <script>
+  function htmlDecode(input) {
+    const doc = new DOMParser().parseFromString(input, "text/html");
+    return doc.documentElement.textContent;
+  }
     window.apiBaseUrl = '<c:url value="/" />';
-    universitySelectedCity = '<c:out value="${createUniversityForm.city}"/>';
+    universitySelectedCity = htmlDecode('<c:out value="${createUniversityForm.city}"/>');
 </script>
 <script src="<c:url value='/resources/js/components/list-autocomplete.js'/>"></script>
 <script src="<c:url value='/resources/js/components/single-option-autocomplete.js'/>"></script>
