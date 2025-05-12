@@ -5,7 +5,7 @@
 
     CREATE TABLE IF NOT EXISTS category(
         id IDENTITY PRIMARY KEY,
-        name VARCHAR(100) NOT NULL UNIQUE,
+        name VARCHAR(100) NOT NULL UNIQUE
     );
 
     CREATE TABLE IF NOT EXISTS countries(
@@ -50,13 +50,13 @@
         language VARCHAR(2) DEFAULT 'en' NOT NULL,
         roles VARCHAR(50) DEFAULT 'user' NOT NULL,
         blocked BOOLEAN DEFAULT FALSE NOT NULL,
-        token VARCHAR(100) DEFAULT NULL,
+        token VARCHAR(100) UNIQUE DEFAULT NULL,
         token_expiration Date DEFAULT NULL,
         validated BOOLEAN DEFAULT TRUE NOT NULL,
 
         FOREIGN KEY(university) REFERENCES universities ON DELETE RESTRICT,
-        FOREIGN KEY(career_id) REFERENCES careers,
-        FOREIGN KEY(profile_picture_id) REFERENCES images,
+        FOREIGN KEY(career_id) REFERENCES careers ON DELETE RESTRICT,
+        FOREIGN KEY(profile_picture_id) REFERENCES images ON DELETE RESTRICT,
         CHECK (language IN ('en', 'es')),
         CHECK (roles in ('user', 'admin'))
     );
@@ -66,8 +66,7 @@
         category_id INTEGER NOT NULL,
         score INTEGER DEFAULT 0 NOT NULL,
         PRIMARY KEY(user_id, category_id),
-        FOREIGN KEY(category_id) REFERENCES category ON DELETE CASCADE,
-        FOREIGN KEY(user_id) REFERENCES users ON DELETE CASCADE
+        FOREIGN KEY(category_id) REFERENCES category ON DELETE CASCADE
     );
 
     CREATE TABLE IF NOT EXISTS journeys(
@@ -123,7 +122,7 @@
         deleted BOOLEAN DEFAULT FALSE NOT NULL,
         deleted_message VARCHAR(1000),
         FOREIGN KEY(user_id) REFERENCES users ON DELETE CASCADE,
-        FOREIGN KEY(event_id) REFERENCES events ON DELETE CASCADE,
+        FOREIGN KEY(event_id) REFERENCES events ON DELETE CASCADE
     );
 
     CREATE TABLE IF NOT EXISTS event_attendances(
