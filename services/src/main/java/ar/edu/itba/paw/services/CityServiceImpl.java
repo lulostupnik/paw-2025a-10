@@ -71,7 +71,7 @@ public class CityServiceImpl implements CityService {
         LOGGER.debug("Updating city with id {}, name {}, country {}", id, name, countryName);
         Country country = countryService.findByName(countryName)
                 .orElseThrow(() -> {
-                    LOGGER.warn("Country {} not found", countryName);
+                    LOGGER.error("Country {} not found", countryName);
                     return new IllegalArgumentException("Country not found");});
         cityDao.update(id, name, country);
         LOGGER.info("City with id {} updated successfully", id);
@@ -91,7 +91,9 @@ public class CityServiceImpl implements CityService {
     public City createCity(final String cityName,final String countryName) {
         LOGGER.debug("Creating city with name {} and country {}", cityName, countryName);
         Country country = countryService.findByName(countryName)
-                .orElseThrow(() -> new IllegalArgumentException("Country not found"));
+                .orElseThrow(() -> {
+                    LOGGER.error("Country {} not found", countryName);
+                    return new IllegalArgumentException("Country not found");});
         City city = cityDao.create(cityName, country);
         LOGGER.info("City with name {} and country {} created successfully", cityName, countryName);
         return city;

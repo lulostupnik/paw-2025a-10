@@ -35,11 +35,14 @@ public class EventController {
 
 
     private final EventService eventService;
+    private final UserService userService;
+
     private static final String REDIRECT = "redirect:/events/";
 
     @Autowired
-    public EventController(EventService eventService) {
+    public EventController(final EventService eventService, final UserService userService) {
         this.eventService = eventService;
+        this.userService = userService;
     }
 
     @RequestMapping
@@ -111,7 +114,8 @@ public class EventController {
         mav.addObject("topAttendeeCountryCount", eventWithStatistics.getTopAttendeeCountryCount());
 
         LOGGER.info("Found event {}", event);
-        mav.addObject("attendeesPage", eventService.getEventAttendees(event.getId(), attendeesPageParams));
+        mav.addObject("attendeesPage", userService.getEventAttendees(event.getId(), attendeesPageParams));
+
         mav.addObject("attendeesCount", eventService.getEventAttendeesCount(event.getId()));
         Page<EventResponse> eventResponsesPage = eventService.listAllResponseFromEvent(event.getId(), pageParams);
         mav.addObject("eventResponsesPage", eventResponsesPage);
@@ -119,7 +123,7 @@ public class EventController {
 
 
         if(eventWithStatistics.isCreator()){
-            mav.addObject("attendees", eventService.getEventAttendees(id));
+            mav.addObject("attendees", userService.getEventAttendees(id));
         }
         mav.addObject("attend", eventWithStatistics.isAttending());
         mav.addObject("isEventOwner", eventWithStatistics.isCreator());

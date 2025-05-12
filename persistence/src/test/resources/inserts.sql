@@ -60,3 +60,7 @@ INSERT INTO event_attendances(user_id, event_id) VALUES(20000, 10000);
 INSERT INTO event_attendances(user_id, event_id) VALUES(30000, 10000);
 INSERT INTO event_attendances(user_id, event_id) VALUES(10000, 20000);
 
+INSERT INTO event_responses(id, user_id, event_id, message, date_time, deleted) VALUES(10000, 10000, 10000, 'COOL!', CURRENT_DATE + INTERVAL '0' HOUR, FALSE);
+INSERT INTO event_responses(id, user_id, event_id, message, date_time, deleted) VALUES(20000, 10000, 10000, 'COOL!', CURRENT_DATE + INTERVAL '0' HOUR, FALSE);
+INSERT INTO event_responses(id, user_id, event_id, message, date_time, deleted) VALUES(30000, 10000, 10000, 'COOL!', CURRENT_DATE + INTERVAL '0' HOUR, FALSE);
+INSERT INTO event_responses(id, user_id, event_id, message, date_time, deleted) VALUES(40000, 10000, 10000, 'COOL!', CURRENT_DATE + INTERVAL '0' HOUR, TRUE);

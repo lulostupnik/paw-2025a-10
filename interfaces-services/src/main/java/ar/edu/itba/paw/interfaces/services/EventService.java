@@ -23,8 +23,7 @@ public interface EventService {
     void cancelAttendance(long userId, long eventId);
 
     boolean isUserAttending(long userId, long eventId);
-    List<User> getEventAttendees(long eventId);
-    Page<User> getEventAttendees(long eventId, PageParams pageParams);
+
     int getEventAttendeesCount(long eventId);
     Page<Event> getUserAttendingEvents(long userId, PageParams pageParams);
     List<Event> getRecommendedEvents(long userId, int limit);

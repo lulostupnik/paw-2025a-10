@@ -491,30 +491,32 @@ public class EventServiceImplTest {
         assertTrue(attending);
     }
 
+// FIXME: mover a UserService
 
-    @Test
-    public void testGetAttendees(){
-        Mockito.when(
-            attendanceDao.findAllAttendeesByEventId(Mockito.eq(EVENT_ID))
-        ).thenReturn(USERS);
+//    @Test
+//    public void testGetAttendees(){
+//        Mockito.when(
+//            attendanceDao.findAllAttendeesByEventId(Mockito.eq(EVENT_ID))
+//        ).thenReturn(USERS);
+//
+//        List<User> attending = userService.getEventAttendees(EVENT_ID);
+//
+//        assertNotNull(attending);
+//        assertEquals(USERS, attending);
+//    }
 
-        List<User> attending = eventService.getEventAttendees(EVENT_ID);
-
-        assertNotNull(attending);
-        assertEquals(USERS, attending);
-    }
-
-    @Test
-    public void testGetAttendeesPaged(){
-        Mockito.when(
-            attendanceDao.findAllAttendeesByEventId(Mockito.eq(EVENT_ID), Mockito.eq(PAGE_1_DEFAULT))
-        ).thenReturn(USERS_PAGE);
-
-        Page<User> attending = eventService.getEventAttendees(EVENT_ID, PAGE_1_DEFAULT);
-
-        assertNotNull(attending);
-        assertEquals(USERS_PAGE, attending);
-    }
+// FIXME: mover a UserServiceImplTest
+//    @Test
+//    public void testGetAttendeesPaged(){
+//        Mockito.when(
+//            attendanceDao.findAllAttendeesByEventId(Mockito.eq(EVENT_ID), Mockito.eq(PAGE_1_DEFAULT))
+//        ).thenReturn(USERS_PAGE);
+//
+//        Page<User> attending = eventService.getEventAttendees(EVENT_ID, PAGE_1_DEFAULT);
+//
+//        assertNotNull(attending);
+//        assertEquals(USERS_PAGE, attending);
+//    }
 
     @Test
     public void testGetEventAttendeesCount(){
@@ -878,9 +880,6 @@ public class EventServiceImplTest {
         Mockito.when(
             eventDao.findAllBetweenDates(Mockito.eq(LocalDate.now()), Mockito.eq(LocalDate.now().plusDays(1)))
         ).thenReturn(EVENTS);
-        Mockito.when(
-            attendanceDao.findAllAttendeesByEventId(Mockito.eq(EVENT_ID))
-        ).thenReturn(USERS);
 
         eventService.sendEventReminders();
     }

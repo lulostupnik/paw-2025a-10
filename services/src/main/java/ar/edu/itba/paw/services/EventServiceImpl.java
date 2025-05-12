@@ -200,17 +200,6 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<User> getEventAttendees(final long eventId) {
-        LOGGER.debug("Getting attendees for event {}", eventId);
-        return eventAttendanceDao.findAllAttendeesByEventId(eventId);
-    }
-
-    @Override
-    public Page<User> getEventAttendees(final long eventId, PageParams pageParams) {
-        LOGGER.debug("Getting attendees for event {} with pageParams {}", eventId, pageParams);
-        return eventAttendanceDao.findAllAttendeesByEventId(eventId, pageParams);
-    }
-    @Override
     public int getEventAttendeesCount(final long eventId) {
         LOGGER.debug("Getting attendees count for event {}", eventId);
         return eventAttendanceDao.countByEventId(eventId);
@@ -298,7 +287,9 @@ public class EventServiceImpl implements EventService {
     @Override
     public void delete(final long id, final String message) {
         LOGGER.debug("Deleting event {}", id);
-        Event event = eventDao.findById(id).orElseThrow(() -> new RuntimeException("Event not found"));
+        Event event = eventDao.findById(id).orElseThrow(() -> {
+            LOGGER.warn("Event not found {}", id);
+            return new RuntimeException("Event not found");});
         if(message != null && !message.isEmpty()){
             eventDao.updateDeletionMessage(id, message);
             emailService.sendEventDeletionNotification(event,message);
@@ -314,18 +305,18 @@ public class EventServiceImpl implements EventService {
         LOGGER.debug("Deleting event response {}", id);
         EventResponse deletedComment = findEventResponseById(id)
                 .orElseThrow(() ->{
-                    LOGGER.warn("Event response not found {}", id);
+                    LOGGER.error("Event response not found {}", id);
                     return new IllegalArgumentException("Event response doesn't exist");});
 
         Event event = eventDao.findById(deletedComment.getEventId())
                 .orElseThrow(() ->  {
-                    LOGGER.warn("Event from event response not found {}", deletedComment.getEventId());
+                    LOGGER.error("Event from event response not found {}", deletedComment.getEventId());
                     return new IllegalStateException("Event from event response doesn't exist");});
 
 
         User commentAuthor = userService.findById(deletedComment.getUserId())
                 .orElseThrow(() -> {
-                    LOGGER.warn("User from event response not found {}", deletedComment.getUserId());
+                    LOGGER.error("User from event response not found {}", deletedComment.getUserId());
                     return new IllegalArgumentException("User from event response doesn't exist");}
                 );
 
@@ -377,7 +368,7 @@ public class EventServiceImpl implements EventService {
         LOGGER.info("Found {} events occurring in the next 24 hours", upcomingEvents.size());
 
         for (Event event : upcomingEvents) {
-            emailService.sendEventReminderNotification(event, eventAttendanceDao.findAllAttendeesByEventId(event.getId()));
+            emailService.sendEventReminderNotification(event, userService.getEventAttendees(event.getId()));
         }
 
         LOGGER.info("Completed scheduled task: sent reminder emails for upcoming events");

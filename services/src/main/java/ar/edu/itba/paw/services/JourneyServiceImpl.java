@@ -242,13 +242,13 @@ public class JourneyServiceImpl implements JourneyService {
     public void deleteJourneyResponse(final long id, final String message) {
         LOGGER.debug("Deleting journey response {}", id);
         JourneyResponse deletedComment = findJourneyResponseById(id).orElseThrow(() -> {
-            LOGGER.warn("Journey response with id {} not found", id);
+            LOGGER.error("Journey response with id {} not found", id);
             return new IllegalArgumentException("Journey response doesn't exists");});
         Journey journey = journeyDao.findById(deletedComment.getJourneyId()).orElseThrow(()->{
-            LOGGER.warn("Journey from journey response doesn't exist");
+            LOGGER.error("Journey from journey response doesn't exist");
             return new IllegalStateException("Journey from journey response doesn't exist");});
         User commentAuthor = userService.findById(deletedComment.getUserId()).orElseThrow(() -> {
-            LOGGER.warn("User from journey response doesn't exists");
+            LOGGER.error("User from journey response doesn't exists");
             return new IllegalArgumentException("User from journey response doesn't exists");});
 
         emailService.sendJourneyCommentDeletionNotification(deletedComment,journey,commentAuthor,message);
