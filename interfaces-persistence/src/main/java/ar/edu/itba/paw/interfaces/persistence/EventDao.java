@@ -14,6 +14,9 @@ public interface EventDao {
     void incrementAttendeesCount(long eventId);
 
     void update(long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId, long flyerImageId);
+
+    Optional<EventWithUserInfo> findEventWithUserInfo(long userId, long eventId);
+
     void delete(long id);
     void updateDeletionMessage(long id, String message);
     Optional<Event> findById(long id);

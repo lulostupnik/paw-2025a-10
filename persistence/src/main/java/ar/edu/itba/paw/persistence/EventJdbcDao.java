@@ -385,6 +385,19 @@ public class EventJdbcDao implements EventDao {
         );
         return Optional.of(eventStatistics);
     }
+
+    @Override
+    public Optional<EventWithUserInfo> findEventWithUserInfo(final long userId, final long eventId) {
+        return jdbcTemplate.query(
+                SQL_FIND_EVENT_WITH_USER_INFO,
+                (rs, rowNum) -> new EventWithUserInfo(
+                        EVENT_ROW_MAPPER.mapRow(rs, rowNum),
+                        rs.getBoolean("is_attending"),
+                        rs.getBoolean("is_owner")
+                ),
+                userId, userId, eventId
+        ).stream().findFirst();
+    }
     
 
     @Override

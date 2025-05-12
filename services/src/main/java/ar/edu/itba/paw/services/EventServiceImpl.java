@@ -102,12 +102,44 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public Optional<EventWithStatistics> findEventWithStatistics(final User user,final  long eventId) {
+    public Optional<EventWithStatistics> findEventWithStatistics(final User user, final long eventId) {
         LOGGER.debug("Getting event with statistics by id {}", eventId);
+
+        String topAttendeeCountry = null;
+        int topAttendeeCountryCount = 0;
+        boolean isAttending = false;
+        boolean isCreator = false;
+        Event event;
+
         if(user == null){
-            return eventDao.findEventWithStatistics(null, eventId);
+            Optional<Event> maybeEvent = eventDao.findById(eventId);
+            if(maybeEvent.isEmpty()){
+                LOGGER.warn("Event not found {}", eventId);
+                return Optional.empty();
+            }
+            event = maybeEvent.get();
+        } else {
+            Optional<EventWithUserInfo> maybeEventWithUserInfo = eventDao.findEventWithUserInfo(user.getId(), eventId);
+            if(maybeEventWithUserInfo.isEmpty()){
+                LOGGER.warn("Event not found {}", eventId);
+                return Optional.empty();
+            }
+
+            event = maybeEventWithUserInfo.get().getEvent();
+            isAttending = maybeEventWithUserInfo.get().isAttending();
+            isCreator = maybeEventWithUserInfo.get().isCreator();
         }
-        return eventDao.findEventWithStatistics(user.getId(), eventId);
+
+        int createdEventsCount = eventDao.countEventsCreatedByUser(event.getUser().getId());
+        int attendedEventsCount = eventDao.countEventsAttendedByUser(event.getUser().getId());
+        Optional<CountryAttendeeCount> maybeCountryAttendeeCount = eventDao.findTopAttendeeCountry(event.getId());
+
+        if(maybeCountryAttendeeCount.isPresent()){
+            topAttendeeCountry = maybeCountryAttendeeCount.get().getCountryName();
+            topAttendeeCountryCount = maybeCountryAttendeeCount.get().getCount();
+        }
+
+        return Optional.of(new EventWithStatistics(event, createdEventsCount, attendedEventsCount, topAttendeeCountry, topAttendeeCountryCount, isAttending, isCreator));
     }
 
 
