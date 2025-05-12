@@ -46,9 +46,6 @@
               <c:when test="${currentPath eq '/profile/interests'}">
                 <jsp:include page="./interests-tab.jsp" />
               </c:when>
-              <c:when test="${currentPath eq '/profile/journey'}">
-                <jsp:include page="journey-tab.jsp" />
-              </c:when>
               <c:when test="${currentPath eq '/profile/events'}">
                 <jsp:include page="./events-tab.jsp" />
               </c:when>
