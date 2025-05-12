@@ -188,9 +188,9 @@ public class EventJdbcDao implements EventDao {
     AND us.id != ?
     AND e.deleted = FALSE
     ORDER BY
-        (e.attendees_limit IS NOT NULL AND e.attendees_count >= e.attendees_limit) ASC,
-        is_attending ASC,
-        is_owner ASC,
+        (e.attendees_limit IS NOT NULL AND e.attendees_count >= e.attendees_limit),
+        is_attending,
+        is_owner,
         COALESCE(e.attendees_count, 0) DESC,
         e.event_date
     LIMIT ? OFFSET ?
@@ -229,8 +229,8 @@ public class EventJdbcDao implements EventDao {
                 AND us.id != ?
                 AND e.deleted = FALSE
                 ORDER BY
-                 (e.attendees_limit IS NOT NULL AND e.attendees_count >= e.attendees_limit) ASC,
-                  is_attending ASC,
+                 (e.attendees_limit IS NOT NULL AND e.attendees_count >= e.attendees_limit),
+                  is_attending,
                   COALESCE(e.attendees_count, 0) DESC,
                   e.event_date
                 LIMIT ? OFFSET ?
@@ -281,7 +281,6 @@ public class EventJdbcDao implements EventDao {
 
     @Override
     public Optional<Integer> findAttendanceLimitById(final long eventId) {
-        //Using optional and query for object because a rowmapper returns 0 on null integer instead of null
         return Optional.ofNullable(jdbcTemplate.queryForObject("SELECT attendees_limit FROM events WHERE id = ?", Integer.class, eventId));
     }
 
