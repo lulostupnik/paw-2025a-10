@@ -99,7 +99,7 @@ public class JourneyJdbcDao implements JourneyDao {
             )
             """;
 
-    private final static String SQL_SEARCH_PAGED = SQL_BASE + " AND "  + " ORDER BY j.id ASC LIMIT ? OFFSET ? ";
+    private final static String SQL_SEARCH_PAGED = SQL_BASE + " AND "  + SQL_SEARCH_WHERE_CLAUSE + " ORDER BY j.id ASC LIMIT ? OFFSET ? ";
 
     private final static String SQL_SEARCH_COUNT =
             """

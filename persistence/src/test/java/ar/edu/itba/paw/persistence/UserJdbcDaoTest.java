@@ -50,7 +50,7 @@ public class UserJdbcDaoTest {
     public void testCreateUser(){
         TestUtils.deleteUsers(jdbcTemplate);
 
-        final User user = userDao.create(TestUtils.USER_1_MAIL, TestUtils.USER_1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        final User user = userDao.create(TestUtils.USER_1_MAIL, TestUtils.USER_1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_TOKEN_NEW, TestUtils.USER_EXPIRATION_DEFAULT);
 
         TestUtils.assertEqualsUser(user, Map.of("id", user.getId()));
         assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.USER_TABLE));
@@ -58,51 +58,51 @@ public class UserJdbcDaoTest {
 
     @Test(expected = DataAccessException.class)
     public void testCreateUserNoMail(){
-        userDao.create(null, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(null, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_TOKEN_NEW, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserNoUsername(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, null, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, null, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_TOKEN_NEW, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserNoFirstName(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, null, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, null, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_TOKEN_NEW, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserNoLastName(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, null, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, null, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_TOKEN_NEW, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = NullPointerException.class)
     public void testCreateUserNoUniversity(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, null, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, null, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_TOKEN_NEW, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserInvalidUniversity(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, new University(1034234123, null, null, null), TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, new University(1034234123, null, null, null), TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_TOKEN_NEW, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = NullPointerException.class)
     public void testCreateUserNoCareer(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, null, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, null, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_TOKEN_NEW, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserInvalidCareer(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, new Career((long)1313423,null), TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, new Career((long)1313423,null), TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_TOKEN_NEW, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserInvalidPic(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, 123123123, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, 123123123, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_TOKEN_NEW, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserNoPassword(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, null, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, null, Locale.of(TestUtils.USER_LOCALE), TestUtils.USER_TOKEN_NEW, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = NullPointerException.class)
     public void testCreateUserNoLocale(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, null, TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, null, TestUtils.USER_TOKEN_NEW, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserInvalidLocale(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_WRONG_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, TestUtils.USER_EXPIRATION_DEFAULT);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_WRONG_LOCALE), TestUtils.USER_TOKEN_NEW, TestUtils.USER_EXPIRATION_DEFAULT);
     }
     @Test(expected = DataAccessException.class)
     public void testCreateUserMissingToken(){
@@ -110,7 +110,7 @@ public class UserJdbcDaoTest {
     }
     @Test(expected = NullPointerException.class)
     public void testCreateUserMissingExpiration(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_WRONG_LOCALE), TestUtils.USER_VALID_TOKEN_DEFAULT, null);
+        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_WRONG_LOCALE), TestUtils.USER_TOKEN_NEW, null);
     }
 
     @Test
@@ -158,34 +158,91 @@ public class UserJdbcDaoTest {
         assertNotNull(maybeUser);
         assertFalse(maybeUser.isPresent());
     }
-    // FIXME:
-/*
+
+    @Test
+    public void testUpdateToken(){
+        userDao.updateToken(TestUtils.USER_1_ID, TestUtils.USER_PASSWORD, TestUtils.USER_EXPIRATION_DEFAULT);
+
+        assertEquals(TestUtils.USER_PASSWORD, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_TOKEN_BY_ID, String.class, TestUtils.USER_1_ID));
+        assertEquals(TestUtils.USER_EXPIRATION_DEFAULT, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_EXPIRATION_BY_ID, LocalDate.class, TestUtils.USER_1_ID));
+    }
+    @Test
+    public void testUpdateTokenNotFound(){
+        userDao.updateToken(12341234, TestUtils.USER_PASSWORD, TestUtils.USER_EXPIRATION_DEFAULT);
+
+        TestUtils.assertUserDBDefaultStatus(jdbcTemplate);
+    }
+
+    @Test
+    public void testfindValidationStatusByEmail(){
+        boolean status = userDao.findValidationStatusByEmail(TestUtils.USER_1_MAIL);
+
+        assertTrue(status);
+    }
+    @Test
+    public void testfindValidationStatusByEmailNotValidated(){
+        boolean status = userDao.findValidationStatusByEmail(TestUtils.USER_4_MAIL);
+
+        assertFalse(status);
+    }
+
     @Test
     public void testUpdatePassword(){
-        userDao.updatePassword(TestUtils.USER_1_MAIL, TestUtils.USER_FAKE_PASSWORD);
+        userDao.updatePassword(TestUtils.USER_1_ID, TestUtils.USER_FAKE_PASSWORD);
 
-        assertEqualsMaybeUser(
-            jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID).stream().findFirst(), 
+        TestUtils.assertEqualsUser(
+            jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID), 
             Map.of("password", TestUtils.USER_FAKE_PASSWORD)
         );
     }
     @Test
     public void testUpdatePasswordMissingUser(){
-        userDao.updatePassword(TestUtils.USER_FAKE_MAIL, TestUtils.USER_PASSWORD);
+        userDao.updatePassword(12341234l, TestUtils.USER_PASSWORD);
     }
     @Test(expected = DataAccessException.class)
     public void testUpdatePasswordMissingPassword(){
-        userDao.updatePassword(TestUtils.USER_1_MAIL, null);
+        userDao.updatePassword(TestUtils.USER_1_ID, null);
 
-        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID).stream().findFirst());
+        TestUtils.assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID));
     }
     @Test
     public void testUpdatePasswordEmptyPassword(){
-        userDao.updatePassword(TestUtils.USER_1_MAIL, "");
+        userDao.updatePassword(TestUtils.USER_1_ID, "");
 
-        assertEqualsMaybeUser(jdbcTemplate.query(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID).stream().findFirst());
+        TestUtils.assertEqualsUser(jdbcTemplate.queryForObject(TestUtils.USER_SELECT_BY_ID, TestUtils.USER_ROW_MAPPER, TestUtils.USER_1_ID));
     }
-*/
+
+    @Test
+    public void testUpdateTokenAndExpirationByToken(){
+        userDao.updateTokenAndExpirationByToken(TestUtils.USER_PASSWORD, TestUtils.USER_EXPIRATION_DEFAULT, TestUtils.USER_TOKEN_DEFAULT);
+
+        assertEquals(TestUtils.USER_PASSWORD, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_TOKEN_BY_ID, String.class, TestUtils.USER_3_ID));
+        assertEquals(TestUtils.USER_EXPIRATION_DEFAULT, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_EXPIRATION_BY_ID, LocalDate.class, TestUtils.USER_3_ID));
+    }
+    @Test
+    public void testUpdateTokenAndExpirationByTokenInvalidToken(){
+        userDao.updateTokenAndExpirationByToken(TestUtils.USER_PASSWORD, TestUtils.USER_EXPIRATION_DEFAULT, "USER_TOKEN_DEFAULT");
+
+        assertEquals(TestUtils.USER_TOKEN_DEFAULT, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_TOKEN_BY_ID, String.class, TestUtils.USER_3_ID));
+    }
+
+    @Test
+    public void testUpdatePasswordAndClearTokenByToken(){
+        userDao.updatePasswordAndClearTokenByToken(TestUtils.USER_TOKEN_DEFAULT, TestUtils.USER_FAKE_PASSWORD);
+
+        assertEquals(null, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_TOKEN_BY_ID, String.class, TestUtils.USER_3_ID));
+        assertEquals(null, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_EXPIRATION_BY_ID, LocalDate.class, TestUtils.USER_3_ID));
+        assertEquals(TestUtils.USER_FAKE_PASSWORD, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_PASSWORD_BY_ID, String.class, TestUtils.USER_3_ID));
+    }
+    @Test
+    public void testUpdatePasswordAndClearTokenByTokenInvalidToken(){
+        userDao.updatePasswordAndClearTokenByToken("USER_TOKEN_DEFAULT", TestUtils.USER_FAKE_PASSWORD);
+
+        assertEquals(TestUtils.USER_TOKEN_DEFAULT, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_TOKEN_BY_ID, String.class, TestUtils.USER_3_ID));
+        assertEquals(TestUtils.USER_EXPIRATION_DEFAULT, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_EXPIRATION_BY_ID, LocalDate.class, TestUtils.USER_3_ID));
+        assertEquals(TestUtils.USER_PASSWORD, jdbcTemplate.queryForObject(TestUtils.USER_SELECT_PASSWORD_BY_ID, String.class, TestUtils.USER_3_ID));
+    }
+
     @Test
     public void testExistsByUsernameDoesExist(){
         final boolean exists = userDao.existsByUsername(TestUtils.USER_1_NAME);
@@ -362,13 +419,13 @@ public class UserJdbcDaoTest {
     public void testExistsByTokenNotExpired(){
         TestUtils.insertUser(ds, Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL));
 
-        boolean isValid = userDao.existsByTokenNotExpired(TestUtils.USER_VALID_TOKEN_DEFAULT);
+        boolean isValid = userDao.existsByTokenNotExpired(TestUtils.USER_TOKEN_NEW);
 
         assertTrue(isValid);
     }
     @Test
     public void testExistsByTokenNotExpiredNotInUse(){
-        boolean isValid = userDao.existsByTokenNotExpired(TestUtils.USER_VALID_TOKEN_DEFAULT);
+        boolean isValid = userDao.existsByTokenNotExpired("USER_VALID_TOKEN_DEFAULT");
 
         assertFalse(isValid);
     }
@@ -376,7 +433,7 @@ public class UserJdbcDaoTest {
     public void testExistsByTokenNotExpiredExpired(){
         TestUtils.insertUser(ds, Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
 
-        boolean isValid = userDao.existsByTokenNotExpired(TestUtils.USER_VALID_TOKEN_DEFAULT);
+        boolean isValid = userDao.existsByTokenNotExpired(TestUtils.USER_TOKEN_NEW);
 
         assertFalse(isValid);
     }
@@ -385,7 +442,7 @@ public class UserJdbcDaoTest {
     public void testExistsByTokenExpired(){
         TestUtils.insertUser(ds, Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL));
 
-        boolean isExpired = userDao.existsByTokenExpired(TestUtils.USER_VALID_TOKEN_DEFAULT);
+        boolean isExpired = userDao.existsByTokenExpired(TestUtils.USER_TOKEN_NEW);
 
         assertFalse(isExpired);
     }
@@ -393,13 +450,13 @@ public class UserJdbcDaoTest {
     public void testExistsByTokenExpiredExpired(){
         TestUtils.insertUser(ds, Map.of("username", TestUtils.USER_NEW1_NAME, "email", TestUtils.USER_NEW1_MAIL, "tokenExpiration", LocalDate.now().plusDays(-1)));
 
-        boolean isExpired = userDao.existsByTokenExpired(TestUtils.USER_VALID_TOKEN_DEFAULT);
+        boolean isExpired = userDao.existsByTokenExpired(TestUtils.USER_TOKEN_NEW);
 
         assertTrue(isExpired);
     }
     @Test
     public void testExistsByTokenExpiredMissing(){
-        boolean isExpired = userDao.existsByTokenExpired(TestUtils.USER_VALID_TOKEN_DEFAULT);
+        boolean isExpired = userDao.existsByTokenExpired(TestUtils.USER_TOKEN_NEW);
 
         assertFalse(isExpired);
     }

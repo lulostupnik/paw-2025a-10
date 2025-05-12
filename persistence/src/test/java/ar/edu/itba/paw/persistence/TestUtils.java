@@ -172,8 +172,8 @@ public class TestUtils {
     public static final String USER_PASSWORD = "superSecret";
     public static final String USER_LOCALE = "es";
     public static final String USER_LOCALE_DEFAULT = "en";
-    public static final String USER_VALID_TOKEN_DEFAULT = "token";
-    public static final LocalDate USER_EXPIRATION_DEFAULT = LocalDate.now().plusMonths(1);
+    public static final String USER_TOKEN_NEW = "newtoken";
+    public static final LocalDate USER_EXPIRATION_DEFAULT = LocalDate.now().plusDays(1);
     public static final String USER_ROLE = "user";
     public static final boolean USER_BLOCKED = false;
     public static final String USER_FAKE_MAIL = "totallyRealEmail@legitEmailService.com";
@@ -183,6 +183,7 @@ public class TestUtils {
     public static final String USER_FAKE_LASTNAME = "name";
     public static final String USER_FAKE_LOCALE = "en";
     public static final String USER_WRONG_LOCALE = "jp";
+    public static final String USER_TOKEN_DEFAULT = "token";
     public static final int USER_1_INTEREST_1_SCORE = 4;
     public static final int USER_1_INTEREST_2_SCORE = 2;
     public static final int USER_1_INTEREST_3_SCORE = 1;
@@ -317,6 +318,8 @@ public class TestUtils {
     public static final String USER_SELECT_BY_ID = USER_SELECT + "WHERE id = ?";
     public static final String USER_SELECT_BY_EMAIL = USER_SELECT + "WHERE email = ?";
     public static final String USER_SELECT_TOKEN_BY_ID = "SELECT token FROM users WHERE id = ?";
+    public static final String USER_SELECT_EXPIRATION_BY_ID = "SELECT token_expiration FROM users WHERE id = ?";
+    public static final String USER_SELECT_PASSWORD_BY_ID = "SELECT password FROM users WHERE id = ?";
 
     public static final String UNIVERSITY_SELECT = """
     SELECT
@@ -938,7 +941,7 @@ public class TestUtils {
         params.put("profile_picture_id", overrideParams.getOrDefault("profilepic", IMAGE_1_ID));
         params.put("roles", overrideParams.getOrDefault("roles", USER_ROLE));
         params.put("blocked", overrideParams.getOrDefault("blocked", false));
-        params.put("token", overrideParams.getOrDefault("token", USER_VALID_TOKEN_DEFAULT));
+        params.put("token", overrideParams.getOrDefault("token", USER_TOKEN_NEW));
         params.put("token_expiration", Date.valueOf((LocalDate)overrideParams.getOrDefault("tokenExpiration", USER_EXPIRATION_DEFAULT)));
         params.put("validated",overrideParams.getOrDefault("validated", true));
         long id = insert.executeAndReturnKey(params).longValue();

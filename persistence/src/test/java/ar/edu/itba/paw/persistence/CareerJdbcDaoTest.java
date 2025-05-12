@@ -164,15 +164,16 @@ public class CareerJdbcDaoTest {
         careerDao.create(null);
     }
 
-    // fixme: update ahora retorna void
-//    @Test
-//    public void testUpdate(){
-//        Career career = careerDao.update(CAREER_1.getId(), TestUtils.CAREER_INSERT1_NAME);
-//
-//        assertNotNull(career);
-//        TestUtils.assertEqualsCareer(new Career(CAREER_1.getId(), TestUtils.CAREER_INSERT1_NAME), career);
-//
-//    }
+    @Test
+    public void testUpdate(){
+        careerDao.update(TestUtils.CAREER_1_ID, TestUtils.CAREER_INSERT1_NAME);
+
+        TestUtils.assertEqualsCareer(
+            new Career(TestUtils.CAREER_1_ID, TestUtils.CAREER_INSERT1_NAME), 
+            jdbcTemplate.queryForObject(TestUtils.CAREER_SELECT_BY_ID, TestUtils.CAREER_ROW_MAPPER, TestUtils.CAREER_1_ID)
+        );
+    }
+
     @Test(expected = DataAccessException.class)
     public void testUpdateDuplicate(){
         careerDao.update(TestUtils.CAREER_1_ID, TestUtils.CAREER_2_NAME);
