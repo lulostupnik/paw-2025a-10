@@ -5,8 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Optional;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -17,7 +15,6 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
 import ar.edu.itba.paw.interfaces.persistence.ImageDao;
-import ar.edu.itba.paw.models.Image;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ImageServiceImplTest {
@@ -37,17 +34,17 @@ public class ImageServiceImplTest {
     Cache cache;
 
     @Test
-    public void testStoreImageNoCache(){
+    public void testCreateImageNoCache(){
         Mockito.when(
             imageDao.create(Mockito.eq(IMAGE_DATA))
         ).thenReturn(IMAGE_ID);
 
-        long id = imageService.storeImage(IMAGE_DATA);
+        long id = imageService.createImage(IMAGE_DATA);
 
         assertEquals(IMAGE_ID, id);
     }
     @Test
-    public void testStoreImageCache(){
+    public void testCreateImageCache(){
         Mockito.when(
             imageDao.create(Mockito.eq(IMAGE_DATA))
         ).thenReturn(IMAGE_ID);
@@ -55,7 +52,7 @@ public class ImageServiceImplTest {
             cacheManager.getCache(IMAGE_CACHE)
         ).thenReturn(cache);
 
-        long id = imageService.storeImage(IMAGE_DATA);
+        long id = imageService.createImage(IMAGE_DATA);
 
         assertEquals(IMAGE_ID, id);
     }

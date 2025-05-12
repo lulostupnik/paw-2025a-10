@@ -63,7 +63,7 @@ public class EventServiceImpl implements EventService {
                 LOGGER.error("User not found {}", email);
                 return new RuntimeException("User not found");}
         );
-        long flyerImageId = imageService.storeImage(flyer);
+        long flyerImageId = imageService.createImage(flyer);
         Event event = eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit);
         LOGGER.info("Event {} created", event.getId());
         eventAttendanceDao.create(user.getId(), event.getId());
@@ -303,7 +303,7 @@ public class EventServiceImpl implements EventService {
         long flyerImageId = currentEvent.getFlyerImageId();
         boolean changeImage = flyer != null && flyer.length > 0;
         if(changeImage){
-            flyerImageId = imageService.storeImage(flyer);
+            flyerImageId = imageService.createImage(flyer);
         }
 
         eventDao.update(resolvedCityId, date, description,

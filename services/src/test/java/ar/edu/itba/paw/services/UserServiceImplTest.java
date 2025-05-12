@@ -78,7 +78,7 @@ public class UserServiceImplTest {
             careerService.findByName(Mockito.eq(CAREER.getName()))
         ).thenReturn(Optional.of(CAREER));
         Mockito.when(
-            imageService.storeImage(Mockito.eq(IMAGE.getData()))
+            imageService.createImage(Mockito.eq(IMAGE.getData()))
         ).thenReturn(IMAGE.getId());
         Mockito.when(
             passwordEncoder.encode(Mockito.eq(PASSWORD))

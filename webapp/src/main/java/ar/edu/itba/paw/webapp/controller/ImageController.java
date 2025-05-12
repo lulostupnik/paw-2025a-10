@@ -29,7 +29,7 @@ public class ImageController {
     @GetMapping("/{id}")
     public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
         try {
-            Image image = imageService.getImage(id).orElseThrow(() -> new NotFoundException("Image not found"));
+            Image image = imageService.findImage(id).orElseThrow(() -> new NotFoundException("Image not found")); 
             return ResponseEntity.ok()
                     .contentType(MediaType.IMAGE_JPEG)
                     .header(HttpHeaders.CONTENT_DISPOSITION,

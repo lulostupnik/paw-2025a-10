@@ -46,10 +46,10 @@ public class LandingController {
         List<Event> events = eventService.getRecommendedEvents(user.getId(), 8);
         mav.addObject("events", events);
 
-        List<Journey> journeys = journeyService.getRecommendedJourneys(user.getEmail(), 4);
+        List<Journey> journeys = journeyService.findRecommendedJourneys(user.getEmail(), 4);
         mav.addObject("journeys", journeys);
 
-        Boolean hasJourney = journeyService.userHasJourney(user);
+        Boolean hasJourney = journeyService.existsByUser(user);
         mav.addObject("hasJourney", hasJourney);
     }
 

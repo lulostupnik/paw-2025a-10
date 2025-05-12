@@ -10,20 +10,29 @@ import java.util.Optional;
 
 public interface JourneyService {
     Journey createJourney(User user, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
-    void replyToJourney(String email, long journeyId, String message);
-    Page<Journey> getAllJourneys(String search, PageParams pageParams);
+
+    void updateJourney(long journeyId, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
+    void deleteJourney(long id, String message);
+
+
+    void createJourneyResponse(String email, long journeyId, String message);
+    void deleteJourneyResponse(long id, String message);
+
+    Page<Journey> findJourneys(String search, PageParams pageParams);
+    Page<Journey> findJourneys(String search, User user, SortFieldJourney sortBy, SortDirection direction, String destination, LocalDate startDate, LocalDate endDate, String interest, boolean isPast, boolean isUpcoming, boolean isMyDestination, boolean isOngoing, PageParams pageParams);
     Optional<Journey> getJourneyById(long id);
     Optional<Journey> getJourneyByEmail(String email);
-    Page<Journey> getAllJourneys(String search, User user, SortFieldJourney sortBy, SortDirection direction, String destination, LocalDate startDate, LocalDate endDate, String interest, boolean isPast, boolean isUpcoming, boolean isMyDestination, boolean isOngoing, PageParams pageParams);
-    boolean userHasJourney(String email);
-    boolean userHasJourney(User user);
-    List<Journey> getRecommendedJourneys(String email, int limit);
-    void delete(long id, String message);
+
+    boolean existsByUserEmail(String email);
+    boolean existsByUser(User user);
+
+    List<Journey> findRecommendedJourneys(String email, int limit);
+
     boolean isJourneyOwnedByUser(String email, long journeyID);
-    void editJourney(long journeyId, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
-    void deleteJourneyResponse(long id, String message);
-    long getJourneyIdByResponseId(long journeyId);
+
+    long findJourneyIdByResponseId(long journeyId);
+
     Optional<JourneyResponse> findJourneyResponseById(long id);
-    Page<JourneyResponse> listAllResponsesFromJourney(long eventId, PageParams pageParams);
-    int getJourneyResponseCount(long id);
+    Page<JourneyResponse> findJourneyResponses(long eventId, PageParams pageParams);
+    int countJourneyResponses(long id);
 }

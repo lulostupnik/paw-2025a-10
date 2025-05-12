@@ -49,7 +49,7 @@ public class UniversityServiceImpl implements UniversityService {
 
 
     @Override
-    public Page<University> getAllUniversities(final String search, final PageParams pageParams) {
+    public Page<University> findUniversities(final String search, final PageParams pageParams) {
         LOGGER.debug("Getting all universities with search {} and pageParams {}", search, pageParams);
         if (search == null || search.isEmpty()) {
             return universityDao.findAll(pageParams);
@@ -96,7 +96,7 @@ public class UniversityServiceImpl implements UniversityService {
                     @CacheEvict(value = "universitiesByName", allEntries = true)
             }
     )
-    public void delete(final long id) {
+    public void deleteUniversity(final long id) {
         LOGGER.debug("Deleting university with id {}", id);
         universityDao.delete(id);
         LOGGER.info("University deleted successfully with id: {}", id);

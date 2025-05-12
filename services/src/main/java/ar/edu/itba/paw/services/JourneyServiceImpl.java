@@ -77,7 +77,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    public void replyToJourney(final String email, final long journeyId, final String message) {
+    public void createJourneyResponse(final String email, final long journeyId, final String message) {
         LOGGER.debug("Replying to journey {}", journeyId);
         Journey journey = journeyDao.findById(journeyId)
                 .orElseThrow(() -> {
@@ -93,8 +93,8 @@ public class JourneyServiceImpl implements JourneyService {
 
         journeyResponseDao.create(user.getId(), user.getUsername(), journeyId, message, LocalDateTime.now());
         LOGGER.info("Journey response created: {}", message);
-        List<Interest> interests = interestService.findByUserId(journey.getUser().getId());
-        interestService.updateScoreByInterests(interests, user.getId());
+        List<Interest> interests = interestService.findInterestsByUserId(journey.getUser().getId());
+        interestService.updateUserInterestScores(interests, user.getId());
         LOGGER.info("Interest score updated for user {}", user.getId());
         emailService.answerJourneyNotification(
                 userDao.findAllJourneyResponders(journeyId),
@@ -108,7 +108,7 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
-    public Page<Journey> getAllJourneys(final String search, final PageParams pageParams) {
+    public Page<Journey> findJourneys(final String search, final PageParams pageParams) {
         LOGGER.debug("Getting all journeys with search {}", search);
         if (search == null || search.isEmpty()) {
             return journeyDao.findAll(pageParams);
@@ -135,12 +135,12 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
-    public Page<Journey> getAllJourneys(final String search, final User user, final SortFieldJourney sortBy, final SortDirection direction,final  String destination,
-                                        final LocalDate startDate, final LocalDate endDate, final String interest,
-                                        final boolean isPast, final boolean isUpcoming,final  boolean isMyDestination, final boolean isOngoing,
-                                        final PageParams pageParams) {
+    public Page<Journey> findJourneys(final String search, final User user, final SortFieldJourney sortBy, final SortDirection direction, final  String destination,
+                                      final LocalDate startDate, final LocalDate endDate, final String interest,
+                                      final boolean isPast, final boolean isUpcoming, final  boolean isMyDestination, final boolean isOngoing,
+                                      final PageParams pageParams) {
         LOGGER.debug("Getting filtered journeys");
-        if(user != null && isMyDestination && ! userHasJourney(user)){
+        if(user != null && isMyDestination && ! existsByUser(user)){
             LOGGER.warn("User has no journeys");
             throw new InvalidException("User has no journeys");
         }
@@ -152,7 +152,7 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
-    public boolean userHasJourney(final String email) {
+    public boolean existsByUserEmail(final String email) {
         LOGGER.debug("Checking if user has journey {}", email);
         User user = userService.findUserByEmail(email).orElseThrow(() -> {
             LOGGER.warn("User with email '{}' not found", email);
@@ -162,20 +162,20 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
-    public boolean userHasJourney(final User user) {
+    public boolean existsByUser(final User user) {
         LOGGER.debug("Checking if user has journey {}", user);
         return journeyDao.findByUserId(user.getId()).isPresent();
     }
 
 
     @Override
-    public List<Journey> getRecommendedJourneys(final String email, final int limit) {
+    public List<Journey> findRecommendedJourneys(final String email, final int limit) {
         LOGGER.debug("Getting recommended journeys for {}", email);
         if(limit <= 0 ){
             LOGGER.warn("Limit must be greater than 0");
             throw new IllegalArgumentException("Limit must be grater than 0");
         }
-        if(userHasJourney(email)){
+        if(existsByUserEmail(email)){
             return journeyDao.findRecommended(email, new PageParams(1, limit)).getContent();
         }
         Optional<User> maybeUser = userService.findUserByEmail(email);
@@ -193,7 +193,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    public void delete(final long id, final String message) {
+    public void deleteJourney(final long id, final String message) {
         LOGGER.debug("Deleting journey {}", id);
         journeyDao.updateDeletionMessage(id, message);
         LOGGER.info("Journey deletion message updated: {}", message);
@@ -218,7 +218,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    public void editJourney(final long journeyId,final  String destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
+    public void updateJourney(final long journeyId, final  String destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
         LOGGER.debug("Editing journey {}", journeyId);
         University university = universityService.findByName(destinationUniversity)
                 .orElseThrow(() -> {
@@ -259,7 +259,7 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
-    public long getJourneyIdByResponseId(final long journeyResponseId) {
+    public long findJourneyIdByResponseId(final long journeyResponseId) {
         LOGGER.debug("Finding journey id by response id {}", journeyResponseId);
         return journeyResponseDao.findJourneyIdByResponseId(journeyResponseId);
     }
@@ -267,13 +267,13 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
-    public Page<JourneyResponse> listAllResponsesFromJourney(final long journeyId, final PageParams pageParams) {
+    public Page<JourneyResponse> findJourneyResponses(final long journeyId, final PageParams pageParams) {
         LOGGER.debug("Finding all journey responses for journey {}", journeyId);
         return journeyResponseDao.findAllByJourneyId(journeyId, pageParams);
     }
 
     @Override
-    public int getJourneyResponseCount(final long id) {
+    public int countJourneyResponses(final long id) {
         LOGGER.debug("Counting journey responses for journey {}", id);
         return journeyResponseDao.countByJourneyId(id);
     }
