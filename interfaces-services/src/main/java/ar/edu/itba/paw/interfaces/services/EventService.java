@@ -11,43 +11,101 @@ import java.util.Optional;
 
 public interface EventService {
     Event createEvent(String email, String cityName, LocalDate date, byte[] flyer, String description, String title, LocalTime time, String address, Integer attendeesLimit);
+    void updateEvent(long eventId,
+                     String cityName,
+                     LocalDate date,
+                     byte[] flyer,
+                     String description,
+                     String title,
+                     LocalTime time,
+                     String address,
+                     Integer attendeesLimit);
+    void deleteEvent(long id, String message);
+
     void replyToEvent(String email,long eventId, String message);
-    Optional<Event> getEventById(long id);
+
+    Optional<Event> findEventById(long id);
 
     Optional<EventWithStatistics> findEventWithStatistics(User user, long eventId);
-    Page<Event> getAllEventsSearch(String search, PageParams pageParams);
-    Page<Event> getAllEvents(String email, PageParams pageParams);
-    void attendEvent(String email, long eventId);
-    void attendEvent(long userId, long eventId);
-    void cancelAttendance(String email, long eventId);
-    void cancelAttendance(long userId, long eventId);
 
-    boolean isUserAttending(long userId, long eventId);
+    Page<Event> searchEvents(String search, PageParams pageParams);
+    Page<Event> findEvents(String email, PageParams pageParams);
 
-    int getEventAttendeesCount(long eventId);
-    Page<Event> getUserAttendingEvents(long userId, PageParams pageParams);
-    List<Event> getRecommendedEvents(long userId, int limit);
-    List<Event> getTopEvents(int limit);
+    void createEventAttendance(String email, long eventId);
+    void createEventAttendance(long userId, long eventId);
+
+    void deleteEventAttendance(String email, long eventId);
+    void deleteEventAttendance(long userId, long eventId);
+
+    boolean isEventAttendedByUser(long userId, long eventId);
+
+    int countEventAttendees(long eventId);
+
+    Page<Event> findEventsByAttendee(long userId, PageParams pageParams);
+    List<Event> findRecommendedEvents(long userId, int limit);
+    List<Event> findTopEvents(int limit);
     boolean isEventOwnedByUser(String email, long eventID);
 
-    Page<Event> getEventsPage(String search, User user,
-                              SortFieldEvent sortBy, SortDirection direction, String destination, LocalDate startDate, LocalDate endDate, String interest,
-                              boolean isPast, boolean isUpcoming, boolean attending,
-                              PageParams pageParams );
-    void editEvent(long eventId,
-                          String cityName,
-                          LocalDate date,
-                          byte[] flyer,
-                          String description,
-                          String title,
-                          LocalTime time,
-                          String address,
-                          Integer attendeesLimit);
-    void delete(long id, String message);
-    void deleteResponse(long id, String message);
-    long getEventIdByResponseId(long responseId);
-    int getResponseCount(long eventId);
-    Page<EventResponse> listAllResponseFromEvent(long eventId, PageParams pageParams);
+    Page<Event> searchEventsWithFilters(String search, User user,
+                                        SortFieldEvent sortBy, SortDirection direction, String destination, LocalDate startDate, LocalDate endDate, String interest,
+                                        boolean isPast, boolean isUpcoming, boolean attending,
+                                        PageParams pageParams );
+
+    void deleteEventResponse(long id, String message);
+    long findEventIdByResponseId(long responseId);
+    int countEventResponses(long eventId);
+    Page<EventResponse> findEventResponses(long eventId, PageParams pageParams);
     Optional<EventResponse> findEventResponseById(long id);
     void sendEventReminders();
 }
+
+
+/*
+public interface EventService {
+    // Creation and modification
+    Event createEvent(String email, String cityName, LocalDate date, byte[] flyer, String description, String title, LocalTime time, String address, Integer attendeesLimit); // Same
+    void updateEvent(long eventId, String cityName, LocalDate date, byte[] flyer, String description, String title, LocalTime time, String address, Integer attendeesLimit); // Old: editEvent
+    void deleteEvent(long eventId, String message); // Old: delete
+
+    // Event responses
+    void createEventResponse(String email, long eventId, String message); // Old: replyToEvent
+    void deleteEventResponse(long responseId, String message); // Old: deleteResponse
+
+    // Attendance management
+    void createEventAttendance(String email, long eventId); // Old: attendEvent(String, long)
+    void createEventAttendance(long userId, long eventId); // Old: attendEvent(long, long)
+    void deleteEventAttendance(String email, long eventId); // Old: cancelAttendance(String, long)
+    void deleteEventAttendance(long userId, long eventId); // Old: cancelAttendance(long, long)
+
+    // Finders for single entities
+    Optional<Event> findEventById(long eventId); // Old: getEventById
+    Optional<EventWithStatistics> findEventWithStatistics(User user, long eventId); // Same
+    Optional<EventResponse> findEventResponseById(long responseId); // Same
+
+    // Collections/Pagination
+    Page<Event> findEvents(String search, PageParams pageParams); // Old: getAllEventsSearch
+    Page<Event> findEventsByUser(String email, PageParams pageParams); // Old: getAllEvents
+    Page<Event> findEvents(String search, User user, SortFieldEvent sortBy, SortDirection direction,
+                          String destination, LocalDate startDate, LocalDate endDate, String interest,
+                          boolean isPast, boolean isUpcoming, boolean attending,
+                          PageParams pageParams); // Old: getEventsPage
+    Page<Event> findEventsByAttendee(long userId, PageParams pageParams); // Old: getUserAttendingEvents
+    Page<EventResponse> findEventResponses(long eventId, PageParams pageParams); // Old: listAllResponseFromEvent
+
+    // Lists of events
+    List<Event> findRecommendedEvents(long userId, int limit); // Old: getRecommendedEvents
+    List<Event> findTopEvents(int limit); // Old: getTopEvents
+
+    // Boolean checks
+    boolean isEventAttendedByUser(long userId, long eventId); // Old: isUserAttending
+    boolean isEventOwnedByUser(String email, long eventId); // Same, just renamed parameter ID to eventId
+
+    // Counts and IDs
+    int countEventAttendees(long eventId); // Old: getEventAttendeesCount
+    int countEventResponses(long eventId); // Old: getResponseCount
+    long findEventIdByResponseId(long responseId); // Old: getEventIdByResponseId
+
+    // Scheduled operations
+    void sendEventReminders(); // Same
+}
+ */

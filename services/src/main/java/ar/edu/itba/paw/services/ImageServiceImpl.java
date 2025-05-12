@@ -31,7 +31,7 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     @Transactional
-    public long storeImage(final byte[] imageData) {
+    public long createImage(final byte[] imageData) {
         LOGGER.debug("Storing image of size {}", imageData.length);
         long imageId = imageDao.create(imageData);
 
@@ -48,7 +48,7 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     @Cacheable(value = "images", key = "#id")
-    public Optional<Image> getImage(final long id) {
+    public Optional<Image> findImage(final long id) {
         LOGGER.debug("Getting image {}", id);
         return imageDao.findById(id);
     }

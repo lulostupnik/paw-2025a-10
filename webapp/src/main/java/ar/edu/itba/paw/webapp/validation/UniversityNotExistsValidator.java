@@ -13,7 +13,6 @@ public class UniversityNotExistsValidator implements ConstraintValidator<Univers
     }
     @Override
     public void initialize(final UniversityNotExists constraintAnnotation) {
-        // No initialization needed
     }
 
     @Override

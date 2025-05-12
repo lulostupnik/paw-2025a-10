@@ -24,14 +24,14 @@ public class CountryServiceImpl implements CountryService {
 
     @Override
     @Cacheable(value = "countries")
-    public List<Country> getAllCountries() {
+    public List<Country> findCountries() {
         LOGGER.debug("Getting all countries");
         return countryDao.findAll();
     }
 
     @Override
     @Cacheable(value="countriesByName", key="#name")
-    public Optional<Country> findByName(final String name) {
+    public Optional<Country> findCountryByName(final String name) {
         LOGGER.debug("Getting country {}", name);
         return countryDao.findByName(name);
     }

@@ -3,7 +3,6 @@ package ar.edu.itba.paw.services;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -16,8 +15,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
 import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.models.City;
-import ar.edu.itba.paw.models.Page;
-import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.exceptions.CityNotFoundException;
 
@@ -43,7 +40,7 @@ public class UniversityServiceImplTest {
     @Test
     public void testCreateUniversity(){
         Mockito.when(
-            cityService.findByName(Mockito.eq(CITY_NAME))
+            cityService.findCityByName(Mockito.eq(CITY_NAME))
         ).thenReturn(Optional.of(CITY));
         Mockito.when(
             uniDao.create(Mockito.eq(NAME), Mockito.eq(ABBREVIATION), Mockito.eq(CITY))
@@ -57,7 +54,7 @@ public class UniversityServiceImplTest {
     @Test(expected = CityNotFoundException.class)
     public void testCreateUniversityCityNotFound(){
         Mockito.when(
-            cityService.findByName(Mockito.eq(CITY_NAME))
+            cityService.findCityByName(Mockito.eq(CITY_NAME))
         ).thenReturn(Optional.empty());
 
         uniService.createUniversity(NAME, ABBREVIATION, CITY_NAME);

@@ -20,12 +20,12 @@ public class NoExistingJourneyValidator implements ConstraintValidator<NoExistin
     @Override
     public boolean isValid(String email, ConstraintValidatorContext context) {
         if (email == null || email.isEmpty()) {
-            return true; // Dejamos que @Email maneje esto
+            return true;
         }
         try {
-            return !journeyService.userHasJourney(email);
+            return !journeyService.existsByUserEmail(email);
         } catch (Exception e) {
-            return true; // Si hay error, dejamos que pase y se maneje en el servicio
+            return true;
         }
     }
 }

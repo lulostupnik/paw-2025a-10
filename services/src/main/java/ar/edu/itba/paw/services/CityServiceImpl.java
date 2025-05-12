@@ -31,7 +31,7 @@ public class CityServiceImpl implements CityService {
 
     @Override
     @Cacheable(value = "citiesByName", key = "#name")
-    public Optional<City> findByName(final String name) {
+    public Optional<City> findCityByName(final String name) {
         LOGGER.debug("Finding city by name {}", name);
         return cityDao.findByName(name);
     }
@@ -39,14 +39,14 @@ public class CityServiceImpl implements CityService {
 
     @Override
     @Cacheable(value = "citiesById", key = "#id")
-    public Optional<City> findById(final long id) {
+    public Optional<City> findCityById(final long id) {
         LOGGER.debug("Finding city by id {}", id);
         return cityDao.findById(id);
     }
 
 
     @Override
-    public Page<City> getAllCities(final String search, final PageParams pageParams) {
+    public Page<City> searchCities(final String search, final PageParams pageParams) {
         LOGGER.debug("Finding all cities with search {}", search);
         if (search == null || search.isEmpty()) {
             return cityDao.findAll(pageParams);
@@ -66,7 +66,7 @@ public class CityServiceImpl implements CityService {
     )
     public void updateCity(final long id,final String name,final String countryName) {
         LOGGER.debug("Updating city with id {}, name {}, country {}", id, name, countryName);
-        Country country = countryService.findByName(countryName)
+        Country country = countryService.findCountryByName(countryName)
                 .orElseThrow(() -> {
                     LOGGER.error("Country {} not found", countryName);
                     return new IllegalArgumentException("Country not found");});
@@ -84,7 +84,7 @@ public class CityServiceImpl implements CityService {
     )
     public City createCity(final String cityName,final String countryName) {
         LOGGER.debug("Creating city with name {} and country {}", cityName, countryName);
-        Country country = countryService.findByName(countryName)
+        Country country = countryService.findCountryByName(countryName)
                 .orElseThrow(() -> {
                     LOGGER.error("Country {} not found", countryName);
                     return new IllegalArgumentException("Country not found");});
@@ -103,7 +103,7 @@ public class CityServiceImpl implements CityService {
                     @CacheEvict(value = "universitiesByName", allEntries = true)
             }
     )
-    public void delete(final long id) {
+    public void deleteCity(final long id) {
         LOGGER.debug("Deleting city with id {}", id);
         cityDao.delete(id);
         LOGGER.info("City with id {} deleted successfully", id);

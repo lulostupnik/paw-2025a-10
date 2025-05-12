@@ -16,7 +16,6 @@ public class EmailNotInUseValidator implements ConstraintValidator<EmailNotInUse
 
     @Override
     public void initialize(EmailNotInUse constraintAnnotation) {
-        // No initialization needed
     }
 
     @Override

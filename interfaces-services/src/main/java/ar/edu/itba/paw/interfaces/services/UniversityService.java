@@ -8,8 +8,8 @@ import java.util.Optional;
 public interface UniversityService {
     Optional<University> findByName(String name);
     Optional<University> findById(long id);
-    Page<University> getAllUniversities(String search, PageParams pageParams);
+    Page<University> findUniversities(String search, PageParams pageParams);
     University createUniversity(String name, String abbreviation, String city);
     void updateUniversity(long id, String name, String abbreviation, String city);
-    void delete(long id);
+    void deleteUniversity(long id);
 }

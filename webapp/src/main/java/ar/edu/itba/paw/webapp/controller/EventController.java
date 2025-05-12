@@ -58,7 +58,7 @@ public class EventController {
                 search, filterForm, pageParams, sortBy, direction);
 
         if(! errors.hasErrors()) {
-            Page<Event> userEventsPage = eventService.getEventsPage(search, user, SortFieldEvent.from(sortBy), SortDirection.from(direction),
+            Page<Event> userEventsPage = eventService.searchEventsWithFilters(search, user, SortFieldEvent.from(sortBy), SortDirection.from(direction),
                     filterForm.getDestination(), filterForm.getStartDate(), filterForm.getEndDate(), filterForm.getInterests(),
                     filterForm.getIsPast(), filterForm.getIsUpcoming(), filterForm.getAttending(), pageParams);
             mav.addObject("eventsPage", userEventsPage);
@@ -109,10 +109,10 @@ public class EventController {
         mav.addObject("topAttendeeCountry", eventWithStatistics.getTopAttendeeCountry());
         mav.addObject("topAttendeeCountryCount", eventWithStatistics.getTopAttendeeCountryCount());
         mav.addObject("attendeesPage", userService.findEventAttendees(event.getId(), attendeesPageParams));
-        mav.addObject("attendeesCount", eventService.getEventAttendeesCount(event.getId()));
-        Page<EventResponse> eventResponsesPage = eventService.listAllResponseFromEvent(event.getId(), pageParams);
+        mav.addObject("attendeesCount", eventService.countEventAttendees(event.getId()));
+        Page<EventResponse> eventResponsesPage = eventService.findEventResponses(event.getId(), pageParams);
         mav.addObject("eventResponsesPage", eventResponsesPage);
-        mav.addObject("commentsCount", eventService.getResponseCount(event.getId()));
+        mav.addObject("commentsCount", eventService.countEventResponses(event.getId()));
         if(eventWithStatistics.isCreator()){
             mav.addObject("attendees", userService.findEventAttendees(id));
         }
@@ -144,7 +144,7 @@ public class EventController {
         if (errors.hasErrors()) {
             return deleteEventForm(id, user, form);
         }
-        eventService.delete(id, form.getMessage());
+        eventService.deleteEvent(id, form.getMessage());
         return new ModelAndView(REDIRECT);
     }
     @GetMapping(value = "/{id}/delete")
@@ -152,10 +152,10 @@ public class EventController {
                                         @ModelAttribute("deleteForm") final DeleteEventForm form) {
         LOGGER.debug("Showing delete form for event {}", id);
 
-        Event event = eventService.getEventById(id).orElseThrow(() -> {
+        Event event = eventService.findEventById(id).orElseThrow(() -> {
             LOGGER.error("event not found");
             return new EventNotFoundException();});
-        long commentsCount = eventService.getResponseCount(event.getId());
+        long commentsCount = eventService.countEventResponses(event.getId());
 
         ModelAndView mav = new ModelAndView("events/delete");
         mav.addObject("event", event);
@@ -168,11 +168,11 @@ public class EventController {
     public ModelAndView deleteEventReplyForm(@PathVariable(value = "eventId") long eventId,
                                              @PathVariable("id") long id,
                                              @ModelAttribute("deleteReplyForm") ReplyForm form) {
-        if(eventService.getEventIdByResponseId(id) != eventId){
+        if(eventService.findEventIdByResponseId(id) != eventId){
             LOGGER.error("Event ID {} and response ID {} do not match", eventId, id);
             throw new InvalidException();
         }
-        Event event = eventService.getEventById(eventId).orElseThrow(() -> {
+        Event event = eventService.findEventById(eventId).orElseThrow(() -> {
             LOGGER.error("event not found");
             return new EventNotFoundException();});
         EventResponse eventResponse = eventService.findEventResponseById(id).orElseThrow(() -> {
@@ -199,7 +199,7 @@ public class EventController {
     @PostMapping(value="/{id}/attend",produces = "application/json")
     public ModelAndView attendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer,
                                     @ModelAttribute("user") User user) {
-        eventService.attendEvent(user.getEmail(), id);
+        eventService.createEventAttendance(user.getEmail(), id);
         if (referer != null && !referer.isEmpty()) {
             return new ModelAndView("redirect:" + referer);
         } else {
@@ -210,7 +210,7 @@ public class EventController {
     @PostMapping(value="/{id}/dont-attend",produces = "application/json")
     public ModelAndView dontAttendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer,
                                         @ModelAttribute("user") User user) {
-        eventService.cancelAttendance(user.getEmail(), id);
+        eventService.deleteEventAttendance(user.getEmail(), id);
         if (referer != null && !referer.isEmpty()) {
             return new ModelAndView("redirect:" + referer);
         } else {
@@ -223,7 +223,7 @@ public class EventController {
                                             @ModelAttribute("editEventForm") EditEventForm form,
                                             BindingResult errors) {
 
-        Event event = eventService.getEventById(eventId).orElseThrow(() -> {
+        Event event = eventService.findEventById(eventId).orElseThrow(() -> {
             LOGGER.error("event not found");
             return new EventNotFoundException();});
 
@@ -242,7 +242,6 @@ public class EventController {
         return mav;
     }
 
-    //OBS para checkear. no se porque me deja subir una imagen vacia si uso el create event form.
     @PostMapping(value = "/{id}/update")
     public ModelAndView updateEvent(@PathVariable("id") int eventId,
                                     @ModelAttribute("user") User user,
@@ -253,7 +252,7 @@ public class EventController {
             return showUpdateEventForm(eventId, user, form, errors);
         }
         byte[] flyerContent = ImageUtils.getBytes(form.getFlyer());
-        eventService.editEvent(
+        eventService.updateEvent(
                 eventId,
                 form.getCity(),
                 form.getDate(),
@@ -274,7 +273,7 @@ public class EventController {
         if (errors.hasErrors()) {
             return deleteEventReplyForm(eventId, id, form);
         }
-        eventService.deleteResponse(id, form.getMessage());
+        eventService.deleteEventResponse(id, form.getMessage());
         return new ModelAndView( "redirect:/events/" + eventId);
     }
 

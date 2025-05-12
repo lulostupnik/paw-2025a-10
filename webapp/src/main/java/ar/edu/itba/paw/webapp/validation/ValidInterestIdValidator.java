@@ -26,13 +26,13 @@ public class ValidInterestIdValidator implements ConstraintValidator<ValidIntere
         }
         try {
             for(long interest : interests) {
-                if (interestService.findById(interest).isEmpty()) {
-                    return false; // Si no existe el interes, no es valido
+                if (interestService.findInterestById(interest).isEmpty()) {
+                    return false; 
                 }
             }
             return true;
         } catch (Exception e) {
-            return true; // Si hay error, dejamos que pase y se maneje en el servicio
+            return true;
         }
     }
 }

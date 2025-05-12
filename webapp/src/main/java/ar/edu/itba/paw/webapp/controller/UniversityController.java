@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 
 import ar.edu.itba.paw.models.PageParams;
@@ -19,11 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
-import java.util.Optional;
 
-
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @Controller
 @RequestMapping("/universities")
 public class UniversityController {
@@ -45,7 +40,7 @@ public class UniversityController {
     public String getUniversitiesJSON(@RequestParam(value = "search", required = false) String search,
                                      @PageParamCustomizer(defaultSize = 30) PageParams pageParams) {
 
-        return JsonUtils.toJson( universityService.getAllUniversities(search, pageParams).getContent());
+        return JsonUtils.toJson( universityService.findUniversities(search, pageParams).getContent());
     }
 
     @GetMapping(value = "/create")
@@ -84,7 +79,6 @@ public class UniversityController {
     @GetMapping(value = "/{id}/edit")
     public ModelAndView updateUniversityForm(@PathVariable("id") Long id, @ModelAttribute(CREATE_UNIVERSITY_FORM) CreateUniversityForm form, BindingResult errors) {
 
-        // Create and populate form with existing university data
         if(! errors.hasErrors()) {
             University university = universityService.findById(id).orElseThrow(()-> {
                 LOGGER.error("University not found");
@@ -122,7 +116,7 @@ public class UniversityController {
 
     @PostMapping(value = "/{id}/delete")
     public ModelAndView deleteUniversity(@PathVariable long id) {
-        universityService.delete(id);
+        universityService.deleteUniversity(id);
         return new ModelAndView("redirect:/dashboard/universities");
     }
 }
