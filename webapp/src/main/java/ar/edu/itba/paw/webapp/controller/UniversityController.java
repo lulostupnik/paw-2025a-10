@@ -85,7 +85,7 @@ public class UniversityController {
     public ModelAndView updateUniversityForm(@PathVariable("id") Long id, @ModelAttribute(CREATE_UNIVERSITY_FORM) CreateUniversityForm form, BindingResult errors) {
 
         // Create and populate form with existing university data
-        if(errors.hasErrors()) {
+        if(! errors.hasErrors()) {
             University university = universityService.findById(id).orElseThrow(()-> {
                 LOGGER.error("University not found");
                 return new NotFoundException("University not found");});

@@ -119,35 +119,6 @@
 
     capitalizeFirstLetter(nameInput);
 
-    // Form validation
-    careerForm.addEventListener("submit", (event) => {
-      let isValid = true;
-
-      // Validate name
-      if (!nameInput.value.trim()) {
-        const errorElement = document.createElement("div");
-        errorElement.className = "error-message";
-        errorElement.textContent = "Career name is required";
-
-        const existingError = nameInput.parentNode.querySelector(".error-message");
-        if (!existingError) {
-          nameInput.parentNode.appendChild(errorElement);
-        }
-
-        nameInput.classList.add("error");
-        isValid = false;
-      } else {
-        nameInput.classList.remove("error");
-        const existingError = nameInput.parentNode.querySelector(".error-message");
-        if (existingError) {
-          existingError.remove();
-        }
-      }
-
-      if (!isValid) {
-        event.preventDefault();
-      }
-    });
   });
 </script>
 

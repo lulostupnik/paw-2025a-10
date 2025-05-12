@@ -22,7 +22,7 @@ public class CreateUniversityForm {
     @NotNull
     @NotEmpty
     @ExistingCity
-    private String cityName;
+    private String city;
 
 
     public String getName() {
@@ -42,10 +42,10 @@ public class CreateUniversityForm {
     }
 
     public String getCity() {
-        return cityName;
+        return city;
     }
 
     public void setCity(String cityName) {
-        this.cityName = cityName;
+        this.city = cityName;
     }
 }
