@@ -132,25 +132,17 @@ public class EventJdbcDao implements EventDao {
     private final static String SQL_SEARCH_PAGED = SQL_BASE_NOT_DELETED + """
                     AND (
                             LOWER(e.title) LIKE LOWER(?)
-                    --        OR LOWER(e.description) LIKE LOWER(?)
                             OR LOWER(c.name) LIKE LOWER(?)
                             OR LOWER(us.username) LIKE LOWER(?)
                         )
                     ORDER BY e.event_date DESC LIMIT ? OFFSET ?
                     """;
 
-    private final static String SQL_SELECT_WITH_ATTENDANCE = "SELECT (ea.user_id IS NOT NULL) AS is_attending, " + SQL_ALIASES;
-    private final static String SQL_FIND_EVENTS_WITH_ATTENDANCE = SQL_SELECT_WITH_ATTENDANCE + SQL_FROM_BASE + """
-                   LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
-                   WHERE e.user_id != ? AND e.deleted = FALSE AND e.event_date >= CURRENT_DATE
-                   """;
-
-
     private final static String SQL_SELECT_WITH_USER_INFO = "SELECT (ea.user_id IS NOT NULL) AS is_attending, (e.user_id = ?) AS is_owner, " + SQL_ALIASES;
 
     private final static String SQL_FIND_EVENT_WITH_USER_INFO = SQL_SELECT_WITH_USER_INFO + SQL_FROM_BASE + """
                    LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ?
-                   WHERE e.id = ?
+                   WHERE e.deleted = FALSE AND e.id = ?
                    """;
 
     private final static String SQL_SEARCH_WHERE_CLAUSE =
