@@ -37,13 +37,13 @@ public class LandingController {
         }
 
         ModelAndView mav = new ModelAndView("index");
-        List<Event> recommendedEvents = eventService.getTopEvents(3);
+        List<Event> recommendedEvents = eventService.findTopEvents(3);
         mav.addObject("recommendedEvents", recommendedEvents);
         return mav;
     }
 
     private void populateHomePage(ModelAndView mav, User user) {
-        List<Event> events = eventService.getRecommendedEvents(user.getId(), 8);
+        List<Event> events = eventService.findRecommendedEvents(user.getId(), 8);
         mav.addObject("events", events);
 
         List<Journey> journeys = journeyService.findRecommendedJourneys(user.getEmail(), 4);

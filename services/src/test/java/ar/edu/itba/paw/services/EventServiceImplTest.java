@@ -180,12 +180,12 @@ public class EventServiceImplTest {
     }
 
     @Test
-    public void testGetEventById(){
+    public void testFindEventById(){
         Mockito.when(
             eventDao.findById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT));
 
-        Optional<Event> maybeEvent = eventService.getEventById(EVENT_ID);
+        Optional<Event> maybeEvent = eventService.findEventById(EVENT_ID);
 
         assertNotNull(maybeEvent);
         assertTrue(maybeEvent.isPresent());
@@ -252,46 +252,46 @@ public class EventServiceImplTest {
     }
 
     @Test
-    public void testGetAllEventsPagedEmail(){
+    public void testFindEventsPagedEmail(){
         Mockito.when(
             eventDao.findByUserEmail(Mockito.eq(EMAIL), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
-        Page<Event> page = eventService.getAllEvents(EMAIL, PAGE_1_DEFAULT);
+        Page<Event> page = eventService.findEvents(EMAIL, PAGE_1_DEFAULT);
 
         assertNotNull(page);
         assertEquals(EVENTS_PAGE, page);
     }    
 
     @Test
-    public void testGetAllEventsSearchMissingQuery(){
+    public void testSearchEventsMissingQuery(){
         Mockito.when(
             eventDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
-        Page<Event> page = eventService.getAllEventsSearch(null, PAGE_1_DEFAULT);
+        Page<Event> page = eventService.searchEvents(null, PAGE_1_DEFAULT);
 
         assertNotNull(page);
         assertEquals(EVENTS_PAGE, page);
     }
     @Test
-    public void testGetAllEventsSearchEmptyQuery(){
+    public void testSearchEventsEmptyQuery(){
         Mockito.when(
             eventDao.findAll(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
-        Page<Event> page = eventService.getAllEventsSearch("", PAGE_1_DEFAULT);
+        Page<Event> page = eventService.searchEvents("", PAGE_1_DEFAULT);
 
         assertNotNull(page);
         assertEquals(EVENTS_PAGE, page);
     }
     @Test
-    public void testGetAllEventsSearchQuery(){
+    public void testSearchEventsQuery(){
         Mockito.when(
             eventDao.search(Mockito.eq(DESCRIPTION), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
-        Page<Event> page = eventService.getAllEventsSearch(DESCRIPTION, PAGE_1_DEFAULT);
+        Page<Event> page = eventService.searchEvents(DESCRIPTION, PAGE_1_DEFAULT);
 
         assertNotNull(page);
         assertEquals(EVENTS_PAGE, page);
@@ -299,7 +299,7 @@ public class EventServiceImplTest {
 
 
     @Test
-    public void testAttendEventIdLimitNotExceeded(){
+    public void testCreateEventAttendanceIdLimitNotExceeded(){
         Mockito.when(
             eventDao.findById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT));
@@ -313,10 +313,10 @@ public class EventServiceImplTest {
             attendanceDao.countByEventId(Mockito.eq(EVENT_ID))
         ).thenReturn(ATTENDEES);
 
-        eventService.attendEvent(USER_ID, EVENT_ID);
+        eventService.createEventAttendance(USER_ID, EVENT_ID);
     }
     @Test(expected = InvalidException.class)
-    public void testAttendEventIdLimitExceeded(){
+    public void testCreateEventAttendanceIdLimitExceeded(){
         Mockito.when(
             eventDao.findById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT));
@@ -330,57 +330,57 @@ public class EventServiceImplTest {
             attendanceDao.countByEventId(Mockito.eq(EVENT_ID))
         ).thenReturn(LIMIT);
 
-        eventService.attendEvent(USER_ID, EVENT_ID);
+        eventService.createEventAttendance(USER_ID, EVENT_ID);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testAttendEventIdAttending(){
+    public void testCreateEventAttendanceIdAttending(){
         Mockito.when(
             eventDao.findById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.empty());
 
-        eventService.attendEvent(USER_ID, EVENT_ID);
+        eventService.createEventAttendance(USER_ID, EVENT_ID);
     }
     @Test(expected = InvalidException.class)
-    public void testAttendEventIdNotFuture(){
+    public void testCreateEventAttendanceIdNotFuture(){
         Mockito.when(
             eventDao.findById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.of(new Event(0l, null, LocalDate.now().plusDays(-1), null, 0l, null, null ,Optional.empty(), null, null, 0)));
 
-        eventService.attendEvent(USER_ID, EVENT_ID);
+        eventService.createEventAttendance(USER_ID, EVENT_ID);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCancelAttendanceIdNotFound(){
+    public void testDeleteEventAttendanceIdNotFound(){
         Mockito.when(
             eventDao.findById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.empty());
 
-        eventService.cancelAttendance(USER_ID, EVENT_ID);
+        eventService.deleteEventAttendance(USER_ID, EVENT_ID);
     }
     @Test(expected = NoSuchElementException.class)
-    public void testCancelAttendanceEmailNotFound(){
+    public void testDeleteEventAttendanceEmailNotFound(){
         Mockito.when(
             userService.findUserByEmail(Mockito.eq(EMAIL))
         ).thenReturn(Optional.empty());
 
-        eventService.cancelAttendance(EMAIL, EVENT_ID);
+        eventService.deleteEventAttendance(EMAIL, EVENT_ID);
     }
 
     
     @Test
-    public void testGetRecommendedEvents(){
+    public void testFindRecommendedEvents(){
         Mockito.when(
             eventDao.findRecommended(Mockito.eq(USER_ID), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
-        List<Event> userEvents = eventService.getRecommendedEvents(USER_ID, 2);
+        List<Event> userEvents = eventService.findRecommendedEvents(USER_ID, 2);
 
         assertNotNull(userEvents);
         assertEquals(EVENTS, userEvents);
     }
     @Test
-    public void testGetRecommendedEventsMissing(){
+    public void testFindRecommendedEventsMissing(){
         Mockito.when(
             eventDao.findRecommended(Mockito.eq(USER_ID), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(new Page<>(List.of(), 1, 0));
@@ -388,30 +388,30 @@ public class EventServiceImplTest {
             eventDao.findTopByUser(Mockito.eq(USER_ID), Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
-        List<Event> userevents = eventService.getRecommendedEvents(USER_ID, 2);
+        List<Event> userevents = eventService.findRecommendedEvents(USER_ID, 2);
 
         assertNotNull(userevents);
         assertEquals(EVENTS, userevents);
     }
     @Test(expected = IllegalArgumentException.class)
-    public void testGetRecommendedEventsWrongLimit(){
-        eventService.getRecommendedEvents(USER_ID, 0);
+    public void testFindRecommendedEventsWrongLimit(){
+        eventService.findRecommendedEvents(USER_ID, 0);
     }
 
     @Test
-    public void testGetTopEvents(){
+    public void testFindTopEvents(){
         Mockito.when(
             eventDao.findTop(Mockito.eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
-        List<Event> events = eventService.getTopEvents(2);
+        List<Event> events = eventService.findTopEvents(2);
 
         assertNotNull(events);
         assertEquals(EVENTS, events);
     }
     @Test(expected = IllegalArgumentException.class)
-    public void testGetTopEventsWrongLimit(){
-        eventService.getTopEvents(0);
+    public void testFindTopEventsWrongLimit(){
+        eventService.findTopEvents(0);
     }
 
     @Test
@@ -446,7 +446,7 @@ public class EventServiceImplTest {
     }
 
     @Test
-    public void testGetEventsPageNoUser(){
+    public void testSearchEventsWithFiltersNoUser(){
         Mockito.when(
             eventDao.findAllWithFilters(
                 Mockito.eq(null),
@@ -464,7 +464,7 @@ public class EventServiceImplTest {
             )
         ).thenReturn(EVENTS_PAGE);
 
-        Page<Event> page = eventService.getEventsPage(
+        Page<Event> page = eventService.searchEventsWithFilters(
             TITLE, 
             null,
             SortFieldEvent.from("attendees"), 
@@ -483,7 +483,7 @@ public class EventServiceImplTest {
         assertEquals(EVENTS_PAGE, page);
     }
     @Test
-    public void testGetEventsPage(){
+    public void testSearchEventsWithFilters(){
         Mockito.when(
             eventDao.findAllWithFilters(
                 Mockito.eq(USER_ID),
@@ -501,7 +501,7 @@ public class EventServiceImplTest {
             )
         ).thenReturn(EVENTS_PAGE);
 
-        Page<Event> page = eventService.getEventsPage(
+        Page<Event> page = eventService.searchEventsWithFilters(
             TITLE, 
             USER, 
             SortFieldEvent.from(""), 
@@ -521,7 +521,7 @@ public class EventServiceImplTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void testEditEventMissingCity(){
+    public void testUpdateEventMissingCity(){
         Mockito.when(
             eventDao.findById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT));
@@ -529,28 +529,28 @@ public class EventServiceImplTest {
             cityService.findByName(Mockito.eq(CITY_NAME))
         ).thenReturn(Optional.empty());
 
-        eventService.editEvent(EVENT_ID, CITY_NAME, EVENT_DATE, null, DESCRIPTION, TITLE, TIME, ADDRESS, LIMIT);
+        eventService.updateEvent(EVENT_ID, CITY_NAME, EVENT_DATE, null, DESCRIPTION, TITLE, TIME, ADDRESS, LIMIT);
     }
     @Test(expected = IllegalArgumentException.class)
-    public void testEditEventMissingEvent(){
+    public void testUpdateEventMissingEvent(){
         Mockito.when(
             eventDao.findById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.empty());
 
-        eventService.editEvent(EVENT_ID, CITY_NAME, EVENT_DATE, null, DESCRIPTION, TITLE, TIME, ADDRESS, LIMIT);
+        eventService.updateEvent(EVENT_ID, CITY_NAME, EVENT_DATE, null, DESCRIPTION, TITLE, TIME, ADDRESS, LIMIT);
     }
 
     @Test(expected = RuntimeException.class)
-    public void testDeleteMissing(){
+    public void testDeleteEventMissing(){
         Mockito.when(
             eventDao.findById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.empty());
 
-        eventService.delete(EVENT_ID, DESCRIPTION);
+        eventService.deleteEvent(EVENT_ID, DESCRIPTION);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testDeleteResponseNoUser(){
+    public void testDeleteEventResponseNoUser(){
         Mockito.when(
             replyDao.findById(Mockito.eq(RESPONSE_ID))
         ).thenReturn(Optional.of(RESPONSE));
@@ -561,10 +561,10 @@ public class EventServiceImplTest {
             userService.findUserById(Mockito.eq(USER_ID))
         ).thenReturn(Optional.empty());
 
-        eventService.deleteResponse(RESPONSE_ID, DESCRIPTION);
+        eventService.deleteEventResponse(RESPONSE_ID, DESCRIPTION);
     }
     @Test(expected = IllegalStateException.class)
-    public void testDeleteResponseNoEvent(){
+    public void testDeleteEventResponseNoEvent(){
         Mockito.when(
             replyDao.findById(Mockito.eq(RESPONSE_ID))
         ).thenReturn(Optional.of(RESPONSE));
@@ -572,15 +572,15 @@ public class EventServiceImplTest {
             eventDao.findById(Mockito.eq(EVENT_ID))
         ).thenReturn(Optional.empty());
 
-        eventService.deleteResponse(RESPONSE_ID, DESCRIPTION);
+        eventService.deleteEventResponse(RESPONSE_ID, DESCRIPTION);
     }
     @Test(expected = IllegalArgumentException.class)
-    public void testDeleteResponseNoResponse(){
+    public void testDeleteEventResponseNoResponse(){
         Mockito.when(
             replyDao.findById(Mockito.eq(RESPONSE_ID))
         ).thenReturn(Optional.empty());
 
-        eventService.deleteResponse(RESPONSE_ID, DESCRIPTION);
+        eventService.deleteEventResponse(RESPONSE_ID, DESCRIPTION);
     }
 
 

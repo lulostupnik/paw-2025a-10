@@ -37,7 +37,7 @@ public class AdminController {
             @PageParamCustomizer(defaultPage = -1, sizeParamName = "pageSize") PageParams  pageParams,
             @RequestParam(value = "search", required = false) String search) {
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
-        mav.addObject("pagedEvents", eventService.getAllEventsSearch(search, pageParams));
+        mav.addObject("pagedEvents", eventService.searchEvents(search, pageParams));
         return mav;
     }
 
