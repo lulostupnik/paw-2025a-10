@@ -52,7 +52,7 @@ public class InterestServiceImpl implements InterestService {
 
 
     @Override
-    public Page<Interest> findAllInterestsByUserId(final long id, PageParams pageParams) {
+    public Page<Interest> findAllInterestsByUserId(final long id, final PageParams pageParams) {
         LOGGER.debug("Getting interests of user {} with pageParams {}", id, pageParams);
         return interestDao.findAllByUserId(id, pageParams);
     }

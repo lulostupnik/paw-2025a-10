@@ -99,7 +99,9 @@ public class CityJdbcDao implements CityDao {
                 name, country.getId()
         );
         if (rowsUpdated > 0) {
-            return findByName(name).orElseThrow(() -> new RuntimeException("Failed to retrieve reactivated city"));
+            return findByName(name).orElseThrow(() -> {
+                LOGGER.error("City reactivation failed: City with name {} and country ID {} not found", name, country.getId());
+                return new RuntimeException("Failed to retrieve reactivated city");});
         }
 
         final Map<String, Object> params = new HashMap<>();

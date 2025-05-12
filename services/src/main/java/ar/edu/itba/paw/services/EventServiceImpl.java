@@ -154,7 +154,7 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public Page<Event> getAllEvents(final String email,final  PageParams pageParams) {
+    public Page<Event> getAllEvents(final String email,final PageParams pageParams) {
         LOGGER.debug("Getting all events for user {}", email);
         return eventDao.findByUserEmail(email, pageParams);
     }
@@ -237,12 +237,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Page<Event> getUserAttendingEvents(final long userId, PageParams pageParams) {
+    public Page<Event> getUserAttendingEvents(final long userId, final PageParams pageParams) {
         return eventDao.findAllEventsByAttendee(userId, pageParams);
     }
 
     @Override
-    public List<Event> getRecommendedEvents(final long userId,final  int limit) {
+    public List<Event> getRecommendedEvents(final long userId, final  int limit) {
         LOGGER.debug("Getting recommended events for user {} with limit {}", userId, limit);
         if (limit <= 0) {
             LOGGER.warn("Limit must be greater than 0");
@@ -332,7 +332,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public void deleteResponse(final long id,final  String message) {
+    public void deleteResponse(final long id, final String message) {
         LOGGER.debug("Deleting event response {}", id);
         EventResponse deletedComment = findEventResponseById(id)
                 .orElseThrow(() ->{

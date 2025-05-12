@@ -32,8 +32,7 @@ public class ImageJdbcDao implements ImageDao {
 
     @Override
     public long create(final byte[] imageData) {
-        final long id = jdbcInsert.executeAndReturnKey(Map.of("content", imageData)).longValue();
-        return id;
+        return jdbcInsert.executeAndReturnKey(Map.of("content", imageData)).longValue();
     }
 
     @Override
