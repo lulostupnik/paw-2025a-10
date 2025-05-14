@@ -4,18 +4,43 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Getter
-@RequiredArgsConstructor
+@Entity
+@Table(name = "journey_responses")
 public class JourneyResponse {
-    private final long id;
-    private final long userId;
-    private final String username;
-    private final long journeyId;
-    private final String message;
-    private final LocalDateTime dateTime;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator =
+            "journey_responses_id_seq")
+    @SequenceGenerator(sequenceName = "journey_responses_id_seq", name =
+            "journey_responses_id_seq", allocationSize = 1)
+    @Column(name = "id")
+    private  Long id;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private  User user;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private  Journey journey;
+    @Column(length = 2047)
+    private  String message;
+    @Column(name = "date_time", nullable = false)
+    private  LocalDateTime dateTime;
+    @Column(name="deleted", nullable = false)
+    @ToString.Exclude
+    private  boolean deleted;
+
+    /* For hibernate */ JourneyResponse() {
+    }
+
+    public JourneyResponse(final User user, final Journey journey, final String message) {
+        this.user = user;
+        this.journey = journey;
+        this.message = message;
+        this.dateTime = LocalDateTime.now();
+        this.deleted = false;
+    }
 
     public String getFormattedDate() {
         return dateTime.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -25,9 +50,9 @@ public class JourneyResponse {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("{userId: ");
-        sb.append(userId);
+        sb.append(user);
         sb.append(", journeyId: ");
-        sb.append(journeyId);
+        sb.append(journey);
         sb.append(", message: \"");
         sb.append(message);
         sb.append("\"}");

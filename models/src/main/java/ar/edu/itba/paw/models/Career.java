@@ -6,7 +6,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class Career {
-    private final long id;
+
+    private final Long id;
     private final String name;
 
     @Override

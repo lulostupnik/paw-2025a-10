@@ -3,21 +3,62 @@ package ar.edu.itba.paw.models;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import javax.persistence.*;
+import java.util.List;
 import java.util.Locale;
 
 @Getter
-@RequiredArgsConstructor
+@Entity
+@Table(name = "users")
 public class User{
-    private final long id;
-    private final String email;
-    private final String username;
-    private final String firstname;
-    private final String lastname;
-    private final University university;
-    private final Career career;
-    private final long profilePictureId;
-    private final Locale locale;
-    private final boolean isBlocked;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator =
+            "users_id_seq")
+    @SequenceGenerator(sequenceName = "users_id_seq", name =
+            "users_id_seq", allocationSize = 1)
+    @Column(name = "id")
+    private  Long id;
+    @Column(name = "email", unique = true, nullable = false, length = 100)
+    private  String email;
+    @Column(name ="username", unique = true, nullable = false, length = 50)
+    private  String username;
+    @Column(length = 100, nullable = false)
+    private  String firstname;
+    @Column(length = 100, nullable = false)
+    private  String lastname;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private  University university;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private  Career career;
+    @Column(name = "profile_picture_id", nullable = false)
+    private  long profilePictureId;
+    @Column(length=2, nullable = false, name="language")
+    private  Locale locale;
+    @Column(name="blocked", nullable = false)
+    private  boolean isBlocked;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_interest",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")) //@TODO: checkear tema del score (GPT dice crear otra entidad)
+    private List<Interest> interests;
+
+    /* For hibernate */ User(){
+
+    }
+    public User (final String email, final String username, final String firstname,
+                final String lastname, final University university, final Career career,
+                final long profilePictureId, final Locale locale) {
+        this.email = email;
+        this.username = username;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.university = university;
+        this.career = career;
+        this.profilePictureId = profilePictureId;
+        this.locale = locale;
+        this.isBlocked = false;
+    }
+
 
     @Override
     public String toString() {

@@ -3,37 +3,84 @@ package ar.edu.itba.paw.models;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 @Getter
-@RequiredArgsConstructor
+@Entity
+@Table(name="events")
 public class Event {
-    private final long id;
-    private final User user;
-    private final LocalDate date;
-    private final String description;
-    private final long flyerImageId;
-    private final City eventCity;
-    private final String title;
-    private final Optional<LocalTime> time;
-    private final String address;
-    private final Optional<Integer> attendeesLimit;
-    private final int attendeesCount;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator =
+            "events_id_seq")
+    @SequenceGenerator(sequenceName = "events_id_seq", name =
+            "events_id_seq", allocationSize = 1)
+    @Column(name = "id")
+    private  Long id;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private  User user;
+    @Column(name = "event_date", nullable = false)
+    private  LocalDate date;
+    @Column(length = 2047)
+    private  String description;
+    @Column(name = "flyer_image_id")
+    private  long flyerImageId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private  City eventCity;
+    @Column
+    private  String title;
+    @Column(name = "event_time")
+    private  LocalTime time;
+    @Column(name = "event_address", length = 255)
+    private  String address;
+    @Column(name = "attendees_limit")
+    private  Integer attendeesLimit;
+    @Column(name = "attendees_count")
+    private  int attendeesCount;
+    @Column(name="deleted", nullable = false)
+    private  boolean deleted;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "event_attendances",
+            joinColumns = @JoinColumn(name = "event_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    List<User> attendees;
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "journey", cascade = CascadeType.ALL)
+            List<EventResponse> responses;
+
+
+    /* For hibernate */ Event() {
+    }
+    public Event(final User user, final LocalDate date, final String description,
+                 final long flyerImageId, final City eventCity, final String title,
+                 final LocalTime time, final String address, final Integer attendeesLimit) {
+        this.user = user;
+        this.date = date;
+        this.description = description;
+        this.flyerImageId = flyerImageId;
+        this.eventCity = eventCity;
+        this.title = title;
+        this.time = time;
+        this.address = address;
+        this.attendeesLimit = attendeesLimit;
+        this.attendeesCount = 1; //user that created the event
+        this.deleted = false;
+    }
 
 
     public boolean getFull(){
-        return attendeesLimit.isPresent() && attendeesLimit.get() <= attendeesCount;
+        return attendeesLimit != null && attendeesLimit <= attendeesCount;
     }
 
     public boolean getIsFuture() {
-        LocalDateTime eventDateTime = time
-                .map(t -> LocalDateTime.of(date, t))
-                .orElse(date.atStartOfDay());
+        if(time == null) {
+            return date.atStartOfDay().isAfter(LocalDateTime.now());
+        }
 
-        return eventDateTime.isAfter(LocalDateTime.now());
+        return LocalDateTime.of(date, time).isAfter(LocalDateTime.now());
     }
 
 
@@ -49,7 +96,7 @@ public class Event {
         sb.append(", date: \"");
         sb.append(date);
         sb.append("\", time: \"");
-        sb.append(time.isPresent() ? time : "all-day");
+        sb.append(time != null ? time : "all-day");
         sb.append("\", address: \"");
         sb.append(address);
         sb.append("\", attendeesLimit: ");

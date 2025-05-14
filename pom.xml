@@ -25,6 +25,9 @@
     <slf4j.version>1.7.5</slf4j.version>
     <logback.version>1.1.2</logback.version>
     <logback-ext-spring.version>0.1.1</logback-ext-spring.version>
+      <org.hibernate.version>5.1.0.Final</org.hibernate.version>
+      <org.hibernate.jpa.version>1.0.0.Final</org.hibernate.jpa.version>
+      <com.fasterxml.jackson.core.version>2.17.0</com.fasterxml.jackson.core.version>
   </properties>
 
   <dependencyManagement>
@@ -182,8 +185,28 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>2.17.0</version>
+        <version>${com.fasterxml.jackson.core.version}</version>
       </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>${org.springframework.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${org.hibernate.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <version>${org.hibernate.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.javax.persistence</groupId>
+            <artifactId>hibernate-jpa-2.1-api</artifactId>
+            <version>${org.hibernate.jpa.version}</version>
+        </dependency>
 
     </dependencies>
   </dependencyManagement>

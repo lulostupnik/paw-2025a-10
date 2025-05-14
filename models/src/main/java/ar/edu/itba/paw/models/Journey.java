@@ -2,17 +2,49 @@ package ar.edu.itba.paw.models;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
-@RequiredArgsConstructor
+@Entity
+@Table(name = "journeys")
 public class Journey{
-    private final long id;
-    private final User user;
-    private final LocalDate startDate;
-    private final LocalDate endDate;
-    private final University destinationUniversity;
-    private final String description;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator =
+            "journeys_id_seq")
+    @SequenceGenerator(sequenceName = "journeys_id_seq", name =
+            "journeys_id_seq", allocationSize = 1)
+    @Column(name = "id")
+    private Long id;
+    @OneToOne(fetch = FetchType.EAGER)
+    private User user;
+    @Column(name = "start_date", nullable = false)
+    private LocalDate startDate;
+    @Column(name = "end_date", nullable = false)
+    private LocalDate endDate;
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    private University destinationUniversity;
+    @Column(length = 2047)
+    private String description;
+    @Column(name="deleted", nullable = false)
+    private boolean deleted;
+    @OneToMany(mappedBy = "journey", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    List<JourneyResponse> responses;
+
+    /* For hibernate */ Journey() {
+    }
+
+    public Journey(final User user, final LocalDate startDate, final LocalDate endDate,
+                   final University destinationUniversity, final String description) {
+        this.user = user;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.destinationUniversity = destinationUniversity;
+        this.description = description;
+        this.deleted = false;
+    }
 
     @Override
     public String toString() {
