@@ -45,6 +45,16 @@ public class Journey{
         this.description = description;
         this.deleted = false;
     }
+    public Journey(final Long id, final User user, final LocalDate startDate, final LocalDate endDate,
+                   final University destinationUniversity, final String description) {
+        this.id = id;
+        this.user = user;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.destinationUniversity = destinationUniversity;
+        this.description = description;
+        this.deleted = false;
+    }
 
     @Override
     public String toString() {

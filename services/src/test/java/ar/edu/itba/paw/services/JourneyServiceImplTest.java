@@ -53,12 +53,13 @@ public class JourneyServiceImplTest {
     private static final String COUNTRY_NAME = "cuntry";
     private static final String CAREER_NAME = "career";
     private static final String INTEREST_NAME = "interesting";
+    private static final Country COUNTRY = new Country(COUNTRY_NAME, "ARG");
 
-    private static final City CITY = new City(CITY_NAME, COUNTRY_NAME, CITY_ID);
+    private static final City CITY = new City(CITY_NAME, COUNTRY, CITY_ID);
     private static final University UNI = new University(UNI_ID, UNI_NAME, UNI_ABBR, CITY);
     private static final Career CAREER = new Career(CAREER_ID, CAREER_NAME);
     private static final Locale LOCALE = Locale.of("en");
-    private static final User USER = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, IMAGE_ID, LOCALE, false);
+    private static final User USER = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, IMAGE_ID, LOCALE, false, List.of());
     private static final Interest INTEREST = new Interest(INTEREST_ID, INTEREST_NAME);
     private static final List<Interest> INTERESTS = List.of(INTEREST);
 
@@ -70,7 +71,7 @@ public class JourneyServiceImplTest {
     private static final Page<Journey> JOURNEY_PAGE = new Page<Journey>(JOURNEYS, 1, 1);
 
     private static final LocalDateTime REPLY_TIMESTAMP = LocalDateTime.now();
-    private static final JourneyResponse REPLY = new JourneyResponse(REPLY_ID, USER_ID, USERNAME, JOURNEY_ID, DESCRIPTION, REPLY_TIMESTAMP);
+    private static final JourneyResponse REPLY = new JourneyResponse(REPLY_ID, USER, JOURNEY, DESCRIPTION, REPLY_TIMESTAMP);
 
     private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
 

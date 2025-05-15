@@ -41,6 +41,14 @@ public class JourneyResponse {
         this.dateTime = LocalDateTime.now();
         this.deleted = false;
     }
+    public JourneyResponse(final Long id, final User user, final Journey journey, final String message, final LocalDateTime time) {
+        this.id = id;
+        this.user = user;
+        this.journey = journey;
+        this.message = message;
+        this.dateTime = time;
+        this.deleted = false;
+    }
 
     public String getFormattedDate() {
         return dateTime.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));

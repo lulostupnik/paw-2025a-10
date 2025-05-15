@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.models;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
@@ -36,18 +35,15 @@ public class User{
     private  Locale locale;
     @Column(name="blocked", nullable = false)
     private  boolean isBlocked;
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_interest",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")) //@TODO: checkear tema del score (GPT dice crear otra entidad)
-    private List<Interest> interests;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserInterest> interests;
 
     /* For hibernate */ User(){
 
     }
     public User (final String email, final String username, final String firstname,
                 final String lastname, final University university, final Career career,
-                final long profilePictureId, final Locale locale) {
+                final long profilePictureId, final Locale locale, final List<UserInterest> interests) {
         this.email = email;
         this.username = username;
         this.firstname = firstname;
@@ -57,6 +53,22 @@ public class User{
         this.profilePictureId = profilePictureId;
         this.locale = locale;
         this.isBlocked = false;
+        this.interests = interests;
+    }
+    public User (final Long id, final String email, final String username, final String firstname,
+                final String lastname, final University university, final Career career,
+                final long profilePictureId, final Locale locale, final boolean blocked, final List<UserInterest> interests) {
+        this.id = id;
+        this.email = email;
+        this.username = username;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.university = university;
+        this.career = career;
+        this.profilePictureId = profilePictureId;
+        this.locale = locale;
+        this.isBlocked = blocked;
+        this.interests = interests;
     }
 
 

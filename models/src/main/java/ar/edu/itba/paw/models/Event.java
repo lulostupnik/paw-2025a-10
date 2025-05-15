@@ -48,8 +48,9 @@ public class Event {
             joinColumns = @JoinColumn(name = "event_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     List<User> attendees;
+
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "journey", cascade = CascadeType.ALL)
-            List<EventResponse> responses;
+    List<EventResponse> responses;
 
 
     /* For hibernate */ Event() {
@@ -67,6 +68,22 @@ public class Event {
         this.address = address;
         this.attendeesLimit = attendeesLimit;
         this.attendeesCount = 1; //user that created the event
+        this.deleted = false;
+    }
+    public Event(final Long id, final User user, final LocalDate date, final String description,
+                 final long flyerImageId, final City eventCity, final String title,
+                 final LocalTime time, final String address, final Integer attendeesLimit, final int attendeesCount) {
+        this.id = id;
+        this.user = user;
+        this.date = date;
+        this.description = description;
+        this.flyerImageId = flyerImageId;
+        this.eventCity = eventCity;
+        this.title = title;
+        this.time = time;
+        this.address = address;
+        this.attendeesLimit = attendeesLimit;
+        this.attendeesCount = attendeesCount; //user that created the event
         this.deleted = false;
     }
 

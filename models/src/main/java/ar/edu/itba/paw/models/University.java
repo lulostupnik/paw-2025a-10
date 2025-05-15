@@ -34,6 +34,13 @@ public class University{
         this.city = city;
         this.deleted = false;
     }
+    public University( final Long id, final String name, final String abbreviation, final City city) {
+        this.name = name;
+        this.abbreviation = abbreviation;
+        this.city = city;
+        this.id = id;
+        this.deleted = false;
+    }
 
     @Override
     public String toString() {

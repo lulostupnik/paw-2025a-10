@@ -340,18 +340,9 @@ public class EventServiceImpl implements EventService {
                     LOGGER.error("Event response not found {}", id);
                     return new IllegalArgumentException("Event response doesn't exist");});
 
-        Event event = eventDao.findById(deletedComment.getEventId())
-                .orElseThrow(() ->  {
-                    LOGGER.error("Event from event response not found {}", deletedComment.getEventId());
-                    return new IllegalStateException("Event from event response doesn't exist");});
+        Event event = deletedComment.getEvent();
 
-
-        User commentAuthor = userService.findUserById(deletedComment.getUserId())
-                .orElseThrow(() -> {
-                    LOGGER.error("User from event response not found {}", deletedComment.getUserId());
-                    return new IllegalArgumentException("User from event response doesn't exist");}
-                );
-
+        User commentAuthor = deletedComment.getUser();
         emailService.sendEventCommentDeletionNotification(deletedComment,event,commentAuthor, message );
         LOGGER.info("Email notification sent for the event response {}", id);
         eventResponseDao.updateDeletionMessage(id, message);

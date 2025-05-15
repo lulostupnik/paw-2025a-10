@@ -3,6 +3,7 @@ package ar.edu.itba.paw.models;
 import lombok.Getter;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -36,6 +37,14 @@ public class EventResponse {
         this.event = event;
         this.message = message;
         this.dateTime = LocalDateTime.now();
+        this.deleted = false;
+    }
+    public EventResponse(final Long id, final User user, final Event event, final String message, final LocalDateTime time) {
+        this.id = id;
+        this.user = user;
+        this.event = event;
+        this.message = message;
+        this.dateTime = time;
         this.deleted = false;
     }
 

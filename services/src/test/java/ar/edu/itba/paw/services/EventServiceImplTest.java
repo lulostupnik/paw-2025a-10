@@ -8,10 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
-import java.util.Locale;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
@@ -65,14 +62,15 @@ public class EventServiceImplTest {
     private static final Locale LOCALE = Locale.of("en");
     private static final boolean BLOCKED = false;
     private static final Career CAREER = new Career(CAREER_ID, CAREER_NAME);
-    private static final City CITY = new City(CITY_NAME, COUNTRY_NAME, CITY_ID);
+    private static final Country COUNTRY = new Country(COUNTRY_NAME, "ARG");
+    private static final City CITY = new City(CITY_NAME, COUNTRY, CITY_ID);
     private static final University UNI = new University(UNI_ID, UNI_NAME, UNI_ABBR, CITY);
-    private static final User USER = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, IMAGE_ID, LOCALE, BLOCKED);
-    private static final Event EVENT = new Event(EVENT_ID, USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, Optional.of(TIME), ADDRESS, Optional.of(LIMIT), ATTENDEES);
+    private static final User USER = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, IMAGE_ID, LOCALE, BLOCKED, new ArrayList<>());
+    private static final Event EVENT = new Event(EVENT_ID, USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, LIMIT, ATTENDEES);
     private static final List<User> USERS = List.of(USER);
     private static final List<Event> EVENTS = List.of(EVENT);
     private static final Page<Event> EVENTS_PAGE = new Page<Event>(EVENTS, 1, 1);
-    private static final EventResponse RESPONSE = new EventResponse(RESPONSE_ID, USER_ID, USERNAME, EVENT_ID, DESCRIPTION, TIMESTAMP);
+    private static final EventResponse RESPONSE = new EventResponse(RESPONSE_ID, USER, EVENT, DESCRIPTION, TIMESTAMP);
     private static final String INTEREST = "interesting";
     private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
     private static final int STATISTICS_CREATED_EVENTS_COUNT = 2;
@@ -345,7 +343,7 @@ public class EventServiceImplTest {
     public void testCreateEventAttendanceIdNotFuture(){
         Mockito.when(
             eventDao.findById(Mockito.eq(EVENT_ID))
-        ).thenReturn(Optional.of(new Event(0l, null, LocalDate.now().plusDays(-1), null, 0l, null, null ,Optional.empty(), null, null, 0)));
+        ).thenReturn(Optional.of(new Event(0l, null, LocalDate.now().plusDays(-1), null, 0l, null, null ,null, null, null, 0)));
 
         eventService.createEventAttendance(USER_ID, EVENT_ID);
     }

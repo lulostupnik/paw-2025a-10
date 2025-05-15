@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.Optional;
 
+import ar.edu.itba.paw.models.Country;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -25,7 +26,11 @@ public class UniversityServiceImplTest {
     private static final long ID_1 = 0;
     private static final String ABBREVIATION = "ab";
     private static final String CITY_NAME = "citi";
-    private static final City CITY = new City(CITY_NAME, NAME, ID_1);
+    private static final String COUNTRY_NAME = "country";
+    private static final String COUNTRY_ABBREVIATION = "countryAbbreviation";
+    private static final String COUNTRY_ID = "countryId";
+    private static final Country COUNTRY = new Country(COUNTRY_NAME, COUNTRY_ABBREVIATION );
+    private static final City CITY = new City(CITY_NAME, COUNTRY, ID_1);
     private static final University UNI_1 = new University(ID_1, NAME, ABBREVIATION, CITY);
 
     @InjectMocks
