@@ -15,7 +15,7 @@ import java.time.LocalDate;
 import java.util.*;
 import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
-@Repository
+@Deprecated
 public class UserJdbcDao implements UserDao {
     private final static Logger LOGGER = LoggerFactory.getLogger(UserJdbcDao.class);
 

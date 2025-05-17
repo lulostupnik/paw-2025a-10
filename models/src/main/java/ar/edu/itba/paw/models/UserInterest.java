@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.models;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -20,10 +21,16 @@ public class UserInterest {
     @ManyToOne(fetch = FetchType.LAZY)
     private Interest interest;
 
+    @Setter
     @Column(nullable = false)
     private int score = 0;
 
     public UserInterest() {}
+    public UserInterest(final User user, final Interest category) {
+        this.user = user;
+        this.interest = category;
+        this.id = new UserInterestId(user.getId(), category.getId());
+    }
 
     public UserInterest(User user, Interest category, int score) {
         this.user = user;

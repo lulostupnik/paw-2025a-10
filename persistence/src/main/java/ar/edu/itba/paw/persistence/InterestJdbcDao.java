@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
 
-@Repository
+@Deprecated
 public class InterestJdbcDao implements InterestDao {
     private final static Logger LOGGER = LoggerFactory.getLogger(InterestJdbcDao.class);
 

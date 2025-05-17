@@ -16,7 +16,7 @@ import javax.sql.DataSource;
 import java.util.*;
 import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
-@Repository
+@Deprecated
 public class CityJdbcDao implements CityDao {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(CityJdbcDao.class);

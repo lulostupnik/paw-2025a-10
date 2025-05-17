@@ -3,18 +3,18 @@ package ar.edu.itba.paw.models;
 import lombok.Getter;
 
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-@Getter
 @Entity
 @Table(name = "users")
 public class User{
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator =
-            "users_id_seq")
-    @SequenceGenerator(sequenceName = "users_id_seq", name =
-            "users_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_id_seq")
+    @SequenceGenerator(sequenceName = "users_id_seq", name = "users_id_seq", allocationSize = 1)
     @Column(name = "id")
     private  Long id;
     @Column(name = "email", unique = true, nullable = false, length = 100)
@@ -37,6 +37,17 @@ public class User{
     private  boolean isBlocked;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserInterest> interests;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Event> events;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Journey journey;
+
+    @Column(name = "password", length = 100)
+    private String password;
+//    @Column(name = "validated")
+//    private boolean validated;
+//    @Column(name = "roles")
+//    private String role;
 
     /* For hibernate */ User(){
 
@@ -54,6 +65,8 @@ public class User{
         this.locale = locale;
         this.isBlocked = false;
         this.interests = interests;
+        this.events = new ArrayList<>();
+        this.journey = null;
     }
     public User (final Long id, final String email, final String username, final String firstname,
                 final String lastname, final University university, final Career career,
@@ -69,6 +82,25 @@ public class User{
         this.locale = locale;
         this.isBlocked = blocked;
         this.interests = interests;
+        this.events = new ArrayList<>();
+        this.journey = null;
+    }
+
+
+    public User(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale) {
+        this.email = email;
+        this.username = username;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.university = university;
+        this.career = career;
+        this.profilePictureId = profilePictureId;
+        this.password = password;
+        this.locale = locale;
+        this.isBlocked = false;
+        this.interests = List.of();
+        this.events = new ArrayList<>();
+        this.journey = null;
     }
 
 
@@ -97,4 +129,41 @@ public class User{
         sb.append("}");
         return sb.toString();
     }
+    public long getId() {
+        return id;
+    }
+    public String getEmail() {
+        return email;
+    }
+    public String getUsername() {
+        return username;
+    }
+    public String getFirstname() {
+        return firstname;
+    }
+    public String getLastname() {
+        return lastname;
+    }
+    public University getUniversity() {
+        return university;
+    }
+    public Career getCareer() {
+        return career;
+    }
+    public long getProfilePictureId() {
+        return profilePictureId;
+    }
+    public Locale getLocale() {
+        return locale;
+    }
+    public boolean isBlocked() {
+        return isBlocked;
+    }
+    public List<UserInterest> getInterests() {
+        return interests;
+    }
+    public void setInterests(List<UserInterest> interests) {
+        this.interests = interests;
+    }
+
 }

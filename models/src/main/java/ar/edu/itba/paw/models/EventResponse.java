@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.models;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -28,7 +29,11 @@ public class EventResponse {
     @Column(name = "date_time", nullable = false)
     private LocalDateTime dateTime;
     @Column(name="deleted", nullable = false)
+    @Setter
     private  boolean deleted;
+    @Column(name = "deletion_message", length = 2047)
+    @Setter
+    private  String deletionMessage;
 
     /* For hibernate */ EventResponse() {
     }

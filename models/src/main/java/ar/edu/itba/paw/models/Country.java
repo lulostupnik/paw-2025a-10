@@ -2,6 +2,7 @@ package ar.edu.itba.paw.models;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -16,7 +17,9 @@ public class Country {
             "countries_id_seq", allocationSize = 1)
     private  Long id;
     @Column(nullable = false, length = 100)
+    @Setter
     private  String name;
+    @Setter
     @Column(name = "code", length = 3)
     private  String code;
 

@@ -2,6 +2,7 @@ package ar.edu.itba.paw.models;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -16,20 +17,17 @@ public class Interest {
             "category_id_seq", allocationSize = 1)
     private  Long id;
     @Column(nullable = false, length = 100)
+    @Setter
     private  String name;
-    @Column(name="deleted", nullable = false)
-    private  boolean deleted;
 
     /* For hibernate */ Interest() {
     }
     public Interest(final String name) {
         this.name = name;
-        this.deleted = false;
     }
     public Interest(final Long id, final String name) {
         this.name = name;
         this.id = id;
-        this.deleted = false;
     }
     @Override
     public String toString() {

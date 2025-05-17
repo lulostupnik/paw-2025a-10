@@ -1,21 +1,20 @@
 package ar.edu.itba.paw.models;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 
 @Getter
+@Setter
 @Entity
 @Table(name = "journeys")
 public class Journey{
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator =
-            "journeys_id_seq")
-    @SequenceGenerator(sequenceName = "journeys_id_seq", name =
-            "journeys_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "journeys_id_seq")
+    @SequenceGenerator(sequenceName = "journeys_id_seq", name = "journeys_id_seq", allocationSize = 1)
     @Column(name = "id")
     private Long id;
     @OneToOne(fetch = FetchType.EAGER)
@@ -30,6 +29,8 @@ public class Journey{
     private String description;
     @Column(name="deleted", nullable = false)
     private boolean deleted;
+    @Column(name = "deletion_message", length = 2047)
+    private String deletionMessage;
     @OneToMany(mappedBy = "journey", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     List<JourneyResponse> responses;
 

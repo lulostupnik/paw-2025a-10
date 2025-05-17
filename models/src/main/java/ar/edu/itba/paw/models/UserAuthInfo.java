@@ -7,7 +7,7 @@ import lombok.ToString;
 @Getter
 @RequiredArgsConstructor
 @ToString
-public class UserAuthInfo {
+public class UserAuthInfo extends User {
     private final String email;
     private final String password;
     private final String role;

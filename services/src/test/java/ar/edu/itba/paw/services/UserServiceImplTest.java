@@ -40,7 +40,7 @@ public class UserServiceImplTest {
     private static final String LASTNAME = "name";
     private static final University UNIVERSITY = new University((long)0, "cool", null, null);
     private static final Career CAREER = new Career((long)0, null);
-    private static final Image IMAGE = new Image(0, new byte[0]);
+    private static final Image IMAGE = new Image((long)0, new byte[0]);
     private static final String PASSWORD = "null";
     private static final String ROLE = "admin";
     private static final Locale LOCALE = Locale.of("en");

@@ -2,6 +2,7 @@ package ar.edu.itba.paw.models;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
@@ -29,7 +30,12 @@ public class JourneyResponse {
     private  LocalDateTime dateTime;
     @Column(name="deleted", nullable = false)
     @ToString.Exclude
+    @Setter
     private  boolean deleted;
+    @Column(name = "deletion_message", length = 2047)
+    @ToString.Exclude
+    @Setter
+    private  String deletionMessage;
 
     /* For hibernate */ JourneyResponse() {
     }

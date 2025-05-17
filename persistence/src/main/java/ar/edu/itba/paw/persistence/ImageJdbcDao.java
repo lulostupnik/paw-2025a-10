@@ -13,7 +13,7 @@ import javax.sql.DataSource;
 import java.util.Map;
 import java.util.Optional;
 
-@Repository
+@Deprecated
 public class ImageJdbcDao implements ImageDao {
     private final static Logger LOGGER = LoggerFactory.getLogger(ImageJdbcDao.class);
 

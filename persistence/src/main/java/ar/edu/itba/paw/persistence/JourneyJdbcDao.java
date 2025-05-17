@@ -18,11 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.stereotype.Repository;
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
-@Repository
+@Deprecated
 public class JourneyJdbcDao implements JourneyDao {
     private final static Logger LOGGER = LoggerFactory.getLogger(JourneyJdbcDao.class);
 

@@ -6,5 +6,4 @@ public interface EventAttendanceDao {
     boolean exists(long userId, long eventId);
     int countByEventId(long eventId);
 
-
 }

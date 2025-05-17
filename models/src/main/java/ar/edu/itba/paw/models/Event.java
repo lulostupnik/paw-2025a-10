@@ -2,6 +2,7 @@ package ar.edu.itba.paw.models;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -40,7 +41,7 @@ public class Event {
     @Column(name = "attendees_limit")
     private  Integer attendeesLimit;
     @Column(name = "attendees_count")
-    private  int attendeesCount;
+    private  int attendeesCount; //FIXME: yo borraria esto
     @Column(name="deleted", nullable = false)
     private  boolean deleted;
     @ManyToMany(fetch = FetchType.LAZY)
@@ -50,6 +51,7 @@ public class Event {
     List<User> attendees;
 
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "journey", cascade = CascadeType.ALL)
+            @Setter
     List<EventResponse> responses;
 
 
@@ -69,6 +71,9 @@ public class Event {
         this.attendeesLimit = attendeesLimit;
         this.attendeesCount = 1; //user that created the event
         this.deleted = false;
+        this.attendees = List.of(user); //fixme: REVISAR ESTO CON JPA
+        this.responses = List.of();
+
     }
     public Event(final Long id, final User user, final LocalDate date, final String description,
                  final long flyerImageId, final City eventCity, final String title,
@@ -85,6 +90,8 @@ public class Event {
         this.attendeesLimit = attendeesLimit;
         this.attendeesCount = attendeesCount; //user that created the event
         this.deleted = false;
+        this.attendees = List.of(user);
+        this.responses = List.of();
     }
 
 
@@ -98,6 +105,9 @@ public class Event {
         }
 
         return LocalDateTime.of(date, time).isAfter(LocalDateTime.now());
+    }
+    public boolean hasUserAttending(long userId) {
+        return attendees.stream().anyMatch(u -> u.getId() == userId);
     }
 
 

@@ -197,7 +197,7 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.debug("Deleting journey {}", id);
         journeyDao.updateDeletionMessage(id, message);
         LOGGER.info("Journey deletion message updated: {}", message);
-        journeyResponseDao.deleteByJourneyId(id);
+        journeyResponseDao.deleteByJourneyId(id); //fixme: revisar
         LOGGER.info("Journey responses deleted for journey {}", id);
         Journey journey = journeyDao.findById(id)
                 .orElseThrow(() ->{
@@ -231,7 +231,7 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
-    public Optional<JourneyResponse> findJourneyResponseById(final long id) {
+    public Optional<JourneyResponse> findJourneyResponseById(final long id) { // fixme:mover esto al journeyDao
         LOGGER.debug("Finding journey response by id {}", id);
         return journeyResponseDao.findById(id);
     }

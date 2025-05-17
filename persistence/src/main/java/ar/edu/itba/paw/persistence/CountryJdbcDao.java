@@ -4,13 +4,14 @@ import java.util.List;
 import java.util.Optional;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ar.edu.itba.paw.interfaces.persistence.CountryDao;
 import ar.edu.itba.paw.models.Country;
 
-@Repository
+@Deprecated
 public class CountryJdbcDao implements CountryDao {
 
     private final JdbcTemplate jdbcTemplate;
