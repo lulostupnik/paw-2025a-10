@@ -22,7 +22,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ar.edu.itba.paw.interfaces.persistence.EventDao;
 import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
-
+@Deprecated
 @Repository
 public class EventJdbcDao implements EventDao {
     private final static Logger LOGGER = LoggerFactory.getLogger(EventJdbcDao.class);
@@ -68,7 +68,7 @@ public class EventJdbcDao implements EventDao {
             rs.getString("event_address"),
             Optional.ofNullable(rs.getInt("event_attendees_limit") == 0 ? null : rs.getInt("event_attendees_limit")),
             rs.getInt("event_attendees_count")
-            
+
     );
 
     private final static String SQL_ALIASES = """
@@ -333,7 +333,7 @@ public class EventJdbcDao implements EventDao {
                 userId, userId, eventId
         ).stream().findFirst();
     }
-    
+
 
     @Override
     public void delete(final long id) {
@@ -528,7 +528,7 @@ public class EventJdbcDao implements EventDao {
                 (time != null) ? Time.valueOf(time) : null,
                 address,
                 attendeesLimit,
-                flyerImageId, 
+                flyerImageId,
                 eventId
         );
         if (rowsAffected == 0) {

@@ -71,7 +71,6 @@ public class CareerHibernateDao implements CareerDao {
             career.setName(name);
             em.merge(career);
         }
-
     }
 
     @Override
@@ -81,6 +80,5 @@ public class CareerHibernateDao implements CareerDao {
             career.setDeleted(true);
             em.merge(career);
         }
-
     }
 }

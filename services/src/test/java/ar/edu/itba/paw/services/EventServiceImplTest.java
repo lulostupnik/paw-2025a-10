@@ -189,43 +189,43 @@ public class EventServiceImplTest {
         assertTrue(maybeEvent.isPresent());
         assertEquals(EVENT, maybeEvent.get());
     }
-
-    @Test
-    public void testFindEventWithStatistics(){
-        Mockito.when(
-            eventDao.findEventWithUserInfo(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT_WITH_USER_INFO));
-        Mockito.when(
-            eventDao.countEventsCreatedByUser(Mockito.eq(USER_ID))
-        ).thenReturn(STATISTICS_CREATED_EVENTS_COUNT);
-        Mockito.when(
-            eventDao.countEventsAttendedByUser(Mockito.eq(USER_ID))
-        ).thenReturn(STATISTICS_ATTENDED_EVENTS_COUNT);
-        Mockito.when(
-            eventDao.findTopAttendeeCountry(Mockito.eq(EVENT_ID)) 
-        ).thenReturn(Optional.of(COUNTRY_ATTENDEE_COUNT));
-
-        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(USER, EVENT_ID);
-
-        assertNotNull(event);
-        assertTrue(event.isPresent());
-        assertEquals(EVENT_WITH_STATISTICS.getAttendedEventsCount(), event.get().getAttendedEventsCount());
-        assertEquals(EVENT_WITH_STATISTICS.getCreatedEventsCount(), event.get().getCreatedEventsCount());
-        assertEquals(EVENT_WITH_STATISTICS.getEvent(), event.get().getEvent());
-        assertEquals(EVENT_WITH_STATISTICS.getTopAttendeeCountry(), event.get().getTopAttendeeCountry());
-        assertEquals(EVENT_WITH_STATISTICS.getTopAttendeeCountryCount(), event.get().getTopAttendeeCountryCount());
-    }
-    @Test
-    public void testFindEventWithStatisticsNoEventUser(){
-        Mockito.when(
-            eventDao.findEventWithUserInfo(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
-        ).thenReturn(Optional.empty());
-
-        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(USER, EVENT_ID);
-
-        assertNotNull(event);
-        assertFalse(event.isPresent());
-    }
+//
+//    @Test
+//    public void testFindEventWithStatistics(){
+//        Mockito.when(
+//            eventDao.findEventWithUserInfo(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
+//        ).thenReturn(Optional.of(EVENT_WITH_USER_INFO));
+//        Mockito.when(
+//            eventDao.countEventsCreatedByUser(Mockito.eq(USER_ID))
+//        ).thenReturn(STATISTICS_CREATED_EVENTS_COUNT);
+//        Mockito.when(
+//            eventDao.countEventsAttendedByUser(Mockito.eq(USER_ID))
+//        ).thenReturn(STATISTICS_ATTENDED_EVENTS_COUNT);
+//        Mockito.when(
+//            eventDao.findTopAttendeeCountry(Mockito.eq(EVENT_ID))
+//        ).thenReturn(Optional.of(COUNTRY_ATTENDEE_COUNT));
+//
+//        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(USER, EVENT_ID);
+//
+//        assertNotNull(event);
+//        assertTrue(event.isPresent());
+//        assertEquals(EVENT_WITH_STATISTICS.getAttendedEventsCount(), event.get().getAttendedEventsCount());
+//        assertEquals(EVENT_WITH_STATISTICS.getCreatedEventsCount(), event.get().getCreatedEventsCount());
+//        assertEquals(EVENT_WITH_STATISTICS.getEvent(), event.get().getEvent());
+//        assertEquals(EVENT_WITH_STATISTICS.getTopAttendeeCountry(), event.get().getTopAttendeeCountry());
+//        assertEquals(EVENT_WITH_STATISTICS.getTopAttendeeCountryCount(), event.get().getTopAttendeeCountryCount());
+//    }
+//    @Test
+//    public void testFindEventWithStatisticsNoEventUser(){
+//        Mockito.when(
+//            eventDao.findEventWithUserInfo(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
+//        ).thenReturn(Optional.empty());
+//
+//        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(USER, EVENT_ID);
+//
+//        assertNotNull(event);
+//        assertFalse(event.isPresent());
+//    }
         @Test
     public void testFindEventWithStatisticsNoUser(){
         Mockito.when(

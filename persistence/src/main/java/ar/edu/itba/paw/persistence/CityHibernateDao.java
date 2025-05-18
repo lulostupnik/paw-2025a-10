@@ -62,8 +62,6 @@ public class CityHibernateDao implements CityDao {
             city.setCountry(country);
             em.merge(city);
         }
-
-
     }
 
     @Override

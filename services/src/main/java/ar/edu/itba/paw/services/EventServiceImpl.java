@@ -67,7 +67,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit); //fixme: reemplazar por new Event
         LOGGER.info("Event {} created", event.getId());
         eventAttendanceDao.create(user.getId(), event.getId());
-        eventDao.incrementAttendeesCount(event.getId());
+//        eventDao.incrementAttendeesCount(event.getId()); @TODO esto? el modelo se crea con 1.
         return event;
     }
 
@@ -118,7 +118,7 @@ public class EventServiceImpl implements EventService {
             }
             event = maybeEvent.get();
         } else {
-            Optional<EventWithUserInfo> maybeEventWithUserInfo = eventDao.findEventWithUserInfo(user.getId(), eventId);
+            Optional<EventWithUserInfo> maybeEventWithUserInfo = findEventWithUserInfo(user.getId(), eventId);
             if(maybeEventWithUserInfo.isEmpty()){
                 LOGGER.warn("Event not found {}", eventId);
                 return Optional.empty();
@@ -182,6 +182,7 @@ public class EventServiceImpl implements EventService {
                 return new RuntimeException("User not found");
             });
             event.getAttendees().add( user ); // fixme: revisar logica del total de attending users
+            event.setAttendeesCount(event.getAttendeesCount()+1); //fixme: ni idea
         }
         LOGGER.info("User {} is now attending event {}", userId, eventId);
     }
@@ -304,24 +305,38 @@ public class EventServiceImpl implements EventService {
                     return new IllegalArgumentException("Event not found");}
                 );
 
-        long resolvedCityId = cityService.findCityByName(cityName).orElseThrow(() -> {
+        City resolvedCity = cityService.findCityByName(cityName).orElseThrow(() -> {
             LOGGER.warn("City not found {}", cityName);
             return new RuntimeException("City not found");}
-        ).getId();
+        );
 
         long flyerImageId = currentEvent.getFlyerImageId();
         boolean changeImage = flyer != null && flyer.length > 0;
+
         if(changeImage){
-            flyerImageId = imageService.createImage(flyer);
-        }
-
-        eventDao.update(resolvedCityId, date, description,
-                title, time, address, attendeesLimit, eventId, flyerImageId);
-
-        if(changeImage) {
             imageService.deleteImage(currentEvent.getFlyerImageId());
             LOGGER.info("Flyer image {} deleted", currentEvent.getFlyerImageId());
+            currentEvent.setFlyerImageId(imageService.createImage(flyer));
         }
+//
+//        eventDao.update(resolvedCityId, date, description,
+//                title, time, address, attendeesLimit, eventId, flyerImageId);
+
+        currentEvent.setTitle(title);
+        currentEvent.setDescription(description);
+        currentEvent.setTime(time);
+        currentEvent.setAddress(address);
+        currentEvent.setAttendeesLimit(attendeesLimit);
+        currentEvent.setEventCity(resolvedCity);
+        currentEvent.setDate(date);
+//        currentEvent.withTitle(title).  @todo preguntar.
+//                withDescription(description).
+//                withTime(time).
+//                withAddress(address).
+//                withAttendeesLimit(attendeesLimit).
+//                withEventCity(resolvedCity).
+//                withDate(date);
+        //fixme @TODO podemos hacer un void userDao.upate(Event event) . o no
         LOGGER.info("Event {} updated", eventId);
     }
 
@@ -333,11 +348,12 @@ public class EventServiceImpl implements EventService {
             LOGGER.warn("Event not found {}", id);
             return new RuntimeException("Event not found");});
         if(message != null && !message.isEmpty()){
-            eventDao.updateDeletionMessage(id, message);
+            event.setDeletionMessage(message);
+//            eventDao.updateDeletionMessage(id, message);
             emailService.sendEventDeletionNotification(event,message);
         }
         event.setResponses(List.of()); // creo que no hace falta
-        eventDao.delete(id);
+        event.setDeleted(true); //todo check
     }
 
     @Override
@@ -388,7 +404,26 @@ public class EventServiceImpl implements EventService {
         LOGGER.debug("Getting event response by id {}", id);
         return eventResponseDao.findById(id);
     }
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<EventWithUserInfo> findEventWithUserInfo(long userId, long eventId) {
+        Optional<Event> eventOpt = eventDao.findById(eventId);
 
+        if (eventOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Event event = eventOpt.get();
+        if (event.isDeleted()) {
+            return Optional.empty();
+        }
+
+        boolean isCreator = event.getUser().getId() == userId;
+        boolean isAttending = event.getAttendees().stream()
+                .anyMatch(u -> u.getId() == userId);
+
+        return Optional.of(new EventWithUserInfo(event, isAttending, isCreator));
+    }
 
     @Override
     @Scheduled(cron = "0 0 12 * * ?")
@@ -409,4 +444,5 @@ public class EventServiceImpl implements EventService {
         LOGGER.info("Completed scheduled task: sent reminder emails for upcoming events");
 
     }
+
 }
