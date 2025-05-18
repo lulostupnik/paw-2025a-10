@@ -61,7 +61,7 @@ public interface EventService {
 
 
     Optional<EventWithUserInfo> findEventWithUserInfo(long userId, long eventId);
-
+    Optional<Integer> findAttendanceLimitById(final long eventId);
 }
 
 

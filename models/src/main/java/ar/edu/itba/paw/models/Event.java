@@ -61,6 +61,9 @@
         List<EventResponse> responses;
 
 
+
+
+
         /* For hibernate */ Event() {
         }
         public Event(final User user, final LocalDate date, final String description,

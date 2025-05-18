@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.models;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -9,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "users")
 public class User{
@@ -39,8 +42,15 @@ public class User{
     private List<UserInterest> interests;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Event> events;
+
+    @ManyToMany(mappedBy = "attendees", fetch = FetchType.LAZY)
+    private List<Event> attendedEvents; //@TODO check. ni idea si esta bien.
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Journey journey;
+
+
+
 
     @Column(name = "password", length = 100)
     private String password;
@@ -129,41 +139,6 @@ public class User{
         sb.append("}");
         return sb.toString();
     }
-    public long getId() {
-        return id;
-    }
-    public String getEmail() {
-        return email;
-    }
-    public String getUsername() {
-        return username;
-    }
-    public String getFirstname() {
-        return firstname;
-    }
-    public String getLastname() {
-        return lastname;
-    }
-    public University getUniversity() {
-        return university;
-    }
-    public Career getCareer() {
-        return career;
-    }
-    public long getProfilePictureId() {
-        return profilePictureId;
-    }
-    public Locale getLocale() {
-        return locale;
-    }
-    public boolean isBlocked() {
-        return isBlocked;
-    }
-    public List<UserInterest> getInterests() {
-        return interests;
-    }
-    public void setInterests(List<UserInterest> interests) {
-        this.interests = interests;
-    }
+
 
 }

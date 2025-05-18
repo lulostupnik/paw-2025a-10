@@ -129,8 +129,13 @@ public class EventServiceImpl implements EventService {
             isCreator = maybeEventWithUserInfo.get().isCreator();
         }
 
-        int createdEventsCount = eventDao.countEventsCreatedByUser(event.getUser().getId());
-        int attendedEventsCount = eventDao.countEventsAttendedByUser(event.getUser().getId());
+       // int createdEventsCount = eventDao.countEventsCreatedByUser(event.getUser().getId());
+//        int attendedEventsCount = eventDao.countEventsAttendedByUser(event.getUser().getId());
+
+        int createdEventsCount = event.getUser().getEvents().size();
+        int attendedEventsCount = event.getUser().getAttendedEvents().size(); //@todo check. esto tiene los suyos (supongo)
+        //int attendedEventsCount = event.getUser().get
+
         Optional<CountryAttendeeCount> maybeCountryAttendeeCount = eventDao.findTopAttendeeCountry(event.getId());
 
         if(maybeCountryAttendeeCount.isPresent()){
@@ -424,6 +429,18 @@ public class EventServiceImpl implements EventService {
 
         return Optional.of(new EventWithUserInfo(event, isAttending, isCreator));
     }
+
+    @Override
+    public Optional<Integer> findAttendanceLimitById(final long eventId) {
+        Event event = eventDao.findById(eventId).orElseThrow(() -> {
+            LOGGER.error("Event not found {}", eventId);
+            return new RuntimeException("Event not found");}
+        );
+
+        return Optional.ofNullable(event.getAttendeesLimit());
+
+    }
+
 
     @Override
     @Scheduled(cron = "0 0 12 * * ?")

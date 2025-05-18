@@ -11,15 +11,13 @@ import java.util.Optional;
 public interface EventDao {
     Event create(User user, City city, LocalDate date, String description, long flyerImageId, String title, LocalTime time, String address, Integer attendeesLimit);
 
-//    void update(long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId, long flyerImageId);
-
+    //void update(long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId, long flyerImageId);
     //void update(Event event);
-//    Optional<EventWithUserInfo> findEventWithUserInfo(long userId, long eventId);
-
-    void delete(long id);
-//    void updateDeletionMessage(long id, String message);
+    //Optional<EventWithUserInfo> findEventWithUserInfo(long userId, long eventId);
+    //void delete(long id);
+    //void updateDeletionMessage(long id, String message);
     Optional<Event> findById(long id);
-    Optional<Integer> findAttendanceLimitById(long eventId);
+//    Optional<Integer> findAttendanceLimitById(long eventId);
     List<Event> findAllBetweenDates(LocalDate startDate, LocalDate endDate);
     Page<Event> findRecommended(long userId, PageParams pageParams);
     Page<Event> findTop(PageParams pageParams);
@@ -36,7 +34,8 @@ public interface EventDao {
     Page<Event> findAllEventsByAttendee(long userId, PageParams pageParams);
 
 
-    void incrementAttendeesCount(long eventId);
-    int countEventsAttendedByUser(long userId);
-    int countEventsCreatedByUser(long userId);
+//    void incrementAttendeesCount(long eventId);
+    //int countEventsAttendedByUser(long userId);
+   // int countEventsCreatedByUser(long userId);
+
 }
