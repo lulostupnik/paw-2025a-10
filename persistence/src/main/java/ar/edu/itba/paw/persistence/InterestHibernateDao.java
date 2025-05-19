@@ -9,7 +9,10 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
+import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 
 @Repository
 public class InterestHibernateDao implements InterestDao {
@@ -54,28 +57,69 @@ public class InterestHibernateDao implements InterestDao {
 
     @Override
     public Page<Interest> findAll(PageParams pageParams) {
-        final List<Interest> list = em.createQuery("from Interest as i", Interest.class)
-                .setFirstResult(pageParams.getPage() * pageParams.getSize())
-                .setMaxResults(pageParams.getSize())
-                .getResultList();
-        final int count = em.createQuery("select count(i) from Interest as i", Long.class)
-                .getSingleResult()
-                .intValue();
-        return new Page<>(list, pageParams.getPage(), JdbcDaoUtils.pageCount(count, pageParams.getSize()));
+        final String countSql = """
+                SELECT COUNT(*) 
+                FROM interests i
+                WHERE i.deleted = false
+                """;
+        final String idSql = """
+                SELECT i.id
+                FROM interests i
+                WHERE i.deleted = false
+                LIMIT :limit OFFSET :offset
+                """;
+        final String jpqlFetch = """
+                FROM Interest i
+                WHERE i.id IN :ids
+                """;
+
+        return fetchPageByIds(
+                em,
+                countSql,
+                idSql,
+                Map.of(),
+                jpqlFetch,
+                Interest.class,
+                pageParams
+        );
     }
 
     @Override
     public Page<Interest> search(String searchTerm, PageParams pageParams) {
-        final List<Interest> list = em.createQuery("from Interest as i where lower(i.name) like lower( :substring)", Interest.class)
-                .setParameter("substring", "%" + JdbcDaoUtils.likePattern(searchTerm) + "%")
-                .setFirstResult(pageParams.getPage() * pageParams.getSize())
-                .setMaxResults(pageParams.getSize())
-                .getResultList();
-        final int count = em.createQuery("select count(i) from Interest as i where lower(i.name) like lower( :substring)", Long.class)
-                .setParameter("substring", "%" + JdbcDaoUtils.likePattern(searchTerm) + "%")
-                .getSingleResult()
-                .intValue();
-        return new Page<>(list, pageParams.getPage(), JdbcDaoUtils.pageCount(count, pageParams.getSize()));
+        final String pattern = JdbcDaoUtils.likePattern(searchTerm);
+
+        final String sql = """
+                SELECT i
+                FROM Interest i
+                WHERE LOWER(i.name) LIKE :pattern
+                """;
+
+        final String countSql = """
+                SELECT COUNT(i)
+                FROM Interest i
+                WHERE LOWER(i.name) LIKE :pattern
+                """;
+
+        final String idSql = """
+                SELECT i.id
+                FROM Interest i
+                WHERE LOWER(i.name) LIKE :pattern
+                LIMIT :limit OFFSET :offset
+                """;
+
+        final String jpqlFetch = """
+                FROM Interest i
+                WHERE i.id IN :ids
+                """;
+        return fetchPageByIds(
+                em,
+                countSql,
+                idSql,
+                Map.of("pattern", pattern),
+                jpqlFetch,
+                Interest.class,
+                pageParams
+        );
 
     }
 

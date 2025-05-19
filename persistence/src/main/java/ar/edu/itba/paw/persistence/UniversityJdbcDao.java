@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Optional;
 import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
 
-@Repository
+@Deprecated
 public class UniversityJdbcDao implements UniversityDao {
     private final static Logger LOGGER = LoggerFactory.getLogger(UniversityJdbcDao.class);
 
