@@ -57,6 +57,21 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
     }
 
     @Override
+    public void updateDeletionMessage(final long id, final String message) {
+        final int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted_message = ? WHERE id = ?;", message, id);
+        if (updatedRows == 0) {
+            LOGGER.warn("No journey_response found with id {}", id);
+        }
+    }
+
+    @Override
+    public void deleteByJourneyId(final long journeyId) {
+        final int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted = TRUE WHERE journey_id = ?;", journeyId);
+        if (updatedRows == 0) {
+            LOGGER.warn("No journey_response found with id {}", journeyId);
+        }
+    }
+    @Override
     public Optional<JourneyResponse> findById(final long id) {
         return jdbcTemplate.query(SQL_FIND_BY_ID, JOURNEY_RESPONSE_ROW_MAPPER, id).stream().findFirst();
     }
@@ -73,16 +88,7 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
         return new JourneyResponse(keys.longValue(), userId, username, journeyId, message, dateTime);
     }
 
-    @Override
-    public Page<JourneyResponse> findAllByJourneyId(final long journeyId, final PageParams pageParams) {
-        return executePagedQuery(
-                jdbcTemplate,
-                JOURNEY_RESPONSE_ROW_MAPPER,
-                "SELECT COUNT(*) FROM journey_responses WHERE journey_id = ? AND deleted = FALSE",
-                SQL_FIND_ALL_BY_JOURNEY_PAGED,
-                pageParams, journeyId
-        );
-    }
+
 
     @Override
     public void delete(final long id) {
@@ -100,23 +106,16 @@ public class JourneyResponseJdbcDao implements JourneyResponseDao {
                 journeyResponseId
         ).getFirst();
     }
-
     @Override
-    public void updateDeletionMessage(final long id, final String message) {
-        final int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted_message = ? WHERE id = ?;", message, id);
-        if (updatedRows == 0) {
-            LOGGER.warn("No journey_response found with id {}", id);
-        }
+    public Page<JourneyResponse> findAllByJourneyId(final long journeyId, final PageParams pageParams) {
+        return executePagedQuery(
+                jdbcTemplate,
+                JOURNEY_RESPONSE_ROW_MAPPER,
+                "SELECT COUNT(*) FROM journey_responses WHERE journey_id = ? AND deleted = FALSE",
+                SQL_FIND_ALL_BY_JOURNEY_PAGED,
+                pageParams, journeyId
+        );
     }
-
-    @Override
-    public void deleteByJourneyId(final long journeyId) {
-        final int updatedRows = jdbcTemplate.update("UPDATE journey_responses SET deleted = TRUE WHERE journey_id = ?;", journeyId);
-        if (updatedRows == 0) {
-            LOGGER.warn("No journey_response found with id {}", journeyId);
-        }
-    }
-
     @Override
     public int countByJourneyId(final long journeyId) {
         return jdbcTemplate.queryForObject(

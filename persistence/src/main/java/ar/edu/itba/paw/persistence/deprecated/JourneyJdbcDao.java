@@ -1,0 +1,515 @@
+//package ar.edu.itba.paw.persistence.deprecated;
+//
+//import java.sql.Date;
+//import java.time.LocalDate;
+//import java.util.ArrayList;
+//import java.util.HashMap;
+//import java.util.List;
+//import java.util.Locale;
+//import java.util.Map;
+//import java.util.Optional;
+//import javax.sql.DataSource;
+//import ar.edu.itba.paw.models.*;
+//import ar.edu.itba.paw.models.enums.SortDirection;
+//import ar.edu.itba.paw.models.enums.SortFieldJourney;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.jdbc.core.JdbcTemplate;
+//import org.springframework.jdbc.core.RowMapper;
+//import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+//import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
+//import static ar.edu.itba.paw.persistence.JdbcDaoUtils.*;
+//
+//@Deprecated
+//public class JourneyJdbcDao implements JourneyDao {
+//    private final static Logger LOGGER = LoggerFactory.getLogger(JourneyJdbcDao.class);
+//
+//    private final JdbcTemplate jdbcTemplate;
+//    private final SimpleJdbcInsert jdbcInsert;
+//
+//    private final static String SQL_SELECT_BASE =
+//            """
+//            SELECT
+//                u.id AS user_id,
+//                u.email AS user_email,
+//                u.firstname AS user_firstname,
+//                u.lastname AS user_lastname,
+//                u.username AS user_username,
+//                u.university AS user_university,
+//                u.profile_picture_id AS user_profile_picture_id,
+//                u.language AS user_language,
+//                u.blocked AS user_blocked,
+//                ca.id AS career_id,
+//                ca.name AS career_name,
+//                j.id AS journey_id,
+//                j.user_id AS journey_user_id,
+//                j.destination_university_id AS journey_destination_university_id,
+//                j.start_date AS journey_start_date,
+//                j.end_date AS journey_end_date,
+//                j.description AS journey_description,
+//                ci1.id AS city_id,
+//                co1.name AS country_name,
+//                ci1.name AS city_name,
+//                ci2.id AS destination_city_id,
+//                co2.name AS destination_country_name,
+//                ci2.name AS destination_city_name,
+//                un1.id AS university_id,
+//                un1.name AS university_name,
+//                un1.abbreviation AS university_abbreviation,
+//                un2.id AS destination_university_id,
+//                un2.name AS destination_university_name,
+//                un2.abbreviation AS destination_university_abbreviation
+//            """;
+//
+//    private final static String SQL_FROM_BASE =
+//            """
+//            FROM users u
+//            JOIN journeys j ON j.user_id = u.id
+//            JOIN careers ca ON u.career_id = ca.id
+//            JOIN universities un1 ON u.university = un1.id
+//            JOIN cities ci1 ON un1.city_id = ci1.id
+//            JOIN countries co1 ON ci1.country_id = co1.id
+//            JOIN universities un2 ON j.destination_university_id = un2.id
+//            JOIN cities ci2 ON un2.city_id = ci2.id
+//            JOIN countries co2 ON ci2.country_id = co2.id
+//            """;
+//
+//    private static final String SQL_NOT_DELETED = " WHERE j.deleted = FALSE ";
+//    private final static String SQL_BASE = SQL_SELECT_BASE + SQL_FROM_BASE + SQL_NOT_DELETED;
+//
+//    private static final String SQL_FIND_BY_ID = SQL_BASE + " AND j.id = ?";
+//    private final static String SQL_FIND_BY_USER_ID = SQL_BASE + " AND u.id = ?";
+//    private final static String SQL_FIND_BY_USER_ID_DELETED = SQL_SELECT_BASE + SQL_FROM_BASE + " WHERE u.id = ?" ;
+//    private final static String SQL_FIND_BY_ORIGIN_CITY = SQL_BASE + " AND ci1.id = ?";
+//
+//    private final static String SQL_FIND_BY_ORIGIN_CITY_PAGED = SQL_FIND_BY_ORIGIN_CITY + " ORDER BY j.id ASC LIMIT ? OFFSET ?";
+//
+//    private final static String SQL_PAGE = " ORDER BY j.id ASC LIMIT ? OFFSET ? ";
+//    private final static String SQL_FIND_ALL_PAGED = SQL_BASE + SQL_PAGE;
+//    private final static String SQL_BASE_INTEREST = SQL_SELECT_BASE + SQL_FROM_BASE + " JOIN user_interest ui ON u.id = ui.user_id JOIN category c ON ui.category_id = c.id" + SQL_NOT_DELETED;
+//
+//    private final static String SQL_SEARCH_WHERE_CLAUSE =
+//            """
+//            (
+//                LOWER(u.username) LIKE LOWER(?)
+//                OR LOWER(un2.name) LIKE LOWER(?)
+//                OR LOWER(ci2.name) LIKE LOWER(?)
+//            )
+//            """;
+//
+//    private final static String SQL_SEARCH_PAGED = SQL_BASE + " AND "  + SQL_SEARCH_WHERE_CLAUSE + " ORDER BY j.id ASC LIMIT ? OFFSET ? ";
+//
+//    private final static String SQL_SEARCH_COUNT =
+//            """
+//            SELECT COUNT(*)
+//            FROM users u
+//            JOIN journeys j ON j.user_id = u.id
+//            JOIN universities un2 ON j.destination_university_id = un2.id
+//            JOIN cities ci2 ON un2.city_id = ci2.id
+//            """
+//            + SQL_NOT_DELETED + " AND " + SQL_SEARCH_WHERE_CLAUSE;
+//
+//
+//    private final static RowMapper<Journey> JOURNEY_ROW_MAPPER = (rs, rowNum) -> new Journey(
+//            rs.getLong("journey_id"),
+//            new User(
+//                    rs.getLong("user_id"),
+//                    rs.getString("user_email"),
+//                    rs.getString("user_username"),
+//                    rs.getString("user_firstname"),
+//                    rs.getString("user_lastname"),
+//                    new University(
+//                            rs.getLong("user_university"),
+//                            rs.getString("university_name"),
+//                            rs.getString("university_abbreviation"),
+//                            new City(
+//                                    rs.getString("city_name"),
+//                                    rs.getString("country_name"),
+//                                    rs.getLong("city_id")
+//                            )
+//                    ),
+//                    new Career(
+//                            rs.getLong("career_id"),
+//                            rs.getString("career_name")
+//                    ),
+//                    rs.getLong("user_profile_picture_id"),
+//                    Locale.of(rs.getString("user_language")),
+//                    rs.getBoolean("user_blocked")
+//            ),
+//            rs.getDate("journey_start_date").toLocalDate(),
+//            rs.getDate("journey_end_date").toLocalDate(),
+//            new University(
+//                    rs.getLong("destination_university_id"),
+//                    rs.getString("destination_university_name"),
+//                    rs.getString("destination_university_abbreviation"),
+//                    new City(
+//                            rs.getString("destination_city_name"),
+//                            rs.getString("destination_country_name"),
+//                            rs.getLong("destination_city_id")
+//                    )
+//            ),
+//            rs.getString("journey_description")
+//    );
+//
+//
+//    @Autowired
+//    public JourneyJdbcDao(final DataSource dataSource){
+//        this.jdbcTemplate = new JdbcTemplate(dataSource);
+//        jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+//                .withTableName("journeys")
+//                .usingGeneratedKeyColumns("id");
+//    }
+//
+//    @Override
+//    public Journey create(final User user, final University destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
+//
+//        final Optional<Journey> maybeJourney = findByUserIdDeleted(user.getId());
+//        if(maybeJourney.isPresent()){
+//            Journey journey = maybeJourney.get();
+//            update(journey.getId(), destinationUniversity, startDate, endDate, description);
+//            LOGGER.debug("Reactivating journey with id {}", journey.getId());
+//            return new Journey(journey.getId(), journey.getUser(), startDate, endDate, destinationUniversity, description);
+//        }
+//        final Map<String, Object> args = new HashMap<>();
+//        args.put("user_id", user.getId());
+//        args.put("destination_university_id", destinationUniversity.getId());
+//        args.put("start_date", Date.valueOf(startDate));
+//        args.put("end_date", Date.valueOf(endDate));
+//        args.put("description", description);
+//        args.put("deleted", false);
+//        final Number id = jdbcInsert.executeAndReturnKey(args);
+//        return new Journey(id.longValue(), user, startDate, endDate, destinationUniversity, description);
+//    }
+//
+//    private Optional<Journey> findByUserIdDeleted(final long id) {
+//        return jdbcTemplate.query(SQL_FIND_BY_USER_ID_DELETED, JOURNEY_ROW_MAPPER, id).stream().findFirst();
+//    }
+//
+//    @Override
+//    public Optional<Journey> findById(final long id) {
+//        return jdbcTemplate.query(SQL_FIND_BY_ID, JOURNEY_ROW_MAPPER, id).stream().findFirst();
+//    }
+//
+//
+//    @Override
+//    public Optional<Journey> findByUserId(final long userId) {
+//        return jdbcTemplate.query(SQL_FIND_BY_USER_ID, JOURNEY_ROW_MAPPER, userId).stream().findFirst();
+//    }
+//
+//
+//
+//    @Override
+//    public void delete(final long id) {
+//        final int updatedRows = jdbcTemplate.update("UPDATE journeys SET deleted = TRUE WHERE id = ?;", id);
+//        if (updatedRows == 0) {
+//            LOGGER.warn("No journey found with id {}", id);
+//        }
+//    }
+//
+//    @Override
+//    public void updateDeletionMessage(final long id, final String message) {
+//        final int updatedRows = jdbcTemplate.update("UPDATE journeys SET deleted_message = ? WHERE id = ?;", message, id);
+//        if (updatedRows == 0) {
+//            LOGGER.warn("No journey found with id {}", id);
+//        }
+//
+//    }
+//
+//
+//    @Override
+//    public Page<Journey> findAll(final PageParams pageParams) {
+//        return executePagedQuery(
+//                jdbcTemplate, JOURNEY_ROW_MAPPER,
+//                "SELECT COUNT(*) FROM journeys WHERE deleted = FALSE",
+//                SQL_FIND_ALL_PAGED,
+//                pageParams
+//        );
+//    }
+//
+//
+//    @Override
+//    public Page<Journey> findByOriginCity(final long originCityId, final PageParams pageParams) {
+//        return executePagedQuery(
+//                jdbcTemplate, JOURNEY_ROW_MAPPER, """
+//                SELECT COUNT(*)
+//                FROM journeys j
+//                JOIN users u ON j.user_id = u.id
+//                JOIN universities un ON u.university = un.id
+//                JOIN cities c ON un.city_id = c.id
+//                WHERE j.deleted = FALSE AND c.id = ?
+//                """,  SQL_FIND_BY_ORIGIN_CITY_PAGED, pageParams, originCityId
+//        );
+//    }
+//
+//    private String getOrderByColumn(SortFieldJourney orderBy) {
+//        if(orderBy == null){
+//            return "j.id";
+//        }
+//        return switch (orderBy) {
+//            case START_DATE -> "start_date";
+//            case END_DATE   -> "end_date";
+//            default         -> "j.id";
+//        };
+//    }
+//
+//    @Override
+//    public Page<Journey> search(final String searchTerm, final Long userId, final SortFieldJourney orderBy, final SortDirection direction,
+//                                final String city, final LocalDate startDate, final LocalDate endDate, final String interest,
+//                                final boolean isPast, final boolean isUpcoming, final boolean isMyDestination, final boolean isOngoing,
+//                                final PageParams pageParams) {
+//        final String searchPattern = likePattern(searchTerm);
+//
+//        final List<String> filters = new ArrayList<>();
+//        final List<Object> params = new ArrayList<>();
+//
+//        final StringBuilder countQueryBuilder = new StringBuilder("SELECT COUNT(*) FROM journeys j");
+//        final StringBuilder queryBuilder = new StringBuilder((interest != null && !interest.isEmpty() ) ? SQL_BASE_INTEREST : SQL_BASE);
+//
+//        if (interest != null && !interest.isEmpty()) {
+//            countQueryBuilder.append(" JOIN users u ON j.user_id = u.id JOIN user_interest ui ON u.id = ui.user_id JOIN category c ON ui.category_id = c.id ");
+//            filters.add("c.name = ?");
+//            params.add(interest);
+//        }
+//
+//        if (city != null && !city.isEmpty()) {
+//            countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id");
+//            filters.add("ci2.name = ?");
+//            params.add(city);
+//        }
+//
+//        if (userId != null) {
+//            filters.add("j.user_id != ?");
+//            params.add(userId);
+//        }
+//
+//        if (endDate != null) {
+//            filters.add("j.start_date <= ?");
+//            params.add(Date.valueOf(endDate));
+//        }
+//
+//        if (startDate != null) {
+//            filters.add("j.end_date >= ?");
+//            params.add(Date.valueOf(startDate));
+//        }
+//
+//        if(searchTerm != null && !searchTerm.isEmpty()) {
+//            if((city == null || city.isEmpty()) && !isMyDestination) {
+//                countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id ");
+//            }
+//            if(interest == null || interest.isEmpty()){
+//                countQueryBuilder.append(" JOIN users u ON j.user_id = u.id ");
+//            }
+//            filters.add(SQL_SEARCH_WHERE_CLAUSE);
+//            params.add(searchPattern);
+//            params.add(searchPattern);
+//            params.add(searchPattern);
+//        }
+//        if(isOngoing){
+//            filters.add("j.start_date <= ? AND j.end_date >= ?");
+//            params.add(Date.valueOf(LocalDate.now()));
+//            params.add(Date.valueOf(LocalDate.now()));
+//        } else {
+//            if (isUpcoming) {
+//                filters.add("j.start_date > ?");
+//                params.add(Date.valueOf(LocalDate.now()));
+//            }
+//            if (isPast) {
+//                filters.add("j.end_date < ?");
+//                params.add(Date.valueOf(LocalDate.now()));
+//            }
+//        }
+//        if (isMyDestination) {
+//            countQueryBuilder.append(" JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id");
+//            filters.add(" ci2.id = ( SELECT ci2.id FROM journeys j JOIN universities un2 ON j.destination_university_id = un2.id JOIN cities ci2 ON un2.city_id = ci2.id WHERE j.user_id = ? LIMIT 1) ");
+//            params.add(userId);
+//        }
+//
+//        countQueryBuilder.append(" WHERE j.deleted = FALSE ");
+//
+//        if(!filters.isEmpty()) {
+//            countQueryBuilder.append(" AND  ").append(String.join(" AND ", filters));
+//            queryBuilder.append(" AND ").append(String.join(" AND ", filters));
+//        }
+//
+//        String column = getOrderByColumn(orderBy);
+//        String dir = (direction == SortDirection.DESC) ? "DESC" : "ASC";
+//        queryBuilder.append(" ORDER BY ").append(column).append(" ").append(dir);
+//
+//
+//        final int totalItems = jdbcTemplate.queryForObject(countQueryBuilder.toString(), Integer.class, params.toArray());
+//
+//        queryBuilder.append(" LIMIT ? OFFSET ? ");
+//
+//        params.add(pageParams.getSize());
+//        params.add(offset(pageParams));
+//
+//        return new Page<>(
+//                jdbcTemplate.query(queryBuilder.toString(), JOURNEY_ROW_MAPPER, params.toArray()),
+//                pageParams.getPage(),
+//                pageCount(totalItems, pageParams.getSize())
+//        );
+//    }
+//
+//    @Override
+//    public Page<Journey> search(final String searchTerm, final PageParams pageParams){
+//        final String searchPattern = likePattern(searchTerm);
+//        return executePagedQuery(
+//                jdbcTemplate, JOURNEY_ROW_MAPPER,
+//                SQL_SEARCH_COUNT, SQL_SEARCH_PAGED,
+//                pageParams, searchPattern, searchPattern, searchPattern
+//        );
+//    }
+//
+//
+//    @Override
+//    public void update(final long journeyId, final University destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
+//        final int updatedRows = jdbcTemplate.update("""
+//        UPDATE journeys
+//           SET destination_university_id = ?,
+//               start_date = ?,
+//               end_date = ?,
+//               description = ?,
+//               deleted = FALSE
+//         WHERE id = ?
+//        """,
+//                destinationUniversity.getId(),
+//                Date.valueOf(startDate),
+//                Date.valueOf(endDate),
+//                description,
+//                journeyId
+//        );
+//        if (updatedRows == 0) {
+//            LOGGER.warn("No journey found with id {}", journeyId);
+//        }
+//
+//    }
+//
+//
+//    @Override
+//    public Page<Journey> findRecommended(final String email, final PageParams pageParams) {
+//        final String baseQuery = """
+//           WITH user_data AS (
+//               SELECT id, university
+//               FROM users
+//               WHERE email = ?
+//           ),
+//           user_interests AS (
+//               SELECT category_id, score
+//               FROM user_interest
+//               JOIN user_data ud ON user_interest.user_id = ud.id
+//           ),
+//           user_journey AS (
+//               SELECT
+//                   j.destination_university_id AS university_id,
+//                   univ.city_id,
+//                   j.start_date AS user_start,
+//                   j.end_date AS user_end
+//               FROM journeys j
+//               JOIN universities univ ON j.destination_university_id = univ.id
+//               JOIN user_data ud ON ud.id = j.user_id
+//               WHERE j.deleted = false
+//               LIMIT 1
+//           ),
+//           journey_scores AS (
+//               SELECT
+//                   j.id AS journey_id,
+//                   u.id AS user_id,
+//                   u.language AS user_language,
+//                   u.email AS user_email,
+//                   u.username AS user_username,
+//                   u.firstname AS user_firstname,
+//                   u.lastname AS user_lastname,
+//                   u.blocked AS user_blocked,
+//                   uu.id AS user_university,
+//                   uu.name AS university_name,
+//                   uu.abbreviation AS university_abbreviation,
+//                   uc.name AS city_name,
+//                   co.name AS country_name,
+//                   uc.id AS city_id,
+//                   c.id AS career_id,
+//                   c.name AS career_name,
+//                   u.profile_picture_id AS user_profile_picture_id,
+//                   j.start_date AS journey_start_date,
+//                   j.end_date AS journey_end_date,
+//                   dest_univ.id AS destination_university_id,
+//                   dest_univ.name AS destination_university_name,
+//                   dest_univ.abbreviation AS destination_university_abbreviation,
+//                   dest_city.name AS destination_city_name,
+//                   dest_country.name AS destination_country_name,
+//                   dest_city.id AS destination_city_id,
+//                   j.description AS journey_description,
+//                   CASE WHEN j.destination_university_id = uj.university_id THEN 50 ELSE 0 END AS university_match_score,
+//                   CASE WHEN dest_univ.city_id = uj.city_id THEN 30 ELSE 0 END AS city_match_score,
+//                   COALESCE((
+//                       SELECT SUM(ui.score) * 3
+//                       FROM user_interest journey_ui
+//                       JOIN user_interests ui ON ui.category_id = journey_ui.category_id
+//                       WHERE journey_ui.user_id = j.user_id
+//                   ), 0) AS interest_match_score,
+//                   CASE WHEN (j.start_date, j.end_date) OVERLAPS (uj.user_start, uj.user_end) THEN 15 ELSE 0 END AS timing_match_score,
+//                   CASE WHEN j.destination_university_id = ud.university AND (uj.user_start IS NULL OR NOT (j.start_date, j.end_date) OVERLAPS (uj.user_start, uj.user_end)) THEN 50 ELSE 0 END AS origin_uni_match_off_travel_score,
+//                   CASE WHEN dest_univ.city_id = (SELECT city_id FROM universities WHERE id = ud.university) AND (uj.user_start IS NULL OR NOT (j.start_date, j.end_date) OVERLAPS (uj.user_start, uj.user_end)) THEN 30 ELSE 0 END AS origin_city_match_off_travel_score
+//               FROM journeys j
+//               JOIN users u ON j.user_id = u.id
+//               JOIN universities dest_univ ON j.destination_university_id = dest_univ.id
+//               JOIN cities dest_city ON dest_univ.city_id = dest_city.id
+//               JOIN countries dest_country ON dest_city.country_id = dest_country.id
+//               JOIN universities uu ON u.university = uu.id
+//               JOIN cities uc ON uu.city_id = uc.id
+//               JOIN countries co ON uc.country_id = co.id
+//               LEFT JOIN careers c ON u.career_id = c.id
+//               CROSS JOIN user_journey uj
+//               CROSS JOIN user_data ud
+//               WHERE j.user_id != ud.id AND j.deleted = FALSE
+//           )
+//           SELECT *
+//           FROM journey_scores
+//           WHERE (university_match_score + city_match_score + interest_match_score + timing_match_score + origin_uni_match_off_travel_score + origin_city_match_off_travel_score) > 0
+//           ORDER BY (university_match_score + city_match_score + interest_match_score + timing_match_score + origin_uni_match_off_travel_score + origin_city_match_off_travel_score) DESC
+//           LIMIT ? OFFSET ?
+//           """;
+//
+//        final String countQuery = """
+//           WITH user_data AS (
+//               SELECT id, university
+//               FROM users
+//               WHERE email = ?
+//           ),
+//           user_journey AS (
+//               SELECT
+//                   j.destination_university_id AS university_id,
+//                   univ.city_id,
+//                   j.start_date AS user_start,
+//                   j.end_date AS user_end
+//               FROM journeys j
+//               JOIN universities univ ON j.destination_university_id = univ.id
+//               JOIN user_data ud ON ud.id = j.user_id
+//               WHERE j.deleted = false
+//               LIMIT 1
+//           ),
+//           journey_scores AS (
+//               SELECT j.id
+//               FROM journeys j
+//               JOIN users u ON j.user_id = u.id
+//               JOIN universities dest_univ ON j.destination_university_id = dest_univ.id
+//               JOIN cities dest_city ON dest_univ.city_id = dest_city.id
+//               JOIN universities uu ON u.university = uu.id
+//               JOIN cities uc ON uu.city_id = uc.id
+//               CROSS JOIN user_journey uj
+//               CROSS JOIN user_data ud
+//               WHERE j.user_id != ud.id AND j.deleted = FALSE
+//           )
+//           SELECT COUNT(*) FROM journey_scores
+//           """;
+//
+//        return executePagedQuery(
+//                jdbcTemplate, JOURNEY_ROW_MAPPER,
+//                countQuery, baseQuery,
+//                pageParams, email
+//        );
+//
+//    }
+//
+//
+//}

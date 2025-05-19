@@ -1,11 +1,11 @@
 package ar.edu.itba.paw.persistence;
 
-import java.util.Arrays;
 import java.util.Optional;
 
 import javax.sql.DataSource;
 
 import ar.edu.itba.paw.persistence.config.TestConfig;
+import ar.edu.itba.paw.persistence.deprecated.ImageJdbcDao;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

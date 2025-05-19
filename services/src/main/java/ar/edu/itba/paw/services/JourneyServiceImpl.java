@@ -268,6 +268,7 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     public Optional<JourneyResponse> findJourneyResponseById(final long id) { // fixme:mover esto al journeyDao
         LOGGER.debug("Finding journey response by id {}", id);
+
         return journeyResponseDao.findById(id);
     }
 
