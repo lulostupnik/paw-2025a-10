@@ -56,8 +56,7 @@
                 inverseJoinColumns = @JoinColumn(name = "user_id"))
         List<User> attendees;
 
-        @OneToMany(fetch = FetchType.LAZY,mappedBy = "journey", cascade = CascadeType.ALL)
-                @Setter
+        @OneToMany(fetch = FetchType.LAZY,mappedBy = "event", cascade = CascadeType.ALL)
         List<EventResponse> responses;
 
 
