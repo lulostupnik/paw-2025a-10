@@ -168,20 +168,21 @@ public class EventController {
     public ModelAndView deleteEventReplyForm(@PathVariable(value = "eventId") long eventId,
                                              @PathVariable("id") long id,
                                              @ModelAttribute("deleteReplyForm") ReplyForm form) {
-        if(eventService.findEventIdByResponseId(id) != eventId){
+        EventResponse er = eventService.findEventResponseById(id).orElseThrow(() -> {
+            LOGGER.error("Event response with id {} not found", id);
+            return new NotFoundException("eventResponse not found");}); //fixme porque return new NotFoundException
+
+        Event event = er.getEvent();
+
+        if(event.getId() != eventId){
             LOGGER.error("Event ID {} and response ID {} do not match", eventId, id);
-            throw new InvalidException();
+            throw new InvalidException(); //fixme porque throw/return?
         }
-        Event event = eventService.findEventById(eventId).orElseThrow(() -> {
-            LOGGER.error("event not found");
-            return new EventNotFoundException();});
-        EventResponse eventResponse = eventService.findEventResponseById(id).orElseThrow(() -> {
-            LOGGER.error("eventResponse not found");
-            return new NotFoundException("eventResponse not found");});
+
 
         ModelAndView mav = new ModelAndView("events/delete-reply");
         mav.addObject("event", event);
-        mav.addObject("eventResponse", eventResponse);
+        mav.addObject("eventResponse", er);
         return mav;
     }
 

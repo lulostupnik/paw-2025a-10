@@ -17,7 +17,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -392,11 +391,6 @@ public class EventServiceImpl implements EventService {
 
 
 
-    @Override
-    public long findEventIdByResponseId(final long eventResponseId) { //fixme: mover esta búsqueda al eventDao
-        LOGGER.debug("Getting event id by response id {}", eventResponseId);
-        return eventResponseDao.findEventIdById(eventResponseId);
-    }
 
     @Override
     public Page<EventResponse> findEventResponses(final long eventId, final PageParams pageParams) { //fixme: mover esta búsqueda al eventDao (o paginar aca)

@@ -52,7 +52,6 @@ public interface EventService {
                                         PageParams pageParams );
 
     void deleteEventResponse(long id, String message);
-    long findEventIdByResponseId(long responseId);
     int countEventResponses(long eventId);
     Page<EventResponse> findEventResponses(long eventId, PageParams pageParams);
     Optional<EventResponse> findEventResponseById(long id);
