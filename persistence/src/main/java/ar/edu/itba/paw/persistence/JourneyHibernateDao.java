@@ -5,13 +5,10 @@ import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
 import java.time.LocalDate;
 import java.util.*;
-
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.likePattern;
 

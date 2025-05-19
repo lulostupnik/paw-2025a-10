@@ -93,7 +93,11 @@ public class JourneyServiceImpl implements JourneyService {
                     return new RuntimeException("User not found");}
                 );
 
-        journeyResponseDao.create(user.getId(), user.getUsername(), journeyId, message, LocalDateTime.now());
+        journey.getResponses().add(
+                new JourneyResponse(user, journey, message)
+        );
+
+//        journeyResponseDao.create(user.getId(), user.getUsername(), journeyId, message, LocalDateTime.now());
         LOGGER.info("Journey response created: {}", message);
         List<Interest> interests = interestService.findInterestsByUserId(journey.getUser().getId());
 
@@ -297,8 +301,14 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     public long findJourneyIdByResponseId(final long journeyResponseId) {
-        LOGGER.debug("Finding journey id by response id {}", journeyResponseId);
-        return journeyResponseDao.findJourneyIdByResponseId(journeyResponseId);
+        JourneyResponse journeyResponse = findJourneyResponseById(journeyResponseId).orElseThrow(() -> {
+            LOGGER.error("Journey response with id {} not found", journeyResponseId);
+            return new JourneyResponseNotFoundException("Journey response doesn't exists");}
+        );
+        return journeyResponse.getJourney().getId();
+
+//        LOGGER.debug("Finding journey id by response id {}", journeyResponseId);
+//        return journeyResponseDao.findJourneyIdByResponseId(journeyResponseId);
     }
 
 
@@ -311,8 +321,11 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     public int countJourneyResponses(final long id) {
-        LOGGER.debug("Counting journey responses for journey {}", id);
-        return journeyResponseDao.countByJourneyId(id);
+        return journeyDao.findById(id).orElseThrow(() -> {
+            LOGGER.warn("Journey with id {} not found", id);
+            return new JourneyNotFoundException("Journey not found");
+        }
+        ).getResponses().size();
     }
 }
 
