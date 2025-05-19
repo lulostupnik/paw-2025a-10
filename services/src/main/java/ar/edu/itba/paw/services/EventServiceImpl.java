@@ -32,13 +32,13 @@ public class EventServiceImpl implements EventService {
     private final EventDao eventDao;
     private final ImageService imageService;
     private final CityService cityService;
-    private final EventAttendanceDao eventAttendanceDao;
+//    private final EventAttendanceDao eventAttendanceDao;
     private final UserDao userDao;
 
     @Autowired
     public EventServiceImpl(final UserService userService,final  EventResponseDao eventResponseDao,
                             final EventDao eventDao,final EmailService emailService, final ImageService imageService,
-                            final CityService cityService,final  EventAttendanceDao eventAttendanceDao,final  UserDao userDao) {
+                            final CityService cityService,/*final  EventAttendanceDao eventAttendanceDao,*/final  UserDao userDao) {
         this.userDao = userDao;
         this.userService = userService;
         this.eventResponseDao = eventResponseDao;
@@ -46,7 +46,7 @@ public class EventServiceImpl implements EventService {
         this.emailService = emailService;
         this.imageService = imageService;
         this.cityService = cityService;
-        this.eventAttendanceDao = eventAttendanceDao;
+//        this.eventAttendanceDao = eventAttendanceDao;
     }
 
     @Override
@@ -65,7 +65,8 @@ public class EventServiceImpl implements EventService {
         long flyerImageId = imageService.createImage(flyer);
         Event event = eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit); //fixme: reemplazar por new Event
         LOGGER.info("Event {} created", event.getId());
-        eventAttendanceDao.create(user.getId(), event.getId());
+        event.getAttendees().add(user);
+//        eventAttendanceDao.create(user.getId(), event.getId());
 //        eventDao.incrementAttendeesCount(event.getId()); @TODO esto? el modelo se crea con 1.
         return event;
     }
@@ -237,11 +238,7 @@ public class EventServiceImpl implements EventService {
         LOGGER.info("User {} has canceled attendance for event {}", userId, eventId);
     }
 
-    @Override
-    public boolean isEventAttendedByUser(final long userId, final  long eventId) {
-        LOGGER.debug("Checking if user {} is attending event {}", userId, eventId);
-        return eventAttendanceDao.exists(userId, eventId);
-    }
+
 
     @Override
     public int countEventAttendees(final long eventId) {

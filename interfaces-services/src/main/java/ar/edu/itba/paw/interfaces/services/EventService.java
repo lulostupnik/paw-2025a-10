@@ -37,7 +37,6 @@ public interface EventService {
     void deleteEventAttendance(String email, long eventId);
     void deleteEventAttendance(long userId, long eventId);
 
-    boolean isEventAttendedByUser(long userId, long eventId);
 
     int countEventAttendees(long eventId);
 
