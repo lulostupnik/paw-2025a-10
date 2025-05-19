@@ -11,8 +11,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 import static ar.edu.itba.paw.persistence.JdbcDaoUtils.likePattern;
 
 @Repository
@@ -37,25 +39,65 @@ public class CareerHibernateDao implements CareerDao {
 
     @Override
     public Page<Career> findAll(PageParams pageParams) {
-        final TypedQuery<Career> query = em.createQuery("from Career as c where c.deleted = false", Career.class);
-        query.setFirstResult(pageParams.getPage() * pageParams.getSize());
-        query.setMaxResults(pageParams.getSize());
-        final List<Career> list = query.getResultList();
-        final TypedQuery<Integer> countQuery = em.createQuery("select count(c) from Career as c", Integer.class);
-        return new Page<>(list, pageParams.getPage(),JdbcDaoUtils.pageCount( countQuery.getSingleResult(), pageParams.getSize()) );
-    }
+        final String countSql = """
+                SELECT COUNT(*) 
+                FROM careers c
+                WHERE c.deleted = false
+                """;
+
+        final String idSql = """
+                SELECT c.id
+                FROM careers c
+                WHERE c.deleted = false
+                LIMIT :limit OFFSET :offset
+                """;
+
+        final String jpqlFetch = """
+                FROM Career c
+                WHERE c.id = :id in :ids 
+                """;
+        return fetchPageByIds(
+                em,
+                countSql,
+                idSql,
+                Map.of(),
+                jpqlFetch,
+                Career.class,
+                pageParams
+        );    }
 
     @Override
-    public Page<Career> search(String substring, PageParams pageParams) {
-        final TypedQuery<Career> query = em.createQuery("from Career as c where lower (c.name) like lower( :substring) and c.deleted = false", Career.class);
-        query.setParameter("substring", "%" + likePattern( substring) + "%");
-        query.setFirstResult(pageParams.getPage() * pageParams.getSize());
-        query.setMaxResults(pageParams.getSize());
-        final List<Career> list = query.getResultList();
-        final TypedQuery<Integer> countQuery = em.createQuery("select count(c) from Career as c where lower (c.name) like lower( :substring) and c.deleted = false", Integer.class);
-        countQuery.setParameter("substring", "%" + likePattern( substring) + "%");
-        return new Page<>(list, pageParams.getPage(),JdbcDaoUtils.pageCount( countQuery.getSingleResult(), pageParams.getSize()) );
-    }
+    public Page<Career> search(final String searchTerm, final PageParams pageParams) {
+        final String pattern = likePattern(searchTerm);
+
+        final String countSql = """
+                SELECT COUNT(*) 
+                FROM careers c
+                WHERE LOWER(c.name) LIKE :pattern
+                and c.deleted = false
+                """;
+
+        final String idSql = """
+                SELECT c.id
+                FROM careers c
+                WHERE LOWER(c.name) LIKE :pattern
+                and c.deleted = false
+                LIMIT :limit OFFSET :offset
+                """;
+        final String jpqlFetch = """
+                FROM Career c
+                WHERE c.id = :id in :ids 
+                """;
+
+        return fetchPageByIds(
+                em,
+                countSql,
+                idSql,
+                Map.of("pattern", pattern),
+                jpqlFetch,
+                Career.class,
+                pageParams
+        );    }
 
     @Override
     public Career create(String name) {
