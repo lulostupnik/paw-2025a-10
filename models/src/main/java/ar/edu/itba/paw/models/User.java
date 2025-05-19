@@ -20,26 +20,37 @@ public class User{
     @SequenceGenerator(sequenceName = "users_id_seq", name = "users_id_seq", allocationSize = 1)
     @Column(name = "id")
     private  Long id;
+
     @Column(name = "email", unique = true, nullable = false, length = 100)
     private  String email;
+
     @Column(name ="username", unique = true, nullable = false, length = 50)
     private  String username;
+
     @Column(length = 100, nullable = false)
     private  String firstname;
+
     @Column(length = 100, nullable = false)
     private  String lastname;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private  University university;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private  Career career;
+
     @Column(name = "profile_picture_id", nullable = false)
     private  long profilePictureId;
+
     @Column(length=2, nullable = false, name="language")
     private  Locale locale;
+
     @Column(name="blocked", nullable = false)
     private  boolean isBlocked;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserInterest> interests;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Event> events;
 

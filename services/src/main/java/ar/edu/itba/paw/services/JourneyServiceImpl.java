@@ -8,6 +8,8 @@ import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
 import ar.edu.itba.paw.models.exceptions.InvalidException;
+import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
+import ar.edu.itba.paw.models.exceptions.JourneyResponseNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,7 +96,10 @@ public class JourneyServiceImpl implements JourneyService {
         journeyResponseDao.create(user.getId(), user.getUsername(), journeyId, message, LocalDateTime.now());
         LOGGER.info("Journey response created: {}", message);
         List<Interest> interests = interestService.findInterestsByUserId(journey.getUser().getId());
-        interestService.updateUserInterestScores(interests, user.getId());
+
+        // interestService.updateUserInterestScores(interests, user.getId());
+        userService.updateUserInterestScores(interests, user);
+
         LOGGER.info("Interest score updated for user {}", user.getId());
         emailService.answerJourneyNotification(
                 userDao.findAllJourneyResponders(journeyId),
@@ -194,18 +199,39 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     @Transactional
     public void deleteJourney(final long id, final String message) {
-        LOGGER.debug("Deleting journey {}", id);
-        journeyDao.updateDeletionMessage(id, message);
+
+        Journey journey = journeyDao.findById(id).orElseThrow(() -> {
+                LOGGER.warn("Journey with id {} not found", id);
+                return new JourneyNotFoundException("Journey not found");
+        }
+        );
+
         LOGGER.info("Journey deletion message updated: {}", message);
-        journeyResponseDao.deleteByJourneyId(id); //fixme: revisar
+        journey.setDeletionMessage(message);
+//        journeyDao.updateDeletionMessage(id, message);
+
+
+        LOGGER.debug("Deleting journey {}", id);
+        journey.setDeletionMessage(message);
+//        journeyDao.updateDeletionMessage(id, message);
+
+        LOGGER.info("Journey deletion message updated: {}", message);
+        journey.getResponses().forEach(journeyResponse -> {
+            journeyResponse.setDeleted(true);
+            // journeyResponse.setDeletionMessage("Deleted Journey");
+        });
+        // todo check: que pasa si "revivimos" al journey? va a estar todo eliminado -> habría que revivir todas las respuestas
+        // todo: o en su defecto no borrar.
+
+//        journeyResponseDao.deleteByJourneyId(id); //fixme: revisar
+
         LOGGER.info("Journey responses deleted for journey {}", id);
-        Journey journey = journeyDao.findById(id)
-                .orElseThrow(() ->{
-                    LOGGER.warn("Journey with id {} not found", id);
-                    return new IllegalArgumentException("Journey not found");});
+
         emailService.sendJourneyDeletionNotification(journey,message);
         LOGGER.info("Journey deletion notification sent to user {}", journey.getUser().getEmail());
-        journeyDao.delete(id);
+
+        journey.setDeleted(true);
+//        journeyDao.delete(id);
         LOGGER.info("Journey deleted: {}", id);
     }
 
@@ -220,12 +246,21 @@ public class JourneyServiceImpl implements JourneyService {
     @Transactional
     public void updateJourney(final long journeyId, final  String destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
         LOGGER.debug("Editing journey {}", journeyId);
+        Journey journey = journeyDao.findById(journeyId)
+                .orElseThrow(() -> {
+                    LOGGER.warn("Journey with id {} not found", journeyId);
+                    return new JourneyNotFoundException("Journey not found");
+                });
         University university = universityService.findByName(destinationUniversity)
                 .orElseThrow(() -> {
                     LOGGER.warn("University not found: {}", destinationUniversity);
                     return new IllegalArgumentException("University not found");
                 });
-        journeyDao.update(journeyId, university, startDate, endDate, description);
+        journey.setDestinationUniversity(university);
+        journey.setStartDate(startDate);
+        journey.setEndDate(endDate);
+        journey.setDescription(description);
+//        journeyDao.update(journeyId, university, startDate, endDate, description);
         LOGGER.info("Journey updated: {}", journeyId);
     }
 
@@ -240,18 +275,22 @@ public class JourneyServiceImpl implements JourneyService {
     @Transactional
     public void deleteJourneyResponse(final long id, final String message) {
         LOGGER.debug("Deleting journey response {}", id);
-        JourneyResponse deletedComment = findJourneyResponseById(id).orElseThrow(() -> {
+        JourneyResponse journeyResponse = findJourneyResponseById(id).orElseThrow(() -> {
             LOGGER.error("Journey response with id {} not found", id);
-            return new IllegalArgumentException("Journey response doesn't exists");});
-        Journey journey = deletedComment.getJourney();
+            return new JourneyResponseNotFoundException("Journey response doesn't exists");}
+        );
 
-        User commentAuthor = deletedComment.getUser();
+        User commentAuthor = journeyResponse.getUser();
 
-        emailService.sendJourneyCommentDeletionNotification(deletedComment,journey,commentAuthor,message);
+        emailService.sendJourneyCommentDeletionNotification(journeyResponse, journeyResponse.getJourney(), commentAuthor, message);
         LOGGER.info("Journey response deletion notification sent to user {}", commentAuthor.getEmail());
-        journeyResponseDao.updateDeletionMessage(id, message);
+
+        journeyResponse.setDeletionMessage(message);
+//        journeyResponseDao.updateDeletionMessage(id, message);
         LOGGER.info("Journey response deletion message updated: {}", message);
-        journeyResponseDao.delete(id);
+
+        journeyResponse.setDeleted(true);
+//        journeyResponseDao.delete(id);
         LOGGER.info("Journey response deleted: {}", id);
     }
 

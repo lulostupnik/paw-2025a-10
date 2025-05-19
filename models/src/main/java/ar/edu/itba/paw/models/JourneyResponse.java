@@ -28,10 +28,12 @@ public class JourneyResponse {
     private  String message;
     @Column(name = "date_time", nullable = false)
     private  LocalDateTime dateTime;
+
     @Column(name="deleted", nullable = false)
     @ToString.Exclude
     @Setter
     private  boolean deleted;
+
     @Column(name = "deletion_message", length = 2047)
     @ToString.Exclude
     @Setter

@@ -20,7 +20,6 @@ public interface InterestService {
     List<Interest> findInterestsByUserId(long id);
     Optional<Interest> findInterestByName(String name);
     Page<Interest> findInterestsByUserId(long id, PageParams pageParams);
-    void updateUserInterestScores(List<Interest> interests, long userId);
     void updateUserInterests(final long[] interestIds, final long userId);
     Page<Interest> findInterests(String search, PageParams pageParams);
 }

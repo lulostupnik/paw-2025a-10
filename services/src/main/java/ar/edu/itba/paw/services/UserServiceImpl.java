@@ -13,10 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -69,6 +66,21 @@ public class UserServiceImpl implements UserService {
         emailService.sendValidationEmail(user,uid);
         LOGGER.info("Validation email sent successfully to user ID: {}", user.getId());
         return user;
+    }
+
+    @Override
+    @Transactional
+    public void updateUserInterestScores(List<Interest> interests, User user){
+        HashSet<Long> interestIds = new HashSet<>(interests.size());
+        for (Interest interest : interests) {
+            interestIds.add(interest.getId());
+        }
+
+        user.getInterests().forEach(userInterest -> {
+            if (interestIds.contains(userInterest.getInterest().getId())) {
+                userInterest.setScore(userInterest.getScore() + 1);
+            }
+        });
     }
 
     @Override

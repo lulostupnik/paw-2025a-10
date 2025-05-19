@@ -1,15 +1,16 @@
 package ar.edu.itba.paw.interfaces.services;
 
-import ar.edu.itba.paw.models.Page;
-import ar.edu.itba.paw.models.PageParams;
-import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.*;
+
 import java.util.List;
 import java.util.Locale;
-import ar.edu.itba.paw.models.UserAuthInfo;
 import java.util.Optional;
 
 public interface UserService {
     User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, byte[] profilePicture, List<String> interests, String password, Locale locale);
+
+    @Transactional
+    void updateUserInterestScores(List<Interest> interests, User user);
 
     void updatePassword(long id, String newPassword);
     void resetPassword(String token, String newPassword);

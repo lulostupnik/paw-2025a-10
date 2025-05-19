@@ -90,14 +90,14 @@ public class InterestServiceImpl implements InterestService {
         interestDao.createUserInterests(interests, userId);
         LOGGER.info("Interests {} added to user {}", interests, userId);
     }
-
-    @Override
-    @Transactional
-    public void updateUserInterestScores(final List<Interest> interests, final long userId) {
-        LOGGER.debug("Increasing score of interests {} for user {}", interests, userId);
-        interestDao.updateScoreByInterests(interests, userId);
-        LOGGER.info("Interests {} score updated for user {}", interests, userId);
-    }
+//
+//    @Override
+//    @Transactional
+//    public void updateUserInterestScores(final List<Interest> interests, final long userId) {
+//        LOGGER.debug("Increasing score of interests {} for user {}", interests, userId);
+//        interestDao.updateScoreByInterests(interests, userId);
+//        LOGGER.info("Interests {} score updated for user {}", interests, userId);
+//    }
 
     @Override
     @Transactional
