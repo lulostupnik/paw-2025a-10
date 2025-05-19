@@ -5,6 +5,7 @@ import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.exceptions.ExpiredTokenException;
 import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
+import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserValidatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,8 +87,12 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void updatePassword(final long id, final String newPassword) {
+        User user = userDao.findById(id).orElseThrow(() -> {
+            LOGGER.error("User does not exist for ID: {}", id);
+            return new UserNotFoundException("User does not exist");
+        });
         LOGGER.debug("Password change for user with id: {}", id);
-        userDao.updatePassword(id, passwordEncoder.encode(newPassword));
+        user.setPassword(passwordEncoder.encode(newPassword));
         LOGGER.info("Password changed successfully for user ID: {}", id);
 
     }
@@ -102,7 +107,7 @@ public class UserServiceImpl implements UserService {
             LOGGER.warn("Token in use warn, with token: {}", token);
             throw new InvalidTokenException("Invalid token");
         }
-        UserAuthInfo user = userDao.updateValidationAndFindAuthInfoByToken(token).orElseThrow(()-> new RuntimeException("Invalid token"));
+        UserAuthInfo user = userDao.updateValidationAndFindAuthInfoByToken(token).orElseThrow(() -> new RuntimeException("Invalid token"));
         LOGGER.info("User validated, with token: {}", token);
         return user;
     }
@@ -174,8 +179,10 @@ public class UserServiceImpl implements UserService {
             LOGGER.error("User does not exist for ID: {}", userId);
             return new IllegalStateException("User does not exist");
         });
+
         emailService.sendUserBlockedNotification(user);
-        userDao.updateBlock(userId, true);
+
+        user.setBlocked(true);
         LOGGER.info("User blocked successfully with ID: {}", userId);
     }
 
@@ -188,7 +195,7 @@ public class UserServiceImpl implements UserService {
             return new IllegalStateException("User does not exist");
         });
         emailService.sendUserUnblockedNotification(user);
-        userDao.updateBlock(userId, false);
+        user.setBlocked(false);
         LOGGER.info("User unblocked successfully with ID: {}", userId);
     }
 
