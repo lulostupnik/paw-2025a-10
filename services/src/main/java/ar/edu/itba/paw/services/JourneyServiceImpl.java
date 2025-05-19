@@ -130,11 +130,11 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     public Optional<Journey> getJourneyByEmail(final String email) {
         LOGGER.debug("Getting journey by email {}", email);
-        long userId = userService.findUserByEmail(email).orElseThrow(() -> {
+        User user = userService.findUserByEmail(email).orElseThrow(() -> {
             LOGGER.warn("User with email {} not found", email);
             return new RuntimeException("User not found");
-        }).getId();
-        return journeyDao.findByUserId(userId);
+        });
+        return Optional.ofNullable(user.getJourney());
     }
 
 
@@ -163,13 +163,13 @@ public class JourneyServiceImpl implements JourneyService {
             LOGGER.warn("User with email '{}' not found", email);
             return new RuntimeException("User not found");
         });
-        return journeyDao.findByUserId(user.getId()).isPresent();
+        return user.getJourney() != null; //@todo check
     }
 
     @Override
     public boolean existsByUser(final User user) {
         LOGGER.debug("Checking if user has journey {}", user);
-        return journeyDao.findByUserId(user.getId()).isPresent();
+        return user.getJourney() != null;
     }
 
 

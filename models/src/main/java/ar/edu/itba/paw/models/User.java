@@ -57,7 +57,7 @@ public class User{
     @ManyToMany(mappedBy = "attendees", fetch = FetchType.LAZY)
     private List<Event> attendedEvents; //@TODO check. ni idea si esta bien.
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL ,orphanRemoval = true, fetch = FetchType.LAZY)
     private Journey journey;
 
 

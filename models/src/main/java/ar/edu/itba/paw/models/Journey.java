@@ -17,7 +17,7 @@ public class Journey{
     @SequenceGenerator(sequenceName = "journeys_id_seq", name = "journeys_id_seq", allocationSize = 1)
     @Column(name = "id")
     private Long id;
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER, optional = false)
     private User user;
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;

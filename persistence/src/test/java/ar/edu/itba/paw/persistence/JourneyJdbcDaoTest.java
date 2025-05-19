@@ -118,28 +118,6 @@ public class JourneyJdbcDaoTest {
     }
 
 
-    @Test
-    public void testFindByUserId(){
-        Optional<Journey> maybeJourney = journeyDao.findByUserId(TestUtils.USER_1_ID);
-
-        assertNotNull(maybeJourney);
-        assertTrue(maybeJourney.isPresent());
-        TestUtils.assertEqualsJourney(maybeJourney.get());      
-    }
-    @Test
-    public void testFindByUserIdWrongId(){
-        Optional<Journey> maybeJourney = journeyDao.findByUserId(12341234);
-
-        assertNotNull(maybeJourney);
-        assertFalse(maybeJourney.isPresent());
-    }
-    @Test
-    public void testFindByUserIdDeleted(){
-        Optional<Journey> maybeJourney = journeyDao.findByUserId(TestUtils.USER_4_ID);
-
-        assertNotNull(maybeJourney);
-        assertFalse(maybeJourney.isPresent());
-    }
 
     @Test
     public void testDelete(){
