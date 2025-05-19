@@ -27,10 +27,6 @@ public interface UserDao {
 
     boolean existsByEmail(String email);
 
-    void updatePassword(long id, String password);
-
-    void updateBlock(long id, boolean bool);
-
     Optional<Boolean> findValidatedByTokenNotExpired(String token);
 
     Optional<User> findByToken(String token);
@@ -45,11 +41,6 @@ public interface UserDao {
 
     void updateTokenAndExpirationByToken(String newToken, LocalDate date, String oldToken);
 
-    List<User> findAllJourneyResponders(long journeyId);
-
-    List<User> findAllEventResponders(long eventId);
-
     Page<User> findAllAttendeesByEventId(long eventId, PageParams pageParams);
-    List<User> findAllAttendeesByEventId(long eventId);
 
 }

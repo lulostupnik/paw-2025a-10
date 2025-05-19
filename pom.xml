@@ -25,7 +25,7 @@
     <slf4j.version>1.7.5</slf4j.version>
     <logback.version>1.1.2</logback.version>
     <logback-ext-spring.version>0.1.1</logback-ext-spring.version>
-      <org.hibernate.version>5.1.0.Final</org.hibernate.version>
+      <org.hibernate.version>5.6.15.Final</org.hibernate.version>
       <org.hibernate.jpa.version>1.0.0.Final</org.hibernate.jpa.version>
       <com.fasterxml.jackson.core.version>2.17.0</com.fasterxml.jackson.core.version>
   </properties>

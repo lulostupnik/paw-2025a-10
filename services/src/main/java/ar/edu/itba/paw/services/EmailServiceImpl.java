@@ -282,7 +282,7 @@ public class EmailServiceImpl implements EmailService {
 
 
     @Override
-    public void sendEventReminderNotification(final Event event,final List<User> attendees) {
+    public void sendEventReminderNotification(final Event event, final List<User> attendees) {
 
         for (User attendee : attendees) {
             Map<String, Object> variables = new HashMap<>();

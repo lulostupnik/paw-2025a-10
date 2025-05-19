@@ -113,9 +113,9 @@ public class EventController {
         Page<EventResponse> eventResponsesPage = eventService.findEventResponses(event.getId(), pageParams);
         mav.addObject("eventResponsesPage", eventResponsesPage);
         mav.addObject("commentsCount", eventService.countEventResponses(event.getId()));
-        if(eventWithStatistics.isCreator()){
-            mav.addObject("attendees", userService.findEventAttendees(id));
-        }
+//        if(eventWithStatistics.isCreator()){
+//            mav.addObject("attendees", userService.findEventAttendees(id));
+//        }
         mav.addObject("attend", eventWithStatistics.isAttending());
         mav.addObject("isEventOwner", eventWithStatistics.isCreator());
         mav.addObject("isFull", event.getFull());
@@ -233,9 +233,9 @@ public class EventController {
             form.setDate(event.getDate());
             form.setDescription(event.getDescription());
             form.setTitle(event.getTitle());
-            form.setTime(event.getTime().orElse(null));
+            form.setTime(event.getTime());
             form.setAddress(event.getAddress());
-            form.setAttendeesLimit(event.getAttendeesLimit().orElse(null));
+            form.setAttendeesLimit(event.getAttendeesLimit());
         }
 
         ModelAndView mav = new ModelAndView("events/edit");

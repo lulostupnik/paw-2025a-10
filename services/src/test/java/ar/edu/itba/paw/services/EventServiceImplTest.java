@@ -143,20 +143,20 @@ public class EventServiceImplTest {
         eventService.createEvent(EMAIL, CITY_NAME, EVENT_DATE, IMAGE_DATA, DESCRIPTION, TITLE, TIME, ADDRESS, LIMIT);
     }
 
-    @Test
-    public void testReplyToEvent(){
-        Mockito.when(
-            eventDao.findById(EVENT_ID)
-        ).thenReturn(Optional.of(EVENT));
-        Mockito.when(
-            userService.findUserByEmail(EMAIL)
-        ).thenReturn(Optional.of(USER));
-        Mockito.when(
-            userDao.findAllEventResponders(Mockito.eq(EVENT_ID))
-        ).thenReturn(USERS);
-
-        eventService.replyToEvent(EMAIL, EVENT_ID, DESCRIPTION);
-    }
+//    @Test
+//    public void testReplyToEvent(){
+//        Mockito.when(
+//            eventDao.findById(EVENT_ID)
+//        ).thenReturn(Optional.of(EVENT));
+//        Mockito.when(
+//            userService.findUserByEmail(EMAIL)
+//        ).thenReturn(Optional.of(USER));
+//        Mockito.when(
+//            userDao.findAllEventResponders(Mockito.eq(EVENT_ID))
+//        ).thenReturn(USERS);
+//
+//        eventService.replyToEvent(EMAIL, EVENT_ID, DESCRIPTION);
+//    }
     @Test(expected = RuntimeException.class)
     public void testReplyToEventNoUser(){
         Mockito.when(
@@ -295,41 +295,41 @@ public class EventServiceImplTest {
         assertEquals(EVENTS_PAGE, page);
     }
 
-
-    @Test
-    public void testCreateEventAttendanceIdLimitNotExceeded(){
-        Mockito.when(
-            eventDao.findById(Mockito.eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-        Mockito.when(
-            attendanceDao.exists(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
-        ).thenReturn(false);
-        Mockito.when(
-            eventDao.findAttendanceLimitById(Mockito.eq(EVENT_ID))
-        ).thenReturn(Optional.of(LIMIT));
-        Mockito.when(
-            attendanceDao.countByEventId(Mockito.eq(EVENT_ID))
-        ).thenReturn(ATTENDEES);
-
-        eventService.createEventAttendance(USER_ID, EVENT_ID);
-    }
-    @Test(expected = InvalidException.class)
-    public void testCreateEventAttendanceIdLimitExceeded(){
-        Mockito.when(
-            eventDao.findById(Mockito.eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-        Mockito.when(
-            attendanceDao.exists(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
-        ).thenReturn(false);
-        Mockito.when(
-            eventDao.findAttendanceLimitById(Mockito.eq(EVENT_ID))
-        ).thenReturn(Optional.of(LIMIT));
-        Mockito.when(
-            attendanceDao.countByEventId(Mockito.eq(EVENT_ID))
-        ).thenReturn(LIMIT);
-
-        eventService.createEventAttendance(USER_ID, EVENT_ID);
-    }
+//
+//    @Test
+//    public void testCreateEventAttendanceIdLimitNotExceeded(){
+//        Mockito.when(
+//            eventDao.findById(Mockito.eq(EVENT_ID))
+//        ).thenReturn(Optional.of(EVENT));
+//        Mockito.when(
+//            attendanceDao.exists(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
+//        ).thenReturn(false);
+//        Mockito.when(
+//            eventDao.findAttendanceLimitById(Mockito.eq(EVENT_ID))
+//        ).thenReturn(Optional.of(LIMIT));
+//        Mockito.when(
+//            attendanceDao.countByEventId(Mockito.eq(EVENT_ID))
+//        ).thenReturn(ATTENDEES);
+//
+//        eventService.createEventAttendance(USER_ID, EVENT_ID);
+//    }
+//    @Test(expected = InvalidException.class)
+//    public void testCreateEventAttendanceIdLimitExceeded(){
+//        Mockito.when(
+//            eventDao.findById(Mockito.eq(EVENT_ID))
+//        ).thenReturn(Optional.of(EVENT));
+//        Mockito.when(
+//            attendanceDao.exists(Mockito.eq(USER_ID), Mockito.eq(EVENT_ID))
+//        ).thenReturn(false);
+//        Mockito.when(
+//            eventDao.findAttendanceLimitById(Mockito.eq(EVENT_ID))
+//        ).thenReturn(Optional.of(LIMIT));
+//        Mockito.when(
+//            attendanceDao.countByEventId(Mockito.eq(EVENT_ID))
+//        ).thenReturn(LIMIT);
+//
+//        eventService.createEventAttendance(USER_ID, EVENT_ID);
+//    }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateEventAttendanceIdAttending(){

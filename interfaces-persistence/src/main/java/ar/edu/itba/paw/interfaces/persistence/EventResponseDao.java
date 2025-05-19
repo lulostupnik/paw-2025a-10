@@ -7,7 +7,9 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface EventResponseDao {
-//    EventResponse create(long userId, String username, long eventId, String message, LocalDateTime dateTime);
+    Optional<EventResponse> findById(long id);
+
+    //    EventResponse create(long userId, String username, long eventId, String message, LocalDateTime dateTime);
 //    int countByEventId(long eventId);
     Page<EventResponse> listAllByEventId(long eventId, PageParams pageParams);
 //    void delete(long id);

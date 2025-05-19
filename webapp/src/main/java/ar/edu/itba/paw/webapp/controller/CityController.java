@@ -80,7 +80,7 @@ public class CityController {
         });
         if(!errors.hasErrors()){
             form.setName(city.getName());
-            form.setCountry(city.getCountry());
+            form.setCountry(city.getCountry().getName()); // fixme: estaría mejor que le llegue un Country en vez del nombre del Country
         }
 
         ModelAndView mav = new ModelAndView(CREATE_CITY);

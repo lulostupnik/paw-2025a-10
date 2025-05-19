@@ -53,6 +53,7 @@ public class UserHibernateDao implements UserDao {
     public Optional<UserAuthInfo> updateValidationAndFindAuthInfoByToken(String token) {
         return Optional.empty(); //@todo
     }
+
     //@Todo
     @Override
     public Optional<UserAuthInfo> findAuthInfoByEmail(final String email) {
@@ -115,15 +116,6 @@ public class UserHibernateDao implements UserDao {
         return findByEmail(email).isPresent();
     }
 
-    @Override
-    public void updatePassword(long id, String password) {
-        //@todo (pasar a servicios despues)
-    }
-
-    @Override
-    public void updateBlock(long id, boolean bool) {
-        //@todo (pasar a servicios)
-    }
 
     @Override
     public Optional<Boolean> findValidatedByTokenNotExpired(String token) {
@@ -199,23 +191,12 @@ public class UserHibernateDao implements UserDao {
         //todo
     }
 
-    @Override //@TODO: mover a journey
-    public List<User> findAllJourneyResponders(long journeyId) {
-        return List.of();
-    }
 
-    @Override//@TODO: mover a events
-    public List<User> findAllEventResponders(long eventId) {
-        return List.of();
-    }
 
     @Override//@TODO: mover a events
     public Page<User> findAllAttendeesByEventId(long eventId, PageParams pageParams) {
         return null;
     }
 
-    @Override //@TODO: mover a events
-    public List<User> findAllAttendeesByEventId(long eventId) {
-        return List.of();
-    }
+
 }

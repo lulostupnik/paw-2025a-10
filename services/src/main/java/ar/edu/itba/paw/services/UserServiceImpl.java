@@ -245,12 +245,6 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public List<User> findEventAttendees(final long eventId) {
-        LOGGER.debug("Getting attendees for event {}", eventId);
-        return userDao.findAllAttendeesByEventId(eventId);
-    }
-
-    @Override
     public Page<User> findEventAttendees(final long eventId, PageParams pageParams) {
         LOGGER.debug("Getting attendees for event {} with pageParams {}", eventId, pageParams);
         return userDao.findAllAttendeesByEventId(eventId, pageParams);

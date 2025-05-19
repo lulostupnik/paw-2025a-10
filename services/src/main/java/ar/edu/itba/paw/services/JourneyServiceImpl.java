@@ -104,9 +104,11 @@ public class JourneyServiceImpl implements JourneyService {
         // interestService.updateUserInterestScores(interests, user.getId());
         userService.updateUserInterestScores(interests, user);
 
+        List<User> responders = journey.getResponses().stream().map(JourneyResponse::getUser).toList();
+
         LOGGER.info("Interest score updated for user {}", user.getId());
         emailService.answerJourneyNotification(
-                userDao.findAllJourneyResponders(journeyId),
+                responders,
                 message,
                 user,
                 journey

@@ -2,17 +2,17 @@ package ar.edu.itba.paw.persistence;
 
 
 import ar.edu.itba.paw.interfaces.persistence.EventResponseDao;
-import ar.edu.itba.paw.models.EventResponse;
-import ar.edu.itba.paw.models.Page;
-import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 
@@ -23,6 +23,18 @@ public class EventResponseHibernateDao implements EventResponseDao {
 
     @PersistenceContext
     private EntityManager em;
+
+
+    @Override
+    public Optional<EventResponse> findById(final long id) {
+        TypedQuery<EventResponse> query = em.createQuery("""
+        FROM EventResponse er
+        WHERE er.id = :id AND er.deleted = FALSE
+    """, EventResponse.class);
+        query.setParameter("id", id);
+
+        return query.getResultList().stream().findFirst();
+    }
 
     @Override
     public Page<EventResponse> listAllByEventId(final long eventId, final PageParams pageParams) {

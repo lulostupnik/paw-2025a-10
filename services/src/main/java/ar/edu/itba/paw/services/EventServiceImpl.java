@@ -81,10 +81,11 @@ public class EventServiceImpl implements EventService {
         User user = userService.findUserByEmail(email).orElseThrow(()->{
                 LOGGER.error("User not found {}", email);
                 return new RuntimeException("User not found");});
-        event.getResponses().add(new EventResponse(user,event, message));
+        List<EventResponse> responses = event.getResponses();
+        responses.add(new EventResponse(user, event, message));
         LOGGER.info("Event response {} created", eventId);
         emailService.answerEventNotification(
-                userDao.findAllEventResponders(eventId),
+                responses.stream().map(EventResponse::getUser).toList(), // todo: este método podría recibir el stream en vez de la lista
                 message,
                 user,
                 event
@@ -403,8 +404,9 @@ public class EventServiceImpl implements EventService {
         LOGGER.debug("Getting event response by id {}", id);
         return eventResponseDao.findById(id);
     }
-    @Transactional(readOnly = true)
+
     @Override
+    @Transactional(readOnly = true)
     public Optional<EventWithUserInfo> findEventWithUserInfo(long userId, long eventId) {
         Optional<Event> eventOpt = eventDao.findById(eventId);
 
@@ -449,7 +451,7 @@ public class EventServiceImpl implements EventService {
         LOGGER.info("Found {} events occurring in the next 24 hours", upcomingEvents.size());
 
         for (Event event : upcomingEvents) {
-            emailService.sendEventReminderNotification(event, userService.findEventAttendees(event.getId()));
+            emailService.sendEventReminderNotification(event, event.getAttendees());
         }
 
         LOGGER.info("Completed scheduled task: sent reminder emails for upcoming events");

@@ -9,7 +9,6 @@ import java.util.Optional;
 public interface UserService {
     User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, byte[] profilePicture, List<String> interests, String password, Locale locale);
 
-    @Transactional
     void updateUserInterestScores(List<Interest> interests, User user);
 
     void updatePassword(long id, String newPassword);
@@ -25,7 +24,6 @@ public interface UserService {
     boolean existsByEmail(String email);
 
     Page<User> findUsers(String search, PageParams pageParams);
-    List<User> findEventAttendees(long eventId);
     Page<User> findEventAttendees(long eventId, PageParams pageParams);
 
     void blockUser(long userId);
