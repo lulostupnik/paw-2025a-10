@@ -52,4 +52,14 @@ public class University{
         return sb.toString();
     }
 
+    public void setName(String newName) {
+        this.name = newName;
+    }
+    public void setAbbreviation(String newAbbreviation) {
+        this.abbreviation = newAbbreviation;
+    }
+
+    public void setDeleted(boolean b) {
+        this.deleted = b;
+    }
 }
