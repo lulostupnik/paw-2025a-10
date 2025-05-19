@@ -6,43 +6,92 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
+
+import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
+import static ar.edu.itba.paw.persistence.HibernateDaoUtils.likePattern;
 
 @Repository
 public class UserHibernateDao implements UserDao {
     @PersistenceContext
     private EntityManager em;
 
-    @Override
-    public User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale, String validateToken, LocalDate validateTokenExpiration) {
-        final User user = new User(email, username, firstname, lastname, university, career, profilePictureId, password, locale, validateToken, validateTokenExpiration);
-        em.persist(user);
-        return user;
-    }
+        @Override
+        public User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale, String validateToken, LocalDate validateTokenExpiration) {
+//            final User user = new User(email, username, firstname, lastname, university, career, profilePictureId, password, locale, validateToken, validateTokenExpiration);
 
-    @Override
-    public void updatePasswordAndClearTokenByToken(String token, String newPassword) {
+            final User user = new User(email, username,  firstname, lastname, university,  career, profilePictureId, password, locale);
 
-    }
+            em.persist(user);
 
+            return user;
+        }
     @Override
     public Optional<User> findById(long id) {
         return Optional.ofNullable( em.find(User.class, id));
     }
 
     @Override
-    public void updateToken(long id, String uuid, LocalDate date) {
+    public void updatePasswordAndClearTokenByToken(String token, String newPassword) {
+            //@todo
+    }
 
+    @Override
+    public void updateToken(long id, String uuid, LocalDate date) {
+            //@todo
     }
 
     @Override
     public boolean findValidationStatusByEmail(String email) {
-        return false;
+        return true; //@todo
     }
+
+    @Override
+    public Optional<UserAuthInfo> updateValidationAndFindAuthInfoByToken(String token) {
+        return Optional.empty(); //@todo
+    }
+    //@Todo
+    @Override
+    public Optional<UserAuthInfo> findAuthInfoByEmail(final String email) {
+        Query query = em.createNativeQuery("""
+        SELECT email, password, roles, blocked, validated
+        FROM users
+        WHERE email = :email
+    """);
+        query.setParameter("email", email);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        return results.stream().findFirst().map(row ->
+                new UserAuthInfo(
+                        (String) row[0],  // email
+                        (String) row[1],  // password
+                        (String) row[2],  // roles
+                        (Boolean) row[3], // blocked
+                        (Boolean) row[4]  // validated → verified
+                )
+        ); //@TOdo preguntar. se puede hacer sin nativeQuery?
+    }
+/*
+    @Override
+    public Optional<UserAuthInfo> findAuthInfoByEmail(final String email) {
+        TypedQuery<UserAuthInfo> query = em.createQuery("""
+        SELECT new ar.edu.itba.paw.models.UserAuthInfo(
+            u.email, u.password, u.roles, u.blocked, u.validated
+        )
+        FROM User u
+        WHERE u.email = :email
+    """, UserAuthInfo.class);
+        query.setParameter("email", email);
+
+        return query.getResultList().stream().findFirst();
+    } //@TOdo esta es otra opcion capaz. PREGUNTAR !
+*/
+
 
     @Override
     public Optional<User> findByEmail(String email) {
@@ -52,15 +101,6 @@ public class UserHibernateDao implements UserDao {
         return list.isEmpty() ? Optional.empty() : Optional.of(list.getFirst());
     }
 
-    @Override
-    public Optional<UserAuthInfo> updateValidationAndFindAuthInfoByToken(String token) {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<UserAuthInfo> findAuthInfoByEmail(String email) {
-        return Optional.empty();
-    }
 
     @Override
     public boolean existsByUsername(String username) {
@@ -77,80 +117,86 @@ public class UserHibernateDao implements UserDao {
 
     @Override
     public void updatePassword(long id, String password) {
-
+        //@todo (pasar a servicios despues)
     }
 
     @Override
     public void updateBlock(long id, boolean bool) {
-
+        //@todo (pasar a servicios)
     }
 
     @Override
     public Optional<Boolean> findValidatedByTokenNotExpired(String token) {
-        return Optional.empty();
+        return Optional.empty(); //todo
     }
 
     @Override
     public Optional<User> findByToken(String token) {
-        return Optional.empty();
+        return Optional.empty(); //todo
     }
 
     @Override
-    public Page<User> findAll(PageParams pageParams) {
-        final TypedQuery<User> query = em.createQuery("from User as u", User.class);
-        query.setFirstResult(pageParams.getPage() * pageParams.getSize());
-        query.setMaxResults(pageParams.getSize());
-        final List<User> list = query.getResultList();
-        final TypedQuery<Integer> countQuery = em.createQuery("select count(u) from User as u", Integer.class);
-        return new Page<>(list, pageParams.getPage(),JdbcDaoUtils.pageCount( countQuery.getSingleResult(), pageParams.getSize()) );
+    public Page<User> findAll(final PageParams pageParams) {
+        final String countSql = "SELECT COUNT(*) FROM users";
 
+        final String idSql = """
+        SELECT u.id
+        FROM users u
+        ORDER BY u.id ASC
+    """;
+
+        final String jpqlFetch = """
+        FROM User u
+        WHERE u.id IN :ids
+        ORDER BY u.id ASC
+    """;
+
+        return fetchPageByIds(em, countSql, idSql, Map.of(), jpqlFetch, User.class, pageParams);
     }
 
+
     @Override
-    public Page<User> search(String search, PageParams pageParams) {
-            final String pattern = "%" + search.toLowerCase() + "%";
+    public Page<User> search(final String search, final PageParams pageParams) {
+        final String pattern = likePattern(search);
 
-            // Conteo total
-            Long total = em.createQuery("""
-        SELECT COUNT(u)
-        FROM User u
-        WHERE LOWER(u.email) LIKE :pattern
-           OR LOWER(u.username) LIKE :pattern
-           OR LOWER(u.firstname) LIKE :pattern
-        """, Long.class)
-                    .setParameter("pattern", pattern)
-                    .getSingleResult();
+        final String countSql = """
+        SELECT COUNT(*)
+        FROM users u
+        JOIN universities un ON u.university = un.id
+        WHERE LOWER(u.firstname) LIKE :pattern
+           OR LOWER(un.name) LIKE :pattern
+           OR LOWER(u.email) LIKE :pattern
+    """;
 
-            // Datos paginados
-            List<User> users = em.createQuery("""
-        SELECT u
-        FROM User u
-        WHERE LOWER(u.email) LIKE :pattern
-           OR LOWER(u.username) LIKE :pattern
-           OR LOWER(u.firstname) LIKE :pattern
-        ORDER BY u.id
-        """, User.class)
-                    .setParameter("pattern", pattern)
-                    .setFirstResult(pageParams.getPage() * pageParams.getSize())
-                    .setMaxResults(pageParams.getSize())
-                    .getResultList();
+        final String idSql = """
+        SELECT u.id
+        FROM users u
+        JOIN universities un ON u.university = un.id
+        WHERE LOWER(u.firstname) LIKE :pattern
+           OR LOWER(un.name) LIKE :pattern
+           OR LOWER(u.email) LIKE :pattern
+        ORDER BY u.id DESC
+    """;
 
-            return new Page<>(users, pageParams.getPage(), JdbcDaoUtils.pageCount(total.intValue(), pageParams.getSize()));
-        }
+        final String jpqlFetch = "FROM User u WHERE u.id IN :ids ORDER BY u.id DESC";
+
+        return fetchPageByIds(em, countSql, idSql, Map.of("pattern", pattern), jpqlFetch, User.class, pageParams);
+    }
+
 
     @Override
     public boolean existsByTokenNotExpired(String token) {
-        return false;
+        return true; //todo
     }
 
     @Override
     public boolean existsByTokenExpired(String token) {
-        return false;
+        return true; //todo
     }
 
     @Override
     public void updateTokenAndExpirationByToken(String newToken, LocalDate date, String oldToken) {
-
+        //todo
     }
 
     @Override //@TODO: mover a journey
