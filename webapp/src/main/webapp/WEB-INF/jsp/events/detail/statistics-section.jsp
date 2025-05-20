@@ -71,7 +71,7 @@
                 </c:if>
                 <div class="stat-item">
                     <span class="stat-label"><spring:message code="event.stats.totalParticipants" /></span>
-                    <c:if test="${event.attendeesLimit.isPresent()}">
+                    <c:if test="${event.attendeesLimit != null}">
                         <span class="stat-value">(<c:out value="${event.attendeesCount}" /> / <c:out value="${event.attendeesLimit.get()}" />)</span>
                     </c:if>
                     <c:if test="${event.attendeesLimit.isEmpty()}">

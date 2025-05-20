@@ -37,9 +37,9 @@
                         <h3><spring:message code="event.delete.summary" /></h3>
                         <ul class="summary-list">
                             <li><strong><spring:message code="event.name" />:</strong> <c:out value="${event.title}" /></li>
-                            <li><strong><spring:message code="event.location" />:</strong> <c:out value="${event.eventCity.name}" /></li>
+                            <li><strong><spring:message code="event.location" />:</strong> <c:out value="${event.city.name}" /></li>
                             <li><strong><spring:message code="event.date" />:</strong> <c:out value="${event.date}" /></li>
-                            <c:if test="${event.time.isPresent()}">
+                            <c:if test="${event.time != null}">
                                 <li><strong><spring:message code="event.time" />:</strong> <c:out value="${event.time.get()}" /></li>
                             </c:if>
                             <li><strong><spring:message code="event.attendees" />:</strong> <c:out value="${event.attendeesCount}" /></li>

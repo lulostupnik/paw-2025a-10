@@ -329,7 +329,7 @@ public class EventServiceImpl implements EventService {
         currentEvent.setTime(time);
         currentEvent.setAddress(address);
         currentEvent.setAttendeesLimit(attendeesLimit);
-        currentEvent.setEventCity(resolvedCity);
+        currentEvent.setCity(resolvedCity);
         currentEvent.setDate(date);
 //        currentEvent.withTitle(title).  @todo preguntar.
 //                withDescription(description).

@@ -54,7 +54,7 @@
           <td><c:out value="${event.date}"/></td>
           <td>
             <c:choose>
-              <c:when test="${!empty event.attendeesLimit && event.attendeesLimit.isPresent() && event.attendeesLimit.get() > 0}">
+              <c:when test="${!empty event.attendeesLimit && event.attendeesLimit > 0}">
                 <div class="attendee-progress">
                   <span class="attendee-count"><c:out value="${event.attendeesCount}"/>/<c:out value="${event.attendeesLimit.get()}"/></span>
                   <div class="progress-bar">

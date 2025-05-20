@@ -172,7 +172,7 @@
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path>
                                 <circle cx="12" cy="10" r="3"></circle>
                             </svg>
-                            <span><c:out value="${event.eventCity.name}" /></span>
+                            <span><c:out value="${event.city.name}" /></span>
                         </div>
                         <div class="meta-item">
 
@@ -193,10 +193,10 @@
                                 <polyline points="12 6 12 12 16 14"></polyline>
                             </svg>
                             <span>
-                                <c:if test="${event.time.isPresent()}">
-                                    <c:out value="${event.time.get()}" />
+                                <c:if test="${event.time != null}">
+                                    <c:out value="${event.time}" />
                                 </c:if>
-                                <c:if test="${event.time.isEmpty()}">
+                                <c:if test="${event.time == null}">
                                     <spring:message code="event.allDayEvent"/>
                                 </c:if>
                             </span>

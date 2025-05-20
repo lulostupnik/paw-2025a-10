@@ -1,24 +1,24 @@
 CREATE TABLE IF NOT EXISTS images (
-        id SERIAL PRIMARY KEY,
+        id BIGSERIAL PRIMARY KEY,
         content BYTEA NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS category (
-        id SERIAL PRIMARY KEY,
+        id BIGSERIAL PRIMARY KEY,
         name varchar(100) NOT NULL UNIQUE
 );
 
 
 CREATE TABLE IF NOT EXISTS countries (
-        id SERIAL PRIMARY KEY,
+        id BIGSERIAL PRIMARY KEY,
         name VARCHAR(100) NOT NULL UNIQUE,
         code VARCHAR(3) NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS cities (
-        id SERIAL PRIMARY KEY,
+        id BIGSERIAL PRIMARY KEY,
         name VARCHAR(100) NOT NULL UNIQUE,
-        country_id INTEGER NOT NULL,
+        country_id BIGINT NOT NULL,
         deleted BOOLEAN NOT NULL DEFAULT FALSE,
 
         FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE RESTRICT
@@ -26,9 +26,9 @@ CREATE TABLE IF NOT EXISTS cities (
 
 
 CREATE TABLE IF NOT EXISTS universities (
-        id SERIAL PRIMARY KEY,
+        id BIGSERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL UNIQUE,
-        city_id INTEGER NOT NULL,
+        city_id BIGINT NOT NULL,
         abbreviation VARCHAR(255) DEFAULT NULL,
         deleted BOOLEAN NOT NULL DEFAULT FALSE,
 
@@ -36,21 +36,21 @@ CREATE TABLE IF NOT EXISTS universities (
 );
 
 CREATE TABLE IF NOT EXISTS careers (
-        id SERIAL PRIMARY KEY,
+        id BIGSERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL UNIQUE,
         deleted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 
 CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
+        id BIGSERIAL PRIMARY KEY,
         email VARCHAR(100) NOT NULL UNIQUE,
         firstname VARCHAR(100) NOT NULL,
         lastname VARCHAR(100) NOT NULL,
         username VARCHAR(50) NOT NULL UNIQUE,
-        university INTEGER NOT NULL,
-        career_id INTEGER NOT NULL,
-        profile_picture_id INTEGER NOT NULL,
+        university BIGINT NOT NULL,
+        career_id BIGINT NOT NULL,
+        profile_picture_id BIGINT NOT NULL,
         password VARCHAR(100) NOT NULL DEFAULT '$2b$10$KbQiA8xVuOPQkfiYJ0X0FubQbQjEJpTr6QOBD3qL6sYzFoq2nJ8fK',
         roles VARCHAR(50) DEFAULT 'user' CHECK (roles IN ('user', 'admin')),
         language VARCHAR(2) NOT NULL DEFAULT 'en',
@@ -65,8 +65,8 @@ CREATE TABLE IF NOT EXISTS users (
     );
 
     CREATE TABLE IF NOT EXISTS user_interest (
-                                             user_id INTEGER NOT NULL,
-                                             category_id INTEGER NOT NULL,
+                                             user_id BIGINT NOT NULL,
+                                             category_id BIGINT NOT NULL,
                                              score INTEGER NOT NULL DEFAULT 0,
 
                                              PRIMARY KEY (user_id, category_id),
@@ -77,9 +77,9 @@ CREATE TABLE IF NOT EXISTS users (
 
 
 CREATE TABLE IF NOT EXISTS journeys (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL UNIQUE,
-    destination_university_id INTEGER NOT NULL,
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL UNIQUE,
+    destination_university_id BIGINT NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     description VARCHAR(2047),
@@ -91,9 +91,9 @@ CREATE TABLE IF NOT EXISTS journeys (
 
 
 CREATE TABLE IF NOT EXISTS journey_responses (
-        id SERIAL PRIMARY KEY,
-        user_id INTEGER NOT NULL,
-        journey_id INTEGER NOT NULL,
+        id BIGSERIAL PRIMARY KEY,
+        user_id BIGINT NOT NULL,
+        journey_id BIGINT NOT NULL,
         message VARCHAR(1023) NOT NULL,
         date_time TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
         deleted BOOLEAN NOT NULL DEFAULT FALSE,
@@ -105,15 +105,15 @@ CREATE TABLE IF NOT EXISTS journey_responses (
 
 
 CREATE TABLE IF NOT EXISTS events (
-        id SERIAL PRIMARY KEY,
-        user_id INTEGER NOT NULL,
-        city_id INTEGER NOT NULL,
+        id BIGSERIAL PRIMARY KEY,
+        user_id BIGINT NOT NULL,
+        city_id BIGINT NOT NULL,
         event_date DATE NOT NULL,
         description VARCHAR(2047),
         event_time TIME,
         attendees_limit INT,
         address VARCHAR(255),
-        flyer_image_id INTEGER,
+        flyer_image_id BIGINT,
         attendees_count INTEGER DEFAULT 0,
         title VARCHAR(255),
         deleted BOOLEAN NOT NULL DEFAULT FALSE,
@@ -125,9 +125,9 @@ CREATE TABLE IF NOT EXISTS events (
     );
 
 CREATE TABLE IF NOT EXISTS event_responses (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    event_id INTEGER NOT NULL,
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    event_id BIGINT NOT NULL,
     message VARCHAR(1023) NOT NULL,
     date_time TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
     deleted BOOLEAN NOT NULL DEFAULT FALSE,
@@ -138,8 +138,8 @@ CREATE TABLE IF NOT EXISTS event_responses (
     );
 
 CREATE TABLE IF NOT EXISTS event_attendances (
-        user_id INTEGER NOT NULL,
-        event_id INTEGER NOT NULL,
+        user_id BIGINT NOT NULL,
+        event_id BIGINT NOT NULL,
 
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
         FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,

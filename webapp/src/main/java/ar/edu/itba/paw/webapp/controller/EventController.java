@@ -229,7 +229,7 @@ public class EventController {
             return new EventNotFoundException();});
 
         if(!errors.hasErrors()) {
-            form.setCity(event.getEventCity().getName());
+            form.setCity(event.getCity().getName());
             form.setDate(event.getDate());
             form.setDescription(event.getDescription());
             form.setTitle(event.getTitle());

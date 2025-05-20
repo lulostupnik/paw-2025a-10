@@ -1,16 +1,13 @@
     package ar.edu.itba.paw.models;
 
     import lombok.Getter;
-    import lombok.RequiredArgsConstructor;
     import lombok.Setter;
-    import lombok.experimental.Accessors;
 
     import javax.persistence.*;
     import java.time.LocalDate;
     import java.time.LocalDateTime;
     import java.time.LocalTime;
     import java.util.List;
-    import java.util.Optional;
 
     @Getter
     @Setter
@@ -34,7 +31,7 @@
         private  long flyerImageId;
         @ManyToOne(fetch = FetchType.LAZY, optional = false)
         @JoinColumn(name = "city_id")
-        private  City eventCity;
+        private  City city;
         @Column
         private  String title;
         @Column(name = "event_time")
@@ -67,13 +64,13 @@
         /* For hibernate */ Event() {
         }
         public Event(final User user, final LocalDate date, final String description,
-                     final long flyerImageId, final City eventCity, final String title,
+                     final long flyerImageId, final City city, final String title,
                      final LocalTime time, final String address, final Integer attendeesLimit) {
             this.user = user;
             this.date = date;
             this.description = description;
             this.flyerImageId = flyerImageId;
-            this.eventCity = eventCity;
+            this.city = city;
             this.title = title;
             this.time = time;
             this.address = address;
@@ -85,14 +82,14 @@
 
         }
         public Event(final Long id, final User user, final LocalDate date, final String description,
-                     final long flyerImageId, final City eventCity, final String title,
+                     final long flyerImageId, final City city, final String title,
                      final LocalTime time, final String address, final Integer attendeesLimit, final int attendeesCount) {
             this.id = id;
             this.user = user;
             this.date = date;
             this.description = description;
             this.flyerImageId = flyerImageId;
-            this.eventCity = eventCity;
+            this.city = city;
             this.title = title;
             this.time = time;
             this.address = address;
@@ -129,7 +126,7 @@
             sb.append(", user: ");
             sb.append(user);
             sb.append(", city: ");
-            sb.append(eventCity);
+            sb.append(city);
             sb.append(", date: \"");
             sb.append(date);
             sb.append("\", time: \"");
