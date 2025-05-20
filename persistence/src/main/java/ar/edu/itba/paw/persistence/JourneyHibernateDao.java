@@ -121,10 +121,9 @@ public class JourneyHibernateDao implements JourneyDao {
         final Map<String, Object> paramMap = new HashMap<>();
 
         StringBuilder countSql = new StringBuilder("SELECT COUNT(DISTINCT j.id) FROM journeys j");
-        StringBuilder idSql = new StringBuilder("""
-        SELECT DISTINCT j.id
-        FROM journeys j
-    """);
+
+//        StringBuilder idSql = new StringBuilder(" SELECT DISTINCT j.id FROM journeys j");
+        StringBuilder idSql = new StringBuilder("SELECT j.id FROM journeys j");
 
         boolean joinedUsers = false;
         boolean joinedUnis = false;
@@ -231,12 +230,16 @@ public class JourneyHibernateDao implements JourneyDao {
 
         String orderColumn = getOrderByColumn(orderBy);
         String dir = (direction == SortDirection.DESC) ? "DESC" : "ASC";
+
+
+        idSql.append(" GROUP BY j.id");
+
         idSql.append(" ORDER BY ").append(orderColumn).append(" ").append(dir);
 
         String jpqlFetch = "FROM Journey j WHERE j.id IN :ids ORDER BY j." + orderColumn + " " + dir;
 
         return fetchPageByIds(em, countSql.toString(), idSql.toString(), paramMap, jpqlFetch, Journey.class, pageParams);
-    } //@TODO darle una buena LEIDA.
+    }
 
 
 

@@ -328,7 +328,6 @@ public class EventHibernateDao implements EventDao {
 
         final String search = likePattern(searchTerm);
 
-
         List<String> filters = new ArrayList<>();
         Map<String, Object> paramMap = new HashMap<>();
 
@@ -341,7 +340,7 @@ public class EventHibernateDao implements EventDao {
     """);
 
         StringBuilder idSql = new StringBuilder("""
-        SELECT DISTINCT e.id
+        SELECT e.id
         FROM events e
         JOIN users us ON e.user_id = us.id
         JOIN universities un ON us.university = un.id
@@ -411,8 +410,12 @@ public class EventHibernateDao implements EventDao {
             idSql.append(" AND " ).append(clause);
         }
 
+        idSql.append(" GROUP BY e.id");
 
-        idSql.append(" ORDER BY ").append(getSortColumn(sortBy)).append(" ").append(direction == SortDirection.DESC ? "DESC" : "ASC");
+        String sortColumn = getSortColumn(sortBy);
+        String dir = (direction == SortDirection.DESC) ? "DESC" : "ASC";
+
+        idSql.append(" ORDER BY ").append(sortColumn).append(" ").append(dir);
 
         // JPQL fetch
         final String jpqlFetch = "FROM Event e WHERE e.id IN :ids";
