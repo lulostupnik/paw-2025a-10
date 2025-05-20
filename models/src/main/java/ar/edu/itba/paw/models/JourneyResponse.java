@@ -21,8 +21,10 @@ public class JourneyResponse {
     @Column(name = "id")
     private  Long id;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private  User user;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "journey_id", nullable = false)
     private  Journey journey;
     @Column(length = 2047)
     private  String message;

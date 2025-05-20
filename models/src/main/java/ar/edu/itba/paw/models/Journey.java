@@ -24,6 +24,7 @@ public class Journey{
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "destination_university_id", nullable = false)
     private University destinationUniversity;
     @Column(length = 2047)
     private String description;

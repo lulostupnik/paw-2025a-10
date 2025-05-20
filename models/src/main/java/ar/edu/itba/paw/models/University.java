@@ -21,6 +21,7 @@ public class University{
     @Column(name = "abbreviation")
     private  String abbreviation;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "city_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private  City city;
     @Column(name="deleted", nullable = false)
     private  boolean deleted;

@@ -34,9 +34,11 @@ public class User{
     private  String lastname;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "university", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private  University university;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "career_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private  Career career;
 
     @Column(name = "profile_picture_id", nullable = false)

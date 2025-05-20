@@ -33,6 +33,7 @@
         @Column(name = "flyer_image_id")
         private  long flyerImageId;
         @ManyToOne(fetch = FetchType.LAZY, optional = false)
+        @JoinColumn(name = "city_id")
         private  City eventCity;
         @Column
         private  String title;
