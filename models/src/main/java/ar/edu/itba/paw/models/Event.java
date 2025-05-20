@@ -36,7 +36,7 @@
         private  String title;
         @Column(name = "event_time")
         private  LocalTime time;
-        @Column(name = "event_address", length = 255)
+        @Column(name = "address", length = 255)
         private  String address;
         @Column(name = "attendees_limit")
         private  Integer attendeesLimit;
@@ -45,7 +45,7 @@
         @Column(name="deleted", nullable = false)
         private  boolean deleted;
 
-        @Column(name="deletion_message")
+        @Column(name="deleted_message")
         private String deletionMessage;
 
         @ManyToMany(fetch = FetchType.LAZY)

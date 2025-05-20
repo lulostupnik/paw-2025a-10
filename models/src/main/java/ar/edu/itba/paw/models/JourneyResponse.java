@@ -36,7 +36,7 @@ public class JourneyResponse {
     @Setter
     private  boolean deleted;
 
-    @Column(name = "deletion_message", length = 2047)
+    @Column(name = "deleted_message", length = 2047)
     @ToString.Exclude
     @Setter
     private  String deletionMessage;

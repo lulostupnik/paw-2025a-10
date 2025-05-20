@@ -30,7 +30,7 @@ public class Journey{
     private String description;
     @Column(name="deleted", nullable = false)
     private boolean deleted;
-    @Column(name = "deletion_message", length = 2047)
+    @Column(name = "deleted_message", length = 2047)
     private String deletionMessage;
     @OneToMany(mappedBy = "journey", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     List<JourneyResponse> responses;

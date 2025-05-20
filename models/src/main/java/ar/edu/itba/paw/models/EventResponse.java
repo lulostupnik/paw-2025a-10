@@ -33,7 +33,7 @@ public class EventResponse {
     @Column(name="deleted", nullable = false)
     @Setter
     private  boolean deleted;
-    @Column(name = "deletion_message", length = 2047)
+    @Column(name = "deleted_message", length = 2047)
     @Setter
     private  String deletionMessage;
 
