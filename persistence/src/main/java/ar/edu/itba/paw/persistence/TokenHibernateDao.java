@@ -28,7 +28,7 @@ public class TokenHibernateDao implements TokenDao {
 
     @Override
     public Optional<Token> findByToken(String token) {
-        return entityManager.createQuery("FROM Token WHERE token = :token", Token.class)
+        return entityManager.createQuery("FROM Token t WHERE t.token = :token", Token.class)
                 .setParameter("token", token)
                 .getResultStream()
                 .findFirst();
@@ -36,7 +36,7 @@ public class TokenHibernateDao implements TokenDao {
 
     @Override
     public Optional<Token> findByUserId(long userId) {
-        return entityManager.createQuery("FROM Token WHERE user = :userId", Token.class)
+        return entityManager.createQuery("FROM Token WHERE user.id = :userId", Token.class)
                 .setParameter("userId", userId)
                 .getResultStream()
                 .findFirst();
