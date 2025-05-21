@@ -49,34 +49,34 @@ public class UserHibernateDao implements UserDao {
         return true; //@todo
     }
 
-    @Override
-    public Optional<UserAuthInfo> updateValidationAndFindAuthInfoByToken(String token) {
-        return Optional.empty(); //@todo
-    }
+//    @Override
+//    public Optional<UserAuthInfo> updateValidationAndFindAuthInfoByToken(String token) {
+//        return Optional.empty(); //@todo
+//    }
 
-    //@Todo
-    @Override
-    public Optional<UserAuthInfo> findAuthInfoByEmail(final String email) {
-        Query query = em.createNativeQuery("""
-        SELECT email, password, roles, blocked, validated
-        FROM users
-        WHERE email = :email
-    """);
-        query.setParameter("email", email);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        return results.stream().findFirst().map(row ->
-                new UserAuthInfo(
-                        (String) row[0],  // email
-                        (String) row[1],  // password
-                        (String) row[2],  // roles
-                        (Boolean) row[3], // blocked
-                        (Boolean) row[4]  // validated → verified
-                )
-        ); //@TOdo preguntar. se puede hacer sin nativeQuery?
-    }
+//    //@Todo
+//    @Override
+//    public Optional<UserAuthInfo> findAuthInfoByEmail(final String email) {
+//        Query query = em.createNativeQuery("""
+//        SELECT email, password, roles, blocked, validated
+//        FROM users
+//        WHERE email = :email
+//    """);
+//        query.setParameter("email", email);
+//
+//        @SuppressWarnings("unchecked")
+//        List<Object[]> results = query.getResultList();
+//
+//        return results.stream().findFirst().map(row ->
+//                new UserAuthInfo(
+//                        (String) row[0],  // email
+//                        (String) row[1],  // password
+//                        (String) row[2],  // roles
+//                        (Boolean) row[3], // blocked
+//                        (Boolean) row[4]  // validated → verified
+//                )
+//        ); //@TOdo preguntar. se puede hacer sin nativeQuery?
+//    }
 /*
     @Override
     public Optional<UserAuthInfo> findAuthInfoByEmail(final String email) {

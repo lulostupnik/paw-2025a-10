@@ -14,7 +14,7 @@ public interface UserService {
     void resetPassword(String token, String newPassword);
     void initiatePasswordReset(String email);
     Optional<User> findUserByEmail(String email);
-    Optional<UserAuthInfo> findAuthInfoByEmail(String email);
+//    Optional<UserAuthInfo> findAuthInfoByEmail(String email);
     Optional<User> findUserById(long id);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);

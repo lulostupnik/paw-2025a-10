@@ -19,9 +19,9 @@ public interface UserDao {
 
     Optional<User> findByEmail(String email);
 
-    Optional<UserAuthInfo> updateValidationAndFindAuthInfoByToken(String token);
+//    Optional<UserAuthInfo> updateValidationAndFindAuthInfoByToken(String token);
 
-    Optional<UserAuthInfo> findAuthInfoByEmail(String email);
+//    Optional<UserAuthInfo> findAuthInfoByEmail(String email);
 
     boolean existsByUsername(String username);
 

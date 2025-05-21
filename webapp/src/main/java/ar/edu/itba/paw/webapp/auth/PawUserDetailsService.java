@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.webapp.auth;
 
 import ar.edu.itba.paw.interfaces.services.UserService;
+import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.UserAuthInfo;
 import ar.edu.itba.paw.models.exceptions.UserValidatedException;
 import org.slf4j.Logger;
@@ -29,7 +30,7 @@ public class PawUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        final UserAuthInfo user = us.findAuthInfoByEmail(username).orElseThrow(() -> {
+        final User user = us.findUserByEmail(username).orElseThrow(() -> {
             LOGGER.warn("Failed login attempt: No user found with username '{}'", username);
             return new UsernameNotFoundException("No user by the name " + username);
         });
@@ -40,7 +41,7 @@ public class PawUserDetailsService implements UserDetailsService {
             LOGGER.warn("User is blocked");
             throw new DisabledException("User is blocked");
         }
-        if(!user.isVerified()){
+        if(!user.isValidated()){
             LOGGER.warn("User is not verified");
             throw new UserValidatedException("User is not verified");
         }

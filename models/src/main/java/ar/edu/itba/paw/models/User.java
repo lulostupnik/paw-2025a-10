@@ -73,8 +73,8 @@ public class User{
     private boolean validated;
 
 
-//    @Column(name = "roles")
-//    private String role;
+    @Column(name = "roles")
+    private String role;
 
     /* For hibernate */ User(){
 
@@ -95,6 +95,7 @@ public class User{
         this.events = new ArrayList<>();
         this.journey = null;
         this.validated = validated;
+        this.role = "user";
     }
     public User (final Long id, final String email, final String username, final String firstname,
                 final String lastname, final University university, final Career career,
@@ -113,6 +114,8 @@ public class User{
         this.events = new ArrayList<>();
         this.journey = null;
         this.validated = validated;
+        this.role = "user";
+
     }
 
 
@@ -131,6 +134,8 @@ public class User{
         this.events = new ArrayList<>();
         this.journey = null;
         this.validated = validated;
+        this.role = "user";
+
     }
     public void addInterest(Interest interest) {
         UserInterest userInterest = new UserInterest(this, interest, 0);

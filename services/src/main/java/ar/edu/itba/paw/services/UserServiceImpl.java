@@ -130,11 +130,11 @@ public class UserServiceImpl implements UserService {
         return userDao.findByEmail(email);
     }
 
-    @Override
-    public Optional<UserAuthInfo> findAuthInfoByEmail(final String email) {
-        LOGGER.debug("Searching for authUser with email: {}", email);
-        return userDao.findAuthInfoByEmail(email);
-    }
+//    @Override
+//    public Optional<UserAuthInfo> findAuthInfoByEmail(final String email) {
+//        LOGGER.debug("Searching for authUser with email: {}", email);
+//        return userDao.findAuthInfoByEmail(email);
+//    }
 
     @Override
     public Optional<User> findUserById(final long id) {
