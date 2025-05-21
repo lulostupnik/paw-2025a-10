@@ -58,6 +58,7 @@ class HibernateDaoUtils {
         idQuery.setFirstResult(offset(pageParams)); // modularized offset
 
         List<Long> ids = ((List<?>) idQuery.getResultList()).stream()
+                .filter(Number.class::isInstance) // Ensure type safety
                 .map(n -> ((Number) n).longValue())
                 .collect(Collectors.toList());
 
