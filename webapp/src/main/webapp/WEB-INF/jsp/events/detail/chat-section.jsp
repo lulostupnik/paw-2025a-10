@@ -65,12 +65,12 @@
                         <div class="message-user">
                             <div class="message-avatar">
                                 <div class="avatar-placeholder">
-                                    <c:out value="${fn:substring(response.username, 0, 1)}" />
+                                    <c:out value="${fn:substring(response.user.username, 0, 1)}" />
                                 </div>
                             </div>
                             <div class="message-user-info">
                                 <h3 class="message-username">
-                                    <c:out value="${response.username}" />
+                                    <c:out value="${response.user.username}" />
                                 </h3>
                                 <p class="message-date">
                                     <c:out value="${response.formattedDate}" />
