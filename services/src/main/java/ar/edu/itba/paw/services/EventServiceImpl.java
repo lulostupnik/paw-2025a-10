@@ -65,7 +65,7 @@ public class EventServiceImpl implements EventService {
         long flyerImageId = imageService.createImage(flyer);
         Event event = eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit); //fixme: reemplazar por new Event
         LOGGER.info("Event {} created", event.getId());
-        event.getAttendees().add(user);
+//        event.getAttendees().add(user);
 //        eventAttendanceDao.create(user.getId(), event.getId());
 //        eventDao.incrementAttendeesCount(event.getId()); @TODO esto? el modelo se crea con 1.
         return event;
