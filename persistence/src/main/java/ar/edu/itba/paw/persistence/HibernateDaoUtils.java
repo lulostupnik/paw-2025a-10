@@ -48,7 +48,7 @@ class HibernateDaoUtils {
             Map<String, Object> parameters,
             String jpqlFetchById,
             Class<T> clazz,
-            PageParams pageParams //@TODO podria recibir el nombre SQL de los ids.
+            PageParams pageParams
     ) {
         // Count total
         Query countQuery = em.createNativeQuery(countSql);

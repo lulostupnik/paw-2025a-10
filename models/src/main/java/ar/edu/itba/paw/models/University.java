@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +23,7 @@ public class University{
     private  String abbreviation;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "city_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JsonIgnore //fixme: el modelo define que esto no aparece en JSON (raro)
     private  City city;
     @Column(name="deleted", nullable = false)
     private  boolean deleted;
