@@ -20,10 +20,10 @@ public class UserHibernateDao implements UserDao {
     private EntityManager em;
 
         @Override
-        public User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale, String validateToken, LocalDate validateTokenExpiration) {
+        public User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale, boolean validated) {
 //            final User user = new User(email, username, firstname, lastname, university, career, profilePictureId, password, locale, validateToken, validateTokenExpiration);
 
-            final User user = new User(email, username,  firstname, lastname, university,  career, profilePictureId, password, locale);
+            final User user = new User(email, username,  firstname, lastname, university,  career, profilePictureId, password, locale,validated);
 
             em.persist(user);
 

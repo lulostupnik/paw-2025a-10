@@ -28,9 +28,10 @@ public class UserServiceImpl implements UserService {
     private final InterestService interestService;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
 
     @Autowired
-    public UserServiceImpl(final UniversityService universityService, final UserDao userDao, final ImageService imageService, final CareerService careerService, final InterestService interestService,final  PasswordEncoder passwordEncoder, final EmailService emailService) {
+    public UserServiceImpl(final UniversityService universityService, final UserDao userDao, final ImageService imageService, final CareerService careerService, final InterestService interestService,final  PasswordEncoder passwordEncoder, final EmailService emailService, final TokenService tokenService) {
         this.universityService = universityService;
         this.userDao = userDao;
         this.imageService = imageService;
@@ -38,6 +39,7 @@ public class UserServiceImpl implements UserService {
         this.interestService = interestService;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
+        this.tokenService = tokenService;
     }
 
 
@@ -58,13 +60,12 @@ public class UserServiceImpl implements UserService {
                 });
 
         long profilePictureId = imageService.createImage(profilePicture);
-        String uid = UUID.randomUUID().toString();
-        LocalDate tomorrow = LocalDate.now().plusDays(1);
-        User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId, passwordEncoder.encode(password), locale,uid,tomorrow);
+        User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId, passwordEncoder.encode(password), locale, false);
         LOGGER.info("Successfully created user with ID: {} and email: {}", user.getId(), email);
         interestService.createUserInterests(interests, user.getId());
         LOGGER.info("User interests saved successfully for user ID: {}", user.getId());
-        emailService.sendValidationEmail(user,uid);
+        Token token = tokenService.userTokenControl(user);
+        emailService.sendValidationEmail(user,token.getToken());
         LOGGER.info("Validation email sent successfully to user ID: {}", user.getId());
         return user;
     }

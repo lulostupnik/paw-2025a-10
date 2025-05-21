@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.models;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ public class Token {
     @Column(name = "id", nullable = false, updatable = false)
     private Long tokenId;
 
+    @Setter
     @Column(length = 32, nullable = false)
     private String token;
 
@@ -30,6 +32,7 @@ public class Token {
     private User user;
 
     //TODO:Esto esta bueno cambiarlo de LocalDate porque asi es mas preciso, no?
+    @Setter
     @Column(name = "token_expiration",nullable = false)
     private LocalDateTime expirationDate;
 
@@ -42,5 +45,10 @@ public class Token {
         this.token = token;
         this.expirationDate = expirationDate;
     }
+
+    public boolean isExpired() {
+        return LocalDateTime.now().isAfter(expirationDate);
+    }
+
 
 }

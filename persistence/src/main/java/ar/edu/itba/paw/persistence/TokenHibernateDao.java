@@ -42,39 +42,22 @@ public class TokenHibernateDao implements TokenDao {
                 .findFirst();
     }
 
-    @Override
-    public boolean existsByToken(String token) {
-        return entityManager.createQuery("SELECT COUNT(t) > 0 FROM Token t WHERE t.token = :token", Boolean.class)
-                .setParameter("token", token)
-                .getSingleResult();
-    }
 
     @Override
-    public boolean existsByTokenAndNotExpired(String token) {
-        return entityManager.createQuery("SELECT COUNT(t) > 0 FROM Token t WHERE t.token = :token AND t.expirationDate > CURRENT_DATE", Boolean.class)
-                .setParameter("token", token)
-                .getSingleResult();
+    public void deleteByToken(Token token) {
+        final Token tkn = entityManager.getReference(Token.class, token.getTokenId());
+        entityManager.remove(tkn);
+        entityManager.flush();
+        //Ver tema token no se encuentra en la base de datos
+        //no deberia llegar a este punto
     }
 
-    @Override
-    public void deleteByToken(String token) {
-        entityManager.createQuery("DELETE FROM Token WHERE token = :token")
-                .setParameter("token", token)
-                .executeUpdate();
-    }
+
 
     @Override
-    public void deleteByUserId(long userId) {
-        entityManager.createQuery("DELETE FROM Token WHERE user = :userId")
-                .setParameter("userId", userId)
-                .executeUpdate();
-    }
-
-    @Override
-    public void updateExpiration(String token, LocalDateTime newExpirationDate) {
-        entityManager.createQuery("UPDATE Token SET expiryDate = :newExpirationDate WHERE token = :token")
-                .setParameter("newExpirationDate", newExpirationDate)
-                .setParameter("token", token)
+    public void deleteExpiredTokens() {
+        entityManager.createQuery("DELETE FROM Token t WHERE t.expirationDate < :currentDate")
+                .setParameter("currentDate", LocalDateTime.now())
                 .executeUpdate();
     }
 }

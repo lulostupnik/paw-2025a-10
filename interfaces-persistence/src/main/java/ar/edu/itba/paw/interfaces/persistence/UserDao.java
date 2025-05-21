@@ -7,7 +7,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 public interface UserDao {
-    User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale, String validateToken, LocalDate validateTokenExpiration);
+    User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale, boolean validated);
 
     void updatePasswordAndClearTokenByToken(String token, String newPassword);
 

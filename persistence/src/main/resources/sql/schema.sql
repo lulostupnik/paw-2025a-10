@@ -256,10 +256,9 @@ CREATE TABLE IF NOT EXISTS tokens (
     user_id BIGINT NOT NULL,
     token VARCHAR(100) UNIQUE,
     token_expiration TIMESTAMP,
-    validated BOOLEAN NOT NULL DEFAULT TRUE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
-INSERT INTO tokens (user_id, token, token_expiration, validated)
-SELECT id, token, token_expiration, validated FROM users;
+INSERT INTO tokens (user_id, token, token_expiration)
+SELECT id, token, token_expiration FROM users;
 COMMIT;
 

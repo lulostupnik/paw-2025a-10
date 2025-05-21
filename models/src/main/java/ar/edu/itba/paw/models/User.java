@@ -62,17 +62,17 @@ public class User{
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL ,orphanRemoval = true, fetch = FetchType.LAZY)
     private Journey journey;
 
-    //Creo que mejor eager
-//    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL ,orphanRemoval = true, fetch = FetchType.LAZY)
-//    private Token token;
-//
-
-
+    //TODO:Check cascasde and orphan removal
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL ,orphanRemoval = true, fetch = FetchType.LAZY)
+    private Token token;
 
     @Column(name = "password", length = 100)
     private String password;
-//    @Column(name = "validated")
-//    private boolean validated;
+
+    @Column(name = "validated")
+    private boolean validated;
+
+
 //    @Column(name = "roles")
 //    private String role;
 
@@ -81,7 +81,7 @@ public class User{
     }
     public User (final String email, final String username, final String firstname,
                 final String lastname, final University university, final Career career,
-                final long profilePictureId, final Locale locale, final List<UserInterest> interests) {
+                final long profilePictureId, final Locale locale, final List<UserInterest> interests, final boolean validated) {
         this.email = email;
         this.username = username;
         this.firstname = firstname;
@@ -94,10 +94,11 @@ public class User{
         this.interests = interests;
         this.events = new ArrayList<>();
         this.journey = null;
+        this.validated = validated;
     }
     public User (final Long id, final String email, final String username, final String firstname,
                 final String lastname, final University university, final Career career,
-                final long profilePictureId, final Locale locale, final boolean blocked, final List<UserInterest> interests) {
+                final long profilePictureId, final Locale locale, final boolean blocked, final List<UserInterest> interests,final boolean validated) {
         this.id = id;
         this.email = email;
         this.username = username;
@@ -111,10 +112,11 @@ public class User{
         this.interests = interests;
         this.events = new ArrayList<>();
         this.journey = null;
+        this.validated = validated;
     }
 
 
-    public User(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale) {
+    public User(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale, boolean validated) {
         this.email = email;
         this.username = username;
         this.firstname = firstname;
@@ -128,6 +130,7 @@ public class User{
         this.interests = List.of();
         this.events = new ArrayList<>();
         this.journey = null;
+        this.validated = validated;
     }
 
 

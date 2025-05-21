@@ -3,7 +3,6 @@ package ar.edu.itba.paw.interfaces.persistence;
 import ar.edu.itba.paw.models.Token;
 import ar.edu.itba.paw.models.User;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -15,13 +14,7 @@ public interface TokenDao {
 
     Optional<Token> findByUserId(long userId);
 
-    boolean existsByToken(String token);
+    void deleteByToken(Token token);
 
-    boolean existsByTokenAndNotExpired(String token);
-
-    void deleteByToken(String token);
-
-    void deleteByUserId(long userId);
-
-    void updateExpiration(String token, LocalDateTime newExpirationDate);
+    void deleteExpiredTokens();
 }
