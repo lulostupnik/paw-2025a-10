@@ -168,26 +168,6 @@ public class User{
         sb.append(locale);
         sb.append("\", profilePictureId: ");
         sb.append(profilePictureId);
-        sb.append(", blocked: ");
-        sb.append(isBlocked);
-        sb.append(", interests: [");
-        for (int i = 0; i < interests.size(); i++) {
-            sb.append(interests.get(i).getId());
-            if (i < interests.size() - 1) {
-                sb.append(", ");
-            }
-        }
-        sb.append("], events: [");
-        for (int i = 0; i < events.size(); i++) {
-            sb.append(events.get(i).getId());
-            if (i < events.size() - 1) {
-                sb.append(", ");
-            }
-        }
-        sb.append("], journey: ");
-        sb.append(journey.getId());
-        sb.append(", token: ");
-
         sb.append("}");
         return sb.toString();
     }
