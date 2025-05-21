@@ -265,15 +265,15 @@
                                         <div class="response-user">
                                             <div class="response-avatar">
                                                 <div class="avatar-placeholder">
-                                                    <c:out value="${fn:substring(response.username, 0, 1)}" />
+                                                    <c:out value="${fn:substring(response.user.username, 0, 1)}" />
                                                 </div>
                                             </div>
                                             <div class="response-user-info">
                                                 <h3 class="response-username">
-                                                    <c:out value="${response.username}" />
+                                                    <c:out value="${response.user.username}" />
                                                 </h3>
                                                 <p class="response-date">
-                                                    <c:out value="${response.getFormattedDate()}" />
+                                                    <c:out value="${response.dateTime}" />
                                                 </p>
                                             </div>
                                         </div>

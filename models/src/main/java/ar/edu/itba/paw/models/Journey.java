@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "journeys")
 public class Journey{
@@ -20,19 +19,26 @@ public class Journey{
     @OneToOne(fetch = FetchType.EAGER, optional = false)
     private User user;
     @Column(name = "start_date", nullable = false)
+    @Setter
     private LocalDate startDate;
     @Column(name = "end_date", nullable = false)
+    @Setter
     private LocalDate endDate;
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "destination_university_id", nullable = false)
+    @Setter
     private University destinationUniversity;
     @Column(length = 2047)
+    @Setter
     private String description;
     @Column(name="deleted", nullable = false)
+    @Setter
     private boolean deleted;
     @Column(name = "deleted_message", length = 2047)
+    @Setter
     private String deletionMessage;
     @OneToMany(mappedBy = "journey", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Setter
     List<JourneyResponse> responses;
 
     /* For hibernate */ Journey() {

@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Locale;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "users")
 public class User{
@@ -21,9 +20,11 @@ public class User{
     @Column(name = "id")
     private  Long id;
 
+    @Setter
     @Column(name = "email", unique = true, nullable = false, length = 100)
     private  String email;
 
+    @Setter
     @Column(name ="username", unique = true, nullable = false, length = 50)
     private  String username;
 
@@ -38,7 +39,7 @@ public class User{
     private  University university;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "career_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "career_id", nullable = false)
     private  Career career;
 
     @Column(name = "profile_picture_id", nullable = false)
@@ -48,6 +49,7 @@ public class User{
     private  Locale locale;
 
     @Column(name="blocked", nullable = false)
+    @Setter
     private  boolean isBlocked;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -63,13 +65,16 @@ public class User{
     private Journey journey;
 
     //TODO:Check cascasde and orphan removal
+    @Setter
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL ,orphanRemoval = true, fetch = FetchType.LAZY)
     private Token token;
 
     @Column(name = "password", length = 100)
+    @Setter
     private String password;
 
     @Column(name = "validated")
+    @Setter
     private boolean validated;
 
 
@@ -158,6 +163,25 @@ public class User{
         sb.append(locale);
         sb.append("\", profilePictureId: ");
         sb.append(profilePictureId);
+        sb.append(", blocked: ");
+        sb.append(isBlocked);
+        sb.append(", interests: [");
+        for (int i = 0; i < interests.size(); i++) {
+            sb.append(interests.get(i).getId());
+            if (i < interests.size() - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append("], events: [");
+        for (int i = 0; i < events.size(); i++) {
+            sb.append(events.get(i).getId());
+            if (i < events.size() - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append("], journey: ");
+        sb.append(journey.getId());
+        sb.append(", token: ");
 
         sb.append("}");
         return sb.toString();

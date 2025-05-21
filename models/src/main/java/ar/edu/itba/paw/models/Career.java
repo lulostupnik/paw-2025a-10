@@ -23,7 +23,7 @@ public class Career {
     private  String name;
     @Column(name="deleted", nullable = false)
     @Setter
-    private  boolean deleted;
+    private boolean deleted;
 
     public Career() {
     }

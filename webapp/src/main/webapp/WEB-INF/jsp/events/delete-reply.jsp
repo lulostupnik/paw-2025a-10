@@ -36,7 +36,7 @@
           <div class="journey-summary">
             <h3><spring:message code="eventResponse.delete.summary" /></h3>
             <div class="reply-content-preview">
-              <p><strong><spring:message code="eventResponse.author" />:</strong> <c:out value="${eventResponse.username}" /></p>
+              <p><strong><spring:message code="eventResponse.author" />:</strong> <c:out value="${eventResponse.user.username}" /></p>
               <p><strong><spring:message code="eventResponse.date" />:</strong> <c:out value="${eventResponse.formattedDate}" /></p>
               <p><strong><spring:message code="eventResponse.content" />:</strong></p>
               <div class="message-preview">

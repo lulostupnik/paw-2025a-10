@@ -110,6 +110,7 @@ public class CareerHibernateDao implements CareerDao {
         final Career career = em.find(Career.class, id);
         if (career != null) {
             career.setName(name);
+            career.setDeleted(false);
             em.merge(career);
         }
     }
