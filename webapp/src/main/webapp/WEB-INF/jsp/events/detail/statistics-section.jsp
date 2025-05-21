@@ -72,7 +72,7 @@
                 <div class="stat-item">
                     <span class="stat-label"><spring:message code="event.stats.totalParticipants" /></span>
                     <c:if test="${event.attendeesLimit != null}">
-                        <span class="stat-value">(<c:out value="${event.attendeesCount}" /> / <c:out value="${event.attendeesLimit.get()}" />)</span>
+                        <span class="stat-value">(<c:out value="${event.attendeesCount}" /> / <c:out value="${event.attendeesLimit}" />)</span>
                     </c:if>
                     <c:if test="${event.attendeesLimit.isEmpty()}">
                         <span class="stat-value">(<c:out value="${event.attendeesCount}" /> / <spring:message code="event.noAttendeesLimit"/>)</span>

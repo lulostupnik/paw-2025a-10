@@ -56,9 +56,9 @@
             <c:choose>
               <c:when test="${!empty event.attendeesLimit && event.attendeesLimit > 0}">
                 <div class="attendee-progress">
-                  <span class="attendee-count"><c:out value="${event.attendeesCount}"/>/<c:out value="${event.attendeesLimit.get()}"/></span>
+                  <span class="attendee-count"><c:out value="${event.attendeesCount}"/>/<c:out value="${event.attendeesLimit}"/></span>
                   <div class="progress-bar">
-                    <div class="progress-fill" style="width: <c:out value="${(event.attendeesCount * 100 / event.attendeesLimit.get())}"/>%"></div>
+                    <div class="progress-fill" style="width: <c:out value="${(event.attendeesCount * 100 / event.attendeesLimit)}"/>%"></div>
                   </div>
                 </div>
               </c:when>
