@@ -80,11 +80,10 @@ public class UniversityHibernateDao implements UniversityDao {
                 SELECT u.id
                 FROM universities u
                 WHERE (LOWER(u.name) like :pattern  OR LOWER (u.abbreviation) like :pattern ) and u.deleted = false
-                LIMIT :limit OFFSET :offset
                 """;
         final String jpqlFetch = """
                 FROM University u
-                WHERE u.id = :id in :ids 
+                WHERE u.id IN :ids
                 """;
         return fetchPageByIds(
                 em,
@@ -100,7 +99,7 @@ public class UniversityHibernateDao implements UniversityDao {
     @Override
     public Page<University> findAll(PageParams pageParams) {
         final String countSql = """
-                SELECT COUNT(*) 
+                SELECT COUNT(*)
                 FROM universities u
                 WHERE u.deleted = false
                 """;
@@ -108,12 +107,11 @@ public class UniversityHibernateDao implements UniversityDao {
                 SELECT u.id
                 FROM universities u
                 WHERE u.deleted = false
-                LIMIT :limit OFFSET :offset
                 """;
 
         final String jpqlFetch = """
                 FROM University u
-                WHERE u.id = :id in :ids 
+                WHERE u.id IN :ids
                 """;
 
         return fetchPageByIds(

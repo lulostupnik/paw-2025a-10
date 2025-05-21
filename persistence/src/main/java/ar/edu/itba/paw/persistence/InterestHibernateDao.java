@@ -66,7 +66,6 @@ public class InterestHibernateDao implements InterestDao {
                 SELECT i.id
                 FROM interests i
                 WHERE i.deleted = false
-                LIMIT :limit OFFSET :offset
                 """;
         final String jpqlFetch = """
                 FROM Interest i
@@ -104,7 +103,6 @@ public class InterestHibernateDao implements InterestDao {
                 SELECT i.id
                 FROM Interest i
                 WHERE LOWER(i.name) LIKE :pattern
-                LIMIT :limit OFFSET :offset
                 """;
 
         final String jpqlFetch = """

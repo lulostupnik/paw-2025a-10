@@ -40,7 +40,7 @@ public class CareerHibernateDao implements CareerDao {
     @Override
     public Page<Career> findAll(PageParams pageParams) {
         final String countSql = """
-                SELECT COUNT(*) 
+                SELECT COUNT(*)
                 FROM careers c
                 WHERE c.deleted = false
                 """;
@@ -49,12 +49,11 @@ public class CareerHibernateDao implements CareerDao {
                 SELECT c.id
                 FROM careers c
                 WHERE c.deleted = false
-                LIMIT :limit OFFSET :offset
-                """;
+                """; // todo falta ORDER BY
 
         final String jpqlFetch = """
                 FROM Career c
-                WHERE c.id = :id in :ids 
+                WHERE c.id IN :ids
                 """;
         return fetchPageByIds(
                 em,
@@ -64,7 +63,8 @@ public class CareerHibernateDao implements CareerDao {
                 jpqlFetch,
                 Career.class,
                 pageParams
-        );    }
+        );
+    }
 
     @Override
     public Page<Career> search(final String searchTerm, final PageParams pageParams) {
@@ -82,11 +82,10 @@ public class CareerHibernateDao implements CareerDao {
                 FROM careers c
                 WHERE LOWER(c.name) LIKE :pattern
                 and c.deleted = false
-                LIMIT :limit OFFSET :offset
                 """;
         final String jpqlFetch = """
                 FROM Career c
-                WHERE c.id = :id in :ids 
+                WHERE c.id IN :ids 
                 """;
 
         return fetchPageByIds(

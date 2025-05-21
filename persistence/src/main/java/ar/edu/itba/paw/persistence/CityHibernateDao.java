@@ -48,12 +48,11 @@ public class CityHibernateDao implements CityDao {
                 SELECT c.id
                 FROM cities c
                 WHERE (LOWER(c.name) like :pattern  OR LOWER (c.country.name) like :pattern ) and c.deleted = false
-                LIMIT :limit OFFSET :offset
                 """;
 
         final String jpqlFetch = """
                 FROM City c
-                WHERE c.id = :id in :ids 
+                WHERE c.id IN :ids 
                 """;
 
         return fetchPageByIds(
@@ -79,11 +78,10 @@ public class CityHibernateDao implements CityDao {
                 SELECT c.id
                 FROM cities c
                 WHERE c.deleted = false
-                LIMIT :limit OFFSET :offset
                 """;
         final String jpqlFetch = """
                 FROM City c
-                WHERE c.id = :id in :ids 
+                WHERE c.id IN :ids 
                 """;
         return fetchPageByIds(
                 em,
