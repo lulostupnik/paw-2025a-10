@@ -249,3 +249,17 @@ ALTER TABLE users add column IF NOT EXISTS blocked BOOLEAN NOT NULL DEFAULT FALS
 
 ALTER TABLE users DROP CONSTRAINT IF EXISTS users_language_check;
 
+
+BEGIN;
+CREATE TABLE IF NOT EXISTS tokens (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    token VARCHAR(100) UNIQUE NOT NULL,
+    token_expiration TIMESTAMP NOT NULL,
+    validated BOOLEAN NOT NULL DEFAULT TRUE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+INSERT INTO tokens (user_id, token, token_expiration, validated)
+SELECT id, token, token_expiration, validated FROM users;
+COMMIT;
+
