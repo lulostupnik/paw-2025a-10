@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -15,6 +16,7 @@ public class City {
     private  String name;
     @ManyToOne
     @Setter
+    @JsonIgnore
     private  Country country;
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator =
@@ -43,6 +45,19 @@ public class City {
     @Override
     public String toString() {
         return name + ", " + country;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof City)) return false;
+        City city = (City) o;
+        return id != null && id.equals(city.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 
     }

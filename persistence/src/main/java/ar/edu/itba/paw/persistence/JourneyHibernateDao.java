@@ -99,13 +99,13 @@ public class JourneyHibernateDao implements JourneyDao {
         return null;
     }
 
-    private String getOrderByColumn(SortFieldJourney orderBy) {
+    private String getOrderByColumn(SortFieldJourney orderBy, boolean jql) {
         if(orderBy == null){
             return "j.id";
         }
         return switch (orderBy) {
-            case START_DATE -> "start_date";
-            case END_DATE   -> "end_date";
+            case START_DATE -> jql? "startDate":"start_date";
+            case END_DATE   -> jql? "endDate":"end_date";
             default         -> "j.id";
         };
     }
@@ -228,7 +228,7 @@ public class JourneyHibernateDao implements JourneyDao {
             idSql.append(whereClause);
         }
 
-        String orderColumn = getOrderByColumn(orderBy);
+        String orderColumn = getOrderByColumn(orderBy, false);
         String dir = (direction == SortDirection.DESC) ? "DESC" : "ASC";
 
 
@@ -236,7 +236,7 @@ public class JourneyHibernateDao implements JourneyDao {
 
         idSql.append(" ORDER BY ").append(orderColumn).append(" ").append(dir);
 
-        String jpqlFetch = "FROM Journey j WHERE j.id IN :ids ORDER BY j." + orderColumn + " " + dir;
+        String jpqlFetch = "FROM Journey j WHERE j.id IN :ids ORDER BY j." + getOrderByColumn(orderBy, true)  + " " + dir;
 
         return fetchPageByIds(em, countSql.toString(), idSql.toString(), paramMap, jpqlFetch, Journey.class, pageParams);
     }
