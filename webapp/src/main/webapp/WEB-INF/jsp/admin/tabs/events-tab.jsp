@@ -50,7 +50,7 @@
         <tr class="clickable-row"  onclick="saveLink()" data-href="<c:url value="../events/${event.id}"/>" >
           <td><c:out value="${event.title}"/></td>
           <td><c:out value="${event.user.username}"/></td>
-          <td><c:out value="${event.eventCity}"/></td>
+          <td><c:out value="${event.city}"/></td>
           <td><c:out value="${event.date}"/></td>
           <td>
             <c:choose>
