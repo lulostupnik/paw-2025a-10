@@ -255,7 +255,7 @@ CREATE TABLE IF NOT EXISTS tokens (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
     token VARCHAR(100) UNIQUE,
-    token_expiration TIMESTAMP NOT NULL,
+    token_expiration TIMESTAMP,
     validated BOOLEAN NOT NULL DEFAULT TRUE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
