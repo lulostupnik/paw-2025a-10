@@ -262,3 +262,40 @@ INSERT INTO tokens (user_id, token, token_expiration)
 SELECT id, token, token_expiration FROM users;
 COMMIT;
 
+
+-- BEGIN;
+-- -- IDs: SERIAL → BIGINT
+-- ALTER TABLE images ALTER COLUMN id TYPE BIGINT;
+-- ALTER TABLE category ALTER COLUMN id TYPE BIGINT;
+-- ALTER TABLE countries ALTER COLUMN id TYPE BIGINT;
+-- ALTER TABLE cities ALTER COLUMN id TYPE BIGINT;
+-- ALTER TABLE universities ALTER COLUMN id TYPE BIGINT;
+-- ALTER TABLE careers ALTER COLUMN id TYPE BIGINT;
+-- ALTER TABLE users ALTER COLUMN id TYPE BIGINT;
+-- ALTER TABLE journeys ALTER COLUMN id TYPE BIGINT;
+-- ALTER TABLE journey_responses ALTER COLUMN id TYPE BIGINT;
+-- ALTER TABLE events ALTER COLUMN id TYPE BIGINT;
+-- ALTER TABLE event_responses ALTER COLUMN id TYPE BIGINT;
+-- -- ALTER TABLE tokens ALTER COLUMN id TYPE BIGINT;
+--
+-- -- Foreign keys: INTEGER → BIGINT
+-- ALTER TABLE cities ALTER COLUMN country_id TYPE BIGINT;
+-- ALTER TABLE universities ALTER COLUMN city_id TYPE BIGINT;
+-- ALTER TABLE users ALTER COLUMN university TYPE BIGINT;
+-- ALTER TABLE users ALTER COLUMN career_id TYPE BIGINT;
+-- ALTER TABLE users ALTER COLUMN profile_picture_id TYPE BIGINT;
+-- ALTER TABLE user_interest ALTER COLUMN user_id TYPE BIGINT;
+-- ALTER TABLE user_interest ALTER COLUMN category_id TYPE BIGINT;
+-- ALTER TABLE journeys ALTER COLUMN user_id TYPE BIGINT;
+-- ALTER TABLE journeys ALTER COLUMN destination_university_id TYPE BIGINT;
+-- ALTER TABLE journey_responses ALTER COLUMN user_id TYPE BIGINT;
+-- ALTER TABLE journey_responses ALTER COLUMN journey_id TYPE BIGINT;
+-- ALTER TABLE events ALTER COLUMN user_id TYPE BIGINT;
+-- ALTER TABLE events ALTER COLUMN city_id TYPE BIGINT;
+-- ALTER TABLE events ALTER COLUMN flyer_image_id TYPE BIGINT;
+-- ALTER TABLE event_responses ALTER COLUMN user_id TYPE BIGINT;
+-- ALTER TABLE event_responses ALTER COLUMN event_id TYPE BIGINT;
+-- ALTER TABLE event_attendances ALTER COLUMN user_id TYPE BIGINT;
+-- ALTER TABLE event_attendances ALTER COLUMN event_id TYPE BIGINT;
+-- -- ALTER TABLE tokens ALTER COLUMN user_id TYPE BIGINT;
+-- COMMIT;
