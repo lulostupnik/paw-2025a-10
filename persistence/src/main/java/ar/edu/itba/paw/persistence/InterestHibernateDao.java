@@ -145,6 +145,7 @@ public class InterestHibernateDao implements InterestDao {
         User user = userDao.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         for (String interest : interests) {
+            System.out.println("interests:" + user.getInterests());
             user.getInterests().add(new UserInterest(user, findByName( interest).orElseThrow(() -> new IllegalArgumentException("Interest not found"))));
         }
     }
@@ -154,7 +155,7 @@ public class InterestHibernateDao implements InterestDao {
         User user = userDao.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         for (long interest : interests) {
-            user.getInterests().add(new UserInterest(user, findById(interest).orElseThrow( () -> new IllegalArgumentException("Interest not found"))));
+            user.addInterest(findById(interest).orElseThrow(()->new RuntimeException("Interest not found")));
         }
     }
 

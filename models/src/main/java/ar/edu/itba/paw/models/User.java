@@ -127,12 +127,15 @@ public class User{
         this.password = password;
         this.locale = locale;
         this.isBlocked = false;
-        this.interests = List.of();
+        this.interests =  new ArrayList<>();
         this.events = new ArrayList<>();
         this.journey = null;
         this.validated = validated;
     }
-
+    public void addInterest(Interest interest) {
+        UserInterest userInterest = new UserInterest(this, interest, 0);
+        this.interests.add(userInterest);
+    }
 
     @Override
     public String toString() {

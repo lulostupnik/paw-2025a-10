@@ -7,6 +7,7 @@
     import java.time.LocalDate;
     import java.time.LocalDateTime;
     import java.time.LocalTime;
+    import java.util.ArrayList;
     import java.util.List;
 
     @Getter
@@ -77,8 +78,9 @@
             this.attendeesLimit = attendeesLimit;
             this.attendeesCount = 1; //user that created the event @TODO
             this.deleted = false;
-            this.attendees = List.of(user); //fixme: REVISAR ESTO CON JPA
-            this.responses = List.of();
+            this.attendees = new ArrayList<>();
+            this.attendees.add(user);//fixme: REVISAR ESTO CON JPA
+            this.responses = new ArrayList<>()
 
         }
         public Event(final Long id, final User user, final LocalDate date, final String description,
@@ -96,8 +98,8 @@
             this.attendeesLimit = attendeesLimit;
             this.attendeesCount = attendeesCount; //user that created the event @TODO
             this.deleted = false;
-            this.attendees = List.of(user);
-            this.responses = List.of();
+            this.attendees = new ArrayList<>(); this.attendees.add(user);
+            this.responses = new ArrayList<>();
         }
 
 
