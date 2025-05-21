@@ -35,7 +35,7 @@ public class AuthController {
     }
     @GetMapping(value ="/validate")
     public ModelAndView validateEmail(@RequestParam("token") String token) {
-        UserAuthInfo user = userService.verifyEmailToken(token);
+        User user = userService.verifyUser(token);
         loginHelper.loginUser(user.getEmail());
         return new ModelAndView("redirect:/explore?validationSuccess=true");
     }
@@ -47,7 +47,7 @@ public class AuthController {
 
     @GetMapping(value ="/reset-password")
     public ModelAndView changePassForm(@RequestParam("token") String token, @ModelAttribute("updatePasswordForm") UpdatePasswordForm form) {
-        userService.checkPasswordTokenValidity(token);
+        userService.checkTokenValidity(token);
         ModelAndView mav = new ModelAndView("auth/reset-password");
         mav.addObject("token", token);
         return mav;
@@ -55,7 +55,7 @@ public class AuthController {
 
     @PostMapping(value ="/reset-password")
     public ModelAndView changePass(@RequestParam("token") String token, @Valid @ModelAttribute("updatePasswordForm")UpdatePasswordForm form, final BindingResult errors) {
-        userService.checkPasswordTokenValidity(token);
+        userService.checkTokenValidity(token);
 
         if(errors.hasErrors()) {
             return changePassForm(token, form);
