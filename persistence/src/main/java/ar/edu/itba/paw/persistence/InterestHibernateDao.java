@@ -58,14 +58,12 @@ public class InterestHibernateDao implements InterestDao {
     @Override
     public Page<Interest> findAll(PageParams pageParams) {
         final String countSql = """
-                SELECT COUNT(*) 
-                FROM interests i
-                WHERE i.deleted = false
+                SELECT COUNT(*)
+                FROM category i
                 """;
         final String idSql = """
                 SELECT i.id
-                FROM interests i
-                WHERE i.deleted = false
+                FROM category i
                 """;
         final String jpqlFetch = """
                 FROM Interest i
