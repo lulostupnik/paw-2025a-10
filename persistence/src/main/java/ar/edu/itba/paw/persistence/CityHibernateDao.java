@@ -27,7 +27,7 @@ public class CityHibernateDao implements CityDao {
 
     @Override
     public Optional<City> findByName(String name) {
-        return em.createQuery("from City as c where c.name= :name", City.class)
+        return em.createQuery("FROM City as c where c.name= :name", City.class)
                 .setParameter("name", name)
                 .getResultList()
                 .stream()
@@ -39,20 +39,20 @@ public class CityHibernateDao implements CityDao {
         final String pattern = likePattern(substring);
 
         final String countSql = """
-                SELECT COUNT(*) 
-                FROM cities c
-                WHERE (LOWER(c.name) like :pattern  OR LOWER (c.country.name) like :pattern ) and c.deleted = false
+                SELECT COUNT(*)
+                FROM cities c JOIN countries co ON c.country_id = co.id
+                WHERE (LOWER(c.name) like :pattern  OR LOWER (co.name) like :pattern ) and c.deleted = false
                 """;
 
         final String idSql = """
                 SELECT c.id
-                FROM cities c
-                WHERE (LOWER(c.name) like :pattern  OR LOWER (c.country.name) like :pattern ) and c.deleted = false
+                FROM cities c JOIN countries co ON c.country_id = co.id
+                WHERE (LOWER(c.name) like :pattern  OR LOWER (co.name) like :pattern ) and c.deleted = false
                 """;
 
         final String jpqlFetch = """
                 FROM City c
-                WHERE c.id IN :ids 
+                WHERE c.id IN :ids
                 """;
 
         return fetchPageByIds(
