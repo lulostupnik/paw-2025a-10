@@ -30,7 +30,8 @@ public class TokenHibernateDao implements TokenDao {
     public Optional<Token> findByToken(String token) {
         return entityManager.createQuery("FROM Token t WHERE t.token = :token", Token.class)
                 .setParameter("token", token)
-                .getResultStream()
+                .getResultList()
+                .stream()
                 .findFirst();
     }
 
