@@ -80,7 +80,7 @@
             this.deleted = false;
             this.attendees = new ArrayList<>();
             this.attendees.add(user);//fixme: REVISAR ESTO CON JPA
-            this.responses = new ArrayList<>()
+            this.responses = new ArrayList<>();
 
         }
         public Event(final Long id, final User user, final LocalDate date, final String description,
