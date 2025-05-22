@@ -1,9 +1,6 @@
 package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.interfaces.services.InterestService;
-import ar.edu.itba.paw.models.Interest;
-import ar.edu.itba.paw.models.Page;
-import ar.edu.itba.paw.models.PageParams;
-import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.webapp.form.CreateInterestForm;
 import ar.edu.itba.paw.webapp.form.EditInterestForm;
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
@@ -111,7 +108,7 @@ public class InterestController {
     @GetMapping(value = "/edit")
     public ModelAndView updateInterestForm( @ModelAttribute("user") User user,
                                             @ModelAttribute("editInterestsForm") final EditInterestForm form) {
-        Page<Interest> pagedInterests = interestService.findInterestsByUserId(user.getId(), new PageParams(1, 20));
+        Page<UserInterest> pagedInterests = interestService.findInterestsByUser(user, new PageParams(1, 20));
         ModelAndView mav = new ModelAndView("interests/interests-edit");
         mav.addObject("editInterestsForm",form);
         mav.addObject("userInterests", pagedInterests.getContent());

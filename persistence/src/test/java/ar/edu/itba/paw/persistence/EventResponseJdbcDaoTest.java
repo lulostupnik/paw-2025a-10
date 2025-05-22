@@ -134,7 +134,7 @@
 //
 //    @Test
 //    public void testCountByEventId(){
-//        int replyCount = replyDao.countByEventId(TestUtils.EVENT_1_ID);
+//        int replyCount = replyDao.countAttendantsByEventId(TestUtils.EVENT_1_ID);
 //
 //        assertEquals(TestUtils.EVENT_1_REPLIES, replyCount);
 //    }
@@ -142,13 +142,13 @@
 //    public void testCountByEventIdNoReplies(){
 //        TestUtils.deleteEventReplies(jdbcTemplate);
 //
-//        int replyCount = replyDao.countByEventId(TestUtils.EVENT_1_ID);
+//        int replyCount = replyDao.countAttendantsByEventId(TestUtils.EVENT_1_ID);
 //
 //        assertEquals(0, replyCount);
 //    }
 //    @Test
 //    public void testCountByEventIdWrongEvent(){
-//        int replyCount = replyDao.countByEventId(12341234);
+//        int replyCount = replyDao.countAttendantsByEventId(12341234);
 //
 //        assertEquals(0, replyCount);
 //    }

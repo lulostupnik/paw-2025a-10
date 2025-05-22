@@ -82,7 +82,8 @@ public class EventHibernateDao implements EventDao {
                 Map.of("userId", userId),
                 jpqlFetch,
                 Event.class,
-                pageParams
+                pageParams,
+                Map.of()
         );
     }
 
@@ -124,7 +125,8 @@ public class EventHibernateDao implements EventDao {
                 Map.of("pattern", pattern),
                 jpqlFetch,
                 Event.class,
-                pageParams
+                pageParams,
+                Map.of()
         );
     }
 
@@ -177,7 +179,7 @@ public class EventHibernateDao implements EventDao {
 
         Map<String, Object> params = Map.of("email", email);
 
-        return fetchPageByIds(em, countSql, idSql, params, jpqlFetch, Event.class, pageParams);
+        return fetchPageByIds(em, countSql, idSql, params, jpqlFetch, Event.class, pageParams, Map.of());
     }
 
     @Override
@@ -227,7 +229,7 @@ public class EventHibernateDao implements EventDao {
 
         Map<String, Object> params = Map.of("userId", userId);
 
-        return fetchPageByIds(em, countSql, idSql, params, jpqlFetch, Event.class, pageParams);
+        return fetchPageByIds(em, countSql, idSql, params, jpqlFetch, Event.class, pageParams, Map.of());
     }
 
 
@@ -253,7 +255,7 @@ public class EventHibernateDao implements EventDao {
         FROM Event e WHERE e.id IN :ids
     """;    //fixme falta el order by.
 
-        return fetchPageByIds(em, countSql, idSql, Map.of(), jpqlFetch, Event.class, pageParams);
+        return fetchPageByIds(em, countSql, idSql, Map.of(), jpqlFetch, Event.class, pageParams, Map.of());
     }
 
     @Override
@@ -273,7 +275,7 @@ public class EventHibernateDao implements EventDao {
         FROM Event e WHERE e.id IN :ids
     """;  //fixme falta el order by.
 
-        return fetchPageByIds(em, countSql, idSql, Map.of(), jpqlFetch, Event.class, pageParams);
+        return fetchPageByIds(em, countSql, idSql, Map.of(), jpqlFetch, Event.class, pageParams, Map.of());
     }
 
 
@@ -305,7 +307,8 @@ public class EventHibernateDao implements EventDao {
                 Map.of("userId", userId),
                 jpqlFetch,
                 Event.class,
-                pageParams
+                pageParams,
+                Map.of()
         );
     }
 
@@ -448,7 +451,7 @@ public class EventHibernateDao implements EventDao {
         final String jpqlFetch = "FROM Event e WHERE e.id IN :ids";
 
         // Delegamos al helper
-        return fetchPageByIds(em, countSql.toString(), idSql.toString(), paramMap, jpqlFetch, Event.class, pageParams);
+        return fetchPageByIds(em, countSql.toString(), idSql.toString(), paramMap, jpqlFetch, Event.class, pageParams, Map.of());
     }
 
 

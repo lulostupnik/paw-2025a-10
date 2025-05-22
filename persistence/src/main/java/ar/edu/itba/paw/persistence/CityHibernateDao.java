@@ -62,7 +62,8 @@ public class CityHibernateDao implements CityDao {
                 Map.of("pattern", pattern),
                 jpqlFetch,
                 City.class,
-                pageParams
+                pageParams,
+                Map.of()
         );
     }
 
@@ -90,7 +91,8 @@ public class CityHibernateDao implements CityDao {
                 Map.of(),
                 jpqlFetch,
                 City.class,
-                pageParams
+                pageParams,
+                Map.of()
         );
 
 

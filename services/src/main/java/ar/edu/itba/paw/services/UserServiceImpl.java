@@ -94,21 +94,6 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    @Override
-    @Transactional
-    public void updateUserInterestScores(List<Interest> interests, User user){
-        HashSet<Long> interestIds = new HashSet<>(interests.size());
-        for (Interest interest : interests) {
-            interestIds.add(interest.getId());
-        }
-
-//        interestService.findInterestsByUserId(user.getId()) fixme: que devuelva user interests
-//        .forEach(userInterest -> {
-//            if (interestIds.contains(userInterest.getInterest().getId())) {
-//                userInterest.setScore(userInterest.getScore() + 1);
-//            }
-//        });
-    }
 
     @Override
     @Transactional

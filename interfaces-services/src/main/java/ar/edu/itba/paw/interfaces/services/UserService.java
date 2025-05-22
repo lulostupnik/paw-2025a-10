@@ -8,7 +8,6 @@ import java.util.Optional;
 
 public interface UserService {
     User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, byte[] profilePicture, List<String> interests, String password, Locale locale);
-    void updateUserInterestScores(List<Interest> interests, User user);
     User verifyUser(String token);
     void updatePassword(long id, String newPassword);
     void resetPassword(String token, String newPassword);

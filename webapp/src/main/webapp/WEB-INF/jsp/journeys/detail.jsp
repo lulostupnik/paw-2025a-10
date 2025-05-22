@@ -196,9 +196,9 @@
                         </c:if>
                         <c:if test="${not empty interestPage.content}">
                             <div class="interests-container">
-                                <c:forEach var="interest" items="${interestPage.content}">
+                                <c:forEach var="userInterest" items="${interestPage.content}">
                                     <div class="interest-tag">
-                                        <c:out value="${interest}" />
+                                        <c:out value="${userInterest.interest}" />
                                     </div>
                                 </c:forEach>
                             </div>

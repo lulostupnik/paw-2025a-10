@@ -62,7 +62,8 @@ public class CareerHibernateDao implements CareerDao {
                 Map.of(),
                 jpqlFetch,
                 Career.class,
-                pageParams
+                pageParams,
+                Map.of()
         );
     }
 
@@ -95,7 +96,8 @@ public class CareerHibernateDao implements CareerDao {
                 Map.of("pattern", pattern),
                 jpqlFetch,
                 Career.class,
-                pageParams
+                pageParams,
+                Map.of()
         );    }
 
     @Override

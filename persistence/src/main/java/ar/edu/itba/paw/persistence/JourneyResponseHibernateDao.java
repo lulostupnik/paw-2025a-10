@@ -82,7 +82,8 @@ public class JourneyResponseHibernateDao implements JourneyResponseDao {
                 Map.of("journeyId", journeyId),
                 jpqlFetch,
                 JourneyResponse.class,
-                pageParams
+                pageParams,
+                Map.of()
         );
     }
 }

@@ -143,7 +143,7 @@ public class UserHibernateDao implements UserDao {
         ORDER BY u.id ASC
     """;
 
-        return fetchPageByIds(em, countSql, idSql, Map.of(), jpqlFetch, User.class, pageParams);
+        return fetchPageByIds(em, countSql, idSql, Map.of(), jpqlFetch, User.class, pageParams,Map.of());
     }
 
 
@@ -172,7 +172,7 @@ public class UserHibernateDao implements UserDao {
 
         final String jpqlFetch = "FROM User u WHERE u.id IN :ids ORDER BY u.id DESC";
 
-        return fetchPageByIds(em, countSql, idSql, Map.of("pattern", pattern), jpqlFetch, User.class, pageParams);
+        return fetchPageByIds(em, countSql, idSql, Map.of("pattern", pattern), jpqlFetch, User.class, pageParams,Map.of());
     }
 
 

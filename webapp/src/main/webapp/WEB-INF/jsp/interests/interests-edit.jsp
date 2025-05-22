@@ -89,10 +89,10 @@
   }
   window.apiBaseUrl = '<c:url value="/" />';
   previousInterests = [
-    <c:forEach var="interest" items="${userInterests}" varStatus="status">
+    <c:forEach var="userInterest" items="${userInterests}" varStatus="status">
     {
-      "name": htmlDecode("<c:out value='${interest.name}'/>"),
-      "id": htmlDecode("<c:out value='${interest.id}'/>")
+      "name": htmlDecode("<c:out value='${userInterest.interest.name}'/>"),
+      "id": htmlDecode("<c:out value='${userInterest.interest.id}'/>")
     }<c:if test="${!status.last}">,</c:if>
     </c:forEach>
   ];

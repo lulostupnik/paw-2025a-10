@@ -97,7 +97,7 @@ public class JourneyController {
         mav.addObject("journeyResponsesPage", journeyResponses);
         mav.addObject("commentsCount", js.countJourneyResponses(journey.getId()));
         mav.addObject("isOwner", user != null && js.isJourneyOwnedByUser(user.getEmail(),journey.getId()));
-        mav.addObject("interestPage", interestService.findInterestsByUserId(journey.getUser().getId(), interestsPage));
+        mav.addObject("interestPage", interestService.findInterestsByUser(journey.getUser(), interestsPage));
         return mav;
     }
     @GetMapping(value = "/{id}/delete")

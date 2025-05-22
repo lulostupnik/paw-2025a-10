@@ -85,7 +85,8 @@ public class EventResponseHibernateDao implements EventResponseDao {
                 Map.of("eventId", eventId),
                 jpqlFetch,
                 EventResponse.class,
-                pageParams
+                pageParams,
+                Map.of()
         );
     }
 

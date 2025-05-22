@@ -59,7 +59,7 @@ public class ProfileController {
 
         ModelAndView mav = new ModelAndView(PROFILE);
         addUserJourneyToMav(user, mav);
-        mav.addObject("interests",interestService.findInterestsByUserId(user.getId(), pageParams));
+        mav.addObject("interests",interestService.findInterestsByUser(user, pageParams));
         return mav;
     }
 

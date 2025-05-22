@@ -308,7 +308,7 @@
 ////            eventDao.findAttendanceLimitById(Mockito.eq(EVENT_ID))
 ////        ).thenReturn(Optional.of(LIMIT));
 ////        Mockito.when(
-////            attendanceDao.countByEventId(Mockito.eq(EVENT_ID))
+////            attendanceDao.countAttendantsByEventId(Mockito.eq(EVENT_ID))
 ////        ).thenReturn(ATTENDEES);
 ////
 ////        eventService.createEventAttendance(USER_ID, EVENT_ID);
@@ -325,7 +325,7 @@
 ////            eventDao.findAttendanceLimitById(Mockito.eq(EVENT_ID))
 ////        ).thenReturn(Optional.of(LIMIT));
 ////        Mockito.when(
-////            attendanceDao.countByEventId(Mockito.eq(EVENT_ID))
+////            attendanceDao.countAttendantsByEventId(Mockito.eq(EVENT_ID))
 ////        ).thenReturn(LIMIT);
 ////
 ////        eventService.createEventAttendance(USER_ID, EVENT_ID);

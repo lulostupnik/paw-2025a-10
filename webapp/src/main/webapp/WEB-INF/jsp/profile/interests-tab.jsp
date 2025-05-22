@@ -7,9 +7,9 @@
         <h2 class="section-title"><spring:message code="profile.home.interest"/></h2>
         <div class="info-list">
             <c:if test="${not empty interests.content}">
-                <c:forEach items="${interests.content}" var="interest">
+                <c:forEach items="${interests.content}" var="userInterest">
                     <div class="info-item">
-                        <p class="info-value"><c:out value="${interest.name}"/></p>
+                        <p class="info-value"><c:out value="${userInterest.interest.name}"/></p>
                     </div>
                 </c:forEach>
                 <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">

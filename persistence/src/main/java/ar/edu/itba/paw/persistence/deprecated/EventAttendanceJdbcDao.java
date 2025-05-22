@@ -168,7 +168,7 @@
 //    }
 //
 //    @Override
-//    public int countByEventId(final long eventId) {
+//    public int countAttendantsByEventId(final long eventId) {
 //        return jdbcTemplate.query("SELECT attendees_count FROM events WHERE id = ?", (rs, rowNum) -> rs.getInt("attendees_count"), eventId).stream().findFirst().orElse(0);
 //    }
 //

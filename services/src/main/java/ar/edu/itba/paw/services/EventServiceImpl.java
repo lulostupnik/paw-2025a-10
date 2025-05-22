@@ -32,19 +32,19 @@ public class EventServiceImpl implements EventService {
     private final EventDao eventDao;
     private final ImageService imageService;
     private final CityService cityService;
+    private final EventAttendanceDao eventAttendanceDao;
 
     @Autowired
     public EventServiceImpl(final UserService userService,final  EventResponseDao eventResponseDao,
                             final EventDao eventDao,final EmailService emailService, final ImageService imageService,
-                            final CityService cityService/*final  EventAttendanceDao eventAttendanceDao,*/) {
-        //    private final EventAttendanceDao eventAttendanceDao;
+                            final CityService cityService,final  EventAttendanceDao eventAttendanceDao) {
         this.userService = userService;
         this.eventResponseDao = eventResponseDao;
         this.eventDao = eventDao;
         this.emailService = emailService;
         this.imageService = imageService;
         this.cityService = cityService;
-//        this.eventAttendanceDao = eventAttendanceDao;
+        this.eventAttendanceDao = eventAttendanceDao;
     }
 
     @Override
@@ -84,7 +84,7 @@ public class EventServiceImpl implements EventService {
         eventResponseDao.create(user, event, message);
         LOGGER.info("Event response {} created", eventId);
 //        emailService.answerEventNotification( fixme: esto no se como hacerlo paginado
-//                .stream().map(EventResponse::getUser).toList(), // todo: este método podría recibir el stream en vez de la lista
+//                event.getResponses().stream().map(EventResponse::getUser).toList(), // todo: este método podría recibir el stream en vez de la lista
 //                message,
 //                user,
 //                event
@@ -180,6 +180,7 @@ public class EventServiceImpl implements EventService {
                 LOGGER.warn("User not found {}", userId);
                 return new RuntimeException("User not found");
             });
+            eventAttendanceDao.create(user, event);
             //fixme: crear el attendance aca de verdad
             event.setAttendeesCount(event.getAttendeesCount()+1); //fixme: ni idea
         }
@@ -212,8 +213,7 @@ public class EventServiceImpl implements EventService {
             LOGGER.info("Event (id {}) is not in the future", eventId);
             throw new InvalidException("Event (id " + eventId + ") is not in the future");
         }
-        // fixme: crear funcion que lo borre de verdad
-
+        eventAttendanceDao.delete(userId, eventId);
         LOGGER.info("User {} has canceled attendance for event {}", userId, eventId);
     }
 
@@ -401,7 +401,10 @@ public class EventServiceImpl implements EventService {
         }
 
         boolean isCreator = event.getUser().getId() == userId;
-        boolean isAttending = false; //fixme: = eventAttendanceDao.existsByUserIdAndEventId(userId, eventId);
+        boolean isAttending = eventAttendanceDao.exists(userService.findUserById(userId).orElseThrow(()-> {
+            LOGGER.error("User not found {}", userId);
+            return new RuntimeException("User not found");
+        }), event);
 
         return Optional.of(new EventWithUserInfo(event, isAttending, isCreator));
     }

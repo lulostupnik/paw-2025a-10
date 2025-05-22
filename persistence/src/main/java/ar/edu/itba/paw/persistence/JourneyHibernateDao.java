@@ -53,7 +53,7 @@ public class JourneyHibernateDao implements JourneyDao {
         WHERE j.id IN :ids
     """;
 
-        return fetchPageByIds(em, countSql, idSql, Map.of(), jpqlFetch, Journey.class, pageParams);
+        return fetchPageByIds(em, countSql, idSql, Map.of(), jpqlFetch, Journey.class, pageParams, Map.of());
     }
 
     @Override
@@ -90,7 +90,8 @@ public class JourneyHibernateDao implements JourneyDao {
                 Map.of("originCityId", originCityId),
                 jpqlFetch,
                 Journey.class,
-                pageParams
+                pageParams,
+                Map.of()
         );
     }
 
@@ -238,7 +239,7 @@ public class JourneyHibernateDao implements JourneyDao {
 
         String jpqlFetch = "FROM Journey j WHERE j.id IN :ids ORDER BY j." + getOrderByColumn(orderBy, true)  + " " + dir;
 
-        return fetchPageByIds(em, countSql.toString(), idSql.toString(), paramMap, jpqlFetch, Journey.class, pageParams);
+        return fetchPageByIds(em, countSql.toString(), idSql.toString(), paramMap, jpqlFetch, Journey.class, pageParams,Map.of());
     }
 
 
@@ -351,7 +352,7 @@ public class JourneyHibernateDao implements JourneyDao {
 
         final String jpqlFetch = "FROM Journey j WHERE j.id IN :ids";
 
-        return fetchPageByIds(em, countSql, idSql, Map.of("email", email), jpqlFetch, Journey.class, pageParams);
+        return fetchPageByIds(em, countSql, idSql, Map.of("email", email), jpqlFetch, Journey.class, pageParams,Map.of());
     }
 
 }

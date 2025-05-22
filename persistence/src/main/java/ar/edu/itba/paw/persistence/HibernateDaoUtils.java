@@ -48,8 +48,9 @@ class HibernateDaoUtils {
             Map<String, Object> parameters,
             String jpqlFetchById,
             Class<T> clazz,
-            PageParams pageParams
-    ) {
+            PageParams pageParams,
+            Map<String, Object> fetchParameters
+            ) {
         // Count total
         Query countQuery = em.createNativeQuery(countSql);
         LOGGER.error("Count SQL: {}", countSql);
@@ -83,7 +84,9 @@ class HibernateDaoUtils {
         TypedQuery<T> fetchQuery = em.createQuery(jpqlFetchById, clazz);
         LOGGER.error("Fetch SQL: {}", jpqlFetchById);
         fetchQuery.setParameter("ids", ids);
-        LOGGER.error("Fetch SQL parameters: {}", ids);
+        fetchParameters.forEach(fetchQuery::setParameter);
+        LOGGER.error("Fetch SQL parameters: {}", parameters);
+
         List<T> results = fetchQuery.getResultList();
         LOGGER.error("Results: {}", results);
 

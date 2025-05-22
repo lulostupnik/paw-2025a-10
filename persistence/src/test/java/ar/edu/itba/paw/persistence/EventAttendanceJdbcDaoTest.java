@@ -126,21 +126,21 @@
 //
 //    @Test
 //    public void testFindAllAttendeesByEventIdCount(){
-//        int attendees = attendanceDao.countByEventId(TestUtils.EVENT_1_ID);
+//        int attendees = attendanceDao.countAttendantsByEventId(TestUtils.EVENT_1_ID);
 //
 //        assertNotNull(attendees);
 //        assertEquals(TestUtils.EVENT_1_ATTENDEES, attendees);
 //    }
 //    @Test
 //    public void testFindAllAttendeesCountNoAttendeesByEventId(){
-//        int attendees = attendanceDao.countByEventId(TestUtils.EVENT_3_ID);
+//        int attendees = attendanceDao.countAttendantsByEventId(TestUtils.EVENT_3_ID);
 //
 //        assertNotNull(attendees);
 //        assertEquals(0, attendees);
 //    }
 //    @Test
 //    public void testFindAllAttendeesByEventIdCountMissingEvent(){
-//        int attendees = attendanceDao.countByEventId(412341234);
+//        int attendees = attendanceDao.countAttendantsByEventId(412341234);
 //
 //        assertNotNull(attendees);
 //        assertEquals(0, attendees);

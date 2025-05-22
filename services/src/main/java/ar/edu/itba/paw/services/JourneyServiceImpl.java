@@ -32,6 +32,7 @@ public class JourneyServiceImpl implements JourneyService {
     private final UniversityService universityService;
     private final InterestService interestService;
 
+
     @Autowired
     public JourneyServiceImpl(final JourneyDao journeyDao, final UserService userService,
                               final UniversityService universityService, final JourneyResponseDao journeyResponseDao, final EmailService emailService, final InterestService interestService) {
@@ -95,10 +96,10 @@ public class JourneyServiceImpl implements JourneyService {
 
 //        journeyResponseDao.create(user.getId(), user.getUsername(), journeyId, message, LocalDateTime.now());
         LOGGER.info("Journey response created: {}", message);
-        List<Interest> interests = interestService.findInterestsByUserId(journey.getUser().getId());
+        List<UserInterest> interests = interestService.findInterestsByUser(journey.getUser());
 
         // interestService.updateUserInterestScores(interests, user.getId());
-        userService.updateUserInterestScores(interests, user);
+        interestService.updateUserInterestScores(interests);
 
 //        List<User> responders = journeyR fixme: journeyResponseDao.findAllByJourneyId(journeyId)
 

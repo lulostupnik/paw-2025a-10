@@ -76,7 +76,7 @@
 //
 //
 //    @Override
-//    public int countByEventId(final long eventId) {
+//    public int countAttendantsByEventId(final long eventId) {
 //        return jdbcTemplate.queryForObject(
 //                "SELECT COUNT(*) FROM event_responses WHERE event_id = ? AND deleted = FALSE",
 //                Integer.class,

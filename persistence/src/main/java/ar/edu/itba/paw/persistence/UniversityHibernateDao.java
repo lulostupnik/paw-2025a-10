@@ -92,7 +92,8 @@ public class UniversityHibernateDao implements UniversityDao {
                 Map.of("pattern", pattern),
                 jpqlFetch,
                 University.class,
-                pageParams
+                pageParams,
+                Map.of()
         );
     }
 
@@ -121,7 +122,8 @@ public class UniversityHibernateDao implements UniversityDao {
                 Map.of(),
                 jpqlFetch,
                 University.class,
-                pageParams
+                pageParams,
+                Map.of()
         );
     }
 }
