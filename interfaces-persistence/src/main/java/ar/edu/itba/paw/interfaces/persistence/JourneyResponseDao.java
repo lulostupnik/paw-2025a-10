@@ -9,5 +9,6 @@ public interface JourneyResponseDao {
     Optional<JourneyResponse> findById(long id);
     JourneyResponse create(User user, Journey journey, String message);
     int countByJourneyId(long journeyId);
+    Page<User> findRespondersByJourneyId(long journeyId, PageParams pageParams);
 }
 

@@ -75,6 +75,46 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.info("Journey created: {}", journey);
         return journey;
     }
+//
+//    @Override
+//    @Transactional
+//    public void createJourneyResponse(final String email, final long journeyId, final String message) {
+//        LOGGER.debug("Replying to journey {}", journeyId);
+//        Journey journey = journeyDao.findById(journeyId)
+//                .orElseThrow(() -> {
+//                    LOGGER.warn("Journey with id {} not found", journeyId);
+//                    return new RuntimeException("Journey not found");}
+//                );
+//
+//        User user = userService.findUserByEmail(email)
+//                .orElseThrow(()-> {
+//                    LOGGER.warn("User with email {} not found", email);
+//                    return new RuntimeException("User not found");}
+//                );
+//
+//        journeyResponseDao.create(user, journey, message);
+//
+////        journeyResponseDao.create(user.getId(), user.getUsername(), journeyId, message, LocalDateTime.now());
+//        LOGGER.info("Journey response created: {}", message);
+//        List<UserInterest> interests = interestService.findInterestsByUser(journey.getUser());
+//
+//        // interestService.updateUserInterestScores(interests, user.getId());
+//        interestService.updateUserInterestScores(interests);
+//
+////        List<User> responders = journeyR fixme: journeyResponseDao.findAllByJourneyId(journeyId)
+//
+//        LOGGER.info("Interest score updated for user {}", user.getId());
+////        emailService.answerJourneyNotification( fixme: paginar responders
+////                responders,
+////                message,
+////                user,
+////                journey
+////        );
+//        LOGGER.info("Journey response notification sent to user {}", user.getId());
+//
+//    }
+
+    // JourneyServiceImpl.java
 
     @Override
     @Transactional
@@ -83,35 +123,48 @@ public class JourneyServiceImpl implements JourneyService {
         Journey journey = journeyDao.findById(journeyId)
                 .orElseThrow(() -> {
                     LOGGER.warn("Journey with id {} not found", journeyId);
-                    return new RuntimeException("Journey not found");}
-                );
+                    return new RuntimeException("Journey not found");
+                });
 
         User user = userService.findUserByEmail(email)
-                .orElseThrow(()-> {
+                .orElseThrow(() -> {
                     LOGGER.warn("User with email {} not found", email);
-                    return new RuntimeException("User not found");}
-                );
+                    return new RuntimeException("User not found");
+                });
 
         journeyResponseDao.create(user, journey, message);
 
-//        journeyResponseDao.create(user.getId(), user.getUsername(), journeyId, message, LocalDateTime.now());
         LOGGER.info("Journey response created: {}", message);
-        List<UserInterest> interests = interestService.findInterestsByUser(journey.getUser());
+        List<UserInterest> userInterests = interestService.findInterestsByUser(journey.getUser());
 
-        // interestService.updateUserInterestScores(interests, user.getId());
-        interestService.updateUserInterestScores(interests);
-
-//        List<User> responders = journeyR fixme: journeyResponseDao.findAllByJourneyId(journeyId)
-
+        interestService.updateUserInterestScores(userInterests);
         LOGGER.info("Interest score updated for user {}", user.getId());
-//        emailService.answerJourneyNotification( fixme: paginar responders
-//                responders,
-//                message,
-//                user,
-//                journey
-//        );
-        LOGGER.info("Journey response notification sent to user {}", user.getId());
 
+        int page = 1;
+        int pageSize = 50;
+        Page<User> respondersPage;
+
+        do {
+            respondersPage = journeyResponseDao.findRespondersByJourneyId(
+                    journeyId,
+                    new PageParams(page, pageSize)
+            );
+
+            List<User> responders = respondersPage.getContent();
+
+            if (!responders.isEmpty()) {
+                emailService.answerJourneyNotification(
+                        responders,
+                        message,
+                        user,
+                        journey
+                );
+            }
+
+            page++;
+        } while (page <= respondersPage.getTotalPages());
+
+        LOGGER.info("Journey response notifications sent to all responders");
     }
 
 

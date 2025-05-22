@@ -86,4 +86,39 @@ public class JourneyResponseHibernateDao implements JourneyResponseDao {
                 Map.of()
         );
     }
+
+    // JourneyResponseHibernateDao.java
+
+    @Override
+    public Page<User> findRespondersByJourneyId(final long journeyId, final PageParams pageParams) {
+        final String countSql = """
+        SELECT COUNT(DISTINCT jr.user_id)
+        FROM journey_responses jr
+        WHERE jr.journey_id = :journeyId AND jr.deleted = FALSE
+    """;
+
+        final String idSql = """
+        SELECT DISTINCT jr.user_id
+        FROM journey_responses jr
+        WHERE jr.journey_id = :journeyId AND jr.deleted = FALSE
+        ORDER BY jr.user_id
+    """;
+
+        final String jpqlFetch = """
+        FROM User u
+        WHERE u.id IN :ids
+        ORDER BY u.id
+    """;
+
+        return fetchPageByIds(
+                em,
+                countSql,
+                idSql,
+                Map.of("journeyId", journeyId),
+                jpqlFetch,
+                User.class,
+                pageParams,
+                Map.of()
+        );
+    }
 }
