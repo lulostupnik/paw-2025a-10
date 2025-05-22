@@ -11,6 +11,7 @@ import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 
@@ -132,11 +133,14 @@ public class InterestHibernateDao implements InterestDao {
     public List<Interest> findAllByUserId(long id) { // fixme: mover a User?
         User user = userDao.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        return List.of();
-    }
+        return user.getInterests().stream()
+                .map(UserInterest::getInterest)
+                .collect(Collectors.toList());    }
 
     @Override
     public Page<Interest> findAllByUserId(long id, PageParams pageParams) {  // fixme: mover a User?
+        User user = userDao.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
         return null;
     }
 

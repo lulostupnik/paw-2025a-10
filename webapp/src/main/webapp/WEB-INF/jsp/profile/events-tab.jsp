@@ -46,7 +46,7 @@
           <jsp:include page="../events/event-card.jsp">
             <jsp:param name="username" value="${event.user.username}"/>
             <jsp:param name="eventId" value="${event.id}" />
-            <jsp:param name="city" value="${event.eventCity.name}" />
+            <jsp:param name="city" value="${event.city.name}" />
             <jsp:param name="date" value="${event.date}" />
             <jsp:param name="description" value="${event.description}" />
             <jsp:param name="flyerImageId" value="${event.flyerImageId}" />
@@ -93,7 +93,7 @@
           <jsp:include page="../events/event-card.jsp">
             <jsp:param name="username" value="${event.user.username}"/>
             <jsp:param name="eventId" value="${event.id}" />
-            <jsp:param name="city" value="${event.eventCity.name}" />
+            <jsp:param name="city" value="${event.city.name}" />
             <jsp:param name="date" value="${event.date}" />
             <jsp:param name="description" value="${event.description}" />
             <jsp:param name="flyerImageId" value="${event.flyerImageId}" />
