@@ -9,37 +9,18 @@ import java.util.Optional;
 public interface UserDao {
     User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale, boolean validated);
 
-    void updatePasswordAndClearTokenByToken(String token, String newPassword);
 
     Optional<User> findById(long id);
 
-    void updateToken(long id, String uuid, LocalDate date);
-
-    boolean findValidationStatusByEmail(String email);
-
     Optional<User> findByEmail(String email);
-
-//    Optional<UserAuthInfo> updateValidationAndFindAuthInfoByToken(String token);
-
-//    Optional<UserAuthInfo> findAuthInfoByEmail(String email);
 
     boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);
 
-    Optional<Boolean> findValidatedByTokenNotExpired(String token);
-
-    Optional<User> findByToken(String token);
-
     Page<User> findAll(PageParams pageParams);
 
     Page<User> search(String search, PageParams pageParams);
-
-    boolean existsByTokenNotExpired(String token);
-
-    boolean existsByTokenExpired(String token);
-
-    void updateTokenAndExpirationByToken(String newToken, LocalDate date, String oldToken);
 
     Page<User> findAllAttendeesByEventId(long eventId, PageParams pageParams);
 
