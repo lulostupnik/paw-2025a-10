@@ -63,6 +63,7 @@ public class EventServiceImpl implements EventService {
         long flyerImageId = imageService.createImage(flyer);
         Event event = eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit); //fixme: reemplazar por new Event
         LOGGER.info("Event {} created", event.getId());
+        eventAttendanceDao.create(user, event);
 //        event.getAttendees().add(user);
 //        eventAttendanceDao.create(user.getId(), event.getId());
 //        eventDao.incrementAttendeesCount(event.getId()); @TODO esto? el modelo se crea con 1.
@@ -420,25 +421,89 @@ public class EventServiceImpl implements EventService {
 
     }
 
+//
+//    @Override
+//    @Scheduled(cron = "0 0 12 * * ?")
+//    @Transactional(readOnly = true)
+//    public void sendEventReminders(){
+//        LOGGER.info("Starting scheduled task: sending reminder emails for upcoming events");
+//        LocalDate today = LocalDate.now();
+//        LocalDate tomorrow = today.plusDays(1);
+//
+//        // CHANGE TO USE PAGES:
+//        List<Event> upcomingEvents = eventDao.findAllBetweenDates(today, tomorrow);
+//
+//        LOGGER.info("Found {} events occurring in the next 24 hours", upcomingEvents.size());
+//
+//        for (Event event : upcomingEvents) {
+//            // CHANGE HERE:
+//            // List<User> eventAttendees = ???;
+//            // emailService.sendEventReminderNotification(event, attendees);
+//        }
+//
+//        LOGGER.info("Completed scheduled task: sent reminder emails for upcoming events");
+//
+//    }
+
 
     @Override
     @Scheduled(cron = "0 0 12 * * ?")
     @Transactional(readOnly = true)
-    public void sendEventReminders(){
+    public void sendEventReminders() {
         LOGGER.info("Starting scheduled task: sending reminder emails for upcoming events");
         LocalDate today = LocalDate.now();
         LocalDate tomorrow = today.plusDays(1);
 
-        List<Event> upcomingEvents = eventDao.findAllBetweenDates(today, tomorrow);
+        int eventPage = 1;
+        int eventPageSize = 50;
+        Page<Event> eventsPage;
+        int totalEventsProcessed = 0;
 
-        LOGGER.info("Found {} events occurring in the next 24 hours", upcomingEvents.size());
+        do {
+            eventsPage = eventDao.findAllBetweenDates(
+                    today,
+                    tomorrow,
+                    new PageParams(eventPage, eventPageSize)
+            );
 
-        for (Event event : upcomingEvents) {
-//            emailService.sendEventReminderNotification(event, event.getAttendees()); fixme: eventAttendanceDAO?
-        }
+            List<Event> events = eventsPage.getContent();
+            LOGGER.debug("Processing page {} of {} with {} events", eventPage, eventsPage.getTotalPages(), events.size());
 
-        LOGGER.info("Completed scheduled task: sent reminder emails for upcoming events");
+            for (Event event : events) {
+                sendRemindersForEvent(event);
+                totalEventsProcessed++;
+            }
 
+            eventPage++;
+        } while (eventPage <= eventsPage.getTotalPages());
+
+        LOGGER.info("Completed scheduled task: sent reminder emails for {} upcoming events", totalEventsProcessed);
     }
 
+    private void sendRemindersForEvent(Event event) {
+        LOGGER.debug("Processing reminders for event: {} (ID: {})", event.getTitle(), event.getId());
+
+        int attendeePage = 1;
+        int attendeePageSize = 100;
+        Page<User> attendeesPage;
+        int totalAttendees = 0;
+
+        do {
+            attendeesPage = eventAttendanceDao.findAttendeesByEventId(
+                    event.getId(),
+                    new PageParams(attendeePage, attendeePageSize)
+            );
+
+            List<User> attendees = attendeesPage.getContent();
+
+            if (!attendees.isEmpty()) {
+                emailService.sendEventReminderNotification(event, attendees);
+                totalAttendees += attendees.size();
+            }
+
+            attendeePage++;
+        } while (attendeePage <= attendeesPage.getTotalPages());
+
+        LOGGER.debug("Sent reminders to {} attendees for event: {}", totalAttendees, event.getTitle());
+    }
 }

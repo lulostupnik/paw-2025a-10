@@ -339,6 +339,38 @@ public class EventHibernateDao implements EventDao {
         return ((Number) countQuery.getSingleResult()).intValue();
     }
 
+    // EventHibernateDao.java
+
+    @Override
+    public Page<Event> findAllBetweenDates(LocalDate startDate, LocalDate endDate, PageParams pageParams) {
+        final String countSql = """
+        SELECT COUNT(*)
+        FROM events e
+        WHERE e.event_date BETWEEN :startDate AND :endDate
+          AND e.deleted = FALSE
+    """;
+
+        final String idSql = """
+        SELECT e.id
+        FROM events e
+        WHERE e.event_date BETWEEN :startDate AND :endDate
+          AND e.deleted = FALSE
+        ORDER BY e.event_date, e.event_time
+    """;
+
+        final String jpqlFetch = """
+        FROM Event e
+        WHERE e.id IN :ids
+        ORDER BY e.date, e.time
+    """;
+
+        Map<String, Object> params = Map.of(
+                "startDate", startDate,
+                "endDate", endDate
+        );
+
+        return fetchPageByIds(em, countSql, idSql, params, jpqlFetch, Event.class, pageParams, Map.of());
+    }
 
     private String getSortColumn(SortFieldEvent sortBy) {
         if (sortBy == null) {

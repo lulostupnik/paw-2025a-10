@@ -38,4 +38,6 @@ public interface EventDao {
     int countEventsAttendedByUser(long userId);
     int countEventsCreatedByUser(long userId);
 
+    Page<Event> findAllBetweenDates(LocalDate startDate, LocalDate endDate, PageParams pageParams);
+
 }

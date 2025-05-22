@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.RowMapper;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -69,12 +70,27 @@ class HibernateDaoUtils {
         LOGGER.error("ID SQL max results: {}", pageParams.getSize());
         idQuery.setFirstResult(offset(pageParams)); // modularized offset
         LOGGER.error("ID SQL first result: {}", offset(pageParams));
+//
+//        List<Long> ids = ((List<?>) idQuery.getResultList()).stream()
+//                .filter(Number.class::isInstance) // Ensure type safety
+//                .map(n -> ((Number) n).longValue())
+//                .collect(Collectors.toList());
+//        LOGGER.error("IDs: {}", ids);
 
-        List<Long> ids = ((List<?>) idQuery.getResultList()).stream()
-                .filter(Number.class::isInstance) // Ensure type safety
-                .map(n -> ((Number) n).longValue())
-                .collect(Collectors.toList());
-        LOGGER.error("IDs: {}", ids);
+        List<?> rawResults = idQuery.getResultList();
+        List<Long> ids = new ArrayList<>();
+
+        for (Object result : rawResults) {
+            if (result != null) {
+                if (result instanceof Number) {
+                    ids.add(((Number) result).longValue());
+                } else {
+                    // Log unexpected type
+                    LOGGER.warn("Unexpected type in ID query result: {} (type: {})",
+                            result, result.getClass().getName());
+                }
+            }
+        }
 
         if (ids.isEmpty()) {
             LOGGER.error("No IDs found");

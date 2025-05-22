@@ -12,5 +12,6 @@ public interface EventAttendanceDao {
     Page<EventAttendance> listAllByEventId(long eventId, PageParams pageParams);
     Page<EventAttendance> listAllByUserId(long userId, PageParams pageParams);
     int countAttendantsByEventId(long eventId);
+    Page<User> findAttendeesByEventId(long eventId, PageParams pageParams);
 
 }
