@@ -34,21 +34,6 @@ public class UserHibernateDao implements UserDao {
         return Optional.ofNullable( em.find(User.class, id));
     }
 
-    @Override
-    public void updatePasswordAndClearTokenByToken(String token, String newPassword) {
-            //@todo
-    }
-
-    @Override
-    public void updateToken(long id, String uuid, LocalDate date) {
-            //@todo
-    }
-
-    @Override
-    public boolean findValidationStatusByEmail(String email) {
-        return true; //@todo
-    }
-
 //    @Override
 //    public Optional<UserAuthInfo> updateValidationAndFindAuthInfoByToken(String token) {
 //        return Optional.empty(); //@todo
@@ -118,16 +103,6 @@ public class UserHibernateDao implements UserDao {
 
 
     @Override
-    public Optional<Boolean> findValidatedByTokenNotExpired(String token) {
-        return Optional.empty(); //todo
-    }
-
-    @Override
-    public Optional<User> findByToken(String token) {
-        return Optional.empty(); //todo
-    }
-
-    @Override
     public Page<User> findAll(final PageParams pageParams) {
         final String countSql = "SELECT COUNT(*) FROM users";
 
@@ -173,22 +148,6 @@ public class UserHibernateDao implements UserDao {
         final String jpqlFetch = "FROM User u WHERE u.id IN :ids ORDER BY u.id DESC";
 
         return fetchPageByIds(em, countSql, idSql, Map.of("pattern", pattern), jpqlFetch, User.class, pageParams);
-    }
-
-
-    @Override
-    public boolean existsByTokenNotExpired(String token) {
-        return true; //todo
-    }
-
-    @Override
-    public boolean existsByTokenExpired(String token) {
-        return true; //todo
-    }
-
-    @Override
-    public void updateTokenAndExpirationByToken(String newToken, LocalDate date, String oldToken) {
-        //todo
     }
 
 
