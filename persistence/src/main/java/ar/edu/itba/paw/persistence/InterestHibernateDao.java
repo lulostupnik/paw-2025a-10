@@ -128,76 +128,75 @@ public class InterestHibernateDao implements InterestDao {
         }
 
     }
-
-    @Override
-    public List<Interest> findAllByUserId(long id) { // fixme: mover a User?
-        User user = userDao.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        return user.getInterests().stream()
-                .map(UserInterest::getInterest)
-                .collect(Collectors.toList());    }
-
-    @Override
-    public Page<Interest> findAllByUserId(long id, PageParams pageParams) {  // fixme: mover a User?
-        User user = userDao.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        return null;
-    }
-
-    @Override
-    public void createUserInterests(List<String> interests, long userId) {  // fixme: mover a User?
-        User user = userDao.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        for (String interest : interests) {
-            System.out.println("interests:" + user.getInterests());
-            user.getInterests().add(new UserInterest(user, findByName( interest).orElseThrow(() -> new IllegalArgumentException("Interest not found"))));
-        }
-    }
-
-    @Override
-    public void createUserInterests(long[] interests, long userId) {  // fixme: mover a User?
-        User user = userDao.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        for (long interest : interests) {
-            user.addInterest(findById(interest).orElseThrow(()->new RuntimeException("Interest not found")));
-        }
-    }
-
-    @Override
-    public void updateScoreByInterest(Interest interest, long userId) {
-        User user = userDao.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        for (UserInterest userInterest : user.getInterests()) { //fixme: mover esto al modelo
-            if (userInterest.getInterest().getId().equals(interest.getId())) {
-                userInterest.setScore(userInterest.getScore() + 1);
-            }
-        }
-
-    }
-
-    @Override
-    public void updateUserInterests(long[] interestIds, long userId) {
-        User user = userDao.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        for (long interestId : interestIds) { //fixme: mover esto al modelo
-            Interest interest = findById(interestId)
-                    .orElseThrow(() -> new IllegalArgumentException("Interest not found"));
-            user.getInterests().add(new UserInterest(user, interest));
-        }
-
-    }
-
-    @Override
-    public void updateScoreByInterests(List<Interest> interests, long userId) {
-        User user = userDao.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        for (Interest interest : interests) { //fixme: mover esto al modelo
-            for (UserInterest userInterest : user.getInterests()) {
-                if (userInterest.getInterest().getId().equals(interest.getId())) {
-                    userInterest.setScore(userInterest.getScore() + 1);
-                }
-            }
-        }
-
-    }
+//
+//    @Override
+//    public List<Interest> findAllByUserId(long id) { // fixme: mover a User? O crear un UserInterestDao
+//        User user = userDao.findById(id)
+//                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+//        return user.getInterests().stream()
+//                .map(UserInterest::getInterest)
+//                .collect(Collectors.toList());    }
+//
+//    @Override
+//    public Page<Interest> findAllByUserId(long id, PageParams pageParams) {  //fixme: mover a User? O crear un UserInterestDao
+//        User user = userDao.findById(id)
+//                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+//        return null;
+//    }
+//
+//    @Override
+//    public void createUserInterests(List<String> interests, long userId) {  // fixme: mover a User? O crear un UserInterestDao
+//        User user = userDao.findById(userId)
+//                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+//        for (String interest : interests) {
+//            user.getInterests().add(new UserInterest(user, findByName( interest).orElseThrow(() -> new IllegalArgumentException("Interest not found"))));
+//        }
+//    }
+//
+//    @Override
+//    public void createUserInterests(long[] interests, long userId) {  // fixme: mover a User? O crear un UserInterestDao
+//        User user = userDao.findById(userId)
+//                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+//        for (long interest : interests) {
+//            user.addInterest(findById(interest).orElseThrow(()->new RuntimeException("Interest not found")));
+//        }
+//    }
+//
+//    @Override
+//    public void updateScoreByInterest(Interest interest, long userId) { //fixme: mover a User? O crear un UserInterestDao
+//        User user = userDao.findById(userId)
+//                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+//        for (UserInterest userInterest : user.getInterests()) { //fixme: mover esto al modelo
+//            if (userInterest.getInterest().getId().equals(interest.getId())) {
+//                userInterest.setScore(userInterest.getScore() + 1);
+//            }
+//        }
+//
+//    }
+//
+//    @Override
+//    public void updateUserInterests(long[] interestIds, long userId) { // fixme: mover a User? O crear un UserInterestDao
+//        User user = userDao.findById(userId)
+//                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+//        for (long interestId : interestIds) { //fixme: mover esto al modelo
+//            Interest interest = findById(interestId)
+//                    .orElseThrow(() -> new IllegalArgumentException("Interest not found"));
+//            user.getInterests().add(new UserInterest(user, interest));
+//        }
+//
+//    }
+//
+//    @Override
+//    public void updateScoreByInterests(List<Interest> interests, long userId) { // fixme: mover a User? O crear un UserInterestDao
+//        User user = userDao.findById(userId)
+//                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+//        for (Interest interest : interests) { //fixme: mover esto al modelo
+//            for (UserInterest userInterest : user.getInterests()) {
+//                if (userInterest.getInterest().getId().equals(interest.getId())) {
+//                    userInterest.setScore(userInterest.getScore() + 1);
+//                }
+//            }
+//        }
+//
+//    }
 }

@@ -11,6 +11,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -34,6 +35,26 @@ public class EventResponseHibernateDao implements EventResponseDao {
         query.setParameter("id", id);
 
         return query.getResultList().stream().findFirst();
+    }
+
+    @Override
+    public EventResponse create( User user, Event event, String message) {
+        final EventResponse eventResponse = new EventResponse(user, event, message);
+        em.persist(eventResponse);
+        return eventResponse;
+    }
+
+    @Override
+    public int countByEventId(long eventId) {
+        final String sql = """
+        SELECT COUNT(*)
+        FROM event_responses
+        WHERE event_id = :eventId AND deleted = FALSE
+    """;
+
+        return em.createNativeQuery(sql)
+                .setParameter("eventId", eventId)
+                .getFirstResult();
     }
 
     @Override

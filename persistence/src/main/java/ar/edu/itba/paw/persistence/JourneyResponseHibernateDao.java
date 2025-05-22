@@ -2,9 +2,7 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
-import ar.edu.itba.paw.models.JourneyResponse;
-import ar.edu.itba.paw.models.Page;
-import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.models.*;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -35,8 +33,28 @@ public class JourneyResponseHibernateDao implements JourneyResponseDao {
         return query.getResultList().stream().findFirst();
     }
 
+    @Override
+    public JourneyResponse create(User user, Journey journey, String message) {
+        final JourneyResponse journeyResponse = new JourneyResponse(user, journey, message);
+        em.persist(journeyResponse);
+        return journeyResponse;
+    }
 
-        @Override
+    @Override
+    public int countByJourneyId(long journeyId) {
+        final String sql = """
+        SELECT COUNT(*)
+        FROM journey_responses
+        WHERE journey_id = :journeyId AND deleted = FALSE
+    """;
+
+        return em.createNativeQuery(sql)
+                .setParameter("journeyId", journeyId)
+                .getFirstResult();
+    }
+
+
+    @Override
     public Page<JourneyResponse> findAllByJourneyId(final long journeyId, final PageParams pageParams) {
         final String countSql = """
         SELECT COUNT(*)

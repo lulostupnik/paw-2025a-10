@@ -31,10 +31,9 @@ public class JourneyServiceImpl implements JourneyService {
     private final EmailService emailService;
     private final UniversityService universityService;
     private final InterestService interestService;
-    private final UserDao userDao;
 
     @Autowired
-    public JourneyServiceImpl(final JourneyDao journeyDao, final UserService userService,final UserDao userDao,
+    public JourneyServiceImpl(final JourneyDao journeyDao, final UserService userService,
                               final UniversityService universityService, final JourneyResponseDao journeyResponseDao, final EmailService emailService, final InterestService interestService) {
         this.journeyDao = journeyDao;
         this.userService = userService;
@@ -42,7 +41,6 @@ public class JourneyServiceImpl implements JourneyService {
         this.journeyResponseDao = journeyResponseDao;
         this.emailService = emailService;
         this.interestService = interestService;
-        this.userDao = userDao;
     }
 
     private void checkDates(final LocalDate startDate, final LocalDate endDate) {
@@ -93,9 +91,7 @@ public class JourneyServiceImpl implements JourneyService {
                     return new RuntimeException("User not found");}
                 );
 
-        journey.getResponses().add(
-                new JourneyResponse(user, journey, message)
-        );
+        journeyResponseDao.create(user, journey, message);
 
 //        journeyResponseDao.create(user.getId(), user.getUsername(), journeyId, message, LocalDateTime.now());
         LOGGER.info("Journey response created: {}", message);
@@ -104,15 +100,15 @@ public class JourneyServiceImpl implements JourneyService {
         // interestService.updateUserInterestScores(interests, user.getId());
         userService.updateUserInterestScores(interests, user);
 
-        List<User> responders = journey.getResponses().stream().map(JourneyResponse::getUser).toList();
+//        List<User> responders = journeyR fixme: journeyResponseDao.findAllByJourneyId(journeyId)
 
         LOGGER.info("Interest score updated for user {}", user.getId());
-        emailService.answerJourneyNotification(
-                responders,
-                message,
-                user,
-                journey
-        );
+//        emailService.answerJourneyNotification( fixme: paginar responders
+//                responders,
+//                message,
+//                user,
+//                journey
+//        );
         LOGGER.info("Journey response notification sent to user {}", user.getId());
 
     }
@@ -222,10 +218,10 @@ public class JourneyServiceImpl implements JourneyService {
 //        journeyDao.updateDeletionMessage(id, message);
 
         LOGGER.info("Journey deletion message updated: {}", message);
-        journey.getResponses().forEach(journeyResponse -> {
-            journeyResponse.setDeleted(true);
-            // journeyResponse.setDeletionMessage("Deleted Journey");
-        });
+//        journey.getResponses().forEach(journeyResponse -> {
+//            journeyResponse.setDeleted(true);
+//            // journeyResponse.setDeletionMessage("Deleted Journey");
+//        });
         // todo check: que pasa si "revivimos" al journey? va a estar todo eliminado -> habría que revivir todas las respuestas
         // todo: o en su defecto no borrar.
 
@@ -323,11 +319,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     public int countJourneyResponses(final long id) {
-        return journeyDao.findById(id).orElseThrow(() -> {
-            LOGGER.warn("Journey with id {} not found", id);
-            return new JourneyNotFoundException("Journey not found");
-        }
-        ).getResponses().size();
+        return journeyResponseDao.countByJourneyId(id);
     }
 }
 

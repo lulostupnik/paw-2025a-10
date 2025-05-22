@@ -309,6 +309,33 @@ public class EventHibernateDao implements EventDao {
         );
     }
 
+    @Override
+    public int countEventsAttendedByUser(long userId) {
+        final String sql = """
+        SELECT COUNT(*)
+        FROM event_attendances ea
+        JOIN events e ON ea.event_id = e.id
+        WHERE ea.user_id = :userId AND e.deleted = FALSE 
+    """; //cuento los borrados o no?
+
+        Query countQuery = em.createNativeQuery(sql);
+        countQuery.setParameter("userId", userId);
+        return ((Number) countQuery.getSingleResult()).intValue();
+    }
+
+    @Override
+    public int countEventsCreatedByUser(long userId) {
+        final String sql = """
+        SELECT COUNT(*)
+        FROM events e 
+        WHERE e.user_id = :userId AND e.deleted = FALSE 
+    """; //cuento los borrados o no?
+
+        Query countQuery = em.createNativeQuery(sql);
+        countQuery.setParameter("userId", userId);
+        return ((Number) countQuery.getSingleResult()).intValue();
+    }
+
 
     private String getSortColumn(SortFieldEvent sortBy) {
         if (sortBy == null) {

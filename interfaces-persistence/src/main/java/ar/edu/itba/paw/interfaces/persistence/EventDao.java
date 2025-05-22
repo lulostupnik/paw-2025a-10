@@ -35,7 +35,7 @@ public interface EventDao {
 
 
 //    void incrementAttendeesCount(long eventId);
-    //int countEventsAttendedByUser(long userId);
-   // int countEventsCreatedByUser(long userId);
+    int countEventsAttendedByUser(long userId);
+    int countEventsCreatedByUser(long userId);
 
 }

@@ -39,7 +39,9 @@ public class InterestServiceImpl implements InterestService {
     @Override
     public List<Interest> findInterestsByUserId(final long id) {
         LOGGER.debug("Getting interests of user {}", id);
-        return interestDao.findAllByUserId(id);
+
+//        return interestDao.findAllByUserId(id);
+        return List.of(); //fixme
     }
 
     @Override
@@ -53,7 +55,8 @@ public class InterestServiceImpl implements InterestService {
     @Override
     public Page<Interest> findInterestsByUserId(final long id, final PageParams pageParams) {
         LOGGER.debug("Getting interests of user {} with pageParams {}", id, pageParams);
-        return interestDao.findAllByUserId(id, pageParams);
+//        return interestDao.findAllByUserId(id, pageParams);
+        return new Page<>(List.of(),1,1); //fixme
     }
 
     @Override
@@ -95,7 +98,7 @@ public class InterestServiceImpl implements InterestService {
     @Transactional
     public void createUserInterests(final List<String> interests, final  long userId) {
         LOGGER.debug("Adding interest list to user {}", userId);
-        interestDao.createUserInterests(interests, userId);
+//        interestDao.createUserInterests(interests, userId); fixme: user interest dao
         LOGGER.info("Interests {} added to user {}", interests, userId);
     }
 //
@@ -111,7 +114,7 @@ public class InterestServiceImpl implements InterestService {
     @Transactional
     public void updateUserInterests(final long[] interestIds, final long userId) {
         LOGGER.debug("Updating interests {} for user {}", interestIds, userId);
-        interestDao.updateUserInterests(interestIds, userId);
+//        interestDao.updateUserInterests(interestIds, userId); fixme: user interest dao
         LOGGER.info("Interests {} updated for user {}", interestIds, userId);
     }
 

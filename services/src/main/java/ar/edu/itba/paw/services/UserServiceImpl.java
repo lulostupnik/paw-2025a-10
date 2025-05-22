@@ -102,11 +102,12 @@ public class UserServiceImpl implements UserService {
             interestIds.add(interest.getId());
         }
 
-        user.getInterests().forEach(userInterest -> {
-            if (interestIds.contains(userInterest.getInterest().getId())) {
-                userInterest.setScore(userInterest.getScore() + 1);
-            }
-        });
+//        interestService.findInterestsByUserId(user.getId()) fixme: que devuelva user interests
+//        .forEach(userInterest -> {
+//            if (interestIds.contains(userInterest.getInterest().getId())) {
+//                userInterest.setScore(userInterest.getScore() + 1);
+//            }
+//        });
     }
 
     @Override

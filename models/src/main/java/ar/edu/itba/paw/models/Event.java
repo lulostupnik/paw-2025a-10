@@ -59,17 +59,6 @@
         @Setter
         private String deletionMessage;
 
-        @ManyToMany(fetch = FetchType.LAZY)
-        @JoinTable(name = "event_attendances",
-                joinColumns = @JoinColumn(name = "event_id"),
-                inverseJoinColumns = @JoinColumn(name = "user_id"))
-        List<User> attendees;
-
-        @OneToMany(fetch = FetchType.LAZY,mappedBy = "event", cascade = CascadeType.ALL)
-        @Setter
-        List<EventResponse> responses;
-
-
 
 
 
@@ -89,9 +78,6 @@
             this.attendeesLimit = attendeesLimit;
             this.attendeesCount = 1; //user that created the event @TODO
             this.deleted = false;
-            this.attendees = new ArrayList<>();
-            this.attendees.add(user);//fixme: REVISAR ESTO CON JPA
-            this.responses = new ArrayList<>();
 
         }
         public Event(final Long id, final User user, final LocalDate date, final String description,
@@ -109,8 +95,6 @@
             this.attendeesLimit = attendeesLimit;
             this.attendeesCount = attendeesCount; //user that created the event @TODO
             this.deleted = false;
-            this.attendees = new ArrayList<>(); this.attendees.add(user);
-            this.responses = new ArrayList<>();
         }
 
 
@@ -124,9 +108,6 @@
             }
 
             return LocalDateTime.of(date, time).isAfter(LocalDateTime.now());
-        }
-        public boolean hasUserAttending(long userId) {
-            return attendees.stream().anyMatch(u -> u.getId() == userId);
         }
 
 

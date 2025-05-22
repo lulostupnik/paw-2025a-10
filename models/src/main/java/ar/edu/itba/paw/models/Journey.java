@@ -37,9 +37,7 @@ public class Journey{
     @Column(name = "deleted_message", length = 2047)
     @Setter
     private String deletionMessage;
-    @OneToMany(mappedBy = "journey", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @Setter
-    List<JourneyResponse> responses;
+
 
     /* For hibernate */ Journey() {
     }

@@ -32,14 +32,12 @@ public class EventServiceImpl implements EventService {
     private final EventDao eventDao;
     private final ImageService imageService;
     private final CityService cityService;
-//    private final EventAttendanceDao eventAttendanceDao;
-    private final UserDao userDao;
 
     @Autowired
     public EventServiceImpl(final UserService userService,final  EventResponseDao eventResponseDao,
                             final EventDao eventDao,final EmailService emailService, final ImageService imageService,
-                            final CityService cityService,/*final  EventAttendanceDao eventAttendanceDao,*/final  UserDao userDao) {
-        this.userDao = userDao;
+                            final CityService cityService/*final  EventAttendanceDao eventAttendanceDao,*/) {
+        //    private final EventAttendanceDao eventAttendanceDao;
         this.userService = userService;
         this.eventResponseDao = eventResponseDao;
         this.eventDao = eventDao;
@@ -82,15 +80,15 @@ public class EventServiceImpl implements EventService {
         User user = userService.findUserByEmail(email).orElseThrow(()->{
                 LOGGER.error("User not found {}", email);
                 return new RuntimeException("User not found");});
-        List<EventResponse> responses = event.getResponses();
-        responses.add(new EventResponse(user, event, message));
+
+        eventResponseDao.create(user, event, message);
         LOGGER.info("Event response {} created", eventId);
-        emailService.answerEventNotification(
-                responses.stream().map(EventResponse::getUser).toList(), // todo: este método podría recibir el stream en vez de la lista
-                message,
-                user,
-                event
-                );
+//        emailService.answerEventNotification( fixme: esto no se como hacerlo paginado
+//                .stream().map(EventResponse::getUser).toList(), // todo: este método podría recibir el stream en vez de la lista
+//                message,
+//                user,
+//                event
+//                );
         LOGGER.info("Email notification sent for the event {}", eventId);
     }
 
@@ -130,11 +128,9 @@ public class EventServiceImpl implements EventService {
             isCreator = maybeEventWithUserInfo.get().isCreator();
         }
 
-       // int createdEventsCount = eventDao.countEventsCreatedByUser(event.getUser().getId());
-//        int attendedEventsCount = eventDao.countEventsAttendedByUser(event.getUser().getId());
+        int createdEventsCount = eventDao.countEventsCreatedByUser(event.getUser().getId());
+        int attendedEventsCount = eventDao.countEventsAttendedByUser(event.getUser().getId());
 
-        int createdEventsCount = event.getUser().getEvents().size();
-        int attendedEventsCount = event.getUser().getAttendedEvents().size(); //@todo check. esto tiene los suyos (supongo)
         //int attendedEventsCount = event.getUser().get
 
         Optional<CountryAttendeeCount> maybeCountryAttendeeCount = eventDao.findTopAttendeeCountry(event.getId());
@@ -178,16 +174,13 @@ public class EventServiceImpl implements EventService {
             LOGGER.info("Event (id {}) is not in the future", eventId);
             throw new InvalidException("Event (id " + eventId + ") is not in the future");
         }
-        if(event.hasUserAttending(userId)){
-            LOGGER.warn("User {} is already attending event {}", userId, eventId);
-            return;
-        }
+
         if (event.getAttendeesLimit() == null || event.getAttendeesCount() < event.getAttendeesLimit()) {
             User user = userService.findUserById(userId).orElseThrow(() -> {
                 LOGGER.warn("User not found {}", userId);
                 return new RuntimeException("User not found");
             });
-            event.getAttendees().add( user ); // fixme: revisar logica del total de attending users
+            //fixme: crear el attendance aca de verdad
             event.setAttendeesCount(event.getAttendeesCount()+1); //fixme: ni idea
         }
         LOGGER.info("User {} is now attending event {}", userId, eventId);
@@ -219,12 +212,7 @@ public class EventServiceImpl implements EventService {
             LOGGER.info("Event (id {}) is not in the future", eventId);
             throw new InvalidException("Event (id " + eventId + ") is not in the future");
         }
-        event.getAttendees().remove( //fixme: Cambiar por funcion en el modelo
-                userService.findUserById(userId).orElseThrow(() -> {
-                    LOGGER.warn("User not found {}", userId);
-                    return new RuntimeException("User not found");
-                })
-        );
+        // fixme: crear funcion que lo borre de verdad
 
         LOGGER.info("User {} has canceled attendance for event {}", userId, eventId);
     }
@@ -351,11 +339,10 @@ public class EventServiceImpl implements EventService {
             return new RuntimeException("Event not found");});
         if(message != null && !message.isEmpty()){
             event.setDeletionMessage(message);
-//            eventDao.updateDeletionMessage(id, message);
             emailService.sendEventDeletionNotification(event,message);
         }
-        event.setResponses(List.of()); // creo que no hace falta
         event.setDeleted(true); //todo check
+        //fixme: borrar las responses tmb
     }
 
     @Override
@@ -381,10 +368,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public int countEventResponses(final long eventId){
         LOGGER.debug("Getting response count for event {}", eventId);
-        return eventDao.findById(eventId).orElseThrow(()->{
-            LOGGER.warn("Event not found {}", eventId);
-            return new RuntimeException("Event not found");}
-        ).getResponses().size();
+        return eventResponseDao.countByEventId(eventId);
     }
 
 
@@ -417,8 +401,7 @@ public class EventServiceImpl implements EventService {
         }
 
         boolean isCreator = event.getUser().getId() == userId;
-        boolean isAttending = event.getAttendees().stream()
-                .anyMatch(u -> u.getId() == userId);
+        boolean isAttending = false; //fixme: = eventAttendanceDao.existsByUserIdAndEventId(userId, eventId);
 
         return Optional.of(new EventWithUserInfo(event, isAttending, isCreator));
     }
@@ -448,7 +431,7 @@ public class EventServiceImpl implements EventService {
         LOGGER.info("Found {} events occurring in the next 24 hours", upcomingEvents.size());
 
         for (Event event : upcomingEvents) {
-            emailService.sendEventReminderNotification(event, event.getAttendees());
+//            emailService.sendEventReminderNotification(event, event.getAttendees()); fixme: eventAttendanceDAO?
         }
 
         LOGGER.info("Completed scheduled task: sent reminder emails for upcoming events");
