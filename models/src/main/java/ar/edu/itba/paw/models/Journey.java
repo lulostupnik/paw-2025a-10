@@ -16,24 +16,31 @@ public class Journey{
     @SequenceGenerator(sequenceName = "journeys_id_seq", name = "journeys_id_seq", allocationSize = 1)
     @Column(name = "id")
     private Long id;
+
     @OneToOne(fetch = FetchType.EAGER, optional = false)
     private User user;
+
     @Column(name = "start_date", nullable = false)
     @Setter
     private LocalDate startDate;
+
     @Column(name = "end_date", nullable = false)
     @Setter
     private LocalDate endDate;
+
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "destination_university_id", nullable = false)
     @Setter
     private University destinationUniversity;
+
     @Column(length = 2047)
     @Setter
     private String description;
+
     @Column(name="deleted", nullable = false)
     @Setter
     private boolean deleted;
+
     @Column(name = "deleted_message", length = 2047)
     @Setter
     private String deletionMessage;

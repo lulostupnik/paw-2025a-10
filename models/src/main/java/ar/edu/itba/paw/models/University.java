@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.models;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -8,20 +9,26 @@ import javax.persistence.*;
 @Entity
 @Table(name = "universities")
 public class University{
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator =
-            "universities_id_seq")
-    @SequenceGenerator(sequenceName = "universities_id_seq", name =
-            "universities_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "universities_id_seq")
+    @SequenceGenerator(sequenceName = "universities_id_seq", name = "universities_id_seq", allocationSize = 1)
     @Column(name = "id")
     private  Long id;
+
+    @Setter
     @Column()
     private  String name;
+
+    @Setter
     @Column(name = "abbreviation")
     private  String abbreviation;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "city_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private  City city;
+
+    @Setter
     @Column(name="deleted", nullable = false)
     private  boolean deleted;
 
@@ -34,6 +41,7 @@ public class University{
         this.city = city;
         this.deleted = false;
     }
+
     public University( final Long id, final String name, final String abbreviation, final City city) {
         this.name = name;
         this.abbreviation = abbreviation;
@@ -52,14 +60,4 @@ public class University{
         return sb.toString();
     }
 
-    public void setName(String newName) {
-        this.name = newName;
-    }
-    public void setAbbreviation(String newAbbreviation) {
-        this.abbreviation = newAbbreviation;
-    }
-
-    public void setDeleted(boolean b) {
-        this.deleted = b;
-    }
 }

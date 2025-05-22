@@ -15,42 +15,51 @@
     @Table(name="events")
     public class Event {
         @Id
-        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator =
-                "events_id_seq")
-        @SequenceGenerator(sequenceName = "events_id_seq", name =
-                "events_id_seq", allocationSize = 1)
+        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "events_id_seq")
+        @SequenceGenerator(sequenceName = "events_id_seq", name = "events_id_seq", allocationSize = 1)
         @Column(name = "id")
         private  Long id;
+
         @ManyToOne(fetch = FetchType.LAZY, optional = false)
         private  User user;
+
         @Column(name = "event_date", nullable = false)
         @Setter
         private  LocalDate date;
+
         @Column(length = 2047)
         @Setter
         private  String description;
+
         @Column(name = "flyer_image_id")
         @Setter
         private  long flyerImageId;
+
         @ManyToOne(fetch = FetchType.LAZY, optional = false)
         @JoinColumn(name = "city_id")
         @Setter
         private  City city;
+
         @Column
         @Setter
         private  String title;
+
         @Column(name = "event_time")
         @Setter
         private  LocalTime time;
+
         @Column(name = "address", length = 255)
         @Setter
         private  String address;
+
         @Column(name = "attendees_limit")
         @Setter
         private  Integer attendeesLimit;
+
         @Column(name = "attendees_count")
         @Setter
         private  int attendeesCount; //FIXME: yo borraria esto
+        
         @Column(name="deleted", nullable = false)
         @Setter
         private  boolean deleted;

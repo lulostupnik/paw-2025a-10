@@ -14,20 +14,22 @@ import java.time.format.DateTimeFormatter;
 @Table(name = "journey_responses")
 public class JourneyResponse {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator =
-            "journey_responses_id_seq")
-    @SequenceGenerator(sequenceName = "journey_responses_id_seq", name =
-            "journey_responses_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "journey_responses_id_seq")
+    @SequenceGenerator(sequenceName = "journey_responses_id_seq", name = "journey_responses_id_seq", allocationSize = 1)
     @Column(name = "id")
     private  Long id;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private  User user;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "journey_id", nullable = false)
     private  Journey journey;
+
     @Column(length = 2047)
     private  String message;
+
     @Column(name = "date_time", nullable = false)
     private  LocalDateTime dateTime;
 

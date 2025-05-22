@@ -14,25 +14,29 @@ import java.time.format.DateTimeFormatter;
 @Table(name = "event_responses")
 public class EventResponse {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator =
-            "event_responses_id_seq")
-    @SequenceGenerator(sequenceName = "event_responses_id_seq", name =
-            "event_responses_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "event_responses_id_seq")
+    @SequenceGenerator(sequenceName = "event_responses_id_seq", name = "event_responses_id_seq", allocationSize = 1)
     @Column(name = "id")
     private  Long id;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private  User user;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "event_id", nullable = false)
     private  Event event;
+
     @Column(length = 2047)
     private  String message;
+
     @Column(name = "date_time", nullable = false)
     private LocalDateTime dateTime;
+
     @Column(name="deleted", nullable = false)
     @Setter
     private  boolean deleted;
+
     @Column(name = "deleted_message", length = 2047)
     @Setter
     private  String deletionMessage;

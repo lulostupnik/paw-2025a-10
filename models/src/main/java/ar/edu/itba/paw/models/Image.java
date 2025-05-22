@@ -11,11 +11,13 @@ import javax.persistence.*;
 @Entity
 @Table(name = "images")
 public class Image {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "images_id_seq")
     @SequenceGenerator(sequenceName = "images_id_seq", name = "images_id_seq", allocationSize = 1)
     @Column(name = "id")
     private Long id;
+
     @Column(name = "content", nullable = false)
     private byte[] data;
 

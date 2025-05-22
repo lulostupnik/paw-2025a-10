@@ -11,11 +11,10 @@ import javax.persistence.*;
 @Table(name="category")
 public class Interest {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator =
-            "category_id_seq")
-    @SequenceGenerator(sequenceName = "category_id_seq", name =
-            "category_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "category_id_seq")
+    @SequenceGenerator(sequenceName = "category_id_seq", name = "category_id_seq", allocationSize = 1)
     private  Long id;
+
     @Column(nullable = false, length = 100)
     @Setter
     private  String name;

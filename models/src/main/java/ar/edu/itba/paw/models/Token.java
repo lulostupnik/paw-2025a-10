@@ -12,11 +12,8 @@ import java.time.LocalDateTime;
 public class Token {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE,
-            generator = "tokens_id_seq")
-    @SequenceGenerator(sequenceName = "tokens_id_seq",
-            name = "tokens_id_seq",
-            allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tokens_id_seq")
+    @SequenceGenerator(sequenceName = "tokens_id_seq", name = "tokens_id_seq", allocationSize = 1)
     @Column(name = "id", nullable = false, updatable = false)
     private Long tokenId;
 
@@ -26,9 +23,7 @@ public class Token {
 
     //TODO: Creo que eager, porque no tiene sentido cargar el token sin el usuario
     @OneToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "user_id",
-            nullable = false,
-            foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private User user;
 
     //TODO:Esto esta bueno cambiarlo de LocalDate porque asi es mas preciso, no?
