@@ -3,7 +3,6 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
-import ar.edu.itba.paw.models.exceptions.ExpiredTokenException;
 import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserValidatedException;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -109,18 +107,12 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
     @Override
     public Optional<User> findUserByEmail(final String email) {
         LOGGER.debug("Searching for user with email: {}", email);
         return userDao.findByEmail(email);
     }
 
-//    @Override
-//    public Optional<UserAuthInfo> findAuthInfoByEmail(final String email) {
-//        LOGGER.debug("Searching for authUser with email: {}", email);
-//        return userDao.findAuthInfoByEmail(email);
-//    }
 
     @Override
     public Optional<User> findUserById(final long id) {
@@ -128,11 +120,13 @@ public class UserServiceImpl implements UserService {
         return userDao.findById(id);
     }
 
+
     @Override
     public boolean existsByUsername(final String username) {
         LOGGER.debug("Checking for user existence, with username: {}", username);
         return userDao.existsByUsername(username);
     }
+
 
     @Override
     public boolean existsByEmail(final String email) {
@@ -150,6 +144,7 @@ public class UserServiceImpl implements UserService {
         return userDao.search(search, pageParams);
     }
 
+
     @Override
     @Transactional
     public void blockUser(final long userId) {
@@ -165,6 +160,7 @@ public class UserServiceImpl implements UserService {
         LOGGER.info("User blocked successfully with ID: {}", userId);
     }
 
+
     @Override
     @Transactional
     public void unblockUser(final long userId) {
@@ -177,6 +173,7 @@ public class UserServiceImpl implements UserService {
         user.setBlocked(false);
         LOGGER.info("User unblocked successfully with ID: {}", userId);
     }
+
 
     @Override
     public void checkTokenValidity(String token) {
@@ -213,6 +210,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         LOGGER.info("Password updated successfully for token: {}", token);
     }
+
 
     @Override
     @Transactional
