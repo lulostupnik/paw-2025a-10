@@ -40,7 +40,7 @@
         @Setter
         private  City city;
 
-        @Column
+        @Column(nullable = false)
         @Setter
         private  String title;
 
@@ -64,7 +64,7 @@
         @Setter
         private  boolean deleted;
 
-        @Column(name="deleted_message")
+        @Column(name="deleted_message",  length = 1000)
         @Setter
         private String deletionMessage;
 
