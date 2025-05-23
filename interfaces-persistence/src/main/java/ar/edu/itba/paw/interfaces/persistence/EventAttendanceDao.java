@@ -2,6 +2,8 @@ package ar.edu.itba.paw.interfaces.persistence;
 
 import ar.edu.itba.paw.models.*;
 
+import javax.persistence.Query;
+
 public interface EventAttendanceDao {
     void create(long userId, long eventId);
     void delete(long userId, long eventId);
@@ -13,5 +15,8 @@ public interface EventAttendanceDao {
     Page<EventAttendance> listAllByUserId(long userId, PageParams pageParams);
     int countAttendantsByEventId(long eventId);
     Page<User> findAttendeesByEventId(long eventId, PageParams pageParams);
+
+    int countEventsAttendedByUser(long userId);
+
 
 }

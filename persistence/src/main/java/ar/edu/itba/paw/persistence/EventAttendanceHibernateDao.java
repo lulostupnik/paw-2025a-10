@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.util.Map;
 
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
@@ -179,4 +180,20 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
                 Map.of()
         );
     }
+
+
+    @Override
+    public int countEventsAttendedByUser(long userId) {
+        final String sql = """
+        SELECT COUNT(*)
+        FROM event_attendances ea
+        JOIN events e ON ea.event_id = e.id
+        WHERE ea.user_id = :userId AND e.deleted = FALSE
+        """;
+
+        Query countQuery = em.createNativeQuery(sql);
+        countQuery.setParameter("userId", userId);
+        return ((Number) countQuery.getSingleResult()).intValue();
+    }
+
 }

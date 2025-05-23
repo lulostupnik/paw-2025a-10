@@ -64,37 +64,8 @@ public class EventServiceImpl implements EventService {
         Event event = eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit); //fixme: reemplazar por new Event
         LOGGER.info("Event {} created", event.getId());
         eventAttendanceDao.create(user, event);
-//        event.getAttendees().add(user);
-//        eventAttendanceDao.create(user.getId(), event.getId());
-//        eventDao.incrementAttendeesCount(event.getId()); @TODO esto? el modelo se crea con 1.
         return event;
     }
-//
-//    @Override
-//    @Transactional
-//    public void replyToEvent(final String email, final long eventId, final String message) {
-//        LOGGER.debug("Replying to event {}", eventId);
-//        Event event = eventDao.findById(eventId).orElseThrow(() -> {
-//            LOGGER.error("Event not found {}", eventId);
-//            return new RuntimeException("Event not found");}
-//        );
-//        User user = userService.findUserByEmail(email).orElseThrow(()->{
-//                LOGGER.error("User not found {}", email);
-//                return new RuntimeException("User not found");});
-//
-//        eventResponseDao.create(user, event, message);
-//        LOGGER.info("Event response {} created", eventId);
-//
-////        emailService.answerEventNotification( fixme: esto no se como hacerlo paginado
-////                event.getResponses().stream().map(EventResponse::getUser).toList(), // todo: este método podría recibir el stream en vez de la lista
-////                message,
-////                user,
-////                event
-////                );
-//        LOGGER.info("Email notification sent for the event {}", eventId);
-//    }
-
-// EventServiceImpl.java
 
     // todo: check
     @Override
@@ -178,9 +149,9 @@ public class EventServiceImpl implements EventService {
         }
 
         int createdEventsCount = eventDao.countEventsCreatedByUser(event.getUser().getId());
-        int attendedEventsCount = eventDao.countEventsAttendedByUser(event.getUser().getId());
+        int attendedEventsCount = eventAttendanceDao.countEventsAttendedByUser(event.getUser().getId());
 
-        //int attendedEventsCount = event.getUser().get
+
 
         Optional<CountryAttendeeCount> maybeCountryAttendeeCount = eventDao.findTopAttendeeCountry(event.getId());
 
