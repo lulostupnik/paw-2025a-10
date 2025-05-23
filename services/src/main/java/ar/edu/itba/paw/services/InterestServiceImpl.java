@@ -47,7 +47,7 @@ public class InterestServiceImpl implements InterestService {
     }
     @Override
     @Transactional
-    public void updateUserInterestScores(List<UserInterest> interests){ // fixme: mover a UserInterestDao
+    public void updateUserInterestScores(List<UserInterest> interests){
         for(UserInterest interest : interests){
             interest.setScore(interest.getScore()+1);
         }
@@ -133,6 +133,16 @@ public class InterestServiceImpl implements InterestService {
             return interestDao.findAll(pageParams);
         }
         return interestDao.search(search,pageParams);
+    }
+
+
+    @Override
+    @Transactional
+    public void updateMatchingInterestScores(long responderUserId, long journeyCreatorUserId) {
+        LOGGER.debug("Updating matching interest scores for responder {} based on journey creator {}",
+                responderUserId, journeyCreatorUserId);
+        userInterestDao.updateMatchingInterestScores(responderUserId, journeyCreatorUserId);
+        LOGGER.info("Updated matching interest scores for responder {}", responderUserId);
     }
 
 

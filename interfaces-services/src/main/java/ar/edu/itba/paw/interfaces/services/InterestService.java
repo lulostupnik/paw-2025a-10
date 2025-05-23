@@ -20,4 +20,5 @@ public interface InterestService {
     Page<UserInterest> findInterestsByUser(User user, PageParams pageParams);
     void updateUserInterests(final long[] interestIds, final long userId);
     Page<Interest> findInterests(String search, PageParams pageParams);
+    void updateMatchingInterestScores(long responderUserId, long journeyCreatorUserId);
 }

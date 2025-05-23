@@ -86,19 +86,22 @@ public class JourneyServiceImpl implements JourneyService {
                     return new RuntimeException("Journey not found");
                 });
 
-        User user = userService.findUserByEmail(email)
+        User responder = userService.findUserByEmail(email)
                 .orElseThrow(() -> {
                     LOGGER.warn("User with email {} not found", email);
                     return new RuntimeException("User not found");
                 });
 
-        journeyResponseDao.create(user, journey, message);
+        journeyResponseDao.create(responder, journey, message);
 
-        LOGGER.info("Journey response created: {}", message);
-        List<UserInterest> userInterests = interestService.findInterestsByUser(journey.getUser());
+//        LOGGER.info("Journey response created: {}", message);
+//        List<UserInterest> userInterests = interestService.findInterestsByUser(journey.getUser());
+//
+//        interestService.updateUserInterestScores(userInterests);
+//        LOGGER.info("Interest score updated for user {}", user.getId());
 
-        interestService.updateUserInterestScores(userInterests);
-        LOGGER.info("Interest score updated for user {}", user.getId());
+        interestService.updateMatchingInterestScores(responder.getId(), journey.getUser().getId());
+        LOGGER.info("Interest scores updated for responder {}", responder.getId());
 
         int page = 1;
         int pageSize = 50;
@@ -116,7 +119,7 @@ public class JourneyServiceImpl implements JourneyService {
                 emailService.answerJourneyNotification(
                         responders,
                         message,
-                        user,
+                        responder,
                         journey
                 );
             }

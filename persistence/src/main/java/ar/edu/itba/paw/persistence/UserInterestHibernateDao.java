@@ -131,5 +131,44 @@ public class UserInterestHibernateDao implements UserInterestDao {
 
     }
 
+    @Override
+    public void updateMatchingInterestScores(long responderUserId, long journeyCreatorUserId) {
+        // Update scores for interests that both users have in common
+        em.createNativeQuery("""
+        UPDATE user_interest
+        SET score = score + 1
+        WHERE user_id = :responderUserId
+          AND category_id IN (
+              SELECT category_id
+              FROM user_interest
+              WHERE user_id = :journeyCreatorUserId
+          )
+    """)
+                .setParameter("responderUserId", responderUserId)
+                .setParameter("journeyCreatorUserId", journeyCreatorUserId)
+                .executeUpdate();
+    }
+
+
+    // sin usar native query:
+//
+//    @Override
+//    public void updateMatchingInterestScores(long responderUserId, long journeyCreatorUserId) {
+//        // Update scores for interests that both users have in common
+//        em.createQuery("""
+//        UPDATE UserInterest ui
+//        SET ui.score = ui.score + 1
+//        WHERE ui.user.id = :responderUserId
+//          AND ui.interest.id IN (
+//              SELECT ui2.interest.id
+//              FROM UserInterest ui2
+//              WHERE ui2.user.id = :journeyCreatorUserId
+//          )
+//    """)
+//                .setParameter("responderUserId", responderUserId)
+//                .setParameter("journeyCreatorUserId", journeyCreatorUserId)
+//                .executeUpdate();
+//    }
+
 
 }
