@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS events (
         event_time TIME,
         attendees_limit INT,
         address VARCHAR(255),
-        flyer_image_id BIGINT,
+        flyer_image_id BIGINT NOT NULL,
         attendees_count INTEGER DEFAULT 0,
         title VARCHAR(255),
         deleted BOOLEAN NOT NULL DEFAULT FALSE,
@@ -299,3 +299,6 @@ COMMIT;
 -- ALTER TABLE event_attendances ALTER COLUMN event_id TYPE BIGINT;
 -- -- ALTER TABLE tokens ALTER COLUMN user_id TYPE BIGINT;
 -- COMMIT;
+
+ALTER TABLE events
+    ALTER COLUMN flyer_image_id SET NOT NULL;
