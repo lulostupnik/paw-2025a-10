@@ -40,16 +40,6 @@ public class EventHibernateDao implements EventDao {
     }
 
     @Override
-    public List<Event> findAllBetweenDates(LocalDate startDate, LocalDate endDate) {
-        return em.createQuery(
-                        "FROM Event e WHERE e.date BETWEEN :startDate AND :endDate",
-                        Event.class)
-                .setParameter("startDate", startDate)  //@todo CHECK, usa LOCALDATE.
-                .setParameter("endDate", endDate)
-                .getResultList();
-    }
-
-    @Override
     public Page<Event> findTopByUser(final long userId, final PageParams pageParams) {
         final String countSql = """
         SELECT COUNT(*)

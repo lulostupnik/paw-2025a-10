@@ -106,7 +106,8 @@ public class InterestServiceImpl implements InterestService {
     @Transactional
     public void createUserInterests(final List<String> interests, final  long userId) {
         LOGGER.debug("Adding interest list to user {}", userId);
-//        interestDao.createUserInterests(interests, userId); fixme: user interest dao
+        userInterestDao.createUserInterests(interests, userId);
+//        interestDao.createUserInterests(interests, userId); todo: check
         LOGGER.info("Interests {} added to user {}", interests, userId);
     }
 //

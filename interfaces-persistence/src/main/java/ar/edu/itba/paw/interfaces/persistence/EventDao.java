@@ -18,7 +18,6 @@ public interface EventDao {
     //void updateDeletionMessage(long id, String message);
     Optional<Event> findById(long id);
 //    Optional<Integer> findAttendanceLimitById(long eventId);
-    List<Event> findAllBetweenDates(LocalDate startDate, LocalDate endDate);
     Page<Event> findRecommended(long userId, PageParams pageParams);
     Page<Event> findTop(PageParams pageParams);
     Page<Event> findTopByUser(long userId, PageParams pageParams);
