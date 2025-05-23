@@ -69,28 +69,76 @@ public class EventServiceImpl implements EventService {
 //        eventDao.incrementAttendeesCount(event.getId()); @TODO esto? el modelo se crea con 1.
         return event;
     }
+//
+//    @Override
+//    @Transactional
+//    public void replyToEvent(final String email, final long eventId, final String message) {
+//        LOGGER.debug("Replying to event {}", eventId);
+//        Event event = eventDao.findById(eventId).orElseThrow(() -> {
+//            LOGGER.error("Event not found {}", eventId);
+//            return new RuntimeException("Event not found");}
+//        );
+//        User user = userService.findUserByEmail(email).orElseThrow(()->{
+//                LOGGER.error("User not found {}", email);
+//                return new RuntimeException("User not found");});
+//
+//        eventResponseDao.create(user, event, message);
+//        LOGGER.info("Event response {} created", eventId);
+//
+////        emailService.answerEventNotification( fixme: esto no se como hacerlo paginado
+////                event.getResponses().stream().map(EventResponse::getUser).toList(), // todo: este método podría recibir el stream en vez de la lista
+////                message,
+////                user,
+////                event
+////                );
+//        LOGGER.info("Email notification sent for the event {}", eventId);
+//    }
 
+// EventServiceImpl.java
+
+    // todo: check
     @Override
     @Transactional
     public void replyToEvent(final String email, final long eventId, final String message) {
         LOGGER.debug("Replying to event {}", eventId);
         Event event = eventDao.findById(eventId).orElseThrow(() -> {
             LOGGER.error("Event not found {}", eventId);
-            return new RuntimeException("Event not found");}
-        );
-        User user = userService.findUserByEmail(email).orElseThrow(()->{
-                LOGGER.error("User not found {}", email);
-                return new RuntimeException("User not found");});
+            return new RuntimeException("Event not found");
+        });
 
-        eventResponseDao.create(user, event, message);
+        User responder = userService.findUserByEmail(email).orElseThrow(() -> {
+            LOGGER.error("User not found {}", email);
+            return new RuntimeException("User not found");
+        });
+
+        eventResponseDao.create(responder, event, message);
         LOGGER.info("Event response {} created", eventId);
-//        emailService.answerEventNotification( fixme: esto no se como hacerlo paginado
-//                event.getResponses().stream().map(EventResponse::getUser).toList(), // todo: este método podría recibir el stream en vez de la lista
-//                message,
-//                user,
-//                event
-//                );
-        LOGGER.info("Email notification sent for the event {}", eventId);
+
+        int page = 1;
+        int pageSize = 50;
+        Page<User> respondersPage;
+
+        do {
+            respondersPage = eventResponseDao.findRespondersByEventId(
+                    eventId,
+                    new PageParams(page, pageSize)
+            );
+
+            List<User> responders = respondersPage.getContent();
+
+            if (!responders.isEmpty()) {
+                emailService.answerEventNotification(
+                        responders,
+                        message,
+                        responder,
+                        event
+                );
+            }
+
+            page++;
+        } while (page <= respondersPage.getTotalPages());
+
+        LOGGER.info("Email notifications sent to all responders for event {}", eventId);
     }
 
     @Override

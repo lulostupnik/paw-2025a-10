@@ -90,4 +90,38 @@ public class EventResponseHibernateDao implements EventResponseDao {
         );
     }
 
+
+    @Override
+    public Page<User> findRespondersByEventId(final long eventId, final PageParams pageParams) {
+        final String countSql = """
+        SELECT COUNT(DISTINCT er.user_id)
+        FROM event_responses er
+        WHERE er.event_id = :eventId AND er.deleted = FALSE
+    """;
+
+        final String idSql = """
+        SELECT DISTINCT er.user_id
+        FROM event_responses er
+        WHERE er.event_id = :eventId AND er.deleted = FALSE
+        ORDER BY er.user_id
+    """;
+
+        final String jpqlFetch = """
+        FROM User u
+        WHERE u.id IN :ids
+        ORDER BY u.id
+    """;
+
+        return fetchPageByIds(
+                em,
+                countSql,
+                idSql,
+                Map.of("eventId", eventId),
+                jpqlFetch,
+                User.class,
+                pageParams,
+                Map.of()
+        );
+    }
+    
 }

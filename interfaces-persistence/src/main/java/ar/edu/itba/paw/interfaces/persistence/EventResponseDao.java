@@ -11,6 +11,8 @@ public interface EventResponseDao {
     EventResponse create(User user, Event event, String message);
     int countByEventId(long eventId);
     Page<EventResponse> listAllByEventId(long eventId, PageParams pageParams);
+    Page<User> findRespondersByEventId(long eventId, PageParams pageParams);
+
 //    void delete(long id);
 //    void updateDeletionMessage(long id, String message);
 //    void deleteAllByEventId(long eventId);
