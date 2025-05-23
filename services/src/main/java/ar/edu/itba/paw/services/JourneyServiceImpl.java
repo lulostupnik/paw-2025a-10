@@ -224,22 +224,12 @@ public class JourneyServiceImpl implements JourneyService {
 
         LOGGER.info("Journey deletion message updated: {}", message);
         journey.setDeletionMessage(message);
-//        journeyDao.updateDeletionMessage(id, message);
-
 
         LOGGER.debug("Deleting journey {}", id);
         journey.setDeletionMessage(message);
-//        journeyDao.updateDeletionMessage(id, message);
 
         LOGGER.info("Journey deletion message updated: {}", message);
-//        journey.getResponses().forEach(journeyResponse -> {
-//            journeyResponse.setDeleted(true);
-//            // journeyResponse.setDeletionMessage("Deleted Journey");
-//        });
-        // todo check: que pasa si "revivimos" al journey? va a estar todo eliminado -> habría que revivir todas las respuestas
-        // todo: o en su defecto no borrar.
-
-//        journeyResponseDao.deleteByJourneyId(id); //fixme: revisar
+        journeyResponseDao.deleteByJourneyId(journey.getId()); // todo check
 
         LOGGER.info("Journey responses deleted for journey {}", id);
 
@@ -247,7 +237,6 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.info("Journey deletion notification sent to user {}", journey.getUser().getEmail());
 
         journey.setDeleted(true);
-//        journeyDao.delete(id);
         LOGGER.info("Journey deleted: {}", id);
     }
 

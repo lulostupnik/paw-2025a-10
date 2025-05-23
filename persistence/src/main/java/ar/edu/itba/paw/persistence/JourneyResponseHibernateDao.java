@@ -121,4 +121,34 @@ public class JourneyResponseHibernateDao implements JourneyResponseDao {
                 Map.of()
         );
     }
+
+
+    @Override
+    public void deleteByJourneyId(long journeyId) {
+        em.createNativeQuery("""
+        DELETE FROM journey_responses
+        WHERE journey_id = :journeyId
+        """)
+                .setParameter("journeyId", journeyId)
+                .executeUpdate();
+    }
+
+// opción soft delete:
+/*
+    @Override
+    public void deleteByJourneyId(long journeyId) {
+        em.createQuery("""
+        UPDATE JourneyResponse jr
+        SET jr.deleted = TRUE,
+            jr.deletionMessage = 'Journey was deleted'
+        WHERE jr.journey.id = :journeyId
+          AND jr.deleted = FALSE
+    """)
+                .setParameter("journeyId", journeyId)
+                .executeUpdate();
+    }
+
+*/
+
+
 }
