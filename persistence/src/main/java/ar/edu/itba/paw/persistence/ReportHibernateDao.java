@@ -47,38 +47,6 @@ public class ReportHibernateDao implements ReportDao {
     }
 
 
-    @Override
-    public boolean hasUserReportedTarget(User reportingUser, User reportedUser) {
-        final TypedQuery<Long> query = em.createQuery(
-                "SELECT COUNT(r) FROM Report r WHERE r.reportingUser = :reportingUser AND r.reportedUser = :reportedUser AND r.deleted = false",
-                Long.class
-        );
-        query.setParameter("reportingUser", reportingUser);
-        query.setParameter("reportedUser", reportedUser);
-        return query.getSingleResult() > 0;
-    }
-
-    @Override
-    public boolean hasUserReportedJourney(User reportingUser, Journey journey) {
-        final TypedQuery<Long> query = em.createQuery(
-                "SELECT COUNT(r) FROM Report r WHERE r.reportingUser = :reportingUser AND r.journey = :journey AND r.deleted = false",
-                Long.class
-        );
-        query.setParameter("reportingUser", reportingUser);
-        query.setParameter("journey", journey);
-        return query.getSingleResult() > 0;
-    }
-
-    @Override
-    public boolean hasUserReportedEvent(User reportingUser, Event event) {
-        final TypedQuery<Long> query = em.createQuery(
-                "SELECT COUNT(r) FROM Report r WHERE r.reportingUser = :reportingUser AND r.event = :event AND r.deleted = false",
-                Long.class
-        );
-        query.setParameter("reportingUser", reportingUser);
-        query.setParameter("event", event);
-        return query.getSingleResult() > 0;
-    }
 
     @Override
     public long countReportsAgainstUser(User reportedUser) {
@@ -142,6 +110,34 @@ public class ReportHibernateDao implements ReportDao {
                 countSql,
                 idSql,
                 Map.of("status", status),
+                jpqlFetch,
+                Report.class,
+                params,
+                Map.of()
+        );
+    }
+
+    @Override
+    public Page<Report> findByUserPaginated(User user, PageParams params) {
+        final String countSql = """
+                SELECT COUNT(*)
+                FROM reports r
+                WHERE r.reportingUser = :user AND r.deleted = false
+                """;
+        final String idSql = """
+                SELECT r.id
+                FROM reports r
+                WHERE r.reportingUser = :user AND r.deleted = false
+                """;
+        final String jpqlFetch = """
+                FROM Report r
+                WHERE r.id IN :ids
+                """;
+        return fetchPageByIds(
+                em,
+                countSql,
+                idSql,
+                Map.of("user", user),
                 jpqlFetch,
                 Report.class,
                 params,

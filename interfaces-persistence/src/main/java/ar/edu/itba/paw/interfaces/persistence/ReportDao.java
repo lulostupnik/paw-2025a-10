@@ -7,9 +7,7 @@ public interface ReportDao {
     Report create(User reportedUser, User reportingUser, Journey journey, String description, String reason);
     Report create(User reportedUser, User reportingUser, Event event, String description, String reason);
     Optional<Report> findById(Long id);
-    boolean hasUserReportedTarget(User reportingUser, User reportedUser);
-    boolean hasUserReportedJourney(User reportingUser, Journey journey);
-    boolean hasUserReportedEvent(User reportingUser, Event event);
+    Page<Report> findByUserPaginated(User user, PageParams params);
     long countReportsAgainstUser(User reportedUser);
     Page<Report> findAllPaginated(PageParams params);
     Page<Report> findByStatusPaginated(ReportStatus status, PageParams params);

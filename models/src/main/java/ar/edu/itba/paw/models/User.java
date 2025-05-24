@@ -73,6 +73,7 @@ public class User{
     @Column(name = "roles")
     private String role;
 
+
     /* For hibernate */ User(){
 
     }
