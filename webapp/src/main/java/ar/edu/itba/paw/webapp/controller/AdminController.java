@@ -19,10 +19,11 @@ public class AdminController {
     private final InterestService interestService;
     private final CityService cityService;
     private final CareerService careerService;
+    private final ReportService reportService;
     private static final String ADMIN_DASHBOARD = "/admin/dashboard";
 
     @Autowired
-    public AdminController(EventService eventService, UserService userService, JourneyService journeyService, UniversityService universityService, InterestService interestService, CityService cityService, CareerService careerService) {
+    public AdminController(EventService eventService, UserService userService, JourneyService journeyService, UniversityService universityService, InterestService interestService, CityService cityService, CareerService careerService, ReportService reportService) {
         this.eventService = eventService;
         this.userService = userService;
         this.journeyService = journeyService;
@@ -30,6 +31,7 @@ public class AdminController {
         this.interestService = interestService;
         this.cityService = cityService;
         this.careerService = careerService;
+        this.reportService = reportService;
     }
 
     @RequestMapping("/events")
@@ -47,6 +49,15 @@ public class AdminController {
             @RequestParam(value = "search", required = false) String search) {
         ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
         mav.addObject("pagedUsers", userService.findUsers(search, pageParams));
+
+        return mav;
+    }
+    @RequestMapping("/reports")
+    public ModelAndView dashboardReports(
+            @PageParamCustomizer(sizeParamName = "pageSize") PageParams  pageParams,
+            @RequestParam(value = "search", required = false) String search) {
+        ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
+        mav.addObject("pagedReports", reportService.findAll(search, pageParams));
 
         return mav;
     }

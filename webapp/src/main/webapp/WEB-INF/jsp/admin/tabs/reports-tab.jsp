@@ -8,10 +8,10 @@
     sessionStorage.setItem("rutaAnterior", window.location.href);
   }
 </script>
-<div class="tab-content active" id="journeys-tab">
-  <c:set var="titleMessageCode" value="admin.manage.journeys" scope="request" />
-  <c:set var="searchUrl" value="/dashboard/journeys" scope="request" />
-  <c:set var="searchPlaceholderCode" value="admin.search.journeys" scope="request" />
+<div class="tab-content active" id="reports-tab">
+  <c:set var="titleMessageCode" value="admin.manage.reports" scope="request" />
+  <c:set var="searchUrl" value="/dashboard/reports" scope="request" />
+  <c:set var="searchPlaceholderCode" value="admin.search.reports" scope="request" />
   <c:set var="showAddButton" value="false" scope="request" />
 
   <div class="content-header">
@@ -39,28 +39,28 @@
     <table class="data-table">
       <thead>
       <tr>
-        <th><spring:message code="admin.column.user" /></th>
-        <th><spring:message code="admin.column.destination" /></th>
-        <th><spring:message code="admin.column.university" /></th>
-        <th><spring:message code="admin.column.start.date" /></th>
-        <th><spring:message code="admin.column.end.date" /></th>
+        <th><spring:message code="admin.column.reportedUser" /></th>
+        <th><spring:message code="admin.column.reportingUser"/></th>
+        <th><spring:message code="admin.column.description" /></th>
+        <th><spring:message code="admin.column.reason" /></th>
+        <th><spring:message code="admin.column.status" /></th>
       </tr>
       </thead>
       <tbody>
-      <c:set var="journeys" value="${pagedJourneys.content}" />
-      <c:forEach items="${journeys}" var="journey">
-        <tr class="clickable-row" onclick="saveLink()" data-href="<c:url value="../journeys/${journey.id}"/>" >
-          <td><c:out value="${journey.user.username}"/></td>
-          <td><c:out value="${journey.destinationUniversity.city}"/></td>
-          <td><c:out value="${journey.destinationUniversity.name}"/></td>
-          <td><c:out value="${journey.startDate}"/></td>
-          <td><c:out value="${journey.endDate}"/></td>
+      <c:set var="reports" value="${pagedReports.content}" />
+      <c:forEach items="${reports}" var="report">
+        <tr class="clickable-row" onclick="saveLink()" data-href="<c:url value="../reports/${report.id}"/>" >
+          <td><c:out value="${report.reportedUser.username}"/></td>
+          <td><c:out value="${report.reportingUser.username}"/></td>
+          <td><c:out value="${report.description}"/></td>
+          <td><c:out value="${report.reason}"/></td>
+          <td><c:out value="${report.status}"/></td>
         </tr>
       </c:forEach>
       </tbody>
     </table>
 
-    <c:if test="${empty journeys}">
+    <c:if test="${empty reports}">
       <div class="no-results">
         <spring:message code="admin.no.results" />
       </div>
@@ -74,10 +74,10 @@
 
 
     <jsp:include page="../../components/pagination-with-page-number.jsp">
-      <jsp:param name="pageObjectTotalPages" value="${pagedJourneys.totalPages}" />
-      <jsp:param name="currentPage" value="${pagedJourneys.currentPage}" />
+      <jsp:param name="pageObjectTotalPages" value="${pagedReports.totalPages}" />
+      <jsp:param name="currentPage" value="${pagedReports.currentPage}" />
       <jsp:param name="pageSize" value="10" />
-      <jsp:param name="baseUrl" value="/dashboard/journeys?search=${param.search}" />
+      <jsp:param name="baseUrl" value="/dashboard/reports?search=${param.search}" />
     </jsp:include>
   </div>
 </div>

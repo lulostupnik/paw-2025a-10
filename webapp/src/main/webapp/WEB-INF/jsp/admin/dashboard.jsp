@@ -43,6 +43,8 @@
       <a href="<c:url value='/dashboard/careers'/>" class="tab-button ${pagedCareers != null ? 'active' : ''}">
         <spring:message code="admin.tab.careers" />
       </a>
+      <a href="<c:url value='/dashboard/reports'/>" class="tab-button ${pagedReports != null ? 'active' : ''}">
+        <spring:message code="admin.tab.reports" />
     </div>
 
 
@@ -72,6 +74,10 @@
 
     <c:if test="${pagedCareers != null}">
       <jsp:include page="tabs/career-tab.jsp" />
+    </c:if>
+
+    <c:if test="${pagedReports != null}">
+      <jsp:include page="tabs/reports-tab.jsp" />
     </c:if>
   </div>
 </div>

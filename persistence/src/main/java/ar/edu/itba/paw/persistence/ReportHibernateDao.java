@@ -151,4 +151,42 @@ public class ReportHibernateDao implements ReportDao {
         em.merge(report);
     }
 
+    @Override
+    public void deleteById(Long id) {
+        final Report report = em.find(Report.class, id);
+        if (report != null) {
+            report.markAsDeleted();
+            em.merge(report);
+        }
+    }
+
+    @Override
+    public Page<Report> findAll(String search, PageParams params) {
+        final String pattern = HibernateDaoUtils.likePattern(search);
+        final String countSql = """
+                SELECT COUNT(*)
+                FROM reports r
+                WHERE r.deleted = false AND (r.reason LIKE :pattern OR r.description LIKE :pattern)
+                """;
+        final String idSql = """
+                SELECT r.id
+                FROM reports r
+                WHERE r.deleted = false AND (r.reason LIKE :pattern OR r.description LIKE :pattern)
+                """;
+        final String jpqlFetch = """
+                FROM Report r
+                WHERE r.id IN :ids
+                """;
+        return fetchPageByIds(
+                em,
+                countSql,
+                idSql,
+                Map.of("pattern", pattern),
+                jpqlFetch,
+                Report.class,
+                params,
+                Map.of()
+        );
+    }
+
 }

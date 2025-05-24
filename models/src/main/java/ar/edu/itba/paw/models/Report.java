@@ -105,9 +105,3 @@ public class Report {
     }
 }
 
-public enum ReportStatus {
-    PENDING,
-    UNDER_REVIEW,
-    RESOLVED,
-    DISMISSED
-}

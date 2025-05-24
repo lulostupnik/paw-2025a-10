@@ -12,4 +12,6 @@ public interface ReportDao {
     Page<Report> findAllPaginated(PageParams params);
     Page<Report> findByStatusPaginated(ReportStatus status, PageParams params);
     void delete(Report report);
+    void deleteById(Long id);
+    Page<Report> findAll(String search, PageParams params);
 }
