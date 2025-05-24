@@ -11,9 +11,11 @@ import javax.persistence.*;
 @Table(name = "cities")
 public class City {
     @Setter
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 100, unique=true)
     private  String name;
-    @ManyToOne
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "country_id", nullable = false)
     @Setter
     private  Country country;
     @Id

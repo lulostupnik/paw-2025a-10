@@ -19,7 +19,7 @@ public class Career {
     @Column(name = "id")
     private  Long id;
     @Setter
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 255, unique = true)
     private  String name;
     @Column(name="deleted", nullable = false)
     @Setter

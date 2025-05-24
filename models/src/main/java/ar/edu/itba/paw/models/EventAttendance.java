@@ -13,11 +13,11 @@ public class EventAttendance {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
-    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "user_id"/*, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT)*/, nullable = false)
     private User user;
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("eventId")
-    @JoinColumn(name = "event_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "event_id"/*, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT)*/,nullable = false)
     private Event event;
 
     EventAttendance() {}

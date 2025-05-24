@@ -9,8 +9,8 @@ import java.util.Objects;
 @Embeddable
 @Getter
 public class EventAttendanceId implements Serializable {
-    Long userId;
-    Long eventId;
+    private Long userId; //fixme, hay que hacer algun mapping aca?
+    private Long eventId; //tambien estan en eventAttendance
     public EventAttendanceId(Long userId, Long eventId) {
         this.userId = userId;
         this.eventId = eventId;
