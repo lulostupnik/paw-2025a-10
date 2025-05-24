@@ -29,11 +29,13 @@ public interface JourneyService {
     List<Journey> findRecommendedJourneys(String email, int limit);
 
     boolean isJourneyOwnedByUser(String email, long journeyID);
+    boolean isJourneyOwnedByUser(Journey journey, User user);
 
 
     Optional<JourneyResponse> findJourneyResponseById(long id);
     Page<JourneyResponse> findJourneyResponses(long eventId, PageParams pageParams);
     int countJourneyResponses(long id);
+
 }
 
 

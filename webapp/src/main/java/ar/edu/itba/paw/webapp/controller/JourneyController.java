@@ -98,10 +98,8 @@ public class JourneyController {
         mav.addObject("journeyResponsesPage", journeyResponses);
         mav.addObject("commentsCount", js.countJourneyResponses(journey.getId()));
         // todo: no estoy seguro, pero creo que en la siguiente linea debería cambiar a un método en el servicio)
-        // isJourneyOwnedByUser(Journey journey, User user) {
-        // return journey.getUser().equals(user);
-        // }
-        mav.addObject("isOwner", user != null && js.isJourneyOwnedByUser(user.getEmail(),journey.getId()));
+
+        mav.addObject("isOwner", user != null && js.isJourneyOwnedByUser(journey, user));
         mav.addObject("interestPage", interestService.findInterestsByUser(journey.getUser(), interestsPage));
         return mav;
     }
