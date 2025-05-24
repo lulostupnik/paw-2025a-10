@@ -94,12 +94,6 @@ public class JourneyServiceImpl implements JourneyService {
 
         journeyResponseDao.create(responder, journey, message);
 
-//        LOGGER.info("Journey response created: {}", message);
-//        List<UserInterest> userInterests = interestService.findInterestsByUser(journey.getUser());
-//
-//        interestService.updateUserInterestScores(userInterests);
-//        LOGGER.info("Interest score updated for user {}", user.getId());
-
         interestService.updateMatchingInterestScores(responder.getId(), journey.getUser().getId());
         LOGGER.info("Interest scores updated for responder {}", responder.getId());
 
@@ -244,7 +238,7 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
-    public boolean isJourneyOwnedByUser(final String email,final  long journeyID) {
+    public boolean isJourneyOwnedByUser(final String email, final long journeyID) {
         LOGGER.debug("Checking if journey {} is owned by user {}", journeyID, email);
         Optional<Journey> journey = journeyDao.findById(journeyID);
         return journey.isPresent() && journey.get().getUser().getEmail().equals(email);
@@ -268,7 +262,6 @@ public class JourneyServiceImpl implements JourneyService {
         journey.setStartDate(startDate);
         journey.setEndDate(endDate);
         journey.setDescription(description);
-//        journeyDao.update(journeyId, university, startDate, endDate, description);
         LOGGER.info("Journey updated: {}", journeyId);
     }
 
@@ -295,26 +288,11 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.info("Journey response deletion notification sent to user {}", commentAuthor.getEmail());
 
         journeyResponse.setDeletionMessage(message);
-//        journeyResponseDao.updateDeletionMessage(id, message);
         LOGGER.info("Journey response deletion message updated: {}", message);
 
         journeyResponse.setDeleted(true);
-//        journeyResponseDao.delete(id);
         LOGGER.info("Journey response deleted: {}", id);
     }
-
-    @Override
-    public long findJourneyIdByResponseId(final long journeyResponseId) {
-        JourneyResponse journeyResponse = findJourneyResponseById(journeyResponseId).orElseThrow(() -> {
-            LOGGER.error("Journey response with id {} not found", journeyResponseId);
-            return new JourneyResponseNotFoundException("Journey response doesn't exists");}
-        );
-        return journeyResponse.getJourney().getId();
-
-//        LOGGER.debug("Finding journey id by response id {}", journeyResponseId);
-//        return journeyResponseDao.findJourneyIdByResponseId(journeyResponseId);
-    }
-
 
 
     @Override
@@ -329,3 +307,16 @@ public class JourneyServiceImpl implements JourneyService {
     }
 }
 
+
+
+
+
+//
+//    @Override
+//    public long findJourneyIdByResponseId(final long journeyResponseId) {
+//        JourneyResponse journeyResponse = findJourneyResponseById(journeyResponseId).orElseThrow(() -> {
+//            LOGGER.error("Journey response with id {} not found", journeyResponseId);
+//            return new JourneyResponseNotFoundException("Journey response doesn't exists");}
+//        );
+//        return journeyResponse.getJourney().getId();
+//    }

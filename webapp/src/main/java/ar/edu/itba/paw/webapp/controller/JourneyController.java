@@ -8,6 +8,7 @@ import ar.edu.itba.paw.models.exceptions.InvalidException;
 import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.JourneyResponseNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
 
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
@@ -96,6 +97,10 @@ public class JourneyController {
         mav.addObject("journey", journey);
         mav.addObject("journeyResponsesPage", journeyResponses);
         mav.addObject("commentsCount", js.countJourneyResponses(journey.getId()));
+        // todo: no estoy seguro, pero creo que en la siguiente linea debería cambiar a un método en el servicio)
+        // isJourneyOwnedByUser(Journey journey, User user) {
+        // return journey.getUser().equals(user);
+        // }
         mav.addObject("isOwner", user != null && js.isJourneyOwnedByUser(user.getEmail(),journey.getId()));
         mav.addObject("interestPage", interestService.findInterestsByUser(journey.getUser(), interestsPage));
         return mav;
@@ -176,15 +181,28 @@ public class JourneyController {
     public ModelAndView deleteJourneyReplyForm(@PathVariable(value = "journeyId") long journeyId,
                                                @PathVariable("id") long id,
                                                @ModelAttribute("deleteReplyForm") ReplyForm form) {
-        if(js.findJourneyIdByResponseId(id) != journeyId){
+//        if(js.findJourneyIdByResponseId(id) != journeyId){
+//            LOGGER.error("Journey ID {} and response ID {} do not match", journeyId, id);
+//            throw new InvalidException();
+//        }
+//        Journey journey = js.getJourneyById(journeyId).orElseThrow(() -> {
+//            LOGGER.error("Journey with ID {} not found", id);
+//            return new JourneyNotFoundException("Journey with ID " + id + " not found");
+//        });
+//        JourneyResponse journeyResponse = js.findJourneyResponseById(id).orElseThrow(() -> new NotFoundException("Reply not found"));
+
+        JourneyResponse journeyResponse = js.findJourneyResponseById(id).orElseThrow(() -> {
+            LOGGER.warn("Journey with ID {} not found", id); // todo: es warn o error?
+            return new JourneyResponseNotFoundException("Reply not found");
+        });
+
+        Journey journey = journeyResponse.getJourney();
+
+        if(journey.getId() != journeyId){
             LOGGER.error("Journey ID {} and response ID {} do not match", journeyId, id);
             throw new InvalidException();
         }
-        Journey journey = js.getJourneyById(journeyId).orElseThrow(() -> {
-            LOGGER.error("Journey with ID {} not found", id);
-            return new JourneyNotFoundException("Journey with ID " + id + " not found");
-        });
-        JourneyResponse journeyResponse = js.findJourneyResponseById(id).orElseThrow(() -> new NotFoundException("Reply not found"));
+
         ModelAndView mav = new ModelAndView("journeys/delete-reply");
         mav.addObject("journey", journey);
         mav.addObject("journeyResponse", journeyResponse);

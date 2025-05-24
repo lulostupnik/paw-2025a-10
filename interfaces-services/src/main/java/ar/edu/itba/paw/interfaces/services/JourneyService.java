@@ -30,9 +30,12 @@ public interface JourneyService {
 
     boolean isJourneyOwnedByUser(String email, long journeyID);
 
-    long findJourneyIdByResponseId(long journeyId);
 
     Optional<JourneyResponse> findJourneyResponseById(long id);
     Page<JourneyResponse> findJourneyResponses(long eventId, PageParams pageParams);
     int countJourneyResponses(long id);
 }
+
+
+
+//    long findJourneyIdByResponseId(long journeyId);
