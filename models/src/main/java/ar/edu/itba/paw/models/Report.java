@@ -77,7 +77,6 @@ public class Report {
         this.event = event;
     }
 
-    // Business methods
     public void markAsDeleted() {
         this.deleted = true;
     }
@@ -106,8 +105,7 @@ public class Report {
     }
 }
 
-// Enum for report status
-enum ReportStatus {
+public enum ReportStatus {
     PENDING,
     UNDER_REVIEW,
     RESOLVED,
