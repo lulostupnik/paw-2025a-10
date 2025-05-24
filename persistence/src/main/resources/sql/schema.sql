@@ -146,6 +146,25 @@ CREATE TABLE IF NOT EXISTS event_attendances (
         PRIMARY KEY (user_id, event_id)
 );
 
+CREATE TABLE IF NOT EXISTS reports (
+                         id BIGSERIAL PRIMARY KEY,
+                         reported_user_id BIGINT NOT NULL,
+                         reporting_user_id BIGINT NOT NULL,
+                         journey_id BIGINT,
+                         event_id BIGINT,
+                         description VARCHAR(1000) NOT NULL,
+                         reason VARCHAR(255) NOT NULL,
+                         deleted BOOLEAN NOT NULL DEFAULT FALSE,
+                         status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+                         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                         updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                         FOREIGN KEY (reported_user_id) REFERENCES users(id) ON DELETE CASCADE,
+                         FOREIGN KEY (reporting_user_id) REFERENCES users(id) ON DELETE CASCADE,
+                         FOREIGN KEY (journey_id) REFERENCES journeys(id) ON DELETE CASCADE,
+                         FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
+);
+
+
 ALTER TABLE users
     ADD COLUMN IF NOT EXISTS password VARCHAR(100) NOT NULL DEFAULT '$2b$10$KbQiA8xVuOPQkfiYJ0X0FubQbQjEJpTr6QOBD3qL6sYzFoq2nJ8fK';
 
@@ -302,3 +321,5 @@ COMMIT;
 
 ALTER TABLE events
     ALTER COLUMN flyer_image_id SET NOT NULL;
+
+
