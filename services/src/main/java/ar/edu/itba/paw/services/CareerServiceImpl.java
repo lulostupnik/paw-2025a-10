@@ -82,7 +82,6 @@ public class CareerServiceImpl implements CareerService {
             return new CareerNotFoundException();
         });
         career.setName(name);
-//        careerDao.update(id, name);
         LOGGER.info("Career {} updated to {}", id, name);
     }
 

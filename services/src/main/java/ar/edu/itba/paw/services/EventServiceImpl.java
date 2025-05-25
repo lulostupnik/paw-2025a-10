@@ -324,13 +324,10 @@ public class EventServiceImpl implements EventService {
         boolean changeImage = flyer != null && flyer.length > 0;
 
         if(changeImage){
-            imageService.deleteImage(currentEvent.getFlyerImageId());
-            LOGGER.info("Flyer image {} deleted", currentEvent.getFlyerImageId());
+            imageService.deleteImage(flyerImageId);
+            LOGGER.info("Flyer image {} deleted", flyerImageId);
             currentEvent.setFlyerImageId(imageService.createImage(flyer));
         }
-//
-//        eventDao.update(resolvedCityId, date, description,
-//                title, time, address, attendeesLimit, eventId, flyerImageId);
 
         currentEvent.setTitle(title);
         currentEvent.setDescription(description);
@@ -339,14 +336,7 @@ public class EventServiceImpl implements EventService {
         currentEvent.setAttendeesLimit(attendeesLimit);
         currentEvent.setCity(resolvedCity);
         currentEvent.setDate(date);
-//        currentEvent.withTitle(title).  @todo preguntar.
-//                withDescription(description).
-//                withTime(time).
-//                withAddress(address).
-//                withAttendeesLimit(attendeesLimit).
-//                withEventCity(resolvedCity).
-//                withDate(date);
-        //fixme @TODO podemos hacer un void userDao.upate(Event event) . o no
+
         LOGGER.info("Event {} updated", eventId);
     }
 
