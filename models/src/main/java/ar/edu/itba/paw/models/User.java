@@ -59,9 +59,9 @@ public class User{
     //TODO:Check cascasde and orphan removal
     @Setter
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL ,orphanRemoval = true, fetch = FetchType.LAZY)
-    private Token token;
+    private Token token; //todo borrar?
 
-    @Column(name = "password", length = 100)
+    @Column(name = "password", length = 100, nullable = false)
     @Setter
     private String password;
 
@@ -70,8 +70,8 @@ public class User{
     private boolean validated;
 
 
-    @Column(name = "roles")
-    private String role;
+    @Column(name = "roles", length = 50, nullable = false)
+    private String role;   //todo falta el check de los roles como esta en la BD, no se como se hace.
 
 
     /* For hibernate */ User(){

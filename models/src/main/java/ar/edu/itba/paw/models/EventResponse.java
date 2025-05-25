@@ -27,7 +27,7 @@ public class EventResponse {
     @JoinColumn(name = "event_id", nullable = false)
     private  Event event;
 
-    @Column(length = 2047)
+    @Column(length = 2047, nullable = false)
     private  String message;
 
     @Column(name = "date_time", nullable = false)
@@ -37,7 +37,7 @@ public class EventResponse {
     @Setter
     private  boolean deleted;
 
-    @Column(name = "deleted_message", length = 2047)
+    @Column(name = "deleted_message", length = 1000)
     @Setter
     private  String deletionMessage;
 

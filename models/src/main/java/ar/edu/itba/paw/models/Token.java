@@ -18,12 +18,12 @@ public class Token {
     private Long tokenId;
 
     @Setter
-    @Column(length = 32, nullable = false)
-    private String token;
+    @Column(length = 100, nullable = false, unique = true)
+    private String token;  //todo En la BD no esta como NOT NULL el token pero deberia serlo.
 
     //TODO: Creo que eager, porque no tiene sentido cargar el token sin el usuario
     @OneToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     //TODO:Esto esta bueno cambiarlo de LocalDate porque asi es mas preciso, no?

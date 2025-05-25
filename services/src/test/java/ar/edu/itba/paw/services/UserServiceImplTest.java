@@ -24,7 +24,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
-import ar.edu.itba.paw.models.UserAuthInfo;
 import ar.edu.itba.paw.interfaces.services.CareerService;
 import ar.edu.itba.paw.interfaces.services.EmailService;
 import ar.edu.itba.paw.interfaces.services.ImageService;

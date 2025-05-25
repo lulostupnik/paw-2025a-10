@@ -18,6 +18,7 @@ public class Journey{
     private Long id;
 
     @OneToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
     @Column(name = "start_date", nullable = false)
@@ -41,7 +42,7 @@ public class Journey{
     @Setter
     private boolean deleted;
 
-    @Column(name = "deleted_message", length = 2047)
+    @Column(name = "deleted_message", length = 1000)
     @Setter
     private String deletionMessage;
 

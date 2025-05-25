@@ -17,15 +17,16 @@ public class University{
     private  Long id;
 
     @Setter
-    @Column()
-    private  String name;
+    @Column(nullable = false, unique = true, length = 255)
+    private String name;
+
 
     @Setter
-    @Column(name = "abbreviation")
-    private  String abbreviation;
+    @Column(name = "abbreviation", length = 255)
+    private String abbreviation;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "city_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "city_id", nullable = false)
     private  City city;
 
     @Setter

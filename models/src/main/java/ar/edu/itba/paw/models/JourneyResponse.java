@@ -27,8 +27,8 @@ public class JourneyResponse {
     @JoinColumn(name = "journey_id", nullable = false)
     private  Journey journey;
 
-    @Column(length = 2047)
-    private  String message;
+    @Column(length = 1023, nullable = false)
+    private String message;
 
     @Column(name = "date_time", nullable = false)
     private  LocalDateTime dateTime;

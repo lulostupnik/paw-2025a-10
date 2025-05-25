@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.models;
 
+import ar.edu.itba.paw.models.enums.ReportStatus;
 import lombok.Getter;
 import lombok.Setter;
 import javax.persistence.*;
@@ -65,16 +66,25 @@ public class Report {
         this.reason = reason;
         this.deleted = false;
         this.status = ReportStatus.PENDING;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+
     }
 
     public Report(User reportedUser, User reportingUser, Journey journey, String description, String reason) {
         this(reportedUser, reportingUser, description, reason);
         this.journey = journey;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+
     }
 
     public Report(User reportedUser, User reportingUser, Event event, String description, String reason) {
         this(reportedUser, reportingUser, description, reason);
         this.event = event;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+
     }
 
     public void markAsDeleted() {

@@ -15,9 +15,10 @@ public class Interest {
     @SequenceGenerator(sequenceName = "category_id_seq", name = "category_id_seq", allocationSize = 1)
     private  Long id;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 100, unique = true)
     @Setter
-    private  String name;
+    private String name;
+
 
     /* For hibernate */ Interest() {
     }

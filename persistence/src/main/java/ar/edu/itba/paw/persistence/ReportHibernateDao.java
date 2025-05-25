@@ -3,12 +3,12 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.ReportDao;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.enums.ReportStatus;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
