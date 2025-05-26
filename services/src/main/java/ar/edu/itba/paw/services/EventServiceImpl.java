@@ -238,6 +238,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public void rateEvent(User user, long eventId, double rating) {
+
+    }
+
+    @Override
     @Transactional
     public void deleteEventAttendance(final String email, final  long eventId) {
         LOGGER.debug("User {} is canceling attendance for event {}", email, eventId);

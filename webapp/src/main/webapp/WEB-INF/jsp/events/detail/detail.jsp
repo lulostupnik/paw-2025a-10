@@ -323,6 +323,13 @@
                                     </svg>
                                     <span><spring:message code="event.chat" text="Chat" /></span>
                                 </button>
+                                <button id="rating-tab" class="tab-btn" data-tab="rating">
+
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 17l-5.5 3.5L8 14l-4-3h5L12 4l3 7h5l-4 3 1.5 6.5z"></path>
+                                    </svg>
+                                    <span><spring:message code="event.rating" text="Rating" /></span>
+                                </button>
                             </div>
 
 
@@ -342,6 +349,12 @@
                                     <jsp:include page="chat-section.jsp">
                                         <jsp:param name="chatListId" value="chat-list" />
                                         <jsp:param name="showToggle" value="true" />
+                                    </jsp:include>
+                                </div>
+
+                                <div id="rating-content" class="tab-content">
+                                    <jsp:include page="rating-section.jsp">
+                                        <jsp:param name="showToggle" value="false" />
                                     </jsp:include>
                                 </div>
                             </div>

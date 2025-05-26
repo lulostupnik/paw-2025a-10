@@ -19,9 +19,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
+
+import java.util.List;
 
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 
@@ -119,12 +122,18 @@ public class EventController {
         mav.addObject("attend", eventWithStatistics.isAttending());
         mav.addObject("isEventOwner", eventWithStatistics.isCreator());
         mav.addObject("isFull", event.getFull());
+        mav.addObject("averageRating", 5.0);
+        mav.addObject("eventRatings", List.of()); // TODO: Implement event ratings
+        mav.addObject("userRating", 0.0); // TODO: Implement user rating for the event
+
+
         return mav;
     }
 
 
     @GetMapping("/{id}")
     public ModelAndView getEvent(@PathVariable long id, @ModelAttribute("replyEventForm") final ReplyForm form,
+        @ModelAttribute("eventRatingForm") final RatingForm ratingForm,
         @ModelAttribute("user") User user,
         @PageParamCustomizer(defaultSize = 4) PageParams  repliesPage,
         @PageParamCustomizer(defaultSize = 6, pageParamName = "attendeesPage", sizeParamName = "attendeesSize") PageParams attendeesPage)
@@ -134,6 +143,20 @@ public class EventController {
             return new EventNotFoundException("eventWithStatistics not found");});
         return populateEventDetails(eventWithStatistics,
                 id, repliesPage, attendeesPage );
+    }
+
+    @PostMapping("/{id}/rating")
+    public ModelAndView rateEvent(@PathVariable long id, @Valid @ModelAttribute("eventRatingForm") final RatingForm form,
+                                  final BindingResult errors, @ModelAttribute("user") User user, RedirectAttributes redirectAttributes) {
+        if (errors.hasErrors()) {
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.eventRatingForm", errors);
+            redirectAttributes.addFlashAttribute("eventRatingForm", form);
+            LOGGER.debug("Found {} errors in rating form data", errors.getErrorCount());
+            return new ModelAndView(REDIRECT + id);
+        }
+        LOGGER.debug("Rating event {} with rating {}", id, form.getRating());
+        eventService.rateEvent(user, id, form.getRating());
+        return new ModelAndView(REDIRECT + id);
     }
 
     @PostMapping("/{id}/delete")
@@ -191,7 +214,7 @@ public class EventController {
     public ModelAndView reply(@PathVariable int id, @Valid @ModelAttribute("replyEventForm") final ReplyForm form,
                               final BindingResult errors, @ModelAttribute("user") User user) {
         if (errors.hasErrors()) {
-            return getEvent(id, form, user, new PageParams(1, 4), new PageParams(1, 6));
+            return getEvent(id, form, new RatingForm(), user, new PageParams(1, 4), new PageParams(1, 6));
         }
         eventService.replyToEvent(user.getEmail(), id, form.getMessage());
         return new ModelAndView(REDIRECT + id);
