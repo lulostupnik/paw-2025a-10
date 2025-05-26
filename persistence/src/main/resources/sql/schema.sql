@@ -331,4 +331,18 @@ ALTER TABLE events
     ALTER COLUMN flyer_image_id SET NOT NULL;
 
 
--- ALTER TABLE user_interest DROP COLUMN IF EXISTS interest_id; En local estaba de mas esta columna. Checkear en produccion antes de hacerlo. 
+-- ALTER TABLE user_interest DROP COLUMN IF EXISTS interest_id; En local estaba de mas esta columna. Checkear en produccion antes de hacerlo.
+
+BEGIN;
+
+ALTER TABLE users
+DROP CONSTRAINT users_roles_check;
+UPDATE users SET roles = 'USER' WHERE roles = 'user';
+UPDATE users SET roles = 'ADMIN' WHERE roles = 'admin';
+
+ALTER TABLE users
+    ADD CONSTRAINT users_roles_check
+        CHECK (roles IN ('USER', 'ADMIN'));
+
+
+COMMIT;

@@ -1,13 +1,10 @@
 package ar.edu.itba.paw.models;
 
+import ar.edu.itba.paw.models.enums.UserRoles;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 @Getter
@@ -69,9 +66,9 @@ public class User{
     @Setter
     private boolean validated;
 
-
+    @Enumerated(EnumType.STRING)
     @Column(name = "roles", length = 50, nullable = false)
-    private String role;   //todo falta el check de los roles como esta en la BD, no se como se hace.
+    private UserRoles role;  
 
 
     /* For hibernate */ User(){
@@ -91,7 +88,7 @@ public class User{
         this.isBlocked = false;
         this.journey = null;
         this.validated = validated;
-        this.role = "user";
+        this.role =  UserRoles.USER;;
     }
     public User (final Long id, final String email, final String username, final String firstname,
                 final String lastname, final University university, final Career career,
@@ -108,7 +105,7 @@ public class User{
         this.isBlocked = blocked;
         this.journey = null;
         this.validated = validated;
-        this.role = "user";
+        this.role = UserRoles.USER;
 
     }
 
@@ -126,7 +123,7 @@ public class User{
         this.isBlocked = false;
         this.journey = null;
         this.validated = validated;
-        this.role = "user";
+        this.role = UserRoles.USER;
 
     }
 

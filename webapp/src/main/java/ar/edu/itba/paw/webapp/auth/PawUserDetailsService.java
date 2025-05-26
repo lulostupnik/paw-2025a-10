@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.auth;
 
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.enums.UserRoles;
 import ar.edu.itba.paw.models.exceptions.UserValidatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +45,7 @@ public class PawUserDetailsService implements UserDetailsService {
             LOGGER.warn("User is not verified");
             throw new UserValidatedException("User is not verified");
         }
-        if(user.getRole().equals("admin")) {
+        if (user.getRole() == UserRoles.ADMIN) {
             authorities = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
         } else{
             authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
