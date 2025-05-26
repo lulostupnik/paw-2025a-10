@@ -433,15 +433,23 @@ public class EventServiceImpl implements EventService {
         return Optional.of(new EventWithUserInfo(event, isAttending, isCreator));
     }
 
+
     @Override
-    public Optional<Integer> findAttendanceLimitById(final long eventId) {
-        Event event = eventDao.findById(eventId).orElseThrow(() -> {
-            LOGGER.error("Event not found {}", eventId);
-            return new RuntimeException("Event not found");}
+    public Page<Event> findJourneyEvents(final Journey journey, final PageParams pageParams){
+        return eventDao.findAllWithFilters(
+                journey.getUser().getId(),
+                null,
+                SortFieldEvent.DATE,
+                SortDirection.ASC,
+                null,
+                journey.getStartDate(),
+                journey.getEndDate(),
+                null,
+                true,
+                false,
+                false,
+                pageParams
         );
-
-        return Optional.ofNullable(event.getAttendeesLimit());
-
     }
 
 //
