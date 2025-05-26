@@ -55,8 +55,6 @@ CREATE TABLE IF NOT EXISTS users (
         roles VARCHAR(50) DEFAULT 'user' CHECK (roles IN ('user', 'admin')),
         language VARCHAR(2) NOT NULL DEFAULT 'en',
         blocked BOOLEAN NOT NULL DEFAULT FALSE,
-        token VARCHAR(100) UNIQUE DEFAULT NULL,
-        token_expiration DATE DEFAULT NULL,
         validated BOOLEAN NOT NULL DEFAULT TRUE,
 
     FOREIGN KEY (university) REFERENCES universities(id) ON DELETE RESTRICT,
@@ -278,7 +276,17 @@ CREATE TABLE IF NOT EXISTS tokens (
 );
 INSERT INTO tokens (user_id, token, token_expiration)
 SELECT id, token, token_expiration FROM users;
+
+ALTER TABLE users
+DROP COLUMN if exists token,
+    DROP COLUMN IF EXISTS token_expiration;
+
+ALTER TABLE users
+DROP COLUMN IF EXISTS validate_token,
+    DROP COLUMN IF EXISTS validate_token_expiration_date;
+
 COMMIT;
+
 
 
 
