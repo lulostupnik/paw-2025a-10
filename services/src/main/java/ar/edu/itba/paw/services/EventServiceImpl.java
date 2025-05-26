@@ -110,6 +110,10 @@ public class EventServiceImpl implements EventService {
         } while (page <= respondersPage.getTotalPages());
 
         LOGGER.info("Email notifications sent to all responders for event {}", eventId);
+
+        emailService.answerEventOwnerNotification(message, responder, event);
+        LOGGER.info("Email notifications sent to event owner for event {}", eventId);
+
     }
 
     @Override

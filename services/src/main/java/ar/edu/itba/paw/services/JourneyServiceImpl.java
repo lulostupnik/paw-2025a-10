@@ -120,8 +120,10 @@ public class JourneyServiceImpl implements JourneyService {
 
             page++;
         } while (page <= respondersPage.getTotalPages());
+        LOGGER.info("Journey response notifications sent to all responders for journey {}", journeyId);
 
-        LOGGER.info("Journey response notifications sent to all responders");
+        emailService.answerJourneyOwnerNotification(message, responder, journey);
+        LOGGER.info("Journey response notifications sent to owner for journey {}", journeyId);
     }
 
 
