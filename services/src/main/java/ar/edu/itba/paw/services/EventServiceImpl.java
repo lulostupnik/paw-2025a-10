@@ -245,6 +245,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public void rateEvent(User user, long eventId, double rating) {
         Event event = eventDao.findById(eventId).orElseThrow(() -> {
             LOGGER.warn("Event not found {}", eventId);

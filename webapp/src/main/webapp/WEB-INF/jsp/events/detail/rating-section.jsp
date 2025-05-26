@@ -94,7 +94,7 @@
 
 
     <!-- User Rating Form (only for authenticated users who attended the event) -->
-    <c:if test="${not empty user and attend}">
+    <c:if test="${not empty user and attend and userRating.isEmpty()}">
       <c:if test="${ ! event.isFuture}">
         <div class="user-rating-form">
           <h3 class="rating-form-title">
