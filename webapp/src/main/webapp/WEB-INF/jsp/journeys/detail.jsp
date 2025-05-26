@@ -16,11 +16,13 @@
     <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
     <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
     <script src="<c:url value='/resources/js/confirm-delete.js'/>"></script>
+
 </head>
 
 <body>
 <c:set var="interestPageSize" value="8" scope="request" />
 <c:set var="chatPageSize" value="4" scope="request" />
+<c:set var="eventsPageSize" value="6" scope="request" />
 
 <div style="display: none;">
     <span id="i18n-journey.confirmDelete" data-message="<spring:message code='journey.confirmDelete' />"></span>
@@ -197,9 +199,128 @@
                                 <jsp:param name="pageObjectTotalPages" value="${interestPage.totalPages}" />
                                 <jsp:param name="currentPage" value="${interestPage.currentPage}" />
                                 <jsp:param name="pageSize" value="${interestPageSize}" />
-                                <jsp:param name="baseUrl" value="/journeys/${journey.id}?page=${journeyResponsesPage.currentPage}&size=${chatPageSize}" />
+                                <jsp:param name="baseUrl" value="/journeys/${journey.id}?page=${journeyResponsesPage.currentPage}&size=${chatPageSize}&eventsPage=${eventsPage.currentPage}&eventsSize=${eventsPageSize}" />
                                 <jsp:param name="paramName" value="interestsPage" />
                                 <jsp:param name="sizeParamName" value="interestsSize" />
+                            </jsp:include>
+                        </c:if>
+
+                    </div>
+                </section>
+
+                <!-- Events Section -->
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <spring:message code="journey.detail.events" text="Events" />
+                            <span class="count">(<c:out value="${eventsPage.totalPages}" />)</span>
+                        </h2>
+                        <button onclick="toggleEvents()" class="toggle-comments-btn" aria-label="Toggle events">
+                            <span id="events-collapse-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                    <polyline points="18 15 12 9 6 15"></polyline>
+                                </svg>
+                            </span>
+                            <span id="events-expand-icon" style="display: none;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </span>
+                        </button>
+                    </div>
+
+                    <div id="events-list" class="section-content events-list">
+                        <c:if test="${empty eventsPage.content}">
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="empty-icon-img">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    </svg>
+                                </div>
+                                <p class="empty-message">
+                                    <spring:message code="journey.detail.no.events" text="No events during this journey" />
+                                </p>
+                            </div>
+                        </c:if>
+
+                        <c:if test="${not empty eventsPage.content}">
+                            <div class="journey-events-container">
+                                <c:forEach var="event" items="${eventsPage.content}">
+                                    <a href="<c:url value='/events/${event.id}'/>" class="journey-event-card-link">
+                                        <div class="journey-event-card">
+                                            <div class="journey-event-left">
+                                                <c:if test="${not empty event.flyerImageId}">
+                                                    <img src="<c:url value='/images/${event.flyerImageId}'/>" alt="Event flyer" class="journey-event-image">
+                                                </c:if>
+                                                <c:if test="${empty event.flyerImageId}">
+                                                    <div class="journey-event-image-placeholder">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                                                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                                                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                                                        </svg>
+                                                    </div>
+                                                </c:if>
+                                            </div>
+                                            <div class="journey-event-content">
+                                                <h3 class="journey-event-title"><c:out value="${event.title}" /></h3>
+                                                <div class="journey-event-meta">
+                                                    <div class="journey-event-meta-item">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path>
+                                                            <circle cx="12" cy="10" r="3"></circle>
+                                                        </svg>
+                                                        <span><c:out value="${event.city.name}" /></span>
+                                                    </div>
+                                                    <div class="journey-event-meta-item">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                                                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                                                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                                                        </svg>
+                                                        <fmt:parseDate value="${event.date}" pattern="yyyy-MM-dd" var="parsedEventDate" />
+                                                        <fmt:formatDate value="${parsedEventDate}" pattern="MMM d, yyyy" var="formattedEventDate" />
+                                                        <span><c:out value="${formattedEventDate}" /></span>
+                                                    </div>
+                                                    <c:if test="${not empty event.time}">
+                                                        <div class="journey-event-meta-item">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                <circle cx="12" cy="12" r="10"></circle>
+                                                                <polyline points="12 6 12 12 16 14"></polyline>
+                                                            </svg>
+                                                            <span><c:out value="${event.time}" /></span>
+                                                        </div>
+                                                    </c:if>
+                                                </div>
+                                                <p class="journey-event-description"><c:out value="${event.description}" /></p>
+                                            </div>
+                                            <div class="journey-event-arrow">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </c:forEach>
+                            </div>
+                            <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
+                                <jsp:param name="pageObjectTotalPages" value="${eventsPage.totalPages}" />
+                                <jsp:param name="currentPage" value="${eventsPage.currentPage}" />
+                                <jsp:param name="pageSize" value="${eventsPageSize}" />
+                                <jsp:param name="baseUrl" value="/journeys/${journey.id}?page=${journeyResponsesPage.currentPage}&size=${chatPageSize}&interestsPage=${interestPage.currentPage}&interestsSize=${interestPageSize}" />
+                                <jsp:param name="paramName" value="eventsPage" />
+                                <jsp:param name="sizeParamName" value="eventsSize" />
                             </jsp:include>
                         </c:if>
                     </div>
@@ -315,7 +436,7 @@
                             <jsp:param name="pageObjectTotalPages" value="${journeyResponsesPage.totalPages}" />
                             <jsp:param name="currentPage" value="${journeyResponsesPage.currentPage}" />
                             <jsp:param name="pageSize" value="${chatPageSize}" />
-                            <jsp:param name="baseUrl" value="/journeys/${journey.id}?interestsPage=${interestPage.currentPage}&interestsSize=${interestPageSize}" />
+                            <jsp:param name="baseUrl" value="/journeys/${journey.id}?interestsPage=${interestPage.currentPage}&interestsSize=${interestPageSize}&eventsPage=${eventsPage.currentPage}&eventsSize=${eventsPageSize}" />
                         </jsp:include>
                     </div>
 
@@ -356,29 +477,45 @@
 
 <script>
     function toggleComments() {
-        const commentsList = document.getElementById('comments-list');
-        const collapseIcon = document.getElementById('collapse-icon');
-        const expandIcon = document.getElementById('expand-icon');
+    const commentsList = document.getElementById('comments-list');
+    const collapseIcon = document.getElementById('collapse-icon');
+    const expandIcon = document.getElementById('expand-icon');
 
-        if (commentsList.style.display === 'none') {
-            commentsList.style.display = 'flex';
-            collapseIcon.style.display = 'inline';
-            expandIcon.style.display = 'none';
-        } else {
-            commentsList.style.display = 'none';
-            collapseIcon.style.display = 'none';
-            expandIcon.style.display = 'inline';
-        }
+    if (commentsList.style.display === 'none') {
+        commentsList.style.display = 'flex';
+        collapseIcon.style.display = 'inline';
+        expandIcon.style.display = 'none';
+    } else {
+        commentsList.style.display = 'none';
+        collapseIcon.style.display = 'none';
+        expandIcon.style.display = 'inline';
     }
+}
 
-    function goBack(){
-        const rutaAnterior = sessionStorage.getItem("rutaAnterior");
-        if (rutaAnterior) {
-            window.location.href = rutaAnterior;
-        } else {
-            window.location.href = "<c:url value='/journeys' />"
-        }
+function toggleEvents() {
+    const eventsList = document.getElementById('events-list');
+    const collapseIcon = document.getElementById('events-collapse-icon');
+    const expandIcon = document.getElementById('events-expand-icon');
+
+    if (eventsList.style.display === 'none') {
+        eventsList.style.display = 'block';
+        collapseIcon.style.display = 'inline';
+        expandIcon.style.display = 'none';
+    } else {
+        eventsList.style.display = 'none';
+        collapseIcon.style.display = 'none';
+        expandIcon.style.display = 'inline';
     }
+}
+
+function goBack(){
+    const rutaAnterior = sessionStorage.getItem("rutaAnterior");
+    if (rutaAnterior) {
+        window.location.href = rutaAnterior;
+    } else {
+        window.location.href = "<c:url value='/journeys' />"
+    }
+}
 
     function toggleActionMenu() {
         const dropdown = document.getElementById('actionDropdown');
