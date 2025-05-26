@@ -121,12 +121,14 @@
 
                                     <!-- Report option for non-owners -->
                                     <c:if test="${!isEventOwner}">
-                                        <a href="<c:url value='/events/${event.id}/report'/>" style="color: #333; padding: 12px 16px; text-decoration: none; display: flex; align-items: center; gap: 12px;" onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">
+                                        <c:url var="reportEventUrl" value='/reports/events/${event.id}/create'/>
+                                        <a href="#" onclick="openReportModal('event', '${event.id}', '<c:out value="${reportEventUrl}"/>'); return false;"
+                                           style="color: #333; padding: 12px 16px; text-decoration: none; display: flex; align-items: center; gap: 12px;"
+                                           onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                 <path d="M12 9v4"></path>
                                                 <path d="M12 17h.01"></path>
-                                                <path d="M8.5 2.5L12 6l3.5-3.5"></path>
-                                                <path d="M2 12l3.5 3.5L12 12l6.5 6.5L22 15"></path>
+                                                <circle cx="12" cy="12" r="10"></circle>
                                             </svg>
                                             <span><spring:message code="event.report" text="Report Event" /></span>
                                         </a>
@@ -353,6 +355,25 @@
     </div>
 </div>
 
+
+<!-- Include Report Modal -->
+<jsp:include page="/WEB-INF/jsp/components/report-modal.jsp" />
+
+<script>
+    function toggleDropdown(dropdownId) {
+        const dropdown = document.getElementById(dropdownId);
+        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('[onclick*="toggleDropdown"]')) {
+            document.querySelectorAll('[id$="-dropdown"]').forEach(dropdown => {
+                dropdown.style.display = 'none';
+            });
+        }
+    });
+</script>
 <script>
     function goBack(){
         const rutaAnterior = sessionStorage.getItem("rutaAnterior");

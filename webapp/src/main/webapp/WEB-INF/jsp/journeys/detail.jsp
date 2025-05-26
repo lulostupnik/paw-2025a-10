@@ -92,12 +92,14 @@
                             </c:if>
 
                             <c:if test="${!isOwner}">
-                                <a href="<c:url value='/journeys/${journey.id}/report'/>" style="color: #333; padding: 12px 16px; text-decoration: none; display: flex; align-items: center; gap: 12px;" onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">
+                                <c:url var="reportJourneyUrl" value='/reports/journeys/${journey.id}/create'/>
+                                <a href="#" onclick="openReportModal('journey', '${journey.id}', '<c:out value="${reportJourneyUrl}"/>'); return false;"
+                                   style="color: #333; padding: 12px 16px; text-decoration: none; display: flex; align-items: center; gap: 12px;"
+                                   onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M12 9v4"></path>
                                         <path d="M12 17h.01"></path>
-                                        <path d="M8.5 2.5L12 6l3.5-3.5"></path>
-                                        <path d="M2 12l3.5 3.5L12 12l6.5 6.5L22 15"></path>
+                                        <circle cx="12" cy="12" r="10"></circle>
                                     </svg>
                                     <span><spring:message code="journey.report" text="Report Journey" /></span>
                                 </a>
@@ -277,13 +279,14 @@
 
                                                 <!-- Report option for non-owners and admins -->
                                                 <c:if test="${!isOwner || pageContext.request.isUserInRole('ADMIN')}">
-                                                    <c:url var="reportCommentUrl" value='/journeys/${journey.id}/reply/${response.id}/report'/>
-                                                    <a href="<c:out value='${reportCommentUrl}'/>" style="color: #333; padding: 10px 14px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 13px;" onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">
+                                                    <c:url var="reportJourneyCommentUrl" value='/reports/journey-responses/${response.id}/create'/>
+                                                    <a href="#" onclick="openReportModal('comment', '${response.id}', '<c:out value="${reportJourneyCommentUrl}"/>'); return false;"
+                                                       style="color: #333; padding: 10px 14px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 13px;"
+                                                       onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                             <path d="M12 9v4"></path>
                                                             <path d="M12 17h.01"></path>
-                                                            <path d="M8.5 2.5L12 6l3.5-3.5"></path>
-                                                            <path d="M2 12l3.5 3.5L12 12l6.5 6.5L22 15"></path>
+                                                            <circle cx="12" cy="12" r="10"></circle>
                                                         </svg>
                                                         <span><spring:message code="comment.report" text="Report Comment" /></span>
                                                     </a>
@@ -354,6 +357,25 @@
     </div>
 </div>
 
+
+<!-- Include Report Modal -->
+<jsp:include page="/WEB-INF/jsp/components/report-modal.jsp" />
+
+<script>
+    function toggleDropdown(dropdownId) {
+        const dropdown = document.getElementById(dropdownId);
+        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('[onclick*="toggleDropdown"]')) {
+            document.querySelectorAll('[id$="-dropdown"]').forEach(dropdown => {
+                dropdown.style.display = 'none';
+            });
+        }
+    });
+</script>
 <script>
     function toggleComments() {
         const commentsList = document.getElementById('comments-list');

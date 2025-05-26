@@ -84,13 +84,14 @@
                             <div id="commentDropdown${status.index}" style="display: none; position: absolute; right: 0; top: 100%; background-color: white; min-width: 160px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); border-radius: 6px; z-index: 1000; border: 1px solid #e0e0e0; padding: 6px 0;">
 
                                 <!-- Report option for everyone -->
-                                <c:url var="reportCommentUrl" value='/events/${event.id}/reply/${response.id}/report'/>
-                                <a href="<c:out value='${reportCommentUrl}'/>" style="color: #333; padding: 10px 14px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 13px;" onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">
+                                <c:url var="reportEventCommentUrl" value='/reports/event-responses/${response.id}/create'/>
+                                <a href="#" onclick="openReportModal('comment', '${response.id}', '<c:out value="${reportEventCommentUrl}"/>'); return false;"
+                                   style="color: #333; padding: 10px 14px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 13px;"
+                                   onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M12 9v4"></path>
                                         <path d="M12 17h.01"></path>
-                                        <path d="M8.5 2.5L12 6l3.5-3.5"></path>
-                                        <path d="M2 12l3.5 3.5L12 12l6.5 6.5L22 15"></path>
+                                        <circle cx="12" cy="12" r="10"></circle>
                                     </svg>
                                     <span><spring:message code="comment.report" text="Report Comment" /></span>
                                 </a>
