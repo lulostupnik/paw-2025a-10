@@ -45,6 +45,7 @@
       </a>
       <a href="<c:url value='/dashboard/reports'/>" class="tab-button ${pagedReports != null ? 'active' : ''}">
         <spring:message code="admin.tab.reports" />
+      </a>
     </div>
 
 
