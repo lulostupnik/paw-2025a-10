@@ -397,3 +397,120 @@
         flex: 1;
     }
 }
+
+/* Report Status Badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    border: 1px solid transparent;
+}
+
+/* PENDING Status - Orange/Amber */
+.status-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+    border-color: #fbbf24;
+}
+
+.status-pending::before {
+    content: "⏳";
+    font-size: 0.875rem;
+}
+
+/* UNDER_REVIEW Status - Blue */
+.status-under-review {
+    background-color: #dbeafe;
+    color: #1e40af;
+    border-color: #3b82f6;
+}
+
+.status-under-review::before {
+    content: "👁️";
+    font-size: 0.875rem;
+}
+
+/* RESOLVED Status - Green */
+.status-resolved {
+    background-color: #d1fae5;
+    color: #065f46;
+    border-color: #10b981;
+}
+
+.status-resolved::before {
+    content: "✅";
+    font-size: 0.875rem;
+}
+
+/* DISMISSED Status - Gray */
+.status-dismissed {
+    background-color: #f3f4f6;
+    color: #374151;
+    border-color: #9ca3af;
+}
+
+.status-dismissed::before {
+    content: "❌";
+    font-size: 0.875rem;
+}
+
+/* Alternative design with dots instead of emojis */
+.status-badge.dot-style::before {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: currentColor;
+}
+
+.status-pending.dot-style::before {
+    background-color: #f59e0b;
+}
+
+.status-under-review.dot-style::before {
+    background-color: #3b82f6;
+}
+
+.status-resolved.dot-style::before {
+    background-color: #10b981;
+}
+
+.status-dismissed.dot-style::before {
+    background-color: #6b7280;
+}
+
+/* Hover effects */
+.status-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+/* Priority indicators for urgent reports */
+.status-badge.priority-high {
+    position: relative;
+    animation: pulse 2s infinite;
+}
+
+.status-badge.priority-high::after {
+    content: "🔥";
+    position: absolute;
+    top: -0.25rem;
+    right: -0.25rem;
+    font-size: 0.75rem;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}

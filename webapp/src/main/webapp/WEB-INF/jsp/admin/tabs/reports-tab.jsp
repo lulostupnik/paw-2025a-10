@@ -54,8 +54,46 @@
           <td><c:out value="${report.reportingUser.username}"/></td>
           <td><c:out value="${report.description}"/></td>
           <td><c:out value="${report.reason}"/></td>
-          <td><c:out value="${report.status}"/></td>
-        </tr>
+          <!-- Replace the existing status column in your table -->
+          <!-- Alternative design showing progress -->
+          <td>
+            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+              <c:choose>
+                <c:when test="${report.status == 'PENDING'}">
+                <span class="status-badge status-pending">
+                    <spring:message code="report.status.pending" text="Pending" />
+                </span>
+                  <div style="width: 100%; height: 2px; background-color: #f3f4f6; border-radius: 1px;">
+                    <div style="width: 25%; height: 100%; background-color: #f59e0b; border-radius: 1px;"></div>
+                  </div>
+                </c:when>
+                <c:when test="${report.status == 'UNDER_REVIEW'}">
+                <span class="status-badge status-under-review">
+                    <spring:message code="report.status.under_review" text="Under Review" />
+                </span>
+                  <div style="width: 100%; height: 2px; background-color: #f3f4f6; border-radius: 1px;">
+                    <div style="width: 60%; height: 100%; background-color: #3b82f6; border-radius: 1px;"></div>
+                  </div>
+                </c:when>
+                <c:when test="${report.status == 'RESOLVED'}">
+                <span class="status-badge status-resolved">
+                    <spring:message code="report.status.resolved" text="Resolved" />
+                </span>
+                  <div style="width: 100%; height: 2px; background-color: #10b981; border-radius: 1px;">
+                    <div style="width: 100%; height: 100%; background-color: #10b981; border-radius: 1px;"></div>
+                  </div>
+                </c:when>
+                <c:when test="${report.status == 'DISMISSED'}">
+                <span class="status-badge status-dismissed">
+                    <spring:message code="report.status.dismissed" text="Dismissed" />
+                </span>
+                  <div style="width: 100%; height: 2px; background-color: #6b7280; border-radius: 1px;">
+                    <div style="width: 100%; height: 100%; background-color: #6b7280; border-radius: 1px;"></div>
+                  </div>
+                </c:when>
+              </c:choose>
+            </div>
+          </td>      </tr>
       </c:forEach>
       </tbody>
     </table>
