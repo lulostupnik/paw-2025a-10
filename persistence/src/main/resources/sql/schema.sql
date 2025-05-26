@@ -331,3 +331,4 @@ ALTER TABLE events
     ALTER COLUMN flyer_image_id SET NOT NULL;
 
 
+-- ALTER TABLE user_interest DROP COLUMN IF EXISTS interest_id; En local estaba de mas esta columna. Checkear en produccion antes de hacerlo. 
