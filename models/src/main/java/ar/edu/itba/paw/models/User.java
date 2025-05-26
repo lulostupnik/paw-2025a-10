@@ -68,7 +68,7 @@ public class User{
 
     @Enumerated(EnumType.STRING)
     @Column(name = "roles", length = 50, nullable = false)
-    private UserRoles role;  
+    private UserRoles role;
 
 
     /* For hibernate */ User(){

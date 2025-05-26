@@ -67,12 +67,6 @@
     </c:if>
 
 
-
-
-
-
-
-
     <jsp:include page="../../components/pagination-with-page-number.jsp">
       <jsp:param name="pageObjectTotalPages" value="${pagedReports.totalPages}" />
       <jsp:param name="currentPage" value="${pagedReports.currentPage}" />

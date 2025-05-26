@@ -6,6 +6,7 @@ import java.util.Optional;
 public interface ImageService {
     long createImage(byte[] imageData);
     Optional<Image> findImage(long id);
+
     void deleteImage(long id);
 }
 
