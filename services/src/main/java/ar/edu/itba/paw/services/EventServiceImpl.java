@@ -33,11 +33,13 @@ public class EventServiceImpl implements EventService {
     private final ImageService imageService;
     private final CityService cityService;
     private final EventAttendanceDao eventAttendanceDao;
+    private final EventRatingDao eventRatingDao;
 
     @Autowired
     public EventServiceImpl(final UserService userService,final  EventResponseDao eventResponseDao,
                             final EventDao eventDao,final EmailService emailService, final ImageService imageService,
-                            final CityService cityService,final  EventAttendanceDao eventAttendanceDao) {
+                            final CityService cityService,final  EventAttendanceDao eventAttendanceDao,
+                            final EventRatingDao eventRatingDao) {
         this.userService = userService;
         this.eventResponseDao = eventResponseDao;
         this.eventDao = eventDao;
@@ -45,6 +47,7 @@ public class EventServiceImpl implements EventService {
         this.imageService = imageService;
         this.cityService = cityService;
         this.eventAttendanceDao = eventAttendanceDao;
+        this.eventRatingDao = eventRatingDao;
     }
 
     @Override
@@ -243,7 +246,26 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void rateEvent(User user, long eventId, double rating) {
+        Event event = eventDao.findById(eventId).orElseThrow(() -> {
+            LOGGER.warn("Event not found {}", eventId);
+            return new RuntimeException("Event not found");
+        });
+        eventRatingDao.rateEvent(user, event, rating);
+    }
 
+    @Override
+    public Optional<Double> findRatingByUserAndEvent(long userId, long eventId) {
+        return eventRatingDao.findRatingByUserAndEvent(userId, eventId);
+    }
+
+    @Override
+    public int countRatingsByEvent(long eventId) {
+        return eventRatingDao.countRatingsByEvent(eventId);
+    }
+
+    @Override
+    public Optional<Double> findRatingsAverageByEvent(long eventId) {
+        return eventRatingDao.findRatingsAverageByEvent(eventId);
     }
 
     @Override

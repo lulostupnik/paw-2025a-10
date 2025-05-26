@@ -38,6 +38,10 @@ public interface EventService {
     void deleteEventAttendance(long userId, long eventId);
 
     void rateEvent(User user, long eventId, double rating);
+    Optional<Double> findRatingByUserAndEvent(long userId, long eventId);
+    int countRatingsByEvent(long eventId);
+    Optional<Double> findRatingsAverageByEvent(long eventId);
+
     int countEventAttendees(long eventId);
 
     Page<Event> findEventsByAttendee(long userId, PageParams pageParams);

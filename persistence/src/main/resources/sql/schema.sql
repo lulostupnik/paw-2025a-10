@@ -161,7 +161,16 @@ CREATE TABLE IF NOT EXISTS reports (
                          FOREIGN KEY (journey_id) REFERENCES journeys(id) ON DELETE CASCADE,
                          FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
 );
-
+CREATE TABLE IF NOT EXISTS ratings (
+                                       id BIGSERIAL PRIMARY KEY,
+                                       user_id BIGINT NOT NULL,
+                                       event_id BIGINT NOT NULL,
+                                       rating DOUBLE NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
+    );
 
 ALTER TABLE users
     ADD COLUMN IF NOT EXISTS password VARCHAR(100) NOT NULL DEFAULT '$2b$10$KbQiA8xVuOPQkfiYJ0X0FubQbQjEJpTr6QOBD3qL6sYzFoq2nJ8fK';

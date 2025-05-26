@@ -19,8 +19,8 @@
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
       </svg>
       <spring:message code="event.rating" />
-      <c:if test="${not empty averageRating}">
-        <span class="count">(<c:out value="${fn:length(eventRatings)}" /> <spring:message code="event.rating.reviews" />)</span>
+      <c:if test="${averageRating.isPresent()}">
+        <span class="count">(<c:out value="${ratingCount}" /> <spring:message code="event.rating.reviews" />)</span>
       </c:if>
     </h2>
     <c:if test="${showToggle eq 'true'}">
@@ -41,19 +41,19 @@
 
   <div id="rating-section" class="rating-content">
     <!-- Overall Rating Display -->
-    <c:if test="${not empty averageRating}">
+    <c:if test="${ averageRating.isPresent()}">
       <div class="rating-summary">
         <div class="average-rating">
-          <span class="rating-number"><c:out value="${averageRating}" /></span>
+          <span class="rating-number"><c:out value="${averageRating.get()}" /></span>
           <div class="rating-stars-display">
             <c:forEach var="i" begin="1" end="5">
               <c:choose>
-                <c:when test="${averageRating >= i}">
+                <c:when test="${averageRating.get() >= i}">
                   <svg class="star filled" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                   </svg>
                 </c:when>
-                <c:when test="${averageRating >= (i - 0.5)}">
+                <c:when test="${averageRating.get() >= (i - 0.5)}">
                   <svg class="star half-filled" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <defs>
                       <linearGradient id="half-fill-${i}">
@@ -79,6 +79,20 @@
       </div>
     </c:if>
 
+    <c:if test="${ averageRating.isEmpty()}">
+      <div class="rating-summary empty-state">
+        <div class="empty-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </div>
+        <p class="empty-message">
+          <spring:message code="event.rating.noRatings" />
+        </p>
+        </div>
+    </c:if>
+
+
     <!-- User Rating Form (only for authenticated users who attended the event) -->
     <c:if test="${not empty user and attend}">
       <c:if test="${ ! event.isFuture}">
@@ -96,12 +110,12 @@
               <label class="rating-label">
                 <spring:message code="event.rating.yourRating" />
               </label>
-              <div class="star-rating-input" data-rating="${not empty userRating ? userRating : 0}">
+              <div class="star-rating-input" data-rating="${userRating.isPresent() ? userRating.get() : 0}">
                 <c:forEach var="i" begin="1" end="5">
                   <div class="star-input-group">
                     <!-- Full star -->
                     <input type="radio" name="rating" value="${i}" id="star-${i}"
-                      ${userRating == i ? 'checked' : ''} />
+                      ${userRating.isPresent() && userRating.get() == i ? 'checked' : ''} />
                     <label for="star-${i}" class="star-label full-star" data-value="${i}">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
@@ -111,7 +125,7 @@
                     <!-- Half star (except for the first star) -->
                     <c:if test="${i > 1}">
                       <input type="radio" name="rating" value="${i - 0.5}" id="star-${i - 0.5}"
-                        ${userRating == (i - 0.5) ? 'checked' : ''} />
+                        ${userRating.isPresent() && userRating.get() == (i - 0.5) ? 'checked' : ''} />
                       <label for="star-${i - 0.5}" class="star-label half-star" data-value="${i - 0.5}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <defs>
@@ -130,8 +144,8 @@
               <div class="rating-value-display">
                                 <span id="current-rating-value">
                                     <c:choose>
-                                      <c:when test="${not empty userRating}">
-                                        <c:out value="${userRating}" />
+                                      <c:when test="${ userRating.isPresent()}">
+                                        <c:out value="${userRating.get()}" />
                                       </c:when>
                                       <c:otherwise>0</c:otherwise>
                                     </c:choose>
@@ -154,81 +168,81 @@
       </c:if>
     </c:if>
 
-    <!-- Rating List -->
-    <c:if test="${not empty eventRatings}">
-      <div class="ratings-list">
-        <h3 class="ratings-list-title">
-          <spring:message code="event.rating.all" />
-        </h3>
-        <c:forEach var="rating" items="${eventRatings}">
-          <div class="rating-item">
-            <div class="rating-header">
-              <div class="rating-user">
-                <div class="rating-avatar">
-                  <c:if test="${not empty rating.user.profilePictureId}">
-                    <img src="<c:url value='/images/${rating.user.profilePictureId}'/>" alt="Profile" class="rating-avatar-img">
-                  </c:if>
-                  <c:if test="${empty rating.user.profilePictureId}">
-                    <div class="avatar-placeholder">
-                      <c:out value="${fn:substring(rating.user.firstname, 0, 1)}${fn:substring(rating.user.lastname, 0, 1)}" />
-                    </div>
-                  </c:if>
-                </div>
-                <div class="rating-user-info">
-                  <h4 class="rating-username">
-                    <c:out value="${rating.user.firstname} ${rating.user.lastname}" />
-                  </h4>
-                  <p class="rating-date">
-                    <c:out value="${rating.formattedDate}" />
-                  </p>
-                </div>
-              </div>
-              <div class="rating-stars">
-                <c:forEach var="i" begin="1" end="5">
-                  <c:choose>
-                    <c:when test="${rating.rating >= i}">
-                      <svg class="star filled" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                      </svg>
-                    </c:when>
-                    <c:when test="${rating.rating >= (i - 0.5)}">
-                      <svg class="star half-filled" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <defs>
-                          <linearGradient id="rating-half-${rating.id}-${i}">
-                            <stop offset="50%" stop-color="currentColor" stop-opacity="1"/>
-                            <stop offset="50%" stop-color="transparent" stop-opacity="0"/>
-                          </linearGradient>
-                        </defs>
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="url(#rating-half-${rating.id}-${i})"/>
-                      </svg>
-                    </c:when>
-                    <c:otherwise>
-                      <svg class="star empty" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                      </svg>
-                    </c:otherwise>
-                  </c:choose>
-                </c:forEach>
-                <span class="rating-value">(<c:out value="${rating.rating}" />)</span>
-              </div>
-            </div>
-          </div>
-        </c:forEach>
-      </div>
-    </c:if>
+<%--    <!-- Rating List -->--%>
+<%--    <c:if test="${not empty eventRatings}">--%>
+<%--      <div class="ratings-list">--%>
+<%--        <h3 class="ratings-list-title">--%>
+<%--          <spring:message code="event.rating.all" />--%>
+<%--        </h3>--%>
+<%--        <c:forEach var="rating" items="${eventRatings}">--%>
+<%--          <div class="rating-item">--%>
+<%--            <div class="rating-header">--%>
+<%--              <div class="rating-user">--%>
+<%--                <div class="rating-avatar">--%>
+<%--                  <c:if test="${not empty rating.user.profilePictureId}">--%>
+<%--                    <img src="<c:url value='/images/${rating.user.profilePictureId}'/>" alt="Profile" class="rating-avatar-img">--%>
+<%--                  </c:if>--%>
+<%--                  <c:if test="${empty rating.user.profilePictureId}">--%>
+<%--                    <div class="avatar-placeholder">--%>
+<%--                      <c:out value="${fn:substring(rating.user.firstname, 0, 1)}${fn:substring(rating.user.lastname, 0, 1)}" />--%>
+<%--                    </div>--%>
+<%--                  </c:if>--%>
+<%--                </div>--%>
+<%--                <div class="rating-user-info">--%>
+<%--                  <h4 class="rating-username">--%>
+<%--                    <c:out value="${rating.user.firstname} ${rating.user.lastname}" />--%>
+<%--                  </h4>--%>
+<%--                  <p class="rating-date">--%>
+<%--                    <c:out value="${rating.formattedDate}" />--%>
+<%--                  </p>--%>
+<%--                </div>--%>
+<%--              </div>--%>
+<%--              <div class="rating-stars">--%>
+<%--                <c:forEach var="i" begin="1" end="5">--%>
+<%--                  <c:choose>--%>
+<%--                    <c:when test="${rating.rating >= i}">--%>
+<%--                      <svg class="star filled" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">--%>
+<%--                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>--%>
+<%--                      </svg>--%>
+<%--                    </c:when>--%>
+<%--                    <c:when test="${rating.rating >= (i - 0.5)}">--%>
+<%--                      <svg class="star half-filled" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">--%>
+<%--                        <defs>--%>
+<%--                          <linearGradient id="rating-half-${rating.id}-${i}">--%>
+<%--                            <stop offset="50%" stop-color="currentColor" stop-opacity="1"/>--%>
+<%--                            <stop offset="50%" stop-color="transparent" stop-opacity="0"/>--%>
+<%--                          </linearGradient>--%>
+<%--                        </defs>--%>
+<%--                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="url(#rating-half-${rating.id}-${i})"/>--%>
+<%--                      </svg>--%>
+<%--                    </c:when>--%>
+<%--                    <c:otherwise>--%>
+<%--                      <svg class="star empty" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">--%>
+<%--                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>--%>
+<%--                      </svg>--%>
+<%--                    </c:otherwise>--%>
+<%--                  </c:choose>--%>
+<%--                </c:forEach>--%>
+<%--                <span class="rating-value">(<c:out value="${rating.rating}" />)</span>--%>
+<%--              </div>--%>
+<%--            </div>--%>
+<%--          </div>--%>
+<%--        </c:forEach>--%>
+<%--      </div>--%>
+<%--    </c:if>--%>
 
-    <c:if test="${empty eventRatings}">
-      <div class="empty-state">
-        <div class="empty-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-          </svg>
-        </div>
-        <p class="empty-message">
-          <spring:message code="event.rating.noRatings" />
-        </p>
-      </div>
-    </c:if>
+<%--    <c:if test="${empty eventRatings}">--%>
+<%--      <div class="empty-state">--%>
+<%--        <div class="empty-icon">--%>
+<%--          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">--%>
+<%--            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>--%>
+<%--          </svg>--%>
+<%--        </div>--%>
+<%--        <p class="empty-message">--%>
+<%--          <spring:message code="event.rating.noRatings" />--%>
+<%--        </p>--%>
+<%--      </div>--%>
+<%--    </c:if>--%>
   </div>
 </div>
 

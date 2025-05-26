@@ -103,7 +103,7 @@ public class EventController {
     }
 
     private ModelAndView populateEventDetails( EventWithStatistics eventWithStatistics, long id,
-                                              PageParams pageParams, PageParams attendeesPageParams) {
+                                              PageParams pageParams, PageParams attendeesPageParams, User user) {
         ModelAndView mav = new ModelAndView("events/detail/detail");
         Event event = eventWithStatistics.getEvent();
         mav.addObject("event", event);
@@ -122,9 +122,9 @@ public class EventController {
         mav.addObject("attend", eventWithStatistics.isAttending());
         mav.addObject("isEventOwner", eventWithStatistics.isCreator());
         mav.addObject("isFull", event.getFull());
-        mav.addObject("averageRating", 5.0);
-        mav.addObject("eventRatings", List.of()); // TODO: Implement event ratings
-        mav.addObject("userRating", 0.0); // TODO: Implement user rating for the event
+        mav.addObject("averageRating", eventService.findRatingsAverageByEvent(event.getId()));
+        mav.addObject("userRating", eventService.findRatingByUserAndEvent(user.getId(), event.getId()));
+        mav.addObject("ratingCount", eventService.countRatingsByEvent(event.getId()));
 
 
         return mav;
@@ -142,7 +142,7 @@ public class EventController {
             LOGGER.error("eventWithStatistics not found");
             return new EventNotFoundException("eventWithStatistics not found");});
         return populateEventDetails(eventWithStatistics,
-                id, repliesPage, attendeesPage );
+                id, repliesPage, attendeesPage, user );
     }
 
     @PostMapping("/{id}/rating")
