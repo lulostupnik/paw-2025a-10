@@ -87,20 +87,26 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    private Map<String, Object> buildAnswerVariables(final String firstName, final String lastName, final String username,
-                                                     final String career, final String originUniversity, final String message,
-                                                     final byte[] profilePicture, final String idKey, final long id) {
+
+    private Map<String, Object> buildAnswerVariables(User commenter, String message, String idKey, long id, boolean hasProfilePicture) {
+
         return Map.of(
-                "firstname", firstName,
-                "lastname", lastName,
-                "username", username,
-                "career", career,
-                "university", originUniversity,
+                "firstname", commenter.getFirstname(),
+                "lastname", commenter.getLastname(),
+                "username", commenter.getUsername(),
+                "career",  commenter.getCareer().getName(),
+                "university", commenter.getUniversity().getName(),
                 "message", message,
-                "hasProfileImage", profilePicture != null && profilePicture.length > 0,
+                "hasProfileImage", hasProfilePicture,
                 idKey, id,
                 "baseUrl", baseUrl
         );
+    }
+    private Map<String, Object> answerJourneyNotificationVariables(User commenter,  Journey journey,String message, byte[] profileArray) {
+        return buildAnswerVariables(commenter, message, "journeyId", journey.getId(), profileArray != null && profileArray.length > 0);
+    }
+    private Map<String, Object> answerEventNotificationVariables(User commenter, Event event, String message, byte[] profileArray) {
+        return buildAnswerVariables(commenter, message, "eventId", event.getId(), profileArray != null && profileArray.length > 0);
     }
 
 
@@ -150,25 +156,34 @@ public class EmailServiceImpl implements EmailService {
                 "email.comment.deletion.title", Optional.empty());
     }
 
+    private byte[] getUserImageData(User user){
+        return imageService.findImage(user.getProfilePictureId()).orElseThrow(() -> {
+            LOGGER.error("User does not have profile picture");
+            return new IllegalStateException("User does not have profile picture");
+        }).getData();
+    }
+    @Override
+    public void answerEventOwnerNotification(final String message, final User commenter, final Event event) {
+        User eventUser = event.getUser();
 
+        if(commenter.getEmail().equals(eventUser.getEmail())){
+            return;
+        }
+        byte[] profilePictureData = getUserImageData(commenter);
+        Optional<byte[]> profileImageOptional = Optional.of(profilePictureData);
+        Optional<String> profileCidOptional = Optional.of("profileImage");
+        Map<String, Object> variables = answerEventNotificationVariables(commenter, event, message,  profilePictureData);
+        sendHtmlMessage(profileImageOptional,profileCidOptional,eventUser, "event-response", variables, "email.event.reply.title", Optional.empty());
+    }
     @Override
     public void answerEventNotification(final List<User> oldRepliers,final String message, final User commenter, final Event event) {
         User eventUser = event.getUser();
 
-
-        byte[] profilePictureData = imageService.findImage(commenter.getProfilePictureId()).orElseThrow(() -> {
-            LOGGER.error("User does not have profile picture");
-            return new IllegalStateException("User does not have profile picture");
-        }).getData();
-
-        Map<String, Object> variables = buildAnswerVariables(
-                commenter.getFirstname(), commenter.getLastname(),
-                commenter.getUsername(), commenter.getCareer().getName(),
-                commenter.getUniversity().getName(),message,
-                profilePictureData, "eventId", event.getId());
-
+        byte[] profilePictureData = getUserImageData(commenter);
         Optional<byte[]> profileImageOptional = Optional.of(profilePictureData);
         Optional<String> profileCidOptional = Optional.of("profileImage");
+        Map<String, Object> variables = answerEventNotificationVariables(commenter, event, message,  profilePictureData);
+
 
         for(User recipient : oldRepliers){
             if(recipient.getEmail().equals(eventUser.getEmail()) || recipient.getEmail().equals(commenter.getEmail())){
@@ -176,26 +191,30 @@ public class EmailServiceImpl implements EmailService {
             }
             sendHtmlMessage(profileImageOptional,profileCidOptional ,recipient,"event-new-comment", variables, "email.event.comment.notification.title", Optional.empty());
         }
-        if(!commenter.getUsername().equals(eventUser.getUsername())){
-            sendHtmlMessage(profileImageOptional,profileCidOptional,eventUser, "event-response", variables, "email.event.reply.title", Optional.empty());
-        }
 
     }
 
     @Override
+    public void answerJourneyOwnerNotification(final String message, final User commenter, final Journey journey) {
+        User journeyUser = journey.getUser();
+        if(commenter.getEmail().equals(journeyUser.getEmail())){
+            return;
+        }
+
+        byte[] profilePictureData = getUserImageData(commenter);
+        Map<String, Object> variables = answerJourneyNotificationVariables(commenter, journey, message,  profilePictureData);
+        Optional<byte[]> profileImageOptional = Optional.of(profilePictureData);
+        Optional<String> profileCidOptional = Optional.of("profileImage");
+
+        sendHtmlMessage(profileImageOptional,  profileCidOptional,journeyUser, "journey-response", variables, "email.journey.reply.subject", Optional.empty());
+
+    }
+    @Override
     public void answerJourneyNotification(final List<User> oldRepliers, final String message, final User commenter, final Journey journey) {
         User journeyUser = journey.getUser();
-        byte[] profilePictureData = imageService.findImage(commenter.getProfilePictureId()).orElseThrow(() -> {
-            LOGGER.error("User does not have profile picture");
-            return new IllegalStateException("User does not have profile picture");}).getData();
 
-        Map<String, Object> variables = buildAnswerVariables(
-                commenter.getFirstname(), commenter.getLastname(),
-                commenter.getUsername(), commenter.getCareer().getName(),
-                commenter.getUniversity().getName(),message,
-                profilePictureData, "journeyId", journey.getId());
-
-
+        byte[] profilePictureData = getUserImageData(commenter);
+        Map<String, Object> variables = answerJourneyNotificationVariables(commenter, journey, message,  profilePictureData);
         Optional<byte[]> profileImageOptional = Optional.of(profilePictureData);
         Optional<String> profileCidOptional = Optional.of("profileImage");
 
@@ -205,10 +224,6 @@ public class EmailServiceImpl implements EmailService {
             }
             sendHtmlMessage(profileImageOptional, profileCidOptional,recipient, "journey-new-comment", variables, "email.journey.comment.notification.title", Optional.empty());
         }
-        if(!commenter.getUsername().equals(journeyUser.getUsername())){
-            sendHtmlMessage(profileImageOptional,  profileCidOptional,journeyUser, "journey-response", variables, "email.journey.reply.subject", Optional.empty());
-        }
-
     }
     @Override
     public void sendEventDeletionNotification(final Event event,final String adminMessage) {

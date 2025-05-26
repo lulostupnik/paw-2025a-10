@@ -56,12 +56,14 @@ public interface EventService {
     int countEventResponses(long eventId);
     Page<EventResponse> findEventResponses(long eventId, PageParams pageParams);
     Optional<EventResponse> findEventResponseById(long id);
+
+    Page<Event> findJourneyEvents(Journey journey, PageParams pageParams);
+
     void sendEventReminders();
 
 
 
     Optional<EventWithUserInfo> findEventWithUserInfo(long userId, long eventId);
-    Optional<Integer> findAttendanceLimitById(final long eventId);
 }
 
 
