@@ -55,11 +55,11 @@ public class LandingController {
 
     @GetMapping("/explore")
     public ModelAndView explore(
-            @RequestParam(value = "validationSuccess", required = false, defaultValue = "false") final boolean validationSuccess,
+//            @ModelAttribute(value = "validationSuccess") final boolean validationSuccess,
             @ModelAttribute("user") User user) {
 
         ModelAndView mav = new ModelAndView("home");
-        mav.addObject("validationSuccess", validationSuccess);
+//        mav.addObject("validationSuccess", validationSuccess);
         populateHomePage(mav, user);
 
         return mav;

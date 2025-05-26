@@ -166,12 +166,12 @@ public class ReportHibernateDao implements ReportDao {
         final String countSql = """
                 SELECT COUNT(*)
                 FROM reports r
-                WHERE r.deleted = false AND (r.reason LIKE :pattern OR r.description LIKE :pattern)
+                WHERE r.deleted = false AND (r.reason LIKE LOWER( :pattern ) OR r.description LIKE LOWER( :pattern ))
                 """;
         final String idSql = """
                 SELECT r.id
                 FROM reports r
-                WHERE r.deleted = false AND (r.reason LIKE :pattern OR r.description LIKE :pattern)
+                WHERE r.deleted = false AND (r.reason LIKE LOWER( :pattern ) OR r.description LIKE LOWER( :pattern ))
                 """;
         final String jpqlFetch = """
                 FROM Report r

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
@@ -34,10 +35,12 @@ public class AuthController {
         this.loginHelper = loginHelper;
     }
     @GetMapping(value ="/validate")
-    public ModelAndView validateEmail(@RequestParam("token") String token) {
+    public ModelAndView validateEmail(@RequestParam("token") String token, RedirectAttributes redirectAttributes) {
         User user = userService.verifyUser(token);
         loginHelper.loginUser(user.getEmail());
-        return new ModelAndView("redirect:/explore?validationSuccess=true");
+        ModelAndView mav = new ModelAndView("redirect:/explore");
+        redirectAttributes.addFlashAttribute("validationSuccess", true);
+        return mav;
     }
 
     @GetMapping(value ="/not-verified")

@@ -74,14 +74,14 @@ public class CareerHibernateDao implements CareerDao {
         final String countSql = """
                 SELECT COUNT(*) 
                 FROM careers c
-                WHERE LOWER(c.name) LIKE :pattern
+                WHERE LOWER(c.name) LIKE LOWER( :pattern )
                 and c.deleted = false
                 """;
 
         final String idSql = """
                 SELECT c.id
                 FROM careers c
-                WHERE LOWER(c.name) LIKE :pattern
+                WHERE LOWER(c.name) LIKE LOWER( :pattern )
                 and c.deleted = false
                 """;
         final String jpqlFetch = """

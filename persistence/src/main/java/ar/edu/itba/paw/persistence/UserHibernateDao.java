@@ -130,18 +130,18 @@ public class UserHibernateDao implements UserDao {
         SELECT COUNT(*)
         FROM users u
         JOIN universities un ON u.university = un.id
-        WHERE LOWER(u.firstname) LIKE :pattern
-           OR LOWER(un.name) LIKE :pattern
-           OR LOWER(u.email) LIKE :pattern
+        WHERE LOWER(u.firstname) LIKE LOWER( :pattern )
+           OR LOWER(un.name) LIKE LOWER( :pattern )
+           OR LOWER(u.email) LIKE LOWER( :pattern )
     """;
 
         final String idSql = """
         SELECT u.id
         FROM users u
         JOIN universities un ON u.university = un.id
-        WHERE LOWER(u.firstname) LIKE :pattern
-           OR LOWER(un.name) LIKE :pattern
-           OR LOWER(u.email) LIKE :pattern
+        WHERE LOWER(u.firstname) LIKE LOWER( :pattern )
+           OR LOWER(un.name) LIKE LOWER( :pattern )
+           OR LOWER(u.email) LIKE LOWER( :pattern )
         ORDER BY u.id DESC
     """;
 

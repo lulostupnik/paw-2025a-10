@@ -181,9 +181,9 @@ public class JourneyHibernateDao implements JourneyDao {
             }
             filters.add("""
             (
-                LOWER(u.username) LIKE :pattern
-                OR LOWER(un2.name) LIKE :pattern
-                OR LOWER(ci2.name) LIKE :pattern
+                LOWER(u.username) LIKE LOWER( :pattern )
+                OR LOWER(un2.name) LIKE LOWER( :pattern )
+                OR LOWER(ci2.name) LIKE LOWER( :pattern )
             )
         """);
             paramMap.put("pattern", pattern);

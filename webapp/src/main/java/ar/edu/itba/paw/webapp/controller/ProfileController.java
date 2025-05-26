@@ -68,13 +68,16 @@ public class ProfileController {
     public ModelAndView getEvents(
             @ModelAttribute("user") User user,
             @PageParamCustomizer(defaultSize = 6, pageParamName = "attendingPage") PageParams attendingPage,
-            @PageParamCustomizer(defaultSize = 6) PageParams pageParam) {
+            @PageParamCustomizer(defaultSize = 6) PageParams pageParam,
+            @PageParamCustomizer(defaultSize = 6, pageParamName = "finishedPage") PageParams finishedPage) {
 
         ModelAndView mav = new ModelAndView(PROFILE);
         mav.addObject("events", eventService.findEvents(user.getEmail(), pageParam));
-        mav.addObject("userAttendingEvents", eventService.findEventsByAttendee(user.getId(), attendingPage));
+        mav.addObject("userAttendingEvents", eventService.findUpcomingEventsByAttendee(user.getId(), attendingPage));
+        mav.addObject("finishedEvents", eventService.findFinishedEventsByAttendee(user.getId(), finishedPage));
         mav.addObject("currentPageUserEvents", pageParam.getPage());
         mav.addObject("currentPageUserAttending", attendingPage.getPage());
+        mav.addObject("currentPageUserFinished", finishedPage.getPage());
         addUserJourneyToMav(user, mav);
         return mav;
     }

@@ -90,19 +90,19 @@ public class InterestHibernateDao implements InterestDao {
         final String sql = """
                 SELECT i
                 FROM Interest i
-                WHERE LOWER(i.name) LIKE :pattern
+                WHERE LOWER(i.name) LIKE LOWER( :pattern )
                 """;
 
         final String countSql = """
                 SELECT COUNT(i)
                 FROM Category i
-                WHERE LOWER(i.name) LIKE :pattern
+                WHERE LOWER(i.name) LIKE LOWER( :pattern )
                 """;
 
         final String idSql = """
                 SELECT i.id
                 FROM category i
-                WHERE LOWER(i.name) LIKE :pattern
+                WHERE LOWER(i.name) LIKE LOWER( :pattern )
                 """;
 
         final String jpqlFetch = """

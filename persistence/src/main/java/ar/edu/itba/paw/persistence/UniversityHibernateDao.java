@@ -74,12 +74,12 @@ public class UniversityHibernateDao implements UniversityDao {
         final String countSql = """
                 SELECT COUNT(*) 
                 FROM universities u
-                WHERE (LOWER(u.name) like :pattern  OR LOWER (u.abbreviation) like :pattern ) and u.deleted = false
+                WHERE (LOWER(u.name) like LOWER( :pattern )  OR LOWER (u.abbreviation) like LOWER( :pattern ) ) and u.deleted = false
                 """;
         final String idSql = """
                 SELECT u.id
                 FROM universities u
-                WHERE (LOWER(u.name) like :pattern  OR LOWER (u.abbreviation) like :pattern ) and u.deleted = false
+                WHERE (LOWER(u.name) like LOWER( :pattern )  OR LOWER (u.abbreviation) like LOWER( :pattern ) ) and u.deleted = false
                 """;
         final String jpqlFetch = """
                 FROM University u
