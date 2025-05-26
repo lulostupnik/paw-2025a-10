@@ -41,6 +41,8 @@ public interface EventService {
     int countEventAttendees(long eventId);
 
     Page<Event> findEventsByAttendee(long userId, PageParams pageParams);
+    Page<Event> findUpcomingEventsByAttendee(long userId,PageParams pageParams);
+    Page<Event> findFinishedEventsByAttendee(long userId, PageParams pageParams);
     List<Event> findRecommendedEvents(long userId, int limit);
     List<Event> findTopEvents(int limit);
     boolean isEventOwnedByUser(String email, long eventID);

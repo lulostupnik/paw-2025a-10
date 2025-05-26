@@ -263,6 +263,16 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public Page<Event> findUpcomingEventsByAttendee(long userId, PageParams pageParams) {
+        return eventDao.findUpcomingEventsByAttendee(userId, pageParams);
+    }
+
+    @Override
+    public Page<Event> findFinishedEventsByAttendee(long userId, PageParams pageParams) {
+        return eventDao.findFinishedEventsByAttendee(userId, pageParams);
+    }
+
+    @Override
     public List<Event> findRecommendedEvents(final long userId, final  int limit) {
         LOGGER.debug("Getting recommended events for user {} with limit {}", userId, limit);
         if (limit <= 0) {

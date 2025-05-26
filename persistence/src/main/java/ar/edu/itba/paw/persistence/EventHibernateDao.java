@@ -87,9 +87,9 @@ public class EventHibernateDao implements EventDao {
         JOIN cities c ON e.city_id = c.id
         JOIN users us ON e.user_id = us.id
         WHERE e.deleted = FALSE AND (
-            LOWER(e.title) LIKE :pattern
-            OR LOWER(c.name) LIKE :pattern
-            OR LOWER(us.username) LIKE :pattern
+            LOWER(e.title) LIKE LOWER( :pattern )
+            OR LOWER(c.name) LIKE LOWER( :pattern )
+            OR LOWER(us.username) LIKE LOWER( :pattern )
         )
     """;
 
@@ -99,9 +99,9 @@ public class EventHibernateDao implements EventDao {
         JOIN cities c ON e.city_id = c.id
         JOIN users us ON e.user_id = us.id
         WHERE e.deleted = FALSE AND (
-            LOWER(e.title) LIKE :pattern
-            OR LOWER(c.name) LIKE :pattern
-            OR LOWER(us.username) LIKE :pattern
+            LOWER(e.title) LIKE LOWER( :pattern )
+            OR LOWER(c.name) LIKE LOWER( :pattern )
+            OR LOWER(us.username) LIKE LOWER( :pattern )
         )
         ORDER BY e.event_date DESC
     """;
@@ -299,6 +299,42 @@ public class EventHibernateDao implements EventDao {
                 Event.class,
                 pageParams,
                 Map.of()
+        );
+    }
+
+    @Override
+    public Page<Event> findUpcomingEventsByAttendee(long userId, PageParams pageParams) {
+        return findAllWithFilters(
+                userId,
+                null, // searchTerm
+                null, // sortBy
+                SortDirection.DESC, // direction
+                null, // destination
+                null, // startDate
+                null, // endDate
+                null, // interest
+                false, // isPast
+                true, // isUpcoming
+                true, // attending
+                pageParams
+        );
+    }
+
+    @Override
+    public Page<Event> findFinishedEventsByAttendee(long userId, PageParams pageParams) {
+        return  findAllWithFilters(
+                userId,
+                null, // searchTerm
+                null, // sortBy
+                SortDirection.DESC, // direction
+                null, // destination
+                null, // startDate
+                null, // endDate
+                null, // interest
+                true, // isPast
+                false, // isUpcoming
+                true, // attending
+                pageParams
         );
     }
 

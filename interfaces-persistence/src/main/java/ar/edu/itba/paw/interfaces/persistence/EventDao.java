@@ -25,6 +25,8 @@ public interface EventDao {
     Optional<CountryAttendeeCount> findTopAttendeeCountry(long eventId);
 
     Page<Event> findAllEventsByAttendee(long userId, PageParams pageParams);
+    Page<Event> findUpcomingEventsByAttendee(long userId, PageParams pageParams);
+    Page<Event> findFinishedEventsByAttendee(long userId, PageParams pageParams);
 
     int countEventsCreatedByUser(long userId);
 
