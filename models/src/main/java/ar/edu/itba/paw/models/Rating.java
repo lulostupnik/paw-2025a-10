@@ -3,7 +3,7 @@ package ar.edu.itba.paw.models;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "ratings", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "event_id"}))
+@Table(name = "ratings", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "event_id"}, name = "unique_user_event_rating"))
 public class Rating {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ratings_id_seq")
