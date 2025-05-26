@@ -33,8 +33,16 @@ public class Report {
     private Journey journey;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "journey_response_id")
+    private JourneyResponse journeyResponse;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
     private Event event;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_response_id")
+    private EventResponse eventResponse;
 
     @Column(name = "description", length = 1000, nullable = false)
     private String description;
@@ -82,6 +90,22 @@ public class Report {
     public Report(User reportedUser, User reportingUser, Event event, String description, String reason) {
         this(reportedUser, reportingUser, description, reason);
         this.event = event;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+
+    }
+
+    public Report(User reportedUser, User reportingUser, EventResponse eventResponse, String description, String reason) {
+        this(reportedUser, reportingUser, description, reason);
+        this.eventResponse = eventResponse;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+
+    }
+
+    public Report(User reportedUser, User reportingUser, JourneyResponse journeyResponse, String description, String reason) {
+        this(reportedUser, reportingUser, description, reason);
+        this.journeyResponse = journeyResponse;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
 
