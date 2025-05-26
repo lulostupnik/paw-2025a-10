@@ -43,6 +43,7 @@
 <div class="layout-container">
 
     <div class="main-content">
+        <jsp:include page="../components/navbar.jsp" />
         <div class="content-container">
 
             <div class="back-button-container">

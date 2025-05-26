@@ -79,7 +79,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/events/create", "/journeys/create").access("isAuthenticated() and !@accessHelper.isUserBlocked()")
                 .antMatchers(HttpMethod.GET,"/events", "/", "/events/{id}", "/journeys", "/journeys/{id}", "/images/{id}","/universities","/universities/{id}", "/blocked").permitAll()
                 .antMatchers(HttpMethod.POST, "users/{id}/block", "users/{id}/unblock").access("hasRole('ADMIN') and !@accessHelper.isUserBlocked()")
-                .antMatchers("/dashboard/**","interests/**", "careers/**", "/universities/**","cities/**", "users/**").access("hasRole('ADMIN') and !@accessHelper.isUserBlocked()")
+                .antMatchers("/dashboard/**","interests/**", "careers/**", "/universities/**","cities/**", "users/**", "reports/**").access("hasRole('ADMIN') and !@accessHelper.isUserBlocked()")
                 .antMatchers("/journeys/{id}/update").access("@accessHelper.isUserJourneyOwner(#id) and !@accessHelper.isUserBlocked()")
                 .antMatchers("/events/{id}/update").access("@accessHelper.isUserEventOwner(#id) and !@accessHelper.isUserBlocked()")
                 .antMatchers("/journeys/{id}/delete").access("(@accessHelper.isUserJourneyOwner(#id) or hasRole('ADMIN')) and !@accessHelper.isUserBlocked()")
