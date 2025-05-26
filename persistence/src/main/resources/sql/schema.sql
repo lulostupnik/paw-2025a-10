@@ -336,7 +336,8 @@ ALTER TABLE events
 BEGIN;
 
 ALTER TABLE users
-DROP CONSTRAINT users_roles_check;
+    DROP CONSTRAINT IF EXISTS users_roles_check;
+
 UPDATE users SET roles = 'USER' WHERE roles = 'user';
 UPDATE users SET roles = 'ADMIN' WHERE roles = 'admin';
 
