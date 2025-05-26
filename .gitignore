@@ -63,3 +63,4 @@ Thumbs.db
 #Database backups
 *.pg_dump
 /services/src/main/resources/email.properties
+/webapp/src/main/resources/logback.xml
