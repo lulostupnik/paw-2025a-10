@@ -30,7 +30,7 @@
         <h2 class="page-title"><spring:message code="profile.page.title"/></h2>
       </div>
 
-      <c:if test="${not empty user}">
+      <c:if test="${not empty profileUser}">
 
         <jsp:include page="./profile-header.jsp" />
 
@@ -42,18 +42,32 @@
 
             <c:set var="currentPath" value="${requestScope['javax.servlet.forward.servlet_path']}" />
 
+<%--            <c:choose>--%>
+<%--              <c:when test="${currentPath eq '/profile/interests'}">--%>
+<%--                <jsp:include page="./interests-tab.jsp" />--%>
+<%--              </c:when>--%>
+<%--              <c:when test="${currentPath eq '/profile/events'}">--%>
+<%--                <jsp:include page="./events-tab.jsp" />--%>
+<%--              </c:when>--%>
+<%--              <c:otherwise>--%>
+
+<%--                <jsp:include page="./info-tab.jsp" />--%>
+<%--              </c:otherwise>--%>
+<%--            </c:choose>--%>
+
             <c:choose>
-              <c:when test="${currentPath eq '/profile/interests'}">
+              <c:when test="${isInterestsTab}">
                 <jsp:include page="./interests-tab.jsp" />
               </c:when>
-              <c:when test="${currentPath eq '/profile/events'}">
+              <c:when test="${isEventTab}">
                 <jsp:include page="./events-tab.jsp" />
               </c:when>
-              <c:otherwise>
-
+              <c:when test="${isInfoTab}">
                 <jsp:include page="./info-tab.jsp" />
-              </c:otherwise>
+              </c:when>
+              <c:otherwise/>
             </c:choose>
+
           </div>
       </c:if>
     </div>

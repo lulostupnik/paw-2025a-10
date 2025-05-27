@@ -35,12 +35,17 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
+
           <p class="empty-message">
             <spring:message code="profile.no.created.events"/>
           </p>
-          <a href="<c:url value='/events/create'/>" class="empty-action-btn">
-            <spring:message code="event.create.button"/>
-          </a>
+          <c:if test="${isMine}">
+            <a href="<c:url value='/events/create'/>" class="empty-action-btn">
+              <spring:message code="event.create.button"/>
+            </a>
+          </c:if>
+
+
         </div>
       </c:if>
 
@@ -68,7 +73,7 @@
       <jsp:param name="pageObjectTotalPages" value="${events.totalPages}" />
       <jsp:param name="currentPage" value="${currentPageUserEvents}" />
       <jsp:param name="pageSize" value="${pageSize}" />
-      <jsp:param name="baseUrl" value="/profile/events?attendingPage=${currentPageUserAttending}&size=${pageSize}&finishedPage=${currentPageFinished}" />
+      <jsp:param name="baseUrl" value="/profile/${profileUser.id}/events?attendingPage=${currentPageUserAttending}&size=${pageSize}&finishedPage=${currentPageFinished}" />
     </jsp:include>
   </div>
 
@@ -113,7 +118,7 @@
       <jsp:param name="pageObjectTotalPages" value="${userAttendingEvents.totalPages}" />
       <jsp:param name="currentPage" value="${currentPageUserAttending}" />
       <jsp:param name="pageSize" value="${pageSize}" />
-      <jsp:param name="baseUrl" value="/profile/events?page=${currentPageUserEvents}&size=${pageSize}&eventsTab=attending&finishedPage=${currentPageFinished}" />
+      <jsp:param name="baseUrl" value="/profile/${profileUser.id}/events?page=${currentPageUserEvents}&size=${pageSize}&eventsTab=attending&finishedPage=${currentPageFinished}" />
       <jsp:param name="paramName" value="attendingPage" />
     </jsp:include>
   </div>
@@ -158,7 +163,7 @@
       <jsp:param name="pageObjectTotalPages" value="${finishedEvents.totalPages}" />
       <jsp:param name="currentPage" value="${currentPageFinished}" />
       <jsp:param name="pageSize" value="${pageSize}" />
-      <jsp:param name="baseUrl" value="/profile/events?page=${currentPageUserEvents}&size=${pageSize}&attendingPage=${currentPageUserAttending}&eventsTab=finished" />
+      <jsp:param name="baseUrl" value="/profile/${profileUser.id}/events?page=${currentPageUserEvents}&size=${pageSize}&attendingPage=${currentPageUserAttending}&eventsTab=finished" />
       <jsp:param name="paramName" value="finishedPage" />
     </jsp:include>
 

@@ -5,6 +5,7 @@ import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.form.UpdatePasswordForm;
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
 import org.slf4j.Logger;
@@ -42,43 +43,57 @@ public class ProfileController {
         maybeJourney.map(journey -> mav.addObject("userJourney", journey)).orElseGet(() -> mav.addObject("userJourney", null));
     }
 
-    @GetMapping(value = "/info")
+    @GetMapping(value = "{id}/info")
     public ModelAndView getInfo(
+            @PathVariable long id,
             @ModelAttribute("user") User user
     ) {
+        User profileUser = userService.findUserById(id).orElseThrow(() -> new UserNotFoundException(id));
         ModelAndView mav = new ModelAndView(PROFILE);
-        addUserJourneyToMav(user, mav);
+        addUserJourneyToMav(profileUser, mav);
+        mav.addObject("isInfoTab", true);
+        mav.addObject("isMine", user.getId().equals(id));
+        mav.addObject("profileUser", profileUser);
         return mav;
     }
 
 
-    @GetMapping(value = "/interests")
+    @GetMapping(value = "{id}/interests")
     public ModelAndView getInterests(
+            @PathVariable long id,
             @ModelAttribute("user") User user,
             @PageParamCustomizer(defaultSize = 4) PageParams pageParams) {
-
+        User profileUser = userService.findUserById(id).orElseThrow(() -> new UserNotFoundException(id));
         ModelAndView mav = new ModelAndView(PROFILE);
-        addUserJourneyToMav(user, mav);
-        mav.addObject("interests",interestService.findInterestsByUser(user, pageParams));
+        addUserJourneyToMav(profileUser, mav);
+        mav.addObject("isMine", user.getId().equals(id));
+        mav.addObject("isInterestsTab", true);
+        mav.addObject("interests",interestService.findInterestsByUser(profileUser, pageParams));
+        mav.addObject("profileUser", profileUser);
         return mav;
     }
 
 
-    @GetMapping(value = "/events")
+    @GetMapping(value = "{id}/events")
     public ModelAndView getEvents(
+            @PathVariable long id,
             @ModelAttribute("user") User user,
             @PageParamCustomizer(defaultSize = 6, pageParamName = "attendingPage") PageParams attendingPage,
             @PageParamCustomizer(defaultSize = 6) PageParams pageParam,
             @PageParamCustomizer(defaultSize = 6, pageParamName = "finishedPage") PageParams finishedPage) {
+        User profileUser = userService.findUserById(id).orElseThrow(() -> new UserNotFoundException(id));
 
         ModelAndView mav = new ModelAndView(PROFILE);
-        mav.addObject("events", eventService.findEvents(user.getEmail(), pageParam));
-        mav.addObject("userAttendingEvents", eventService.findUpcomingEventsByAttendee(user.getId(), attendingPage));
-        mav.addObject("finishedEvents", eventService.findFinishedEventsByAttendee(user.getId(), finishedPage));
+        mav.addObject("events", eventService.findEvents(profileUser.getEmail(), pageParam));
+        mav.addObject("isMine", user.getId().equals(id));
+        mav.addObject("isEventTab", true);
+        mav.addObject("userAttendingEvents", eventService.findUpcomingEventsByAttendee(profileUser.getId(), attendingPage));
+        mav.addObject("finishedEvents", eventService.findFinishedEventsByAttendee(profileUser.getId(), finishedPage));
         mav.addObject("currentPageUserEvents", pageParam.getPage());
         mav.addObject("currentPageUserAttending", attendingPage.getPage());
         mav.addObject("currentPageUserFinished", finishedPage.getPage());
         addUserJourneyToMav(user, mav);
+        mav.addObject("profileUser", profileUser);
         return mav;
     }
 

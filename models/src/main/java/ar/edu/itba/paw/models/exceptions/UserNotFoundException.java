@@ -4,7 +4,8 @@ public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException(String message) {
         super(message);
     }
-    public UserNotFoundException(){
-        super("Journey not found");
+    public UserNotFoundException(long id) {
+        super(String.format("User with id %d not found", id));
     }
+
 }
