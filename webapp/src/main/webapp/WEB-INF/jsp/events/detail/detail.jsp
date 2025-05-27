@@ -275,12 +275,14 @@
                             </svg>
                             <span><spring:message code="event.chat" text="Chat" /></span>
                         </button>
-                        <button id="rating-tab" class="tab-btn" data-tab="rating">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 17l-5.5 3.5L8 14l-4-3h5L12 4l3 7h5l-4 3 1.5 6.5z"></path>
-                            </svg>
-                            <span><spring:message code="event.rating" text="Rating" /></span>
-                        </button>
+                        <c:if test="${not event.isFuture}">
+                            <button id="rating-tab" class="tab-btn" data-tab="rating">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 17l-5.5 3.5L8 14l-4-3h5L12 4l3 7h5l-4 3 1.5 6.5z"></path>
+                                </svg>
+                                <span><spring:message code="event.rating" text="Rating" /></span>
+                            </button>
+                        </c:if>
                     </div>
 
                     <div class="tabs-content">
@@ -298,12 +300,14 @@
                                 <jsp:param name="showToggle" value="true" />
                             </jsp:include>
                         </div>
+                        <c:if test="${not event.isFuture}">
+                            <div id="rating-content" class="tab-content">
+                                <jsp:include page="rating-section.jsp">
+                                    <jsp:param name="showToggle" value="true" />
+                                </jsp:include>
+                            </div>
+                        </c:if>
 
-                        <div id="rating-content" class="tab-content">
-                            <jsp:include page="rating-section.jsp">
-                                <jsp:param name="showToggle" value="false" />
-                            </jsp:include>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -386,9 +390,24 @@
             // Check if there's an active tab stored in session storage
             const activeTab = sessionStorage.getItem('activeTab') || 'details';
 
-            // Set the active tab
-            document.getElementById(activeTab + '-tab').classList.add('active');
-            document.getElementById(activeTab + '-content').style.display = 'block';
+// Solo activar si el tab existe
+            const activeTabBtn = document.getElementById(activeTab + '-tab');
+            const activeTabContent = document.getElementById(activeTab + '-content');
+
+            if (activeTabBtn && activeTabContent) {
+                activeTabBtn.classList.add('active');
+                activeTabContent.style.display = 'block';
+            } else {
+                // Fallback si el tab guardado no existe (ej: era rating y ahora no se muestra)
+                const defaultBtn = document.getElementById('details-tab');
+                const defaultContent = document.getElementById('details-content');
+
+                if (defaultBtn && defaultContent) {
+                    defaultBtn.classList.add('active');
+                    defaultContent.style.display = 'block';
+                    sessionStorage.setItem('activeTab', 'details');
+                }
+            }
 
             // Add event listeners to tab buttons
             document.querySelectorAll('.tab-btn').forEach(function(btn) {

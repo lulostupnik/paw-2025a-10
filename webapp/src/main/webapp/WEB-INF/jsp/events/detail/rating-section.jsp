@@ -94,7 +94,7 @@
 
 
     <!-- User Rating Form (only for authenticated users who attended the event) -->
-    <c:if test="${not empty user and attend and userRating.isEmpty()}">
+    <c:if test="${not empty user and attend and empty userRating}">
       <c:if test="${ ! event.isFuture}">
         <div class="user-rating-form">
           <h3 class="rating-form-title">
@@ -110,12 +110,12 @@
               <label class="rating-label">
                 <spring:message code="event.rating.yourRating" />
               </label>
-              <div class="star-rating-input" data-rating="${userRating.isPresent() ? userRating.get() : 0}">
+              <div class="star-rating-input" data-rating="${not empty userRating ? userRating.get() : 0}">
                 <c:forEach var="i" begin="1" end="5">
                   <div class="star-input-group">
                     <!-- Full star -->
                     <input type="radio" name="rating" value="${i}" id="star-${i}"
-                      ${userRating.isPresent() && userRating.get() == i ? 'checked' : ''} />
+                      ${not empty userRating && userRating.get() == i ? 'checked' : ''} />
                     <label for="star-${i}" class="star-label full-star" data-value="${i}">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
@@ -125,7 +125,7 @@
                     <!-- Half star (except for the first star) -->
                     <c:if test="${i > 1}">
                       <input type="radio" name="rating" value="${i - 0.5}" id="star-${i - 0.5}"
-                        ${userRating.isPresent() && userRating.get() == (i - 0.5) ? 'checked' : ''} />
+                        ${not empty userRating && userRating.get() == (i - 0.5) ? 'checked' : ''} />
                       <label for="star-${i - 0.5}" class="star-label half-star" data-value="${i - 0.5}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <defs>
@@ -144,7 +144,7 @@
               <div class="rating-value-display">
                                 <span id="current-rating-value">
                                     <c:choose>
-                                      <c:when test="${ userRating.isPresent()}">
+                                      <c:when test="${ not empty userRating}">
                                         <c:out value="${userRating.get()}" />
                                       </c:when>
                                       <c:otherwise>0</c:otherwise>

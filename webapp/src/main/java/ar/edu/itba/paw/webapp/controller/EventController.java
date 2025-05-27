@@ -123,7 +123,9 @@ public class EventController {
         mav.addObject("isEventOwner", eventWithStatistics.isCreator());
         mav.addObject("isFull", event.getFull());
         mav.addObject("averageRating", eventService.findRatingsAverageByEvent(event.getId()));
-      //  mav.addObject("userRating", eventService.findRatingByUserAndEvent(user.getId(), event.getId()));
+        if (user != null) {
+            mav.addObject("userRating", eventService.findRatingByUserAndEvent(user.getId(), event.getId()));
+        }
         mav.addObject("ratingCount", eventService.countRatingsByEvent(event.getId()));
 
 
