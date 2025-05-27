@@ -3,6 +3,8 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <div class="profile-section active" id="events-section">
+  <c:if test="${isMine}">
+
   <div class="section-actions">
     <a href="<c:url value='/events/create'/>" class="btn-primary">
       <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -12,6 +14,8 @@
       <spring:message code="event.create.button"/>
     </a>
   </div>
+  </c:if>
+
 
   <div class="events-filter-tabs">
     <button class="events-tab active" data-events-tab="created">

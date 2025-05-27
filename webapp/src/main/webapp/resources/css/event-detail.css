@@ -1162,3 +1162,17 @@ form[action*="/attend-detail"] {
         margin-left: 0.5rem;
     }
 }
+
+.profile-card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+.profile-card-link .profile-card {
+    cursor: pointer;
+    transition: box-shadow 0.3s;
+}
+.profile-card-link .profile-card:hover {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+

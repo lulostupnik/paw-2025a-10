@@ -8,6 +8,7 @@
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale}">
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><spring:message code="journey.detail.title"/></title>
@@ -111,17 +112,10 @@
                 </div>
 
                 <div class="journey-detail-header">
+
+
+
                     <div class="journey-user-info">
-                        <div class="user-avatar">
-                            <c:if test="${not empty journey.user.profilePictureId}">
-                                <img src="<c:url value='/images/${journey.user.profilePictureId}'/>" alt="Profile" class="avatar-img">
-                            </c:if>
-                            <c:if test="${empty journey.user.profilePictureId}">
-                                <div class="avatar-placeholder">
-                                    <c:out value="${fn:substring(journey.user.firstname, 0, 1)}${fn:substring(journey.user.lastname, 0, 1)}" />
-                                </div>
-                            </c:if>
-                        </div>
                         <div class="user-details">
                             <c:set var="escapedFirstname"><c:out value="${journey.user.firstname}"/></c:set>
                             <c:set var="escapedLastname"><c:out value="${journey.user.lastname}"/></c:set>
@@ -157,15 +151,20 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                    <c:set var="creatorUser" value="${journey.user}" scope="request" />
+                    <c:set var="creatorShowName" value="false" scope="request" />
+                    <c:set var="isJourneyCreator" value="true" scope="request" />
 
-                <section class="content-section">
+
+                    <jsp:include page="/WEB-INF/jsp/components/creator.jsp" />
+
                     <div class="section-content">
                         <div class="journey-description-card">
                             <p class="journey-description-text"><c:out value="${journey.description}" /></p>
                         </div>
                     </div>
-                </section>
+
+                </div>
 
                 <section class="content-section">
                     <div class="section-header">

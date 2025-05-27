@@ -42,18 +42,7 @@
 
             <c:set var="currentPath" value="${requestScope['javax.servlet.forward.servlet_path']}" />
 
-<%--            <c:choose>--%>
-<%--              <c:when test="${currentPath eq '/profile/interests'}">--%>
-<%--                <jsp:include page="./interests-tab.jsp" />--%>
-<%--              </c:when>--%>
-<%--              <c:when test="${currentPath eq '/profile/events'}">--%>
-<%--                <jsp:include page="./events-tab.jsp" />--%>
-<%--              </c:when>--%>
-<%--              <c:otherwise>--%>
 
-<%--                <jsp:include page="./info-tab.jsp" />--%>
-<%--              </c:otherwise>--%>
-<%--            </c:choose>--%>
 
             <c:choose>
               <c:when test="${isInterestsTab}">
