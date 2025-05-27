@@ -150,6 +150,8 @@ CREATE TABLE IF NOT EXISTS reports (
                          reporting_user_id BIGINT NOT NULL,
                          journey_id BIGINT,
                          event_id BIGINT,
+                         event_response_id BIGINT,
+                         journey_response_id BIGINT,
                          description VARCHAR(1000) NOT NULL,
                          reason VARCHAR(255) NOT NULL,
                          deleted BOOLEAN NOT NULL DEFAULT FALSE,
@@ -160,6 +162,8 @@ CREATE TABLE IF NOT EXISTS reports (
                          FOREIGN KEY (reporting_user_id) REFERENCES users(id) ON DELETE CASCADE,
                          FOREIGN KEY (journey_id) REFERENCES journeys(id) ON DELETE CASCADE,
                          FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
+                         FOREIGN KEY (event_response_id) REFERENCES event_responses(id) ON DELETE CASCADE,
+                         FOREIGN KEY (journey_response_id) REFERENCES journey_responses(id) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS ratings (
                                        id BIGSERIAL PRIMARY KEY,
