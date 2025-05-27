@@ -6,11 +6,13 @@ import ar.edu.itba.paw.models.enums.ReportStatus;
 import java.util.Optional;
 
 public interface ReportService {
-    Report createReport(User reportedUser, User reportingUser, String description, String reason);
+    Report createReportForJourney(User reportingUser,long journeyId, String description, String reason);
 
-    Report createReport(User reportedUser, User reportingUser, Journey journey, String description, String reason);
+    Report createReportForEvent(User reportingUser,long eventId, String description, String reason);
 
-    Report createReport(User reportedUser, User reportingUser, Event event, String description, String reason);
+    Report createReportForEventResponse(User reportingUser,long responseId, String description, String reason);
+
+    Report createReportForJourneyResponse(User reportingUser,long responseId, String description, String reason);
 
     Optional<Report> findById(Long id);
 
@@ -28,5 +30,5 @@ public interface ReportService {
 
     Page<Report> findAll(String search, PageParams params);
 
-    void updateReportStatus(Report report, ReportStatus status);
+    Report updateReportStatus(long reportId, ReportStatus status);
 }

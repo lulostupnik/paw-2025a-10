@@ -163,20 +163,38 @@ public class ReportHibernateDao implements ReportDao {
     @Override
     public Page<Report> findAll(String search, PageParams params) {
         final String pattern = HibernateDaoUtils.likePattern(search);
+
         final String countSql = """
-                SELECT COUNT(*)
-                FROM reports r
-                WHERE r.deleted = false AND (r.reason LIKE LOWER( :pattern ) OR r.description LIKE LOWER( :pattern ))
-                """;
+        SELECT COUNT(*)
+        FROM reports r
+        JOIN users u1 ON r.reported_user_id = u1.id
+        JOIN users u2 ON r.reporting_user_id = u2.id
+        WHERE r.deleted = false AND (
+            LOWER(r.reason) LIKE :pattern OR
+            LOWER(r.description) LIKE :pattern OR
+            LOWER(u1.username) LIKE :pattern OR
+            LOWER(u2.username) LIKE :pattern
+        )
+    """;
+
         final String idSql = """
-                SELECT r.id
-                FROM reports r
-                WHERE r.deleted = false AND (r.reason LIKE LOWER( :pattern ) OR r.description LIKE LOWER( :pattern ))
-                """;
+        SELECT r.id
+        FROM reports r
+        JOIN users u1 ON r.reported_user_id = u1.id
+        JOIN users u2 ON r.reporting_user_id = u2.id
+        WHERE r.deleted = false AND (
+            LOWER(r.reason) LIKE :pattern OR
+            LOWER(r.description) LIKE :pattern OR
+            LOWER(u1.username) LIKE :pattern OR
+            LOWER(u2.username) LIKE :pattern
+        )
+    """;
+
         final String jpqlFetch = """
-                FROM Report r
-                WHERE r.id IN :ids
-                """;
+        FROM Report r
+        WHERE r.id IN :ids
+    """;
+
         return fetchPageByIds(
                 em,
                 countSql,
@@ -188,5 +206,6 @@ public class ReportHibernateDao implements ReportDao {
                 Map.of()
         );
     }
+
 
 }

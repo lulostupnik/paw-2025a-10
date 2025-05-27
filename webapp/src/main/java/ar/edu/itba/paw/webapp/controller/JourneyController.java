@@ -29,12 +29,14 @@ public class JourneyController {
 
     private final JourneyService js;
     private final InterestService interestService;
+    private final EventService eventService;
     private static final String REDIRECT_JOURNEY = "redirect:/journeys/";
 
     @Autowired
-    public JourneyController(final JourneyService js, InterestService interestService) {
+    public JourneyController(final JourneyService js, InterestService interestService, EventService eventService) {
         this.js = js;
         this.interestService = interestService;
+        this.eventService = eventService;
     }
 
 
@@ -87,22 +89,26 @@ public class JourneyController {
                                    @ModelAttribute("user") User user,
                                    @ModelAttribute("replyJourneyForm") ReplyForm rjf,
                                    @PageParamCustomizer(defaultSize = 4) PageParams  repliesPage,
-                                   @PageParamCustomizer(defaultSize = 8, pageParamName = "interestsPage", sizeParamName = "interestsSize") PageParams interestsPage) {
+                                   @PageParamCustomizer(defaultSize = 8, pageParamName = "interestsPage", sizeParamName = "interestsSize") PageParams interestsPage,
+                                   @PageParamCustomizer(defaultSize = 6, pageParamName = "eventsPage", sizeParamName = "eventsSize") PageParams eventsPage) {
         Journey journey = js.getJourneyById(id).orElseThrow(() -> {
             LOGGER.error("Journey with ID {} not found", id);
             return new JourneyNotFoundException("Journey with ID " + id + " not found");
         });
         Page<JourneyResponse> journeyResponses = js.findJourneyResponses(journey.getId(), repliesPage);
+        Page<Event> journeyEvents = eventService.findJourneyEvents(journey, eventsPage);
+
         final ModelAndView mav = new ModelAndView("journeys/detail");
         mav.addObject("journey", journey);
         mav.addObject("journeyResponsesPage", journeyResponses);
         mav.addObject("commentsCount", js.countJourneyResponses(journey.getId()));
-        // todo: no estoy seguro, pero creo que en la siguiente linea debería cambiar a un método en el servicio)
-
         mav.addObject("isOwner", user != null && js.isJourneyOwnedByUser(journey, user));
         mav.addObject("interestPage", interestService.findInterestsByUser(journey.getUser(), interestsPage));
+        mav.addObject("eventsPage", journeyEvents);
+        mav.addObject("eventsPageSize", eventsPage.getSize());
         return mav;
     }
+
     @GetMapping(value = "/{id}/delete")
     public ModelAndView deleteJourneyForm(@PathVariable long id,
                                           @ModelAttribute("deleteForm") final DeleteJourneyForm form,
@@ -133,7 +139,7 @@ public class JourneyController {
     public ModelAndView replyToJourney(@PathVariable int id, @Valid @ModelAttribute("replyJourneyForm")  ReplyForm rjf,
                                         BindingResult errors, @ModelAttribute("user") User user) {
         if (errors.hasErrors()) {
-            return getJourney(id, user, rjf, new PageParams(1, 4), new PageParams(1, 8));
+            return getJourney(id, user, rjf, new PageParams(1, 4), new PageParams(1, 8), new PageParams(1, 6));
         }
         js.createJourneyResponse(user.getEmail(), id, rjf.getMessage());
         return new ModelAndView(REDIRECT_JOURNEY + id);
