@@ -17,6 +17,7 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class ReportServiceImpl implements ReportService {
     private final ReportDao reportDao;
+    //Hay que cambiarlos a servicios pero nada por ahoar asi
     private final JourneyDao journeyDao;
     private final EventDao eventDao;
     private final EventResponseDao eventResponseDao;
