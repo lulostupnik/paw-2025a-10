@@ -9,7 +9,7 @@
 <c:set var="showName" value="${creatorShowName}" />
 
 
-<a onclick="saveProfileLink()" href="<c:url value='/profile/${user.id}/info' />" class="profile-card-link">
+<a onclick="saveLink()" href="<c:url value='/profile/${user.id}/info' />" class="profile-card-link">
     <div class="event-creator ">
         <h3 class="creator-title">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -71,9 +71,9 @@
         </div>
     </div>
 </a>
+<script src="<c:url value="/resources/js/components/navigation-stack.js"/>"></script>
 <script>
-    function saveProfileLink() {
-        // Save the profile link to local storage
-        sessionStorage.setItem("profileLink", window.location.href);
+    function saveLink() {
+        pushToNavigationStack(window.location.href);
     }
 </script>

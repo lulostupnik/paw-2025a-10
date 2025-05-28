@@ -3,9 +3,10 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <link rel="stylesheet" href="<c:url value='/resources/css/dashboard.css'/>" />
 
+<script src="<c:url value="/resources/js/components/navigation-stack.js"/>"></script>
 <script>
   function saveLink() {
-    sessionStorage.setItem("rutaAnterior", window.location.href);
+    pushToNavigationStack(window.location.href);
   }
 </script>
 <div class="tab-content active" id="reports-tab">

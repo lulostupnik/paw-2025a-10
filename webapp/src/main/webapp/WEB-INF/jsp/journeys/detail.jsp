@@ -480,6 +480,7 @@
 
 <!-- Include Report Modal -->
 <jsp:include page="/WEB-INF/jsp/components/report-modal.jsp" />
+<script src="<c:url value="/resources/js/components/navigation-stack.js"/>"></script>
 
 <script>
     function toggleDropdown(dropdownId) {
@@ -529,14 +530,15 @@ function toggleEvents() {
     }
 }
 
-function goBack(){
-    const rutaAnterior = sessionStorage.getItem("rutaAnterior");
-    if (rutaAnterior) {
-        window.location.href = rutaAnterior;
-    } else {
-        window.location.href = "<c:url value='/journeys' />"
+
+    function goBack(){
+        const rutaAnterior = popFromNavigationStack()
+        if (rutaAnterior) {
+            window.location.href = rutaAnterior;
+        } else {
+            window.location.href = "<c:url value='/events'/>"
+        }
     }
-}
 
     function toggleActionMenu() {
         const dropdown = document.getElementById('actionDropdown');

@@ -95,8 +95,9 @@
 
   </div>
 </div>
+<script src="<c:url value="/resources/js/components/navigation-stack.js"/>"></script>
 <script>
   function saveLink() {
-    sessionStorage.setItem("rutaAnterior", window.location.href);
+    pushToNavigationStack(window.location.href);
   }
 </script>
