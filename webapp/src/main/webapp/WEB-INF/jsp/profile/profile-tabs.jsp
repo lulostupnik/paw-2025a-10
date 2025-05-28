@@ -1,9 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<script src="<c:url value="/resources/js/components/navigation-stack.js"/>"></script>
 <script>
   function saveLink() {
-    sessionStorage.setItem("rutaAnterior", window.location.href);
+    pushToNavigationStack(window.location.href);
   }
 </script>
 <div class="profile-tabs-container">
