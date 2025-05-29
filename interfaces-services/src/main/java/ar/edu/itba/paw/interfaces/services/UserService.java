@@ -22,4 +22,7 @@ public interface UserService {
     void blockUser(long userId);
     void unblockUser(long userId);
     void checkTokenValidity(String token);
+
+    Optional<Double> findAverageRatingForCreatedEvents(long userId);
+    Optional<Double> findAverageRatingForAttendedEvents(long userId);
 }

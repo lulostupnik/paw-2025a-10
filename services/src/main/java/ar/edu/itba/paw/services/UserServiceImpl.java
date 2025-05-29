@@ -185,6 +185,16 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Override
+    public Optional<Double> findAverageRatingForCreatedEvents(long userId) {
+        return userDao.findAverageRatingForCreatedEvents(userId);
+    }
+
+    @Override
+    public Optional<Double> findAverageRatingForAttendedEvents(long userId) {
+        return userDao.findAverageRatingForAttendedEvents(userId);
+    }
+
 
     @Override
     public Page<User> findEventAttendees(final long eventId, PageParams pageParams) {
