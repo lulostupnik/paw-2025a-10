@@ -127,12 +127,6 @@
     <location>/errors/general</location>
   </error-page>
 
-
-  <error-page>
-    <exception-type>java.lang.Throwable</exception-type>
-    <location>/errors/500</location>
-  </error-page>
-
   <error-page>
     <exception-type>java.lang.Exception</exception-type>
     <location>/errors/500</location>
