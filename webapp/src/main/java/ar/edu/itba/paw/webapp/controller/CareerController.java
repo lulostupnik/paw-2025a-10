@@ -62,7 +62,7 @@ public class CareerController {
     @GetMapping(value= "/{id}")
     public ModelAndView getCareers(@PathVariable(value = "id") final long id) {
         Career career = careerService.findCareerById(id).orElseThrow(() -> {
-            LOGGER.error("Career not found");
+            LOGGER.error("Career not found for id: {}", id);
             return new NotFoundException("Career not found");}
         );
         ModelAndView mav = new ModelAndView(CAREER_DETAIL);

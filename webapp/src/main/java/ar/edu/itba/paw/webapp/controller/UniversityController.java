@@ -70,7 +70,7 @@ public class UniversityController {
         ModelAndView mav = new ModelAndView(DETAIL);
         mav.addObject(UNIVERSITY, universityService.findById(id).orElseThrow(
                 () -> {
-                    LOGGER.error("University not found");
+                    LOGGER.error("University not found for id: {}", id);
                     return new NotFoundException("University not found");}
         ));
         return mav;
@@ -81,7 +81,7 @@ public class UniversityController {
 
         if(! errors.hasErrors()) {
             University university = universityService.findById(id).orElseThrow(()-> {
-                LOGGER.error("University not found");
+                LOGGER.error("University not found for id: {}", id);
                 return new NotFoundException("University not found");});
             form.setName(university.getName());
             form.setAbbreviation(university.getAbbreviation());

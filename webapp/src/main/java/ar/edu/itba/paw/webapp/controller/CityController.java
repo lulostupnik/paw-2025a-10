@@ -63,7 +63,7 @@ public class CityController {
     @GetMapping(value= "/{id}")
     public ModelAndView getCity(@PathVariable(value = "id") final long id) {
         City city = cityService.findCityById(id).orElseThrow(() -> {
-            LOGGER.error("City not found");
+            LOGGER.error("City not found for id: {}", id);
             return new NotFoundException("City not found");
         });
         ModelAndView mav = new ModelAndView(CITY_DETAIL);
@@ -75,7 +75,7 @@ public class CityController {
     public ModelAndView updateCityForm(@PathVariable("id") Long id,
                                        @ModelAttribute(CITY_CREATE_FORM) final CreateCityForm form, BindingResult errors) {
         City city = cityService.findCityById(id).orElseThrow(() -> {
-            LOGGER.error("City not found");
+            LOGGER.error("City not found for id: {}", id);
             return new NotFoundException("City not found");
         });
         if(!errors.hasErrors()){

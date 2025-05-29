@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
     public User verifyUser(String token) {
         final Optional<Token> maybeToken = tokenService.getByToken(token);
         if (!maybeToken.isPresent()) {
-            LOGGER.error("Token is invalid, or expired");
+            LOGGER.error("Token is invalid, or expired for token: {}", token);
             throw new InvalidTokenException("Invalid token");
         }
 
@@ -179,7 +179,7 @@ public class UserServiceImpl implements UserService {
     public void checkTokenValidity(String token) {
         final Optional<Token> maybeToken = tokenService.getByToken(token);
         if (!maybeToken.isPresent()) {
-            LOGGER.error("Token is invalid, or expired");
+            LOGGER.error("Token is invalid, or expired for token: {}", token);
             throw new InvalidTokenException("Invalid token");
         }
 
@@ -198,7 +198,7 @@ public class UserServiceImpl implements UserService {
     public void resetPassword(final String token, final String newPassword) {
         final Optional<Token> maybeToken = tokenService.getByToken(token);
         if (!maybeToken.isPresent()) {
-            LOGGER.error("Token is invalid, or expired");
+            LOGGER.error("Token is invalid, or expired for token: {}", token);
             throw new InvalidTokenException("Invalid token");
         }
 

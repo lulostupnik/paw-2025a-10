@@ -141,7 +141,7 @@ public class EventController {
         @PageParamCustomizer(defaultSize = 6, pageParamName = "attendeesPage", sizeParamName = "attendeesSize") PageParams attendeesPage)
     {
         EventWithStatistics eventWithStatistics = eventService.findEventWithStatistics(user,id).orElseThrow(() -> {
-            LOGGER.error("eventWithStatistics not found");
+            LOGGER.error("eventWithStatistics not found for id: {}", id);
             return new EventNotFoundException("eventWithStatistics not found");});
         return populateEventDetails(eventWithStatistics,
                 id, repliesPage, attendeesPage, user );
@@ -178,7 +178,7 @@ public class EventController {
         LOGGER.debug("Showing delete form for event {}", id);
 
         Event event = eventService.findEventById(id).orElseThrow(() -> {
-            LOGGER.error("event not found");
+            LOGGER.error("event not found for id: {}", id);
             return new EventNotFoundException();});
         long commentsCount = eventService.countEventResponses(event.getId());
 
@@ -250,7 +250,7 @@ public class EventController {
                                             BindingResult errors) {
 
         Event event = eventService.findEventById(eventId).orElseThrow(() -> {
-            LOGGER.error("event not found");
+            LOGGER.error("event not found for id: {}", eventId);
             return new EventNotFoundException();});
 
         if(!errors.hasErrors()) {
