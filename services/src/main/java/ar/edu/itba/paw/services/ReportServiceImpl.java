@@ -17,36 +17,28 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class ReportServiceImpl implements ReportService {
     private final ReportDao reportDao;
-    //Hay que cambiarlos a servicios pero nada por ahoar asi
-    private final JourneyDao journeyDao;
-    private final EventDao eventDao;
-    private final EventResponseDao eventResponseDao;
-    private final JourneyResponseDao journeyResponseDao;
+    private final JourneyService journeyService;
+    private final EventService eventService;
 
     @Autowired
-    public ReportServiceImpl(final ReportDao reportDao, final JourneyDao journeyDao,
-                             final EventDao eventDao, final EventResponseDao eventResponseDao
-                            , final JourneyResponseDao journeyResponseDao) {
+    public ReportServiceImpl(final ReportDao reportDao, final JourneyService journeyService,
+                             final EventService eventService) {
         this.reportDao = reportDao;
-        this.journeyDao = journeyDao;
-        this.eventDao = eventDao;
-        this.eventResponseDao = eventResponseDao;
-        this.journeyResponseDao = journeyResponseDao;
+        this.journeyService = journeyService;
+        this.eventService = eventService;
     }
 
     @Transactional
     @Override
     public Report createReportForJourney(User reportingUser, long journeyId, String description, String reason) {
-        Journey journey = journeyDao.findById(journeyId)
-                .orElseThrow(() -> new IllegalArgumentException("Journey not found with id: " + journeyId));
-
+        Journey journey = journeyService.getJourneyById(journeyId).orElseThrow(() -> new IllegalArgumentException("Journey not found with id: " + journeyId));
         return reportDao.create(journey.getUser(), reportingUser,journey,description,reason); // Assuming `reportDao.save` persists and returns the entity
     }
 
     @Transactional
     @Override
     public Report createReportForEvent(User reportingUser, long eventId, String description, String reason) {
-        Event event = eventDao.findById(eventId)
+        Event event = eventService.findEventById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Event not found with id: " + eventId));
 
         return reportDao.create(event.getUser(), reportingUser, event, description, reason);
@@ -55,7 +47,7 @@ public class ReportServiceImpl implements ReportService {
     @Transactional
     @Override
     public Report createReportForEventResponse(User reportingUser, long responseId, String description, String reason) {
-        EventResponse eventResponse = eventResponseDao.findById(responseId)
+        EventResponse eventResponse = eventService.findEventResponseById(responseId)
                 .orElseThrow(() -> new IllegalArgumentException("Event response not found with id: " + responseId));
 
         return reportDao.create(eventResponse.getUser(), reportingUser, eventResponse.getEvent(), description, reason);
@@ -64,7 +56,7 @@ public class ReportServiceImpl implements ReportService {
     @Transactional
     @Override
     public Report createReportForJourneyResponse(User reportingUser, long responseId, String description, String reason) {
-        JourneyResponse journeyResponse = journeyResponseDao.findById(responseId)
+        JourneyResponse journeyResponse = journeyService.findJourneyResponseById(responseId)
                 .orElseThrow(() -> new IllegalArgumentException("Journey response not found with id: " + responseId));
 
         return reportDao.create(journeyResponse.getUser(), reportingUser, journeyResponse.getJourney(), description, reason);
