@@ -158,4 +158,36 @@ public class UserHibernateDao implements UserDao {
     }
 
 
+    @Override
+    public Optional<Double> findAverageRatingForCreatedEvents(long userId) {
+        TypedQuery<Double> query = em.createQuery("""
+        SELECT AVG(r.rating)
+        FROM Rating r
+        WHERE r.event.user.id = :userId
+          AND r.event.deleted = false
+    """, Double.class);
+        query.setParameter("userId", userId);
+
+        Double result = query.getSingleResult();
+        return result != null ? Optional.of(result) : Optional.empty();
+    }
+
+    @Override
+    public Optional<Double> findAverageRatingForAttendedEvents(long userId) {
+        TypedQuery<Double> query = em.createQuery("""
+        SELECT AVG(r.rating)
+        FROM Rating r
+        WHERE r.event.id IN (
+            SELECT ea.event.id
+            FROM EventAttendance ea
+            WHERE ea.user.id = :userId
+        )
+        AND r.event.deleted = false
+    """, Double.class);
+        query.setParameter("userId", userId);
+
+        Double result = query.getSingleResult();
+        return result != null ? Optional.of(result) : Optional.empty();
+    }
+
 }
