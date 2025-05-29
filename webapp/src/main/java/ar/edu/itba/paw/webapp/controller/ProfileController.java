@@ -54,6 +54,12 @@ public class ProfileController {
         mav.addObject("isInfoTab", true);
         mav.addObject("isMine", user.getId().equals(id));
         mav.addObject("profileUser", profileUser);
+        LOGGER.debug("Average rating for created events: {}", userService.findAverageRatingForCreatedEvents(user.getId()));
+        LOGGER.debug("Average rating for attended events: {}", userService.findAverageRatingForAttendedEvents(user.getId()));
+        mav.addObject("averageCreatedEventsRating", userService.findAverageRatingForCreatedEvents(user.getId()));
+        mav.addObject("averageAttendingEventsRating", userService.findAverageRatingForAttendedEvents(user.getId()));
+        mav.addObject("totalCreatedEventsWithRatings", 3);
+        mav.addObject("totalAttendedEventsRated", 7);
         return mav;
     }
 
