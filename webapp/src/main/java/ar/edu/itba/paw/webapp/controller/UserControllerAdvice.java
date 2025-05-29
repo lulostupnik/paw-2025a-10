@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ public class UserControllerAdvice {
         return (auth != null && !"anonymousUser".equals(auth.getPrincipal()) )
                 ?  userService.findUserByEmail(auth.getName()).orElseThrow(()-> {
                     LOGGER.error("Authenticated user with email {} not found in database", auth.getName());
-                    return new IllegalStateException();
+                    return new UserNotFoundException("Authenticated user not found in database");
                 }) : null;
     }
 }

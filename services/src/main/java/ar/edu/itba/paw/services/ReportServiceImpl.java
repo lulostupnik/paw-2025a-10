@@ -6,6 +6,7 @@ import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.interfaces.services.ReportService;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.ReportStatus;
+import ar.edu.itba.paw.models.exceptions.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +32,7 @@ public class ReportServiceImpl implements ReportService {
     @Transactional
     @Override
     public Report createReportForJourney(User reportingUser, long journeyId, String description, String reason) {
-        Journey journey = journeyService.getJourneyById(journeyId).orElseThrow(() -> new IllegalArgumentException("Journey not found with id: " + journeyId));
+        Journey journey = journeyService.getJourneyById(journeyId).orElseThrow(() -> new JourneyNotFoundException("Journey not found with id: " + journeyId));
         return reportDao.create(journey.getUser(), reportingUser,journey,description,reason); // Assuming `reportDao.save` persists and returns the entity
     }
 
@@ -39,7 +40,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public Report createReportForEvent(User reportingUser, long eventId, String description, String reason) {
         Event event = eventService.findEventById(eventId)
-                .orElseThrow(() -> new IllegalArgumentException("Event not found with id: " + eventId));
+                .orElseThrow(() -> new EventNotFoundException("Event not found with id: " + eventId));
 
         return reportDao.create(event.getUser(), reportingUser, event, description, reason);
     }
@@ -48,7 +49,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public Report createReportForEventResponse(User reportingUser, long responseId, String description, String reason) {
         EventResponse eventResponse = eventService.findEventResponseById(responseId)
-                .orElseThrow(() -> new IllegalArgumentException("Event response not found with id: " + responseId));
+                .orElseThrow(() -> new EventResponseNotFoundException("Event response not found with id: " + responseId));
 
         return reportDao.create(eventResponse.getUser(), reportingUser, eventResponse.getEvent(), description, reason);
     }
@@ -57,7 +58,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public Report createReportForJourneyResponse(User reportingUser, long responseId, String description, String reason) {
         JourneyResponse journeyResponse = journeyService.findJourneyResponseById(responseId)
-                .orElseThrow(() -> new IllegalArgumentException("Journey response not found with id: " + responseId));
+                .orElseThrow(() -> new JourneyResponseNotFoundException("Journey response not found with id: " + responseId));
 
         return reportDao.create(journeyResponse.getUser(), reportingUser, journeyResponse.getJourney(), description, reason);
     }
@@ -109,7 +110,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public Report updateReportStatus(long reportId, ReportStatus status) {
         Report report = reportDao.findById(reportId)
-                .orElseThrow(() -> new IllegalArgumentException("Report not found with id: " + reportId));
+                .orElseThrow(() -> new ReportNotFoundException("Report not found with id: " + reportId));
         //Si el status es dismissed, no se si haria un delete logico
         //Porque me gustaria que se pueda ver el historial de reportes
         report.setStatus(status);

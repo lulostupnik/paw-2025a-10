@@ -196,17 +196,8 @@ public class EventController {
         EventResponse er = eventService.findEventResponseById(id).orElseThrow(() -> {
             LOGGER.error("Event response with id {} not found", id);
             return new NotFoundException("eventResponse not found");}); //fixme porque return new NotFoundException
-
-        Event event = er.getEvent();
-
-        if(event.getId() != eventId){
-            LOGGER.error("Event ID {} and response ID {} do not match", eventId, id);
-            throw new InvalidException(); //fixme porque throw/return?
-        }
-
-
         ModelAndView mav = new ModelAndView("events/delete-reply");
-        mav.addObject("event", event);
+        mav.addObject("event", er.getEvent());
         mav.addObject("eventResponse", er);
         return mav;
     }

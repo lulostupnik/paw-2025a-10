@@ -185,30 +185,12 @@ public class JourneyController {
     public ModelAndView deleteJourneyReplyForm(@PathVariable(value = "journeyId") long journeyId,
                                                @PathVariable("id") long id,
                                                @ModelAttribute("deleteReplyForm") ReplyForm form) {
-//        if(js.findJourneyIdByResponseId(id) != journeyId){
-//            LOGGER.error("Journey ID {} and response ID {} do not match", journeyId, id);
-//            throw new InvalidException();
-//        }
-//        Journey journey = js.getJourneyById(journeyId).orElseThrow(() -> {
-//            LOGGER.error("Journey with ID {} not found", id);
-//            return new JourneyNotFoundException("Journey with ID " + id + " not found");
-//        });
-//        JourneyResponse journeyResponse = js.findJourneyResponseById(id).orElseThrow(() -> new NotFoundException("Reply not found"));
-
         JourneyResponse journeyResponse = js.findJourneyResponseById(id).orElseThrow(() -> {
             LOGGER.warn("Journey with ID {} not found", id); // todo: es warn o error?
             return new JourneyResponseNotFoundException("Reply not found");
         });
-
-        Journey journey = journeyResponse.getJourney();
-
-        if(journey.getId() != journeyId){
-            LOGGER.error("Journey ID {} and response ID {} do not match", journeyId, id);
-            throw new InvalidException();
-        }
-
         ModelAndView mav = new ModelAndView("journeys/delete-reply");
-        mav.addObject("journey", journey);
+        mav.addObject("journey", journeyResponse.getJourney());
         mav.addObject("journeyResponse", journeyResponse);
         return mav;
     }

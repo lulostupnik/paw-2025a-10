@@ -7,9 +7,7 @@ import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
-import ar.edu.itba.paw.models.exceptions.InvalidException;
-import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
-import ar.edu.itba.paw.models.exceptions.JourneyResponseNotFoundException;
+import ar.edu.itba.paw.models.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,15 +45,15 @@ public class JourneyServiceImpl implements JourneyService {
     private void checkDates(final LocalDate startDate, final LocalDate endDate) {
         if(startDate == null || endDate == null) {
             LOGGER.warn("Start date or end date is null");
-            throw new RuntimeException("Start date and end date cannot be null");
+            throw new InvalidDateException("Start date and end date cannot be null");
         }
         if(startDate.isAfter(endDate)) {
             LOGGER.warn("Start date is after end date");
-            throw new RuntimeException("Start date cannot be after end date");
+            throw new InvalidDateException("Start date cannot be after end date");
         }
         if(startDate.isBefore(LocalDate.now())) {
             LOGGER.warn("Start date is before today");
-            throw new RuntimeException("Start date cannot be before today");
+            throw new InvalidDateException("Start date cannot be before today");
         }
     }
 
@@ -67,7 +65,7 @@ public class JourneyServiceImpl implements JourneyService {
         University destination = universityService.findByName(destinationUniversity)
                 .orElseThrow(() -> {
                     LOGGER.warn("Destination university not found: {}", destinationUniversity);
-                    return new RuntimeException("Destination University not found");
+                    return new UniversityNotFoundException("Destination University not found");
                 }
         );
 
@@ -83,13 +81,13 @@ public class JourneyServiceImpl implements JourneyService {
         Journey journey = journeyDao.findById(journeyId)
                 .orElseThrow(() -> {
                     LOGGER.warn("Journey with id {} not found", journeyId);
-                    return new RuntimeException("Journey not found");
+                    return new JourneyNotFoundException("Journey not found");
                 });
 
         User responder = userService.findUserByEmail(email)
                 .orElseThrow(() -> {
                     LOGGER.warn("User with email {} not found", email);
-                    return new RuntimeException("User not found");
+                    return new UserNotFoundException("User not found");
                 });
 
         journeyResponseDao.create(responder, journey, message);
@@ -147,7 +145,7 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.debug("Getting journey by email {}", email);
         User user = userService.findUserByEmail(email).orElseThrow(() -> {
             LOGGER.warn("User with email {} not found", email);
-            return new RuntimeException("User not found");
+            return new UserNotFoundException("User not found");
         });
         return Optional.ofNullable(user.getJourney());
     }
@@ -176,7 +174,7 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.debug("Checking if user has journey {}", email);
         User user = userService.findUserByEmail(email).orElseThrow(() -> {
             LOGGER.warn("User with email '{}' not found", email);
-            return new RuntimeException("User not found");
+            return new UserNotFoundException("User not found");
         });
         return user.getJourney() != null; //@todo check
     }
@@ -193,7 +191,7 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.debug("Getting recommended journeys for {}", email);
         if(limit <= 0 ){
             LOGGER.warn("Limit must be greater than 0");
-            throw new IllegalArgumentException("Limit must be grater than 0");
+            throw new InvalidPaginationParamsException("Limit must be grater than 0");
         }
         if(existsByUserEmail(email)){
             return journeyDao.findRecommended(email, new PageParams(1, limit)).getContent();
@@ -272,7 +270,7 @@ public class JourneyServiceImpl implements JourneyService {
         University university = universityService.findByName(destinationUniversity)
                 .orElseThrow(() -> {
                     LOGGER.warn("University not found: {}", destinationUniversity);
-                    return new IllegalArgumentException("University not found");
+                    return new UniversityNotFoundException("University not found");
                 });
         journey.setDestinationUniversity(university);
         journey.setStartDate(startDate);

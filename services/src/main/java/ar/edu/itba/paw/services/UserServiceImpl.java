@@ -3,9 +3,7 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
-import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
-import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
-import ar.edu.itba.paw.models.exceptions.UserValidatedException;
+import ar.edu.itba.paw.models.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,13 +46,13 @@ public class UserServiceImpl implements UserService {
         University university = universityService.findByName(universityName)
                 .orElseThrow(() -> {
                     LOGGER.error("University not found: '{}' during user creation for email: {}", universityName, email);
-                    return new RuntimeException("University not found");
+                    return new UniversityNotFoundException("University not found");
                 });
 
         Career career = careerService.findCareerByName(careerName)
                 .orElseThrow(() -> {
                     LOGGER.error("Career not found: '{}' during user creation for email: {}", careerName, email);
-                    return new RuntimeException("Career not found");
+                    return new CareerNotFoundException("Career not found");
                 });
 
         long profilePictureId = imageService.createImage(profilePicture);
@@ -151,7 +149,7 @@ public class UserServiceImpl implements UserService {
         LOGGER.debug("Attempting to block user with ID: {}", userId);
         User user = findUserById(userId).orElseThrow(() -> {
             LOGGER.error("User does not exist for ID: {}", userId);
-            return new IllegalStateException("User does not exist");
+            return new UserNotFoundException("User does not exist");
         });
 
         emailService.sendUserBlockedNotification(user);
@@ -167,7 +165,7 @@ public class UserServiceImpl implements UserService {
         LOGGER.debug("Attempting to unblock user with ID: {}", userId);
         User user = findUserById(userId).orElseThrow(() -> {
             LOGGER.error("User does not exist for ID: {}", userId);
-            return new IllegalStateException("User does not exist");
+            return new UserNotFoundException("User does not exist");
         });
         emailService.sendUserUnblockedNotification(user);
         user.setBlocked(false);
@@ -228,7 +226,7 @@ public class UserServiceImpl implements UserService {
         LOGGER.debug("Attempting to send forgot password email to: {}", email);
         User user = userDao.findByEmail(email).orElseThrow(()-> {
             LOGGER.error("User with email {} not found", email);
-            return new RuntimeException("User does not exist");
+            return new UserNotFoundException("User does not exist");
         });
         if(!user.isValidated()){
             LOGGER.warn("User with email {} not validated", email);

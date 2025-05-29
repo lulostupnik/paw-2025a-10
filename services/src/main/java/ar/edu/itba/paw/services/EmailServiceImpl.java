@@ -2,6 +2,7 @@ package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.InvalidImageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -159,7 +160,7 @@ public class EmailServiceImpl implements EmailService {
     private byte[] getUserImageData(User user){
         return imageService.findImage(user.getProfilePictureId()).orElseThrow(() -> {
             LOGGER.error("User does not have profile picture");
-            return new IllegalStateException("User does not have profile picture");
+            return new InvalidImageException("User does not have profile picture");
         }).getData();
     }
     @Override

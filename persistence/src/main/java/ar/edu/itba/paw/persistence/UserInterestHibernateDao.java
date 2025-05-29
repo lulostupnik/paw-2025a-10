@@ -4,6 +4,8 @@ import ar.edu.itba.paw.interfaces.persistence.InterestDao;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.persistence.UserInterestDao;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.InterestsNotFoundException;
+import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -71,7 +73,7 @@ public class UserInterestHibernateDao implements UserInterestDao {
     @Override
     public void createUserInterests(List<String> interests, long userId) {
         User user = userDao.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         for (String interest : interests) {
             Interest i = interestDao.findByName(interest)
                     .orElseGet(() -> interestDao.create(interest));
@@ -82,10 +84,10 @@ public class UserInterestHibernateDao implements UserInterestDao {
     @Override
     public void createUserInterests(long[] interests, long userId) {  // fixme: mover a User? O crear un UserInterestDao
         User user = userDao.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         for( long interestId : interests) {
             Interest i = interestDao.findById(interestId)
-                    .orElseThrow(() -> new IllegalArgumentException("Interest not found"));
+                    .orElseThrow(() -> new InterestsNotFoundException("Interest not found"));
             create(user, i);
         }
     }
@@ -113,8 +115,8 @@ public class UserInterestHibernateDao implements UserInterestDao {
         }
         for (Long interestId : interestsToAdd) {
             Interest i = interestDao.findById(interestId)
-                    .orElseThrow(() -> new IllegalArgumentException("Interest not found"));
-            create(userDao.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found")), i);
+                    .orElseThrow(() -> new InterestsNotFoundException("Interest not found"));
+            create(userDao.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found")), i);
         }
 
     }
