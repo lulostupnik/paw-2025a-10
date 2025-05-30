@@ -539,6 +539,16 @@ public class EventServiceImpl implements EventService {
         LOGGER.info("Completed scheduled task: sent reminder emails for {} upcoming events", totalEventsProcessed);
     }
 
+    @Override
+    public int countEventsCreatedByUser(long userId) {
+        return eventDao.countEventsCreatedByUser(userId);
+    }
+
+    @Override
+    public int countEventsAttendedByUser(long userId) {
+        return eventAttendanceDao.countEventsAttendedByUser(userId);
+    }
+
     private void sendRemindersForEvent(Event event) {
         LOGGER.debug("Processing reminders for event: {} (ID: {})", event.getTitle(), event.getId());
 
