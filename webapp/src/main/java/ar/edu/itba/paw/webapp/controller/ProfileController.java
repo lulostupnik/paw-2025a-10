@@ -54,6 +54,13 @@ public class ProfileController {
         mav.addObject("isInfoTab", true);
         mav.addObject("isMine", user.getId().equals(id));
         mav.addObject("profileUser", profileUser);
+        Optional<Double> maybeAverageRatingForAttendedEvents = userService.findAverageRatingForAttendedEvents(profileUser.getId());
+        LOGGER.debug("Average rating for attended events: {}", maybeAverageRatingForAttendedEvents);
+        maybeAverageRatingForAttendedEvents.ifPresent(aDouble -> mav.addObject("averageAttendedEventsRating", aDouble));
+        Optional<Double> maybeAverageRatingForCreatedEvents = userService.findAverageRatingForCreatedEvents(profileUser.getId());
+        maybeAverageRatingForCreatedEvents.ifPresent(aDouble -> mav.addObject("averageCreatedEventsRating", aDouble));
+        mav.addObject("totalCreatedEventsWithRatings", 3);
+        mav.addObject("totalAttendedEventsRated", 7);
         return mav;
     }
 

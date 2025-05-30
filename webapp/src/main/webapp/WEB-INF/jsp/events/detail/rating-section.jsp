@@ -5,6 +5,8 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
+<link rel="stylesheet" href="<c:url value='/resources/css/ratings.css'/>" />
+
 <c:if test="${empty param.showToggle}">
   <c:set var="showToggle" value="true" />
 </c:if>
@@ -19,7 +21,7 @@
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
       </svg>
       <spring:message code="event.rating" />
-      <c:if test="${averageRating.isPresent()}">
+      <c:if test="${not empty averageRating}">
         <span class="count">(<c:out value="${ratingCount}" /> <spring:message code="event.rating.reviews" />)</span>
       </c:if>
     </h2>
@@ -41,19 +43,19 @@
 
   <div id="rating-section" class="rating-content">
     <!-- Overall Rating Display -->
-    <c:if test="${ averageRating.isPresent()}">
+    <c:if test="${ not empty averageRating}">
       <div class="rating-summary">
         <div class="average-rating">
-          <span class="rating-number"><c:out value="${averageRating.get()}" /></span>
+          <span class="rating-number"><c:out value="${averageRating}" /></span>
           <div class="rating-stars-display">
             <c:forEach var="i" begin="1" end="5">
               <c:choose>
-                <c:when test="${averageRating.get() >= i}">
+                <c:when test="${averageRating >= i}">
                   <svg class="star filled" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                   </svg>
                 </c:when>
-                <c:when test="${averageRating.get() >= (i - 0.5)}">
+                <c:when test="${averageRating >= (i - 0.5)}">
                   <svg class="star half-filled" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <defs>
                       <linearGradient id="half-fill-${i}">
@@ -79,7 +81,7 @@
       </div>
     </c:if>
 
-    <c:if test="${ averageRating.isEmpty()}">
+    <c:if test="${ empty averageRating}">
       <div class="rating-summary empty-state">
         <div class="empty-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
@@ -110,12 +112,12 @@
               <label class="rating-label">
                 <spring:message code="event.rating.yourRating" />
               </label>
-              <div class="star-rating-input" data-rating="${not empty userRating ? userRating.get() : 0}">
+              <div class="star-rating-input" data-rating="${not empty userRating ? userRating : 0}">
                 <c:forEach var="i" begin="1" end="5">
                   <div class="star-input-group">
                     <!-- Full star -->
                     <input type="radio" name="rating" value="${i}" id="star-${i}"
-                      ${not empty userRating && userRating.get() == i ? 'checked' : ''} />
+                      ${not empty userRating && userRating == i ? 'checked' : ''} />
                     <label for="star-${i}" class="star-label full-star" data-value="${i}">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
@@ -125,7 +127,7 @@
                     <!-- Half star (except for the first star) -->
                     <c:if test="${i > 1}">
                       <input type="radio" name="rating" value="${i - 0.5}" id="star-${i - 0.5}"
-                        ${not empty userRating && userRating.get() == (i - 0.5) ? 'checked' : ''} />
+                        ${not empty userRating && userRating == (i - 0.5) ? 'checked' : ''} />
                       <label for="star-${i - 0.5}" class="star-label half-star" data-value="${i - 0.5}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <defs>
@@ -145,7 +147,7 @@
                                 <span id="current-rating-value">
                                     <c:choose>
                                       <c:when test="${ not empty userRating}">
-                                        <c:out value="${userRating.get()}" />
+                                        <c:out value="${userRating}" />
                                       </c:when>
                                       <c:otherwise>0</c:otherwise>
                                     </c:choose>
@@ -246,242 +248,6 @@
   </div>
 </div>
 
-<style>
-  /* Rating Section Styles */
-  .rating-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .rating-content.collapsed {
-    display: none;
-  }
-
-  /* Rating Summary */
-  .rating-summary {
-    background-color: #f8f9fa;
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    border-left: 4px solid #fbbf24;
-  }
-
-  .average-rating {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .rating-number {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #fbbf24;
-  }
-
-  .rating-stars-display {
-    display: flex;
-    gap: 0.25rem;
-  }
-
-  .star {
-    color: #fbbf24;
-  }
-
-  .star.filled {
-    color: #fbbf24;
-  }
-
-  .star.half-filled {
-    color: #fbbf24;
-  }
-
-  .star.empty {
-    color: #e5e7eb;
-  }
-
-  .rating-text {
-    color: #6b7280;
-    font-size: 0.875rem;
-  }
-
-  /* User Rating Form */
-  .user-rating-form {
-    background-color: #f9fafb;
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    border: 1px solid #e5e7eb;
-  }
-
-  .rating-form-title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #111827;
-    margin-top: 0;
-    margin-bottom: 1rem;
-  }
-
-  .rating-input-container {
-    margin-bottom: 1rem;
-  }
-
-  .rating-label {
-    display: block;
-    font-weight: 500;
-    color: #374151;
-    margin-bottom: 0.5rem;
-  }
-
-  .star-rating-input {
-    display: flex;
-    gap: 0.25rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .star-input-group {
-    position: relative;
-    display: flex;
-  }
-
-  .star-input-group input[type="radio"] {
-    display: none;
-  }
-
-  .star-label {
-    cursor: pointer;
-    color: #e5e7eb;
-    transition: color 0.2s ease;
-    position: relative;
-  }
-
-  .star-label:hover,
-  .star-label.active {
-    color: #fbbf24;
-  }
-
-  .star-input-group input[type="radio"]:checked + .star-label {
-    color: #fbbf24;
-  }
-
-  .half-star {
-    position: absolute;
-    left: 0;
-    width: 50%;
-    overflow: hidden;
-  }
-
-  .rating-value-display {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #374151;
-  }
-
-  .rating-max {
-    color: #6b7280;
-    font-weight: normal;
-  }
-
-  /* Ratings List */
-  .ratings-list {
-    background-color: #ffffff;
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    border: 1px solid #e5e7eb;
-  }
-
-  .ratings-list-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #111827;
-    margin-top: 0;
-    margin-bottom: 1rem;
-  }
-
-  .rating-item {
-    padding: 1rem 0;
-    border-bottom: 1px solid #f3f4f6;
-  }
-
-  .rating-item:last-child {
-    border-bottom: none;
-  }
-
-  .rating-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .rating-user {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .rating-avatar {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    overflow: hidden;
-    flex-shrink: 0;
-  }
-
-  .rating-avatar-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .rating-user-info {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .rating-username {
-    font-weight: 600;
-    margin: 0 0 0.125rem;
-    color: #111827;
-    font-size: 0.875rem;
-  }
-
-  .rating-date {
-    font-size: 0.75rem;
-    color: #6b7280;
-    margin: 0;
-  }
-
-  .rating-stars {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-  }
-
-  .rating-value {
-    font-size: 0.875rem;
-    color: #6b7280;
-    margin-left: 0.5rem;
-  }
-
-  @media (max-width: 768px) {
-    .average-rating {
-      flex-direction: column;
-      text-align: center;
-      gap: 0.5rem;
-    }
-
-    .rating-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-
-    .star-rating-input {
-      justify-content: center;
-    }
-  }
-</style>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
