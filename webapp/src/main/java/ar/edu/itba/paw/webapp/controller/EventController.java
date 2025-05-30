@@ -21,10 +21,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.swing.text.html.Option;
 import javax.validation.Valid;
 
 
 import java.util.List;
+import java.util.Optional;
 
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 
@@ -122,9 +124,12 @@ public class EventController {
         mav.addObject("attend", eventWithStatistics.isAttending());
         mav.addObject("isEventOwner", eventWithStatistics.isCreator());
         mav.addObject("isFull", event.getFull());
-        mav.addObject("averageRating", eventService.findRatingsAverageByEvent(event.getId()));
+        Optional<Double> maybeAverageRating = eventService.findRatingsAverageByEvent(event.getId());
+        LOGGER.debug("Average rating: {}", maybeAverageRating.orElse(0.0));
+        maybeAverageRating.ifPresent(rating -> mav.addObject("averageRating", rating));
         if (user != null) {
-            mav.addObject("userRating", eventService.findRatingByUserAndEvent(user.getId(), event.getId()));
+            Optional<Double> maybeUserRating = eventService.findRatingByUserAndEvent(user.getId(), event.getId());
+            maybeUserRating.ifPresent(rating -> mav.addObject("userRating", rating));
         }
         mav.addObject("ratingCount", eventService.countRatingsByEvent(event.getId()));
 

@@ -21,7 +21,7 @@
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
       </svg>
       <spring:message code="event.rating" />
-      <c:if test="${averageRating.isPresent()}">
+      <c:if test="${not empty averageRating}">
         <span class="count">(<c:out value="${ratingCount}" /> <spring:message code="event.rating.reviews" />)</span>
       </c:if>
     </h2>
@@ -43,19 +43,19 @@
 
   <div id="rating-section" class="rating-content">
     <!-- Overall Rating Display -->
-    <c:if test="${ averageRating.isPresent()}">
+    <c:if test="${ not empty averageRating}">
       <div class="rating-summary">
         <div class="average-rating">
-          <span class="rating-number"><c:out value="${averageRating.get()}" /></span>
+          <span class="rating-number"><c:out value="${averageRating}" /></span>
           <div class="rating-stars-display">
             <c:forEach var="i" begin="1" end="5">
               <c:choose>
-                <c:when test="${averageRating.get() >= i}">
+                <c:when test="${averageRating >= i}">
                   <svg class="star filled" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                   </svg>
                 </c:when>
-                <c:when test="${averageRating.get() >= (i - 0.5)}">
+                <c:when test="${averageRating >= (i - 0.5)}">
                   <svg class="star half-filled" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <defs>
                       <linearGradient id="half-fill-${i}">
@@ -81,7 +81,7 @@
       </div>
     </c:if>
 
-    <c:if test="${ averageRating.isEmpty()}">
+    <c:if test="${ empty averageRating}">
       <div class="rating-summary empty-state">
         <div class="empty-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
@@ -112,12 +112,12 @@
               <label class="rating-label">
                 <spring:message code="event.rating.yourRating" />
               </label>
-              <div class="star-rating-input" data-rating="${not empty userRating ? userRating.get() : 0}">
+              <div class="star-rating-input" data-rating="${not empty userRating ? userRating : 0}">
                 <c:forEach var="i" begin="1" end="5">
                   <div class="star-input-group">
                     <!-- Full star -->
                     <input type="radio" name="rating" value="${i}" id="star-${i}"
-                      ${not empty userRating && userRating.get() == i ? 'checked' : ''} />
+                      ${not empty userRating && userRating == i ? 'checked' : ''} />
                     <label for="star-${i}" class="star-label full-star" data-value="${i}">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
@@ -127,7 +127,7 @@
                     <!-- Half star (except for the first star) -->
                     <c:if test="${i > 1}">
                       <input type="radio" name="rating" value="${i - 0.5}" id="star-${i - 0.5}"
-                        ${not empty userRating && userRating.get() == (i - 0.5) ? 'checked' : ''} />
+                        ${not empty userRating && userRating == (i - 0.5) ? 'checked' : ''} />
                       <label for="star-${i - 0.5}" class="star-label half-star" data-value="${i - 0.5}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <defs>
@@ -147,7 +147,7 @@
                                 <span id="current-rating-value">
                                     <c:choose>
                                       <c:when test="${ not empty userRating}">
-                                        <c:out value="${userRating.get()}" />
+                                        <c:out value="${userRating}" />
                                       </c:when>
                                       <c:otherwise>0</c:otherwise>
                                     </c:choose>

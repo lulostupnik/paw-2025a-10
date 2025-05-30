@@ -67,17 +67,17 @@
         </div>
 
         <c:choose>
-          <c:when test="${averageCreatedEventsRating.isPresent() && averageCreatedEventsRating.get() > 0}">
+          <c:when test="${not empty averageCreatedEventsRating && averageCreatedEventsRating > 0}">
             <div class="rating-display">
               <div class="rating-stars">
                 <c:forEach var="i" begin="1" end="5">
                   <c:choose>
-                    <c:when test="${averageCreatedEventsRating.get()  >= i}">
+                    <c:when test="${averageCreatedEventsRating >= i}">
                       <svg class="star filled" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                       </svg>
                     </c:when>
-                    <c:when test="${averageCreatedEventsRating.get()  >= (i - 0.5)}">
+                    <c:when test="${averageCreatedEventsRating >= (i - 0.5)}">
                       <svg class="star half-filled" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <defs>
                           <linearGradient id="created-half-${i}">
@@ -98,7 +98,7 @@
               </div>
               <div class="rating-details">
                 <span class="rating-number">
-                  <fmt:formatNumber value="${averageCreatedEventsRating.get() }" maxFractionDigits="1" minFractionDigits="1"/>
+                  <fmt:formatNumber value="${averageCreatedEventsRating }" maxFractionDigits="1" minFractionDigits="1"/>
                 </span>
                 <span class="rating-context">
                   (<c:out value="${totalCreatedEventsWithRatings}"/>
@@ -140,17 +140,17 @@
         </div>
 
         <c:choose>
-          <c:when test="${averageAttendedEventsRating.isPresent() && averageAttendedEventsRating.get() > 0}">
+          <c:when test="${not empty averageAttendedEventsRating &&  averageAttendedEventsRating > 0}">
             <div class="rating-display">
               <div class="rating-stars">
                 <c:forEach var="i" begin="1" end="5">
                   <c:choose>
-                    <c:when test="${averageAttendedEventsRating.get() >= i}">
+                    <c:when test="${averageAttendedEventsRating >= i}">
                       <svg class="star filled" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                       </svg>
                     </c:when>
-                    <c:when test="${averageAttendedEventsRating.get() >= (i - 0.5)}">
+                    <c:when test="${averageAttendedEventsRating >= (i - 0.5)}">
                       <svg class="star half-filled" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <defs>
                           <linearGradient id="attended-half-${i}">
@@ -171,7 +171,7 @@
               </div>
               <div class="rating-details">
                 <span class="rating-number">
-                  <fmt:formatNumber value="${averageAttendedEventsRating.get()}" maxFractionDigits="1" minFractionDigits="1"/>
+                  <fmt:formatNumber value="${averageAttendedEventsRating}" maxFractionDigits="1" minFractionDigits="1"/>
                 </span>
                 <span class="rating-context">
                   (<c:out value="${totalAttendedEventsRated}"/>
