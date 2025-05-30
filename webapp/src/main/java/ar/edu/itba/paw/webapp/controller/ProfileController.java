@@ -59,8 +59,8 @@ public class ProfileController {
         maybeAverageRatingForAttendedEvents.ifPresent(aDouble -> mav.addObject("averageAttendedEventsRating", aDouble));
         Optional<Double> maybeAverageRatingForCreatedEvents = userService.findAverageRatingForCreatedEvents(profileUser.getId());
         maybeAverageRatingForCreatedEvents.ifPresent(aDouble -> mav.addObject("averageCreatedEventsRating", aDouble));
-        mav.addObject("totalCreatedEventsWithRatings", 3);
-        mav.addObject("totalAttendedEventsRated", 7);
+        mav.addObject("totalCreatedEventsWithRatings", eventService.countEventsCreatedByUser(user.getId()));
+        mav.addObject("totalAttendedEventsRated", eventService.countEventsAttendedByUser(user.getId()));
         return mav;
     }
 
