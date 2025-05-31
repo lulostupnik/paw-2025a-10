@@ -47,7 +47,8 @@ public class EditEventForm {
     private String address;
 
     @NumberFormat
-    @ValidAttendeesLimit
+    @Max(1000)
+    @Min(1)
     private Integer attendeesLimit;
 
     public String getCity() {

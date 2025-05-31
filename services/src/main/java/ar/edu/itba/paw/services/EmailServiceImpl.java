@@ -2,6 +2,7 @@ package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.InvalidImageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,7 +119,7 @@ public class EmailServiceImpl implements EmailService {
         variables.put("isEvent", true);
         variables.put("contentTitle", event.getTitle());
         variables.put("contentId", event.getId());
-        variables.put("commentDate", deletedComment.getFormattedDate());
+        variables.put("commentDate", deletedComment.getDateTime().toLocalDate());
         variables.put("commentMessage", deletedComment.getMessage());
         variables.put("adminMessage", adminMessage);
         variables.put("baseUrl", baseUrl);
@@ -146,7 +147,7 @@ public class EmailServiceImpl implements EmailService {
         Map<String, Object> variables = new HashMap<>();
         variables.put("isEvent", false);
         variables.put("contentId", journey.getId());
-        variables.put("commentDate", deletedComment.getFormattedDate());
+        variables.put("commentDate", deletedComment.getDateTime().toLocalDate());
         variables.put("commentMessage", deletedComment.getMessage());
         variables.put("adminMessage", adminMessage);
         variables.put("baseUrl", baseUrl);
@@ -159,7 +160,7 @@ public class EmailServiceImpl implements EmailService {
     private byte[] getUserImageData(User user){
         return imageService.findImage(user.getProfilePictureId()).orElseThrow(() -> {
             LOGGER.error("User does not have profile picture");
-            return new IllegalStateException("User does not have profile picture");
+            return new InvalidImageException("User does not have profile picture");
         }).getData();
     }
     @Override

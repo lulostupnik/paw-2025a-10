@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.persistence.InterestDao;
 import ar.edu.itba.paw.interfaces.persistence.UserInterestDao;
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.InterestsNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,7 +97,7 @@ public class InterestServiceImpl implements InterestService {
             i.get().setName(interest);
         } else {
             LOGGER.error("Interest {} not found", id);
-            throw new IllegalArgumentException("Interest not found");
+            throw new InterestsNotFoundException("Interest not found");
         }
 
         LOGGER.info("Interest {} updated", id);

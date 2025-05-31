@@ -380,7 +380,9 @@
                                                     <c:out value="${response.user.username}" />
                                                 </h3>
                                                 <p class="response-date">
-                                                    <c:out value="${response.dateTime}" />
+                                                    <fmt:parseDate value="${response.dateTime}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" />
+                                                    <fmt:formatDate value="${parsedDate}" pattern="MMMM d, yyyy HH:mm" var="formattedDate" />
+                                                    <c:out value="${formattedDate}" />
                                                 </p>
                                             </div>
                                         </div>
@@ -480,6 +482,7 @@
 
 <!-- Include Report Modal -->
 <jsp:include page="/WEB-INF/jsp/components/report-modal.jsp" />
+<script src="<c:url value="/resources/js/components/navigation-stack.js"/>"></script>
 
 <script>
     function toggleDropdown(dropdownId) {
@@ -529,14 +532,15 @@ function toggleEvents() {
     }
 }
 
-function goBack(){
-    const rutaAnterior = sessionStorage.getItem("rutaAnterior");
-    if (rutaAnterior) {
-        window.location.href = rutaAnterior;
-    } else {
-        window.location.href = "<c:url value='/journeys' />"
+
+    function goBack(){
+        const rutaAnterior = popFromNavigationStack()
+        if (rutaAnterior) {
+            window.location.href = rutaAnterior;
+        } else {
+            window.location.href = "<c:url value='/events'/>"
+        }
     }
-}
 
     function toggleActionMenu() {
         const dropdown = document.getElementById('actionDropdown');

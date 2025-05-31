@@ -4,6 +4,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <c:if test="${empty param.showToggle}">
     <c:set var="showToggle" value="true" />
@@ -66,7 +67,9 @@
                                     <c:out value="${response.user.username}" />
                                 </h3>
                                 <p class="message-date">
-                                    <c:out value="${response.formattedDate}" />
+                                    <fmt:parseDate value="${response.dateTime}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" />
+                                    <fmt:formatDate value="${parsedDate}" pattern="MMMM d, yyyy HH:mm" var="formattedDate" />
+                                    <c:out value="${formattedDate}" />
                                 </p>
                             </div>
                         </div>

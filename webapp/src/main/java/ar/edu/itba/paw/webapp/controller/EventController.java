@@ -21,10 +21,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.swing.text.html.Option;
 import javax.validation.Valid;
 
 
 import java.util.List;
+import java.util.Optional;
 
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 
@@ -122,9 +124,12 @@ public class EventController {
         mav.addObject("attend", eventWithStatistics.isAttending());
         mav.addObject("isEventOwner", eventWithStatistics.isCreator());
         mav.addObject("isFull", event.getFull());
-        mav.addObject("averageRating", eventService.findRatingsAverageByEvent(event.getId()));
+        Optional<Double> maybeAverageRating = eventService.findRatingsAverageByEvent(event.getId());
+        LOGGER.debug("Average rating: {}", maybeAverageRating.orElse(0.0));
+        maybeAverageRating.ifPresent(rating -> mav.addObject("averageRating", rating));
         if (user != null) {
-            mav.addObject("userRating", eventService.findRatingByUserAndEvent(user.getId(), event.getId()));
+            Optional<Double> maybeUserRating = eventService.findRatingByUserAndEvent(user.getId(), event.getId());
+            maybeUserRating.ifPresent(rating -> mav.addObject("userRating", rating));
         }
         mav.addObject("ratingCount", eventService.countRatingsByEvent(event.getId()));
 
@@ -141,7 +146,7 @@ public class EventController {
         @PageParamCustomizer(defaultSize = 6, pageParamName = "attendeesPage", sizeParamName = "attendeesSize") PageParams attendeesPage)
     {
         EventWithStatistics eventWithStatistics = eventService.findEventWithStatistics(user,id).orElseThrow(() -> {
-            LOGGER.error("eventWithStatistics not found");
+            LOGGER.error("eventWithStatistics not found for id: {}", id);
             return new EventNotFoundException("eventWithStatistics not found");});
         return populateEventDetails(eventWithStatistics,
                 id, repliesPage, attendeesPage, user );
@@ -178,7 +183,7 @@ public class EventController {
         LOGGER.debug("Showing delete form for event {}", id);
 
         Event event = eventService.findEventById(id).orElseThrow(() -> {
-            LOGGER.error("event not found");
+            LOGGER.error("event not found for id: {}", id);
             return new EventNotFoundException();});
         long commentsCount = eventService.countEventResponses(event.getId());
 
@@ -196,17 +201,8 @@ public class EventController {
         EventResponse er = eventService.findEventResponseById(id).orElseThrow(() -> {
             LOGGER.error("Event response with id {} not found", id);
             return new NotFoundException("eventResponse not found");}); //fixme porque return new NotFoundException
-
-        Event event = er.getEvent();
-
-        if(event.getId() != eventId){
-            LOGGER.error("Event ID {} and response ID {} do not match", eventId, id);
-            throw new InvalidException(); //fixme porque throw/return?
-        }
-
-
         ModelAndView mav = new ModelAndView("events/delete-reply");
-        mav.addObject("event", event);
+        mav.addObject("event", er.getEvent());
         mav.addObject("eventResponse", er);
         return mav;
     }
@@ -250,7 +246,7 @@ public class EventController {
                                             BindingResult errors) {
 
         Event event = eventService.findEventById(eventId).orElseThrow(() -> {
-            LOGGER.error("event not found");
+            LOGGER.error("event not found for id: {}", eventId);
             return new EventNotFoundException();});
 
         if(!errors.hasErrors()) {

@@ -105,7 +105,11 @@
         const baseUrl = '<c:url value="/" />';
         window.location.href = baseUrl + 'events/' + eventId + '/update';
     }
+
+</script>
+<script src="<c:url value="/resources/js/components/navigation-stack.js"/>"></script>
+<script>
     function saveLink() {
-        sessionStorage.setItem("rutaAnterior", window.location.href);
+        pushToNavigationStack(window.location.href);
     }
 </script>

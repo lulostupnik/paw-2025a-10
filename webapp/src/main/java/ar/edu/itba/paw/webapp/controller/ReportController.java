@@ -3,6 +3,7 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.ReportStatus;
+import ar.edu.itba.paw.models.exceptions.ReportNotFoundException;
 import ar.edu.itba.paw.webapp.form.CreateReportForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,7 +124,7 @@ public class ReportController {
     @GetMapping(value= "/{id}")
     public ModelAndView getReport(@PathVariable(value = "id") final long id) {
         Report report = reportService.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Report not found"));
+                .orElseThrow(() -> new ReportNotFoundException("Report not found"));
 
         ModelAndView mav = new ModelAndView(REPORT_DETAIL);
         mav.addObject("report", report);

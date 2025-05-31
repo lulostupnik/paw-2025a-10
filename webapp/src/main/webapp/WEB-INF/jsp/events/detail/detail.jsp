@@ -334,9 +334,12 @@
         }
     });
 </script>
+<script src="<c:url value="/resources/js/components/navigation-stack.js"/>"></script>
 <script>
+
     function goBack(){
-        const rutaAnterior = sessionStorage.getItem("rutaAnterior");
+        console.log(peekNavigationStack())
+        const rutaAnterior = popFromNavigationStack()
         if (rutaAnterior) {
             window.location.href = rutaAnterior;
         } else {

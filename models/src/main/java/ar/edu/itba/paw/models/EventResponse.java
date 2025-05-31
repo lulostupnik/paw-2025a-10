@@ -59,11 +59,6 @@ public class EventResponse {
         this.deleted = false;
     }
 
-    public String getFormattedDate() {
-        return dateTime.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-    }
-
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

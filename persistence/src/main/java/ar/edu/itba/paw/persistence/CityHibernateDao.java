@@ -41,13 +41,13 @@ public class CityHibernateDao implements CityDao {
         final String countSql = """
                 SELECT COUNT(*)
                 FROM cities c JOIN countries co ON c.country_id = co.id
-                WHERE (LOWER(c.name) like LOWER( :pattern )  OR LOWER (co.name) like LOWER( :pattern )) and c.deleted = false
+                WHERE (LOWER(c.name) like :pattern  OR LOWER (co.name) like :pattern ) and c.deleted = false
                 """;
 
         final String idSql = """
                 SELECT c.id
                 FROM cities c JOIN countries co ON c.country_id = co.id
-                WHERE (LOWER(c.name) likeLOWER( :pattern )  OR LOWER (co.name) like LOWER( :pattern ) ) and c.deleted = false
+                WHERE (LOWER(c.name) like  :pattern   OR LOWER (co.name) like :pattern  ) and c.deleted = false
                 """;
 
         final String jpqlFetch = """

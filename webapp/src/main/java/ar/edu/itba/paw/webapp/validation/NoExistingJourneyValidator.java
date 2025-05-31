@@ -22,10 +22,6 @@ public class NoExistingJourneyValidator implements ConstraintValidator<NoExistin
         if (email == null || email.isEmpty()) {
             return true;
         }
-        try {
             return !journeyService.existsByUserEmail(email);
-        } catch (Exception e) {
-            return true;
-        }
     }
 }

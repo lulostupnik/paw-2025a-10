@@ -24,10 +24,7 @@ public class CurrentAttendeeValidator implements ConstraintValidator<CurrentAtte
         if(form.getAttendeesLimit() == null) {
             return true;
         }
-        System.out.println(form.getId());
         Optional<Event> event = eventService.findEventById(form.getId());
-
-        System.out.println("Event: " + event);
 
         return event.filter(value -> value.getAttendeesCount() <= form.getAttendeesLimit()).isPresent();
 

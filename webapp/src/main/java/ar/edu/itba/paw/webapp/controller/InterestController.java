@@ -55,7 +55,7 @@ public class InterestController {
     @GetMapping(value= "/{id}")
     public ModelAndView getInterests(@PathVariable(value = "id") final long id) {
         Interest interest = interestService.findInterestById(id).orElseThrow(() -> {
-            LOGGER.error("Interest not found");
+            LOGGER.error("Interest not found for id: {}", id);
             return new NotFoundException("Interest not found");});
         ModelAndView mav = new ModelAndView("interests/detail");
         mav.addObject("interest", interest);
@@ -68,7 +68,7 @@ public class InterestController {
                                             @ModelAttribute("createInterestForm") final CreateInterestForm form,
                                            BindingResult errors ) {
         Interest interest = interestService.findInterestById(id).orElseThrow(() -> {
-            LOGGER.error("Interest not found");
+            LOGGER.error("Interest not found for id: {}", id);
             return new NotFoundException("Interest not found");});
         if(!errors.hasErrors()){
             form.setName(interest.getName());

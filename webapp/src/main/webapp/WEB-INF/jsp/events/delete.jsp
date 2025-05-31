@@ -40,7 +40,7 @@
                             <li><strong><spring:message code="event.location" />:</strong> <c:out value="${event.city.name}" /></li>
                             <li><strong><spring:message code="event.date" />:</strong> <c:out value="${event.date}" /></li>
                             <c:if test="${event.time != null}">
-                                <li><strong><spring:message code="event.time" />:</strong> <c:out value="${event.time.get()}" /></li>
+                                <li><strong><spring:message code="event.time" />:</strong> <c:out value="${event.time}" /></li>
                             </c:if>
                             <li><strong><spring:message code="event.attendees" />:</strong> <c:out value="${event.attendeesCount}" /></li>
                             <li><strong><spring:message code="event.responses" />:</strong> <c:out value="${commentsCount}" /></li>

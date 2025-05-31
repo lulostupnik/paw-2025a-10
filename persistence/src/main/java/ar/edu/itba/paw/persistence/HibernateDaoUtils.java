@@ -28,10 +28,11 @@ class HibernateDaoUtils {
         if (text == null || text.isEmpty()) {
             return "%";
         }
-        StringBuilder sb = new StringBuilder();
-        sb.append("%").append(text.replace("%", "\\%").replace("_", "\\_").toLowerCase()).append("%");
-
-        return sb.toString();
+        return "%%%s%%".formatted(text.replace("\\", "\\\\")
+                        .replace("%", "\\%")
+                        .replace("_", "\\_")
+                        .toLowerCase()
+        );
     }
 
 

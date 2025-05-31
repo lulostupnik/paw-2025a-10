@@ -5,9 +5,10 @@
 <%@ taglib prefix="sprng" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <script src="<c:url value='/resources/js/detect-overflow.js'/>">
 </script>
+<script src="<c:url value="/resources/js/components/navigation-stack.js"/>"></script>
 <script>
     function saveLink() {
-        sessionStorage.setItem("rutaAnterior", window.location.href);
+        pushToNavigationStack(window.location.href);
     }
 </script>
 

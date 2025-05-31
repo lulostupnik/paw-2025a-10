@@ -19,7 +19,7 @@
         <h3 th:if="${isEvent}" th:text="#{email.comment.deletion.event.title(${contentTitle})}" style="margin: 0 0 10px 0; font-size: 18px;">Event: Event Title</h3>
         <h3 th:unless="${isEvent}" th:text="#{email.comment.deletion.journey.title}" style="margin: 0 0 10px 0; font-size: 18px;">Journey</h3>
         <p style="margin: 5px 0; color: #666;">
-            <span th:text="#{email.comment.deletion.date(${commentDate})}">Date: 2025-05-07</span>
+            <span th:text="#{email.comment.deletion.date(${#temporals.format(commentDate, 'yyyy-MM-dd')})}">Date: 2025-05-07</span>
         </p>
     </div>
 
