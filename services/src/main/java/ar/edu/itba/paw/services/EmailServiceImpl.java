@@ -119,7 +119,7 @@ public class EmailServiceImpl implements EmailService {
         variables.put("isEvent", true);
         variables.put("contentTitle", event.getTitle());
         variables.put("contentId", event.getId());
-        variables.put("commentDate", deletedComment.getFormattedDate());
+        variables.put("commentDate", deletedComment.getDateTime().toLocalDate());
         variables.put("commentMessage", deletedComment.getMessage());
         variables.put("adminMessage", adminMessage);
         variables.put("baseUrl", baseUrl);
@@ -147,7 +147,7 @@ public class EmailServiceImpl implements EmailService {
         Map<String, Object> variables = new HashMap<>();
         variables.put("isEvent", false);
         variables.put("contentId", journey.getId());
-        variables.put("commentDate", deletedComment.getFormattedDate());
+        variables.put("commentDate", deletedComment.getDateTime().toLocalDate());
         variables.put("commentMessage", deletedComment.getMessage());
         variables.put("adminMessage", adminMessage);
         variables.put("baseUrl", baseUrl);

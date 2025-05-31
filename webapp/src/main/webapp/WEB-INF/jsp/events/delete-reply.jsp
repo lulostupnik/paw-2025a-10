@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="${pageContext.response.locale}">
 <head>
@@ -36,8 +37,10 @@
           <div class="journey-summary">
             <h3><spring:message code="eventResponse.delete.summary" /></h3>
             <div class="reply-content-preview">
+              <fmt:parseDate value="${eventResponse.dateTime}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" />
+              <fmt:formatDate value="${parsedDate}" pattern="MMMM d, yyyy 'at' HH:mm" var="formattedDate" />
               <p><strong><spring:message code="eventResponse.author" />:</strong> <c:out value="${eventResponse.user.username}" /></p>
-              <p><strong><spring:message code="eventResponse.date" />:</strong> <c:out value="${eventResponse.formattedDate}" /></p>
+              <p><strong><spring:message code="eventResponse.date" />:</strong> <c:out value="${formattedDate}" /></p>
               <p><strong><spring:message code="eventResponse.content" />:</strong></p>
               <div class="message-preview">
                 <c:out value="${eventResponse.message}" />

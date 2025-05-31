@@ -195,7 +195,6 @@
 <%--                    <c:out value="${rating.user.firstname} ${rating.user.lastname}" />--%>
 <%--                  </h4>--%>
 <%--                  <p class="rating-date">--%>
-<%--                    <c:out value="${rating.formattedDate}" />--%>
 <%--                  </p>--%>
 <%--                </div>--%>
 <%--              </div>--%>
