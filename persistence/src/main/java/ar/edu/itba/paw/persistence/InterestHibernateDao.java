@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
+import static ar.edu.itba.paw.persistence.HibernateDaoUtils.likePattern;
 
 @Repository
 public class InterestHibernateDao implements InterestDao {
@@ -85,7 +86,7 @@ public class InterestHibernateDao implements InterestDao {
 
     @Override
     public Page<Interest> search(String searchTerm, PageParams pageParams) {
-        final String pattern = JdbcDaoUtils.likePattern(searchTerm);
+        final String pattern = likePattern(searchTerm);
 
         final String sql = """
                 SELECT i

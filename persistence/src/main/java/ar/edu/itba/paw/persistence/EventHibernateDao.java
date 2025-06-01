@@ -14,9 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 
-import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
-import static ar.edu.itba.paw.persistence.HibernateDaoUtils.pageCount;
-import static ar.edu.itba.paw.persistence.JdbcDaoUtils.likePattern;
+import static ar.edu.itba.paw.persistence.HibernateDaoUtils.*;
 
 @Repository
 public class EventHibernateDao implements EventDao {

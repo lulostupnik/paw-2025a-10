@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
-import static ar.edu.itba.paw.persistence.JdbcDaoUtils.likePattern;
+import static ar.edu.itba.paw.persistence.HibernateDaoUtils.likePattern;
 
 @Repository
 public class CareerHibernateDao implements CareerDao {
