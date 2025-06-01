@@ -1,3 +1,4 @@
+package ar.edu.itba.paw.persistence.deprecated;
 //package ar.edu.itba.paw.persistence;
 //
 //import static org.junit.Assert.assertEquals;

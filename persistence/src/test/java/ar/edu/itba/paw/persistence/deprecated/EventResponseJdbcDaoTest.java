@@ -1,3 +1,4 @@
+package ar.edu.itba.paw.persistence.deprecated;
 //package ar.edu.itba.paw.persistence;
 //
 //import java.sql.Timestamp;
