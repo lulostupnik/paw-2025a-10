@@ -30,6 +30,11 @@ public class Country {
         this.name = name;
         this.code = code;
     }
+    public Country(final Long id, final String name, final String code) {
+        this.name = name;
+        this.code = code;
+        this.id = id;
+    }
 
     @Override
     public String toString() {

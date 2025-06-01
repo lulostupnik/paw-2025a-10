@@ -41,6 +41,13 @@ public class Token {
         this.expirationDate = expirationDate;
     }
 
+    public Token(long id, User user, String token, LocalDateTime expirationDate) {
+        this.user = user;
+        this.token = token;
+        this.expirationDate = expirationDate;
+        this.tokenId = id;
+    }
+
     public boolean isExpired() {
         return LocalDateTime.now().isAfter(expirationDate);
     }

@@ -27,6 +27,7 @@ public class University{
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "city_id", nullable = false)
+    @Setter
     private  City city;
 
     @Setter
