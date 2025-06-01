@@ -161,7 +161,7 @@ CREATE TABLE IF NOT EXISTS reports (
                          FOREIGN KEY (reported_user_id) REFERENCES users(id) ON DELETE CASCADE,
                          FOREIGN KEY (reporting_user_id) REFERENCES users(id) ON DELETE CASCADE,
                          FOREIGN KEY (journey_id) REFERENCES journeys(id) ON DELETE CASCADE,
-                         FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
+                         FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
                          FOREIGN KEY (event_response_id) REFERENCES event_responses(id) ON DELETE CASCADE,
                          FOREIGN KEY (journey_response_id) REFERENCES journey_responses(id) ON DELETE CASCADE
 );
