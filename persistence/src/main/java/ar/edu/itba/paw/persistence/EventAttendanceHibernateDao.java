@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+
+import java.math.BigInteger;
 import java.util.Map;
 
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
@@ -56,9 +58,7 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
                     .setParameter("event", event)
                     .getSingleResult();
 
-            if (attendance != null) {
-                em.remove(attendance);
-            }
+            em.remove(attendance);  //query throws NoResultException -> can't be null
         }
     }
 
@@ -84,12 +84,12 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
                 SELECT ea.user_id
                 FROM event_attendances ea
                 WHERE ea.event_id = :eventId
-                ORDER BY ea.date_time
+                ORDER BY ea.user_id
             """;
         final String jpqlFetch = """
                 FROM EventAttendance ea
-                WHERE ea.event_id = :eventId AND ea.user_id IN :ids
-                ORDER BY ea.dateTime
+                WHERE ea.event.id = :eventId AND ea.user.id IN :ids
+                ORDER BY ea.user.id
             """;
 
         return fetchPageByIds(
@@ -115,12 +115,12 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
                 SELECT ea.event_id
                 FROM event_attendances ea
                 WHERE ea.user_id = :userId
-                ORDER BY ea.date_time
+                ORDER BY ea.event_id
             """;
         final String jpqlFetch = """
                 FROM EventAttendance ea
                 WHERE ea.user.id = :userId AND ea.event.id IN :ids
-                ORDER BY ea.dateTime
+                ORDER BY ea.event.id
             """;
         return fetchPageByIds(
                 em,
@@ -142,9 +142,9 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
                 WHERE event_id = :eventId
             """;
 
-        return em.createNativeQuery(sql)
+        return ((BigInteger)em.createNativeQuery(sql)
                 .setParameter("eventId", eventId)
-                .getFirstResult();
+                .getSingleResult()).intValue();
     }
 
 

@@ -9,6 +9,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.Optional;
 
@@ -48,9 +49,9 @@ public class JourneyResponseHibernateDao implements JourneyResponseDao {
         WHERE journey_id = :journeyId AND deleted = FALSE
     """;
 
-        return em.createNativeQuery(sql)
+        return ((BigInteger)em.createNativeQuery(sql)
                 .setParameter("journeyId", journeyId)
-                .getFirstResult();
+                .getSingleResult()).intValue();
     }
 
 

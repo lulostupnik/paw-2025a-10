@@ -11,6 +11,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
@@ -52,9 +53,9 @@ public class EventResponseHibernateDao implements EventResponseDao {
         WHERE event_id = :eventId AND deleted = FALSE
     """;
 
-        return em.createNativeQuery(sql)
+        return ((BigInteger)em.createNativeQuery(sql)
                 .setParameter("eventId", eventId)
-                .getFirstResult();
+                .getSingleResult()).intValue();
     }
 
     @Override

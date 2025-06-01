@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
-@Transactional
 public class TokenHibernateDao implements TokenDao {
 
     @PersistenceContext

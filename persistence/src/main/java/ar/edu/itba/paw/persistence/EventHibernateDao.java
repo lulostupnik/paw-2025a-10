@@ -484,7 +484,7 @@ public class EventHibernateDao implements EventDao {
             idSql.append(" AND " ).append(clause);
         }
 
-        idSql.append(" GROUP BY e.id");
+        //idSql.append(" GROUP BY e.id");
 
         String sortColumn = getSortColumn(sortBy);
         String dir = (direction == SortDirection.DESC) ? "DESC" : "ASC";

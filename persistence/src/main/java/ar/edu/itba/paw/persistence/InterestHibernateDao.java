@@ -94,7 +94,7 @@ public class InterestHibernateDao implements InterestDao {
                 """;
 
         final String countSql = """
-                SELECT COUNT(i)
+                SELECT COUNT(*)
                 FROM Category i
                 WHERE LOWER(i.name) LIKE LOWER( :pattern )
                 """;

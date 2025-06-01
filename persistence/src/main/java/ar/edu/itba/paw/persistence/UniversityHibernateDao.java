@@ -1,9 +1,12 @@
 package ar.edu.itba.paw.persistence;
+import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
 import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -20,6 +23,8 @@ public class UniversityHibernateDao implements UniversityDao {
     @PersistenceContext
     private EntityManager em;
 
+    @Autowired
+    private CityDao cityDao;
 
     @Override
     public University create(String name, String abbreviation, City city) {
@@ -34,7 +39,8 @@ public class UniversityHibernateDao implements UniversityDao {
         if (university != null) {
             university.setName(newName);
             university.setAbbreviation(newAbbreviation);
-            university.getCity().setName(newCityName);
+            //university.getCity().setName(newCityName);  //TODO this breaks cities. quick patch below
+            university.setCity(cityDao.findByName(newCityName).orElseThrow(IllegalArgumentException::new));
             em.merge(university);
         }
     }
