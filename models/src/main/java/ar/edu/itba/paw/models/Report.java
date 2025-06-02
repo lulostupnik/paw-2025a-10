@@ -67,6 +67,22 @@ public class Report {
     /* hibernate */ Report() {
     }
 
+    public Report(Long id, User reported, User reporting, String desc, String reason, Journey journey, Event event, EventResponse eventResponse, JourneyResponse journeyResponse, boolean deleted, ReportStatus status){
+        this.id = id;
+        this.reportedUser = reported;
+        this.reportingUser = reporting;
+        this.description = desc;
+        this.reason = reason;
+        this.deleted = deleted;
+        this.status = status;
+        this.journey = journey;
+        this.event = event;
+        this.journeyResponse = journeyResponse;
+        this.eventResponse = eventResponse;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
     public Report(User reportedUser, User reportingUser, String description, String reason) {
         this.reportedUser = reportedUser;
         this.reportingUser = reportingUser;
