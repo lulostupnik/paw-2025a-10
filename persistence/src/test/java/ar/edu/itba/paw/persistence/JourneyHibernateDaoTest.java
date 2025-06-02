@@ -220,7 +220,6 @@ public class JourneyHibernateDaoTest {
         TestUtils.assertEqualsJourney(newJourney1, page1.getContent().get(0));
         TestUtils.assertEqualsJourney(newJourney2, page1.getContent().get(1));
     }
-    //FIXME order is not correct
     @Test
     public void testRecommendedJourneysWithInterests(){
         //should have internal score of 116 (50 + 30 match dest uni, 15 overlap, 21 interest match)

@@ -923,14 +923,6 @@ class TestUtils {
         assertEqualsUser(USER_I3,template.queryForObject(USER_SELECT_BY_ID, USER_ROW_MAPPER, USER_I3_ID));
     }
 
-    // public static void assertEqualsUserPassword(UserAuthInfo up){
-    //     assertNotNull(up);
-    //     assertEquals(USER_1_MAIL, up.getEmail());
-    //     assertEquals(USER_PASSWORD, up.getPassword());
-    //     assertEquals(USER_ROLE, up.getRole());
-    //     assertEquals(USER_BLOCKED, up.isBlocked());
-    // }
-
     public static void assertEqualsReport(Report expected, Report actual){
         assertNotNull(expected);
         assertNotNull(actual);
