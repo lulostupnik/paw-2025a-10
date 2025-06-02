@@ -105,9 +105,18 @@ class HibernateDaoUtils {
         LOGGER.error("Fetch SQL parameters: {}", parameters);
 
         List<T> results = fetchQuery.getResultList();
+
+        //TODO Super hacky, think of a more OOP/JPA way of sorting
+        List<Long> orderedIds = new ArrayList<>(ids);
+        orderedIds.sort((a, b) -> Long.compare(a, b));
+        List<T> sortedResults = new ArrayList<>();
+        for (long id : ids){
+            sortedResults.add(results.get(orderedIds.indexOf(id)));
+        }
+
         LOGGER.error("Results: {}", results);
 
-        return new Page<>(results, pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
+        return new Page<>(sortedResults, pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
     }
 
 
