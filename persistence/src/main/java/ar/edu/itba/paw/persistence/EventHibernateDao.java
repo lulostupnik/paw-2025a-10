@@ -192,11 +192,20 @@ public class EventHibernateDao implements EventDao {
     """;
 
         final String idSql = """
+        WITH user_data AS (
+            SELECT u.id, c.id AS city_id
+            FROM users u
+            JOIN universities un ON u.university = un.id
+            JOIN cities c ON un.city_id = c.id
+            WHERE u.id = :userId
+        )
         SELECT e.id
         FROM events e
         JOIN users us ON e.user_id = us.id
         JOIN universities un ON us.university = un.id
         JOIN cities c ON e.city_id = c.id
+        JOIN user_data ud ON ud.city_id = e.city_id
+        LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ud.id
         WHERE e.event_date >= CURRENT_DATE
           AND us.id != :userId
           AND e.deleted = FALSE
@@ -207,8 +216,13 @@ public class EventHibernateDao implements EventDao {
               JOIN cities c2 ON un2.city_id = c2.id
               WHERE u.id = :userId
           )
-        ORDER BY e.event_date
-    """;
+        ORDER BY
+            (e.attendees_limit IS NOT NULL AND e.attendees_count >= e.attendees_limit),
+            (ea.user_id IS NOT NULL),
+            (e.user_id = :userId),
+            COALESCE(e.attendees_count, 0) DESC,
+            e.event_date    
+        """;
 
         final String jpqlFetch = """
         FROM Event e
@@ -495,11 +509,4 @@ public class EventHibernateDao implements EventDao {
         // Delegamos al helper
         return fetchPageByIds(em, countSql.toString(), idSql.toString(), paramMap, jpqlFetch, Event.class, pageParams, Map.of());
     }
-
-
-
-
-
-
-
 }

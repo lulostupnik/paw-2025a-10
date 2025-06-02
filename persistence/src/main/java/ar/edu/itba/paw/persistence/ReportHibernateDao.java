@@ -109,7 +109,7 @@ public class ReportHibernateDao implements ReportDao {
                 em,
                 countSql,
                 idSql,
-                Map.of("status", status),
+                Map.of("status", status.toString()),
                 jpqlFetch,
                 Report.class,
                 params,
@@ -122,12 +122,12 @@ public class ReportHibernateDao implements ReportDao {
         final String countSql = """
                 SELECT COUNT(*)
                 FROM reports r
-                WHERE r.reportingUser = :user AND r.deleted = false
+                WHERE r.reporting_user_id = :user AND r.deleted = false
                 """;
         final String idSql = """
                 SELECT r.id
                 FROM reports r
-                WHERE r.reportingUser = :user AND r.deleted = false
+                WHERE r.reporting_user_id = :user AND r.deleted = false
                 """;
         final String jpqlFetch = """
                 FROM Report r
