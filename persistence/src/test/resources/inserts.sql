@@ -59,13 +59,13 @@ INSERT INTO event_attendances(user_id, event_id) VALUES(1, 1);
 INSERT INTO event_attendances(user_id, event_id) VALUES(2, 1);
 INSERT INTO event_attendances(user_id, event_id) VALUES(3, 1);
 INSERT INTO event_attendances(user_id, event_id) VALUES(1, 2);
+INSERT INTO event_attendances(user_id, event_id) VALUES(2, 4);
+
 
 INSERT INTO event_responses(id, user_id, event_id, message, date_time, deleted) VALUES(1, 1, 1, 'COOL!', CURRENT_DATE + INTERVAL '0' HOUR, FALSE);
 INSERT INTO event_responses(id, user_id, event_id, message, date_time, deleted) VALUES(2, 1, 1, 'COOL!', CURRENT_DATE + INTERVAL '0' HOUR, FALSE);
 INSERT INTO event_responses(id, user_id, event_id, message, date_time, deleted) VALUES(3, 1, 1, 'COOL!', CURRENT_DATE + INTERVAL '0' HOUR, FALSE);
 INSERT INTO event_responses(id, user_id, event_id, message, date_time, deleted) VALUES(4, 1, 1, 'COOL!', CURRENT_DATE + INTERVAL '0' HOUR, TRUE);
-
---REPORTS
 
 INSERT INTO ratings(id, user_id, event_id, rating, created_at, updated_at) VALUES(1, 1, 1, 5, CURRENT_DATE, CURRENT_DATE);
 INSERT INTO ratings(id, user_id, event_id, rating, created_at, updated_at) VALUES(2, 2, 1, 4, CURRENT_DATE, CURRENT_DATE);
@@ -77,3 +77,11 @@ INSERT INTO tokens(id, user_id, token, token_expiration) VALUES(1, 1, 'asdf', CU
 INSERT INTO tokens(id, user_id, token, token_expiration) VALUES(2, 2, 'zxcv', CURRENT_TIMESTAMP + INTERVAL '1' DAY);
 INSERT INTO tokens(id, user_id, token, token_expiration) VALUES(3, 3, 'qwer', CURRENT_TIMESTAMP + INTERVAL '1' DAY);
 INSERT INTO tokens(id, user_id, token, token_expiration) VALUES(4, 4, 'tyui', CURRENT_TIMESTAMP - INTERVAL '7' DAY);
+
+INSERT INTO reports(id, reported_user_id, reporting_user_id, journey_id, event_id, event_response_id, journey_response_id, description, reason, deleted)         VALUES(1, 3, 1, null, null, null, null, 'illegal',        'illegal', FALSE);
+INSERT INTO reports(id, reported_user_id, reporting_user_id, journey_id, event_id, event_response_id, journey_response_id, description, reason, deleted)         VALUES(2, 4, 1, 3,    null, null, null, 'illegaljourney', 'illegaljourney', FALSE);
+INSERT INTO reports(id, reported_user_id, reporting_user_id, journey_id, event_id, event_response_id, journey_response_id, description, reason, deleted)         VALUES(3, 2, 1, null, 3,    null, null, 'illegalevent',   'illegalevent', FALSE);
+INSERT INTO reports(id, reported_user_id, reporting_user_id, journey_id, event_id, event_response_id, journey_response_id, description, reason, deleted, status) VALUES(4, 3, 1, null, null, null, null, 'illegal',        'illegal', FALSE, 'UNDER_REVIEW');
+INSERT INTO reports(id, reported_user_id, reporting_user_id, journey_id, event_id, event_response_id, journey_response_id, description, reason, deleted, status) VALUES(5, 3, 1, null, null, null, null, 'illegal',        'illegal', FALSE, 'RESOLVED');
+INSERT INTO reports(id, reported_user_id, reporting_user_id, journey_id, event_id, event_response_id, journey_response_id, description, reason, deleted, status) VALUES(6, 3, 1, null, null, null, null, 'illegal',        'illegal', FALSE, 'DISMISSED');
+INSERT INTO reports(id, reported_user_id, reporting_user_id, journey_id, event_id, event_response_id, journey_response_id, description, reason, deleted, status) VALUES(7, 3, 1, null, null, null, null, 'illegal',        'illegal', TRUE, 'DISMISSED');
