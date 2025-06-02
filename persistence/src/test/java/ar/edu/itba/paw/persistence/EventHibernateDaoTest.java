@@ -246,41 +246,25 @@ public class EventHibernateDaoTest {
         assertEquals(0, page1.getContent().size());
     }
 
-    // @Test
-    // public void testFindAttendanceLimitById(){
-    //     Optional<Integer> limit = eventDao.findAttendanceLimitById(TestUtils.EVENT_1_ID);
+    @Test
+    public void testFindAllBetweenDates(){
+        Page<Event> events = eventDao.findAllBetweenDates(TestUtils.EVENT_DATE_OLDER, TestUtils.EVENT_DATE_DEFAULT.plusDays(-1), TestUtils.PAGE_1_BIG);
 
-    //     assertNotNull(limit);
-    //     assertTrue(limit.isPresent());
-    //     assertEquals(TestUtils.EVENT_ATTENDANCE_LIMIT_DEFAULT, limit.get().intValue());
-    // }
-    // @Test
-    // public void testFindAttendanceLimitNoLimitById(){
-    //     Optional<Integer> limit = eventDao.findAttendanceLimitById(TestUtils.EVENT_2_ID);
+        assertNotNull(events);
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(1, events.getTotalPages());
+        assertEquals(1, events.getContent().size());
+        TestUtils.assertEqualsEvent(TestUtils.EVENT_OLDER, events.getContent().getFirst());
+    }
+    @Test
+    public void testFindAllBetweenDates2(){
+        Page<Event> events = eventDao.findAllBetweenDates(TestUtils.EVENT_DATE_DEFAULT, TestUtils.EVENT_DATE_LATER, TestUtils.PAGE_1_BIG);
 
-    //     assertNotNull(limit);
-    //     assertFalse(limit.isPresent());
-    // }
-    // @Test(expected = PersistenceException.class)
-    // public void testFindAttendanceLimitById2(){
-    //     eventDao.findAttendanceLimitById(12341234);
-    // }
-
-    // @Test
-    // public void testFindAllBetweenDates(){
-    //     List<Event> events = eventDao.findAllBetweenDates(TestUtils.EVENT_DATE_OLDER, TestUtils.EVENT_DATE_DEFAULT.plusDays(-1));
-
-    //     assertNotNull(events);
-    //     assertEquals(1, events.size());
-    //     TestUtils.assertEqualsEvent(TestUtils.EVENT_OLDER, events.getFirst());
-    // }
-    // @Test
-    // public void testFindAllBetweenDates2(){
-    //     List<Event> events = eventDao.findAllBetweenDates(TestUtils.EVENT_DATE_DEFAULT, TestUtils.EVENT_DATE_LATER);
-
-    //     assertNotNull(events);
-    //     assertEquals(3, events.size());
-    // }
+        assertNotNull(events);
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(1, events.getTotalPages());
+        assertEquals(TestUtils.TOTAL_EVENTS_UPCOMING, events.getContent().size());
+    }
 
     @Test
     public void testCountEventsCreatedByUser(){
@@ -300,25 +284,6 @@ public class EventHibernateDaoTest {
 
         assertEquals(0, eventCount);
     }
-
-    // @Test
-    // public void testCountEventsAttendedByUser(){
-    //     int eventCount = eventDao.countEventsAttendedByUser(TestUtils.USER_1_ID);
-
-    //     assertEquals(TestUtils.USER_1_ATTENDANCES - 1, eventCount);
-    // }
-    // @Test
-    // public void testCountEventsAttendedByUser2(){
-    //     int eventCount = eventDao.countEventsAttendedByUser(TestUtils.USER_1_ID);
-
-    //     assertEquals(TestUtils.USER_2_ATTENDANCES, eventCount);
-    // }
-    // @Test
-    // public void testCountEventsAttendedByUserNotFound(){
-    //     int eventCount = eventDao.countEventsAttendedByUser(12341234l);
-
-    //     assertEquals(0, eventCount);
-    // }
 
     @Test
     public void findTopAttendeeCountry(){
@@ -343,80 +308,6 @@ public class EventHibernateDaoTest {
         assertNotNull(countryAttendee);
         assertFalse(countryAttendee.isPresent());
     }
-
-    // @Test
-    // public void testFindEventWithUserInfo(){
-    //     Optional<EventWithUserInfo> maybeInfo = eventDao.findEventWithUserInfo(TestUtils.USER_1_ID, TestUtils.EVENT_1_ID);
-
-    //     assertNotNull(maybeInfo);
-    //     assertTrue(maybeInfo.isPresent());
-    //     assertTrue(maybeInfo.get().isAttending());
-    //     assertTrue(maybeInfo.get().isCreator());
-    //     TestUtils.assertEqualsEvent(TestUtils.EVENT_1, maybeInfo.get().getEvent());
-    // }
-    // @Test
-    // public void testFindEventWithUserInfo2(){
-    //     Optional<EventWithUserInfo> maybeInfo = eventDao.findEventWithUserInfo(TestUtils.USER_2_ID, TestUtils.EVENT_1_ID);
-
-    //     assertNotNull(maybeInfo);
-    //     assertTrue(maybeInfo.isPresent());
-    //     assertTrue(maybeInfo.get().isAttending());
-    //     assertFalse(maybeInfo.get().isCreator());
-    //     TestUtils.assertEqualsEvent(TestUtils.EVENT_1, maybeInfo.get().getEvent());
-    // }
-    // @Test
-    // public void testFindEventWithUserInfo3(){
-    //     Optional<EventWithUserInfo> maybeInfo = eventDao.findEventWithUserInfo(TestUtils.USER_2_ID, TestUtils.EVENT_OLDER_ID);
-
-    //     assertNotNull(maybeInfo);
-    //     assertTrue(maybeInfo.isPresent());
-    //     assertFalse(maybeInfo.get().isAttending());
-    //     assertFalse(maybeInfo.get().isCreator());
-    //     TestUtils.assertEqualsEvent(TestUtils.EVENT_OLDER, maybeInfo.get().getEvent());
-    // }
-
-    // @Test
-    // public void testDelete(){
-    //     int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_TABLE);
-
-    //     eventDao.delete(TestUtils.EVENT_1_ID);
-
-    //     assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_TABLE));
-    //     assertEquals(
-    //         TestUtils.TOTAL_EVENTS_UPCOMING,
-    //         jdbcTemplate.queryForObject(TestUtils.EVENT_COUNT_NOT_DELETED, Integer.class).intValue());
-    // }
-    // @Test
-    // public void testDeleteDeleted(){
-    //     int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_TABLE);
-
-    //     eventDao.delete(TestUtils.EVENT_DELETED_ID);
-
-    //     assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_TABLE));
-    //     assertEquals(TestUtils.TOTAL_EVENTS_NOT_DELETED, jdbcTemplate.queryForObject(TestUtils.EVENT_COUNT_NOT_DELETED, Integer.class).intValue());
-    // }
-    // @Test
-    // public void testDeleteWrongId(){
-    //     int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_TABLE);
-
-    //     eventDao.delete(12341234);
-
-    //     assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_TABLE));
-    //     assertEquals(TestUtils.TOTAL_EVENTS_NOT_DELETED, jdbcTemplate.queryForObject(TestUtils.EVENT_COUNT_NOT_DELETED, Integer.class).intValue());
-    // }
-
-    // @Test
-    // public void testUpdateDeletionMessage(){
-    //     eventDao.updateDeletionMessage(TestUtils.EVENT_DELETED_ID, TestUtils.MESSAGE_DEFAULT);
-
-    //     assertEquals(TestUtils.MESSAGE_DEFAULT, jdbcTemplate.queryForObject(TestUtils.EVENT_GET_DELETED_MESSAGE, String.class, TestUtils.EVENT_DELETED_ID));
-    // }
-    // @Test
-    // public void testUpdateDeletionMessageWrongId(){
-    //     eventDao.updateDeletionMessage(123123, TestUtils.MESSAGE_DEFAULT);
-
-    //     assertEquals(null, jdbcTemplate.queryForObject(TestUtils.EVENT_GET_DELETED_MESSAGE, String.class, TestUtils.EVENT_DELETED_ID));
-    // }
 
     @Test
     public void testFindByUserEmailPageOne(){
@@ -765,10 +656,10 @@ public class EventHibernateDaoTest {
         assertEquals(1, page.getCurrentPage());
         assertEquals(1, page.getTotalPages());
         assertEquals(TestUtils.TOTAL_EVENTS_NOT_DELETED, page.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_1, page.getContent().get(0));
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_2, page.getContent().get(1));
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_3, page.getContent().get(2));
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_OLDER, page.getContent().get(3));
+        TestUtils.assertEqualsEvent(TestUtils.EVENT_OLDER, page.getContent().get(0));
+        TestUtils.assertEqualsEvent(TestUtils.EVENT_3, page.getContent().get(1));
+        TestUtils.assertEqualsEvent(TestUtils.EVENT_2, page.getContent().get(2));
+        TestUtils.assertEqualsEvent(TestUtils.EVENT_1, page.getContent().get(3));
     }
     @Test
     public void testFindAllWithFiltersNoParamsEmpty(){
@@ -821,96 +712,30 @@ public class EventHibernateDaoTest {
         assertEquals(1, page.getContent().size());
         TestUtils.assertEqualsEvent(TestUtils.EVENT_1, page.getContent().get(0));
     }
+    @Test
+    public void testFindAllWithFiltersNoParamsInterests(){
+        Page<Event> page = eventDao.findAllWithFilters(
+            null,
+            TestUtils.EVENT_TITLE_DEFAULT,
+            SortFieldEvent.ATTENDEES,
+            SortDirection.DESC,
+            null,
+            null,
+            null,
+            TestUtils.INTEREST_1_NAME,
+            false,
+            false,
+            false,
+            TestUtils.PAGE_1_BIG
+        );
 
-    // @Test
-    // public void testIncrementAttendeesCount(){
-    //     eventDao.incrementAttendeesCount(TestUtils.EVENT_1_ID);
-
-    //     assertEquals(TestUtils.EVENT_1_ATTENDEES + 1, jdbcTemplate.queryForObject(TestUtils.EVENT_GET_ATTENDEES_COUNT_BY_ID, Integer.class, TestUtils.EVENT_1_ID).intValue());
-    // }
-
-    // @Test
-    // public void updateEvent(){
-    //     eventDao.update(
-    //         TestUtils.CITY_2_ID,
-    //         TestUtils.EVENT_DATE_DEFAULT.plusDays(30),
-    //         null,
-    //         "RANDOM_EVENT",
-    //         null,
-    //         null,
-    //         null,
-    //         TestUtils.EVENT_1_ID,
-    //         TestUtils.IMAGE_1_ID
-    //     );
-
-    //     Event event = jdbcTemplate.queryForObject(
-    //         TestUtils.EVENT_SELECT_BY_ID,
-    //         TestUtils.EVENT_ROW_MAPPER,
-    //         TestUtils.EVENT_1_ID
-    //     );
-
-    //     TestUtils.assertEqualsEvent(event, Map.of(
-    //         "city", TestUtils.CITY_2,
-    //         "date", TestUtils.EVENT_DATE_DEFAULT.plusDays(30),
-    //         "title", "RANDOM_EVENT",
-    //         "description", Optional.empty(),
-    //         "time", Optional.empty(),
-    //         "address", Optional.empty(),
-    //         "limit", Optional.empty()));
-    // }
-    // @Test
-    // public void updateEventFull(){
-    //     eventDao.update(
-    //         TestUtils.CITY_2_ID,
-    //         TestUtils.EVENT_DATE_DEFAULT.plusDays(30),
-    //         "RANDOM_DESC",
-    //         "RANDOM_TITLE",
-    //         TestUtils.EVENT_TIME_DEFAULT.plusHours(1),
-    //         "RANDOM ADDRESS",
-    //         100,
-    //         TestUtils.EVENT_1_ID,
-    //         TestUtils.IMAGE_2_ID
-    //     );
-
-    //     Event event = jdbcTemplate.queryForObject(
-    //         TestUtils.EVENT_SELECT_BY_ID,
-    //         TestUtils.EVENT_ROW_MAPPER,
-    //         TestUtils.EVENT_1_ID
-    //     );
-
-    //     TestUtils.assertEqualsEvent(event, Map.of(
-    //         "city", TestUtils.CITY_2,
-    //         "date", TestUtils.EVENT_DATE_DEFAULT.plusDays(30),
-    //         "title", "RANDOM_TITLE",
-    //         "description", Optional.of("RANDOM_DESC"),
-    //         "time", Optional.of(TestUtils.EVENT_TIME_DEFAULT.plusHours(1)),
-    //         "address", Optional.of("RANDOM ADDRESS"),
-    //         "limit", Optional.of(100),
-    //         "image", TestUtils.IMAGE_2
-    //     ));
-    // }
-    // @Test
-    // public void updateEventWrongId(){
-    //     eventDao.update(
-    //         TestUtils.CITY_1_ID,
-    //         TestUtils.EVENT_DATE_DEFAULT.plusDays(30),
-    //         TestUtils.EVENT_DESCRIPTION_DEFAULT,
-    //         TestUtils.EVENT_TITLE_DEFAULT,
-    //         null,
-    //         null,
-    //         null,
-    //         1231234,
-    //         TestUtils.IMAGE_1_ID
-    //     );
-
-    //     Event event = jdbcTemplate.queryForObject(
-    //         TestUtils.EVENT_SELECT_BY_ID,
-    //         TestUtils.EVENT_ROW_MAPPER,
-    //         TestUtils.EVENT_1_ID
-    //     );
-
-    //     TestUtils.assertEqualsEvent(event);
-    // }
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(1, page.getTotalPages());
+        assertEquals(1, page.getContent().size());
+        TestUtils.assertEqualsEvent(TestUtils.EVENT_1, page.getContent().get(0));
+    }
 
     @Test
     public void testFindRecommended(){
@@ -1005,7 +830,6 @@ public class EventHibernateDaoTest {
         assertNotNull(page1.getContent());
         assertEquals(1, page1.getContent().size());
     }
-
     @Test
     public void testFindAllEventsByAttendeePageTwo(){
         Page<Event> page2 = eventDao.findAllEventsByAttendee(TestUtils.USER_1_ID, TestUtils.PAGE_2_SINGLE);
@@ -1034,6 +858,76 @@ public class EventHibernateDaoTest {
         assertEquals(1, events.getCurrentPage());
         assertEquals(0, events.getTotalPages());
         assertNotNull(events.getContent());
+        assertEquals(0, events.getContent().size());
+    }
+
+    @Test   
+    public void testFindUpcomingEventsByAttendee(){
+        Page<Event> events = eventDao.findUpcomingEventsByAttendee(TestUtils.USER_1_ID, TestUtils.PAGE_1_BIG);
+
+        assertNotNull(events);
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(1, events.getTotalPages());
+        assertEquals(TestUtils.USER_1_ATTENDANCES_UPCOMING_NOT_OWN, events.getContent().size());
+        TestUtils.assertEqualsEvent(TestUtils.EVENT_2, events.getContent().getFirst());
+    }
+    @Test   
+    public void testFindUpcomingEventsByAttendee2(){
+        Page<Event> events = eventDao.findUpcomingEventsByAttendee(TestUtils.USER_2_ID, TestUtils.PAGE_1_BIG);
+
+        assertNotNull(events);
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(1, events.getTotalPages());
+        //Ignoring event 4 (past event)
+        assertEquals(TestUtils.USER_2_ATTENDANCES_UPCOMING_NOT_OWN, events.getContent().size());
+        TestUtils.assertEqualsEvent(TestUtils.EVENT_1, events.getContent().getFirst());
+    }
+    @Test   
+    public void testFindUpcomingEventsByAttendeeNotAttending(){
+        Page<Event> events = eventDao.findUpcomingEventsByAttendee(TestUtils.USER_I3_ID, TestUtils.PAGE_1_BIG);
+
+        assertNotNull(events);
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(0, events.getTotalPages());
+        assertEquals(0, events.getContent().size());
+    }
+    @Test   
+    public void testFindUpcomingEventsByAttendeeMissingUser(){
+        Page<Event> events = eventDao.findUpcomingEventsByAttendee(12341234l, TestUtils.PAGE_1_BIG);
+
+        assertNotNull(events);
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(0, events.getTotalPages());
+        assertEquals(0, events.getContent().size());
+    }
+
+    @Test
+    public void testFindFinishedEventsByAttendee(){
+        Page<Event> events = eventDao.findFinishedEventsByAttendee(TestUtils.USER_2_ID, TestUtils.PAGE_1_BIG);
+
+        assertNotNull(events);
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(1, events.getTotalPages());
+        //Ignoring event 2 (upcoming event)
+        assertEquals(TestUtils.USER_2_ATTENDANCES_UPCOMING_NOT_OWN, events.getContent().size());
+        TestUtils.assertEqualsEvent(TestUtils.EVENT_OLDER, events.getContent().getFirst());
+    }
+    @Test
+    public void testFindFinishedEventsByAttendeeNotAttending(){
+        Page<Event> events = eventDao.findFinishedEventsByAttendee(TestUtils.USER_I2_ID, TestUtils.PAGE_1_BIG);
+
+        assertNotNull(events);
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(0, events.getTotalPages());
+        assertEquals(0, events.getContent().size());
+    }
+    @Test
+    public void testFindFinishedEventsByAttendeeMissingUser(){
+        Page<Event> events = eventDao.findFinishedEventsByAttendee(12341234l, TestUtils.PAGE_1_BIG);
+
+        assertNotNull(events);
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(0, events.getTotalPages());
         assertEquals(0, events.getContent().size());
     }
 }

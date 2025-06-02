@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
 import java.sql.Date;
@@ -29,8 +30,10 @@ import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.Journey;
 import ar.edu.itba.paw.models.JourneyResponse;
 import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.models.Report;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.enums.ReportStatus;
 
 class TestUtils {
 
@@ -151,7 +154,6 @@ class TestUtils {
     public static final Interest INTEREST_2 = new Interest(INTEREST_2_ID, INTEREST_2_NAME);
     public static final Interest INTEREST_3 = new Interest(INTEREST_3_ID, INTEREST_3_NAME);
     public static final Map<Long, Interest> INTEREST_DATA = Map.of(INTEREST_1_ID, INTEREST_1, INTEREST_2_ID, INTEREST_2, INTEREST_3_ID, INTEREST_3);
-
     public static final int TOTAL_INTERESTS = 3;
 
     public static final String USER_1_NAME = "user1";
@@ -190,12 +192,16 @@ class TestUtils {
     public static final String USER_WRONG_LOCALE = "jp";
     public static final String USER_TOKEN_DEFAULT = "token";
     public static final int USER_1_INTEREST_1_SCORE = 4;
+    public static final int USER_I1_INTEREST_1_SCORE = 1;
     public static final int USER_1_INTEREST_2_SCORE = 2;
     public static final int USER_1_INTEREST_3_SCORE = 1;
+    public static final Map<Long, Integer> USER_1_INTEREST_SCORES = Map.of(INTEREST_1_ID, USER_1_INTEREST_1_SCORE, INTEREST_2_ID, USER_1_INTEREST_2_SCORE, INTEREST_3_ID, USER_1_INTEREST_3_SCORE);
     public static final int USER_1_CREATED_EVENTS = 2;
     public static final int USER_2_CREATED_EVENTS = 2;
     public static final double USER_1_ATTENDED_EVENTS_RATING = 3.5;
     public static final double USER_1_CREATED_EVENTS_RATING = 4.5;
+    public static final long USER_2_REPORTS = 1;
+    public static final long USER_3_REPORTS = 4;
     public static final long USER_1_ID = 1;
     public static final long USER_2_ID = 2;
     public static final long USER_3_ID = 3;
@@ -211,7 +217,6 @@ class TestUtils {
     public static final User USER_I2 = new User(USER_I2_ID, USER_COMMON_INTERESTS_2_MAIL, USER_COMMON_INTERESTS_2_NAME, USER_FIRSTNAME, USER_LASTNAME, UNI_1, CAREER_1, IMAGE_1_ID, Locale.of(USER_LOCALE_DEFAULT), false, true);
     public static final User USER_I3 = new User(USER_I3_ID, USER_COMMON_INTERESTS_3_MAIL, USER_COMMON_INTERESTS_3_NAME, USER_FIRSTNAME, USER_LASTNAME, UNI_1, CAREER_1, IMAGE_1_ID, Locale.of(USER_LOCALE_DEFAULT), false, true);
     public static final Map<Long, User> USER_DATA = Map.of(USER_1_ID, USER_1, USER_2_ID, USER_2, USER_3_ID, USER_3, USER_4_ID, USER_4, USER_I1_ID, USER_I1, USER_I2_ID, USER_I2, USER_I3_ID, USER_I3);
-
 
     public static final int TOTAL_USERS = 7;
     public static final int USER_1_INTERESTS = 3;
@@ -272,7 +277,9 @@ class TestUtils {
     public static final int EVENT_OLDER_ATTENDEES = 0;
     public static final int EVENT_DELETED_ATTENDEES = 0;
     public static final int USER_1_ATTENDANCES = 2;
-    public static final int USER_2_ATTENDANCES = 1;
+    public static final int USER_1_ATTENDANCES_UPCOMING_NOT_OWN = 1;
+    public static final int USER_2_ATTENDANCES_UPCOMING_NOT_OWN = 1;
+    public static final int USER_2_ATTENDANCES = 2;
     public static final int USER_3_ATTENDANCES = 1;
     public static final int EVENT_1_REPLIES = 3;
     public static final int EVENT_1_REPLIERS = 1;
@@ -297,7 +304,7 @@ class TestUtils {
 
     public static final int TOTAL_EVENTS_NOT_DELETED = 4;
     public static final int TOTAL_EVENTS_UPCOMING = 3;
-    public static final int TOTAL_EVENT_ATTENDANCES = 4;
+    public static final int TOTAL_EVENT_ATTENDANCES = 5;
     public static final int TOTAL_EVENT_REPLIES = 3;
 
     public static final int TOTAL_TOKENS = 4;
@@ -313,6 +320,37 @@ class TestUtils {
     public static final String TOKEN_3_VALUE = "qwer";
     public static final String TOKEN_4_VALUE = "tyui";
 
+    public static final long REPORT_USER_ID = 1;
+    public static final long REPORT_JOURNEY_ID = 2;
+    public static final long REPORT_EVENT_ID = 3;
+    public static final long REPORT_USER_REVIEW_ID = 4;
+    public static final long REPORT_USER_RESOLVED_ID = 5;
+    public static final long REPORT_USER_DISMISSED_ID = 6;
+    public static final int USER_1_REPORTS_AUTHORED = 6;
+    public static final String REPORT_USER_DESC = "illegal";
+    public static final String REPORT_JOURNEY_DESC = "illegaljourney";
+    public static final String REPORT_EVENT_DESC = "illegalevent";
+    public static final User REPORTING_USER = USER_1;
+    public static final User REPORT_USER_REPORTED_USER = USER_3;
+    public static final User REPORT_JOURNEY_REPORTED_USER = USER_4;
+    public static final User REPORT_EVENT_REPORTED_USER = USER_2;
+    public static final Journey REPORT_JOURNEY_REPORTED_JOURNEY = JOURNEY_DELETED;
+    public static final Event REPORT_EVENT_REPORTED_EVENT = EVENT_3;
+    public static final int REPORTS_PENDING = 3;
+    public static final int REPORTS_UNDER_REVIEW = 1;
+    public static final int REPORTS_DISMISSED = 1;
+    public static final int REPORTS_RESOLVED = 1;
+
+    public static final int TOTAL_REPORTS = 6;
+    
+    public static final Report REPORT_USER = new Report(REPORT_USER_ID, REPORT_USER_REPORTED_USER, REPORTING_USER, REPORT_USER_DESC, REPORT_USER_DESC, null, null, null, null, false, ReportStatus.PENDING);
+    public static final Report REPORT_JOURNEY = new Report(REPORT_JOURNEY_ID, REPORT_JOURNEY_REPORTED_USER, REPORTING_USER, REPORT_JOURNEY_DESC, REPORT_JOURNEY_DESC, REPORT_JOURNEY_REPORTED_JOURNEY, null, null, null, false, ReportStatus.PENDING);
+    public static final Report REPORT_EVENT = new Report(REPORT_EVENT_ID, REPORT_EVENT_REPORTED_USER, REPORTING_USER, REPORT_EVENT_DESC, REPORT_EVENT_DESC, null, REPORT_EVENT_REPORTED_EVENT, null, null, false, ReportStatus.PENDING);
+    public static final Report REPORT_USER_UNDER_REVIEW = new Report(REPORT_USER_REVIEW_ID, REPORT_USER_REPORTED_USER, REPORTING_USER, REPORT_USER_DESC, REPORT_USER_DESC, null, null, null, null, false, ReportStatus.UNDER_REVIEW);
+    public static final Report REPORT_USER_DISMISSED = new Report(REPORT_USER_DISMISSED_ID, REPORT_USER_REPORTED_USER, REPORTING_USER, REPORT_USER_DESC, REPORT_USER_DESC, null, null, null, null, false, ReportStatus.DISMISSED);
+    public static final Report REPORT_USER_RESOLVED = new Report(REPORT_USER_RESOLVED_ID, REPORT_USER_REPORTED_USER, REPORTING_USER, REPORT_USER_DESC, REPORT_USER_DESC, null, null, null, null, false, ReportStatus.RESOLVED);
+
+    public static final Map<Long, Report> REPORT_PENDING_DATA = Map.of(REPORT_USER_ID, REPORT_USER, REPORT_JOURNEY_ID, REPORT_JOURNEY, REPORT_EVENT_ID, REPORT_EVENT);
 
     //QUERIES
     public static final String USER_SELECT = """
@@ -802,7 +840,8 @@ class TestUtils {
         assertNotNull(actual);
         assertNotNull(expected);
         assertEquals(expected.getId(), actual.getId());
-        assertEquals(expected.getDateTime().withNano(0), actual.getDateTime().withNano(0));
+        assertTrue(expected.getDateTime().withNano(0).plusMinutes(1).isAfter(actual.getDateTime().withNano(0)));
+        assertTrue(expected.getDateTime().withNano(0).plusMinutes(-1).isBefore(actual.getDateTime().withNano(0)));
         assertEqualsEvent(expected.getEvent(), actual.getEvent());
         assertEquals(expected.getMessage(), actual.getMessage());
         assertEqualsUser(expected.getUser(), actual.getUser());
@@ -891,6 +930,34 @@ class TestUtils {
     //     assertEquals(USER_ROLE, up.getRole());
     //     assertEquals(USER_BLOCKED, up.isBlocked());
     // }
+
+    public static void assertEqualsReport(Report expected, Report actual){
+        assertNotNull(expected);
+        assertNotNull(actual);
+        assertNotNull(actual.getId());
+        if (expected.getId() != null)
+            assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getDescription(), expected.getDescription());
+        assertEquals(expected.getReason(), actual.getReason());
+        assertEquals(expected.isDeleted(), actual.isDeleted());
+        assertEquals(expected.getStatus(), actual.getStatus());
+        assertTrue(expected.getCreatedAt().plusMinutes(1).isAfter(actual.getCreatedAt()));
+        assertTrue(expected.getCreatedAt().plusMinutes(-1).isBefore(actual.getCreatedAt()));        
+        assertTrue(expected.getUpdatedAt().plusMinutes(1).isAfter(actual.getUpdatedAt()));
+        assertTrue(expected.getUpdatedAt().plusMinutes(-1).isBefore(actual.getUpdatedAt()));
+        if (expected.getEvent() != null && actual.getEvent() != null){
+            assertEqualsEvent(expected.getEvent(), actual.getEvent());
+        }
+        if (expected.getJourney() != null && actual.getJourney() != null){
+            assertEqualsJourney(expected.getJourney(), actual.getJourney());
+        }
+        if (expected.getEventResponse() != null && actual.getEventResponse() != null){
+            assertEqualsEventReply(expected.getEventResponse(), actual.getEventResponse());
+        }
+        if (expected.getJourneyResponse() != null && actual.getJourneyResponse() != null){
+            assertEqualsJourneyReply(expected.getJourneyResponse(), actual.getJourneyResponse());
+        }        
+    }
 
     //INSERTERS
     public static Event insertEvent(DataSource ds, Map<String, Object> overrides){
