@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
                 });
 
         long profilePictureId = imageService.createImage(profilePicture);
-        User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId, passwordEncoder.encode(password), new Locale(locale.getLanguage()), false);
+        User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId, passwordEncoder.encode(password), Locale.of(locale.getLanguage()), false);
         LOGGER.info("Successfully created user with ID: {} and email: {}", user.getId(), email);
         interestService.createUserInterests(interests, user.getId());
         LOGGER.info("User interests saved successfully for user ID: {}", user.getId());

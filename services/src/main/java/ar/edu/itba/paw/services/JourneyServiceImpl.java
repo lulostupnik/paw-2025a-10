@@ -222,12 +222,7 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.info("Journey deletion message updated: {}", message);
         journey.setDeletionMessage(message);
 
-        LOGGER.debug("Deleting journey {}", id);
-        journey.setDeletionMessage(message);
-
-        LOGGER.info("Journey deletion message updated: {}", message);
         journeyResponseDao.deleteByJourneyId(journey.getId()); // todo check
-
         LOGGER.info("Journey responses deleted for journey {}", id);
 
         emailService.sendJourneyDeletionNotification(journey,message);
