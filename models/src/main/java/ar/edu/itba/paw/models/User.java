@@ -108,6 +108,24 @@ public class User{
         this.role = UserRoles.USER;
 
     }
+    public User (final Long id, final String email, final String username, final String firstname,
+                final String lastname, final University university, final Career career, final Journey journey,
+                final long profilePictureId, final Locale locale, final boolean blocked,final boolean validated) {
+        this.id = id;
+        this.email = email;
+        this.username = username;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.university = university;
+        this.career = career;
+        this.profilePictureId = profilePictureId;
+        this.locale = locale;
+        this.isBlocked = blocked;
+        this.journey = journey;
+        this.validated = validated;
+        this.role = UserRoles.USER;
+
+    }
 
 
     public User(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale, boolean validated) {
