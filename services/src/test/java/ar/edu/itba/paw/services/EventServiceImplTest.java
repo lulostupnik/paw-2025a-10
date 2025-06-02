@@ -78,7 +78,7 @@ public class EventServiceImplTest {
     private static final Event EVENT_FULL = new Event(EVENT_ID, USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, LIMIT, LIMIT);
     private static final Event EVENT_NO_LIMIT = new Event(EVENT_ID, USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, null, ATTENDEES);
     private static final List<User> USERS = List.of(USER);
-    private static final Page<User> USERS_PAGE = new Page(USERS, 1, 1);
+    private static final Page<User> USERS_PAGE = new Page<>(USERS, 1, 1);
     private static final List<Event> EVENTS = List.of(EVENT);
     private static final Page<Event> EVENTS_PAGE = new Page<Event>(EVENTS, 1, 1);
     private static final EventResponse REPLY = new EventResponse(RESPONSE_ID, USER, EVENT, DESCRIPTION, TIMESTAMP);
