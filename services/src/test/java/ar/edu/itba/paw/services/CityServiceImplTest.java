@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.services;
 
-
 import java.util.List;
 import java.util.Optional;
 
@@ -14,7 +13,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.eq;
 import static org.junit.Assert.*;
-
 
 import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.interfaces.services.CountryService;

@@ -1,60 +1,79 @@
-// package ar.edu.itba.paw.services;
+package ar.edu.itba.paw.services;
 
-// import static org.junit.Assert.assertEquals;
-// import static org.junit.Assert.assertFalse;
-// import static org.junit.Assert.assertNotNull;
-// import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-// import org.junit.Test;
-// import org.junit.runner.RunWith;
-// import org.mockito.InjectMocks;
-// import org.mockito.Mock;
-// import org.mockito.Mockito;
-// import org.mockito.junit.MockitoJUnitRunner;
-// import org.springframework.cache.Cache;
-// import org.springframework.cache.CacheManager;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.*;
 
-// import ar.edu.itba.paw.interfaces.persistence.ImageDao;
+import java.util.Optional;
 
-// @RunWith(MockitoJUnitRunner.class)
-// public class ImageServiceImplTest {
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 
-//     private static final byte[] IMAGE_DATA = new byte[0];
-//     private static final long IMAGE_ID = 0;
-//     private static final String IMAGE_CACHE = "images";
+import ar.edu.itba.paw.interfaces.persistence.ImageDao;
+import ar.edu.itba.paw.models.Image;
 
-//     @InjectMocks
-//     ImageServiceImpl imageService;
+@RunWith(MockitoJUnitRunner.class)
+public class ImageServiceImplTest {
 
-//     @Mock
-//     ImageDao imageDao;
-//     @Mock
-//     CacheManager cacheManager;
-//     @Mock
-//     Cache cache;
+    private static final byte[] IMAGE_DATA = new byte[0];
+    private static final long IMAGE_ID = 0;
+    private static final Image IMAGE = new Image(IMAGE_ID, IMAGE_DATA);
+    private static final String IMAGE_CACHE = "images";
 
-//     @Test
-//     public void testCreateImageNoCache(){
-//         Mockito.when(
-//             imageDao.create(Mockito.eq(IMAGE_DATA))
-//         ).thenReturn(IMAGE_ID);
+    @InjectMocks
+    ImageServiceImpl imageService;
 
-//         long id = imageService.createImage(IMAGE_DATA);
+    @Mock
+    ImageDao imageDao;
+    @Mock
+    CacheManager cacheManager;
+    @Mock
+    Cache cache;
 
-//         assertEquals(IMAGE_ID, id);
-//     }
-//     @Test
-//     public void testCreateImageCache(){
-//         Mockito.when(
-//             imageDao.create(Mockito.eq(IMAGE_DATA))
-//         ).thenReturn(IMAGE_ID);
-//         Mockito.when(
-//             cacheManager.getCache(IMAGE_CACHE)
-//         ).thenReturn(cache);
+    @Test
+    public void testCreateImageNoCache(){
+        when(
+            imageDao.create(eq(IMAGE_DATA))
+        ).thenReturn(IMAGE_ID);
 
-//         long id = imageService.createImage(IMAGE_DATA);
+        long id = imageService.createImage(IMAGE_DATA);
 
-//         assertEquals(IMAGE_ID, id);
-//     }
+        assertEquals(IMAGE_ID, id);
+    }
+    @Test
+    public void testCreateImageCache(){
+        when(
+            imageDao.create(eq(IMAGE_DATA))
+        ).thenReturn(IMAGE_ID);
+        when(
+            cacheManager.getCache(IMAGE_CACHE)
+        ).thenReturn(cache);
 
-// }
+        long id = imageService.createImage(IMAGE_DATA);
+
+        assertEquals(IMAGE_ID, id);
+    }
+
+    @Test
+    public void testFindImage(){
+        when(
+            imageDao.findById(eq(IMAGE_ID))
+        ).thenReturn(Optional.of(IMAGE));
+
+        Optional<Image> maybeImage = imageService.findImage(IMAGE_ID);
+
+        assertNotNull(maybeImage);
+        assertEquals(IMAGE, maybeImage.get());
+    }
+
+    @Test
+    public void testDeleteImage(){
+        imageService.deleteImage(IMAGE_ID);
+    }
+
+}

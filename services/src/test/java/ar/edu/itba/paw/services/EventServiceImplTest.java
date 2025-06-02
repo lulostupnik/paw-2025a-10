@@ -12,6 +12,7 @@ import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
 import ar.edu.itba.paw.models.exceptions.CityNotFoundException;
 import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
+import ar.edu.itba.paw.models.exceptions.EventResponseNotFoundException;
 import ar.edu.itba.paw.models.exceptions.InvalidException;
 import ar.edu.itba.paw.models.exceptions.InvalidPaginationParamsException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
@@ -78,7 +79,6 @@ public class EventServiceImplTest {
     private static final Event EVENT_FULL = new Event(EVENT_ID, USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, LIMIT, LIMIT);
     private static final Event EVENT_NO_LIMIT = new Event(EVENT_ID, USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, null, ATTENDEES);
     private static final List<User> USERS = List.of(USER);
-    private static final Page<User> USERS_PAGE = new Page<>(USERS, 1, 1);
     private static final List<Event> EVENTS = List.of(EVENT);
     private static final Page<Event> EVENTS_PAGE = new Page<Event>(EVENTS, 1, 1);
     private static final EventResponse REPLY = new EventResponse(RESPONSE_ID, USER, EVENT, DESCRIPTION, TIMESTAMP);
@@ -130,10 +130,30 @@ public class EventServiceImplTest {
             imageService.createImage(eq(IMAGE_DATA))
         ).thenReturn(IMAGE_ID);
         when(
-            eventDao.create(eq(USER), eq(CITY), eq(EVENT_DATE), eq(DESCRIPTION), eq(IMAGE_ID), eq(TITLE), eq(TIME), eq(ADDRESS), eq(LIMIT))
+            eventDao.create(
+                eq(USER), 
+                eq(CITY), 
+                eq(EVENT_DATE), 
+                eq(DESCRIPTION), 
+                eq(IMAGE_ID), 
+                eq(TITLE), 
+                eq(TIME), 
+                eq(ADDRESS), 
+                eq(LIMIT)
+            )
         ).thenReturn(EVENT);
 
-        Event event = eventService.createEvent(EMAIL, CITY_NAME, EVENT_DATE, IMAGE_DATA, DESCRIPTION, TITLE, TIME, ADDRESS, LIMIT);
+        Event event = eventService.createEvent(
+            EMAIL, 
+            CITY_NAME, 
+            EVENT_DATE, 
+            IMAGE_DATA, 
+            DESCRIPTION, 
+            TITLE, 
+            TIME, 
+            ADDRESS, 
+            LIMIT
+        );
 
         assertNotNull(event);
         assertEquals(EVENT, event);
@@ -147,7 +167,17 @@ public class EventServiceImplTest {
             userService.findUserByEmail(eq(EMAIL))
         ).thenReturn(Optional.empty());
 
-        eventService.createEvent(EMAIL, CITY_NAME, EVENT_DATE, IMAGE_DATA, DESCRIPTION, TITLE, TIME, ADDRESS, LIMIT);
+        eventService.createEvent(
+            EMAIL, 
+            CITY_NAME, 
+            EVENT_DATE, 
+            IMAGE_DATA, 
+            DESCRIPTION, 
+            TITLE, 
+            TIME, 
+            ADDRESS, 
+            LIMIT
+        );
     }
     @Test(expected = RuntimeException.class)
     public void testCreateEventCityNotFound(){
@@ -155,7 +185,17 @@ public class EventServiceImplTest {
             cityService.findCityByName(eq(CITY_NAME))
         ).thenReturn(Optional.empty());
 
-        eventService.createEvent(EMAIL, CITY_NAME, EVENT_DATE, IMAGE_DATA, DESCRIPTION, TITLE, TIME, ADDRESS, LIMIT);
+        eventService.createEvent(
+            EMAIL, 
+            CITY_NAME, 
+            EVENT_DATE, 
+            IMAGE_DATA, 
+            DESCRIPTION, 
+            TITLE, 
+            TIME, 
+            ADDRESS, 
+            LIMIT
+        );
     }
 
     @Test
@@ -167,8 +207,11 @@ public class EventServiceImplTest {
             userService.findUserByEmail(EMAIL)
         ).thenReturn(Optional.of(USER));
         when(
-            replyDao.findRespondersByEventId(eq(EVENT_ID), any(PageParams.class))
-        ).thenReturn(USERS_PAGE);
+            replyDao.findRespondersByEventId(
+                eq(EVENT_ID), 
+                any(PageParams.class)
+            )
+        ).thenReturn(new Page<>(USERS, 1, 2));
 
         eventService.replyToEvent(EMAIL, EVENT_ID, DESCRIPTION);
     }
@@ -181,7 +224,10 @@ public class EventServiceImplTest {
             userService.findUserByEmail(EMAIL)
         ).thenReturn(Optional.of(USER));
         when(
-            replyDao.findRespondersByEventId(eq(EVENT_ID), any(PageParams.class))
+            replyDao.findRespondersByEventId(
+                eq(EVENT_ID), 
+                any(PageParams.class)
+            )
         ).thenReturn(new Page<User>(List.of(), 1, 0));
 
         eventService.replyToEvent(EMAIL, EVENT_ID, DESCRIPTION);
@@ -1006,35 +1052,64 @@ public class EventServiceImplTest {
 
     @Test
     public void testUpdateEvent(){
+        Event newEvent = new Event(
+            EVENT_ID, 
+            USER, 
+            EVENT_DATE, 
+            DESCRIPTION, 
+            IMAGE_ID, 
+            CITY, 
+            TITLE, 
+            TIME, 
+            ADDRESS, 
+            null, 
+            ATTENDEES
+        );
         when(
             eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
+        ).thenReturn(Optional.of(newEvent));
         when(
             cityService.findCityByName(eq("CITY_NAME"))
         ).thenReturn(Optional.of(new City("CITY_NAME", COUNTRY)));
 
-        eventService.updateEvent(EVENT_ID, "CITY_NAME", EVENT_DATE.plusDays(1), null, "DESCRIPTION", "TITLE", TIME.plusSeconds(10), "ADDRESS", null);
+        eventService.updateEvent(
+            EVENT_ID, 
+            "CITY_NAME", 
+            EVENT_DATE.plusDays(1), 
+            null, 
+            "DESCRIPTION", 
+            "TITLE", 
+            TIME.plusSeconds(10), 
+            "ADDRESS", 
+            null
+        );
 
-        assertEquals("CITY_NAME", EVENT.getCity().getName());   
-        EVENT.setCity(CITY);     
-        assertEquals(EVENT_DATE.plusDays(1), EVENT.getDate()); 
-        EVENT.setDate(EVENT_DATE);       
-        assertEquals(TIME.plusSeconds(10), EVENT.getTime()); 
-        EVENT.setTime(TIME);       
-        assertEquals("DESCRIPTION", EVENT.getDescription());    
-        EVENT.setDescription(DESCRIPTION);    
-        assertEquals("TITLE", EVENT.getTitle());     
-        EVENT.setTitle(TITLE);   
-        assertEquals("ADDRESS", EVENT.getAddress());  
-        EVENT.setAddress(ADDRESS);      
-        assertNull(EVENT.getAttendeesLimit()); 
-        EVENT.setAttendeesLimit(LIMIT);
+        assertEquals("CITY_NAME", newEvent.getCity().getName());   
+        assertEquals(EVENT_DATE.plusDays(1), newEvent.getDate()); 
+        assertEquals(TIME.plusSeconds(10), newEvent.getTime()); 
+        assertEquals("DESCRIPTION", newEvent.getDescription());    
+        assertEquals("TITLE", newEvent.getTitle());     
+        assertEquals("ADDRESS", newEvent.getAddress());  
+        assertNull(newEvent.getAttendeesLimit()); 
     }
     @Test
     public void testUpdateEventImage(){
+        Event newEvent = new Event(
+            EVENT_ID, 
+            USER, 
+            EVENT_DATE, 
+            DESCRIPTION, 
+            IMAGE_ID, 
+            CITY, 
+            TITLE, 
+            TIME, 
+            ADDRESS, 
+            null,
+            ATTENDEES
+        );
         when(
             eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
+        ).thenReturn(Optional.of(newEvent));
         when(
             cityService.findCityByName(eq(CITY_NAME))
         ).thenReturn(Optional.of(CITY));
@@ -1042,23 +1117,53 @@ public class EventServiceImplTest {
             imageService.createImage(eq(IMAGE_DATA))
         ).thenReturn(IMAGE_ID + 1);
 
-        eventService.updateEvent(EVENT_ID, CITY_NAME, EVENT_DATE, IMAGE_DATA, DESCRIPTION, TITLE, TIME, ADDRESS, LIMIT);
+        eventService.updateEvent(
+            EVENT_ID, 
+            CITY_NAME, 
+            EVENT_DATE, 
+            IMAGE_DATA, 
+            DESCRIPTION, 
+            TITLE, 
+            TIME, 
+            ADDRESS, 
+            LIMIT
+        );
 
-        assertEquals(IMAGE_ID + 1, EVENT.getFlyerImageId());
-        EVENT.setFlyerImageId(IMAGE_ID);
+        assertEquals(IMAGE_ID + 1, newEvent.getFlyerImageId());
     }
     @Test
     public void testUpdateEventEmptyImage(){
+        Event newEvent = new Event(
+            USER, 
+            EVENT_DATE, 
+            DESCRIPTION, 
+            IMAGE_ID, 
+            CITY, 
+            TITLE, 
+            TIME, 
+            ADDRESS, 
+            null
+        );
         when(
             eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
+        ).thenReturn(Optional.of(newEvent));
         when(
             cityService.findCityByName(eq(CITY_NAME))
         ).thenReturn(Optional.of(CITY));
 
-        eventService.updateEvent(EVENT_ID, CITY_NAME, EVENT_DATE, new byte[0], DESCRIPTION, TITLE, TIME, ADDRESS, LIMIT);
+        eventService.updateEvent(
+            EVENT_ID, 
+            CITY_NAME, 
+            EVENT_DATE, 
+            new byte[0], 
+            DESCRIPTION, 
+            TITLE, 
+            TIME, 
+            ADDRESS, 
+            LIMIT
+        );
 
-        assertEquals(IMAGE_ID, EVENT.getFlyerImageId());
+        assertEquals(IMAGE_ID, newEvent.getFlyerImageId());
     }
     @Test(expected = CityNotFoundException.class)
     public void testUpdateEventMissingCity(){
@@ -1069,7 +1174,17 @@ public class EventServiceImplTest {
             cityService.findCityByName(eq(CITY_NAME))
         ).thenReturn(Optional.empty());
 
-        eventService.updateEvent(EVENT_ID, CITY_NAME, EVENT_DATE, null, DESCRIPTION, TITLE, TIME, ADDRESS, LIMIT);
+        eventService.updateEvent(
+            EVENT_ID, 
+            CITY_NAME, 
+            EVENT_DATE, 
+            null, 
+            DESCRIPTION, 
+            TITLE, 
+            TIME, 
+            ADDRESS, 
+            LIMIT
+        );
     }
     @Test(expected = EventNotFoundException.class)
     public void testUpdateEventMissingEvent(){
@@ -1077,7 +1192,17 @@ public class EventServiceImplTest {
             eventDao.findById(eq(EVENT_ID))
         ).thenReturn(Optional.empty());
 
-        eventService.updateEvent(EVENT_ID, CITY_NAME, EVENT_DATE, null, DESCRIPTION, TITLE, TIME, ADDRESS, LIMIT);
+        eventService.updateEvent(
+            EVENT_ID, 
+            CITY_NAME, 
+            EVENT_DATE, 
+            null, 
+            DESCRIPTION, 
+            TITLE, 
+            TIME, 
+            ADDRESS, 
+            LIMIT
+        );
     }
 
     @Test
@@ -1127,6 +1252,28 @@ public class EventServiceImplTest {
     }
 
     @Test
+    public void testDeleteEventResponse(){
+        when(
+            replyDao.findById(eq(RESPONSE_ID))
+        ).thenReturn(Optional.of(REPLY));
+
+        eventService.deleteEventResponse(RESPONSE_ID, DESCRIPTION);
+
+        assertTrue(REPLY.isDeleted());
+        REPLY.setDeleted(false);
+        assertEquals(DESCRIPTION, REPLY.getDeletionMessage());
+        REPLY.setDeletionMessage(null);
+    }
+    @Test(expected = EventResponseNotFoundException.class)
+    public void testDeleteEventResponseNotFound(){
+        when(
+            replyDao.findById(eq(RESPONSE_ID))
+        ).thenReturn(Optional.empty());
+
+        eventService.deleteEventResponse(RESPONSE_ID, DESCRIPTION);
+    }
+
+    @Test
     public void testCountEventResponses(){
         when(
             replyDao.countByEventId(eq(EVENT_ID))
@@ -1143,7 +1290,10 @@ public class EventServiceImplTest {
             replyDao.listAllByEventId(eq(EVENT_ID), eq(PAGE_1_DEFAULT))
         ).thenReturn(REPLY_PAGE);
 
-        Page<EventResponse> replies = eventService.findEventResponses(EVENT_ID, PAGE_1_DEFAULT);
+        Page<EventResponse> replies = eventService.findEventResponses(
+            EVENT_ID, 
+            PAGE_1_DEFAULT
+        );
 
         assertNotNull(replies);
         assertEquals(REPLY_PAGE, replies);
@@ -1168,7 +1318,10 @@ public class EventServiceImplTest {
             )
         ).thenReturn(EVENTS_PAGE);
 
-        Page<Event> events = eventService.findJourneyEvents(new Journey(USER, EVENT_DATE_PAST, EVENT_DATE, UNI, DESCRIPTION), PAGE_1_DEFAULT);
+        Page<Event> events = eventService.findJourneyEvents(
+            new Journey(USER, EVENT_DATE_PAST, EVENT_DATE, UNI, DESCRIPTION), 
+            PAGE_1_DEFAULT
+        );
 
         assertNotNull(events);
         assertEquals(EVENTS_PAGE, events);
@@ -1199,11 +1352,48 @@ public class EventServiceImplTest {
     @Test
     public void testSendEventReminders(){
         when(
-            eventDao.findAllBetweenDates(any(LocalDate.class), any(LocalDate.class), any(PageParams.class))
+            eventDao.findAllBetweenDates(
+                any(LocalDate.class), 
+                any(LocalDate.class), 
+                any(PageParams.class)
+            )
+        ).thenReturn(new Page<>(EVENTS, 1, 2));
+        when(
+            attendanceDao.findAttendeesByEventId(
+                eq(EVENT_ID), 
+                any(PageParams.class)
+            )
+        ).thenReturn(new Page<>(USERS, 1, 2));
+
+        eventService.sendEventReminders();
+    }
+    @Test
+    public void testSendEventRemindersNoAttendees(){
+        when(
+            eventDao.findAllBetweenDates(
+                any(LocalDate.class), 
+                any(LocalDate.class), 
+                any(PageParams.class)
+            )
         ).thenReturn(EVENTS_PAGE);
         when(
-            attendanceDao.findAttendeesByEventId(eq(EVENT_ID), any(PageParams.class))
-        ).thenReturn(USERS_PAGE);
+            attendanceDao.findAttendeesByEventId(
+                eq(EVENT_ID), 
+                any(PageParams.class)
+            )
+        ).thenReturn(new Page<>(List.of(), 1, 0));
+
+        eventService.sendEventReminders();
+    }
+    @Test
+    public void testSendEventRemindersNoEvents(){
+        when(
+            eventDao.findAllBetweenDates(
+                any(LocalDate.class), 
+                any(LocalDate.class), 
+                any(PageParams.class)
+            )
+        ).thenReturn(new Page<>(List.of(), 1, 0));
 
         eventService.sendEventReminders();
     }
