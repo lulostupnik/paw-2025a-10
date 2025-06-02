@@ -197,21 +197,29 @@ public class EventServiceImpl implements EventService {
             LOGGER.warn("Event not found {}", eventId);
             return new EventNotFoundException("Event not found");
         });
+        User user = userService.findUserById(userId).orElseThrow(() -> {
+            LOGGER.warn("User not found {}", userId);
+            return new UserNotFoundException("User not found");
+        });
         if(! event.getIsFuture()){
             LOGGER.info("Event (id {}) is not in the future", eventId);
             throw new InvalidException("Event (id " + eventId + ") is not in the future");
         }
+        if (eventAttendanceDao.exists(user, event)){
+            LOGGER.info("User {} is already attending event (id {})", userId, eventId);
+            throw new InvalidException("User " + userId +" is already attending event (id "+ eventId+")");
+        }
 
         if (event.getAttendeesLimit() == null || event.getAttendeesCount() < event.getAttendeesLimit()) {
-            User user = userService.findUserById(userId).orElseThrow(() -> {
-                LOGGER.warn("User not found {}", userId);
-                return new UserNotFoundException("User not found");
-            });
             eventAttendanceDao.create(user, event);
             //fixme: crear el attendance aca de verdad
             event.setAttendeesCount(event.getAttendeesCount()+1); //fixme: ni idea
+            LOGGER.info("User {} is now attending event {}", userId, eventId);
+            return;
         }
-        LOGGER.info("User {} is now attending event {}", userId, eventId);
+        LOGGER.warn("User {} trying to attend a full event ({})", userId, eventId);
+        throw new InvalidException("Event (id " + eventId + ") is already full");
+
     }
 
 
@@ -225,7 +233,6 @@ public class EventServiceImpl implements EventService {
                 }
         ).getId();
         createEventAttendance(userId, eventId);
-        LOGGER.info("User {} is now attending event {}", userId, eventId);
     }
 
     @Override
@@ -242,6 +249,14 @@ public class EventServiceImpl implements EventService {
         }
         eventAttendanceDao.delete(userId, eventId);
         LOGGER.info("User {} has canceled attendance for event {}", userId, eventId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteEventAttendance(final String email, final  long eventId) {
+        LOGGER.debug("User {} is canceling attendance for event {}", email, eventId);
+        long userId = userService.findUserByEmail(email).orElseThrow().getId();
+        deleteEventAttendance(userId, eventId);
     }
 
     @Override
@@ -268,16 +283,6 @@ public class EventServiceImpl implements EventService {
     public Optional<Double> findRatingsAverageByEvent(long eventId) {
         return eventRatingDao.findRatingsAverageByEvent(eventId);
     }
-
-    @Override
-    @Transactional
-    public void deleteEventAttendance(final String email, final  long eventId) {
-        LOGGER.debug("User {} is canceling attendance for event {}", email, eventId);
-        long userId = userService.findUserByEmail(email).orElseThrow().getId();
-        deleteEventAttendance(userId, eventId);
-        LOGGER.info("User {} has canceled attendance for event {}", userId, eventId);
-    }
-
 
 
     @Override
