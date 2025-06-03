@@ -15,8 +15,20 @@
     <link rel="stylesheet" href="<c:url value="/resources/css/event-detail.css"/>" />
     <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
     <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
-    <script src="<c:url value='/resources/js/confirm-delete.js'/>"></script>
 </head>
+<script src="<c:url value='/resources/js/confirm-delete.js'/>"></script>
+<script src="<c:url value="/resources/js/components/navigation-stack.js"/>"></script>
+<script>
+    function goBack(){
+        console.log(peekNavigationStack())
+        const rutaAnterior = popFromNavigationStack()
+        if (rutaAnterior) {
+            window.location.href = rutaAnterior;
+        } else {
+            window.location.href = "<c:url value='/events'/>"
+        }
+    }
+</script>
 <c:set var="attendeesPageSize" value="6" scope="request" />
 <c:set var="chatPageSize" value="4" scope="request" />
 <body>
@@ -334,18 +346,9 @@
         }
     });
 </script>
-<script src="<c:url value="/resources/js/components/navigation-stack.js"/>"></script>
 <script>
 
-    function goBack(){
-        console.log(peekNavigationStack())
-        const rutaAnterior = popFromNavigationStack()
-        if (rutaAnterior) {
-            window.location.href = rutaAnterior;
-        } else {
-            window.location.href = "<c:url value='/events'/>"
-        }
-    }
+
 
     function toggleEventActionMenu() {
         const dropdown = document.getElementById('eventActionDropdown');

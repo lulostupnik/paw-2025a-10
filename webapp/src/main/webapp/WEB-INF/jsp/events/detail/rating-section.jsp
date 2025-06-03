@@ -96,17 +96,27 @@
 
 
     <!-- User Rating Form (only for authenticated users who attended the event) -->
-    <c:if test="${not empty user and attend and empty userRating}">
-      <c:if test="${ ! event.isFuture}">
+    <c:if test="${not empty user and attend and not event.isFuture }">
         <div class="user-rating-form">
           <h3 class="rating-form-title">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
             </svg>
-            <spring:message code="event.rating.add" />
+            <c:choose>
+              <c:when test="${not empty userRating}">
+                <spring:message code="event.rating.update" />
+              </c:when>
+              <c:otherwise>
+                <spring:message code="event.rating.add" />
+              </c:otherwise>
+            </c:choose>
           </h3>
-
+            <c:if test="${empty userRating}">
           <c:url var="ratingUrl" value="/events/${event.id}/rating"/>
+            </c:if>
+            <c:if test="${not empty userRating}">
+            <c:url var="ratingUrl" value="/events/${event.id}/rating/update"/>
+            </c:if>
           <form:form modelAttribute="eventRatingForm" action="${ratingUrl}" method="post" cssClass="rating-form">
             <div class="rating-input-container">
               <label class="rating-label">
@@ -158,7 +168,14 @@
 
             <div class="form-actions">
               <c:set var="submitButtonLabel">
+                <c:choose>
+                  <c:when test="${not empty userRating}">
+                    <spring:message code="event.rating.update.submit"/>
+                  </c:when>
+                  <c:otherwise>
                     <spring:message code="event.rating.submit"/>
+                  </c:otherwise>
+                </c:choose>
               </c:set>
               <jsp:include page="../../components/button.jsp">
                 <jsp:param name="label" value="${submitButtonLabel}" />
@@ -167,7 +184,6 @@
             </div>
           </form:form>
         </div>
-      </c:if>
     </c:if>
 
 <%--    <!-- Rating List -->--%>
@@ -249,66 +265,73 @@
 
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Star rating interaction
-    const starInputs = document.querySelectorAll('.star-rating-input input[type="radio"]');
-    const starLabels = document.querySelectorAll('.star-rating-input .star-label');
-    const ratingValueDisplay = document.getElementById('current-rating-value');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Star rating interaction
+        const starInputs = document.querySelectorAll('.star-rating-input input[type="radio"]');
+        const starLabels = document.querySelectorAll('.star-rating-input .star-label');
+        const ratingValueDisplay = document.getElementById('current-rating-value');
+        const starRatingContainer = document.querySelector('.star-rating-input');
 
-    starInputs.forEach(function(input) {
-      input.addEventListener('change', function() {
-        const value = parseFloat(this.value);
-        if (ratingValueDisplay) {
-          ratingValueDisplay.textContent = value;
+        // Function to update star display based on rating value
+        function updateStarDisplay(rating) {
+            starLabels.forEach(function(label) {
+                const labelValue = parseFloat(label.getAttribute('data-value'));
+                if (labelValue <= rating) {
+                    label.style.color = '#fbbf24';
+                    label.classList.add('active');
+                } else {
+                    label.style.color = '#e5e7eb';
+                    label.classList.remove('active');
+                }
+            });
         }
 
-        // Update visual state
-        starLabels.forEach(function(label) {
-          const labelValue = parseFloat(label.getAttribute('data-value'));
-          if (labelValue <= value) {
-            label.classList.add('active');
-          } else {
-            label.classList.remove('active');
-          }
-        });
-      });
-    });
-
-    // Hover effects for star rating
-    starLabels.forEach(function(label) {
-      label.addEventListener('mouseenter', function() {
-        const value = parseFloat(this.getAttribute('data-value'));
-        starLabels.forEach(function(l) {
-          const lValue = parseFloat(l.getAttribute('data-value'));
-          if (lValue <= value) {
-            l.style.color = '#fbbf24';
-          } else {
-            l.style.color = '#e5e7eb';
-          }
-        });
-      });
-    });
-
-    const starRatingContainer = document.querySelector('.star-rating-input');
-    if (starRatingContainer) {
-      starRatingContainer.addEventListener('mouseleave', function() {
-        const checkedInput = document.querySelector('.star-rating-input input[type="radio"]:checked');
-        if (checkedInput) {
-          const checkedValue = parseFloat(checkedInput.value);
-          starLabels.forEach(function(label) {
-            const labelValue = parseFloat(label.getAttribute('data-value'));
-            if (labelValue <= checkedValue) {
-              label.style.color = '#fbbf24';
-            } else {
-              label.style.color = '#e5e7eb';
+        // Initialize the display with current rating on page load
+        if (starRatingContainer) {
+            const currentRating = parseFloat(starRatingContainer.getAttribute('data-rating')) || 0;
+            if (currentRating > 0) {
+                updateStarDisplay(currentRating);
             }
-          });
-        } else {
-          starLabels.forEach(function(label) {
-            label.style.color = '#e5e7eb';
-          });
+
+            // Also check for checked input as fallback
+            const checkedInput = document.querySelector('.star-rating-input input[type="radio"]:checked');
+            if (checkedInput && currentRating === 0) {
+                const checkedValue = parseFloat(checkedInput.value);
+                updateStarDisplay(checkedValue);
+            }
         }
-      });
-    }
-  });
+
+        // Handle rating changes
+        starInputs.forEach(function(input) {
+            input.addEventListener('change', function() {
+                const value = parseFloat(this.value);
+                if (ratingValueDisplay) {
+                    ratingValueDisplay.textContent = value;
+                }
+                updateStarDisplay(value);
+            });
+        });
+
+        // Hover effects for star rating
+        starLabels.forEach(function(label) {
+            label.addEventListener('mouseenter', function() {
+                const value = parseFloat(this.getAttribute('data-value'));
+                updateStarDisplay(value);
+            });
+        });
+
+        // Restore original rating on mouse leave
+        if (starRatingContainer) {
+            starRatingContainer.addEventListener('mouseleave', function() {
+                const checkedInput = document.querySelector('.star-rating-input input[type="radio"]:checked');
+                if (checkedInput) {
+                    const checkedValue = parseFloat(checkedInput.value);
+                    updateStarDisplay(checkedValue);
+                } else {
+                    const currentRating = parseFloat(starRatingContainer.getAttribute('data-rating')) || 0;
+                    updateStarDisplay(currentRating);
+                }
+            });
+        }
+    });
 </script>

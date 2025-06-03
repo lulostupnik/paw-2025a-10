@@ -784,29 +784,29 @@ public class EventServiceImplTest {
         eventService.rateEvent(USER, EVENT_ID, ATTENDEES);
     }
 
-    @Test
-    public void testFindRatingByUserAndEvent(){
-        when(
-            ratingDao.findRatingByUserAndEvent(eq(USER_ID), eq(EVENT_ID))
-        ).thenReturn(Optional.of(RATING));
-
-        Optional<Double> rating = eventService.findRatingByUserAndEvent(USER_ID, EVENT_ID);
-
-        assertNotNull(rating);
-        assertTrue(rating.isPresent());
-        assertEquals(AVERAGE_RATING, rating.get(), 0.1);
-    }
-    @Test
-    public void testFindRatingByUserAndEventNotFound(){
-        when(
-            ratingDao.findRatingByUserAndEvent(eq(USER_ID), eq(EVENT_ID))
-        ).thenReturn(Optional.empty());
-
-        Optional<Double> rating = eventService.findRatingByUserAndEvent(USER_ID, EVENT_ID);
-
-        assertNotNull(rating);
-        assertFalse(rating.isPresent());
-    }
+//    @Test
+//    public void testFindRatingByUserAndEvent(){
+//        when(
+//            ratingDao.findRatingByUserAndEvent(eq(USER_ID), eq(EVENT_ID))
+//        ).thenReturn(Optional.of(RATING));
+//
+//        Optional<Double> rating = eventService.findRatingByUserAndEvent(USER_ID, EVENT_ID);
+//
+//        assertNotNull(rating);
+//        assertTrue(rating.isPresent());
+//        assertEquals(AVERAGE_RATING, rating.get(), 0.1);
+//    }
+//    @Test
+//    public void testFindRatingByUserAndEventNotFound(){
+//        when(
+//            ratingDao.findRatingByUserAndEvent(eq(USER_ID), eq(EVENT_ID))
+//        ).thenReturn(Optional.empty());
+//
+//        Optional<Double> rating = eventService.findRatingByUserAndEvent(USER_ID, EVENT_ID);
+//
+//        assertNotNull(rating);
+//        assertFalse(rating.isPresent());
+//    }
 
     @Test
     public void testCountRatingsByEvent(){

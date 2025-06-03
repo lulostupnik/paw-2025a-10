@@ -77,7 +77,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/register", "/login", "/reset-password", "/forgot_pass", "/validate", "/not-verified").anonymous()
                 .antMatchers("/universities", "/careers", "/interests", "/cities").permitAll()
                 .antMatchers("/events/create", "/journeys/create").access("isAuthenticated() and !@accessHelper.isUserBlocked()")
-                .antMatchers(HttpMethod.GET,"/events", "/", "/events/{id}", "/journeys", "/journeys/{id}", "/images/{id}","/universities","/universities/{id}", "/blocked").permitAll()
+                .antMatchers(HttpMethod.GET,"/events", "/", "/events/{id}", "/journeys", "/journeys/{id}", "/images/{id}", "/blocked").permitAll()
                 .antMatchers(HttpMethod.POST, "users/{id}/block", "users/{id}/unblock").access("hasRole('ADMIN') and !@accessHelper.isUserBlocked()")
                 .antMatchers("/dashboard/**","interests/**", "careers/**", "/universities/**","cities/**", "users/**", "reports/**").access("hasRole('ADMIN') and !@accessHelper.isUserBlocked()")
                 .antMatchers("/journeys/{id}/update").access("@accessHelper.isUserJourneyOwner(#id) and !@accessHelper.isUserBlocked()")

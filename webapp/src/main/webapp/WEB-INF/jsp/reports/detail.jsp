@@ -182,7 +182,7 @@
                                         </p>
                                         <div class="content-meta">
                                             <c:if test="${report.journeyResponse.dateTime != null}">
-                                                <fmt:parseDate value="${report.journeyResponse.dateTime}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" />
+                                                <fmt:parseDate value="${report.journeyResponse.dateTime}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" />
                                                 <fmt:formatDate value="${parsedDate}" pattern="MMMM d, yyyy HH:mm" var="formattedDate" />
                                                 <span>
                                                     <spring:message code="comment.posted.on"/>:
@@ -215,7 +215,7 @@
                                         </p>
                                         <div class="content-meta">
                                             <c:if test="${report.eventResponse.dateTime != null}">
-                                                <fmt:parseDate value="${report.eventResponse.dateTime}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" />
+                                                <fmt:parseDate value="${report.eventResponse.dateTime}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" />
                                                 <fmt:formatDate value="${parsedDate}" pattern="MMMM d, yyyy HH:mm" var="formattedDate" />
                                                 <span>
                                                     <spring:message code="comment.posted.on"/>:

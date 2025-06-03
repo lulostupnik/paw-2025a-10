@@ -128,8 +128,8 @@ public class EventController {
         LOGGER.debug("Average rating: {}", maybeAverageRating.orElse(0.0));
         maybeAverageRating.ifPresent(rating -> mav.addObject("averageRating", rating));
         if (user != null) {
-            Optional<Double> maybeUserRating = eventService.findRatingByUserAndEvent(user.getId(), event.getId());
-            maybeUserRating.ifPresent(rating -> mav.addObject("userRating", rating));
+            Optional<Rating> maybeUserRating = eventService.findRatingByUserAndEvent(user.getId(), event.getId());
+            maybeUserRating.ifPresent(rating -> mav.addObject("userRating", rating.getRating()));
         }
         mav.addObject("ratingCount", eventService.countRatingsByEvent(event.getId()));
 
@@ -163,6 +163,19 @@ public class EventController {
         }
         LOGGER.debug("Rating event {} with rating {}", id, form.getRating());
         eventService.rateEvent(user, id, form.getRating());
+        return new ModelAndView(REDIRECT + id);
+    }
+    @PostMapping("/{id}/rating/update")
+    public ModelAndView updateEventRating(@PathVariable long id, @Valid @ModelAttribute("eventRatingForm") final RatingForm form,
+                                          final BindingResult errors, @ModelAttribute("user") User user, RedirectAttributes redirectAttributes) {
+        if (errors.hasErrors()) {
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.eventRatingForm", errors);
+            redirectAttributes.addFlashAttribute("eventRatingForm", form);
+            LOGGER.debug("Found {} errors in rating form data", errors.getErrorCount());
+            return new ModelAndView(REDIRECT + id);
+        }
+        LOGGER.debug("Updating rating for event {} with rating {}", id, form.getRating());
+        eventService.updateEventRating(user, id, form.getRating());
         return new ModelAndView(REDIRECT + id);
     }
 

@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface EventRatingDao {
     Rating rateEvent(User user, Event event, double rating);
 
-    Optional<Double> findRatingByUserAndEvent(long userId, long eventId);
+    Optional<Rating> findRatingByUserAndEvent(long userId, long eventId);
 
     int countRatingsByEvent(long eventId);
 

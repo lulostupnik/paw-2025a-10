@@ -31,8 +31,7 @@ public class ReportController {
     private static final String REPORT_CREATE_FORM = "createReportForm";
 
     @Autowired
-    public ReportController(ReportService reportService, UserService userService,
-                            JourneyService journeyService, EventService eventService) {
+    public ReportController(ReportService reportService ) {
         this.reportService = reportService;
     }
 

@@ -24,9 +24,9 @@ public class EventRatingHibernateDao implements EventRatingDao {
     }
 
     @Override
-    public Optional<Double> findRatingByUserAndEvent(long userId, long eventId) {
+    public Optional<Rating> findRatingByUserAndEvent(long userId, long eventId) {
         return em.createQuery(
-                "SELECT r.rating FROM Rating r WHERE r.user.id = :userId AND r.event.id = :eventId", Double.class)
+                "FROM Rating r WHERE r.user.id = :userId AND r.event.id = :eventId", Rating.class)
                 .setParameter("userId", userId)
                 .setParameter("eventId", eventId)
                 .getResultList()

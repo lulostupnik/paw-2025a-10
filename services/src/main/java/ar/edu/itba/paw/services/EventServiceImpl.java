@@ -269,8 +269,19 @@ public class EventServiceImpl implements EventService {
         eventRatingDao.rateEvent(user, event, rating);
     }
 
+    @Transactional
     @Override
-    public Optional<Double> findRatingByUserAndEvent(long userId, long eventId) {
+    public void updateEventRating(User user, long eventId, double value) {
+        Rating rating = eventRatingDao.findRatingByUserAndEvent(user.getId(), eventId)
+                .orElseThrow(() -> {
+                    LOGGER.warn("Rating not found for user {} and event {}", user.getId(), eventId);
+                    return new RatingNotFoundException("Rating not found");
+                });
+        rating.setRating(value);
+    }
+
+    @Override
+    public Optional<Rating> findRatingByUserAndEvent(long userId, long eventId) {
         return eventRatingDao.findRatingByUserAndEvent(userId, eventId);
     }
 
