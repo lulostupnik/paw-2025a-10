@@ -9,7 +9,7 @@ public class CreateReportForm {
     @NotNull
     private String description;
 
-
+    @NotNull
     private String reason;
 
     public String getDescription() {
