@@ -144,7 +144,7 @@ public class ReportController {
         redirectAttributes.addFlashAttribute("reportSuccess", "Report submitted successfully");
 
 
-        return new ModelAndView("redirect:/journeys/" + response.getEvent().getId());
+        return new ModelAndView("redirect:/events/" + response.getEvent().getId());
     }
 
     @GetMapping(value= "/{id}")

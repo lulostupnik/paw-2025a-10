@@ -66,13 +66,13 @@ public class CareerHibernateDaoTest {
         assertNotNull(maybeCareer);
         assertFalse(maybeCareer.isPresent());
     }
-    // @Test
-    // public void testFindByIdDeleted(){
-    //     Optional<Career> maybeCareer = careerDao.findById(TestUtils.CAREER_DELETED_ID);
+    @Test
+    public void testFindByIdDeleted(){
+        Optional<Career> maybeCareer = careerDao.findById(TestUtils.CAREER_DELETED_ID);
 
-    //     assertNotNull(maybeCareer);
-    //     assertFalse(maybeCareer.isPresent());
-    // }
+        assertNotNull(maybeCareer);
+        assertFalse(maybeCareer.isPresent());
+    }
 
     @Test
     public void testFindByName(){
@@ -96,13 +96,13 @@ public class CareerHibernateDaoTest {
         assertNotNull(maybeCareer);
         assertFalse(maybeCareer.isPresent());
     }
-    // @Test
-    // public void testFindByNameDeleted(){
-    //     Optional<Career> maybeCareer = careerDao.findByName(TestUtils.CAREER_DELETED_NAME);
+    @Test
+    public void testFindByNameDeleted(){
+        Optional<Career> maybeCareer = careerDao.findByName(TestUtils.CAREER_DELETED_NAME);
 
-    //     assertNotNull(maybeCareer);
-    //     assertFalse(maybeCareer.isPresent());
-    // }
+        assertNotNull(maybeCareer);
+        assertFalse(maybeCareer.isPresent());
+    }
 
     @Test
     public void testGetAllCareersPageOne(){
@@ -151,21 +151,23 @@ public class CareerHibernateDaoTest {
         assertEquals(TestUtils.CAREER_INSERT1_NAME, career.getName());
         assertTrue(career.getId() > 0);
     }
-    @Test(expected = PersistenceException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testCreateDuplicateActive(){
         careerDao.create(TestUtils.CAREER_1_NAME);
         em.flush();
     }
-    // @Test
-    // public void testCreateDuplicateDeleted(){
-    //     int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CAREER_TABLE);
+    @Test
+    public void testCreateDuplicateDeleted(){
+        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CAREER_TABLE);
+        
+        Career career = careerDao.create(TestUtils.CAREER_DELETED_NAME);
+        em.flush();
 
-    //     Career career = careerDao.create(TestUtils.CAREER_DELETED_NAME);
-    //     assertNotNull(career);
-    //     TestUtils.assertEqualsCareer(TestUtils.CAREER_DELETED, career);
-    //     assertFalse(jdbcTemplate.queryForObject(TestUtils.CAREER_IS_DELETED_BY_ID, Boolean.class, TestUtils.CAREER_DELETED_ID));
-    //     assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CAREER_TABLE));
-    // }
+        assertNotNull(career);
+        TestUtils.assertEqualsCareer(TestUtils.CAREER_DELETED, career);
+        assertFalse(jdbcTemplate.queryForObject(TestUtils.CAREER_IS_DELETED_BY_ID, Boolean.class, TestUtils.CAREER_DELETED_ID));
+        assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CAREER_TABLE));
+    }
     @Test(expected = PersistenceException.class)
     public void testCreateMissing(){
         careerDao.create(null);

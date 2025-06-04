@@ -148,7 +148,7 @@ public class ReportServiceImplTest {
             reportDao.create(
                 eq(USER), 
                 eq(USER), 
-                eq(EVENT), 
+                eq(EVENT_RESPONSE), 
                 eq(DESC), 
                 eq(MISINFORMATION)
             )
@@ -158,7 +158,7 @@ public class ReportServiceImplTest {
             USER, 
             EVENT_RESPONSE_ID, 
             DESC,
-                MISINFORMATION
+            MISINFORMATION
         );
 
         assertNotNull(report);
@@ -187,7 +187,7 @@ public class ReportServiceImplTest {
             reportDao.create(
                 eq(USER), 
                 eq(USER), 
-                eq(JOURNEY), 
+                eq(JOURNEY_RESPONSE), 
                 eq(DESC), 
                 eq(MISINFORMATION)
             )
@@ -197,7 +197,7 @@ public class ReportServiceImplTest {
             USER, 
             JOURNEY_RESPONSE_ID, 
             DESC,
-                MISINFORMATION
+            MISINFORMATION
         );
 
         assertNotNull(report);

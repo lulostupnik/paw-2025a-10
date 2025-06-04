@@ -72,6 +72,7 @@ public class JourneyServiceImplTest {
     private static final LocalDate END_DATE = START_DATE.plusDays(10);
     private static final String DESCRIPTION = "desc";
     private static final Journey JOURNEY = new Journey(JOURNEY_ID, USER, START_DATE, END_DATE, UNI, DESCRIPTION);
+    private static final Journey JOURNEY_DELETED = new Journey(JOURNEY_ID, USER, START_DATE, END_DATE, UNI, DESCRIPTION, true);
     private static final List<Journey> JOURNEYS = List.of(JOURNEY);
     private static final Page<Journey> JOURNEY_PAGE = new Page<Journey>(JOURNEYS, 1, 1);
     
@@ -80,6 +81,7 @@ public class JourneyServiceImplTest {
     private static final Page<JourneyResponse> REPLY_PAGE = new Page<>(REPLIES, 1, 1);
 
     private static final User USER_WITH_JOURNEY = new User(USER_ID_2, EMAIL_2, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, JOURNEY, IMAGE_ID, LOCALE, false, true);
+    private static final User USER_WITH_JOURNEY_DELETED = new User(USER_ID_2, EMAIL_2, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, JOURNEY_DELETED, IMAGE_ID, LOCALE, false, true);
 
     private static final LocalDateTime REPLY_TIMESTAMP = LocalDateTime.now();
     private static final JourneyResponse REPLY = new JourneyResponse(REPLY_ID, USER, JOURNEY, DESCRIPTION, REPLY_TIMESTAMP);
@@ -471,6 +473,12 @@ public class JourneyServiceImplTest {
     @Test
     public void testExistsByUser(){
         boolean hasJourney = journeyService.existsByUser(USER);
+
+        assertFalse(hasJourney);
+    }
+    @Test
+    public void testExistsByUserDeleted(){
+        boolean hasJourney = journeyService.existsByUser(USER_WITH_JOURNEY_DELETED);
 
         assertFalse(hasJourney);
     }

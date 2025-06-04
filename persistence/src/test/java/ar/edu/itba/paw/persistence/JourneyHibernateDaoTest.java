@@ -13,6 +13,7 @@ import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
 
 import ar.edu.itba.paw.persistence.config.TestConfig;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,7 +70,7 @@ public class JourneyHibernateDaoTest {
         );
         em.flush();
     }
-    @Test(expected = PersistenceException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testCreateInvalidUni(){
         journeyDao.create(
             TestUtils.USER_1,
@@ -78,7 +79,7 @@ public class JourneyHibernateDaoTest {
         );
         em.flush();
     }
-    @Test(expected = PersistenceException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testCreateDuplicated(){
         journeyDao.create(
             TestUtils.USER_1,
@@ -86,6 +87,17 @@ public class JourneyHibernateDaoTest {
             TestUtils.JOURNEY_START_DATE, TestUtils.JOURNEY_END_DATE, TestUtils.JOURNEY_DESCRIPTION
         );
         em.flush();
+    }
+    @Test
+    public void testCreateDeleted(){
+        Journey journey = journeyDao.create(
+            TestUtils.JOURNEY_DELETED.getUser(),
+            TestUtils.JOURNEY_DELETED.getDestinationUniversity(),
+            TestUtils.JOURNEY_START_DATE, TestUtils.JOURNEY_END_DATE, TestUtils.JOURNEY_DESCRIPTION
+        );
+        em.flush();
+
+        assertFalse(jdbcTemplate.queryForObject(TestUtils.JOURNEY_IS_DELETED_BY_ID, Boolean.class, journey.getId()));
     }
 
     @Test
@@ -103,13 +115,13 @@ public class JourneyHibernateDaoTest {
         assertNotNull(maybeJourney);
         assertFalse(maybeJourney.isPresent());
     }
-    // @Test
-    // public void testFindByIdDeleted(){
-    //     Optional<Journey> maybeJourney = journeyDao.findById(TestUtils.JOURNEY_DELETED_ID);
+    @Test
+    public void testFindByIdDeleted(){
+        Optional<Journey> maybeJourney = journeyDao.findById(TestUtils.JOURNEY_DELETED_ID);
 
-    //     assertNotNull(maybeJourney);
-    //     assertFalse(maybeJourney.isPresent());
-    // }
+        assertNotNull(maybeJourney);
+        assertFalse(maybeJourney.isPresent());
+    }
     @Test
     public void testFindByIdNoJourneys(){
         Optional<Journey> maybeJourney = journeyDao.findById(12341234);

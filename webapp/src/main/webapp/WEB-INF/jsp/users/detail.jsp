@@ -20,8 +20,8 @@
     <div class="featured-journey-card">
       <div class="journey-card-content">
         <div class="journey-card-header">
-          <h1 class="journey-card-title"><c:out value="${user.firstname} ${user.lastname}"/></h1>
-          <p class="journey-card-subtitle"><c:out value="${user.username}"/></p>
+          <h1 class="journey-card-title"><c:out value="${userToDisplay.firstname} ${userToDisplay.lastname}"/></h1>
+          <p class="journey-card-subtitle"><c:out value="${userToDisplay.username}"/></p>
         </div>
 
         <div class="detail-content">
@@ -31,38 +31,38 @@
 
             <div class="feature-card">
               <h3 class="feature-title"><spring:message code="user.detail.email"/></h3>
-              <p class="feature-description"><c:out value="${user.email}"/></p>
+              <p class="feature-description"><c:out value="${userToDisplay.email}"/></p>
             </div>
 
             <div class="feature-card">
               <h3 class="feature-title"><spring:message code="user.detail.firstname"/></h3>
-              <p class="feature-description"><c:out value="${user.firstname}"/></p>
+              <p class="feature-description"><c:out value="${userToDisplay.firstname}"/></p>
             </div>
 
             <div class="feature-card">
               <h3 class="feature-title"><spring:message code="user.detail.lastname"/></h3>
-              <p class="feature-description"><c:out value="${user.lastname}"/></p>
+              <p class="feature-description"><c:out value="${userToDisplay.lastname}"/></p>
             </div>
 
             <div class="feature-card">
               <h3 class="feature-title"><spring:message code="user.detail.university"/></h3>
-              <p class="feature-description"><c:out value="${user.university.name}"/></p>
+              <p class="feature-description"><c:out value="${userToDisplay.university.name}"/></p>
             </div>
 
             <div class="feature-card">
               <h3 class="feature-title"><spring:message code="user.detail.career"/></h3>
-              <p class="feature-description"><c:out value="${user.career.name}"/></p>
+              <p class="feature-description"><c:out value="${userToDisplay.career.name}"/></p>
             </div>
 
             <div class="feature-card">
               <h3 class="feature-title"><spring:message code="user.detail.language"/></h3>
-              <p class="feature-description"><c:out value="${user.locale}"/></p>
+              <p class="feature-description"><c:out value="${userToDisplay.locale}"/></p>
             </div>
 
             <div class="feature-card">
               <h3 class="feature-title"><spring:message code="user.detail.profilePicture"/></h3>
               <div class="profile-picture-container">
-                <img src="<c:url value='/images/${user.profilePictureId}'/>" alt="<spring:message code="user.detail.profilePicture.alt"/>" class="profile-picture" />
+                <img src="<c:url value='/images/${userToDisplay.profilePictureId}'/>" alt="<spring:message code="user.detail.profilePicture.alt"/>" class="profile-picture" />
               </div>
             </div>
 

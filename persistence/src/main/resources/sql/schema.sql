@@ -169,7 +169,7 @@ CREATE TABLE IF NOT EXISTS ratings (
                                        id BIGSERIAL PRIMARY KEY,
                                        user_id BIGINT NOT NULL,
                                        event_id BIGINT NOT NULL,
-                                       rating DOUBLE NOT NULL CHECK (rating >= 1 AND rating <= 5),
+                                       rating DOUBLE PRECISION NOT NULL CHECK (rating >= 1 AND rating <= 5),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (user_id, event_id),
@@ -341,23 +341,22 @@ COMMIT;
 -- -- ALTER TABLE tokens ALTER COLUMN user_id TYPE BIGINT;
 -- COMMIT;
 
-ALTER TABLE events
-    ALTER COLUMN flyer_image_id SET NOT NULL;
+-- ALTER TABLE events
+--     ALTER COLUMN flyer_image_id SET NOT NULL;
 
 
 -- ALTER TABLE user_interest DROP COLUMN IF EXISTS interest_id; En local estaba de mas esta columna. Checkear en produccion antes de hacerlo.
-
-BEGIN;
-
-ALTER TABLE users
-    DROP CONSTRAINT IF EXISTS users_roles_check;
-
-UPDATE users SET roles = 'USER' WHERE roles = 'user';
-UPDATE users SET roles = 'ADMIN' WHERE roles = 'admin';
-
-ALTER TABLE users
-    ADD CONSTRAINT users_roles_check
-        CHECK (roles IN ('USER', 'ADMIN'));
-
-
-COMMIT;
+--
+-- BEGIN;
+--
+-- ALTER TABLE users
+--     DROP CONSTRAINT IF EXISTS users_roles_check;
+--
+-- UPDATE users SET roles = 'USER' WHERE roles = 'user';
+-- UPDATE users SET roles = 'ADMIN' WHERE roles = 'admin';
+--
+-- ALTER TABLE users
+--     ADD CONSTRAINT users_roles_check
+--         CHECK (roles IN ('USER', 'ADMIN'));
+--
+-- COMMIT;

@@ -91,10 +91,12 @@ public class EventServiceImplTest {
     private static final EventWithStatistics EVENT_WITH_STATISTICS = new EventWithStatistics(EVENT, STATISTICS_CREATED_EVENTS_COUNT, STATISTICS_ATTENDED_EVENTS_COUNT, STATISTICS_ATTENDEE_COUNTRY, STATISTICS_ATTENDEE_COUNTRY_COUNT, true, true);
     private static final CountryAttendeeCount COUNTRY_ATTENDEE_COUNT = new CountryAttendeeCount(COUNTRY_NAME, STATISTICS_ATTENDEE_COUNTRY_COUNT);
     private static final double AVERAGE_RATING = 5.0;
-    private static final double RATING = 5.0;
+    private static final double RATING_VALUE = 5.0;
     private static final int RATING_COUNT = 2;
     private static final List<EventResponse> REPLIES = List.of(REPLY);
     private static final Page<EventResponse> REPLY_PAGE = new Page<>(REPLIES, 1, 1);
+    private static final Rating RATING = new Rating(USER, EVENT, RATING_VALUE);
+
     @InjectMocks
     EventServiceImpl eventService;
 
@@ -784,29 +786,45 @@ public class EventServiceImplTest {
         eventService.rateEvent(USER, EVENT_ID, ATTENDEES);
     }
 
-//    @Test
-//    public void testFindRatingByUserAndEvent(){
-//        when(
-//            ratingDao.findRatingByUserAndEvent(eq(USER_ID), eq(EVENT_ID))
-//        ).thenReturn(Optional.of(RATING));
-//
-//        Optional<Double> rating = eventService.findRatingByUserAndEvent(USER_ID, EVENT_ID);
-//
-//        assertNotNull(rating);
-//        assertTrue(rating.isPresent());
-//        assertEquals(AVERAGE_RATING, rating.get(), 0.1);
-//    }
-//    @Test
-//    public void testFindRatingByUserAndEventNotFound(){
-//        when(
-//            ratingDao.findRatingByUserAndEvent(eq(USER_ID), eq(EVENT_ID))
-//        ).thenReturn(Optional.empty());
-//
-//        Optional<Double> rating = eventService.findRatingByUserAndEvent(USER_ID, EVENT_ID);
-//
-//        assertNotNull(rating);
-//        assertFalse(rating.isPresent());
-//    }
+    @Test
+    public void testUpdateEventRating(){
+        Rating newRating = new Rating(USER, EVENT, 2);
+        when(
+            ratingDao.findRatingByUserAndEvent(
+                eq(USER_ID),
+                eq(EVENT_ID)
+            )
+        ).thenReturn(Optional.of(newRating));
+
+        eventService.updateEventRating(USER, EVENT_ID, RATING_VALUE);
+
+        assertEquals(RATING_VALUE, newRating.getRating(), 0.1);
+    }
+
+    @Test
+    public void testFindRatingByUserAndEvent(){
+        when(
+            ratingDao.findRatingByUserAndEvent(eq(USER_ID), eq(EVENT_ID))
+        ).thenReturn(Optional.of(RATING));
+
+        Optional<Rating> rating = eventService.findRatingByUserAndEvent(USER_ID, EVENT_ID);
+
+        assertNotNull(rating);
+        assertTrue(rating.isPresent());
+        assertEquals(AVERAGE_RATING, rating.get().getRating(), 0.1);
+        assertEquals(RATING, rating.get());
+    }
+    @Test
+    public void testFindRatingByUserAndEventNotFound(){
+        when(
+            ratingDao.findRatingByUserAndEvent(eq(USER_ID), eq(EVENT_ID))
+        ).thenReturn(Optional.empty());
+
+        Optional<Rating> rating = eventService.findRatingByUserAndEvent(USER_ID, EVENT_ID);
+
+        assertNotNull(rating);
+        assertFalse(rating.isPresent());
+    }
 
     @Test
     public void testCountRatingsByEvent(){
