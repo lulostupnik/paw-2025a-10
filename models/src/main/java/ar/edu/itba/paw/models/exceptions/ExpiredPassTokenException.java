@@ -9,4 +9,7 @@ public class ExpiredPassTokenException extends RuntimeException {
     public String getOldToken() {
         return oldToken;
     }
+    public void setOldToken(String oldToken) {
+        this.oldToken = oldToken;
+    }
 }

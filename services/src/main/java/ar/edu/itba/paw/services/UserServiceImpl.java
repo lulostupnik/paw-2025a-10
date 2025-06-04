@@ -3,20 +3,14 @@ package ar.edu.itba.paw.services;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
-import ar.edu.itba.paw.models.exceptions.ExpiredTokenException;
-import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
-import ar.edu.itba.paw.models.exceptions.UserValidatedException;
+import ar.edu.itba.paw.models.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -30,9 +24,10 @@ public class UserServiceImpl implements UserService {
     private final InterestService interestService;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
 
     @Autowired
-    public UserServiceImpl(final UniversityService universityService, final UserDao userDao, final ImageService imageService, final CareerService careerService, final InterestService interestService,final  PasswordEncoder passwordEncoder, final EmailService emailService) {
+    public UserServiceImpl(final UniversityService universityService, final UserDao userDao, final ImageService imageService, final CareerService careerService, final InterestService interestService,final  PasswordEncoder passwordEncoder, final EmailService emailService, final TokenService tokenService) {
         this.universityService = universityService;
         this.userDao = userDao;
         this.imageService = imageService;
@@ -40,6 +35,7 @@ public class UserServiceImpl implements UserService {
         this.interestService = interestService;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
+        this.tokenService = tokenService;
     }
 
 
@@ -50,67 +46,62 @@ public class UserServiceImpl implements UserService {
         University university = universityService.findByName(universityName)
                 .orElseThrow(() -> {
                     LOGGER.error("University not found: '{}' during user creation for email: {}", universityName, email);
-                    return new RuntimeException("University not found");
+                    return new UniversityNotFoundException("University not found");
                 });
 
         Career career = careerService.findCareerByName(careerName)
                 .orElseThrow(() -> {
                     LOGGER.error("Career not found: '{}' during user creation for email: {}", careerName, email);
-                    return new RuntimeException("Career not found");
+                    return new CareerNotFoundException("Career not found");
                 });
 
         long profilePictureId = imageService.createImage(profilePicture);
-        String uid = UUID.randomUUID().toString();
-        LocalDate tomorrow = LocalDate.now().plusDays(1);
-        User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId, passwordEncoder.encode(password), locale,uid,tomorrow);
+        User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId, passwordEncoder.encode(password), Locale.of(locale.getLanguage()), false);
         LOGGER.info("Successfully created user with ID: {} and email: {}", user.getId(), email);
         interestService.createUserInterests(interests, user.getId());
         LOGGER.info("User interests saved successfully for user ID: {}", user.getId());
-        emailService.sendValidationEmail(user,uid);
+        Token token = tokenService.userTokenControl(user);
+        emailService.sendValidationEmail(user,token.getToken());
         LOGGER.info("Validation email sent successfully to user ID: {}", user.getId());
         return user;
     }
 
-    @Override
     @Transactional
-    public void updatePassword(final long id, final String newPassword) {
-        LOGGER.debug("Password change for user with id: {}", id);
-        userDao.updatePassword(id, passwordEncoder.encode(newPassword));
-        LOGGER.info("Password changed successfully for user ID: {}", id);
-
-    }
-
     @Override
-    @Transactional
-    public UserAuthInfo verifyEmailToken(final String token) {
-        LOGGER.debug("Validating user with token: {}", token);
-        handleTokenExpiration(token);
-        Optional<Boolean> maybeValidated = userDao.findValidatedByTokenNotExpired(token);
-        if(maybeValidated.isPresent() && maybeValidated.get() || maybeValidated.isEmpty()){
-            LOGGER.warn("Token in use warn, with token: {}", token);
+    public User verifyUser(String token) {
+        final Optional<Token> maybeToken = tokenService.getByToken(token);
+        if (!maybeToken.isPresent()) {
+            LOGGER.error("Token is invalid, or expired for token: {}", token);
             throw new InvalidTokenException("Invalid token");
         }
-        UserAuthInfo user = userDao.updateValidationAndFindAuthInfoByToken(token).orElseThrow(()-> new RuntimeException("Invalid token"));
-        LOGGER.info("User validated, with token: {}", token);
+
+        final Token tkn = maybeToken.get();
+        final User user = tkn.getUser();
+
+        tokenService.delete(tkn);
+
+        if (user.isValidated()) {
+            LOGGER.error("User already validated {}", user.getId());
+            throw new UserValidatedException("User already validated");
+        }
+
+        user.setValidated(true);
+        LOGGER.info("Activating user id {} after successful verification", user.getId());
         return user;
     }
 
+
     @Override
     @Transactional
-    public void checkPasswordTokenValidity(final String token) {
-        handleTokenExpiration(token);
-        if (!isValidPasswordResetToken(token)) {
-            LOGGER.warn("Invalid password reset token attempt: {}", token);
-            throw new InvalidTokenException("Invalid password reset token");
-        }
-    }
+    public void updatePassword(final long id, final String newPassword) {
+        User user = userDao.findById(id).orElseThrow(() -> {
+            LOGGER.error("User does not exist for ID: {}", id);
+            return new UserNotFoundException("User does not exist");
+        });
+        LOGGER.debug("Password change for user with id: {}", id);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        LOGGER.info("Password changed successfully for user ID: {}", id);
 
-    private void handleTokenExpiration(String token) {
-        if(isTokenExpired(token)) {
-            LOGGER.warn("Password reset token expired: {}", token);
-            refreshToken(token);
-            throw new ExpiredTokenException("Password reset token expired", token);
-        }
     }
 
 
@@ -120,11 +111,6 @@ public class UserServiceImpl implements UserService {
         return userDao.findByEmail(email);
     }
 
-    @Override
-    public Optional<UserAuthInfo> findAuthInfoByEmail(final String email) {
-        LOGGER.debug("Searching for authUser with email: {}", email);
-        return userDao.findAuthInfoByEmail(email);
-    }
 
     @Override
     public Optional<User> findUserById(final long id) {
@@ -132,11 +118,13 @@ public class UserServiceImpl implements UserService {
         return userDao.findById(id);
     }
 
+
     @Override
     public boolean existsByUsername(final String username) {
         LOGGER.debug("Checking for user existence, with username: {}", username);
         return userDao.existsByUsername(username);
     }
+
 
     @Override
     public boolean existsByEmail(final String email) {
@@ -154,18 +142,22 @@ public class UserServiceImpl implements UserService {
         return userDao.search(search, pageParams);
     }
 
+
     @Override
     @Transactional
     public void blockUser(final long userId) {
         LOGGER.debug("Attempting to block user with ID: {}", userId);
         User user = findUserById(userId).orElseThrow(() -> {
             LOGGER.error("User does not exist for ID: {}", userId);
-            return new IllegalStateException("User does not exist");
+            return new UserNotFoundException("User does not exist");
         });
+
         emailService.sendUserBlockedNotification(user);
-        userDao.updateBlock(userId, true);
+
+        user.setBlocked(true);
         LOGGER.info("User blocked successfully with ID: {}", userId);
     }
+
 
     @Override
     @Transactional
@@ -173,63 +165,34 @@ public class UserServiceImpl implements UserService {
         LOGGER.debug("Attempting to unblock user with ID: {}", userId);
         User user = findUserById(userId).orElseThrow(() -> {
             LOGGER.error("User does not exist for ID: {}", userId);
-            return new IllegalStateException("User does not exist");
+            return new UserNotFoundException("User does not exist");
         });
         emailService.sendUserUnblockedNotification(user);
-        userDao.updateBlock(userId, false);
+        user.setBlocked(false);
         LOGGER.info("User unblocked successfully with ID: {}", userId);
     }
 
+
     @Override
-    @Transactional
-    public void refreshToken(final String oldToken) {
-        LOGGER.debug("Attempting to refresh token, for oldToken: {}", oldToken);
-        String uid = UUID.randomUUID().toString();
-        User user = userDao.findByToken(oldToken).orElseThrow(() -> {
-            LOGGER.error("User does not exist for token: {}", oldToken);
-            return new IllegalStateException("User does not exist");
-        });
-        LocalDate date = LocalDate.now().plusDays(1);
-        userDao.updateTokenAndExpirationByToken(uid, date,oldToken);
-        emailService.sendValidationEmail(user,uid);
-        LOGGER.info("Token refreshed successfully for oldToken: {}", oldToken);
+    public void checkTokenValidity(String token) {
+        final Optional<Token> maybeToken = tokenService.getByToken(token);
+        if (!maybeToken.isPresent()) {
+            LOGGER.error("Token is invalid, or expired for token: {}", token);
+            throw new InvalidTokenException("Invalid token");
+        }
+
     }
 
     @Override
-    @Transactional
-    public void refreshPasswordToken(final String oldToken) {
-        LOGGER.debug("Attempting to refresh token, for oldToken: {}", oldToken);
-        String uid = UUID.randomUUID().toString();
-
-        User user = userDao.findByToken(oldToken).orElseThrow(() -> {
-            LOGGER.error("User does not exist for token: {}", oldToken);
-            return new IllegalStateException("User does not exist");
-        });
-        LocalDate date = LocalDate.now().plusDays(1);
-
-        userDao.updateTokenAndExpirationByToken(uid, date,oldToken);
-        emailService.sendForgotPassEmail(user, uid);
-        LOGGER.info("Token refreshed successfully for oldToken: {}", oldToken);
+    public Optional<Double> findAverageRatingForCreatedEvents(long userId) {
+        return userDao.findAverageRatingForCreatedEvents(userId);
     }
-
-
-    private boolean isValidPasswordResetToken(String token) {
-        LOGGER.debug("Checkin if password reset token is valid: {}", token);
-        return userDao.existsByTokenNotExpired(token);
-    }
-
-
-    private boolean isTokenExpired(String token) {
-        LOGGER.debug("Checkin if token has expired: {}", token);
-        return userDao.existsByTokenExpired(token);
-    }
-
 
     @Override
-    public List<User> findEventAttendees(final long eventId) {
-        LOGGER.debug("Getting attendees for event {}", eventId);
-        return userDao.findAllAttendeesByEventId(eventId);
+    public Optional<Double> findAverageRatingForAttendedEvents(long userId) {
+        return userDao.findAverageRatingForAttendedEvents(userId);
     }
+
 
     @Override
     public Page<User> findEventAttendees(final long eventId, PageParams pageParams) {
@@ -241,11 +204,21 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void resetPassword(final String token, final String newPassword) {
-        checkPasswordTokenValidity(token);
+        final Optional<Token> maybeToken = tokenService.getByToken(token);
+        if (!maybeToken.isPresent()) {
+            LOGGER.error("Token is invalid, or expired for token: {}", token);
+            throw new InvalidTokenException("Invalid token");
+        }
+
+        final Token tkn = maybeToken.get();
+        final User user = tkn.getUser();
+
+        tokenService.delete(tkn);
         LOGGER.debug("updating new password for token: {}", token);
-        userDao.updatePasswordAndClearTokenByToken(token, passwordEncoder.encode(newPassword));
+        user.setPassword(passwordEncoder.encode(newPassword));
         LOGGER.info("Password updated successfully for token: {}", token);
     }
+
 
     @Override
     @Transactional
@@ -253,16 +226,14 @@ public class UserServiceImpl implements UserService {
         LOGGER.debug("Attempting to send forgot password email to: {}", email);
         User user = userDao.findByEmail(email).orElseThrow(()-> {
             LOGGER.error("User with email {} not found", email);
-            return new RuntimeException("User does not exist");
+            return new UserNotFoundException("User does not exist");
         });
-        if(!userDao.findValidationStatusByEmail(email)){
+        if(!user.isValidated()){
             LOGGER.warn("User with email {} not validated", email);
             throw new UserValidatedException("User not validated");
         }
-        String uuid = UUID.randomUUID().toString();
-        LocalDate date = LocalDate.now().plusDays(1);
-        userDao.updateToken(user.getId(), uuid, date);
-        emailService.sendForgotPassEmail(user, uuid);
+        Token token = tokenService.userTokenControl(user);
+        emailService.sendForgotPassEmail(user, token.getToken());
         LOGGER.info("Forgot password email sent successfully to: {}", email);
     }
 

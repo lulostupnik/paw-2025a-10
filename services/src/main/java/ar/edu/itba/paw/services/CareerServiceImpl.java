@@ -5,6 +5,7 @@ import ar.edu.itba.paw.interfaces.services.CareerService;
 import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.models.exceptions.CareerNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +77,11 @@ public class CareerServiceImpl implements CareerService {
     )
     public void updateCareer(final long id, final String name) {
         LOGGER.debug("Updating career {} to {}", id, name);
-        careerDao.update(id, name);
+        Career career = careerDao.findById(id).orElseThrow(() -> {
+            LOGGER.error("Career not found with id: {}", id);
+            return new CareerNotFoundException();
+        });
+        career.setName(name);
         LOGGER.info("Career {} updated to {}", id, name);
     }
 

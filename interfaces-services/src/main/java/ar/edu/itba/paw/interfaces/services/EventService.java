@@ -37,11 +37,17 @@ public interface EventService {
     void deleteEventAttendance(String email, long eventId);
     void deleteEventAttendance(long userId, long eventId);
 
-    boolean isEventAttendedByUser(long userId, long eventId);
+    void rateEvent(User user, long eventId, double rating);
+    void updateEventRating(User user, long eventId, double rating);
+    Optional<Rating> findRatingByUserAndEvent(long userId, long eventId);
+    int countRatingsByEvent(long eventId);
+    Optional<Double> findRatingsAverageByEvent(long eventId);
 
     int countEventAttendees(long eventId);
 
     Page<Event> findEventsByAttendee(long userId, PageParams pageParams);
+    Page<Event> findUpcomingEventsByAttendee(long userId,PageParams pageParams);
+    Page<Event> findFinishedEventsByAttendee(long userId, PageParams pageParams);
     List<Event> findRecommendedEvents(long userId, int limit);
     List<Event> findTopEvents(int limit);
     boolean isEventOwnedByUser(String email, long eventID);
@@ -52,11 +58,18 @@ public interface EventService {
                                         PageParams pageParams );
 
     void deleteEventResponse(long id, String message);
-    long findEventIdByResponseId(long responseId);
     int countEventResponses(long eventId);
     Page<EventResponse> findEventResponses(long eventId, PageParams pageParams);
     Optional<EventResponse> findEventResponseById(long id);
+
+    Page<Event> findJourneyEvents(Journey journey, PageParams pageParams);
+
     void sendEventReminders();
+
+    int countEventsCreatedByUser(long userId);
+    int countEventsAttendedByUser(long userId);
+
+    Optional<EventWithUserInfo> findEventWithUserInfo(long userId, long eventId);
 }
 
 

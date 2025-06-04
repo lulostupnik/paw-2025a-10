@@ -10,7 +10,7 @@
 <c:url var="loginUrl" value="/login" />
 <c:url var="registerUrl" value="/register" />
 <c:url var="logoutUrl" value="/logout" />
-<c:url var="profileUrl" value="/profile/info" />
+<c:url var="profileUrl" value="/profile/${user.id}/info" />
 <c:url var="dashboardJourneysUrl" value="/dashboard/journeys" />
 <c:url var="dashboardEventsUrl" value="/dashboard/events" />
 <c:url var="dashboardUsersUrl" value="/dashboard/users" />
@@ -18,11 +18,13 @@
 <c:url var="dashboardCitiesUrl" value="/dashboard/cities" />
 <c:url var="dashboardUniversitiesUrl" value="/dashboard/universities" />
 <c:url var="dashboardCareersUrl" value="/dashboard/careers" />
+<c:url var="dashboardReportsUrl" value="/dashboard/reports" />
 <c:url var="careersUrl" value="/careers" />
 <c:url var="interestsUrl" value="/interests" />
 <c:url var="citiesUrl" value="/cities" />
 <c:url var="universitiesUrl" value="/universities" />
 <c:url var="usersUrl" value="/users" />
+<c:url var="reportsUrl" value="/reports" />
 <c:set var="uri" value="${requestScope['javax.servlet.forward.request_uri'] != null
                           ? requestScope['javax.servlet.forward.request_uri']
                           : request.requestURI}" />
@@ -37,10 +39,12 @@
             or fn:startsWith(uri, dashboardCitiesUrl)
             or fn:startsWith(uri, dashboardUniversitiesUrl)
             or fn:startsWith(uri, dashboardCareersUrl)
+            or fn:startsWith(uri, dashboardReportsUrl)
             or fn:startsWith(uri, careersUrl)
             or fn:startsWith(uri, interestsUrl)
             or fn:startsWith(uri, citiesUrl)
             or fn:startsWith(uri, usersUrl)
+            or fn:startsWith(uri, reportsUrl)
             or fn:startsWith(uri, universitiesUrl)}" />
 
 <link rel="stylesheet" href="<c:url value='/resources/css/layout/navbar.css'/>" />
@@ -77,13 +81,15 @@
 
         <nav class="topbar-nav" id="topbar-nav">
             <div class="topbar-nav-container">
-                <a href="<c:out value='${exploreUrl}'/>"
-                   class="topbar-nav-item ${fn:startsWith(uri, exploreUrl) ? 'active' : ''}">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                    </svg>
-                    <span><spring:message code="nav.explore"/></span>
-                </a>
+                <c:if test="${ not empty user}">
+                    <a href="<c:out value='${exploreUrl}'/>"
+                       class="topbar-nav-item ${fn:startsWith(uri, exploreUrl) ? 'active' : ''}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                        </svg>
+                        <span><spring:message code="nav.explore"/></span>
+                    </a>
+                </c:if>
                 <a href="<c:out value='${journeysUrl}'/>"
                    class="topbar-nav-item ${fn:startsWith(uri, journeysUrl) ? 'active' : ''}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -188,6 +194,7 @@
             </button>
         </div>
         <div class="mobile-nav-content">
+            <c:if test="${ not empty user}">
             <a href="<c:out value='${exploreUrl}'/>"
                class="topbar-nav-item ${fn:startsWith(uri, exploreUrl) ? 'active' : ''}">
                 <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -195,6 +202,7 @@
                 </svg>
                 <span><spring:message code="nav.explore"/></span>
             </a>
+            </c:if>
             <a href="<c:out value='${journeysUrl}'/>"
                class="topbar-nav-item ${fn:startsWith(uri, journeysUrl) ? 'active' : ''}">
                 <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -39,13 +39,14 @@
                 </div>
             </div>
 
-                        <div th:if="${event.time.isPresent()}" style="display: flex; margin-bottom: 12px;">
+                        <div th:if="${event.time != null}" style="display: flex; margin-bottom: 12px;">
                 <div style="min-width: 24px; margin-right: 10px;">
                     <span style="font-size: 18px;">🕒</span>
                 </div>
                 <div>
                     <strong th:text="#{email.event.time}">Time:</strong>
-                    <span th:text="${event.time.get()}">14:00</span>
+                    <span th:text="${event.time}">14:00</span>
+                    <span th:text="${event.time}">14:00</span>
                 </div>
             </div>
 
@@ -55,7 +56,7 @@
                 </div>
                 <div>
                     <strong th:text="#{email.event.location}">Location:</strong>
-                    <span th:text="${event.address + ', ' + event.eventCity.name}">123 Main St, City</span>
+                    <span th:text="${event.address + ', ' + event.city.name}">123 Main St, City</span>
                 </div>
             </div>
 
@@ -69,13 +70,13 @@
                 </div>
             </div>
 
-                        <div th:if="${event.attendeesLimit.isPresent()}" style="display: flex; margin-bottom: 12px;">
+                        <div th:if="${event.attendeesLimit != null}" style="display: flex; margin-bottom: 12px;">
                 <div style="min-width: 24px; margin-right: 10px;">
                     <span style="font-size: 18px;">👥</span>
                 </div>
                 <div>
                     <strong th:text="#{email.event.attendees}">Attendees:</strong>
-                    <span th:text="${event.attendeesCount + ' / ' + event.attendeesLimit.get()}">10 / 20</span>
+                    <span th:text="${event.attendeesCount + ' / ' + event.attendeesLimit}">10 / 20</span>
                 </div>
             </div>
         </div>

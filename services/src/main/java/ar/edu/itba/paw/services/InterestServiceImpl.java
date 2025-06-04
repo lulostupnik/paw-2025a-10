@@ -1,10 +1,10 @@
 package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.persistence.InterestDao;
+import ar.edu.itba.paw.interfaces.persistence.UserInterestDao;
 import ar.edu.itba.paw.interfaces.services.InterestService;
-import ar.edu.itba.paw.models.Interest;
-import ar.edu.itba.paw.models.Page;
-import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.InterestsNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +14,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,8 +25,10 @@ import java.util.Optional;
 public class InterestServiceImpl implements InterestService {
     private static final Logger LOGGER = LoggerFactory.getLogger(InterestServiceImpl.class);
     private final InterestDao interestDao;
+    private final UserInterestDao userInterestDao;
     @Autowired
-    public InterestServiceImpl(final InterestDao interestDao) {
+    public InterestServiceImpl(final InterestDao interestDao, final UserInterestDao userInterestDao) {
+        this.userInterestDao = userInterestDao;
         this.interestDao = interestDao;
     }
 
@@ -37,9 +41,17 @@ public class InterestServiceImpl implements InterestService {
 
 
     @Override
-    public List<Interest> findInterestsByUserId(final long id) {
-        LOGGER.debug("Getting interests of user {}", id);
-        return interestDao.findAllByUserId(id);
+    public List<UserInterest> findInterestsByUser(final User user) {
+        LOGGER.debug("Getting interests of user {}", user);
+
+        return userInterestDao.findAllByUser(user);
+    }
+    @Override
+    @Transactional
+    public void updateUserInterestScores(List<UserInterest> interests){
+        for(UserInterest interest : interests){
+            interest.setScore(interest.getScore()+1);
+        }
     }
 
     @Override
@@ -51,9 +63,9 @@ public class InterestServiceImpl implements InterestService {
 
 
     @Override
-    public Page<Interest> findInterestsByUserId(final long id, final PageParams pageParams) {
-        LOGGER.debug("Getting interests of user {} with pageParams {}", id, pageParams);
-        return interestDao.findAllByUserId(id, pageParams);
+    public Page<UserInterest> findInterestsByUser(final User user, final PageParams pageParams) {
+        LOGGER.debug("Getting interests of user {} with pageParams {}", user, pageParams);
+        return userInterestDao.findAllByUser(user, pageParams);
     }
 
     @Override
@@ -79,7 +91,15 @@ public class InterestServiceImpl implements InterestService {
     })
     public void updateInterest(final long id, String interest) {
         LOGGER.debug("Editing interest {} with name {}", id, interest);
-        interestDao.update(id, interest);
+//        interestDao.update(id, interest);
+        Optional<Interest> i = interestDao.findById(id);
+        if (i.isPresent()) {
+            i.get().setName(interest);
+        } else {
+            LOGGER.error("Interest {} not found", id);
+            throw new InterestsNotFoundException("Interest not found");
+        }
+
         LOGGER.info("Interest {} updated", id);
     }
 
@@ -87,23 +107,23 @@ public class InterestServiceImpl implements InterestService {
     @Transactional
     public void createUserInterests(final List<String> interests, final  long userId) {
         LOGGER.debug("Adding interest list to user {}", userId);
-        interestDao.createUserInterests(interests, userId);
+        userInterestDao.createUserInterests(interests, userId);
         LOGGER.info("Interests {} added to user {}", interests, userId);
     }
 
-    @Override
-    @Transactional
-    public void updateUserInterestScores(final List<Interest> interests, final long userId) {
-        LOGGER.debug("Increasing score of interests {} for user {}", interests, userId);
-        interestDao.updateScoreByInterests(interests, userId);
-        LOGGER.info("Interests {} score updated for user {}", interests, userId);
-    }
+//    @Override
+//    @Transactional
+//    public void updateUserInterestScores(final List<Interest> interests, final long userId) {
+//        LOGGER.debug("Increasing score of interests {} for user {}", interests, userId);
+//        interestDao.updateScoreByInterests(interests, userId);
+//        LOGGER.info("Interests {} score updated for user {}", interests, userId);
+//    }
 
     @Override
     @Transactional
     public void updateUserInterests(final long[] interestIds, final long userId) {
         LOGGER.debug("Updating interests {} for user {}", interestIds, userId);
-        interestDao.updateUserInterests(interestIds, userId);
+        userInterestDao.updateUserInterests(interestIds, userId);
         LOGGER.info("Interests {} updated for user {}", interestIds, userId);
     }
 
@@ -114,6 +134,16 @@ public class InterestServiceImpl implements InterestService {
             return interestDao.findAll(pageParams);
         }
         return interestDao.search(search,pageParams);
+    }
+
+
+    @Override
+    @Transactional
+    public void updateMatchingInterestScores(long responderUserId, long journeyCreatorUserId) {
+        LOGGER.debug("Updating matching interest scores for responder {} based on journey creator {}",
+                responderUserId, journeyCreatorUserId);
+        userInterestDao.updateMatchingInterestScores(responderUserId, journeyCreatorUserId);
+        LOGGER.info("Updated matching interest scores for responder {}", responderUserId);
     }
 
 

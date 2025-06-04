@@ -19,9 +19,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.swing.text.html.Option;
 import javax.validation.Valid;
 
+
+import java.util.List;
+import java.util.Optional;
 
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 
@@ -100,7 +105,7 @@ public class EventController {
     }
 
     private ModelAndView populateEventDetails( EventWithStatistics eventWithStatistics, long id,
-                                              PageParams pageParams, PageParams attendeesPageParams) {
+                                              PageParams pageParams, PageParams attendeesPageParams, User user) {
         ModelAndView mav = new ModelAndView("events/detail/detail");
         Event event = eventWithStatistics.getEvent();
         mav.addObject("event", event);
@@ -113,27 +118,65 @@ public class EventController {
         Page<EventResponse> eventResponsesPage = eventService.findEventResponses(event.getId(), pageParams);
         mav.addObject("eventResponsesPage", eventResponsesPage);
         mav.addObject("commentsCount", eventService.countEventResponses(event.getId()));
-        if(eventWithStatistics.isCreator()){
-            mav.addObject("attendees", userService.findEventAttendees(id));
-        }
+//        if(eventWithStatistics.isCreator()){
+//            mav.addObject("attendees", userService.findEventAttendees(id));
+//        }
         mav.addObject("attend", eventWithStatistics.isAttending());
         mav.addObject("isEventOwner", eventWithStatistics.isCreator());
         mav.addObject("isFull", event.getFull());
+        Optional<Double> maybeAverageRating = eventService.findRatingsAverageByEvent(event.getId());
+        LOGGER.debug("Average rating: {}", maybeAverageRating.orElse(0.0));
+        maybeAverageRating.ifPresent(rating -> mav.addObject("averageRating", rating));
+        if (user != null) {
+            Optional<Rating> maybeUserRating = eventService.findRatingByUserAndEvent(user.getId(), event.getId());
+            maybeUserRating.ifPresent(rating -> mav.addObject("userRating", rating.getRating()));
+        }
+        mav.addObject("ratingCount", eventService.countRatingsByEvent(event.getId()));
+
+
         return mav;
     }
 
 
     @GetMapping("/{id}")
     public ModelAndView getEvent(@PathVariable long id, @ModelAttribute("replyEventForm") final ReplyForm form,
+        @ModelAttribute("eventRatingForm") final RatingForm ratingForm,
         @ModelAttribute("user") User user,
         @PageParamCustomizer(defaultSize = 4) PageParams  repliesPage,
         @PageParamCustomizer(defaultSize = 6, pageParamName = "attendeesPage", sizeParamName = "attendeesSize") PageParams attendeesPage)
     {
         EventWithStatistics eventWithStatistics = eventService.findEventWithStatistics(user,id).orElseThrow(() -> {
-            LOGGER.error("eventWithStatistics not found");
+            LOGGER.error("eventWithStatistics not found for id: {}", id);
             return new EventNotFoundException("eventWithStatistics not found");});
         return populateEventDetails(eventWithStatistics,
-                id, repliesPage, attendeesPage );
+                id, repliesPage, attendeesPage, user );
+    }
+
+    @PostMapping("/{id}/rating")
+    public ModelAndView rateEvent(@PathVariable long id, @Valid @ModelAttribute("eventRatingForm") final RatingForm form,
+                                  final BindingResult errors, @ModelAttribute("user") User user, RedirectAttributes redirectAttributes) {
+        if (errors.hasErrors()) {
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.eventRatingForm", errors);
+            redirectAttributes.addFlashAttribute("eventRatingForm", form);
+            LOGGER.debug("Found {} errors in rating form data", errors.getErrorCount());
+            return new ModelAndView(REDIRECT + id);
+        }
+        LOGGER.debug("Rating event {} with rating {}", id, form.getRating());
+        eventService.rateEvent(user, id, form.getRating());
+        return new ModelAndView(REDIRECT + id);
+    }
+    @PostMapping("/{id}/rating/update")
+    public ModelAndView updateEventRating(@PathVariable long id, @Valid @ModelAttribute("eventRatingForm") final RatingForm form,
+                                          final BindingResult errors, @ModelAttribute("user") User user, RedirectAttributes redirectAttributes) {
+        if (errors.hasErrors()) {
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.eventRatingForm", errors);
+            redirectAttributes.addFlashAttribute("eventRatingForm", form);
+            LOGGER.debug("Found {} errors in rating form data", errors.getErrorCount());
+            return new ModelAndView(REDIRECT + id);
+        }
+        LOGGER.debug("Updating rating for event {} with rating {}", id, form.getRating());
+        eventService.updateEventRating(user, id, form.getRating());
+        return new ModelAndView(REDIRECT + id);
     }
 
     @PostMapping("/{id}/delete")
@@ -153,7 +196,7 @@ public class EventController {
         LOGGER.debug("Showing delete form for event {}", id);
 
         Event event = eventService.findEventById(id).orElseThrow(() -> {
-            LOGGER.error("event not found");
+            LOGGER.error("event not found for id: {}", id);
             return new EventNotFoundException();});
         long commentsCount = eventService.countEventResponses(event.getId());
 
@@ -168,20 +211,12 @@ public class EventController {
     public ModelAndView deleteEventReplyForm(@PathVariable(value = "eventId") long eventId,
                                              @PathVariable("id") long id,
                                              @ModelAttribute("deleteReplyForm") ReplyForm form) {
-        if(eventService.findEventIdByResponseId(id) != eventId){
-            LOGGER.error("Event ID {} and response ID {} do not match", eventId, id);
-            throw new InvalidException();
-        }
-        Event event = eventService.findEventById(eventId).orElseThrow(() -> {
-            LOGGER.error("event not found");
-            return new EventNotFoundException();});
-        EventResponse eventResponse = eventService.findEventResponseById(id).orElseThrow(() -> {
-            LOGGER.error("eventResponse not found");
-            return new NotFoundException("eventResponse not found");});
-
+        EventResponse er = eventService.findEventResponseById(id).orElseThrow(() -> {
+            LOGGER.error("Event response with id {} not found", id);
+            return new NotFoundException("eventResponse not found");}); //fixme porque return new NotFoundException
         ModelAndView mav = new ModelAndView("events/delete-reply");
-        mav.addObject("event", event);
-        mav.addObject("eventResponse", eventResponse);
+        mav.addObject("event", er.getEvent());
+        mav.addObject("eventResponse", er);
         return mav;
     }
 
@@ -190,7 +225,7 @@ public class EventController {
     public ModelAndView reply(@PathVariable int id, @Valid @ModelAttribute("replyEventForm") final ReplyForm form,
                               final BindingResult errors, @ModelAttribute("user") User user) {
         if (errors.hasErrors()) {
-            return getEvent(id, form, user, new PageParams(1, 4), new PageParams(1, 6));
+            return getEvent(id, form, new RatingForm(), user, new PageParams(1, 4), new PageParams(1, 6));
         }
         eventService.replyToEvent(user.getEmail(), id, form.getMessage());
         return new ModelAndView(REDIRECT + id);
@@ -224,17 +259,17 @@ public class EventController {
                                             BindingResult errors) {
 
         Event event = eventService.findEventById(eventId).orElseThrow(() -> {
-            LOGGER.error("event not found");
+            LOGGER.error("event not found for id: {}", eventId);
             return new EventNotFoundException();});
 
         if(!errors.hasErrors()) {
-            form.setCity(event.getEventCity().getName());
+            form.setCity(event.getCity().getName());
             form.setDate(event.getDate());
             form.setDescription(event.getDescription());
             form.setTitle(event.getTitle());
-            form.setTime(event.getTime().orElse(null));
+            form.setTime(event.getTime());
             form.setAddress(event.getAddress());
-            form.setAttendeesLimit(event.getAttendeesLimit().orElse(null));
+            form.setAttendeesLimit(event.getAttendeesLimit());
         }
 
         ModelAndView mav = new ModelAndView("events/edit");

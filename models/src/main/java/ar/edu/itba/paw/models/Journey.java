@@ -1,18 +1,74 @@
 package ar.edu.itba.paw.models;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
+import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
-@RequiredArgsConstructor
+@Entity
+@Table(name = "journeys")
 public class Journey{
-    private final long id;
-    private final User user;
-    private final LocalDate startDate;
-    private final LocalDate endDate;
-    private final University destinationUniversity;
-    private final String description;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "journeys_id_seq")
+    @SequenceGenerator(sequenceName = "journeys_id_seq", name = "journeys_id_seq", allocationSize = 1)
+    @Column(name = "id")
+    private Long id;
+
+    @OneToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
+
+    @Column(name = "start_date", nullable = false)
+    @Setter
+    private LocalDate startDate;
+
+    @Column(name = "end_date", nullable = false)
+    @Setter
+    private LocalDate endDate;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "destination_university_id", nullable = false)
+    @Setter
+    private University destinationUniversity;
+
+    @Column(length = 2047)
+    @Setter
+    private String description;
+
+    @Column(name="deleted", nullable = false)
+    @Setter
+    private boolean deleted;
+
+    @Column(name = "deleted_message", length = 1000)
+    @Setter
+    private String deletionMessage;
+
+
+    /* For hibernate */ Journey() {
+    }
+
+    public Journey(final User user, final LocalDate startDate, final LocalDate endDate,
+                   final University destinationUniversity, final String description) {
+        this.user = user;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.destinationUniversity = destinationUniversity;
+        this.description = description;
+        this.deleted = false;
+    }
+    public Journey(final Long id, final User user, final LocalDate startDate, final LocalDate endDate,
+                   final University destinationUniversity, final String description) {
+        this.id = id;
+        this.user = user;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.destinationUniversity = destinationUniversity;
+        this.description = description;
+        this.deleted = false;
+    }
 
     @Override
     public String toString() {
@@ -31,6 +87,18 @@ public class Journey{
         sb.append(description);
         sb.append("\"}");
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Journey journey)) return false;
+        return id != null && id.equals(journey.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }
 

@@ -7,24 +7,26 @@
         <h2 class="section-title"><spring:message code="profile.home.interest"/></h2>
         <div class="info-list">
             <c:if test="${not empty interests.content}">
-                <c:forEach items="${interests.content}" var="interest">
+                <c:forEach items="${interests.content}" var="userInterest">
                     <div class="info-item">
-                        <p class="info-value"><c:out value="${interest.name}"/></p>
+                        <p class="info-value"><c:out value="${userInterest.interest.name}"/></p>
                     </div>
                 </c:forEach>
                 <jsp:include page="/WEB-INF/jsp/components/pagination-with-page-number.jsp">
                     <jsp:param name="pageObjectTotalPages" value="${interests.totalPages}" />
                     <jsp:param name="currentPage" value="${interests.currentPage}" />
                     <jsp:param name="pageSize" value="4" />
-                    <jsp:param name="baseUrl" value="/profile/interests" />
+                    <jsp:param name="baseUrl" value="/profile/${profileUser.id}/interests" />
                 </jsp:include>
 
+                <c:if test="${isMine}">
+                    <div class="action-buttons">
+                        <a href="<c:url value='/interests/edit'/>" class="btn-primary">
+                            <spring:message code="profile.edit.interests"/>
+                        </a>
+                    </div>
+                </c:if>
 
-                <div class="action-buttons">
-                    <a href="<c:url value='/interests/edit'/>" class="btn-primary">
-                        <spring:message code="profile.edit.interests"/>
-                    </a>
-                </div>
             </c:if>
             <c:if test="${empty interests.content}">
                 <div class="empty-state">
@@ -37,12 +39,14 @@
                         <spring:message code="profile.no.interests"/>
                     </p>
 
+                    <c:if test="${isMine}">
+                        <div class="action-buttons">
+                            <a href="<c:url value='/interests/edit'/>" class="btn-primary">
+                                <spring:message code="profile.add.interests"/>
+                            </a>
+                        </div>
+                    </c:if>
 
-                    <div class="action-buttons">
-                        <a href="<c:url value='/interests/edit'/>" class="btn-primary">
-                            <spring:message code="profile.add.interests"/>
-                        </a>
-                    </div>
                 </div>
             </c:if>
         </div>

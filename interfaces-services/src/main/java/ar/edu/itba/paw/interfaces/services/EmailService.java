@@ -8,6 +8,10 @@ import java.util.List;
 
 public interface EmailService {
 
+    void answerEventOwnerNotification( String message, User commenter, Event event );
+
+    void answerJourneyOwnerNotification( String message, User commenter, Journey journey  );
+
     void answerEventNotification(List<User> oldRepliers, String message, User commenter, Event event );
 
     void answerJourneyNotification(List<User> oldRepliers, String message, User commenter, Journey journey  );

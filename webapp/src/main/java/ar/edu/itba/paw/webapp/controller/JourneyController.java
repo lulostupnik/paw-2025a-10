@@ -8,6 +8,7 @@ import ar.edu.itba.paw.models.exceptions.InvalidException;
 import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.JourneyResponseNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
 
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
@@ -28,12 +29,14 @@ public class JourneyController {
 
     private final JourneyService js;
     private final InterestService interestService;
+    private final EventService eventService;
     private static final String REDIRECT_JOURNEY = "redirect:/journeys/";
 
     @Autowired
-    public JourneyController(final JourneyService js, InterestService interestService) {
+    public JourneyController(final JourneyService js, InterestService interestService, EventService eventService) {
         this.js = js;
         this.interestService = interestService;
+        this.eventService = eventService;
     }
 
 
@@ -86,20 +89,26 @@ public class JourneyController {
                                    @ModelAttribute("user") User user,
                                    @ModelAttribute("replyJourneyForm") ReplyForm rjf,
                                    @PageParamCustomizer(defaultSize = 4) PageParams  repliesPage,
-                                   @PageParamCustomizer(defaultSize = 8, pageParamName = "interestsPage", sizeParamName = "interestsSize") PageParams interestsPage) {
+                                   @PageParamCustomizer(defaultSize = 8, pageParamName = "interestsPage", sizeParamName = "interestsSize") PageParams interestsPage,
+                                   @PageParamCustomizer(defaultSize = 6, pageParamName = "eventsPage", sizeParamName = "eventsSize") PageParams eventsPage) {
         Journey journey = js.getJourneyById(id).orElseThrow(() -> {
             LOGGER.error("Journey with ID {} not found", id);
             return new JourneyNotFoundException("Journey with ID " + id + " not found");
         });
         Page<JourneyResponse> journeyResponses = js.findJourneyResponses(journey.getId(), repliesPage);
+        Page<Event> journeyEvents = eventService.findJourneyEvents(journey, eventsPage);
+
         final ModelAndView mav = new ModelAndView("journeys/detail");
         mav.addObject("journey", journey);
         mav.addObject("journeyResponsesPage", journeyResponses);
         mav.addObject("commentsCount", js.countJourneyResponses(journey.getId()));
-        mav.addObject("isOwner", user != null && js.isJourneyOwnedByUser(user.getEmail(),journey.getId()));
-        mav.addObject("interestPage", interestService.findInterestsByUserId(journey.getUser().getId(), interestsPage));
+        mav.addObject("isOwner", user != null && js.isJourneyOwnedByUser(journey, user));
+        mav.addObject("interestPage", interestService.findInterestsByUser(journey.getUser(), interestsPage));
+        mav.addObject("eventsPage", journeyEvents);
+        mav.addObject("eventsPageSize", eventsPage.getSize());
         return mav;
     }
+
     @GetMapping(value = "/{id}/delete")
     public ModelAndView deleteJourneyForm(@PathVariable long id,
                                           @ModelAttribute("deleteForm") final DeleteJourneyForm form,
@@ -130,7 +139,7 @@ public class JourneyController {
     public ModelAndView replyToJourney(@PathVariable int id, @Valid @ModelAttribute("replyJourneyForm")  ReplyForm rjf,
                                         BindingResult errors, @ModelAttribute("user") User user) {
         if (errors.hasErrors()) {
-            return getJourney(id, user, rjf, new PageParams(1, 4), new PageParams(1, 8));
+            return getJourney(id, user, rjf, new PageParams(1, 4), new PageParams(1, 8), new PageParams(1, 6));
         }
         js.createJourneyResponse(user.getEmail(), id, rjf.getMessage());
         return new ModelAndView(REDIRECT_JOURNEY + id);
@@ -176,17 +185,12 @@ public class JourneyController {
     public ModelAndView deleteJourneyReplyForm(@PathVariable(value = "journeyId") long journeyId,
                                                @PathVariable("id") long id,
                                                @ModelAttribute("deleteReplyForm") ReplyForm form) {
-        if(js.findJourneyIdByResponseId(id) != journeyId){
-            LOGGER.error("Journey ID {} and response ID {} do not match", journeyId, id);
-            throw new InvalidException();
-        }
-        Journey journey = js.getJourneyById(journeyId).orElseThrow(() -> {
-            LOGGER.error("Journey with ID {} not found", id);
-            return new JourneyNotFoundException("Journey with ID " + id + " not found");
+        JourneyResponse journeyResponse = js.findJourneyResponseById(id).orElseThrow(() -> {
+            LOGGER.warn("Journey with ID {} not found", id); // todo: es warn o error?
+            return new JourneyResponseNotFoundException("Reply not found");
         });
-        JourneyResponse journeyResponse = js.findJourneyResponseById(id).orElseThrow(() -> new NotFoundException("Reply not found"));
         ModelAndView mav = new ModelAndView("journeys/delete-reply");
-        mav.addObject("journey", journey);
+        mav.addObject("journey", journeyResponse.getJourney());
         mav.addObject("journeyResponse", journeyResponse);
         return mav;
     }

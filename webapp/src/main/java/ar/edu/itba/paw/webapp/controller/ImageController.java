@@ -28,18 +28,16 @@ public class ImageController {
 
     @GetMapping("/{id}")
     public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
-        try {
-            Image image = imageService.findImage(id).orElseThrow(() -> new NotFoundException("Image not found"));
-            return ResponseEntity.ok()
-                    .contentType(MediaType.IMAGE_JPEG)
-                    .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "inline; filename=\"image" + id + "\"")
-                    .body(image.getData());
-
-        } catch (Exception e) {
+        Image image = imageService.findImage(id).orElseThrow(() -> {
             LOGGER.warn("Image {} not found", id);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+            return new NotFoundException("Image not found");
+        });
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename=\"image" + id + "\"")
+                .body(image.getData());
     }
 
 }

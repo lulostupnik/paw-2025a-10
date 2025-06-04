@@ -149,7 +149,7 @@
                     <c:forEach items="${recommendedEvents}" var="event">
                         <jsp:include page="events/event-card.jsp">
                             <jsp:param name="eventId" value="${event.id}" />
-                            <jsp:param name="city" value="${event.eventCity.name}" />
+                            <jsp:param name="city" value="${event.city.name}" />
                             <jsp:param name="date" value="${event.date}" />
                             <jsp:param name="description" value="${event.description}" />
                             <jsp:param name="flyerImageId" value="${event.flyerImageId}" />
@@ -158,7 +158,7 @@
                             <jsp:param name="firstname" value="${event.user.firstname}" />
                             <jsp:param name="lastname" value="${event.user.lastname}"/>
                             <jsp:param name="title" value="${event.title}"/>
-                            <jsp:param name="isFull" value="${event.attendeesLimit.isPresent() && event.attendeesLimit.get() <= event.attendeesCount}"/>
+                            <jsp:param name="isFull" value="${event.attendeesLimit != null && event.attendeesLimit <= event.attendeesCount}"/>
                             <jsp:param name="isOwner" value="true"/>
                         </jsp:include>
                     </c:forEach>

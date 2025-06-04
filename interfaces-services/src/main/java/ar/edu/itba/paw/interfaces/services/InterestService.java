@@ -1,8 +1,6 @@
 package ar.edu.itba.paw.interfaces.services;
 
-import ar.edu.itba.paw.models.Interest;
-import ar.edu.itba.paw.models.Page;
-import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.models.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,13 +12,13 @@ public interface InterestService {
     void deleteInterest(long id);
 
     void createUserInterests(List<String> interests, long userId);
-
+    void updateUserInterestScores(List<UserInterest> interests);
 
     Optional<Interest> findInterestById(long id);
-    List<Interest> findInterestsByUserId(long id);
+    List<UserInterest> findInterestsByUser(User user);
     Optional<Interest> findInterestByName(String name);
-    Page<Interest> findInterestsByUserId(long id, PageParams pageParams);
-    void updateUserInterestScores(List<Interest> interests, long userId);
+    Page<UserInterest> findInterestsByUser(User user, PageParams pageParams);
     void updateUserInterests(final long[] interestIds, final long userId);
     Page<Interest> findInterests(String search, PageParams pageParams);
+    void updateMatchingInterestScores(long responderUserId, long journeyCreatorUserId);
 }

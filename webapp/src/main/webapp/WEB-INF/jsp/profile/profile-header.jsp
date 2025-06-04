@@ -7,23 +7,27 @@
       <div class="profile-avatar-container">
         <div class="profiles-avatar">
           <c:choose>
-            <c:when test="${not empty user.profilePictureId && user.profilePictureId > 0}">
-              <img src="<c:url value='/images/${user.profilePictureId}'/>" alt="<c:out value="${user.username}"/>" class="avatar-image" />
+            <c:when test="${not empty profileUser.profilePictureId && profileUser.profilePictureId > 0}">
+              <img src="<c:url value='/images/${profileUser.profilePictureId}'/>" alt="<c:out value="${profileUser.username}"/>" class="avatar-image" />
             </c:when>
             <c:otherwise>
               <div class="avatar-placeholder">
-                  <c:out value="${fn:substring(user.firstname, 0, 1).toUpperCase()}${fn:substring(user.lastname, 0, 1).toUpperCase()}"/>
+                  <c:out value="${fn:substring(profileUser.firstname, 0, 1).toUpperCase()}${fn:substring(user.lastname, 0, 1).toUpperCase()}"/>
               </div>
             </c:otherwise>
           </c:choose>
         </div>
       </div>
       <div class="profile-info">
-        <h1 class="profile-name"><c:out value="${user.firstname} ${user.lastname}"/></h1>
-        <p class="profile-username">@<c:out value="${user.username}"/></p>
+        <h1 class="profile-name"><c:out value="${profileUser.firstname} ${profileUser.lastname}"/></h1>
+        <p class="profile-username">@<c:out value="${profileUser.username}"/></p>
       </div>
-      <button class="btn-primary"
+      <c:if test="${isMine}">
+        <button class="btn-primary"
                 onclick="window.location.href='<c:url value='/profile/changePassword' />'">
-            <spring:message code="profile.edit.password" text="Change password"/>
-      </button>
+          <spring:message code="profile.edit.password" text="Change password"/>
+        </button>
+      </c:if>
+
+
     </div>

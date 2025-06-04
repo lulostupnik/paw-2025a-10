@@ -29,11 +29,13 @@
     </div>
 
     <div style="text-align: center; margin-top: 40px;">
-        <a th:href="${baseUrl + 'journeys/create'}" style="display: inline-block; background-color: #3366ff; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;"
+        <a th:href="@{${baseUrl + 'journeys/create'}}"
+           style="display: inline-block; background-color: #3366ff; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;"
            th:text="#{email.journey.deletion.cta}">
             Get your journey back online
         </a>
     </div>
+
 </div>
 
 </body>

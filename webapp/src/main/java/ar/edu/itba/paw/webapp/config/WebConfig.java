@@ -20,18 +20,22 @@ import org.springframework.jdbc.datasource.init.DatabasePopulator;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.lang.NonNull;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.JpaVendorAdapter;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
-import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -84,8 +88,8 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public PlatformTransactionManager transactionManager(final DataSource ds) {
-        return new DataSourceTransactionManager(ds);
+    public PlatformTransactionManager transactionManager(final EntityManagerFactory emf) {
+        return new JpaTransactionManager(emf);
     }
 
     @Bean
@@ -117,20 +121,20 @@ public class WebConfig implements WebMvcConfigurer {
         return ms;
     }
 
-
-    @Bean
-    public DataSourceInitializer dataSourceInitializer(final DataSource ds) {
-        final DataSourceInitializer dsi = new DataSourceInitializer();
-        dsi.setDataSource(ds);
-        dsi.setDatabasePopulator(databasePopulator());
-        return dsi;
-    }
-
-    private DatabasePopulator databasePopulator() {
-        final ResourceDatabasePopulator dbp = new ResourceDatabasePopulator();
-        dbp.addScript(schemaSql);
-        return dbp;
-    }
+//
+//    @Bean
+//    public DataSourceInitializer dataSourceInitializer(final DataSource ds) {
+//        final DataSourceInitializer dsi = new DataSourceInitializer();
+//        dsi.setDataSource(ds);
+//        dsi.setDatabasePopulator(databasePopulator());
+//        return dsi;
+//    }
+//
+//    private DatabasePopulator databasePopulator() {
+//        final ResourceDatabasePopulator dbp = new ResourceDatabasePopulator();
+//        dbp.addScript(schemaSql);
+//        return dbp;
+//    }
     @Bean
     public StandardServletMultipartResolver multipartResolver() {
         return new StandardServletMultipartResolver();
@@ -184,6 +188,24 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(pageParamsResolver());
+    }
+    @Bean
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+        final LocalContainerEntityManagerFactoryBean factoryBean = new
+                LocalContainerEntityManagerFactoryBean();
+        factoryBean.setPackagesToScan("ar.edu.itba.paw.models");
+        factoryBean.setDataSource(dataSource());
+        final JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        factoryBean.setJpaVendorAdapter(vendorAdapter);
+        final Properties properties = new Properties();
+        properties.setProperty("hibernate.hbm2ddl.auto", "update"); //fixme: en la clase es update
+        properties.setProperty("hibernate.dialect",
+                "org.hibernate.dialect.PostgreSQL92Dialect");
+// Si ponen esto en prod, hay tabla!!!
+        properties.setProperty("hibernate.show_sql", "true");
+        properties.setProperty("format_sql", "true");
+        factoryBean.setJpaProperties(properties);
+        return factoryBean;
     }
 
     @Bean

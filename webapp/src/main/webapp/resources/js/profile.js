@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set active events tab based on URL parameter
     if (eventsTab === 'attending') {
         setActiveEventsTab('.events-tab[data-events-tab="attending"]', 'attending-events');
+    } else  if (eventsTab === 'finished') {
+        setActiveEventsTab('.events-tab[data-events-tab="finished"]', 'finished-events');
     } else {
         // Default to created events tab
         setActiveEventsTab('.events-tab[data-events-tab="created"]', 'created-events');

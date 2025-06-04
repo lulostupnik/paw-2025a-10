@@ -11,17 +11,7 @@ import java.util.Optional;
 public interface EventDao {
     Event create(User user, City city, LocalDate date, String description, long flyerImageId, String title, LocalTime time, String address, Integer attendeesLimit);
 
-    void incrementAttendeesCount(long eventId);
-
-    void update(long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit, long eventId, long flyerImageId);
-
-    Optional<EventWithUserInfo> findEventWithUserInfo(long userId, long eventId);
-
-    void delete(long id);
-    void updateDeletionMessage(long id, String message);
     Optional<Event> findById(long id);
-    Optional<Integer> findAttendanceLimitById(long eventId);
-    List<Event> findAllBetweenDates(LocalDate startDate, LocalDate endDate);
     Page<Event> findRecommended(long userId, PageParams pageParams);
     Page<Event> findTop(PageParams pageParams);
     Page<Event> findTopByUser(long userId, PageParams pageParams);
@@ -32,14 +22,21 @@ public interface EventDao {
                                    LocalDate startDate, LocalDate endDate, String interest,
                                    boolean isPast, boolean isUpcoming, boolean isAttending, PageParams pageParams);
     Page<Event> search(String search, PageParams pageParams);
+    Optional<CountryAttendeeCount> findTopAttendeeCountry(long eventId);
+
+    Page<Event> findAllEventsByAttendee(long userId, PageParams pageParams);
+    Page<Event> findUpcomingEventsByAttendee(long userId, PageParams pageParams);
+    Page<Event> findFinishedEventsByAttendee(long userId, PageParams pageParams);
 
     int countEventsCreatedByUser(long userId);
 
-    Optional<CountryAttendeeCount> findTopAttendeeCountry(long eventId);
+    Page<Event> findAllBetweenDates(LocalDate startDate, LocalDate endDate, PageParams pageParams);
 
-    int countEventsAttendedByUser(long userId);
 
-    Page<Event> findAllEventsByAttendee(long userId, PageParams pageParams);
+    //Optional<EventWithUserInfo> findEventWithUserInfo(long userId, long eventId);
+
+    // todo: puede llegar a tener sentido tener el siguiente método? Mepa que no, siempre que quieras ver el limite supongo que vas a tener ya el evento
+    // Optional<Integer> findAttendanceLimitById(long eventId);
 
 
 }

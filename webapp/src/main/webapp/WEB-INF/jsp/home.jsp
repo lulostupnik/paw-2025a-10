@@ -205,14 +205,14 @@
                             <jsp:include page="events/event-card.jsp">
                                 <jsp:param name="username" value="${event.user.username}"/>
                                 <jsp:param name="eventId" value="${event.id}" />
-                                <jsp:param name="city" value="${event.eventCity.name}" />
+                                <jsp:param name="city" value="${event.city.name}" />
                                 <jsp:param name="date" value="${event.date}" />
                                 <jsp:param name="description" value="${event.description}" />
                                 <jsp:param name="flyerImageId" value="${event.flyerImageId}" />
                                 <jsp:param name="firstname" value="${event.user.firstname}" />
                                 <jsp:param name="lastname" value="${event.user.lastname}"/>
                                 <jsp:param name="title" value="${event.title}"/>
-                                <jsp:param name="isFull" value="${event.attendeesLimit.isPresent() && event.attendeesLimit.get() <= event.attendeesCount}"/>
+                                <jsp:param name="isFull" value="${event.attendeesLimit != null && event.attendeesLimit <= event.attendeesCount}"/>
                             </jsp:include>
                         </c:forEach>
 
@@ -229,19 +229,21 @@
                     <spring:message code="dashboard.quick.actions"/>
                 </h2>
                 <div class="quick-actions-grid">
-                    <a href="<c:url value='/journeys/create'/>" class="quick-action-card">
-                        <div class="quick-action-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="quick-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                            </svg>
-                        </div>
-                        <h3 class="quick-action-title">
-                            <spring:message code="dashboard.create.journey"/>
-                        </h3>
-                        <p class="quick-action-desc">
-                            <spring:message code="dashboard.create.journey.desc"/>
-                        </p>
-                    </a>
+                    <c:if test="${hasJourney == false}">
+                        <a href="<c:url value='/journeys/create'/>" class="quick-action-card">
+                            <div class="quick-action-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="quick-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                            </div>
+                            <h3 class="quick-action-title">
+                                <spring:message code="dashboard.create.journey"/>
+                            </h3>
+                            <p class="quick-action-desc">
+                                <spring:message code="dashboard.create.journey.desc"/>
+                            </p>
+                        </a>
+                    </c:if>
                     <a href="<c:url value='/events/create'/>" class="quick-action-card">
                         <div class="quick-action-icon">
                             <svg xmlns="http://www.w3.org/2000/svg" class="quick-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

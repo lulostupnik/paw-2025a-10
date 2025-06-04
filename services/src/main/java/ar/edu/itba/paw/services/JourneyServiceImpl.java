@@ -7,7 +7,7 @@ import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
-import ar.edu.itba.paw.models.exceptions.InvalidException;
+import ar.edu.itba.paw.models.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +29,10 @@ public class JourneyServiceImpl implements JourneyService {
     private final EmailService emailService;
     private final UniversityService universityService;
     private final InterestService interestService;
-    private final UserDao userDao;
+
 
     @Autowired
-    public JourneyServiceImpl(final JourneyDao journeyDao, final UserService userService,final UserDao userDao,
+    public JourneyServiceImpl(final JourneyDao journeyDao, final UserService userService,
                               final UniversityService universityService, final JourneyResponseDao journeyResponseDao, final EmailService emailService, final InterestService interestService) {
         this.journeyDao = journeyDao;
         this.userService = userService;
@@ -40,21 +40,20 @@ public class JourneyServiceImpl implements JourneyService {
         this.journeyResponseDao = journeyResponseDao;
         this.emailService = emailService;
         this.interestService = interestService;
-        this.userDao = userDao;
     }
 
     private void checkDates(final LocalDate startDate, final LocalDate endDate) {
         if(startDate == null || endDate == null) {
             LOGGER.warn("Start date or end date is null");
-            throw new RuntimeException("Start date and end date cannot be null");
+            throw new InvalidDateException("Start date and end date cannot be null");
         }
         if(startDate.isAfter(endDate)) {
             LOGGER.warn("Start date is after end date");
-            throw new RuntimeException("Start date cannot be after end date");
+            throw new InvalidDateException("Start date cannot be after end date");
         }
         if(startDate.isBefore(LocalDate.now())) {
             LOGGER.warn("Start date is before today");
-            throw new RuntimeException("Start date cannot be before today");
+            throw new InvalidDateException("Start date cannot be before today");
         }
     }
 
@@ -66,7 +65,7 @@ public class JourneyServiceImpl implements JourneyService {
         University destination = universityService.findByName(destinationUniversity)
                 .orElseThrow(() -> {
                     LOGGER.warn("Destination university not found: {}", destinationUniversity);
-                    return new RuntimeException("Destination University not found");
+                    return new UniversityNotFoundException("Destination University not found");
                 }
         );
 
@@ -82,28 +81,47 @@ public class JourneyServiceImpl implements JourneyService {
         Journey journey = journeyDao.findById(journeyId)
                 .orElseThrow(() -> {
                     LOGGER.warn("Journey with id {} not found", journeyId);
-                    return new RuntimeException("Journey not found");}
-                );
+                    return new JourneyNotFoundException("Journey not found");
+                });
 
-        User user = userService.findUserByEmail(email)
-                .orElseThrow(()-> {
+        User responder = userService.findUserByEmail(email)
+                .orElseThrow(() -> {
                     LOGGER.warn("User with email {} not found", email);
-                    return new RuntimeException("User not found");}
+                    return new UserNotFoundException("User not found");
+                });
+
+        journeyResponseDao.create(responder, journey, message);
+
+        interestService.updateMatchingInterestScores(responder.getId(), journey.getUser().getId());
+        LOGGER.info("Interest scores updated for responder {}", responder.getId());
+
+        int page = 1;
+        int pageSize = 50;
+        Page<User> respondersPage;
+
+        do {
+            respondersPage = journeyResponseDao.findRespondersByJourneyId(
+                    journeyId,
+                    new PageParams(page, pageSize)
+            );
+
+            List<User> responders = respondersPage.getContent();
+
+            if (!responders.isEmpty()) {
+                emailService.answerJourneyNotification(
+                        responders,
+                        message,
+                        responder,
+                        journey
                 );
+            }
 
-        journeyResponseDao.create(user.getId(), user.getUsername(), journeyId, message, LocalDateTime.now());
-        LOGGER.info("Journey response created: {}", message);
-        List<Interest> interests = interestService.findInterestsByUserId(journey.getUser().getId());
-        interestService.updateUserInterestScores(interests, user.getId());
-        LOGGER.info("Interest score updated for user {}", user.getId());
-        emailService.answerJourneyNotification(
-                userDao.findAllJourneyResponders(journeyId),
-                message,
-                user,
-                journey
-        );
-        LOGGER.info("Journey response notification sent to user {}", user.getId());
+            page++;
+        } while (page <= respondersPage.getTotalPages());
+        LOGGER.info("Journey response notifications sent to all responders for journey {}", journeyId);
 
+        emailService.answerJourneyOwnerNotification(message, responder, journey);
+        LOGGER.info("Journey response notifications sent to owner for journey {}", journeyId);
     }
 
 
@@ -125,11 +143,11 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     public Optional<Journey> getJourneyByEmail(final String email) {
         LOGGER.debug("Getting journey by email {}", email);
-        long userId = userService.findUserByEmail(email).orElseThrow(() -> {
+        User user = userService.findUserByEmail(email).orElseThrow(() -> {
             LOGGER.warn("User with email {} not found", email);
-            return new RuntimeException("User not found");
-        }).getId();
-        return journeyDao.findByUserId(userId);
+            return new UserNotFoundException("User not found");
+        });
+        return Optional.ofNullable(user.getJourney());
     }
 
 
@@ -156,15 +174,15 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.debug("Checking if user has journey {}", email);
         User user = userService.findUserByEmail(email).orElseThrow(() -> {
             LOGGER.warn("User with email '{}' not found", email);
-            return new RuntimeException("User not found");
+            return new UserNotFoundException("User not found");
         });
-        return journeyDao.findByUserId(user.getId()).isPresent();
+        return user.getJourney() != null; //@todo check
     }
 
     @Override
     public boolean existsByUser(final User user) {
         LOGGER.debug("Checking if user has journey {}", user);
-        return journeyDao.findByUserId(user.getId()).isPresent();
+        return (user.getJourney() != null) && (!user.getJourney().isDeleted());
     }
 
 
@@ -173,7 +191,7 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.debug("Getting recommended journeys for {}", email);
         if(limit <= 0 ){
             LOGGER.warn("Limit must be greater than 0");
-            throw new IllegalArgumentException("Limit must be grater than 0");
+            throw new InvalidPaginationParamsException("Limit must be grater than 0");
         }
         if(existsByUserEmail(email)){
             return journeyDao.findRecommended(email, new PageParams(1, limit)).getContent();
@@ -194,45 +212,73 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     @Transactional
     public void deleteJourney(final long id, final String message) {
-        LOGGER.debug("Deleting journey {}", id);
-        journeyDao.updateDeletionMessage(id, message);
+
+        Journey journey = journeyDao.findById(id).orElseThrow(() -> {
+                LOGGER.warn("Journey with id {} not found", id);
+                return new JourneyNotFoundException("Journey not found");
+        }
+        );
+
         LOGGER.info("Journey deletion message updated: {}", message);
-        journeyResponseDao.deleteByJourneyId(id);
+        journey.setDeletionMessage(message);
+
+        journeyResponseDao.deleteByJourneyId(journey.getId()); // todo check
         LOGGER.info("Journey responses deleted for journey {}", id);
-        Journey journey = journeyDao.findById(id)
-                .orElseThrow(() ->{
-                    LOGGER.warn("Journey with id {} not found", id);
-                    return new IllegalArgumentException("Journey not found");});
+
         emailService.sendJourneyDeletionNotification(journey,message);
         LOGGER.info("Journey deletion notification sent to user {}", journey.getUser().getEmail());
-        journeyDao.delete(id);
+
+        journey.setDeleted(true);
         LOGGER.info("Journey deleted: {}", id);
     }
 
     @Override
-    public boolean isJourneyOwnedByUser(final String email,final  long journeyID) {
+    public boolean isJourneyOwnedByUser(final String email, final long journeyID) {
         LOGGER.debug("Checking if journey {} is owned by user {}", journeyID, email);
         Optional<Journey> journey = journeyDao.findById(journeyID);
         return journey.isPresent() && journey.get().getUser().getEmail().equals(email);
     }
 
     @Override
+    public boolean isJourneyOwnedByUser(Journey journey, User user) {
+        if (journey == null || user == null) {
+            return false;
+        }
+
+        User journeyUser = journey.getUser();
+        if (journeyUser == null || journeyUser.getId() == null || user.getId() == null) {
+            return false;
+        }
+
+        return journeyUser.getId().equals(user.getId());
+    }
+
+    @Override
     @Transactional
     public void updateJourney(final long journeyId, final  String destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
         LOGGER.debug("Editing journey {}", journeyId);
+        Journey journey = journeyDao.findById(journeyId)
+                .orElseThrow(() -> {
+                    LOGGER.warn("Journey with id {} not found", journeyId);
+                    return new JourneyNotFoundException("Journey not found");
+                });
         University university = universityService.findByName(destinationUniversity)
                 .orElseThrow(() -> {
                     LOGGER.warn("University not found: {}", destinationUniversity);
-                    return new IllegalArgumentException("University not found");
+                    return new UniversityNotFoundException("University not found");
                 });
-        journeyDao.update(journeyId, university, startDate, endDate, description);
+        journey.setDestinationUniversity(university);
+        journey.setStartDate(startDate);
+        journey.setEndDate(endDate);
+        journey.setDescription(description);
         LOGGER.info("Journey updated: {}", journeyId);
     }
 
 
     @Override
-    public Optional<JourneyResponse> findJourneyResponseById(final long id) {
+    public Optional<JourneyResponse> findJourneyResponseById(final long id) { // fixme:mover esto al journeyDao
         LOGGER.debug("Finding journey response by id {}", id);
+
         return journeyResponseDao.findById(id);
     }
 
@@ -240,30 +286,22 @@ public class JourneyServiceImpl implements JourneyService {
     @Transactional
     public void deleteJourneyResponse(final long id, final String message) {
         LOGGER.debug("Deleting journey response {}", id);
-        JourneyResponse deletedComment = findJourneyResponseById(id).orElseThrow(() -> {
+        JourneyResponse journeyResponse = findJourneyResponseById(id).orElseThrow(() -> {
             LOGGER.error("Journey response with id {} not found", id);
-            return new IllegalArgumentException("Journey response doesn't exists");});
-        Journey journey = journeyDao.findById(deletedComment.getJourneyId()).orElseThrow(()->{
-            LOGGER.error("Journey from journey response doesn't exist");
-            return new IllegalStateException("Journey from journey response doesn't exist");});
-        User commentAuthor = userService.findUserById(deletedComment.getUserId()).orElseThrow(() -> {
-            LOGGER.error("User from journey response doesn't exists");
-            return new IllegalArgumentException("User from journey response doesn't exists");});
+            return new JourneyResponseNotFoundException("Journey response doesn't exists");}
+        );
 
-        emailService.sendJourneyCommentDeletionNotification(deletedComment,journey,commentAuthor,message);
+        User commentAuthor = journeyResponse.getUser();
+
+        emailService.sendJourneyCommentDeletionNotification(journeyResponse, journeyResponse.getJourney(), commentAuthor, message);
         LOGGER.info("Journey response deletion notification sent to user {}", commentAuthor.getEmail());
-        journeyResponseDao.updateDeletionMessage(id, message);
+
+        journeyResponse.setDeletionMessage(message);
         LOGGER.info("Journey response deletion message updated: {}", message);
-        journeyResponseDao.delete(id);
+
+        journeyResponse.setDeleted(true);
         LOGGER.info("Journey response deleted: {}", id);
     }
-
-    @Override
-    public long findJourneyIdByResponseId(final long journeyResponseId) {
-        LOGGER.debug("Finding journey id by response id {}", journeyResponseId);
-        return journeyResponseDao.findJourneyIdByResponseId(journeyResponseId);
-    }
-
 
 
     @Override
@@ -274,8 +312,20 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     public int countJourneyResponses(final long id) {
-        LOGGER.debug("Counting journey responses for journey {}", id);
         return journeyResponseDao.countByJourneyId(id);
     }
 }
 
+
+
+
+
+//
+//    @Override
+//    public long findJourneyIdByResponseId(final long journeyResponseId) {
+//        JourneyResponse journeyResponse = findJourneyResponseById(journeyResponseId).orElseThrow(() -> {
+//            LOGGER.error("Journey response with id {} not found", journeyResponseId);
+//            return new JourneyResponseNotFoundException("Journey response doesn't exists");}
+//        );
+//        return journeyResponse.getJourney().getId();
+//    }

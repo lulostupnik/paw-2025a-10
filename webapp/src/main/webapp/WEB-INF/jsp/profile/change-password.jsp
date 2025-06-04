@@ -120,7 +120,7 @@
         </form:form>
 
         <div class="auth-footer">
-            <a  class="auth-link" href="<c:url value='/profile/info'/>" class="btn-text">
+            <a  class="auth-link" href="<c:url value='/profile/${user.id}/info'/>" class="btn-text">
                 <spring:message code="profile.back.to.profile" text="Back to cities"/>
             </a>
         </div>

@@ -50,15 +50,15 @@
         <tr class="clickable-row"  onclick="saveLink()" data-href="<c:url value="../events/${event.id}"/>" >
           <td><c:out value="${event.title}"/></td>
           <td><c:out value="${event.user.username}"/></td>
-          <td><c:out value="${event.eventCity}"/></td>
+          <td><c:out value="${event.city}"/></td>
           <td><c:out value="${event.date}"/></td>
           <td>
             <c:choose>
-              <c:when test="${!empty event.attendeesLimit && event.attendeesLimit.isPresent() && event.attendeesLimit.get() > 0}">
+              <c:when test="${!empty event.attendeesLimit && event.attendeesLimit > 0}">
                 <div class="attendee-progress">
-                  <span class="attendee-count"><c:out value="${event.attendeesCount}"/>/<c:out value="${event.attendeesLimit.get()}"/></span>
+                  <span class="attendee-count"><c:out value="${event.attendeesCount}"/>/<c:out value="${event.attendeesLimit}"/></span>
                   <div class="progress-bar">
-                    <div class="progress-fill" style="width: <c:out value="${(event.attendeesCount * 100 / event.attendeesLimit.get())}"/>%"></div>
+                    <div class="progress-fill" style="width: <c:out value="${(event.attendeesCount * 100 / event.attendeesLimit)}"/>%"></div>
                   </div>
                 </div>
               </c:when>
@@ -95,8 +95,9 @@
 
   </div>
 </div>
+<script src="<c:url value="/resources/js/components/navigation-stack.js"/>"></script>
 <script>
   function saveLink() {
-    sessionStorage.setItem("rutaAnterior", window.location.href);
+    pushToNavigationStack(window.location.href);
   }
 </script>

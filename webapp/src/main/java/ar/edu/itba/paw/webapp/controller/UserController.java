@@ -27,7 +27,7 @@ public class UserController {
         User user = userService.findUserById(id).orElseThrow((
 
         ) -> {
-            LOGGER.error("User not found");
+            LOGGER.error("User not found for id: {}", id);
             return new NotFoundException("User not found");
         });
         ModelAndView mav = new ModelAndView("users/detail");

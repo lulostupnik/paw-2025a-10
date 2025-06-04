@@ -8,6 +8,7 @@ import lombok.ToString;
 @RequiredArgsConstructor
 @ToString
 public class CountryAttendeeCount {
+
     private final String countryName;
     private final int count;
 

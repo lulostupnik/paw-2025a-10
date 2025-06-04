@@ -47,7 +47,6 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    @Cacheable(value = "images", key = "#id")
     public Optional<Image> findImage(final long id) {
         LOGGER.debug("Getting image {}", id);
         return imageDao.findById(id);
@@ -55,7 +54,6 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "images", key = "#id")
     public void deleteImage(final long id) {
         LOGGER.debug("Deleting image {}", id);
         imageDao.delete(id);

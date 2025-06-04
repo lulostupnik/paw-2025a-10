@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.models;
 
+import ar.edu.itba.paw.models.exceptions.InvalidPaginationParamsException;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -13,7 +14,7 @@ public class PageParams {
 
     public PageParams(int page, int size){
         if(page <= 0 || size <= 0){
-            throw new RuntimeException("Pagination variables can't be negative");
+            throw new InvalidPaginationParamsException("Pagination variables can't be negative");
         }
         this.page = page;
         this.size = size;
@@ -25,6 +26,6 @@ public class PageParams {
     }
     @Override
     public int hashCode() {
-        return Objects.hash(page, size);
+        return Objects.hash(page, size);  //fixme esto esta bien? jpa es raro el hash, aunq esto no es una entidad.
     }
 }
