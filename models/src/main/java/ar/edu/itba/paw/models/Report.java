@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.models;
 
+import ar.edu.itba.paw.models.enums.ReportReason;
 import ar.edu.itba.paw.models.enums.ReportStatus;
 import lombok.Getter;
 import lombok.Setter;
@@ -47,8 +48,9 @@ public class Report {
     @Column(name = "description", length = 1000, nullable = false)
     private String description;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "reason", length = 255, nullable = false)
-    private String reason;
+    private ReportReason reason;
 
     @Column(name = "deleted", nullable = false)
     private boolean deleted = false;
@@ -67,7 +69,7 @@ public class Report {
     /* hibernate */ Report() {
     }
 
-    public Report(Long id, User reported, User reporting, String desc, String reason, Journey journey, Event event, EventResponse eventResponse, JourneyResponse journeyResponse, boolean deleted, ReportStatus status){
+    public Report(Long id, User reported, User reporting, String desc, ReportReason reason, Journey journey, Event event, EventResponse eventResponse, JourneyResponse journeyResponse, boolean deleted, ReportStatus status){
         this.id = id;
         this.reportedUser = reported;
         this.reportingUser = reporting;
@@ -83,7 +85,7 @@ public class Report {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public Report(User reportedUser, User reportingUser, String description, String reason) {
+    public Report(User reportedUser, User reportingUser, String description, ReportReason reason) {
         this.reportedUser = reportedUser;
         this.reportingUser = reportingUser;
         this.description = description;
@@ -95,7 +97,7 @@ public class Report {
 
     }
 
-    public Report(User reportedUser, User reportingUser, Journey journey, String description, String reason) {
+    public Report(User reportedUser, User reportingUser, Journey journey, String description, ReportReason reason) {
         this(reportedUser, reportingUser, description, reason);
         this.journey = journey;
         this.createdAt = LocalDateTime.now();
@@ -103,7 +105,7 @@ public class Report {
 
     }
 
-    public Report(User reportedUser, User reportingUser, Event event, String description, String reason) {
+    public Report(User reportedUser, User reportingUser, Event event, String description, ReportReason reason) {
         this(reportedUser, reportingUser, description, reason);
         this.event = event;
         this.createdAt = LocalDateTime.now();
@@ -111,7 +113,7 @@ public class Report {
 
     }
 
-    public Report(User reportedUser, User reportingUser, EventResponse eventResponse, String description, String reason) {
+    public Report(User reportedUser, User reportingUser, EventResponse eventResponse, String description, ReportReason reason) {
         this(reportedUser, reportingUser, description, reason);
         this.eventResponse = eventResponse;
         this.createdAt = LocalDateTime.now();
@@ -119,7 +121,7 @@ public class Report {
 
     }
 
-    public Report(User reportedUser, User reportingUser, JourneyResponse journeyResponse, String description, String reason) {
+    public Report(User reportedUser, User reportingUser, JourneyResponse journeyResponse, String description, ReportReason reason) {
         this(reportedUser, reportingUser, description, reason);
         this.journeyResponse = journeyResponse;
         this.createdAt = LocalDateTime.now();

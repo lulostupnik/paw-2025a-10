@@ -96,7 +96,7 @@
 
                             <c:if test="${!isOwner}">
                                 <c:url var="reportJourneyUrl" value='/reports/journeys/${journey.id}/create'/>
-                                <a href="#" onclick="openReportModal('journey', '${journey.id}', '<c:out value="${reportJourneyUrl}"/>'); return false;"
+                                <a href="${reportJourneyUrl}"
                                    style="color: #333; padding: 12px 16px; text-decoration: none; display: flex; align-items: center; gap: 12px;"
                                    onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -402,7 +402,7 @@
                                                 <!-- Report option for non-owners and admins -->
                                                 <c:if test="${!isOwner || pageContext.request.isUserInRole('ADMIN')}">
                                                     <c:url var="reportJourneyCommentUrl" value='/reports/journey-responses/${response.id}/create'/>
-                                                    <a href="#" onclick="openReportModal('comment', '${response.id}', '<c:out value="${reportJourneyCommentUrl}"/>'); return false;"
+                                                    <a href="${reportJourneyCommentUrl}"
                                                        style="color: #333; padding: 10px 14px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 13px;"
                                                        onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -481,7 +481,6 @@
 
 
 <!-- Include Report Modal -->
-<jsp:include page="/WEB-INF/jsp/components/report-modal.jsp" />
 <script src="<c:url value="/resources/js/components/navigation-stack.js"/>"></script>
 
 <script>

@@ -15,6 +15,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import ar.edu.itba.paw.models.enums.ReportReason;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -342,13 +343,13 @@ class TestUtils {
     public static final int REPORTS_RESOLVED = 1;
 
     public static final int TOTAL_REPORTS = 6;
-    
-    public static final Report REPORT_USER = new Report(REPORT_USER_ID, REPORT_USER_REPORTED_USER, REPORTING_USER, REPORT_USER_DESC, REPORT_USER_DESC, null, null, null, null, false, ReportStatus.PENDING);
-    public static final Report REPORT_JOURNEY = new Report(REPORT_JOURNEY_ID, REPORT_JOURNEY_REPORTED_USER, REPORTING_USER, REPORT_JOURNEY_DESC, REPORT_JOURNEY_DESC, REPORT_JOURNEY_REPORTED_JOURNEY, null, null, null, false, ReportStatus.PENDING);
-    public static final Report REPORT_EVENT = new Report(REPORT_EVENT_ID, REPORT_EVENT_REPORTED_USER, REPORTING_USER, REPORT_EVENT_DESC, REPORT_EVENT_DESC, null, REPORT_EVENT_REPORTED_EVENT, null, null, false, ReportStatus.PENDING);
-    public static final Report REPORT_USER_UNDER_REVIEW = new Report(REPORT_USER_REVIEW_ID, REPORT_USER_REPORTED_USER, REPORTING_USER, REPORT_USER_DESC, REPORT_USER_DESC, null, null, null, null, false, ReportStatus.UNDER_REVIEW);
-    public static final Report REPORT_USER_DISMISSED = new Report(REPORT_USER_DISMISSED_ID, REPORT_USER_REPORTED_USER, REPORTING_USER, REPORT_USER_DESC, REPORT_USER_DESC, null, null, null, null, false, ReportStatus.DISMISSED);
-    public static final Report REPORT_USER_RESOLVED = new Report(REPORT_USER_RESOLVED_ID, REPORT_USER_REPORTED_USER, REPORTING_USER, REPORT_USER_DESC, REPORT_USER_DESC, null, null, null, null, false, ReportStatus.RESOLVED);
+    public static final ReportReason HARASSMENT = ReportReason.HARASSMENT;
+    public static final Report REPORT_USER = new Report(REPORT_USER_ID, REPORT_USER_REPORTED_USER, REPORTING_USER, REPORT_USER_DESC, HARASSMENT, null, null, null, null, false, ReportStatus.PENDING);
+    public static final Report REPORT_JOURNEY = new Report(REPORT_JOURNEY_ID, REPORT_JOURNEY_REPORTED_USER, REPORTING_USER, REPORT_JOURNEY_DESC, HARASSMENT, REPORT_JOURNEY_REPORTED_JOURNEY, null, null, null, false, ReportStatus.PENDING);
+    public static final Report REPORT_EVENT = new Report(REPORT_EVENT_ID, REPORT_EVENT_REPORTED_USER, REPORTING_USER, REPORT_EVENT_DESC, HARASSMENT, null, REPORT_EVENT_REPORTED_EVENT, null, null, false, ReportStatus.PENDING);
+    public static final Report REPORT_USER_UNDER_REVIEW = new Report(REPORT_USER_REVIEW_ID, REPORT_USER_REPORTED_USER, REPORTING_USER, REPORT_USER_DESC, HARASSMENT, null, null, null, null, false, ReportStatus.UNDER_REVIEW);
+    public static final Report REPORT_USER_DISMISSED = new Report(REPORT_USER_DISMISSED_ID, REPORT_USER_REPORTED_USER, REPORTING_USER, REPORT_USER_DESC, HARASSMENT, null, null, null, null, false, ReportStatus.DISMISSED);
+    public static final Report REPORT_USER_RESOLVED = new Report(REPORT_USER_RESOLVED_ID, REPORT_USER_REPORTED_USER, REPORTING_USER, REPORT_USER_DESC, HARASSMENT, null, null, null, null, false, ReportStatus.RESOLVED);
 
     public static final Map<Long, Report> REPORT_PENDING_DATA = Map.of(REPORT_USER_ID, REPORT_USER, REPORT_JOURNEY_ID, REPORT_JOURNEY, REPORT_EVENT_ID, REPORT_EVENT);
 

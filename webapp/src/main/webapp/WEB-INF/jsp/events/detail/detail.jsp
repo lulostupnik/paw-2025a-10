@@ -134,7 +134,7 @@
                                     <!-- Report option for non-owners -->
                                     <c:if test="${!isEventOwner}">
                                         <c:url var="reportEventUrl" value='/reports/events/${event.id}/create'/>
-                                        <a href="#" onclick="openReportModal('event', '${event.id}', '<c:out value="${reportEventUrl}"/>'); return false;"
+                                        <a href="${reportEventUrl}"
                                            style="color: #333; padding: 12px 16px; text-decoration: none; display: flex; align-items: center; gap: 12px;"
                                            onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -329,7 +329,6 @@
 
 
 <!-- Include Report Modal -->
-<jsp:include page="/WEB-INF/jsp/components/report-modal.jsp" />
 
 <script>
     function toggleDropdown(dropdownId) {
