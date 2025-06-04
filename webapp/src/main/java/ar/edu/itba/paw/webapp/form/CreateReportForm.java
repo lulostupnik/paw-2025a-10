@@ -4,6 +4,12 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class CreateReportForm {
+    @NotNull
+    private String reportType; // e.g., JOURNEY, EVENT, JOURNEY_RESPONSE, EVENT_RESPONSE
+
+    @NotNull
+    private long targetId; // ID of the object being reported
+
 
     @Size(min = 2, max = 2047)
     @NotNull
@@ -28,5 +34,13 @@ public class CreateReportForm {
         this.reason = reason;
     }
 
+
+    public String getReportType() {
+        return reportType;
+    }
+
+    public long getTargetId() {
+        return targetId;
+    }
 
 }

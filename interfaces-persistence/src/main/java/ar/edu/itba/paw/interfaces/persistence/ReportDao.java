@@ -8,6 +8,8 @@ public interface ReportDao {
     Report create(User reportedUser, User reportingUser, String description, String reason);
     Report create(User reportedUser, User reportingUser, Journey journey, String description, String reason);
     Report create(User reportedUser, User reportingUser, Event event, String description, String reason);
+    Report create(User reportedUser, User reportingUser, EventResponse eventResponse, String description, String reason);
+    Report create(User reportedUser, User reportingUser, JourneyResponse eventResponse, String description, String reason);
     Optional<Report> findById(Long id);
     Page<Report> findByUserPaginated(User user, PageParams params);
     long countReportsAgainstUser(User reportedUser);

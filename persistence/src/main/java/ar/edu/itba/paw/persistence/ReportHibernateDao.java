@@ -42,6 +42,22 @@ public class ReportHibernateDao implements ReportDao {
     }
 
     @Override
+    public Report create(User reportedUser, User reportingUser, JourneyResponse journeyResponse, String description, String reason) {
+        final Report report = new Report(reportedUser, reportingUser, journeyResponse, description, reason);
+        em.persist(report);
+        return report;
+    }
+
+    @Override
+    public Report create(User reportedUser, User reportingUser, EventResponse eventResponse, String description, String reason) {
+        final Report report = new Report(reportedUser, reportingUser, eventResponse, description, reason);
+        em.persist(report);
+        return report;
+    }
+
+
+
+    @Override
     public Optional<Report> findById(Long id) {
         return Optional.ofNullable(em.find(Report.class, id));
     }
