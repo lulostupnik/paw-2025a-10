@@ -47,7 +47,32 @@
                                 </span>
                             </c:when>
                         </c:choose>
-                        - <c:out value="${report.reason}"/>
+                        - <c:choose>
+                        <c:when test="${report.reason.name() == 'SPAM'}">
+                            <spring:message code="report.reason.spam" text="Spam or unwanted content"/>
+                        </c:when>
+                        <c:when test="${report.reason.name() == 'HARRASMENT'}">
+                            <spring:message code="report.reason.harassment" text="Harassment or bullying"/>
+                        </c:when>
+                        <c:when test="${report.reason.name() == 'INAPPROPRIATE_CONTENT'}">
+                            <spring:message code="report.reason.inappropriate" text="Inappropriate content"/>
+                        </c:when>
+                        <c:when test="${report.reason.name() == 'MISINFORMATION'}">
+                            <spring:message code="report.reason.misinformation" text="False or misleading information"/>
+                        </c:when>
+                        <c:when test="${report.reason.name() == 'HATE_SPEECH'}">
+                            <spring:message code="report.reason.hate_speech" text="Hate speech or discrimination"/>
+                        </c:when>
+                        <c:when test="${report.reason.name() == 'VIOLENCE'}">
+                            <spring:message code="report.reason.violence" text="Violence or threats"/>
+                        </c:when>
+                        <c:when test="${report.reason.name() == 'OTHER'}">
+                            <spring:message code="report.reason.other" text="Other"/>
+                        </c:when>
+                        <c:otherwise>
+                            <c:out value="${report.reason}"/>
+                        </c:otherwise>
+                    </c:choose>
                     </p>
                 </div>
 
