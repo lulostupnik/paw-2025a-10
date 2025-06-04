@@ -6,7 +6,14 @@ import ar.edu.itba.paw.models.enums.ReportStatus;
 import java.util.Optional;
 
 public interface ReportService {
-    Report createReport(User reporter, String reportType, long targetId, String reason, String description);
+    Report createReportForJourney(User reportingUser,long journeyId, String description, String reason);
+
+    Report createReportForEvent(User reportingUser,long eventId, String description, String reason);
+
+    Report createReportForEventResponse(User reportingUser,long responseId, String description, String reason);
+
+    Report createReportForJourneyResponse(User reportingUser,long responseId, String description, String reason);
+
     Optional<Report> findById(Long id);
 
     Page<Report> findByUserPaginated(User user, PageParams params);

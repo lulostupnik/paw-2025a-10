@@ -29,33 +29,33 @@ public class ReportServiceImpl implements ReportService {
         this.eventService = eventService;
     }
 
-    @Transactional
     @Override
-    public Report createReport(User reporter, String reportType, long targetId, String reason, String description) {
-        return switch (reportType) {
-            case "JOURNEY" -> {
-                Journey journey = journeyService.getJourneyById(targetId).orElseThrow(() -> new JourneyNotFoundException("Journey not found with id: " + targetId));
-                yield reportDao.create(journey.getUser(), reporter, journey, description, reason);
-            }
-            case "EVENT" -> {
-                Event event = eventService.findEventById(targetId).orElseThrow(() -> new EventNotFoundException("Event not found with id: " + targetId));
-                yield reportDao.create(event.getUser(), reporter, event, description, reason);
-            }
-            case "JOURNEY_RESPONSE" -> {
-                JourneyResponse jr = journeyService.findJourneyResponseById(targetId).orElseThrow(() -> new JourneyResponseNotFoundException("Journey response not found with id: " + targetId));
-                yield reportDao.create(jr.getUser(), reporter, jr, description, reason);
-            }
-            case "EVENT_RESPONSE" -> {
-                EventResponse er = eventService.findEventResponseById(targetId).orElseThrow(() -> new EventResponseNotFoundException("Event response not found with id: " + targetId));
-                yield reportDao.create(er.getUser(), reporter, er, description, reason);
-            }
-            default -> throw new IllegalArgumentException("Unknown report type");
-        };
-    }
+    @Transactional
+    public Report createReportForJourney(User reportingUser, long journeyId, String description, String reason) {
+        Journey journey = journeyService.getJourneyById(journeyId).orElseThrow(() -> new JourneyNotFoundException("Journey not found with id: " + journeyId));
+        return reportDao.create(journey.getUser(), reportingUser, journey, description, reason);    }
 
+    @Override
+    @Transactional
+    public Report createReportForEvent(User reportingUser, long eventId, String description, String reason) {
+        Event event = eventService.findEventById(eventId).orElseThrow(() -> new EventNotFoundException("Event not found with id: " + eventId));
+        return reportDao.create(event.getUser(), reportingUser, event, description, reason);    }
 
+    @Override
+    @Transactional
+    public Report createReportForEventResponse(User reportingUser, long responseId, String description, String reason) {
+        EventResponse eventResponse = eventService.findEventResponseById(responseId)
+                .orElseThrow(() -> new EventResponseNotFoundException("Event response not found with id: " + responseId));
 
+        return reportDao.create(eventResponse.getUser(), reportingUser, eventResponse, description, reason);     }
 
+    @Override
+    @Transactional
+    public Report createReportForJourneyResponse(User reportingUser, long responseId, String description, String reason) {
+        JourneyResponse journeyResponse = journeyService.findJourneyResponseById(responseId)
+                .orElseThrow(() -> new JourneyResponseNotFoundException("Journey response not found with id: " + responseId));
+
+        return reportDao.create(journeyResponse.getUser(), reportingUser, journeyResponse, description, reason);    }
 
     @Override
     public Optional<Report> findById(Long id) {

@@ -43,4 +43,11 @@ public class CreateReportForm {
         return targetId;
     }
 
+    public void setReportType(String reportType) {
+        this.reportType = reportType;
+    }
+    public void setTargetId(long targetId) {
+        this.targetId = targetId;
+    }
+
 }
