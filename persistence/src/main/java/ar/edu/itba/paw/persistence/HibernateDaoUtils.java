@@ -5,8 +5,6 @@ import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -14,7 +12,6 @@ import javax.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 class HibernateDaoUtils {
 
@@ -55,22 +52,15 @@ class HibernateDaoUtils {
             ) {
         // Count total
         Query countQuery = em.createNativeQuery(countSql);
-        LOGGER.error("Count SQL: {}", countSql);
         parameters.forEach(countQuery::setParameter);
-        LOGGER.error("Count SQL parameters: {}", parameters);
         int totalItems = ((Number) countQuery.getSingleResult()).intValue();
-        LOGGER.error("Total items: {}", totalItems);
 
 
         // ID query with pagination
         Query idQuery = em.createNativeQuery(idSql);
-        LOGGER.error("ID SQL: {}", idSql);
         parameters.forEach(idQuery::setParameter);
-        LOGGER.error("ID SQL parameters: {}", parameters);
         idQuery.setMaxResults(pageParams.getSize());
-        LOGGER.error("ID SQL max results: {}", pageParams.getSize());
         idQuery.setFirstResult(offset(pageParams)); // modularized offset
-        LOGGER.error("ID SQL first result: {}", offset(pageParams));
 //
 //        List<Long> ids = ((List<?>) idQuery.getResultList()).stream()
 //                .filter(Number.class::isInstance) // Ensure type safety
@@ -94,15 +84,12 @@ class HibernateDaoUtils {
         }
 
         if (ids.isEmpty()) {
-            LOGGER.error("No IDs found");
             return new Page<>(List.of(), pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
         }
 
         TypedQuery<T> fetchQuery = em.createQuery(jpqlFetchById, clazz);
-        LOGGER.error("Fetch SQL: {}", jpqlFetchById);
         fetchQuery.setParameter("ids", ids);
         fetchParameters.forEach(fetchQuery::setParameter);
-        LOGGER.error("Fetch SQL parameters: {}", parameters);
 
         List<T> results = fetchQuery.getResultList();
 
@@ -114,7 +101,6 @@ class HibernateDaoUtils {
             sortedResults.add(results.get(orderedIds.indexOf(id)));
         }
 
-        LOGGER.error("Results: {}", results);
 
         return new Page<>(sortedResults, pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
     }
