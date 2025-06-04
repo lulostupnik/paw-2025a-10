@@ -45,35 +45,35 @@ public class ReportHibernateDaoTest {
 
     @Test
     public void testCreateGenericReport(){
-        Report report = reportDao.create(TestUtils.USER_1, TestUtils.USER_2, TestUtils.REPORT_USER_DESC, TestUtils.REPORT_USER_DESC);
+        Report report = reportDao.create(TestUtils.USER_1, TestUtils.USER_2, TestUtils.REPORT_USER_DESC, TestUtils.HARASSMENT);
         em.flush();
 
         assertNotNull(report);
-        TestUtils.assertEqualsReport(new Report(null, TestUtils.USER_1, TestUtils.USER_2, TestUtils.REPORT_USER_DESC, TestUtils.REPORT_USER_DESC, null, null, null, null, false, ReportStatus.PENDING), report);
+        TestUtils.assertEqualsReport(new Report(null, TestUtils.USER_1, TestUtils.USER_2, TestUtils.REPORT_USER_DESC, TestUtils.HARASSMENT, null, null, null, null, false, ReportStatus.PENDING), report);
     }
     @Test(expected = PersistenceException.class)
     public void testCreateGenericReportInvalidReportedUser(){
-        reportDao.create(new User(12341234l, null, null, null, null, null, null, 0, null, false, false), TestUtils.USER_2, TestUtils.REPORT_USER_DESC, TestUtils.REPORT_USER_DESC);
+        reportDao.create(new User(12341234l, null, null, null, null, null, null, 0, null, false, false), TestUtils.USER_2, TestUtils.REPORT_USER_DESC, TestUtils.HARASSMENT);
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateGenericReportInvalidReportingUser(){
-        reportDao.create(TestUtils.USER_1, new User(12341234l, null, null, null, null, null, null, 0, null, false, false), TestUtils.REPORT_USER_DESC, TestUtils.REPORT_USER_DESC);
+        reportDao.create(TestUtils.USER_1, new User(12341234l, null, null, null, null, null, null, 0, null, false, false), TestUtils.REPORT_USER_DESC, TestUtils.HARASSMENT);
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateGenericReportMissingReportedUser(){
-        reportDao.create(null, TestUtils.USER_2, TestUtils.REPORT_USER_DESC, TestUtils.REPORT_USER_DESC);
+        reportDao.create(null, TestUtils.USER_2, TestUtils.REPORT_USER_DESC, TestUtils.HARASSMENT);
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateGenericReportMissingReportingUser(){
-        reportDao.create(TestUtils.USER_2, null, TestUtils.REPORT_USER_DESC, TestUtils.REPORT_USER_DESC);
+        reportDao.create(TestUtils.USER_2, null, TestUtils.REPORT_USER_DESC, TestUtils.HARASSMENT);
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateGenericReportMissingDescription(){
-        reportDao.create(TestUtils.USER_2, TestUtils.USER_1, null, TestUtils.REPORT_USER_DESC);
+        reportDao.create(TestUtils.USER_2, TestUtils.USER_1, null, TestUtils.HARASSMENT);
         em.flush();
     }
     @Test(expected = PersistenceException.class)
@@ -84,35 +84,35 @@ public class ReportHibernateDaoTest {
 
     @Test
     public void testCreateJourneyReport(){
-        Report report = reportDao.create(TestUtils.USER_1, TestUtils.USER_2, TestUtils.JOURNEY_1, TestUtils.REPORT_JOURNEY_DESC, TestUtils.REPORT_JOURNEY_DESC);
+        Report report = reportDao.create(TestUtils.USER_1, TestUtils.USER_2, TestUtils.JOURNEY_1, TestUtils.REPORT_JOURNEY_DESC, TestUtils.HARASSMENT);
         em.flush();
 
         assertNotNull(report);
-        TestUtils.assertEqualsReport(new Report(null, TestUtils.USER_1, TestUtils.USER_2, TestUtils.REPORT_JOURNEY_DESC, TestUtils.REPORT_JOURNEY_DESC, TestUtils.JOURNEY_1, null, null, null, false, ReportStatus.PENDING), report);
+        TestUtils.assertEqualsReport(new Report(null, TestUtils.USER_1, TestUtils.USER_2, TestUtils.REPORT_JOURNEY_DESC, TestUtils.HARASSMENT, TestUtils.JOURNEY_1, null, null, null, false, ReportStatus.PENDING), report);
     }
     @Test(expected = PersistenceException.class)
     public void testCreateJourneyReportInvalidReportedUser(){
-        reportDao.create(new User(12341234l, null, null, null, null, null, null, 0, null, false, false), TestUtils.USER_2, TestUtils.JOURNEY_1, TestUtils.REPORT_JOURNEY_DESC, TestUtils.REPORT_JOURNEY_DESC);
+        reportDao.create(new User(12341234l, null, null, null, null, null, null, 0, null, false, false), TestUtils.USER_2, TestUtils.JOURNEY_1, TestUtils.REPORT_JOURNEY_DESC, TestUtils.HARASSMENT);
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateJourneyReportInvalidReportingUser(){
-        reportDao.create(TestUtils.USER_1, new User(12341234l, null, null, null, null, null, null, 0, null, false, false), TestUtils.JOURNEY_1, TestUtils.REPORT_JOURNEY_DESC, TestUtils.REPORT_JOURNEY_DESC);
+        reportDao.create(TestUtils.USER_1, new User(12341234l, null, null, null, null, null, null, 0, null, false, false), TestUtils.JOURNEY_1, TestUtils.REPORT_JOURNEY_DESC, TestUtils.HARASSMENT);
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateJourneyReportMissingReportedUser(){
-        reportDao.create(null, TestUtils.USER_2, TestUtils.JOURNEY_1, TestUtils.REPORT_JOURNEY_DESC, TestUtils.REPORT_JOURNEY_DESC);
+        reportDao.create(null, TestUtils.USER_2, TestUtils.JOURNEY_1, TestUtils.REPORT_JOURNEY_DESC, TestUtils.HARASSMENT);
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateJourneyReportMissingReportingUser(){
-        reportDao.create(TestUtils.USER_2, null, TestUtils.JOURNEY_1, TestUtils.REPORT_JOURNEY_DESC, TestUtils.REPORT_JOURNEY_DESC);
+        reportDao.create(TestUtils.USER_2, null, TestUtils.JOURNEY_1, TestUtils.REPORT_JOURNEY_DESC, TestUtils.HARASSMENT);
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateJourneyReportMissingDescription(){
-        reportDao.create(TestUtils.USER_2, TestUtils.USER_1, TestUtils.JOURNEY_1, null, TestUtils.REPORT_JOURNEY_DESC);
+        reportDao.create(TestUtils.USER_2, TestUtils.USER_1, TestUtils.JOURNEY_1, null, TestUtils.HARASSMENT);
         em.flush();
     }
     @Test(expected = PersistenceException.class)
@@ -122,41 +122,41 @@ public class ReportHibernateDaoTest {
     }
     @Test(expected = PersistenceException.class)
     public void testCreateJourneyReportInvalidJourney(){
-        reportDao.create(TestUtils.USER_2, TestUtils.USER_1, new Journey(12341234l, null, null, null, null, null), TestUtils.REPORT_JOURNEY_DESC, TestUtils.REPORT_JOURNEY_DESC);
+        reportDao.create(TestUtils.USER_2, TestUtils.USER_1, new Journey(12341234l, null, null, null, null, null), TestUtils.REPORT_JOURNEY_DESC, TestUtils.HARASSMENT);
         em.flush();
     }
 
     @Test
     public void testCreateEventReport(){
-        Report report = reportDao.create(TestUtils.USER_1, TestUtils.USER_2, TestUtils.EVENT_1, TestUtils.REPORT_JOURNEY_DESC, TestUtils.REPORT_JOURNEY_DESC);
+        Report report = reportDao.create(TestUtils.USER_1, TestUtils.USER_2, TestUtils.EVENT_1, TestUtils.REPORT_JOURNEY_DESC, TestUtils.HARASSMENT);
         em.flush();
 
         assertNotNull(report);
-        TestUtils.assertEqualsReport(new Report(null, TestUtils.USER_1, TestUtils.USER_2, TestUtils.REPORT_JOURNEY_DESC, TestUtils.REPORT_JOURNEY_DESC, null, TestUtils.EVENT_1, null, null, false, ReportStatus.PENDING), report);
+        TestUtils.assertEqualsReport(new Report(null, TestUtils.USER_1, TestUtils.USER_2, TestUtils.REPORT_JOURNEY_DESC, TestUtils.HARASSMENT, null, TestUtils.EVENT_1, null, null, false, ReportStatus.PENDING), report);
     }
     @Test(expected = PersistenceException.class)
     public void testCreateEventReportInvalidReportedUser(){
-        reportDao.create(new User(12341234l, null, null, null, null, null, null, 0, null, false, false), TestUtils.USER_2, TestUtils.EVENT_1, TestUtils.REPORT_JOURNEY_DESC, TestUtils.REPORT_JOURNEY_DESC);
+        reportDao.create(new User(12341234l, null, null, null, null, null, null, 0, null, false, false), TestUtils.USER_2, TestUtils.EVENT_1, TestUtils.REPORT_JOURNEY_DESC, TestUtils.HARASSMENT);
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateEventReportInvalidReportingUser(){
-        reportDao.create(TestUtils.USER_1, new User(12341234l, null, null, null, null, null, null, 0, null, false, false), TestUtils.EVENT_1, TestUtils.REPORT_JOURNEY_DESC, TestUtils.REPORT_JOURNEY_DESC);
+        reportDao.create(TestUtils.USER_1, new User(12341234l, null, null, null, null, null, null, 0, null, false, false), TestUtils.EVENT_1, TestUtils.REPORT_JOURNEY_DESC, TestUtils.HARASSMENT);
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateEventReportMissingReportedUser(){
-        reportDao.create(null, TestUtils.USER_2, TestUtils.EVENT_1, TestUtils.REPORT_JOURNEY_DESC, TestUtils.REPORT_JOURNEY_DESC);
+        reportDao.create(null, TestUtils.USER_2, TestUtils.EVENT_1, TestUtils.REPORT_JOURNEY_DESC, TestUtils.HARASSMENT);
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateEventReportMissingReportingUser(){
-        reportDao.create(TestUtils.USER_2, null, TestUtils.EVENT_1, TestUtils.REPORT_JOURNEY_DESC, TestUtils.REPORT_JOURNEY_DESC);
+        reportDao.create(TestUtils.USER_2, null, TestUtils.EVENT_1, TestUtils.REPORT_JOURNEY_DESC, TestUtils.HARASSMENT);
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateEventReportMissingDescription(){
-        reportDao.create(TestUtils.USER_2, TestUtils.USER_1, TestUtils.EVENT_1, null, TestUtils.REPORT_JOURNEY_DESC);
+        reportDao.create(TestUtils.USER_2, TestUtils.USER_1, TestUtils.EVENT_1, null, TestUtils.HARASSMENT);
         em.flush();
     }
     @Test(expected = PersistenceException.class)
@@ -166,7 +166,7 @@ public class ReportHibernateDaoTest {
     }
     @Test(expected = PersistenceException.class)
     public void testCreateEventReportInvalidEvent(){
-        reportDao.create(TestUtils.USER_2, TestUtils.USER_1, new Event(12341234l, null, null, null, 0, null, null, null, null, null, 0), TestUtils.REPORT_JOURNEY_DESC, TestUtils.REPORT_JOURNEY_DESC);
+        reportDao.create(TestUtils.USER_2, TestUtils.USER_1, new Event(12341234l, null, null, null, 0, null, null, null, null, null, 0), TestUtils.REPORT_JOURNEY_DESC, TestUtils.HARASSMENT);
         em.flush();
     }
 

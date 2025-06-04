@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import java.util.List;
 import java.util.Optional;
 
+import ar.edu.itba.paw.models.enums.ReportReason;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -41,7 +42,8 @@ public class ReportServiceImplTest {
     private static final long JOURNEY_RESPONSE_ID = 5;
     private static final String DESC = "illegal";
     private static final User USER = new User(USER_ID, DESC, DESC, DESC, DESC, null, null, JOURNEY_ID, null, false, false);
-    private static final Report REPORT = new Report(USER, USER, DESC, DESC);
+    private static final ReportReason MISINFORMATION = ReportReason.MISINFORMATION;
+    private static final Report REPORT = new Report(USER, USER, DESC, MISINFORMATION);
     private static final Journey JOURNEY = new Journey(JOURNEY_ID, USER, null, null, null, DESC);
     private static final Event EVENT = new Event(EVENT_ID, USER, null, DESC, EVENT_ID, null, DESC, null, DESC, null, 0);
     private static final EventResponse EVENT_RESPONSE = new EventResponse(EVENT_RESPONSE_ID, USER, EVENT, DESC, null);
@@ -69,16 +71,16 @@ public class ReportServiceImplTest {
                 eq(USER), 
                 eq(USER), 
                 eq(JOURNEY), 
-                eq(DESC), 
-                eq(DESC)
+                eq(DESC),
+                eq(MISINFORMATION)
             )
         ).thenReturn(REPORT);
 
         Report report = reportService.createReportForJourney(
             USER, 
             JOURNEY_ID, 
-            DESC, 
-            DESC
+            DESC,
+                MISINFORMATION
         );
 
         assertNotNull(report);
@@ -93,8 +95,8 @@ public class ReportServiceImplTest {
         reportService.createReportForJourney(
             USER, 
             JOURNEY_ID, 
-            DESC, 
-            DESC
+            DESC,
+                MISINFORMATION
         );
     }
     
@@ -109,7 +111,7 @@ public class ReportServiceImplTest {
                 eq(USER), 
                 eq(EVENT), 
                 eq(DESC), 
-                eq(DESC)
+                eq(MISINFORMATION)
             )
         ).thenReturn(REPORT);
 
@@ -117,7 +119,7 @@ public class ReportServiceImplTest {
             USER, 
             EVENT_ID, 
             DESC,
-            DESC
+                MISINFORMATION
         );
 
         assertNotNull(report);
@@ -132,8 +134,8 @@ public class ReportServiceImplTest {
         reportService.createReportForEvent(
             USER, 
             EVENT_ID, 
-            DESC, 
-            DESC
+            DESC,
+                MISINFORMATION
         );
     }
 
@@ -148,15 +150,15 @@ public class ReportServiceImplTest {
                 eq(USER), 
                 eq(EVENT), 
                 eq(DESC), 
-                eq(DESC)
+                eq(MISINFORMATION)
             )
         ).thenReturn(REPORT);
 
         Report report = reportService.createReportForEventResponse(
             USER, 
             EVENT_RESPONSE_ID, 
-            DESC, 
-            DESC
+            DESC,
+                MISINFORMATION
         );
 
         assertNotNull(report);
@@ -171,8 +173,8 @@ public class ReportServiceImplTest {
         reportService.createReportForEventResponse(
             USER, 
             EVENT_RESPONSE_ID, 
-            DESC, 
-            DESC
+            DESC,
+                MISINFORMATION
         );
     }
 
@@ -187,15 +189,15 @@ public class ReportServiceImplTest {
                 eq(USER), 
                 eq(JOURNEY), 
                 eq(DESC), 
-                eq(DESC)
+                eq(MISINFORMATION)
             )
         ).thenReturn(REPORT);
 
         Report report = reportService.createReportForJourneyResponse(
             USER, 
             JOURNEY_RESPONSE_ID, 
-            DESC, 
-            DESC
+            DESC,
+                MISINFORMATION
         );
 
         assertNotNull(report);
@@ -210,8 +212,8 @@ public class ReportServiceImplTest {
         reportService.createReportForJourneyResponse(
             USER, 
             JOURNEY_RESPONSE_ID, 
-            DESC, 
-            DESC
+            DESC,
+                MISINFORMATION
         );
     }
 
@@ -301,7 +303,7 @@ public class ReportServiceImplTest {
 
     @Test
     public void testUpdateReportStatus(){
-        Report newReport = new Report(USER, USER, DESC, DESC);
+        Report newReport = new Report(USER, USER, DESC, MISINFORMATION);
         newReport.setStatus(ReportStatus.PENDING);
         when(
             reportDao.findById(eq(REPORT_ID))

@@ -5,6 +5,7 @@ import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.interfaces.services.ReportService;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.enums.ReportReason;
 import ar.edu.itba.paw.models.enums.ReportStatus;
 import ar.edu.itba.paw.models.exceptions.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,19 +32,19 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public Report createReportForJourney(User reportingUser, long journeyId, String description, String reason) {
+    public Report createReportForJourney(User reportingUser, long journeyId, String description, ReportReason reason) {
         Journey journey = journeyService.getJourneyById(journeyId).orElseThrow(() -> new JourneyNotFoundException("Journey not found with id: " + journeyId));
         return reportDao.create(journey.getUser(), reportingUser, journey, description, reason);    }
 
     @Override
     @Transactional
-    public Report createReportForEvent(User reportingUser, long eventId, String description, String reason) {
+    public Report createReportForEvent(User reportingUser, long eventId, String description, ReportReason reason) {
         Event event = eventService.findEventById(eventId).orElseThrow(() -> new EventNotFoundException("Event not found with id: " + eventId));
         return reportDao.create(event.getUser(), reportingUser, event, description, reason);    }
 
     @Override
     @Transactional
-    public Report createReportForEventResponse(User reportingUser, long responseId, String description, String reason) {
+    public Report createReportForEventResponse(User reportingUser, long responseId, String description, ReportReason reason) {
         EventResponse eventResponse = eventService.findEventResponseById(responseId)
                 .orElseThrow(() -> new EventResponseNotFoundException("Event response not found with id: " + responseId));
 
@@ -51,7 +52,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public Report createReportForJourneyResponse(User reportingUser, long responseId, String description, String reason) {
+    public Report createReportForJourneyResponse(User reportingUser, long responseId, String description, ReportReason reason) {
         JourneyResponse journeyResponse = journeyService.findJourneyResponseById(responseId)
                 .orElseThrow(() -> new JourneyResponseNotFoundException("Journey response not found with id: " + responseId));
 

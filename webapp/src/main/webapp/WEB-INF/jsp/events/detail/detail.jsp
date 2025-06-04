@@ -329,7 +329,6 @@
 
 
 <!-- Include Report Modal -->
-<jsp:include page="/WEB-INF/jsp/components/report-modal.jsp" />
 
 <script>
     function toggleDropdown(dropdownId) {

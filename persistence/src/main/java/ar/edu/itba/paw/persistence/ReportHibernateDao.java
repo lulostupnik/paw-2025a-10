@@ -3,6 +3,7 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.ReportDao;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.enums.ReportReason;
 import ar.edu.itba.paw.models.enums.ReportStatus;
 import org.springframework.stereotype.Repository;
 
@@ -21,35 +22,35 @@ public class ReportHibernateDao implements ReportDao {
     private EntityManager em;
 
     @Override
-    public Report create(User reportedUser, User reportingUser, String description, String reason) {
+    public Report create(User reportedUser, User reportingUser, String description, ReportReason reason) {
         final Report report = new Report(reportedUser, reportingUser, description, reason);
         em.persist(report);
         return report;
     }
 
     @Override
-    public Report create(User reportedUser, User reportingUser, Journey journey, String description, String reason) {
+    public Report create(User reportedUser, User reportingUser, Journey journey, String description, ReportReason reason) {
         final Report report = new Report(reportedUser, reportingUser, journey, description, reason);
         em.persist(report);
         return report;
     }
 
     @Override
-    public Report create(User reportedUser, User reportingUser, Event event, String description, String reason) {
+    public Report create(User reportedUser, User reportingUser, Event event, String description, ReportReason reason) {
         final Report report = new Report(reportedUser, reportingUser, event, description, reason);
         em.persist(report);
         return report;
     }
 
     @Override
-    public Report create(User reportedUser, User reportingUser, JourneyResponse journeyResponse, String description, String reason) {
+    public Report create(User reportedUser, User reportingUser, JourneyResponse journeyResponse, String description, ReportReason reason) {
         final Report report = new Report(reportedUser, reportingUser, journeyResponse, description, reason);
         em.persist(report);
         return report;
     }
 
     @Override
-    public Report create(User reportedUser, User reportingUser, EventResponse eventResponse, String description, String reason) {
+    public Report create(User reportedUser, User reportingUser, EventResponse eventResponse, String description, ReportReason reason) {
         final Report report = new Report(reportedUser, reportingUser, eventResponse, description, reason);
         em.persist(report);
         return report;

@@ -1,5 +1,7 @@
 package ar.edu.itba.paw.webapp.form;
 
+import ar.edu.itba.paw.models.enums.ReportReason;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -16,7 +18,7 @@ public class CreateReportForm {
     private String description;
 
     @NotNull
-    private String reason;
+    private ReportReason reason;
 
     public String getDescription() {
         return description;
@@ -26,11 +28,11 @@ public class CreateReportForm {
         this.description = description;
     }
 
-    public String getReason() {
+    public ReportReason getReason() {
         return reason;
     }
 
-    public void setReason(String reason) {
+    public void setReason(ReportReason reason) {
         this.reason = reason;
     }
 

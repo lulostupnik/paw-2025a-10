@@ -481,7 +481,6 @@
 
 
 <!-- Include Report Modal -->
-<jsp:include page="/WEB-INF/jsp/components/report-modal.jsp" />
 <script src="<c:url value="/resources/js/components/navigation-stack.js"/>"></script>
 
 <script>

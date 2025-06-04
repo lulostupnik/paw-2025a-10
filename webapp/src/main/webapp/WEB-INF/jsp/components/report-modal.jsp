@@ -100,25 +100,25 @@ Example URL: /report?actionUrl=/api/reports&targetType=post&targetId=123
         <form:option value="">
           <spring:message code="report.reason.placeholder" text="Select a reason" />
         </form:option>
-        <form:option value="spam">
+        <form:option value="SPAM">
           <spring:message code="report.reason.spam" text="Spam or unwanted content" />
         </form:option>
-        <form:option value="harassment" >
+        <form:option value="HARASSMENT" >
           <spring:message code="report.reason.harassment" text="Harassment or bullying" />
         </form:option>
-        <form:option value="inappropriate" >
+        <form:option value="INAPPROPRIATE_CONTENT" >
           <spring:message code="report.reason.inappropriate" text="Inappropriate content" />
         </form:option>
-        <form:option value="misinformation">
+        <form:option value="MISINFORMATION">
           <spring:message code="report.reason.misinformation" text="False or misleading information" />
         </form:option>
-        <form:option value="hate_speech" >
+        <form:option value="HATE_SPEECH" >
           <spring:message code="report.reason.hate_speech" text="Hate speech or discrimination" />
         </form:option>
-        <form:option value="violence">
+        <form:option value="VIOLENCE">
           <spring:message code="report.reason.violence" text="Violence or threats" />
         </form:option>
-        <form:option value="other">
+        <form:option value="OTHER">
           <spring:message code="report.reason.other" text="Other" />
         </form:option>
       </form:select>

@@ -140,7 +140,7 @@ public class ReportController {
         if (errors.hasErrors()) {
             return createEventResponseReportForm(responseId, form);
         }
-        reportService.createReportForEventResponse(user, responseId, form.getReason(), form.getDescription());
+        reportService.createReportForEventResponse(user, responseId, form.getDescription(), form.getReason());
         redirectAttributes.addFlashAttribute("reportSuccess", "Report submitted successfully");
 
 
