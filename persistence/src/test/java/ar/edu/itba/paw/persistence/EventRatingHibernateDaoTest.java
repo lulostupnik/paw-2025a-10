@@ -62,35 +62,38 @@ public class EventRatingHibernateDaoTest {
         em.flush();
     }
 
-//    @Test
-//    public void testFindRatingByUserAndEvent(){
-//        Optional<Rating> maybeRating = rateDao.findRatingByUserAndEvent(TestUtils.USER_1_ID, TestUtils.EVENT_1_ID);
-//
-//        assertNotNull(maybeRating);
-//        assertTrue(maybeRating.isPresent());
-//        assertEquals(TestUtils.EVENT_1_USER_1_RATING, maybeRating.get(), 0.1);
-//    }
-//    @Test
-//    public void testFindRatingByUserAndEventNoRating(){
-//        Optional<Double> maybeRating = rateDao.findRatingByUserAndEvent(TestUtils.USER_3_ID, TestUtils.EVENT_1_ID);
-//
-//        assertNotNull(maybeRating);
-//        assertFalse(maybeRating.isPresent());
-//    }
-//    @Test
-//    public void testFindRatingByUserAndEventMissingUser(){
-//        Optional<Double> maybeRating = rateDao.findRatingByUserAndEvent(12341234l, TestUtils.EVENT_1_ID);
-//
-//        assertNotNull(maybeRating);
-//        assertFalse(maybeRating.isPresent());
-//    }
-//    @Test
-//    public void testFindRatingByUserAndEventMissingEvent(){
-//        Optional<Double> maybeRating = rateDao.findRatingByUserAndEvent(TestUtils.USER_1_ID, 12341234l);
-//
-//        assertNotNull(maybeRating);
-//        assertFalse(maybeRating.isPresent());
-//    }
+    @Test
+    public void testFindRatingByUserAndEvent(){
+        Optional<Rating> maybeRating = rateDao.findRatingByUserAndEvent(TestUtils.USER_1_ID, TestUtils.EVENT_1_ID);
+
+        assertNotNull(maybeRating);
+        assertTrue(maybeRating.isPresent());
+        assertEquals(TestUtils.EVENT_1_USER_1_RATING, maybeRating.get().getRating(), 0.1);
+        TestUtils.assertEqualsUser(TestUtils.USER_1, maybeRating.get().getUser());
+        TestUtils.assertEqualsEvent(TestUtils.EVENT_1, maybeRating.get().getEvent());
+
+    }
+    @Test
+    public void testFindRatingByUserAndEventNoRating(){
+        Optional<Rating> maybeRating = rateDao.findRatingByUserAndEvent(TestUtils.USER_3_ID, TestUtils.EVENT_1_ID);
+
+        assertNotNull(maybeRating);
+        assertFalse(maybeRating.isPresent());
+    }
+    @Test
+    public void testFindRatingByUserAndEventMissingUser(){
+        Optional<Rating> maybeRating = rateDao.findRatingByUserAndEvent(12341234l, TestUtils.EVENT_1_ID);
+
+        assertNotNull(maybeRating);
+        assertFalse(maybeRating.isPresent());
+    }
+    @Test
+    public void testFindRatingByUserAndEventMissingEvent(){
+        Optional<Rating> maybeRating = rateDao.findRatingByUserAndEvent(TestUtils.USER_1_ID, 12341234l);
+
+        assertNotNull(maybeRating);
+        assertFalse(maybeRating.isPresent());
+    }
 
     @Test
     public void testCountRatingsByEvent(){

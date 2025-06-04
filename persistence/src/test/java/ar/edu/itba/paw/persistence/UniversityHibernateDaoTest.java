@@ -68,13 +68,13 @@ public class UniversityHibernateDaoTest {
         assertTrue(maybeUni.isPresent());
         TestUtils.assertEqualsUni(TestUtils.UNI_2, maybeUni.get());
     }
-    // @Test
-    // public void testFindByNameDeleted(){
-    //     Optional<University> maybeUni = uniDao.findByName(TestUtils.UNIVERSITY_DELETED_NAME);
+    @Test
+    public void testFindByNameDeleted(){
+        Optional<University> maybeUni = uniDao.findByName(TestUtils.UNIVERSITY_DELETED_NAME);
 
-    //     assertNotNull(maybeUni);
-    //     assertFalse(maybeUni.isPresent());
-    // }
+        assertNotNull(maybeUni);
+        assertFalse(maybeUni.isPresent());
+    }
     @Test
     public void testFindByNameWrongName(){
         Optional<University> maybeUni = uniDao.findByName("TestUtils.UNIVERSITY_2_NAME");
@@ -112,13 +112,13 @@ public class UniversityHibernateDaoTest {
         assertNotNull(maybeUni);
         assertFalse(maybeUni.isPresent());
     }
-    // @Test
-    // public void testFindByIdDeleted(){
-    //     Optional<University> maybeUni = uniDao.findById(TestUtils.UNIVERSITY_DELETED_ID);
+    @Test
+    public void testFindByIdDeleted(){
+        Optional<University> maybeUni = uniDao.findById(TestUtils.UNIVERSITY_DELETED_ID);
 
-    //     assertNotNull(maybeUni);
-    //     assertFalse(maybeUni.isPresent());
-    // }
+        assertNotNull(maybeUni);
+        assertFalse(maybeUni.isPresent());
+    }
 
     @Test
     public void testSearchUsingAbbreviationSubstring(){
@@ -281,25 +281,25 @@ public class UniversityHibernateDaoTest {
 
         TestUtils.assertEqualsUni(new University(uni.getId(), TestUtils.UNIVERSITY_NEW_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1), uni);
     }
-    @Test(expected = PersistenceException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testCreateDuplicate(){
         uniDao.create(TestUtils.UNIVERSITY_1_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1);
         em.flush();
     }
-    // @Test
-    // public void testCreateDeletedByName(){
-    //     University uni = uniDao.create(TestUtils.UNIVERSITY_DELETED_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1);
-    //     em.flush();
+    @Test
+    public void testCreateDeletedByName(){
+        University uni = uniDao.create(TestUtils.UNIVERSITY_DELETED_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1);
+        em.flush();
 
-    //     TestUtils.assertEqualsUni(new University(TestUtils.UNIVERSITY_DELETED_ID, TestUtils.UNIVERSITY_DELETED_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1), uni);
-    // }
-    // @Test
-    // public void testCreateDeletedCopyBoth(){
-    //     University uni = uniDao.create(TestUtils.UNIVERSITY_DELETED_NAME, TestUtils.UNIVERSITY_DELETED_CODE, TestUtils.CITY_1);
-    //     em.flush();
+        TestUtils.assertEqualsUni(new University(TestUtils.UNIVERSITY_DELETED_ID, TestUtils.UNIVERSITY_DELETED_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1), uni);
+    }
+    @Test
+    public void testCreateDeletedCopyBoth(){
+        University uni = uniDao.create(TestUtils.UNIVERSITY_DELETED_NAME, TestUtils.UNIVERSITY_DELETED_CODE, TestUtils.CITY_1);
+        em.flush();
 
-    //     TestUtils.assertEqualsUni(TestUtils.UNI_DELETED, uni);
-    // }
+        TestUtils.assertEqualsUni(TestUtils.UNI_DELETED, uni);
+    }
 
     @Test
     public void testDelete(){

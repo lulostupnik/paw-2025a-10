@@ -330,7 +330,9 @@ class TestUtils {
     public static final int USER_1_REPORTS_AUTHORED = 6;
     public static final String REPORT_USER_DESC = "illegal";
     public static final String REPORT_JOURNEY_DESC = "illegaljourney";
+    public static final String REPORT_JOURNEY_RESPONSE_DESC = "illegaljourneyresponse";
     public static final String REPORT_EVENT_DESC = "illegalevent";
+    public static final String REPORT_EVENT_RESPONSE_DESC = "illegaleventresponse";
     public static final User REPORTING_USER = USER_1;
     public static final User REPORT_USER_REPORTED_USER = USER_3;
     public static final User REPORT_JOURNEY_REPORTED_USER = USER_4;
