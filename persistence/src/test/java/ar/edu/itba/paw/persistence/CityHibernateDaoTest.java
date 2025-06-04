@@ -70,13 +70,13 @@ public class CityHibernateDaoTest {
         assertNotNull(maybeCity);
         assertFalse(maybeCity.isPresent());
     }
-    // @Test
-    // public void testFindByNameDeleted(){
-    //     Optional<City> maybeCity = cityDao.findByName(TestUtils.CITY_DELETED_NAME);
+    @Test
+    public void testFindByNameDeleted(){
+        Optional<City> maybeCity = cityDao.findByName(TestUtils.CITY_DELETED_NAME);
 
-    //     assertNotNull(maybeCity);
-    //     assertFalse(maybeCity.isPresent());
-    // }
+        assertNotNull(maybeCity);
+        assertFalse(maybeCity.isPresent());
+    }
 
     @Test
     public void testSearchNoFiltering(){
@@ -160,13 +160,13 @@ public class CityHibernateDaoTest {
         assertTrue(maybeCity.isPresent());
         TestUtils.assertEqualsCity(TestUtils.CITY_1, maybeCity.get());
     }
-    // @Test
-    // public void testFindByGenericByIdDeleted(){
-    //     Optional<City> maybeCity = cityDao.findById(TestUtils.CITY_DELETED_ID);
+    @Test
+    public void testFindByGenericByIdDeleted(){
+        Optional<City> maybeCity = cityDao.findById(TestUtils.CITY_DELETED_ID);
 
-    //     assertNotNull(maybeCity);
-    //     assertFalse(maybeCity.isPresent());
-    // }
+        assertNotNull(maybeCity);
+        assertFalse(maybeCity.isPresent());
+    }
 
     @Test
     public void testFindAllPagedOnePage(){
@@ -204,7 +204,7 @@ public class CityHibernateDaoTest {
         );
         TestUtils.assertEqualsCity(new City(TestUtils.NEW_CITY_NAME, TestUtils.COUNTRY_1, city.getId()), city);
     }
-    @Test(expected = PersistenceException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testCreateDuplicate(){
         cityDao.create(TestUtils.CITY_1_NAME, TestUtils.COUNTRY_1);
         em.flush();
@@ -219,23 +219,24 @@ public class CityHibernateDaoTest {
         cityDao.create(null, new Country(1241234l, null, null));
         em.flush();
     }
-    // @Test
-    // public void testCreateDuplicateDeleted(){
-    //     int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE);
-    //     em.flush();
+    @Test
+    public void testCreateDuplicateDeleted(){
+        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE);
+        em.flush();
 
-    //     cityDao.create(TestUtils.CITY_DELETED_NAME, TestUtils.COUNTRY_2);
+        cityDao.create(TestUtils.CITY_DELETED_NAME, TestUtils.COUNTRY_2);
+        em.flush();
 
-    //     assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE));
-    //     assertEquals(
-    //         TestUtils.TOTAL_CITIES + 1,
-    //         Optional.ofNullable(
-    //             jdbcTemplate.queryForObject(TestUtils.CITIES_COUNT_NOT_DELETED, Integer.class)
-    //         ).get().intValue()
-    //     );
-    //     City city = jdbcTemplate.queryForObject(TestUtils.CITY_SELECT_BY_NAME, TestUtils.CITY_ROW_MAPPER, TestUtils.CITY_DELETED_NAME);
-    //     TestUtils.assertEqualsCity(TestUtils.CITY_DELETED, city);
-    // }
+        assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE));
+        assertEquals(
+            TestUtils.TOTAL_CITIES + 1,
+            Optional.ofNullable(
+                jdbcTemplate.queryForObject(TestUtils.CITIES_COUNT_NOT_DELETED, Integer.class)
+            ).get().intValue()
+        );
+        City city = jdbcTemplate.queryForObject(TestUtils.CITY_SELECT_BY_NAME, TestUtils.CITY_ROW_MAPPER, TestUtils.CITY_DELETED_NAME);
+        TestUtils.assertEqualsCity(TestUtils.CITY_DELETED, city);
+    }
 
     @Test
     public void testDeleteCity(){

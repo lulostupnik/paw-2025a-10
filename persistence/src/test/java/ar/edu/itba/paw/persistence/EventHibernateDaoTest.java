@@ -149,13 +149,13 @@ public class EventHibernateDaoTest {
         assertNotNull(maybeEvent);
         assertFalse(maybeEvent.isPresent());
     }
-    // @Test
-    // public void testFindByIdDeleted(){
-    //     Optional<Event> maybeEvent = eventDao.findById(TestUtils.EVENT_DELETED_ID);
+    @Test
+    public void testFindByIdDeleted(){
+        Optional<Event> maybeEvent = eventDao.findById(TestUtils.EVENT_DELETED_ID);
 
-    //     assertNotNull(maybeEvent);
-    //     assertFalse(maybeEvent.isPresent());
-    // }
+        assertNotNull(maybeEvent);
+        assertFalse(maybeEvent.isPresent());
+    }
 
     @Test
     public void testFindTop(){
