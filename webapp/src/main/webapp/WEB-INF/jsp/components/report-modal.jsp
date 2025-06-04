@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <!-- Report Modal -->
 <div id="report-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center;">
@@ -65,22 +66,22 @@
             <spring:message code="report.reason.other" text="Other" />
           </option>
         </select>
+        <form:errors path="reason" cssClass="error-message" />
       </div>
 
       <!-- Additional Details -->
       <div style="margin-bottom: 24px;">
         <label for="description" style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">
           <spring:message code="report.description.label" text="Additional Details" />
-          <span style="color: #6b7280; font-weight: normal; font-size: 14px;">
-                        (<spring:message code="form.optional" text="optional" />)
-                    </span>
+          <span style="color: #dc2626;">*</span>
         </label>
-        <textarea id="description" name="description" rows="4" maxlength="500"
+        <textarea id="description" name="description" rows="4" maxlength="500" required
                   placeholder="<spring:message code='report.description.placeholder' text='Please provide any additional details that might help us understand the issue...' />"
                   style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 6px; resize: vertical; font-family: inherit; font-size: 14px; color: #374151; line-height: 1.5;"
                   onfocus="this.style.borderColor='#3b82f6'; this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'"
                   onblur="this.style.borderColor='#d1d5db'; this.style.boxShadow='none'"
                   oninput="updateCharacterCount(this)"></textarea>
+        <form:errors path="description" cssClass="error-message" />
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
           <div style="font-size: 12px; color: #6b7280;">
             <spring:message code="report.description.help" text="Maximum 500 characters" />
@@ -109,6 +110,15 @@
     </form>
   </div>
 </div>
+
+<style>
+  .error-message {
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+  }
+</style>
 
 <!-- Modal JavaScript Functions -->
 <script>
@@ -183,21 +193,11 @@
 
   // Form submission handling
   document.getElementById('report-form').addEventListener('submit', function(e) {
-    const reason = document.getElementById('reason').value;
-    if (!reason) {
-      e.preventDefault();
-      alert('<spring:message code="report.reason.required" text="Please select a reason for the report" />');
-      document.getElementById('reason').focus();
-      return false;
-    }
-
     // Show loading state
     const submitButton = this.querySelector('button[type="submit"]');
     const originalText = submitButton.textContent;
     submitButton.textContent = '<spring:message code="report.submitting" text="Submitting..." />';
     submitButton.disabled = true;
 
-    // Note: The form will submit normally, this is just for user feedback
-    // You might want to handle this with AJAX instead
   });
 </script>

@@ -101,20 +101,22 @@ public class ReportController {
     }
 
     @GetMapping(value = "/event-responses/{responseId}/create")
-    @PreAuthorize("isAuthenticated()")
     public ModelAndView createEventResponseReportForm(@PathVariable long responseId,
                                                       @ModelAttribute(REPORT_CREATE_FORM) final CreateReportForm form) {
-        return new ModelAndView(REPORT_CREATE);
+        ModelAndView modelAndView = new ModelAndView(REPORT_CREATE);
+        modelAndView.addObject(REPORT_CREATE_FORM, form);
+        return modelAndView;
     }
 
     @PostMapping(path = "/event-responses/{responseId}/create")
-    @PreAuthorize("isAuthenticated()")
     public ModelAndView createEventResponseReport(@PathVariable long responseId,
                                                   @ModelAttribute("user") User user,
                                                   @Valid @ModelAttribute(REPORT_CREATE_FORM) final CreateReportForm form,
                                                   final BindingResult errors) {
         if (errors.hasErrors()) {
-            return createEventResponseReportForm(responseId, form);
+            ModelAndView modelAndView = new ModelAndView(REPORT_CREATE);
+            modelAndView.addObject(REPORT_CREATE_FORM, form);
+            return modelAndView;
         }
         reportService.createReportForEventResponse(user, responseId, form.getReason(), form.getDescription());
         return new ModelAndView("redirect:/events/");

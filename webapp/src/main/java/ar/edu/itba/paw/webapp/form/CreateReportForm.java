@@ -1,11 +1,14 @@
 package ar.edu.itba.paw.webapp.form;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class CreateReportForm {
 
     @Size(min = 2, max = 2047)
+    @NotNull
     private String description;
+
 
     private String reason;
 
