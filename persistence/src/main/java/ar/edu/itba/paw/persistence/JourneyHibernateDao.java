@@ -20,15 +20,40 @@ public class JourneyHibernateDao implements JourneyDao {
 
     @Override
     public Journey create(User user, University university, LocalDate startDate, LocalDate endDate, String description) {
+        Optional<Journey> existingJourney = findByUserWithDeleted(user.getId());
+        if (existingJourney.isPresent()) {
+            if( !existingJourney.get().isDeleted()) {
+                throw new IllegalArgumentException("User already has an active journey."); //@TODO: change this to a custom exception
+            }
+            // If a journey already exists for the user, we can update it instead of creating a new one.
+            Journey journey = existingJourney.get();
+            journey.setDestinationUniversity(university);
+            journey.setStartDate(startDate);
+            journey.setEndDate(endDate);
+            journey.setDescription(description);
+            journey.setDeleted(false);
+            em.merge(journey);
+            return journey;
+        }
         final Journey journey = new Journey(user, startDate, endDate, university, description);
         em.persist(journey);
         return journey;
     }
+    private Optional<Journey> findByUserWithDeleted(long userId) {
+        return em.createQuery("FROM Journey j WHERE j.user.id = :userId", Journey.class)
+                .setParameter("userId", userId)
+                .getResultList()
+                .stream()
+                .findFirst();
+    }
 
     @Override
     public Optional<Journey> findById(long id) {
-
-        return Optional.ofNullable(em.find(Journey.class, id));
+        return em.createQuery("FROM Journey j WHERE j.id = :id AND j.deleted = false", Journey.class)
+                .setParameter("id", id)
+                .getResultList()
+                .stream()
+                .findFirst();
     }
 
 

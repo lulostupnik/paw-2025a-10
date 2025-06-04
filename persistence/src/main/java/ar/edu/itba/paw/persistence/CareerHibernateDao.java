@@ -23,14 +23,17 @@ public class CareerHibernateDao implements CareerDao {
     private EntityManager em;
 
     @Override
-    public Optional<Career> findById(long id) { //fixme agregar lo de not deleted
-
-        return Optional.ofNullable(em.find(Career.class, id));
+    public Optional<Career> findById(long id) {
+        return em.createQuery("from Career as c where c.id = :id and c.deleted = false", Career.class)
+                        .setParameter("id", id)
+                        .getResultList()
+                        .stream()
+                        .findFirst();
     }
 
     @Override
-    public Optional<Career> findByName(String name) { ///fixme agregar lo de not deleted
-        return em.createQuery("from Career as c where c.name= :name", Career.class)
+    public Optional<Career> findByName(String name) {
+        return em.createQuery("from Career as c where c.name= :name and c.deleted = false", Career.class)
                 .setParameter("name", name)
                 .getResultList()
                 .stream()
@@ -100,8 +103,27 @@ public class CareerHibernateDao implements CareerDao {
                 Map.of()
         );    }
 
+    private Optional<Career> findByNameWithDeleted(String name) {
+        return em.createQuery("from Career as c where c.name = :name", Career.class)
+                .setParameter("name", name)
+                .getResultList()
+                .stream()
+                .findFirst();
+    }
+
     @Override
     public Career create(String name) {
+        Optional<Career> maybeCareer = findByNameWithDeleted(name);
+        if ( maybeCareer.isPresent() ) {
+            Career career = maybeCareer.get();
+            if (career.isDeleted()) {
+                career.setDeleted(false);
+                em.merge(career);
+                return career;
+            } else {
+                throw new IllegalArgumentException("Career with name '" + name + "' already exists."); //@TODO: change to custom exception
+            }
+        }
         final Career career = new Career(name);
         em.persist(career);
         return career;

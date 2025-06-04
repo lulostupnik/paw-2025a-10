@@ -23,11 +23,36 @@ public class UniversityHibernateDao implements UniversityDao {
     @PersistenceContext
     private EntityManager em;
 
+    private final CityDao cityDao;
+
     @Autowired
-    private CityDao cityDao;
+    public  UniversityHibernateDao(CityDao cityDao) {
+        this.cityDao = cityDao;
+        // Default constructor for Spring
+    }
+    private Optional<University> findByNameAndCityWithDeleted(String name, String cityName) {
+        return em.createQuery("from University as u where u.name= :name and u.city.name = :cityName", University.class)
+                .setParameter("name", name)
+                .setParameter("cityName", cityName)
+                .getResultList()
+                .stream()
+                .findFirst();
+    }
 
     @Override
     public University create(String name, String abbreviation, City city) {
+        Optional <University> existingUniversity = findByNameAndCityWithDeleted(name, city.getName());
+        if (existingUniversity.isPresent()) {
+            if( !existingUniversity.get().isDeleted()) {
+                throw new IllegalArgumentException("University with this name and city already exists and is not deleted."); //@TODO: change this to a custom exception
+            }
+            final University university = existingUniversity.get();
+            university.setDeleted(false);
+            university.setAbbreviation(abbreviation);
+            university.setCity(city);
+            em.merge(university);
+            return university;
+        }
         final University university = new University(name, abbreviation, city);
         em.persist(university);
         return university;
@@ -57,7 +82,7 @@ public class UniversityHibernateDao implements UniversityDao {
 
     @Override
     public Optional<University> findByName(String name) {
-        return em.createQuery("from University as u where u.name= :name", University.class)
+        return em.createQuery("from University as u where u.name= :name and u.deleted = false", University.class)
                 .setParameter("name", name)
                 .getResultList()
                 .stream()
@@ -66,7 +91,7 @@ public class UniversityHibernateDao implements UniversityDao {
 
     @Override
     public Optional<University> findById(long id) {
-        return em.createQuery("from University as u where u.id= :id", University.class)
+        return em.createQuery("from University as u where u.id= :id and u.deleted = false", University.class)
                 .setParameter("id", id)
                 .getResultList()
                 .stream()

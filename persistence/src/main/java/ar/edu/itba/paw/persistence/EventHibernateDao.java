@@ -34,7 +34,12 @@ public class EventHibernateDao implements EventDao {
 
     @Override
     public Optional<Event> findById(long eventId) {
-        return Optional.ofNullable(em.find(Event.class, eventId));
+
+        return  em.createQuery("FROM Event e WHERE e.id = :eventId AND e.deleted = FALSE", Event.class)
+                .setParameter("eventId", eventId)
+                .getResultList()
+                .stream()
+                .findFirst();
     }
 
     @Override

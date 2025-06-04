@@ -22,12 +22,17 @@ public class CityHibernateDao implements CityDao {
 
     @Override
     public Optional<City> findById(long id) {
-        return Optional.ofNullable(em.find(City.class, id));
+
+        return em.createQuery("FROM City as c where c.id = :id and c.deleted = false", City.class)
+                .setParameter("id", id)
+                .getResultList()
+                .stream()
+                .findFirst();
     }
 
     @Override
     public Optional<City> findByName(String name) {
-        return em.createQuery("FROM City as c where c.name= :name", City.class)
+        return em.createQuery("FROM City as c where c.name= :name and c.deleted = false", City.class)
                 .setParameter("name", name)
                 .getResultList()
                 .stream()
@@ -107,9 +112,27 @@ public class CityHibernateDao implements CityDao {
             em.merge(city);
         }
     }
-
+    private Optional<City> findByNameAndCountryWithDeleted(String name, Country country) {
+        return em.createQuery("from City as c where c.name = :name and c.country.id = :country_id", City.class)
+                .setParameter("name", name)
+                .setParameter("country_id", country.getId())
+                .getResultList()
+                .stream()
+                .findFirst();
+    }
     @Override
     public City create(String nameEn, Country country) {
+        final Optional<City> existingCity = findByNameAndCountryWithDeleted(nameEn, country);
+        if (existingCity.isPresent()) {
+            final City city = existingCity.get();
+            if (city.isDeleted()) {
+                city.setDeleted(false);
+                em.merge(city);
+                return city;
+            } else {
+                throw new IllegalArgumentException("City with this name and country already exists.");
+            }
+        }
         final City city = new City(nameEn, country);
         em.persist(city);
         return city;

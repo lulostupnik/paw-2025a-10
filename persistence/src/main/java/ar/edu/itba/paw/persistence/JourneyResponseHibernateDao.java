@@ -124,18 +124,16 @@ public class JourneyResponseHibernateDao implements JourneyResponseDao {
     }
 
 
-    @Override
-    public void deleteByJourneyId(long journeyId) {
-        em.createNativeQuery("""
-        DELETE FROM journey_responses
-        WHERE journey_id = :journeyId
-        """)
-                .setParameter("journeyId", journeyId)
-                .executeUpdate();
-    }
+//    @Override
+//    public void deleteByJourneyId(long journeyId) {
+//        em.createNativeQuery("""
+//        DELETE FROM journey_responses
+//        WHERE journey_id = :journeyId
+//        """)
+//                .setParameter("journeyId", journeyId)
+//                .executeUpdate();
+//    }
 
-// opción soft delete:
-/*
     @Override
     public void deleteByJourneyId(long journeyId) {
         em.createQuery("""
@@ -149,7 +147,7 @@ public class JourneyResponseHibernateDao implements JourneyResponseDao {
                 .executeUpdate();
     }
 
-*/
+
 
 
 }
