@@ -19,6 +19,24 @@
       </button>
     </div>
 
+    <!-- Error Messages Display -->
+    <c:if test="${not empty reportFormErrors}">
+      <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 12px; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+          <span style="color: #dc2626; font-weight: 500; font-size: 14px;">
+            <spring:message code="report.errors.title" text="Please correct the following errors:" />
+          </span>
+        </div>
+        <ul style="margin: 0; padding-left: 20px; color: #dc2626; font-size: 13px;">
+          <c:forEach items="${reportFormErrors}" var="error">
+            <li style="margin-bottom: 4px;">
+              <c:out value="${error.defaultMessage}" />
+            </li>
+          </c:forEach>
+        </ul>
+      </div>
+    </c:if>
+
     <!-- Modal Description -->
     <p style="margin: 0 0 24px 0; color: #666; line-height: 1.5;">
       <spring:message code="report.modal.description" text="Please provide details about why you're reporting this content. Your report will be reviewed by our moderation team." />
@@ -44,29 +62,28 @@
           <option value="">
             <spring:message code="report.reason.placeholder" text="Select a reason" />
           </option>
-          <option value="spam">
+          <option value="spam" <c:if test="${reportCreateForm.reason == 'spam'}">selected</c:if>>
             <spring:message code="report.reason.spam" text="Spam or unwanted content" />
           </option>
-          <option value="harassment">
+          <option value="harassment" <c:if test="${reportCreateForm.reason == 'harassment'}">selected</c:if>>
             <spring:message code="report.reason.harassment" text="Harassment or bullying" />
           </option>
-          <option value="inappropriate">
+          <option value="inappropriate" <c:if test="${reportCreateForm.reason == 'inappropriate'}">selected</c:if>>
             <spring:message code="report.reason.inappropriate" text="Inappropriate content" />
           </option>
-          <option value="misinformation">
+          <option value="misinformation" <c:if test="${reportCreateForm.reason == 'misinformation'}">selected</c:if>>
             <spring:message code="report.reason.misinformation" text="False or misleading information" />
           </option>
-          <option value="hate_speech">
+          <option value="hate_speech" <c:if test="${reportCreateForm.reason == 'hate_speech'}">selected</c:if>>
             <spring:message code="report.reason.hate_speech" text="Hate speech or discrimination" />
           </option>
-          <option value="violence">
+          <option value="violence" <c:if test="${reportCreateForm.reason == 'violence'}">selected</c:if>>
             <spring:message code="report.reason.violence" text="Violence or threats" />
           </option>
-          <option value="other">
+          <option value="other" <c:if test="${reportCreateForm.reason == 'other'}">selected</c:if>>
             <spring:message code="report.reason.other" text="Other" />
           </option>
         </select>
-        <form:errors path="reason" cssClass="error-message" />
       </div>
 
       <!-- Additional Details -->
@@ -80,8 +97,7 @@
                   style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 6px; resize: vertical; font-family: inherit; font-size: 14px; color: #374151; line-height: 1.5;"
                   onfocus="this.style.borderColor='#3b82f6'; this.style.outline='none'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'"
                   onblur="this.style.borderColor='#d1d5db'; this.style.boxShadow='none'"
-                  oninput="updateCharacterCount(this)"></textarea>
-        <form:errors path="description" cssClass="error-message" />
+                  oninput="updateCharacterCount(this)"><c:out value="${reportCreateForm.description}" /></textarea>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
           <div style="font-size: 12px; color: #6b7280;">
             <spring:message code="report.description.help" text="Maximum 500 characters" />
@@ -130,11 +146,11 @@
     document.getElementById('report-target-type').value = targetType;
     document.getElementById('report-target-id').value = targetId;
 
-    // Reset form
+    // Reset form only if no errors (don't reset if we're showing errors)
+    <c:if test="${empty reportFormErrors}">
     document.getElementById('report-form').reset();
-
-    // Reset character count
     document.getElementById('char-count').textContent = '0/500';
+    </c:if>
 
     // Show modal
     document.getElementById('report-modal').style.display = 'flex';
@@ -198,6 +214,19 @@
     const originalText = submitButton.textContent;
     submitButton.textContent = '<spring:message code="report.submitting" text="Submitting..." />';
     submitButton.disabled = true;
-
   });
+
+  // Auto-show modal if there are errors or if showReportModal flag is set
+  <c:if test="${showReportModal == true}">
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('report-modal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    // Update character count for pre-filled description
+    const descriptionField = document.getElementById('description');
+    if (descriptionField.value) {
+      updateCharacterCount(descriptionField);
+    }
+  });
+  </c:if>
 </script>

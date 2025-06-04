@@ -18,6 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/reports")
@@ -29,97 +30,126 @@ public class ReportController {
     private static final String REPORT_CREATE = "reports/create";
     private static final String REPORT_DETAIL = "reports/detail";
     private static final String REPORT_CREATE_FORM = "createReportForm";
+    private final JourneyService journeyService;
+    private final EventService eventService;
 
     @Autowired
-    public ReportController(ReportService reportService ) {
+    public ReportController(ReportService reportService, JourneyService journeyService, EventService eventService) {
         this.reportService = reportService;
+        this.journeyService = journeyService;
+        this.eventService = eventService;
     }
 
 
     @GetMapping(value = "/journeys/{journeyId}/create")
     public ModelAndView createJourneyReportForm(@PathVariable long journeyId,
                                                 @ModelAttribute(REPORT_CREATE_FORM) final CreateReportForm form) {
-
-        return new ModelAndView(REPORT_CREATE);
+        return new ModelAndView("redirect:/journeys/" + journeyId);
     }
-
 
     @PostMapping(path = "/journeys/{journeyId}/create")
     public ModelAndView createJourneyReport(@PathVariable long journeyId,
                                             @ModelAttribute("user") User user,
                                             @Valid @ModelAttribute(REPORT_CREATE_FORM) final CreateReportForm form,
-                                            final BindingResult errors) {
-
+                                            final BindingResult errors,
+                                            final RedirectAttributes redirectAttributes) {
         if (errors.hasErrors()) {
-            return createJourneyReportForm(journeyId, form);
+            redirectAttributes.addFlashAttribute("reportFormErrors", errors.getAllErrors());
+            redirectAttributes.addFlashAttribute(REPORT_CREATE_FORM, form);
+            redirectAttributes.addFlashAttribute("showReportModal", true);
+        } else {
+            reportService.createReportForJourney(user, journeyId, form.getReason(), form.getDescription());
+            redirectAttributes.addFlashAttribute("reportSuccess", "Report submitted successfully");
         }
-        reportService.createReportForJourney(user, journeyId, form.getReason(), form.getDescription());
-        return new ModelAndView("redirect:/journeys/");
+
+        return new ModelAndView("redirect:/journeys/" + journeyId);
     }
-
-
-    @GetMapping(value = "/events/{eventId}/create")
-    public ModelAndView createEventReportForm(@PathVariable long eventId,
-                                              @ModelAttribute(REPORT_CREATE_FORM) final CreateReportForm form) {
-
-        return new ModelAndView(REPORT_CREATE);
-    }
-
-    @PostMapping(path = "/events/{eventId}/create")
-    public ModelAndView createEventReport(@PathVariable long eventId,
-                                          @ModelAttribute("user") User user,
-                                          @Valid @ModelAttribute(REPORT_CREATE_FORM) final CreateReportForm form,
-                                          final BindingResult errors) {
-
-        if (errors.hasErrors()) {
-            return createEventReportForm(eventId, form);
-        }
-        reportService.createReportForEvent(user,eventId, form.getReason(), form.getDescription());
-        return new ModelAndView("redirect:/events/");
-    }
-
 
     @GetMapping(value = "/journey-responses/{responseId}/create")
     public ModelAndView createJourneyResponseReportForm(@PathVariable long responseId,
                                                         @ModelAttribute(REPORT_CREATE_FORM) final CreateReportForm form) {
-        return new ModelAndView(REPORT_CREATE);
+        JourneyResponse response = journeyService.findJourneyResponseById(responseId).orElseThrow( () -> new ReportNotFoundException("Journey response not found with id: " + responseId));
+        return new ModelAndView("redirect:/journeys/" + response.getJourney().getId());
     }
 
     @PostMapping(path = "/journey-responses/{responseId}/create")
     public ModelAndView createJourneyResponseReport(@PathVariable long responseId,
                                                     @ModelAttribute("user") User user,
                                                     @Valid @ModelAttribute(REPORT_CREATE_FORM) final CreateReportForm form,
-                                                    final BindingResult errors) {
-
-
+                                                    final BindingResult errors,
+                                                    final RedirectAttributes redirectAttributes) {
+        JourneyResponse response = journeyService.findJourneyResponseById(responseId).orElseThrow( () -> new ReportNotFoundException("Journey response not found with id: " + responseId));
 
         if (errors.hasErrors()) {
-            return createJourneyResponseReportForm(responseId, form);
+            redirectAttributes.addFlashAttribute("reportFormErrors", errors.getAllErrors());
+            redirectAttributes.addFlashAttribute(REPORT_CREATE_FORM, form);
+            redirectAttributes.addFlashAttribute("showReportModal", true);
+        } else {
+            reportService.createReportForJourneyResponse(user, responseId, form.getReason(), form.getDescription());
+            redirectAttributes.addFlashAttribute("reportSuccess", "Report submitted successfully");
         }
-        reportService.createReportForJourneyResponse(user, responseId, form.getReason(), form.getDescription());
-        return new ModelAndView("redirect:/journeys/");
+
+        return new ModelAndView("redirect:/journeys/" + response.getJourney().getId());
     }
+
+
+
+
+    @GetMapping(value = "/events/{eventId}/create")
+    public ModelAndView createEventReportForm(@PathVariable long eventId,
+                                              @ModelAttribute(REPORT_CREATE_FORM) final CreateReportForm form) {
+
+        return new ModelAndView("redirect:/events/" + eventId);
+    }
+
+
+    @PostMapping(path = "/events/{eventId}/create")
+    public ModelAndView createEventReport(@PathVariable long eventId,
+                                          @ModelAttribute("user") User user,
+                                          @Valid @ModelAttribute(REPORT_CREATE_FORM) final CreateReportForm form,
+                                          final BindingResult errors,
+                                          final RedirectAttributes redirectAttributes) {
+        if (errors.hasErrors()) {
+            redirectAttributes.addFlashAttribute("reportFormErrors", errors.getAllErrors());
+            redirectAttributes.addFlashAttribute(REPORT_CREATE_FORM, form);
+            redirectAttributes.addFlashAttribute("showReportModal", true);
+        } else {
+            reportService.createReportForEvent(user, eventId, form.getReason(), form.getDescription());
+            redirectAttributes.addFlashAttribute("reportSuccess", "Report submitted successfully");
+        }
+
+        return new ModelAndView("redirect:/events/" + eventId);
+    }
+
+
+
 
     @GetMapping(value = "/event-responses/{responseId}/create")
     public ModelAndView createEventResponseReportForm(@PathVariable long responseId,
                                                       @ModelAttribute(REPORT_CREATE_FORM) final CreateReportForm form) {
-        ModelAndView modelAndView = new ModelAndView(REPORT_CREATE);
-        modelAndView.addObject(REPORT_CREATE_FORM, form);
-        return modelAndView;
+
+        EventResponse response = eventService.findEventResponseById(responseId).orElseThrow( () -> new ReportNotFoundException("Event response not found with id: " + responseId));
+        return new ModelAndView("redirect:/events/" + response.getEvent().getId());
     }
 
     @PostMapping(path = "/event-responses/{responseId}/create")
     public ModelAndView createEventResponseReport(@PathVariable long responseId,
                                                   @ModelAttribute("user") User user,
                                                   @Valid @ModelAttribute(REPORT_CREATE_FORM) final CreateReportForm form,
-                                                  final BindingResult errors) {
+                                                  final BindingResult errors,
+                                                  final RedirectAttributes redirectAttributes) {
+        EventResponse response = eventService.findEventResponseById(responseId).orElseThrow( () -> new ReportNotFoundException("Event response not found with id: " + responseId));
+
         if (errors.hasErrors()) {
-            ModelAndView modelAndView = new ModelAndView(REPORT_CREATE);
-            modelAndView.addObject(REPORT_CREATE_FORM, form);
-            return modelAndView;
+            redirectAttributes.addFlashAttribute("reportFormErrors", errors.getAllErrors());
+            redirectAttributes.addFlashAttribute(REPORT_CREATE_FORM, form);
+            redirectAttributes.addFlashAttribute("showReportModal", true);
+        } else {
+            reportService.createReportForEventResponse(user, responseId, form.getReason(), form.getDescription());
+            redirectAttributes.addFlashAttribute("reportSuccess", "Report submitted successfully");
         }
-        reportService.createReportForEventResponse(user, responseId, form.getReason(), form.getDescription());
-        return new ModelAndView("redirect:/events/");
+
+        return new ModelAndView("redirect:/journeys/" + response.getEvent().getId());
     }
 
     @GetMapping(value= "/{id}")
