@@ -182,7 +182,7 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     public boolean existsByUser(final User user) {
         LOGGER.debug("Checking if user has journey {}", user);
-        return user.getJourney() != null;
+        return (user.getJourney() != null) && (!user.getJourney().isDeleted());
     }
 
 
