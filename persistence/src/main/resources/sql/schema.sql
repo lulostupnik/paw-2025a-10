@@ -169,7 +169,7 @@ CREATE TABLE IF NOT EXISTS ratings (
                                        id BIGSERIAL PRIMARY KEY,
                                        user_id BIGINT NOT NULL,
                                        event_id BIGINT NOT NULL,
-                                       rating DOUBLE NOT NULL CHECK (rating >= 1 AND rating <= 5),
+                                       rating DOUBLE PRECISION NOT NULL CHECK (rating >= 1 AND rating <= 5),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (user_id, event_id),
