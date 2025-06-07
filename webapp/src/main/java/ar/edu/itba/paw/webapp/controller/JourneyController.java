@@ -98,7 +98,7 @@ public class JourneyController {
         Page<JourneyResponse> journeyResponses = js.findJourneyResponses(journey.getId(), repliesPage);
         Page<Event> journeyEvents = eventService.findJourneyEvents(journey, eventsPage);
 
-        final ModelAndView mav = new ModelAndView("journeys/detail");
+        final ModelAndView mav = new ModelAndView("journeys/detail/detail");
         mav.addObject("journey", journey);
         mav.addObject("journeyResponsesPage", journeyResponses);
         mav.addObject("commentsCount", js.countJourneyResponses(journey.getId()));
