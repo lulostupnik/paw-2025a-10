@@ -5,7 +5,7 @@
 
 #deploy
 deploy.sh
-
+email.properties
 application.properties
 # Node artifact files
 node_modules/
