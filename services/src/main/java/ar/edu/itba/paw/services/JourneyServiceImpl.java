@@ -97,20 +97,25 @@ public class JourneyServiceImpl implements JourneyService {
         int pageSize = 50;
         Page<User> respondersPage;
 
+        EmailJourney emailJourney = new EmailJourney(journey);
+        EmailUser emailResponder = new EmailUser(responder);
         do {
             respondersPage = journeyResponseDao.findRespondersByJourneyId(
                     journeyId,
                     new PageParams(page, pageSize)
             );
 
-            List<User> responders = respondersPage.getContent();
+
+            List<EmailUser> responders = respondersPage.getContent().stream()
+                    .map(EmailUser::new)
+                    .toList();
 
             if (!responders.isEmpty()) {
                 emailService.answerJourneyNotification(
                         responders,
                         message,
-                        responder,
-                        journey
+                        emailResponder,
+                        emailJourney
                 );
             }
 
@@ -118,7 +123,7 @@ public class JourneyServiceImpl implements JourneyService {
         } while (page <= respondersPage.getTotalPages());
         LOGGER.info("Journey response notifications sent to all responders for journey {}", journeyId);
 
-        emailService.answerJourneyOwnerNotification(message, responder, journey);
+        emailService.answerJourneyOwnerNotification(message, emailResponder, emailJourney);
         LOGGER.info("Journey response notifications sent to owner for journey {}", journeyId);
     }
 
@@ -223,7 +228,7 @@ public class JourneyServiceImpl implements JourneyService {
         journeyResponseDao.deleteByJourneyId(journey.getId()); // todo check
         LOGGER.info("Journey responses deleted for journey {}", id);
 
-        emailService.sendJourneyDeletionNotification(journey,message);
+        emailService.sendJourneyDeletionNotification(new EmailJourney(journey),message);
         LOGGER.info("Journey deletion notification sent to user {}", journey.getUser().getEmail());
 
         journey.setDeleted(true);
@@ -291,7 +296,7 @@ public class JourneyServiceImpl implements JourneyService {
 
         User commentAuthor = journeyResponse.getUser();
 
-        emailService.sendJourneyCommentDeletionNotification(journeyResponse, journeyResponse.getJourney(), commentAuthor, message);
+        emailService.sendJourneyCommentDeletionNotification(journeyResponse, new EmailJourney(journeyResponse.getJourney()), new EmailUser(commentAuthor), message);
         LOGGER.info("Journey response deletion notification sent to user {}", commentAuthor.getEmail());
 
         journeyResponse.setDeletionMessage(message);

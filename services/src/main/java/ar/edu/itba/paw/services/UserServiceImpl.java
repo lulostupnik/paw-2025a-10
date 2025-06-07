@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
         interestService.createUserInterests(interests, user.getId());
         LOGGER.info("User interests saved successfully for user ID: {}", user.getId());
         Token token = tokenService.userTokenControl(user);
-        emailService.sendValidationEmail(user,token.getToken());
+        emailService.sendValidationEmail(new EmailUser(user),token.getToken());
         LOGGER.info("Validation email sent successfully to user ID: {}", user.getId());
         return user;
     }
@@ -152,7 +152,7 @@ public class UserServiceImpl implements UserService {
             return new UserNotFoundException("User does not exist");
         });
 
-        emailService.sendUserBlockedNotification(user);
+        emailService.sendUserBlockedNotification(new EmailUser(user));
 
         user.setBlocked(true);
         LOGGER.info("User blocked successfully with ID: {}", userId);
@@ -167,7 +167,7 @@ public class UserServiceImpl implements UserService {
             LOGGER.error("User does not exist for ID: {}", userId);
             return new UserNotFoundException("User does not exist");
         });
-        emailService.sendUserUnblockedNotification(user);
+        emailService.sendUserUnblockedNotification(new EmailUser(user));
         user.setBlocked(false);
         LOGGER.info("User unblocked successfully with ID: {}", userId);
     }
@@ -233,7 +233,7 @@ public class UserServiceImpl implements UserService {
             throw new UserValidatedException("User not validated");
         }
         Token token = tokenService.userTokenControl(user);
-        emailService.sendForgotPassEmail(user, token.getToken());
+        emailService.sendForgotPassEmail(new EmailUser(user), token.getToken());
         LOGGER.info("Forgot password email sent successfully to: {}", email);
     }
 

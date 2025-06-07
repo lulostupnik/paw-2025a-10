@@ -92,20 +92,27 @@ public class EventServiceImpl implements EventService {
         int pageSize = 50;
         Page<User> respondersPage;
 
+        EmailUser emailResponder = new EmailUser(responder);
+        EmailEvent emailEvent = new EmailEvent(event);
+
         do {
             respondersPage = eventResponseDao.findRespondersByEventId(
                     eventId,
                     new PageParams(page, pageSize)
             );
 
-            List<User> responders = respondersPage.getContent();
+           
+            List<EmailUser> responders = respondersPage.getContent().stream()
+                    .map(EmailUser::new)
+                    .toList();
+
 
             if (!responders.isEmpty()) {
                 emailService.answerEventNotification(
                         responders,
                         message,
-                        responder,
-                        event
+                        emailResponder,
+                        emailEvent
                 );
             }
 
@@ -114,7 +121,7 @@ public class EventServiceImpl implements EventService {
 
         LOGGER.info("Email notifications sent to all responders for event {}", eventId);
 
-        emailService.answerEventOwnerNotification(message, responder, event);
+        emailService.answerEventOwnerNotification(message, emailResponder, emailEvent);
         LOGGER.info("Email notifications sent to event owner for event {}", eventId);
 
     }
@@ -407,7 +414,7 @@ public class EventServiceImpl implements EventService {
             return new EventNotFoundException("Event not found");});
         if(message != null && !message.isEmpty()){
             event.setDeletionMessage(message);
-            emailService.sendEventDeletionNotification(event,message);
+            emailService.sendEventDeletionNotification(new EmailEvent(event),message);
         }
         event.setDeleted(true); //todo check
         //fixme: borrar las responses tmb
@@ -425,7 +432,7 @@ public class EventServiceImpl implements EventService {
         Event event = deletedComment.getEvent();
 
         User commentAuthor = deletedComment.getUser();
-        emailService.sendEventCommentDeletionNotification(deletedComment,event,commentAuthor, message );
+        emailService.sendEventCommentDeletionNotification(deletedComment,new EmailEvent(event),new EmailUser(commentAuthor), message );
         LOGGER.info("Email notification sent for the event response {}", id);
         deletedComment.setDeletionMessage(message);
         LOGGER.info("Event response {} updated", id);
@@ -573,16 +580,20 @@ public class EventServiceImpl implements EventService {
         Page<User> attendeesPage;
         int totalAttendees = 0;
 
+        EmailEvent emailEvent = new EmailEvent(event);
+
         do {
             attendeesPage = eventAttendanceDao.findAttendeesByEventId(
                     event.getId(),
                     new PageParams(attendeePage, attendeePageSize)
             );
 
-            List<User> attendees = attendeesPage.getContent();
+            List<EmailUser> attendees = attendeesPage.getContent().stream().map(EmailUser::new).toList();
+
+
 
             if (!attendees.isEmpty()) {
-                emailService.sendEventReminderNotification(event, attendees);
+                emailService.sendEventReminderNotification(emailEvent, attendees);
                 totalAttendees += attendees.size();
             }
 

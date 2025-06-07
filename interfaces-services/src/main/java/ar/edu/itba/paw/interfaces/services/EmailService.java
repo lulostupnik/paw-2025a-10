@@ -8,25 +8,26 @@ import java.util.List;
 
 public interface EmailService {
 
-    void answerEventOwnerNotification( String message, User commenter, Event event );
 
-    void answerJourneyOwnerNotification( String message, User commenter, Journey journey  );
+    void answerEventOwnerNotification( String message, EmailUser commenter, EmailEvent event );
 
-    void answerEventNotification(List<User> oldRepliers, String message, User commenter, Event event );
+    void answerJourneyOwnerNotification( String message, EmailUser commenter, EmailJourney journey  );
 
-    void answerJourneyNotification(List<User> oldRepliers, String message, User commenter, Journey journey  );
+    void answerEventNotification(List<EmailUser> oldRepliers, String message, EmailUser commenter, EmailEvent event );
+
+    void answerJourneyNotification(List<EmailUser> oldRepliers, String message, EmailUser commenter, EmailJourney journey  );
 
 
-    void sendEventDeletionNotification(Event event, String adminMessage);
+    void sendEventDeletionNotification(EmailEvent event, String adminMessage);
 
-    void sendJourneyDeletionNotification(Journey journey, String adminMessage);
+    void sendJourneyDeletionNotification(EmailJourney journey, String adminMessage);
 
-    void sendForgotPassEmail(User user, String token);
-    void sendUserBlockedNotification(User blockedUser);
-    void sendEventCommentDeletionNotification(EventResponse deletedComment, Event event, User commentAuthor, String adminMessage);
-     void sendJourneyCommentDeletionNotification(JourneyResponse deletedComment,  Journey journey, User commentAuthor , String adminMessage);
-     void sendValidationEmail(User user, String token);
-     void sendUserUnblockedNotification(User unblockedUser);
+    void sendForgotPassEmail(EmailUser user, String token);
+    void sendUserBlockedNotification(EmailUser blockedUser);
+    void sendEventCommentDeletionNotification(EventResponse deletedComment, EmailEvent event, EmailUser commentAuthor, String adminMessage);
+     void sendJourneyCommentDeletionNotification(JourneyResponse deletedComment,  EmailJourney journey, EmailUser commentAuthor , String adminMessage);
+     void sendValidationEmail(EmailUser user, String token);
+     void sendUserUnblockedNotification(EmailUser unblockedUser);
 
-     void sendEventReminderNotification(Event event, List<User> attendees);
+     void sendEventReminderNotification(EmailEvent event, List<EmailUser> attendees);
 }
