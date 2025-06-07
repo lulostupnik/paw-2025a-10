@@ -22,6 +22,7 @@
 <c:set var="interestPageSize" value="8" scope="request" />
 <c:set var="chatPageSize" value="4" scope="request" />
 <c:set var="eventsPageSize" value="6" scope="request" />
+<c:set var="tipsPageSize" value="10" scope="request" />
 
 <div style="display: none;">
   <span id="i18n-journey.confirmDelete" data-message="<spring:message code='journey.confirmDelete' />"></span>
@@ -183,6 +184,14 @@
               </svg>
               <span><spring:message code="journey.detail.events" text="Events" /></span>
             </button>
+            <button id="tips-tab" class="tab-btn" data-tab="tips">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 11H5a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4l3 3V8l-3 3z"></path>
+                <path d="M22 4H12a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h9l1 1V6a2 2 0 0 0-2-2z"></path>
+              </svg>
+              <span><spring:message code="journey.detail.tips" text="Tips" /></span>
+              <span class="count">(<c:out value="${tipsCount}" />)</span>
+            </button>
             <button id="comments-tab" class="tab-btn" data-tab="comments">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
@@ -201,6 +210,11 @@
             <!-- Events Tab Content -->
             <div id="events-content" class="tab-content">
               <jsp:include page="events-section.jsp" />
+            </div>
+
+            <!-- Tips Tab Content -->
+            <div id="tips-content" class="tab-content">
+              <jsp:include page="tips-section.jsp" />
             </div>
 
             <!-- Comments Tab Content -->
@@ -246,6 +260,7 @@
     }
   });
 
+  // Main tab functionality
   document.addEventListener('DOMContentLoaded', function() {
     // Check if there's an active tab stored in session storage
     const activeTab = sessionStorage.getItem('activeJourneyTab') || 'interests';
