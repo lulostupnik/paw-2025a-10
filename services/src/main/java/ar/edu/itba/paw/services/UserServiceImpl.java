@@ -237,4 +237,57 @@ public class UserServiceImpl implements UserService {
         LOGGER.info("Forgot password email sent successfully to: {}", email);
     }
 
+    @Override
+    @Transactional
+    public void updateUser(final long userId, final String email, final String username,
+                           final String firstname, final String lastname, final String universityName,
+                           final String careerName, final Locale locale) {
+        LOGGER.debug("Updating user with ID: {}", userId);
+
+        User user = userDao.findById(userId)
+                .orElseThrow(() -> {
+                    LOGGER.error("User with id {} not found", userId);
+                    return new UserNotFoundException("User not found");
+                });
+
+        University university = universityService.findByName(universityName)
+                .orElseThrow(() -> {
+                    LOGGER.error("University not found: '{}' during user update for user ID: {}", universityName, userId);
+                    return new UniversityNotFoundException("University not found");
+                });
+
+        Career career = careerService.findCareerByName(careerName)
+                .orElseThrow(() -> {
+                    LOGGER.error("Career not found: '{}' during user update for user ID: {}", careerName, userId);
+                    return new CareerNotFoundException("Career not found");
+                });
+
+        user.setEmail(email);
+        user.setUsername(username);
+        user.setFirstname(firstname);
+        user.setLastname(lastname);
+        user.setUniversity(university);
+        user.setCareer(career);
+        user.setLocale(locale);
+
+        LOGGER.info("User updated successfully with ID: {}", userId);
+    }
+
+    @Override
+    @Transactional
+    public void updateProfilePicture(final long userId, final byte[] profilePicture) {
+        LOGGER.debug("Updating profile picture for user ID: {}", userId);
+
+        User user = userDao.findById(userId)
+                .orElseThrow(() -> {
+                    LOGGER.error("User with id {} not found", userId);
+                    return new UserNotFoundException("User not found");
+                });
+
+        long newProfilePictureId = imageService.createImage(profilePicture);
+
+        user.setProfilePictureId(newProfilePictureId);
+
+        LOGGER.info("Profile picture updated successfully for user ID: {}", userId);
+    }
 }

@@ -25,23 +25,29 @@ public class User{
     @Column(name ="username", unique = true, nullable = false, length = 50)
     private  String username;
 
+    @Setter
     @Column(length = 100, nullable = false)
     private  String firstname;
 
+    @Setter
     @Column(length = 100, nullable = false)
     private  String lastname;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "university", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private  University university;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "career_id", nullable = false)
     private  Career career;
 
+    @Setter
     @Column(name = "profile_picture_id", nullable = false)
     private  long profilePictureId;
 
+    @Setter
     @Column(length=2, nullable = false, name="language")
     private  Locale locale;
 

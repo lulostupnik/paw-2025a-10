@@ -23,6 +23,11 @@ public interface UserService {
     void unblockUser(long userId);
     void checkTokenValidity(String token);
 
+    void updateUser(long userId, String email, String username, String firstname, String lastname,
+                    String universityName, String careerName, Locale locale);
+
+    void updateProfilePicture(long userId, byte[] profilePicture);
+
     Optional<Double> findAverageRatingForCreatedEvents(long userId);
     Optional<Double> findAverageRatingForAttendedEvents(long userId);
 }
