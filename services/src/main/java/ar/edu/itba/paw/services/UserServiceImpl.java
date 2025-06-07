@@ -273,4 +273,21 @@ public class UserServiceImpl implements UserService {
         LOGGER.info("User updated successfully with ID: {}", userId);
     }
 
+    @Override
+    @Transactional
+    public void updateProfilePicture(final long userId, final byte[] profilePicture) {
+        LOGGER.debug("Updating profile picture for user ID: {}", userId);
+
+        User user = userDao.findById(userId)
+                .orElseThrow(() -> {
+                    LOGGER.error("User with id {} not found", userId);
+                    return new UserNotFoundException("User not found");
+                });
+
+        long newProfilePictureId = imageService.createImage(profilePicture);
+
+        user.setProfilePictureId(newProfilePictureId);
+
+        LOGGER.info("Profile picture updated successfully for user ID: {}", userId);
+    }
 }

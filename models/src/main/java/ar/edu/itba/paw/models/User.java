@@ -43,6 +43,7 @@ public class User{
     @JoinColumn(name = "career_id", nullable = false)
     private  Career career;
 
+    @Setter
     @Column(name = "profile_picture_id", nullable = false)
     private  long profilePictureId;
 
