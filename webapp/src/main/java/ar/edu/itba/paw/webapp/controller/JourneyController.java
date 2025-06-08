@@ -96,7 +96,8 @@ public class JourneyController {
             return new JourneyNotFoundException("Journey with ID " + id + " not found");
         });
         Page<JourneyResponse> journeyResponses = js.findJourneyResponses(journey.getId(), repliesPage);
-        Page<Event> journeyEvents = eventService.findJourneyEvents(journey, eventsPage);
+        Page<Event> createdEvents = eventService.findCreatedByJourney(journey, eventsPage);
+        Page<Event> attendedEvents = eventService.findAttendedByJourney(journey, eventsPage);
 
         final ModelAndView mav = new ModelAndView("journeys/detail/detail");
         mav.addObject("journey", journey);
@@ -104,8 +105,8 @@ public class JourneyController {
         mav.addObject("commentsCount", js.countJourneyResponses(journey.getId()));
         mav.addObject("isOwner", user != null && js.isJourneyOwnedByUser(journey, user));
         mav.addObject("interestPage", interestService.findInterestsByUser(journey.getUser(), interestsPage));
-        mav.addObject("eventsPage", journeyEvents);
-        mav.addObject("eventsPageSize", eventsPage.getSize());
+        mav.addObject("createdEventsPage", createdEvents);
+        mav.addObject("attendedEventsPage", attendedEvents);
         return mav;
     }
 
