@@ -325,7 +325,7 @@ public class EventServiceImplTest {
     
         assertNotNull(event);
         assertTrue(event.isPresent());
-        assertEquals(false, event.get().isCreator());
+        assertFalse(event.get().isCreator());
         assertEquals(EVENT_WITH_STATISTICS.isAttending(), event.get().isAttending());        
         assertEquals(EVENT_WITH_STATISTICS.getAttendedEventsCount(), event.get().getAttendedEventsCount());
         assertEquals(EVENT_WITH_STATISTICS.getCreatedEventsCount(), event.get().getCreatedEventsCount());
@@ -1008,6 +1008,7 @@ public class EventServiceImplTest {
                 eq(false),
                 eq(true),
                 eq(true),
+                eq(false),
                 eq(PAGE_1_DEFAULT)
             )
         ).thenReturn(EVENTS_PAGE);
@@ -1045,6 +1046,7 @@ public class EventServiceImplTest {
                 eq(false),
                 eq(true),
                 eq(true),
+                eq(false),
                 eq(PAGE_1_DEFAULT)
             )
         ).thenReturn(EVENTS_PAGE);
@@ -1331,7 +1333,8 @@ public class EventServiceImplTest {
                 eq(null), 
                 eq(true), 
                 eq(false), 
-                eq(false), 
+                eq(false),
+                eq(false),
                 eq(PAGE_1_DEFAULT)
             )
         ).thenReturn(EVENTS_PAGE);

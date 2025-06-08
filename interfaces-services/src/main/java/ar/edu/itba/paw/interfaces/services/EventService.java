@@ -64,6 +64,10 @@ public interface EventService {
 
     Page<Event> findJourneyEvents(Journey journey, PageParams pageParams);
 
+    Page<Event> findCreatedByJourney(Journey journey, PageParams pageParams);
+
+    Page<Event> findAttendedByJourney(Journey journey, PageParams pageParams);
+
     void sendEventReminders();
 
     int countEventsCreatedByUser(long userId);

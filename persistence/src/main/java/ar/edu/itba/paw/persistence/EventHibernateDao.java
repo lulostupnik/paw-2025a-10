@@ -149,6 +149,7 @@ public class EventHibernateDao implements EventDao {
     }       //@TODO preuntar. !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! JDBC ! MODELO EVENT RESPONSE???!! :/
 
 
+    // FIXME: Podría recibir el id del usuario y te ahorras el JOIN
     @Override
     public Page<Event> findByUserEmail(String email, PageParams pageParams) {
         final String countSql = """
@@ -319,6 +320,7 @@ public class EventHibernateDao implements EventDao {
         );
     }
 
+    // FIXME: Va en DAO o en Service?
     @Override
     public Page<Event> findUpcomingEventsByAttendee(long userId, PageParams pageParams) {
         return findAllWithFilters(
@@ -333,10 +335,12 @@ public class EventHibernateDao implements EventDao {
                 false, // isPast
                 true, // isUpcoming
                 true, // attending
+                false, // isCreator
                 pageParams
         );
     }
 
+    // FIXME: Va en DAO o en Service?
     @Override
     public Page<Event> findFinishedEventsByAttendee(long userId, PageParams pageParams) {
         return  findAllWithFilters(
@@ -351,6 +355,7 @@ public class EventHibernateDao implements EventDao {
                 true, // isPast
                 false, // isUpcoming
                 true, // attending
+                false, // isCreator
                 pageParams
         );
     }
@@ -411,11 +416,12 @@ public class EventHibernateDao implements EventDao {
             default        -> "e.id";
         };
     }
+
     @Override
-    public Page<Event> findAllWithFilters(Long userId, String searchTerm,
-                                          SortFieldEvent sortBy, SortDirection direction, String destination,
-                                          LocalDate startDate, LocalDate endDate, String interest,
-                                          boolean isPast, boolean isUpcoming, boolean attending, PageParams pageParams) {
+    public Page<Event> findAllWithFilters(Long userId, String searchTerm, SortFieldEvent sortBy,
+                                          SortDirection direction, String destination, LocalDate startDate,
+                                          LocalDate endDate, String interest, boolean isPast, boolean isUpcoming,
+                                          boolean attending, boolean isCreator, PageParams pageParams) {
 
         final String search = likePattern(searchTerm);
 
@@ -464,7 +470,11 @@ public class EventHibernateDao implements EventDao {
         }
 
         if (userId != null) {
-            filters.add("e.user_id != :userId");
+            if(isCreator){
+                filters.add("e.user_id = :userId");
+            } else {
+                filters.add("e.user_id != :userId");
+            }
             paramMap.put("userId", userId);
         }
 
@@ -485,6 +495,7 @@ public class EventHibernateDao implements EventDao {
             paramMap.put("userId", userId); // ya estaba puesto arriba
         }
 
+        // FIXME: Esto se puede resolver desde el servicio. ¿Tendría sentido?
         if (isPast) {
             filters.add("e.event_date < CURRENT_DATE");
         } else if (isUpcoming) {

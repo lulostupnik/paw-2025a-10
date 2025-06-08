@@ -366,7 +366,7 @@ public class EventServiceImpl implements EventService {
 
         LOGGER.debug("Getting events with search {}, user {}, sortBy {}, direction {}, destination {}, startDate {}, endDate {}, interest {}, isPast {}, isUpcoming {}, attending {}",search,user,sortBy,direction,destination,startDate,endDate,interest,isPast,isUpcoming,attending);
         return eventDao.findAllWithFilters(user == null ? null : user.getId(), search, sortBy, direction, destination, startDate, endDate, interest,
-                isPast, isUpcoming, attending, pageParams);
+                isPast, isUpcoming, attending, false, pageParams);
     }
 
     @Override
@@ -498,6 +498,46 @@ public class EventServiceImpl implements EventService {
                 null,
                 true,
                 false,
+                true,
+                false,
+                pageParams
+        );
+    }
+
+
+    @Override
+    public Page<Event> findCreatedByJourney(final Journey journey, final PageParams pageParams){
+        return eventDao.findAllWithFilters(
+                journey.getUser().getId(),
+                null,
+                SortFieldEvent.DATE,
+                SortDirection.ASC,
+                null,
+                journey.getStartDate(),
+                journey.getEndDate(),
+                null,
+                true,
+                true,
+                false,
+                true,
+                pageParams
+        );
+    }
+
+    @Override
+    public Page<Event> findAttendedByJourney(final Journey journey, final PageParams pageParams){
+        return eventDao.findAllWithFilters(
+                journey.getUser().getId(),
+                null,
+                SortFieldEvent.DATE,
+                SortDirection.ASC,
+                null,
+                journey.getStartDate(),
+                journey.getEndDate(),
+                null,
+                true,
+                false,
+                true,
                 false,
                 pageParams
         );
@@ -530,7 +570,6 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Scheduled(cron = "0 0 12 * * ?")
-    @Transactional(readOnly = true)
     public void sendEventReminders() {
         LOGGER.info("Starting scheduled task: sending reminder emails for upcoming events");
         LocalDate today = LocalDate.now();

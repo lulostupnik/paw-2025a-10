@@ -479,6 +479,7 @@ public class EventHibernateDaoTest {
             false,
             true,
             true,
+            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -503,6 +504,7 @@ public class EventHibernateDaoTest {
             false,
             true,
             true,
+            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -527,6 +529,7 @@ public class EventHibernateDaoTest {
             true,
             false,
             true,
+            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -549,6 +552,7 @@ public class EventHibernateDaoTest {
             null,
             false,
             true,
+            false,
             false,
             TestUtils.PAGE_1_BIG
         );
@@ -574,6 +578,7 @@ public class EventHibernateDaoTest {
             false,
             true,
             false,
+            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -595,6 +600,7 @@ public class EventHibernateDaoTest {
             TestUtils.EVENT_DATE_OLDER,
             TestUtils.EVENT_DATE_LATER,
             null,
+            false,
             false,
             false,
             false,
@@ -623,6 +629,7 @@ public class EventHibernateDaoTest {
             false,
             false,
             false,
+            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -645,6 +652,7 @@ public class EventHibernateDaoTest {
             null,
             null,
             null,
+            false,
             false,
             false,
             false,
@@ -675,6 +683,7 @@ public class EventHibernateDaoTest {
             false,
             false,
             false,
+            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -702,6 +711,7 @@ public class EventHibernateDaoTest {
             false,
             false,
             false,
+            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -723,6 +733,7 @@ public class EventHibernateDaoTest {
             null,
             null,
             TestUtils.INTEREST_1_NAME,
+            false,
             false,
             false,
             false,
