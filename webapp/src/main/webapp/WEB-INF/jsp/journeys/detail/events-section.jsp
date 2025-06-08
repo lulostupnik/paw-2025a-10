@@ -4,17 +4,17 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <div class="events-section">
-  <!-- Events Sub-tabs -->
-  <div class="events-filter-tabs">
-    <button class="events-subtab active" data-events-tab="created">
+  <!-- Events Sub-subtabs -->
+  <div class="events-filter-subtabs">
+    <button class="events-subtab active" data-events-subtab="created">
       <spring:message code="journey.events.created" text="Created"/>
     </button>
-    <button class="events-subtab" data-events-tab="attending">
+    <button class="events-subtab" data-events-subtab="attending">
       <spring:message code="journey.events.attending" text="Attending"/>
     </button>
   </div>
 
-  <!-- Created Events Tab Content -->
+  <!-- Created Events subtab Content -->
   <div class="events-subtab-content active" id="created-events">
     <c:choose>
       <c:when test="${empty createdEventsPage.content}">
@@ -102,7 +102,7 @@
             <jsp:param name="pageObjectTotalPages" value="${createdEventsPage.totalPages}" />
             <jsp:param name="currentPage" value="${createdEventsPage.currentPage}" />
             <jsp:param name="pageSize" value="${createdEventsPageSize}" />
-            <jsp:param name="baseUrl" value="/journeys/${journey.id}?tab=events&eventsTab=created" />
+            <jsp:param name="baseUrl" value="/journeys/${journey.id}?subtab=events&eventssubtab=created" />
             <jsp:param name="paramName" value="createdEventsPage" />
             <jsp:param name="sizeParamName" value="createdEventsSize" />
           </jsp:include>
@@ -111,7 +111,7 @@
     </c:choose>
   </div>
 
-  <!-- Attending Events Tab Content -->
+  <!-- Attending Events subtab Content -->
   <div class="events-subtab-content" id="attending-events">
     <c:choose>
       <c:when test="${empty attendingEventsPage.content}">
@@ -195,7 +195,7 @@
             <jsp:param name="pageObjectTotalPages" value="${attendingEventsPage.totalPages}" />
             <jsp:param name="currentPage" value="${attendingEventsPage.currentPage}" />
             <jsp:param name="pageSize" value="${attendingEventsPageSize}" />
-            <jsp:param name="baseUrl" value="/journeys/${journey.id}?tab=events&eventsTab=attending" />
+            <jsp:param name="baseUrl" value="/journeys/${journey.id}?subtab=events&eventssubtab=attending" />
             <jsp:param name="paramName" value="attendingEventsPage" />
             <jsp:param name="sizeParamName" value="attendingEventsSize" />
           </jsp:include>
@@ -206,8 +206,8 @@
 </div>
 
 <style>
-  /* Events Sub-tab Styles - Scoped to avoid conflicts */
-  .events-filter-tabs {
+  /* Events Sub-subtab Styles - Scoped to avoid conflicts */
+  .events-filter-subtabs {
     display: flex;
     border-bottom: 2px solid #e9ecef;
     margin-bottom: 24px;
@@ -383,7 +383,7 @@
 
   /* Responsive Design */
   @media (max-width: 768px) {
-    .events-filter-tabs {
+    .events-filter-subtabs {
       flex-direction: column;
     }
 
@@ -419,63 +419,63 @@
     'use strict';
 
     // Wait for DOM to be fully loaded
-    function initializeTabs() {
-      console.log('Initializing events tabs...'); // Debug log
+    function initializesubtabs() {
+      console.log('Initializing events subtabs...'); // Debug log
 
-      // Function to switch tabs
-      function switchTab(tabName) {
-        console.log('Switching to tab:', tabName); // Debug log
+      // Function to switch subtabs
+      function switchsubtab(subtabName) {
+        console.log('Switching to subtab:', subtabName); // Debug log
 
-        // Remove active class from all tab buttons
-        const allTabs = document.querySelectorAll('.events-subtab');
-        allTabs.forEach(function(tab) {
-          tab.classList.remove('active');
+        // Remove active class from all subtab buttons
+        const allsubtabs = document.querySelectorAll('.events-subtab');
+        allsubtabs.forEach(function(subtab) {
+          subtab.classList.remove('active');
         });
 
-        // Hide all tab content
+        // Hide all subtab content
         const allContent = document.querySelectorAll('.events-subtab-content');
         allContent.forEach(function(content) {
           content.classList.remove('active');
         });
 
-        // Activate the selected tab button
-        const activeTab = document.querySelector('[data-events-tab="' + tabName + '"]');
-        if (activeTab) {
-          activeTab.classList.add('active');
+        // Activate the selected subtab button
+        const activesubtab = document.querySelector('[data-events-subtab="' + subtabName + '"]');
+        if (activesubtab) {
+          activesubtab.classList.add('active');
         }
 
-        // Show the selected tab content
-        const activeContent = document.getElementById(tabName + '-events');
+        // Show the selected subtab content
+        const activeContent = document.getElementById(subtabName + '-events');
         if (activeContent) {
           activeContent.classList.add('active');
         }
       }
 
-      // Add click event listeners to all tab buttons
-      const tabButtons = document.querySelectorAll('.events-subtab');
-      tabButtons.forEach(function(button) {
+      // Add click event listeners to all subtab buttons
+      const subtabButtons = document.querySelectorAll('.events-subtab');
+      subtabButtons.forEach(function(button) {
         button.addEventListener('click', function(e) {
           e.preventDefault();
           e.stopPropagation();
 
-          const tabName = this.getAttribute('data-events-tab');
-          if (tabName) {
-            switchTab(tabName);
+          const subtabName = this.getAttribute('data-events-subtab');
+          if (subtabName) {
+            switchsubtab(subtabName);
           }
         });
       });
 
-      // Set initial active tab to "created"
-      switchTab('created');
+      // Set initial active subtab to "created"
+      switchsubtab('created');
 
-      console.log('Events tabs initialized successfully'); // Debug log
+      console.log('Events subtabs initialized successfully'); // Debug log
     }
 
     // Initialize when DOM is ready
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initializeTabs);
+      document.addEventListener('DOMContentLoaded', initializesubtabs);
     } else {
-      initializeTabs();
+      initializesubtabs();
     }
   })();
 </script>
