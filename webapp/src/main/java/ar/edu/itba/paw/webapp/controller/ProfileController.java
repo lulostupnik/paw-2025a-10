@@ -6,11 +6,15 @@ import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
+import ar.edu.itba.paw.webapp.form.EditPictureForm;
+import ar.edu.itba.paw.webapp.form.EditUserForm;
 import ar.edu.itba.paw.webapp.form.UpdatePasswordForm;
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
+import ar.edu.itba.paw.webapp.utils.ImageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +44,7 @@ public class ProfileController {
 
     private void addUserJourneyToMav(User user, ModelAndView mav){
         Optional<Journey> maybeJourney = journeyService.getJourneyByEmail(user.getEmail());
-        maybeJourney.map(journey -> mav.addObject("userJourney", journey)).orElseGet(() -> mav.addObject("userJourney", null));
+        maybeJourney.map(journey -> mav.addObject("userJourney", journey)).orElseGet(() -> mav.addObject("userJourney", null)); // @TODO: agregamos null? medio raro
     }
 
     @GetMapping(value = "{id}/info")
@@ -116,8 +120,52 @@ public class ProfileController {
             return getChangePassword(updatePasswordForm);
         }
         userService.updatePassword(user.getId(), updatePasswordForm.getPassword());
-        return new ModelAndView("redirect:/profile/info");
+        return new ModelAndView("redirect:/profile/"+ user.getId() + "/info");
     }
+    @GetMapping(value = "/edit")
+    public ModelAndView getEditProfile(@ModelAttribute("editUserForm") EditUserForm editUserForm,
+                                       BindingResult errors) {
+        ModelAndView mav = new ModelAndView("profile/edit-profile");
+        User user = userService.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new UserNotFoundException(editUserForm.getUserId())); // Hago esto porque el bindeo automatico del campo universidad se pisa con el del formulario, lo cual tira un error
+        if(!errors.hasErrors()){
 
+            editUserForm.setUserId(user.getId());
+            editUserForm.setUsername(user.getUsername());
+            editUserForm.setFirstName(user.getFirstname());
+            editUserForm.setLastName(user.getLastname());
+            editUserForm.setOriginUniversity(user.getUniversity().getName());
+            editUserForm.setCareer(user.getCareer().getName());
+        }
+        addUserJourneyToMav(user,mav);
+        return mav;
+    }
+    @PostMapping(value = "/edit")
+    public ModelAndView editProfile(@Valid @ModelAttribute("editUserForm") EditUserForm editUserForm,
+                                    BindingResult errors) {
+        if (errors.hasErrors()) {
+            return getEditProfile(editUserForm, errors);
+        }
+        userService.updateUser(editUserForm.getUserId(), editUserForm.getUsername(),
+                editUserForm.getFirstName(), editUserForm.getLastName(), editUserForm.getOriginUniversity(),
+                editUserForm.getCareer());
+        return new ModelAndView("redirect:/profile/"+ editUserForm.getUserId() + "/info");
+    }
+    @GetMapping(value = "/edit-picture")
+    public ModelAndView getEditPicture(@ModelAttribute("user") User user, @ModelAttribute("editPictureForm") EditPictureForm editPictureForm) {
+        ModelAndView mav = new ModelAndView("profile/edit-profile-picture");
+        addUserJourneyToMav(user, mav);
+        return mav;
+    }
+    @PostMapping(value = "/edit-picture")
+    public ModelAndView editPicture(@ModelAttribute("user") User user, @Valid @ModelAttribute("editPictureForm") EditPictureForm editPictureForm,
+                                    BindingResult errors) {
+    if (errors.hasErrors()) {
+        return getEditPicture(user, editPictureForm);
+    }
+        byte[] flyerContent = ImageUtils.getBytes(editPictureForm.getPicture());
+        userService.updateProfilePicture(user.getId(), flyerContent);
+        return new ModelAndView("redirect:/profile/"+ user.getId() + "/info");
+    }
 
 }

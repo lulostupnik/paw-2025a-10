@@ -261,7 +261,8 @@
                     <span class="form-hint-text">
             <spring:message code="event.flyer.edit.hint" text="Leave empty to keep current flyer"/>
         </span>
-                </div>            </div>
+                </div>
+            </div>
 
             <button type="submit" class="form-button">
                 <spring:message code="event.update.button" text="Update Event"/>

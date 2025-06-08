@@ -1,7 +1,7 @@
 package ar.edu.itba.paw.webapp.form;
 
 import ar.edu.itba.paw.webapp.validation.*;
-import javax.validation.constraints.Email;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -10,10 +10,10 @@ public class EditUserForm {
 
     private long userId;
 
-    @Email
-    @Size(min = 2, max = 100)
-    @NotNull
-    private String email;
+//    @Email
+//    @Size(min = 2, max = 100)
+//    @NotNull
+//    private String email;
 
     @Size(min = 2, max = 50)
     @NotNull
@@ -30,7 +30,7 @@ public class EditUserForm {
     @Size(max = 100)
     @NotNull
     @ExistingUniversity
-    private String university;
+    private String originUniversity;
 
     @Size(max = 100)
     @NotNull
@@ -46,13 +46,13 @@ public class EditUserForm {
         this.userId = userId;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
+//    public String getEmail() {
+//        return email;
+//    }
+//
+//    public void setEmail(String email) {
+//        this.email = email;
+//    }
 
     public String getUsername() {
         return username;
@@ -78,12 +78,12 @@ public class EditUserForm {
         this.lastName = lastName;
     }
 
-    public String getUniversity() {
-        return university;
+    public String getOriginUniversity() {
+        return originUniversity;
     }
 
-    public void setUniversity(String university) {
-        this.university = university;
+    public void setOriginUniversity(String originUniversity) {
+        this.originUniversity = originUniversity;
     }
 
     public String getCareer() {
@@ -92,5 +92,18 @@ public class EditUserForm {
 
     public void setCareer(String career) {
         this.career = career;
+    }
+
+    @Override
+    public String toString() {
+        return "EditUserForm{" +
+                "userId=" + userId +
+//                ", email='" + email + '\'' +
+                ", username='" + username + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", university='" + originUniversity + '\'' +
+                ", career='" + career + '\'' +
+                '}';
     }
 }
