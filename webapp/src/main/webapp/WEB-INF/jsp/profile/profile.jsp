@@ -46,7 +46,9 @@
         <jsp:include page="./profile-header.jsp" />
 
 
-          <jsp:include page="./profile-tabs.jsp" />
+
+      <div class="profile-tabs-container">
+      <jsp:include page="./profile-tabs.jsp" />
 
 
           <div class="profile-content">
@@ -69,6 +71,7 @@
             </c:choose>
 
           </div>
+      </div>
       </c:if>
     </div>
   </div>

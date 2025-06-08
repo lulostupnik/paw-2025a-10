@@ -182,8 +182,8 @@ public class JourneyController {
                 form.getDescription());
         return new ModelAndView(REDIRECT_JOURNEY + journeyId);
     }
-    @GetMapping(value = "/{journeyId}/reply/{id}/delete")
-    public ModelAndView deleteJourneyReplyForm(@PathVariable(value = "journeyId") long journeyId,
+    @GetMapping(value = "/reply/{id}/delete")
+    public ModelAndView deleteJourneyReplyForm(
                                                @PathVariable("id") long id,
                                                @ModelAttribute("deleteReplyForm") ReplyForm form) {
         JourneyResponse journeyResponse = js.findJourneyResponseById(id).orElseThrow(() -> {
@@ -196,16 +196,21 @@ public class JourneyController {
         return mav;
     }
 
-    @PostMapping("{journeyId}/reply/{id}/delete")
-    public ModelAndView deleteJourneyReply(@PathVariable(value = "journeyId") long journeyId,
+    @PostMapping("/reply/{id}/delete")
+    public ModelAndView deleteJourneyReply(
                                            @PathVariable("id") long id,
                                            @Valid @ModelAttribute("deleteReplyForm") ReplyForm form,
                                            BindingResult errors) {
+        JourneyResponse jr = js.findJourneyResponseById(id).orElseThrow(() -> {
+            LOGGER.error("Journey response with id {} not found", id);
+            return new JourneyResponseNotFoundException("Journey response doesn't exists");}
+        );
+
         if (errors.hasErrors()) {
-            return deleteJourneyReplyForm(journeyId, id, form);
+            return deleteJourneyReplyForm(jr.getJourney().getId(),form);
         }
         js.deleteJourneyResponse(id, form.getMessage());
-        return new ModelAndView("redirect:/journeys/" + journeyId);
+        return new ModelAndView("redirect:/journeys/" + jr.getJourney().getId());
     }
 
 }

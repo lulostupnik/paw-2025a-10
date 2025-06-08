@@ -5,6 +5,7 @@ import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
 import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
+import ar.edu.itba.paw.models.exceptions.EventResponseNotFoundException;
 import ar.edu.itba.paw.models.exceptions.InvalidException;
 import ar.edu.itba.paw.webapp.form.*;
 
@@ -207,18 +208,6 @@ public class EventController {
         return mav;
     }
 
-    @GetMapping(value = "/{eventId}/reply/{id}/delete")
-    public ModelAndView deleteEventReplyForm(@PathVariable(value = "eventId") long eventId,
-                                             @PathVariable("id") long id,
-                                             @ModelAttribute("deleteReplyForm") ReplyForm form) {
-        EventResponse er = eventService.findEventResponseById(id).orElseThrow(() -> {
-            LOGGER.error("Event response with id {} not found", id);
-            return new NotFoundException("eventResponse not found");}); //fixme porque return new NotFoundException
-        ModelAndView mav = new ModelAndView("events/delete-reply");
-        mav.addObject("event", er.getEvent());
-        mav.addObject("eventResponse", er);
-        return mav;
-    }
 
 
     @PostMapping(value = "/{id}")
@@ -301,15 +290,33 @@ public class EventController {
         return new ModelAndView(REDIRECT + eventId);
     }
 
-    @PostMapping("{eventId}/reply/{id}/delete")
-    public ModelAndView deleteEventReply(@PathVariable(value = "eventId") long eventId,
+    @GetMapping(value = "/reply/{id}/delete")
+    public ModelAndView deleteEventReplyForm(
+            @PathVariable("id") long id,
+            @ModelAttribute("deleteReplyForm") ReplyForm form) {
+        EventResponse er = eventService.findEventResponseById(id).orElseThrow(() -> {
+            LOGGER.error("Event response with id {} not found", id);
+            return new NotFoundException("eventResponse not found");}); //fixme porque return new NotFoundException
+        ModelAndView mav = new ModelAndView("events/delete-reply");
+        mav.addObject("event", er.getEvent());
+        mav.addObject("eventResponse", er);
+        return mav;
+    }
+
+    @PostMapping("/reply/{id}/delete")
+    public ModelAndView deleteEventReply(
             @PathVariable("id") long id, @Valid @ModelAttribute("deleteReplyForm") ReplyForm form,
                                          BindingResult errors) {
+        EventResponse er = eventService.findEventResponseById(id).orElseThrow(() ->{
+            LOGGER.error("Event response not found {}", id);
+            return new EventResponseNotFoundException("Event response doesn't exist");});
+
         if (errors.hasErrors()) {
-            return deleteEventReplyForm(eventId, id, form);
+            return deleteEventReplyForm(er.getEvent().getId(), form);
         }
-        eventService.deleteEventResponse(id, form.getMessage());
-        return new ModelAndView( "redirect:/events/" + eventId);
+
+        eventService.deleteEventResponse(er, form.getMessage());
+        return new ModelAndView( "redirect:/events/" + er.getEvent().getId());
     }
 
 

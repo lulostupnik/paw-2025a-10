@@ -239,9 +239,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateUser(final long userId, final String email, final String username,
+    public void updateUser(final long userId, final String username,
                            final String firstname, final String lastname, final String universityName,
-                           final String careerName, final Locale locale) {
+                           final String careerName /*, final Locale locale*/) {
         LOGGER.debug("Updating user with ID: {}", userId);
 
         User user = userDao.findById(userId)
@@ -262,13 +262,12 @@ public class UserServiceImpl implements UserService {
                     return new CareerNotFoundException("Career not found");
                 });
 
-        user.setEmail(email);
         user.setUsername(username);
         user.setFirstname(firstname);
         user.setLastname(lastname);
         user.setUniversity(university);
         user.setCareer(career);
-        user.setLocale(locale);
+        /*user.setLocale(locale); */
 
         LOGGER.info("User updated successfully with ID: {}", userId);
     }

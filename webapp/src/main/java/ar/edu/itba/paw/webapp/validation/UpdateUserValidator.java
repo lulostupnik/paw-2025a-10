@@ -37,14 +37,6 @@ public class UpdateUserValidator implements ConstraintValidator<ValidUpdateUser,
             valid = false;
         }
 
-        // Check email
-        if (!user.getEmail().equals(form.getEmail()) && userService.existsByEmail(form.getEmail())) {
-            context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("Email already in use")
-                    .addPropertyNode("email")
-                    .addConstraintViolation();
-            valid = false;
-        }
 
         return valid;
     }

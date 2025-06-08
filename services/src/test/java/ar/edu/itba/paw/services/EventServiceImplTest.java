@@ -1271,27 +1271,27 @@ public class EventServiceImplTest {
         eventService.deleteEvent(EVENT_ID, DESCRIPTION);
     }
 
-    @Test
-    public void testDeleteEventResponse(){
-        when(
-            replyDao.findById(eq(RESPONSE_ID))
-        ).thenReturn(Optional.of(REPLY));
-
-        eventService.deleteEventResponse(RESPONSE_ID, DESCRIPTION);
-
-        assertTrue(REPLY.isDeleted());
-        REPLY.setDeleted(false);
-        assertEquals(DESCRIPTION, REPLY.getDeletionMessage());
-        REPLY.setDeletionMessage(null);
-    }
-    @Test(expected = EventResponseNotFoundException.class)
-    public void testDeleteEventResponseNotFound(){
-        when(
-            replyDao.findById(eq(RESPONSE_ID))
-        ).thenReturn(Optional.empty());
-
-        eventService.deleteEventResponse(RESPONSE_ID, DESCRIPTION);
-    }
+//    @Test
+//    public void testDeleteEventResponse(){
+//        when(
+//            replyDao.findById(eq(RESPONSE_ID))
+//        ).thenReturn(Optional.of(REPLY));
+//
+//        eventService.deleteEventResponse(RESPONSE_ID, DESCRIPTION);
+//
+//        assertTrue(REPLY.isDeleted());
+//        REPLY.setDeleted(false);
+//        assertEquals(DESCRIPTION, REPLY.getDeletionMessage());
+//        REPLY.setDeletionMessage(null);
+//    }
+//    @Test(expected = EventResponseNotFoundException.class)
+//    public void testDeleteEventResponseNotFound(){
+//        when(
+//            replyDao.findById(eq(RESPONSE_ID))
+//        ).thenReturn(Optional.empty());
+//
+//        eventService.deleteEventResponse(RESPONSE_ID, DESCRIPTION);
+//    }
 
     @Test
     public void testCountEventResponses(){

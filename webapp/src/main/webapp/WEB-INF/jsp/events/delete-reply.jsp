@@ -56,7 +56,7 @@
             <p><spring:message code="eventResponse.deleteWarning" /></p>
           </div>
 
-          <c:url var="deleteReplyUrl" value='/events/${event.id}/reply/${eventResponse.id}/delete'/>
+          <c:url var="deleteReplyUrl" value='/events/reply/${eventResponse.id}/delete'/>
           <form:form modelAttribute="deleteReplyForm" action="${deleteReplyUrl}" method="post" class="delete-form">
             <c:set var="messageLabel"><spring:message code="delete.reason.label"/></c:set>
             <c:set var="messagePlaceholder"><spring:message code="delete.reason.placeholder"/></c:set>

@@ -9,31 +9,31 @@ import java.time.LocalTime;
 
 @Getter
 public class EmailEvent {
-    private Long id;
+    private final Long id;
 
-    private  EmailUser user;
+    private final  EmailUser user;
 
-    private  LocalDate date;
+    private final  LocalDate date;
 
-    private  String description;
+    private final  String description;
 
-    private  long flyerImageId;
+    private final  long flyerImageId;
 
-    private  City city;
+    private final  String cityName;
 
-    private  String title;
+    private final  String title;
 
-    private  LocalTime time;
+    private final  LocalTime time;
 
-    private  String address;
+    private final  String address;
 
-    private  Integer attendeesLimit;
+    private final  Integer attendeesLimit;
 
-    private  int attendeesCount; //FIXME: yo borraria esto
+    private final  int attendeesCount; //FIXME: yo borraria esto
 
-    private  boolean deleted;
+    private final  boolean deleted;
 
-    private String deletionMessage;
+    private final String deletionMessage;
 
 
     public EmailEvent(Event event) {
@@ -42,7 +42,7 @@ public class EmailEvent {
         this.date = event.getDate();
         this.description = event.getDescription();
         this.flyerImageId = event.getFlyerImageId();
-        this.city = event.getCity();
+        this.cityName = event.getCity().getName();
         this.title = event.getTitle();
         this.time = event.getTime();
         this.address = event.getAddress();

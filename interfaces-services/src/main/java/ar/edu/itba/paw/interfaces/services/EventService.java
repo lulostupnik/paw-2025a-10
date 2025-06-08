@@ -57,7 +57,7 @@ public interface EventService {
                                         boolean isPast, boolean isUpcoming, boolean attending,
                                         PageParams pageParams );
 
-    void deleteEventResponse(long id, String message);
+    void deleteEventResponse(EventResponse eventResponse, String message);
     int countEventResponses(long eventId);
     Page<EventResponse> findEventResponses(long eventId, PageParams pageParams);
     Optional<EventResponse> findEventResponseById(long id);

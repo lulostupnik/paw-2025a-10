@@ -23,8 +23,8 @@ public interface UserService {
     void unblockUser(long userId);
     void checkTokenValidity(String token);
 
-    void updateUser(long userId, String email, String username, String firstname, String lastname,
-                    String universityName, String careerName, Locale locale);
+    void updateUser(long userId, String username, String firstname, String lastname,
+                    String universityName, String careerName /* , Locale locale */);
 
     void updateProfilePicture(long userId, byte[] profilePicture);
 
