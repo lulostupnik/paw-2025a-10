@@ -3,14 +3,13 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<%--Falta el backend igual--%>
 <div class="events-section">
   <!-- Events Sub-tabs -->
   <div class="events-filter-tabs">
-    <button class="events-subtab active" data-events-tab="created" onclick="switchEventsSubTab(event, 'created')">
+    <button class="events-subtab active" data-events-tab="created">
       <spring:message code="journey.events.created" text="Created"/>
     </button>
-    <button class="events-subtab" data-events-tab="attending" onclick="switchEventsSubTab(event, 'attending')">
+    <button class="events-subtab" data-events-tab="attending">
       <spring:message code="journey.events.attending" text="Attending"/>
     </button>
   </div>
@@ -39,19 +38,21 @@
             <a href="<c:url value='/events/${event.id}'/>" class="journey-event-card-link">
               <div class="journey-event-card">
                 <div class="journey-event-left">
-                  <c:if test="${not empty event.flyerImageId}">
-                    <img src="<c:url value='/images/${event.flyerImageId}'/>" alt="Event flyer" class="journey-event-image">
-                  </c:if>
-                  <c:if test="${empty event.flyerImageId}">
-                    <div class="journey-event-image-placeholder">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                        <line x1="3" y1="10" x2="21" y2="10"></line>
-                      </svg>
-                    </div>
-                  </c:if>
+                  <c:choose>
+                    <c:when test="${not empty event.flyerImageId}">
+                      <img src="<c:url value='/images/${event.flyerImageId}'/>" alt="Event flyer" class="journey-event-image">
+                    </c:when>
+                    <c:otherwise>
+                      <div class="journey-event-image-placeholder">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                          <line x1="16" y1="2" x2="16" y2="6"></line>
+                          <line x1="8" y1="2" x2="8" y2="6"></line>
+                          <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                      </div>
+                    </c:otherwise>
+                  </c:choose>
                 </div>
                 <div class="journey-event-content">
                   <h3 class="journey-event-title"><c:out value="${event.title}" /></h3>
@@ -111,7 +112,7 @@
   </div>
 
   <!-- Attending Events Tab Content -->
-  <div class="events-subtab-content" id="attending-events" style="display: none;">
+  <div class="events-subtab-content" id="attending-events">
     <c:choose>
       <c:when test="${empty attendingEventsPage.content}">
         <div class="empty-state">
@@ -132,17 +133,19 @@
             <a href="<c:url value='/events/${event.id}'/>" class="journey-event-card-link">
               <div class="journey-event-card">
                 <div class="journey-event-left">
-                  <c:if test="${not empty event.flyerImageId}">
-                    <img src="<c:url value='/images/${event.flyerImageId}'/>" alt="Event flyer" class="journey-event-image">
-                  </c:if>
-                  <c:if test="${empty event.flyerImageId}">
-                    <div class="journey-event-image-placeholder">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path>
-                        <circle cx="12" cy="10" r="3"></circle>
-                      </svg>
-                    </div>
-                  </c:if>
+                  <c:choose>
+                    <c:when test="${not empty event.flyerImageId}">
+                      <img src="<c:url value='/images/${event.flyerImageId}'/>" alt="Event flyer" class="journey-event-image">
+                    </c:when>
+                    <c:otherwise>
+                      <div class="journey-event-image-placeholder">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path>
+                          <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                      </div>
+                    </c:otherwise>
+                  </c:choose>
                 </div>
                 <div class="journey-event-content">
                   <h3 class="journey-event-title"><c:out value="${event.title}" /></h3>
@@ -239,11 +242,13 @@
 
   .events-subtab-content {
     display: none;
-    animation: fadeIn 0.3s ease-in-out;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
   }
 
   .events-subtab-content.active {
     display: block;
+    opacity: 1;
   }
 
   @keyframes fadeIn {
@@ -277,6 +282,105 @@
     margin: 0;
   }
 
+  /* Event Card Styles */
+  .journey-events-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .journey-event-card-link {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .journey-event-card {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    background: #fff;
+  }
+
+  .journey-event-card:hover {
+    border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+    transform: translateY(-1px);
+  }
+
+  .journey-event-left {
+    flex-shrink: 0;
+    margin-right: 16px;
+  }
+
+  .journey-event-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+
+  .journey-event-image-placeholder {
+    width: 80px;
+    height: 80px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+  }
+
+  .journey-event-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .journey-event-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: #212529;
+  }
+
+  .journey-event-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 8px;
+  }
+
+  .journey-event-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #6c757d;
+  }
+
+  .journey-event-meta-item svg {
+    flex-shrink: 0;
+  }
+
+  .journey-event-description {
+    font-size: 14px;
+    color: #6c757d;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .journey-event-arrow {
+    flex-shrink: 0;
+    margin-left: 16px;
+    color: #6c757d;
+  }
+
   /* Responsive Design */
   @media (max-width: 768px) {
     .events-filter-tabs {
@@ -293,57 +397,85 @@
       border-bottom-color: #e9ecef;
       border-right-color: #007bff;
     }
+
+    .journey-event-card {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .journey-event-left {
+      margin-right: 0;
+      margin-bottom: 12px;
+    }
+
+    .journey-event-meta {
+      justify-content: center;
+    }
   }
 </style>
 
 <script>
-  // Events sub-tab functionality - scoped to avoid conflicts with main tabs
-  function switchEventsSubTab(event, tabName) {
-    // Prevent event bubbling to avoid interfering with main tabs
-    event.stopPropagation();
+  (function() {
+    'use strict';
 
-    // Remove active class from all events sub-tabs
-    const tabs = document.querySelectorAll('.events-subtab');
-    tabs.forEach(tab => tab.classList.remove('active'));
+    // Wait for DOM to be fully loaded
+    function initializeTabs() {
+      console.log('Initializing events tabs...'); // Debug log
 
-    // Hide all events sub-tab content
-    const contents = document.querySelectorAll('.events-subtab-content');
-    contents.forEach(content => {
-      content.classList.remove('active');
-      content.style.display = 'none';
-    });
+      // Function to switch tabs
+      function switchTab(tabName) {
+        console.log('Switching to tab:', tabName); // Debug log
 
-    // Add active class to clicked tab
-    const activeTab = document.querySelector(`[data-events-tab="${tabName}"]`);
-    if (activeTab) {
-      activeTab.classList.add('active');
-    }
+        // Remove active class from all tab buttons
+        const allTabs = document.querySelectorAll('.events-subtab');
+        allTabs.forEach(function(tab) {
+          tab.classList.remove('active');
+        });
 
-    // Show corresponding content
-    const activeContent = document.getElementById(`${tabName}-events`);
-    if (activeContent) {
-      activeContent.classList.add('active');
-      activeContent.style.display = 'block';
-    }
+        // Hide all tab content
+        const allContent = document.querySelectorAll('.events-subtab-content');
+        allContent.forEach(function(content) {
+          content.classList.remove('active');
+        });
 
-    // Store the active events sub-tab
-    sessionStorage.setItem('activeEventsSubTab', tabName);
-  }
+        // Activate the selected tab button
+        const activeTab = document.querySelector('[data-events-tab="' + tabName + '"]');
+        if (activeTab) {
+          activeTab.classList.add('active');
+        }
 
-  // Initialize events sub-tab on page load
-  document.addEventListener('DOMContentLoaded', function() {
-    // Only initialize if we're on the events tab
-    const eventsTabContent = document.getElementById('events-content');
-    if (eventsTabContent && eventsTabContent.style.display !== 'none') {
-      const savedEventsTab = sessionStorage.getItem('activeEventsSubTab') || 'created';
-
-      // Find the button and trigger click without event propagation
-      const targetButton = document.querySelector(`[data-events-tab="${savedEventsTab}"]`);
-      if (targetButton) {
-        // Create a fake event object
-        const fakeEvent = { stopPropagation: function() {} };
-        switchEventsSubTab(fakeEvent, savedEventsTab);
+        // Show the selected tab content
+        const activeContent = document.getElementById(tabName + '-events');
+        if (activeContent) {
+          activeContent.classList.add('active');
+        }
       }
+
+      // Add click event listeners to all tab buttons
+      const tabButtons = document.querySelectorAll('.events-subtab');
+      tabButtons.forEach(function(button) {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const tabName = this.getAttribute('data-events-tab');
+          if (tabName) {
+            switchTab(tabName);
+          }
+        });
+      });
+
+      // Set initial active tab to "created"
+      switchTab('created');
+
+      console.log('Events tabs initialized successfully'); // Debug log
     }
-  });
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeTabs);
+    } else {
+      initializeTabs();
+    }
+  })();
 </script>
