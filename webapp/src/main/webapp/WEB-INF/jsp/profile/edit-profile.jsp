@@ -78,6 +78,7 @@
                                cssClass="form-input required ${not empty errors.getFieldError('username') ? 'error' : ''}"
                                placeholder="" />
                     <form:errors path="username" cssClass="error-message" />
+                    <form:errors path="" cssClass="error-message"/>
                 </div>
             </div>
 

@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.form;
 
 import ar.edu.itba.paw.webapp.validation.*;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -29,11 +30,13 @@ public class EditUserForm {
 
     @Size(max = 100)
     @NotNull
+    @NotEmpty
     @ExistingUniversity
     private String originUniversity;
 
     @Size(max = 100)
     @NotNull
+    @NotEmpty
     @ExistingCareer
     private String career;
 
