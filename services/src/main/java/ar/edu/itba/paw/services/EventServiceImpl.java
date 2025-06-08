@@ -422,22 +422,23 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public void deleteEventResponse(final long id, final String message) {
-        LOGGER.debug("Deleting event response {}", id);
-        EventResponse deletedComment = findEventResponseById(id)
-                .orElseThrow(() ->{
-                    LOGGER.error("Event response not found {}", id);
-                    return new EventResponseNotFoundException("Event response doesn't exist");});
+    public void deleteEventResponse(final EventResponse eventResponse, final String message) {
+        LOGGER.debug("Deleting event response {}", eventResponse);
 
-        Event event = deletedComment.getEvent();
+        //        EventResponse deletedComment = findEventResponseById(eventResponse)
+//                .orElseThrow(() ->{
+//                    LOGGER.error("Event response not found {}", eventResponse);
+//                    return new EventResponseNotFoundException("Event response doesn't exist");});
 
-        User commentAuthor = deletedComment.getUser();
-        emailService.sendEventCommentDeletionNotification(deletedComment,new EmailEvent(event),new EmailUser(commentAuthor), message );
-        LOGGER.info("Email notification sent for the event response {}", id);
-        deletedComment.setDeletionMessage(message);
-        LOGGER.info("Event response {} updated", id);
-        deletedComment.setDeleted(true);
-        LOGGER.info("Event response {} deleted", id);
+        Event event = eventResponse.getEvent();
+
+        User commentAuthor = eventResponse.getUser();
+        emailService.sendEventCommentDeletionNotification(eventResponse,new EmailEvent(event),new EmailUser(commentAuthor), message );
+        LOGGER.info("Email notification sent for the event response {}", eventResponse);
+        eventResponse.setDeletionMessage(message);
+        LOGGER.info("Event response {} updated", eventResponse);
+        eventResponse.setDeleted(true);
+        LOGGER.info("Event response {} deleted", eventResponse);
     }
 
     @Override
