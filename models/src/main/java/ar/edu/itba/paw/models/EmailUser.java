@@ -1,25 +1,22 @@
 package ar.edu.itba.paw.models;
 
-import ar.edu.itba.paw.models.Career;
-import ar.edu.itba.paw.models.University;
-import ar.edu.itba.paw.models.User;
 import lombok.Getter;
 
 import java.util.Locale;
 
 @Getter
 public class EmailUser {
-    private Long id;
-    private String email;
-    private String username;
-    private String firstname;
-    private String lastname;
-    private University university;
-    private Career career;
-    private long profilePictureId;
-    private Locale locale;
-    private boolean isBlocked;
-    private boolean validated;
+    private final Long id;
+    private final String email;
+    private final String username;
+    private final String firstname;
+    private final String lastname;
+    private final String universityName;
+    private final String careerName;
+    private final long profilePictureId;
+    private final Locale locale;
+    private final boolean isBlocked;
+    private final boolean validated;
 
     public EmailUser(User user) {
         this.id = user.getId();
@@ -27,8 +24,8 @@ public class EmailUser {
         this.username = user.getUsername();
         this.firstname = user.getFirstname();
         this.lastname = user.getLastname();
-        this.university = user.getUniversity();
-        this.career = user.getCareer();
+        this.universityName = user.getUniversity().getName();
+        this.careerName = user.getCareer().getName();
         this.profilePictureId = user.getProfilePictureId();
         this.locale = user.getLocale();
         this.isBlocked = user.isBlocked();

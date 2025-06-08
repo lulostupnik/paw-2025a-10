@@ -8,14 +8,14 @@ import java.time.LocalDate;
 
 @Getter
 public class EmailJourney {
-    private Long id;
-    private EmailUser user;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private String description;
-    private boolean deleted;
-    private String deletionMessage;
-    private String destinationUniversityName;
+    private final Long id;
+    private final EmailUser user;
+    private final LocalDate startDate;
+    private final LocalDate endDate;
+    private final String description;
+    private final boolean deleted;
+    private final String deletionMessage;
+    private final String destinationUniversityName;
 
     public EmailJourney(Journey journey) {
         this.id = journey.getId();
