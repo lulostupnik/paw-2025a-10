@@ -85,3 +85,5 @@ INSERT INTO reports(id, reported_user_id, reporting_user_id, journey_id, event_i
 INSERT INTO reports(id, reported_user_id, reporting_user_id, journey_id, event_id, event_response_id, journey_response_id, description, reason, deleted, status) VALUES(5, 3, 1, null, null, null, null, 'illegal',        'HARASSMENT', FALSE, 'RESOLVED');
 INSERT INTO reports(id, reported_user_id, reporting_user_id, journey_id, event_id, event_response_id, journey_response_id, description, reason, deleted, status) VALUES(6, 3, 1, null, null, null, null, 'illegal',        'HARASSMENT', FALSE, 'DISMISSED');
 INSERT INTO reports(id, reported_user_id, reporting_user_id, journey_id, event_id, event_response_id, journey_response_id, description, reason, deleted, status) VALUES(7, 3, 1, null, null, null, null, 'illegal',        'HARASSMENT', TRUE, 'DISMISSED');
+
+INSERT INTO tips(id, journey_id, title, content) VALUES (1, 1, 'title', 'content');

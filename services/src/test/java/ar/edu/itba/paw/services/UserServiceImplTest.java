@@ -1,21 +1,16 @@
 package ar.edu.itba.paw.services;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-
-import ar.edu.itba.paw.models.*;
-import ar.edu.itba.paw.models.exceptions.CareerNotFoundException;
-import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
-import ar.edu.itba.paw.models.exceptions.UniversityNotFoundException;
-import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
-import ar.edu.itba.paw.models.exceptions.UserValidatedException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +26,19 @@ import ar.edu.itba.paw.interfaces.services.ImageService;
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.interfaces.services.TokenService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
+import ar.edu.itba.paw.models.Career;
+import ar.edu.itba.paw.models.Image;
+import ar.edu.itba.paw.models.Interest;
+import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.models.Token;
+import ar.edu.itba.paw.models.University;
+import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.exceptions.CareerNotFoundException;
+import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
+import ar.edu.itba.paw.models.exceptions.UniversityNotFoundException;
+import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
+import ar.edu.itba.paw.models.exceptions.UserValidatedException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserServiceImplTest {
@@ -39,14 +47,24 @@ public class UserServiceImplTest {
     private static final String USERNAME = "username";
     private static final String FIRSTNAME = "name";
     private static final String LASTNAME = "name";
-    private static final University UNIVERSITY = new University((long)0, "cool", null, null);
-    private static final Career CAREER = new Career((long)0, null);
-    private static final Image IMAGE = new Image((long)0, new byte[0]);
-    private static final String PASSWORD = "null";
-    private static final Locale LOCALE = Locale.of("en");
+    private static final String GARBAGE = "asdfasdfasujh";
+    private static final String UNI_NAME = "uni";
+    private static final String CAREER_NAME = "career";
     private static final long USER_ID = 0;
     private static final long EVENT_ID = 1;
-    private static final Interest INTEREST = new Interest((long)0, "name");
+    private static final long UNI_ID = 2;
+    private static final long CAREER_ID = 3;
+    private static final long IMAGE_ID = 4;
+    private static final long INTEREST_ID = 5;
+    private static final long NEW_IMAGE_ID = 6;
+
+    private static final University UNIVERSITY = new University(UNI_ID, UNI_NAME, null, null);
+    private static final Career CAREER = new Career(CAREER_ID, CAREER_NAME);
+    private static final Image IMAGE = new Image(IMAGE_ID, new byte[0]);
+    private static final String PASSWORD = "null";
+    private static final Locale LOCALE = Locale.of("en");
+
+    private static final Interest INTEREST = new Interest(INTEREST_ID, "name");
     private static final User USER = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE.getId(), LOCALE, false, true);
     private static final User USER_NOT_VALIDATED = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE.getId(), LOCALE, false, false);
     private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
@@ -485,4 +503,160 @@ public class UserServiceImplTest {
 
         userService.initiatePasswordReset(EMAIL);
     }
+
+    @Test
+    public void testUpdateUser(){
+        User u = new User(
+            USER_ID, 
+            EMAIL, 
+            GARBAGE, 
+            GARBAGE, 
+            GARBAGE, 
+            null, 
+            null, 
+            IMAGE_ID, 
+            LOCALE, 
+            false, 
+            false
+        );
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(u));
+        when(
+            universityService.findByName(eq(UNI_NAME))
+        ).thenReturn(Optional.of(UNIVERSITY));
+        when(
+            careerService.findCareerByName(eq(CAREER_NAME))
+        ).thenReturn(Optional.of(CAREER));
+
+        userService.updateUser(
+            USER_ID, 
+            USERNAME, 
+            FIRSTNAME, 
+            LASTNAME, 
+            UNI_NAME, 
+            CAREER_NAME
+        );
+
+        assertEquals(USERNAME, u.getUsername());
+        assertEquals(FIRSTNAME, u.getFirstname());
+        assertEquals(LASTNAME, u.getLastname());
+        assertEquals(UNI_NAME, u.getUniversity().getName());
+        assertEquals(CAREER_NAME, u.getCareer().getName());
+    }
+    @Test(expected = CareerNotFoundException.class)
+    public void testUpdateUserMissingCareer(){
+        User u = new User(
+            USER_ID, 
+            EMAIL, 
+            GARBAGE, 
+            GARBAGE, 
+            GARBAGE, 
+            null, 
+            null, 
+            IMAGE_ID, 
+            LOCALE, 
+            false, 
+            false
+        );
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(u));
+        when(
+            universityService.findByName(eq(UNI_NAME))
+        ).thenReturn(Optional.of(UNIVERSITY));
+        when(
+            careerService.findCareerByName(eq(CAREER_NAME))
+        ).thenReturn(Optional.empty());
+
+        userService.updateUser(
+            USER_ID, 
+            USERNAME, 
+            FIRSTNAME, 
+            LASTNAME, 
+            UNI_NAME, 
+            CAREER_NAME
+        );
+    }
+    @Test(expected = UniversityNotFoundException.class)
+    public void testUpdateUserMissingUni(){
+        User u = new User(
+            USER_ID, 
+            EMAIL, 
+            GARBAGE, 
+            GARBAGE, 
+            GARBAGE, 
+            null, 
+            null, 
+            IMAGE_ID, 
+            LOCALE, 
+            false, 
+            false
+        );
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(u));
+        when(
+            universityService.findByName(eq(UNI_NAME))
+        ).thenReturn(Optional.empty());
+
+        userService.updateUser(
+            USER_ID, 
+            USERNAME,
+            FIRSTNAME, 
+            LASTNAME, 
+            UNI_NAME, 
+            CAREER_NAME
+        );
+    }
+    @Test(expected = UserNotFoundException.class)
+    public void testUpdateUserMissingUser(){
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.empty());
+
+        userService.updateUser(
+            USER_ID, 
+            USERNAME, 
+            FIRSTNAME, 
+            LASTNAME, 
+            UNI_NAME, 
+            CAREER_NAME
+        );
+    }
+
+    @Test
+    public void testUpdateProfilePicture(){
+        User u = new User(
+            USER_ID, 
+            EMAIL, 
+            GARBAGE, 
+            GARBAGE, 
+            GARBAGE, 
+            null, 
+            null, 
+            IMAGE_ID, 
+            LOCALE, 
+            false, 
+            false
+        );
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(u));
+        when(
+            imageService.createImage(any())
+        ).thenReturn(NEW_IMAGE_ID);
+
+        userService.updateProfilePicture(USER_ID, new byte[0]);
+
+        assertEquals(NEW_IMAGE_ID, u.getProfilePictureId());
+    }
+    @Test(expected = UserNotFoundException.class)
+    public void testUpdateProfilePictureUserNotFound(){
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.empty());
+
+        userService.updateProfilePicture(USER_ID, new byte[0]);
+    }   
 }

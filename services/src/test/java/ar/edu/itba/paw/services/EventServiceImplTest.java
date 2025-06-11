@@ -12,9 +12,9 @@ import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
 import ar.edu.itba.paw.models.exceptions.CityNotFoundException;
 import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
-import ar.edu.itba.paw.models.exceptions.EventResponseNotFoundException;
 import ar.edu.itba.paw.models.exceptions.InvalidException;
 import ar.edu.itba.paw.models.exceptions.InvalidPaginationParamsException;
+import ar.edu.itba.paw.models.exceptions.RatingNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 
 import org.junit.Test;
@@ -22,8 +22,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -800,6 +798,17 @@ public class EventServiceImplTest {
 
         assertEquals(RATING_VALUE, newRating.getRating(), 0.1);
     }
+    @Test(expected = RatingNotFoundException.class)
+    public void testUpdateEventRatingNotFound(){
+        when(
+            ratingDao.findRatingByUserAndEvent(
+                eq(USER_ID),
+                eq(EVENT_ID)
+            )
+        ).thenReturn(Optional.empty());
+
+        eventService.updateEventRating(USER, EVENT_ID, RATING_VALUE);
+    }
 
     @Test
     public void testFindRatingByUserAndEvent(){
@@ -1271,27 +1280,15 @@ public class EventServiceImplTest {
         eventService.deleteEvent(EVENT_ID, DESCRIPTION);
     }
 
-//    @Test
-//    public void testDeleteEventResponse(){
-//        when(
-//            replyDao.findById(eq(RESPONSE_ID))
-//        ).thenReturn(Optional.of(REPLY));
-//
-//        eventService.deleteEventResponse(RESPONSE_ID, DESCRIPTION);
-//
-//        assertTrue(REPLY.isDeleted());
-//        REPLY.setDeleted(false);
-//        assertEquals(DESCRIPTION, REPLY.getDeletionMessage());
-//        REPLY.setDeletionMessage(null);
-//    }
-//    @Test(expected = EventResponseNotFoundException.class)
-//    public void testDeleteEventResponseNotFound(){
-//        when(
-//            replyDao.findById(eq(RESPONSE_ID))
-//        ).thenReturn(Optional.empty());
-//
-//        eventService.deleteEventResponse(RESPONSE_ID, DESCRIPTION);
-//    }
+    @Test
+    public void testDeleteEventResponse(){
+        eventService.deleteEventResponse(REPLY, DESCRIPTION);
+
+        assertTrue(REPLY.isDeleted());
+        REPLY.setDeleted(false);
+        assertEquals(DESCRIPTION, REPLY.getDeletionMessage());
+        REPLY.setDeletionMessage(null);
+    }
 
     @Test
     public void testCountEventResponses(){
@@ -1320,6 +1317,19 @@ public class EventServiceImplTest {
     }
 
     @Test
+    public void testFindEventResponseById(){
+        when(
+            replyDao.findById(eq(RESPONSE_ID))
+        ).thenReturn(Optional.of(REPLY));
+
+        Optional<EventResponse> maybeReply = eventService.findEventResponseById(RESPONSE_ID);
+
+        assertNotNull(maybeReply);
+        assertTrue(maybeReply.isPresent());
+        assertEquals(REPLY, maybeReply.get());
+    }
+
+    @Test
     public void testFindJourneyEvents(){
         when(
             eventDao.findAllWithFilters(
@@ -1333,7 +1343,7 @@ public class EventServiceImplTest {
                 eq(null), 
                 eq(true), 
                 eq(false), 
-                eq(false),
+                eq(true),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
             )
@@ -1347,6 +1357,65 @@ public class EventServiceImplTest {
         assertNotNull(events);
         assertEquals(EVENTS_PAGE, events);
     }
+
+    @Test
+    public void testFindCreatedByJourney(){
+        when(
+            eventDao.findAllWithFilters(
+                eq(USER_ID), 
+                eq(null), 
+                any(SortFieldEvent.class), 
+                any(SortDirection.class), 
+                eq(null), 
+                eq(EVENT_DATE_PAST), 
+                eq(EVENT_DATE),
+                eq(null), 
+                eq(true), 
+                eq(true), 
+                eq(false), 
+                eq(true), 
+                any(PageParams.class)
+            )
+        ).thenReturn(EVENTS_PAGE);
+
+        Page<Event> events = eventService.findCreatedByJourney(
+            new Journey(USER, EVENT_DATE_PAST, EVENT_DATE, null, null), 
+            PAGE_1_DEFAULT
+        );
+
+        assertNotNull(events);
+        assertEquals(EVENTS_PAGE, events);
+    }
+
+    @Test
+    public void testFindAttendedByJourney(){
+        when(
+            eventDao.findAllWithFilters(
+                eq(USER_ID), 
+                eq(null), 
+                any(SortFieldEvent.class), 
+                any(SortDirection.class), 
+                eq(null), 
+                eq(EVENT_DATE_PAST), 
+                eq(EVENT_DATE),
+                eq(null), 
+                eq(true), 
+                eq(false), 
+                eq(true), 
+                eq(false), 
+                any(PageParams.class)
+            )
+        ).thenReturn(EVENTS_PAGE);
+
+        Page<Event> events = eventService.findAttendedByJourney(
+            new Journey(USER, EVENT_DATE_PAST, EVENT_DATE, null, null), 
+            PAGE_1_DEFAULT
+        );
+
+        assertNotNull(events);
+        assertEquals(EVENTS_PAGE, events);
+    }
+
 
     @Test
     public void testCountEventsCreatedByUser(){

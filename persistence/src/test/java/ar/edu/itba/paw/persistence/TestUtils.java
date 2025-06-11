@@ -1,8 +1,8 @@
 package ar.edu.itba.paw.persistence;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.sql.Date;
 import java.sql.Time;
@@ -15,7 +15,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import ar.edu.itba.paw.models.enums.ReportReason;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -32,8 +31,10 @@ import ar.edu.itba.paw.models.Journey;
 import ar.edu.itba.paw.models.JourneyResponse;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.Report;
+import ar.edu.itba.paw.models.Tip;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.enums.ReportReason;
 import ar.edu.itba.paw.models.enums.ReportStatus;
 
 class TestUtils {
@@ -355,6 +356,15 @@ class TestUtils {
 
     public static final Map<Long, Report> REPORT_PENDING_DATA = Map.of(REPORT_USER_ID, REPORT_USER, REPORT_JOURNEY_ID, REPORT_JOURNEY, REPORT_EVENT_ID, REPORT_EVENT);
 
+    public static final long TIP_1_ID = 1;
+    public static final String TIP_1_TITLE = "title";
+    public static final String TIP_1_CONTENT = "content";
+    public static final LocalDateTime TIP_1_TIMESTAMP = LocalDateTime.now();
+    public static final Tip TIP_1 = new Tip(TIP_1_ID, TIP_1_TITLE, TIP_1_CONTENT, JOURNEY_1, TIP_1_TIMESTAMP);
+    public static final String TIP_NEW_TITLE = "newTitle";
+    public static final String TIP_NEW_CONTENT = "newContent";
+    
+
     //QUERIES
     public static final String USER_SELECT = """
     SELECT
@@ -576,6 +586,61 @@ class TestUtils {
     """;
     public static final String EVENT_RESPONSE_SELECT_BY_ID_NOT_DELETED = EVENT_RESPONSE_SELECT + "WHERE deleted = FALSE AND event_id = ?";
 
+    public static final String TIP_SELECT = """
+    SELECT 
+        t.id AS tip_id,
+        t.title AS tip_title,
+        t.content AS tip_content,
+        t.date_time AS tip_timestamp,
+        j.id AS journey_id,
+        j.start_date AS start_date,
+        j.end_date AS end_date,
+        j.description AS description,
+        ud.id AS dest_university_id,
+        ud.name AS dest_university_name,
+        ud.abbreviation AS dest_university_abbreviation,
+        cd.name AS dest_city_name,
+        cd.id AS dest_city_id,
+        cod.name AS dest_country_name,
+        cod.id AS dest_country_id,
+        cod.code AS dest_country_code,
+        u.id AS user_id,
+        u.email AS email,
+        u.username AS username,
+        u.firstname AS firstname,
+        u.lastname AS lastname,
+        u.password AS password,
+        u.language AS language,
+        u.blocked AS blocked,
+        u.validated AS validated,
+        un.id AS university_id,
+        un.name AS university_name,
+        un.abbreviation AS university_abbreviation,
+        c.id AS city_id,
+        c.name AS city_name,
+        co.name AS country_name,
+        co.id AS country_id,
+        co.code AS country_code,
+        ca.name AS career_name,
+        ca.id AS career_id,
+        u.profile_picture_id AS profile_picture_id,
+        u.roles AS roles,
+        u.blocked AS blocked
+        FROM tips t
+        JOIN journeys j on t.journey_id = j.id
+        JOIN universities ud ON ud.id = j.destination_university_id
+        JOIN cities cd ON ud.city_id = cd.id
+        JOIN countries cod ON cod.id = cd.country_id
+        JOIN users u ON j.user_id = u.id
+        JOIN universities un ON un.id = u.university
+        JOIN cities c ON c.id = un.city_id
+        JOIN countries co ON co.id = c.country_id
+        JOIN careers ca ON ca.id = u.career_id
+            """;
+
+    public static final String TIP_SELECT_BY_DATA = TIP_SELECT + "WHERE t.journey_id = ? AND t.title = ? AND t.content = ?";
+    public static final String TIP_SELECT_BY_ID = TIP_SELECT + "WHERE t.id = ?";
+
 
     //ROWMAPPERS
     public static final RowMapper<Interest> INTEREST_ROW_MAPPER = (rs, n) ->
@@ -589,6 +654,12 @@ class TestUtils {
         rs.getLong("country_id"),
         rs.getString("country_name"),
         rs.getString("country_code")
+    );
+    public static final RowMapper<Country> COUNTRY_DESTINATION_ROW_MAPPER = (rs, n) ->
+    new Country(
+        rs.getLong("dest_country_id"),
+        rs.getString("dest_country_name"),
+        rs.getString("dest_country_code")
     );
 
     public static final RowMapper<City> CITY_ROW_MAPPER = (rs, n) ->
@@ -679,6 +750,7 @@ class TestUtils {
         rs.getInt("attendees_limit") != 0 ? rs.getInt("attendees_limit") : null,
         rs.getInt("attendees_count")
     );
+
     public static final RowMapper<EventResponse> EVENT_RESPONSE_ROW_MAPPER = (rs, n) ->
     new EventResponse(
         rs.getLong("id"),
@@ -686,6 +758,15 @@ class TestUtils {
         EVENT_ROW_MAPPER.mapRow(rs, n),
         rs.getString("message"),
         rs.getTimestamp("date_time").toLocalDateTime()
+    );
+
+    public static final RowMapper<Tip> TIP_ROW_MAPPER = (rs, n) ->
+    new Tip(
+        rs.getLong("tip_id"), 
+        rs.getString("tip_title"),
+        rs.getString("tip_content"),
+        JOURNEY_ROW_MAPPER.mapRow(rs, n),
+        rs.getTimestamp("tip_timestamp").toLocalDateTime()
     );
 
     //DELETES
@@ -952,6 +1033,17 @@ class TestUtils {
         if (expected.getJourneyResponse() != null && actual.getJourneyResponse() != null){
             assertEqualsJourneyReply(expected.getJourneyResponse(), actual.getJourneyResponse());
         }        
+    }
+
+    public static void assertEqualsTip(Tip expected, Tip actual){
+        assertNotNull(expected);
+        assertNotNull(actual);
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getContent(), actual.getContent());
+        assertEquals(expected.getTitle(), actual.getTitle());
+        assertEqualsJourney(expected.getJourney(), actual.getJourney());
+        assertTrue(expected.getDateTime().plusMinutes(1).isAfter(actual.getDateTime()));
+        assertTrue(expected.getDateTime().plusMinutes(-1).isBefore(actual.getDateTime()));
     }
 
     //INSERTERS

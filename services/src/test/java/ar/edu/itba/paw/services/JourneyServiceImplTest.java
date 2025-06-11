@@ -1,7 +1,5 @@
 package ar.edu.itba.paw.services;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
 
@@ -19,6 +17,7 @@ import ar.edu.itba.paw.models.exceptions.InvalidException;
 import ar.edu.itba.paw.models.exceptions.InvalidPaginationParamsException;
 import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
 import ar.edu.itba.paw.models.exceptions.JourneyResponseNotFoundException;
+import ar.edu.itba.paw.models.exceptions.TipNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UniversityNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 
@@ -30,6 +29,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
+import ar.edu.itba.paw.interfaces.persistence.TipDao;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.EmailService;
 import ar.edu.itba.paw.interfaces.services.InterestService;
@@ -47,6 +47,7 @@ public class JourneyServiceImplTest {
     private static final long IMAGE_ID = 5;
     private static final long JOURNEY_ID = 6;
     private static final long REPLY_ID = 7;
+    private static final long TIP_ID = 8;
 
     private static final String UNI_NAME = "uni";
     private static final String UNI_ABBR = "uni";
@@ -86,6 +87,9 @@ public class JourneyServiceImplTest {
     private static final LocalDateTime REPLY_TIMESTAMP = LocalDateTime.now();
     private static final JourneyResponse REPLY = new JourneyResponse(REPLY_ID, USER, JOURNEY, DESCRIPTION, REPLY_TIMESTAMP);
 
+    private static final Tip TIP = new Tip(TIP_ID, DESCRIPTION, DESCRIPTION, JOURNEY, REPLY_TIMESTAMP);
+    private static final List<Tip> TIPS = List.of(TIP);
+    private static final Page<Tip> TIP_PAGE = new Page<>(TIPS, 1, 1);
     private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
 
     @InjectMocks
@@ -95,6 +99,8 @@ public class JourneyServiceImplTest {
     JourneyDao journeyDao;
     @Mock
     JourneyResponseDao replyDao;
+    @Mock
+    TipDao tipDao;
 
     @Mock
     UserService userService;
@@ -783,6 +789,125 @@ public class JourneyServiceImplTest {
         int replies = journeyService.countJourneyResponses(JOURNEY_ID);
 
         assertEquals(10, replies);
+    }
+
+    @Test
+    public void testFindTipsByJourney(){
+        when(
+            tipDao.findTipsByJourney(eq(JOURNEY), any(PageParams.class))
+        ).thenReturn(TIP_PAGE);
+
+        Page<Tip> tips = journeyService.findTipsByJourney(JOURNEY, PAGE_1_DEFAULT);
+
+        assertNotNull(tips);
+        assertEquals(TIP_PAGE, tips);
+    }
+
+    @Test
+    public void testCreateTip(){
+        when(
+            journeyDao.findById(eq(JOURNEY_ID))
+        ).thenReturn(Optional.of(JOURNEY));
+
+        journeyService.createTip(JOURNEY_ID, DESCRIPTION, DESCRIPTION);
+
+        //TODO asserts
+    }
+    @Test(expected = JourneyNotFoundException.class)
+    public void testCreateTipMissingJourney(){
+        when(
+            journeyDao.findById(eq(JOURNEY_ID))
+        ).thenReturn(Optional.empty());
+
+        journeyService.createTip(JOURNEY_ID, DESCRIPTION, DESCRIPTION);
+    }
+
+    @Test
+    public void testUpdateTip(){
+        Tip newTip = new Tip(TIP_ID, CITY_NAME, CAREER_NAME, JOURNEY, REPLY_TIMESTAMP);
+        when(
+            tipDao.findTipById(eq(TIP_ID))
+        ).thenReturn(Optional.of(newTip));
+
+        Tip updated = journeyService.updateTip(TIP_ID, DESCRIPTION, DESCRIPTION);
+
+        assertNotNull(updated);
+        assertEquals(DESCRIPTION, updated.getContent());
+        assertEquals(DESCRIPTION, updated.getTitle());
+    }
+    @Test(expected = TipNotFoundException.class)
+    public void testUpdateTipMissing(){
+        when(
+            tipDao.findTipById(eq(TIP_ID))
+        ).thenReturn(Optional.empty());
+
+        Tip updated = journeyService.updateTip(TIP_ID, DESCRIPTION, DESCRIPTION);
+    }
+
+    @Test
+    public void testDeleteTip(){
+        journeyService.deleteTip(TIP_ID);
+
+        //TODO asserts
+    }
+
+    @Test
+    public void testFindTipById(){
+        when(
+            tipDao.findTipById(eq(TIP_ID))
+        ).thenReturn(Optional.of(TIP));
+
+        Optional<Tip> maybeTip = journeyService.findTipById(TIP_ID);
+
+        assertNotNull(maybeTip);
+        assertTrue(maybeTip.isPresent());
+        assertEquals(TIP, maybeTip.get());
+    }
+
+    @Test
+    public void testIsTipOwnedByUser(){
+        boolean isOwned = journeyService.isTipOwnedByUser(TIP, USER);
+
+        assertTrue(isOwned);
+    }
+    @Test
+    public void testIsTipOwnedByUserMissingTip(){
+        boolean isOwned = journeyService.isTipOwnedByUser(null, USER);
+
+        assertFalse(isOwned);
+    }
+    @Test
+    public void testIsTipOwnedByUserMissingUser(){
+        boolean isOwned = journeyService.isTipOwnedByUser(TIP, null);
+
+        assertFalse(isOwned);
+    }
+    @Test
+    public void testIsTipOwnedByUserJourneyWithoutUser(){
+        Journey j = new Journey(null, START_DATE, END_DATE, UNI, DESCRIPTION);
+        Tip t = new Tip(j, DESCRIPTION, DESCRIPTION);
+
+        boolean isOwned = journeyService.isTipOwnedByUser(t, USER);
+        
+        assertFalse(isOwned);
+    }
+    @Test
+    public void testIsTipOwnedByUserJourneyWithoutUserId(){
+        User u = new User(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, CAREER_ID, LOCALE, false);
+        Journey j = new Journey(u, START_DATE, END_DATE, UNI, DESCRIPTION);
+        Tip t = new Tip(j, DESCRIPTION, DESCRIPTION);
+
+        boolean isOwned = journeyService.isTipOwnedByUser(t, USER);
+        
+        assertFalse(isOwned);
+    }
+    @Test
+    public void testIsTipOwnedByUserUserWithoutId(){
+        User u = new User(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, CAREER_ID, LOCALE, false);
+
+        boolean isOwned = journeyService.isTipOwnedByUser(TIP, u);
+        
+        assertFalse(isOwned);
     }
 
 }
