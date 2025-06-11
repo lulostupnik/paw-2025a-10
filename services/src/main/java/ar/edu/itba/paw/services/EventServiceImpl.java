@@ -319,12 +319,36 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Page<Event> findUpcomingEventsByAttendee(long userId, PageParams pageParams) {
-        return eventDao.findUpcomingEventsByAttendee(userId, pageParams);
+        return eventDao.findAllWithFilters(
+                userId,
+                null, // searchTerm
+                null, // sortBy
+                SortDirection.DESC, // direction
+                null, // destination
+                LocalDate.now(), // startDate
+                null, // endDate
+                null, // interest
+                true, // attending
+                false, // isCreator
+                pageParams
+        );
     }
 
     @Override
     public Page<Event> findFinishedEventsByAttendee(long userId, PageParams pageParams) {
-        return eventDao.findFinishedEventsByAttendee(userId, pageParams);
+        return  eventDao.findAllWithFilters(
+                userId,
+                null, // searchTerm
+                null, // sortBy
+                SortDirection.DESC, // direction
+                null, // destination
+                null, // startDate
+                LocalDate.now().minusDays(1), // endDate
+                null, // interest
+                true, // attending
+                false, // isCreator
+                pageParams
+        );
     }
 
     @Override

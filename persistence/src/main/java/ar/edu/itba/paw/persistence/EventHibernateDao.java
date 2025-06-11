@@ -320,41 +320,6 @@ public class EventHibernateDao implements EventDao {
         );
     }
 
-    // FIXME: Va en DAO o en Service?
-    @Override
-    public Page<Event> findUpcomingEventsByAttendee(long userId, PageParams pageParams) {
-        return findAllWithFilters(
-                userId,
-                null, // searchTerm
-                null, // sortBy
-                SortDirection.DESC, // direction
-                null, // destination
-                LocalDate.now(), // startDate
-                null, // endDate
-                null, // interest
-                true, // attending
-                false, // isCreator
-                pageParams
-        );
-    }
-
-    // FIXME: Va en DAO o en Service?
-    @Override
-    public Page<Event> findFinishedEventsByAttendee(long userId, PageParams pageParams) {
-        return  findAllWithFilters(
-                userId,
-                null, // searchTerm
-                null, // sortBy
-                SortDirection.DESC, // direction
-                null, // destination
-                null, // startDate
-                LocalDate.now().minusDays(1), // endDate
-                null, // interest
-                true, // attending
-                false, // isCreator
-                pageParams
-        );
-    }
 
     @Override
     public int countEventsCreatedByUser(long userId) {
