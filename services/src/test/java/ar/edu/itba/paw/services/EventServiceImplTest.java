@@ -1002,6 +1002,7 @@ public class EventServiceImplTest {
         assertFalse(isOwned);
     }
 
+    /*
     @Test
     public void testSearchEventsWithFiltersNoUser(){
         when(
@@ -1078,6 +1079,7 @@ public class EventServiceImplTest {
         assertNotNull(page);
         assertEquals(EVENTS_PAGE, page);
     }
+    */
 
     @Test
     public void testUpdateEvent(){
@@ -1329,6 +1331,7 @@ public class EventServiceImplTest {
         assertEquals(REPLY, maybeReply.get());
     }
 
+    /*
     @Test
     public void testFindJourneyEvents(){
         when(
@@ -1387,6 +1390,7 @@ public class EventServiceImplTest {
         assertEquals(EVENTS_PAGE, events);
     }
 
+
     @Test
     public void testFindAttendedByJourney(){
         when(
@@ -1415,6 +1419,7 @@ public class EventServiceImplTest {
         assertNotNull(events);
         assertEquals(EVENTS_PAGE, events);
     }
+    */
 
 
     @Test

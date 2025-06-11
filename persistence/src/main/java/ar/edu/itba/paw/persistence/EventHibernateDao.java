@@ -329,11 +329,9 @@ public class EventHibernateDao implements EventDao {
                 null, // sortBy
                 SortDirection.DESC, // direction
                 null, // destination
-                null, // startDate
+                LocalDate.now(), // startDate
                 null, // endDate
                 null, // interest
-                false, // isPast
-                true, // isUpcoming
                 true, // attending
                 false, // isCreator
                 pageParams
@@ -350,10 +348,8 @@ public class EventHibernateDao implements EventDao {
                 SortDirection.DESC, // direction
                 null, // destination
                 null, // startDate
-                null, // endDate
+                LocalDate.now().minusDays(1), // endDate
                 null, // interest
-                true, // isPast
-                false, // isUpcoming
                 true, // attending
                 false, // isCreator
                 pageParams
@@ -364,8 +360,8 @@ public class EventHibernateDao implements EventDao {
     public int countEventsCreatedByUser(long userId) {
         final String sql = """
         SELECT COUNT(*)
-        FROM events e 
-        WHERE e.user_id = :userId AND e.deleted = FALSE 
+        FROM events e
+        WHERE e.user_id = :userId AND e.deleted = FALSE
     """; //cuento los borrados o no?
 
         Query countQuery = em.createNativeQuery(sql);
@@ -420,7 +416,7 @@ public class EventHibernateDao implements EventDao {
     @Override
     public Page<Event> findAllWithFilters(Long userId, String searchTerm, SortFieldEvent sortBy,
                                           SortDirection direction, String destination, LocalDate startDate,
-                                          LocalDate endDate, String interest, boolean isPast, boolean isUpcoming,
+                                          LocalDate endDate, String interest,
                                           boolean attending, boolean isCreator, PageParams pageParams) {
 
         final String search = likePattern(searchTerm);
@@ -495,12 +491,6 @@ public class EventHibernateDao implements EventDao {
             paramMap.put("userId", userId); // ya estaba puesto arriba
         }
 
-        // FIXME: Esto se puede resolver desde el servicio. ¿Tendría sentido?
-        if (isPast) {
-            filters.add("e.event_date < CURRENT_DATE");
-        } else if (isUpcoming) {
-            filters.add("e.event_date >= CURRENT_DATE");
-        }
 
         // Build WHERE clause
         countSql.append(" WHERE e.deleted = FALSE ");

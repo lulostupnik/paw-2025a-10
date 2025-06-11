@@ -363,10 +363,32 @@ public class EventServiceImpl implements EventService {
     public Page<Event> searchEventsWithFilters(final String search, final User user, final SortFieldEvent sortBy, final  SortDirection direction, final String destination, final LocalDate startDate, final LocalDate endDate, final String interest,
                                                final boolean isPast, final  boolean isUpcoming, final  boolean attending,
                                                final PageParams pageParams) {
-
         LOGGER.debug("Getting events with search {}, user {}, sortBy {}, direction {}, destination {}, startDate {}, endDate {}, interest {}, isPast {}, isUpcoming {}, attending {}",search,user,sortBy,direction,destination,startDate,endDate,interest,isPast,isUpcoming,attending);
-        return eventDao.findAllWithFilters(user == null ? null : user.getId(), search, sortBy, direction, destination, startDate, endDate, interest,
-                isPast, isUpcoming, attending, false, pageParams);
+
+        LocalDate adjustedStartDate = startDate;
+        LocalDate adjustedEndDate = endDate;
+
+        if (isUpcoming) {
+            adjustedStartDate = ensureStartDateForUpcomingEvents(startDate);
+        }
+        if (isPast) {
+            adjustedEndDate = capEndDateForPastEvents(endDate);
+        }
+
+        return eventDao.findAllWithFilters(
+                user == null ? null : user.getId(),
+                search,
+                sortBy,
+                direction,
+                destination,
+                adjustedStartDate,
+                adjustedEndDate,
+                interest,
+                attending,
+                false,
+                pageParams
+        );
+
     }
 
     @Override
@@ -495,10 +517,9 @@ public class EventServiceImpl implements EventService {
                 SortDirection.ASC,
                 null,
                 journey.getStartDate(),
-                journey.getEndDate(),
+                journey.getEndDate() != null && journey.getEndDate().isBefore(LocalDate.now())
+                        ? journey.getEndDate() : LocalDate.now().minusDays(1),
                 null,
-                true,
-                false,
                 true,
                 false,
                 pageParams
@@ -515,10 +536,8 @@ public class EventServiceImpl implements EventService {
                 SortDirection.ASC,
                 null,
                 journey.getStartDate(),
-                journey.getEndDate(),
+                capEndDateForPastEvents(journey.getEndDate()),
                 null,
-                true,
-                true,
                 false,
                 true,
                 pageParams
@@ -534,14 +553,22 @@ public class EventServiceImpl implements EventService {
                 SortDirection.ASC,
                 null,
                 journey.getStartDate(),
-                journey.getEndDate(),
+                capEndDateForPastEvents(journey.getEndDate()),
                 null,
-                true,
-                false,
                 true,
                 false,
                 pageParams
         );
+    }
+
+    private LocalDate capEndDateForPastEvents(LocalDate endDate) {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        return endDate == null || endDate.isAfter(yesterday) ? yesterday : endDate;
+    }
+
+    private LocalDate ensureStartDateForUpcomingEvents(LocalDate startDate) {
+        LocalDate today = LocalDate.now();
+        return startDate == null || startDate.isBefore(today) ? today : startDate;
     }
 
 //
