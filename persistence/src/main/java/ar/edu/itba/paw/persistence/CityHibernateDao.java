@@ -103,15 +103,6 @@ public class CityHibernateDao implements CityDao {
 
     }
 
-    @Override
-    public void update(long id, String name, Country country) {
-        final City city = em.find(City.class, id);
-        if (city != null) {
-            city.setName(name);
-            city.setCountry(country);
-            em.merge(city);
-        }
-    }
     private Optional<City> findByNameAndCountryWithDeleted(String name, Country country) {
         return em.createQuery("from City as c where c.name = :name and c.country.id = :country_id", City.class)
                 .setParameter("name", name)

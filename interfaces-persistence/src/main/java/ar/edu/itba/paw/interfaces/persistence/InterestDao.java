@@ -10,7 +10,6 @@ public interface InterestDao {
      Optional<Interest> findById(long id);
      Optional<Interest> findByName(String name);
      Interest create(String interest);
-     void update(long id, String interest);
 
      Page<Interest> findAll(PageParams pageParams);
      Page<Interest> search(String searchTerm, PageParams pageParams);

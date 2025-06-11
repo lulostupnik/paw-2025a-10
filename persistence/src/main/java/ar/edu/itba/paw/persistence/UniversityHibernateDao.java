@@ -58,17 +58,6 @@ public class UniversityHibernateDao implements UniversityDao {
         return university;
     }
 
-    @Override
-    public void update(long id, String newName, String newAbbreviation, String newCityName) {
-        final University university = em.find(University.class, id);
-        if (university != null) {
-            university.setName(newName);
-            university.setAbbreviation(newAbbreviation);
-            //university.getCity().setName(newCityName);  //TODO this breaks cities. quick patch below
-            university.setCity(cityDao.findByName(newCityName).orElseThrow(IllegalArgumentException::new));
-            em.merge(university);
-        }
-    }
 
     @Override
     public void delete(long id) {

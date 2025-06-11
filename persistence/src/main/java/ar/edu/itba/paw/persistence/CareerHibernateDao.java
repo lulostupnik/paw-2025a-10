@@ -4,13 +4,11 @@ import ar.edu.itba.paw.interfaces.persistence.CareerDao;
 import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
-import ar.edu.itba.paw.models.User;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import java.util.List;
+
 import java.util.Map;
 import java.util.Optional;
 
@@ -129,15 +127,6 @@ public class CareerHibernateDao implements CareerDao {
         return career;
     }
 
-    @Override
-    public void update(long id, String name) {
-        final Career career = em.find(Career.class, id);
-        if (career != null) {
-            career.setName(name);
-            career.setDeleted(false);
-            em.merge(career);
-        }
-    }
 
     @Override
     public void delete(long id) {

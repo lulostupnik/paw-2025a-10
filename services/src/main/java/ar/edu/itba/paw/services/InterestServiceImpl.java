@@ -91,14 +91,12 @@ public class InterestServiceImpl implements InterestService {
     })
     public void updateInterest(final long id, String interest) {
         LOGGER.debug("Editing interest {} with name {}", id, interest);
-//        interestDao.update(id, interest);
-        Optional<Interest> i = interestDao.findById(id);
-        if (i.isPresent()) {
-            i.get().setName(interest);
-        } else {
-            LOGGER.error("Interest {} not found", id);
-            throw new InterestsNotFoundException("Interest not found");
-        }
+        Interest i = interestDao.findById(id)
+                .orElseThrow(() -> {
+                    LOGGER.error("Interest with id {} not found", id);
+                    return new InterestsNotFoundException("Interest not found");
+                });
+        i.setName(interest);
 
         LOGGER.info("Interest {} updated", id);
     }

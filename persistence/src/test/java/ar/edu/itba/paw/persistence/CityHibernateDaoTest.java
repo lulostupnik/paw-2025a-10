@@ -284,20 +284,4 @@ public class CityHibernateDaoTest {
         );
     }
 
-    @Test
-    public void testUpdate(){
-        cityDao.update(TestUtils.CITY_1_ID, TestUtils.NEW_CITY_NAME, TestUtils.COUNTRY_1);
-        em.flush();
-
-        City city = jdbcTemplate.queryForObject(TestUtils.CITY_SELECT_BY_ID, TestUtils.CITY_ROW_MAPPER, TestUtils.CITY_1_ID);
-        TestUtils.assertEqualsCity(new City(TestUtils.NEW_CITY_NAME, TestUtils.COUNTRY_1, TestUtils.CITY_1_ID), city);
-    }
-    @Test
-    public void testUpdateWrongId(){
-        cityDao.update(12341234l, TestUtils.NEW_CITY_NAME, TestUtils.COUNTRY_1);
-        em.flush();
-
-        City city = jdbcTemplate.queryForObject(TestUtils.CITY_SELECT_BY_ID, TestUtils.CITY_ROW_MAPPER, TestUtils.CITY_1_ID);
-        TestUtils.assertEqualsCity(TestUtils.CITY_1, city);
-    }
 }

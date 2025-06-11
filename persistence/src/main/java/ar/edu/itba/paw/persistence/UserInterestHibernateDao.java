@@ -92,15 +92,6 @@ public class UserInterestHibernateDao implements UserInterestDao {
         }
     }
 
-    @Override
-    public void updateScoreByInterest(Interest interest, long userId) { //fixme: mover a User? O crear un UserInterestDao
-        for (UserInterest userInterest : findAllByUserId(userId)) { //fixme: mover esto al modelo
-            if (userInterest.getInterest().getId().equals(interest.getId())) {
-                userInterest.setScore(userInterest.getScore() + 1);
-            }
-        }
-
-    }
 
     @Override
     public void updateUserInterests(long[] interestIds, long userId) { // fixme: revisar eficiencia
@@ -122,19 +113,7 @@ public class UserInterestHibernateDao implements UserInterestDao {
     }
 
     @Override
-    public void updateScoreByInterests(List<Interest> interests, long userId) { // fixme: mover a User? O crear un UserInterestDao
-        for (Interest interest : interests) { //fixme: mover esto al modelo
-            for (UserInterest userInterest : findAllByUserId(userId)) {
-                if (userInterest.getInterest().getId().equals(interest.getId())) {
-                    userInterest.setScore(userInterest.getScore() + 1);
-                }
-            }
-        }
-
-    }
-
-    @Override
-    public void updateMatchingInterestScores(long responderUserId, long journeyCreatorUserId) {
+    public void updateMatchingInterestScores(long responderUserId, long journeyCreatorUserId) { //@TODO: mover a service?? o lo dejamos aca y explicamos?
         // Update scores for interests that both users have in common
         em.createNativeQuery("""
         UPDATE user_interest
