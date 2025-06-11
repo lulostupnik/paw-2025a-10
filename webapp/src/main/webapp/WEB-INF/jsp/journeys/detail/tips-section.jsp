@@ -36,13 +36,13 @@
                             <c:out value="${tip.title}" />
                         </h3>
                         <p class="tip-date">
-                            <fmt:parseDate value="${tip.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" />
+                            <fmt:parseDate value="${tip.dateTime}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" />
                             <fmt:formatDate value="${parsedDate}" pattern="MMMM d, yyyy" var="formattedDate" />
                             <c:out value="${formattedDate}" />
                         </p>
                     </div>
 
-                    <c:if test="${isOwner || pageContext.request.isUserInRole('ADMIN')}">
+                    <c:if test="${isOwner}">
                         <div style="position: relative; display: inline-block;">
                             <button onclick="toggleTipMenu(${status.index})" class="btn-action" id="tipMenuButton${status.index}" style="background: none; border: 1px solid #e0e0e0; border-radius: 4px; padding: 6px; cursor: pointer;" aria-label="Tip actions">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -53,25 +53,23 @@
                             </button>
 
                             <div id="tipDropdown${status.index}" style="display: none; position: absolute; right: 0; top: 100%; background-color: white; min-width: 160px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); border-radius: 6px; z-index: 1000; border: 1px solid #e0e0e0; padding: 6px 0;">
-                                <c:if test="${isOwner || pageContext.request.isUserInRole('ADMIN')}">
-                                    <c:url var="editTipUrl" value='/journeys/${journey.id}/tips/${tip.id}/edit'/>
-                                    <a href="${editTipUrl}" style="color: #333; padding: 10px 14px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 13px;" onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                        </svg>
-                                        <span><spring:message code="tip.edit" text="Edit Tip" /></span>
-                                    </a>
+                                <c:url var="editTipUrl" value='/journeys/tips/${tip.id}/update'/>
+                                <a href="${editTipUrl}" style="color: #333; padding: 10px 14px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 13px;" onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                    <span><spring:message code="tip.edit" text="Edit Tip" /></span>
+                                </a>
 
-                                    <c:url var="deleteTipUrl" value='/journeys/${journey.id}/tips/${tip.id}/delete'/>
-                                    <a href="${deleteTipUrl}" style="color: #333; padding: 10px 14px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 13px;" onmouseover="this.style.backgroundColor='#fef2f2'; this.style.color='#dc2626'" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#333'">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M3 6h18"></path>
-                                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
-                                        </svg>
-                                        <span><spring:message code="tip.delete" text="Delete Tip" /></span>
-                                    </a>
-                                </c:if>
+                                <c:url var="deleteTipUrl" value='/journeys/tips/${tip.id}/delete'/>
+                                <a href="${deleteTipUrl}" style="color: #333; padding: 10px 14px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 13px;" onmouseover="this.style.backgroundColor='#fef2f2'; this.style.color='#dc2626'" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#333'">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M3 6h18"></path>
+                                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                                    </svg>
+                                    <span><spring:message code="tip.delete" text="Delete Tip" /></span>
+                                </a>
                             </div>
                         </div>
                     </c:if>
@@ -80,15 +78,6 @@
                     <p class="tip-message">
                         <c:out value="${tip.content}" />
                     </p>
-                    <c:if test="${not empty tip.tags}">
-                        <div class="tip-tags">
-                            <c:forEach var="tag" items="${tip.tags}">
-                                <span class="tip-tag">
-                                    <c:out value="${tag}" />
-                                </span>
-                            </c:forEach>
-                        </div>
-                    </c:if>
                 </div>
             </div>
         </c:forEach>
@@ -105,48 +94,15 @@
 </c:if>
 
 <c:if test="${isOwner}">
-    <div class="tip-form-container">
-        <h3 class="tip-form-title">
+    <div class="add-tip-button-container">
+        <c:url var="addTipFormUrl" value="/journeys/${journey.id}/tips/create"/>
+        <a href="${addTipFormUrl}" class="add-tip-button">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                <path d="M12 5v14"></path>
+                <path d="M5 12h14"></path>
             </svg>
-            <spring:message code="journey.tip.add" text="Share a New Tip" />
-        </h3>
-        <c:url var="addTipUrl" value="/journeys/${journey.id}/tips/add"/>
-        <form:form modelAttribute="addTipForm" action="${addTipUrl}" method="post" enctype="multipart/form-data" cssClass="tip-form">
-            <c:set var="titleLabel"><spring:message code="tip.title"/></c:set>
-            <c:set var="titleHint"><spring:message code="tip.title.hint"/></c:set>
-            <jsp:include page="../../components/text-input.jsp">
-                <jsp:param name="path" value="title" />
-                <jsp:param name="label" value="${titleLabel}" />
-                <jsp:param name="placeholder" value="${titleHint}" />
-            </jsp:include>
-
-            <c:set var="contentLabel"><spring:message code="tip.content"/></c:set>
-            <c:set var="contentHint"><spring:message code="tip.content.hint"/></c:set>
-            <jsp:include page="../../components/text-area.jsp">
-                <jsp:param name="path" value="content" />
-                <jsp:param name="label" value="${contentLabel}" />
-                <jsp:param name="placeholder" value="${contentHint}" />
-            </jsp:include>
-
-<%--            <c:set var="tagsLabel"><spring:message code="tip.tags"/></c:set>--%>
-<%--            <c:set var="tagsHint"><spring:message code="tip.tags.hint"/></c:set>--%>
-<%--            <jsp:include page="../../components/text-input.jsp">--%>
-<%--                <jsp:param name="path" value="tags" />--%>
-<%--                <jsp:param name="label" value="${tagsLabel}" />--%>
-<%--                <jsp:param name="placeholder" value="${tagsHint}" />--%>
-<%--            </jsp:include>--%>
-
-            <div class="form-actions">
-                <c:set var="submitButtonLabel"><spring:message code="createInterest.submit"/></c:set>
-                <jsp:include page="../../components/button.jsp">
-                    <jsp:param name="label" value="${submitButtonLabel}" />
-                    <jsp:param name="type" value="submit" />
-                </jsp:include>
-            </div>
-        </form:form>
+            <span><spring:message code="journey.tip.add" text="Share a New Tip" /></span>
+        </a>
     </div>
 </c:if>
 
@@ -196,51 +152,43 @@
     }
 
     .tip-message {
-        margin: 0 0 1rem;
+        margin: 0;
         line-height: 1.6;
         white-space: pre-line;
     }
 
-    .tip-tags {
+    .add-tip-button-container {
         display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-top: 1rem;
-    }
-
-    .tip-tag {
-        display: inline-flex;
-        align-items: center;
-        background-color: #e5e7eb;
-        color: #4b5563;
-        font-size: 0.75rem;
-        padding: 0.25rem 0.5rem;
-        border-radius: 9999px;
-    }
-
-    .tip-form-container {
-        background-color: #f9fafb;
-        border-radius: 0.75rem;
-        padding: 1.5rem;
+        justify-content: center;
         margin-top: 2rem;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        padding-top: 1.5rem;
+        border-top: 1px solid #e5e7eb;
     }
 
-    .tip-form-title {
+    .add-tip-button {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #111827;
-        margin: 0 0 1rem;
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        color: white;
+        text-decoration: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(79, 70, 229, 0.3);
     }
 
-    .tip-form {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
+    .add-tip-button:hover {
+        background: linear-gradient(135deg, #4338ca, #4f46e5);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(79, 70, 229, 0.4);
+        color: white;
+    }
+
+    .add-tip-button:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
     }
 
     @media (max-width: 768px) {
@@ -250,6 +198,11 @@
 
         .tip-title {
             font-size: 1.125rem;
+        }
+
+        .add-tip-button {
+            width: 100%;
+            justify-content: center;
         }
     }
 </style>

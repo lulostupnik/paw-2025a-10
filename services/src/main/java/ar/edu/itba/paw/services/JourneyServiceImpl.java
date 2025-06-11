@@ -321,12 +321,13 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
-    public Page<Tip> findTipsByJourneyId(long journeyId, PageParams pageParams) {
-        LOGGER.debug("Finding tips for journey {}", journeyId);
-        return tipDao.findTipsByJourneyId(journeyId, pageParams);
+    public Page<Tip> findTipsByJourney(Journey journey, PageParams pageParams) {
+        LOGGER.debug("Finding tips for journey {}", journey);
+        return tipDao.findTipsByJourney(journey, pageParams);
     }
 
     @Override
+    @Transactional
     public void createTip(long journeyId, String title, String content) {
         Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> {
             LOGGER.error("Journey with id {} not found", journeyId);
@@ -336,16 +337,20 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
-    public void updateTip(long tipId, String title, String content) {
+    @Transactional
+    public Tip updateTip(long tipId, String title, String content) {
         Tip tip = findTipById(tipId).orElseThrow(() -> {
             LOGGER.error("Tip with id {} not found", tipId);
             return new TipNotFoundException("Tip not found");
         });
         tip.setTitle(title);
         tip.setContent(content);
+        LOGGER.info("Tip updated: {}", tipId);
+        return tip;
     }
 
     @Override
+    @Transactional
     public void deleteTip(long tipId) {
         tipDao.deleteTip(tipId);
     }

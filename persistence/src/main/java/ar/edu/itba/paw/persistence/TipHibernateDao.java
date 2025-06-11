@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.persistence.TipDao;
 import ar.edu.itba.paw.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -13,6 +14,7 @@ import java.util.Optional;
 
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 
+@Repository
 public class TipHibernateDao implements TipDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TipHibernateDao.class);
@@ -43,7 +45,7 @@ public class TipHibernateDao implements TipDao {
     }
 
     @Override
-    public Page<Tip> findTipsByJourneyId(long journeyId, PageParams pageParams) {
+    public Page<Tip> findTipsByJourney(Journey journey, PageParams pageParams) {
         final String countSql = """
         SELECT COUNT(*)
         FROM tips
@@ -67,7 +69,7 @@ public class TipHibernateDao implements TipDao {
                 em,
                 countSql,
                 idSql,
-                Map.of("journeyId", journeyId),
+                Map.of("journeyId", journey.getId()),
                 jpqlFetch,
                 Tip.class,
                 pageParams,

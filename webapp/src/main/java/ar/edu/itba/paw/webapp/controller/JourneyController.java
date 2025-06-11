@@ -90,7 +90,8 @@ public class JourneyController {
                                    @ModelAttribute("replyJourneyForm") ReplyForm rjf,
                                    @PageParamCustomizer(defaultSize = 4) PageParams  repliesPage,
                                    @PageParamCustomizer(defaultSize = 8, pageParamName = "interestsPage", sizeParamName = "interestsSize") PageParams interestsPage,
-                                   @PageParamCustomizer(defaultSize = 6, pageParamName = "eventsPage", sizeParamName = "eventsSize") PageParams eventsPage) {
+                                   @PageParamCustomizer(defaultSize = 6, pageParamName = "eventsPage", sizeParamName = "eventsSize") PageParams eventsPage,
+                                   @PageParamCustomizer(defaultSize = 6, pageParamName = "tipsPage", sizeParamName = "tipsSize") PageParams tipsPage) {
         Journey journey = js.getJourneyById(id).orElseThrow(() -> {
             LOGGER.error("Journey with ID {} not found", id);
             return new JourneyNotFoundException("Journey with ID " + id + " not found");
@@ -107,6 +108,7 @@ public class JourneyController {
         mav.addObject("interestPage", interestService.findInterestsByUser(journey.getUser(), interestsPage));
         mav.addObject("createdEventsPage", createdEvents);
         mav.addObject("attendedEventsPage", attendedEvents);
+        mav.addObject("tipsPage", js.findTipsByJourney(journey, tipsPage));
         return mav;
     }
 
@@ -140,10 +142,88 @@ public class JourneyController {
     public ModelAndView replyToJourney(@PathVariable int id, @Valid @ModelAttribute("replyJourneyForm")  ReplyForm rjf,
                                         BindingResult errors, @ModelAttribute("user") User user) {
         if (errors.hasErrors()) {
-            return getJourney(id, user, rjf, new PageParams(1, 4), new PageParams(1, 8), new PageParams(1, 6));
+            return getJourney(id, user, rjf, new PageParams(1, 4), new PageParams(1, 8), new PageParams(1, 6), new PageParams(1, 6));
         }
         js.createJourneyResponse(user.getEmail(), id, rjf.getMessage());
         return new ModelAndView(REDIRECT_JOURNEY + id);
+    }
+
+    @GetMapping(value = "/{id}/tips/create")
+    public ModelAndView createTipForm(@PathVariable long id,
+                                      @ModelAttribute("createTipForm") CreateTipForm form,
+                                      @ModelAttribute("user") User user) {
+        Journey journey = js.getJourneyById(id).orElseThrow(() -> {
+            LOGGER.error("Journey with ID {} not found", id);
+            return new JourneyNotFoundException("Journey with ID " + id + " not found");
+        });
+        ModelAndView mav = new ModelAndView("journeys/detail/add-tip-form");
+        mav.addObject("journey", journey);
+        mav.addObject("isUpdate", false);
+        return mav;
+    }
+    @PostMapping(value = "/{id}/tips/create")
+    public ModelAndView createTip(@PathVariable long id,
+                                  @Valid @ModelAttribute("createTipForm") CreateTipForm form,
+                                  BindingResult errors, @ModelAttribute("user") User user) {
+        if (errors.hasErrors()) {
+            return createTipForm(id, form, user);
+        }
+        js.createTip(id, form.getTitle(), form.getContent());
+        return new ModelAndView(REDIRECT_JOURNEY + id);
+    }
+    @PostMapping(value = "/tips/{tipId}/delete")
+    public ModelAndView deleteTip(@PathVariable long tipId,
+                                  @ModelAttribute("user") User user) {
+        Journey journey = js.findTipById(tipId).orElseThrow(() -> {
+            LOGGER.error("Tip with ID {} not found", tipId);
+            return new InvalidException("Tip with ID " + tipId + " not found");
+        }).getJourney();
+        js.deleteTip(tipId);
+        return new ModelAndView("redirect:/journeys/" + journey.getId());
+    }
+
+    @GetMapping(value = "/tips/{tipId}/delete")
+    public ModelAndView deleteTipForm(@PathVariable long tipId,
+                                      @ModelAttribute("user") User user) {
+        Tip tip = js.findTipById(tipId).orElseThrow(() -> {
+            LOGGER.error("Tip with ID {} not found", tipId);
+            return new InvalidException("Tip with ID " + tipId + " not found");
+        });
+        ModelAndView mav = new ModelAndView("journeys/detail/delete-tip");
+        mav.addObject("tip", tip);
+        mav.addObject("journey", tip.getJourney());
+        return mav;
+    }
+    @PostMapping(value = "/tips/{tipId}/update")
+    public ModelAndView updateTip(@PathVariable long tipId,
+                                  @Valid @ModelAttribute("createTipForm") CreateTipForm form,
+                                  BindingResult errors, @ModelAttribute("user") User user) {
+        if (errors.hasErrors()) {
+            return updateTipForm(tipId, form, errors, user);
+        }
+        Tip tip = js.updateTip(tipId, form.getTitle(), form.getContent());
+        return new ModelAndView("redirect:/journeys/" + tip.getJourney().getId());
+    }
+    @GetMapping(value = "/tips/{tipId}/update")
+    public ModelAndView updateTipForm(@PathVariable long tipId,
+                                      @ModelAttribute("createTipForm") CreateTipForm form,
+                                        BindingResult errors,
+                                      @ModelAttribute("user") User user) {
+        Tip tip = js.findTipById(tipId).orElseThrow(() -> {
+            LOGGER.error("Tip with ID {} not found", tipId);
+            return new InvalidException("Tip with ID " + tipId + " not found");
+        });
+
+        ModelAndView mav = new ModelAndView("journeys/detail/add-tip-form");
+        mav.addObject("tip", tip);
+        mav.addObject("isUpdate", true);
+        mav.addObject("journey", tip.getJourney());
+        if(!errors.hasErrors()) {
+            form.setTitle(tip.getTitle());
+            form.setContent(tip.getContent());
+        }
+
+        return mav;
     }
 
 
