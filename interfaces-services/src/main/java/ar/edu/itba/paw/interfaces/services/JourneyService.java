@@ -36,6 +36,13 @@ public interface JourneyService {
     Page<JourneyResponse> findJourneyResponses(long eventId, PageParams pageParams);
     int countJourneyResponses(long id);
 
+    Page<Tip> findTipsByJourneyId(long journeyId, PageParams pageParams);
+    void createTip(long journeyId, String title, String content);
+    void updateTip(long tipId, String title, String content);
+    void deleteTip(long tipId);
+    Optional<Tip> findTipById(long tipId);
+    boolean isTipOwnedByUser(Tip tip, User user);
+
 }
 
 

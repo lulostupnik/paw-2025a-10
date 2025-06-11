@@ -2,6 +2,7 @@ package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
+import ar.edu.itba.paw.interfaces.persistence.TipDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
@@ -21,7 +22,7 @@ import java.util.Optional;
 public class JourneyServiceImpl implements JourneyService {
     private static final Logger LOGGER = LoggerFactory.getLogger(JourneyServiceImpl.class);
     private final JourneyResponseDao journeyResponseDao;
-
+    private final TipDao tipDao;
     private final JourneyDao journeyDao;
     private final UserService userService;
     private final EmailService emailService;
@@ -31,11 +32,12 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Autowired
     public JourneyServiceImpl(final JourneyDao journeyDao, final UserService userService,
-                              final UniversityService universityService, final JourneyResponseDao journeyResponseDao, final EmailService emailService, final InterestService interestService) {
+                              final UniversityService universityService, final JourneyResponseDao journeyResponseDao, TipDao tipDao, final EmailService emailService, final InterestService interestService) {
         this.journeyDao = journeyDao;
         this.userService = userService;
         this.universityService = universityService;
         this.journeyResponseDao = journeyResponseDao;
+        this.tipDao = tipDao;
         this.emailService = emailService;
         this.interestService = interestService;
     }
@@ -316,6 +318,56 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     public int countJourneyResponses(final long id) {
         return journeyResponseDao.countByJourneyId(id);
+    }
+
+    @Override
+    public Page<Tip> findTipsByJourneyId(long journeyId, PageParams pageParams) {
+        LOGGER.debug("Finding tips for journey {}", journeyId);
+        return tipDao.findTipsByJourneyId(journeyId, pageParams);
+    }
+
+    @Override
+    public void createTip(long journeyId, String title, String content) {
+        Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> {
+            LOGGER.error("Journey with id {} not found", journeyId);
+            return new JourneyNotFoundException("Journey not found");
+        });
+        tipDao.createTip(journey, title, content);
+    }
+
+    @Override
+    public void updateTip(long tipId, String title, String content) {
+        Tip tip = findTipById(tipId).orElseThrow(() -> {
+            LOGGER.error("Tip with id {} not found", tipId);
+            return new TipNotFoundException("Tip not found");
+        });
+        tip.setTitle(title);
+        tip.setContent(content);
+    }
+
+    @Override
+    public void deleteTip(long tipId) {
+        tipDao.deleteTip(tipId);
+    }
+
+    @Override
+    public Optional<Tip> findTipById(long tipId) {
+        LOGGER.debug("Finding tip by id {}", tipId);
+        return tipDao.findTipById(tipId);
+    }
+
+    @Override
+    public boolean isTipOwnedByUser(Tip tip, User user) {
+        if (tip == null || user == null) {
+            return false; //@TODO: exception?
+        }
+
+        User tipUser = tip.getJourney().getUser();
+        if (tipUser == null || tipUser.getId() == null || user.getId() == null) {
+            return false;  //@TODO: exception?
+        }
+
+        return tipUser.getId().equals(user.getId());
     }
 }
 

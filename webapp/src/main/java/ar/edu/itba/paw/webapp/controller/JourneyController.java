@@ -212,5 +212,22 @@ public class JourneyController {
         js.deleteJourneyResponse(id, form.getMessage());
         return new ModelAndView("redirect:/journeys/" + jr.getJourney().getId());
     }
+//    @GetMapping(value = "/{id}/tips")
+//    public ModelAndView getJourneyTips(@PathVariable long id,
+//                                       @ModelAttribute("user") User user,
+//                                       @PageParamCustomizer(defaultSize = 6) PageParams pageParams) {
+//        Journey journey = js.getJourneyById(id).orElseThrow(() -> {
+//            LOGGER.error("Journey with ID {} not found", id);
+//            return new JourneyNotFoundException("Journey with ID " + id + " not found");
+//        });
+//        Page<Tip> tips = js.findTipsByJourney(journey, pageParams);
+//
+//        final ModelAndView mav = new ModelAndView("journeys/tips");
+//        mav.addObject("journey", journey);
+//        mav.addObject("tips", tips);
+//        mav.addObject("pageSize", pageParams.getSize());
+//        mav.addObject("currentPage", pageParams.getPage());
+//        return mav;
+//    }
 
 }
