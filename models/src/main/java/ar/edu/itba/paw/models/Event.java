@@ -2,6 +2,7 @@
 
     import lombok.Getter;
     import lombok.Setter;
+    import org.hibernate.annotations.Formula;
 
     import javax.persistence.*;
     import java.time.LocalDate;
@@ -56,10 +57,12 @@
         @Setter
         private  Integer attendeesLimit;
 
-        @Column(name = "attendees_count")
-        @Setter
-        private  int attendeesCount; //FIXME: yo borraria esto
-        
+//        @Column(name = "attendees_count")
+//        @Setter
+
+        @Formula("(SELECT COUNT(*) FROM event_attendances ea WHERE ea.event_id = id)")
+        private  int attendeesCount;
+
         @Column(name="deleted", nullable = false)
         @Setter
         private  boolean deleted;
@@ -85,13 +88,12 @@
             this.time = time;
             this.address = address;
             this.attendeesLimit = attendeesLimit;
-            this.attendeesCount = 1; //user that created the event @TODO
             this.deleted = false;
 
         }
         public Event(final Long id, final User user, final LocalDate date, final String description,
                      final long flyerImageId, final City city, final String title,
-                     final LocalTime time, final String address, final Integer attendeesLimit, final int attendeesCount) {
+                     final LocalTime time, final String address, final Integer attendeesLimit) {
             this.id = id;
             this.user = user;
             this.date = date;
@@ -102,7 +104,6 @@
             this.time = time;
             this.address = address;
             this.attendeesLimit = attendeesLimit;
-            this.attendeesCount = attendeesCount; //user that created the event @TODO
             this.deleted = false;
         }
 
