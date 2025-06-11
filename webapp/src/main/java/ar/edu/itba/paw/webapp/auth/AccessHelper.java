@@ -48,6 +48,11 @@ public class AccessHelper {
                 return new UserNotFoundException("User not found");
         }).isBlocked();
     }
+    public boolean isUserTipOwner(long tipId) {
+        if (Objects.equals(SecurityContextHolder.getContext().getAuthentication().getName(), "AnonymousUser")) return false;
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return journeyService.isTipOwnedByUser(tipId, email);
+    }
 
 
 }

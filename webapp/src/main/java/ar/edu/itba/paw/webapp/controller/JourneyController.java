@@ -9,6 +9,7 @@ import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.exceptions.JourneyResponseNotFoundException;
+import ar.edu.itba.paw.models.exceptions.TipNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
 
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
@@ -176,7 +177,7 @@ public class JourneyController {
                                   @ModelAttribute("user") User user) {
         Journey journey = js.findTipById(tipId).orElseThrow(() -> {
             LOGGER.error("Tip with ID {} not found", tipId);
-            return new InvalidException("Tip with ID " + tipId + " not found");
+            return new TipNotFoundException("Tip with ID " + tipId + " not found");
         }).getJourney();
         js.deleteTip(tipId);
         return new ModelAndView("redirect:/journeys/" + journey.getId());
@@ -187,7 +188,7 @@ public class JourneyController {
                                       @ModelAttribute("user") User user) {
         Tip tip = js.findTipById(tipId).orElseThrow(() -> {
             LOGGER.error("Tip with ID {} not found", tipId);
-            return new InvalidException("Tip with ID " + tipId + " not found");
+            return new TipNotFoundException("Tip with ID " + tipId + " not found");
         });
         ModelAndView mav = new ModelAndView("journeys/detail/delete-tip");
         mav.addObject("tip", tip);
@@ -211,7 +212,7 @@ public class JourneyController {
                                       @ModelAttribute("user") User user) {
         Tip tip = js.findTipById(tipId).orElseThrow(() -> {
             LOGGER.error("Tip with ID {} not found", tipId);
-            return new InvalidException("Tip with ID " + tipId + " not found");
+            return new TipNotFoundException("Tip with ID " + tipId + " not found");
         });
 
         ModelAndView mav = new ModelAndView("journeys/detail/add-tip-form");

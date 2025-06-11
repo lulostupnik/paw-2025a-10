@@ -19,10 +19,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import java.util.concurrent.TimeUnit;
 
@@ -76,11 +74,12 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .and().authorizeRequests()
                 .antMatchers("/register", "/login", "/reset-password", "/forgot_pass", "/validate", "/not-verified").anonymous()
                 .antMatchers("/universities", "/careers", "/interests", "/cities").permitAll()
-                .antMatchers("/events/create", "/journeys/create").access("isAuthenticated() and !@accessHelper.isUserBlocked()")
+                .antMatchers("/events/create", "/journeys/create", "interests/edit").access("isAuthenticated() and !@accessHelper.isUserBlocked()")
                 .antMatchers(HttpMethod.GET,"/events", "/", "/events/{id}", "/journeys", "/journeys/{id}", "/images/{id}", "/blocked").permitAll()
                 .antMatchers(HttpMethod.POST, "/users/{id}/block", "/users/{id}/unblock","/reports/{id}/status").access("hasRole('ADMIN') and !@accessHelper.isUserBlocked()")
                 .antMatchers("/dashboard/**","/interests/**", "/careers/**", "/universities/**","/cities/**", "/users/**", "/reports/{id}").access("hasRole('ADMIN') and !@accessHelper.isUserBlocked()")
-                .antMatchers("/journeys/{id}/update").access("@accessHelper.isUserJourneyOwner(#id) and !@accessHelper.isUserBlocked()")
+                .antMatchers("/journeys/tips/{id}/**").access("@accessHelper.isUserTipOwner(#id) and !@accessHelper.isUserBlocked()")
+                .antMatchers("/journeys/{id}/update", "/journeys/{id}/tips/create").access("@accessHelper.isUserJourneyOwner(#id) and !@accessHelper.isUserBlocked()")
                 .antMatchers("/events/{id}/update").access("@accessHelper.isUserEventOwner(#id) and !@accessHelper.isUserBlocked()")
                 .antMatchers("/journeys/{id}/delete").access("(@accessHelper.isUserJourneyOwner(#id) or hasRole('ADMIN')) and !@accessHelper.isUserBlocked()")
                 .antMatchers("/events/{id}/delete").access("(@accessHelper.isUserEventOwner(#id) or hasRole('ADMIN')) and !@accessHelper.isUserBlocked()")

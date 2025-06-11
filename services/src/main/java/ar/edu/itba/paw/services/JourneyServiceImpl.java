@@ -374,6 +374,15 @@ public class JourneyServiceImpl implements JourneyService {
 
         return tipUser.getId().equals(user.getId());
     }
+
+    @Override
+    public boolean isTipOwnedByUser(long tipId, String email) {
+        Tip tip = findTipById(tipId).orElseThrow(() -> {
+            LOGGER.error("Tip with id {} not found", tipId);
+            return new TipNotFoundException("Tip not found");
+        });
+        return tip.getJourney().getUser().getEmail().equals(email);
+    }
 }
 
 
