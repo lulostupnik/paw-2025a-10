@@ -465,7 +465,7 @@ public class EventHibernateDaoTest {
         assertEquals(0, page1.getContent().size());
     }
 
-    /*
+
     @Test
     public void testFindAllWithFilters(){
         Page<Event> page = eventDao.findAllWithFilters(
@@ -479,8 +479,6 @@ public class EventHibernateDaoTest {
             null,
             false,
             true,
-            true,
-            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -488,8 +486,7 @@ public class EventHibernateDaoTest {
         assertNotNull(page.getContent());
         assertEquals(1, page.getCurrentPage());
         assertEquals(1, page.getTotalPages());
-        assertEquals(1, page.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_2, page.getContent().getFirst());
+        assertEquals(2, page.getContent().size());
     }
     @Test
     public void testFindAllWithFiltersComplex(){
@@ -504,31 +501,26 @@ public class EventHibernateDaoTest {
             null,
             false,
             true,
-            true,
-            false,
             TestUtils.PAGE_1_BIG
         );
 
         assertNotNull(page);
         assertNotNull(page.getContent());
         assertEquals(1, page.getCurrentPage());
-        assertEquals(1, page.getTotalPages());
-        assertEquals(1, page.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_2, page.getContent().getFirst());
+        assertEquals(0, page.getTotalPages());
+        assertEquals(0, page.getContent().size());
     }
     @Test
     public void testFindAllWithFiltersComplexNoDestinationPastAttendingNoUser(){
         Page<Event> page = eventDao.findAllWithFilters(
             null,
-            TestUtils.EVENT_TITLE_2,
+            TestUtils.EVENT_TITLE_DELETED,
             SortFieldEvent.ATTENDEES,
             SortDirection.ASC,
             "",
             TestUtils.EVENT_DATE_OLDER,
             TestUtils.EVENT_DATE_LATER,
             null,
-            true,
-            false,
             true,
             false,
             TestUtils.PAGE_1_BIG
@@ -541,7 +533,7 @@ public class EventHibernateDaoTest {
         assertEquals(0, page.getContent().size());
     }
     @Test
-    public void testFindAllWithFiltersComplexNoUserUpcoming(){
+    public void testFindAllWithFiltersComplexNoUser(){
         Page<Event> page = eventDao.findAllWithFilters(
             null,
             TestUtils.EVENT_TITLE_2,
@@ -553,8 +545,6 @@ public class EventHibernateDaoTest {
             null,
             false,
             true,
-            false,
-            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -566,7 +556,7 @@ public class EventHibernateDaoTest {
         TestUtils.assertEqualsEvent(TestUtils.EVENT_2, page.getContent().getFirst());
     }
     @Test
-    public void testFindAllWithFiltersComplexNoUserUpcomingNoInterest(){
+    public void testFindAllWithFiltersComplexNoUserNoInterest(){
         Page<Event> page = eventDao.findAllWithFilters(
             null,
             TestUtils.EVENT_TITLE_2,
@@ -578,8 +568,6 @@ public class EventHibernateDaoTest {
             "",
             false,
             true,
-            false,
-            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -591,7 +579,7 @@ public class EventHibernateDaoTest {
         TestUtils.assertEqualsEvent(TestUtils.EVENT_2, page.getContent().getFirst());
     }
     @Test
-    public void testFindAllWithFiltersNotUpcomingNotAttending(){
+    public void testFindAllWithFiltersNotAttending(){
         Page<Event> page = eventDao.findAllWithFilters(
             TestUtils.USER_1_ID,
             null,
@@ -601,8 +589,6 @@ public class EventHibernateDaoTest {
             TestUtils.EVENT_DATE_OLDER,
             TestUtils.EVENT_DATE_LATER,
             null,
-            false,
-            false,
             false,
             false,
             TestUtils.PAGE_1_BIG
@@ -617,7 +603,7 @@ public class EventHibernateDaoTest {
         TestUtils.assertEqualsEvent(TestUtils.EVENT_3, page.getContent().get(1));
     }
     @Test
-    public void testFindAllWithFiltersNotUpcomingNotAttendingReverseSort(){
+    public void testFindAllWithFiltersNotAttendingReverseSort(){
         Page<Event> page = eventDao.findAllWithFilters(
             TestUtils.USER_1_ID,
             null,
@@ -627,8 +613,6 @@ public class EventHibernateDaoTest {
             TestUtils.EVENT_DATE_OLDER,
             TestUtils.EVENT_DATE_LATER,
             null,
-            false,
-            false,
             false,
             false,
             TestUtils.PAGE_1_BIG
@@ -653,8 +637,6 @@ public class EventHibernateDaoTest {
             null,
             null,
             null,
-            false,
-            false,
             false,
             false,
             TestUtils.PAGE_1_BIG
@@ -683,8 +665,6 @@ public class EventHibernateDaoTest {
             "",
             false,
             false,
-            false,
-            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -711,8 +691,6 @@ public class EventHibernateDaoTest {
             null,
             false,
             false,
-            false,
-            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -736,8 +714,6 @@ public class EventHibernateDaoTest {
             TestUtils.INTEREST_1_NAME,
             false,
             false,
-            false,
-            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -748,7 +724,7 @@ public class EventHibernateDaoTest {
         assertEquals(1, page.getContent().size());
         TestUtils.assertEqualsEvent(TestUtils.EVENT_1, page.getContent().get(0));
     }
-    */
+
     @Test
     public void testFindRecommended(){
         TestUtils.deleteEvents(jdbcTemplate);

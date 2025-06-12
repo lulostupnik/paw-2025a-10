@@ -541,8 +541,7 @@ public class EventServiceImpl implements EventService {
                 SortDirection.ASC,
                 null,
                 journey.getStartDate(),
-                journey.getEndDate() != null && journey.getEndDate().isBefore(LocalDate.now())
-                        ? journey.getEndDate() : LocalDate.now().minusDays(1),
+                capEndDateForPastEvents(journey.getEndDate()),
                 null,
                 true,
                 false,
