@@ -350,7 +350,7 @@ public class JourneyHibernateDao implements JourneyDao {
             origin_uni_match_off_travel_score +
             origin_city_match_off_travel_score
         ) DESC
-    """; //fixme ES POSIBLE QUE HAYAN JOINS innecesarios porque estaban por el ROWMAPPER.
+    """; 
 
         final String jpqlFetch = "FROM Journey j WHERE j.id IN :ids";
 
