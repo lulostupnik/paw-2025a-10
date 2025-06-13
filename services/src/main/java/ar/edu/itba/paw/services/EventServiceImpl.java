@@ -190,9 +190,9 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public Page<Event> findEvents(final String email, final PageParams pageParams) {
-        LOGGER.debug("Getting all events for user {}", email);
-        return eventDao.findByUserEmail(email, pageParams);
+    public Page<Event> findEvents(final long userId, final PageParams pageParams) {
+        LOGGER.debug("Getting all events for user {}", userId);
+        return eventDao.findByUserId(userId, pageParams);
     }
 
 
@@ -220,7 +220,7 @@ public class EventServiceImpl implements EventService {
         if (event.getAttendeesLimit() == null || event.getAttendeesCount() < event.getAttendeesLimit()) {
             eventAttendanceDao.create(user, event);
             //fixme: crear el attendance aca de verdad
-            event.setAttendeesCount(event.getAttendeesCount()+1); //fixme: ni idea
+//            event.setAttendeesCount(event.getAttendeesCount()+1); //fixme: ni idea
             LOGGER.info("User {} is now attending event {}", userId, eventId);
             return;
         }
