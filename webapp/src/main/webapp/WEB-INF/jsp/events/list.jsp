@@ -114,7 +114,7 @@
                  class="${empty actualSort or (
           actualSort != 'date' and
           actualSort != 'attendees'
-          and ( !(escapedUpcoming != true and escapedAttending != true) and actualSort == 'rating' )
+          and ( (escapedUpcoming != true and escapedAttending != true) and actualSort != 'rating' )
         ) or (actualSort == 'date' and (empty escapedDirection or escapedDirection != "desc")) ? 'active' : ''}">
                 <spring:message code="event.sort.date.asc"/>
               </a>
