@@ -14,6 +14,5 @@ public interface JourneyDao {
     Page<Journey> findByOriginCity(long originCityId, PageParams pageParams);
     Page<Journey> search(String search, Long userId, SortFieldJourney orderBy, SortDirection direction,
                          String city, LocalDate startDate, LocalDate endDate, String interest,
-                         boolean isPast, boolean isUpcoming, boolean isMyDestination, boolean isOngoing,
-                         PageParams pageParams);
+                         boolean isMyDestination, PageParams pageParams);
 }

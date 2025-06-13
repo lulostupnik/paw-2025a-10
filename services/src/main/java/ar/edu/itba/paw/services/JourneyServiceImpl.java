@@ -139,10 +139,9 @@ public class JourneyServiceImpl implements JourneyService {
                 null,
                 null,
                 null,
+
                 false,
-                false,
-                false,
-                false,
+
                 pageParams
         );
     }
@@ -172,6 +171,15 @@ public class JourneyServiceImpl implements JourneyService {
         return Optional.ofNullable(user.getJourney());
     }
 
+    private LocalDate capEndDateForPastJourneys(LocalDate endDate) {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        return endDate == null || endDate.isAfter(yesterday) ? yesterday : endDate;
+    }
+
+    private LocalDate ensureStartDateForUpcomingJourneys(LocalDate startDate) {
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        return startDate == null || startDate.isBefore(tomorrow) ? tomorrow : startDate;
+    }
 
 
     @Override
@@ -184,9 +192,32 @@ public class JourneyServiceImpl implements JourneyService {
             LOGGER.warn("User has no journeys");
             throw new InvalidException("User has no journeys");
         }
-        return journeyDao.search(search, user != null ? user.getId() : null, sortBy, direction, destination,
-                startDate, endDate, interest, isPast, isUpcoming, isMyDestination, isOngoing,
-                pageParams);
+
+        LocalDate adjustedStartDate = startDate;
+        LocalDate adjustedEndDate = endDate;
+        LocalDate today = LocalDate.now();
+
+        if (isOngoing) {
+            adjustedStartDate = startDate == null || startDate.isAfter(today) ? today : startDate;
+            adjustedEndDate = endDate == null || endDate.isBefore(today) ? today : endDate;
+        } else if (isUpcoming) {
+            adjustedStartDate = ensureStartDateForUpcomingJourneys(startDate);
+        } else if (isPast) {
+            adjustedEndDate = capEndDateForPastJourneys(endDate);
+        }
+
+        return journeyDao.search(
+                search,
+                user != null ? user.getId() : null,
+                sortBy,
+                direction,
+                destination,
+                adjustedStartDate,
+                adjustedEndDate,
+                interest,
+                isMyDestination,
+                pageParams
+        );
 
     }
 
