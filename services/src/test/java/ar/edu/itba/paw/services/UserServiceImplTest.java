@@ -72,7 +72,7 @@ public class UserServiceImplTest {
     private static final LocalDateTime TOKEN_EXPIRATION = LocalDateTime.now();
     private static final Token TOKEN = new Token(USER_NOT_VALIDATED, TOKEN_VALUE, TOKEN_EXPIRATION);
     private static final List<User> USERS = List.of(USER);
-    private static final Page<User> USER_PAGE = new Page<>(USERS, 1,1);
+    private static final Page<User> USER_PAGE = new Page<>(USERS, 1, 1, 1);
     private static final double RATING = 5.0;
 
     @InjectMocks

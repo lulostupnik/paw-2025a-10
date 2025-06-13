@@ -36,7 +36,7 @@ public class UniversityServiceImplTest {
     private static final City CITY = new City(CITY_NAME, COUNTRY, ID_1);
     private static final University UNI_1 = new University(ID_1, NAME, ABBREVIATION, CITY);
     private static final List<University> UNIS = List.of(UNI_1);
-    private static final Page<University> UNI_PAGE = new Page<>(UNIS, 1, 1);
+    private static final Page<University> UNI_PAGE = new Page<>(UNIS, 1, 1, 1);
     private static final PageParams PAGE_PARAMS = new PageParams(1, 10);
     @InjectMocks
     private UniversityServiceImpl uniService;

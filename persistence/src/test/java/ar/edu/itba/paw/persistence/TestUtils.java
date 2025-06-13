@@ -524,7 +524,6 @@ class TestUtils {
         e.event_time AS event_time,
         e.address AS address,
         e.attendees_limit AS attendees_limit,
-        e.attendees_count AS attendees_count,
         e.description AS description,
         e.title AS title,
         e.flyer_image_id AS flyer_image_id,
