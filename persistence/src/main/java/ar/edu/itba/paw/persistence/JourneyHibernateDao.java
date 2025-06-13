@@ -127,12 +127,12 @@ public class JourneyHibernateDao implements JourneyDao {
 
     private String getOrderByColumn(SortFieldJourney orderBy, boolean jql) {
         if(orderBy == null){
-            return "j.id";
+            return jql ? "id" : "j.id";
         }
         return switch (orderBy) {
             case START_DATE -> jql? "startDate":"j.start_date";
             case END_DATE   -> jql? "endDate":"j.end_date";
-            default         -> "j.id";
+            default         -> jql? "id" : "j.id";
         };
     }
     @Override

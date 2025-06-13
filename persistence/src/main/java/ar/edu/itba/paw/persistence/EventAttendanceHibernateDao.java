@@ -73,7 +73,7 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
         return false;
     }
 
-    @Override
+   /* @Override
     public Page<EventAttendance> listAllByEventId(long eventId, PageParams pageParams) {
         final String countSql = """
                 SELECT COUNT(*)
@@ -145,7 +145,7 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
         return ((BigInteger)em.createNativeQuery(sql)
                 .setParameter("eventId", eventId)
                 .getSingleResult()).intValue();
-    }
+    }*/
 
 
     @Override

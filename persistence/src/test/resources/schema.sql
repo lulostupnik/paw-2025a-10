@@ -112,7 +112,6 @@ CREATE TABLE IF NOT EXISTS events(
     attendees_limit INTEGER,
     address VARCHAR(255),
     flyer_image_id BIGINT NOT NULL,
-    attendees_count INTEGER DEFAULT 0 NOT NULL,
     title VARCHAR(255) NOT NULL,
     deleted BOOLEAN DEFAULT FALSE NOT NULL,
     deleted_message VARCHAR(1000),

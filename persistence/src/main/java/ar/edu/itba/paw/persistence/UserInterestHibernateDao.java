@@ -60,7 +60,8 @@ public class UserInterestHibernateDao implements UserInterestDao {
                 SELECT ui.category_id
                 FROM user_interest ui
                 WHERE ui.user_id = :id
-                """; // todo falta ORDER BY
+                ORDER BY ui.category_id
+                """;
 
         final String jpqlFetch = """
                 FROM UserInterest ui

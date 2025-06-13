@@ -55,18 +55,21 @@ public class EventHibernateDao implements EventDao {
         final String idSql = """
         SELECT e.id
         FROM events e
-        LEFT JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :userId
+        LEFT JOIN event_attendances ea ON ea.event_id = e.id
+        LEFT JOIN event_attendances ea2 ON ea2.event_id = e.id AND ea2.user_id = :userId
         WHERE e.deleted = FALSE
           AND e.event_date >= CURRENT_DATE
           AND e.user_id != :userId
+        GROUP BY e.id, ea2.user_id, e.attendees_limit, e.event_date
         ORDER BY
-            (e.attendees_limit IS NOT NULL AND e.attendees_count >= e.attendees_limit),
-            (ea.user_id IS NOT NULL),
-            COALESCE(e.attendees_count, 0) DESC,
+            (e.attendees_limit IS NOT NULL AND COUNT(ea.user_id) >= e.attendees_limit),
+            (ea2.user_id IS NOT NULL),
+            COUNT(ea.user_id) DESC,
             e.event_date
     """;
 
-        final String jpqlFetch = "FROM Event e WHERE e.id IN :ids"; //fixme falta orderBy.
+
+        final String jpqlFetch = "FROM Event e WHERE e.id IN :ids";
 
         return fetchPageByIds(
                 em,
@@ -109,7 +112,7 @@ public class EventHibernateDao implements EventDao {
         ORDER BY e.event_date DESC
     """;
 
-        final String jpqlFetch = "FROM Event e WHERE e.id IN :ids ORDER BY e.date DESC"; //@todo check orderBY.
+        final String jpqlFetch = "FROM Event e WHERE e.id IN :ids ORDER BY e.date DESC";
 
         return fetchPageByIds(
                 em,
@@ -149,32 +152,6 @@ public class EventHibernateDao implements EventDao {
     }       //@TODO preuntar. !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! JDBC ! MODELO EVENT RESPONSE???!! :/
 
 
-    // FIXME: Podría recibir el id del usuario y te ahorras el JOIN
-  /*  @Override
-    public Page<Event> findByUserEmail(String email, PageParams pageParams) {
-        final String countSql = """
-        SELECT COUNT(*)
-        FROM events e
-        JOIN users us ON e.user_id = us.id
-        WHERE e.deleted = FALSE AND us.email = :email
-    """;
-
-        final String idSql = """
-        SELECT e.id
-        FROM events e
-        JOIN users us ON e.user_id = us.id
-        WHERE e.deleted = FALSE AND us.email = :email
-        ORDER BY e.event_date DESC
-    """;
-
-        final String jpqlFetch = """
-        FROM Event e WHERE e.id IN :ids ORDER BY e.date DESC
-    """;  //fixme falta el order by.
-
-        Map<String, Object> params = Map.of("email", email);
-
-        return fetchPageByIds(em, countSql, idSql, params, jpqlFetch, Event.class, pageParams, Map.of());
-    }*/
 
     @Override
     public Page<Event> findByUserId(long userId, PageParams pageParams) {
@@ -224,42 +201,44 @@ public class EventHibernateDao implements EventDao {
     """;
 
         final String idSql = """
-        WITH user_data AS (
-            SELECT u.id, c.id AS city_id
-            FROM users u
-            JOIN universities un ON u.university = un.id
-            JOIN cities c ON un.city_id = c.id
-            WHERE u.id = :userId
-        )
-        SELECT e.id
-        FROM events e
-        JOIN users us ON e.user_id = us.id
-        JOIN universities un ON us.university = un.id
-        JOIN cities c ON e.city_id = c.id
-        JOIN user_data ud ON ud.city_id = e.city_id
-        LEFT JOIN event_attendances ea ON e.id = ea.event_id AND ea.user_id = ud.id
-        WHERE e.event_date >= CURRENT_DATE
-          AND us.id != :userId
-          AND e.deleted = FALSE
-          AND c.id = (
-              SELECT c2.id
-              FROM users u
-              JOIN universities un2 ON u.university = un2.id
-              JOIN cities c2 ON un2.city_id = c2.id
-              WHERE u.id = :userId
-          )
-        ORDER BY
-            (e.attendees_limit IS NOT NULL AND e.attendees_count >= e.attendees_limit),
-            (ea.user_id IS NOT NULL),
-            (e.user_id = :userId),
-            COALESCE(e.attendees_count, 0) DESC,
-            e.event_date    
-        """;
+                WITH user_data AS (
+                    SELECT u.id, c.id AS city_id
+                    FROM users u
+                    JOIN universities un ON u.university = un.id
+                    JOIN cities c ON un.city_id = c.id
+                    WHERE u.id = :userId
+                )
+                SELECT e.id
+                FROM events e
+                JOIN users us ON e.user_id = us.id
+                JOIN universities un ON us.university = un.id
+                JOIN cities c ON e.city_id = c.id
+                JOIN user_data ud ON ud.city_id = e.city_id
+                LEFT JOIN event_attendances ea_all ON ea_all.event_id = e.id
+                LEFT JOIN event_attendances ea_user ON ea_user.event_id = e.id AND ea_user.user_id = ud.id
+                WHERE e.event_date >= CURRENT_DATE
+                  AND us.id != :userId
+                  AND e.deleted = FALSE
+                  AND c.id = (
+                      SELECT c2.id
+                      FROM users u
+                      JOIN universities un2 ON u.university = un2.id
+                      JOIN cities c2 ON un2.city_id = c2.id
+                      WHERE u.id = :userId
+                  )
+                GROUP BY e.id, e.attendees_limit, ea_user.user_id, e.user_id, e.event_date
+                ORDER BY
+                    (e.attendees_limit IS NOT NULL AND COUNT(ea_all.user_id) >= e.attendees_limit),
+                    (ea_user.user_id IS NOT NULL), 
+                    (e.user_id = :userId),
+                    COUNT(ea_all.user_id) DESC,
+                    e.event_date  
+                """;
 
         final String jpqlFetch = """
         FROM Event e
         WHERE e.id IN :ids
-    """;  //fixme falta el order by.
+        """;
 
         Map<String, Object> params = Map.of("userId", userId);
 
@@ -276,18 +255,22 @@ public class EventHibernateDao implements EventDao {
     """;
 
         final String idSql = """
-        SELECT id
-        FROM events
-        WHERE deleted = FALSE AND event_date >= CURRENT_DATE
-        ORDER BY
-            (attendees_limit IS NOT NULL AND attendees_count >= attendees_limit) ASC,
-            COALESCE(attendees_count, 0) DESC,
-            event_date
+            SELECT e.id
+            FROM events e
+            LEFT JOIN event_attendances ea ON ea.event_id = e.id
+            WHERE e.deleted = FALSE AND e.event_date >= CURRENT_DATE
+            GROUP BY e.id, e.attendees_limit, e.event_date
+            ORDER BY
+                (e.attendees_limit IS NOT NULL AND COUNT(ea.user_id) >= e.attendees_limit),
+                COUNT(ea.user_id) DESC,
+                e.event_date
     """;
+
+
 
         final String jpqlFetch = """
         FROM Event e WHERE e.id IN :ids
-    """;    //fixme falta el order by.
+        """;
 
         return fetchPageByIds(em, countSql, idSql, Map.of(), jpqlFetch, Event.class, pageParams, Map.of());
     }
@@ -307,7 +290,8 @@ public class EventHibernateDao implements EventDao {
 
         final String jpqlFetch = """
         FROM Event e WHERE e.id IN :ids
-    """;  //fixme falta el order by.
+        ORDER BY e.date DESC
+    """;
 
         return fetchPageByIds(em, countSql, idSql, Map.of(), jpqlFetch, Event.class, pageParams, Map.of());
     }
@@ -332,8 +316,7 @@ public class EventHibernateDao implements EventDao {
 
         final String jpqlFetch = """
         FROM Event e WHERE e.id IN :ids ORDER BY e.date DESC
-    """;  //fixme falta el order by.
-
+    """;
         return fetchPageByIds(
                 em,
                 countSql,
@@ -393,14 +376,14 @@ public class EventHibernateDao implements EventDao {
         return fetchPageByIds(em, countSql, idSql, params, jpqlFetch, Event.class, pageParams, Map.of());
     }
 
-    private String getSortColumn(SortFieldEvent sortBy) {
+    private String getSortColumn(SortFieldEvent sortBy, boolean jql) {
         if (sortBy == null) {
-            return "e.id";
+            return jql? "id":"e.id";
         }
         return switch (sortBy) {
-            case ATTENDEES -> "e.attendees_count";
-            case DATE      -> "e.event_date";
-            default        -> "e.id";
+            case ATTENDEES -> jql? "attendeesCount" : "e.attendees_count";
+            case DATE      -> jql ? "date":"e.event_date";
+            default        -> jql?"id":"e.id";
         };
     }
 
@@ -479,7 +462,7 @@ public class EventHibernateDao implements EventDao {
             countSql.append(" LEFT JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :userId ");
             idSql.append(" LEFT JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :userId ");
             filters.add("ea.user_id IS NOT NULL");
-            paramMap.put("userId", userId); // ya estaba puesto arriba
+            paramMap.put("userId", userId);
         }
 
 
@@ -495,13 +478,13 @@ public class EventHibernateDao implements EventDao {
 
         //idSql.append(" GROUP BY e.id");
 
-        String sortColumn = getSortColumn(sortBy);
+        String sortColumn = getSortColumn(sortBy, false);
         String dir = (direction == SortDirection.DESC) ? "DESC" : "ASC";
 
         idSql.append(" ORDER BY ").append(sortColumn).append(" ").append(dir);
 
         // JPQL fetch
-        final String jpqlFetch = "FROM Event e WHERE e.id IN :ids";
+        final String jpqlFetch = "FROM Event e WHERE e.id IN :ids ORDER BY " + getSortColumn(sortBy, true) + " " + dir;
 
         // Delegamos al helper
         return fetchPageByIds(em, countSql.toString(), idSql.toString(), paramMap, jpqlFetch, Event.class, pageParams, Map.of());

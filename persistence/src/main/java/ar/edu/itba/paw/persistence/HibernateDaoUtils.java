@@ -50,27 +50,30 @@ class HibernateDaoUtils {
             Map<String, Object> parameters,
             String jpqlFetchById,
             Class<T> clazz,
+            PageParams pageParams){
+        return fetchPageByIds(em,countSql,idSql,parameters,jpqlFetchById,clazz,pageParams,Map.of());
+    }
+    public static <T> Page<T> fetchPageByIds(
+            EntityManager em,
+            String countSql,
+            String idSql,
+            Map<String, Object> parameters,
+            String jpqlFetchById,
+            Class<T> clazz,
             PageParams pageParams,
             Map<String, Object> fetchParameters
             ) {
         // Count total
         Query countQuery = em.createNativeQuery(countSql);
-        LOGGER.error("Count SQL: {}", countSql);
         parameters.forEach(countQuery::setParameter);
-        LOGGER.error("Count SQL parameters: {}", parameters);
         int totalItems = ((Number) countQuery.getSingleResult()).intValue();
-        LOGGER.error("Total items: {}", totalItems);
 
 
         // ID query with pagination
         Query idQuery = em.createNativeQuery(idSql);
-        LOGGER.error("ID SQL: {}", idSql);
         parameters.forEach(idQuery::setParameter);
-        LOGGER.error("ID SQL parameters: {}", parameters);
         idQuery.setMaxResults(pageParams.getSize());
-        LOGGER.error("ID SQL max results: {}", pageParams.getSize());
         idQuery.setFirstResult(offset(pageParams)); // modularized offset
-        LOGGER.error("ID SQL first result: {}", offset(pageParams));
 //
 //        List<Long> ids = ((List<?>) idQuery.getResultList()).stream()
 //                .filter(Number.class::isInstance) // Ensure type safety
@@ -83,41 +86,30 @@ class HibernateDaoUtils {
 
         for (Object result : rawResults) {
             if (result != null) {
-                if (result instanceof Number) {
-                    ids.add(((Number) result).longValue());
-                } else {
-                    // Log unexpected type
-                    LOGGER.warn("Unexpected type in ID query result: {} (type: {})",
-                            result, result.getClass().getName());
+                if (!(result instanceof Number)) {
+                    LOGGER.warn("Unexpected type in ID query result: {} (type: {})", result, result.getClass().getName());
+                    continue;
                 }
+                ids.add(((Number) result).longValue());
+
             }
         }
 
         if (ids.isEmpty()) {
-            LOGGER.error("No IDs found");
             return new Page<>(List.of(), pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
         }
 
         TypedQuery<T> fetchQuery = em.createQuery(jpqlFetchById, clazz);
-        LOGGER.error("Fetch SQL: {}", jpqlFetchById);
         fetchQuery.setParameter("ids", ids);
         fetchParameters.forEach(fetchQuery::setParameter);
-        LOGGER.error("Fetch SQL parameters: {}", parameters);
-
         List<T> results = fetchQuery.getResultList();
 
-        //TODO Super hacky, think of a more OOP/JPA way of sorting
-        List<Long> orderedIds = new ArrayList<>(ids);
-        orderedIds.sort((a, b) -> Long.compare(a, b));
-        List<T> sortedResults = new ArrayList<>();
-        for (long id : ids){
-            sortedResults.add(results.get(orderedIds.indexOf(id)));
-        }
 
-        LOGGER.error("Results: {}", results);
-
-        return new Page<>(sortedResults, pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
+        return new Page<>(results, pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
     }
+
+
+
 
 
 }
