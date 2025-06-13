@@ -53,6 +53,7 @@ class HibernateDaoUtils {
             PageParams pageParams){
         return fetchPageByIds(em,countSql,idSql,parameters,jpqlFetchById,clazz,pageParams,Map.of());
     }
+
     public static <T> Page<T> fetchPageByIds(
             EntityManager em,
             String countSql,
@@ -96,7 +97,8 @@ class HibernateDaoUtils {
         }
 
         if (ids.isEmpty()) {
-            return new Page<>(List.of(), pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
+            return new Page<>(List.of(), pageParams.getPage(), pageParams.getSize(), totalItems);
+            // return new Page<>(List.of(), pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
         }
 
         TypedQuery<T> fetchQuery = em.createQuery(jpqlFetchById, clazz);
@@ -104,8 +106,8 @@ class HibernateDaoUtils {
         fetchParameters.forEach(fetchQuery::setParameter);
         List<T> results = fetchQuery.getResultList();
 
-
-        return new Page<>(results, pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
+        return new Page<>(results, pageParams.getPage(), pageParams.getSize(), totalItems);
+        // return new Page<>(results, pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
     }
 
 
