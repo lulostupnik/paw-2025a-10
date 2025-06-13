@@ -124,10 +124,9 @@ public class ProfileController {
     }
     @GetMapping(value = "/edit")
     public ModelAndView getEditProfile(@ModelAttribute("editUserForm") EditUserForm editUserForm,
-                                       BindingResult errors) {
+                                       BindingResult errors, @ModelAttribute("user") User user) {
         ModelAndView mav = new ModelAndView("profile/edit-profile");
-        User user = userService.findUserByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElseThrow(() -> new UserNotFoundException(editUserForm.getUserId())); // Hago esto porque el bindeo automatico del campo universidad se pisa con el del formulario, lo cual tira un error
+
         if(!errors.hasErrors()){
 
             editUserForm.setUserId(user.getId());
@@ -142,9 +141,9 @@ public class ProfileController {
     }
     @PostMapping(value = "/edit")
     public ModelAndView editProfile(@Valid @ModelAttribute("editUserForm") EditUserForm editUserForm,
-                                    BindingResult errors) {
+                                    BindingResult errors, @ModelAttribute("user") User user) {
         if (errors.hasErrors()) {
-            return getEditProfile(editUserForm, errors);
+            return getEditProfile(editUserForm, errors, user);
         }
         userService.updateUser(editUserForm.getUserId(), editUserForm.getUsername(),
                 editUserForm.getFirstName(), editUserForm.getLastName(), editUserForm.getOriginUniversity(),

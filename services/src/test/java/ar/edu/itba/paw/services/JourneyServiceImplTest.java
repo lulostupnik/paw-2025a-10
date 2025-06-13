@@ -841,7 +841,7 @@ public class JourneyServiceImplTest {
             tipDao.findTipById(eq(TIP_ID))
         ).thenReturn(Optional.empty());
 
-        Tip updated = journeyService.updateTip(TIP_ID, DESCRIPTION, DESCRIPTION);
+        journeyService.updateTip(TIP_ID, DESCRIPTION, DESCRIPTION);
     }
 
     @Test
@@ -865,25 +865,25 @@ public class JourneyServiceImplTest {
     }
 
     @Test
-    public void testIsTipOwnedByUser(){
+    public void testIsTipOwnedByUserObject(){
         boolean isOwned = journeyService.isTipOwnedByUser(TIP, USER);
 
         assertTrue(isOwned);
     }
     @Test
-    public void testIsTipOwnedByUserMissingTip(){
+    public void testIsTipOwnedByUserObjectMissingTip(){
         boolean isOwned = journeyService.isTipOwnedByUser(null, USER);
 
         assertFalse(isOwned);
     }
     @Test
-    public void testIsTipOwnedByUserMissingUser(){
+    public void testIsTipOwnedByUserObjectMissingUser(){
         boolean isOwned = journeyService.isTipOwnedByUser(TIP, null);
 
         assertFalse(isOwned);
     }
     @Test
-    public void testIsTipOwnedByUserJourneyWithoutUser(){
+    public void testIsTipOwnedByUserObjectJourneyWithoutUser(){
         Journey j = new Journey(null, START_DATE, END_DATE, UNI, DESCRIPTION);
         Tip t = new Tip(j, DESCRIPTION, DESCRIPTION);
 
@@ -892,7 +892,7 @@ public class JourneyServiceImplTest {
         assertFalse(isOwned);
     }
     @Test
-    public void testIsTipOwnedByUserJourneyWithoutUserId(){
+    public void testIsTipOwnedByUserObjectJourneyWithoutUserId(){
         User u = new User(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, CAREER_ID, LOCALE, false);
         Journey j = new Journey(u, START_DATE, END_DATE, UNI, DESCRIPTION);
         Tip t = new Tip(j, DESCRIPTION, DESCRIPTION);
@@ -902,12 +902,42 @@ public class JourneyServiceImplTest {
         assertFalse(isOwned);
     }
     @Test
-    public void testIsTipOwnedByUserUserWithoutId(){
+    public void testIsTipOwnedByUserObjectUserWithoutId(){
         User u = new User(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, CAREER_ID, LOCALE, false);
 
         boolean isOwned = journeyService.isTipOwnedByUser(TIP, u);
         
         assertFalse(isOwned);
     }
+
+    @Test
+    public void testIsTipOwnedByUserIdEmail(){
+        when(
+            tipDao.findTipById(eq(TIP_ID))
+        ).thenReturn(Optional.of(TIP));
+
+        boolean isOwned = journeyService.isTipOwnedByUser(TIP_ID, EMAIL);
+
+        assertTrue(isOwned);
+    }
+    @Test
+    public void testIsTipOwnedByUserIdEmailNotOwned(){
+        when(
+            tipDao.findTipById(eq(TIP_ID))
+        ).thenReturn(Optional.of(TIP));
+
+        boolean isOwned = journeyService.isTipOwnedByUser(TIP_ID, "EMAIL");
+
+        assertFalse(isOwned);
+    }
+    @Test(expected = TipNotFoundException.class)
+    public void testIsTipOwnedByUserIdEmailNotFound(){
+        when(
+            tipDao.findTipById(eq(TIP_ID))
+        ).thenReturn(Optional.empty());
+
+        journeyService.isTipOwnedByUser(TIP_ID, "EMAIL");
+    }
+
 
 }

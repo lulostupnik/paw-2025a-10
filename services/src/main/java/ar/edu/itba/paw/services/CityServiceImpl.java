@@ -71,7 +71,12 @@ public class CityServiceImpl implements CityService {
                 .orElseThrow(() -> {
                     LOGGER.error("Country {} not found", countryName);
                     return new CountryNotFoundException("Country not found");});
-        cityDao.update(id, name, country);
+        City city = cityDao.findById(id)
+                .orElseThrow(() -> {
+                    LOGGER.error("City with id {} not found", id);
+                    return new IllegalArgumentException("City not found");});
+        city.setName(name);
+        city.setCountry(country);
         LOGGER.info("City with id {} updated successfully", id);
     }
 

@@ -465,6 +465,7 @@ public class EventHibernateDaoTest {
         assertEquals(0, page1.getContent().size());
     }
 
+
     @Test
     public void testFindAllWithFilters(){
         Page<Event> page = eventDao.findAllWithFilters(
@@ -478,8 +479,6 @@ public class EventHibernateDaoTest {
             null,
             false,
             true,
-            true,
-            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -487,8 +486,7 @@ public class EventHibernateDaoTest {
         assertNotNull(page.getContent());
         assertEquals(1, page.getCurrentPage());
         assertEquals(1, page.getTotalPages());
-        assertEquals(1, page.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_2, page.getContent().getFirst());
+        assertEquals(2, page.getContent().size());
     }
     @Test
     public void testFindAllWithFiltersComplex(){
@@ -503,31 +501,26 @@ public class EventHibernateDaoTest {
             null,
             false,
             true,
-            true,
-            false,
             TestUtils.PAGE_1_BIG
         );
 
         assertNotNull(page);
         assertNotNull(page.getContent());
         assertEquals(1, page.getCurrentPage());
-        assertEquals(1, page.getTotalPages());
-        assertEquals(1, page.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_2, page.getContent().getFirst());
+        assertEquals(0, page.getTotalPages());
+        assertEquals(0, page.getContent().size());
     }
     @Test
     public void testFindAllWithFiltersComplexNoDestinationPastAttendingNoUser(){
         Page<Event> page = eventDao.findAllWithFilters(
             null,
-            TestUtils.EVENT_TITLE_2,
+            TestUtils.EVENT_TITLE_DELETED,
             SortFieldEvent.ATTENDEES,
             SortDirection.ASC,
             "",
             TestUtils.EVENT_DATE_OLDER,
             TestUtils.EVENT_DATE_LATER,
             null,
-            true,
-            false,
             true,
             false,
             TestUtils.PAGE_1_BIG
@@ -540,7 +533,7 @@ public class EventHibernateDaoTest {
         assertEquals(0, page.getContent().size());
     }
     @Test
-    public void testFindAllWithFiltersComplexNoUserUpcoming(){
+    public void testFindAllWithFiltersComplexNoUser(){
         Page<Event> page = eventDao.findAllWithFilters(
             null,
             TestUtils.EVENT_TITLE_2,
@@ -552,8 +545,6 @@ public class EventHibernateDaoTest {
             null,
             false,
             true,
-            false,
-            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -565,7 +556,7 @@ public class EventHibernateDaoTest {
         TestUtils.assertEqualsEvent(TestUtils.EVENT_2, page.getContent().getFirst());
     }
     @Test
-    public void testFindAllWithFiltersComplexNoUserUpcomingNoInterest(){
+    public void testFindAllWithFiltersComplexNoUserNoInterest(){
         Page<Event> page = eventDao.findAllWithFilters(
             null,
             TestUtils.EVENT_TITLE_2,
@@ -577,8 +568,6 @@ public class EventHibernateDaoTest {
             "",
             false,
             true,
-            false,
-            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -590,7 +579,7 @@ public class EventHibernateDaoTest {
         TestUtils.assertEqualsEvent(TestUtils.EVENT_2, page.getContent().getFirst());
     }
     @Test
-    public void testFindAllWithFiltersNotUpcomingNotAttending(){
+    public void testFindAllWithFiltersNotAttending(){
         Page<Event> page = eventDao.findAllWithFilters(
             TestUtils.USER_1_ID,
             null,
@@ -600,8 +589,6 @@ public class EventHibernateDaoTest {
             TestUtils.EVENT_DATE_OLDER,
             TestUtils.EVENT_DATE_LATER,
             null,
-            false,
-            false,
             false,
             false,
             TestUtils.PAGE_1_BIG
@@ -616,7 +603,7 @@ public class EventHibernateDaoTest {
         TestUtils.assertEqualsEvent(TestUtils.EVENT_3, page.getContent().get(1));
     }
     @Test
-    public void testFindAllWithFiltersNotUpcomingNotAttendingReverseSort(){
+    public void testFindAllWithFiltersNotAttendingReverseSort(){
         Page<Event> page = eventDao.findAllWithFilters(
             TestUtils.USER_1_ID,
             null,
@@ -626,8 +613,6 @@ public class EventHibernateDaoTest {
             TestUtils.EVENT_DATE_OLDER,
             TestUtils.EVENT_DATE_LATER,
             null,
-            false,
-            false,
             false,
             false,
             TestUtils.PAGE_1_BIG
@@ -652,8 +637,6 @@ public class EventHibernateDaoTest {
             null,
             null,
             null,
-            false,
-            false,
             false,
             false,
             TestUtils.PAGE_1_BIG
@@ -682,8 +665,6 @@ public class EventHibernateDaoTest {
             "",
             false,
             false,
-            false,
-            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -710,8 +691,6 @@ public class EventHibernateDaoTest {
             null,
             false,
             false,
-            false,
-            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -733,8 +712,6 @@ public class EventHibernateDaoTest {
             null,
             null,
             TestUtils.INTEREST_1_NAME,
-            false,
-            false,
             false,
             false,
             TestUtils.PAGE_1_BIG
@@ -872,73 +849,5 @@ public class EventHibernateDaoTest {
         assertEquals(0, events.getContent().size());
     }
 
-    @Test   
-    public void testFindUpcomingEventsByAttendee(){
-        Page<Event> events = eventDao.findUpcomingEventsByAttendee(TestUtils.USER_1_ID, TestUtils.PAGE_1_BIG);
 
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(1, events.getTotalPages());
-        assertEquals(TestUtils.USER_1_ATTENDANCES_UPCOMING_NOT_OWN, events.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_2, events.getContent().getFirst());
-    }
-    @Test   
-    public void testFindUpcomingEventsByAttendee2(){
-        Page<Event> events = eventDao.findUpcomingEventsByAttendee(TestUtils.USER_2_ID, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(1, events.getTotalPages());
-        //Ignoring event 4 (past event)
-        assertEquals(TestUtils.USER_2_ATTENDANCES_UPCOMING_NOT_OWN, events.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_1, events.getContent().getFirst());
-    }
-    @Test   
-    public void testFindUpcomingEventsByAttendeeNotAttending(){
-        Page<Event> events = eventDao.findUpcomingEventsByAttendee(TestUtils.USER_I3_ID, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(0, events.getTotalPages());
-        assertEquals(0, events.getContent().size());
-    }
-    @Test   
-    public void testFindUpcomingEventsByAttendeeMissingUser(){
-        Page<Event> events = eventDao.findUpcomingEventsByAttendee(12341234l, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(0, events.getTotalPages());
-        assertEquals(0, events.getContent().size());
-    }
-
-    @Test
-    public void testFindFinishedEventsByAttendee(){
-        Page<Event> events = eventDao.findFinishedEventsByAttendee(TestUtils.USER_2_ID, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(1, events.getTotalPages());
-        //Ignoring event 2 (upcoming event)
-        assertEquals(TestUtils.USER_2_ATTENDANCES_UPCOMING_NOT_OWN, events.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_OLDER, events.getContent().getFirst());
-    }
-    @Test
-    public void testFindFinishedEventsByAttendeeNotAttending(){
-        Page<Event> events = eventDao.findFinishedEventsByAttendee(TestUtils.USER_I2_ID, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(0, events.getTotalPages());
-        assertEquals(0, events.getContent().size());
-    }
-    @Test
-    public void testFindFinishedEventsByAttendeeMissingUser(){
-        Page<Event> events = eventDao.findFinishedEventsByAttendee(12341234l, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(0, events.getTotalPages());
-        assertEquals(0, events.getContent().size());
-    }
 }

@@ -5,7 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
@@ -98,32 +97,6 @@ public class InterestHibernateDaoTest {
     public void testCreateDuplicate(){
         interestDao.create(TestUtils.INTEREST_1_NAME);
         em.flush();
-    }
-
-    @Test
-    public void testUpdate(){
-        interestDao.update(TestUtils.INTEREST_1_ID, TestUtils.INTEREST_NEW1_NAME);
-        em.flush();
-
-        Interest interest = jdbcTemplate.queryForObject(
-            TestUtils.INTEREST_SELECT_BY_ID,
-            TestUtils.INTEREST_ROW_MAPPER,
-            TestUtils.INTEREST_1_ID
-        );
-        TestUtils.assertEqualsInterest(new Interest(TestUtils.INTEREST_1_ID, TestUtils.INTEREST_NEW1_NAME), interest);
-    }
-    @Test
-    public void testUpdateNotFound(){
-        interestDao.update(12341234, TestUtils.INTEREST_1_NAME);
-        em.flush();
-
-        List<Interest> interests = jdbcTemplate.query(TestUtils.INTEREST_SELECT + "ORDER BY id ASC", TestUtils.INTEREST_ROW_MAPPER);
-
-        assertNotNull(interests);
-        assertEquals(TestUtils.TOTAL_INTERESTS, interests.size());
-        TestUtils.assertEqualsInterest(TestUtils.INTEREST_1, interests.get(0));
-        TestUtils.assertEqualsInterest(TestUtils.INTEREST_2, interests.get(1));
-        TestUtils.assertEqualsInterest(TestUtils.INTEREST_3, interests.get(2));
     }
 
     @Test

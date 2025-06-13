@@ -105,9 +105,27 @@ public class CityServiceImplTest {
 
     @Test
     public void testUpdateCity(){
+        City newCity = new City("CITY_1_NAME", null, CITY_1_ID);
         when(
             countryService.findCountryByName(eq(COUNTRY_NAME))
         ).thenReturn(Optional.of(COUNTRY));
+        when(
+            cityDao.findById(eq(CITY_1_ID))
+        ).thenReturn(Optional.of(newCity));
+
+        cityService.updateCity(CITY_1_ID, CITY_1_NAME, COUNTRY_NAME);
+
+        assertEquals(CITY_1_NAME, newCity.getName());
+        assertEquals(COUNTRY_NAME, newCity.getCountry().getName());
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testUpdateCityNotFound(){
+        when(
+            countryService.findCountryByName(eq(COUNTRY_NAME))
+        ).thenReturn(Optional.of(COUNTRY));
+        when(
+            cityDao.findById(eq(CITY_1_ID))
+        ).thenReturn(Optional.empty());
 
         cityService.updateCity(CITY_1_ID, CITY_1_NAME, COUNTRY_NAME);
     }

@@ -50,14 +50,6 @@ public class InterestHibernateDao implements InterestDao {
     }
 
     @Override
-    public void update(long id, String interest) {
-        final Interest i = em.find(Interest.class, id);
-        if (i != null) {
-            i.setName(interest);
-        }
-    }
-
-    @Override
     public Page<Interest> findAll(PageParams pageParams) {
         final String countSql = """
                 SELECT COUNT(*)

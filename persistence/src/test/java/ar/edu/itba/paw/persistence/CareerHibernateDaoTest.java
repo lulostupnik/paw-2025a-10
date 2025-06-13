@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -174,31 +173,6 @@ public class CareerHibernateDaoTest {
         em.flush();
     }
 
-    @Test
-    public void testUpdate(){
-        careerDao.update(TestUtils.CAREER_1_ID, TestUtils.CAREER_INSERT1_NAME);
-        em.flush();
-
-        TestUtils.assertEqualsCareer(
-            new Career(TestUtils.CAREER_1_ID, TestUtils.CAREER_INSERT1_NAME),
-            jdbcTemplate.queryForObject(TestUtils.CAREER_SELECT_BY_ID, TestUtils.CAREER_ROW_MAPPER, TestUtils.CAREER_1_ID)
-        );
-    }
-
-    @Test(expected = PersistenceException.class)
-    public void testUpdateDuplicate(){
-        careerDao.update(TestUtils.CAREER_1_ID, TestUtils.CAREER_2_NAME);
-        em.flush();
-    }
-    @Test
-    public void testUpdateWrongCareer(){
-        careerDao.update(12341234, TestUtils.CAREER_INSERT1_NAME);
-        em.flush();
-
-        for (Career career : List.of(TestUtils.CAREER_1, TestUtils.CAREER_2, TestUtils.CAREER_DELETED)){
-            TestUtils.assertEqualsCareer(career, jdbcTemplate.queryForObject(TestUtils.CAREER_SELECT_BY_ID, TestUtils.CAREER_ROW_MAPPER, career.getId()));
-        }
-    }
 
     @Test
     public void testSearchBySubstringNoFiltering(){

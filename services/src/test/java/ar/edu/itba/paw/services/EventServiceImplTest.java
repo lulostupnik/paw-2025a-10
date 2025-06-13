@@ -904,7 +904,19 @@ public class EventServiceImplTest {
     @Test
     public void testFindUpcomingEventsByAttendee(){
         when(
-            eventDao.findUpcomingEventsByAttendee(eq(USER_ID), eq(PAGE_1_DEFAULT))
+            eventDao.findAllWithFilters(
+                eq(USER_ID), 
+                eq(null),
+                eq(null),
+                any(SortDirection.class),
+                eq(null),
+                any(LocalDate.class),
+                eq(null),
+                eq(null),
+                eq(true),
+                eq(false),
+                eq(PAGE_1_DEFAULT)
+            )
         ).thenReturn(EVENTS_PAGE);
 
         Page<Event> events = eventService.findUpcomingEventsByAttendee(USER_ID, PAGE_1_DEFAULT);
@@ -916,7 +928,19 @@ public class EventServiceImplTest {
     @Test
     public void testFindFinishedEventsByAttendee(){
         when(
-            eventDao.findFinishedEventsByAttendee(eq(USER_ID), eq(PAGE_1_DEFAULT))
+            eventDao.findAllWithFilters(
+                eq(USER_ID), 
+                eq(null),
+                eq(null),
+                any(SortDirection.class),
+                eq(null),
+                eq(null),
+                any(LocalDate.class),
+                eq(null),
+                eq(true),
+                eq(false),
+                eq(PAGE_1_DEFAULT)
+            )
         ).thenReturn(EVENTS_PAGE);
 
         Page<Event> events = eventService.findFinishedEventsByAttendee(USER_ID, PAGE_1_DEFAULT);
@@ -1008,14 +1032,12 @@ public class EventServiceImplTest {
             eventDao.findAllWithFilters(
                 eq(null),
                 eq(TITLE),
-                eq(SortFieldEvent.ATTENDEES),
-                eq(SortDirection.DESC),
+                any(SortFieldEvent.class),
+                any(SortDirection.class),
                 eq(CITY_NAME),
-                eq(EVENT_DATE),
-                eq(EVENT_DATE),
+                any(LocalDate.class),
+                any(LocalDate.class),
                 eq(INTEREST),
-                eq(false),
-                eq(true),
                 eq(true),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
@@ -1049,11 +1071,9 @@ public class EventServiceImplTest {
                 eq(SortFieldEvent.from(null)),
                 eq(SortDirection.from(null)),
                 eq(CITY_NAME),
-                eq(EVENT_DATE),
-                eq(EVENT_DATE),
+                any(LocalDate.class),
+                any(LocalDate.class),
                 eq(INTEREST),
-                eq(false),
-                eq(true),
                 eq(true),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
@@ -1070,6 +1090,150 @@ public class EventServiceImplTest {
             EVENT_DATE,
             INTEREST,
             false,
+            true,
+            true,
+            PAGE_1_DEFAULT
+        );
+
+        assertNotNull(page);
+        assertEquals(EVENTS_PAGE, page);
+    }
+    @Test
+    public void testSearchEventsWithFiltersNotUpcomingPast(){
+        when(
+            eventDao.findAllWithFilters(
+                eq(USER_ID),
+                eq(TITLE),
+                eq(SortFieldEvent.from(null)),
+                eq(SortDirection.from(null)),
+                eq(CITY_NAME),
+                any(LocalDate.class),
+                any(LocalDate.class),
+                eq(INTEREST),
+                eq(true),
+                eq(false),
+                eq(PAGE_1_DEFAULT)
+            )
+        ).thenReturn(EVENTS_PAGE);
+
+        Page<Event> page = eventService.searchEventsWithFilters(
+            TITLE,
+            USER,
+            SortFieldEvent.from(""),
+            SortDirection.from(""),
+            CITY_NAME,
+            EVENT_DATE,
+            EVENT_DATE,
+            INTEREST,
+            true,
+            false,
+            true,
+            PAGE_1_DEFAULT
+        );
+
+        assertNotNull(page);
+        assertEquals(EVENTS_PAGE, page);
+    }
+    @Test
+    public void testSearchEventsWithFiltersNotUpcomingPastDateChanges(){
+        when(
+            eventDao.findAllWithFilters(
+                eq(USER_ID),
+                eq(TITLE),
+                eq(SortFieldEvent.from(null)),
+                eq(SortDirection.from(null)),
+                eq(CITY_NAME),
+                any(LocalDate.class),
+                any(LocalDate.class),
+                eq(INTEREST),
+                eq(true),
+                eq(false),
+                eq(PAGE_1_DEFAULT)
+            )
+        ).thenReturn(EVENTS_PAGE);
+
+        Page<Event> page = eventService.searchEventsWithFilters(
+            TITLE,
+            USER,
+            SortFieldEvent.from(""),
+            SortDirection.from(""),
+            CITY_NAME,
+            LocalDate.now().plusDays(-10),
+            LocalDate.now(),
+            INTEREST,
+            true,
+            true,
+            true,
+            PAGE_1_DEFAULT
+        );
+
+        assertNotNull(page);
+        assertEquals(EVENTS_PAGE, page);
+    }
+    @Test
+    public void testSearchEventsWithFiltersNotUpcomingPastNoDateChanges(){
+        when(
+            eventDao.findAllWithFilters(
+                eq(USER_ID),
+                eq(TITLE),
+                eq(SortFieldEvent.from(null)),
+                eq(SortDirection.from(null)),
+                eq(CITY_NAME),
+                any(LocalDate.class),
+                any(LocalDate.class),
+                eq(INTEREST),
+                eq(true),
+                eq(false),
+                eq(PAGE_1_DEFAULT)
+            )
+        ).thenReturn(EVENTS_PAGE);
+
+        Page<Event> page = eventService.searchEventsWithFilters(
+            TITLE,
+            USER,
+            SortFieldEvent.from(""),
+            SortDirection.from(""),
+            CITY_NAME,
+            LocalDate.now().plusDays(10),
+            LocalDate.now().plusDays(-10),
+            INTEREST,
+            true,
+            true,
+            true,
+            PAGE_1_DEFAULT
+        );
+
+        assertNotNull(page);
+        assertEquals(EVENTS_PAGE, page);
+    }
+    @Test
+    public void testSearchEventsWithFiltersNotUpcomingPastNoDates(){
+        when(
+            eventDao.findAllWithFilters(
+                eq(USER_ID),
+                eq(TITLE),
+                eq(SortFieldEvent.from(null)),
+                eq(SortDirection.from(null)),
+                eq(CITY_NAME),
+                any(LocalDate.class),
+                any(LocalDate.class),
+                eq(INTEREST),
+                eq(true),
+                eq(false),
+                eq(PAGE_1_DEFAULT)
+            )
+        ).thenReturn(EVENTS_PAGE);
+
+        Page<Event> page = eventService.searchEventsWithFilters(
+            TITLE,
+            USER,
+            SortFieldEvent.from(""),
+            SortDirection.from(""),
+            CITY_NAME,
+            null,
+            null,
+            INTEREST,
+            true,
             true,
             true,
             PAGE_1_DEFAULT
@@ -1339,12 +1503,10 @@ public class EventServiceImplTest {
                 eq(SortDirection.ASC), 
                 eq(null), 
                 eq(EVENT_DATE_PAST), 
-                eq(EVENT_DATE), 
+                any(LocalDate.class), 
                 eq(null), 
                 eq(true), 
                 eq(false), 
-                eq(true),
-                eq(false),
                 eq(PAGE_1_DEFAULT)
             )
         ).thenReturn(EVENTS_PAGE);
@@ -1368,10 +1530,8 @@ public class EventServiceImplTest {
                 any(SortDirection.class), 
                 eq(null), 
                 eq(EVENT_DATE_PAST), 
-                eq(EVENT_DATE),
+                any(LocalDate.class),
                 eq(null), 
-                eq(true), 
-                eq(true), 
                 eq(false), 
                 eq(true), 
                 any(PageParams.class)
@@ -1387,6 +1547,7 @@ public class EventServiceImplTest {
         assertEquals(EVENTS_PAGE, events);
     }
 
+
     @Test
     public void testFindAttendedByJourney(){
         when(
@@ -1397,12 +1558,10 @@ public class EventServiceImplTest {
                 any(SortDirection.class), 
                 eq(null), 
                 eq(EVENT_DATE_PAST), 
-                eq(EVENT_DATE),
+                any(LocalDate.class),
                 eq(null), 
                 eq(true), 
-                eq(false), 
-                eq(true), 
-                eq(false), 
+                eq(false),  
                 any(PageParams.class)
             )
         ).thenReturn(EVENTS_PAGE);

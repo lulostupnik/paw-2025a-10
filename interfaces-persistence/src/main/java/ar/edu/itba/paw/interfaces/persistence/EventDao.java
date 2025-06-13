@@ -20,13 +20,11 @@ public interface EventDao {
     Page<Event> findAllWithFilters(Long userId, String search,
                                    SortFieldEvent sortBy, SortDirection direction, String destination,
                                    LocalDate startDate, LocalDate endDate, String interest,
-                                   boolean isPast, boolean isUpcoming, boolean isAttending, boolean isCreator, PageParams pageParams);
+                                   boolean isAttending, boolean isCreator, PageParams pageParams);
     Page<Event> search(String search, PageParams pageParams);
     Optional<CountryAttendeeCount> findTopAttendeeCountry(long eventId);
 
     Page<Event> findAllEventsByAttendee(long userId, PageParams pageParams);
-    Page<Event> findUpcomingEventsByAttendee(long userId, PageParams pageParams);
-    Page<Event> findFinishedEventsByAttendee(long userId, PageParams pageParams);
 
     int countEventsCreatedByUser(long userId);
 

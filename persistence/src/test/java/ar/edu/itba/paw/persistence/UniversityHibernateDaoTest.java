@@ -245,36 +245,6 @@ public class UniversityHibernateDaoTest {
     }
 
     @Test
-    public void testUpdate(){
-        uniDao.update(TestUtils.UNIVERSITY_1_ID, TestUtils.UNIVERSITY_NEW_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_2_NAME);
-        em.flush();
-
-        University uni = jdbcTemplate.queryForObject(
-            TestUtils.UNIVERSITY_SELECT_BY_ID,
-            TestUtils.UNIVERSITY_ROW_MAPPER,
-            TestUtils.UNIVERSITY_1_ID
-        );
-        TestUtils.assertEqualsUni(new University(TestUtils.UNIVERSITY_1_ID, TestUtils.UNIVERSITY_NEW_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_2), uni);
-    }
-    @Test(expected = PersistenceException.class)
-    public void testUpdateDuplicateName(){
-        uniDao.update(TestUtils.UNIVERSITY_1_ID, TestUtils.UNIVERSITY_2_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1_NAME);
-        em.flush();
-    }
-    @Test(expected = IllegalArgumentException.class)
-    public void testUpdateMissingCity(){
-        uniDao.update(TestUtils.UNIVERSITY_1_ID, TestUtils.UNIVERSITY_2_NAME, TestUtils.UNIVERSITY_NEW_CODE, "Fake name");
-        em.flush();
-    }
-    @Test
-    public void testUpdateUniversityNotFound(){
-        uniDao.update(12341234, TestUtils.UNIVERSITY_2_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1_NAME);
-        em.flush();
-
-        TestUtils.assertUniversityDBDefaultState(jdbcTemplate);
-    }
-
-    @Test
     public void testCreate(){
         University uni = uniDao.create(TestUtils.UNIVERSITY_NEW_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1);
         em.flush();
