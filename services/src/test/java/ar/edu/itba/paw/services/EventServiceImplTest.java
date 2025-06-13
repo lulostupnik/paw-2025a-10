@@ -158,7 +158,7 @@ public class EventServiceImplTest {
         assertNotNull(event);
         assertEquals(EVENT, event);
     }
-    @Test(expected = RuntimeException.class)
+    @Test(expected = UserNotFoundException.class)
     public void testCreateEventUserNotFound(){
         when(
             cityService.findCityByName(eq(CITY_NAME))
@@ -179,7 +179,7 @@ public class EventServiceImplTest {
             LIMIT
         );
     }
-    @Test(expected = RuntimeException.class)
+    @Test(expected = CityNotFoundException.class)
     public void testCreateEventCityNotFound(){
         when(
             cityService.findCityByName(eq(CITY_NAME))

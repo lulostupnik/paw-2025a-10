@@ -791,7 +791,7 @@ public class JourneyServiceImplTest {
 
         assertTrue(hasJourney);
     }
-    @Test(expected = RuntimeException.class)
+    @Test(expected = UserNotFoundException.class)
     public void testExistsByUserEmailWrongUser(){
         when(
             userService.findUserByEmail(eq(EMAIL))

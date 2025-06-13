@@ -495,7 +495,7 @@ public class UserServiceImplTest {
 
         userService.initiatePasswordReset(EMAIL);
     }
-    @Test(expected = RuntimeException.class)
+    @Test(expected = UserNotFoundException.class)
     public void testInitiatePasswordResetUserNotFound(){
         when(
             userDao.findByEmail(eq(EMAIL))
