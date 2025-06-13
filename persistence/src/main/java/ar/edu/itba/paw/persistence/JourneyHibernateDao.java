@@ -281,9 +281,6 @@ public class JourneyHibernateDao implements JourneyDao {
             FROM journeys j
             JOIN users u ON j.user_id = u.id
             JOIN universities dest_univ ON j.destination_university_id = dest_univ.id
-            JOIN cities dest_city ON dest_univ.city_id = dest_city.id
-            JOIN universities uu ON u.university = uu.id
-            JOIN cities uc ON uu.city_id = uc.id
             CROSS JOIN user_journey uj
             CROSS JOIN user_data ud
             WHERE j.user_id != ud.id AND j.deleted = FALSE
@@ -331,12 +328,6 @@ public class JourneyHibernateDao implements JourneyDao {
             FROM journeys j
             JOIN users u ON j.user_id = u.id
             JOIN universities dest_univ ON j.destination_university_id = dest_univ.id
-            JOIN cities dest_city ON dest_univ.city_id = dest_city.id
-            JOIN countries dest_country ON dest_city.country_id = dest_country.id
-            JOIN universities uu ON u.university = uu.id
-            JOIN cities uc ON uu.city_id = uc.id
-            JOIN countries co ON uc.country_id = co.id
-            LEFT JOIN careers c ON u.career_id = c.id
             CROSS JOIN user_journey uj
             CROSS JOIN user_data ud
             WHERE j.user_id != ud.id AND j.deleted = FALSE
