@@ -11,7 +11,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
 
-import ar.edu.itba.paw.models.EventAttendance;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.persistence.config.TestConfig;
@@ -146,66 +145,6 @@ public class EventAttendanceHibernateDaoTest {
         boolean attending = attendanceDao.exists(1241234, TestUtils.EVENT_1_ID);
 
         assertFalse(attending);
-    }
-
-    @Test
-    public void testListAllByEventId(){
-        Page<EventAttendance> attendances = attendanceDao.listAllByEventId(TestUtils.EVENT_1_ID, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(attendances);
-        assertEquals(1, attendances.getCurrentPage());
-        assertEquals(1, attendances.getTotalPages());
-        assertEquals(TestUtils.EVENT_1_ATTENDEES, attendances.getContent().size());
-    }
-    @Test
-    public void testListAllByEventIdMissingEvent(){
-        Page<EventAttendance> attendances = attendanceDao.listAllByEventId(12341234l, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(attendances);
-        assertEquals(1, attendances.getCurrentPage());
-        assertEquals(0, attendances.getTotalPages());
-        assertEquals(0, attendances.getContent().size());
-    }
-
-    @Test
-    public void testListAllByUserId(){
-        Page<EventAttendance> attendances = attendanceDao.listAllByUserId(TestUtils.USER_1_ID, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(attendances);
-        assertEquals(1, attendances.getCurrentPage());
-        assertEquals(1, attendances.getTotalPages());
-        assertEquals(TestUtils.USER_1_ATTENDANCES, attendances.getContent().size());
-    }
-    @Test
-    public void testListAllByUserIdMissingEvent(){
-        Page<EventAttendance> attendances = attendanceDao.listAllByUserId(12341234l, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(attendances);
-        assertEquals(1, attendances.getCurrentPage());
-        assertEquals(0, attendances.getTotalPages());
-        assertEquals(0, attendances.getContent().size());
-    }
-
-    @Test
-    public void testCountAttendeesByEventIdCount(){
-        int attendees = attendanceDao.countAttendantsByEventId(TestUtils.EVENT_1_ID);
-
-        assertNotNull(attendees);
-        assertEquals(TestUtils.EVENT_1_ATTENDEES, attendees);
-    }
-    @Test
-    public void testCountAttendeesCountNoAttendeesByEventId(){
-        int attendees = attendanceDao.countAttendantsByEventId(TestUtils.EVENT_3_ID);
-
-        assertNotNull(attendees);
-        assertEquals(0, attendees);
-    }
-    @Test
-    public void testCountAttendeesByEventIdCountMissingEvent(){
-        int attendees = attendanceDao.countAttendantsByEventId(412341234);
-
-        assertNotNull(attendees);
-        assertEquals(0, attendees);
     }
 
     @Test

@@ -205,7 +205,7 @@ public class ReportHibernateDaoTest {
     }
     @Test(expected = PersistenceException.class)
     public void testCreateEventReportInvalidEvent(){
-        reportDao.create(TestUtils.USER_2, TestUtils.USER_1, new Event(12341234l, null, null, null, 0, null, null, null, null, null, 0), TestUtils.REPORT_EVENT_DESC, TestUtils.HARASSMENT);
+        reportDao.create(TestUtils.USER_2, TestUtils.USER_1, new Event(12341234l, null, null, null, 0, null, null, null, null, null), TestUtils.REPORT_EVENT_DESC, TestUtils.HARASSMENT);
         em.flush();
     }
 
