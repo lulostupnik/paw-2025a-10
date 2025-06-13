@@ -472,14 +472,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public void deleteEventResponse(final EventResponse eventResponse, final String message) {
         LOGGER.debug("Deleting event response {}", eventResponse);
-
-        //        EventResponse deletedComment = findEventResponseById(eventResponse)
-//                .orElseThrow(() ->{
-//                    LOGGER.error("Event response not found {}", eventResponse);
-//                    return new EventResponseNotFoundException("Event response doesn't exist");});
-
         Event event = eventResponse.getEvent();
-
         User commentAuthor = eventResponse.getUser();
         emailService.sendEventCommentDeletionNotification(eventResponse,new EmailEvent(event),new EmailUser(commentAuthor), message );
         LOGGER.info("Email notification sent for the event response {}", eventResponse);
@@ -595,31 +588,6 @@ public class EventServiceImpl implements EventService {
         LocalDate today = LocalDate.now();
         return startDate == null || startDate.isBefore(today) ? today : startDate;
     }
-
-//
-//    @Override
-//    @Scheduled(cron = "0 0 12 * * ?")
-//    @Transactional(readOnly = true)
-//    public void sendEventReminders(){
-//        LOGGER.info("Starting scheduled task: sending reminder emails for upcoming events");
-//        LocalDate today = LocalDate.now();
-//        LocalDate tomorrow = today.plusDays(1);
-//
-//        // CHANGE TO USE PAGES:
-//        List<Event> upcomingEvents = eventDao.findAllBetweenDates(today, tomorrow);
-//
-//        LOGGER.info("Found {} events occurring in the next 24 hours", upcomingEvents.size());
-//
-//        for (Event event : upcomingEvents) {
-//            // CHANGE HERE:
-//            // List<User> eventAttendees = ???;
-//            // emailService.sendEventReminderNotification(event, attendees);
-//        }
-//
-//        LOGGER.info("Completed scheduled task: sent reminder emails for upcoming events");
-//
-//    }
-
 
     @Override
     @Scheduled(cron = "0 0 12 * * ?")

@@ -38,18 +38,18 @@ public class UserInterestHibernateDao implements UserInterestDao {
     }
 
     @Override
-    public List<UserInterest> findAllByUser(User user) { // fixme: mover a User? O crear un UserInterestDao
+    public List<UserInterest> findAllByUser(User user) {
         return em.createQuery("FROM UserInterest ui WHERE ui.user.id = :id", UserInterest.class)
                 .setParameter("id", user.getId())
                 .getResultList();
     }
-    private List<UserInterest> findAllByUserId(long userId) { //fixme: mover a User? O crear un UserInterestDao
+    private List<UserInterest> findAllByUserId(long userId) {
         return em.createQuery("FROM UserInterest ui WHERE ui.user.id = :id", UserInterest.class)
                 .setParameter("id", userId)
                 .getResultList();
     }
     @Override
-    public Page<UserInterest> findAllByUser(User user, PageParams pageParams) {  //fixme: mover a User? O crear un UserInterestDao
+    public Page<UserInterest> findAllByUser(User user, PageParams pageParams) {
         final String countSql = """
                 SELECT COUNT(*)
                 FROM user_interest ui

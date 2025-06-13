@@ -368,37 +368,3 @@ public class JourneyHibernateDao implements JourneyDao {
 
 }
 
-
-
-//
-//@Override
-//public void delete(long id) {
-//    final Journey journey = em.find(Journey.class, id);
-//    if (journey != null) {
-//        journey.setDeleted(true);
-//        em.merge(journey);
-//    }
-//
-//}
-
-//
-//@Override
-//public void update(long journeyId, University destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
-//    final Journey journey = em.find(Journey.class, journeyId);
-//    if (journey != null) {
-//        journey.setDestinationUniversity(destinationUniversity);
-//        journey.setStartDate(startDate);
-//        journey.setEndDate(endDate);
-//        journey.setDescription(description);
-//    }
-//}
-
-//
-//    @Override
-//    public void updateDeletionMessage(long id, String message) {
-//        final Journey journey = em.find(Journey.class, id);
-//        if (journey != null) {
-//            journey.setDeletionMessage(message);
-//            em.merge(journey);
-//        }
-//    }

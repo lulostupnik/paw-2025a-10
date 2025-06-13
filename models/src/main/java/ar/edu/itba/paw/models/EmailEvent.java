@@ -29,7 +29,7 @@ public class EmailEvent {
 
     private final  Integer attendeesLimit;
 
-    private final  int attendeesCount; //FIXME: yo borraria esto
+    private final  int attendeesCount;
 
     private final  boolean deleted;
 
