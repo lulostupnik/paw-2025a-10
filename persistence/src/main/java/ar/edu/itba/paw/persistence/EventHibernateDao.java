@@ -149,7 +149,7 @@ public class EventHibernateDao implements EventDao {
         return results.stream()
                 .findFirst()
                 .map(row -> new CountryAttendeeCount((String) row[0], ((Number) row[1]).intValue()));
-    }       //@TODO preuntar. !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! JDBC ! MODELO EVENT RESPONSE???!! :/
+    }
 
 
 

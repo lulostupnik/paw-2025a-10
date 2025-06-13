@@ -70,61 +70,61 @@ public class EventServiceImpl implements EventService {
         return event;
     }
 
-    // todo: check
-    @Override
-    @Transactional
-    public void replyToEvent(final String email, final long eventId, final String message) {
-        LOGGER.debug("Replying to event {}", eventId);
-        Event event = eventDao.findById(eventId).orElseThrow(() -> {
-            LOGGER.error("Event not found {}", eventId);
-            return new EventNotFoundException("Event not found");
-        });
+        // todo: check
+        @Override
+        @Transactional
+        public void replyToEvent(final String email, final long eventId, final String message) {
+            LOGGER.debug("Replying to event {}", eventId);
+            Event event = eventDao.findById(eventId).orElseThrow(() -> {
+                LOGGER.error("Event not found {}", eventId);
+                return new EventNotFoundException("Event not found");
+            });
 
-        User responder = userService.findUserByEmail(email).orElseThrow(() -> {
-            LOGGER.error("User not found {}", email);
-            return new UserNotFoundException("User not found");
-        });
+            User responder = userService.findUserByEmail(email).orElseThrow(() -> {
+                LOGGER.error("User not found {}", email);
+                return new UserNotFoundException("User not found");
+            });
 
-        eventResponseDao.create(responder, event, message);
-        LOGGER.info("Event response {} created", eventId);
+            eventResponseDao.create(responder, event, message);
+            LOGGER.info("Event response {} created", eventId);
 
-        int page = 1;
-        int pageSize = 50;
-        Page<User> respondersPage;
+            int page = 1;
+            int pageSize = 50;
+            Page<User> respondersPage;
 
-        EmailUser emailResponder = new EmailUser(responder);
-        EmailEvent emailEvent = new EmailEvent(event);
+            EmailUser emailResponder = new EmailUser(responder);
+            EmailEvent emailEvent = new EmailEvent(event);
 
-        do {
-            respondersPage = eventResponseDao.findRespondersByEventId(
-                    eventId,
-                    new PageParams(page, pageSize)
-            );
-
-           
-            List<EmailUser> responders = respondersPage.getContent().stream()
-                    .map(EmailUser::new)
-                    .toList();
-
-
-            if (!responders.isEmpty()) {
-                emailService.answerEventNotification(
-                        responders,
-                        message,
-                        emailResponder,
-                        emailEvent
+            do {
+                respondersPage = eventResponseDao.findRespondersByEventId(
+                        eventId,
+                        new PageParams(page, pageSize)
                 );
-            }
 
-            page++;
-        } while (page <= respondersPage.getTotalPages());
 
-        LOGGER.info("Email notifications sent to all responders for event {}", eventId);
+                List<EmailUser> responders = respondersPage.getContent().stream()
+                        .map(EmailUser::new)
+                        .toList();
 
-        emailService.answerEventOwnerNotification(message, emailResponder, emailEvent);
-        LOGGER.info("Email notifications sent to event owner for event {}", eventId);
 
-    }
+                if (!responders.isEmpty()) {
+                    emailService.answerEventNotification(
+                            responders,
+                            message,
+                            emailResponder,
+                            emailEvent
+                    );
+                }
+
+                page++;
+            } while (page <= respondersPage.getTotalPages());
+
+            LOGGER.info("Email notifications sent to all responders for event {}", eventId);
+
+            emailService.answerEventOwnerNotification(message, emailResponder, emailEvent);
+            LOGGER.info("Email notifications sent to event owner for event {}", eventId);
+
+        }
 
     @Override
     public Optional<Event> findEventById(final long id){
@@ -492,13 +492,13 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public Page<EventResponse> findEventResponses(final long eventId, final PageParams pageParams) { //fixme: mover esta búsqueda al eventDao (o paginar aca)
+    public Page<EventResponse> findEventResponses(final long eventId, final PageParams pageParams) {
         LOGGER.debug("Getting all responses for event {} with pageParams {}", eventId, pageParams);
         return eventResponseDao.listAllByEventId(eventId,pageParams);
     }
 
     @Override
-    public Optional<EventResponse> findEventResponseById(final long id){ // fixme: mover esta búsqueda al eventDao
+    public Optional<EventResponse> findEventResponseById(final long id){
         LOGGER.debug("Getting event response by id {}", id);
         return eventResponseDao.findById(id);
     }
