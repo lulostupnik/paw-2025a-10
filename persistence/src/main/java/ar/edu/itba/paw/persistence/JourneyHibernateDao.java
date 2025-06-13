@@ -121,10 +121,6 @@ public class JourneyHibernateDao implements JourneyDao {
         );
     }
 
-    @Override
-    public Page<Journey> search(String search, PageParams pageParams) {
-        return null;
-    }
 
     private String getOrderByColumn(SortFieldJourney orderBy, boolean jql) {
         if(orderBy == null){
@@ -139,8 +135,7 @@ public class JourneyHibernateDao implements JourneyDao {
     @Override
     public Page<Journey> search(final String searchTerm, final Long userId, final SortFieldJourney orderBy, final SortDirection direction,
                                 final String city, final LocalDate startDate, final LocalDate endDate, final String interest,
-                                final boolean isPast, final boolean isUpcoming, final boolean isMyDestination, final boolean isOngoing,
-                                final PageParams pageParams) {
+                                final boolean isMyDestination, final PageParams pageParams) {
 
         final String pattern = likePattern(searchTerm);
 
@@ -215,19 +210,6 @@ public class JourneyHibernateDao implements JourneyDao {
             paramMap.put("pattern", pattern);
         }
 
-        if (isOngoing) {
-            filters.add("j.start_date <= :now AND j.end_date >= :now");
-            paramMap.put("now", LocalDate.now());
-        } else {
-            if (isUpcoming) {
-                filters.add("j.start_date > :now");
-                paramMap.put("now", LocalDate.now());
-            }
-            if (isPast) {
-                filters.add("j.end_date < :now");
-                paramMap.put("now", LocalDate.now());
-            }
-        }
 
         if (isMyDestination && userId != null) {
             if (!joinedUnis){
