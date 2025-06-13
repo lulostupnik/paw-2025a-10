@@ -383,7 +383,8 @@ public class EventHibernateDao implements EventDao {
         return switch (sortBy) {
             case ATTENDEES -> jql? "attendeesCount" : "(SELECT COUNT(*) FROM event_attendances ea where ea.event_id = e.id) ";
             case DATE      -> jql ? "date":"e.event_date";
-            default        -> jql?"id":"e.id";
+            case RATING    -> jql ? "rating":"COALESCE((SELECT AVG(r.rating) FROM ratings r WHERE r.event_id = id),0)";
+            default        -> jql ? "id":"e.id";
         };
     }
 
