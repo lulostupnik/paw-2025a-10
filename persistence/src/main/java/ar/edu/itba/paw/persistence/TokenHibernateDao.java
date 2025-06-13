@@ -48,8 +48,6 @@ public class TokenHibernateDao implements TokenDao {
         final Token tkn = entityManager.getReference(Token.class, token.getTokenId());
         entityManager.remove(tkn);
         entityManager.flush();
-        //Ver tema token no se encuentra en la base de datos
-        //no deberia llegar a este punto
     }
 
 

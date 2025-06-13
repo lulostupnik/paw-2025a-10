@@ -5,6 +5,7 @@ import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.exceptions.UniversityNotFoundException;
 import ar.edu.itba.paw.webapp.form.CreateUniversityForm;
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
 import ar.edu.itba.paw.webapp.utils.JsonUtils;
@@ -71,7 +72,7 @@ public class UniversityController {
         mav.addObject(UNIVERSITY, universityService.findById(id).orElseThrow(
                 () -> {
                     LOGGER.error("University not found for id: {}", id);
-                    return new NotFoundException("University not found");}
+                    return new UniversityNotFoundException("University not found");}
         ));
         return mav;
     }
@@ -82,7 +83,7 @@ public class UniversityController {
         if(! errors.hasErrors()) {
             University university = universityService.findById(id).orElseThrow(()-> {
                 LOGGER.error("University not found for id: {}", id);
-                return new NotFoundException("University not found");});
+                return new UniversityNotFoundException("University not found");});
             form.setName(university.getName());
             form.setAbbreviation(university.getAbbreviation());
             form.setCity(university.getCity().getName());

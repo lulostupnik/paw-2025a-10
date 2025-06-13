@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.CountryService;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.CityNotFoundException;
 import ar.edu.itba.paw.models.exceptions.CountryNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +75,7 @@ public class CityServiceImpl implements CityService {
         City city = cityDao.findById(id)
                 .orElseThrow(() -> {
                     LOGGER.error("City with id {} not found", id);
-                    return new IllegalArgumentException("City not found");});
+                    return new CityNotFoundException("City not found");});
         city.setName(name);
         city.setCountry(country);
         LOGGER.info("City with id {} updated successfully", id);

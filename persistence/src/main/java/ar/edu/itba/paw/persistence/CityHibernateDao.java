@@ -2,6 +2,7 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.CityAlreadyExistsException;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -121,7 +122,7 @@ public class CityHibernateDao implements CityDao {
                 em.merge(city);
                 return city;
             } else {
-                throw new IllegalArgumentException("City with this name and country already exists.");
+                throw new CityAlreadyExistsException("City with this name and country already exists.");
             }
         }
         final City city = new City(nameEn, country);

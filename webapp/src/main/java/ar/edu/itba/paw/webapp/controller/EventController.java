@@ -296,7 +296,7 @@ public class EventController {
             @ModelAttribute("deleteReplyForm") ReplyForm form) {
         EventResponse er = eventService.findEventResponseById(id).orElseThrow(() -> {
             LOGGER.error("Event response with id {} not found", id);
-            return new NotFoundException("eventResponse not found");}); //fixme porque return new NotFoundException
+            return new EventResponseNotFoundException("eventResponse not found");});
         ModelAndView mav = new ModelAndView("events/delete-reply");
         mav.addObject("event", er.getEvent());
         mav.addObject("eventResponse", er);

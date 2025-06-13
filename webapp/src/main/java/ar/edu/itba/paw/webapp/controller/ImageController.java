@@ -3,6 +3,7 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.interfaces.services.ImageService;
 import ar.edu.itba.paw.models.Image;
 
+import ar.edu.itba.paw.models.exceptions.ImageNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ public class ImageController {
     public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
         Image image = imageService.findImage(id).orElseThrow(() -> {
             LOGGER.warn("Image {} not found", id);
-            return new NotFoundException("Image not found");
+            return new ImageNotFoundException("Image not found");
         });
 
         return ResponseEntity.ok()
