@@ -13,5 +13,4 @@ public interface EventRatingDao {
 
     int countRatingsByEvent(long eventId);
 
-    Optional<Double> findRatingsAverageByEvent(long eventId);
 }

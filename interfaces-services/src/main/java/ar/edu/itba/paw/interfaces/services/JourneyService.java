@@ -41,7 +41,6 @@ public interface JourneyService {
     Tip updateTip(long tipId, String title, String content);
     void deleteTip(long tipId);
     Optional<Tip> findTipById(long tipId);
-    boolean isTipOwnedByUser(Tip tip, User user);
     boolean isTipOwnedByUser(long tipId, String email);
 
 }
