@@ -4,7 +4,6 @@ import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.interfaces.services.UserService;
-import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,14 +39,6 @@ public class AccessHelper {
         return journeyService.isJourneyOwnedByUser(email, journeyId);
     }
 
-    public boolean isUserBlocked(){
-        if (Objects.equals(SecurityContextHolder.getContext().getAuthentication().getName(), "AnonymousUser")) return false;
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userService.findUserByEmail(email).orElseThrow(() ->{
-                LOGGER.warn("User not found: {}", email);
-                return new UserNotFoundException("User not found");
-        }).isBlocked();
-    }
     public boolean isUserTipOwner(long tipId) {
         if (Objects.equals(SecurityContextHolder.getContext().getAuthentication().getName(), "AnonymousUser")) return false;
         String email = SecurityContextHolder.getContext().getAuthentication().getName();

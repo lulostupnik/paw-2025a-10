@@ -114,7 +114,7 @@
                  class="${empty actualSort or (
           actualSort != 'date' and
           actualSort != 'attendees'
-          and ( !(escapedUpcoming != true and escapedAttending != true) and actualSort == 'rating' )
+          and ( (escapedUpcoming != true and escapedAttending != true) and actualSort != 'rating' )
         ) or (actualSort == 'date' and (empty escapedDirection or escapedDirection != "desc")) ? 'active' : ''}">
                 <spring:message code="event.sort.date.asc"/>
               </a>
@@ -178,7 +178,7 @@
           </li>
           </c:if>
           <li class="tab-item ${not empty escapedPast ? 'active' : ''}">
-            <a href="<c:url value="/events?isPast=true${not empty search ? '&search='.concat(search) : ''}${not empty destination ? '&destination='.concat(destination) : ''}${not empty cityName ? '&cityName='.concat(cityName) : ''}${not empty startDate ? '&startDate='.concat(startDate) : ''}${not empty endDate ? '&endDate='.concat(endDate) : ''}${not empty escapedInterests ? '&interests='.concat(escapedInterests) : ''}${not empty interestName ? 'interestName='.concat(interestName) : ''}${actualSort == 'rating' ? '&sort=date' : (not empty actualSort ? '&sort='.concat(actualSort) : '')}${not empty escapedDirection ? '&direction='.concat(escapedDirection) : ''}&page=1${not empty pageSize ? '&pageSize='.concat(pageSize) : ''}"/>" class="tab-link">
+            <a href="<c:url value="/events?isPast=true${not empty search ? '&search='.concat(search) : ''}${not empty destination ? '&destination='.concat(destination) : ''}${not empty cityName ? '&cityName='.concat(cityName) : ''}${not empty startDate ? '&startDate='.concat(startDate) : ''}${not empty endDate ? '&endDate='.concat(endDate) : ''}${not empty escapedInterests ? '&interests='.concat(escapedInterests) : ''}${not empty interestName ? 'interestName='.concat(interestName) : ''}${not empty actualSort ? '&sort='.concat(actualSort) : ''}${not empty escapedDirection ? '&direction='.concat(escapedDirection) : ''}&page=1${not empty pageSize ? '&pageSize='.concat(pageSize) : ''}"/>" class="tab-link">
               <spring:message code="event.tabs.past"/>
             </a>
           </li>

@@ -12,6 +12,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
 import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.models.exceptions.CareerAlreadyExistsException;
 import ar.edu.itba.paw.persistence.config.TestConfig;
 
 import org.junit.Before;
@@ -150,7 +151,7 @@ public class CareerHibernateDaoTest {
         assertEquals(TestUtils.CAREER_INSERT1_NAME, career.getName());
         assertTrue(career.getId() > 0);
     }
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = CareerAlreadyExistsException.class)
     public void testCreateDuplicateActive(){
         careerDao.create(TestUtils.CAREER_1_NAME);
         em.flush();

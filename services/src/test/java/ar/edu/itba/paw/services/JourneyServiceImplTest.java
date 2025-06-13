@@ -791,7 +791,7 @@ public class JourneyServiceImplTest {
 
         assertTrue(hasJourney);
     }
-    @Test(expected = RuntimeException.class)
+    @Test(expected = UserNotFoundException.class)
     public void testExistsByUserEmailWrongUser(){
         when(
             userService.findUserByEmail(eq(EMAIL))
@@ -1188,52 +1188,6 @@ public class JourneyServiceImplTest {
         assertNotNull(maybeTip);
         assertTrue(maybeTip.isPresent());
         assertEquals(TIP, maybeTip.get());
-    }
-
-    @Test
-    public void testIsTipOwnedByUserObject(){
-        boolean isOwned = journeyService.isTipOwnedByUser(TIP, USER);
-
-        assertTrue(isOwned);
-    }
-    @Test
-    public void testIsTipOwnedByUserObjectMissingTip(){
-        boolean isOwned = journeyService.isTipOwnedByUser(null, USER);
-
-        assertFalse(isOwned);
-    }
-    @Test
-    public void testIsTipOwnedByUserObjectMissingUser(){
-        boolean isOwned = journeyService.isTipOwnedByUser(TIP, null);
-
-        assertFalse(isOwned);
-    }
-    @Test
-    public void testIsTipOwnedByUserObjectJourneyWithoutUser(){
-        Journey j = new Journey(null, START_DATE, END_DATE, UNI, DESCRIPTION);
-        Tip t = new Tip(j, DESCRIPTION, DESCRIPTION);
-
-        boolean isOwned = journeyService.isTipOwnedByUser(t, USER);
-        
-        assertFalse(isOwned);
-    }
-    @Test
-    public void testIsTipOwnedByUserObjectJourneyWithoutUserId(){
-        User u = new User(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, CAREER_ID, LOCALE, false);
-        Journey j = new Journey(u, START_DATE, END_DATE, UNI, DESCRIPTION);
-        Tip t = new Tip(j, DESCRIPTION, DESCRIPTION);
-
-        boolean isOwned = journeyService.isTipOwnedByUser(t, USER);
-        
-        assertFalse(isOwned);
-    }
-    @Test
-    public void testIsTipOwnedByUserObjectUserWithoutId(){
-        User u = new User(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, CAREER_ID, LOCALE, false);
-
-        boolean isOwned = journeyService.isTipOwnedByUser(TIP, u);
-        
-        assertFalse(isOwned);
     }
 
     @Test

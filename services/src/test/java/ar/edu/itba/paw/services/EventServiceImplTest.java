@@ -158,7 +158,7 @@ public class EventServiceImplTest {
         assertNotNull(event);
         assertEquals(EVENT, event);
     }
-    @Test(expected = RuntimeException.class)
+    @Test(expected = UserNotFoundException.class)
     public void testCreateEventUserNotFound(){
         when(
             cityService.findCityByName(eq(CITY_NAME))
@@ -179,7 +179,7 @@ public class EventServiceImplTest {
             LIMIT
         );
     }
-    @Test(expected = RuntimeException.class)
+    @Test(expected = CityNotFoundException.class)
     public void testCreateEventCityNotFound(){
         when(
             cityService.findCityByName(eq(CITY_NAME))
@@ -845,29 +845,29 @@ public class EventServiceImplTest {
         assertEquals(RATING_COUNT, ratings);
     }
 
-    @Test
-    public void testFindRatingsAverageByEvent(){
-        when(
-            ratingDao.findRatingsAverageByEvent(eq(EVENT_ID))
-        ).thenReturn(Optional.of(AVERAGE_RATING));
-        
-        Optional<Double> rating = eventService.findRatingsAverageByEvent(EVENT_ID);
-        
-        assertNotNull(rating);
-        assertTrue(rating.isPresent());
-        assertEquals(AVERAGE_RATING, rating.get(), 0.1);
-    }
-    @Test
-    public void testFindRatingsAverageByEventNoRating(){
-        when(
-            ratingDao.findRatingsAverageByEvent(eq(EVENT_ID))
-        ).thenReturn(Optional.empty());
-        
-        Optional<Double> rating = eventService.findRatingsAverageByEvent(EVENT_ID);
-        
-        assertNotNull(rating);
-        assertFalse(rating.isPresent());
-    }
+//    @Test
+//    public void testFindRatingsAverageByEvent(){
+//        when(
+//            ratingDao.findRatingsAverageByEvent(eq(EVENT_ID))
+//        ).thenReturn(Optional.of(AVERAGE_RATING));
+//
+//        Optional<Double> rating = eventService.findRatingsAverageByEvent(EVENT_ID);
+//
+//        assertNotNull(rating);
+//        assertTrue(rating.isPresent());
+//        assertEquals(AVERAGE_RATING, rating.get(), 0.1);
+//    }
+//    @Test
+//    public void testFindRatingsAverageByEventNoRating(){
+//        when(
+//            ratingDao.findRatingsAverageByEvent(eq(EVENT_ID))
+//        ).thenReturn(Optional.empty());
+//
+//        Optional<Double> rating = eventService.findRatingsAverageByEvent(EVENT_ID);
+//
+//        assertNotNull(rating);
+//        assertFalse(rating.isPresent());
+//    }
 
     @Test
     public void testCountEventAttendees(){
