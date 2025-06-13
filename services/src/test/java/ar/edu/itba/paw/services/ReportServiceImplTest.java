@@ -45,7 +45,7 @@ public class ReportServiceImplTest {
     private static final ReportReason MISINFORMATION = ReportReason.MISINFORMATION;
     private static final Report REPORT = new Report(USER, USER, DESC, MISINFORMATION);
     private static final Journey JOURNEY = new Journey(JOURNEY_ID, USER, null, null, null, DESC);
-    private static final Event EVENT = new Event(EVENT_ID, USER, null, DESC, EVENT_ID, null, DESC, null, DESC, null, 0);
+    private static final Event EVENT = new Event(EVENT_ID, USER, null, DESC, EVENT_ID, null, DESC, null, DESC, null);
     private static final EventResponse EVENT_RESPONSE = new EventResponse(EVENT_RESPONSE_ID, USER, EVENT, DESC, null);
     private static final JourneyResponse JOURNEY_RESPONSE = new JourneyResponse(JOURNEY_RESPONSE_ID, USER, JOURNEY, DESC, null);
     private static final PageParams PAGE_PARAMS = new PageParams(1, 10);

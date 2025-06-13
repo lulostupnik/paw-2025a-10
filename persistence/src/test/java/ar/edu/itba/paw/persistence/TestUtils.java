@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -285,11 +286,11 @@ class TestUtils {
     public static final int USER_3_ATTENDANCES = 1;
     public static final int EVENT_1_REPLIES = 3;
     public static final int EVENT_1_REPLIERS = 1;
-    public static final Event EVENT_1 = new Event(EVENT_1_ID, USER_1, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_DEFAULT, EVENT_TIME_DEFAULT, EVENT_ADDRESS_DEFAULT, EVENT_ATTENDANCE_LIMIT_DEFAULT, EVENT_1_ATTENDEES);
-    public static final Event EVENT_2 = new Event(EVENT_2_ID, USER_2, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_2, EVENT_TIME_DEFAULT, EVENT_ADDRESS_DEFAULT, null, EVENT_2_ATTENDEES);
-    public static final Event EVENT_3 = new Event(EVENT_3_ID, USER_2, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_3, EVENT_TIME_DEFAULT, EVENT_ADDRESS_DEFAULT, EVENT_ATTENDANCE_LIMIT_DEFAULT, EVENT_3_ATTENDEES);
-    public static final Event EVENT_OLDER = new Event(EVENT_OLDER_ID, USER_1, EVENT_DATE_OLDER, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_PAST, EVENT_TIME_DEFAULT, EVENT_ADDRESS_DEFAULT, EVENT_ATTENDANCE_LIMIT_DEFAULT, EVENT_OLDER_ATTENDEES);
-    public static final Event EVENT_DELETED = new Event(EVENT_DELETED_ID, USER_2, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_DELETED, EVENT_TIME_DEFAULT, EVENT_ADDRESS_DEFAULT, EVENT_ATTENDANCE_LIMIT_DEFAULT, EVENT_DELETED_ATTENDEES);
+    public static final Event EVENT_1 = new Event(EVENT_1_ID, USER_1, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_DEFAULT, EVENT_TIME_DEFAULT, EVENT_ADDRESS_DEFAULT, EVENT_ATTENDANCE_LIMIT_DEFAULT);
+    public static final Event EVENT_2 = new Event(EVENT_2_ID, USER_2, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_2, EVENT_TIME_DEFAULT, EVENT_ADDRESS_DEFAULT, null);
+    public static final Event EVENT_3 = new Event(EVENT_3_ID, USER_2, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_3, EVENT_TIME_DEFAULT, EVENT_ADDRESS_DEFAULT, EVENT_ATTENDANCE_LIMIT_DEFAULT);
+    public static final Event EVENT_OLDER = new Event(EVENT_OLDER_ID, USER_1, EVENT_DATE_OLDER, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_PAST, EVENT_TIME_DEFAULT, EVENT_ADDRESS_DEFAULT, EVENT_ATTENDANCE_LIMIT_DEFAULT);
+    public static final Event EVENT_DELETED = new Event(EVENT_DELETED_ID, USER_2, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID, CITY_1, EVENT_TITLE_DELETED, EVENT_TIME_DEFAULT, EVENT_ADDRESS_DEFAULT, EVENT_ATTENDANCE_LIMIT_DEFAULT);
     public static final Map<Long, Event> EVENT_DATA = Map.of(EVENT_1_ID, EVENT_1, EVENT_2_ID, EVENT_2, EVENT_3_ID, EVENT_3, EVENT_OLDER_ID, EVENT_OLDER);
     public static final long EVENT_RESPONSE_1_ID = 1;
     public static final long EVENT_RESPONSE_2_ID = 2;
@@ -747,8 +748,7 @@ class TestUtils {
         rs.getString("title"),
         rs.getTime("event_time") != null ? rs.getTime("event_time").toLocalTime() : null,
         rs.getString("address"),
-        rs.getInt("attendees_limit") != 0 ? rs.getInt("attendees_limit") : null,
-        rs.getInt("attendees_count")
+        rs.getInt("attendees_limit") != 0 ? rs.getInt("attendees_limit") : null
     );
 
     public static final RowMapper<EventResponse> EVENT_RESPONSE_ROW_MAPPER = (rs, n) ->
@@ -892,6 +892,13 @@ class TestUtils {
         assertEqualsUni(expected.getDestinationUniversity(), actual.getDestinationUniversity());
     }
 
+    public static void assertEqualsJourneyList(List<Journey> expected, List<Journey> actual){
+        assertEquals(expected.size(), actual.size());
+        for (Journey j : actual){
+            assertTrue(expected.contains(j));
+        }
+    }
+
     public static void assertEqualsJourneyReply(JourneyResponse expected, JourneyResponse actual){
         assertNotNull(actual);
         assertNotNull(expected);
@@ -907,7 +914,6 @@ class TestUtils {
         assertNotNull(expected);
         assertEquals(expected.getId(), actual.getId());
         assertEquals(expected.getAddress(), actual.getAddress());
-        assertEquals(expected.getAttendeesCount(), actual.getAttendeesCount());
         assertEquals(expected.getAttendeesLimit(), actual.getAttendeesLimit());
         assertEquals(expected.getDate(), actual.getDate());
         assertEquals(expected.getDescription(), actual.getDescription());
@@ -943,8 +949,7 @@ class TestUtils {
         String description = (String)overrides.getOrDefault("description", EVENT_DESCRIPTION_DEFAULT);
         String title = (String)overrides.getOrDefault("title", EVENT_TITLE_DEFAULT);
         Image image = (Image)overrides.getOrDefault("image", IMAGE_1);
-        int attendees = (int)overrides.getOrDefault("attendees", EVENT_1_ATTENDEES);
-        Event newEvent = new Event(id, user, date, description, image.getId(), city, title, time, address, limit, attendees);
+        Event newEvent = new Event(id, user, date, description, image.getId(), city, title, time, address, limit);
         assertEqualsEvent(newEvent, event);
     }
 
@@ -1079,8 +1084,7 @@ class TestUtils {
             (String)params.get("title"),
             params.get("event_time") != null ? ((Time)params.get("event_time")).toLocalTime() : null,
             (String)params.get("address"),
-            (Integer)params.get("attendees_limit"),
-            (int)params.get("attendees_count")
+            (Integer)params.get("attendees_limit")
         );
     }
 

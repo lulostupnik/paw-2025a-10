@@ -53,7 +53,7 @@ public class EventRatingHibernateDaoTest {
     }
     @Test(expected = PersistenceException.class)
     public void testRateEventMissingEvent(){
-        rateDao.rateEvent(TestUtils.USER_3, new Event(12341234l, null, null, null, 0l, null, null, null, null, null, 0), 3);
+        rateDao.rateEvent(TestUtils.USER_3, new Event(12341234l, null, null, null, 0l, null, null, null, null, null), 3);
         em.flush();
     }
     @Test(expected = PersistenceException.class)

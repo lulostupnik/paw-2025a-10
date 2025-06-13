@@ -20,6 +20,7 @@ import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Country;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.models.exceptions.CityNotFoundException;
 import ar.edu.itba.paw.models.exceptions.CountryNotFoundException;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -118,7 +119,7 @@ public class CityServiceImplTest {
         assertEquals(CITY_1_NAME, newCity.getName());
         assertEquals(COUNTRY_NAME, newCity.getCountry().getName());
     }
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = CityNotFoundException.class)
     public void testUpdateCityNotFound(){
         when(
             countryService.findCountryByName(eq(COUNTRY_NAME))

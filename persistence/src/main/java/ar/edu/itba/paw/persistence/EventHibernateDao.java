@@ -381,8 +381,8 @@ public class EventHibernateDao implements EventDao {
             return jql? "id":"e.id";
         }
         return switch (sortBy) {
-            case ATTENDEES -> jql? "attendeesCount" : "e.attendees_count";
-            case DATE      -> jql ? "date":"e.event_date";
+            case ATTENDEES -> jql? "attendeesCount" : "COUNT(ea.user_id)";
+            case DATE      -> jql ? "date":"MAX(e.event_date)";
             default        -> jql?"id":"e.id";
         };
     }
@@ -412,6 +412,7 @@ public class EventHibernateDao implements EventDao {
         JOIN users us ON e.user_id = us.id
         JOIN universities un ON us.university = un.id
         JOIN cities ci ON un.city_id = ci.id
+        LEFT JOIN event_attendances ea ON e.id = ea.event_id 
     """);
 
         if (interest != null && !interest.isEmpty()) {
@@ -481,7 +482,7 @@ public class EventHibernateDao implements EventDao {
         String sortColumn = getSortColumn(sortBy, false);
         String dir = (direction == SortDirection.DESC) ? "DESC" : "ASC";
 
-        idSql.append(" ORDER BY ").append(sortColumn).append(" ").append(dir);
+        idSql.append(" GROUP BY e.id ORDER BY ").append(sortColumn).append(" ").append(dir);
 
         // JPQL fetch
         final String jpqlFetch = "FROM Event e WHERE e.id IN :ids ORDER BY " + getSortColumn(sortBy, true) + " " + dir;

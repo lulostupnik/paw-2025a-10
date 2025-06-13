@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -199,8 +200,8 @@ public class JourneyHibernateDaoTest {
         assertEquals(1, page1.getTotalPages());
         assertNotNull(page1.getContent());
         assertEquals(2, page1.getContent().size());
-        TestUtils.assertEqualsJourney(TestUtils.JOURNEY_2, page1.getContent().get(0));
-        TestUtils.assertEqualsJourney(newJourney, page1.getContent().get(1));
+
+        TestUtils.assertEqualsJourneyList(List.of(TestUtils.JOURNEY_2, newJourney), page1.getContent());
     }
     @Test
     public void testRecommendedJourneysNoJourneys(){
@@ -229,8 +230,7 @@ public class JourneyHibernateDaoTest {
         assertEquals(1, page1.getTotalPages());
         assertNotNull(page1.getContent());
         assertEquals(2, page1.getContent().size());
-        TestUtils.assertEqualsJourney(newJourney1, page1.getContent().get(0));
-        TestUtils.assertEqualsJourney(newJourney2, page1.getContent().get(1));
+        TestUtils.assertEqualsJourneyList(List.of(newJourney1, newJourney2), page1.getContent());
     }
     @Test
     public void testRecommendedJourneysWithInterests(){
@@ -249,10 +249,7 @@ public class JourneyHibernateDaoTest {
         assertEquals(1, page1.getTotalPages());
         assertNotNull(page1.getContent());
         assertEquals(4, page1.getContent().size());
-        TestUtils.assertEqualsJourney(newJourney1, page1.getContent().get(0));
-        TestUtils.assertEqualsJourney(newJourney2, page1.getContent().get(1));
-        TestUtils.assertEqualsJourney(newJourney3, page1.getContent().get(2));
-        TestUtils.assertEqualsJourney(TestUtils.JOURNEY_2, page1.getContent().get(3));
+        TestUtils.assertEqualsJourneyList(List.of(TestUtils.JOURNEY_2, newJourney1, newJourney2, newJourney3), page1.getContent());
     }
     @Test
     public void testRecommendedJourneysWithInterestsComplex(){
@@ -277,12 +274,7 @@ public class JourneyHibernateDaoTest {
         assertEquals(1, page1.getTotalPages());
         assertNotNull(page1.getContent());
         assertEquals(5, page1.getContent().size());
-
-        TestUtils.assertEqualsJourney(newJourney1, page1.getContent().get(0));
-        TestUtils.assertEqualsJourney(newJourney2, page1.getContent().get(1));
-        TestUtils.assertEqualsJourney(newJourney4, page1.getContent().get(2));
-        TestUtils.assertEqualsJourney(newJourney5, page1.getContent().get(3));
-        TestUtils.assertEqualsJourney(newJourney3, page1.getContent().get(4));
+        TestUtils.assertEqualsJourneyList(List.of(newJourney1, newJourney2, newJourney3, newJourney4, newJourney5), page1.getContent());
     }
 
     @Test
@@ -478,9 +470,7 @@ public class JourneyHibernateDaoTest {
         assertEquals(1, page.getCurrentPage());
         assertEquals(1, page.getTotalPages());
         assertEquals(2, page.getContent().size());
-        TestUtils.assertEqualsJourney(TestUtils.JOURNEY_1, page.getContent().get(0));
-        TestUtils.assertEqualsJourney(TestUtils.JOURNEY_2, page.getContent().get(1));
-
+        TestUtils.assertEqualsJourneyList(List.of(TestUtils.JOURNEY_1, TestUtils.JOURNEY_2), page.getContent());
     }
     @Test
     public void testFindAllWithFiltersNoParamsEmpty(){

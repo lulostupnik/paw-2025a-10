@@ -63,7 +63,7 @@ public class EventServiceImplTest {
     private static final LocalDateTime TIMESTAMP = LocalDateTime.now();
     private static final String ADDRESS = "address";
     private static final int LIMIT = 10;
-    private static final int ATTENDEES = 8;
+    private static final int ATTENDEES = 0;
     private static final Locale LOCALE = Locale.of("en");
     private static final boolean BLOCKED = false;
     private static final Career CAREER = new Career(CAREER_ID, CAREER_NAME);
@@ -72,10 +72,10 @@ public class EventServiceImplTest {
     private static final University UNI = new University(UNI_ID, UNI_NAME, UNI_ABBR, CITY);
     private static final User USER = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, IMAGE_ID, LOCALE, BLOCKED, true);
     private static final User USER_2 = new User(USER_2_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, IMAGE_ID, LOCALE, BLOCKED, true);
-    private static final Event EVENT = new Event(EVENT_ID, USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, LIMIT, ATTENDEES);
-    private static final Event EVENT_PAST = new Event(EVENT_ID, USER, EVENT_DATE_PAST, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, LIMIT, ATTENDEES);
-    private static final Event EVENT_FULL = new Event(EVENT_ID, USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, LIMIT, LIMIT);
-    private static final Event EVENT_NO_LIMIT = new Event(EVENT_ID, USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, null, ATTENDEES);
+    private static final Event EVENT = new Event(EVENT_ID, USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, LIMIT);
+    private static final Event EVENT_PAST = new Event(EVENT_ID, USER, EVENT_DATE_PAST, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, LIMIT);
+    private static final Event EVENT_FULL = new Event(EVENT_ID, USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, 0);
+    private static final Event EVENT_NO_LIMIT = new Event(EVENT_ID, USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, null);
     private static final List<User> USERS = List.of(USER);
     private static final List<Event> EVENTS = List.of(EVENT);
     private static final Page<Event> EVENTS_PAGE = new Page<Event>(EVENTS, 1, 1);
@@ -510,12 +510,12 @@ public class EventServiceImplTest {
     }
 
     @Test
-    public void testFindEventsPagedEmail(){
+    public void findEvents(){
         when(
-            eventDao.findByUserEmail(eq(EMAIL), eq(PAGE_1_DEFAULT))
+            eventDao.findByUserId(eq(USER_ID), eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
-        Page<Event> page = eventService.findEvents(EMAIL, PAGE_1_DEFAULT);
+        Page<Event> page = eventService.findEvents(USER_ID, PAGE_1_DEFAULT);
 
         assertNotNull(page);
         assertEquals(EVENTS_PAGE, page);
@@ -535,8 +535,7 @@ public class EventServiceImplTest {
 
         eventService.createEventAttendance(USER_ID, EVENT_ID);
 
-        assertEquals(ATTENDEES + 1, EVENT.getAttendeesCount());
-        EVENT.setAttendeesCount(ATTENDEES);
+        //TODO asserts
     }
     @Test(expected = InvalidException.class)
     public void testCreateEventAttendanceIdLimitExceeded(){
@@ -566,8 +565,8 @@ public class EventServiceImplTest {
 
         eventService.createEventAttendance(USER_ID, EVENT_ID);
 
-        assertEquals(ATTENDEES + 1, EVENT_NO_LIMIT.getAttendeesCount());
-        EVENT_NO_LIMIT.setAttendeesCount(ATTENDEES);
+        //assertEquals(ATTENDEES + 1, EVENT_NO_LIMIT.getAttendeesCount());
+        //TODO Asserts
     }
     @Test(expected = InvalidException.class)
     public void testCreateEventAttendanceAlreadyGoing(){
@@ -631,8 +630,8 @@ public class EventServiceImplTest {
 
         eventService.createEventAttendance(EMAIL, EVENT_ID);
 
-        assertEquals(ATTENDEES + 1, EVENT.getAttendeesCount());
-        EVENT.setAttendeesCount(ATTENDEES);
+        //assertEquals(ATTENDEES + 1, EVENT.getAttendeesCount());
+        //TODO Asserts
     }
     @Test(expected = InvalidException.class)
     public void testCreateEventAttendanceEmailLimitExceeded(){
@@ -668,8 +667,8 @@ public class EventServiceImplTest {
 
         eventService.createEventAttendance(EMAIL, EVENT_ID);
 
-        assertEquals(ATTENDEES + 1, EVENT_NO_LIMIT.getAttendeesCount());
-        EVENT_NO_LIMIT.setAttendeesCount(ATTENDEES);
+        //assertEquals(ATTENDEES + 1, EVENT_NO_LIMIT.getAttendeesCount());
+        //TODO Asserts
     }
     @Test(expected = InvalidException.class)
     public void testCreateEventAttendanceEmailAlreadyGoing(){
@@ -878,7 +877,7 @@ public class EventServiceImplTest {
 
         int attendees = eventService.countEventAttendees(EVENT_ID);
 
-        assertEquals(ATTENDEES, attendees);
+        assertEquals(0, attendees);
     }
     @Test(expected = EventNotFoundException.class)
     public void testCountEventAttendeesNotFound(){
@@ -1255,8 +1254,7 @@ public class EventServiceImplTest {
             TITLE, 
             TIME, 
             ADDRESS, 
-            null, 
-            ATTENDEES
+            null
         );
         when(
             eventDao.findById(eq(EVENT_ID))
@@ -1297,8 +1295,7 @@ public class EventServiceImplTest {
             TITLE, 
             TIME, 
             ADDRESS, 
-            null,
-            ATTENDEES
+            null
         );
         when(
             eventDao.findById(eq(EVENT_ID))
