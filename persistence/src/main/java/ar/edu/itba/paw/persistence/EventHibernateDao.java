@@ -381,8 +381,8 @@ public class EventHibernateDao implements EventDao {
             return jql? "id":"e.id";
         }
         return switch (sortBy) {
-            case ATTENDEES -> jql? "attendeesCount" : "COUNT(ea.user_id)";
-            case DATE      -> jql ? "date":"MAX(e.event_date)";
+            case ATTENDEES -> jql? "attendeesCount" : "(SELECT COUNT(*) FROM event_attendances ea where ea.event_id = e.id) ";
+            case DATE      -> jql ? "date":"e.event_date";
             default        -> jql?"id":"e.id";
         };
     }
@@ -412,7 +412,6 @@ public class EventHibernateDao implements EventDao {
         JOIN users us ON e.user_id = us.id
         JOIN universities un ON us.university = un.id
         JOIN cities ci ON un.city_id = ci.id
-        LEFT JOIN event_attendances ea ON e.id = ea.event_id 
     """);
 
         if (interest != null && !interest.isEmpty()) {
@@ -463,7 +462,6 @@ public class EventHibernateDao implements EventDao {
             countSql.append(" LEFT JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :userId ");
             idSql.append(" LEFT JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :userId ");
             filters.add("ea.user_id IS NOT NULL");
-            paramMap.put("userId", userId);
         }
 
 
@@ -476,8 +474,6 @@ public class EventHibernateDao implements EventDao {
             countSql.append(" AND ").append(clause);
             idSql.append(" AND " ).append(clause);
         }
-
-        //idSql.append(" GROUP BY e.id");
 
         String sortColumn = getSortColumn(sortBy, false);
         String dir = (direction == SortDirection.DESC) ? "DESC" : "ASC";

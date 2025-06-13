@@ -219,8 +219,6 @@ public class EventServiceImpl implements EventService {
 
         if (event.getAttendeesLimit() == null || event.getAttendeesCount() < event.getAttendeesLimit()) {
             eventAttendanceDao.create(user, event);
-            //fixme: crear el attendance aca de verdad
-//            event.setAttendeesCount(event.getAttendeesCount()+1); //fixme: ni idea
             LOGGER.info("User {} is now attending event {}", userId, eventId);
             return;
         }
@@ -355,7 +353,7 @@ public class EventServiceImpl implements EventService {
     public List<Event> findRecommendedEvents(final long userId, final  int limit) {
         LOGGER.debug("Getting recommended events for user {} with limit {}", userId, limit);
         if (limit <= 0) {
-            LOGGER.warn("Limit must be greater than 0");
+            LOGGER.warn("Limit must be greater than 0 in recommended events");
             throw new InvalidPaginationParamsException("Limit must be greater than 0");
         }
         List<Event> events = eventDao.findRecommended(userId, new PageParams(1, limit)).getContent();
