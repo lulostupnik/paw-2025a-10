@@ -4,7 +4,6 @@ import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
-import ar.edu.itba.paw.models.exceptions.UserWithActiveJourneyException;
 import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -21,25 +20,17 @@ public class JourneyHibernateDao implements JourneyDao {
 
     @Override
     public Journey create(User user, University university, LocalDate startDate, LocalDate endDate, String description) {
-        Optional<Journey> existingJourney = findByUserWithDeleted(user.getId());
-        if (existingJourney.isPresent()) {
-            if( !existingJourney.get().isDeleted()) {
-                throw new UserWithActiveJourneyException();
-            }
-            // If a journey already exists for the user, we can update it instead of creating a new one.
-            Journey journey = existingJourney.get();
-            journey.setDestinationUniversity(university);
-            journey.setStartDate(startDate);
-            journey.setEndDate(endDate);
-            journey.setDescription(description);
-            journey.setDeleted(false);
-            em.merge(journey);
-            return journey;
-        }
         final Journey journey = new Journey(user, startDate, endDate, university, description);
         em.persist(journey);
         return journey;
     }
+
+    @Override
+    public void hardDelete(Journey journey) {
+        em.remove(em.contains(journey) ? journey : em.merge(journey));
+        em.flush();
+    }
+
     private Optional<Journey> findByUserWithDeleted(long userId) {
         return em.createQuery("FROM Journey j WHERE j.user.id = :userId", Journey.class)
                 .setParameter("userId", userId)

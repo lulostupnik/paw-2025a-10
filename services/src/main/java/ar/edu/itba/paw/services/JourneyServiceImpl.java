@@ -69,6 +69,20 @@ public class JourneyServiceImpl implements JourneyService {
                 }
         );
 
+        Journey existingJourney = user.getJourney();
+        if (existingJourney != null) {
+            if (!existingJourney.isDeleted()) {
+                LOGGER.warn("User {} already has an active journey", user.getId());
+                throw new UserWithActiveJourneyException("User already has an active journey");
+            }
+            // Hard delete the soft-deleted journey and its responses
+            LOGGER.info("Hard deleting previous journey {} and its responses for user {}", existingJourney.getId(), user.getId());
+            journeyResponseDao.hardDeleteByJourneyId(existingJourney.getId());
+            journeyDao.hardDelete(existingJourney);
+
+            user.setJourney(null);
+        }
+
         Journey journey = journeyDao.create(user, destination, startDate, endDate, description);
         LOGGER.info("Journey created: {}", journey);
         return journey;

@@ -1,6 +1,5 @@
 package ar.edu.itba.paw.persistence;
 
-import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
 import ar.edu.itba.paw.models.*;
 import org.springframework.stereotype.Repository;
@@ -147,6 +146,15 @@ public class JourneyResponseHibernateDao implements JourneyResponseDao {
                 .executeUpdate();
     }
 
+    @Override
+    public void hardDeleteByJourneyId(long journeyId) {
+        em.createQuery("""
+        DELETE FROM JourneyResponse jr
+        WHERE jr.journey.id = :journeyId
+    """)
+                .setParameter("journeyId", journeyId)
+                .executeUpdate();
+    }
 
 
 
