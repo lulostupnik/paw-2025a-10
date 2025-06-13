@@ -35,7 +35,7 @@ public class CityServiceImplTest {
     private static final City CITY_1 = new City(CITY_1_NAME, COUNTRY, CITY_1_ID);
     private static final Optional<City> MAYBECITY_1 = Optional.of(CITY_1);
     private static final List<City> CITIES = List.of(CITY_1);
-    private static final Page<City> CITIES_PAGE = new Page<>(CITIES, 1, 1);
+    private static final Page<City> CITIES_PAGE = new Page<>(CITIES, 1, 1, 1);
     private static final PageParams PAGE_PARAMS = new PageParams(1, 10);
 
     @InjectMocks

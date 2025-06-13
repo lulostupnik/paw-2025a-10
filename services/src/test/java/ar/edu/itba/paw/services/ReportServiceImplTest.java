@@ -50,7 +50,7 @@ public class ReportServiceImplTest {
     private static final JourneyResponse JOURNEY_RESPONSE = new JourneyResponse(JOURNEY_RESPONSE_ID, USER, JOURNEY, DESC, null);
     private static final PageParams PAGE_PARAMS = new PageParams(1, 10);
     private static final List<Report> REPORTS = List.of(REPORT);
-    private static final Page<Report> REPORT_PAGE = new Page<>(REPORTS, 1, 1);
+    private static final Page<Report> REPORT_PAGE = new Page<>(REPORTS, 1, 1, 1);
     @InjectMocks
     ReportServiceImpl reportService;
 

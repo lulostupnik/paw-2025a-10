@@ -277,8 +277,6 @@ public class JourneyHibernateDaoTest {
         TestUtils.assertEqualsJourneyList(List.of(newJourney1, newJourney2, newJourney3, newJourney4, newJourney5), page1.getContent());
     }
 
-    // FIXME: Cambió la función y ya no recibe isPast, ni isUpcoming.
-    /*
     @Test
     public void testFindAllWithFilters(){
         Page<Journey> page = journeyDao.search(
@@ -290,9 +288,6 @@ public class JourneyHibernateDaoTest {
             TestUtils.JOURNEY_START_DATE,
             TestUtils.JOURNEY_END_DATE,
             TestUtils.INTEREST_1_NAME,
-            false,
-            true,
-            true,
             true,
             TestUtils.PAGE_1_BIG
         );
@@ -302,6 +297,49 @@ public class JourneyHibernateDaoTest {
         assertEquals(1, page.getCurrentPage());
         assertEquals(0, page.getTotalPages());
         assertEquals(0, page.getContent().size());
+    }
+    @Test
+    public void testFindAllWithFiltersNoCityMyDestination(){
+        Page<Journey> page = journeyDao.search(
+            null,
+            TestUtils.USER_1_ID,
+            SortFieldJourney.START_DATE,
+            SortDirection.ASC,
+        null,
+            TestUtils.JOURNEY_START_DATE,
+            TestUtils.JOURNEY_END_DATE,
+            TestUtils.INTEREST_1_NAME,
+            true,
+            TestUtils.PAGE_1_BIG
+        );
+
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(0, page.getTotalPages());
+        assertEquals(0, page.getContent().size());
+    }
+    @Test
+    public void testFindAllWithFiltersInterestNoUser(){
+        Page<Journey> page = journeyDao.search(
+            TestUtils.USER_1_NAME,
+            null,
+            SortFieldJourney.END_DATE,
+            SortDirection.ASC,
+            null,
+            TestUtils.JOURNEY_START_DATE,
+            TestUtils.JOURNEY_END_DATE,
+            TestUtils.INTEREST_1_NAME,
+            true,
+            TestUtils.PAGE_1_BIG
+        );
+
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(1, page.getTotalPages());
+        assertEquals(1, page.getContent().size());
+        TestUtils.assertEqualsJourney(TestUtils.JOURNEY_1, page.getContent().getFirst());
     }
     @Test
     public void testFindAllWithFiltersComplex(){
@@ -315,9 +353,6 @@ public class JourneyHibernateDaoTest {
             TestUtils.JOURNEY_END_DATE,
             null,
             false,
-            true,
-            true,
-            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -328,7 +363,7 @@ public class JourneyHibernateDaoTest {
         assertEquals(0, page.getContent().size());
     }
     @Test
-    public void testFindAllWithFiltersComplexNoDestinationPastAttendingNoUser(){
+    public void testFindAllWithFiltersComplexNoDestinationNoUser(){
         Page<Journey> page = journeyDao.search(
             TestUtils.USER_1_NAME,
             null,
@@ -339,20 +374,18 @@ public class JourneyHibernateDaoTest {
             TestUtils.JOURNEY_END_DATE,
             null,
             true,
-            false,
-            true,
-            false,
             TestUtils.PAGE_1_BIG
         );
 
         assertNotNull(page);
         assertNotNull(page.getContent());
         assertEquals(1, page.getCurrentPage());
-        assertEquals(0, page.getTotalPages());
-        assertEquals(0, page.getContent().size());
+        assertEquals(1, page.getTotalPages());
+        assertEquals(1, page.getContent().size());
+        TestUtils.assertEqualsJourney(TestUtils.JOURNEY_1, page.getContent().getFirst());
     }
     @Test
-    public void testFindAllWithFiltersComplexNoUserUpcoming(){
+    public void testFindAllWithFiltersComplexNoUser(){
         Page<Journey> page = journeyDao.search(
             TestUtils.USER_2_NAME,
             null,
@@ -362,9 +395,6 @@ public class JourneyHibernateDaoTest {
             TestUtils.JOURNEY_START_DATE,
             TestUtils.JOURNEY_END_DATE,
             null,
-            false,
-            true,
-            false,
             false,
             TestUtils.PAGE_1_BIG
         );
@@ -377,7 +407,7 @@ public class JourneyHibernateDaoTest {
         TestUtils.assertEqualsJourney(TestUtils.JOURNEY_2, page.getContent().get(0));
     }
     @Test
-    public void testFindAllWithFiltersComplexNoUserUpcomingNoInterest(){
+    public void testFindAllWithFiltersComplexNoUsergNoInterest(){
         Page<Journey> page = journeyDao.search(
             TestUtils.USER_1_NAME,
             null,
@@ -387,9 +417,6 @@ public class JourneyHibernateDaoTest {
             TestUtils.JOURNEY_START_DATE,
             TestUtils.JOURNEY_END_DATE,
             "",
-            false,
-            true,
-            false,
             false,
             TestUtils.PAGE_1_BIG
         );
@@ -402,31 +429,7 @@ public class JourneyHibernateDaoTest {
         TestUtils.assertEqualsJourney(TestUtils.JOURNEY_1, page.getContent().get(0));
     }
     @Test
-    public void testFindAllWithFiltersNotUpcomingNotAttending(){
-        Page<Journey> page = journeyDao.search(
-            null,
-            TestUtils.USER_1_ID,
-            SortFieldJourney.END_DATE,
-            SortDirection.ASC,
-            TestUtils.CITY_1_NAME,
-            TestUtils.JOURNEY_START_DATE,
-            TestUtils.JOURNEY_END_DATE,
-            null,
-            false,
-            false,
-            false,
-            false,
-            TestUtils.PAGE_1_BIG
-        );
-
-        assertNotNull(page);
-        assertNotNull(page.getContent());
-        assertEquals(1, page.getCurrentPage());
-        assertEquals(0, page.getTotalPages());
-        assertEquals(0, page.getContent().size());
-    }
-    @Test
-    public void testFindAllWithFiltersNotUpcomingNotAttendingReverseSort(){
+    public void testFindAllWithFiltersReverseSort(){
         Page<Journey> page = journeyDao.search(
             null,
             TestUtils.USER_1_ID,
@@ -436,9 +439,6 @@ public class JourneyHibernateDaoTest {
             TestUtils.JOURNEY_START_DATE,
             TestUtils.JOURNEY_END_DATE,
             null,
-            false,
-            false,
-            false,
             false,
             TestUtils.PAGE_1_BIG
         );
@@ -461,9 +461,6 @@ public class JourneyHibernateDaoTest {
             null,
             null,
             false,
-            false,
-            false,
-            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -485,9 +482,6 @@ public class JourneyHibernateDaoTest {
             null,
             null,
             "",
-            false,
-            false,
-            false,
             false,
             TestUtils.PAGE_1_BIG
         );
@@ -512,9 +506,6 @@ public class JourneyHibernateDaoTest {
             null,
             null,
             false,
-            false,
-            false,
-            false,
             TestUtils.PAGE_1_BIG
         );
 
@@ -526,6 +517,4 @@ public class JourneyHibernateDaoTest {
         assertEquals(1, page.getContent().size());
         TestUtils.assertEqualsJourney(TestUtils.JOURNEY_2, page.getContent().get(0));
     }
-
-     */
 }

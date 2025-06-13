@@ -78,7 +78,7 @@ public class EventServiceImplTest {
     private static final Event EVENT_NO_LIMIT = new Event(EVENT_ID, USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, null);
     private static final List<User> USERS = List.of(USER);
     private static final List<Event> EVENTS = List.of(EVENT);
-    private static final Page<Event> EVENTS_PAGE = new Page<Event>(EVENTS, 1, 1);
+    private static final Page<Event> EVENTS_PAGE = new Page<Event>(EVENTS, 1, 1, 1);
     private static final EventResponse REPLY = new EventResponse(RESPONSE_ID, USER, EVENT, DESCRIPTION, TIMESTAMP);
     private static final String INTEREST = "interesting";
     private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
@@ -92,7 +92,7 @@ public class EventServiceImplTest {
     private static final double RATING_VALUE = 5.0;
     private static final int RATING_COUNT = 2;
     private static final List<EventResponse> REPLIES = List.of(REPLY);
-    private static final Page<EventResponse> REPLY_PAGE = new Page<>(REPLIES, 1, 1);
+    private static final Page<EventResponse> REPLY_PAGE = new Page<>(REPLIES, 1, 1, 1);
     private static final Rating RATING = new Rating(USER, EVENT, RATING_VALUE);
 
     @InjectMocks
@@ -211,7 +211,7 @@ public class EventServiceImplTest {
                 eq(EVENT_ID), 
                 any(PageParams.class)
             )
-        ).thenReturn(new Page<>(USERS, 1, 2));
+        ).thenReturn(new Page<>(USERS, 1, 2, 2));
 
         eventService.replyToEvent(EMAIL, EVENT_ID, DESCRIPTION);
     }
@@ -228,7 +228,7 @@ public class EventServiceImplTest {
                 eq(EVENT_ID), 
                 any(PageParams.class)
             )
-        ).thenReturn(new Page<User>(List.of(), 1, 0));
+        ).thenReturn(new Page<User>(List.of(), 1, 1, 0));
 
         eventService.replyToEvent(EMAIL, EVENT_ID, DESCRIPTION);
     }
@@ -963,7 +963,7 @@ public class EventServiceImplTest {
     public void testFindRecommendedEventsMissing(){
         when(
             eventDao.findRecommended(eq(USER_ID), eq(PAGE_1_DEFAULT))
-        ).thenReturn(new Page<>(List.of(), 1, 0));
+        ).thenReturn(new Page<>(List.of(), 1, 1, 0));
         when(
             eventDao.findTopByUser(eq(USER_ID), eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
@@ -976,6 +976,23 @@ public class EventServiceImplTest {
     @Test(expected = InvalidPaginationParamsException.class)
     public void testFindRecommendedEventsWrongLimit(){
         eventService.findRecommendedEvents(USER_ID, 0);
+    }
+    @Test
+    public void testFindRecommendedEventsNoEventsTop(){
+        when(
+            eventDao.findRecommended(eq(USER_ID), eq(PAGE_1_DEFAULT))
+        ).thenReturn(new Page<>(List.of(), 1, 1, 0));
+        when(
+            eventDao.findTopByUser(eq(USER_ID), eq(PAGE_1_DEFAULT))
+        ).thenReturn(new Page<>(List.of(), 1, 1, 0));
+        when(
+            eventDao.findAll(any(PageParams.class))
+        ).thenReturn(EVENTS_PAGE);
+
+        List<Event> userevents = eventService.findRecommendedEvents(USER_ID, 2);
+
+        assertNotNull(userevents);
+        assertEquals(EVENTS, userevents);
     }
 
     @Test
@@ -1603,13 +1620,13 @@ public class EventServiceImplTest {
                 any(LocalDate.class), 
                 any(PageParams.class)
             )
-        ).thenReturn(new Page<>(EVENTS, 1, 2));
+        ).thenReturn(new Page<>(EVENTS, 1, 2, 2));
         when(
             attendanceDao.findAttendeesByEventId(
                 eq(EVENT_ID), 
                 any(PageParams.class)
             )
-        ).thenReturn(new Page<>(USERS, 1, 2));
+        ).thenReturn(new Page<>(USERS, 1, 2, 2));
 
         eventService.sendEventReminders();
     }
@@ -1627,7 +1644,7 @@ public class EventServiceImplTest {
                 eq(EVENT_ID), 
                 any(PageParams.class)
             )
-        ).thenReturn(new Page<>(List.of(), 1, 0));
+        ).thenReturn(new Page<>(List.of(), 1, 1, 0));
 
         eventService.sendEventReminders();
     }
@@ -1639,7 +1656,7 @@ public class EventServiceImplTest {
                 any(LocalDate.class), 
                 any(PageParams.class)
             )
-        ).thenReturn(new Page<>(List.of(), 1, 0));
+        ).thenReturn(new Page<>(List.of(), 1, 1, 0));
 
         eventService.sendEventReminders();
     }

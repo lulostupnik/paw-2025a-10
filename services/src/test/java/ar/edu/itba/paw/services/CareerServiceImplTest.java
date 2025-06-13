@@ -26,7 +26,7 @@ public class CareerServiceImplTest {
     private static final String CAREER_NAME = "name";
     private static final Career CAREER = new Career(CAREER_ID, CAREER_NAME);
     private static final List<Career> CAREERS = List.of(CAREER);
-    private static final Page<Career> CAREER_PAGE = new Page<>(CAREERS, 1, 1);
+    private static final Page<Career> CAREER_PAGE = new Page<>(CAREERS, 1, 1, 1);
     private static final PageParams PAGE_PARAMS = new PageParams(1, 10);
 
     @InjectMocks
