@@ -95,7 +95,7 @@ public class ProfileController {
         User profileUser = userService.findUserById(id).orElseThrow(() -> new UserNotFoundException(id));
 
         ModelAndView mav = new ModelAndView(PROFILE);
-        mav.addObject("events", eventService.findEvents(profileUser.getEmail(), pageParam));
+        mav.addObject("events", eventService.findEvents(profileUser.getId(), pageParam));
         mav.addObject("isMine", user.getId().equals(id));
         mav.addObject("isEventTab", true);
         mav.addObject("userAttendingEvents", eventService.findUpcomingEventsByAttendee(profileUser.getId(), attendingPage));

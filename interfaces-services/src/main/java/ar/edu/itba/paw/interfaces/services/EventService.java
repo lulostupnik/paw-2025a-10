@@ -29,7 +29,7 @@ public interface EventService {
     Optional<EventWithStatistics> findEventWithStatistics(User user, long eventId);
 
     Page<Event> searchEvents(String search, PageParams pageParams);
-    Page<Event> findEvents(String email, PageParams pageParams);
+    Page<Event> findEvents(long userId, PageParams pageParams);
 
     void createEventAttendance(String email, long eventId);
     void createEventAttendance(long userId, long eventId);

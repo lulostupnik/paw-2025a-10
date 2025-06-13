@@ -15,7 +15,7 @@ public interface EventDao {
     Page<Event> findRecommended(long userId, PageParams pageParams);
     Page<Event> findTop(PageParams pageParams);
     Page<Event> findTopByUser(long userId, PageParams pageParams);
-    Page<Event> findByUserEmail(String email, PageParams pageParams);
+    Page<Event> findByUserId(long userId, PageParams pageParams);
     Page<Event> findAll(PageParams pageParams);
     Page<Event> findAllWithFilters(Long userId, String search,
                                    SortFieldEvent sortBy, SortDirection direction, String destination,

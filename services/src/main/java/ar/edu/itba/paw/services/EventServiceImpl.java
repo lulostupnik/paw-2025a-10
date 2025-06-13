@@ -190,9 +190,9 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public Page<Event> findEvents(final String email, final PageParams pageParams) {
-        LOGGER.debug("Getting all events for user {}", email);
-        return eventDao.findByUserEmail(email, pageParams);
+    public Page<Event> findEvents(final long userId, final PageParams pageParams) {
+        LOGGER.debug("Getting all events for user {}", userId);
+        return eventDao.findByUserId(userId, pageParams);
     }
 
 

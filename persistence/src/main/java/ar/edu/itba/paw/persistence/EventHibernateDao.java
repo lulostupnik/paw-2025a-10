@@ -150,7 +150,7 @@ public class EventHibernateDao implements EventDao {
 
 
     // FIXME: Podría recibir el id del usuario y te ahorras el JOIN
-    @Override
+  /*  @Override
     public Page<Event> findByUserEmail(String email, PageParams pageParams) {
         final String countSql = """
         SELECT COUNT(*)
@@ -174,7 +174,33 @@ public class EventHibernateDao implements EventDao {
         Map<String, Object> params = Map.of("email", email);
 
         return fetchPageByIds(em, countSql, idSql, params, jpqlFetch, Event.class, pageParams, Map.of());
+    }*/
+
+    @Override
+    public Page<Event> findByUserId(long userId, PageParams pageParams) {
+        final String countSql = """
+        SELECT COUNT(*)
+        FROM events e
+        WHERE e.deleted = FALSE AND e.user_id = :userId
+    """;
+
+        final String idSql = """
+        SELECT e.id
+        FROM events e
+        WHERE e.deleted = FALSE AND e.user_id = :userId
+        ORDER BY e.event_date DESC
+    """;
+
+        final String jpqlFetch = """
+        FROM Event e WHERE e.id IN :ids ORDER BY e.date DESC
+    """;
+
+        Map<String, Object> params = Map.of("userId", userId);
+
+        return fetchPageByIds(em, countSql, idSql, params, jpqlFetch, Event.class, pageParams, Map.of());
     }
+
+
 
     @Override
     public Page<Event> findRecommended(final long userId, final PageParams pageParams) {
