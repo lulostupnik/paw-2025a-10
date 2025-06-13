@@ -7,7 +7,7 @@ import ar.edu.itba.paw.models.exceptions.UserValidatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,39 +19,44 @@ import java.util.List;
 
 @Component
 public class PawUserDetailsService implements UserDetailsService {
-    private final UserService us;
-    private static final Logger LOGGER = LoggerFactory.getLogger(PawUserDetailsService.class);
 
+    private final UserService userService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(PawUserDetailsService.class);
 
     @Autowired
     public PawUserDetailsService(UserService userService) {
-        this.us = userService;
+        this.userService = userService;
     }
 
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        final User user = us.findUserByEmail(username).orElseThrow(() -> {
+        final User user = userService.findUserByEmail(username).orElseThrow(() -> {
             LOGGER.warn("Failed login attempt: No user found with username '{}'", username);
-            return new UsernameNotFoundException("No user by the name " + username);
+            return new InternalAuthenticationServiceException("User not found");
         });
-        Collection<? extends GrantedAuthority> authorities;
 
+        LOGGER.debug("Loading user details for: {}", username);
 
-        if(user.isBlocked()){
-            LOGGER.warn("User is blocked");
-            throw new DisabledException("User is blocked");
-        }
-        if(!user.isValidated()){
-            LOGGER.warn("User is not verified");
-            throw new UserValidatedException("User is not verified");
-        }
-        if (user.getRole() == UserRoles.ADMIN) {
-            authorities = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        } else{
-            authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
-        }
+        Collection<? extends GrantedAuthority> authorities = determineAuthorities(user.getRole());
 
-        return new org.springframework.security.core.userdetails.User(username, user.getPassword(), authorities);
+        return new org.springframework.security.core.userdetails.User(
+                username,
+                user.getPassword(),
+                user.isValidated(),
+                true,
+                true,
+                !user.isBlocked(),
+                authorities
+        );
+    }
+
+    private Collection<? extends GrantedAuthority> determineAuthorities(UserRoles role) {
+        return switch (role) {
+            case ADMIN -> List.of(
+                    new SimpleGrantedAuthority("ROLE_ADMIN"),
+                    new SimpleGrantedAuthority("ROLE_USER")
+            );
+            case USER -> List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        };
     }
 }
-
