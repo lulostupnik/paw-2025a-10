@@ -87,7 +87,7 @@ public class EventResponseHibernateDaoTest {
     }
     @Test(expected = PersistenceException.class)
     public void testCreateWrongEvent(){
-        replyDao.create(TestUtils.USER_1, new Event(12341234l, null, null, null, 0, null, null, null, null, null, 0), TestUtils.RESPONSE_MESSAGE);
+        replyDao.create(TestUtils.USER_1, new Event(12341234l, null, null, null, 0, null, null, null, null, null), TestUtils.RESPONSE_MESSAGE);
         em.flush();
     }
 

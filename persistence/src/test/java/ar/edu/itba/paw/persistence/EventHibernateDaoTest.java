@@ -18,11 +18,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
 
-import ar.edu.itba.paw.models.*;
-import ar.edu.itba.paw.models.enums.SortDirection;
-import ar.edu.itba.paw.models.enums.SortFieldEvent;
-
-import ar.edu.itba.paw.persistence.config.TestConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +26,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
+
+import ar.edu.itba.paw.models.City;
+import ar.edu.itba.paw.models.CountryAttendeeCount;
+import ar.edu.itba.paw.models.Event;
+import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.enums.SortDirection;
+import ar.edu.itba.paw.models.enums.SortFieldEvent;
+import ar.edu.itba.paw.persistence.config.TestConfig;
 
 @Transactional
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -310,8 +314,8 @@ public class EventHibernateDaoTest {
     }
 
     @Test
-    public void testFindByUserEmailPageOne(){
-        Page<Event> page1 = eventDao.findByUserEmail(TestUtils.USER_2_MAIL, TestUtils.PAGE_1_DEFAULT);
+    public void testFindByUserIdPageOne(){
+        Page<Event> page1 = eventDao.findByUserId(TestUtils.USER_2_ID, TestUtils.PAGE_1_DEFAULT);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -323,8 +327,8 @@ public class EventHibernateDaoTest {
         }
     }
     @Test
-    public void testFindByUserEmailPageTwo(){
-        Page<Event> page2 = eventDao.findByUserEmail(TestUtils.USER_2_MAIL, TestUtils.PAGE_2_DEFAULT);
+    public void testFindByUserIdPageTwo(){
+        Page<Event> page2 = eventDao.findByUserId(TestUtils.USER_2_ID, TestUtils.PAGE_2_DEFAULT);
 
         assertNotNull(page2);
         assertEquals(2, page2.getCurrentPage());
@@ -333,20 +337,20 @@ public class EventHibernateDaoTest {
         assertEquals(0, page2.getContent().size());
     }
     @Test
-    public void testFindByUserEmailPaged2(){
+    public void testFindByUserIdPaged2(){
         TestUtils.deleteEvents(jdbcTemplate);
-        Page<Event> userEvents = eventDao.findByUserEmail(TestUtils.USER_1_MAIL, TestUtils.PAGE_1_DEFAULT);
+        Page<Event> page1 = eventDao.findByUserId(TestUtils.USER_1_ID, TestUtils.PAGE_1_DEFAULT);
 
-        assertNotNull(userEvents);
-        assertEquals(1, userEvents.getCurrentPage());
-        assertEquals(0, userEvents.getTotalPages());
-        assertNotNull(userEvents.getContent());
-        assertEquals(0, userEvents.getContent().size());
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(0, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(0, page1.getContent().size());
 
     }
     @Test
-    public void testFindByUserEmailWrongMailPaged(){
-        Page<Event> userEvents = eventDao.findByUserEmail("TestUtils.USER_1_MAIL", TestUtils.PAGE_1_DEFAULT);
+    public void testFindByUserIdWrongMailPaged(){
+        Page<Event> userEvents = eventDao.findByUserId(12341234l, TestUtils.PAGE_1_DEFAULT);
 
         assertNotNull(userEvents);
         assertEquals(1, userEvents.getCurrentPage());
@@ -500,6 +504,28 @@ public class EventHibernateDaoTest {
             TestUtils.EVENT_DATE_LATER,
             null,
             false,
+            true,
+            TestUtils.PAGE_1_BIG
+        );
+
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(0, page.getTotalPages());
+        assertEquals(0, page.getContent().size());
+    }
+    @Test
+    public void testFindAllWithFiltersComplexAttending(){
+        Page<Event> page = eventDao.findAllWithFilters(
+            TestUtils.USER_1_ID,
+            TestUtils.EVENT_TITLE_2,
+            SortFieldEvent.ATTENDEES,
+            SortDirection.ASC,
+            TestUtils.CITY_1_NAME,
+            TestUtils.EVENT_DATE_OLDER,
+            TestUtils.EVENT_DATE_LATER,
+            null,
+            true,
             true,
             TestUtils.PAGE_1_BIG
         );
@@ -675,8 +701,8 @@ public class EventHibernateDaoTest {
         assertEquals(TestUtils.TOTAL_EVENTS_NOT_DELETED, page.getContent().size());
         TestUtils.assertEqualsEvent(TestUtils.EVENT_1, page.getContent().get(0));
         TestUtils.assertEqualsEvent(TestUtils.EVENT_2, page.getContent().get(1));
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_3, page.getContent().get(2));
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_OLDER, page.getContent().get(3));
+        TestUtils.assertEqualsEvent(TestUtils.EVENT_OLDER, page.getContent().get(2));
+        TestUtils.assertEqualsEvent(TestUtils.EVENT_3, page.getContent().get(3));
     }
     @Test
     public void testFindAllWithFiltersNoParamsFilter(){

@@ -10,7 +10,6 @@ import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
 
 import ar.edu.itba.paw.models.Page;
@@ -28,6 +27,7 @@ import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import ar.edu.itba.paw.models.University;
+import ar.edu.itba.paw.models.exceptions.UniversityAlreadyExistsException;
 
 @Transactional
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -251,7 +251,7 @@ public class UniversityHibernateDaoTest {
 
         TestUtils.assertEqualsUni(new University(uni.getId(), TestUtils.UNIVERSITY_NEW_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1), uni);
     }
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = UniversityAlreadyExistsException.class)
     public void testCreateDuplicate(){
         uniDao.create(TestUtils.UNIVERSITY_1_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1);
         em.flush();
