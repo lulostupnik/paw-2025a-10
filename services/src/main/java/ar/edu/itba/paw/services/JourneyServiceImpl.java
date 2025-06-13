@@ -129,6 +129,23 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.info("Journey response notifications sent to owner for journey {}", journeyId);
     }
 
+    private Page<Journey> searchByTerm(final String searchTerm, final PageParams pageParams){
+        return journeyDao.search(
+                searchTerm,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                false,
+                false,
+                false,
+                false,
+                pageParams
+        );
+    }
 
     @Override
     public Page<Journey> findJourneys(final String search, final PageParams pageParams) {
@@ -136,7 +153,7 @@ public class JourneyServiceImpl implements JourneyService {
         if (search == null || search.isEmpty()) {
             return journeyDao.findAll(pageParams);
         }
-        return journeyDao.search(search,pageParams);
+        return searchByTerm(search, pageParams);
     }
 
     @Override

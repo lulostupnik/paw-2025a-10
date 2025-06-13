@@ -121,10 +121,6 @@ public class JourneyHibernateDao implements JourneyDao {
         );
     }
 
-    @Override
-    public Page<Journey> search(String search, PageParams pageParams) {
-        return null;
-    }
 
     private String getOrderByColumn(SortFieldJourney orderBy, boolean jql) {
         if(orderBy == null){
