@@ -3,9 +3,11 @@ package ar.edu.itba.paw.webapp.auth;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.enums.UserRoles;
+import ar.edu.itba.paw.models.exceptions.UserValidatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,7 +32,7 @@ public class PawUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         final User user = userService.findUserByEmail(username).orElseThrow(() -> {
             LOGGER.warn("Failed login attempt: No user found with username '{}'", username);
-            return new UsernameNotFoundException("No user by the name " + username);
+            return new InternalAuthenticationServiceException("User not found");
         });
 
         LOGGER.debug("Loading user details for: {}", username);
