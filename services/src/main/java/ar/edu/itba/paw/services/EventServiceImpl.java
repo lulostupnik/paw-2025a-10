@@ -363,6 +363,10 @@ public class EventServiceImpl implements EventService {
             LOGGER.warn("No recommended events found for user {}. Falling back to top events.", userId);
             events = eventDao.findTopByUser(userId,new PageParams(1, limit)).getContent();
         }
+        if(events.isEmpty()){
+            LOGGER.warn("No top events found for user {}. Falling back to any events.", userId);
+            events = eventDao.findAll(new PageParams(1, limit)).getContent();
+        }
         return events;
     }
 
