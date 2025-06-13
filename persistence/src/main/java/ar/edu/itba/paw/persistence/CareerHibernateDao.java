@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.persistence.CareerDao;
 import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.models.exceptions.CareerAlreadyExistsException;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -120,7 +121,7 @@ public class CareerHibernateDao implements CareerDao {
                 em.merge(career);
                 return career;
             } else {
-                throw new IllegalArgumentException("Career with name '" + name + "' already exists."); //@TODO: change to custom exception
+                throw new CareerAlreadyExistsException("Career with name '" + name + "' already exists."); //@TODO: change to custom exception
             }
         }
         final Career career = new Career(name);

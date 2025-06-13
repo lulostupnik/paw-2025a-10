@@ -1,10 +1,12 @@
 package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.InterestsNotFoundException;
 import ar.edu.itba.paw.webapp.form.CreateInterestForm;
 import ar.edu.itba.paw.webapp.form.EditInterestForm;
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
 import ar.edu.itba.paw.webapp.utils.JsonUtils;
+import org.hibernate.secure.spi.IntegrationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +58,7 @@ public class InterestController {
     public ModelAndView getInterests(@PathVariable(value = "id") final long id) {
         Interest interest = interestService.findInterestById(id).orElseThrow(() -> {
             LOGGER.error("Interest not found for id: {}", id);
-            return new NotFoundException("Interest not found");});
+            return new InterestsNotFoundException("Interest not found");});
         ModelAndView mav = new ModelAndView("interests/detail");
         mav.addObject("interest", interest);
         return mav;
@@ -69,7 +71,7 @@ public class InterestController {
                                            BindingResult errors ) {
         Interest interest = interestService.findInterestById(id).orElseThrow(() -> {
             LOGGER.error("Interest not found for id: {}", id);
-            return new NotFoundException("Interest not found");});
+            return new InterestsNotFoundException("Interest not found");});
         if(!errors.hasErrors()){
             form.setName(interest.getName());
         }

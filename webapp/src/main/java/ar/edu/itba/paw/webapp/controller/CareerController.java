@@ -6,6 +6,7 @@ import ar.edu.itba.paw.models.Career;
 
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.exceptions.CareerNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
 import ar.edu.itba.paw.webapp.utils.JsonUtils;
@@ -63,7 +64,7 @@ public class CareerController {
     public ModelAndView getCareers(@PathVariable(value = "id") final long id) {
         Career career = careerService.findCareerById(id).orElseThrow(() -> {
             LOGGER.error("Career not found for id: {}", id);
-            return new NotFoundException("Career not found");}
+            return new CareerNotFoundException("Career not found");}
         );
         ModelAndView mav = new ModelAndView(CAREER_DETAIL);
         mav.addObject("career", career);
@@ -76,7 +77,7 @@ public class CareerController {
 
 
         if(! errors.hasErrors()) {
-            Career career = careerService.findCareerById(id).orElseThrow(() -> new NotFoundException("Career not found"));
+            Career career = careerService.findCareerById(id).orElseThrow(() -> new CareerNotFoundException("Career not found"));
             form.setName(career.getName());
         }
         ModelAndView mav = new ModelAndView(CAREER_CREATE);

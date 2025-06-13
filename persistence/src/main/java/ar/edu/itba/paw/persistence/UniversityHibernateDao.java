@@ -6,6 +6,7 @@ import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
 
+import ar.edu.itba.paw.models.exceptions.UniversityAlreadyExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -44,7 +45,7 @@ public class UniversityHibernateDao implements UniversityDao {
         Optional <University> existingUniversity = findByNameAndCityWithDeleted(name, city.getName());
         if (existingUniversity.isPresent()) {
             if( !existingUniversity.get().isDeleted()) {
-                throw new IllegalArgumentException("University with this name and city already exists and is not deleted."); //@TODO: change this to a custom exception
+                throw new UniversityAlreadyExistsException("University with this name and city already exists and is not deleted."); //@TODO: change this to a custom exception
             }
             final University university = existingUniversity.get();
             university.setDeleted(false);

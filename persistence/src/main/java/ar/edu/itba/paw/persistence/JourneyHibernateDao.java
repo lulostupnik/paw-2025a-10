@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
+import ar.edu.itba.paw.models.exceptions.UserWithActiveJourneyException;
 import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -23,7 +24,7 @@ public class JourneyHibernateDao implements JourneyDao {
         Optional<Journey> existingJourney = findByUserWithDeleted(user.getId());
         if (existingJourney.isPresent()) {
             if( !existingJourney.get().isDeleted()) {
-                throw new IllegalArgumentException("User already has an active journey."); //@TODO: change this to a custom exception
+                throw new UserWithActiveJourneyException();
             }
             // If a journey already exists for the user, we can update it instead of creating a new one.
             Journey journey = existingJourney.get();
