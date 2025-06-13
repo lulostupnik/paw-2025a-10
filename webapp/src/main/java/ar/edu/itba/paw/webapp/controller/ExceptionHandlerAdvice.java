@@ -126,4 +126,6 @@ public class ExceptionHandlerAdvice {
         LOGGER.debug("Stack trace for UserValidatedException", ex);
         return new ModelAndView("auth/not-verified");
     }
+
+
 }
