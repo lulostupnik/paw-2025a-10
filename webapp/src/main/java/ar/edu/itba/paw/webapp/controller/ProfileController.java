@@ -42,10 +42,11 @@ public class ProfileController {
         this.userService = userService;
     }
 
-    private void addUserJourneyToMav(User user, ModelAndView mav){
-        Optional<Journey> maybeJourney = journeyService.getJourneyByEmail(user.getEmail());
-        maybeJourney.map(journey -> mav.addObject("userJourney", journey)).orElseGet(() -> mav.addObject("userJourney", null)); // @TODO: agregamos null? medio raro
+    private void addUserJourneyToMav(User user, ModelAndView mav) {
+        journeyService.getJourneyByEmail(user.getEmail())
+                .ifPresent(journey -> mav.addObject("userJourney", journey));
     }
+
 
     @GetMapping(value = "{id}/info")
     public ModelAndView getInfo(

@@ -64,13 +64,12 @@ public class EventServiceImpl implements EventService {
                 return new UserNotFoundException("User not found");}
         );
         long flyerImageId = imageService.createImage(flyer);
-        Event event = eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit); //fixme: reemplazar por new Event
+        Event event = eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit);
         LOGGER.info("Event {} created", event.getId());
         eventAttendanceDao.create(user, event);
         return event;
     }
 
-        // todo: check
         @Override
         @Transactional
         public void replyToEvent(final String email, final long eventId, final String message) {
@@ -295,10 +294,7 @@ public class EventServiceImpl implements EventService {
         return eventRatingDao.countRatingsByEvent(eventId);
     }
 
-    @Override
-    public Optional<Double> findRatingsAverageByEvent(long eventId) {
-        return eventRatingDao.findRatingsAverageByEvent(eventId);
-    }
+
 
 
     @Override
@@ -464,8 +460,7 @@ public class EventServiceImpl implements EventService {
             event.setDeletionMessage(message);
             emailService.sendEventDeletionNotification(new EmailEvent(event),message);
         }
-        event.setDeleted(true); //todo check
-        //fixme: borrar las responses tmb
+        event.setDeleted(true);
     }
 
     @Override

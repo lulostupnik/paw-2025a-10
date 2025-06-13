@@ -229,7 +229,7 @@ public class JourneyServiceImpl implements JourneyService {
             LOGGER.warn("User with email '{}' not found", email);
             return new UserNotFoundException("User not found");
         });
-        return user.getJourney() != null; //@todo check
+        return user.getJourney() != null;
     }
 
     @Override
@@ -329,7 +329,7 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
-    public Optional<JourneyResponse> findJourneyResponseById(final long id) { // fixme:mover esto al journeyDao
+    public Optional<JourneyResponse> findJourneyResponseById(final long id) {
         LOGGER.debug("Finding journey response by id {}", id);
         return journeyResponseDao.findById(id);
     }
@@ -408,19 +408,6 @@ public class JourneyServiceImpl implements JourneyService {
         return tipDao.findTipById(tipId);
     }
 
-    @Override
-    public boolean isTipOwnedByUser(Tip tip, User user) {
-        if (tip == null || user == null) {
-            return false; //@TODO: exception?
-        }
-
-        User tipUser = tip.getJourney().getUser();
-        if (tipUser == null || tipUser.getId() == null || user.getId() == null) {
-            return false;  //@TODO: exception?
-        }
-
-        return tipUser.getId().equals(user.getId());
-    }
 
     @Override
     public boolean isTipOwnedByUser(long tipId, String email) {

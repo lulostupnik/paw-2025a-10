@@ -83,7 +83,7 @@ public class UserInterestHibernateDao implements UserInterestDao {
     }
 
     @Override
-    public void createUserInterests(long[] interests, long userId) {  // fixme: mover a User? O crear un UserInterestDao
+    public void createUserInterests(long[] interests, long userId) {
         User user = userDao.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
         for( long interestId : interests) {
@@ -95,7 +95,7 @@ public class UserInterestHibernateDao implements UserInterestDao {
 
 
     @Override
-    public void updateUserInterests(long[] interestIds, long userId) { // fixme: revisar eficiencia
+    public void updateUserInterests(long[] interestIds, long userId) {
         List<UserInterest> userInterests = findAllByUserId(userId);
         List<Long> interestsToAdd = new java.util.ArrayList<>(Arrays.stream(interestIds).boxed().toList());
         for (UserInterest userInterest : userInterests) {
