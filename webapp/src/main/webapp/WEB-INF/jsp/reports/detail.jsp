@@ -134,9 +134,18 @@
                                         </c:if>
                                     </div>
                                     <c:url var="journeyUrl" value='/journeys/${report.journey.id}'/>
-                                    <a href="<c:out value='${journeyUrl}'/>" class="view-content-link" target="_blank">
-                                        <spring:message code="report.view.original.content" text="View Original Content"/> ↗
-                                    </a>
+                                    <c:choose>
+                                        <c:when test="${report.journey.deleted}">
+                                            <span class="deleted-badge">
+                                                <spring:message code="report.content.deleted" text="Content Deleted"/>
+                                            </span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a href="<c:out value='${journeyUrl}'/>" class="view-content-link" target="_blank">
+                                                <spring:message code="report.view.original.content" text="View Original Content"/> ↗
+                                            </a>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </div>
                             </div>
                         </c:if>
@@ -163,9 +172,18 @@
                                         </span>
                                     </div>
                                     <c:url var="eventUrl" value='/events/${report.event.id}'/>
-                                    <a href="<c:out value='${eventUrl}'/>" class="view-content-link" target="_blank">
-                                        <spring:message code="report.view.original.content" text="View Original Content"/> ↗
-                                    </a>
+                                    <c:choose>
+                                        <c:when test="${report.event.deleted}">
+                                            <span class="deleted-badge">
+                                                <spring:message code="report.content.deleted" text="Content Deleted"/>
+                                            </span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a href="<c:out value='${eventUrl}'/>" class="view-content-link" target="_blank">
+                                                <spring:message code="report.view.original.content" text="View Original Content"/> ↗
+                                            </a>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </div>
                             </div>
                         </c:if>
@@ -195,9 +213,18 @@
                                         <h5><spring:message code="report.detail.parent.journey" text="On Journey"/>:</h5>
                                         <p><c:out value="${report.journeyResponse.journey.user.username}"/></p>
                                         <c:url var="journeyUrl" value='/journeys/${report.journeyResponse.journey.id}'/>
-                                        <a href="<c:out value='${journeyUrl}'/>" class="view-content-link" target="_blank">
-                                            <spring:message code="report.view.original.content" text="View Original Content"/> ↗
-                                        </a>
+                                        <c:choose>
+                                            <c:when test="${report.journeyResponse.deleted}">
+                                            <span class="deleted-badge">
+                                                <spring:message code="report.content.deleted" text="Content Deleted"/>
+                                            </span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <a href="<c:out value='${journeyUrl}'/>" class="view-content-link" target="_blank">
+                                                    <spring:message code="report.view.original.content" text="View Original Content"/> ↗
+                                                </a>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </div>
                                 </div>
                             </div>
@@ -228,9 +255,18 @@
                                         <h5><spring:message code="report.detail.parent.event" text="On Event"/>:</h5>
                                         <p><c:out value="${report.eventResponse.event.title}"/></p>
                                         <c:url var="eventUrl" value='/events/${report.eventResponse.event.id}'/>
-                                        <a href="<c:out value='${eventUrl}'/>" class="view-content-link" target="_blank">
-                                            <spring:message code="report.view.original.content" text="View Original Content"/> ↗
-                                        </a>
+                                        <c:choose>
+                                            <c:when test="${report.eventResponse.deleted}">
+                                            <span class="deleted-badge">
+                                                <spring:message code="report.content.deleted" text="Content Deleted"/>
+                                            </span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <a href="<c:out value='${eventUrl}'/>" class="view-content-link" target="_blank">
+                                                    <spring:message code="report.view.original.content" text="View Original Content"/> ↗
+                                                </a>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </div>
                                 </div>
                             </div>
@@ -283,14 +319,14 @@
                             </div>
                         </div>
 
-<%--                        <div class="feature-card">--%>
-<%--                            <h3 class="feature-title"><spring:message code="report.detail.date"/></h3>--%>
-<%--                            <p class="feature-description">--%>
-<%--                                <c:if test="${report.createdAt != null}">--%>
-<%--                                    <c:out value="${report.createdAt}"/>--%>
-<%--                                </c:if>--%>
-<%--                            </p>--%>
-<%--                        </div>--%>
+                        <%--                        <div class="feature-card">--%>
+                        <%--                            <h3 class="feature-title"><spring:message code="report.detail.date"/></h3>--%>
+                        <%--                            <p class="feature-description">--%>
+                        <%--                                <c:if test="${report.createdAt != null}">--%>
+                        <%--                                    <c:out value="${report.createdAt}"/>--%>
+                        <%--                                </c:if>--%>
+                        <%--                            </p>--%>
+                        <%--                        </div>--%>
                     </div>
                 </div>
 
@@ -323,6 +359,39 @@
                                     <spring:message code="report.action.dismiss" text="Dismiss Report"/>
                                 </button>
                             </form>
+                        </c:if>
+                        <c:if test="${report.status == 'UNDER_REVIEW'}">
+                            <!-- Delete Content Button - dynamically sets the correct path based on content type -->
+                            <c:choose>
+                                <c:when test="${report.journey != null and report.journey.deleted == false}">
+                                    <form action="<c:url value='/journeys/${report.journey.id}/delete'/>" method="get" style="display: inline;">
+                                        <button type="submit" class="cta-button delete-button">
+                                            <spring:message code="report.action.delete_journey" text="Delete Journey"/>
+                                        </button>
+                                    </form>
+                                </c:when>
+                                <c:when test="${report.event != null and report.event.deleted == false}">
+                                    <form action="<c:url value='/events/${report.event.id}/delete'/>" method="get" style="display: inline;">
+                                        <button type="submit" class="cta-button delete-button">
+                                            <spring:message code="report.action.delete_event" text="Delete Event"/>
+                                        </button>
+                                    </form>
+                                </c:when>
+                                <c:when test="${report.journeyResponse != null and report.journeyResponse.deleted == false}">
+                                    <form action="<c:url value='/journeys/reply/${report.journeyResponse.id}/delete'/>" method="get" style="display: inline;">
+                                        <button type="submit" class="cta-button delete-button">
+                                            <spring:message code="report.action.delete_journey_comment" text="Delete Journey Comment"/>
+                                        </button>
+                                    </form>
+                                </c:when>
+                                <c:when test="${report.eventResponse != null and report.eventResponse.deleted == false }">
+                                    <form action="<c:url value='/events/reply/${report.eventResponse.id}/delete'/>" method="get" style="display: inline;">
+                                        <button type="submit" class="cta-button delete-button">
+                                            <spring:message code="report.action.delete_event_comment" text="Delete Event Comment"/>
+                                        </button>
+                                    </form>
+                                </c:when>
+                            </c:choose>
                         </c:if>
 
                         <!-- Block/Unblock User Action -->
