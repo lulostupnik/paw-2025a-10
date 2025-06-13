@@ -478,7 +478,7 @@ public class EventHibernateDao implements EventDao {
         String sortColumn = getSortColumn(sortBy, false);
         String dir = (direction == SortDirection.DESC) ? "DESC" : "ASC";
 
-        idSql.append(" GROUP BY e.id ORDER BY ").append(sortColumn).append(" ").append(dir);
+        idSql.append(" ORDER BY ").append(sortColumn).append(" ").append(dir);
 
         // JPQL fetch
         final String jpqlFetch = "FROM Event e WHERE e.id IN :ids ORDER BY " + getSortColumn(sortBy, true) + " " + dir;
