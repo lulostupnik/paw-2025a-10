@@ -227,16 +227,10 @@ body {
 .profile-card {
     background-color: var(--color-white);
     border-radius: var(--profile-radius);
-    padding: 2rem;
-    box-shadow: var(--profile-shadow);
-    margin-bottom: 2rem;
+    padding: 1.5rem;
     transition: none;
 }
 
-
-.profile-card:hover {
-    box-shadow: var(--profile-shadow);
-}
 
 .section-title {
     font-size: 1.5rem;
@@ -462,9 +456,6 @@ body {
         justify-content: center;
     }
 
-    .profile-card {
-        padding: 1.5rem;
-    }
 
     .section-title {
         font-size: 1.25rem;
