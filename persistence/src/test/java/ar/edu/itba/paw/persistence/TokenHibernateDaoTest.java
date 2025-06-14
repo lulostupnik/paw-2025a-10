@@ -14,8 +14,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.Assert.*;
@@ -49,7 +51,7 @@ public class TokenHibernateDaoTest {
         assertEquals(TestUtils.TOKEN_NEW_EXPIRATION, token.getExpirationDate());
         assertEquals(TestUtils.TOKEN_NEW_VALUE, token.getToken());
         TestUtils.assertEqualsUser(TestUtils.USER_I3, token.getUser());
-        assertTrue(token.getTokenId() > 1);
+        assertTrue(token.getId() > 1);
     }
     @Test(expected = PersistenceException.class)
     public void testCreateTokenWrongUser(){
@@ -78,7 +80,7 @@ public class TokenHibernateDaoTest {
 
         assertTrue(maybeToken.isPresent());
         assertEquals(TestUtils.TOKEN_1_VALUE, maybeToken.get().getToken());
-        assertEquals(TestUtils.TOKEN_1_ID, maybeToken.get().getTokenId().longValue());
+        assertEquals(TestUtils.TOKEN_1_ID, maybeToken.get().getId().longValue());
         assertTrue(TestUtils.TOKEN_NEW_EXPIRATION.plusHours(1).isAfter(maybeToken.get().getExpirationDate()));
         assertTrue(TestUtils.TOKEN_NEW_EXPIRATION.plusHours(-1).isBefore(maybeToken.get().getExpirationDate()));
         TestUtils.assertEqualsUser(TestUtils.USER_1, maybeToken.get().getUser());
@@ -96,7 +98,7 @@ public class TokenHibernateDaoTest {
 
         assertTrue(maybeToken.isPresent());
         assertEquals(TestUtils.TOKEN_1_VALUE, maybeToken.get().getToken());
-        assertEquals(TestUtils.TOKEN_1_ID, maybeToken.get().getTokenId().longValue());
+        assertEquals(TestUtils.TOKEN_1_ID, maybeToken.get().getId().longValue());
         assertTrue(TestUtils.TOKEN_NEW_EXPIRATION.plusHours(1).isAfter(maybeToken.get().getExpirationDate()));
         assertTrue(TestUtils.TOKEN_NEW_EXPIRATION.plusHours(-1).isBefore(maybeToken.get().getExpirationDate()));
         TestUtils.assertEqualsUser(TestUtils.USER_1, maybeToken.get().getUser());
@@ -108,17 +110,18 @@ public class TokenHibernateDaoTest {
         assertFalse(maybeToken.isPresent());
     }
 
-    // TODO Can't get delete to work!
-    // @Test
-    // public void testDeleteByToken(){
-    //     int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.TOKEN_TABLE);
+//     TODO Can't get delete to work!
+     @Test
+     public void testDeleteByToken(){
+         int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.TOKEN_TABLE);
 
-    //     tokenDao.deleteByToken(new Token(TestUtils.TOKEN_1_ID, null, null, null));
-    //     em.flush();
+         tokenDao.deleteByToken(em.find(Token.class, TestUtils.TOKEN_1_ID));
+         em.flush();
+         em.clear();
 
-    //     assertEquals(rowsBefore - 1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.TOKEN_TABLE));
-    //     assertFalse(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM tokens WHERE id = ?", Boolean.class, TestUtils.TOKEN_1_ID));
-    // }
+         assertEquals(rowsBefore - 1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.TOKEN_TABLE));
+         assertEquals(0, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM tokens WHERE id = ?", Integer.class, TestUtils.TOKEN_1_ID).intValue());
+     }
 
     @Test
     public void testDeleteExpiredTokens(){

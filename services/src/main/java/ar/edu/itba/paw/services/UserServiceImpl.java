@@ -176,7 +176,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void checkTokenValidity(String token) {
         final Optional<Token> maybeToken = tokenService.getByToken(token);
-        if (!maybeToken.isPresent()) {
+        if (maybeToken.isEmpty()) {
             LOGGER.error("Token is invalid, or expired for token: {}", token);
             throw new InvalidTokenException("Invalid token");
         }
@@ -205,7 +205,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void resetPassword(final String token, final String newPassword) {
         final Optional<Token> maybeToken = tokenService.getByToken(token);
-        if (!maybeToken.isPresent()) {
+        if (maybeToken.isEmpty()) {
             LOGGER.error("Token is invalid, or expired for token: {}", token);
             throw new InvalidTokenException("Invalid token");
         }

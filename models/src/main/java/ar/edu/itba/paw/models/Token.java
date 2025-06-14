@@ -15,7 +15,7 @@ public class Token {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tokens_id_seq")
     @SequenceGenerator(sequenceName = "tokens_id_seq", name = "tokens_id_seq", allocationSize = 1)
     @Column(name = "id", nullable = false, updatable = false)
-    private Long tokenId;
+    private Long id;
 
     @Setter
     @Column(length = 100, nullable = false, unique = true)
@@ -45,8 +45,9 @@ public class Token {
         this.user = user;
         this.token = token;
         this.expirationDate = expirationDate;
-        this.tokenId = id;
+        this.id = id;
     }
+
 
     public boolean isExpired() {
         return LocalDateTime.now().isAfter(expirationDate);

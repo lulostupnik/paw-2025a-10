@@ -35,7 +35,7 @@ public class TokenServiceImpl implements TokenService {
     public Token userTokenControl(User user) {
         Token token = user.getToken();
         if (token != null) {
-            if (!token.isExpired()) {
+            if (token.getExpirationDate() != null && !token.isExpired()) {
                 LOGGER.info("Token is fresh for user {}", user.getId());
                 return token;
             }
