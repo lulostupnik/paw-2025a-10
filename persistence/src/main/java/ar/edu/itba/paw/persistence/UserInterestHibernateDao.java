@@ -113,8 +113,16 @@ public class UserInterestHibernateDao implements UserInterestDao {
 
     }
 
+
+    /**
+     * Nota: Este update es el único que se hace directamente en un DAO porque hacerlo en servicios
+     * requeriría iterar a través de páginas (ya que no hay límite en la cantidad de intereses),
+     * y generar N updates individuales. Con esta query nativa logramos:
+     * - Código más limpio (1 query vs loops anidados con lógica de paginación compleja)
+     * - Mayor eficiencia (1 UPDATE bulk vs N updates individuales)
+     */
     @Override
-    public void updateMatchingInterestScores(long responderUserId, long journeyCreatorUserId) { //@TODO: mover a service?? o lo dejamos aca y explicamos?
+    public void updateMatchingInterestScores(long responderUserId, long journeyCreatorUserId) {
         // Update scores for interests that both users have in common
         em.createNativeQuery("""
         UPDATE user_interest
