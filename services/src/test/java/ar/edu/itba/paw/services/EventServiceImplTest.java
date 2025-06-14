@@ -870,25 +870,6 @@ public class EventServiceImplTest {
 //    }
 
     @Test
-    public void testCountEventAttendees(){
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-
-        int attendees = eventService.countEventAttendees(EVENT_ID);
-
-        assertEquals(0, attendees);
-    }
-    @Test(expected = EventNotFoundException.class)
-    public void testCountEventAttendeesNotFound(){
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.empty());
-
-        eventService.countEventAttendees(EVENT_ID);
-    }
-
-    @Test
     public void testFindEventsByAttendee(){
         when(
             eventDao.findAllEventsByAttendee(eq(USER_ID), eq(PAGE_1_DEFAULT))

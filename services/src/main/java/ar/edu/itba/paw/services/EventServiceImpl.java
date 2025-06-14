@@ -293,18 +293,7 @@ public class EventServiceImpl implements EventService {
     public int countRatingsByEvent(long eventId) {
         return eventRatingDao.countRatingsByEvent(eventId);
     }
-
-
-
-
-    @Override
-    public int countEventAttendees(final long eventId) {
-       return findEventById(eventId)
-                .orElseThrow(() -> {
-                    LOGGER.warn("Event not found {}", eventId);
-                    return new EventNotFoundException("Event not found");
-                }).getAttendeesCount();
-    }
+    
 
     @Override
     public Page<Event> findEventsByAttendee(final long userId, final PageParams pageParams) {

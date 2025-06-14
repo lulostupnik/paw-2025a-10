@@ -42,8 +42,6 @@ public interface EventService {
     Optional<Rating> findRatingByUserAndEvent(long userId, long eventId);
     int countRatingsByEvent(long eventId);
 
-    int countEventAttendees(long eventId);
-
     Page<Event> findEventsByAttendee(long userId, PageParams pageParams);
     Page<Event> findUpcomingEventsByAttendee(long userId,PageParams pageParams);
     Page<Event> findFinishedEventsByAttendee(long userId, PageParams pageParams);

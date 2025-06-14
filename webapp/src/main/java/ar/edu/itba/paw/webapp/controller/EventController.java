@@ -115,7 +115,7 @@ public class EventController {
         mav.addObject("topAttendeeCountry", eventWithStatistics.getTopAttendeeCountry());
         mav.addObject("topAttendeeCountryCount", eventWithStatistics.getTopAttendeeCountryCount());
         mav.addObject("attendeesPage", userService.findEventAttendees(event.getId(), attendeesPageParams));
-        mav.addObject("attendeesCount", eventService.countEventAttendees(event.getId()));
+        mav.addObject("attendeesCount", event.getAttendeesCount());
         Page<EventResponse> eventResponsesPage = eventService.findEventResponses(event.getId(), pageParams);
         mav.addObject("eventResponsesPage", eventResponsesPage);
         mav.addObject("commentsCount", eventService.countEventResponses(event.getId()));
