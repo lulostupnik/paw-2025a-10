@@ -28,11 +28,13 @@ public class AuthController {
 
     private final UserService userService;
     private final LoginHelper loginHelper;
+    private final TokenService tokenService;
 
     @Autowired
-    public AuthController(final UserService userService, final LoginHelper loginHelper) {
+    public AuthController(final UserService userService, final LoginHelper loginHelper, TokenService tokenService) {
         this.userService = userService;
         this.loginHelper = loginHelper;
+        this.tokenService = tokenService;
     }
     @GetMapping(value ="/validate")
     public ModelAndView validateEmail(@RequestParam("token") String token, RedirectAttributes redirectAttributes) {
@@ -50,7 +52,7 @@ public class AuthController {
 
     @GetMapping(value ="/reset-password")
     public ModelAndView changePassForm(@RequestParam("token") String token, @ModelAttribute("updatePasswordForm") UpdatePasswordForm form) {
-        userService.checkTokenValidity(token);
+        tokenService.checkTokenValidity(token);
         ModelAndView mav = new ModelAndView("auth/reset-password");
         mav.addObject("token", token);
         return mav;
@@ -58,7 +60,7 @@ public class AuthController {
 
     @PostMapping(value ="/reset-password")
     public ModelAndView changePass(@RequestParam("token") String token, @Valid @ModelAttribute("updatePasswordForm")UpdatePasswordForm form, final BindingResult errors) {
-        userService.checkTokenValidity(token);
+        tokenService.checkTokenValidity(token);
 
         if(errors.hasErrors()) {
             return changePassForm(token, form);

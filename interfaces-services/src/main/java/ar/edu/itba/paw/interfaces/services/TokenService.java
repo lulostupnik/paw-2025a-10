@@ -17,4 +17,6 @@ public interface TokenService {
 
     void deleteExpiredTokens();
 
+    void checkTokenValidity(String token);
+
 }

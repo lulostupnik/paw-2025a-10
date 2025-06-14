@@ -173,15 +173,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    @Override
-    public void checkTokenValidity(String token) {
-        final Optional<Token> maybeToken = tokenService.getByToken(token);
-        if (maybeToken.isEmpty()) {
-            LOGGER.error("Token is invalid, or expired for token: {}", token);
-            throw new InvalidTokenException("Invalid token");
-        }
 
-    }
 
     @Override
     public Optional<Double> findAverageRatingForCreatedEvents(long userId) {

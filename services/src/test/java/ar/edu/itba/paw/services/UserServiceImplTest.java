@@ -376,23 +376,6 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void testCheckTokenValidity(){
-        when(
-            tokenService.getByToken(eq(TOKEN_VALUE))
-        ).thenReturn(Optional.of(TOKEN));
-
-        userService.checkTokenValidity(TOKEN_VALUE);
-    }
-    @Test(expected = InvalidTokenException.class)
-    public void testCheckTokenValidityInvalid(){
-        when(
-            tokenService.getByToken(eq(TOKEN_VALUE))
-        ).thenReturn(Optional.empty());
-
-        userService.checkTokenValidity(TOKEN_VALUE);
-    }
-
-    @Test
     public void testFindAverageRatingForCreatedEvents(){
         when(
             userDao.findAverageRatingForCreatedEvents(eq(USER_ID))

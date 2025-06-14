@@ -4,6 +4,7 @@ import ar.edu.itba.paw.interfaces.persistence.TokenDao;
 import ar.edu.itba.paw.interfaces.services.TokenService;
 import ar.edu.itba.paw.models.Token;
 import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ import java.util.UUID;
 public class TokenServiceImpl implements TokenService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenServiceImpl.class);
-    private TokenDao tokenDao;
+    private final TokenDao tokenDao;
     private static final Integer TOKEN_DURATION_DAYS = 1;
 
 
@@ -59,6 +60,15 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public void delete(Token token) {
         tokenDao.deleteByToken(token);
+
+    }
+    @Override
+    public void checkTokenValidity(String token) {
+        final Optional<Token> maybeToken = getByToken(token);
+        if (maybeToken.isEmpty() || maybeToken.get().isExpired()) {
+            LOGGER.error("Token is invalid, or expired for token: {}", token);
+            throw new InvalidTokenException("Invalid token");
+        }
 
     }
 

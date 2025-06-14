@@ -21,7 +21,6 @@ public interface UserService {
     Page<User> findEventAttendees(long eventId, PageParams pageParams);
     void blockUser(long userId);
     void unblockUser(long userId);
-    void checkTokenValidity(String token);
 
     void updateUser(long userId, String username, String firstname, String lastname,
                     String universityName, String careerName /* , Locale locale */);
