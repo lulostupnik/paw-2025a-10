@@ -18,7 +18,6 @@ public interface UserService {
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
     Page<User> findUsers(String search, PageParams pageParams);
-    Page<User> findEventAttendees(long eventId, PageParams pageParams);
     void blockUser(long userId);
     void unblockUser(long userId);
 

@@ -22,8 +22,6 @@ public interface UserDao {
 
     Page<User> search(String search, PageParams pageParams);
 
-    Page<User> findAllAttendeesByEventId(long eventId, PageParams pageParams);
-
     Optional<Double> findAverageRatingForCreatedEvents(long userId);
     Optional<Double> findAverageRatingForAttendedEvents(long userId);
 }

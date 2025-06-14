@@ -107,13 +107,6 @@ public class UserHibernateDao implements UserDao {
     }
 
 
-
-    @Override//@TODO: mover a events
-    public Page<User> findAllAttendeesByEventId(long eventId, PageParams pageParams) {
-        return null;
-    }
-
-
     @Override
     public Optional<Double> findAverageRatingForCreatedEvents(long userId) {
         TypedQuery<Double> query = em.createQuery("""

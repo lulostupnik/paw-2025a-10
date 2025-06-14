@@ -399,17 +399,6 @@ public class UserServiceImplTest {
         assertEquals(RATING, maybeRating.get(), 0.1);
     }
 
-    @Test
-    public void testFindEventAttendees(){
-        when(
-            userDao.findAllAttendeesByEventId(eq(EVENT_ID), any(PageParams.class))
-        ).thenReturn(USER_PAGE);
-
-        Page<User> attendees = userService.findEventAttendees(EVENT_ID, PAGE_1_DEFAULT);
-
-        assertNotNull(attendees);
-        assertEquals(USER_PAGE, attendees);
-    }
 
     @Test
     public void testResetPassword(){

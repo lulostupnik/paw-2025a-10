@@ -66,6 +66,8 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+
+
     @Transactional
     @Override
     public User verifyUser(String token) {
@@ -183,13 +185,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<Double> findAverageRatingForAttendedEvents(long userId) {
         return userDao.findAverageRatingForAttendedEvents(userId);
-    }
-
-
-    @Override
-    public Page<User> findEventAttendees(final long eventId, PageParams pageParams) {
-        LOGGER.debug("Getting attendees for event {} with pageParams {}", eventId, pageParams);
-        return userDao.findAllAttendeesByEventId(eventId, pageParams);
     }
 
 

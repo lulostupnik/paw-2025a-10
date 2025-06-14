@@ -607,6 +607,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public Page<User> findEventAttendees(long eventId, PageParams pageParams) {
+        LOGGER.debug("Getting attendees for event {} with pageParams {}", eventId, pageParams);
+        return eventAttendanceDao.findAttendeesByEventId(eventId, pageParams);
+    }
+
+    @Override
     public int countEventsCreatedByUser(long userId) {
         return eventDao.countEventsCreatedByUser(userId);
     }

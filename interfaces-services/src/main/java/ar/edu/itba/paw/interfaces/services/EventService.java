@@ -67,6 +67,8 @@ public interface EventService {
 
     void sendEventReminders();
 
+    Page<User> findEventAttendees(long eventId, PageParams pageParams);
+
     int countEventsCreatedByUser(long userId);
     int countEventsAttendedByUser(long userId);
 
