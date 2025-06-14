@@ -293,7 +293,7 @@ public class EventServiceImpl implements EventService {
     public int countRatingsByEvent(long eventId) {
         return eventRatingDao.countRatingsByEvent(eventId);
     }
-    
+
 
     @Override
     public Page<Event> findEventsByAttendee(final long userId, final PageParams pageParams) {
