@@ -8,6 +8,9 @@ import java.util.Optional;
 
 public interface JourneyDao {
     Journey create(User user, University university, LocalDate startDate, LocalDate endDate, String description);
+
+    void hardDelete(Journey journey);
+
     Optional<Journey> findById(long id);
     Page<Journey> findRecommended(String email, PageParams pageParams);
     Page<Journey> findAll(PageParams pageParams);

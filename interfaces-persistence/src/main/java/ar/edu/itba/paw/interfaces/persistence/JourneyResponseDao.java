@@ -11,5 +11,7 @@ public interface JourneyResponseDao {
     int countByJourneyId(long journeyId);
     Page<User> findRespondersByJourneyId(long journeyId, PageParams pageParams);
     void deleteByJourneyId(long journeyId);
+
+    void hardDeleteByJourneyId(long journeyId);
 }
 

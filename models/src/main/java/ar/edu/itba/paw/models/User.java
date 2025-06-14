@@ -55,7 +55,7 @@ public class User{
     @Setter
     private  boolean isBlocked;
 
-
+    @Setter
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL ,orphanRemoval = true, fetch = FetchType.LAZY)
     private Journey journey;
 

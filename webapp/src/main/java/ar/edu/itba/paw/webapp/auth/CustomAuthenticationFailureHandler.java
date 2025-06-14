@@ -3,14 +3,11 @@ package ar.edu.itba.paw.webapp.auth;
 import ar.edu.itba.paw.models.exceptions.UserValidatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.AccountStatusException;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -32,12 +29,11 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
         LOGGER.debug("Exception message: {}", exception.getMessage());
 
         String redirectUrl = "/login?error=true";
-        Throwable cause = exception.getCause();
 
-        if (cause instanceof DisabledException) {
-            LOGGER.info("DisabledException caught: {}", exception.getMessage());
+        if (exception instanceof LockedException) {
+            LOGGER.info("LockedException caught: {}", exception.getMessage());
             redirectUrl = "/blocked?reason=" + exception.getMessage();
-        } else if (cause instanceof UserValidatedException) {
+        } else if (exception instanceof InternalAuthenticationServiceException) {
             redirectUrl= "/not-verified";
         }
 

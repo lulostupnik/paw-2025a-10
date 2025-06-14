@@ -43,12 +43,4 @@ public class EventRatingHibernateDao implements EventRatingDao {
                 .intValue();
     }
 
-    @Override
-    public Optional<Double> findRatingsAverageByEvent(long eventId) {
-        return Optional.ofNullable(  em.createQuery(
-                "SELECT AVG(r.rating) FROM Rating r WHERE r.event.id = :eventId", Double.class)
-                .setParameter("eventId", eventId)
-                .getSingleResult()
-        );
-    }
 }

@@ -114,27 +114,27 @@ public class EventRatingHibernateDaoTest {
         assertEquals(0, ratings);
     }
 
-    @Test
-    public void testFindRatingsAverageByEvent(){
-        Optional<Double> maybeEventRating = rateDao.findRatingsAverageByEvent(TestUtils.EVENT_1_ID);
-
-        assertNotNull(maybeEventRating);
-        assertTrue(maybeEventRating.isPresent());
-        assertEquals(TestUtils.EVENT_1_RATING, maybeEventRating.get(), 0.1);
-    }
-    @Test
-    public void testFindRatingsAverageByEventNoRatings(){
-        Optional<Double> maybeEventRating = rateDao.findRatingsAverageByEvent(TestUtils.EVENT_OLDER_ID);
-
-        assertNotNull(maybeEventRating);
-        assertFalse(maybeEventRating.isPresent());
-    }
-    @Test
-    public void testFindRatingsAverageByEventMissingEvent(){
-        Optional<Double> maybeEventRating = rateDao.findRatingsAverageByEvent(12341234l);
-
-        assertNotNull(maybeEventRating);
-        assertFalse(maybeEventRating.isPresent());
-    }
+//    @Test
+//    public void testFindRatingsAverageByEvent(){
+//        Optional<Double> maybeEventRating = rateDao.findRatingsAverageByEvent(TestUtils.EVENT_1_ID);
+//
+//        assertNotNull(maybeEventRating);
+//        assertTrue(maybeEventRating.isPresent());
+//        assertEquals(TestUtils.EVENT_1_RATING, maybeEventRating.get(), 0.1);
+//    }
+//    @Test
+//    public void testFindRatingsAverageByEventNoRatings(){
+//        Optional<Double> maybeEventRating = rateDao.findRatingsAverageByEvent(TestUtils.EVENT_OLDER_ID);
+//
+//        assertNotNull(maybeEventRating);
+//        assertFalse(maybeEventRating.isPresent());
+//    }
+//    @Test
+//    public void testFindRatingsAverageByEventMissingEvent(){
+//        Optional<Double> maybeEventRating = rateDao.findRatingsAverageByEvent(12341234l);
+//
+//        assertNotNull(maybeEventRating);
+//        assertFalse(maybeEventRating.isPresent());
+//    }
 
 }

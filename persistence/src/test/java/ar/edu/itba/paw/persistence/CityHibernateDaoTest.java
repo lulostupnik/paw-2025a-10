@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Country;
 import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.exceptions.CityAlreadyExistsException;
 
 @Transactional
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -204,7 +205,7 @@ public class CityHibernateDaoTest {
         );
         TestUtils.assertEqualsCity(new City(TestUtils.NEW_CITY_NAME, TestUtils.COUNTRY_1, city.getId()), city);
     }
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = CityAlreadyExistsException.class)
     public void testCreateDuplicate(){
         cityDao.create(TestUtils.CITY_1_NAME, TestUtils.COUNTRY_1);
         em.flush();

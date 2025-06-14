@@ -30,11 +30,4 @@ public interface EventDao {
 
     Page<Event> findAllBetweenDates(LocalDate startDate, LocalDate endDate, PageParams pageParams);
 
-
-    //Optional<EventWithUserInfo> findEventWithUserInfo(long userId, long eventId);
-
-    // todo: puede llegar a tener sentido tener el siguiente método? Mepa que no, siempre que quieras ver el limite supongo que vas a tener ya el evento
-    // Optional<Integer> findAttendanceLimitById(long eventId);
-
-
 }

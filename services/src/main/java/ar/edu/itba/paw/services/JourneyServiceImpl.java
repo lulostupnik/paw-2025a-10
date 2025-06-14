@@ -69,6 +69,20 @@ public class JourneyServiceImpl implements JourneyService {
                 }
         );
 
+        Journey existingJourney = user.getJourney();
+        if (existingJourney != null) {
+            if (!existingJourney.isDeleted()) {
+                LOGGER.warn("User {} already has an active journey", user.getId());
+                throw new UserWithActiveJourneyException("User already has an active journey");
+            }
+            // Hard delete the soft-deleted journey and its responses
+            LOGGER.info("Hard deleting previous journey {} and its responses for user {}", existingJourney.getId(), user.getId());
+            journeyResponseDao.hardDeleteByJourneyId(existingJourney.getId());
+            journeyDao.hardDelete(existingJourney);
+
+            user.setJourney(null);
+        }
+
         Journey journey = journeyDao.create(user, destination, startDate, endDate, description);
         LOGGER.info("Journey created: {}", journey);
         return journey;
@@ -229,7 +243,7 @@ public class JourneyServiceImpl implements JourneyService {
             LOGGER.warn("User with email '{}' not found", email);
             return new UserNotFoundException("User not found");
         });
-        return user.getJourney() != null; //@todo check
+        return user.getJourney() != null;
     }
 
     @Override
@@ -329,9 +343,8 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
-    public Optional<JourneyResponse> findJourneyResponseById(final long id) { // fixme:mover esto al journeyDao
+    public Optional<JourneyResponse> findJourneyResponseById(final long id) {
         LOGGER.debug("Finding journey response by id {}", id);
-
         return journeyResponseDao.findById(id);
     }
 
@@ -409,19 +422,6 @@ public class JourneyServiceImpl implements JourneyService {
         return tipDao.findTipById(tipId);
     }
 
-    @Override
-    public boolean isTipOwnedByUser(Tip tip, User user) {
-        if (tip == null || user == null) {
-            return false; //@TODO: exception?
-        }
-
-        User tipUser = tip.getJourney().getUser();
-        if (tipUser == null || tipUser.getId() == null || user.getId() == null) {
-            return false;  //@TODO: exception?
-        }
-
-        return tipUser.getId().equals(user.getId());
-    }
 
     @Override
     public boolean isTipOwnedByUser(long tipId, String email) {

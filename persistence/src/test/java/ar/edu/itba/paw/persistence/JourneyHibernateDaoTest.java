@@ -12,7 +12,7 @@ import javax.sql.DataSource;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
-
+import ar.edu.itba.paw.models.exceptions.UserWithActiveJourneyException;
 import ar.edu.itba.paw.persistence.config.TestConfig;
 
 import org.junit.Before;
@@ -71,7 +71,7 @@ public class JourneyHibernateDaoTest {
         );
         em.flush();
     }
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = UserWithActiveJourneyException.class)
     public void testCreateInvalidUni(){
         journeyDao.create(
             TestUtils.USER_1,
@@ -80,7 +80,7 @@ public class JourneyHibernateDaoTest {
         );
         em.flush();
     }
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = UserWithActiveJourneyException.class)
     public void testCreateDuplicated(){
         journeyDao.create(
             TestUtils.USER_1,

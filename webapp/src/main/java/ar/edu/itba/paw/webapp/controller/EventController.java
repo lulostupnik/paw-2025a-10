@@ -125,9 +125,10 @@ public class EventController {
         mav.addObject("attend", eventWithStatistics.isAttending());
         mav.addObject("isEventOwner", eventWithStatistics.isCreator());
         mav.addObject("isFull", event.getFull());
-        Optional<Double> maybeAverageRating = eventService.findRatingsAverageByEvent(event.getId());
-        LOGGER.debug("Average rating: {}", maybeAverageRating.orElse(0.0));
-        maybeAverageRating.ifPresent(rating -> mav.addObject("averageRating", rating));
+
+
+        mav.addObject("averageRating", event.getRating());
+
         if (user != null) {
             Optional<Rating> maybeUserRating = eventService.findRatingByUserAndEvent(user.getId(), event.getId());
             maybeUserRating.ifPresent(rating -> mav.addObject("userRating", rating.getRating()));

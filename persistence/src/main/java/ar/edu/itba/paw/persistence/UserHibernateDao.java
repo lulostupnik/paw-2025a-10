@@ -34,50 +34,6 @@ public class UserHibernateDao implements UserDao {
         return Optional.ofNullable( em.find(User.class, id));
     }
 
-//    @Override
-//    public Optional<UserAuthInfo> updateValidationAndFindAuthInfoByToken(String token) {
-//        return Optional.empty(); //@todo
-//    }
-
-//    //@Todo
-//    @Override
-//    public Optional<UserAuthInfo> findAuthInfoByEmail(final String email) {
-//        Query query = em.createNativeQuery("""
-//        SELECT email, password, roles, blocked, validated
-//        FROM users
-//        WHERE email = :email
-//    """);
-//        query.setParameter("email", email);
-//
-//        @SuppressWarnings("unchecked")
-//        List<Object[]> results = query.getResultList();
-//
-//        return results.stream().findFirst().map(row ->
-//                new UserAuthInfo(
-//                        (String) row[0],  // email
-//                        (String) row[1],  // password
-//                        (String) row[2],  // roles
-//                        (Boolean) row[3], // blocked
-//                        (Boolean) row[4]  // validated → verified
-//                )
-//        ); //@TOdo preguntar. se puede hacer sin nativeQuery?
-//    }
-/*
-    @Override
-    public Optional<UserAuthInfo> findAuthInfoByEmail(final String email) {
-        TypedQuery<UserAuthInfo> query = em.createQuery("""
-        SELECT new ar.edu.itba.paw.models.UserAuthInfo(
-            u.email, u.password, u.roles, u.blocked, u.validated
-        )
-        FROM User u
-        WHERE u.email = :email
-    """, UserAuthInfo.class);
-        query.setParameter("email", email);
-
-        return query.getResultList().stream().findFirst();
-    } //@TOdo esta es otra opcion capaz. PREGUNTAR !
-*/
-
 
     @Override
     public Optional<User> findByEmail(String email) {

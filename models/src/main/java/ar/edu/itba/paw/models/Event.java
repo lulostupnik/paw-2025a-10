@@ -57,11 +57,11 @@
         @Setter
         private  Integer attendeesLimit;
 
-//        @Column(name = "attendees_count")
-//        @Setter
-
         @Formula("(SELECT COUNT(*) FROM event_attendances ea WHERE ea.event_id = id)")
         private  int attendeesCount;
+
+        @Formula("(SELECT AVG(r.rating) FROM ratings r WHERE r.event_id = id)")
+        private Double rating;
 
         @Column(name="deleted", nullable = false)
         @Setter

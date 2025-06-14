@@ -268,7 +268,7 @@ public class JourneyController {
                                                @PathVariable("id") long id,
                                                @ModelAttribute("deleteReplyForm") ReplyForm form) {
         JourneyResponse journeyResponse = js.findJourneyResponseById(id).orElseThrow(() -> {
-            LOGGER.warn("Journey with ID {} not found", id); // todo: es warn o error?
+            LOGGER.warn("Journey with ID {} not found", id);
             return new JourneyResponseNotFoundException("Reply not found");
         });
         ModelAndView mav = new ModelAndView("journeys/delete-reply");

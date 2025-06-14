@@ -32,8 +32,7 @@ public class UserInterestId implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(userId, categoryId);
-    }  //todo preguntar. segun una sucinta investigacion, puede llegar a estar mal en JPA.
+    }
 
-    // getters y setters
 }
 
