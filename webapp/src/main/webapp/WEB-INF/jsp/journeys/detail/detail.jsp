@@ -239,6 +239,9 @@
       window.location.href = "<c:url value='/events'/>"
     }
   }
+  function saveLink(){
+    pushToNavigationStack(window.location.href);
+  }
 
   function toggleJourneyActionMenu() {
     const dropdown = document.getElementById('journeyActionDropdown');

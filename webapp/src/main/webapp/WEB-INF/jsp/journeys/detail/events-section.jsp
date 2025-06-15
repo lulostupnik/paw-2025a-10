@@ -7,10 +7,10 @@
   <!-- Events Sub-subtabs -->
   <div class="events-filter-subtabs">
     <button class="events-subtab active" data-events-subtab="created">
-      <spring:message code="journey.events.created" text="Created"/>
+      <spring:message code="profile.events.created" text="Created"/>
     </button>
     <button class="events-subtab" data-events-subtab="attending">
-      <spring:message code="journey.events.attending" text="Attending"/>
+      <spring:message code="profile.events.attending" text="Attending"/>
     </button>
   </div>
 

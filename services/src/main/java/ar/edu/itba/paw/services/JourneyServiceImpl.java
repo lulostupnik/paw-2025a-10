@@ -236,6 +236,7 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
 
+
     @Override
     public boolean existsByUserEmail(final String email) {
         LOGGER.debug("Checking if user has journey {}", email);
@@ -432,17 +433,3 @@ public class JourneyServiceImpl implements JourneyService {
         return tip.getJourney().getUser().getEmail().equals(email);
     }
 }
-
-
-
-
-
-//
-//    @Override
-//    public long findJourneyIdByResponseId(final long journeyResponseId) {
-//        JourneyResponse journeyResponse = findJourneyResponseById(journeyResponseId).orElseThrow(() -> {
-//            LOGGER.error("Journey response with id {} not found", journeyResponseId);
-//            return new JourneyResponseNotFoundException("Journey response doesn't exists");}
-//        );
-//        return journeyResponse.getJourney().getId();
-//    }

@@ -12,19 +12,31 @@
     <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
     <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
 </head>
+<script src="<c:url value="/resources/js/components/navigation-stack.js"/>"></script>
+<script>
+    function goBack(){
+        console.log(peekNavigationStack())
+        const rutaAnterior = popFromNavigationStack()
+        if (rutaAnterior) {
+            window.location.href = rutaAnterior;
+        } else {
+            window.location.href = "<c:url value='/events/${event.id}'/>"
+        }
+    }
+</script>
 <body>
 <div class="layout-container">
     <div class="main-content">
         <div class="content-container">
 
             <div class="back-navigation">
-                <a href="<c:url value='/events/${event.id}'/>" class="back-link">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                <button onclick="goBack()" class="back-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M19 12H5"></path>
                         <path d="M12 19l-7-7 7-7"></path>
                     </svg>
                     <span><spring:message code="event.back" /></span>
-                </a>
+                </button>
             </div>
 
 
