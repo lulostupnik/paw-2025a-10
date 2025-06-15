@@ -28,6 +28,9 @@
             window.location.href = "<c:url value='/events'/>"
         }
     }
+    function saveLink(){
+        pushToNavigationStack(window.location.href);
+    }
 </script>
 <c:set var="attendeesPageSize" value="6" scope="request" />
 <c:set var="chatPageSize" value="4" scope="request" />
@@ -149,7 +152,7 @@
                                     <!-- Delete option for owners and admins -->
                                     <c:if test="${isEventOwner || pageContext.request.isUserInRole('ADMIN')}">
                                         <c:url var="deleteUrl" value='/events/${event.id}/delete'/>
-                                        <a href="<c:out value='${deleteUrl}'/>" style="color: #333; padding: 12px 16px; text-decoration: none; display: flex; align-items: center; gap: 12px;" onmouseover="this.style.backgroundColor='#fef2f2'; this.style.color='#dc2626'" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#333'">
+                                        <a href="<c:out value='${deleteUrl}'/>" style="color: #333; padding: 12px 16px; text-decoration: none; display: flex; align-items: center; gap: 12px;" onclick="saveLink()" onmouseover="this.style.backgroundColor='#fef2f2'; this.style.color='#dc2626'" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#333'">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                 <path d="M3 6h18"></path>
                                                 <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
