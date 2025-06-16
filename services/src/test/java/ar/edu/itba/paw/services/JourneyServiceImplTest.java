@@ -12,14 +12,7 @@ import java.util.Optional;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
-import ar.edu.itba.paw.models.exceptions.InvalidDateException;
-import ar.edu.itba.paw.models.exceptions.InvalidException;
-import ar.edu.itba.paw.models.exceptions.InvalidPaginationParamsException;
-import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
-import ar.edu.itba.paw.models.exceptions.JourneyResponseNotFoundException;
-import ar.edu.itba.paw.models.exceptions.TipNotFoundException;
-import ar.edu.itba.paw.models.exceptions.UniversityNotFoundException;
-import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
+import ar.edu.itba.paw.models.exceptions.*;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -723,7 +716,7 @@ public class JourneyServiceImplTest {
         assertNotNull(page);
         assertEquals(JOURNEY_PAGE, page);
     }
-    @Test(expected = InvalidException.class)
+    @Test(expected = UserHasNoJourneyException.class)
     public void testFindJourneysUserHasNoJourneys(){    
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,

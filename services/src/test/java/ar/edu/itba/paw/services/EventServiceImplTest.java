@@ -10,12 +10,7 @@ import java.util.*;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
-import ar.edu.itba.paw.models.exceptions.CityNotFoundException;
-import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
-import ar.edu.itba.paw.models.exceptions.InvalidException;
-import ar.edu.itba.paw.models.exceptions.InvalidPaginationParamsException;
-import ar.edu.itba.paw.models.exceptions.RatingNotFoundException;
-import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
+import ar.edu.itba.paw.models.exceptions.*;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -537,7 +532,7 @@ public class EventServiceImplTest {
 
         //TODO asserts
     }
-    @Test(expected = InvalidException.class)
+    @Test(expected = EventIsFullException.class)
     public void testCreateEventAttendanceIdLimitExceeded(){
         when(
             eventDao.findById(eq(EVENT_ID))
@@ -568,7 +563,7 @@ public class EventServiceImplTest {
         //assertEquals(ATTENDEES + 1, EVENT_NO_LIMIT.getAttendeesCount());
         //TODO Asserts
     }
-    @Test(expected = InvalidException.class)
+    @Test(expected = UserAlreadyAttendingException.class)
     public void testCreateEventAttendanceAlreadyGoing(){
         when(
             eventDao.findById(eq(EVENT_ID))
@@ -582,7 +577,7 @@ public class EventServiceImplTest {
 
         eventService.createEventAttendance(USER_ID, EVENT_ID);
     }
-    @Test(expected = InvalidException.class)
+    @Test(expected = EventNotInTheFutureException.class)
     public void testCreateEventAttendancePast(){
         when(
             eventDao.findById(eq(EVENT_ID))
@@ -633,7 +628,7 @@ public class EventServiceImplTest {
         //assertEquals(ATTENDEES + 1, EVENT.getAttendeesCount());
         //TODO Asserts
     }
-    @Test(expected = InvalidException.class)
+    @Test(expected = EventIsFullException.class)
     public void testCreateEventAttendanceEmailLimitExceeded(){
         when(
             userService.findUserByEmail(eq(EMAIL))
@@ -670,7 +665,7 @@ public class EventServiceImplTest {
         //assertEquals(ATTENDEES + 1, EVENT_NO_LIMIT.getAttendeesCount());
         //TODO Asserts
     }
-    @Test(expected = InvalidException.class)
+    @Test(expected = UserAlreadyAttendingException.class)
     public void testCreateEventAttendanceEmailAlreadyGoing(){
         when(
             userService.findUserByEmail(eq(EMAIL))
@@ -687,7 +682,7 @@ public class EventServiceImplTest {
 
         eventService.createEventAttendance(EMAIL, EVENT_ID);
     }
-    @Test(expected = InvalidException.class)
+    @Test(expected = EventNotInTheFutureException.class)
     public void testCreateEventEmailAttendancePast(){
         when(
             userService.findUserByEmail(eq(EMAIL))
@@ -729,7 +724,7 @@ public class EventServiceImplTest {
 
         eventService.deleteEventAttendance(USER_ID, EVENT_ID);
     }
-    @Test(expected = InvalidException.class)
+    @Test(expected = EventNotInTheFutureException.class)
     public void testDeleteEventAttendanceIdPast(){
         when(
             eventDao.findById(eq(EVENT_ID))

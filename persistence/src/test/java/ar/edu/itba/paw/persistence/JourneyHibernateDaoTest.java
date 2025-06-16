@@ -80,6 +80,7 @@ public class JourneyHibernateDaoTest {
         );
         em.flush();
     }
+
     @Test(expected = UserWithActiveJourneyException.class)
     public void testCreateDuplicated(){
         journeyDao.create(
