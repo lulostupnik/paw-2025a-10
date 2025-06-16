@@ -11,7 +11,6 @@ import ar.edu.itba.paw.models.exceptions.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Optional;
 
 
@@ -105,8 +104,7 @@ public class ReportServiceImpl implements ReportService {
     public Report updateReportStatus(long reportId, ReportStatus status) {
         Report report = reportDao.findById(reportId)
                 .orElseThrow(() -> new ReportNotFoundException("Report not found with id: " + reportId));
-        //Si el status es dismissed, no se si haria un delete logico
-        //Porque me gustaria que se pueda ver el historial de reportes
+
         report.setStatus(status);
         return report;
 
