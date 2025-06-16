@@ -92,8 +92,12 @@ public class CareerServiceImpl implements CareerService {
                 @CacheEvict(value = "careersByName", allEntries = true)
     })
     public void deleteCareer(final long id) {
-        LOGGER.debug("Deleting career {}", id);
-        careerDao.delete(id);
+        Career maybeCareer = careerDao.findById(id).orElseThrow(() -> {
+                    LOGGER.error("Career not found with id: {}", id);
+                    return new CareerNotFoundException();
+                }
+        );
+        maybeCareer.setDeleted(true);
         LOGGER.info("Career {} deleted", id);
     }
 

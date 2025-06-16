@@ -472,9 +472,6 @@ public class EventServiceImpl implements EventService {
         return eventResponseDao.countByEventId(eventId);
     }
 
-
-
-
     @Override
     public Page<EventResponse> findEventResponses(final long eventId, final PageParams pageParams) {
         LOGGER.debug("Getting all responses for event {} with pageParams {}", eventId, pageParams);

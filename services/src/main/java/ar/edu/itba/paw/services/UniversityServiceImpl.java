@@ -109,8 +109,11 @@ public class UniversityServiceImpl implements UniversityService {
             }
     )
     public void deleteUniversity(final long id) {
-        LOGGER.debug("Deleting university with id {}", id);
-        universityDao.delete(id);
+        University university = universityDao.findById(id).orElseThrow(() -> {
+            LOGGER.error("University with id {} not found", id);
+            return new UniversityNotFoundException("University not found");
+        });
+        university.setDeleted(true);
         LOGGER.info("University deleted successfully with id: {}", id);
     }
 

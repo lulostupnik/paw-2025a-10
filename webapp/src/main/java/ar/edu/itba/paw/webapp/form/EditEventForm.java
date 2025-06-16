@@ -115,24 +115,22 @@ public class EditEventForm {
     }
     @Override
     public String toString(){
-        StringBuilder sb = new StringBuilder();
-        sb.append("{city: \"");
-        sb.append(city);
-        sb.append("\", date: \"");
-        sb.append(date);
-        sb.append("\", time: \"");
-        sb.append(time == null ? "All-day" : time);
-        sb.append("\", description: \"");
-        sb.append(description);
-        sb.append("\", profilePictureSize: ");
-        sb.append(flyer == null || flyer.isEmpty() ? 0 : flyer.getSize());
-        sb.append(", title: \"");
-        sb.append(title);
-        sb.append("\", address: \"");
-        sb.append(address);
-        sb.append("\", attendeesLimit: ");
-        sb.append(attendeesLimit != null ? attendeesLimit : "\"No limit\"");
-        sb.append("}");
-        return sb.toString();
+        return "{city: \"" +
+                city +
+                "\", date: \"" +
+                date +
+                "\", time: \"" +
+                (time == null ? "All-day" : time) +
+                "\", description: \"" +
+                description +
+                "\", profilePictureSize: " +
+                (flyer == null || flyer.isEmpty() ? 0 : flyer.getSize()) +
+                ", title: \"" +
+                title +
+                "\", address: \"" +
+                address +
+                "\", attendeesLimit: " +
+                (attendeesLimit != null ? attendeesLimit : "\"No limit\"") +
+                "}";
     }
 }

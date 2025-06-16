@@ -61,14 +61,12 @@ public class EventResponse {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{userId: ");
-        sb.append(user);
-        sb.append(", eventId: ");
-        sb.append(event);
-        sb.append(", message: \"");
-        sb.append(message);
-        sb.append("\"}");
-        return sb.toString();
+        return "{userId: " +
+                user +
+                ", eventId: " +
+                event +
+                ", message: \"" +
+                message +
+                "\"}";
     }
 }

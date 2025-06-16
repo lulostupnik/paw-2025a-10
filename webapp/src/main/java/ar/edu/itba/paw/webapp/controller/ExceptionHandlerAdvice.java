@@ -1,11 +1,9 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.acls.model.NotFoundException;
@@ -111,13 +109,6 @@ public class ExceptionHandlerAdvice {
         ModelAndView mav = new ModelAndView(ERROR_VIEW);
         mav.addObject("errorType", "400");
         return mav;
-    }
-
-    @ExceptionHandler(ExpiredPassTokenException.class)
-    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-    public ModelAndView error400ExpiredPassToken(ExpiredPassTokenException ex) {
-        LOGGER.debug("Stack trace for ExpiredToken", ex);
-        return new ModelAndView("auth/expired-token");
     }
 
     @ExceptionHandler(UserValidatedException.class)

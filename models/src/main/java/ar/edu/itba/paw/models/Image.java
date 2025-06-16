@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Getter
 @ToString
@@ -29,5 +30,15 @@ public class Image {
     public Image(final Long id, final byte[] data) {
         this.id = id;
         this.data = data;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Image image)) return false;
+        return id != null && id.equals(image.id);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

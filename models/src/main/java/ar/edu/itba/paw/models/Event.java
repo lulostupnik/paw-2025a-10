@@ -124,27 +124,25 @@
 
         @Override
         public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("{eventID: ");
-            sb.append(id);
-            sb.append(", user: ");
-            sb.append(user);
-            sb.append(", city: ");
-            sb.append(city);
-            sb.append(", date: \"");
-            sb.append(date);
-            sb.append("\", time: \"");
-            sb.append(time != null ? time : "all-day");
-            sb.append("\", address: \"");
-            sb.append(address);
-            sb.append("\", attendeesLimit: ");
-            sb.append(attendeesLimit);
-            sb.append(", description: \"");
-            sb.append(description);
-            sb.append("\", flyerID: ");
-            sb.append(flyerImageId);
-            sb.append("}");
-            return sb.toString();
+            return "{eventID: " +
+                    id +
+                    ", user: " +
+                    user +
+                    ", city: " +
+                    city +
+                    ", date: \"" +
+                    date +
+                    "\", time: \"" +
+                    (time != null ? time : "all-day") +
+                    "\", address: \"" +
+                    address +
+                    "\", attendeesLimit: " +
+                    attendeesLimit +
+                    ", description: \"" +
+                    description +
+                    "\", flyerID: " +
+                    flyerImageId +
+                    "}";
         }
 
         @Override

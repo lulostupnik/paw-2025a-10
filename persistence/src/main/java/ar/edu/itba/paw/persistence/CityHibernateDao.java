@@ -7,8 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -130,12 +128,5 @@ public class CityHibernateDao implements CityDao {
         return city;
     }
 
-    @Override
-    public void delete(long id) {
-        final City city = em.find(City.class, id);
-        if (city != null) {
-            city.setDeleted(true);
-            em.merge(city);
-        }
-    }
+
 }

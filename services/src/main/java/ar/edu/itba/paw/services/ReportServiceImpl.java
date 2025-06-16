@@ -8,6 +8,7 @@ import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.ReportReason;
 import ar.edu.itba.paw.models.enums.ReportStatus;
 import ar.edu.itba.paw.models.exceptions.*;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,8 @@ public class ReportServiceImpl implements ReportService {
     private final ReportDao reportDao;
     private final JourneyService journeyService;
     private final EventService eventService;
+
+    private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ReportServiceImpl.class);
 
     @Autowired
     public ReportServiceImpl(final ReportDao reportDao, final JourneyService journeyService,
@@ -86,13 +89,19 @@ public class ReportServiceImpl implements ReportService {
     @Transactional
     @Override
     public void delete(Report report) {
-        reportDao.delete(report);
+        report.setDeleted(true);
+        LOGGER.info("Report with id: " + report.getId() + " has been marked as deleted.");
     }
 
     @Transactional
     @Override
     public void deleteById(Long id) {
-        reportDao.deleteById(id);
+        Report report = reportDao.findById(id).orElseThrow(() -> {
+            LOGGER.error("Report not found with id: " + id);
+            return new ReportNotFoundException("Report not found with id: " + id);
+                });
+        report.setDeleted(true);
+        LOGGER.info("Report with id: " + id + " has been marked as deleted.");
     }
 
     @Override

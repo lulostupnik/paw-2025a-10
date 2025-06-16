@@ -8,7 +8,6 @@ import java.util.Optional;
 
 public interface UniversityDao {
     University create(String name, String abbreviation, City city);
-    void delete(long id);
     Optional<University> findByName(String name);
     Optional<University> findById(long id);
     Page<University> search(String searchTerm, PageParams pageParams);

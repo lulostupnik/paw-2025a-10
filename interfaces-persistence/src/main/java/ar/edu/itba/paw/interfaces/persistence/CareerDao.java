@@ -11,5 +11,4 @@ public interface CareerDao {
     Page<Career> findAll(PageParams pageParams);
     Page<Career> search(String substring, PageParams pageParams);
     Career create(String name);
-    void delete(long id);
 }

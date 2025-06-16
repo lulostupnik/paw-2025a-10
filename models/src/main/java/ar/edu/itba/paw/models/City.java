@@ -50,8 +50,7 @@ public class City {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof City)) return false;
-        City city = (City) o;
+        if (!(o instanceof City city)) return false;
         return id != null && id.equals(city.id);
     }
 
