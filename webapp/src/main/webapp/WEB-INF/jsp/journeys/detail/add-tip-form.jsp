@@ -160,24 +160,28 @@
                             <jsp:param name="rows" value="6" />
                         </jsp:include>
 
-                        <div class="form-actions">
-                            <c:url var="cancelUrl" value="/journeys/${journey.id}"/>
-                            <a href="${cancelUrl}" class="btn-cancel">
-                                <spring:message code="tip.cancel" text="Cancel" />
-                            </a>
-                            <c:choose>
-                                <c:when test="${isUpdate}">
-                                    <c:set var="submitButtonLabel"><spring:message code="journey.tip.update.title" text="Update Tip"/></c:set>
-                                </c:when>
-                                <c:otherwise>
-                                    <c:set var="submitButtonLabel"><spring:message code="tip.submit" text="Share Tip"/></c:set>
-                                </c:otherwise>
-                            </c:choose>
-                            <jsp:include page="../../components/button.jsp">
-                                <jsp:param name="label" value="${submitButtonLabel}" />
-                                <jsp:param name="type" value="submit" />
-                            </jsp:include>
-                        </div>
+                            <div class="form-actions" style="display: flex; justify-content: flex-end; gap: 1rem; align-items: flex-start;">
+                                <c:url var="cancelUrl" value="/journeys/${journey.id}"/>
+                                <a href="${cancelUrl}" class="btn-cancel" style="height: 44px; padding: 0.75rem 1.5rem; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; margin: 0;">
+                                    <spring:message code="tip.cancel" text="Cancel" />
+                                </a>
+                                <div style="margin: 0;">
+                                    <c:choose>
+                                        <c:when test="${isUpdate}">
+                                            <c:set var="submitButtonLabel"><spring:message code="journey.tip.update.title" text="Update Tip"/></c:set>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <c:set var="submitButtonLabel"><spring:message code="tip.submit" text="Share Tip"/></c:set>
+                                        </c:otherwise>
+                                    </c:choose>
+                                    <jsp:include page="../../components/button.jsp">
+                                        <jsp:param name="label" value="${submitButtonLabel}" />
+                                        <jsp:param name="type" value="submit" />
+                                        <jsp:param name="additionalClasses" value="" />
+                                    </jsp:include>
+                                </div>
+                            </div>
+
                         </form:form>
                     </div>
                 </div>
@@ -200,6 +204,24 @@
 </script>
 
 <style>
+
+
+
+    .form-actions .btn-container {
+        margin-top: 0 !important;
+        display: inline-block !important;
+    }
+
+    .form-actions .btn-primary {
+        height: 44px !important;
+        padding: 0.75rem 1.5rem !important;
+        box-sizing: border-box !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 0 !important;
+    }
+
     .journey-info-card {
         background-color: #f9fafb;
         border-radius: 0.75rem;
