@@ -91,7 +91,7 @@ public class JourneyController {
                                    @PageParamCustomizer(defaultSize = 6, pageParamName = "tipsPage", sizeParamName = "tipsSize") PageParams tipsPage) {
         Journey journey = js.getJourneyById(id).orElseThrow(() -> {
             LOGGER.error("Journey with ID {} not found", id);
-            return new JourneyNotFoundException("Journey with ID " + id + " not found");
+            return new JourneyNotFoundException(id);
         });
         Page<JourneyResponse> journeyResponses = js.findJourneyResponses(journey.getId(), repliesPage);
         Page<Event> createdEvents = eventService.findCreatedByJourney(journey, eventsPage);
@@ -118,7 +118,7 @@ public class JourneyController {
 
         Journey journey = js.getJourneyById(id).orElseThrow(() -> {
             LOGGER.error("Journey with ID {} not found", id);
-            return new JourneyNotFoundException("Journey with ID " + id + " not found");
+            return new JourneyNotFoundException(id);
         });
         ModelAndView mav = new ModelAndView("journeys/delete");
         mav.addObject("journey", journey);
@@ -153,7 +153,7 @@ public class JourneyController {
                                       @ModelAttribute("user") User user) {
         Journey journey = js.getJourneyById(id).orElseThrow(() -> {
             LOGGER.error("Journey with ID {} not found", id);
-            return new JourneyNotFoundException("Journey with ID " + id + " not found");
+            return new JourneyNotFoundException(id);
         });
         ModelAndView mav = new ModelAndView("journeys/detail/add-tip-form");
         mav.addObject("journey", journey);
@@ -175,7 +175,7 @@ public class JourneyController {
                                   @ModelAttribute("user") User user) {
         Journey journey = js.findTipById(tipId).orElseThrow(() -> {
             LOGGER.error("Tip with ID {} not found", tipId);
-            return new TipNotFoundException("Tip with ID " + tipId + " not found");
+            return new TipNotFoundException(tipId);
         }).getJourney();
         js.deleteTip(tipId);
         return new ModelAndView("redirect:/journeys/" + journey.getId());
@@ -186,7 +186,7 @@ public class JourneyController {
                                       @ModelAttribute("user") User user) {
         Tip tip = js.findTipById(tipId).orElseThrow(() -> {
             LOGGER.error("Tip with ID {} not found", tipId);
-            return new TipNotFoundException("Tip with ID " + tipId + " not found");
+            return new TipNotFoundException(tipId);
         });
         ModelAndView mav = new ModelAndView("journeys/detail/delete-tip");
         mav.addObject("tip", tip);
@@ -210,7 +210,7 @@ public class JourneyController {
                                       @ModelAttribute("user") User user) {
         Tip tip = js.findTipById(tipId).orElseThrow(() -> {
             LOGGER.error("Tip with ID {} not found", tipId);
-            return new TipNotFoundException("Tip with ID " + tipId + " not found");
+            return new TipNotFoundException(tipId);
         });
 
         ModelAndView mav = new ModelAndView("journeys/detail/add-tip-form");
@@ -232,7 +232,7 @@ public class JourneyController {
                                               BindingResult errors) {
 
         Journey journey = js.getJourneyById(journeyId)
-                .orElseThrow(()-> new JourneyNotFoundException("Journey with id %d not found to update".formatted(journeyId)));
+                .orElseThrow(()-> new JourneyNotFoundException(journeyId));
 
         if(!errors.hasErrors()) {
             form.setStartDate(journey.getStartDate());
@@ -267,7 +267,7 @@ public class JourneyController {
                                                @ModelAttribute("deleteReplyForm") ReplyForm form) {
         JourneyResponse journeyResponse = js.findJourneyResponseById(id).orElseThrow(() -> {
             LOGGER.warn("Journey with ID {} not found", id);
-            return new JourneyResponseNotFoundException("Reply not found");
+            return new JourneyResponseNotFoundException(id);
         });
         ModelAndView mav = new ModelAndView("journeys/delete-reply");
         mav.addObject("journey", journeyResponse.getJourney());
@@ -282,7 +282,7 @@ public class JourneyController {
                                            BindingResult errors) {
         JourneyResponse jr = js.findJourneyResponseById(id).orElseThrow(() -> {
             LOGGER.error("Journey response with id {} not found", id);
-            return new JourneyResponseNotFoundException("Journey response doesn't exists");}
+            return new JourneyResponseNotFoundException(id);}
         );
 
         if (errors.hasErrors()) {

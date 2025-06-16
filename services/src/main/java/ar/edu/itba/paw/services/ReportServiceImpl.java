@@ -33,13 +33,13 @@ public class ReportServiceImpl implements ReportService {
     @Override
     @Transactional
     public Report createReportForJourney(User reportingUser, long journeyId, String description, ReportReason reason) {
-        Journey journey = journeyService.getJourneyById(journeyId).orElseThrow(() -> new JourneyNotFoundException("Journey not found with id: " + journeyId));
+        Journey journey = journeyService.getJourneyById(journeyId).orElseThrow(() -> new JourneyNotFoundException(journeyId));
         return reportDao.create(journey.getUser(), reportingUser, journey, description, reason);    }
 
     @Override
     @Transactional
     public Report createReportForEvent(User reportingUser, long eventId, String description, ReportReason reason) {
-        Event event = eventService.findEventById(eventId).orElseThrow(() -> new EventNotFoundException("Event not found with id: " + eventId));
+        Event event = eventService.findEventById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
         return reportDao.create(event.getUser(), reportingUser, event, description, reason);    }
 
     @Override
@@ -54,7 +54,7 @@ public class ReportServiceImpl implements ReportService {
     @Transactional
     public Report createReportForJourneyResponse(User reportingUser, long responseId, String description, ReportReason reason) {
         JourneyResponse journeyResponse = journeyService.findJourneyResponseById(responseId)
-                .orElseThrow(() -> new JourneyResponseNotFoundException("Journey response not found with id: " + responseId));
+                .orElseThrow(() -> new JourneyResponseNotFoundException(responseId));
 
         return reportDao.create(journeyResponse.getUser(), reportingUser, journeyResponse, description, reason);    }
 
@@ -104,7 +104,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public Report updateReportStatus(long reportId, ReportStatus status) {
         Report report = reportDao.findById(reportId)
-                .orElseThrow(() -> new ReportNotFoundException("Report not found with id: " + reportId));
+                .orElseThrow(() -> new ReportNotFoundException(reportId));
         //Si el status es dismissed, no se si haria un delete logico
         //Porque me gustaria que se pueda ver el historial de reportes
         report.setStatus(status);

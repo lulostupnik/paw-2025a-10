@@ -121,7 +121,7 @@ public class CareerHibernateDao implements CareerDao {
                 em.merge(career);
                 return career;
             } else {
-                throw new CareerAlreadyExistsException("Career with name '" + name + "' already exists.");
+                throw new CareerAlreadyExistsException(name);
             }
         }
         final Career career = new Career(name);

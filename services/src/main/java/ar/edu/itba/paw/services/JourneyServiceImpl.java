@@ -65,7 +65,7 @@ public class JourneyServiceImpl implements JourneyService {
         University destination = universityService.findByName(destinationUniversity)
                 .orElseThrow(() -> {
                     LOGGER.warn("Destination university not found: {}", destinationUniversity);
-                    return new UniversityNotFoundException("Destination University not found");
+                    return new UniversityNotFoundException(destinationUniversity);
                 }
         );
 
@@ -73,7 +73,7 @@ public class JourneyServiceImpl implements JourneyService {
         if (existingJourney != null) {
             if (!existingJourney.isDeleted()) {
                 LOGGER.warn("User {} already has an active journey", user.getId());
-                throw new UserWithActiveJourneyException("User already has an active journey");
+                throw new UserWithActiveJourneyException(user.getId());
             }
             // Hard delete the soft-deleted journey and its responses
             LOGGER.info("Hard deleting previous journey {} and its responses for user {}", existingJourney.getId(), user.getId());
@@ -95,13 +95,13 @@ public class JourneyServiceImpl implements JourneyService {
         Journey journey = journeyDao.findById(journeyId)
                 .orElseThrow(() -> {
                     LOGGER.warn("Journey with id {} not found", journeyId);
-                    return new JourneyNotFoundException("Journey not found");
+                    return new JourneyNotFoundException(journeyId);
                 });
 
         User responder = userService.findUserByEmail(email)
                 .orElseThrow(() -> {
                     LOGGER.warn("User with email {} not found", email);
-                    return new UserNotFoundException("User not found");
+                    return new UserNotFoundException(email);
                 });
 
         journeyResponseDao.create(responder, journey, message);
@@ -180,7 +180,7 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.debug("Getting journey by email {}", email);
         User user = userService.findUserByEmail(email).orElseThrow(() -> {
             LOGGER.warn("User with email {} not found", email);
-            return new UserNotFoundException("User not found");
+            return new UserNotFoundException(email);
         });
         return Optional.ofNullable(user.getJourney());
     }
@@ -204,7 +204,7 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.debug("Getting filtered journeys");
         if(user != null && isMyDestination && ! existsByUser(user)){
             LOGGER.warn("User has no journeys");
-            throw new InvalidException("User has no journeys");
+            throw new UserHasNoJourneyException(user.getId());
         }
 
         LocalDate adjustedStartDate = startDate;
@@ -242,7 +242,7 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.debug("Checking if user has journey {}", email);
         User user = userService.findUserByEmail(email).orElseThrow(() -> {
             LOGGER.warn("User with email '{}' not found", email);
-            return new UserNotFoundException("User not found");
+            return new UserNotFoundException(email);
         });
         return user.getJourney() != null;
     }
@@ -283,7 +283,7 @@ public class JourneyServiceImpl implements JourneyService {
 
         Journey journey = journeyDao.findById(id).orElseThrow(() -> {
                 LOGGER.warn("Journey with id {} not found", id);
-                return new JourneyNotFoundException("Journey not found");
+                return new JourneyNotFoundException(id);
         }
         );
 
@@ -328,12 +328,12 @@ public class JourneyServiceImpl implements JourneyService {
         Journey journey = journeyDao.findById(journeyId)
                 .orElseThrow(() -> {
                     LOGGER.warn("Journey with id {} not found", journeyId);
-                    return new JourneyNotFoundException("Journey not found");
+                    return new JourneyNotFoundException(journeyId);
                 });
         University university = universityService.findByName(destinationUniversity)
                 .orElseThrow(() -> {
                     LOGGER.warn("University not found: {}", destinationUniversity);
-                    return new UniversityNotFoundException("University not found");
+                    return new UniversityNotFoundException(destinationUniversity);
                 });
         journey.setDestinationUniversity(university);
         journey.setStartDate(startDate);
@@ -355,7 +355,7 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.debug("Deleting journey response {}", id);
         JourneyResponse journeyResponse = findJourneyResponseById(id).orElseThrow(() -> {
             LOGGER.error("Journey response with id {} not found", id);
-            return new JourneyResponseNotFoundException("Journey response doesn't exists");}
+            return new JourneyResponseNotFoundException(id);}
         );
 
         User commentAuthor = journeyResponse.getUser();
@@ -393,7 +393,7 @@ public class JourneyServiceImpl implements JourneyService {
     public void createTip(long journeyId, String title, String content) {
         Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> {
             LOGGER.error("Journey with id {} not found", journeyId);
-            return new JourneyNotFoundException("Journey not found");
+            return new JourneyNotFoundException(journeyId);
         });
         tipDao.createTip(journey, title, content);
     }
@@ -403,7 +403,7 @@ public class JourneyServiceImpl implements JourneyService {
     public Tip updateTip(long tipId, String title, String content) {
         Tip tip = findTipById(tipId).orElseThrow(() -> {
             LOGGER.error("Tip with id {} not found", tipId);
-            return new TipNotFoundException("Tip not found");
+            return new TipNotFoundException(tipId);
         });
         tip.setTitle(title);
         tip.setContent(content);
@@ -428,7 +428,7 @@ public class JourneyServiceImpl implements JourneyService {
     public boolean isTipOwnedByUser(long tipId, String email) {
         Tip tip = findTipById(tipId).orElseThrow(() -> {
             LOGGER.error("Tip with id {} not found", tipId);
-            return new TipNotFoundException("Tip not found");
+            return new TipNotFoundException(tipId);
         });
         return tip.getJourney().getUser().getEmail().equals(email);
     }

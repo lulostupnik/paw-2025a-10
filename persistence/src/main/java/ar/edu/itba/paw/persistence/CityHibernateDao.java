@@ -122,7 +122,7 @@ public class CityHibernateDao implements CityDao {
                 em.merge(city);
                 return city;
             } else {
-                throw new CityAlreadyExistsException("City with this name and country already exists.");
+                throw new CityAlreadyExistsException(nameEn, country.getName());
             }
         }
         final City city = new City(nameEn, country);

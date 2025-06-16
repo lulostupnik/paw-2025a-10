@@ -45,7 +45,7 @@ public class UniversityHibernateDao implements UniversityDao {
         Optional <University> existingUniversity = findByNameAndCityWithDeleted(name, city.getName());
         if (existingUniversity.isPresent()) {
             if( !existingUniversity.get().isDeleted()) {
-                throw new UniversityAlreadyExistsException("University with this name and city already exists and is not deleted.");
+                throw new UniversityAlreadyExistsException(name, city.getName());
             }
             final University university = existingUniversity.get();
             university.setDeleted(false);

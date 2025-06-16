@@ -79,7 +79,7 @@ public class CareerServiceImpl implements CareerService {
         LOGGER.debug("Updating career {} to {}", id, name);
         Career career = careerDao.findById(id).orElseThrow(() -> {
             LOGGER.error("Career not found with id: {}", id);
-            return new CareerNotFoundException();
+            return new CareerNotFoundException(id);
         });
         career.setName(name);
         LOGGER.info("Career {} updated to {}", id, name);

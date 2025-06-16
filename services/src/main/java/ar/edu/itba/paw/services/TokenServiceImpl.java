@@ -67,7 +67,7 @@ public class TokenServiceImpl implements TokenService {
         final Optional<Token> maybeToken = getByToken(token);
         if (maybeToken.isEmpty() || maybeToken.get().isExpired()) {
             LOGGER.error("Token is invalid, or expired for token: {}", token);
-            throw new InvalidTokenException("Invalid token");
+            throw new InvalidTokenException(token);
         }
 
     }

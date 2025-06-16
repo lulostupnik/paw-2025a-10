@@ -94,7 +94,7 @@ public class InterestServiceImpl implements InterestService {
         Interest i = interestDao.findById(id)
                 .orElseThrow(() -> {
                     LOGGER.error("Interest with id {} not found", id);
-                    return new InterestsNotFoundException("Interest not found");
+                    return new InterestsNotFoundException(id);
                 });
         i.setName(interest);
 
