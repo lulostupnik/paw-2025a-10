@@ -155,10 +155,6 @@ public class User{
         StringBuilder sb = new StringBuilder();
         sb.append("{userId: ");
         sb.append(id);
-//        sb.append(", university: ");
-//        sb.append(university);
-//        sb.append(", career: ");
-//        sb.append(career);
         sb.append(", email: \"");
         sb.append(email);        
         sb.append("\", username: \"");

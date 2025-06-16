@@ -491,7 +491,6 @@ body {
         margin-right: 0;
     }
 }
-/* Enhanced Profile Header Styles */
 
 .profile-header {
     display: flex;
@@ -533,7 +532,6 @@ body {
     transform: scale(1.05);
 }
 
-/* Avatar Edit Overlay */
 .avatar-edit-overlay {
     position: absolute;
     top: 0;
@@ -555,7 +553,6 @@ body {
     opacity: 1;
 }
 
-/* Picture Edit Button */
 .btn-picture-edit {
     display: flex;
     align-items: center;
@@ -579,7 +576,6 @@ body {
     box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
 }
 
-/* Profile Actions */
 .profile-actions {
     margin-top: 1.5rem;
     width: 100%;
@@ -592,7 +588,6 @@ body {
     flex-wrap: wrap;
 }
 
-/* Dropdown for Mobile */
 .profile-actions-dropdown {
     display: none;
     position: relative;
@@ -665,7 +660,6 @@ body {
     border-radius: 0 0 0.5rem 0.5rem;
 }
 
-/* Responsive Design */
 @media (min-width: 768px) {
     .profile-header {
         flex-direction: row;
@@ -739,7 +733,6 @@ body {
     }
 }
 
-/* Visual Indicators */
 .btn-edit-info::before {
     content: "";
     position: absolute;
@@ -758,7 +751,6 @@ body {
     opacity: 1;
 }
 
-/* Accessibility */
 .btn-picture-edit:focus,
 .btn-edit-info:focus,
 .btn-change-password:focus,
@@ -767,7 +759,6 @@ body {
     outline-offset: 2px;
 }
 
-/* Loading States */
 .btn-edit-info.loading,
 .btn-change-password.loading {
     opacity: 0.7;
