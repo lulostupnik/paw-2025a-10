@@ -354,7 +354,6 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<Event> findTopEvents(final int limit){
-        LOGGER.debug("Getting top events with limit {}", limit);
         if (limit <= 0) {
             throw new InvalidPaginationParamsException("Limit must be greater than 0");
         }
