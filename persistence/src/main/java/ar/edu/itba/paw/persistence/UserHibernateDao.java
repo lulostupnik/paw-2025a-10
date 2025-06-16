@@ -3,12 +3,9 @@ package ar.edu.itba.paw.persistence;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.models.*;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import java.time.LocalDate;
 import java.util.*;
 
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
@@ -21,7 +18,6 @@ public class UserHibernateDao implements UserDao {
 
         @Override
         public User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale, boolean validated) {
-//            final User user = new User(email, username, firstname, lastname, university, career, profilePictureId, password, locale, validateToken, validateTokenExpiration);
 
             final User user = new User(email, username,  firstname, lastname, university,  career, profilePictureId, password, locale,validated);
 

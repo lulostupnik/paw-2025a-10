@@ -4,10 +4,7 @@ import ar.edu.itba.paw.interfaces.persistence.EventDao;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.*;
 import java.sql.Date;
 import java.time.LocalDate;
@@ -18,8 +15,6 @@ import static ar.edu.itba.paw.persistence.HibernateDaoUtils.*;
 
 @Repository
 public class EventHibernateDao implements EventDao {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(EventHibernateDao.class);
 
     @PersistenceContext
     private EntityManager em;
@@ -336,14 +331,13 @@ public class EventHibernateDao implements EventDao {
         SELECT COUNT(*)
         FROM events e
         WHERE e.user_id = :userId AND e.deleted = FALSE
-    """; //cuento los borrados o no?
+    """;
 
         Query countQuery = em.createNativeQuery(sql);
         countQuery.setParameter("userId", userId);
         return ((Number) countQuery.getSingleResult()).intValue();
     }
 
-    // EventHibernateDao.java
 
     @Override
     public Page<Event> findAllBetweenDates(LocalDate startDate, LocalDate endDate, PageParams pageParams) {
@@ -481,10 +475,8 @@ public class EventHibernateDao implements EventDao {
 
         idSql.append(" ORDER BY ").append(sortColumn).append(" ").append(dir);
 
-        // JPQL fetch
         final String jpqlFetch = "FROM Event e WHERE e.id IN :ids ORDER BY " + getSortColumn(sortBy, true) + " " + dir;
 
-        // Delegamos al helper
         return fetchPageByIds(em, countSql.toString(), idSql.toString(), paramMap, jpqlFetch, Event.class, pageParams, Map.of());
     }
 }

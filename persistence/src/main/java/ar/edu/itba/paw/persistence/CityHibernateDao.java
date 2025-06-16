@@ -4,14 +4,10 @@ import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.exceptions.CityAlreadyExistsException;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.likePattern;
 

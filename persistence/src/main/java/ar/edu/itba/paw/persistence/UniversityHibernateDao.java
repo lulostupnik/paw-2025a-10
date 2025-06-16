@@ -1,20 +1,16 @@
 package ar.edu.itba.paw.persistence;
-import ar.edu.itba.paw.interfaces.persistence.CityDao;
+
 import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
 import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
-
 import ar.edu.itba.paw.models.exceptions.UniversityAlreadyExistsException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Map;
 import java.util.Optional;
-
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.likePattern;
 
@@ -24,13 +20,7 @@ public class UniversityHibernateDao implements UniversityDao {
     @PersistenceContext
     private EntityManager em;
 
-    private final CityDao cityDao;
 
-    @Autowired
-    public  UniversityHibernateDao(CityDao cityDao) {
-        this.cityDao = cityDao;
-        // Default constructor for Spring
-    }
     private Optional<University> findByNameAndCityWithDeleted(String name, String cityName) {
         return em.createQuery("from University as u where u.name= :name and u.city.name = :cityName", University.class)
                 .setParameter("name", name)
@@ -93,7 +83,7 @@ public class UniversityHibernateDao implements UniversityDao {
         final String pattern = likePattern(searchTerm);
 
         final String countSql = """
-                SELECT COUNT(*) 
+                SELECT COUNT(*)
                 FROM universities u
                 WHERE (LOWER(u.name) like LOWER( :pattern )  OR LOWER (u.abbreviation) like LOWER( :pattern ) ) and u.deleted = false
                 """;

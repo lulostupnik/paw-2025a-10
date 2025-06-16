@@ -8,13 +8,11 @@ import ar.edu.itba.paw.models.exceptions.InterestsNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
 
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 
@@ -34,7 +32,6 @@ public class UserInterestHibernateDao implements UserInterestDao {
         final UserInterest userInterest = new UserInterest(user, interest);
         em.persist(userInterest);
         return userInterest;
-
     }
 
     @Override
@@ -123,7 +120,7 @@ public class UserInterestHibernateDao implements UserInterestDao {
      */
     @Override
     public void updateMatchingInterestScores(long responderUserId, long journeyCreatorUserId) {
-        // Update scores for interests that both users have in common
+
         em.createNativeQuery("""
         UPDATE user_interest
         SET score = score + 1
@@ -138,27 +135,6 @@ public class UserInterestHibernateDao implements UserInterestDao {
                 .setParameter("journeyCreatorUserId", journeyCreatorUserId)
                 .executeUpdate();
     }
-
-
-    // sin usar native query:
-//
-//    @Override
-//    public void updateMatchingInterestScores(long responderUserId, long journeyCreatorUserId) {
-//        // Update scores for interests that both users have in common
-//        em.createQuery("""
-//        UPDATE UserInterest ui
-//        SET ui.score = ui.score + 1
-//        WHERE ui.user.id = :responderUserId
-//          AND ui.interest.id IN (
-//              SELECT ui2.interest.id
-//              FROM UserInterest ui2
-//              WHERE ui2.user.id = :journeyCreatorUserId
-//          )
-//    """)
-//                .setParameter("responderUserId", responderUserId)
-//                .setParameter("journeyCreatorUserId", journeyCreatorUserId)
-//                .executeUpdate();
-//    }
 
 
 }
