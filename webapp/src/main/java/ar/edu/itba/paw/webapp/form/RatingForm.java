@@ -1,9 +1,7 @@
 package ar.edu.itba.paw.webapp.form;
 
 import ar.edu.itba.paw.webapp.validation.ValidRating;
-
 import javax.validation.constraints.NotNull;
-
 
 public class RatingForm {
     @ValidRating

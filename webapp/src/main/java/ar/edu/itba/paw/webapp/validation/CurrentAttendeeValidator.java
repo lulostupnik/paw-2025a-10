@@ -4,7 +4,6 @@ import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.models.Event;
 import ar.edu.itba.paw.webapp.form.EditEventForm;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Optional;

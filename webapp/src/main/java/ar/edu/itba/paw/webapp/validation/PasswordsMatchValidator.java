@@ -1,8 +1,6 @@
 package ar.edu.itba.paw.webapp.validation;
 
-
 import ar.edu.itba.paw.webapp.form.CreateUserForm;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 

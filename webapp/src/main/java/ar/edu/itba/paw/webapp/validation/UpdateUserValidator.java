@@ -6,7 +6,6 @@ import ar.edu.itba.paw.webapp.form.EditUserForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Optional;
@@ -38,10 +37,6 @@ public class UpdateUserValidator implements ConstraintValidator<ValidUpdateUser,
 
         // Check username
         if (!user.getUsername().equals(form.getUsername()) && userService.existsByUsername(form.getUsername())) {
-//            context.disableDefaultConstraintViolation();
-//            context.buildConstraintViolationWithTemplate("Username already in use")
-//                    .addPropertyNode("username")
-//                    .addConstraintViolation();
             valid = false;
         }
 
