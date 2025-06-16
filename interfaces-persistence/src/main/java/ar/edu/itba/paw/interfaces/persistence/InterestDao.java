@@ -3,7 +3,6 @@ package ar.edu.itba.paw.interfaces.persistence;
 import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
-import java.util.List;
 import java.util.Optional;
 
 public interface InterestDao {

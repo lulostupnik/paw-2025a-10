@@ -3,7 +3,6 @@ package ar.edu.itba.paw.interfaces.services;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;

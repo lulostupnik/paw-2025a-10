@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.models;
 
 import lombok.Getter;
-
 import javax.persistence.*;
 
 @Entity

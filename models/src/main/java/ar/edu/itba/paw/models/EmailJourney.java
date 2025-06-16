@@ -1,9 +1,6 @@
 package ar.edu.itba.paw.models;
 
-import ar.edu.itba.paw.models.EmailUser;
-import ar.edu.itba.paw.models.Journey;
 import lombok.Getter;
-
 import java.time.LocalDate;
 
 @Getter
