@@ -27,7 +27,6 @@ public class CountryServiceImpl implements CountryService {
     @Override
     @Cacheable(value = "countries")
     public List<Country> findCountries() {
-        LOGGER.debug("Getting all countries");
         return countryDao.findAll();
     }
 

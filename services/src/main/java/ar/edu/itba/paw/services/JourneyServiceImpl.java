@@ -44,15 +44,12 @@ public class JourneyServiceImpl implements JourneyService {
 
     private void checkDates(final LocalDate startDate, final LocalDate endDate) {
         if(startDate == null || endDate == null) {
-            LOGGER.warn("Start date or end date is null");
             throw new InvalidDateException("Start date and end date cannot be null");
         }
         if(startDate.isAfter(endDate)) {
-            LOGGER.warn("Start date is after end date");
             throw new InvalidDateException("Start date cannot be after end date");
         }
         if(startDate.isBefore(LocalDate.now())) {
-            LOGGER.warn("Start date is before today");
             throw new InvalidDateException("Start date cannot be before today");
         }
     }
@@ -201,9 +198,7 @@ public class JourneyServiceImpl implements JourneyService {
                                       final LocalDate startDate, final LocalDate endDate, final String interest,
                                       final boolean isPast, final boolean isUpcoming, final  boolean isMyDestination, final boolean isOngoing,
                                       final PageParams pageParams) {
-        LOGGER.debug("Getting filtered journeys");
         if(user != null && isMyDestination && ! existsByUser(user)){
-            LOGGER.warn("User has no journeys");
             throw new InvalidException("User has no journeys");
         }
 
@@ -258,7 +253,6 @@ public class JourneyServiceImpl implements JourneyService {
     public List<Journey> findRecommendedJourneys(final String email, final int limit) {
         LOGGER.debug("Getting recommended journeys for {}", email);
         if(limit <= 0 ){
-            LOGGER.warn("Limit must be greater than 0");
             throw new InvalidPaginationParamsException("Limit must be grater than 0");
         }
         if(existsByUserEmail(email)){

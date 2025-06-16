@@ -55,7 +55,6 @@ public class ImageServiceImpl implements ImageService {
     @Override
     @Transactional
     public void deleteImage(final long id) {
-        LOGGER.debug("Deleting image {}", id);
         imageDao.delete(id);
         LOGGER.info("Image {} deleted", id);
     }
