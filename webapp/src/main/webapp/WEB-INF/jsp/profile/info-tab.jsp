@@ -100,17 +100,7 @@
                 <span class="rating-number">
                   <fmt:formatNumber value="${averageCreatedEventsRating }" maxFractionDigits="1" minFractionDigits="1"/>
                 </span>
-                <span class="rating-context">
-                  (<c:out value="${totalCreatedEventsWithRatings}"/>
-                  <c:choose>
-                    <c:when test="${totalCreatedEventsWithRatings == 1}">
-                      <spring:message code="profile.rating.event.singular"/>
-                    </c:when>
-                    <c:otherwise>
-                      <spring:message code="profile.rating.events.plural"/>
-                    </c:otherwise>
-                  </c:choose>)
-                </span>
+
               </div>
             </div>
           </c:when>
@@ -173,17 +163,7 @@
                 <span class="rating-number">
                   <fmt:formatNumber value="${averageAttendedEventsRating}" maxFractionDigits="1" minFractionDigits="1"/>
                 </span>
-                <span class="rating-context">
-                  (<c:out value="${totalAttendedEventsRated}"/>
-                  <c:choose>
-                    <c:when test="${totalAttendedEventsRated == 1}">
-                      <spring:message code="profile.rating.event.singular"/>
-                    </c:when>
-                    <c:otherwise>
-                      <spring:message code="profile.rating.events.plural"/>
-                    </c:otherwise>
-                  </c:choose>)
-                </span>
+
               </div>
             </div>
           </c:when>

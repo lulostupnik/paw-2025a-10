@@ -3,10 +3,7 @@ package ar.edu.itba.paw.persistence;
 import ar.edu.itba.paw.interfaces.persistence.TokenDao;
 import ar.edu.itba.paw.models.Token;
 import ar.edu.itba.paw.models.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;
@@ -18,7 +15,6 @@ public class TokenHibernateDao implements TokenDao {
     @PersistenceContext
     private EntityManager entityManager;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TokenHibernateDao.class);
 
     @Override
     public Token create(User user, String token, LocalDateTime expirationDate) {
@@ -52,7 +48,6 @@ public class TokenHibernateDao implements TokenDao {
                 User user = managedToken.getUser();
                 user.setToken(null); // This will trigger orphan removal
                 entityManager.flush();
-                LOGGER.info("Token deleted via user relationship");
             }
     }
 

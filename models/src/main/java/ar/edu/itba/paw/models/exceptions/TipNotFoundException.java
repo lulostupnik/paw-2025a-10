@@ -1,10 +1,7 @@
 package ar.edu.itba.paw.models.exceptions;
 
 public class TipNotFoundException extends RuntimeException {
-    public TipNotFoundException(String message) {
-        super(message);
-    }
-    public TipNotFoundException() {
-        super("Tip not found");
+    public TipNotFoundException(long id) {
+        super(String.format("Tip with id %d not found", id));
     }
 }

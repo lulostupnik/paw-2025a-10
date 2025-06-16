@@ -319,14 +319,6 @@
                             </div>
                         </div>
 
-                        <%--                        <div class="feature-card">--%>
-                        <%--                            <h3 class="feature-title"><spring:message code="report.detail.date"/></h3>--%>
-                        <%--                            <p class="feature-description">--%>
-                        <%--                                <c:if test="${report.createdAt != null}">--%>
-                        <%--                                    <c:out value="${report.createdAt}"/>--%>
-                        <%--                                </c:if>--%>
-                        <%--                            </p>--%>
-                        <%--                        </div>--%>
                     </div>
                 </div>
 

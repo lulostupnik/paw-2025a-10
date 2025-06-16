@@ -6,31 +6,21 @@ import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
 import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.models.exceptions.EventResponseNotFoundException;
-import ar.edu.itba.paw.models.exceptions.InvalidException;
 import ar.edu.itba.paw.webapp.form.*;
-
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
 import ar.edu.itba.paw.webapp.utils.ImageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.swing.text.html.Option;
 import javax.validation.Valid;
-
-
-import java.util.List;
 import java.util.Optional;
-
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
-
 
 
 @Controller
@@ -40,14 +30,12 @@ public class EventController {
 
 
     private final EventService eventService;
-    private final UserService userService;
 
     private static final String REDIRECT = "redirect:/events/";
 
     @Autowired
-    public EventController(final EventService eventService, final UserService userService) {
+    public EventController(final EventService eventService) {
         this.eventService = eventService;
-        this.userService = userService;
     }
 
     @RequestMapping
@@ -78,7 +66,6 @@ public class EventController {
 
     @GetMapping(value = "/create")
     public ModelAndView createEventForm(@ModelAttribute("createEventForm") final CreateEventForm form) {
-        LOGGER.debug("Getting event creation form");
         return new ModelAndView("events/create");
     }
 
@@ -119,9 +106,6 @@ public class EventController {
         Page<EventResponse> eventResponsesPage = eventService.findEventResponses(event.getId(), pageParams);
         mav.addObject("eventResponsesPage", eventResponsesPage);
         mav.addObject("commentsCount", eventService.countEventResponses(event.getId()));
-//        if(eventWithStatistics.isCreator()){
-//            mav.addObject("attendees", userService.findEventAttendees(id));
-//        }
         mav.addObject("attend", eventWithStatistics.isAttending());
         mav.addObject("isEventOwner", eventWithStatistics.isCreator());
         mav.addObject("isFull", event.getFull());
@@ -149,7 +133,7 @@ public class EventController {
     {
         EventWithStatistics eventWithStatistics = eventService.findEventWithStatistics(user,id).orElseThrow(() -> {
             LOGGER.error("eventWithStatistics not found for id: {}", id);
-            return new EventNotFoundException("eventWithStatistics not found");});
+            return new EventNotFoundException(id);});
         return populateEventDetails(eventWithStatistics,
                 id, repliesPage, attendeesPage, user );
     }
@@ -199,7 +183,7 @@ public class EventController {
 
         Event event = eventService.findEventById(id).orElseThrow(() -> {
             LOGGER.error("event not found for id: {}", id);
-            return new EventNotFoundException();});
+            return new EventNotFoundException(id);});
         long commentsCount = eventService.countEventResponses(event.getId());
 
         ModelAndView mav = new ModelAndView("events/delete");
@@ -250,7 +234,7 @@ public class EventController {
 
         Event event = eventService.findEventById(eventId).orElseThrow(() -> {
             LOGGER.error("event not found for id: {}", eventId);
-            return new EventNotFoundException();});
+            return new EventNotFoundException(eventId);});
 
         if(!errors.hasErrors()) {
             form.setCity(event.getCity().getName());

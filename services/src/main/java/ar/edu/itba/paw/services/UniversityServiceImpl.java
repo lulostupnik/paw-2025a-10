@@ -70,7 +70,7 @@ public class UniversityServiceImpl implements UniversityService {
         LOGGER.debug("Creating university with name {}, abbreviation {}, city {}", name, abbreviation, cityName);
         City city = cityService.findCityByName(cityName).orElseThrow(() -> {
             LOGGER.error("City not found with name: {}", cityName);
-            return new CityNotFoundException();
+            return new CityNotFoundException(cityName);
         });
         University university = universityDao.create(name, abbreviation, city);
         LOGGER.info("University created successfully with name: {}, abbreviation: {}, in city: {}", name, abbreviation, cityName);
@@ -87,11 +87,11 @@ public class UniversityServiceImpl implements UniversityService {
         LOGGER.debug("Updating university with id {}, name {}, abbreviation {}, city {}", id, name, abbreviation, cityName);
         City city = cityService.findCityByName(cityName).orElseThrow(() -> {
             LOGGER.error("City not found with name: {}", cityName);
-            return new CityNotFoundException();
+            return new CityNotFoundException(cityName);
         });
         University university = universityDao.findById(id).orElseThrow(() -> {
             LOGGER.error("University with id {} not found", id);
-            return new UniversityNotFoundException("University not found");
+            return new UniversityNotFoundException(id);
         });
         university.setName(name);
         university.setAbbreviation(abbreviation);

@@ -1,9 +1,7 @@
 package ar.edu.itba.paw.webapp.form;
 
 import ar.edu.itba.paw.webapp.validation.ValidEventFilterDateRange;
-import ar.edu.itba.paw.webapp.validation.ValidFilterDateRange;
 import org.springframework.format.annotation.DateTimeFormat;
-
 import java.time.LocalDate;
 
 @ValidEventFilterDateRange

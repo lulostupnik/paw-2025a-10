@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.webapp.form;
 
 import ar.edu.itba.paw.models.enums.ReportReason;
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 

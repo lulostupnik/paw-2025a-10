@@ -2,13 +2,9 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.TipDao;
 import ar.edu.itba.paw.models.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -17,7 +13,6 @@ import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 @Repository
 public class TipHibernateDao implements TipDao {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TipHibernateDao.class);
 
     @PersistenceContext
     private EntityManager em;
@@ -25,10 +20,8 @@ public class TipHibernateDao implements TipDao {
 
     @Override
     public void createTip(Journey journey, String title, String content) {
-        LOGGER.debug("Creating tip for journey: {}", journey);
         Tip tip = new Tip(journey, title, content);
         em.persist(tip);
-        LOGGER.debug("Tip created with ID: {}", tip.getId());
     }
 
     @Override
@@ -36,7 +29,7 @@ public class TipHibernateDao implements TipDao {
         Tip tip = em.createQuery("FROM Tip t WHERE t.id = :tipId", Tip.class)
                 .setParameter("tipId", tipId)
                 .getSingleResult();
-        em.remove(tip);  //query throws NoResultException -> can't be null
+        em.remove(tip);
     }
 
     @Override

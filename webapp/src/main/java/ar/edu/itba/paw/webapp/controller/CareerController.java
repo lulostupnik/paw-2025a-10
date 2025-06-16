@@ -1,9 +1,7 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.CareerService;
-
 import ar.edu.itba.paw.models.Career;
-
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.exceptions.CareerNotFoundException;
@@ -13,12 +11,10 @@ import ar.edu.itba.paw.webapp.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
 import javax.validation.Valid;
 
 
@@ -64,7 +60,7 @@ public class CareerController {
     public ModelAndView getCareers(@PathVariable(value = "id") final long id) {
         Career career = careerService.findCareerById(id).orElseThrow(() -> {
             LOGGER.error("Career not found for id: {}", id);
-            return new CareerNotFoundException("Career not found");}
+            return new CareerNotFoundException(id);}
         );
         ModelAndView mav = new ModelAndView(CAREER_DETAIL);
         mav.addObject("career", career);
@@ -77,7 +73,7 @@ public class CareerController {
 
 
         if(! errors.hasErrors()) {
-            Career career = careerService.findCareerById(id).orElseThrow(() -> new CareerNotFoundException("Career not found"));
+            Career career = careerService.findCareerById(id).orElseThrow(() -> new CareerNotFoundException(id));
             form.setName(career.getName());
         }
         ModelAndView mav = new ModelAndView(CAREER_CREATE);

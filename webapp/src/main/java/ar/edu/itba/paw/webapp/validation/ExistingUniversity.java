@@ -1,7 +1,5 @@
 package ar.edu.itba.paw.webapp.validation;
 
-import ar.edu.itba.paw.webapp.validation.ExistingUniversityValidator;
-
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.ElementType;

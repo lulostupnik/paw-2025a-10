@@ -4,12 +4,10 @@ import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.exceptions.CityAlreadyExistsException;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Map;
 import java.util.Optional;
-
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.likePattern;
 
@@ -120,7 +118,7 @@ public class CityHibernateDao implements CityDao {
                 em.merge(city);
                 return city;
             } else {
-                throw new CityAlreadyExistsException("City with this name and country already exists.");
+                throw new CityAlreadyExistsException(nameEn, country.getName());
             }
         }
         final City city = new City(nameEn, country);

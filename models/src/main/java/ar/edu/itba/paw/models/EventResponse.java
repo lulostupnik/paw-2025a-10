@@ -2,11 +2,8 @@ package ar.edu.itba.paw.models;
 
 import lombok.Getter;
 import lombok.Setter;
-
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 
 @Getter

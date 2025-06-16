@@ -3,13 +3,10 @@
     import lombok.Getter;
     import lombok.Setter;
     import org.hibernate.annotations.Formula;
-
     import javax.persistence.*;
     import java.time.LocalDate;
     import java.time.LocalDateTime;
     import java.time.LocalTime;
-    import java.util.ArrayList;
-    import java.util.List;
 
     @Getter
     @Entity
