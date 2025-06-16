@@ -6,8 +6,6 @@ import ar.edu.itba.paw.models.Image;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
@@ -19,12 +17,10 @@ public class ImageServiceImpl implements ImageService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageServiceImpl.class);
 
     private final ImageDao imageDao;
-    private final CacheManager cacheManager;
 
     @Autowired
-    public ImageServiceImpl(final ImageDao imageDao, final CacheManager cacheManager) {
+    public ImageServiceImpl(final ImageDao imageDao) {
         this.imageDao = imageDao;
-        this.cacheManager = cacheManager;
     }
 
     @Override
@@ -33,13 +29,6 @@ public class ImageServiceImpl implements ImageService {
         LOGGER.debug("Storing image of size {}", imageData.length);
         long imageId = imageDao.create(imageData);
 
-        Image image = new Image(imageId, imageData);
-        Cache cache = cacheManager.getCache("images");
-        if (cache != null) {
-            cache.put(imageId, image);
-        } else {
-            LOGGER.warn("Cache 'images' not found, skipping cache operation");
-        }
         LOGGER.info("Image {} stored", imageId);
         return imageId;
     }
