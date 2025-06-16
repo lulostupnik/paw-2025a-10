@@ -70,17 +70,16 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public User verifyUser(String token) {
-        final Optional<Token> maybeToken = tokenService.getByToken(token);
-        if (!maybeToken.isPresent()) {
-            LOGGER.error("Token is invalid, or expired for token: {}", token);
-            throw new InvalidTokenException("Invalid token");
-        }
+    public User verifyUser(String tokenStr) {
+        Token token = tokenService.getByToken(tokenStr)
+                .orElseThrow(() -> {
+                    LOGGER.error("Token is invalid, or expired for token: {}", tokenStr);
+                    return new InvalidTokenException("Invalid token");
+                });
 
-        final Token tkn = maybeToken.get();
-        final User user = tkn.getUser();
+        final User user = token.getUser();
 
-        tokenService.delete(tkn);
+        tokenService.delete(token);
 
         if (user.isValidated()) {
             LOGGER.error("User already validated {}", user.getId());
