@@ -4,7 +4,6 @@ import ar.edu.itba.paw.interfaces.persistence.TokenDao;
 import ar.edu.itba.paw.models.Token;
 import ar.edu.itba.paw.models.User;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;

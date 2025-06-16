@@ -5,6 +5,8 @@ public class CareerNotFoundException extends RuntimeException {
         super(message);
     }
     public CareerNotFoundException() {
-        super("City not found");
+        super("Career not found");
     }
+    public CareerNotFoundException(String message, String careerName) {
+        super(String.format("%s: %s", message,careerName));  }
 }

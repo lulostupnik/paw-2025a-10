@@ -1,8 +1,6 @@
 package ar.edu.itba.paw.interfaces.persistence;
 
 import ar.edu.itba.paw.models.*;
-import java.time.LocalDate;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 

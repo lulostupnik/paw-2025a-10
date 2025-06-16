@@ -5,4 +5,7 @@ public class UserValidatedException extends RuntimeException {
         super(message);
     }
     public UserValidatedException() {}
+    public UserValidatedException(String message, String email) {
+        super(String.format("%s: %s", message, email));
+    }
 }

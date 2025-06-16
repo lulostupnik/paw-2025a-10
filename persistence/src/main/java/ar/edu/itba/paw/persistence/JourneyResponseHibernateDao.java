@@ -3,11 +3,9 @@ package ar.edu.itba.paw.persistence;
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
 import ar.edu.itba.paw.models.*;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.Optional;
@@ -87,8 +85,6 @@ public class JourneyResponseHibernateDao implements JourneyResponseDao {
         );
     }
 
-    // JourneyResponseHibernateDao.java
-
     @Override
     public Page<User> findRespondersByJourneyId(final long journeyId, final PageParams pageParams) {
         final String countSql = """
@@ -123,15 +119,6 @@ public class JourneyResponseHibernateDao implements JourneyResponseDao {
     }
 
 
-//    @Override
-//    public void deleteByJourneyId(long journeyId) {
-//        em.createNativeQuery("""
-//        DELETE FROM journey_responses
-//        WHERE journey_id = :journeyId
-//        """)
-//                .setParameter("journeyId", journeyId)
-//                .executeUpdate();
-//    }
 
     @Override
     public void deleteByJourneyId(long journeyId) {

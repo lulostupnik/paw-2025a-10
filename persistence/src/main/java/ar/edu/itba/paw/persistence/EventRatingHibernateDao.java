@@ -2,14 +2,11 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.EventRatingDao;
 import ar.edu.itba.paw.models.Event;
-import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.Rating;
 import ar.edu.itba.paw.models.User;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.List;
 import java.util.Optional;
 
 @Repository

@@ -76,12 +76,12 @@ public class EventServiceImpl implements EventService {
             LOGGER.debug("Replying to event {}", eventId);
             Event event = eventDao.findById(eventId).orElseThrow(() -> {
                 LOGGER.error("Event not found {}", eventId);
-                return new EventNotFoundException("Event not found");
+                return new EventNotFoundException(eventId);
             });
 
             User responder = userService.findUserByEmail(email).orElseThrow(() -> {
                 LOGGER.error("User not found {}", email);
-                return new UserNotFoundException("User not found");
+                return new UserNotFoundException(email);
             });
 
             eventResponseDao.create(responder, event, message);
@@ -354,6 +354,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<Event> findTopEvents(final int limit){
+        LOGGER.debug("Getting top events with limit {}", limit);
         if (limit <= 0) {
             throw new InvalidPaginationParamsException("Limit must be greater than 0");
         }

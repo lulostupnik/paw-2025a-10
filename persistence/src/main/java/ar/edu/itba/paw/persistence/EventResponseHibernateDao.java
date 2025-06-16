@@ -4,13 +4,10 @@ package ar.edu.itba.paw.persistence;
 import ar.edu.itba.paw.interfaces.persistence.EventResponseDao;
 import ar.edu.itba.paw.models.*;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-
 import java.math.BigInteger;
-import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -18,7 +15,6 @@ import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 
 @Repository
 public class EventResponseHibernateDao implements EventResponseDao {
-
 
     @PersistenceContext
     private EntityManager em;
