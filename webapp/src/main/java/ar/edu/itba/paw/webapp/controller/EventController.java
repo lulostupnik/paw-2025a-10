@@ -66,7 +66,6 @@ public class EventController {
 
     @GetMapping(value = "/create")
     public ModelAndView createEventForm(@ModelAttribute("createEventForm") final CreateEventForm form) {
-        LOGGER.debug("Getting event creation form");
         return new ModelAndView("events/create");
     }
 

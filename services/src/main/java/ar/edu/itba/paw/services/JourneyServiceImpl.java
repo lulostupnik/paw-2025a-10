@@ -48,11 +48,11 @@ public class JourneyServiceImpl implements JourneyService {
             throw new InvalidDateException("Start date and end date cannot be null");
         }
         if(startDate.isAfter(endDate)) {
-            LOGGER.warn("Start date is after end date");
+            LOGGER.warn("Start date({}) is after end date({})", startDate, endDate);
             throw new InvalidDateException("Start date cannot be after end date");
         }
         if(startDate.isBefore(LocalDate.now())) {
-            LOGGER.warn("Start date is before today");
+            LOGGER.warn("Start date({}) is before today", startDate);
             throw new InvalidDateException("Start date cannot be before today");
         }
     }

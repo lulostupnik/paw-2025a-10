@@ -62,7 +62,6 @@ public class ExceptionHandlerAdvice {
     @ResponseStatus(code = HttpStatus.NOT_FOUND)
     public ModelAndView error404Journey(JourneyNotFoundException ex) {
         LOGGER.debug("Stack trace for JourneyNotFoundException", ex);
-
         return new ModelAndView("journeys/not-found");
     }
 
