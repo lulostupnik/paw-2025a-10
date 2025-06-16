@@ -19,15 +19,12 @@ public class Token {
 
     @Setter
     @Column(length = 100, nullable = false, unique = true)
-    private String token;  //todo En la BD no esta como NOT NULL el token pero deberia serlo.
+    private String token; 
 
-    //FIXME: esto
-    //TODO: Creo que eager, porque no tiene sentido cargar el token sin el usuario
-    @OneToOne(fetch = FetchType.EAGER, optional = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    //TODO:Esto esta bueno cambiarlo de LocalDate porque asi es mas preciso, no?
     @Setter
     @Column(name = "token_expiration",nullable = false)
     private LocalDateTime expirationDate;

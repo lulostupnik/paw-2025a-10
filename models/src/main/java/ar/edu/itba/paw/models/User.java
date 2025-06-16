@@ -59,10 +59,9 @@ public class User{
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL ,orphanRemoval = true, fetch = FetchType.LAZY)
     private Journey journey;
 
-    //TODO:Check cascasde and orphan removal
     @Setter
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL ,orphanRemoval = true, fetch = FetchType.LAZY)
-    private Token token; //todo borrar?
+    private Token token;
 
     @Column(name = "password", length = 100, nullable = false)
     @Setter
