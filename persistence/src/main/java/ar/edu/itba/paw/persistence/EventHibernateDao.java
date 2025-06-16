@@ -4,8 +4,6 @@ import ar.edu.itba.paw.interfaces.persistence.EventDao;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
@@ -18,8 +16,6 @@ import static ar.edu.itba.paw.persistence.HibernateDaoUtils.*;
 
 @Repository
 public class EventHibernateDao implements EventDao {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(EventHibernateDao.class);
 
     @PersistenceContext
     private EntityManager em;

@@ -3,8 +3,6 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.EventResponseDao;
 import ar.edu.itba.paw.models.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -21,7 +19,6 @@ import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 @Repository
 public class EventResponseHibernateDao implements EventResponseDao {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EventResponseHibernateDao.class);
 
     @PersistenceContext
     private EntityManager em;
