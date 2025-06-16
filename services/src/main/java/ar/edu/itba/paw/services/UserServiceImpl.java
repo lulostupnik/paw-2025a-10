@@ -46,13 +46,13 @@ public class UserServiceImpl implements UserService {
         University university = universityService.findByName(universityName)
                 .orElseThrow(() -> {
                     LOGGER.error("University not found: '{}' during user creation for email: {}", universityName, email);
-                    return new UniversityNotFoundException("University not found");
+                    return new UniversityNotFoundException("University not found for name", universityName);
                 });
 
         Career career = careerService.findCareerByName(careerName)
                 .orElseThrow(() -> {
                     LOGGER.error("Career not found: '{}' during user creation for email: {}", careerName, email);
-                    return new CareerNotFoundException("Career not found");
+                    return new CareerNotFoundException("Career not found for name", careerName);
                 });
 
         long profilePictureId = imageService.createImage(profilePicture);
@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
         final Optional<Token> maybeToken = tokenService.getByToken(token);
         if (!maybeToken.isPresent()) {
             LOGGER.error("Token is invalid, or expired for token: {}", token);
-            throw new InvalidTokenException("Invalid token");
+            throw new InvalidTokenException("Token is invalid, or expired for token", token);
         }
 
         final Token tkn = maybeToken.get();
@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService {
 
         if (user.isValidated()) {
             LOGGER.error("User already validated {}", user.getId());
-            throw new UserValidatedException("User already validated");
+            throw new UserValidatedException();
         }
 
         user.setValidated(true);
@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService {
     public void updatePassword(final long id, final String newPassword) {
         User user = userDao.findById(id).orElseThrow(() -> {
             LOGGER.error("User does not exist for ID: {}", id);
-            return new UserNotFoundException("User does not exist");
+            return new UserNotFoundException(id);
         });
         LOGGER.debug("Password change for user with id: {}", id);
         user.setPassword(passwordEncoder.encode(newPassword));
@@ -151,7 +151,7 @@ public class UserServiceImpl implements UserService {
         LOGGER.debug("Attempting to block user with ID: {}", userId);
         User user = findUserById(userId).orElseThrow(() -> {
             LOGGER.error("User does not exist for ID: {}", userId);
-            return new UserNotFoundException("User does not exist");
+            return new UserNotFoundException(userId);
         });
 
         emailService.sendUserBlockedNotification(new EmailUser(user));
@@ -167,7 +167,7 @@ public class UserServiceImpl implements UserService {
         LOGGER.debug("Attempting to unblock user with ID: {}", userId);
         User user = findUserById(userId).orElseThrow(() -> {
             LOGGER.error("User does not exist for ID: {}", userId);
-            return new UserNotFoundException("User does not exist");
+            return new UserNotFoundException(userId);
         });
         emailService.sendUserUnblockedNotification(new EmailUser(user));
         user.setBlocked(false);
@@ -194,7 +194,7 @@ public class UserServiceImpl implements UserService {
         final Optional<Token> maybeToken = tokenService.getByToken(token);
         if (maybeToken.isEmpty()) {
             LOGGER.error("Token is invalid, or expired for token: {}", token);
-            throw new InvalidTokenException("Invalid token");
+            throw new InvalidTokenException("Token is invalid, or expired for token", token);
         }
 
         final Token tkn = maybeToken.get();
@@ -213,11 +213,11 @@ public class UserServiceImpl implements UserService {
         LOGGER.debug("Attempting to send forgot password email to: {}", email);
         User user = userDao.findByEmail(email).orElseThrow(()-> {
             LOGGER.error("User with email {} not found", email);
-            return new UserNotFoundException("User does not exist");
+            return new UserNotFoundException(email);
         });
         if(!user.isValidated()){
             LOGGER.warn("User with email {} not validated", email);
-            throw new UserValidatedException("User not validated");
+            throw new UserValidatedException("User not validated for email:", email);
         }
         Token token = tokenService.userTokenControl(user);
         emailService.sendForgotPassEmail(new EmailUser(user), token.getToken());
@@ -228,25 +228,25 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void updateUser(final long userId, final String username,
                            final String firstname, final String lastname, final String universityName,
-                           final String careerName /*, final Locale locale*/) {
+                           final String careerName) {
         LOGGER.debug("Updating user with ID: {}", userId);
 
         User user = userDao.findById(userId)
                 .orElseThrow(() -> {
                     LOGGER.error("User with id {} not found", userId);
-                    return new UserNotFoundException("User not found");
+                    return new UserNotFoundException(userId);
                 });
 
         University university = universityService.findByName(universityName)
                 .orElseThrow(() -> {
                     LOGGER.error("University not found: '{}' during user update for user ID: {}", universityName, userId);
-                    return new UniversityNotFoundException("University not found");
+                    return new UniversityNotFoundException("University not found for name", universityName);
                 });
 
         Career career = careerService.findCareerByName(careerName)
                 .orElseThrow(() -> {
                     LOGGER.error("Career not found: '{}' during user update for user ID: {}", careerName, userId);
-                    return new CareerNotFoundException("Career not found");
+                    return new CareerNotFoundException("Career not found for name", careerName);
                 });
 
         user.setUsername(username);
@@ -254,8 +254,6 @@ public class UserServiceImpl implements UserService {
         user.setLastname(lastname);
         user.setUniversity(university);
         user.setCareer(career);
-        /*user.setLocale(locale); */
-
         LOGGER.info("User updated successfully with ID: {}", userId);
     }
 
@@ -267,7 +265,7 @@ public class UserServiceImpl implements UserService {
         User user = userDao.findById(userId)
                 .orElseThrow(() -> {
                     LOGGER.error("User with id {} not found", userId);
-                    return new UserNotFoundException("User not found");
+                    return new UserNotFoundException(userId);
                 });
 
         long newProfilePictureId = imageService.createImage(profilePicture);

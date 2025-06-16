@@ -12,7 +12,7 @@ public final class ImageUtils {
     public static byte[] getBytes(MultipartFile file) {
         try {
             byte[] bytes = file.getBytes();
-            LOGGER.debug("File bytes loaded successfully");
+            LOGGER.debug("File bytes loaded successfully, size: {} bytes", bytes.length);
             return bytes;
         } catch (Exception e) {
             LOGGER.error("Error reading file bytes: {}", e.getMessage());

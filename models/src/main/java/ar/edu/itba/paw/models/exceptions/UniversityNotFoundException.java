@@ -7,5 +7,9 @@ public class UniversityNotFoundException extends RuntimeException {
     public UniversityNotFoundException() {
         super("University not found");
     }
+    public UniversityNotFoundException(String message, String universityName) {
+        super(String.format("%s: %s", message, universityName));
+    }
+
 
 }
