@@ -206,7 +206,6 @@
 </div>
 
 <style>
-  /* Events Sub-subtab Styles - Scoped to avoid conflicts */
   .events-filter-subtabs {
     display: flex;
     border-bottom: 2px solid #e9ecef;
@@ -262,7 +261,6 @@
     }
   }
 
-  /* Empty State Styles */
   .empty-state {
     text-align: center;
     padding: 48px 24px;
@@ -282,7 +280,6 @@
     margin: 0;
   }
 
-  /* Event Card Styles */
   .journey-events-container {
     display: flex;
     flex-direction: column;
@@ -381,7 +378,6 @@
     color: #6c757d;
   }
 
-  /* Responsive Design */
   @media (max-width: 768px) {
     .events-filter-subtabs {
       flex-direction: column;

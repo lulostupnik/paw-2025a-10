@@ -45,4 +45,3 @@ public interface JourneyService {
 
 
 
-//    long findJourneyIdByResponseId(long journeyId);

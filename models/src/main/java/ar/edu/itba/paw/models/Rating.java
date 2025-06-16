@@ -30,8 +30,7 @@ public class Rating {
     @Column(name = "rating", nullable = false)
     private double rating;
 
-    public Rating() {
-        // Default constructor for JPA
+    /* For hibernate */ Rating() {
     }
 
     public Rating(User user, Event event, double rating) {
