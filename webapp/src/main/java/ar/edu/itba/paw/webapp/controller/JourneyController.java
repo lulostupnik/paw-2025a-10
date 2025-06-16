@@ -1,22 +1,18 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import javax.validation.Valid;
-
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
-import ar.edu.itba.paw.models.exceptions.InvalidException;
 import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.exceptions.JourneyResponseNotFoundException;
 import ar.edu.itba.paw.models.exceptions.TipNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
-
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -295,22 +291,6 @@ public class JourneyController {
         js.deleteJourneyResponse(id, form.getMessage());
         return new ModelAndView("redirect:/journeys/" + jr.getJourney().getId());
     }
-//    @GetMapping(value = "/{id}/tips")
-//    public ModelAndView getJourneyTips(@PathVariable long id,
-//                                       @ModelAttribute("user") User user,
-//                                       @PageParamCustomizer(defaultSize = 6) PageParams pageParams) {
-//        Journey journey = js.getJourneyById(id).orElseThrow(() -> {
-//            LOGGER.error("Journey with ID {} not found", id);
-//            return new JourneyNotFoundException("Journey with ID " + id + " not found");
-//        });
-//        Page<Tip> tips = js.findTipsByJourney(journey, pageParams);
-//
-//        final ModelAndView mav = new ModelAndView("journeys/tips");
-//        mav.addObject("journey", journey);
-//        mav.addObject("tips", tips);
-//        mav.addObject("pageSize", pageParams.getSize());
-//        mav.addObject("currentPage", pageParams.getPage());
-//        return mav;
-//    }
+
 
 }

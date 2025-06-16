@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.webapp.form;
 
 import ar.edu.itba.paw.webapp.validation.*;
-
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -10,11 +9,6 @@ import javax.validation.constraints.Size;
 public class EditUserForm {
 
     private long userId;
-
-//    @Email
-//    @Size(min = 2, max = 100)
-//    @NotNull
-//    private String email;
 
     @Size(min = 2, max = 50)
     @NotNull
@@ -40,7 +34,6 @@ public class EditUserForm {
     @ExistingCareer
     private String career;
 
-    // Getters and setters
     public long getUserId() {
         return userId;
     }
@@ -48,14 +41,6 @@ public class EditUserForm {
     public void setUserId(long userId) {
         this.userId = userId;
     }
-
-//    public String getEmail() {
-//        return email;
-//    }
-//
-//    public void setEmail(String email) {
-//        this.email = email;
-//    }
 
     public String getUsername() {
         return username;
@@ -101,7 +86,6 @@ public class EditUserForm {
     public String toString() {
         return "EditUserForm{" +
                 "userId=" + userId +
-//                ", email='" + email + '\'' +
                 ", username='" + username + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +

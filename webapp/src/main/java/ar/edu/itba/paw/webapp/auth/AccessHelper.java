@@ -4,27 +4,21 @@ import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.interfaces.services.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
 import java.util.Objects;
 
 @Component
 public class AccessHelper {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AccessHelper.class);
 
     private final EventService eventService;
     private final JourneyService journeyService;
-    private final UserService userService;
 
     @Autowired
-    public AccessHelper(final JourneyService journeyService, final EventService eventService, UniversityService universityService, UserService userService) {
+    public AccessHelper(final JourneyService journeyService, final EventService eventService) {
         this.journeyService = journeyService;
         this.eventService = eventService;
-        this.userService = userService;
     }
 
     public boolean isUserEventOwner(long eventId){
