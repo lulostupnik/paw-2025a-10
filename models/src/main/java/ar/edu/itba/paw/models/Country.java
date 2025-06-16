@@ -1,9 +1,7 @@
 package ar.edu.itba.paw.models;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-
 import javax.persistence.*;
 
 @Getter

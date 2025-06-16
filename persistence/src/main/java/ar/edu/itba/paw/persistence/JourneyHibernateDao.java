@@ -135,7 +135,6 @@ public class JourneyHibernateDao implements JourneyDao {
 
         StringBuilder countSql = new StringBuilder("SELECT COUNT(DISTINCT j.id) FROM journeys j");
 
-//        StringBuilder idSql = new StringBuilder(" SELECT DISTINCT j.id FROM journeys j");
         StringBuilder idSql = new StringBuilder("SELECT id FROM (SELECT j.id as id, j.start_date, j.end_date FROM journeys j");
 
         boolean joinedUsers = false;

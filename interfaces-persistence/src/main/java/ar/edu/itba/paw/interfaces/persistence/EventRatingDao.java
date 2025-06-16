@@ -3,7 +3,6 @@ package ar.edu.itba.paw.interfaces.persistence;
 import ar.edu.itba.paw.models.Rating;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.Event;
-
 import java.util.Optional;
 
 public interface EventRatingDao {

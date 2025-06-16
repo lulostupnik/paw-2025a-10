@@ -14,8 +14,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -108,14 +106,6 @@ public class InterestServiceImpl implements InterestService {
         userInterestDao.createUserInterests(interests, userId);
         LOGGER.info("Interests {} added to user {}", interests, userId);
     }
-
-//    @Override
-//    @Transactional
-//    public void updateUserInterestScores(final List<Interest> interests, final long userId) {
-//        LOGGER.debug("Increasing score of interests {} for user {}", interests, userId);
-//        interestDao.updateScoreByInterests(interests, userId);
-//        LOGGER.info("Interests {} score updated for user {}", interests, userId);
-//    }
 
     @Override
     @Transactional

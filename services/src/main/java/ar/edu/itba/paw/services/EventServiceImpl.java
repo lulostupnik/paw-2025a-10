@@ -338,7 +338,6 @@ public class EventServiceImpl implements EventService {
     public List<Event> findRecommendedEvents(final long userId, final  int limit) {
         LOGGER.debug("Getting recommended events for user {} with limit {}", userId, limit);
         if (limit <= 0) {
-            LOGGER.warn("Limit must be greater than 0 in recommended events");
             throw new InvalidPaginationParamsException("Limit must be greater than 0");
         }
         List<Event> events = eventDao.findRecommended(userId, new PageParams(1, limit)).getContent();
@@ -355,9 +354,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<Event> findTopEvents(final int limit){
-        LOGGER.debug("Getting top events with limit {}", limit);
         if (limit <= 0) {
-            LOGGER.warn("Limit must be greater than 0");
             throw new InvalidPaginationParamsException("Limit must be greater than 0");
         }
         return eventDao.findTop(new PageParams(1, limit)).getContent();

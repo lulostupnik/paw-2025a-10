@@ -253,6 +253,7 @@ public class UserServiceImpl implements UserService {
         user.setLastname(lastname);
         user.setUniversity(university);
         user.setCareer(career);
+
         LOGGER.info("User updated successfully with ID: {}", userId);
     }
 
