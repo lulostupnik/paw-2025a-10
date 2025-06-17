@@ -462,9 +462,14 @@
       });
 
       // Set initial active subtab to "created"
-      switchsubtab('created');
 
-      console.log('Events subtabs initialized successfully'); // Debug log
+        // Leer el parámetro 'eventssubtab' de la URL
+        const params = new URLSearchParams(window.location.search);
+        const initialSubtab = params.get('eventssubtab') || 'created';
+        switchsubtab(initialSubtab);
+
+
+        console.log('Events subtabs initialized successfully'); // Debug log
     }
 
     // Initialize when DOM is ready
