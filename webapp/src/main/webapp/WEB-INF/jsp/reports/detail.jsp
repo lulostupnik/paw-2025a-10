@@ -394,13 +394,18 @@
                                     <spring:message code="report.action.resolve" text="Mark as Resolved"/>
                                 </button>
                             </form>
-
-                            <form action="<c:url value='/reports/${report.id}/status'/>" method="post" style="display: inline;">
-                                <input type="hidden" name="status" value="DISMISSED"/>
-                                <button type="submit" class="cta-button btn-primary">
-                                    <spring:message code="report.action.dismiss" text="Dismiss Report"/>
-                                </button>
-                            </form>
+                            <c:if test="${!report.reportedUser.blocked
+                            or (report.journey != null and !report.journey.deleted)
+                            or (report.event != null and !report.event.deleted)
+                            or (report.journeyResponse != null and !report.journeyResponse.deleted)
+                            or (report.eventResponse != null and !report.eventResponse.deleted)}">
+                                <form action="<c:url value='/reports/${report.id}/status'/>" method="post" style="display: inline;">
+                                    <input type="hidden" name="status" value="DISMISSED"/>
+                                    <button type="submit" class="cta-button btn-primary">
+                                        <spring:message code="report.action.dismiss" text="Dismiss Report"/>
+                                    </button>
+                                </form>
+                            </c:if>
                         </c:if>
                     </div>
                 </div>
