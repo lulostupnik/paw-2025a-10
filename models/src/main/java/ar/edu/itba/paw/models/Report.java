@@ -26,25 +26,23 @@ public class Report {
     @JoinColumn(name = "reported_user_id", nullable = false)
     private User reportedUser;
 
-    //FIXME:check eager vs lazy
-
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "reporting_user_id", nullable = false)
     private User reportingUser;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "journey_id")
     private Journey journey;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "journey_response_id")
     private JourneyResponse journeyResponse;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
     private Event event;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_response_id")
     private EventResponse eventResponse;
 
