@@ -49,7 +49,13 @@ public class TipHibernateDaoTest {
         tipDao.create(TestUtils.JOURNEY_2, TestUtils.TIP_NEW_TITLE, TestUtils.TIP_NEW_CONTENT);
         em.flush();
 
-        Tip tip = jdbcTemplate.queryForObject(TestUtils.TIP_SELECT_BY_DATA, TestUtils.TIP_ROW_MAPPER, TestUtils.JOURNEY_2_ID, TestUtils.TIP_NEW_TITLE, TestUtils.TIP_NEW_CONTENT);
+        Tip tip = jdbcTemplate.queryForObject(
+            TestUtils.TIP_SELECT_BY_DATA, 
+            TestUtils.TIP_ROW_MAPPER, 
+            TestUtils.JOURNEY_2_ID, 
+            TestUtils.TIP_NEW_TITLE, 
+            TestUtils.TIP_NEW_CONTENT
+        );
         assertNotNull(tip);
         assertTrue(tip.getId() > 0);
     }
@@ -74,12 +80,48 @@ public class TipHibernateDaoTest {
         tipDao.delete(TestUtils.TIP_1_ID);
         em.flush();
 
-        assertEquals(0, jdbcTemplate.query(TestUtils.TIP_SELECT_BY_ID, TestUtils.TIP_ROW_MAPPER, TestUtils.TIP_1_ID).size());
+        assertEquals(
+            0, 
+            jdbcTemplate.query(
+                TestUtils.TIP_SELECT_BY_ID,
+                TestUtils.TIP_ROW_MAPPER, 
+                TestUtils.TIP_1_ID
+            ).size()
+        );
     }
     @Test (expected = NoResultException.class)
     public void testDeleteTipMissingTip(){
         tipDao.delete(12341234l);
         em.flush();
+    }
+
+    @Test
+    public void testDeleteByJourney(){
+        tipDao.deleteByJourney(TestUtils.JOURNEY_1_ID);
+        em.flush();
+
+        assertEquals(
+            0, 
+            jdbcTemplate.query(
+                TestUtils.TIP_SELECT_BY_ID,
+                TestUtils.TIP_ROW_MAPPER, 
+                TestUtils.TIP_1_ID
+            ).size()
+        );
+    }
+    @Test
+    public void testDeleteByJourneyMissingJourney(){
+        tipDao.deleteByJourney(12341234l);
+        em.flush();
+
+        assertEquals(
+            1, 
+            jdbcTemplate.query(
+                TestUtils.TIP_SELECT_BY_ID,
+                TestUtils.TIP_ROW_MAPPER, 
+                TestUtils.TIP_1_ID
+            ).size()
+        );
     }
 
     @Test

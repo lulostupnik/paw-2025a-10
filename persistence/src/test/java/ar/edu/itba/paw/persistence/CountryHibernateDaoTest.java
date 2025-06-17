@@ -51,9 +51,9 @@ public class CountryHibernateDaoTest {
 
         assertNotNull(countries);
         assertEquals(TestUtils.TOTAL_COUNTRIES, countries.size());
-        for (Country country : countries) {
-            TestUtils.assertEqualsCountry(TestUtils.COUNTRY_DATA.get(country.getId()), country);
-        }
+        countries.forEach((country) ->
+            TestUtils.assertEqualsCountry(TestUtils.COUNTRY_DATA.get(country.getId()), country)
+        );
     }
     @Test
     public void testFindAllNoCountries(){
@@ -64,7 +64,6 @@ public class CountryHibernateDaoTest {
         assertEquals(0, countries.size());
     }
 
-
     @Test
     public void testFindByName(){
         Optional<Country> result = countryDao.findByName(TestUtils.COUNTRY_1_NAME);
@@ -74,7 +73,7 @@ public class CountryHibernateDaoTest {
         TestUtils.assertEqualsCountry(TestUtils.COUNTRY_1, result.get());
     }
     @Test
-    public void testFindByNameFakeName(){
+    public void testFindByNameMissing(){
         Optional<Country> result = countryDao.findByName("TestUtils.COUNTRY_1_NAME");
 
         assertNotNull(result);
@@ -88,7 +87,7 @@ public class CountryHibernateDaoTest {
         assertFalse(result.isPresent());
     }
     @Test
-    public void testFindByNameMissingName(){
+    public void testFindByNameNullName(){
         Optional<Country> result = countryDao.findByName(null);
 
         assertNotNull(result);

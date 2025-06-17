@@ -12,7 +12,6 @@ import javax.sql.DataSource;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
-import ar.edu.itba.paw.models.exceptions.UserWithActiveJourneyException;
 import ar.edu.itba.paw.persistence.config.TestConfig;
 
 import org.junit.Before;
@@ -59,18 +58,119 @@ public class JourneyHibernateDaoTest {
         );
         em.flush();
 
-        TestUtils.assertEqualsJourney(journey, Map.of("id", jdbcTemplate.queryForObject(TestUtils.JOURNEY_GET_ID_BY_USER_ID, Long.class, TestUtils.USER_1_ID)));
+        TestUtils.assertEqualsJourney(
+            journey,
+            Map.of("id", jdbcTemplate.queryForObject(
+                TestUtils.JOURNEY_GET_ID_BY_USER_ID, 
+                Long.class, 
+                TestUtils.USER_1_ID)
+            )
+        );
         assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_TABLE));
     }
     @Test(expected = PersistenceException.class)
     public void testCreateInvalidUser(){
         journeyDao.create(
-            new User(12341234l, null, null, null, null, null, null, 0, null, false, false),
+            new User(
+                12341234l, 
+                null, 
+                null, 
+                null, 
+                null, 
+                null, 
+                null, 
+                0, 
+                null, 
+                false, 
+                false),
             TestUtils.UNI_2,
-            TestUtils.JOURNEY_START_DATE, TestUtils.JOURNEY_END_DATE, TestUtils.JOURNEY_DESCRIPTION
+            TestUtils.JOURNEY_START_DATE, 
+            TestUtils.JOURNEY_END_DATE, 
+            TestUtils.JOURNEY_DESCRIPTION
         );
         em.flush();
     }
+    @Test(expected = PersistenceException.class)
+    public void testCreateMissingUser(){
+        journeyDao.create(
+            null,
+            TestUtils.UNI_2,
+            TestUtils.JOURNEY_START_DATE, 
+            TestUtils.JOURNEY_END_DATE, 
+            TestUtils.JOURNEY_DESCRIPTION
+        );
+        em.flush();
+    }
+    @Test(expected = PersistenceException.class)
+    public void testCreateInvalidUni(){
+        journeyDao.create(
+            TestUtils.USER_1,
+            new University(12341234l, null, null, null),
+            TestUtils.JOURNEY_START_DATE, 
+            TestUtils.JOURNEY_END_DATE, 
+            TestUtils.JOURNEY_DESCRIPTION
+        );
+        em.flush();
+    }    @Test(expected = PersistenceException.class)
+    public void testCreateMissingUni(){
+        journeyDao.create(
+            TestUtils.USER_1,
+            null,
+            TestUtils.JOURNEY_START_DATE, 
+            TestUtils.JOURNEY_END_DATE, 
+            TestUtils.JOURNEY_DESCRIPTION
+        );
+        em.flush();
+    }
+    @Test(expected = PersistenceException.class)
+    public void testCreateMissingStartDate(){
+        journeyDao.create(
+            TestUtils.USER_1,
+            TestUtils.UNI_2,
+            null, 
+            TestUtils.JOURNEY_END_DATE, 
+            TestUtils.JOURNEY_DESCRIPTION
+        );
+        em.flush();
+    }
+    @Test(expected = PersistenceException.class)
+    public void testCreateMissingEndDate(){
+        journeyDao.create(
+            TestUtils.USER_1,
+            TestUtils.UNI_2,
+            TestUtils.JOURNEY_START_DATE, 
+            null,
+            TestUtils.JOURNEY_DESCRIPTION
+        );
+        em.flush();
+    }
+    @Test(expected = PersistenceException.class)
+    public void testCreateMissingDesc(){
+        journeyDao.create(
+            TestUtils.USER_1,
+            TestUtils.UNI_2,
+            TestUtils.JOURNEY_END_DATE, 
+            TestUtils.JOURNEY_START_DATE, 
+            null
+        );
+        em.flush();
+    }
+
+    //TODO not working???
+    // @Test
+    // public void testHardDelete(){
+    //     journeyDao.hardDelete(TestUtils.JOURNEY_1);
+    //     em.flush();
+
+    //     assertEquals(
+    //         0, 
+    //         jdbcTemplate.query(
+    //             TestUtils.JOURNEY_SELECT_BY_ID, 
+    //             TestUtils.JOURNEY_ROW_MAPPER, 
+    //             TestUtils.JOURNEY_1_ID
+    //         ).size()
+    //     );
+    // }
 
     @Test
     public void testFindById(){
@@ -82,7 +182,7 @@ public class JourneyHibernateDaoTest {
     }
     @Test
     public void testFindByIdInvalidId(){
-        Optional<Journey> maybeJourney = journeyDao.findById(12341234);
+        Optional<Journey> maybeJourney = journeyDao.findById(12341234l);
 
         assertNotNull(maybeJourney);
         assertFalse(maybeJourney.isPresent());
@@ -96,7 +196,7 @@ public class JourneyHibernateDaoTest {
     }
     @Test
     public void testFindByIdNoJourneys(){
-        Optional<Journey> maybeJourney = journeyDao.findById(12341234);
+        Optional<Journey> maybeJourney = journeyDao.findById(12341234l);
 
         assertNotNull(maybeJourney);
         assertFalse(maybeJourney.isPresent());
@@ -104,7 +204,7 @@ public class JourneyHibernateDaoTest {
 
     @Test
     public void testFindAllPage1(){
-        Page<Journey> page1 = journeyDao.findAll(new PageParams(1, 1));
+        Page<Journey> page1 = journeyDao.findAll(TestUtils.PAGE_1_SINGLE);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -115,7 +215,7 @@ public class JourneyHibernateDaoTest {
     }
     @Test
     public void testFindAllPage2(){
-        Page<Journey> page2 = journeyDao.findAll(new PageParams(2, 1));
+        Page<Journey> page2 = journeyDao.findAll(TestUtils.PAGE_2_SINGLE);
 
         assertNotNull(page2);
         assertEquals(2, page2.getCurrentPage());
@@ -149,7 +249,7 @@ public class JourneyHibernateDaoTest {
     }
     @Test
     public void testFindByOriginCityPagedWrongCity(){
-        Page<Journey> page1 = journeyDao.findByOriginCity(1241234, new PageParams(1,2));
+        Page<Journey> page1 = journeyDao.findByOriginCity(1241234l, TestUtils.PAGE_1_DEFAULT);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
