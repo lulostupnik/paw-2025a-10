@@ -9,10 +9,6 @@ import ar.edu.itba.paw.models.exceptions.CareerNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
@@ -30,7 +26,6 @@ public class CareerServiceImpl implements CareerService {
     }
 
     @Override
-    @Cacheable(value = "careersById", key = "#id")
     public Optional<Career> findCareerById(final long id) {
         LOGGER.debug("Getting career by id {}", id);
         return careerDao.findById(id);
@@ -39,7 +34,6 @@ public class CareerServiceImpl implements CareerService {
 
 
     @Override
-    @Cacheable(value = "careersByName", key = "#name")
     public Optional<Career> findCareerByName(final String name) {
         LOGGER.debug("Getting career by name {}", name);
         return careerDao.findByName(name);
@@ -56,10 +50,6 @@ public class CareerServiceImpl implements CareerService {
 
     @Override
     @Transactional
-    @Caching(put = {
-                    @CachePut(value = "careersById", key = "#result.id"),
-                    @CachePut(value = "careersByName", key = "#result.name")
-    })
     public Career createCareer(final String name) {
         LOGGER.debug("Creating career {}", name);
         Career career = careerDao.create(name);
@@ -69,12 +59,6 @@ public class CareerServiceImpl implements CareerService {
 
     @Override
     @Transactional
-    @Caching(
-            evict = {
-                    @CacheEvict(value = "careersById", key = "#id"),
-                    @CacheEvict(value = "careersByName", allEntries = true)
-            }
-    )
     public void updateCareer(final long id, final String name) {
         LOGGER.debug("Updating career {} to {}", id, name);
         Career career = careerDao.findById(id).orElseThrow(() -> {
@@ -87,10 +71,6 @@ public class CareerServiceImpl implements CareerService {
 
     @Override
     @Transactional
-    @Caching(evict = {
-                @CacheEvict(value = "careersById", key = "#id"),
-                @CacheEvict(value = "careersByName", allEntries = true)
-    })
     public void deleteCareer(final long id) {
         LOGGER.debug("Deleting career {}", id);
         careerDao.delete(id);

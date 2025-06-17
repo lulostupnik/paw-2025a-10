@@ -12,10 +12,6 @@ import ar.edu.itba.paw.models.exceptions.UniversityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
@@ -35,14 +31,12 @@ public class UniversityServiceImpl implements UniversityService {
     }
 
     @Override
-    @Cacheable(value = "universitiesByName", key = "#name")
     public Optional<University> findByName(final String name) {
         LOGGER.debug("Getting university with name {}", name);
         return universityDao.findByName(name);
     }
 
     @Override
-    @Cacheable(value = "universitiesById", key = "#id")
     public Optional<University> findById(final long id) {
         LOGGER.debug("Getting university with id {}", id);
         return universityDao.findById(id);
@@ -60,12 +54,6 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     @Transactional
-    @Caching(
-            put = {
-                @CachePut(value = "universitiesById", key = "#result.id"),
-                @CachePut(value = "universitiesByName", key = "#result.name")
-            }
-    )
     public University createUniversity(final String name, final String abbreviation, final String cityName) {
         LOGGER.debug("Creating university with name {}, abbreviation {}, city {}", name, abbreviation, cityName);
         City city = cityService.findCityByName(cityName).orElseThrow(() -> {
@@ -79,10 +67,6 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "universitiesById", key = "#id"),
-            @CacheEvict(value = "universitiesByName", allEntries = true)
-    })
     public void updateUniversity(final long id, final String name, final String abbreviation, final String cityName) {
         LOGGER.debug("Updating university with id {}, name {}, abbreviation {}, city {}", id, name, abbreviation, cityName);
         City city = cityService.findCityByName(cityName).orElseThrow(() -> {
@@ -102,12 +86,6 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     @Transactional
-    @Caching(
-            evict = {
-                    @CacheEvict(value = "universitiesById", key = "#id"),
-                    @CacheEvict(value = "universitiesByName", allEntries = true)
-            }
-    )
     public void deleteUniversity(final long id) {
         LOGGER.debug("Deleting university with id {}", id);
         universityDao.delete(id);
