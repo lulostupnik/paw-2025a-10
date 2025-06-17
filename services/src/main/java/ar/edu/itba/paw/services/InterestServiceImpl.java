@@ -142,7 +142,6 @@ public class InterestServiceImpl implements InterestService {
             @CacheEvict(value = "interestsByName", allEntries = true)
     })
     public void deleteInterest(final long id) {
-        LOGGER.debug("Deleting interest {}", id);
         interestDao.delete(id);
         LOGGER.info("Interest {} deleted", id);
     }

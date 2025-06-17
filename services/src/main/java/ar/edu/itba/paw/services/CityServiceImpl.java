@@ -111,11 +111,12 @@ public class CityServiceImpl implements CityService {
             }
     )
     public void deleteCity(final long id) {
-       City city = cityDao.findById(id)
-                .orElseThrow(() -> {
-                    LOGGER.error("City with id {} not found", id);
-                    return new CityNotFoundException("City not found");});
-        city.setDeleted(true);
+       Optional<City> maybeCity = cityDao.findById(id);
+        if (maybeCity.isEmpty()) {
+            LOGGER.error("City with id {} not found", id);
+            return;
+        }
+        maybeCity.get().setDeleted(true);
         LOGGER.info("City with id {} deleted successfully", id);
     }
 

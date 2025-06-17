@@ -60,7 +60,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public void delete(Token token) {
         tokenDao.deleteByToken(token);
-
+        LOGGER.info("Token deleted for user {}", token.getUser().getId());
     }
     @Override
     public void checkTokenValidity(String token) {

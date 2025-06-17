@@ -98,11 +98,13 @@ public class ReportServiceImpl implements ReportService {
     @Transactional
     @Override
     public void deleteById(Long id) {
-        Report report = reportDao.findById(id).orElseThrow(() -> {
-            LOGGER.error("Report not found with id: " + id);
-            return new ReportNotFoundException("Report not found with id: " + id);
-                });
-        report.setDeleted(true);
+        Optional<Report> maybeReport = reportDao.findById(id);
+        if (maybeReport.isEmpty()) {
+            LOGGER.info("Report with id: " + id + " not found.");
+            return;
+        }
+
+        maybeReport.get().setDeleted(true);
         LOGGER.info("Report with id: " + id + " has been marked as deleted.");
     }
 

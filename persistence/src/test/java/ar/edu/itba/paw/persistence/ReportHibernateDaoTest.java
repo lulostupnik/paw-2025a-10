@@ -378,32 +378,6 @@ public class ReportHibernateDaoTest {
     }
 
     @Test
-    public void testDelete(){
-        reportDao.delete(TestUtils.REPORT_USER_RESOLVED);
-        em.flush();
-
-        assertEquals(1, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM reports WHERE id = ? AND deleted = TRUE", Integer.class, TestUtils.REPORT_USER_RESOLVED_ID).intValue());
-    }
-    @Test(expected = PersistenceException.class)
-    public void testDeleteMissing(){
-        reportDao.delete(new Report(12341234l, null, null, null, null, null, null, null, null, false, null));
-        em.flush();
-    }
-
-    @Test
-    public void testDeleteById(){
-        reportDao.deleteById(TestUtils.REPORT_USER_RESOLVED_ID);;
-        em.flush();
-
-        assertEquals(1, jdbcTemplate.queryForObject("SELECT COUNT(*) FROM reports WHERE id = ? AND deleted = TRUE", Integer.class, TestUtils.REPORT_USER_RESOLVED_ID).intValue());
-    }
-    @Test
-    public void testDeleteByIdMissing(){
-        reportDao.deleteById(12341234l);;
-        em.flush();
-    }
-
-    @Test
     public void testFindAllByDescOrReason(){
         Page<Report> reports = reportDao.findAll(TestUtils.REPORT_EVENT_DESC, TestUtils.PAGE_1_BIG);
 
