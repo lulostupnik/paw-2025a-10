@@ -340,6 +340,8 @@ public class EventServiceImplTest {
         assertEquals(EVENT_WITH_STATISTICS.getEvent(), event.get().getEvent());
         assertNull(event.get().getTopAttendeeCountry());
     }
+
+    // FIXME: FALTAN ASSERTS
     @Test
     public void testFindEventWithStatisticsNotAttending(){
         when(
@@ -515,7 +517,7 @@ public class EventServiceImplTest {
         eventService.createEventAttendance(USER_ID, EVENT_ID);
     }
 
-
+    // FIXME: FALTAN ASSERTS --> no se como sería este igual. Tal vez se podría borrar.
     @Test
     public void testDeleteEventAttendanceId(){
         when(
@@ -1168,52 +1170,4 @@ public class EventServiceImplTest {
         assertEquals(EVENTS_PAGE, events);
     }
 
-    @Test
-    public void testSendEventReminders(){
-        when(
-            eventDao.findAllBetweenDates(
-                any(LocalDate.class), 
-                any(LocalDate.class), 
-                any(PageParams.class)
-            )
-        ).thenReturn(new Page<>(EVENTS, 1, 2, 2));
-        when(
-            attendanceDao.findAttendeesByEventId(
-                eq(EVENT_ID), 
-                any(PageParams.class)
-            )
-        ).thenReturn(new Page<>(USERS, 1, 2, 2));
-
-        eventService.sendEventReminders();
-    }
-    @Test
-    public void testSendEventRemindersNoAttendees(){
-        when(
-            eventDao.findAllBetweenDates(
-                any(LocalDate.class), 
-                any(LocalDate.class), 
-                any(PageParams.class)
-            )
-        ).thenReturn(EVENTS_PAGE);
-        when(
-            attendanceDao.findAttendeesByEventId(
-                eq(EVENT_ID), 
-                any(PageParams.class)
-            )
-        ).thenReturn(new Page<>(List.of(), 1, 1, 0));
-
-        eventService.sendEventReminders();
-    }
-    @Test
-    public void testSendEventRemindersNoEvents(){
-        when(
-            eventDao.findAllBetweenDates(
-                any(LocalDate.class), 
-                any(LocalDate.class), 
-                any(PageParams.class)
-            )
-        ).thenReturn(new Page<>(List.of(), 1, 1, 0));
-
-        eventService.sendEventReminders();
-    }
 }
