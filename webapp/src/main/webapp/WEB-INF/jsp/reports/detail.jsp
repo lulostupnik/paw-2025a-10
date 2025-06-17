@@ -333,7 +333,7 @@
                         <c:if test="${report.status == 'PENDING'}">
                             <form action="<c:url value='/reports/${report.id}/status'/>" method="post" style="display: inline;">
                                 <input type="hidden" name="status" value="UNDER_REVIEW"/>
-                                <button type="submit" class="cta-button btn-secondary">
+                                <button type="submit" class="cta-button btn-dele">
                                     <spring:message code="report.action.review" text="Start Review"/>
                                 </button>
                             </form>
@@ -344,28 +344,28 @@
                             <c:choose>
                                 <c:when test="${report.journey != null and report.journey.deleted == false}">
                                     <form action="<c:url value='/journeys/${report.journey.id}/delete'/>" method="get" style="display: inline;">
-                                        <button type="submit" class="cta-button btn-secondary" onclick="saveLink()">
+                                        <button type="submit" class="cta-button btn-dele" onclick="saveLink()">
                                             <spring:message code="report.action.delete_journey" text="Delete Journey"/>
                                         </button>
                                     </form>
                                 </c:when>
                                 <c:when test="${report.event != null and report.event.deleted == false}">
                                     <form action="<c:url value='/events/${report.event.id}/delete'/>" method="get" style="display: inline;">
-                                        <button type="submit" class="cta-button btn-secondary" onclick="saveLink()">
+                                        <button type="submit" class="cta-button btn-dele" onclick="saveLink()">
                                             <spring:message code="report.action.delete_event" text="Delete Event"/>
                                         </button>
                                     </form>
                                 </c:when>
                                 <c:when test="${report.journeyResponse != null and report.journeyResponse.deleted == false}">
                                     <form action="<c:url value='/journeys/reply/${report.journeyResponse.id}/delete'/>" method="get" style="display: inline;">
-                                        <button type="submit" class="cta-button btn-secondary" onclick="saveLink()">
+                                        <button type="submit" class="cta-button btn-dele" onclick="saveLink()">
                                             <spring:message code="report.action.delete_journey_comment" text="Delete Journey Comment"/>
                                         </button>
                                     </form>
                                 </c:when>
                                 <c:when test="${report.eventResponse != null and report.eventResponse.deleted == false }">
                                     <form action="<c:url value='/events/reply/${report.eventResponse.id}/delete'/>" method="get" style="display: inline;">
-                                        <button type="submit" class="cta-button btn-secondary" onclick="saveLink()">
+                                        <button type="submit" class="cta-button btn-dele" onclick="saveLink()">
                                             <spring:message code="report.action.delete_event_comment" text="Delete Event Comment"/>
                                         </button>
                                     </form>
@@ -801,6 +801,10 @@
     .status-under-review {
         background-color: #dbeafe;
         color: #1e40af;
+    }
+    btn-del{
+        background-color: #fde68a;
+        color: #92400e;
     }
 
     .status-resolved {
