@@ -20,7 +20,7 @@ public interface UserService {
     void unblockUser(long userId);
 
     void updateUser(long userId, String username, String firstname, String lastname,
-                    String universityName, String careerName /* , Locale locale */);
+                    String universityName, String careerName);
 
     void updateProfilePicture(long userId, byte[] profilePicture);
 

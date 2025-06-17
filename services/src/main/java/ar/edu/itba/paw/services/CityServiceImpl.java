@@ -58,11 +58,11 @@ public class CityServiceImpl implements CityService {
         Country country = countryService.findCountryByName(countryName)
                 .orElseThrow(() -> {
                     LOGGER.error("Country {} not found", countryName);
-                    return new CountryNotFoundException("Country not found");});
+                    return new CountryNotFoundException("Country not found for name", countryName);});
         City city = cityDao.findById(id)
                 .orElseThrow(() -> {
                     LOGGER.error("City with id {} not found", id);
-                    return new CityNotFoundException("City not found");});
+                    return new CityNotFoundException(id);});
         city.setName(name);
         city.setCountry(country);
         LOGGER.info("City with id {} updated successfully", id);
@@ -75,7 +75,7 @@ public class CityServiceImpl implements CityService {
         Country country = countryService.findCountryByName(countryName)
                 .orElseThrow(() -> {
                     LOGGER.error("Country {} not found", countryName);
-                    return new CountryNotFoundException("Country not found");});
+                    return new CountryNotFoundException("Country not found for name", countryName);});
         City city = cityDao.create(cityName, country);
         LOGGER.info("City with name {} and country {} created successfully", cityName, countryName);
         return city;
@@ -84,8 +84,12 @@ public class CityServiceImpl implements CityService {
     @Override
     @Transactional
     public void deleteCity(final long id) {
-        LOGGER.debug("Deleting city with id {}", id);
-        cityDao.delete(id);
+       Optional<City> maybeCity = cityDao.findById(id);
+        if (maybeCity.isEmpty()) {
+            LOGGER.error("City with id {} not found", id);
+            return;
+        }
+        maybeCity.get().setDeleted(true);
         LOGGER.info("City with id {} deleted successfully", id);
     }
 

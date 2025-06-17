@@ -30,10 +30,18 @@ public class ImageServiceImplTest {
     ImageDao imageDao;
 
 
+    @Test
+    public void testCreateImage(){
+        when(
+            imageDao.create(eq(IMAGE_DATA))
+        ).thenReturn(IMAGE_ID);
 
 
 
+        long id = imageService.createImage(IMAGE_DATA);
 
+        assertEquals(IMAGE_ID, id);
+    }
 
     @Test
     public void testFindImage(){

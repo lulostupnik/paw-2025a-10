@@ -35,7 +35,7 @@ public class UniversityHibernateDao implements UniversityDao {
         Optional <University> existingUniversity = findByNameAndCityWithDeleted(name, city.getName());
         if (existingUniversity.isPresent()) {
             if( !existingUniversity.get().isDeleted()) {
-                throw new UniversityAlreadyExistsException("University with this name and city already exists and is not deleted.");
+                throw new UniversityAlreadyExistsException(name, city.getName());
             }
             final University university = existingUniversity.get();
             university.setDeleted(false);
@@ -47,17 +47,6 @@ public class UniversityHibernateDao implements UniversityDao {
         final University university = new University(name, abbreviation, city);
         em.persist(university);
         return university;
-    }
-
-
-    @Override
-    public void delete(long id) {
-        final University university = em.find(University.class, id);
-        if (university != null) {
-            university.setDeleted(true);
-            em.merge(university);
-        }
-
     }
 
     @Override

@@ -60,14 +60,14 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public void delete(Token token) {
         tokenDao.deleteByToken(token);
-
+        LOGGER.info("Token deleted for user {}", token.getUser().getId());
     }
     @Override
     public void checkTokenValidity(String token) {
         final Optional<Token> maybeToken = getByToken(token);
         if (maybeToken.isEmpty() || maybeToken.get().isExpired()) {
             LOGGER.error("Token is invalid, or expired for token: {}", token);
-            throw new InvalidTokenException("Invalid token");
+            throw new InvalidTokenException(token);
         }
 
     }

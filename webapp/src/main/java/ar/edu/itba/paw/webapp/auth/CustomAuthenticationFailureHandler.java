@@ -29,13 +29,11 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
         String redirectUrl = "/login?error=true";
 
         if (exception instanceof LockedException) {
-            LOGGER.info("LockedException caught: {}", exception.getMessage());
             redirectUrl = "/blocked?reason=" + exception.getMessage();
         } else if (exception instanceof InternalAuthenticationServiceException) {
             redirectUrl= "/not-verified";
         }
 
-        LOGGER.info("Redirecting to: {}", redirectUrl);
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 }

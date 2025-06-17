@@ -118,7 +118,7 @@ public class CareerHibernateDao implements CareerDao {
                 em.merge(career);
                 return career;
             } else {
-                throw new CareerAlreadyExistsException("Career with name '" + name + "' already exists.");
+                throw new CareerAlreadyExistsException(name);
             }
         }
         final Career career = new Career(name);
@@ -127,12 +127,4 @@ public class CareerHibernateDao implements CareerDao {
     }
 
 
-    @Override
-    public void delete(long id) {
-        final Career career = em.find(Career.class, id);
-        if (career != null) {
-            career.setDeleted(true);
-            em.merge(career);
-        }
-    }
 }

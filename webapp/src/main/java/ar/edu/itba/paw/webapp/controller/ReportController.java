@@ -76,7 +76,7 @@ public class ReportController {
                                                     @Valid @ModelAttribute(REPORT_CREATE_FORM) final CreateReportForm form,
                                                     final BindingResult errors,
                                                     final RedirectAttributes redirectAttributes) {
-        JourneyResponse response = journeyService.findJourneyResponseById(responseId).orElseThrow( () -> new ReportNotFoundException("Journey response not found with id: " + responseId));
+        JourneyResponse response = journeyService.findJourneyResponseById(responseId).orElseThrow( () -> new ReportNotFoundException(responseId));
 
         if (errors.hasErrors()) {
             return createJourneyResponseReportForm(responseId,form);
@@ -130,7 +130,7 @@ public class ReportController {
                                                   @Valid @ModelAttribute(REPORT_CREATE_FORM) final CreateReportForm form,
                                                   final BindingResult errors,
                                                   final RedirectAttributes redirectAttributes) {
-        EventResponse response = eventService.findEventResponseById(responseId).orElseThrow( () -> new ReportNotFoundException("Event response not found with id: " + responseId));
+        EventResponse response = eventService.findEventResponseById(responseId).orElseThrow( () -> new ReportNotFoundException(responseId));
 
         if (errors.hasErrors()) {
             return createEventResponseReportForm(responseId, form);
@@ -145,7 +145,7 @@ public class ReportController {
     @GetMapping(value= "/{id}")
     public ModelAndView getReport(@PathVariable(value = "id") final long id) {
         Report report = reportService.findById(id)
-                .orElseThrow(() -> new ReportNotFoundException("Report not found"));
+                .orElseThrow(() -> new ReportNotFoundException(id));
 
         ModelAndView mav = new ModelAndView(REPORT_DETAIL);
         mav.addObject("report", report);

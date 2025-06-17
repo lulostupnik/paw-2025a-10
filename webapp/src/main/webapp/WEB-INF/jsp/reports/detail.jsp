@@ -319,14 +319,6 @@
                             </div>
                         </div>
 
-                        <%--                        <div class="feature-card">--%>
-                        <%--                            <h3 class="feature-title"><spring:message code="report.detail.date"/></h3>--%>
-                        <%--                            <p class="feature-description">--%>
-                        <%--                                <c:if test="${report.createdAt != null}">--%>
-                        <%--                                    <c:out value="${report.createdAt}"/>--%>
-                        <%--                                </c:if>--%>
-                        <%--                            </p>--%>
-                        <%--                        </div>--%>
                     </div>
                 </div>
 
@@ -594,7 +586,6 @@
 </script>
 
 <style>
-    /* Additional CSS for content type badges and reported content */
     .content-type-badge {
         display: inline-block;
         padding: 0.25rem 0.75rem;
@@ -697,7 +688,6 @@
         margin: 0;
     }
 
-    /* Modal styles */
     .modal {
         display: none;
         position: fixed;
@@ -791,7 +781,6 @@
         margin-top: 12px;
     }
 
-    /* Status badge styles */
     .status-badge {
         display: inline-flex;
         align-items: center;

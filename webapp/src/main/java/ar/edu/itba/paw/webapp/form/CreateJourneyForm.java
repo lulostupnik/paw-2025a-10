@@ -63,17 +63,15 @@ public class CreateJourneyForm {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{startDate: \"");
-        sb.append(startDate);
-        sb.append("\", endDate: \"");
-        sb.append(endDate);
-        sb.append("\", destinationUniversity: \"");
-        sb.append(destinationUniversity);
-        sb.append("\", description: \"");
-        sb.append(description);
-        sb.append("\"}");
-        return sb.toString();
+        return "{startDate: \"" +
+                startDate +
+                "\", endDate: \"" +
+                endDate +
+                "\", destinationUniversity: \"" +
+                destinationUniversity +
+                "\", description: \"" +
+                description +
+                "\"}";
     }
 
 }

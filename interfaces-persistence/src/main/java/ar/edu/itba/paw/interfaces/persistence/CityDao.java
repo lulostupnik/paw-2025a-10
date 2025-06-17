@@ -9,5 +9,4 @@ public interface CityDao {
     Page<City> search(String substring, PageParams pageParams);
     Page<City> findAll(PageParams pageParams);
     City create(String nameEn, Country country);
-    void delete(long id);
 }

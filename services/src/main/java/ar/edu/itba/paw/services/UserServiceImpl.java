@@ -46,13 +46,13 @@ public class UserServiceImpl implements UserService {
         University university = universityService.findByName(universityName)
                 .orElseThrow(() -> {
                     LOGGER.error("University not found: '{}' during user creation for email: {}", universityName, email);
-                    return new UniversityNotFoundException("University not found for name", universityName);
+                    return new UniversityNotFoundException(universityName);
                 });
 
         Career career = careerService.findCareerByName(careerName)
                 .orElseThrow(() -> {
                     LOGGER.error("Career not found: '{}' during user creation for email: {}", careerName, email);
-                    return new CareerNotFoundException("Career not found for name", careerName);
+                    return new CareerNotFoundException(careerName);
                 });
 
         long profilePictureId = imageService.createImage(profilePicture);
@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
         Token token = tokenService.getByToken(tokenStr)
                 .orElseThrow(() -> {
                     LOGGER.error("Token is invalid, or expired for token: {}", tokenStr);
-                    return new InvalidTokenException("Token is invalid, or expired for token", tokenStr);
+                    return new InvalidTokenException(tokenStr);
                 });
 
         final User user = token.getUser();
@@ -193,7 +193,7 @@ public class UserServiceImpl implements UserService {
         final Optional<Token> maybeToken = tokenService.getByToken(token);
         if (maybeToken.isEmpty()) {
             LOGGER.error("Token is invalid, or expired for token: {}", token);
-            throw new InvalidTokenException("Token is invalid, or expired for token", token);
+            throw new InvalidTokenException(token);
         }
 
         final Token tkn = maybeToken.get();
@@ -216,7 +216,7 @@ public class UserServiceImpl implements UserService {
         });
         if(!user.isValidated()){
             LOGGER.warn("User with email {} not validated", email);
-            throw new UserValidatedException("User not validated for email:", email);
+            throw new UserValidatedException(email);
         }
         Token token = tokenService.userTokenControl(user);
         emailService.sendForgotPassEmail(new EmailUser(user), token.getToken());
@@ -239,13 +239,13 @@ public class UserServiceImpl implements UserService {
         University university = universityService.findByName(universityName)
                 .orElseThrow(() -> {
                     LOGGER.error("University not found: '{}' during user update for user ID: {}", universityName, userId);
-                    return new UniversityNotFoundException("University not found for name", universityName);
+                    return new UniversityNotFoundException(universityName);
                 });
 
         Career career = careerService.findCareerByName(careerName)
                 .orElseThrow(() -> {
                     LOGGER.error("Career not found: '{}' during user update for user ID: {}", careerName, userId);
-                    return new CareerNotFoundException("Career not found for name", careerName);
+                    return new CareerNotFoundException(careerName);
                 });
 
         user.setUsername(username);

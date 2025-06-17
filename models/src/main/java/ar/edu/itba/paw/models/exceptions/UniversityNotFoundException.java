@@ -1,14 +1,14 @@
 package ar.edu.itba.paw.models.exceptions;
 
 public class UniversityNotFoundException extends RuntimeException {
-    public UniversityNotFoundException(String message) {
-        super(message);
+
+
+    public UniversityNotFoundException(long id) {
+        super(String.format("University with id %d not found", id));
     }
-    public UniversityNotFoundException() {
-        super("University not found");
-    }
-    public UniversityNotFoundException(String message, String universityName) {
-        super(String.format("%s: %s", message, universityName));
+
+    public UniversityNotFoundException(String universityName) {
+        super(String.format("University with name %s not found", universityName));
     }
 
 

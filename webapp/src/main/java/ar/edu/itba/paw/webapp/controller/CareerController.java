@@ -60,7 +60,7 @@ public class CareerController {
     public ModelAndView getCareers(@PathVariable(value = "id") final long id) {
         Career career = careerService.findCareerById(id).orElseThrow(() -> {
             LOGGER.error("Career not found for id: {}", id);
-            return new CareerNotFoundException("Career not found");}
+            return new CareerNotFoundException(id);}
         );
         ModelAndView mav = new ModelAndView(CAREER_DETAIL);
         mav.addObject("career", career);
@@ -73,7 +73,7 @@ public class CareerController {
 
 
         if(! errors.hasErrors()) {
-            Career career = careerService.findCareerById(id).orElseThrow(() -> new CareerNotFoundException("Career not found"));
+            Career career = careerService.findCareerById(id).orElseThrow(() -> new CareerNotFoundException(id));
             form.setName(career.getName());
         }
         ModelAndView mav = new ModelAndView(CAREER_CREATE);

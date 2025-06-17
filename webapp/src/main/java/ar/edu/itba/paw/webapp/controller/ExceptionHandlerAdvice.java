@@ -23,7 +23,6 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(code = HttpStatus.NOT_FOUND)
     public ModelAndView error404(NotFoundException ex) {
-        LOGGER.error("NotFoundException: {}", ex.toString());
         LOGGER.debug("Stack trace for NotFoundException", ex);
         ModelAndView mav = new ModelAndView(ERROR_VIEW);
         mav.addObject("errorType", "404");
@@ -33,7 +32,6 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(TypeMismatchException.class)
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     public ModelAndView error400TypeMismatch(TypeMismatchException ex) {
-        LOGGER.error("TypeMismatchException: {}", ex.getMessage());
         LOGGER.debug("Stack trace for TypeMismatchException", ex);
         ModelAndView mav = new ModelAndView(ERROR_VIEW);
         mav.addObject("errorType", "400");
@@ -43,7 +41,6 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(InvalidException.class)
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     public ModelAndView error400(InvalidException ex) {
-        LOGGER.error("InvalidException: {}", ex.getMessage());
         LOGGER.debug("Stack trace for InvalidException", ex);
         ModelAndView mav = new ModelAndView(ERROR_VIEW);
         mav.addObject("errorType", "400");
@@ -68,7 +65,6 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(code = HttpStatus.FORBIDDEN)
     public ModelAndView error403(AccessDeniedException ex) {
-        LOGGER.error("AccessDeniedException: {}", ex.getMessage());
         LOGGER.debug("Stack trace for AccessDeniedException", ex);
         ModelAndView mav = new ModelAndView(ERROR_VIEW);
         mav.addObject("errorType", "403");
@@ -79,7 +75,6 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR)
     public ModelAndView error500(Exception ex) {
-        LOGGER.error("Unhandled exception: {}", ex.toString());
         LOGGER.debug("Stack trace for general Exception", ex);
         ModelAndView mav = new ModelAndView(ERROR_VIEW);
         mav.addObject("errorType", "500");
@@ -102,19 +97,11 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(MissingServletRequestParameterException.class)
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     public ModelAndView error400MissingServletRequestParameter(MissingServletRequestParameterException ex) {
-        LOGGER.error("MissingServletRequestParameterException: {}", ex.getMessage());
         LOGGER.debug("Stack trace for MissingServletRequestParameterException", ex);
 
         ModelAndView mav = new ModelAndView(ERROR_VIEW);
         mav.addObject("errorType", "400");
         return mav;
-    }
-
-    @ExceptionHandler(ExpiredPassTokenException.class)
-    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-    public ModelAndView error400ExpiredPassToken(ExpiredPassTokenException ex) {
-        LOGGER.debug("Stack trace for ExpiredToken", ex);
-        return new ModelAndView("auth/expired-token");
     }
 
     @ExceptionHandler(UserValidatedException.class)

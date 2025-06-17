@@ -76,7 +76,7 @@ public class InterestServiceImpl implements InterestService {
         Interest i = interestDao.findById(id)
                 .orElseThrow(() -> {
                     LOGGER.error("Interest with id {} not found", id);
-                    return new InterestsNotFoundException("Interest not found");
+                    return new InterestsNotFoundException(id);
                 });
         i.setName(interest);
 
@@ -122,7 +122,6 @@ public class InterestServiceImpl implements InterestService {
     @Override
     @Transactional
     public void deleteInterest(final long id) {
-        LOGGER.debug("Deleting interest {}", id);
         interestDao.delete(id);
         LOGGER.info("Interest {} deleted", id);
     }

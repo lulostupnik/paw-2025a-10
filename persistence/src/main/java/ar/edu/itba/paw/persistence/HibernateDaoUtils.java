@@ -3,8 +3,7 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -14,7 +13,6 @@ import java.util.Map;
 
 class HibernateDaoUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HibernateDaoUtils.class);
 
     private HibernateDaoUtils() {
         throw new AssertionError("Utility class should not be instantiated");
@@ -78,7 +76,6 @@ class HibernateDaoUtils {
         for (Object result : rawResults) {
             if (result != null) {
                 if (!(result instanceof Number)) {
-                    LOGGER.warn("Unexpected type in ID query result: {} (type: {})", result, result.getClass().getName());
                     continue;
                 }
                 ids.add(((Number) result).longValue());

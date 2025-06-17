@@ -4,7 +4,4 @@ public class InvalidPaginationParamsException extends RuntimeException {
     public InvalidPaginationParamsException(String message) {
         super(message);
     }
-    public InvalidPaginationParamsException() {
-        super("Invalid pagination parameters");
-    }
 }

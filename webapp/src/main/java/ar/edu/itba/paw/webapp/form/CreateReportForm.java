@@ -6,10 +6,10 @@ import javax.validation.constraints.Size;
 
 public class CreateReportForm {
     @NotNull
-    private String reportType; // e.g., JOURNEY, EVENT, JOURNEY_RESPONSE, EVENT_RESPONSE
+    private String reportType;
 
     @NotNull
-    private long targetId; // ID of the object being reported
+    private long targetId;
 
 
     @Size(min = 2, max = 2047)

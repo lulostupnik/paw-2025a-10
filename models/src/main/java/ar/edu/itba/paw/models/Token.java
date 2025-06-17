@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Entity
@@ -44,6 +45,17 @@ public class Token {
         this.token = token;
         this.expirationDate = expirationDate;
         this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Token token1)) return false;
+        return id != null && id.equals(token1.id);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
 

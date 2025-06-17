@@ -8,6 +8,8 @@ import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.ReportReason;
 import ar.edu.itba.paw.models.enums.ReportStatus;
 import ar.edu.itba.paw.models.exceptions.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +22,7 @@ public class ReportServiceImpl implements ReportService {
     private final ReportDao reportDao;
     private final JourneyService journeyService;
     private final EventService eventService;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReportServiceImpl.class);
     @Autowired
     public ReportServiceImpl(final ReportDao reportDao, final JourneyService journeyService,
                              final EventService eventService) {
@@ -32,18 +34,21 @@ public class ReportServiceImpl implements ReportService {
     @Override
     @Transactional
     public Report createReportForJourney(User reportingUser, long journeyId, String description, ReportReason reason) {
-        Journey journey = journeyService.getJourneyById(journeyId).orElseThrow(() -> new JourneyNotFoundException("Journey not found with id: " + journeyId));
+        LOGGER.debug("Creating report for journey {} by user {}", journeyId, reportingUser.getId());
+        Journey journey = journeyService.getJourneyById(journeyId).orElseThrow(() -> new JourneyNotFoundException(journeyId));
         return reportDao.create(journey.getUser(), reportingUser, journey, description, reason);    }
 
     @Override
     @Transactional
     public Report createReportForEvent(User reportingUser, long eventId, String description, ReportReason reason) {
-        Event event = eventService.findEventById(eventId).orElseThrow(() -> new EventNotFoundException("Event not found with id: " + eventId));
+        LOGGER.debug("Creating report for event {} by user {}", eventId, reportingUser.getId());
+        Event event = eventService.findEventById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
         return reportDao.create(event.getUser(), reportingUser, event, description, reason);    }
 
     @Override
     @Transactional
     public Report createReportForEventResponse(User reportingUser, long responseId, String description, ReportReason reason) {
+        LOGGER.debug("Creating report for event response {} by user {}", responseId, reportingUser.getId());
         EventResponse eventResponse = eventService.findEventResponseById(responseId)
                 .orElseThrow(() -> new EventResponseNotFoundException("Event response not found with id: " + responseId));
 
@@ -52,8 +57,9 @@ public class ReportServiceImpl implements ReportService {
     @Override
     @Transactional
     public Report createReportForJourneyResponse(User reportingUser, long responseId, String description, ReportReason reason) {
+        LOGGER.debug("Creating report for journey response {} by user {}", responseId, reportingUser.getId());
         JourneyResponse journeyResponse = journeyService.findJourneyResponseById(responseId)
-                .orElseThrow(() -> new JourneyResponseNotFoundException("Journey response not found with id: " + responseId));
+                .orElseThrow(() -> new JourneyResponseNotFoundException(responseId));
 
         return reportDao.create(journeyResponse.getUser(), reportingUser, journeyResponse, description, reason);    }
 
@@ -85,26 +91,35 @@ public class ReportServiceImpl implements ReportService {
     @Transactional
     @Override
     public void delete(Report report) {
-        reportDao.delete(report);
+        report.setDeleted(true);
+        LOGGER.info("Report with id: " + report.getId() + " has been marked as deleted.");
     }
 
     @Transactional
     @Override
     public void deleteById(Long id) {
-        reportDao.deleteById(id);
+        Optional<Report> maybeReport = reportDao.findById(id);
+        if (maybeReport.isEmpty()) {
+            LOGGER.info("Report with id: " + id + " not found.");
+            return;
+        }
+
+        maybeReport.get().setDeleted(true);
+        LOGGER.info("Report with id: " + id + " has been marked as deleted.");
     }
 
     @Override
     public Page<Report> findAll(String search, PageParams params) {
+        LOGGER.debug("Searching all reports with term '{}'", search);
         return reportDao.findAll(search, params);
     }
 
     @Transactional
     @Override
     public Report updateReportStatus(long reportId, ReportStatus status) {
+        LOGGER.debug("Updating report {} to status {}", reportId, status);
         Report report = reportDao.findById(reportId)
-                .orElseThrow(() -> new ReportNotFoundException("Report not found with id: " + reportId));
-
+                .orElseThrow(() -> new ReportNotFoundException(reportId));
         report.setStatus(status);
         return report;
 

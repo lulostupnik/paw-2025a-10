@@ -133,7 +133,7 @@ public class EventController {
     {
         EventWithStatistics eventWithStatistics = eventService.findEventWithStatistics(user,id).orElseThrow(() -> {
             LOGGER.error("eventWithStatistics not found for id: {}", id);
-            return new EventNotFoundException("eventWithStatistics not found");});
+            return new EventNotFoundException(id);});
         return populateEventDetails(eventWithStatistics,
                 id, repliesPage, attendeesPage, user );
     }
@@ -183,7 +183,7 @@ public class EventController {
 
         Event event = eventService.findEventById(id).orElseThrow(() -> {
             LOGGER.error("event not found for id: {}", id);
-            return new EventNotFoundException();});
+            return new EventNotFoundException(id);});
         long commentsCount = eventService.countEventResponses(event.getId());
 
         ModelAndView mav = new ModelAndView("events/delete");
@@ -234,7 +234,7 @@ public class EventController {
 
         Event event = eventService.findEventById(eventId).orElseThrow(() -> {
             LOGGER.error("event not found for id: {}", eventId);
-            return new EventNotFoundException();});
+            return new EventNotFoundException(eventId);});
 
         if(!errors.hasErrors()) {
             form.setCity(event.getCity().getName());
