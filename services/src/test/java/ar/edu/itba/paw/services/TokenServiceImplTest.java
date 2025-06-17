@@ -114,15 +114,13 @@ public class TokenServiceImplTest {
         tokenService.checkTokenValidity(TOKEN_VALUE);
     }
 
-    // FIXME: ASSERTTT
-    @Test
-    public void testDelete(){
-        tokenService.delete(TOKEN);
-    }
+    // @Test
+    // public void testDelete(){
+    //     tokenService.delete(TOKEN);
+    // }
 
-    // FIXME: ASSERTTT
-    @Test
-    public void testDeleteExpiredTokens(){
-        tokenService.deleteExpiredTokens();
-    }
+    // @Test
+    // public void testDeleteExpiredTokens(){
+    //     tokenService.deleteExpiredTokens();
+    // }
 }

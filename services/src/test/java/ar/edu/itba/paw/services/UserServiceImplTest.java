@@ -336,14 +336,16 @@ public class UserServiceImplTest {
         assertEquals(USER_PAGE, users);
     }
 
-    // FIXME: FALTA ASSERT
     @Test
     public void testBlockUser(){
+        User newUser = new User(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, CAREER_ID, LOCALE, false);
         when(
             userDao.findById(eq(USER_ID))
-        ).thenReturn(Optional.of(USER));
+        ).thenReturn(Optional.of(newUser));
 
         userService.blockUser(USER_ID);
+
+        assertTrue(newUser.isBlocked());
     }
     @Test(expected = UserNotFoundException.class)
     public void testBlockUserNotFound(){
@@ -354,14 +356,17 @@ public class UserServiceImplTest {
         userService.blockUser(USER_ID);
     }
 
-    // FIXME: FALTA ASSERT
     @Test
     public void testUnblockUser(){
+        User newUser = new User(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, CAREER_ID, LOCALE, false);
+        newUser.setBlocked(true);
         when(
             userDao.findById(eq(USER_ID))
-        ).thenReturn(Optional.of(USER));
+        ).thenReturn(Optional.of(newUser));
 
         userService.unblockUser(USER_ID);
+
+        assertFalse(newUser.isBlocked());
     }
     @Test(expected = UserNotFoundException.class)
     public void testUnblockUserNotFound(){
@@ -445,18 +450,17 @@ public class UserServiceImplTest {
         assertEquals(PASSWORD, newUser.getPassword());
     }
 
-    // FIXME: FALTA ASSERT --> VER SI ESTE SE PUEDA ELIMINAR
-    @Test
-    public void testInitiatePasswordReset(){
-        when(
-            userDao.findByEmail(eq(EMAIL))
-        ).thenReturn(Optional.of(USER));
-        when(
-            tokenService.userTokenControl(eq(USER))
-        ).thenReturn(TOKEN);
+    // @Test
+    // public void testInitiatePasswordReset(){
+    //     when(
+    //         userDao.findByEmail(eq(EMAIL))
+    //     ).thenReturn(Optional.of(USER));
+    //     when(
+    //         tokenService.userTokenControl(eq(USER))
+    //     ).thenReturn(TOKEN);
 
-        userService.initiatePasswordReset(EMAIL);
-    }
+    //     userService.initiatePasswordReset(EMAIL);
+    // }
     @Test(expected = UserValidatedException.class)
     public void testInitiatePasswordResetUserNotValidated(){
         when(

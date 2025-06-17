@@ -279,16 +279,25 @@ public class ReportServiceImplTest {
         assertEquals(REPORT_PAGE, reports);
     }
 
-    // FIXME: FALTA ASSERT
     @Test
     public void testDelete(){
-        reportService.delete(REPORT);
+        Report newReport = new Report(USER, USER, DESC, MISINFORMATION);
+        
+        reportService.delete(newReport);
+
+        assertTrue(newReport.isDeleted());
     }
 
-    // FIXME: FALTA ASSERT
     @Test
     public void testDeleteById(){
+        Report newReport = new Report(USER, USER, DESC, MISINFORMATION);
+        when(
+            reportDao.findById(eq(REPORT_ID))
+        ).thenReturn(Optional.of(newReport));
+        
         reportService.deleteById(REPORT_ID);
+
+        assertTrue(newReport.isDeleted());
     }
 
     @Test
