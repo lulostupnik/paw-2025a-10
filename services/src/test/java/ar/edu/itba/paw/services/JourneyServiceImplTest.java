@@ -188,6 +188,7 @@ public class JourneyServiceImplTest {
         );
     }
 
+    // FIXME: FALTAN asserts
     @Test
     public void testCreateJourneyResponse(){
         when(
@@ -205,6 +206,8 @@ public class JourneyServiceImplTest {
 
         journeyService.createJourneyResponse(EMAIL, JOURNEY_ID, DESCRIPTION);
     }
+
+    // FIXME: faltan asserts
     @Test
     public void testCreateJourneyResponseNoMails(){
         when(
@@ -851,6 +854,7 @@ public class JourneyServiceImplTest {
         journeyService.findRecommendedJourneys(EMAIL, 0);
     }
 
+    // FIXME: FALTA assert, pero no sabría como assertear esto
     @Test
     public void testDeleteJourney(){
         when(
@@ -1035,6 +1039,7 @@ public class JourneyServiceImplTest {
         assertEquals(REPLY, maybeResponse.get());
     }
 
+    // FIXME: FALTA assert
     @Test
     public void testDeleteJourneyJourneyResponse(){
         when(
