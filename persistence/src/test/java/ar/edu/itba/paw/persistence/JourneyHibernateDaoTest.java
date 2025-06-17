@@ -157,22 +157,6 @@ public class JourneyHibernateDaoTest {
         em.flush();
     }
 
-    //TODO not working???
-    // @Test
-    // public void testHardDelete(){
-    //     journeyDao.hardDelete(JOURNEY_1);
-    //     em.flush();
-
-    //     assertEquals(
-    //         0, 
-    //         jdbcTemplate.query(
-    //             JOURNEY_SELECT_BY_ID, 
-    //             JOURNEY_ROW_MAPPER, 
-    //             JOURNEY_1_ID
-    //         ).size()
-    //     );
-    // }
-
     @Test
     public void testFindById(){
         Optional<Journey> maybeJourney = journeyDao.findById(JOURNEY_1_ID);

@@ -393,6 +393,7 @@ public class JourneyServiceImpl implements JourneyService {
          return tipDao.create(journey, title, content);
     }
 
+
     @Override
     @Transactional
     public Tip updateTip(long tipId, String title, String content) {
