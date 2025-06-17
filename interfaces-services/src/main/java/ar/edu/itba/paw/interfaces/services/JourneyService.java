@@ -19,8 +19,7 @@ public interface JourneyService {
 
     Page<Journey> findJourneys(String search, PageParams pageParams);
     Page<Journey> findJourneys(String search, User user, SortFieldJourney sortBy, SortDirection direction, String destination, LocalDate startDate, LocalDate endDate, String interest, boolean isPast, boolean isUpcoming, boolean isMyDestination, boolean isOngoing, PageParams pageParams);
-    Optional<Journey> getJourneyById(long id);
-    Optional<Journey> getJourneyByEmail(String email);
+    Optional<Journey> findJourneyById(long id);
 
     boolean existsByUserEmail(String email);
     boolean existsByUser(User user);
@@ -33,7 +32,6 @@ public interface JourneyService {
 
     Optional<JourneyResponse> findJourneyResponseById(long id);
     Page<JourneyResponse> findJourneyResponses(long eventId, PageParams pageParams);
-    int countJourneyResponses(long id);
 
     Page<Tip> findTipsByJourney(Journey journey, PageParams pageParams);
     Tip createTip(long journeyId, String title, String content);

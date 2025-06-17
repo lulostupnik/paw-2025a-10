@@ -288,36 +288,15 @@ public class JourneyServiceImplTest {
     }
 
     @Test
-    public void testGetJourneyById(){
+    public void testFindJourneyById(){
         when(
             journeyDao.findById(eq(JOURNEY_ID))
         ).thenReturn(Optional.of(JOURNEY));
 
-        Optional<Journey> maybeJourney = journeyService.getJourneyById(JOURNEY_ID);
+        Optional<Journey> maybeJourney = journeyService.findJourneyById(JOURNEY_ID);
 
         assertNotNull(maybeJourney);
         assertEquals(JOURNEY, maybeJourney.get());
-    }
-
-    @Test
-    public void testGetJourneyByEmail(){
-        when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.of(USER_WITH_JOURNEY));
-    
-        Optional<Journey> maybeJourney = journeyService.getJourneyByEmail(EMAIL);
-    
-        assertNotNull(maybeJourney);
-        assertTrue(maybeJourney.isPresent());
-        assertEquals(JOURNEY, maybeJourney.get());
-    }
-    @Test(expected = UserNotFoundException.class)
-    public void testGetJourneyByEmailUserNotFound(){
-        when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.empty());
-    
-        journeyService.getJourneyByEmail(EMAIL);
     }
 
     @Test
@@ -1099,16 +1078,6 @@ public class JourneyServiceImplTest {
         assertEquals(REPLY_PAGE, replies);
     }
 
-    @Test
-    public void testCountJourneyResponses(){
-        when(
-            replyDao.countByJourneyId(eq(JOURNEY_ID))
-        ).thenReturn(10);
-
-        int replies = journeyService.countJourneyResponses(JOURNEY_ID);
-
-        assertEquals(10, replies);
-    }
 
     @Test
     public void testFindTipsByJourney(){

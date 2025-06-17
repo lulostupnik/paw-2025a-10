@@ -194,7 +194,7 @@ public class EventServiceImplTest {
     }
 
     @Test
-    public void testReplyToEvent(){
+    public void testCreateEventResponse(){
         when(
             eventDao.findById(EVENT_ID)
         ).thenReturn(Optional.of(EVENT));
@@ -208,10 +208,10 @@ public class EventServiceImplTest {
             )
         ).thenReturn(new Page<>(USERS, 1, 2, 2));
 
-        eventService.replyToEvent(EMAIL, EVENT_ID, DESCRIPTION);
+        eventService.createEventResponse(EMAIL, EVENT_ID, DESCRIPTION);
     }
     @Test
-    public void testReplyToEventNoReplies(){
+    public void testCreateEventResponseNoReplies(){
         when(
             eventDao.findById(EVENT_ID)
         ).thenReturn(Optional.of(EVENT));
@@ -225,10 +225,10 @@ public class EventServiceImplTest {
             )
         ).thenReturn(new Page<User>(List.of(), 1, 1, 0));
 
-        eventService.replyToEvent(EMAIL, EVENT_ID, DESCRIPTION);
+        eventService.createEventResponse(EMAIL, EVENT_ID, DESCRIPTION);
     }
     @Test(expected = UserNotFoundException.class)
-    public void testReplyToEventNoUser(){
+    public void testCreateEventResponseNoUser(){
         when(
             eventDao.findById(EVENT_ID)
         ).thenReturn(Optional.of(EVENT));
@@ -236,15 +236,15 @@ public class EventServiceImplTest {
             userService.findUserByEmail(EMAIL)
         ).thenReturn(Optional.empty());
 
-        eventService.replyToEvent(EMAIL, EVENT_ID, DESCRIPTION);
+        eventService.createEventResponse(EMAIL, EVENT_ID, DESCRIPTION);
     }
     @Test(expected = EventNotFoundException.class)
-    public void testReplyToEventNoEvent(){
+    public void testCreateEventNoEventResponse(){
         when(
             eventDao.findById(EVENT_ID)
         ).thenReturn(Optional.empty());
 
-        eventService.replyToEvent(EMAIL, EVENT_ID, DESCRIPTION);
+        eventService.createEventResponse(EMAIL, EVENT_ID, DESCRIPTION);
     }
 
     @Test
@@ -608,113 +608,6 @@ public class EventServiceImplTest {
         eventService.createEventAttendance(USER_ID, EVENT_ID);
     }
 
-    @Test
-    public void testCreateEventAttendanceEmailLimitNotExceeded(){
-        when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.of(USER));
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-        when(
-            userService.findUserById(eq(USER_ID))
-        ).thenReturn(Optional.of(USER));
-        when(
-            attendanceDao.exists(eq(USER), eq(EVENT))
-        ).thenReturn(false);
-
-        eventService.createEventAttendance(EMAIL, EVENT_ID);
-
-        //assertEquals(ATTENDEES + 1, EVENT.getAttendeesCount());
-        //TODO Asserts
-    }
-    @Test(expected = EventIsFullException.class)
-    public void testCreateEventAttendanceEmailLimitExceeded(){
-        when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.of(USER));
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT_FULL));
-        when(
-            userService.findUserById(eq(USER_ID))
-        ).thenReturn(Optional.of(USER));
-        when(
-            attendanceDao.exists(eq(USER), eq(EVENT_FULL))
-        ).thenReturn(false);
-
-        eventService.createEventAttendance(EMAIL, EVENT_ID);
-    }
-    @Test
-    public void testCreateEventAttendanceEmailNoLimit(){
-        when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.of(USER));        
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT_NO_LIMIT));
-        when(
-            userService.findUserById(eq(USER_ID))
-        ).thenReturn(Optional.of(USER));
-        when(
-            attendanceDao.exists(eq(USER), eq(EVENT_NO_LIMIT))
-        ).thenReturn(false);
-
-        eventService.createEventAttendance(EMAIL, EVENT_ID);
-
-        //assertEquals(ATTENDEES + 1, EVENT_NO_LIMIT.getAttendeesCount());
-        //TODO Asserts
-    }
-    @Test(expected = UserAlreadyAttendingException.class)
-    public void testCreateEventAttendanceEmailAlreadyGoing(){
-        when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.of(USER));
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-        when(
-            userService.findUserById(eq(USER_ID))
-        ).thenReturn(Optional.of(USER));
-        when(
-            attendanceDao.exists(eq(USER), eq(EVENT))
-        ).thenReturn(true);
-
-        eventService.createEventAttendance(EMAIL, EVENT_ID);
-    }
-    @Test(expected = EventNotInTheFutureException.class)
-    public void testCreateEventEmailAttendancePast(){
-        when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.of(USER));
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT_PAST));
-        when(
-            userService.findUserById(eq(USER_ID))
-        ).thenReturn(Optional.of(USER));
-
-        eventService.createEventAttendance(EMAIL, EVENT_ID);
-    }
-    @Test(expected = EventNotFoundException.class)
-    public void testCreateEventAttendanceEmailEventNotFound(){
-        when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.of(USER));
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.empty());
-
-        eventService.createEventAttendance(EMAIL, EVENT_ID);
-    }
-    @Test(expected = UserNotFoundException.class)
-    public void testCreateEventAttendanceEmailUserNotFound(){
-        when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.empty());
-
-        eventService.createEventAttendance(EMAIL, EVENT_ID);
-    }
 
     @Test
     public void testDeleteEventAttendanceId(){
@@ -739,26 +632,6 @@ public class EventServiceImplTest {
         ).thenReturn(Optional.empty());
 
         eventService.deleteEventAttendance(USER_ID, EVENT_ID);
-    }
-
-    @Test
-    public void testDeleteEventAttendanceEmail(){
-        when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.of(USER));
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-
-        eventService.deleteEventAttendance(EMAIL, EVENT_ID);
-    }
-    @Test(expected = NoSuchElementException.class)
-    public void testDeleteEventAttendanceEmailUserNotFound(){
-        when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.empty());
-
-        eventService.deleteEventAttendance(EMAIL, EVENT_ID);
     }
 
     @Test
@@ -863,18 +736,6 @@ public class EventServiceImplTest {
 //        assertNotNull(rating);
 //        assertFalse(rating.isPresent());
 //    }
-
-    @Test
-    public void testFindEventsByAttendee(){
-        when(
-            eventDao.findAllEventsByAttendee(eq(USER_ID), eq(PAGE_1_DEFAULT))
-        ).thenReturn(EVENTS_PAGE);
-
-        Page<Event> events = eventService.findEventsByAttendee(USER_ID, PAGE_1_DEFAULT);
-
-        assertNotNull(events);
-        assertEquals(EVENTS_PAGE, events);
-    }
 
     @Test
     public void testFindUpcomingEventsByAttendee(){
@@ -1445,17 +1306,6 @@ public class EventServiceImplTest {
     }
 
     @Test
-    public void testCountEventResponses(){
-        when(
-            replyDao.countByEventId(eq(EVENT_ID))
-        ).thenReturn(ATTENDEES);
-
-        int replies = eventService.countEventResponses(EVENT_ID);
-
-        assertEquals(ATTENDEES, replies);
-    }
-
-    @Test
     public void testFindEventResponses(){
         when(
             replyDao.listAllByEventId(eq(EVENT_ID), eq(PAGE_1_DEFAULT))
@@ -1483,32 +1333,6 @@ public class EventServiceImplTest {
         assertEquals(REPLY, maybeReply.get());
     }
 
-    @Test
-    public void testFindJourneyEvents(){
-        when(
-            eventDao.findAllWithFilters(
-                eq(USER_ID), 
-                eq(null), 
-                eq(SortFieldEvent.DATE),
-                eq(SortDirection.ASC), 
-                eq(null), 
-                eq(EVENT_DATE_PAST), 
-                any(LocalDate.class), 
-                eq(null), 
-                eq(true), 
-                eq(false), 
-                eq(PAGE_1_DEFAULT)
-            )
-        ).thenReturn(EVENTS_PAGE);
-
-        Page<Event> events = eventService.findJourneyEvents(
-            new Journey(USER, EVENT_DATE_PAST, EVENT_DATE, UNI, DESCRIPTION), 
-            PAGE_1_DEFAULT
-        );
-
-        assertNotNull(events);
-        assertEquals(EVENTS_PAGE, events);
-    }
 
     @Test
     public void testFindCreatedByJourney(){

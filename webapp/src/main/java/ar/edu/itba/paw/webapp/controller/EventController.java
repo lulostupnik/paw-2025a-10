@@ -105,7 +105,7 @@ public class EventController {
         mav.addObject("attendeesCount", event.getAttendeesCount());
         Page<EventResponse> eventResponsesPage = eventService.findEventResponses(event.getId(), pageParams);
         mav.addObject("eventResponsesPage", eventResponsesPage);
-        mav.addObject("commentsCount", eventService.countEventResponses(event.getId()));
+        mav.addObject("commentsCount", eventResponsesPage.getTotalElements());
         mav.addObject("attend", eventWithStatistics.isAttending());
         mav.addObject("isEventOwner", eventWithStatistics.isCreator());
         mav.addObject("isFull", event.getFull());
@@ -184,11 +184,9 @@ public class EventController {
         Event event = eventService.findEventById(id).orElseThrow(() -> {
             LOGGER.error("event not found for id: {}", id);
             return new EventNotFoundException(id);});
-        long commentsCount = eventService.countEventResponses(event.getId());
 
         ModelAndView mav = new ModelAndView("events/delete");
         mav.addObject("event", event);
-        mav.addObject("commentsCount", commentsCount);
         mav.addObject("isEventOwner", eventService.isEventOwnedByUser(user.getEmail(), event.getId()));
         return mav;
     }
@@ -201,14 +199,14 @@ public class EventController {
         if (errors.hasErrors()) {
             return getEvent(id, form, new RatingForm(), user, new PageParams(1, 4), new PageParams(1, 6));
         }
-        eventService.replyToEvent(user.getEmail(), id, form.getMessage());
+        eventService.createEventResponse(user.getEmail(), id, form.getMessage());
         return new ModelAndView(REDIRECT + id);
     }
 
     @PostMapping(value="/{id}/attend",produces = "application/json")
     public ModelAndView attendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer,
                                     @ModelAttribute("user") User user) {
-        eventService.createEventAttendance(user.getEmail(), id);
+        eventService.createEventAttendance(user.getId(), id);
         if (referer != null && !referer.isEmpty()) {
             return new ModelAndView("redirect:" + referer);
         } else {
@@ -219,7 +217,7 @@ public class EventController {
     @PostMapping(value="/{id}/dont-attend",produces = "application/json")
     public ModelAndView dontAttendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer,
                                         @ModelAttribute("user") User user) {
-        eventService.deleteEventAttendance(user.getEmail(), id);
+        eventService.deleteEventAttendance(user.getId(), id);
         if (referer != null && !referer.isEmpty()) {
             return new ModelAndView("redirect:" + referer);
         } else {

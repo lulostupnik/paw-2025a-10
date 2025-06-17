@@ -64,7 +64,7 @@ public class ReportServiceImplTest {
     @Test
     public void testCreateReportForJourney(){
         when(
-            journeyService.getJourneyById(eq(JOURNEY_ID))
+            journeyService.findJourneyById(eq(JOURNEY_ID))
         ).thenReturn(Optional.of(JOURNEY));
         when(
             reportDao.create(
@@ -89,7 +89,7 @@ public class ReportServiceImplTest {
     @Test(expected = JourneyNotFoundException.class)
     public void testCreateReportForJourneyNotFound(){
         when(
-            journeyService.getJourneyById(eq(JOURNEY_ID))
+            journeyService.findJourneyById(eq(JOURNEY_ID))
         ).thenReturn(Optional.empty());
 
         reportService.createReportForJourney(

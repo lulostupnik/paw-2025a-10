@@ -35,15 +35,21 @@ public class ReportServiceImpl implements ReportService {
     @Transactional
     public Report createReportForJourney(User reportingUser, long journeyId, String description, ReportReason reason) {
         LOGGER.debug("Creating report for journey {} by user {}", journeyId, reportingUser.getId());
-        Journey journey = journeyService.getJourneyById(journeyId).orElseThrow(() -> new JourneyNotFoundException(journeyId));
-        return reportDao.create(journey.getUser(), reportingUser, journey, description, reason);    }
+        Journey journey = journeyService.findJourneyById(journeyId).orElseThrow(() -> new JourneyNotFoundException(journeyId));
+        Report report = reportDao.create(journey.getUser(), reportingUser, journey, description, reason);
+        LOGGER.info("Report for journey created, report: {}", report);
+        return report;
+    }
 
     @Override
     @Transactional
     public Report createReportForEvent(User reportingUser, long eventId, String description, ReportReason reason) {
         LOGGER.debug("Creating report for event {} by user {}", eventId, reportingUser.getId());
         Event event = eventService.findEventById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
-        return reportDao.create(event.getUser(), reportingUser, event, description, reason);    }
+        Report report =  reportDao.create(event.getUser(), reportingUser, event, description, reason);
+        LOGGER.info("Report for event created, report: {}", report);
+        return report;
+    }
 
     @Override
     @Transactional
@@ -52,7 +58,10 @@ public class ReportServiceImpl implements ReportService {
         EventResponse eventResponse = eventService.findEventResponseById(responseId)
                 .orElseThrow(() -> new EventResponseNotFoundException("Event response not found with id: " + responseId));
 
-        return reportDao.create(eventResponse.getUser(), reportingUser, eventResponse, description, reason);     }
+        Report report = reportDao.create(eventResponse.getUser(), reportingUser, eventResponse, description, reason);
+        LOGGER.info("Report for event response created, report: {}", report);
+        return report;
+    }
 
     @Override
     @Transactional
@@ -60,8 +69,9 @@ public class ReportServiceImpl implements ReportService {
         LOGGER.debug("Creating report for journey response {} by user {}", responseId, reportingUser.getId());
         JourneyResponse journeyResponse = journeyService.findJourneyResponseById(responseId)
                 .orElseThrow(() -> new JourneyResponseNotFoundException(responseId));
-
-        return reportDao.create(journeyResponse.getUser(), reportingUser, journeyResponse, description, reason);    }
+        Report report =reportDao.create(journeyResponse.getUser(), reportingUser, journeyResponse, description, reason);
+        LOGGER.info("Report for journey response created, reponse: {}", report);
+        return  report; }
 
     @Override
     public Optional<Report> findById(Long id) {
@@ -121,6 +131,7 @@ public class ReportServiceImpl implements ReportService {
         Report report = reportDao.findById(reportId)
                 .orElseThrow(() -> new ReportNotFoundException(reportId));
         report.setStatus(status);
+        LOGGER.info("Report with id {} updated to status {}", reportId, status);
         return report;
 
     }

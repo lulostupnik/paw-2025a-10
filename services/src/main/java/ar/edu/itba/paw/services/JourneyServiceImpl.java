@@ -169,19 +169,9 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
-    public Optional<Journey> getJourneyById(final long id) {
+    public Optional<Journey> findJourneyById(final long id) {
         LOGGER.debug("Getting journey by id {}", id);
         return journeyDao.findById(id);
-    }
-
-    @Override
-    public Optional<Journey> getJourneyByEmail(final String email) {
-        LOGGER.debug("Getting journey by email {}", email);
-        User user = userService.findUserByEmail(email).orElseThrow(() -> {
-            LOGGER.warn("User with email {} not found", email);
-            return new UserNotFoundException(email);
-        });
-        return Optional.ofNullable(user.getJourney());
     }
 
     private LocalDate capEndDateForPastJourneys(LocalDate endDate) {
@@ -373,11 +363,6 @@ public class JourneyServiceImpl implements JourneyService {
     public Page<JourneyResponse> findJourneyResponses(final long journeyId, final PageParams pageParams) {
         LOGGER.debug("Finding all journey responses for journey {}", journeyId);
         return journeyResponseDao.findAllByJourneyId(journeyId, pageParams);
-    }
-
-    @Override
-    public int countJourneyResponses(final long id) {
-        return journeyResponseDao.countByJourneyId(id);
     }
 
     @Override

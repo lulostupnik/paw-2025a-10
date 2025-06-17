@@ -31,14 +31,6 @@ public class JourneyHibernateDao implements JourneyDao {
         em.flush();
     }
 
-    private Optional<Journey> findByUserWithDeleted(long userId) {
-        return em.createQuery("FROM Journey j WHERE j.user.id = :userId", Journey.class)
-                .setParameter("userId", userId)
-                .getResultList()
-                .stream()
-                .findFirst();
-    }
-
     @Override
     public Optional<Journey> findById(long id) {
         return em.createQuery("FROM Journey j WHERE j.id = :id AND j.deleted = false", Journey.class)
@@ -47,9 +39,6 @@ public class JourneyHibernateDao implements JourneyDao {
                 .stream()
                 .findFirst();
     }
-
-
-
 
     @Override
     public Page<Journey> findAll(final PageParams pageParams) {

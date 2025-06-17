@@ -89,7 +89,7 @@ public class JourneyController {
                                    @PageParamCustomizer(defaultSize = 8, pageParamName = "interestsPage", sizeParamName = "interestsSize") PageParams interestsPage,
                                    @PageParamCustomizer(defaultSize = 6, pageParamName = "eventsPage", sizeParamName = "eventsSize") PageParams eventsPage,
                                    @PageParamCustomizer(defaultSize = 6, pageParamName = "tipsPage", sizeParamName = "tipsSize") PageParams tipsPage) {
-        Journey journey = js.getJourneyById(id).orElseThrow(() -> {
+        Journey journey = js.findJourneyById(id).orElseThrow(() -> {
             LOGGER.error("Journey with ID {} not found", id);
             return new JourneyNotFoundException(id);
         });
@@ -100,7 +100,7 @@ public class JourneyController {
         final ModelAndView mav = new ModelAndView("journeys/detail/detail");
         mav.addObject("journey", journey);
         mav.addObject("journeyResponsesPage", journeyResponses);
-        mav.addObject("commentsCount", js.countJourneyResponses(journey.getId()));
+        mav.addObject("commentsCount", journeyResponses.getTotalElements());
         mav.addObject("isOwner", user != null && js.isJourneyOwnedByUser(journey, user));
         mav.addObject("interestPage", interestService.findInterestsByUser(journey.getUser(), interestsPage));
         mav.addObject("createdEventsPage", createdEvents);
@@ -116,7 +116,7 @@ public class JourneyController {
                                           @ModelAttribute("deleteForm") final DeleteJourneyForm form,
                                           @ModelAttribute("user") User user) {
 
-        Journey journey = js.getJourneyById(id).orElseThrow(() -> {
+        Journey journey = js.findJourneyById(id).orElseThrow(() -> {
             LOGGER.error("Journey with ID {} not found", id);
             return new JourneyNotFoundException(id);
         });
@@ -151,7 +151,7 @@ public class JourneyController {
     public ModelAndView createTipForm(@PathVariable long id,
                                       @ModelAttribute("createTipForm") CreateTipForm form,
                                       @ModelAttribute("user") User user) {
-        Journey journey = js.getJourneyById(id).orElseThrow(() -> {
+        Journey journey = js.findJourneyById(id).orElseThrow(() -> {
             LOGGER.error("Journey with ID {} not found", id);
             return new JourneyNotFoundException(id);
         });
@@ -231,7 +231,7 @@ public class JourneyController {
                                               @ModelAttribute("createJourneyForm") CreateJourneyForm form,
                                               BindingResult errors) {
 
-        Journey journey = js.getJourneyById(journeyId)
+        Journey journey = js.findJourneyById(journeyId)
                 .orElseThrow(()-> new JourneyNotFoundException(journeyId));
 
         if(!errors.hasErrors()) {

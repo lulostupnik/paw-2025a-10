@@ -72,7 +72,7 @@ public class EventServiceImpl implements EventService {
 
         @Override
         @Transactional
-        public EventResponse replyToEvent(final String email, final long eventId, final String message) {
+        public EventResponse createEventResponse(final String email, final long eventId, final String message) {
             LOGGER.debug("Replying to event {}", eventId);
             Event event = eventDao.findById(eventId).orElseThrow(() -> {
                 LOGGER.error("Event not found {}", eventId);
@@ -132,7 +132,6 @@ public class EventServiceImpl implements EventService {
         return eventDao.findById(id);
     }
 
-
     @Override
     public Optional<EventWithStatistics> findEventWithStatistics(final User user, final long eventId) {
         LOGGER.debug("Getting event with statistics by id {}", eventId);
@@ -164,7 +163,6 @@ public class EventServiceImpl implements EventService {
 
         int createdEventsCount = eventDao.countEventsCreatedByUser(event.getUser().getId());
         int attendedEventsCount = eventAttendanceDao.countEventsAttendedByUser(event.getUser().getId());
-
 
 
         Optional<CountryAttendeeCount> maybeCountryAttendeeCount = eventDao.findTopAttendeeCountry(event.getId());
@@ -227,19 +225,6 @@ public class EventServiceImpl implements EventService {
 
     }
 
-
-    @Override
-    @Transactional
-    public EventAttendance createEventAttendance(final String email, final  long eventId) {
-        long userId = userService.findUserByEmail(email).orElseThrow(
-                () -> {
-                    LOGGER.warn("User not found {}", email);
-                    return new UserNotFoundException(email);
-                }
-        ).getId();
-        return createEventAttendance(userId, eventId);
-    }
-
     @Override
     @Transactional
     public void deleteEventAttendance(final long userId, final  long eventId) {
@@ -254,14 +239,6 @@ public class EventServiceImpl implements EventService {
         }
         eventAttendanceDao.delete(userId, eventId);
         LOGGER.info("User {} has canceled attendance for event {}", userId, eventId);
-    }
-
-    @Override
-    @Transactional
-    public void deleteEventAttendance(final String email, final  long eventId) {
-        LOGGER.debug("User {} is canceling attendance for event {}", email, eventId);
-        long userId = userService.findUserByEmail(email).orElseThrow().getId();
-        deleteEventAttendance(userId, eventId);
     }
 
     @Override
@@ -296,11 +273,6 @@ public class EventServiceImpl implements EventService {
         return eventRatingDao.countRatingsByEvent(eventId);
     }
 
-
-    @Override
-    public Page<Event> findEventsByAttendee(final long userId, final PageParams pageParams) {
-        return eventDao.findAllEventsByAttendee(userId, pageParams);
-    }
 
     @Override
     public Page<Event> findUpcomingEventsByAttendee(long userId, PageParams pageParams) {
@@ -363,9 +335,9 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public boolean isEventOwnedByUser(final String email, final long eventID) {
-        LOGGER.debug("Checking for event ownership of event {} by user {}", eventID, email);
-        Optional<Event> event = eventDao.findById(eventID);
+    public boolean isEventOwnedByUser(final String email, final long eventId) {
+        LOGGER.debug("Checking for event ownership of event {} by user {}", eventId, email);
+        Optional<Event> event = eventDao.findById(eventId);
         return event.isPresent() && event.get().getUser().getEmail().equals(email);
     }
 
@@ -467,12 +439,6 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public int countEventResponses(final long eventId){
-        LOGGER.debug("Getting response count for event {}", eventId);
-        return eventResponseDao.countByEventId(eventId);
-    }
-
-    @Override
     public Page<EventResponse> findEventResponses(final long eventId, final PageParams pageParams) {
         LOGGER.debug("Getting all responses for event {} with pageParams {}", eventId, pageParams);
         return eventResponseDao.listAllByEventId(eventId,pageParams);
@@ -506,25 +472,6 @@ public class EventServiceImpl implements EventService {
 
         return Optional.of(new EventWithUserInfo(event, isAttending, isCreator));
     }
-
-
-    @Override
-    public Page<Event> findJourneyEvents(final Journey journey, final PageParams pageParams){
-        return eventDao.findAllWithFilters(
-                journey.getUser().getId(),
-                null,
-                SortFieldEvent.DATE,
-                SortDirection.ASC,
-                null,
-                journey.getStartDate(),
-                capEndDateForPastEvents(journey.getEndDate()),
-                null,
-                true,
-                false,
-                pageParams
-        );
-    }
-
 
     @Override
     public Page<Event> findCreatedByJourney(final Journey journey, final PageParams pageParams){

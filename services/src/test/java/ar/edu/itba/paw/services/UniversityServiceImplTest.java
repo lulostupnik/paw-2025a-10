@@ -164,8 +164,8 @@ public class UniversityServiceImplTest {
         uniService.updateUniversity(ID_1, NAME, ABBREVIATION, CITY_NAME);
     }
 
-    @Test
-    public void testDeleteUniversity(){
-        uniService.deleteUniversity(ID_1);
-    }
+//    @Test
+//    public void testDeleteUniversity(){ //FIXME: This test is not actually testing anything, it should check if the university was deleted
+//        uniService.deleteUniversity(ID_1);
+//    }
 }

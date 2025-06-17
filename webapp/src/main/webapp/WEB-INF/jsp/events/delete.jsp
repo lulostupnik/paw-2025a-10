@@ -55,7 +55,6 @@
                                 <li><strong><spring:message code="event.time" />:</strong> <c:out value="${event.time}" /></li>
                             </c:if>
                             <li><strong><spring:message code="event.attendees" />:</strong> <c:out value="${event.attendeesCount}" /></li>
-                            <li><strong><spring:message code="event.responses" />:</strong> <c:out value="${commentsCount}" /></li>
                         </ul>
                     </div>
                     <div class="warning-message">

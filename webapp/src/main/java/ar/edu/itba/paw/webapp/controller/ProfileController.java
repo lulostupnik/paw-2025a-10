@@ -41,7 +41,7 @@ public class ProfileController {
     }
 
     private void addUserJourneyToMav(User user, ModelAndView mav) {
-        journeyService.getJourneyByEmail(user.getEmail())
+        journeyService.findJourneyById(user.getId())
                 .ifPresent(journey -> mav.addObject("userJourney", journey));
     }
 
