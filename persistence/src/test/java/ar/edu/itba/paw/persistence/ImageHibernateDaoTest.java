@@ -43,6 +43,23 @@ public class ImageHibernateDaoTest {
     }
 
     @Test
+    public void testCreate(){
+        long id = imageDao.create(TestUtils.IMAGE_2_DATA);
+        em.flush();
+
+        Image image = jdbcTemplate.queryForObject(
+            TestUtils.IMAGE_SELECT_BY_ID, 
+            TestUtils.IMAGE_ROW_MAPPER, id
+        );
+        assertNotNull(image);
+        assertArrayEquals(TestUtils.IMAGE_2_DATA, image.getData());
+        assertEquals(
+            TestUtils.TOTAL_IMAGES + 1, 
+            JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.IMAGE_TABLE)
+        );
+    }
+
+    @Test
     public void testFindById(){
         Optional<Image> maybeImage = imageDao.findById(TestUtils.IMAGE_1_ID);
 
@@ -58,17 +75,6 @@ public class ImageHibernateDaoTest {
 
         assertNotNull(maybeImage);
         assertFalse(maybeImage.isPresent());
-    }
-
-    @Test
-    public void testCreate(){
-        long id = imageDao.create(TestUtils.IMAGE_2_DATA);
-        em.flush();
-
-        Image image = jdbcTemplate.queryForObject(TestUtils.IMAGE_SELECT_BY_ID, TestUtils.IMAGE_ROW_MAPPER, id);
-        assertNotNull(image);
-        assertArrayEquals(TestUtils.IMAGE_2_DATA, image.getData());
-        assertEquals(TestUtils.TOTAL_IMAGES + 1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.IMAGE_TABLE));
     }
 
     @Test

@@ -48,7 +48,18 @@ public class UserHibernateDaoTest {
     public void testCreateUser(){
         TestUtils.deleteUsers(jdbcTemplate);
 
-        final User user = userDao.create(TestUtils.USER_1_MAIL, TestUtils.USER_1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), true);
+        final User user = userDao.create(
+            TestUtils.USER_1_MAIL,
+            TestUtils.USER_1_NAME, 
+            TestUtils.USER_FIRSTNAME, 
+            TestUtils.USER_LASTNAME, 
+            TestUtils.UNI_1, 
+            TestUtils.CAREER_1, 
+            TestUtils.IMAGE_1_ID, 
+            TestUtils.USER_PASSWORD, 
+            Locale.of(TestUtils.USER_LOCALE), 
+            true
+        );
         em.flush();
 
         TestUtils.assertEqualsUser(user, Map.of("id", user.getId()));
@@ -56,42 +67,134 @@ public class UserHibernateDaoTest {
     }
     @Test(expected = PersistenceException.class)
     public void testCreateUserNoMail(){
-        userDao.create(null, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), true);
+        userDao.create(
+            null, 
+            TestUtils.USER_NEW1_NAME, 
+            TestUtils.USER_FIRSTNAME, 
+            TestUtils.USER_LASTNAME, 
+            TestUtils.UNI_1, 
+            TestUtils.CAREER_1, 
+            TestUtils.IMAGE_1_ID, 
+            TestUtils.USER_PASSWORD, 
+            Locale.of(TestUtils.USER_LOCALE), 
+            true
+        );
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateUserNoUsername(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, null, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), true);
+        userDao.create(
+            TestUtils.USER_NEW1_MAIL, 
+            null, 
+            TestUtils.USER_FIRSTNAME, 
+            TestUtils.USER_LASTNAME, 
+            TestUtils.UNI_1, 
+            TestUtils.CAREER_1, 
+            TestUtils.IMAGE_1_ID, 
+            TestUtils.USER_PASSWORD, 
+            Locale.of(TestUtils.USER_LOCALE), 
+            true
+        );
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateUserNoFirstName(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, null, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), true);
+        userDao.create(
+            TestUtils.USER_NEW1_MAIL,
+            TestUtils.USER_NEW1_NAME, 
+            null, 
+            TestUtils.USER_LASTNAME, 
+            TestUtils.UNI_1, 
+            TestUtils.CAREER_1, 
+            TestUtils.IMAGE_1_ID, 
+            TestUtils.USER_PASSWORD, 
+            Locale.of(TestUtils.USER_LOCALE), 
+            true
+        );
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateUserNoLastName(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, null, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), true);
+        userDao.create(
+            TestUtils.USER_NEW1_MAIL, 
+            TestUtils.USER_NEW1_NAME, 
+            TestUtils.USER_FIRSTNAME, 
+            null, 
+            TestUtils.UNI_1, 
+            TestUtils.CAREER_1, 
+            TestUtils.IMAGE_1_ID, 
+            TestUtils.USER_PASSWORD, 
+            Locale.of(TestUtils.USER_LOCALE), 
+            true
+        );
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateUserInvalidUniversity(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, new University(1034234123l, null, null, null), TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), true);
+        userDao.create(
+            TestUtils.USER_NEW1_MAIL, 
+            TestUtils.USER_NEW1_NAME, 
+            TestUtils.USER_FIRSTNAME, 
+            TestUtils.USER_LASTNAME, 
+            new University(
+                1034234123l, 
+                null, 
+                null, 
+                null), 
+            TestUtils.CAREER_1, 
+            TestUtils.IMAGE_1_ID, 
+            TestUtils.USER_PASSWORD, 
+            Locale.of(TestUtils.USER_LOCALE), 
+            true
+        );
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateUserInvalidCareer(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, new Career((long)1313423,null), TestUtils.IMAGE_1_ID, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), true);
+        userDao.create(
+            TestUtils.USER_NEW1_MAIL, 
+            TestUtils.USER_NEW1_NAME,
+            TestUtils.USER_FIRSTNAME, 
+            TestUtils.USER_LASTNAME, 
+            TestUtils.UNI_1, 
+            new Career(1313423l, null), 
+            TestUtils.IMAGE_1_ID, 
+            TestUtils.USER_PASSWORD, 
+            Locale.of(TestUtils.USER_LOCALE), 
+            true
+        );
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateUserInvalidPic(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, 123123123, TestUtils.USER_PASSWORD, Locale.of(TestUtils.USER_LOCALE), true);
+        userDao.create(
+            TestUtils.USER_NEW1_MAIL, 
+            TestUtils.USER_NEW1_NAME, 
+            TestUtils.USER_FIRSTNAME, 
+            TestUtils.USER_LASTNAME, 
+            TestUtils.UNI_1, 
+            TestUtils.CAREER_1, 
+            123123123l, 
+            TestUtils.USER_PASSWORD, 
+            Locale.of(TestUtils.USER_LOCALE), 
+            true
+        );
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateUserNoPassword(){
-        userDao.create(TestUtils.USER_NEW1_MAIL, TestUtils.USER_NEW1_NAME, TestUtils.USER_FIRSTNAME, TestUtils.USER_LASTNAME, TestUtils.UNI_1, TestUtils.CAREER_1, TestUtils.IMAGE_1_ID, null, Locale.of(TestUtils.USER_LOCALE), true);
+        userDao.create(
+            TestUtils.USER_NEW1_MAIL, 
+            TestUtils.USER_NEW1_NAME, 
+            TestUtils.USER_FIRSTNAME, 
+            TestUtils.USER_LASTNAME, 
+            TestUtils.UNI_1, 
+            TestUtils.CAREER_1, 
+            TestUtils.IMAGE_1_ID, 
+            null,
+            Locale.of(TestUtils.USER_LOCALE), 
+            true
+        );
         em.flush();
     }
 
@@ -105,11 +208,12 @@ public class UserHibernateDaoTest {
     }
     @Test
     public void testFindUserByIdMissing(){
-        final Optional<User> maybeUser = userDao.findById(12341234);
+        final Optional<User> maybeUser = userDao.findById(12341234l);
 
         assertNotNull(maybeUser);
         assertFalse(maybeUser.isPresent());
     }
+
     @Test
     public void testFindUserByEmail(){
         final Optional<User> maybeUser = userDao.findByEmail(TestUtils.USER_1_MAIL);
@@ -127,7 +231,7 @@ public class UserHibernateDaoTest {
     }
 
     @Test
-    public void testExistsByUsernameDoesExist(){
+    public void testExistsByUsernameExists(){
         final boolean exists = userDao.existsByUsername(TestUtils.USER_1_NAME);
 
         assertTrue(exists);
@@ -138,8 +242,9 @@ public class UserHibernateDaoTest {
 
         assertFalse(exists);
     }
+
     @Test
-    public void testExistsByEmailDoesExist(){
+    public void testExistsByEmailExists(){
         final boolean exists = userDao.existsByEmail(TestUtils.USER_1_MAIL);
 
         assertTrue(exists);
@@ -160,9 +265,9 @@ public class UserHibernateDaoTest {
         assertEquals(4, page1.getTotalPages());
         assertNotNull(page1.getContent());
         assertEquals(2, page1.getContent().size());
-        for (User u : page1.getContent()){
-            TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(u.getId()), u);
-        }
+        page1.getContent().forEach((u) ->
+            TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(u.getId()), u)
+        );
     }
     @Test
     public void testFindAllPage2(){
@@ -173,9 +278,9 @@ public class UserHibernateDaoTest {
         assertEquals(4, page2.getTotalPages());
         assertNotNull(page2.getContent());
         assertEquals(2, page2.getContent().size());
-        for (User u : page2.getContent()){
-            TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(u.getId()), u);
-        }
+        page2.getContent().forEach((u) ->
+            TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(u.getId()), u)
+        );
     }
     @Test
     public void testFindAllWrongPage(){
@@ -197,9 +302,9 @@ public class UserHibernateDaoTest {
         assertEquals(4, page1.getTotalPages());
         assertNotNull(page1.getContent());
         assertEquals(TestUtils.PAGE_SIZE_DEFAULT, page1.getContent().size());
-        for (User u : page1.getContent()){
-            TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(u.getId()), u);
-        }
+        page1.getContent().forEach((u) ->
+            TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(u.getId()), u)
+        );
     }
     @Test
     public void testSearchPage2(){
@@ -210,9 +315,9 @@ public class UserHibernateDaoTest {
         assertEquals(4, page2.getTotalPages());
         assertNotNull(page2.getContent());
         assertEquals(TestUtils.PAGE_SIZE_DEFAULT, page2.getContent().size());
-        for (User u : page2.getContent()){
-            TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(u.getId()), u);
-        }
+        page2.getContent().forEach((u) ->
+            TestUtils.assertEqualsUser(TestUtils.USER_DATA.get(u.getId()), u)
+        );
     }
     @Test
     public void testSearchPageWrongPage(){

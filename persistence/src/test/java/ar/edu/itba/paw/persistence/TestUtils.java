@@ -469,12 +469,15 @@ class TestUtils {
         u.lastname AS lastname,
         u.password AS password,
         u.language AS language,
+        u.validated AS validated,
         un.id AS university_id,
         un.name AS university_name,
         un.abbreviation AS university_abbreviation,
         c.id AS city_id,
         c.name AS city_name,
         co.name AS country_name,
+        co.id AS country_id,
+        co.code AS country_code,
         ca.name AS career_name,
         ca.id AS career_id,
         u.profile_picture_id AS profile_picture_id,
@@ -640,6 +643,9 @@ class TestUtils {
 
     public static final String TIP_SELECT_BY_DATA = TIP_SELECT + "WHERE t.journey_id = ? AND t.title = ? AND t.content = ?";
     public static final String TIP_SELECT_BY_ID = TIP_SELECT + "WHERE t.id = ?";
+
+    public static final String TOKEN_SELECT_EXISTS_BY_ID = "SELECT COUNT(*) FROM tokens WHERE id = ?";
+    public static final String TOKEN_SELECT_COUNT = "SELECT COUNT(*) FROM tokens";
 
 
     //ROWMAPPERS

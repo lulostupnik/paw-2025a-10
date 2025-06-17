@@ -12,7 +12,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
 
-import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.persistence.config.TestConfig;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,7 +85,10 @@ public class InterestHibernateDaoTest {
         em.flush();
 
         assertNotNull(interest);
-        TestUtils.assertEqualsInterest(new Interest(interest.getId(), TestUtils.INTEREST_NEW1_NAME), interest);
+        TestUtils.assertEqualsInterest(
+            new Interest(interest.getId(), TestUtils.INTEREST_NEW1_NAME), 
+            interest
+        );
     }
     @Test(expected = PersistenceException.class)
     public void testCreateMissingName(){
@@ -126,7 +128,7 @@ public class InterestHibernateDaoTest {
     public void testFindAllInterestsPagedNoInterests(){
         TestUtils.deleteInterests(jdbcTemplate);
 
-        Page<Interest> page1 = interestDao.findAll(new PageParams(1, 2));
+        Page<Interest> page1 = interestDao.findAll(TestUtils.PAGE_1_DEFAULT);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -137,7 +139,9 @@ public class InterestHibernateDaoTest {
 
     @Test
     public void testSearchNoFiltering(){
-        Page<Interest> page1 = interestDao.search(TestUtils.INTEREST_1_NAME.substring(0, 5), new PageParams(1, 3));
+        Page<Interest> page1 = interestDao.search(
+            TestUtils.INTEREST_1_NAME.substring(0, 5), TestUtils.PAGE_1_BIG
+        );
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
@@ -148,7 +152,12 @@ public class InterestHibernateDaoTest {
     }
     @Test
     public void testSearchFiltering(){
-        Page<Interest> page1 = interestDao.search(TestUtils.INTEREST_1_NAME.substring(TestUtils.INTEREST_1_NAME.length()-1, TestUtils.INTEREST_1_NAME.length()), new PageParams(1, 3));
+        Page<Interest> page1 = interestDao.search(
+            TestUtils.INTEREST_1_NAME.substring(
+                TestUtils.INTEREST_1_NAME.length()-1, 
+                TestUtils.INTEREST_1_NAME.length()), 
+            TestUtils.PAGE_1_DEFAULT
+        );
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
@@ -157,7 +166,7 @@ public class InterestHibernateDaoTest {
     }
     @Test
     public void testSearchEmpty(){
-        Page<Interest> page1 = interestDao.search("", new PageParams(1, 3));
+        Page<Interest> page1 = interestDao.search("", TestUtils.PAGE_1_BIG);
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
@@ -168,7 +177,7 @@ public class InterestHibernateDaoTest {
     }
     @Test
     public void testSearchMissing(){
-        Page<Interest> page1 = interestDao.search(null, new PageParams(1, 3));
+        Page<Interest> page1 = interestDao.search(null, TestUtils.PAGE_1_BIG);
 
         assertNotNull(page1);
         assertEquals(1, page1.getTotalPages());
@@ -201,13 +210,21 @@ public class InterestHibernateDaoTest {
     public void testDelete(){
         interestDao.delete(TestUtils.INTEREST_3_ID);
         em.flush();
-        assertEquals(TestUtils.TOTAL_INTERESTS - 1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.INTEREST_TABLE));
+
+        assertEquals(
+            TestUtils.TOTAL_INTERESTS - 1, 
+            JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.INTEREST_TABLE)
+        );
     }
     @Test
     public void testDeleteWrongInterest(){
         interestDao.delete(12341234);
         em.flush();
-        assertEquals(TestUtils.TOTAL_INTERESTS, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.INTEREST_TABLE));
+
+        assertEquals(
+            TestUtils.TOTAL_INTERESTS,
+            JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.INTEREST_TABLE)
+        );
     }
 
 }

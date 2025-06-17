@@ -13,7 +13,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
 
-import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.persistence.config.TestConfig;
 import org.junit.Before;
@@ -52,60 +51,6 @@ public class JourneyResponseHibernateDaoTest {
     }
 
     @Test
-    public void testCreate(){
-        JourneyResponse response = responseDao.create(TestUtils.USER_1, TestUtils.JOURNEY_1, TestUtils.RESPONSE_MESSAGE);
-        em.flush();
-
-        TestUtils.assertEqualsJourneyReply(
-            new JourneyResponse(response.getId(), TestUtils.USER_1, TestUtils.JOURNEY_1, TestUtils.RESPONSE_MESSAGE, LocalDateTime.now()),
-            response
-        );
-    }
-    @Test(expected = PersistenceException.class)
-    public void testCreateWrongUser(){
-        responseDao.create(new User(12341234l, null, null, null, null, null, null, 0l, null, false, false), TestUtils.JOURNEY_1, TestUtils.RESPONSE_MESSAGE);
-        em.flush();
-    }
-    @Test(expected = PersistenceException.class)
-    public void testCreateWrongJourney(){
-        responseDao.create(TestUtils.USER_1, new Journey(12341234l, null, null, null, null, null), TestUtils.RESPONSE_MESSAGE);
-        em.flush();
-    }
-    @Test(expected = PersistenceException.class)
-    public void testCreateMissingDate(){
-        responseDao.create(TestUtils.USER_1, TestUtils.JOURNEY_1, null);
-        em.flush();
-    }
-
-    @Test
-    public void testFindAllByJourneyIdPaged(){
-        Page<JourneyResponse> page1 = responseDao.findAllByJourneyId(TestUtils.JOURNEY_1_ID, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(page1);
-        assertEquals(1, page1.getCurrentPage());
-        assertEquals(1, page1.getTotalPages());
-        assertNotNull(page1.getContent());
-        assertEquals(TestUtils.TOTAL_JOURNEY_RESPONSES, page1.getContent().size());
-        for (JourneyResponse r : page1.getContent()){
-            TestUtils.assertEqualsJourneyReply(TestUtils.RESPONSE_DATA.get(r.getId()), r);
-        }
-    }
-    @Test
-    public void testFindAllByJourneyIdPagedNoResponses(){
-        JdbcTestUtils.deleteFromTableWhere(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE, "deleted = FALSE");
-
-        Page<JourneyResponse> page1 = responseDao.findAllByJourneyId(TestUtils.JOURNEY_1_ID, new PageParams(1, 2));
-
-        assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE));
-        assertNotNull(page1);
-        assertEquals(1, page1.getCurrentPage());
-        assertEquals(0, page1.getTotalPages());
-        assertNotNull(page1.getContent());
-        assertEquals(0, page1.getContent().size());
-    }
-
-
-    @Test
     public void testFindById(){
         Optional<JourneyResponse> maybeResponse = responseDao.findById(TestUtils.JOURNEY_RESPONSE_1_ID);
 
@@ -128,6 +73,118 @@ public class JourneyResponseHibernateDaoTest {
     }
 
     @Test
+    public void testCreate(){
+        JourneyResponse response = responseDao.create(
+            TestUtils.USER_1, TestUtils.JOURNEY_1, TestUtils.RESPONSE_MESSAGE
+        );
+        em.flush();
+
+        TestUtils.assertEqualsJourneyReply(
+            new JourneyResponse(
+                response.getId(), 
+                TestUtils.USER_1, 
+                TestUtils.JOURNEY_1, 
+                TestUtils.RESPONSE_MESSAGE, 
+                LocalDateTime.now()
+            ),
+            response
+        );
+    }
+    @Test(expected = PersistenceException.class)
+    public void testCreateWrongUser(){
+        responseDao.create(
+            new User(
+                12341234l, 
+                null, 
+                null, 
+                null, 
+                null, 
+                null, 
+                null, 
+                0l, 
+                null, 
+                false, 
+                false), 
+            TestUtils.JOURNEY_1, 
+            TestUtils.RESPONSE_MESSAGE
+        );
+        em.flush();
+    }
+    @Test(expected = PersistenceException.class)
+    public void testCreateWrongJourney(){
+        responseDao.create(
+            TestUtils.USER_1, 
+            new Journey(
+                12341234l, 
+                null, 
+                null, 
+                null, 
+                null, 
+                null), 
+            TestUtils.RESPONSE_MESSAGE
+        );
+        em.flush();
+    }
+    @Test(expected = PersistenceException.class)
+    public void testCreateMissingDate(){
+        responseDao.create(TestUtils.USER_1, TestUtils.JOURNEY_1, null);
+        em.flush();
+    }
+
+    @Test
+    public void testFindAllByJourneyIdPaged(){
+        Page<JourneyResponse> page1 = responseDao.findAllByJourneyId(
+            TestUtils.JOURNEY_1_ID, TestUtils.PAGE_1_BIG
+        );
+
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(1, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(TestUtils.TOTAL_JOURNEY_RESPONSES, page1.getContent().size());
+        page1.getContent().forEach((r) -> 
+            TestUtils.assertEqualsJourneyReply(TestUtils.RESPONSE_DATA.get(r.getId()), r)
+        );
+    }
+    @Test
+    public void testFindAllByJourneyIdPagedNoResponses(){
+        JdbcTestUtils.deleteFromTableWhere(
+            jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE, "deleted = FALSE"
+        );
+
+        Page<JourneyResponse> page1 = responseDao.findAllByJourneyId(
+            TestUtils.JOURNEY_1_ID, TestUtils.PAGE_1_DEFAULT
+        );
+
+        assertEquals(
+            1, 
+            JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE)
+        );
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(0, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(0, page1.getContent().size());
+    }
+
+    @Test
+    public void testHardDeleteByJourneyId(){
+        responseDao.hardDeleteByJourneyId(TestUtils.JOURNEY_1_ID);
+        em.flush();
+
+        assertEquals(0, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE));
+    }
+    @Test
+    public void testHardDeleteByJourneyIdWrongId(){
+        int beforeRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE);
+
+        responseDao.hardDeleteByJourneyId(12341234l);
+        em.flush();
+
+        assertEquals(beforeRows, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE));
+    }
+
+    @Test
     public void testGetCount(){
         int count = responseDao.countByJourneyId(TestUtils.JOURNEY_1_ID);
 
@@ -136,7 +193,9 @@ public class JourneyResponseHibernateDaoTest {
 
     @Test
     public void testFindRespondersByJourneyId(){
-        Page<User> responders = responseDao.findRespondersByJourneyId(TestUtils.JOURNEY_1_ID, TestUtils.PAGE_1_BIG);
+        Page<User> responders = responseDao.findRespondersByJourneyId(
+            TestUtils.JOURNEY_1_ID, TestUtils.PAGE_1_BIG
+        );
 
         assertNotNull(responders);
         assertEquals(1, responders.getCurrentPage());
@@ -145,7 +204,9 @@ public class JourneyResponseHibernateDaoTest {
     }
     @Test
     public void testFindRespondersByJourneyIdWrongId(){
-        Page<User> responders = responseDao.findRespondersByJourneyId(12341234l, TestUtils.PAGE_1_BIG);
+        Page<User> responders = responseDao.findRespondersByJourneyId(
+            12341234l, TestUtils.PAGE_1_BIG
+        );
 
         assertNotNull(responders);
         assertEquals(1, responders.getCurrentPage());
