@@ -239,50 +239,5 @@ public class CityHibernateDaoTest {
         TestUtils.assertEqualsCity(TestUtils.CITY_DELETED, city);
     }
 
-    @Test
-    public void testDeleteCity(){
-        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE);
-
-        cityDao.delete(TestUtils.CITY_1_ID);
-        em.flush();
-
-        assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE));
-        assertEquals(
-            TestUtils.TOTAL_CITIES - 1,
-            Optional.ofNullable(
-                jdbcTemplate.queryForObject(TestUtils.CITIES_COUNT_NOT_DELETED, Integer.class)
-            ).get().intValue()
-        );
-    }
-    @Test
-    public void testDeleteDeleted(){
-        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE);
-
-        cityDao.delete(TestUtils.CITY_1_ID);
-        em.flush();
-
-        assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE));
-        assertEquals(
-            TestUtils.TOTAL_CITIES - 1,
-            Optional.ofNullable(
-                jdbcTemplate.queryForObject(TestUtils.CITIES_COUNT_NOT_DELETED, Integer.class)
-            ).get().intValue()
-        );
-    }
-    @Test
-    public void testDeleteWrong(){
-        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE);
-
-        cityDao.delete(12341234);
-        em.flush();
-
-        assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.CITY_TABLE));
-        assertEquals(
-            TestUtils.TOTAL_CITIES,
-            Optional.ofNullable(
-                jdbcTemplate.queryForObject(TestUtils.CITIES_COUNT_NOT_DELETED, Integer.class)
-            ).get().intValue()
-        );
-    }
 
 }

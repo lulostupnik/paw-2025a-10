@@ -80,21 +80,19 @@ public class Journey{
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{journeyId: ");
-        sb.append(id);
-        sb.append(", user: ");
-        sb.append(user);
-        sb.append(", destinationUniversity: ");
-        sb.append(destinationUniversity);
-        sb.append(", startDate: \"");
-        sb.append(startDate);
-        sb.append("\", endDate: \"");
-        sb.append(endDate);
-        sb.append("\", description: \"");
-        sb.append(description);
-        sb.append("\"}");
-        return sb.toString();
+        return "{journeyId: " +
+                id +
+                ", user: " +
+                user +
+                ", destinationUniversity: " +
+                destinationUniversity +
+                ", startDate: \"" +
+                startDate +
+                "\", endDate: \"" +
+                endDate +
+                "\", description: \"" +
+                description +
+                "\"}";
     }
 
     @Override

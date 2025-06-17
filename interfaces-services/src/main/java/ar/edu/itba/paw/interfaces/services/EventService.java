@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface EventService {
     Event createEvent(String email, String cityName, LocalDate date, byte[] flyer, String description, String title, LocalTime time, String address, Integer attendeesLimit);
-    void updateEvent(long eventId,
+    Event updateEvent(long eventId,
                      String cityName,
                      LocalDate date,
                      byte[] flyer,
@@ -21,7 +21,7 @@ public interface EventService {
                      Integer attendeesLimit);
     void deleteEvent(long id, String message);
 
-    void replyToEvent(String email,long eventId, String message);
+    EventResponse replyToEvent(String email,long eventId, String message);
 
     Optional<Event> findEventById(long id);
 
@@ -30,14 +30,14 @@ public interface EventService {
     Page<Event> searchEvents(String search, PageParams pageParams);
     Page<Event> findEvents(long userId, PageParams pageParams);
 
-    void createEventAttendance(String email, long eventId);
-    void createEventAttendance(long userId, long eventId);
+    EventAttendance createEventAttendance(String email, long eventId);
+    EventAttendance createEventAttendance(long userId, long eventId);
 
     void deleteEventAttendance(String email, long eventId);
     void deleteEventAttendance(long userId, long eventId);
 
-    void rateEvent(User user, long eventId, double rating);
-    void updateEventRating(User user, long eventId, double rating);
+    Rating rateEvent(User user, long eventId, double rating);
+    Rating updateEventRating(User user, long eventId, double rating);
     Optional<Rating> findRatingByUserAndEvent(long userId, long eventId);
     int countRatingsByEvent(long eventId);
 

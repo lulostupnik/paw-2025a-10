@@ -91,15 +91,21 @@ public class ReportServiceImpl implements ReportService {
     @Transactional
     @Override
     public void delete(Report report) {
-        LOGGER.info("Deleting report with id {}", report.getId());
-        reportDao.delete(report);
+        report.setDeleted(true);
+        LOGGER.info("Report with id: " + report.getId() + " has been marked as deleted.");
     }
 
     @Transactional
     @Override
     public void deleteById(Long id) {
-        LOGGER.info("Deleting report by id {}", id);
-        reportDao.deleteById(id);
+        Optional<Report> maybeReport = reportDao.findById(id);
+        if (maybeReport.isEmpty()) {
+            LOGGER.info("Report with id: " + id + " not found.");
+            return;
+        }
+
+        maybeReport.get().setDeleted(true);
+        LOGGER.info("Report with id: " + id + " has been marked as deleted.");
     }
 
     @Override

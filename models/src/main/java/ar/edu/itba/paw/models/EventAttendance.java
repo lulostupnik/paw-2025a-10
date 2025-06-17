@@ -2,6 +2,7 @@ package ar.edu.itba.paw.models;
 
 import lombok.Getter;
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name="event_attendances")
@@ -24,5 +25,15 @@ public class EventAttendance {
         this.user = user;
         this.event = event;
         this.id = new EventAttendanceId(user.getId(), event.getId());
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EventAttendance that)) return false;
+        return id.equals(that.id);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

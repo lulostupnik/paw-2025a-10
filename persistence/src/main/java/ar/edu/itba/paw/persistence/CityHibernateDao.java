@@ -126,12 +126,5 @@ public class CityHibernateDao implements CityDao {
         return city;
     }
 
-    @Override
-    public void delete(long id) {
-        final City city = em.find(City.class, id);
-        if (city != null) {
-            city.setDeleted(true);
-            em.merge(city);
-        }
-    }
+
 }

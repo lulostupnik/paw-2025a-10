@@ -49,17 +49,6 @@ public class UniversityHibernateDao implements UniversityDao {
         return university;
     }
 
-
-    @Override
-    public void delete(long id) {
-        final University university = em.find(University.class, id);
-        if (university != null) {
-            university.setDeleted(true);
-            em.merge(university);
-        }
-
-    }
-
     @Override
     public Optional<University> findByName(String name) {
         return em.createQuery("from University as u where u.name= :name and u.deleted = false", University.class)

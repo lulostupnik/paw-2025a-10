@@ -10,11 +10,11 @@ import java.util.Optional;
 public interface JourneyService {
     Journey createJourney(User user, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
 
-    void updateJourney(long journeyId, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
+    Journey updateJourney(long journeyId, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
     void deleteJourney(long id, String message);
 
 
-    void createJourneyResponse(String email, long journeyId, String message);
+    JourneyResponse createJourneyResponse(String email, long journeyId, String message);
     void deleteJourneyResponse(long id, String message);
 
     Page<Journey> findJourneys(String search, PageParams pageParams);
@@ -36,7 +36,7 @@ public interface JourneyService {
     int countJourneyResponses(long id);
 
     Page<Tip> findTipsByJourney(Journey journey, PageParams pageParams);
-    void createTip(long journeyId, String title, String content);
+    Tip createTip(long journeyId, String title, String content);
     Tip updateTip(long tipId, String title, String content);
     void deleteTip(long tipId);
     Optional<Tip> findTipById(long tipId);

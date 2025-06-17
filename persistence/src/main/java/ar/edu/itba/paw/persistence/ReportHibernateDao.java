@@ -160,20 +160,6 @@ public class ReportHibernateDao implements ReportDao {
         );
     }
 
-    @Override
-    public void delete(Report report) {
-        report.markAsDeleted();
-        em.merge(report);
-    }
-
-    @Override
-    public void deleteById(Long id) {
-        final Report report = em.find(Report.class, id);
-        if (report != null) {
-            report.markAsDeleted();
-            em.merge(report);
-        }
-    }
 
     @Override
     public Page<Report> findAll(String search, PageParams params) {

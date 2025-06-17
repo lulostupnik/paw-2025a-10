@@ -63,15 +63,13 @@ public class JourneyResponse {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{userId: ");
-        sb.append(user);
-        sb.append(", journeyId: ");
-        sb.append(journey);
-        sb.append(", message: \"");
-        sb.append(message);
-        sb.append("\"}");
-        return sb.toString();
+        return "{userId: " +
+                user +
+                ", journeyId: " +
+                journey +
+                ", message: \"" +
+                message +
+                "\"}";
     }
 }
 

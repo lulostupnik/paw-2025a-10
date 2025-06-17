@@ -9,9 +9,6 @@ import ar.edu.itba.paw.models.exceptions.CountryNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
@@ -32,7 +29,6 @@ public class CityServiceImpl implements CityService {
     }
 
     @Override
-    @Cacheable(value = "citiesByName", key = "#name")
     public Optional<City> findCityByName(final String name) {
         LOGGER.debug("Finding city by name {}", name);
         return cityDao.findByName(name);
@@ -40,7 +36,6 @@ public class CityServiceImpl implements CityService {
 
 
     @Override
-    @Cacheable(value = "citiesById", key = "#id")
     public Optional<City> findCityById(final long id) {
         LOGGER.debug("Finding city by id {}", id);
         return cityDao.findById(id);
@@ -58,15 +53,7 @@ public class CityServiceImpl implements CityService {
 
     @Override
     @Transactional
-    @Caching(
-            evict = {
-                    @CacheEvict(value = "citiesByName", allEntries = true),
-                    @CacheEvict(value = "citiesById", key = "#id"),
-                    @CacheEvict(value = "universitiesById", allEntries = true),
-                    @CacheEvict(value = "universitiesByName", allEntries = true)
-            }
-    )
-    public void updateCity(final long id,final String name,final String countryName) {
+    public City updateCity(final long id,final String name,final String countryName) {
         LOGGER.debug("Updating city with id {}, name {}, country {}", id, name, countryName);
         Country country = countryService.findCountryByName(countryName)
                 .orElseThrow(() -> {
@@ -79,16 +66,11 @@ public class CityServiceImpl implements CityService {
         city.setName(name);
         city.setCountry(country);
         LOGGER.info("City with id {} updated successfully", id);
+        return city;
     }
 
     @Override
     @Transactional
-    @Caching(
-            evict = {
-                    @CacheEvict(value = "universitiesById", allEntries = true),
-                    @CacheEvict(value = "universitiesByName", allEntries = true)
-            }
-    )
     public City createCity(final String cityName,final String countryName) {
         LOGGER.debug("Creating city with name {} and country {}", cityName, countryName);
         Country country = countryService.findCountryByName(countryName)
@@ -102,17 +84,13 @@ public class CityServiceImpl implements CityService {
 
     @Override
     @Transactional
-    @Caching(
-            evict = {
-                    @CacheEvict(value = "citiesById", key = "#id"),
-                    @CacheEvict(value = "citiesByName", allEntries = true),
-                    @CacheEvict(value = "universitiesById", allEntries = true),
-                    @CacheEvict(value = "universitiesByName", allEntries = true)
-            }
-    )
     public void deleteCity(final long id) {
-        LOGGER.debug("Deleting city with id {}", id);
-        cityDao.delete(id);
+       Optional<City> maybeCity = cityDao.findById(id);
+        if (maybeCity.isEmpty()) {
+            LOGGER.error("City with id {} not found", id);
+            return;
+        }
+        maybeCity.get().setDeleted(true);
         LOGGER.info("City with id {} deleted successfully", id);
     }
 

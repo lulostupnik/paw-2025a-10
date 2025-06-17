@@ -22,6 +22,7 @@ public class ImageServiceImplTest {
     private static final long IMAGE_ID = 0;
     private static final Image IMAGE = new Image(IMAGE_ID, IMAGE_DATA);
 
+
     @InjectMocks
     ImageServiceImpl imageService;
 
@@ -34,6 +35,8 @@ public class ImageServiceImplTest {
         when(
             imageDao.create(eq(IMAGE_DATA))
         ).thenReturn(IMAGE_ID);
+
+
 
         long id = imageService.createImage(IMAGE_DATA);
 

@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Locale;
+import java.util.Objects;
 
 @Getter
 @Entity
@@ -152,24 +153,32 @@ public class User{
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{userId: ");
-        sb.append(id);
-        sb.append(", email: \"");
-        sb.append(email);        
-        sb.append("\", username: \"");
-        sb.append(username);
-        sb.append("\", firstname: \"");
-        sb.append(firstname);
-        sb.append("\", lastname: \"");
-        sb.append(lastname);
-        sb.append("\", language: \"");
-        sb.append(locale);
-        sb.append("\", profilePictureId: ");
-        sb.append(profilePictureId);
-        sb.append("}");
-        return sb.toString();
+        return "{userId: " +
+                id +
+                ", email: \"" +
+                email +
+                "\", username: \"" +
+                username +
+                "\", firstname: \"" +
+                firstname +
+                "\", lastname: \"" +
+                lastname +
+                "\", language: \"" +
+                locale +
+                "\", profilePictureId: " +
+                profilePictureId +
+                "}";
     }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User user)) return false;
 
+        return id != null && id.equals(user.id);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 
 }

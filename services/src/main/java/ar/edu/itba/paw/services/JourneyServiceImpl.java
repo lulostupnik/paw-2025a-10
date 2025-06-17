@@ -87,7 +87,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    public void createJourneyResponse(final String email, final long journeyId, final String message) {
+    public JourneyResponse createJourneyResponse(final String email, final long journeyId, final String message) {
         LOGGER.debug("Replying to journey {}", journeyId);
         Journey journey = journeyDao.findById(journeyId)
                 .orElseThrow(() -> {
@@ -101,7 +101,7 @@ public class JourneyServiceImpl implements JourneyService {
                     return new UserNotFoundException(email);
                 });
 
-        journeyResponseDao.create(responder, journey, message);
+        JourneyResponse journeyResponse = journeyResponseDao.create(responder, journey, message);
 
         interestService.updateMatchingInterestScores(responder.getId(), journey.getUser().getId());
         LOGGER.info("Interest scores updated for responder {}", responder.getId());
@@ -138,6 +138,7 @@ public class JourneyServiceImpl implements JourneyService {
 
         emailService.answerJourneyOwnerNotification(message, emailResponder, emailJourney);
         LOGGER.info("Journey response notifications sent to owner for journey {}", journeyId);
+        return journeyResponse;
     }
 
     private Page<Journey> searchByTerm(final String searchTerm, final PageParams pageParams){
@@ -318,7 +319,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    public void updateJourney(final long journeyId, final  String destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
+    public Journey updateJourney(final long journeyId, final  String destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
         LOGGER.debug("Editing journey {}", journeyId);
         Journey journey = journeyDao.findById(journeyId)
                 .orElseThrow(() -> {
@@ -335,6 +336,7 @@ public class JourneyServiceImpl implements JourneyService {
         journey.setEndDate(endDate);
         journey.setDescription(description);
         LOGGER.info("Journey updated: {}", journeyId);
+        return journey;
     }
 
 
@@ -385,12 +387,12 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    public void createTip(long journeyId, String title, String content) {
+    public Tip createTip(long journeyId, String title, String content) {
         Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> {
             LOGGER.error("Journey with id {} not found", journeyId);
             return new JourneyNotFoundException(journeyId);
         });
-        tipDao.createTip(journey, title, content);
+         return tipDao.createTip(journey, title, content);
     }
 
     @Override

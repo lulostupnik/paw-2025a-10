@@ -7,7 +7,7 @@ import ar.edu.itba.paw.models.Tip;
 import java.util.Optional;
 
 public interface TipDao {
-    void createTip(Journey journey, String title, String content);
+    Tip createTip(Journey journey, String title, String content);
 
     void deleteTip(long tipId);
 

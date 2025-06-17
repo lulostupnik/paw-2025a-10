@@ -19,9 +19,10 @@ public class TipHibernateDao implements TipDao {
 
 
     @Override
-    public void createTip(Journey journey, String title, String content) {
+    public Tip createTip(Journey journey, String title, String content) {
         Tip tip = new Tip(journey, title, content);
         em.persist(tip);
+        return tip;
     }
 
     @Override
