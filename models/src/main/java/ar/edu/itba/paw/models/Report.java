@@ -26,8 +26,6 @@ public class Report {
     @JoinColumn(name = "reported_user_id", nullable = false)
     private User reportedUser;
 
-    //FIXME:check eager vs lazy
-
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "reporting_user_id", nullable = false)
     private User reportingUser;

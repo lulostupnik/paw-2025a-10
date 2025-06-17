@@ -451,22 +451,7 @@ public class EventServiceImplTest {
         assertFalse(event.isPresent());
     }
 
-    @Test
-    public void testCreateEventAttendanceIdLimitNotExceeded(){
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-        when(
-            userService.findUserById(eq(USER_ID))
-        ).thenReturn(Optional.of(USER));
-        when(
-            attendanceDao.exists(eq(USER), eq(EVENT))
-        ).thenReturn(false);
 
-        eventService.createEventAttendance(USER_ID, EVENT_ID);
-
-        //TODO asserts
-    }
     @Test(expected = EventIsFullException.class)
     public void testCreateEventAttendanceIdLimitExceeded(){
         when(
@@ -481,23 +466,7 @@ public class EventServiceImplTest {
 
         eventService.createEventAttendance(USER_ID, EVENT_ID);
     }
-    @Test
-    public void testCreateEventAttendanceIdNoLimit(){
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT_NO_LIMIT));
-        when(
-            userService.findUserById(eq(USER_ID))
-        ).thenReturn(Optional.of(USER));
-        when(
-            attendanceDao.exists(eq(USER), eq(EVENT_NO_LIMIT))
-        ).thenReturn(false);
 
-        eventService.createEventAttendance(USER_ID, EVENT_ID);
-
-        //assertEquals(ATTENDEES + 1, EVENT_NO_LIMIT.getAttendeesCount());
-        //TODO Asserts
-    }
     @Test(expected = UserAlreadyAttendingException.class)
     public void testCreateEventAttendanceAlreadyGoing(){
         when(

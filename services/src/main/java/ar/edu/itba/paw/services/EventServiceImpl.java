@@ -197,7 +197,6 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventAttendance createEventAttendance(final long userId, final  long eventId) {
-        LOGGER.debug("User {} is attending event {}", userId, eventId);
         Event event = eventDao.findById(eventId).orElseThrow(() -> {
             LOGGER.warn("Event not found {}", eventId);
             return new EventNotFoundException(eventId);
