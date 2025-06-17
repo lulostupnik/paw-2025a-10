@@ -2,6 +2,8 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.EventAttendanceDao;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
+import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -18,6 +20,12 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
     public EventAttendance create(long userId, long eventId) {
         final Event event = em.find(Event.class, eventId);
         final User user = em.find(User.class, userId);
+        if (event == null) {
+            throw new EventNotFoundException( eventId );
+        }
+        if (user == null) {
+            throw new UserNotFoundException(userId);
+        }
 
         return create(user, event);
     }

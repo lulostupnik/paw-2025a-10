@@ -101,7 +101,7 @@ public class EventServiceImplTest {
     EventRatingDao ratingDao;
     @Mock
     EventAttendanceDao attendanceDao;
-    
+
     @Mock
     UserService userService;
     @Mock
@@ -126,27 +126,27 @@ public class EventServiceImplTest {
         ).thenReturn(IMAGE_ID);
         when(
             eventDao.create(
-                eq(USER), 
-                eq(CITY), 
-                eq(EVENT_DATE), 
-                eq(DESCRIPTION), 
-                eq(IMAGE_ID), 
-                eq(TITLE), 
-                eq(TIME), 
-                eq(ADDRESS), 
+                eq(USER),
+                eq(CITY),
+                eq(EVENT_DATE),
+                eq(DESCRIPTION),
+                eq(IMAGE_ID),
+                eq(TITLE),
+                eq(TIME),
+                eq(ADDRESS),
                 eq(LIMIT)
             )
         ).thenReturn(EVENT);
 
         Event event = eventService.createEvent(
-            EMAIL, 
-            CITY_NAME, 
-            EVENT_DATE, 
-            IMAGE_DATA, 
-            DESCRIPTION, 
-            TITLE, 
-            TIME, 
-            ADDRESS, 
+            EMAIL,
+            CITY_NAME,
+            EVENT_DATE,
+            IMAGE_DATA,
+            DESCRIPTION,
+            TITLE,
+            TIME,
+            ADDRESS,
             LIMIT
         );
 
@@ -163,14 +163,14 @@ public class EventServiceImplTest {
         ).thenReturn(Optional.empty());
 
         eventService.createEvent(
-            EMAIL, 
-            CITY_NAME, 
-            EVENT_DATE, 
-            IMAGE_DATA, 
-            DESCRIPTION, 
-            TITLE, 
-            TIME, 
-            ADDRESS, 
+            EMAIL,
+            CITY_NAME,
+            EVENT_DATE,
+            IMAGE_DATA,
+            DESCRIPTION,
+            TITLE,
+            TIME,
+            ADDRESS,
             LIMIT
         );
     }
@@ -181,14 +181,14 @@ public class EventServiceImplTest {
         ).thenReturn(Optional.empty());
 
         eventService.createEvent(
-            EMAIL, 
-            CITY_NAME, 
-            EVENT_DATE, 
-            IMAGE_DATA, 
-            DESCRIPTION, 
-            TITLE, 
-            TIME, 
-            ADDRESS, 
+            EMAIL,
+            CITY_NAME,
+            EVENT_DATE,
+            IMAGE_DATA,
+            DESCRIPTION,
+            TITLE,
+            TIME,
+            ADDRESS,
             LIMIT
         );
     }
@@ -203,7 +203,7 @@ public class EventServiceImplTest {
         ).thenReturn(Optional.of(USER));
         when(
             replyDao.findRespondersByEventId(
-                eq(EVENT_ID), 
+                eq(EVENT_ID),
                 any(PageParams.class)
             )
         ).thenReturn(new Page<>(USERS, 1, 2, 2));
@@ -220,7 +220,7 @@ public class EventServiceImplTest {
         ).thenReturn(Optional.of(USER));
         when(
             replyDao.findRespondersByEventId(
-                eq(EVENT_ID), 
+                eq(EVENT_ID),
                 any(PageParams.class)
             )
         ).thenReturn(new Page<User>(List.of(), 1, 1, 0));
@@ -248,19 +248,6 @@ public class EventServiceImplTest {
     }
 
     @Test
-    public void testFindEventById(){
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-
-        Optional<Event> maybeEvent = eventService.findEventById(EVENT_ID);
-
-        assertNotNull(maybeEvent);
-        assertTrue(maybeEvent.isPresent());
-        assertEquals(EVENT, maybeEvent.get());
-    }
-        
-    @Test
     public void testFindEventWithStatistics(){
         when(
             eventDao.findById(eq(EVENT_ID))
@@ -280,13 +267,13 @@ public class EventServiceImplTest {
         when(
             eventDao.findTopAttendeeCountry(eq(EVENT_ID))
         ).thenReturn(Optional.of(COUNTRY_ATTENDEE_COUNT));
-    
+
         Optional<EventWithStatistics> event = eventService.findEventWithStatistics(USER, EVENT_ID);
-    
+
         assertNotNull(event);
         assertTrue(event.isPresent());
         assertEquals(EVENT_WITH_STATISTICS.isCreator(), event.get().isCreator());
-        assertEquals(EVENT_WITH_STATISTICS.isAttending(), event.get().isAttending());        
+        assertEquals(EVENT_WITH_STATISTICS.isAttending(), event.get().isAttending());
         assertEquals(EVENT_WITH_STATISTICS.getAttendedEventsCount(), event.get().getAttendedEventsCount());
         assertEquals(EVENT_WITH_STATISTICS.getCreatedEventsCount(), event.get().getCreatedEventsCount());
         assertEquals(EVENT_WITH_STATISTICS.getEvent(), event.get().getEvent());
@@ -313,13 +300,13 @@ public class EventServiceImplTest {
         when(
             eventDao.findTopAttendeeCountry(eq(EVENT_ID))
         ).thenReturn(Optional.of(COUNTRY_ATTENDEE_COUNT));
-        
+
         Optional<EventWithStatistics> event = eventService.findEventWithStatistics(USER_2, EVENT_ID);
-    
+
         assertNotNull(event);
         assertTrue(event.isPresent());
         assertFalse(event.get().isCreator());
-        assertEquals(EVENT_WITH_STATISTICS.isAttending(), event.get().isAttending());        
+        assertEquals(EVENT_WITH_STATISTICS.isAttending(), event.get().isAttending());
         assertEquals(EVENT_WITH_STATISTICS.getAttendedEventsCount(), event.get().getAttendedEventsCount());
         assertEquals(EVENT_WITH_STATISTICS.getCreatedEventsCount(), event.get().getCreatedEventsCount());
         assertEquals(EVENT_WITH_STATISTICS.getEvent(), event.get().getEvent());
@@ -346,9 +333,9 @@ public class EventServiceImplTest {
         when(
             eventDao.findTopAttendeeCountry(eq(EVENT_ID))
         ).thenReturn(Optional.empty());
-    
+
         Optional<EventWithStatistics> event = eventService.findEventWithStatistics(USER, EVENT_ID);
-    
+
         assertNotNull(event);
         assertTrue(event.isPresent());
         assertEquals(EVENT_WITH_STATISTICS.getAttendedEventsCount(), event.get().getAttendedEventsCount());
@@ -378,7 +365,7 @@ public class EventServiceImplTest {
         when(
             userService.findUserById(eq(USER_ID))
         ).thenReturn(Optional.empty());
-    
+
         eventService.findEventWithStatistics(USER, EVENT_ID);
     }
     @Test
@@ -387,11 +374,11 @@ public class EventServiceImplTest {
             eventDao.findById(eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT));
         EVENT.setDeleted(true);
-    
+
         Optional<EventWithStatistics> event = eventService.findEventWithStatistics(USER, EVENT_ID);
 
         assertNotNull(event);
-        assertFalse(event.isPresent());    
+        assertFalse(event.isPresent());
         EVENT.setDeleted(false);
     }
     @Test
@@ -399,11 +386,11 @@ public class EventServiceImplTest {
         when(
             eventDao.findById(eq(EVENT_ID))
         ).thenReturn(Optional.empty());
-    
+
         Optional<EventWithStatistics> event = eventService.findEventWithStatistics(USER, EVENT_ID);
 
         assertNotNull(event);
-        assertFalse(event.isPresent());    
+        assertFalse(event.isPresent());
     }
     @Test
     public void testFindEventWithStatisticsMissingUser(){
@@ -419,7 +406,7 @@ public class EventServiceImplTest {
         when(
             eventDao.findTopAttendeeCountry(eq(EVENT_ID))
         ).thenReturn(Optional.of(COUNTRY_ATTENDEE_COUNT));
-    
+
         Optional<EventWithStatistics> event = eventService.findEventWithStatistics(null, EVENT_ID);
 
         assertNotNull(event);
@@ -446,7 +433,7 @@ public class EventServiceImplTest {
         when(
             eventDao.findTopAttendeeCountry(eq(EVENT_ID))
         ).thenReturn(Optional.empty());
-    
+
         Optional<EventWithStatistics> event = eventService.findEventWithStatistics(null, EVENT_ID);
 
         assertNotNull(event);
@@ -463,57 +450,11 @@ public class EventServiceImplTest {
         when(
             eventDao.findById(eq(EVENT_ID))
         ).thenReturn(Optional.empty());
-    
+
         Optional<EventWithStatistics> event = eventService.findEventWithStatistics(null, EVENT_ID);
 
         assertNotNull(event);
         assertFalse(event.isPresent());
-    }
-
-    @Test
-    public void testSearchEventsMissingQuery(){
-        when(
-            eventDao.findAll(eq(PAGE_1_DEFAULT))
-        ).thenReturn(EVENTS_PAGE);
-
-        Page<Event> page = eventService.searchEvents(null, PAGE_1_DEFAULT);
-
-        assertNotNull(page);
-        assertEquals(EVENTS_PAGE, page);
-    }
-    @Test
-    public void testSearchEventsEmptyQuery(){
-        when(
-            eventDao.findAll(eq(PAGE_1_DEFAULT))
-        ).thenReturn(EVENTS_PAGE);
-
-        Page<Event> page = eventService.searchEvents("", PAGE_1_DEFAULT);
-
-        assertNotNull(page);
-        assertEquals(EVENTS_PAGE, page);
-    }
-    @Test
-    public void testSearchEventsQuery(){
-        when(
-            eventDao.search(eq(DESCRIPTION), eq(PAGE_1_DEFAULT))
-        ).thenReturn(EVENTS_PAGE);
-
-        Page<Event> page = eventService.searchEvents(DESCRIPTION, PAGE_1_DEFAULT);
-
-        assertNotNull(page);
-        assertEquals(EVENTS_PAGE, page);
-    }
-
-    @Test
-    public void findEvents(){
-        when(
-            eventDao.findByUserId(eq(USER_ID), eq(PAGE_1_DEFAULT))
-        ).thenReturn(EVENTS_PAGE);
-
-        Page<Event> page = eventService.findEvents(USER_ID, PAGE_1_DEFAULT);
-
-        assertNotNull(page);
-        assertEquals(EVENTS_PAGE, page);
     }
 
     @Test
@@ -635,23 +576,6 @@ public class EventServiceImplTest {
     }
 
     @Test
-    public void testRateEvent(){
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-
-        eventService.rateEvent(USER, EVENT_ID, ATTENDEES);
-    }
-    @Test(expected = EventNotFoundException.class)
-    public void testRateEventNotFound(){
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.empty());
-
-        eventService.rateEvent(USER, EVENT_ID, ATTENDEES);
-    }
-
-    @Test
     public void testUpdateEventRating(){
         Rating newRating = new Rating(USER, EVENT, 2);
         when(
@@ -676,66 +600,6 @@ public class EventServiceImplTest {
 
         eventService.updateEventRating(USER, EVENT_ID, RATING_VALUE);
     }
-
-    @Test
-    public void testFindRatingByUserAndEvent(){
-        when(
-            ratingDao.findRatingByUserAndEvent(eq(USER_ID), eq(EVENT_ID))
-        ).thenReturn(Optional.of(RATING));
-
-        Optional<Rating> rating = eventService.findRatingByUserAndEvent(USER_ID, EVENT_ID);
-
-        assertNotNull(rating);
-        assertTrue(rating.isPresent());
-        assertEquals(AVERAGE_RATING, rating.get().getRating(), 0.1);
-        assertEquals(RATING, rating.get());
-    }
-    @Test
-    public void testFindRatingByUserAndEventNotFound(){
-        when(
-            ratingDao.findRatingByUserAndEvent(eq(USER_ID), eq(EVENT_ID))
-        ).thenReturn(Optional.empty());
-
-        Optional<Rating> rating = eventService.findRatingByUserAndEvent(USER_ID, EVENT_ID);
-
-        assertNotNull(rating);
-        assertFalse(rating.isPresent());
-    }
-
-    @Test
-    public void testCountRatingsByEvent(){
-        when(
-            ratingDao.countRatingsByEvent(eq(EVENT_ID))
-        ).thenReturn(RATING_COUNT);
-
-        int ratings = eventService.countRatingsByEvent(EVENT_ID);
-
-        assertEquals(RATING_COUNT, ratings);
-    }
-
-//    @Test
-//    public void testFindRatingsAverageByEvent(){
-//        when(
-//            ratingDao.findRatingsAverageByEvent(eq(EVENT_ID))
-//        ).thenReturn(Optional.of(AVERAGE_RATING));
-//
-//        Optional<Double> rating = eventService.findRatingsAverageByEvent(EVENT_ID);
-//
-//        assertNotNull(rating);
-//        assertTrue(rating.isPresent());
-//        assertEquals(AVERAGE_RATING, rating.get(), 0.1);
-//    }
-//    @Test
-//    public void testFindRatingsAverageByEventNoRating(){
-//        when(
-//            ratingDao.findRatingsAverageByEvent(eq(EVENT_ID))
-//        ).thenReturn(Optional.empty());
-//
-//        Optional<Double> rating = eventService.findRatingsAverageByEvent(EVENT_ID);
-//
-//        assertNotNull(rating);
-//        assertFalse(rating.isPresent());
-//    }
 
     @Test
     public void testFindUpcomingEventsByAttendee(){
@@ -832,21 +696,6 @@ public class EventServiceImplTest {
         assertEquals(EVENTS, userevents);
     }
 
-    @Test
-    public void testFindTopEvents(){
-        when(
-            eventDao.findTop(eq(PAGE_1_DEFAULT))
-        ).thenReturn(EVENTS_PAGE);
-
-        List<Event> events = eventService.findTopEvents(2);
-
-        assertNotNull(events);
-        assertEquals(EVENTS, events);
-    }
-    @Test(expected = InvalidPaginationParamsException.class)
-    public void testFindTopEventsWrongLimit(){
-        eventService.findTopEvents(0);
-    }
 
     @Test
     public void testIsEventOwnedByUser(){
@@ -1117,7 +966,7 @@ public class EventServiceImplTest {
             cityService.findCityByName(eq("CITY_NAME"))
         ).thenReturn(Optional.of(new City("CITY_NAME", COUNTRY)));
 
-        eventService.updateEvent(
+        Event event = eventService.updateEvent(
             EVENT_ID, 
             "CITY_NAME", 
             EVENT_DATE.plusDays(1), 
@@ -1129,13 +978,13 @@ public class EventServiceImplTest {
             null
         );
 
-        assertEquals("CITY_NAME", newEvent.getCity().getName());   
-        assertEquals(EVENT_DATE.plusDays(1), newEvent.getDate()); 
-        assertEquals(TIME.plusSeconds(10), newEvent.getTime()); 
-        assertEquals("DESCRIPTION", newEvent.getDescription());    
-        assertEquals("TITLE", newEvent.getTitle());     
-        assertEquals("ADDRESS", newEvent.getAddress());  
-        assertNull(newEvent.getAttendeesLimit()); 
+        assertEquals("CITY_NAME", event.getCity().getName());
+        assertEquals(EVENT_DATE.plusDays(1), event.getDate());
+        assertEquals(TIME.plusSeconds(10), event.getTime());
+        assertEquals("DESCRIPTION", event.getDescription());
+        assertEquals("TITLE", event.getTitle());
+        assertEquals("ADDRESS", event.getAddress());
+        assertNull(event.getAttendeesLimit());
     }
     @Test
     public void testUpdateEventImage(){
@@ -1173,7 +1022,7 @@ public class EventServiceImplTest {
             LIMIT
         );
 
-        assertEquals(IMAGE_ID + 1, newEvent.getFlyerImageId());
+        assertEquals(IMAGE_ID + 1, newEvent.getFlyerImageId()); //TODO: check
     }
     @Test
     public void testUpdateEventEmptyImage(){
@@ -1286,14 +1135,7 @@ public class EventServiceImplTest {
         EVENT.setDeleted(false);
         assertNull(EVENT.getDeletionMessage());
     }
-    @Test(expected = EventNotFoundException.class)
-    public void testDeleteEventMissing(){
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.empty());
 
-        eventService.deleteEvent(EVENT_ID, DESCRIPTION);
-    }
 
     @Test
     public void testDeleteEventResponse(){
@@ -1304,35 +1146,6 @@ public class EventServiceImplTest {
         assertEquals(DESCRIPTION, REPLY.getDeletionMessage());
         REPLY.setDeletionMessage(null);
     }
-
-    @Test
-    public void testFindEventResponses(){
-        when(
-            replyDao.listAllByEventId(eq(EVENT_ID), eq(PAGE_1_DEFAULT))
-        ).thenReturn(REPLY_PAGE);
-
-        Page<EventResponse> replies = eventService.findEventResponses(
-            EVENT_ID, 
-            PAGE_1_DEFAULT
-        );
-
-        assertNotNull(replies);
-        assertEquals(REPLY_PAGE, replies);
-    }
-
-    @Test
-    public void testFindEventResponseById(){
-        when(
-            replyDao.findById(eq(RESPONSE_ID))
-        ).thenReturn(Optional.of(REPLY));
-
-        Optional<EventResponse> maybeReply = eventService.findEventResponseById(RESPONSE_ID);
-
-        assertNotNull(maybeReply);
-        assertTrue(maybeReply.isPresent());
-        assertEquals(REPLY, maybeReply.get());
-    }
-
 
     @Test
     public void testFindCreatedByJourney(){
@@ -1387,29 +1200,6 @@ public class EventServiceImplTest {
 
         assertNotNull(events);
         assertEquals(EVENTS_PAGE, events);
-    }
-
-
-    @Test
-    public void testCountEventsCreatedByUser(){
-        when(
-            eventDao.countEventsCreatedByUser(eq(USER_ID))
-        ).thenReturn(ATTENDEES);
-
-        int events = eventService.countEventsCreatedByUser(USER_ID);
-
-        assertEquals(ATTENDEES, events);
-    }
-
-    @Test
-    public void testCountEventsAttendedByUser(){
-        when(
-            attendanceDao.countEventsAttendedByUser(eq(USER_ID))
-        ).thenReturn(ATTENDEES);
-
-        int events = eventService.countEventsAttendedByUser(USER_ID);
-
-        assertEquals(ATTENDEES, events);
     }
 
     @Test

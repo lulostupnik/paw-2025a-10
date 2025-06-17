@@ -13,6 +13,8 @@ import javax.sql.DataSource;
 
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
+import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.persistence.config.TestConfig;
 
 import org.junit.Before;
@@ -61,7 +63,7 @@ public class EventAttendanceHibernateDaoTest {
         attendanceDao.create(TestUtils.USER_2_ID, TestUtils.EVENT_1_ID);
         em.flush();
     }
-    @Test
+    @Test(expected = UserNotFoundException.class)
     public void testCreateWrongUser(){
         int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_ATTENDANCE_TABLE);
 
@@ -71,7 +73,7 @@ public class EventAttendanceHibernateDaoTest {
         assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_ATTENDANCE_TABLE));
         assertEquals(TestUtils.EVENT_1_ATTENDEES, jdbcTemplate.queryForObject(TestUtils.EVENT_GET_ATTENDEES_BY_ID, Integer.class, TestUtils.EVENT_1_ID).intValue());
     }
-    @Test
+    @Test(expected = EventNotFoundException.class)
     public void testCreateWrongEvent(){
         int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_ATTENDANCE_TABLE);
 

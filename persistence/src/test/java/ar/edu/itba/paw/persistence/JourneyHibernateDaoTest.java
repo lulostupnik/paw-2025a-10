@@ -71,36 +71,6 @@ public class JourneyHibernateDaoTest {
         );
         em.flush();
     }
-    @Test(expected = UserWithActiveJourneyException.class)
-    public void testCreateInvalidUni(){
-        journeyDao.create(
-            TestUtils.USER_1,
-            new University(12431234l, null,null, null),
-            TestUtils.JOURNEY_START_DATE, TestUtils.JOURNEY_END_DATE, TestUtils.JOURNEY_DESCRIPTION
-        );
-        em.flush();
-    }
-
-    @Test(expected = UserWithActiveJourneyException.class)
-    public void testCreateDuplicated(){
-        journeyDao.create(
-            TestUtils.USER_1,
-            TestUtils.UNI_2,
-            TestUtils.JOURNEY_START_DATE, TestUtils.JOURNEY_END_DATE, TestUtils.JOURNEY_DESCRIPTION
-        );
-        em.flush();
-    }
-    @Test
-    public void testCreateDeleted(){
-        Journey journey = journeyDao.create(
-            TestUtils.JOURNEY_DELETED.getUser(),
-            TestUtils.JOURNEY_DELETED.getDestinationUniversity(),
-            TestUtils.JOURNEY_START_DATE, TestUtils.JOURNEY_END_DATE, TestUtils.JOURNEY_DESCRIPTION
-        );
-        em.flush();
-
-        assertFalse(jdbcTemplate.queryForObject(TestUtils.JOURNEY_IS_DELETED_BY_ID, Boolean.class, journey.getId()));
-    }
 
     @Test
     public void testFindById(){

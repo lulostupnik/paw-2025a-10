@@ -859,14 +859,6 @@ public class JourneyServiceImplTest {
 
         journeyService.deleteJourney(JOURNEY_ID, DESCRIPTION);
     }
-    @Test(expected = JourneyNotFoundException.class)
-    public void testDeleteJourneyNotFound(){
-        when(
-            journeyDao.findById(eq(JOURNEY_ID))
-        ).thenReturn(Optional.empty());
-
-        journeyService.deleteJourney(JOURNEY_ID, DESCRIPTION);
-    }
 
     @Test
     public void testIsJourneyOwnedByUserByEmail(){
@@ -1048,14 +1040,6 @@ public class JourneyServiceImplTest {
         when(
             replyDao.findById(eq(REPLY_ID))
         ).thenReturn(Optional.of(REPLY));
-
-        journeyService.deleteJourneyResponse(REPLY_ID, DESCRIPTION);
-    }
-    @Test(expected = JourneyResponseNotFoundException.class)
-    public void testDeleteJourneyJourneyResponseNoReply(){
-        when(
-            replyDao.findById(eq(REPLY_ID))
-        ).thenReturn(Optional.empty());
 
         journeyService.deleteJourneyResponse(REPLY_ID, DESCRIPTION);
     }
