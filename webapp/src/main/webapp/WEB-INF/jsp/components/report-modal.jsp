@@ -146,14 +146,6 @@ Example URL: /report?actionUrl=/api/reports&targetType=post&targetId=123
       <form:textarea id="description" path="description" rows="4" maxlength="500" placeholder="${placeholderDescription}"
                 style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 6px; resize: vertical; font-family: inherit; font-size: 14px; color: #374151; line-height: 1.5;"/>
       <form:errors path="description" cssClass="error-message" />
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
-        <div style="font-size: 12px; color: #6b7280;">
-          <spring:message code="report.description.help" text="Maximum 500 characters" />
-        </div>
-        <div id="char-count" style="font-size: 12px; color: #6b7280;">
-          0/500
-        </div>
-      </div>
     </div>
 
     <!-- Form Actions -->
