@@ -88,7 +88,7 @@
 
                                 <!-- Report option for everyone -->
                                 <c:url var="reportEventCommentUrl" value='/reports/event-responses/${response.id}/create'/>
-                                <a href="${reportEventCommentUrl}"
+                                <a href="${reportEventCommentUrl}" onclick="saveLink()"
                                    style="color: #333; padding: 10px 14px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 13px;"
                                    onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

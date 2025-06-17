@@ -23,6 +23,17 @@ Example URL: /report?actionUrl=/api/reports&targetType=post&targetId=123
   <link rel="icon" type="image/svg+xml" href="<c:url value='/resources/images/favicon.svg'/>" />
   <link rel="alternate icon" href="<c:url value='/resources/images/favicon.ico'/>" type="image/x-icon" />
 </head>
+<script src="<c:url value="/resources/js/components/navigation-stack.js"/>"></script>
+<script>
+  function goBack(){
+    const rutaAnterior = popFromNavigationStack()
+    if (rutaAnterior) {
+      window.location.href = rutaAnterior;
+    } else {
+      window.location.href = "<c:url value='/explore'/>"
+    }
+  }
+</script>
 <body>
 <div class="layout-container">
   <div class="main-content">
@@ -147,7 +158,7 @@ Example URL: /report?actionUrl=/api/reports&targetType=post&targetId=123
 
     <!-- Form Actions -->
     <div style="display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap;">
-      <button type="button" onclick="window.history.back()"
+      <button type="button" onclick="goBack()"
               style="padding: 12px 24px; border: 1px solid #d1d5db; background: white; color: #374151; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s;"
               onmouseover="this.style.backgroundColor='#f9fafb'; this.style.borderColor='#9ca3af'"
               onmouseout="this.style.backgroundColor='white'; this.style.borderColor='#d1d5db'">
