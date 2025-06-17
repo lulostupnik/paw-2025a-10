@@ -13,7 +13,6 @@ public interface JourneyService {
     Journey updateJourney(long journeyId, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
     void deleteJourney(long id, String message);
 
-
     JourneyResponse createJourneyResponse(String email, long journeyId, String message);
     void deleteJourneyResponse(long id, String message);
 
@@ -29,6 +28,7 @@ public interface JourneyService {
     boolean isJourneyOwnedByUser(String email, long journeyID);
     boolean isJourneyOwnedByUser(Journey journey, User user);
 
+    Optional<Journey> findJourneyByUserId(long userId);
 
     Optional<JourneyResponse> findJourneyResponseById(long id);
     Page<JourneyResponse> findJourneyResponses(long eventId, PageParams pageParams);

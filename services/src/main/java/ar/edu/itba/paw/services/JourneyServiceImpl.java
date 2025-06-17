@@ -309,6 +309,16 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
+    public Optional<Journey> findJourneyByUserId(long id) {
+            LOGGER.debug("Getting journey by id {}", id);
+            User user = userService.findUserById(id).orElseThrow(() -> {
+                LOGGER.warn("User with id {} not found", id);
+                return new UserNotFoundException(id);
+            });
+            return Optional.ofNullable(user.getJourney());
+        }
+
+    @Override
     @Transactional
     public Journey updateJourney(final long journeyId, final  String destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
         LOGGER.debug("Editing journey {}", journeyId);

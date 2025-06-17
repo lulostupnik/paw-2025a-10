@@ -96,8 +96,8 @@
 <c:if test="${isOwner}">
     <div class="add-tip-button-container">
         <c:url var="addTipFormUrl" value="/journeys/${journey.id}/tips/create"/>
-        <a href="${addTipFormUrl}" class="add-tip-button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+        <a href="${addTipFormUrl}" class="btn-primary btn-with-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" class="btn-icon" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 5v14"></path>
                 <path d="M5 12h14"></path>
             </svg>
