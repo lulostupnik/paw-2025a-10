@@ -280,9 +280,6 @@ public class JourneyServiceImpl implements JourneyService {
             journey.setDeletionMessage(message);
         }
 
-        journeyResponseDao.deleteByJourneyId(journey.getId()); // todo check
-        LOGGER.info("Journey responses deleted for journey {}", id);
-
         emailService.sendJourneyDeletionNotification(new EmailJourney(journey),message);
         LOGGER.info("Journey deletion notification sent to user {}", journey.getUser().getEmail());
 
