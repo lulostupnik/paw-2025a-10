@@ -33,12 +33,7 @@ public class InterestServiceImpl implements InterestService {
     }
 
 
-    @Override
-    public List<UserInterest> findInterestsByUser(final User user) {
-        LOGGER.debug("Getting interests of user {}", user);
 
-        return userInterestDao.findAllByUser(user);
-    }
     @Override
     @Transactional
     public void updateUserInterestScores(List<UserInterest> interests){

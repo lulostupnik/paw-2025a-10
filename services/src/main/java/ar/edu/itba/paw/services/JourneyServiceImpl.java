@@ -74,6 +74,7 @@ public class JourneyServiceImpl implements JourneyService {
             }
             // Hard delete the soft-deleted journey and its responses
             LOGGER.info("Hard deleting previous journey {} and its responses for user {}", existingJourney.getId(), user.getId());
+            tipDao.deleteByJourney(existingJourney.getId());
             journeyResponseDao.hardDeleteByJourneyId(existingJourney.getId());
             journeyDao.hardDelete(existingJourney);
 
@@ -382,7 +383,7 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     public Page<Tip> findTipsByJourney(Journey journey, PageParams pageParams) {
         LOGGER.debug("Finding tips for journey {}", journey);
-        return tipDao.findTipsByJourney(journey, pageParams);
+        return tipDao.findByJourney(journey, pageParams);
     }
 
     @Override
@@ -392,7 +393,7 @@ public class JourneyServiceImpl implements JourneyService {
             LOGGER.error("Journey with id {} not found", journeyId);
             return new JourneyNotFoundException(journeyId);
         });
-         return tipDao.createTip(journey, title, content);
+         return tipDao.create(journey, title, content);
     }
 
     @Override
@@ -411,13 +412,13 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     @Transactional
     public void deleteTip(long tipId) {
-        tipDao.deleteTip(tipId);
+        tipDao.delete(tipId);
     }
 
     @Override
     public Optional<Tip> findTipById(long tipId) {
         LOGGER.debug("Finding tip by id {}", tipId);
-        return tipDao.findTipById(tipId);
+        return tipDao.findById(tipId);
     }
 
 

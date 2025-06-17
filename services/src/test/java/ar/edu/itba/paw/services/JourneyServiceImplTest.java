@@ -1113,7 +1113,7 @@ public class JourneyServiceImplTest {
     @Test
     public void testFindTipsByJourney(){
         when(
-            tipDao.findTipsByJourney(eq(JOURNEY), any(PageParams.class))
+            tipDao.findByJourney(eq(JOURNEY), any(PageParams.class))
         ).thenReturn(TIP_PAGE);
 
         Page<Tip> tips = journeyService.findTipsByJourney(JOURNEY, PAGE_1_DEFAULT);
@@ -1145,7 +1145,7 @@ public class JourneyServiceImplTest {
     public void testUpdateTip(){
         Tip newTip = new Tip(TIP_ID, CITY_NAME, CAREER_NAME, JOURNEY, REPLY_TIMESTAMP);
         when(
-            tipDao.findTipById(eq(TIP_ID))
+            tipDao.findById(eq(TIP_ID))
         ).thenReturn(Optional.of(newTip));
 
         Tip updated = journeyService.updateTip(TIP_ID, DESCRIPTION, DESCRIPTION);
@@ -1157,7 +1157,7 @@ public class JourneyServiceImplTest {
     @Test(expected = TipNotFoundException.class)
     public void testUpdateTipMissing(){
         when(
-            tipDao.findTipById(eq(TIP_ID))
+            tipDao.findById(eq(TIP_ID))
         ).thenReturn(Optional.empty());
 
         journeyService.updateTip(TIP_ID, DESCRIPTION, DESCRIPTION);
@@ -1173,7 +1173,7 @@ public class JourneyServiceImplTest {
     @Test
     public void testFindTipById(){
         when(
-            tipDao.findTipById(eq(TIP_ID))
+            tipDao.findById(eq(TIP_ID))
         ).thenReturn(Optional.of(TIP));
 
         Optional<Tip> maybeTip = journeyService.findTipById(TIP_ID);
@@ -1186,7 +1186,7 @@ public class JourneyServiceImplTest {
     @Test
     public void testIsTipOwnedByUserIdEmail(){
         when(
-            tipDao.findTipById(eq(TIP_ID))
+            tipDao.findById(eq(TIP_ID))
         ).thenReturn(Optional.of(TIP));
 
         boolean isOwned = journeyService.isTipOwnedByUser(TIP_ID, EMAIL);
@@ -1196,7 +1196,7 @@ public class JourneyServiceImplTest {
     @Test
     public void testIsTipOwnedByUserIdEmailNotOwned(){
         when(
-            tipDao.findTipById(eq(TIP_ID))
+            tipDao.findById(eq(TIP_ID))
         ).thenReturn(Optional.of(TIP));
 
         boolean isOwned = journeyService.isTipOwnedByUser(TIP_ID, "EMAIL");
@@ -1206,7 +1206,7 @@ public class JourneyServiceImplTest {
     @Test(expected = TipNotFoundException.class)
     public void testIsTipOwnedByUserIdEmailNotFound(){
         when(
-            tipDao.findTipById(eq(TIP_ID))
+            tipDao.findById(eq(TIP_ID))
         ).thenReturn(Optional.empty());
 
         journeyService.isTipOwnedByUser(TIP_ID, "EMAIL");
