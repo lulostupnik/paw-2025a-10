@@ -20,6 +20,7 @@ import ar.edu.itba.paw.models.Tip;
 import ar.edu.itba.paw.persistence.config.TestConfig;
 
 import static org.junit.Assert.*;
+import static ar.edu.itba.paw.persistence.TestUtils.*;
 
 import java.util.Optional;
 
@@ -46,35 +47,48 @@ public class TipHibernateDaoTest {
 
     @Test
     public void testCreateTip(){
-        tipDao.create(TestUtils.JOURNEY_2, TestUtils.TIP_NEW_TITLE, TestUtils.TIP_NEW_CONTENT);
+        tipDao.create(JOURNEY_2, TIP_NEW_TITLE, TIP_NEW_CONTENT);
         em.flush();
 
-        Tip tip = jdbcTemplate.queryForObject(TestUtils.TIP_SELECT_BY_DATA, TestUtils.TIP_ROW_MAPPER, TestUtils.JOURNEY_2_ID, TestUtils.TIP_NEW_TITLE, TestUtils.TIP_NEW_CONTENT);
+        Tip tip = jdbcTemplate.queryForObject(
+            TIP_SELECT_BY_DATA, 
+            TIP_ROW_MAPPER, 
+            JOURNEY_2_ID, 
+            TIP_NEW_TITLE, 
+            TIP_NEW_CONTENT
+        );
         assertNotNull(tip);
         assertTrue(tip.getId() > 0);
     }
     @Test(expected = PersistenceException.class)
     public void testCreateTipMissingJourney(){
-        tipDao.create(null, TestUtils.TIP_NEW_TITLE, TestUtils.TIP_NEW_CONTENT);
+        tipDao.create(null, TIP_NEW_TITLE, TIP_NEW_CONTENT);
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateTipMissingTitle(){
-        tipDao.create(TestUtils.JOURNEY_2, null, TestUtils.TIP_NEW_CONTENT);
+        tipDao.create(JOURNEY_2, null, TIP_NEW_CONTENT);
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateTipMissingContent(){
-        tipDao.create(TestUtils.JOURNEY_2, TestUtils.TIP_NEW_TITLE, null);
+        tipDao.create(JOURNEY_2, TIP_NEW_TITLE, null);
         em.flush();
     }
 
     @Test
     public void testDeleteTip(){
-        tipDao.delete(TestUtils.TIP_1_ID);
+        tipDao.delete(TIP_1_ID);
         em.flush();
 
-        assertEquals(0, jdbcTemplate.query(TestUtils.TIP_SELECT_BY_ID, TestUtils.TIP_ROW_MAPPER, TestUtils.TIP_1_ID).size());
+        assertEquals(
+            0, 
+            jdbcTemplate.query(
+                TIP_SELECT_BY_ID,
+                TIP_ROW_MAPPER, 
+                TIP_1_ID
+            ).size()
+        );
     }
     @Test (expected = NoResultException.class)
     public void testDeleteTipMissingTip(){
@@ -83,12 +97,41 @@ public class TipHibernateDaoTest {
     }
 
     @Test
+    public void testDeleteByJourney(){
+        tipDao.deleteByJourney(JOURNEY_1_ID);
+        em.flush();
+
+        assertEquals(
+            0, 
+            jdbcTemplate.query(
+                TIP_SELECT_BY_ID,
+                TIP_ROW_MAPPER, 
+                TIP_1_ID
+            ).size()
+        );
+    }
+    @Test
+    public void testDeleteByJourneyMissingJourney(){
+        tipDao.deleteByJourney(12341234l);
+        em.flush();
+
+        assertEquals(
+            1, 
+            jdbcTemplate.query(
+                TIP_SELECT_BY_ID,
+                TIP_ROW_MAPPER, 
+                TIP_1_ID
+            ).size()
+        );
+    }
+
+    @Test
     public void testFindTipById(){
-        Optional<Tip> maybeTip = tipDao.findById(TestUtils.TIP_1_ID);
+        Optional<Tip> maybeTip = tipDao.findById(TIP_1_ID);
 
         assertNotNull(maybeTip);
         assertTrue(maybeTip.isPresent());
-        TestUtils.assertEqualsTip(TestUtils.TIP_1, maybeTip.get());
+        assertEqualsTip(TIP_1, maybeTip.get());
     }
     @Test
     public void testFindTipByIdMissingTip(){
@@ -100,17 +143,17 @@ public class TipHibernateDaoTest {
 
     @Test
     public void testFindTipsByJourney(){
-        Page<Tip> tips = tipDao.findByJourney(TestUtils.JOURNEY_1, TestUtils.PAGE_1_BIG);
+        Page<Tip> tips = tipDao.findByJourney(JOURNEY_1, PAGE_1_BIG);
 
         assertNotNull(tips);
         assertEquals(1, tips.getCurrentPage());
         assertEquals(1, tips.getTotalPages());
         assertEquals(1, tips.getContent().size());
-        TestUtils.assertEqualsTip(TestUtils.TIP_1, tips.getContent().getFirst());
+        assertEqualsTip(TIP_1, tips.getContent().getFirst());
     }
     @Test
     public void testFindTipsByJourneyNoTips(){
-        Page<Tip> tips = tipDao.findByJourney(TestUtils.JOURNEY_2, TestUtils.PAGE_1_BIG);
+        Page<Tip> tips = tipDao.findByJourney(JOURNEY_2, PAGE_1_BIG);
 
         assertNotNull(tips);
         assertEquals(1, tips.getCurrentPage());

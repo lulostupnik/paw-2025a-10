@@ -1,9 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static ar.edu.itba.paw.persistence.TestUtils.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -50,117 +48,228 @@ public class EventAttendanceHibernateDaoTest {
 
     @Test
     public void testCreate(){
-        attendanceDao.create(TestUtils.USER_3_ID, TestUtils.EVENT_2_ID);
+        attendanceDao.create(USER_3_ID, EVENT_2_ID);
         em.flush();
 
-        assertEquals(TestUtils.TOTAL_EVENT_ATTENDANCES + 1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_ATTENDANCE_TABLE));
-        assertTrue(jdbcTemplate.queryForObject(TestUtils.EVENT_ATTENDANCE_EXISTS, Boolean.class, TestUtils.USER_3_ID, TestUtils.EVENT_2_ID));
-        assertEquals(TestUtils.EVENT_2_ATTENDEES + 1, jdbcTemplate.queryForObject(TestUtils.EVENT_GET_ATTENDEES_BY_ID, Long.class, TestUtils.EVENT_2_ID).longValue());
-        assertEquals(TestUtils.USER_3_ATTENDANCES + 1, jdbcTemplate.queryForObject(TestUtils.USER_GET_ATTENDANCES_COUNT_BY_ID, Long.class, TestUtils.USER_3_ID).longValue());
+        assertEquals(
+            TOTAL_EVENT_ATTENDANCES + 1, 
+            JdbcTestUtils.countRowsInTable(jdbcTemplate, EVENT_ATTENDANCE_TABLE)
+        );
+        assertTrue(jdbcTemplate.queryForObject(
+            EVENT_ATTENDANCE_EXISTS, 
+            Boolean.class, 
+            USER_3_ID, 
+            EVENT_2_ID)
+        );
+        assertEquals(
+            EVENT_2_ATTENDEES + 1, 
+            jdbcTemplate.queryForObject(
+                EVENT_GET_ATTENDEES_BY_ID, 
+                Long.class, 
+                EVENT_2_ID
+            ).longValue()
+        );
+        assertEquals(
+            USER_3_ATTENDANCES + 1, 
+            jdbcTemplate.queryForObject(
+                USER_GET_ATTENDANCES_COUNT_BY_ID, 
+                Long.class, 
+                USER_3_ID
+            ).longValue()
+        );
     }
     @Test(expected = PersistenceException.class)
     public void testCreateDuplicated(){
-        attendanceDao.create(TestUtils.USER_2_ID, TestUtils.EVENT_1_ID);
+        attendanceDao.create(USER_2_ID, EVENT_1_ID);
         em.flush();
     }
     @Test(expected = UserNotFoundException.class)
     public void testCreateWrongUser(){
-        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_ATTENDANCE_TABLE);
+        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, EVENT_ATTENDANCE_TABLE);
 
-        attendanceDao.create(12341243, TestUtils.EVENT_1_ID);
+        attendanceDao.create(12341243, EVENT_1_ID);
         em.flush();
 
-        assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_ATTENDANCE_TABLE));
-        assertEquals(TestUtils.EVENT_1_ATTENDEES, jdbcTemplate.queryForObject(TestUtils.EVENT_GET_ATTENDEES_BY_ID, Integer.class, TestUtils.EVENT_1_ID).intValue());
+        assertEquals(
+            rowsBefore, 
+            JdbcTestUtils.countRowsInTable(
+                jdbcTemplate, 
+                EVENT_ATTENDANCE_TABLE
+            )
+        );
+        assertEquals(
+            EVENT_1_ATTENDEES, 
+            jdbcTemplate.queryForObject(
+                EVENT_GET_ATTENDEES_BY_ID, 
+                Integer.class, 
+                EVENT_1_ID
+            ).intValue()
+        );
     }
     @Test(expected = EventNotFoundException.class)
     public void testCreateWrongEvent(){
-        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_ATTENDANCE_TABLE);
+        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, EVENT_ATTENDANCE_TABLE);
 
-        attendanceDao.create(TestUtils.USER_2_ID, 1231234);
+        attendanceDao.create(USER_2_ID, 1231234);
         em.flush();
 
-        assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_ATTENDANCE_TABLE));
-        assertEquals(TestUtils.USER_2_ATTENDANCES, jdbcTemplate.queryForObject(TestUtils.USER_GET_ATTENDANCES_COUNT_BY_ID, Integer.class, TestUtils.USER_2_ID).intValue());
+        assertEquals(
+            rowsBefore, 
+            JdbcTestUtils.countRowsInTable(
+                jdbcTemplate, 
+                EVENT_ATTENDANCE_TABLE
+            )
+        );
+        assertEquals(
+            USER_2_ATTENDANCES, 
+            jdbcTemplate.queryForObject(
+                USER_GET_ATTENDANCES_COUNT_BY_ID, 
+                Integer.class, 
+                USER_2_ID
+            ).intValue()
+        );
     }
 
     @Test
     public void testDelete(){
-        attendanceDao.delete(TestUtils.USER_2_ID, TestUtils.EVENT_1_ID);
+        attendanceDao.delete(USER_2_ID, EVENT_1_ID);
         em.flush();
 
-        assertEquals(TestUtils.TOTAL_EVENT_ATTENDANCES - 1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_ATTENDANCE_TABLE));
-        assertEquals(TestUtils.EVENT_1_ATTENDEES - 1, jdbcTemplate.queryForObject(TestUtils.EVENT_GET_ATTENDEES_BY_ID, Long.class, TestUtils.EVENT_1_ID).longValue());
-        assertEquals(TestUtils.USER_2_ATTENDANCES - 1, jdbcTemplate.queryForObject(TestUtils.USER_GET_ATTENDANCES_COUNT_BY_ID, Long.class, TestUtils.USER_2_ID).longValue());
-        assertFalse(jdbcTemplate.queryForObject(TestUtils.EVENT_ATTENDANCE_EXISTS, Boolean.class, TestUtils.USER_2_ID, TestUtils.EVENT_1_ID));
+        assertEquals(
+            TOTAL_EVENT_ATTENDANCES - 1, 
+            JdbcTestUtils.countRowsInTable(jdbcTemplate, EVENT_ATTENDANCE_TABLE)
+        );
+        assertEquals(
+            EVENT_1_ATTENDEES - 1, 
+            jdbcTemplate.queryForObject(
+                EVENT_GET_ATTENDEES_BY_ID, 
+                Long.class, 
+                EVENT_1_ID
+            ).longValue()
+        );
+        assertEquals(
+            USER_2_ATTENDANCES - 1, 
+            jdbcTemplate.queryForObject(
+                USER_GET_ATTENDANCES_COUNT_BY_ID, 
+                Long.class, 
+                USER_2_ID
+            ).longValue()
+        );
+        assertFalse(jdbcTemplate.queryForObject(
+            EVENT_ATTENDANCE_EXISTS, 
+            Boolean.class, 
+            USER_2_ID, 
+            EVENT_1_ID
+        ));
     }
     @Test(expected = NoResultException.class)
     public void testDeleteNotParticipating(){
-        attendanceDao.delete(TestUtils.USER_3_ID, TestUtils.EVENT_2_ID);
+        attendanceDao.delete(USER_3_ID, EVENT_2_ID);
         em.flush();
 
-        assertEquals(TestUtils.TOTAL_EVENT_ATTENDANCES, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_ATTENDANCE_TABLE));
-        assertEquals(TestUtils.EVENT_2_ATTENDEES, jdbcTemplate.queryForObject(TestUtils.EVENT_GET_ATTENDEES_BY_ID, Integer.class, TestUtils.EVENT_2_ID).intValue());
-        assertEquals(TestUtils.USER_3_ATTENDANCES, jdbcTemplate.queryForObject(TestUtils.USER_GET_ATTENDANCES_COUNT_BY_ID, Integer.class, TestUtils.EVENT_2_ID).intValue());
+        assertEquals(
+            TOTAL_EVENT_ATTENDANCES, 
+            JdbcTestUtils.countRowsInTable(jdbcTemplate, EVENT_ATTENDANCE_TABLE)
+        );
+        assertEquals(
+            EVENT_2_ATTENDEES, 
+            jdbcTemplate.queryForObject(
+                EVENT_GET_ATTENDEES_BY_ID, 
+                Integer.class, 
+                EVENT_2_ID
+            ).intValue()
+        );
+        assertEquals(
+            USER_3_ATTENDANCES, 
+            jdbcTemplate.queryForObject(
+                USER_GET_ATTENDANCES_COUNT_BY_ID, 
+                Integer.class, 
+                EVENT_2_ID
+            ).intValue()
+        );
     }
     @Test
     public void testDeleteWrongEvent(){
-        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_ATTENDANCE_TABLE);
+        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, EVENT_ATTENDANCE_TABLE);
 
-        attendanceDao.delete(TestUtils.USER_2_ID, 12341234);
+        attendanceDao.delete(USER_2_ID, 12341234);
         em.flush();
 
-        assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_ATTENDANCE_TABLE));
-        assertEquals(TestUtils.USER_2_ATTENDANCES, jdbcTemplate.queryForObject(TestUtils.USER_GET_ATTENDANCES_COUNT_BY_ID, Integer.class, TestUtils.USER_2_ID).intValue());
+        assertEquals(
+            rowsBefore, 
+            JdbcTestUtils.countRowsInTable(jdbcTemplate, EVENT_ATTENDANCE_TABLE)
+        );
+        assertEquals(
+            USER_2_ATTENDANCES, 
+            jdbcTemplate.queryForObject(
+                USER_GET_ATTENDANCES_COUNT_BY_ID, 
+                Integer.class, 
+                USER_2_ID
+            ).intValue()
+        );
     }
     @Test
     public void testDeleteWrongUser(){
-        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_ATTENDANCE_TABLE);
+        int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, EVENT_ATTENDANCE_TABLE);
 
-        attendanceDao.delete(1241234, TestUtils.EVENT_1_ID);
+        attendanceDao.delete(1241234, EVENT_1_ID);
         em.flush();
 
-        assertEquals(rowsBefore, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.EVENT_ATTENDANCE_TABLE));
-        assertEquals(TestUtils.EVENT_1_ATTENDEES, jdbcTemplate.queryForObject(TestUtils.EVENT_GET_ATTENDEES_BY_ID, Integer.class, TestUtils.EVENT_1_ID).intValue());
+        assertEquals(
+            rowsBefore, 
+            JdbcTestUtils.countRowsInTable(jdbcTemplate, EVENT_ATTENDANCE_TABLE)
+        );
+        assertEquals(
+            EVENT_1_ATTENDEES, 
+            jdbcTemplate.queryForObject(
+                EVENT_GET_ATTENDEES_BY_ID, 
+                Integer.class, 
+                EVENT_1_ID
+            ).intValue()
+        );
     }
 
     @Test
     public void testExistsFalse(){
-        boolean attending = attendanceDao.exists(TestUtils.USER_3_ID, TestUtils.EVENT_2_ID);
+        boolean attending = attendanceDao.exists(USER_3_ID, EVENT_2_ID);
 
         assertFalse(attending);
     }
     @Test
     public void testExistsTrue(){
-        boolean attending = attendanceDao.exists(TestUtils.USER_1_ID, TestUtils.EVENT_1_ID);
+        boolean attending = attendanceDao.exists(USER_1_ID, EVENT_1_ID);
 
         assertTrue(attending);
     }
     @Test
     public void testExistsMissingEvent(){
-        boolean attending = attendanceDao.exists(TestUtils.USER_1_ID, 12341234);
+        boolean attending = attendanceDao.exists(USER_1_ID, 12341234);
 
         assertFalse(attending);
     }
     @Test
     public void testExistsMissingUser(){
-        boolean attending = attendanceDao.exists(1241234, TestUtils.EVENT_1_ID);
+        boolean attending = attendanceDao.exists(1241234, EVENT_1_ID);
 
         assertFalse(attending);
     }
 
     @Test
     public void testFindAttendeesByEventId(){
-        Page<User> attendees = attendanceDao.findAttendeesByEventId(TestUtils.EVENT_1_ID, TestUtils.PAGE_1_BIG);
+        Page<User> attendees = attendanceDao.findAttendeesByEventId(
+            EVENT_1_ID, PAGE_1_BIG
+        );
 
         assertNotNull(attendees);
         assertEquals(1, attendees.getCurrentPage());
         assertEquals(1, attendees.getTotalPages());
-        assertEquals(TestUtils.EVENT_1_ATTENDEES, attendees.getContent().size());
+        assertEquals(EVENT_1_ATTENDEES, attendees.getContent().size());
     }
     @Test
     public void testFindAttendeesByEventIdMissingEvent(){
-        Page<User> attendees = attendanceDao.findAttendeesByEventId(12341234l, TestUtils.PAGE_1_BIG);
+        Page<User> attendees = attendanceDao.findAttendeesByEventId(
+            12341234l, PAGE_1_BIG
+        );
 
         assertNotNull(attendees);
         assertEquals(1, attendees.getCurrentPage());
@@ -170,9 +279,9 @@ public class EventAttendanceHibernateDaoTest {
 
     @Test
     public void testCountEventsAttendedByUser(){
-        int events = attendanceDao.countEventsAttendedByUser(TestUtils.USER_1_ID);
+        int events = attendanceDao.countEventsAttendedByUser(USER_1_ID);
 
-        assertEquals(TestUtils.USER_1_ATTENDANCES, events);
+        assertEquals(USER_1_ATTENDANCES, events);
     }
     @Test
     public void testCountEventsAttendedByUserMissingUser(){
