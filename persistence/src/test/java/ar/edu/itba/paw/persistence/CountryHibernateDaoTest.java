@@ -1,9 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static ar.edu.itba.paw.persistence.TestUtils.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,14 +48,14 @@ public class CountryHibernateDaoTest {
         List<Country> countries = countryDao.findAll();
 
         assertNotNull(countries);
-        assertEquals(TestUtils.TOTAL_COUNTRIES, countries.size());
+        assertEquals(TOTAL_COUNTRIES, countries.size());
         countries.forEach((country) ->
-            TestUtils.assertEqualsCountry(TestUtils.COUNTRY_DATA.get(country.getId()), country)
+            assertEqualsCountry(COUNTRY_DATA.get(country.getId()), country)
         );
     }
     @Test
     public void testFindAllNoCountries(){
-        TestUtils.deleteCountries(jdbcTemplate);
+        deleteCountries(jdbcTemplate);
 
         List<Country> countries = countryDao.findAll();
         assertNotNull(countries);
@@ -66,15 +64,15 @@ public class CountryHibernateDaoTest {
 
     @Test
     public void testFindByName(){
-        Optional<Country> result = countryDao.findByName(TestUtils.COUNTRY_1_NAME);
+        Optional<Country> result = countryDao.findByName(COUNTRY_1_NAME);
 
         assertNotNull(result);
         assertTrue(result.isPresent());
-        TestUtils.assertEqualsCountry(TestUtils.COUNTRY_1, result.get());
+        assertEqualsCountry(COUNTRY_1, result.get());
     }
     @Test
     public void testFindByNameMissing(){
-        Optional<Country> result = countryDao.findByName("TestUtils.COUNTRY_1_NAME");
+        Optional<Country> result = countryDao.findByName("COUNTRY_1_NAME");
 
         assertNotNull(result);
         assertFalse(result.isPresent());

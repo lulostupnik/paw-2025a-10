@@ -2,7 +2,6 @@ package ar.edu.itba.paw.services;
 
 import static org.mockito.Mockito.*;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -13,8 +12,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import ar.edu.itba.paw.interfaces.persistence.CareerDao;
 import ar.edu.itba.paw.models.Career;
-import ar.edu.itba.paw.models.Page;
-import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.exceptions.CareerNotFoundException;
 
 import static org.junit.Assert.*;

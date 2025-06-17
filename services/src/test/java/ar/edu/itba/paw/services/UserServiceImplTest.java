@@ -1,11 +1,7 @@
 package ar.edu.itba.paw.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -51,7 +47,6 @@ public class UserServiceImplTest {
     private static final String UNI_NAME = "uni";
     private static final String CAREER_NAME = "career";
     private static final long USER_ID = 0;
-    private static final long EVENT_ID = 1;
     private static final long UNI_ID = 2;
     private static final long CAREER_ID = 3;
     private static final long IMAGE_ID = 4;

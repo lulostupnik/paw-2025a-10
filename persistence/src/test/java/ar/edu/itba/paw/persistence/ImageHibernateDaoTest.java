@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ar.edu.itba.paw.models.Image;
 
 import static org.junit.Assert.*;
+import static ar.edu.itba.paw.persistence.TestUtils.*;
 
 @Transactional
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -44,30 +45,30 @@ public class ImageHibernateDaoTest {
 
     @Test
     public void testCreate(){
-        long id = imageDao.create(TestUtils.IMAGE_2_DATA);
+        long id = imageDao.create(IMAGE_2_DATA);
         em.flush();
 
         Image image = jdbcTemplate.queryForObject(
-            TestUtils.IMAGE_SELECT_BY_ID, 
-            TestUtils.IMAGE_ROW_MAPPER, id
+            IMAGE_SELECT_BY_ID, 
+            IMAGE_ROW_MAPPER, id
         );
         assertNotNull(image);
-        assertArrayEquals(TestUtils.IMAGE_2_DATA, image.getData());
+        assertArrayEquals(IMAGE_2_DATA, image.getData());
         assertEquals(
-            TestUtils.TOTAL_IMAGES + 1, 
-            JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.IMAGE_TABLE)
+            TOTAL_IMAGES + 1, 
+            JdbcTestUtils.countRowsInTable(jdbcTemplate, IMAGE_TABLE)
         );
     }
 
     @Test
     public void testFindById(){
-        Optional<Image> maybeImage = imageDao.findById(TestUtils.IMAGE_1_ID);
+        Optional<Image> maybeImage = imageDao.findById(IMAGE_1_ID);
 
         assertNotNull(maybeImage);
         assertTrue(maybeImage.isPresent());
         Image image = maybeImage.get();
-        assertEquals(TestUtils.IMAGE_1_ID, image.getId().longValue());
-        assertArrayEquals(TestUtils.IMAGE_1_DATA, image.getData());
+        assertEquals(IMAGE_1_ID, image.getId().longValue());
+        assertArrayEquals(IMAGE_1_DATA, image.getData());
     }
     @Test
     public void testFindByIdWrongId(){
@@ -79,17 +80,17 @@ public class ImageHibernateDaoTest {
 
     @Test
     public void testDelete(){
-        imageDao.delete(TestUtils.IMAGE_2_ID);
+        imageDao.delete(IMAGE_2_ID);
         em.flush();
 
-        assertEquals(TestUtils.TOTAL_IMAGES - 1, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.IMAGE_TABLE));
+        assertEquals(TOTAL_IMAGES - 1, JdbcTestUtils.countRowsInTable(jdbcTemplate, IMAGE_TABLE));
     }
     @Test
     public void testDeleteImageWrong(){
         imageDao.delete(123123);
         em.flush();
 
-        assertEquals(TestUtils.TOTAL_IMAGES, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.IMAGE_TABLE));
+        assertEquals(TOTAL_IMAGES, JdbcTestUtils.countRowsInTable(jdbcTemplate, IMAGE_TABLE));
     }
 
 }

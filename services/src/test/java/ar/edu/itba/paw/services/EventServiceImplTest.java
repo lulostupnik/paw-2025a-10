@@ -58,7 +58,6 @@ public class EventServiceImplTest {
     private static final LocalDateTime TIMESTAMP = LocalDateTime.now();
     private static final String ADDRESS = "address";
     private static final int LIMIT = 10;
-    private static final int ATTENDEES = 0;
     private static final Locale LOCALE = Locale.of("en");
     private static final boolean BLOCKED = false;
     private static final Career CAREER = new Career(CAREER_ID, CAREER_NAME);
@@ -83,12 +82,7 @@ public class EventServiceImplTest {
     private static final String STATISTICS_ATTENDEE_COUNTRY = "cuntry";
     private static final EventWithStatistics EVENT_WITH_STATISTICS = new EventWithStatistics(EVENT, STATISTICS_CREATED_EVENTS_COUNT, STATISTICS_ATTENDED_EVENTS_COUNT, STATISTICS_ATTENDEE_COUNTRY, STATISTICS_ATTENDEE_COUNTRY_COUNT, true, true);
     private static final CountryAttendeeCount COUNTRY_ATTENDEE_COUNT = new CountryAttendeeCount(COUNTRY_NAME, STATISTICS_ATTENDEE_COUNTRY_COUNT);
-    private static final double AVERAGE_RATING = 5.0;
     private static final double RATING_VALUE = 5.0;
-    private static final int RATING_COUNT = 2;
-    private static final List<EventResponse> REPLIES = List.of(REPLY);
-    private static final Page<EventResponse> REPLY_PAGE = new Page<>(REPLIES, 1, 1, 1);
-    private static final Rating RATING = new Rating(USER, EVENT, RATING_VALUE);
 
     @InjectMocks
     EventServiceImpl eventService;
