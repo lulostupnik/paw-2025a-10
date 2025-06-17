@@ -3,8 +3,6 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -12,7 +10,6 @@ import javax.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 class HibernateDaoUtils {
 
@@ -80,10 +77,6 @@ class HibernateDaoUtils {
             if (result != null) {
                 if (result instanceof Number) {
                     ids.add(((Number) result).longValue());
-                } else {
-                    // Log unexpected type
-                    LOGGER.warn("Unexpected type in ID query result: {} (type: {})",
-                            result, result.getClass().getName());
                 }
             }
         }
