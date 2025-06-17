@@ -104,7 +104,7 @@ public class JourneyController {
         mav.addObject("isOwner", user != null && js.isJourneyOwnedByUser(journey, user));
         mav.addObject("interestPage", interestService.findInterestsByUser(journey.getUser(), interestsPage));
         mav.addObject("createdEventsPage", createdEvents);
-        mav.addObject("attendedEventsPage", attendedEvents);
+        mav.addObject("attendingEventsPage", attendedEvents);
         Page<Tip> tips = js.findTipsByJourney(journey, tipsPage);
         mav.addObject("tipsPage", tips);
         mav.addObject("tipsCount", tips.getTotalElements() );
