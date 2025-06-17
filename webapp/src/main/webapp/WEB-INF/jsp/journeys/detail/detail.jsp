@@ -102,7 +102,7 @@
 
                   <c:if test="${!isOwner}">
                     <c:url var="reportJourneyUrl" value='/reports/journeys/${journey.id}/create'/>
-                    <a href="${reportJourneyUrl}"
+                    <a href="${reportJourneyUrl}" onclick="saveLink()"
                        style="color: #333; padding: 12px 16px; text-decoration: none; display: flex; align-items: center; gap: 12px;"
                        onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

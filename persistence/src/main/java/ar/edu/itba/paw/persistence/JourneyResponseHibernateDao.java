@@ -119,20 +119,6 @@ public class JourneyResponseHibernateDao implements JourneyResponseDao {
     }
 
 
-
-    @Override
-    public void deleteByJourneyId(long journeyId) {
-        em.createQuery("""
-        UPDATE JourneyResponse jr
-        SET jr.deleted = TRUE,
-            jr.deletionMessage = 'Journey was deleted'
-        WHERE jr.journey.id = :journeyId
-          AND jr.deleted = FALSE
-    """)
-                .setParameter("journeyId", journeyId)
-                .executeUpdate();
-    }
-
     @Override
     public void hardDeleteByJourneyId(long journeyId) {
         em.createQuery("""

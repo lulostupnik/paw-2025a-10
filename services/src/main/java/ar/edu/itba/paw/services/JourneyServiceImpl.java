@@ -74,6 +74,7 @@ public class JourneyServiceImpl implements JourneyService {
             }
             // Hard delete the soft-deleted journey and its responses
             LOGGER.info("Hard deleting previous journey {} and its responses for user {}", existingJourney.getId(), user.getId());
+            tipDao.deleteByJourney(existingJourney.getId());
             journeyResponseDao.hardDeleteByJourneyId(existingJourney.getId());
             journeyDao.hardDelete(existingJourney);
 
@@ -87,7 +88,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    public void createJourneyResponse(final String email, final long journeyId, final String message) {
+    public JourneyResponse createJourneyResponse(final String email, final long journeyId, final String message) {
         LOGGER.debug("Replying to journey {}", journeyId);
         Journey journey = journeyDao.findById(journeyId)
                 .orElseThrow(() -> {
@@ -101,7 +102,7 @@ public class JourneyServiceImpl implements JourneyService {
                     return new UserNotFoundException(email);
                 });
 
-        journeyResponseDao.create(responder, journey, message);
+        JourneyResponse journeyResponse = journeyResponseDao.create(responder, journey, message);
 
         interestService.updateMatchingInterestScores(responder.getId(), journey.getUser().getId());
         LOGGER.info("Interest scores updated for responder {}", responder.getId());
@@ -138,6 +139,7 @@ public class JourneyServiceImpl implements JourneyService {
 
         emailService.answerJourneyOwnerNotification(message, emailResponder, emailJourney);
         LOGGER.info("Journey response notifications sent to owner for journey {}", journeyId);
+        return journeyResponse;
     }
 
     private Page<Journey> searchByTerm(final String searchTerm, final PageParams pageParams){
@@ -167,19 +169,9 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
-    public Optional<Journey> getJourneyById(final long id) {
+    public Optional<Journey> findJourneyById(final long id) {
         LOGGER.debug("Getting journey by id {}", id);
         return journeyDao.findById(id);
-    }
-
-    @Override
-    public Optional<Journey> getJourneyByEmail(final String email) {
-        LOGGER.debug("Getting journey by email {}", email);
-        User user = userService.findUserByEmail(email).orElseThrow(() -> {
-            LOGGER.warn("User with email {} not found", email);
-            return new UserNotFoundException(email);
-        });
-        return Optional.ofNullable(user.getJourney());
     }
 
     private LocalDate capEndDateForPastJourneys(LocalDate endDate) {
@@ -276,17 +268,17 @@ public class JourneyServiceImpl implements JourneyService {
     @Transactional
     public void deleteJourney(final long id, final String message) {
 
-        Journey journey = journeyDao.findById(id).orElseThrow(() -> {
-                LOGGER.warn("Journey with id {} not found", id);
-                return new JourneyNotFoundException(id);
+        Optional<Journey> maybeJourney = journeyDao.findById(id);
+        if (maybeJourney.isEmpty()) {
+            LOGGER.info("Journey with id {} not found", id);
+            return;
         }
-        );
+        Journey journey = maybeJourney.get();
 
         LOGGER.info("Journey deletion message updated: {}", message);
-        journey.setDeletionMessage(message);
-
-        journeyResponseDao.deleteByJourneyId(journey.getId()); // todo check
-        LOGGER.info("Journey responses deleted for journey {}", id);
+        if(message != null && ! message.isEmpty()){
+            journey.setDeletionMessage(message);
+        }
 
         emailService.sendJourneyDeletionNotification(new EmailJourney(journey),message);
         LOGGER.info("Journey deletion notification sent to user {}", journey.getUser().getEmail());
@@ -318,7 +310,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    public void updateJourney(final long journeyId, final  String destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
+    public Journey updateJourney(final long journeyId, final  String destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
         LOGGER.debug("Editing journey {}", journeyId);
         Journey journey = journeyDao.findById(journeyId)
                 .orElseThrow(() -> {
@@ -335,6 +327,7 @@ public class JourneyServiceImpl implements JourneyService {
         journey.setEndDate(endDate);
         journey.setDescription(description);
         LOGGER.info("Journey updated: {}", journeyId);
+        return journey;
     }
 
 
@@ -348,10 +341,12 @@ public class JourneyServiceImpl implements JourneyService {
     @Transactional
     public void deleteJourneyResponse(final long id, final String message) {
         LOGGER.debug("Deleting journey response {}", id);
-        JourneyResponse journeyResponse = findJourneyResponseById(id).orElseThrow(() -> {
-            LOGGER.error("Journey response with id {} not found", id);
-            return new JourneyResponseNotFoundException(id);}
-        );
+        Optional<JourneyResponse> maybeJourneyResponse = findJourneyResponseById(id);
+        if (maybeJourneyResponse.isEmpty()) {
+            LOGGER.info("Journey response with id {} not found", id);
+            return;
+        }
+        JourneyResponse journeyResponse = maybeJourneyResponse.get();
 
         User commentAuthor = journeyResponse.getUser();
 
@@ -373,25 +368,21 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
-    public int countJourneyResponses(final long id) {
-        return journeyResponseDao.countByJourneyId(id);
-    }
-
-    @Override
     public Page<Tip> findTipsByJourney(Journey journey, PageParams pageParams) {
         LOGGER.debug("Finding tips for journey {}", journey);
-        return tipDao.findTipsByJourney(journey, pageParams);
+        return tipDao.findByJourney(journey, pageParams);
     }
 
     @Override
     @Transactional
-    public void createTip(long journeyId, String title, String content) {
+    public Tip createTip(long journeyId, String title, String content) {
         Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> {
             LOGGER.error("Journey with id {} not found", journeyId);
             return new JourneyNotFoundException(journeyId);
         });
-        tipDao.createTip(journey, title, content);
+         return tipDao.create(journey, title, content);
     }
+
 
     @Override
     @Transactional
@@ -409,13 +400,13 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     @Transactional
     public void deleteTip(long tipId) {
-        tipDao.deleteTip(tipId);
+        tipDao.delete(tipId);
     }
 
     @Override
     public Optional<Tip> findTipById(long tipId) {
         LOGGER.debug("Finding tip by id {}", tipId);
-        return tipDao.findTipById(tipId);
+        return tipDao.findById(tipId);
     }
 
 

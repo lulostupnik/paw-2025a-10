@@ -34,12 +34,6 @@ public class InterestServiceImpl implements InterestService {
 
 
     @Override
-    public List<UserInterest> findInterestsByUser(final User user) {
-        LOGGER.debug("Getting interests of user {}", user);
-
-        return userInterestDao.findAllByUser(user);
-    }
-    @Override
     @Transactional
     public void updateUserInterestScores(List<UserInterest> interests){
         for(UserInterest interest : interests){
@@ -63,7 +57,7 @@ public class InterestServiceImpl implements InterestService {
     @Override
     @Transactional
     public Interest createInterest(final String name) {
-        LOGGER.debug("Creating interest {}", name);
+
         Interest interest = interestDao.create(name);
         LOGGER.info("Interest {} created", interest);
         return interest;
@@ -71,7 +65,7 @@ public class InterestServiceImpl implements InterestService {
 
     @Override
     @Transactional
-    public void updateInterest(final long id, String interest) {
+    public Interest updateInterest(final long id, String interest) {
         LOGGER.debug("Editing interest {} with name {}", id, interest);
         Interest i = interestDao.findById(id)
                 .orElseThrow(() -> {
@@ -81,12 +75,12 @@ public class InterestServiceImpl implements InterestService {
         i.setName(interest);
 
         LOGGER.info("Interest {} updated", id);
+        return i;
     }
 
     @Override
     @Transactional
     public void createUserInterests(final List<String> interests, final  long userId) {
-        LOGGER.debug("Adding interest list to user {}", userId);
         userInterestDao.createUserInterests(interests, userId);
         LOGGER.info("Interests {} added to user {}", interests, userId);
     }

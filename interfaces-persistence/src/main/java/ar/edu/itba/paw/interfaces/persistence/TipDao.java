@@ -7,11 +7,13 @@ import ar.edu.itba.paw.models.Tip;
 import java.util.Optional;
 
 public interface TipDao {
-    void createTip(Journey journey, String title, String content);
+    Tip create(Journey journey, String title, String content);
 
-    void deleteTip(long tipId);
+    void delete(long tipId);
 
-    Optional<Tip> findTipById(long tipId);
+    void deleteByJourney(long journeyId);
 
-    Page<Tip> findTipsByJourney(Journey journey, PageParams pageParams);
+    Optional<Tip> findById(long tipId);
+
+    Page<Tip> findByJourney(Journey journey, PageParams pageParams);
 }

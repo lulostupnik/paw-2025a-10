@@ -19,26 +19,34 @@ public class TipHibernateDao implements TipDao {
 
 
     @Override
-    public void createTip(Journey journey, String title, String content) {
+    public Tip create(Journey journey, String title, String content) {
         Tip tip = new Tip(journey, title, content);
         em.persist(tip);
+        return tip;
     }
 
     @Override
-    public void deleteTip(long tipId) {
+    public void delete(long tipId) {
         Tip tip = em.createQuery("FROM Tip t WHERE t.id = :tipId", Tip.class)
                 .setParameter("tipId", tipId)
                 .getSingleResult();
         em.remove(tip);
     }
+    @Override
+    public void deleteByJourney(long journeyId) {
+        em.createQuery("DELETE FROM Tip t WHERE t.journey.id = :journeyId")
+                .setParameter("journeyId", journeyId)
+                .executeUpdate();
+    }
+
 
     @Override
-    public Optional<Tip> findTipById(long tipId) {
+    public Optional<Tip> findById(long tipId) {
         return Optional.ofNullable(em.find(Tip.class, tipId));
     }
 
     @Override
-    public Page<Tip> findTipsByJourney(Journey journey, PageParams pageParams) {
+    public Page<Tip> findByJourney(Journey journey, PageParams pageParams) {
         final String countSql = """
         SELECT COUNT(*)
         FROM tips

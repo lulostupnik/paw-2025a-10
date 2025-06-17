@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface EventService {
     Event createEvent(String email, String cityName, LocalDate date, byte[] flyer, String description, String title, LocalTime time, String address, Integer attendeesLimit);
-    void updateEvent(long eventId,
+    Event updateEvent(long eventId,
                      String cityName,
                      LocalDate date,
                      byte[] flyer,
@@ -21,8 +21,6 @@ public interface EventService {
                      Integer attendeesLimit);
     void deleteEvent(long id, String message);
 
-    void replyToEvent(String email,long eventId, String message);
-
     Optional<Event> findEventById(long id);
 
     Optional<EventWithStatistics> findEventWithStatistics(User user, long eventId);
@@ -30,38 +28,32 @@ public interface EventService {
     Page<Event> searchEvents(String search, PageParams pageParams);
     Page<Event> findEvents(long userId, PageParams pageParams);
 
-    void createEventAttendance(String email, long eventId);
-    void createEventAttendance(long userId, long eventId);
+    EventAttendance createEventAttendance(long userId, long eventId);
 
-    void deleteEventAttendance(String email, long eventId);
     void deleteEventAttendance(long userId, long eventId);
 
-    void rateEvent(User user, long eventId, double rating);
-    void updateEventRating(User user, long eventId, double rating);
+    Rating rateEvent(User user, long eventId, double rating);
+    Rating updateEventRating(User user, long eventId, double rating);
     Optional<Rating> findRatingByUserAndEvent(long userId, long eventId);
     int countRatingsByEvent(long eventId);
 
-    Page<Event> findEventsByAttendee(long userId, PageParams pageParams);
     Page<Event> findUpcomingEventsByAttendee(long userId,PageParams pageParams);
     Page<Event> findFinishedEventsByAttendee(long userId, PageParams pageParams);
     List<Event> findRecommendedEvents(long userId, int limit);
     List<Event> findTopEvents(int limit);
-    boolean isEventOwnedByUser(String email, long eventID);
+    boolean isEventOwnedByUser(String email, long eventId);
 
     Page<Event> searchEventsWithFilters(String search, User user,
                                         SortFieldEvent sortBy, SortDirection direction, String destination, LocalDate startDate, LocalDate endDate, String interest,
                                         boolean isPast, boolean isUpcoming, boolean attending,
                                         PageParams pageParams );
 
+    EventResponse createEventResponse(String email, long eventId, String message);
     void deleteEventResponse(EventResponse eventResponse, String message);
-    int countEventResponses(long eventId);
     Page<EventResponse> findEventResponses(long eventId, PageParams pageParams);
     Optional<EventResponse> findEventResponseById(long id);
 
-    Page<Event> findJourneyEvents(Journey journey, PageParams pageParams);
-
     Page<Event> findCreatedByJourney(Journey journey, PageParams pageParams);
-
     Page<Event> findAttendedByJourney(Journey journey, PageParams pageParams);
 
     void sendEventReminders();

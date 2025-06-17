@@ -25,8 +25,10 @@ public class TokenHibernateDao implements TokenDao {
 
     @Override
     public Optional<Token> findByToken(String token) {
-        return entityManager.createQuery("FROM Token t WHERE t.token = :token", Token.class)
+        return entityManager.createQuery(
+                        "FROM Token t WHERE t.token = :token AND t.expirationDate IS NOT NULL AND t.expirationDate >= :now", Token.class)
                 .setParameter("token", token)
+                .setParameter("now", LocalDateTime.now())
                 .getResultList()
                 .stream()
                 .findFirst();

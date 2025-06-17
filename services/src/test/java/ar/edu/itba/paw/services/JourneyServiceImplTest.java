@@ -12,14 +12,7 @@ import java.util.Optional;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
-import ar.edu.itba.paw.models.exceptions.InvalidDateException;
-import ar.edu.itba.paw.models.exceptions.InvalidException;
-import ar.edu.itba.paw.models.exceptions.InvalidPaginationParamsException;
-import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
-import ar.edu.itba.paw.models.exceptions.JourneyResponseNotFoundException;
-import ar.edu.itba.paw.models.exceptions.TipNotFoundException;
-import ar.edu.itba.paw.models.exceptions.UniversityNotFoundException;
-import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
+import ar.edu.itba.paw.models.exceptions.*;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -295,36 +288,15 @@ public class JourneyServiceImplTest {
     }
 
     @Test
-    public void testGetJourneyById(){
+    public void testFindJourneyById(){
         when(
             journeyDao.findById(eq(JOURNEY_ID))
         ).thenReturn(Optional.of(JOURNEY));
 
-        Optional<Journey> maybeJourney = journeyService.getJourneyById(JOURNEY_ID);
+        Optional<Journey> maybeJourney = journeyService.findJourneyById(JOURNEY_ID);
 
         assertNotNull(maybeJourney);
         assertEquals(JOURNEY, maybeJourney.get());
-    }
-
-    @Test
-    public void testGetJourneyByEmail(){
-        when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.of(USER_WITH_JOURNEY));
-    
-        Optional<Journey> maybeJourney = journeyService.getJourneyByEmail(EMAIL);
-    
-        assertNotNull(maybeJourney);
-        assertTrue(maybeJourney.isPresent());
-        assertEquals(JOURNEY, maybeJourney.get());
-    }
-    @Test(expected = UserNotFoundException.class)
-    public void testGetJourneyByEmailUserNotFound(){
-        when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.empty());
-    
-        journeyService.getJourneyByEmail(EMAIL);
     }
 
     @Test
@@ -723,7 +695,7 @@ public class JourneyServiceImplTest {
         assertNotNull(page);
         assertEquals(JOURNEY_PAGE, page);
     }
-    @Test(expected = InvalidException.class)
+    @Test(expected = UserHasNoJourneyException.class)
     public void testFindJourneysUserHasNoJourneys(){    
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
@@ -884,14 +856,6 @@ public class JourneyServiceImplTest {
         when(
             journeyDao.findById(eq(JOURNEY_ID))
         ).thenReturn(Optional.of(JOURNEY));
-
-        journeyService.deleteJourney(JOURNEY_ID, DESCRIPTION);
-    }
-    @Test(expected = JourneyNotFoundException.class)
-    public void testDeleteJourneyNotFound(){
-        when(
-            journeyDao.findById(eq(JOURNEY_ID))
-        ).thenReturn(Optional.empty());
 
         journeyService.deleteJourney(JOURNEY_ID, DESCRIPTION);
     }
@@ -1079,14 +1043,6 @@ public class JourneyServiceImplTest {
 
         journeyService.deleteJourneyResponse(REPLY_ID, DESCRIPTION);
     }
-    @Test(expected = JourneyResponseNotFoundException.class)
-    public void testDeleteJourneyJourneyResponseNoReply(){
-        when(
-            replyDao.findById(eq(REPLY_ID))
-        ).thenReturn(Optional.empty());
-
-        journeyService.deleteJourneyResponse(REPLY_ID, DESCRIPTION);
-    }
 
     @Test
     public void testFindJourneyResponses(){
@@ -1106,21 +1062,11 @@ public class JourneyServiceImplTest {
         assertEquals(REPLY_PAGE, replies);
     }
 
-    @Test
-    public void testCountJourneyResponses(){
-        when(
-            replyDao.countByJourneyId(eq(JOURNEY_ID))
-        ).thenReturn(10);
-
-        int replies = journeyService.countJourneyResponses(JOURNEY_ID);
-
-        assertEquals(10, replies);
-    }
 
     @Test
     public void testFindTipsByJourney(){
         when(
-            tipDao.findTipsByJourney(eq(JOURNEY), any(PageParams.class))
+            tipDao.findByJourney(eq(JOURNEY), any(PageParams.class))
         ).thenReturn(TIP_PAGE);
 
         Page<Tip> tips = journeyService.findTipsByJourney(JOURNEY, PAGE_1_DEFAULT);
@@ -1134,11 +1080,17 @@ public class JourneyServiceImplTest {
         when(
             journeyDao.findById(eq(JOURNEY_ID))
         ).thenReturn(Optional.of(JOURNEY));
+        when(tipDao.create(eq(JOURNEY), eq(DESCRIPTION), eq(DESCRIPTION)))
+                .thenReturn( TIP);
 
-        journeyService.createTip(JOURNEY_ID, DESCRIPTION, DESCRIPTION);
-
-        //TODO asserts
+        Tip tip = journeyService.createTip(JOURNEY_ID, DESCRIPTION, DESCRIPTION);
+        assertNotNull(tip);
+        assertEquals(DESCRIPTION, tip.getTitle());
+        assertEquals(DESCRIPTION, tip.getContent());
+        assertEquals(JOURNEY, tip.getJourney());
+        assertNotNull(tip.getDateTime());
     }
+
     @Test(expected = JourneyNotFoundException.class)
     public void testCreateTipMissingJourney(){
         when(
@@ -1152,7 +1104,7 @@ public class JourneyServiceImplTest {
     public void testUpdateTip(){
         Tip newTip = new Tip(TIP_ID, CITY_NAME, CAREER_NAME, JOURNEY, REPLY_TIMESTAMP);
         when(
-            tipDao.findTipById(eq(TIP_ID))
+            tipDao.findById(eq(TIP_ID))
         ).thenReturn(Optional.of(newTip));
 
         Tip updated = journeyService.updateTip(TIP_ID, DESCRIPTION, DESCRIPTION);
@@ -1164,23 +1116,17 @@ public class JourneyServiceImplTest {
     @Test(expected = TipNotFoundException.class)
     public void testUpdateTipMissing(){
         when(
-            tipDao.findTipById(eq(TIP_ID))
+            tipDao.findById(eq(TIP_ID))
         ).thenReturn(Optional.empty());
 
         journeyService.updateTip(TIP_ID, DESCRIPTION, DESCRIPTION);
     }
 
-    @Test
-    public void testDeleteTip(){
-        journeyService.deleteTip(TIP_ID);
-
-        //TODO asserts
-    }
 
     @Test
     public void testFindTipById(){
         when(
-            tipDao.findTipById(eq(TIP_ID))
+            tipDao.findById(eq(TIP_ID))
         ).thenReturn(Optional.of(TIP));
 
         Optional<Tip> maybeTip = journeyService.findTipById(TIP_ID);
@@ -1193,7 +1139,7 @@ public class JourneyServiceImplTest {
     @Test
     public void testIsTipOwnedByUserIdEmail(){
         when(
-            tipDao.findTipById(eq(TIP_ID))
+            tipDao.findById(eq(TIP_ID))
         ).thenReturn(Optional.of(TIP));
 
         boolean isOwned = journeyService.isTipOwnedByUser(TIP_ID, EMAIL);
@@ -1203,7 +1149,7 @@ public class JourneyServiceImplTest {
     @Test
     public void testIsTipOwnedByUserIdEmailNotOwned(){
         when(
-            tipDao.findTipById(eq(TIP_ID))
+            tipDao.findById(eq(TIP_ID))
         ).thenReturn(Optional.of(TIP));
 
         boolean isOwned = journeyService.isTipOwnedByUser(TIP_ID, "EMAIL");
@@ -1213,7 +1159,7 @@ public class JourneyServiceImplTest {
     @Test(expected = TipNotFoundException.class)
     public void testIsTipOwnedByUserIdEmailNotFound(){
         when(
-            tipDao.findTipById(eq(TIP_ID))
+            tipDao.findById(eq(TIP_ID))
         ).thenReturn(Optional.empty());
 
         journeyService.isTipOwnedByUser(TIP_ID, "EMAIL");

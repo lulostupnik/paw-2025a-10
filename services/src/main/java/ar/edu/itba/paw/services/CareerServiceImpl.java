@@ -31,8 +31,6 @@ public class CareerServiceImpl implements CareerService {
         return careerDao.findById(id);
     }
 
-
-
     @Override
     public Optional<Career> findCareerByName(final String name) {
         LOGGER.debug("Getting career by name {}", name);
@@ -51,7 +49,6 @@ public class CareerServiceImpl implements CareerService {
     @Override
     @Transactional
     public Career createCareer(final String name) {
-        LOGGER.debug("Creating career {}", name);
         Career career = careerDao.create(name);
         LOGGER.info("Career {} created", name);
         return career;
@@ -59,7 +56,7 @@ public class CareerServiceImpl implements CareerService {
 
     @Override
     @Transactional
-    public void updateCareer(final long id, final String name) {
+    public Career updateCareer(final long id, final String name) {
         LOGGER.debug("Updating career {} to {}", id, name);
         Career career = careerDao.findById(id).orElseThrow(() -> {
             LOGGER.error("Career not found with id: {}", id);
@@ -67,18 +64,19 @@ public class CareerServiceImpl implements CareerService {
         });
         career.setName(name);
         LOGGER.info("Career {} updated to {}", id, name);
+        return career;
     }
 
     @Override
     @Transactional
     public void deleteCareer(final long id) {
         Optional<Career> maybeCareer = careerDao.findById(id);
-        if (maybeCareer.isEmpty()) {
-            LOGGER.info("Career {} not found", id);
+        if (maybeCareer.isPresent()) {
+            maybeCareer.get().setDeleted(true);
+            LOGGER.info("Career {} deleted", id);
             return;
         }
-        maybeCareer.get().setDeleted(true);
-        LOGGER.info("Career {} deleted", id);
+        LOGGER.info("Career {} not found", id);
     }
 
 

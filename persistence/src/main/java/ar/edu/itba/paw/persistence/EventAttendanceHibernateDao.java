@@ -2,6 +2,8 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.EventAttendanceDao;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
+import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -15,11 +17,17 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
     private EntityManager em;
 
     @Override
-    public void create(long userId, long eventId) {
+    public EventAttendance create(long userId, long eventId) {
         final Event event = em.find(Event.class, eventId);
         final User user = em.find(User.class, userId);
+        if (event == null) {
+            throw new EventNotFoundException( eventId );
+        }
+        if (user == null) {
+            throw new UserNotFoundException(userId);
+        }
 
-        create(user, event);
+        return create(user, event);
     }
 
     @Override
@@ -39,11 +47,10 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
     }
 
     @Override
-    public void create(User user, Event event) {
-        if (event != null && user != null) {
-            EventAttendance attendance = new EventAttendance(user, event);
-            em.persist(attendance);
-        }
+    public EventAttendance create(User user, Event event) {
+        EventAttendance attendance = new EventAttendance(user, event);
+        em.persist(attendance);
+        return attendance;
     }
 
     @Override
@@ -54,7 +61,7 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
                     .setParameter("event", event)
                     .getSingleResult();
 
-            em.remove(attendance);  //query throws NoResultException -> can't be null
+            em.remove(attendance);
         }
     }
 

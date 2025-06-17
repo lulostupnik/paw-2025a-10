@@ -67,7 +67,7 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     @Transactional
-    public void updateUniversity(final long id, final String name, final String abbreviation, final String cityName) {
+    public University updateUniversity(final long id, final String name, final String abbreviation, final String cityName) {
         LOGGER.debug("Updating university with id {}, name {}, abbreviation {}, city {}", id, name, abbreviation, cityName);
         City city = cityService.findCityByName(cityName).orElseThrow(() -> {
             LOGGER.error("City not found with name: {}", cityName);
@@ -82,16 +82,18 @@ public class UniversityServiceImpl implements UniversityService {
         university.setCity(city);
 
         LOGGER.info("University updated successfully with id: {}, name: {}, abbreviation: {}, city: {}", id, name, abbreviation, cityName);
+        return university;
     }
 
     @Override
     @Transactional
     public void deleteUniversity(final long id) {
-        University university = universityDao.findById(id).orElseThrow(() -> {
-            LOGGER.error("University with id {} not found", id);
-            return new UniversityNotFoundException("University not found");
-        });
-        university.setDeleted(true);
+        Optional<University> maybeUniversity = universityDao.findById(id);
+        if (maybeUniversity.isEmpty()) {
+            LOGGER.info("University with id {} not found", id);
+            return;
+        }
+        maybeUniversity.get().setDeleted(true);
         LOGGER.info("University deleted successfully with id: {}", id);
     }
 

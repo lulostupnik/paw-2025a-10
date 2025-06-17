@@ -53,7 +53,7 @@ public class CityServiceImpl implements CityService {
 
     @Override
     @Transactional
-    public void updateCity(final long id,final String name,final String countryName) {
+    public City updateCity(final long id,final String name,final String countryName) {
         LOGGER.debug("Updating city with id {}, name {}, country {}", id, name, countryName);
         Country country = countryService.findCountryByName(countryName)
                 .orElseThrow(() -> {
@@ -66,6 +66,7 @@ public class CityServiceImpl implements CityService {
         city.setName(name);
         city.setCountry(country);
         LOGGER.info("City with id {} updated successfully", id);
+        return city;
     }
 
     @Override
@@ -85,12 +86,12 @@ public class CityServiceImpl implements CityService {
     @Transactional
     public void deleteCity(final long id) {
        Optional<City> maybeCity = cityDao.findById(id);
-        if (maybeCity.isEmpty()) {
-            LOGGER.error("City with id {} not found", id);
+        if (maybeCity.isPresent()) {
+            maybeCity.get().setDeleted(true);
+            LOGGER.info("City with id {} deleted successfully", id);
             return;
         }
-        maybeCity.get().setDeleted(true);
-        LOGGER.info("City with id {} deleted successfully", id);
+        LOGGER.info("City with id {} not found", id);
     }
 
 }

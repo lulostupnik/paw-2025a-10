@@ -22,20 +22,6 @@
             <spring:message code="event.responses" />
             <span class="count">(<c:out value="${commentsCount}" />)</span>
         </h2>
-        <c:if test="${showToggle eq 'true'}">
-            <button class="toggle-button" data-toggle="${param.chatListId}" onclick="toggleSection('${param.chatListId}')">
-                <span class="collapse-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="18 15 12 9 6 15"></polyline>
-                    </svg>
-                </span>
-                <span class="expand-icon" style="display: none;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                </span>
-            </button>
-        </c:if>
     </div>
 
     <div id="${param.chatListId}" class="chat-list">
@@ -88,7 +74,7 @@
 
                                 <!-- Report option for everyone -->
                                 <c:url var="reportEventCommentUrl" value='/reports/event-responses/${response.id}/create'/>
-                                <a href="${reportEventCommentUrl}"
+                                <a href="${reportEventCommentUrl}" onclick="saveLink()"
                                    style="color: #333; padding: 10px 14px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 13px;"
                                    onmouseover="this.style.backgroundColor='#f5f5f5'" onmouseout="this.style.backgroundColor='transparent'">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

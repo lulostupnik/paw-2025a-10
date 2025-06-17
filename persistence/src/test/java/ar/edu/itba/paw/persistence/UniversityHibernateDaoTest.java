@@ -1,9 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static ar.edu.itba.paw.persistence.TestUtils.*;
 
 import java.util.Map;
 import java.util.Optional;
@@ -13,7 +11,6 @@ import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
 import ar.edu.itba.paw.models.Page;
-import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.persistence.config.TestConfig;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +20,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import ar.edu.itba.paw.models.University;
@@ -49,35 +45,64 @@ public class UniversityHibernateDaoTest {
     @Before
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
-        insert = new SimpleJdbcInsert(ds).withTableName(TestUtils.UNIVERSITY_TABLE).usingGeneratedKeyColumns("id");
+        insert = new SimpleJdbcInsert(ds)
+            .withTableName(UNIVERSITY_TABLE)
+            .usingGeneratedKeyColumns("id");
+    }
+
+    @Test
+    public void testCreate(){
+        University uni = uniDao.create(UNIVERSITY_NEW_NAME, UNIVERSITY_NEW_CODE, CITY_1);
+        em.flush();
+
+        assertEqualsUni(new University(uni.getId(), UNIVERSITY_NEW_NAME, UNIVERSITY_NEW_CODE, CITY_1), uni);
+    }
+    @Test(expected = UniversityAlreadyExistsException.class)
+    public void testCreateDuplicate(){
+        uniDao.create(UNIVERSITY_1_NAME, UNIVERSITY_NEW_CODE, CITY_1);
+        em.flush();
+    }
+    @Test
+    public void testCreateDeletedByName(){
+        University uni = uniDao.create(UNIVERSITY_DELETED_NAME, UNIVERSITY_NEW_CODE, CITY_1);
+        em.flush();
+
+        assertEqualsUni(new University(UNIVERSITY_DELETED_ID, UNIVERSITY_DELETED_NAME, UNIVERSITY_NEW_CODE, CITY_1), uni);
+    }
+    @Test
+    public void testCreateDeletedCopyBoth(){
+        University uni = uniDao.create(UNIVERSITY_DELETED_NAME, UNIVERSITY_DELETED_CODE, CITY_1);
+        em.flush();
+
+        assertEqualsUni(UNI_DELETED, uni);
     }
 
     @Test
     public void testFindByName(){
-        Optional<University> maybeUni = uniDao.findByName(TestUtils.UNIVERSITY_1_NAME);
+        Optional<University> maybeUni = uniDao.findByName(UNIVERSITY_1_NAME);
 
         assertNotNull(maybeUni);
         assertTrue(maybeUni.isPresent());
-        TestUtils.assertEqualsUni(TestUtils.UNI_1, maybeUni.get());
+        assertEqualsUni(UNI_1, maybeUni.get());
     }
     @Test
     public void testFindByName2(){
-        Optional<University> maybeUni = uniDao.findByName(TestUtils.UNIVERSITY_2_NAME);
+        Optional<University> maybeUni = uniDao.findByName(UNIVERSITY_2_NAME);
 
         assertNotNull(maybeUni);
         assertTrue(maybeUni.isPresent());
-        TestUtils.assertEqualsUni(TestUtils.UNI_2, maybeUni.get());
+        assertEqualsUni(UNI_2, maybeUni.get());
     }
     @Test
     public void testFindByNameDeleted(){
-        Optional<University> maybeUni = uniDao.findByName(TestUtils.UNIVERSITY_DELETED_NAME);
+        Optional<University> maybeUni = uniDao.findByName(UNIVERSITY_DELETED_NAME);
 
         assertNotNull(maybeUni);
         assertFalse(maybeUni.isPresent());
     }
     @Test
     public void testFindByNameWrongName(){
-        Optional<University> maybeUni = uniDao.findByName("TestUtils.UNIVERSITY_2_NAME");
+        Optional<University> maybeUni = uniDao.findByName("UNIVERSITY_2_NAME");
 
         assertNotNull(maybeUni);
         assertFalse(maybeUni.isPresent());
@@ -99,11 +124,11 @@ public class UniversityHibernateDaoTest {
 
     @Test
     public void testFindById(){
-        Optional<University> maybeUni = uniDao.findById(TestUtils.UNIVERSITY_1_ID);
+        Optional<University> maybeUni = uniDao.findById(UNIVERSITY_1_ID);
 
         assertNotNull(maybeUni);
         assertTrue(maybeUni.isPresent());
-        TestUtils.assertEqualsUni(TestUtils.UNI_1, maybeUni.get());
+        assertEqualsUni(UNI_1, maybeUni.get());
     }
     @Test
     public void testFindByIdWrongId(){
@@ -114,7 +139,7 @@ public class UniversityHibernateDaoTest {
     }
     @Test
     public void testFindByIdDeleted(){
-        Optional<University> maybeUni = uniDao.findById(TestUtils.UNIVERSITY_DELETED_ID);
+        Optional<University> maybeUni = uniDao.findById(UNIVERSITY_DELETED_ID);
 
         assertNotNull(maybeUni);
         assertFalse(maybeUni.isPresent());
@@ -122,41 +147,52 @@ public class UniversityHibernateDaoTest {
 
     @Test
     public void testSearchUsingAbbreviationSubstring(){
-        Page<University> unis = uniDao.search(TestUtils.UNIVERSITY_1_CODE.substring(1, 3), TestUtils.PAGE_1_DEFAULT);
+        Page<University> unis = uniDao.search(
+            UNIVERSITY_1_CODE.substring(1, 3), PAGE_1_DEFAULT
+        );
 
         assertNotNull(unis);
         assertEquals(1, unis.getCurrentPage());
         assertEquals(1, unis.getTotalPages());
         assertNotNull(unis.getContent());
         assertEquals(1, unis.getContent().size());
-        TestUtils.assertEqualsUni(TestUtils.UNI_1, unis.getContent().get(0));
+        assertEqualsUni(UNI_1, unis.getContent().get(0));
     }
     @Test
     public void testSearchUsingNameSubstring(){
-        Page<University> unis = uniDao.search(TestUtils.UNIVERSITY_2_NAME.substring(5, 15), TestUtils.PAGE_1_DEFAULT);
+        Page<University> unis = uniDao.search(
+            UNIVERSITY_2_NAME.substring(5, 15), PAGE_1_DEFAULT
+        );
 
         assertNotNull(unis);
         assertEquals(1, unis.getCurrentPage());
         assertEquals(1, unis.getTotalPages());
         assertNotNull(unis.getContent());
         assertEquals(1, unis.getContent().size());
-        TestUtils.assertEqualsUni(TestUtils.UNI_2, unis.getContent().get(0));
+        assertEqualsUni(UNI_2, unis.getContent().get(0));
     }
     @Test
     public void testSearchMultipleResults(){
-        Page<University> unis = uniDao.search(TestUtils.UNIVERSITY_1_NAME.substring(TestUtils.UNIVERSITY_1_NAME.length() - 5, TestUtils.UNIVERSITY_1_NAME.length()), TestUtils.PAGE_1_BIG);
+        Page<University> unis = uniDao.search(
+            UNIVERSITY_1_NAME.substring(
+                UNIVERSITY_1_NAME.length() - 5, 
+                UNIVERSITY_1_NAME.length()
+            ), PAGE_1_BIG
+        );
 
         assertNotNull(unis);
         assertEquals(1, unis.getCurrentPage());
         assertEquals(1, unis.getTotalPages());
         assertNotNull(unis.getContent());
         assertEquals(2, unis.getContent().size());
-        TestUtils.assertEqualsUni(TestUtils.UNI_1, unis.getContent().get(0));
-        TestUtils.assertEqualsUni(TestUtils.UNI_2, unis.getContent().get(1));
+        assertEqualsUni(UNI_1, unis.getContent().get(0));
+        assertEqualsUni(UNI_2, unis.getContent().get(1));
     }
     @Test
     public void testSearchWrongQuery(){
-        Page<University> unis = uniDao.search("TestUtils.UNIVERSITY_1_CODE", TestUtils.PAGE_1_BIG);
+        Page<University> unis = uniDao.search(
+            "UNIVERSITY_1_CODE", PAGE_1_BIG
+        );
 
         assertNotNull(unis);
         assertEquals(1, unis.getCurrentPage());
@@ -166,7 +202,7 @@ public class UniversityHibernateDaoTest {
     }
     @Test
     public void testSearchDeleted(){
-        Page<University> unis = uniDao.search(TestUtils.UNIVERSITY_DELETED_NAME, TestUtils.PAGE_1_BIG);
+        Page<University> unis = uniDao.search(UNIVERSITY_DELETED_NAME, PAGE_1_BIG);
 
         assertNotNull(unis);
         assertEquals(1, unis.getCurrentPage());
@@ -176,31 +212,40 @@ public class UniversityHibernateDaoTest {
     }
     @Test
     public void testSearchEmptyQuery(){
-        Page<University> unis = uniDao.search("", TestUtils.PAGE_1_BIG);
+        Page<University> unis = uniDao.search("", PAGE_1_BIG);
 
         assertNotNull(unis);
         assertEquals(1, unis.getCurrentPage());
         assertEquals(1, unis.getTotalPages());
         assertNotNull(unis.getContent());
-        assertEquals(TestUtils.TOTAL_UNIVERSITIES, unis.getContent().size());
+        assertEquals(TOTAL_UNIVERSITIES, unis.getContent().size());
     }
     @Test
     public void testSearchMissingQuery(){
-        Page<University> unis = uniDao.search(null, TestUtils.PAGE_1_BIG);
+        Page<University> unis = uniDao.search(null, PAGE_1_BIG);
 
         assertNotNull(unis);
         assertEquals(1, unis.getCurrentPage());
         assertEquals(1, unis.getTotalPages());
         assertNotNull(unis.getContent());
-        assertEquals(TestUtils.TOTAL_UNIVERSITIES, unis.getContent().size());
+        assertEquals(TOTAL_UNIVERSITIES, unis.getContent().size());
     }
 
     @Test
     public void testFindAllPage1(){
-        long bonusId = insert.executeAndReturnKey(Map.of("name", TestUtils.UNIVERSITY_NEW_NAME, "abbreviation", TestUtils.UNIVERSITY_NEW_CODE, "CITY_ID", TestUtils.CITY_1_ID, "deleted", false)).longValue();
-        University bonus = jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ID, TestUtils.UNIVERSITY_ROW_MAPPER, bonusId);
+        long bonusId = insert.executeAndReturnKey(
+            Map.of(
+                "name", UNIVERSITY_NEW_NAME, 
+                "abbreviation", UNIVERSITY_NEW_CODE, 
+                "CITY_ID", CITY_1_ID, 
+                "deleted", false
+            )
+        ).longValue();
+        University bonus = jdbcTemplate.queryForObject(
+            UNIVERSITY_SELECT_BY_ID, UNIVERSITY_ROW_MAPPER, bonusId
+        );
 
-        Page<University> page1 = uniDao.findAll(new PageParams(1,2));
+        Page<University> page1 = uniDao.findAll(PAGE_1_DEFAULT);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -208,17 +253,33 @@ public class UniversityHibernateDaoTest {
         assertNotNull(page1.getContent());
         assertEquals(2, page1.getContent().size());
         assertNotNull(bonus);
-        Map<Long, University> uniData = Map.of(TestUtils.UNIVERSITY_1_ID, TestUtils.UNI_1, TestUtils.UNIVERSITY_2_ID, TestUtils.UNI_2, TestUtils.UNIVERSITY_3_ID, TestUtils.UNI_3, bonus.getId(), bonus);
-        for (University uni : page1.getContent()){
-            TestUtils.assertEqualsUni(uniData.get(uni.getId()), uni);
-        }
+        Map<Long, University> uniData = Map.of(
+            UNIVERSITY_1_ID, UNI_1, 
+            UNIVERSITY_2_ID, UNI_2, 
+            UNIVERSITY_3_ID, UNI_3, 
+            bonus.getId(), bonus
+        );
+        page1.getContent().forEach((uni) ->
+            assertEqualsUni(uniData.get(uni.getId()), uni)
+        );
     }
     @Test
     public void testFindAllPage2(){
-        long bonusId = insert.executeAndReturnKey(Map.of("name", TestUtils.UNIVERSITY_NEW_NAME, "abbreviation", TestUtils.UNIVERSITY_NEW_CODE, "CITY_ID", TestUtils.CITY_1_ID, "deleted", false)).longValue();
-        University bonus = jdbcTemplate.queryForObject(TestUtils.UNIVERSITY_SELECT_BY_ID, TestUtils.UNIVERSITY_ROW_MAPPER, bonusId);
+        long bonusId = insert.executeAndReturnKey(
+            Map.of(
+                "name", UNIVERSITY_NEW_NAME, 
+                "abbreviation", UNIVERSITY_NEW_CODE, 
+                "CITY_ID", CITY_1_ID, 
+                "deleted", false
+            )
+        ).longValue();
+        University bonus = jdbcTemplate.queryForObject(
+            UNIVERSITY_SELECT_BY_ID, 
+            UNIVERSITY_ROW_MAPPER, 
+            bonusId
+        );
 
-        Page<University> page2 = uniDao.findAll(new PageParams(2,2));
+        Page<University> page2 = uniDao.findAll(PAGE_2_DEFAULT);
 
         assertNotNull(page2);
         assertEquals(2, page2.getCurrentPage());
@@ -226,48 +287,26 @@ public class UniversityHibernateDaoTest {
         assertNotNull(page2.getContent());
         assertEquals(2, page2.getContent().size());
         assertNotNull(bonus);
-        Map<Long, University> uniData = Map.of(TestUtils.UNIVERSITY_1_ID, TestUtils.UNI_1, TestUtils.UNIVERSITY_2_ID, TestUtils.UNI_2, TestUtils.UNIVERSITY_3_ID, TestUtils.UNI_3, bonus.getId(), bonus);
-        for (University uni : page2.getContent()){
-            TestUtils.assertEqualsUni(uniData.get(uni.getId()), uni);
-        }
+        Map<Long, University> uniData = Map.of(
+            UNIVERSITY_1_ID, UNI_1, 
+            UNIVERSITY_2_ID, UNI_2, 
+            UNIVERSITY_3_ID, UNI_3, 
+            bonus.getId(), bonus
+        );
+        page2.getContent().forEach((uni) ->
+            assertEqualsUni(uniData.get(uni.getId()), uni)
+        );
     }
     @Test
     public void testFindAllUniversitiesPagedNoPages(){
-        TestUtils.deleteUniversities(jdbcTemplate);
+        deleteUniversities(jdbcTemplate);
 
-        Page<University> page = uniDao.findAll(TestUtils.PAGE_1_DEFAULT);
+        Page<University> page = uniDao.findAll(PAGE_1_DEFAULT);
 
         assertNotNull(page);
         assertEquals(1, page.getCurrentPage());
         assertEquals(0, page.getTotalPages());
         assertNotNull(page.getContent());
         assertEquals(0, page.getContent().size());
-    }
-
-    @Test
-    public void testCreate(){
-        University uni = uniDao.create(TestUtils.UNIVERSITY_NEW_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1);
-        em.flush();
-
-        TestUtils.assertEqualsUni(new University(uni.getId(), TestUtils.UNIVERSITY_NEW_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1), uni);
-    }
-    @Test(expected = UniversityAlreadyExistsException.class)
-    public void testCreateDuplicate(){
-        uniDao.create(TestUtils.UNIVERSITY_1_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1);
-        em.flush();
-    }
-    @Test
-    public void testCreateDeletedByName(){
-        University uni = uniDao.create(TestUtils.UNIVERSITY_DELETED_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1);
-        em.flush();
-
-        TestUtils.assertEqualsUni(new University(TestUtils.UNIVERSITY_DELETED_ID, TestUtils.UNIVERSITY_DELETED_NAME, TestUtils.UNIVERSITY_NEW_CODE, TestUtils.CITY_1), uni);
-    }
-    @Test
-    public void testCreateDeletedCopyBoth(){
-        University uni = uniDao.create(TestUtils.UNIVERSITY_DELETED_NAME, TestUtils.UNIVERSITY_DELETED_CODE, TestUtils.CITY_1);
-        em.flush();
-
-        TestUtils.assertEqualsUni(TestUtils.UNI_DELETED, uni);
     }
 }

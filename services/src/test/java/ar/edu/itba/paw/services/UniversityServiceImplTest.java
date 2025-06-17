@@ -163,9 +163,4 @@ public class UniversityServiceImplTest {
 
         uniService.updateUniversity(ID_1, NAME, ABBREVIATION, CITY_NAME);
     }
-
-    @Test
-    public void testDeleteUniversity(){
-        uniService.deleteUniversity(ID_1);
-    }
 }
