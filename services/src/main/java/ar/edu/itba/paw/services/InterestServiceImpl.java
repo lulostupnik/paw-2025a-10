@@ -8,10 +8,6 @@ import ar.edu.itba.paw.models.exceptions.InterestsNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -31,7 +27,6 @@ public class InterestServiceImpl implements InterestService {
     }
 
     @Override
-    @Cacheable(value = "interestsById", key = "#id")
     public Optional<Interest> findInterestById(final long id) {
         LOGGER.debug("Getting interest {}", id);
         return this.interestDao.findById(id);
@@ -53,7 +48,6 @@ public class InterestServiceImpl implements InterestService {
     }
 
     @Override
-    @Cacheable(value = "interestsByName", key = "#name")
     public Optional<Interest> findInterestByName(final String name) {
         LOGGER.debug("Getting interest {}", name);
         return interestDao.findByName(name);
@@ -68,12 +62,6 @@ public class InterestServiceImpl implements InterestService {
 
     @Override
     @Transactional
-    @Caching(
-            put = {
-                @CachePut(value = "interestsByName", key = "#name"),
-                @CachePut(value = "interestsById", key = "#result.id")
-            }
-    )
     public Interest createInterest(final String name) {
         LOGGER.debug("Creating interest {}", name);
         Interest interest = interestDao.create(name);
@@ -83,10 +71,6 @@ public class InterestServiceImpl implements InterestService {
 
     @Override
     @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "interestsById", key = "#id"),
-            @CacheEvict(value = "interestsByName", allEntries = true)
-    })
     public Interest updateInterest(final long id, String interest) {
         LOGGER.debug("Editing interest {} with name {}", id, interest);
         Interest i = interestDao.findById(id)
@@ -137,10 +121,6 @@ public class InterestServiceImpl implements InterestService {
 
     @Override
     @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "interestsById", key = "#id"),
-            @CacheEvict(value = "interestsByName", allEntries = true)
-    })
     public void deleteInterest(final long id) {
         interestDao.delete(id);
         LOGGER.info("Interest {} deleted", id);
