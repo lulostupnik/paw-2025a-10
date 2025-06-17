@@ -33,7 +33,6 @@ public class InterestServiceImpl implements InterestService {
     }
 
 
-
     @Override
     @Transactional
     public void updateUserInterestScores(List<UserInterest> interests){
@@ -58,7 +57,7 @@ public class InterestServiceImpl implements InterestService {
     @Override
     @Transactional
     public Interest createInterest(final String name) {
-        LOGGER.debug("Creating interest {}", name);
+
         Interest interest = interestDao.create(name);
         LOGGER.info("Interest {} created", interest);
         return interest;

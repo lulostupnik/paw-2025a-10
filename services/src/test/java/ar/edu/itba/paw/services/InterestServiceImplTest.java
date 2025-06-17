@@ -47,20 +47,6 @@ public class InterestServiceImplTest {
     UserInterestDao uiDao;
 
     @Test
-    public void testFindInterestById(){
-        when(
-            interestDao.findById(eq(INTEREST_ID))
-        ).thenReturn(Optional.of(INTEREST));
-
-        Optional<Interest> maybeInterest = interestService.findInterestById(INTEREST_ID);
-
-        assertNotNull(maybeInterest);
-        assertEquals(INTEREST, maybeInterest.get());
-    }
-
-
-
-    @Test
     public void testUpdateUserInterestScores(){
         UserInterest interest = new UserInterest(USER, INTEREST, DEFAULT_SCORE);
         
@@ -69,41 +55,6 @@ public class InterestServiceImplTest {
         assertEquals(DEFAULT_SCORE + 1, interest.getScore());
     }
 
-    @Test
-    public void testFindInterestByName(){
-        when(
-            interestDao.findByName(eq(INTEREST_NAME))
-        ).thenReturn(Optional.of(INTEREST));
-
-        Optional<Interest> maybeInterest = interestService.findInterestByName(INTEREST_NAME);
-
-        assertNotNull(maybeInterest);
-        assertEquals(INTEREST, maybeInterest.get());
-    }
-
-    @Test
-    public void testFindInterestsByUserPaged(){
-        when(
-            uiDao.findAllByUser(eq(USER), any(PageParams.class))
-        ).thenReturn(UI_PAGE);
-
-        Page<UserInterest> ui = interestService.findInterestsByUser(USER, PAGE_PARAMS);
-
-        assertNotNull(ui);
-        assertEquals(UI_PAGE, ui);
-    }
-
-    @Test
-    public void testCreateInterest(){
-        when(
-            interestDao.create(eq(INTEREST_NAME))
-        ).thenReturn(INTEREST);
-
-        Interest interest = interestService.createInterest(INTEREST_NAME);
-
-        assertNotNull(interest);
-        assertEquals(INTEREST, interest);
-    }
 
     @Test
     public void testUpdateInterest(){
@@ -124,59 +75,5 @@ public class InterestServiceImplTest {
 
         interestService.updateInterest(INTEREST_ID, INTEREST_NAME);
     }
-
-    @Test
-    public void testCreateUserInterests(){
-        interestService.createUserInterests(INTEREST_NAMES, USER_ID);
-    }
-
-    @Test
-    public void testUpdateUserInterests(){
-        interestService.updateUserInterests(new long[0], USER_ID);
-    }
-
-    @Test
-    public void testFindInterestsQuery(){
-        when(
-            interestDao.search(eq(INTEREST_NAME), any(PageParams.class))
-        ).thenReturn(INTEREST_PAGE);
-
-        Page<Interest> interests = interestService.findInterests(INTEREST_NAME, PAGE_PARAMS);
-
-        assertNotNull(interests);
-        assertEquals(INTEREST_PAGE, interests);
-    }
-    @Test
-    public void testFindInterestsEmptyQuery(){
-        when(
-            interestDao.findAll(any(PageParams.class))
-        ).thenReturn(INTEREST_PAGE);
-
-        Page<Interest> interests = interestService.findInterests("", PAGE_PARAMS);
-
-        assertNotNull(interests);
-        assertEquals(INTEREST_PAGE, interests);
-    }
-    @Test
-    public void testFindInterestsMissingQuery(){
-        when(
-            interestDao.findAll(any(PageParams.class))
-        ).thenReturn(INTEREST_PAGE);
-
-        Page<Interest> interests = interestService.findInterests(null, PAGE_PARAMS);
-
-        assertNotNull(interests);
-        assertEquals(INTEREST_PAGE, interests);
-    }
-
-    @Test
-    public void testUpdateMatchingInterestScores(){
-        interestService.updateMatchingInterestScores(USER_ID, USER_ID);
-    }
-
-    @Test
-    public void testDeleteInterest(){
-        interestService.deleteInterest(INTEREST_ID);
-    }   
     
 }

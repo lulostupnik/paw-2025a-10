@@ -31,8 +31,6 @@ public class CareerServiceImpl implements CareerService {
         return careerDao.findById(id);
     }
 
-
-
     @Override
     public Optional<Career> findCareerByName(final String name) {
         LOGGER.debug("Getting career by name {}", name);
@@ -51,7 +49,6 @@ public class CareerServiceImpl implements CareerService {
     @Override
     @Transactional
     public Career createCareer(final String name) {
-        LOGGER.debug("Creating career {}", name);
         Career career = careerDao.create(name);
         LOGGER.info("Career {} created", name);
         return career;

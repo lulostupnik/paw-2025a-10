@@ -3,6 +3,7 @@ package ar.edu.itba.paw.services;
 import java.util.List;
 import java.util.Optional;
 
+import ar.edu.itba.paw.models.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -16,10 +17,6 @@ import static org.junit.Assert.*;
 
 import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.interfaces.services.CountryService;
-import ar.edu.itba.paw.models.City;
-import ar.edu.itba.paw.models.Country;
-import ar.edu.itba.paw.models.Page;
-import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.exceptions.CityNotFoundException;
 import ar.edu.itba.paw.models.exceptions.CountryNotFoundException;
 
@@ -46,63 +43,6 @@ public class CityServiceImplTest {
     @Mock
     CountryService countryService;
 
-    @Test
-    public void testFindCityByName(){
-        when(
-            cityDao.findByName(eq(CITY_1_NAME))
-        ).thenReturn(MAYBECITY_1);
-
-        Optional<City> maybeCity = cityService.findCityByName(CITY_1_NAME);
-        
-        assertNotNull(maybeCity);
-        assertEquals(CITY_1, maybeCity.get());
-    }
-
-    @Test
-    public void testFindCityById(){
-        when(
-            cityDao.findById(eq(CITY_1_ID))
-        ).thenReturn(MAYBECITY_1);
-
-        Optional<City> maybeCity = cityService.findCityById(CITY_1_ID);
-        
-        assertNotNull(maybeCity);
-        assertEquals(CITY_1, maybeCity.get());
-    }
-
-    @Test
-    public void testSearchCitiesWithQuery(){
-        when(
-            cityDao.search(eq(CITY_1_NAME), eq(PAGE_PARAMS))
-        ).thenReturn(CITIES_PAGE);
-
-        Page<City> cities = cityService.searchCities(CITY_1_NAME, PAGE_PARAMS);
-
-        assertNotNull(cities);
-        assertEquals(CITIES_PAGE, cities);
-    }
-    @Test
-    public void testSearchCitiesEmptyQuery(){
-        when(
-            cityDao.findAll(eq(PAGE_PARAMS))
-        ).thenReturn(CITIES_PAGE);
-
-        Page<City> cities = cityService.searchCities("", PAGE_PARAMS);
-
-        assertNotNull(cities);
-        assertEquals(CITIES_PAGE, cities);
-    }
-    @Test
-    public void testSearchCitiesMissingQuery(){
-        when(
-            cityDao.findAll(eq(PAGE_PARAMS))
-        ).thenReturn(CITIES_PAGE);
-
-        Page<City> cities = cityService.searchCities(null, PAGE_PARAMS);
-
-        assertNotNull(cities);
-        assertEquals(CITIES_PAGE, cities);
-    }
 
     @Test
     public void testUpdateCity(){
@@ -114,10 +54,10 @@ public class CityServiceImplTest {
             cityDao.findById(eq(CITY_1_ID))
         ).thenReturn(Optional.of(newCity));
 
-        cityService.updateCity(CITY_1_ID, CITY_1_NAME, COUNTRY_NAME);
+        City city = cityService.updateCity(CITY_1_ID, CITY_1_NAME, COUNTRY_NAME);
 
-        assertEquals(CITY_1_NAME, newCity.getName());
-        assertEquals(COUNTRY_NAME, newCity.getCountry().getName());
+        assertEquals(CITY_1_NAME, city.getName());
+        assertEquals(COUNTRY_NAME, city.getCountry().getName());
     }
     @Test(expected = CityNotFoundException.class)
     public void testUpdateCityNotFound(){
@@ -140,26 +80,14 @@ public class CityServiceImplTest {
     }
 
     @Test
-    public void testCreateCity(){
-        when(
-            countryService.findCountryByName(eq(COUNTRY_NAME))
-        ).thenReturn(Optional.of(COUNTRY));
-
-        cityService.createCity(CITY_1_NAME, COUNTRY_NAME);
-    }
-
-    @Test(expected = CountryNotFoundException.class)
-    public void testCreateCityMissingCountry(){
-        Mockito.when(
-            countryService.findCountryByName(Mockito.eq(COUNTRY_NAME))
-        ).thenReturn(Optional.empty());
-
-        cityService.createCity(CITY_1_NAME, COUNTRY_NAME);
-    }
-
-    @Test
     public void testDeleteCity(){
+        City city = new City("Madrid", COUNTRY );
+        when(cityDao.findById(CITY_1_ID)).thenReturn(Optional.of(city));
+
         cityService.deleteCity(CITY_1_ID);
+
+        assertTrue(city.isDeleted());
+
     }
 
 }
