@@ -88,11 +88,12 @@ public class UniversityServiceImpl implements UniversityService {
     @Override
     @Transactional
     public void deleteUniversity(final long id) {
-        University university = universityDao.findById(id).orElseThrow(() -> {
-            LOGGER.error("University with id {} not found", id);
-            return new UniversityNotFoundException(id);
-        });
-        university.setDeleted(true);
+        Optional<University> maybeUniversity = universityDao.findById(id);
+        if (maybeUniversity.isEmpty()) {
+            LOGGER.info("University with id {} not found", id);
+            return;
+        }
+        maybeUniversity.get().setDeleted(true);
         LOGGER.info("University deleted successfully with id: {}", id);
     }
 

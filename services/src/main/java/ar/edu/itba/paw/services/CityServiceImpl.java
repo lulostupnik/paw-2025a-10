@@ -86,12 +86,12 @@ public class CityServiceImpl implements CityService {
     @Transactional
     public void deleteCity(final long id) {
        Optional<City> maybeCity = cityDao.findById(id);
-        if (maybeCity.isEmpty()) {
-            LOGGER.error("City with id {} not found", id);
+        if (maybeCity.isPresent()) {
+            maybeCity.get().setDeleted(true);
+            LOGGER.info("City with id {} deleted successfully", id);
             return;
         }
-        maybeCity.get().setDeleted(true);
-        LOGGER.info("City with id {} deleted successfully", id);
+        LOGGER.info("City with id {} not found", id);
     }
 
 }

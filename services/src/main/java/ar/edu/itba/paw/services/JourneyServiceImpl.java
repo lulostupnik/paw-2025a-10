@@ -268,14 +268,17 @@ public class JourneyServiceImpl implements JourneyService {
     @Transactional
     public void deleteJourney(final long id, final String message) {
 
-        Journey journey = journeyDao.findById(id).orElseThrow(() -> {
-                LOGGER.warn("Journey with id {} not found", id);
-                return new JourneyNotFoundException(id);
+        Optional<Journey> maybeJourney = journeyDao.findById(id);
+        if (maybeJourney.isEmpty()) {
+            LOGGER.info("Journey with id {} not found", id);
+            return;
         }
-        );
+        Journey journey = maybeJourney.get();
 
         LOGGER.info("Journey deletion message updated: {}", message);
-        journey.setDeletionMessage(message);
+        if(message != null && ! message.isEmpty()){
+            journey.setDeletionMessage(message);
+        }
 
         journeyResponseDao.deleteByJourneyId(journey.getId()); // todo check
         LOGGER.info("Journey responses deleted for journey {}", id);
@@ -341,10 +344,12 @@ public class JourneyServiceImpl implements JourneyService {
     @Transactional
     public void deleteJourneyResponse(final long id, final String message) {
         LOGGER.debug("Deleting journey response {}", id);
-        JourneyResponse journeyResponse = findJourneyResponseById(id).orElseThrow(() -> {
-            LOGGER.error("Journey response with id {} not found", id);
-            return new JourneyResponseNotFoundException(id);}
-        );
+        Optional<JourneyResponse> maybeJourneyResponse = findJourneyResponseById(id);
+        if (maybeJourneyResponse.isEmpty()) {
+            LOGGER.info("Journey response with id {} not found", id);
+            return;
+        }
+        JourneyResponse journeyResponse = maybeJourneyResponse.get();
 
         User commentAuthor = journeyResponse.getUser();
 

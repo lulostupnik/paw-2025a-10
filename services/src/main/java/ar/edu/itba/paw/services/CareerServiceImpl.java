@@ -74,12 +74,12 @@ public class CareerServiceImpl implements CareerService {
     @Transactional
     public void deleteCareer(final long id) {
         Optional<Career> maybeCareer = careerDao.findById(id);
-        if (maybeCareer.isEmpty()) {
-            LOGGER.info("Career {} not found", id);
+        if (maybeCareer.isPresent()) {
+            maybeCareer.get().setDeleted(true);
+            LOGGER.info("Career {} deleted", id);
             return;
         }
-        maybeCareer.get().setDeleted(true);
-        LOGGER.info("Career {} deleted", id);
+        LOGGER.info("Career {} not found", id);
     }
 
 

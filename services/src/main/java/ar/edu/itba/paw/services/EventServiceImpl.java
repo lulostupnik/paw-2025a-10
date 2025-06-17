@@ -414,20 +414,28 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public void deleteEvent(final long id, final String message) {
         LOGGER.debug("Deleting event {}", id);
-        Event event = eventDao.findById(id).orElseThrow(() -> {
-            LOGGER.warn("Event not found {}", id);
-            return new EventNotFoundException(id);});
+        Optional<Event> maybeEvent = eventDao.findById(id);
+        if (maybeEvent.isEmpty()) {
+            LOGGER.info("Event not found {}", id);
+            return;
+        }
+        Event event = maybeEvent.get();
         if(message != null && !message.isEmpty()){
             event.setDeletionMessage(message);
             emailService.sendEventDeletionNotification(new EmailEvent(event),message);
         }
         event.setDeleted(true);
+        LOGGER.info("Event {} deleted", id);
     }
 
     @Override
     @Transactional
     public void deleteEventResponse(final EventResponse eventResponse, final String message) {
         LOGGER.debug("Deleting event response {}", eventResponse);
+        if(eventResponse.isDeleted()){
+            LOGGER.info("Event response {} already deleted", eventResponse);
+            return;
+        }
         Event event = eventResponse.getEvent();
         User commentAuthor = eventResponse.getUser();
         emailService.sendEventCommentDeletionNotification(eventResponse,new EmailEvent(event),new EmailUser(commentAuthor), message );
