@@ -336,6 +336,7 @@ public class UserServiceImplTest {
         assertEquals(USER_PAGE, users);
     }
 
+    // FIXME: FALTA ASSERT
     @Test
     public void testBlockUser(){
         when(
@@ -353,6 +354,7 @@ public class UserServiceImplTest {
         userService.blockUser(USER_ID);
     }
 
+    // FIXME: FALTA ASSERT
     @Test
     public void testUnblockUser(){
         when(
@@ -443,6 +445,7 @@ public class UserServiceImplTest {
         assertEquals(PASSWORD, newUser.getPassword());
     }
 
+    // FIXME: FALTA ASSERT --> VER SI ESTE SE PUEDA ELIMINAR
     @Test
     public void testInitiatePasswordReset(){
         when(

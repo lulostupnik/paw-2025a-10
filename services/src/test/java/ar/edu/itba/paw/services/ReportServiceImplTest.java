@@ -279,11 +279,13 @@ public class ReportServiceImplTest {
         assertEquals(REPORT_PAGE, reports);
     }
 
+    // FIXME: FALTA ASSERT
     @Test
     public void testDelete(){
         reportService.delete(REPORT);
     }
 
+    // FIXME: FALTA ASSERT
     @Test
     public void testDeleteById(){
         reportService.deleteById(REPORT_ID);
