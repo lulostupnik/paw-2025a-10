@@ -985,7 +985,7 @@ public class EventServiceImplTest {
             LIMIT
         );
 
-        assertEquals(IMAGE_ID + 1, newEvent.getFlyerImageId()); //TODO: check
+        assertEquals(IMAGE_ID + 1, newEvent.getFlyerImageId());
     }
     @Test
     public void testUpdateEventEmptyImage(){

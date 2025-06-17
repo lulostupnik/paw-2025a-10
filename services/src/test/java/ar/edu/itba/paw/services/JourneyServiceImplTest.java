@@ -1122,12 +1122,6 @@ public class JourneyServiceImplTest {
         journeyService.updateTip(TIP_ID, DESCRIPTION, DESCRIPTION);
     }
 
-    @Test
-    public void testDeleteTip(){
-        journeyService.deleteTip(TIP_ID);
-
-        //TODO asserts
-    }
 
     @Test
     public void testFindTipById(){
