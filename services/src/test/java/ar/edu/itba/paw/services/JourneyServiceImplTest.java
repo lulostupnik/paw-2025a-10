@@ -1080,11 +1080,17 @@ public class JourneyServiceImplTest {
         when(
             journeyDao.findById(eq(JOURNEY_ID))
         ).thenReturn(Optional.of(JOURNEY));
+        when(tipDao.create(eq(JOURNEY), eq(DESCRIPTION), eq(DESCRIPTION)))
+                .thenReturn( TIP);
 
-        journeyService.createTip(JOURNEY_ID, DESCRIPTION, DESCRIPTION);
-
-        //TODO asserts
+        Tip tip = journeyService.createTip(JOURNEY_ID, DESCRIPTION, DESCRIPTION);
+        assertNotNull(tip);
+        assertEquals(DESCRIPTION, tip.getTitle());
+        assertEquals(DESCRIPTION, tip.getContent());
+        assertEquals(JOURNEY, tip.getJourney());
+        assertNotNull(tip.getDateTime());
     }
+
     @Test(expected = JourneyNotFoundException.class)
     public void testCreateTipMissingJourney(){
         when(
