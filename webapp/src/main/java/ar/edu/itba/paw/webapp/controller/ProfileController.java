@@ -40,8 +40,8 @@ public class ProfileController {
         this.userService = userService;
     }
 
-    private void addUserJourneyToMav(User user, ModelAndView mav) {
-        journeyService.findJourneyById(user.getId())
+    private void addUserJourneyToMav(User user, ModelAndView mav) {;
+        journeyService.findJourneyByUserId(user.getId())
                 .ifPresent(journey -> mav.addObject("userJourney", journey));
     }
 

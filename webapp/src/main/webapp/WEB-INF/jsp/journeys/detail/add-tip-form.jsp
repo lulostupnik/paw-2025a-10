@@ -162,7 +162,7 @@
 
                             <div class="form-actions" style="display: flex; justify-content: flex-end; gap: 1rem; align-items: flex-start;">
                                 <c:url var="cancelUrl" value="/journeys/${journey.id}"/>
-                                <a href="${cancelUrl}" class="btn-cancel" style="height: 44px; padding: 0.75rem 1.5rem; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; margin: 0;">
+                                <a href="${cancelUrl}" class="btn-secondary" style="height: 44px; padding: 0.75rem 1.5rem; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; margin: 0;">
                                     <spring:message code="tip.cancel" text="Cancel" />
                                 </a>
                                 <div style="margin: 0;">
@@ -298,8 +298,6 @@
         background-color: #ffffff;
         border-radius: 0.75rem;
         padding: 2rem;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     }
 
     .tip-form-title {
