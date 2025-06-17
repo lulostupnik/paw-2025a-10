@@ -35,7 +35,7 @@
       <c:otherwise>
         <div class="journey-events-container">
           <c:forEach var="event" items="${createdEventsPage.content}">
-            <a href="<c:url value='/events/${event.id}'/>" class="journey-event-card-link">
+            <a href="<c:url value='/events/${event.id}'/>" onclick="saveLink()" class="journey-event-card-link">
               <div class="journey-event-card">
                 <div class="journey-event-left">
                   <c:choose>
@@ -130,7 +130,7 @@
       <c:otherwise>
         <div class="journey-events-container">
           <c:forEach var="event" items="${attendingEventsPage.content}">
-            <a href="<c:url value='/events/${event.id}'/>" class="journey-event-card-link">
+            <a href="<c:url value='/events/${event.id}'/>" onclick="saveLink()" class="journey-event-card-link">
               <div class="journey-event-card">
                 <div class="journey-event-left">
                   <c:choose>
