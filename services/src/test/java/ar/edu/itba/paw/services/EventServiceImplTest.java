@@ -187,6 +187,7 @@ public class EventServiceImplTest {
         );
     }
 
+    // FIXME: falta mock y ASSERTS
     @Test
     public void testCreateEventResponse(){
         when(
@@ -204,6 +205,8 @@ public class EventServiceImplTest {
 
         eventService.createEventResponse(EMAIL, EVENT_ID, DESCRIPTION);
     }
+
+    // FIXME: falta mock y ASSERTS
     @Test
     public void testCreateEventResponseNoReplies(){
         when(

@@ -198,11 +198,13 @@ public class CareerHibernateDaoTest {
         assertEquals(CAREER_INSERT1_NAME, career.getName());
         assertTrue(career.getId() > 0);
     }
+
     @Test(expected = CareerAlreadyExistsException.class)
     public void testCreateDuplicateActive(){
         careerDao.create(CAREER_1_NAME);
         em.flush();
     }
+
     @Test
     public void testCreateDuplicateDeleted(){
         int rowsBefore = JdbcTestUtils.countRowsInTable(jdbcTemplate, CAREER_TABLE);
