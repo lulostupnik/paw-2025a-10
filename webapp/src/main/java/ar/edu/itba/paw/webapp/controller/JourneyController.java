@@ -87,7 +87,8 @@ public class JourneyController {
                                    @ModelAttribute("replyJourneyForm") ReplyForm rjf,
                                    @PageParamCustomizer(defaultSize = 4) PageParams  repliesPage,
                                    @PageParamCustomizer(defaultSize = 8, pageParamName = "interestsPage", sizeParamName = "interestsSize") PageParams interestsPage,
-                                   @PageParamCustomizer(defaultSize = 6, pageParamName = "eventsPage", sizeParamName = "eventsSize") PageParams eventsPage,
+                                   @PageParamCustomizer(defaultSize = 6, pageParamName = "attendingEventsPage", sizeParamName = "attendingEventsSize") PageParams attendingEventsPage,
+                                   @PageParamCustomizer(defaultSize = 6, pageParamName = "createdEventsPage", sizeParamName = "createdEventsSize") PageParams eventsPage,
                                    @PageParamCustomizer(defaultSize = 6, pageParamName = "tipsPage", sizeParamName = "tipsSize") PageParams tipsPage) {
         Journey journey = js.findJourneyById(id).orElseThrow(() -> {
             LOGGER.error("Journey with ID {} not found", id);
@@ -95,7 +96,7 @@ public class JourneyController {
         });
         Page<JourneyResponse> journeyResponses = js.findJourneyResponses(journey.getId(), repliesPage);
         Page<Event> createdEvents = eventService.findCreatedByJourney(journey, eventsPage);
-        Page<Event> attendedEvents = eventService.findAttendedByJourney(journey, eventsPage);
+        Page<Event> attendedEvents = eventService.findAttendedByJourney(journey, attendingEventsPage);
 
         final ModelAndView mav = new ModelAndView("journeys/detail/detail");
         mav.addObject("journey", journey);
@@ -141,7 +142,7 @@ public class JourneyController {
     public ModelAndView replyToJourney(@PathVariable int id, @Valid @ModelAttribute("replyJourneyForm")  ReplyForm rjf,
                                         BindingResult errors, @ModelAttribute("user") User user) {
         if (errors.hasErrors()) {
-            return getJourney(id, user, rjf, new PageParams(1, 4), new PageParams(1, 8), new PageParams(1, 6), new PageParams(1, 6));
+            return getJourney(id, user, rjf, new PageParams(1, 4), new PageParams(1, 8), new PageParams(1, 6), new PageParams(1,6), new PageParams(1, 6));
         }
         js.createJourneyResponse(user.getEmail(), id, rjf.getMessage());
         return new ModelAndView(REDIRECT_JOURNEY + id);
