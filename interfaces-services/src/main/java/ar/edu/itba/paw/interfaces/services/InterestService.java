@@ -1,24 +1,22 @@
 package ar.edu.itba.paw.interfaces.services;
 
 import ar.edu.itba.paw.models.*;
-
 import java.util.List;
 import java.util.Optional;
 
 public interface InterestService {
     Interest createInterest(String interest);
 
-    void updateInterest(long id, String interest);
+    Interest updateInterest(long id, String interest);
     void deleteInterest(long id);
 
     void createUserInterests(List<String> interests, long userId);
     void updateUserInterestScores(List<UserInterest> interests);
 
     Optional<Interest> findInterestById(long id);
-    List<UserInterest> findInterestsByUser(User user);
     Optional<Interest> findInterestByName(String name);
     Page<UserInterest> findInterestsByUser(User user, PageParams pageParams);
-    void updateUserInterests(final long[] interestIds, final long userId);
+    void updateUserInterests(final long[] interestIds, final long userId); //no devuelve la lista de intereses porque esa búsqueda está paginada
     Page<Interest> findInterests(String search, PageParams pageParams);
     void updateMatchingInterestScores(long responderUserId, long journeyCreatorUserId);
 }

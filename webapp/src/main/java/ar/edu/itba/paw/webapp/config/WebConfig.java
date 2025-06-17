@@ -2,9 +2,6 @@ package ar.edu.itba.paw.webapp.config;
 
 import ar.edu.itba.paw.webapp.paging.PageParamsResolver;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -13,11 +10,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.io.Resource;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
-import org.springframework.jdbc.datasource.init.DataSourceInitializer;
-import org.springframework.jdbc.datasource.init.DatabasePopulator;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.lang.NonNull;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -34,7 +27,6 @@ import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
-
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.nio.charset.StandardCharsets;
@@ -48,7 +40,6 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
-@EnableCaching
 @EnableTransactionManagement
 @EnableWebMvc
 @EnableAsync
@@ -121,20 +112,6 @@ public class WebConfig implements WebMvcConfigurer {
         return ms;
     }
 
-//
-//    @Bean
-//    public DataSourceInitializer dataSourceInitializer(final DataSource ds) {
-//        final DataSourceInitializer dsi = new DataSourceInitializer();
-//        dsi.setDataSource(ds);
-//        dsi.setDatabasePopulator(databasePopulator());
-//        return dsi;
-//    }
-//
-//    private DatabasePopulator databasePopulator() {
-//        final ResourceDatabasePopulator dbp = new ResourceDatabasePopulator();
-//        dbp.addScript(schemaSql);
-//        return dbp;
-//    }
     @Bean
     public StandardServletMultipartResolver multipartResolver() {
         return new StandardServletMultipartResolver();
@@ -198,27 +175,13 @@ public class WebConfig implements WebMvcConfigurer {
         final JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         factoryBean.setJpaVendorAdapter(vendorAdapter);
         final Properties properties = new Properties();
-        properties.setProperty("hibernate.hbm2ddl.auto", "update"); //fixme: en la clase es update
+        properties.setProperty("hibernate.hbm2ddl.auto", "update");
         properties.setProperty("hibernate.dialect",
                 "org.hibernate.dialect.PostgreSQL92Dialect");
-// Si ponen esto en prod, hay tabla!!!
-//        properties.setProperty("hibernate.show_sql", "true");
-//        properties.setProperty("format_sql", "true");
         factoryBean.setJpaProperties(properties);
         return factoryBean;
     }
 
-    @Bean
-    public CacheManager cacheManager() {
-        return new ConcurrentMapCacheManager(
-                "images",
-                "careersByName", "careersById",
-                "interestsById", "interestsByName",
-                "countries", "countriesByName",
-                "citiesByName", "citiesById",
-                "universitiesById", "universitiesByName"
-        );
-    }
 
 
 }

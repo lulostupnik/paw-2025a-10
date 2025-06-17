@@ -1,22 +1,20 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.UniversityService;
-
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.exceptions.UniversityNotFoundException;
 import ar.edu.itba.paw.webapp.form.CreateUniversityForm;
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
 import ar.edu.itba.paw.webapp.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
 import javax.validation.Valid;
 
 @Controller
@@ -71,7 +69,7 @@ public class UniversityController {
         mav.addObject(UNIVERSITY, universityService.findById(id).orElseThrow(
                 () -> {
                     LOGGER.error("University not found for id: {}", id);
-                    return new NotFoundException("University not found");}
+                    return new UniversityNotFoundException("University not found");}
         ));
         return mav;
     }
@@ -82,7 +80,7 @@ public class UniversityController {
         if(! errors.hasErrors()) {
             University university = universityService.findById(id).orElseThrow(()-> {
                 LOGGER.error("University not found for id: {}", id);
-                return new NotFoundException("University not found");});
+                return new UniversityNotFoundException("University not found");});
             form.setName(university.getName());
             form.setAbbreviation(university.getAbbreviation());
             form.setCity(university.getCity().getName());

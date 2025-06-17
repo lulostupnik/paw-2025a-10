@@ -1,6 +1,8 @@
 package ar.edu.itba.paw.webapp.controller;
+
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.InterestsNotFoundException;
 import ar.edu.itba.paw.webapp.form.CreateInterestForm;
 import ar.edu.itba.paw.webapp.form.EditInterestForm;
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
@@ -8,14 +10,11 @@ import ar.edu.itba.paw.webapp.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
 import javax.validation.Valid;
-
 
 @Controller
 @RequestMapping("/interests")
@@ -56,7 +55,7 @@ public class InterestController {
     public ModelAndView getInterests(@PathVariable(value = "id") final long id) {
         Interest interest = interestService.findInterestById(id).orElseThrow(() -> {
             LOGGER.error("Interest not found for id: {}", id);
-            return new NotFoundException("Interest not found");});
+            return new InterestsNotFoundException("Interest not found");});
         ModelAndView mav = new ModelAndView("interests/detail");
         mav.addObject("interest", interest);
         return mav;
@@ -69,7 +68,7 @@ public class InterestController {
                                            BindingResult errors ) {
         Interest interest = interestService.findInterestById(id).orElseThrow(() -> {
             LOGGER.error("Interest not found for id: {}", id);
-            return new NotFoundException("Interest not found");});
+            return new InterestsNotFoundException("Interest not found");});
         if(!errors.hasErrors()){
             form.setName(interest.getName());
         }
@@ -124,7 +123,7 @@ public class InterestController {
             return updateInterestForm(user, form);
         }
         interestService.updateUserInterests(form.getInterests(), user.getId());
-        return new ModelAndView("redirect:/profile/interests");
+        return new ModelAndView("redirect:/profile/" + user.getId() + "/interests");
     }
 
 }

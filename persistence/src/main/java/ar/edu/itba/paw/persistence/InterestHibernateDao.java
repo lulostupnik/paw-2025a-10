@@ -5,13 +5,10 @@ import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.likePattern;
@@ -47,14 +44,6 @@ public class InterestHibernateDao implements InterestDao {
         final Interest i = new Interest(interest);
         em.persist(i);
         return i;
-    }
-
-    @Override
-    public void update(long id, String interest) {
-        final Interest i = em.find(Interest.class, id);
-        if (i != null) {
-            i.setName(interest);
-        }
     }
 
     @Override

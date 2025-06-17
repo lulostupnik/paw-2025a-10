@@ -8,13 +8,11 @@ import ar.edu.itba.paw.models.exceptions.InterestsNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
 
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 
@@ -34,22 +32,21 @@ public class UserInterestHibernateDao implements UserInterestDao {
         final UserInterest userInterest = new UserInterest(user, interest);
         em.persist(userInterest);
         return userInterest;
-
     }
 
     @Override
-    public List<UserInterest> findAllByUser(User user) { // fixme: mover a User? O crear un UserInterestDao
+    public List<UserInterest> findAllByUser(User user) {
         return em.createQuery("FROM UserInterest ui WHERE ui.user.id = :id", UserInterest.class)
                 .setParameter("id", user.getId())
                 .getResultList();
     }
-    private List<UserInterest> findAllByUserId(long userId) { //fixme: mover a User? O crear un UserInterestDao
+    private List<UserInterest> findAllByUserId(long userId) {
         return em.createQuery("FROM UserInterest ui WHERE ui.user.id = :id", UserInterest.class)
                 .setParameter("id", userId)
                 .getResultList();
     }
     @Override
-    public Page<UserInterest> findAllByUser(User user, PageParams pageParams) {  //fixme: mover a User? O crear un UserInterestDao
+    public Page<UserInterest> findAllByUser(User user, PageParams pageParams) {
         final String countSql = """
                 SELECT COUNT(*)
                 FROM user_interest ui
@@ -60,7 +57,8 @@ public class UserInterestHibernateDao implements UserInterestDao {
                 SELECT ui.category_id
                 FROM user_interest ui
                 WHERE ui.user_id = :id
-                """; // todo falta ORDER BY
+                ORDER BY ui.category_id
+                """;
 
         final String jpqlFetch = """
                 FROM UserInterest ui
@@ -73,7 +71,7 @@ public class UserInterestHibernateDao implements UserInterestDao {
     @Override
     public void createUserInterests(List<String> interests, long userId) {
         User user = userDao.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(userId));
         for (String interest : interests) {
             Interest i = interestDao.findByName(interest)
                     .orElseGet(() -> interestDao.create(interest));
@@ -82,28 +80,19 @@ public class UserInterestHibernateDao implements UserInterestDao {
     }
 
     @Override
-    public void createUserInterests(long[] interests, long userId) {  // fixme: mover a User? O crear un UserInterestDao
+    public void createUserInterests(long[] interests, long userId) {
         User user = userDao.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(userId));
         for( long interestId : interests) {
             Interest i = interestDao.findById(interestId)
-                    .orElseThrow(() -> new InterestsNotFoundException("Interest not found"));
+                    .orElseThrow(() -> new InterestsNotFoundException(interestId));
             create(user, i);
         }
     }
 
-    @Override
-    public void updateScoreByInterest(Interest interest, long userId) { //fixme: mover a User? O crear un UserInterestDao
-        for (UserInterest userInterest : findAllByUserId(userId)) { //fixme: mover esto al modelo
-            if (userInterest.getInterest().getId().equals(interest.getId())) {
-                userInterest.setScore(userInterest.getScore() + 1);
-            }
-        }
-
-    }
 
     @Override
-    public void updateUserInterests(long[] interestIds, long userId) { // fixme: revisar eficiencia
+    public void updateUserInterests(long[] interestIds, long userId) {
         List<UserInterest> userInterests = findAllByUserId(userId);
         List<Long> interestsToAdd = new java.util.ArrayList<>(Arrays.stream(interestIds).boxed().toList());
         for (UserInterest userInterest : userInterests) {
@@ -115,27 +104,23 @@ public class UserInterestHibernateDao implements UserInterestDao {
         }
         for (Long interestId : interestsToAdd) {
             Interest i = interestDao.findById(interestId)
-                    .orElseThrow(() -> new InterestsNotFoundException("Interest not found"));
-            create(userDao.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found")), i);
+                    .orElseThrow(() -> new InterestsNotFoundException(interestId));
+            create(userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(userId)), i);
         }
 
     }
 
-    @Override
-    public void updateScoreByInterests(List<Interest> interests, long userId) { // fixme: mover a User? O crear un UserInterestDao
-        for (Interest interest : interests) { //fixme: mover esto al modelo
-            for (UserInterest userInterest : findAllByUserId(userId)) {
-                if (userInterest.getInterest().getId().equals(interest.getId())) {
-                    userInterest.setScore(userInterest.getScore() + 1);
-                }
-            }
-        }
 
-    }
-
+    /**
+     * Nota: Este update es el único que se hace directamente en un DAO porque hacerlo en servicios
+     * requeriría iterar a través de páginas (ya que no hay límite en la cantidad de intereses),
+     * y generar N updates individuales. Con esta query nativa logramos:
+     * - Código más limpio (1 query vs loops anidados con lógica de paginación compleja)
+     * - Mayor eficiencia (1 UPDATE bulk vs N updates individuales)
+     */
     @Override
     public void updateMatchingInterestScores(long responderUserId, long journeyCreatorUserId) {
-        // Update scores for interests that both users have in common
+
         em.createNativeQuery("""
         UPDATE user_interest
         SET score = score + 1
@@ -150,27 +135,6 @@ public class UserInterestHibernateDao implements UserInterestDao {
                 .setParameter("journeyCreatorUserId", journeyCreatorUserId)
                 .executeUpdate();
     }
-
-
-    // sin usar native query:
-//
-//    @Override
-//    public void updateMatchingInterestScores(long responderUserId, long journeyCreatorUserId) {
-//        // Update scores for interests that both users have in common
-//        em.createQuery("""
-//        UPDATE UserInterest ui
-//        SET ui.score = ui.score + 1
-//        WHERE ui.user.id = :responderUserId
-//          AND ui.interest.id IN (
-//              SELECT ui2.interest.id
-//              FROM UserInterest ui2
-//              WHERE ui2.user.id = :journeyCreatorUserId
-//          )
-//    """)
-//                .setParameter("responderUserId", responderUserId)
-//                .setParameter("journeyCreatorUserId", journeyCreatorUserId)
-//                .executeUpdate();
-//    }
 
 
 }

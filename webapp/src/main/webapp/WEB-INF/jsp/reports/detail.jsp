@@ -159,9 +159,18 @@
                                         </c:if>
                                     </div>
                                     <c:url var="journeyUrl" value='/journeys/${report.journey.id}'/>
-                                    <a href="<c:out value='${journeyUrl}'/>" class="view-content-link" target="_blank">
-                                        <spring:message code="report.view.original.content" text="View Original Content"/> ↗
-                                    </a>
+                                    <c:choose>
+                                        <c:when test="${report.journey.deleted}">
+                                            <span class="deleted-badge">
+                                                <spring:message code="report.content.deleted" text="Content Deleted"/>
+                                            </span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a href="${journeyUrl}" class="view-content-link" onclick="saveLink()" >
+                                                <spring:message code="report.view.original.content" text="View Original Content"/> ↗
+                                            </a>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </div>
                             </div>
                         </c:if>
@@ -188,9 +197,18 @@
                                         </span>
                                     </div>
                                     <c:url var="eventUrl" value='/events/${report.event.id}'/>
-                                    <a href="<c:out value='${eventUrl}'/>" class="view-content-link" target="_blank">
-                                        <spring:message code="report.view.original.content" text="View Original Content"/> ↗
-                                    </a>
+                                    <c:choose>
+                                        <c:when test="${report.event.deleted}">
+                                            <span class="deleted-badge">
+                                                <spring:message code="report.content.deleted" text="Content Deleted"/>
+                                            </span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a href="<c:out value='${eventUrl}'/>" onclick="saveLink()" class="view-content-link">
+                                                <spring:message code="report.view.original.content" text="View Original Content"/> ↗
+                                            </a>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </div>
                             </div>
                         </c:if>
@@ -220,9 +238,18 @@
                                         <h5><spring:message code="report.detail.parent.journey" text="On Journey"/>:</h5>
                                         <p><c:out value="${report.journeyResponse.journey.user.username}"/></p>
                                         <c:url var="journeyUrl" value='/journeys/${report.journeyResponse.journey.id}'/>
-                                        <a href="<c:out value='${journeyUrl}'/>" class="view-content-link" target="_blank">
-                                            <spring:message code="report.view.original.content" text="View Original Content"/> ↗
-                                        </a>
+                                        <c:choose>
+                                            <c:when test="${report.journeyResponse.deleted}">
+                                            <span class="deleted-badge">
+                                                <spring:message code="report.content.deleted" text="Content Deleted"/>
+                                            </span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <a href="<c:out value='${journeyUrl}'/>" onclick="saveLink()" class="view-content-link" >
+                                                    <spring:message code="report.view.original.content" text="View Original Content"/> ↗
+                                                </a>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </div>
                                 </div>
                             </div>
@@ -253,9 +280,18 @@
                                         <h5><spring:message code="report.detail.parent.event" text="On Event"/>:</h5>
                                         <p><c:out value="${report.eventResponse.event.title}"/></p>
                                         <c:url var="eventUrl" value='/events/${report.eventResponse.event.id}'/>
-                                        <a href="<c:out value='${eventUrl}'/>" class="view-content-link" target="_blank">
-                                            <spring:message code="report.view.original.content" text="View Original Content"/> ↗
-                                        </a>
+                                        <c:choose>
+                                            <c:when test="${report.eventResponse.deleted}">
+                                            <span class="deleted-badge">
+                                                <spring:message code="report.content.deleted" text="Content Deleted"/>
+                                            </span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <a href="<c:out value='${eventUrl}'/>" onclick="saveLink()" class="view-content-link">
+                                                    <spring:message code="report.view.original.content" text="View Original Content"/> ↗
+                                                </a>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </div>
                                 </div>
                             </div>
@@ -308,14 +344,6 @@
                             </div>
                         </div>
 
-<%--                        <div class="feature-card">--%>
-<%--                            <h3 class="feature-title"><spring:message code="report.detail.date"/></h3>--%>
-<%--                            <p class="feature-description">--%>
-<%--                                <c:if test="${report.createdAt != null}">--%>
-<%--                                    <c:out value="${report.createdAt}"/>--%>
-<%--                                </c:if>--%>
-<%--                            </p>--%>
-<%--                        </div>--%>
                     </div>
                 </div>
 
@@ -330,29 +358,49 @@
                         <c:if test="${report.status == 'PENDING'}">
                             <form action="<c:url value='/reports/${report.id}/status'/>" method="post" style="display: inline;">
                                 <input type="hidden" name="status" value="UNDER_REVIEW"/>
-                                <button type="submit" class="cta-button secondary">
+                                <button type="submit" class="cta-button btn-dele">
                                     <spring:message code="report.action.review" text="Start Review"/>
                                 </button>
                             </form>
                         </c:if>
 
                         <c:if test="${report.status == 'UNDER_REVIEW'}">
-                            <!-- Resolve with option to block user -->
-                            <button type="button" class="cta-button" id="resolveReportBtn">
-                                <spring:message code="report.action.resolve" text="Mark as Resolved"/>
-                            </button>
-
-                            <form action="<c:url value='/reports/${report.id}/status'/>" method="post" style="display: inline;">
-                                <input type="hidden" name="status" value="DISMISSED"/>
-                                <button type="submit" class="cta-button secondary">
-                                    <spring:message code="report.action.dismiss" text="Dismiss Report"/>
-                                </button>
-                            </form>
+                            <!-- Delete Content Button - dynamically sets the correct path based on content type -->
+                            <c:choose>
+                                <c:when test="${report.journey != null and report.journey.deleted == false}">
+                                    <form action="<c:url value='/journeys/${report.journey.id}/delete'/>" method="get" style="display: inline;">
+                                        <button type="submit" class="cta-button btn-dele" onclick="saveLink()">
+                                            <spring:message code="report.action.delete_journey" text="Delete Journey"/>
+                                        </button>
+                                    </form>
+                                </c:when>
+                                <c:when test="${report.event != null and report.event.deleted == false}">
+                                    <form action="<c:url value='/events/${report.event.id}/delete'/>" method="get" style="display: inline;">
+                                        <button type="submit" class="cta-button btn-dele" onclick="saveLink()">
+                                            <spring:message code="report.action.delete_event" text="Delete Event"/>
+                                        </button>
+                                    </form>
+                                </c:when>
+                                <c:when test="${report.journeyResponse != null and report.journeyResponse.deleted == false}">
+                                    <form action="<c:url value='/journeys/reply/${report.journeyResponse.id}/delete'/>" method="get" style="display: inline;">
+                                        <button type="submit" class="cta-button btn-dele" onclick="saveLink()">
+                                            <spring:message code="report.action.delete_journey_comment" text="Delete Journey Comment"/>
+                                        </button>
+                                    </form>
+                                </c:when>
+                                <c:when test="${report.eventResponse != null and report.eventResponse.deleted == false }">
+                                    <form action="<c:url value='/events/reply/${report.eventResponse.id}/delete'/>" method="get" style="display: inline;">
+                                        <button type="submit" class="cta-button btn-dele" onclick="saveLink()">
+                                            <spring:message code="report.action.delete_event_comment" text="Delete Event Comment"/>
+                                        </button>
+                                    </form>
+                                </c:when>
+                            </c:choose>
                         </c:if>
 
                         <!-- Block/Unblock User Action -->
                         <c:if test="${report.status == 'UNDER_REVIEW' || report.status == 'RESOLVED'}">
-                            <button type="button" class="cta-button ${report.reportedUser.blocked ? 'primary' : 'delete-button'}" id="blockUserBtn">
+                            <button type="button" class="cta-button ${report.reportedUser.blocked ? 'btn-primary' : 'btn-danger'}" id="blockUserBtn">
                                 <c:choose>
                                     <c:when test="${report.reportedUser.blocked}">
                                         <spring:message code="user.unblock" text="Unblock User"/>
@@ -363,6 +411,27 @@
                                 </c:choose>
                             </button>
                         </c:if>
+                        <c:if test="${report.status == 'UNDER_REVIEW'}">
+                            <!-- Resolve with option to block user -->
+                            <form action="<c:url value='/reports/${report.id}/status'/>" method="post" style="display: inline;">
+                                <input type="hidden" name="status" value="RESOLVED"/>
+                                <button type="submit" class="cta-button btn-tertiary" >
+                                    <spring:message code="report.action.resolve" text="Mark as Resolved"/>
+                                </button>
+                            </form>
+                            <c:if test="${!report.reportedUser.blocked
+                            or (report.journey != null and !report.journey.deleted)
+                            or (report.event != null and !report.event.deleted)
+                            or (report.journeyResponse != null and !report.journeyResponse.deleted)
+                            or (report.eventResponse != null and !report.eventResponse.deleted)}">
+                                <form action="<c:url value='/reports/${report.id}/status'/>" method="post" style="display: inline;">
+                                    <input type="hidden" name="status" value="DISMISSED"/>
+                                    <button type="submit" class="cta-button btn-primary">
+                                        <spring:message code="report.action.dismiss" text="Dismiss Report"/>
+                                    </button>
+                                </form>
+                            </c:if>
+                        </c:if>
                     </div>
                 </div>
             </div>
@@ -370,36 +439,6 @@
     </div>
 </div>
 
-<!-- Resolve Report Modal -->
-<div id="resolveModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2><spring:message code="report.resolve.confirm.title" text="Resolve Report"/></h2>
-            <button type="button" class="close-modal" aria-label="Close">&times;</button>
-        </div>
-        <div class="modal-body">
-            <p><spring:message code="report.resolve.confirm.message" text="How would you like to resolve this report?"/></p>
-            <div class="resolve-options">
-                <label class="resolve-option">
-                    <input type="radio" name="resolveAction" value="resolve_only" checked>
-                    <span><spring:message code="report.resolve.only" text="Mark as resolved only"/></span>
-                </label>
-                <label class="resolve-option">
-                    <input type="radio" name="resolveAction" value="resolve_and_block">
-                    <span><spring:message code="report.resolve.and.block" text="Mark as resolved and block user"/></span>
-                </label>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="cta-button secondary" id="cancelResolveBtn">
-                <spring:message code="report.resolve.cancel" text="Cancel"/>
-            </button>
-            <button type="button" class="cta-button" id="confirmResolveBtn">
-                <spring:message code="report.resolve.confirm" text="Resolve Report"/>
-            </button>
-        </div>
-    </div>
-</div>
 
 <!-- Block User Modal -->
 <div id="blockModal" class="modal">
@@ -445,7 +484,7 @@
             <form action="<c:url value='/users/${report.reportedUser.id}/${report.reportedUser.blocked ? "unblock" : "block"}'/>" method="post" id="blockUserForm">
                 <input type="hidden" name="userId" value="<c:out value="${report.reportedUser.id}"/>">
                 <input type="hidden" name="returnUrl" value="<c:url value='/reports/${report.id}'/>">
-                <button type="submit" class="cta-button ${report.reportedUser.blocked ? 'primary' : 'delete-button'}">
+                <button type="submit" class="cta-button ${report.reportedUser.blocked ? 'btn-primary' : 'btn-danger'}">
                     <c:choose>
                         <c:when test="${report.reportedUser.blocked}">
                             <spring:message code="user.unblock.confirm" text="Unblock User"/>
@@ -459,6 +498,12 @@
         </div>
     </div>
 </div>
+<script src="<c:url value="/resources/js/components/navigation-stack.js"/>"></script>
+<script>
+    function saveLink() {
+        pushToNavigationStack(window.location.href);
+    }
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -571,7 +616,6 @@
 </script>
 
 <style>
-    /* Additional CSS for content type badges and reported content */
     .content-type-badge {
         display: inline-block;
         padding: 0.25rem 0.75rem;
@@ -674,7 +718,6 @@
         margin: 0;
     }
 
-    /* Modal styles */
     .modal {
         display: none;
         position: fixed;
@@ -710,6 +753,10 @@
         margin: 0;
         font-size: 20px;
         font-weight: 600;
+        color: #111;
+    }
+    .btn-tertiary:hover {
+        background-color: #e3e4e6;
         color: #111;
     }
 
@@ -764,7 +811,6 @@
         margin-top: 12px;
     }
 
-    /* Status badge styles */
     .status-badge {
         display: inline-flex;
         align-items: center;
@@ -785,6 +831,10 @@
     .status-under-review {
         background-color: #dbeafe;
         color: #1e40af;
+    }
+    btn-del{
+        background-color: #fde68a;
+        color: #92400e;
     }
 
     .status-resolved {

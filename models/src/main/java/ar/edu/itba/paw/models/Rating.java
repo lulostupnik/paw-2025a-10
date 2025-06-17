@@ -1,6 +1,10 @@
 package ar.edu.itba.paw.models;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "ratings", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "event_id"}, name = "unique_user_event_rating"))
@@ -9,18 +13,24 @@ public class Rating {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ratings_id_seq")
     @SequenceGenerator(sequenceName = "ratings_id_seq", name = "ratings_id_seq", allocationSize = 1)
     @Column(name = "id")
+    @Getter
     private Long id;
+    @Setter
+    @Getter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+    @Setter
+    @Getter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
+    @Setter
+    @Getter
     @Column(name = "rating", nullable = false)
     private double rating;
 
-    public Rating() {
-        // Default constructor for JPA
+    /* For hibernate */ Rating() {
     }
 
     public Rating(User user, Event event, double rating) {
@@ -29,35 +39,16 @@ public class Rating {
         this.rating = rating;
     }
 
-    public long getId() {
-        return id;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Rating rating1)) return false;
+        return id != null && id.equals(rating1.id);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Event getEvent() {
-        return event;
-    }
-
-    public void setEvent(Event event) {
-        this.event = event;
-    }
-
-    public double getRating() {
-        return rating;
-    }
-
-    public void setRating(double rating) {
-        this.rating = rating;
-    }
 }

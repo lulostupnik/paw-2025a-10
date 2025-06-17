@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.webapp.utils;
 
+import ar.edu.itba.paw.models.exceptions.JsonParsingException;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,7 +18,7 @@ public final class JsonUtils {
         try {
             return mapper.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error serializando a JSON", e);
+            throw new JsonParsingException("Error serializando a JSON" + e);
         }
     }
     }

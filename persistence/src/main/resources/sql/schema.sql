@@ -112,7 +112,6 @@ CREATE TABLE IF NOT EXISTS events (
         attendees_limit INT,
         address VARCHAR(255),
         flyer_image_id BIGINT NOT NULL,
-        attendees_count INTEGER DEFAULT 0 NOT NULL,
         title VARCHAR(255) NOT NULL,
         deleted BOOLEAN NOT NULL DEFAULT FALSE,
         deleted_message VARCHAR(1000),
@@ -176,6 +175,15 @@ CREATE TABLE IF NOT EXISTS ratings (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
     );
+CREATE TABLE IF NOT EXISTS tips (
+    id BIGSERIAL PRIMARY KEY,
+    journey_id BIGINT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content VARCHAR(2047) NOT NULL,
+    date_time TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (journey_id) REFERENCES journeys(id) ON DELETE CASCADE
+);
 
 ALTER TABLE users
     ADD COLUMN IF NOT EXISTS password VARCHAR(100) NOT NULL DEFAULT '$2b$10$KbQiA8xVuOPQkfiYJ0X0FubQbQjEJpTr6QOBD3qL6sYzFoq2nJ8fK';
@@ -360,3 +368,6 @@ COMMIT;
 --         CHECK (roles IN ('USER', 'ADMIN'));
 --
 -- COMMIT;
+
+-- ALTER TABLE events
+-- DROP COLUMN IF EXISTS attendees_count;

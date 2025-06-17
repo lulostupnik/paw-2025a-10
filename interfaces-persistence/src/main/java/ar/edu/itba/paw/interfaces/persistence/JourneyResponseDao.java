@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.interfaces.persistence;
 
 import ar.edu.itba.paw.models.*;
-
 import java.util.Optional;
 
 public interface JourneyResponseDao {
@@ -10,6 +9,7 @@ public interface JourneyResponseDao {
     JourneyResponse create(User user, Journey journey, String message);
     int countByJourneyId(long journeyId);
     Page<User> findRespondersByJourneyId(long journeyId, PageParams pageParams);
-    void deleteByJourneyId(long journeyId);
+
+    void hardDeleteByJourneyId(long journeyId);
 }
 

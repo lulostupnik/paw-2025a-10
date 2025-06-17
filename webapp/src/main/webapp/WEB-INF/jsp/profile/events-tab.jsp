@@ -3,6 +3,8 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <div class="profile-section active" id="events-section">
+  <div class="profile-card">
+    <h2 class="section-title"><spring:message code="nav.events"/></h2>
   <c:if test="${isMine}">
 
   <div class="section-actions">
@@ -172,4 +174,5 @@
     </jsp:include>
 
 </div>
+  </div>
 </div>

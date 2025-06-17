@@ -1,9 +1,7 @@
 package ar.edu.itba.paw.webapp.form;
 
 import ar.edu.itba.paw.webapp.validation.ValidEventFilterDateRange;
-import ar.edu.itba.paw.webapp.validation.ValidFilterDateRange;
 import org.springframework.format.annotation.DateTimeFormat;
-
 import java.time.LocalDate;
 
 @ValidEventFilterDateRange
@@ -80,16 +78,14 @@ public class FilterEventForm {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{destination: \"");
-        sb.append(destination);
-        sb.append("\", interests: \"");
-        sb.append(interests);
-        sb.append("\", startDate: \"");
-        sb.append(startDate);
-        sb.append("\", endDate: \"");
-        sb.append(endDate);
-        sb.append("\"}");
-        return sb.toString();
+        return "{destination: \"" +
+                destination +
+                "\", interests: \"" +
+                interests +
+                "\", startDate: \"" +
+                startDate +
+                "\", endDate: \"" +
+                endDate +
+                "\"}";
     }
 }

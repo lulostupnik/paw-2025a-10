@@ -7,4 +7,8 @@ public class InterestsNotFoundException extends RuntimeException {
     public InterestsNotFoundException() {
         super("Interests not found");
     }
+
+    public InterestsNotFoundException(long id) {
+        super(String.format("Interests with id %d not found", id));
+    }
 }

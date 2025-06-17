@@ -12,10 +12,10 @@ import javax.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 class HibernateDaoUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HibernateDaoUtils.class);
 
     private HibernateDaoUtils() {
         throw new AssertionError("Utility class should not be instantiated");
@@ -47,6 +47,17 @@ class HibernateDaoUtils {
             Map<String, Object> parameters,
             String jpqlFetchById,
             Class<T> clazz,
+            PageParams pageParams){
+        return fetchPageByIds(em,countSql,idSql,parameters,jpqlFetchById,clazz,pageParams,Map.of());
+    }
+
+    public static <T> Page<T> fetchPageByIds(
+            EntityManager em,
+            String countSql,
+            String idSql,
+            Map<String, Object> parameters,
+            String jpqlFetchById,
+            Class<T> clazz,
             PageParams pageParams,
             Map<String, Object> fetchParameters
             ) {
@@ -61,12 +72,6 @@ class HibernateDaoUtils {
         parameters.forEach(idQuery::setParameter);
         idQuery.setMaxResults(pageParams.getSize());
         idQuery.setFirstResult(offset(pageParams)); // modularized offset
-//
-//        List<Long> ids = ((List<?>) idQuery.getResultList()).stream()
-//                .filter(Number.class::isInstance) // Ensure type safety
-//                .map(n -> ((Number) n).longValue())
-//                .collect(Collectors.toList());
-//        LOGGER.error("IDs: {}", ids);
 
         List<?> rawResults = idQuery.getResultList();
         List<Long> ids = new ArrayList<>();
@@ -84,26 +89,19 @@ class HibernateDaoUtils {
         }
 
         if (ids.isEmpty()) {
-            return new Page<>(List.of(), pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
+            return new Page<>(List.of(), pageParams.getPage(), pageParams.getSize(), totalItems);
         }
 
         TypedQuery<T> fetchQuery = em.createQuery(jpqlFetchById, clazz);
         fetchQuery.setParameter("ids", ids);
         fetchParameters.forEach(fetchQuery::setParameter);
-
         List<T> results = fetchQuery.getResultList();
 
-        //TODO Super hacky, think of a more OOP/JPA way of sorting
-        List<Long> orderedIds = new ArrayList<>(ids);
-        orderedIds.sort((a, b) -> Long.compare(a, b));
-        List<T> sortedResults = new ArrayList<>();
-        for (long id : ids){
-            sortedResults.add(results.get(orderedIds.indexOf(id)));
-        }
-
-
-        return new Page<>(sortedResults, pageParams.getPage(), pageCount(totalItems, pageParams.getSize()));
+        return new Page<>(results, pageParams.getPage(), pageParams.getSize(), totalItems);
     }
+
+
+
 
 
 }

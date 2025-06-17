@@ -57,74 +57,80 @@ public class EventServiceImpl implements EventService {
         LOGGER.debug("Creating event for user {}", email);
         City city = cityService.findCityByName(cityName).orElseThrow(() ->{
             LOGGER.error("City not found {}", cityName);
-            return new CityNotFoundException("City not found");}
+            return new CityNotFoundException(cityName);}
         );
         User user = userService.findUserByEmail(email).orElseThrow(()-> {
                 LOGGER.error("User not found {}", email);
-                return new UserNotFoundException("User not found");}
+                return new UserNotFoundException(email);}
         );
         long flyerImageId = imageService.createImage(flyer);
-        Event event = eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit); //fixme: reemplazar por new Event
+        Event event = eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit);
         LOGGER.info("Event {} created", event.getId());
         eventAttendanceDao.create(user, event);
         return event;
     }
 
-    // todo: check
-    @Override
-    @Transactional
-    public void replyToEvent(final String email, final long eventId, final String message) {
-        LOGGER.debug("Replying to event {}", eventId);
-        Event event = eventDao.findById(eventId).orElseThrow(() -> {
-            LOGGER.error("Event not found {}", eventId);
-            return new EventNotFoundException("Event not found");
-        });
+        @Override
+        @Transactional
+        public EventResponse createEventResponse(final String email, final long eventId, final String message) {
+            LOGGER.debug("Replying to event {}", eventId);
+            Event event = eventDao.findById(eventId).orElseThrow(() -> {
+                LOGGER.error("Event not found {}", eventId);
+                return new EventNotFoundException(eventId);
+            });
 
-        User responder = userService.findUserByEmail(email).orElseThrow(() -> {
-            LOGGER.error("User not found {}", email);
-            return new UserNotFoundException("User not found");
-        });
+            User responder = userService.findUserByEmail(email).orElseThrow(() -> {
+                LOGGER.error("User not found {}", email);
+                return new UserNotFoundException(email);
+            });
 
-        eventResponseDao.create(responder, event, message);
-        LOGGER.info("Event response {} created", eventId);
+            EventResponse eventResponse = eventResponseDao.create(responder, event, message);
+            LOGGER.info("Event response {} created", eventId);
 
-        int page = 1;
-        int pageSize = 50;
-        Page<User> respondersPage;
+            int page = 1;
+            int pageSize = 50;
+            Page<User> respondersPage;
 
-        do {
-            respondersPage = eventResponseDao.findRespondersByEventId(
-                    eventId,
-                    new PageParams(page, pageSize)
-            );
+            EmailUser emailResponder = new EmailUser(responder);
+            EmailEvent emailEvent = new EmailEvent(event);
 
-            List<User> responders = respondersPage.getContent();
-
-            if (!responders.isEmpty()) {
-                emailService.answerEventNotification(
-                        responders,
-                        message,
-                        responder,
-                        event
+            do {
+                respondersPage = eventResponseDao.findRespondersByEventId(
+                        eventId,
+                        new PageParams(page, pageSize)
                 );
-            }
 
-            page++;
-        } while (page <= respondersPage.getTotalPages());
 
-        LOGGER.info("Email notifications sent to all responders for event {}", eventId);
+                List<EmailUser> responders = respondersPage.getContent().stream()
+                        .map(EmailUser::new)
+                        .toList();
 
-        emailService.answerEventOwnerNotification(message, responder, event);
-        LOGGER.info("Email notifications sent to event owner for event {}", eventId);
 
-    }
+                if (!responders.isEmpty()) {
+                    emailService.answerEventNotification(
+                            responders,
+                            message,
+                            emailResponder,
+                            emailEvent
+                    );
+                }
+
+                page++;
+            } while (page <= respondersPage.getTotalPages());
+
+            LOGGER.info("Email notifications sent to all responders for event {}", eventId);
+
+            emailService.answerEventOwnerNotification(message, emailResponder, emailEvent);
+            LOGGER.info("Email notifications sent to event owner for event {}", eventId);
+            return eventResponse;
+
+        }
 
     @Override
     public Optional<Event> findEventById(final long id){
         LOGGER.debug("Getting event by id {}", id);
         return eventDao.findById(id);
     }
-
 
     @Override
     public Optional<EventWithStatistics> findEventWithStatistics(final User user, final long eventId) {
@@ -159,7 +165,6 @@ public class EventServiceImpl implements EventService {
         int attendedEventsCount = eventAttendanceDao.countEventsAttendedByUser(event.getUser().getId());
 
 
-
         Optional<CountryAttendeeCount> maybeCountryAttendeeCount = eventDao.findTopAttendeeCountry(event.getId());
 
         if(maybeCountryAttendeeCount.isPresent()){
@@ -183,56 +188,40 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public Page<Event> findEvents(final String email, final PageParams pageParams) {
-        LOGGER.debug("Getting all events for user {}", email);
-        return eventDao.findByUserEmail(email, pageParams);
+    public Page<Event> findEvents(final long userId, final PageParams pageParams) {
+        LOGGER.debug("Getting all events for user {}", userId);
+        return eventDao.findByUserId(userId, pageParams);
     }
 
 
     @Override
     @Transactional
-    public void createEventAttendance(final long userId, final  long eventId) {
-        LOGGER.debug("User {} is attending event {}", userId, eventId);
+    public EventAttendance createEventAttendance(final long userId, final  long eventId) {
         Event event = eventDao.findById(eventId).orElseThrow(() -> {
             LOGGER.warn("Event not found {}", eventId);
-            return new EventNotFoundException("Event not found");
+            return new EventNotFoundException(eventId);
         });
         User user = userService.findUserById(userId).orElseThrow(() -> {
             LOGGER.warn("User not found {}", userId);
-            return new UserNotFoundException("User not found");
+            return new UserNotFoundException(userId);
         });
         if(! event.getIsFuture()){
             LOGGER.info("Event (id {}) is not in the future", eventId);
-            throw new InvalidException("Event (id " + eventId + ") is not in the future");
+            throw new EventNotInTheFutureException(eventId);
         }
         if (eventAttendanceDao.exists(user, event)){
             LOGGER.info("User {} is already attending event (id {})", userId, eventId);
-            throw new InvalidException("User " + userId +" is already attending event (id "+ eventId+")");
+            throw new UserAlreadyAttendingException(userId, eventId);
         }
 
         if (event.getAttendeesLimit() == null || event.getAttendeesCount() < event.getAttendeesLimit()) {
-            eventAttendanceDao.create(user, event);
-            //fixme: crear el attendance aca de verdad
-            event.setAttendeesCount(event.getAttendeesCount()+1); //fixme: ni idea
+            EventAttendance attendance = eventAttendanceDao.create(user, event);
             LOGGER.info("User {} is now attending event {}", userId, eventId);
-            return;
+            return attendance ;
         }
         LOGGER.warn("User {} trying to attend a full event ({})", userId, eventId);
-        throw new InvalidException("Event (id " + eventId + ") is already full");
+        throw new EventIsFullException(eventId);
 
-    }
-
-
-    @Override
-    @Transactional
-    public void createEventAttendance(final String email, final  long eventId) {
-        long userId = userService.findUserByEmail(email).orElseThrow(
-                () -> {
-                    LOGGER.warn("User not found {}", email);
-                    return new UserNotFoundException("User not found");
-                }
-        ).getId();
-        createEventAttendance(userId, eventId);
     }
 
     @Override
@@ -241,11 +230,11 @@ public class EventServiceImpl implements EventService {
         LOGGER.debug("User {} is canceling attendance for event {}", userId, eventId);
         Event event = eventDao.findById(eventId).orElseThrow(()->{
             LOGGER.warn("Event not found {}", eventId);
-            return new EventNotFoundException("Event not found");
+            return new EventNotFoundException(eventId);
         });
         if(! event.getIsFuture()){
             LOGGER.info("Event (id {}) is not in the future", eventId);
-            throw new InvalidException("Event (id " + eventId + ") is not in the future");
+            throw new EventNotInTheFutureException(eventId);
         }
         eventAttendanceDao.delete(userId, eventId);
         LOGGER.info("User {} has canceled attendance for event {}", userId, eventId);
@@ -253,31 +242,24 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public void deleteEventAttendance(final String email, final  long eventId) {
-        LOGGER.debug("User {} is canceling attendance for event {}", email, eventId);
-        long userId = userService.findUserByEmail(email).orElseThrow().getId();
-        deleteEventAttendance(userId, eventId);
-    }
-
-    @Override
-    @Transactional
-    public void rateEvent(User user, long eventId, double rating) {
+    public Rating rateEvent(User user, long eventId, double rating) {
         Event event = eventDao.findById(eventId).orElseThrow(() -> {
             LOGGER.warn("Event not found {}", eventId);
-            return new EventNotFoundException("Event not found");
+            return new EventNotFoundException(eventId);
         });
-        eventRatingDao.rateEvent(user, event, rating);
+       return eventRatingDao.rateEvent(user, event, rating);
     }
 
     @Transactional
     @Override
-    public void updateEventRating(User user, long eventId, double value) {
+    public Rating updateEventRating(User user, long eventId, double value) {
         Rating rating = eventRatingDao.findRatingByUserAndEvent(user.getId(), eventId)
                 .orElseThrow(() -> {
                     LOGGER.warn("Rating not found for user {} and event {}", user.getId(), eventId);
-                    return new RatingNotFoundException("Rating not found");
+                    return new RatingNotFoundException(user.getId(), eventId);
                 });
         rating.setRating(value);
+        return rating;
     }
 
     @Override
@@ -290,41 +272,45 @@ public class EventServiceImpl implements EventService {
         return eventRatingDao.countRatingsByEvent(eventId);
     }
 
-    @Override
-    public Optional<Double> findRatingsAverageByEvent(long eventId) {
-        return eventRatingDao.findRatingsAverageByEvent(eventId);
-    }
-
-
-    @Override
-    public int countEventAttendees(final long eventId) {
-       return findEventById(eventId)
-                .orElseThrow(() -> {
-                    LOGGER.warn("Event not found {}", eventId);
-                    return new EventNotFoundException("Event not found");
-                }).getAttendeesCount();
-    }
-
-    @Override
-    public Page<Event> findEventsByAttendee(final long userId, final PageParams pageParams) {
-        return eventDao.findAllEventsByAttendee(userId, pageParams);
-    }
 
     @Override
     public Page<Event> findUpcomingEventsByAttendee(long userId, PageParams pageParams) {
-        return eventDao.findUpcomingEventsByAttendee(userId, pageParams);
+        return eventDao.findAllWithFilters(
+                userId,
+                null, // searchTerm
+                null, // sortBy
+                SortDirection.DESC, // direction
+                null, // destination
+                LocalDate.now(), // startDate
+                null, // endDate
+                null, // interest
+                true, // attending
+                false, // isCreator
+                pageParams
+        );
     }
 
     @Override
     public Page<Event> findFinishedEventsByAttendee(long userId, PageParams pageParams) {
-        return eventDao.findFinishedEventsByAttendee(userId, pageParams);
+        return  eventDao.findAllWithFilters(
+                userId,
+                null, // searchTerm
+                null, // sortBy
+                SortDirection.DESC, // direction
+                null, // destination
+                null, // startDate
+                LocalDate.now().minusDays(1), // endDate
+                null, // interest
+                true, // attending
+                false, // isCreator
+                pageParams
+        );
     }
 
     @Override
     public List<Event> findRecommendedEvents(final long userId, final  int limit) {
         LOGGER.debug("Getting recommended events for user {} with limit {}", userId, limit);
         if (limit <= 0) {
-            LOGGER.warn("Limit must be greater than 0");
             throw new InvalidPaginationParamsException("Limit must be greater than 0");
         }
         List<Event> events = eventDao.findRecommended(userId, new PageParams(1, limit)).getContent();
@@ -332,23 +318,25 @@ public class EventServiceImpl implements EventService {
             LOGGER.warn("No recommended events found for user {}. Falling back to top events.", userId);
             events = eventDao.findTopByUser(userId,new PageParams(1, limit)).getContent();
         }
+        if(events.isEmpty()){
+            LOGGER.warn("No top events found for user {}. Falling back to any events.", userId);
+            events = eventDao.findAll(new PageParams(1, limit)).getContent();
+        }
         return events;
     }
 
     @Override
     public List<Event> findTopEvents(final int limit){
-        LOGGER.debug("Getting top events");
         if (limit <= 0) {
-            LOGGER.warn("Limit must be greater than 0");
             throw new InvalidPaginationParamsException("Limit must be greater than 0");
         }
         return eventDao.findTop(new PageParams(1, limit)).getContent();
     }
 
     @Override
-    public boolean isEventOwnedByUser(final String email, final long eventID) {
-        LOGGER.debug("Checking for event ownership of event {} by user {}", eventID, email);
-        Optional<Event> event = eventDao.findById(eventID);
+    public boolean isEventOwnedByUser(final String email, final long eventId) {
+        LOGGER.debug("Checking for event ownership of event {} by user {}", eventId, email);
+        Optional<Event> event = eventDao.findById(eventId);
         return event.isPresent() && event.get().getUser().getEmail().equals(email);
     }
 
@@ -356,26 +344,48 @@ public class EventServiceImpl implements EventService {
     public Page<Event> searchEventsWithFilters(final String search, final User user, final SortFieldEvent sortBy, final  SortDirection direction, final String destination, final LocalDate startDate, final LocalDate endDate, final String interest,
                                                final boolean isPast, final  boolean isUpcoming, final  boolean attending,
                                                final PageParams pageParams) {
-
         LOGGER.debug("Getting events with search {}, user {}, sortBy {}, direction {}, destination {}, startDate {}, endDate {}, interest {}, isPast {}, isUpcoming {}, attending {}",search,user,sortBy,direction,destination,startDate,endDate,interest,isPast,isUpcoming,attending);
-        return eventDao.findAllWithFilters(user == null ? null : user.getId(), search, sortBy, direction, destination, startDate, endDate, interest,
-                isPast, isUpcoming, attending, pageParams);
+
+        LocalDate adjustedStartDate = startDate;
+        LocalDate adjustedEndDate = endDate;
+
+        if (isUpcoming) {
+            adjustedStartDate = ensureStartDateForUpcomingEvents(startDate);
+        }
+        if (isPast) {
+            adjustedEndDate = capEndDateForPastEvents(endDate);
+        }
+
+        return eventDao.findAllWithFilters(
+                user == null ? null : user.getId(),
+                search,
+                sortBy,
+                direction,
+                destination,
+                adjustedStartDate,
+                adjustedEndDate,
+                interest,
+                attending,
+                false,
+                pageParams
+        );
+
     }
 
     @Override
     @Transactional
-    public void updateEvent(final long eventId, final String cityName, final  LocalDate date, final  byte[] flyer, final String description,
+    public Event updateEvent(final long eventId, final String cityName, final  LocalDate date, final  byte[] flyer, final String description,
                             final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
         LOGGER.debug("Editing event {}", eventId);
         Event currentEvent = eventDao.findById(eventId)
                 .orElseThrow(() ->{
                     LOGGER.warn("Event not found {}", eventId);
-                    return new EventNotFoundException("Event not found");}
+                    return new EventNotFoundException(eventId);}
                 );
 
         City resolvedCity = cityService.findCityByName(cityName).orElseThrow(() -> {
             LOGGER.warn("City not found {}", cityName);
-            return new CityNotFoundException("City not found");}
+            return new CityNotFoundException(cityName);}
         );
 
         long flyerImageId = currentEvent.getFlyerImageId();
@@ -396,60 +406,53 @@ public class EventServiceImpl implements EventService {
         currentEvent.setDate(date);
 
         LOGGER.info("Event {} updated", eventId);
+        return currentEvent;
     }
 
     @Override
     @Transactional
     public void deleteEvent(final long id, final String message) {
         LOGGER.debug("Deleting event {}", id);
-        Event event = eventDao.findById(id).orElseThrow(() -> {
-            LOGGER.warn("Event not found {}", id);
-            return new EventNotFoundException("Event not found");});
+        Optional<Event> maybeEvent = eventDao.findById(id);
+        if (maybeEvent.isEmpty()) {
+            LOGGER.info("Event not found {}", id);
+            return;
+        }
+        Event event = maybeEvent.get();
         if(message != null && !message.isEmpty()){
             event.setDeletionMessage(message);
-            emailService.sendEventDeletionNotification(event,message);
+            emailService.sendEventDeletionNotification(new EmailEvent(event),message);
         }
-        event.setDeleted(true); //todo check
-        //fixme: borrar las responses tmb
+        event.setDeleted(true);
+        LOGGER.info("Event {} deleted", id);
     }
 
     @Override
     @Transactional
-    public void deleteEventResponse(final long id, final String message) {
-        LOGGER.debug("Deleting event response {}", id);
-        EventResponse deletedComment = findEventResponseById(id)
-                .orElseThrow(() ->{
-                    LOGGER.error("Event response not found {}", id);
-                    return new EventResponseNotFoundException("Event response doesn't exist");});
-
-        Event event = deletedComment.getEvent();
-
-        User commentAuthor = deletedComment.getUser();
-        emailService.sendEventCommentDeletionNotification(deletedComment,event,commentAuthor, message );
-        LOGGER.info("Email notification sent for the event response {}", id);
-        deletedComment.setDeletionMessage(message);
-        LOGGER.info("Event response {} updated", id);
-        deletedComment.setDeleted(true);
-        LOGGER.info("Event response {} deleted", id);
+    public void deleteEventResponse(final EventResponse eventResponse, final String message) {
+        LOGGER.debug("Deleting event response {}", eventResponse);
+        if(eventResponse.isDeleted()){
+            LOGGER.info("Event response {} already deleted", eventResponse);
+            return;
+        }
+        Event event = eventResponse.getEvent();
+        User commentAuthor = eventResponse.getUser();
+        emailService.sendEventCommentDeletionNotification(eventResponse,new EmailEvent(event),new EmailUser(commentAuthor), message );
+        LOGGER.info("Email notification sent for the event response {}", eventResponse);
+        eventResponse.setDeletionMessage(message);
+        LOGGER.info("Event response {} updated", eventResponse);
+        eventResponse.setDeleted(true);
+        LOGGER.info("Event response {} deleted", eventResponse);
     }
 
     @Override
-    public int countEventResponses(final long eventId){
-        LOGGER.debug("Getting response count for event {}", eventId);
-        return eventResponseDao.countByEventId(eventId);
-    }
-
-
-
-
-    @Override
-    public Page<EventResponse> findEventResponses(final long eventId, final PageParams pageParams) { //fixme: mover esta búsqueda al eventDao (o paginar aca)
+    public Page<EventResponse> findEventResponses(final long eventId, final PageParams pageParams) {
         LOGGER.debug("Getting all responses for event {} with pageParams {}", eventId, pageParams);
         return eventResponseDao.listAllByEventId(eventId,pageParams);
     }
 
     @Override
-    public Optional<EventResponse> findEventResponseById(final long id){ // fixme: mover esta búsqueda al eventDao
+    public Optional<EventResponse> findEventResponseById(final long id){
         LOGGER.debug("Getting event response by id {}", id);
         return eventResponseDao.findById(id);
     }
@@ -471,15 +474,14 @@ public class EventServiceImpl implements EventService {
         boolean isCreator = event.getUser().getId() == userId;
         boolean isAttending = eventAttendanceDao.exists(userService.findUserById(userId).orElseThrow(()-> {
             LOGGER.error("User not found {}", userId);
-            return new UserNotFoundException("User not found");
+            return new UserNotFoundException(userId);
         }), event);
 
         return Optional.of(new EventWithUserInfo(event, isAttending, isCreator));
     }
 
-
     @Override
-    public Page<Event> findJourneyEvents(final Journey journey, final PageParams pageParams){
+    public Page<Event> findCreatedByJourney(final Journey journey, final PageParams pageParams){
         return eventDao.findAllWithFilters(
                 journey.getUser().getId(),
                 null,
@@ -487,43 +489,43 @@ public class EventServiceImpl implements EventService {
                 SortDirection.ASC,
                 null,
                 journey.getStartDate(),
-                journey.getEndDate(),
+                capEndDateForPastEvents(journey.getEndDate()),
+                null,
+                false,
+                true,
+                pageParams
+        );
+    }
+
+    @Override
+    public Page<Event> findAttendedByJourney(final Journey journey, final PageParams pageParams){
+        return eventDao.findAllWithFilters(
+                journey.getUser().getId(),
+                null,
+                SortFieldEvent.DATE,
+                SortDirection.ASC,
+                null,
+                journey.getStartDate(),
+                capEndDateForPastEvents(journey.getEndDate()),
                 null,
                 true,
-                false,
                 false,
                 pageParams
         );
     }
 
-//
-//    @Override
-//    @Scheduled(cron = "0 0 12 * * ?")
-//    @Transactional(readOnly = true)
-//    public void sendEventReminders(){
-//        LOGGER.info("Starting scheduled task: sending reminder emails for upcoming events");
-//        LocalDate today = LocalDate.now();
-//        LocalDate tomorrow = today.plusDays(1);
-//
-//        // CHANGE TO USE PAGES:
-//        List<Event> upcomingEvents = eventDao.findAllBetweenDates(today, tomorrow);
-//
-//        LOGGER.info("Found {} events occurring in the next 24 hours", upcomingEvents.size());
-//
-//        for (Event event : upcomingEvents) {
-//            // CHANGE HERE:
-//            // List<User> eventAttendees = ???;
-//            // emailService.sendEventReminderNotification(event, attendees);
-//        }
-//
-//        LOGGER.info("Completed scheduled task: sent reminder emails for upcoming events");
-//
-//    }
+    private LocalDate capEndDateForPastEvents(LocalDate endDate) {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        return endDate == null || endDate.isAfter(yesterday) ? yesterday : endDate;
+    }
 
+    private LocalDate ensureStartDateForUpcomingEvents(LocalDate startDate) {
+        LocalDate today = LocalDate.now();
+        return startDate == null || startDate.isBefore(today) ? today : startDate;
+    }
 
     @Override
     @Scheduled(cron = "0 0 12 * * ?")
-    @Transactional(readOnly = true)
     public void sendEventReminders() {
         LOGGER.info("Starting scheduled task: sending reminder emails for upcoming events");
         LocalDate today = LocalDate.now();
@@ -556,6 +558,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public Page<User> findEventAttendees(long eventId, PageParams pageParams) {
+        LOGGER.debug("Getting attendees for event {} with pageParams {}", eventId, pageParams);
+        return eventAttendanceDao.findAttendeesByEventId(eventId, pageParams);
+    }
+
+    @Override
     public int countEventsCreatedByUser(long userId) {
         return eventDao.countEventsCreatedByUser(userId);
     }
@@ -573,16 +581,20 @@ public class EventServiceImpl implements EventService {
         Page<User> attendeesPage;
         int totalAttendees = 0;
 
+        EmailEvent emailEvent = new EmailEvent(event);
+
         do {
             attendeesPage = eventAttendanceDao.findAttendeesByEventId(
                     event.getId(),
                     new PageParams(attendeePage, attendeePageSize)
             );
 
-            List<User> attendees = attendeesPage.getContent();
+            List<EmailUser> attendees = attendeesPage.getContent().stream().map(EmailUser::new).toList();
+
+
 
             if (!attendees.isEmpty()) {
-                emailService.sendEventReminderNotification(event, attendees);
+                emailService.sendEventReminderNotification(emailEvent, attendees);
                 totalAttendees += attendees.size();
             }
 

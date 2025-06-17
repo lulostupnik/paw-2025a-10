@@ -3,7 +3,6 @@ package ar.edu.itba.paw.interfaces.services;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.ReportReason;
 import ar.edu.itba.paw.models.enums.ReportStatus;
-
 import java.util.Optional;
 
 public interface ReportService {

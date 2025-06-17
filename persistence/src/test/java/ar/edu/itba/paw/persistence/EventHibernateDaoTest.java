@@ -1,9 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static ar.edu.itba.paw.persistence.TestUtils.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,11 +16,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
 
-import ar.edu.itba.paw.models.*;
-import ar.edu.itba.paw.models.enums.SortDirection;
-import ar.edu.itba.paw.models.enums.SortFieldEvent;
-
-import ar.edu.itba.paw.persistence.config.TestConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +24,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
+
+import ar.edu.itba.paw.models.City;
+import ar.edu.itba.paw.models.CountryAttendeeCount;
+import ar.edu.itba.paw.models.Event;
+import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.enums.SortDirection;
+import ar.edu.itba.paw.models.enums.SortFieldEvent;
+import ar.edu.itba.paw.persistence.config.TestConfig;
 
 @Transactional
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -55,25 +57,55 @@ public class EventHibernateDaoTest {
 
     @Test
     public void testCreate(){
-        Event event = eventDao.create(TestUtils.USER_1, TestUtils.CITY_1, TestUtils.EVENT_DATE_DEFAULT, TestUtils.EVENT_DESCRIPTION_DEFAULT, TestUtils.IMAGE_1_ID, TestUtils.EVENT_TITLE_DEFAULT, TestUtils.EVENT_TIME_DEFAULT, TestUtils.EVENT_ADDRESS_DEFAULT, TestUtils.EVENT_ATTENDANCE_LIMIT_DEFAULT);
+        Event event = eventDao.create(
+            USER_1, 
+            CITY_1, 
+            EVENT_DATE_DEFAULT, 
+            EVENT_DESCRIPTION_DEFAULT, 
+            IMAGE_1_ID, 
+            EVENT_TITLE_DEFAULT, 
+            EVENT_TIME_DEFAULT, 
+            EVENT_ADDRESS_DEFAULT, 
+            EVENT_ATTENDANCE_LIMIT_DEFAULT
+        );
         em.flush();
 
-        TestUtils.assertEqualsEvent(event, Map.of("id", event.getId(), "attendees", 1));
+        assertEqualsEvent(event, Map.of("id", event.getId(), "attendees", 1));
     }
     @Test
     public void testCreateNoAddress(){
-        Event event = eventDao.create(TestUtils.USER_1, TestUtils.CITY_1, TestUtils.EVENT_DATE_DEFAULT, TestUtils.EVENT_DESCRIPTION_DEFAULT, TestUtils.IMAGE_1_ID, TestUtils.EVENT_TITLE_DEFAULT, TestUtils.EVENT_TIME_DEFAULT, null, TestUtils.EVENT_ATTENDANCE_LIMIT_DEFAULT);
+        Event event = eventDao.create(
+            USER_1, 
+            CITY_1, 
+            EVENT_DATE_DEFAULT, 
+            EVENT_DESCRIPTION_DEFAULT, 
+            IMAGE_1_ID, 
+            EVENT_TITLE_DEFAULT, 
+            EVENT_TIME_DEFAULT, 
+            null, 
+            EVENT_ATTENDANCE_LIMIT_DEFAULT
+        );
         em.flush();
 
         HashMap<String, Object> eventParams = new HashMap<>();
         eventParams.put("id", event.getId());
         eventParams.put("attendees", 1);
         eventParams.put("address", null);
-        TestUtils.assertEqualsEvent(event, eventParams);
+        assertEqualsEvent(event, eventParams);
     }
     @Test
     public void testCreateNoAddressNoLimit(){
-        Event event = eventDao.create(TestUtils.USER_1, TestUtils.CITY_1, TestUtils.EVENT_DATE_DEFAULT, TestUtils.EVENT_DESCRIPTION_DEFAULT, TestUtils.IMAGE_1_ID, TestUtils.EVENT_TITLE_DEFAULT, TestUtils.EVENT_TIME_DEFAULT, null, null);
+        Event event = eventDao.create(
+            USER_1, 
+            CITY_1, 
+            EVENT_DATE_DEFAULT, 
+            EVENT_DESCRIPTION_DEFAULT, 
+            IMAGE_1_ID, 
+            EVENT_TITLE_DEFAULT, 
+            EVENT_TIME_DEFAULT, 
+            null, 
+            null
+        );
         em.flush();
 
         HashMap<String, Object> eventParams = new HashMap<>();
@@ -81,11 +113,21 @@ public class EventHibernateDaoTest {
         eventParams.put("attendees", 1);
         eventParams.put("address", null);
         eventParams.put("limit", null);
-        TestUtils.assertEqualsEvent(event, eventParams);
+        assertEqualsEvent(event, eventParams);
     }
     @Test
     public void testCreateNoAddressNoLimitNoTime(){
-        Event event = eventDao.create(TestUtils.USER_1, TestUtils.CITY_1, TestUtils.EVENT_DATE_DEFAULT, TestUtils.EVENT_DESCRIPTION_DEFAULT, TestUtils.IMAGE_1_ID, TestUtils.EVENT_TITLE_DEFAULT, null, null, null);
+        Event event = eventDao.create(
+            USER_1, 
+            CITY_1, 
+            EVENT_DATE_DEFAULT, 
+            EVENT_DESCRIPTION_DEFAULT, 
+            IMAGE_1_ID,
+            EVENT_TITLE_DEFAULT, 
+            null, 
+            null, 
+            null
+        );
         em.flush();
 
         HashMap<String, Object> eventParams = new HashMap<>();
@@ -94,46 +136,108 @@ public class EventHibernateDaoTest {
         eventParams.put("address", null);
         eventParams.put("limit", null);
         eventParams.put("time", null);
-        TestUtils.assertEqualsEvent(event, eventParams);
+        assertEqualsEvent(event, eventParams);
     }
     @Test(expected = PersistenceException.class)
     public void testCreateWrongUser(){
-        eventDao.create(new User(12341234l, null, null, null, null, null, null, 0, null, false, false), TestUtils.CITY_1, TestUtils.EVENT_DATE_DEFAULT, TestUtils.EVENT_DESCRIPTION_DEFAULT, 0, TestUtils.EVENT_TITLE_DEFAULT, TestUtils.EVENT_TIME_DEFAULT, null, TestUtils.EVENT_ATTENDANCE_LIMIT_DEFAULT);
+        eventDao.create(
+            new User(
+                12341234l, 
+                null, 
+                null, 
+                null, 
+                null, 
+                null, 
+                null, 
+                0, 
+                null, 
+                false, 
+                false), 
+            CITY_1, 
+            EVENT_DATE_DEFAULT, 
+            EVENT_DESCRIPTION_DEFAULT, 
+            0, 
+            EVENT_TITLE_DEFAULT, 
+            EVENT_TIME_DEFAULT, 
+            null, 
+            EVENT_ATTENDANCE_LIMIT_DEFAULT
+        );
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateWrongCity(){
-        eventDao.create(TestUtils.USER_1, new City(null, null, 12341234l), TestUtils.EVENT_DATE_DEFAULT, TestUtils.EVENT_DESCRIPTION_DEFAULT, TestUtils.IMAGE_1_ID, TestUtils.EVENT_TITLE_DEFAULT, TestUtils.EVENT_TIME_DEFAULT, null, TestUtils.EVENT_ATTENDANCE_LIMIT_DEFAULT);
+        eventDao.create(
+            USER_1, 
+            new City(null, null, 12341234l), 
+            EVENT_DATE_DEFAULT, 
+            EVENT_DESCRIPTION_DEFAULT, 
+            IMAGE_1_ID, 
+            EVENT_TITLE_DEFAULT, 
+            EVENT_TIME_DEFAULT, 
+            null, 
+            EVENT_ATTENDANCE_LIMIT_DEFAULT
+        );
         em.flush();
     }
     @Test
     public void testCreateNoDescription(){
-        Event event = eventDao.create(TestUtils.USER_1, TestUtils.CITY_1, TestUtils.EVENT_DATE_DEFAULT, null, TestUtils.IMAGE_1_ID, TestUtils.EVENT_TITLE_DEFAULT, TestUtils.EVENT_TIME_DEFAULT, TestUtils.EVENT_ADDRESS_DEFAULT, TestUtils.EVENT_ATTENDANCE_LIMIT_DEFAULT);
+        Event event = eventDao.create(
+            USER_1, 
+            CITY_1, 
+            EVENT_DATE_DEFAULT, 
+            null, 
+            IMAGE_1_ID, 
+            EVENT_TITLE_DEFAULT, 
+            EVENT_TIME_DEFAULT, 
+            EVENT_ADDRESS_DEFAULT, 
+            EVENT_ATTENDANCE_LIMIT_DEFAULT
+        );
         em.flush();
         
         HashMap<String, Object> eventParams = new HashMap<>();
         eventParams.put("id", event.getId());
         eventParams.put("attendees", 1);
         eventParams.put("description", null);
-        TestUtils.assertEqualsEvent(event, eventParams);
+        assertEqualsEvent(event, eventParams);
     }
     @Test(expected = PersistenceException.class)
     public void testCreateWrongImage(){
-        eventDao.create(TestUtils.USER_1, TestUtils.CITY_1, TestUtils.EVENT_DATE_DEFAULT, TestUtils.EVENT_DESCRIPTION_DEFAULT, 12341234, TestUtils.EVENT_TITLE_DEFAULT, TestUtils.EVENT_TIME_DEFAULT, TestUtils.EVENT_ADDRESS_DEFAULT, TestUtils.EVENT_ATTENDANCE_LIMIT_DEFAULT);
+        eventDao.create(
+            USER_1, 
+            CITY_1, 
+            EVENT_DATE_DEFAULT, 
+            EVENT_DESCRIPTION_DEFAULT, 
+            12341234, 
+            EVENT_TITLE_DEFAULT, 
+            EVENT_TIME_DEFAULT, 
+            EVENT_ADDRESS_DEFAULT, 
+            EVENT_ATTENDANCE_LIMIT_DEFAULT
+        );
         em.flush();
     }
     @Test(expected = PersistenceException.class)
     public void testCreateNoTitle(){
-        eventDao.create(TestUtils.USER_1, TestUtils.CITY_1, TestUtils.EVENT_DATE_DEFAULT, TestUtils.EVENT_DESCRIPTION_DEFAULT, TestUtils.IMAGE_1_ID, null, TestUtils.EVENT_TIME_DEFAULT, TestUtils.EVENT_ADDRESS_DEFAULT, TestUtils.EVENT_ATTENDANCE_LIMIT_DEFAULT);
+        eventDao.create(
+            USER_1, 
+            CITY_1, 
+            EVENT_DATE_DEFAULT, 
+            EVENT_DESCRIPTION_DEFAULT, 
+            IMAGE_1_ID, 
+            null, 
+            EVENT_TIME_DEFAULT, 
+            EVENT_ADDRESS_DEFAULT, 
+            EVENT_ATTENDANCE_LIMIT_DEFAULT
+        );
+        em.flush();
     }
 
     @Test
     public void testFindById(){
-        Optional<Event> maybeEvent = eventDao.findById(TestUtils.EVENT_1_ID);
+        Optional<Event> maybeEvent = eventDao.findById(EVENT_1_ID);
 
         assertNotNull(maybeEvent);
         assertTrue(maybeEvent.isPresent());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_1, maybeEvent.get());
+        assertEqualsEvent(EVENT_1, maybeEvent.get());
     }
     @Test
     public void testFindByIdWrongId(){
@@ -151,93 +255,52 @@ public class EventHibernateDaoTest {
     }
     @Test
     public void testFindByIdDeleted(){
-        Optional<Event> maybeEvent = eventDao.findById(TestUtils.EVENT_DELETED_ID);
+        Optional<Event> maybeEvent = eventDao.findById(EVENT_DELETED_ID);
 
         assertNotNull(maybeEvent);
         assertFalse(maybeEvent.isPresent());
     }
 
     @Test
-    public void testFindTop(){
-        TestUtils.deleteEvents(jdbcTemplate);
-        List<Map<String, Object>> maps = new ArrayList<>();
-        List<Event> eventData = new ArrayList<>();
-        maps.add(Map.of("limit", 30, "willAttend", 20));
-        maps.add(Map.of("limit", 30, "willAttend", 20, "date", TestUtils.EVENT_DATE_LATER));
-        maps.add(Map.of("limit", 30, "willAttend", 10));
-        maps.add(Map.of("limit", 30, "willAttend", 10, "date", TestUtils.EVENT_DATE_LATER));
-        maps.add(Map.of("limit", 20, "willAttend", 20));
-        maps.add(Map.of("limit", 20, "willAttend", 20, "date", TestUtils.EVENT_DATE_LATER));
-        maps.add(Map.of("limit", 10, "willAttend", 10));
-        maps.add(Map.of("limit", 10, "willAttend", 10, "date", TestUtils.EVENT_DATE_LATER));
-        for (Map<String, Object> params : maps) {
-            eventData.add(TestUtils.insertEvent(ds, params));
-        }
-
-        Page<Event> events = eventDao.findTop(TestUtils.PAGE_1_BIG);
-
-        assertNotNull(events);
-        assertNotNull(events.getContent());
-        assertEquals(eventData.size(), events.getContent().size());
-        ListIterator<Event> iterator = eventData.listIterator();
-        while (iterator.hasNext()){
-            TestUtils.assertEqualsEvent(events.getContent().get(iterator.nextIndex()), iterator.next());
-        }
-    }
-    @Test
-    public void testFindTopEventsNoEvents(){
-        TestUtils.deleteEventsValid(jdbcTemplate);
-        Page<Event> page1 = eventDao.findTop(TestUtils.PAGE_1_BIG);
-
-        assertNotNull(page1);
-        assertEquals(1, page1.getCurrentPage());
-        assertEquals(0, page1.getTotalPages());
-        assertNotNull(page1.getContent());
-        assertEquals(0, page1.getContent().size());
-    }
-
-    @Test
     public void testFindTopByUser(){
-        TestUtils.deleteEvents(jdbcTemplate);
+        deleteEvents(jdbcTemplate);
         List<Map<String, Object>> maps = new ArrayList<>();
         List<Event> eventData = new ArrayList<>();
         maps.add(Map.of("limit", 30, "willAttend", 20));
-        maps.add(Map.of("limit", 30, "willAttend", 20, "date", TestUtils.EVENT_DATE_LATER));
+        maps.add(Map.of("limit", 30, "willAttend", 20, "date", EVENT_DATE_LATER));
         maps.add(Map.of("limit", 30, "willAttend", 10));
-        maps.add(Map.of("limit", 30, "willAttend", 10, "date", TestUtils.EVENT_DATE_LATER));
-        maps.add(Map.of("limit", 30, "willAttend", 20, "attending", TestUtils.USER_2));
-        maps.add(Map.of("limit", 30, "willAttend", 20, "attending", TestUtils.USER_2, "date", TestUtils.EVENT_DATE_LATER));
-        maps.add(Map.of("limit", 30, "willAttend", 10, "attending", TestUtils.USER_2));
-        maps.add(Map.of("limit", 30, "willAttend", 10, "attending", TestUtils.USER_2, "date", TestUtils.EVENT_DATE_LATER));
+        maps.add(Map.of("limit", 30, "willAttend", 10, "date", EVENT_DATE_LATER));
+        maps.add(Map.of("limit", 30, "willAttend", 20, "attending", USER_2));
+        maps.add(Map.of("limit", 30, "willAttend", 20, "attending", USER_2, "date", EVENT_DATE_LATER));
+        maps.add(Map.of("limit", 30, "willAttend", 10, "attending", USER_2));
+        maps.add(Map.of("limit", 30, "willAttend", 10, "attending", USER_2, "date", EVENT_DATE_LATER));
         maps.add(Map.of("limit", 20, "willAttend", 20));
-        maps.add(Map.of("limit", 20, "willAttend", 20, "date", TestUtils.EVENT_DATE_LATER));
+        maps.add(Map.of("limit", 20, "willAttend", 20, "date", EVENT_DATE_LATER));
         maps.add(Map.of("limit", 10, "willAttend", 10));
-        maps.add(Map.of("limit", 10, "willAttend", 10, "date", TestUtils.EVENT_DATE_LATER));
-        maps.add(Map.of("limit", 20, "willAttend", 20, "attending", TestUtils.USER_2));
-        maps.add(Map.of("limit", 20, "willAttend", 20, "attending", TestUtils.USER_2, "date", TestUtils.EVENT_DATE_LATER));
-        maps.add(Map.of("limit", 10, "willAttend", 10, "attending", TestUtils.USER_2));
-        maps.add(Map.of("limit", 10, "willAttend", 10, "attending", TestUtils.USER_2, "date", TestUtils.EVENT_DATE_LATER));
-        for (Map<String, Object> params : maps) {
-            eventData.add(TestUtils.insertEvent(ds, params));
-        }
+        maps.add(Map.of("limit", 10, "willAttend", 10, "date", EVENT_DATE_LATER));
+        maps.add(Map.of("limit", 20, "willAttend", 20, "attending", USER_2));
+        maps.add(Map.of("limit", 20, "willAttend", 20, "attending", USER_2, "date", EVENT_DATE_LATER));
+        maps.add(Map.of("limit", 10, "willAttend", 10, "attending", USER_2));
+        maps.add(Map.of("limit", 10, "willAttend", 10, "attending", USER_2, "date", EVENT_DATE_LATER));
+        maps.forEach((params) -> eventData.add(insertEvent(ds, params)));
 
-        Page<Event> events = eventDao.findTopByUser(TestUtils.USER_2_ID, TestUtils.PAGE_1_BIG);
+        Page<Event> events = eventDao.findTopByUser(USER_2_ID, PAGE_1_BIG);
 
         assertNotNull(events);
         assertNotNull(events.getContent());
         assertEquals(eventData.size(), events.getContent().size());
         ListIterator<Event> iterator = eventData.listIterator();
         while (iterator.hasNext()){
-            TestUtils.assertEqualsEvent(events.getContent().get(iterator.nextIndex()), iterator.next());
+            assertEqualsEvent(events.getContent().get(iterator.nextIndex()), iterator.next());
         }
     }
     @Test
     public void testFindTopByUserEventsNoEvents(){
-        TestUtils.deleteEvents(jdbcTemplate);
-        TestUtils.insertEvent(ds, Map.of("deleted", true));
-        TestUtils.insertEvent(ds, Map.of("date", TestUtils.EVENT_DATE_DEFAULT.plusDays(-100)));
+        deleteEvents(jdbcTemplate);
+        insertEvent(ds, Map.of("deleted", true));
+        insertEvent(ds, Map.of("date", EVENT_DATE_DEFAULT.plusDays(-100)));
 
-        Page<Event> page1 = eventDao.findTopByUser(TestUtils.USER_2_ID, TestUtils.PAGE_1_BIG);
+        Page<Event> page1 = eventDao.findTopByUser(USER_2_ID, PAGE_1_BIG);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -247,56 +310,88 @@ public class EventHibernateDaoTest {
     }
 
     @Test
-    public void testFindAllBetweenDates(){
-        Page<Event> events = eventDao.findAllBetweenDates(TestUtils.EVENT_DATE_OLDER, TestUtils.EVENT_DATE_DEFAULT.plusDays(-1), TestUtils.PAGE_1_BIG);
+    public void testSearchPageOne(){
+        Page<Event> page1 = eventDao.search("event", PAGE_1_DEFAULT);
 
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(1, events.getTotalPages());
-        assertEquals(1, events.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_OLDER, events.getContent().getFirst());
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(2, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(2, page1.getContent().size());
+        page1.getContent().forEach((e) -> 
+            assertEqualsEvent(EVENT_DATA.get(e.getId()), e)
+        );
+
     }
     @Test
-    public void testFindAllBetweenDates2(){
-        Page<Event> events = eventDao.findAllBetweenDates(TestUtils.EVENT_DATE_DEFAULT, TestUtils.EVENT_DATE_LATER, TestUtils.PAGE_1_BIG);
+    public void testSearchPageTwo(){
+        Page<Event> page2 = eventDao.search("event", PAGE_2_DEFAULT);
 
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(1, events.getTotalPages());
-        assertEquals(TestUtils.TOTAL_EVENTS_UPCOMING, events.getContent().size());
-    }
+        assertNotNull(page2);
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(2, page2.getTotalPages());
+        assertNotNull(page2.getContent());
+        assertEquals(2, page2.getContent().size());
 
-    @Test
-    public void testCountEventsCreatedByUser(){
-        int eventCount = eventDao.countEventsCreatedByUser(TestUtils.USER_1_ID);
-
-        assertEquals(TestUtils.USER_1_CREATED_EVENTS, eventCount);
+        page2.getContent().forEach((e) -> 
+            assertEqualsEvent(EVENT_DATA.get(e.getId()), e)
+        );
     }
     @Test
-    public void testCountEventsCreatedByUser2(){
-        int eventCount = eventDao.countEventsCreatedByUser(TestUtils.USER_1_ID);
+    public void testSearchEmptyQueryPageOne(){
+        Page<Event> page1 = eventDao.search("", PAGE_1_DEFAULT);
 
-        assertEquals(TestUtils.USER_2_CREATED_EVENTS, eventCount);
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(2, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(2, page1.getContent().size());
     }
     @Test
-    public void testCountEventsCreatedByUserNotFound(){
-        int eventCount = eventDao.countEventsCreatedByUser(12341234l);
+    public void testSearchEmptyQueryPageTwo(){
+        Page<Event> page2 = eventDao.search("", PAGE_2_DEFAULT);
 
-        assertEquals(0, eventCount);
+        assertNotNull(page2);
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(2, page2.getTotalPages());
+        assertNotNull(page2.getContent());
+        assertEquals(2, page2.getContent().size());
+    }
+    @Test
+    public void testSearchEventsPagedWrongSearch(){
+        Page<Event> page1 = eventDao.search("NOTANEVENT", PAGE_1_DEFAULT);
+
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(0, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(0, page1.getContent().size());
+    }
+    @Test
+    public void testSearchEventsPagedNoEvents(){
+        deleteEvents(jdbcTemplate);
+
+        Page<Event> page1 = eventDao.search("", PAGE_1_DEFAULT);
+
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(0, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(0, page1.getContent().size());
     }
 
     @Test
     public void findTopAttendeeCountry(){
-        Optional<CountryAttendeeCount> countryAttendee = eventDao.findTopAttendeeCountry(TestUtils.EVENT_1_ID);
+        Optional<CountryAttendeeCount> countryAttendee = eventDao.findTopAttendeeCountry(EVENT_1_ID);
 
         assertNotNull(countryAttendee);
         assertTrue(countryAttendee.isPresent());
-        assertEquals(TestUtils.COUNTRY_1_NAME, countryAttendee.get().getCountryName());
-        assertEquals(TestUtils.EVENT_1_ATTENDEES, countryAttendee.get().getCount());
+        assertEquals(COUNTRY_1_NAME, countryAttendee.get().getCountryName());
+        assertEquals(EVENT_1_ATTENDEES, countryAttendee.get().getCount());
     }
     @Test
     public void findTopAttendeeCountryNoAttendees(){
-        Optional<CountryAttendeeCount> countryAttendee = eventDao.findTopAttendeeCountry(TestUtils.EVENT_3_ID);
+        Optional<CountryAttendeeCount> countryAttendee = eventDao.findTopAttendeeCountry(EVENT_3_ID);
 
         assertNotNull(countryAttendee);
         assertFalse(countryAttendee.isPresent());
@@ -310,21 +405,21 @@ public class EventHibernateDaoTest {
     }
 
     @Test
-    public void testFindByUserEmailPageOne(){
-        Page<Event> page1 = eventDao.findByUserEmail(TestUtils.USER_2_MAIL, TestUtils.PAGE_1_DEFAULT);
+    public void testFindByUserIdPageOne(){
+        Page<Event> page1 = eventDao.findByUserId(USER_2_ID, PAGE_1_DEFAULT);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
         assertEquals(1, page1.getTotalPages());
         assertNotNull(page1.getContent());
         assertEquals(2, page1.getContent().size());
-        for (Event e : page1.getContent()){
-            TestUtils.assertEqualsEvent(TestUtils.EVENT_DATA.get(e.getId()), e);
-        }
+        page1.getContent().forEach((e) -> 
+            assertEqualsEvent(EVENT_DATA.get(e.getId()), e)
+        );
     }
     @Test
-    public void testFindByUserEmailPageTwo(){
-        Page<Event> page2 = eventDao.findByUserEmail(TestUtils.USER_2_MAIL, TestUtils.PAGE_2_DEFAULT);
+    public void testFindByUserIdPageTwo(){
+        Page<Event> page2 = eventDao.findByUserId(USER_2_ID, PAGE_2_DEFAULT);
 
         assertNotNull(page2);
         assertEquals(2, page2.getCurrentPage());
@@ -333,31 +428,142 @@ public class EventHibernateDaoTest {
         assertEquals(0, page2.getContent().size());
     }
     @Test
-    public void testFindByUserEmailPaged2(){
-        TestUtils.deleteEvents(jdbcTemplate);
-        Page<Event> userEvents = eventDao.findByUserEmail(TestUtils.USER_1_MAIL, TestUtils.PAGE_1_DEFAULT);
+    public void testFindByUserIdPaged2(){
+        deleteEvents(jdbcTemplate);
 
-        assertNotNull(userEvents);
-        assertEquals(1, userEvents.getCurrentPage());
-        assertEquals(0, userEvents.getTotalPages());
-        assertNotNull(userEvents.getContent());
-        assertEquals(0, userEvents.getContent().size());
+        Page<Event> page1 = eventDao.findByUserId(USER_1_ID, PAGE_1_DEFAULT);
 
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(0, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(0, page1.getContent().size());
     }
     @Test
-    public void testFindByUserEmailWrongMailPaged(){
-        Page<Event> userEvents = eventDao.findByUserEmail("TestUtils.USER_1_MAIL", TestUtils.PAGE_1_DEFAULT);
+    public void testFindByUserIdWrongMailPaged(){
+        Page<Event> userEvents = eventDao.findByUserId(12341234l, PAGE_1_DEFAULT);
 
         assertNotNull(userEvents);
         assertEquals(1, userEvents.getCurrentPage());
         assertEquals(0, userEvents.getTotalPages());
         assertNotNull(userEvents.getContent());
         assertEquals(0, userEvents.getContent().size());
+    }
+
+    @Test
+    public void testFindRecommended(){
+        deleteEvents(jdbcTemplate);
+        Map<String, Object> event1params = Map.of("user", USER_2);
+        Map<String, Object> event2params = Map.of("user", USER_2, "attending", USER_1);
+        Event event1 = insertEvent(ds, event1params);
+        Event event2 = insertEvent(ds, event2params);
+        insertEvent(ds, Map.of("user", USER_2, "deleted", true));
+        insertEvent(ds, Map.of("user", USER_2, "city", CITY_2));
+        insertEvent(ds, Map.of("user", USER_2, "date", LocalDate.now().plusDays(-2)));
+        Map<Long, Event> eventInfo = Map.of(event1.getId(), event1, event2.getId(), event2);
+
+        Page<Event> events = eventDao.findRecommended(USER_1_ID, PAGE_1_BIG);
+
+        assertNotNull(events);
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(1, events.getTotalPages());
+        assertNotNull(events.getContent());
+        assertEquals(2, events.getContent().size());
+        events.getContent().forEach((e) ->
+            assertEqualsEvent(eventInfo.get(e.getId()), e)
+        );
+    }
+    @Test
+    public void testFindRecommendedEventsNoEvents(){
+        deleteEvents(jdbcTemplate);
+
+        Page<Event> events = eventDao.findRecommended(USER_1_ID, PAGE_1_BIG);
+
+        assertNotNull(events);
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(0, events.getTotalPages());
+        assertNotNull(events.getContent());
+        assertEquals(0, events.getContent().size());
+    }
+    @Test
+    public void testFindRecommendedComplex(){
+        deleteEvents(jdbcTemplate);
+        List<Map<String, Object>> maps = new ArrayList<>();
+        List<Event> eventData = new ArrayList<>();
+        maps.add(Map.of("user", USER_2, "limit", 30, "willAttend", 20));
+        maps.add(Map.of("user", USER_2, "limit", 30, "willAttend", 20, "date", EVENT_DATE_LATER));
+        maps.add(Map.of("user", USER_2, "limit", 30, "willAttend", 10));
+        maps.add(Map.of("user", USER_2, "limit", 30, "willAttend", 10, "date", EVENT_DATE_LATER));
+        maps.add(Map.of("user", USER_2, "limit", 30, "willAttend", 20, "attending", USER_1));
+        maps.add(Map.of("user", USER_2, "limit", 30, "willAttend", 20, "attending", USER_1, "date", EVENT_DATE_LATER));
+        maps.add(Map.of("user", USER_2, "limit", 30, "willAttend", 10, "attending", USER_1));
+        maps.add(Map.of("user", USER_2, "limit", 30, "willAttend", 10, "attending", USER_1, "date", EVENT_DATE_LATER));
+        maps.add(Map.of("user", USER_2, "limit", 20, "willAttend", 20));
+        maps.add(Map.of("user", USER_2, "limit", 20, "willAttend", 20, "date", EVENT_DATE_LATER));
+        maps.add(Map.of("user", USER_2, "limit", 10, "willAttend", 10));
+        maps.add(Map.of("user", USER_2, "limit", 10, "willAttend", 10, "date", EVENT_DATE_LATER));
+        maps.add(Map.of("user", USER_2, "limit", 20, "willAttend", 20, "attending", USER_1));
+        maps.add(Map.of("user", USER_2, "limit", 20, "willAttend", 20, "attending", USER_1, "date", EVENT_DATE_LATER));
+        maps.add(Map.of("user", USER_2, "limit", 10, "willAttend", 10, "attending", USER_1));
+        maps.add(Map.of("user", USER_2, "limit", 10, "willAttend", 10, "attending", USER_1, "date", EVENT_DATE_LATER));
+        maps.forEach((params) ->
+            eventData.add(insertEvent(ds, params))
+        );
+
+        Page<Event> events = eventDao.findRecommended(USER_1_ID, PAGE_1_BIG);
+
+        assertNotNull(events);
+        assertNotNull(events.getContent());
+        assertEquals(eventData.size(), events.getContent().size());
+        ListIterator<Event> iterator = eventData.listIterator();
+        while (iterator.hasNext()){
+            assertEqualsEvent(events.getContent().get(iterator.nextIndex()), iterator.next());
+        }
+    }
+
+    @Test
+    public void testFindTop(){
+        deleteEvents(jdbcTemplate);
+        List<Map<String, Object>> maps = new ArrayList<>();
+        List<Event> eventData = new ArrayList<>();
+        maps.add(Map.of("limit", 30, "willAttend", 20));
+        maps.add(Map.of("limit", 30, "willAttend", 20, "date", EVENT_DATE_LATER));
+        maps.add(Map.of("limit", 30, "willAttend", 10));
+        maps.add(Map.of("limit", 30, "willAttend", 10, "date", EVENT_DATE_LATER));
+        maps.add(Map.of("limit", 20, "willAttend", 20));
+        maps.add(Map.of("limit", 20, "willAttend", 20, "date", EVENT_DATE_LATER));
+        maps.add(Map.of("limit", 10, "willAttend", 10));
+        maps.add(Map.of("limit", 10, "willAttend", 10, "date", EVENT_DATE_LATER));
+        maps.forEach((params)->
+            eventData.add(insertEvent(ds, params))
+        );
+
+        Page<Event> events = eventDao.findTop(PAGE_1_BIG);
+
+        assertNotNull(events);
+        assertNotNull(events.getContent());
+        assertEquals(eventData.size(), events.getContent().size());
+        ListIterator<Event> iterator = eventData.listIterator();
+        while (iterator.hasNext()){
+            assertEqualsEvent(events.getContent().get(iterator.nextIndex()), iterator.next());
+        }
+    }
+    @Test
+    public void testFindTopEventsNoEvents(){
+        deleteEventsValid(jdbcTemplate);
+
+        Page<Event> page1 = eventDao.findTop(PAGE_1_BIG);
+
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(0, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(0, page1.getContent().size());
     }
 
     @Test
     public void testFindAllPageOne(){
-        Page<Event> page1 = eventDao.findAll(TestUtils.PAGE_1_DEFAULT);
+        Page<Event> page1 = eventDao.findAll(PAGE_1_DEFAULT);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -365,13 +571,13 @@ public class EventHibernateDaoTest {
         assertNotNull(page1.getContent());
         assertEquals(2, page1.getContent().size());
 
-        for (Event e : page1.getContent()){
-            TestUtils.assertEqualsEvent(TestUtils.EVENT_DATA.get(e.getId()), e);
-        }
+        page1.getContent().forEach((e) -> 
+            assertEqualsEvent(EVENT_DATA.get(e.getId()), e)
+        );
     }
     @Test
     public void testFindAllPageTwo(){
-        Page<Event> page2 = eventDao.findAll(TestUtils.PAGE_2_DEFAULT);
+        Page<Event> page2 = eventDao.findAll(PAGE_2_DEFAULT);
 
         assertNotNull(page2);
         assertEquals(2, page2.getCurrentPage());
@@ -379,15 +585,15 @@ public class EventHibernateDaoTest {
         assertNotNull(page2.getContent());
         assertEquals(2, page2.getContent().size());
 
-        for (Event e : page2.getContent()){
-            TestUtils.assertEqualsEvent(TestUtils.EVENT_DATA.get(e.getId()), e);
-        }
+        page2.getContent().forEach((e) -> 
+            assertEqualsEvent(EVENT_DATA.get(e.getId()), e)
+        );
     }
     @Test
     public void testFindAllNoEventsPaged(){
-        TestUtils.deleteEvents(jdbcTemplate);
+        deleteEvents(jdbcTemplate);
 
-        Page<Event> events = eventDao.findAll(TestUtils.PAGE_1_DEFAULT);
+        Page<Event> events = eventDao.findAll(PAGE_1_DEFAULT);
 
         assertNotNull(events);
         assertEquals(1, events.getCurrentPage());
@@ -397,137 +603,130 @@ public class EventHibernateDaoTest {
     }
 
     @Test
-    public void testSearchPageOne(){
-        Page<Event> page1 = eventDao.search("event", TestUtils.PAGE_1_DEFAULT);
+    public void testFindAllEventsByAttendeePageOne(){
+        Page<Event> page1 = eventDao.findAllEventsByAttendee(USER_1_ID, PAGE_1_SINGLE);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
-        assertEquals(2, page1.getTotalPages());
+        assertEquals(1, page1.getTotalPages());
         assertNotNull(page1.getContent());
-        assertEquals(2, page1.getContent().size());
-        for (Event e : page1.getContent()){
-            TestUtils.assertEqualsEvent(TestUtils.EVENT_DATA.get(e.getId()), e);
-        }
+        assertEquals(1, page1.getContent().size());
     }
     @Test
-    public void testSearchPageTwo(){
-        Page<Event> page2 = eventDao.search("event", TestUtils.PAGE_2_DEFAULT);
+    public void testFindAllEventsByAttendeePageTwo(){
+        Page<Event> page2 = eventDao.findAllEventsByAttendee(USER_1_ID, PAGE_2_SINGLE);
 
         assertNotNull(page2);
         assertEquals(2, page2.getCurrentPage());
-        assertEquals(2, page2.getTotalPages());
+        assertEquals(1, page2.getTotalPages());
         assertNotNull(page2.getContent());
-        assertEquals(2, page2.getContent().size());
-
-        for (Event e : page2.getContent()){
-            TestUtils.assertEqualsEvent(TestUtils.EVENT_DATA.get(e.getId()), e);
-        }
+        assertEquals(0, page2.getContent().size());
     }
     @Test
-    public void testSearchEmptyQueryPageOne(){
-        Page<Event> page1 = eventDao.search("", TestUtils.PAGE_1_DEFAULT);
+    public void testFindAllPagedByAttendee(){
+        Page<Event> events = eventDao.findAllEventsByAttendee(USER_1_ID, PAGE_1_SINGLE);
 
-        assertNotNull(page1);
-        assertEquals(1, page1.getCurrentPage());
-        assertEquals(2, page1.getTotalPages());
-        assertNotNull(page1.getContent());
-        assertEquals(2, page1.getContent().size());
+        assertNotNull(events);
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(1, events.getTotalPages());
+        assertNotNull(events.getContent());
+        assertEquals(1, events.getContent().size());
     }
     @Test
-    public void testSearchEmptyQueryPageTwo(){
-        Page<Event> page2 = eventDao.search("", TestUtils.PAGE_2_DEFAULT);
+    public void testFindAllEventsByAttendeeWrongUserPaged(){
+        Page<Event> events = eventDao.findAllEventsByAttendee(12341234, PAGE_1_SINGLE);
 
-        assertNotNull(page2);
-        assertEquals(2, page2.getCurrentPage());
-        assertEquals(2, page2.getTotalPages());
-        assertNotNull(page2.getContent());
-        assertEquals(2, page2.getContent().size());
+        assertNotNull(events);
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(0, events.getTotalPages());
+        assertNotNull(events.getContent());
+        assertEquals(0, events.getContent().size());
+    }
+
+    @Test
+    public void testCountEventsCreatedByUser(){
+        int eventCount = eventDao.countEventsCreatedByUser(USER_1_ID);
+
+        assertEquals(USER_1_CREATED_EVENTS, eventCount);
     }
     @Test
-    public void testSearchEventsPagedWrongSearch(){
-        Page<Event> page1 = eventDao.search("NOTANEVENT", TestUtils.PAGE_1_DEFAULT);
+    public void testCountEventsCreatedByUser2(){
+        int eventCount = eventDao.countEventsCreatedByUser(USER_1_ID);
 
-        assertNotNull(page1);
-        assertEquals(1, page1.getCurrentPage());
-        assertEquals(0, page1.getTotalPages());
-        assertNotNull(page1.getContent());
-        assertEquals(0, page1.getContent().size());
+        assertEquals(USER_2_CREATED_EVENTS, eventCount);
     }
     @Test
-    public void testSearchEventsPagedNoEvents(){
-        TestUtils.deleteEvents(jdbcTemplate);
-        Page<Event> page1 = eventDao.search("", TestUtils.PAGE_1_DEFAULT);
+    public void testCountEventsCreatedByUserNotFound(){
+        int eventCount = eventDao.countEventsCreatedByUser(12341234l);
 
-        assertNotNull(page1);
-        assertEquals(1, page1.getCurrentPage());
-        assertEquals(0, page1.getTotalPages());
-        assertNotNull(page1.getContent());
-        assertEquals(0, page1.getContent().size());
+        assertEquals(0, eventCount);
     }
+
+    @Test
+    public void testFindAllBetweenDates(){
+        Page<Event> events = eventDao.findAllBetweenDates(
+            EVENT_DATE_OLDER, 
+            EVENT_DATE_DEFAULT.plusDays(-1), 
+            PAGE_1_BIG
+        );
+
+        assertNotNull(events);
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(1, events.getTotalPages());
+        assertEquals(1, events.getContent().size());
+        assertEqualsEvent(EVENT_OLDER, events.getContent().getFirst());
+    }
+    @Test
+    public void testFindAllBetweenDates2(){
+        Page<Event> events = eventDao.findAllBetweenDates(
+            EVENT_DATE_DEFAULT, 
+            EVENT_DATE_LATER, 
+            PAGE_1_BIG
+        );
+
+        assertNotNull(events);
+        assertEquals(1, events.getCurrentPage());
+        assertEquals(1, events.getTotalPages());
+        assertEquals(TOTAL_EVENTS_UPCOMING, events.getContent().size());
+    }
+
 
     @Test
     public void testFindAllWithFilters(){
         Page<Event> page = eventDao.findAllWithFilters(
-            TestUtils.USER_1_ID,
+            USER_1_ID,
             null,
             SortFieldEvent.ATTENDEES,
             SortDirection.ASC,
-            TestUtils.CITY_1_NAME,
-            TestUtils.EVENT_DATE_OLDER,
-            TestUtils.EVENT_DATE_LATER,
+            CITY_1_NAME,
+            EVENT_DATE_OLDER,
+            EVENT_DATE_LATER,
             null,
             false,
             true,
-            true,
-            TestUtils.PAGE_1_BIG
+            PAGE_1_BIG
         );
 
         assertNotNull(page);
         assertNotNull(page.getContent());
         assertEquals(1, page.getCurrentPage());
         assertEquals(1, page.getTotalPages());
-        assertEquals(1, page.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_2, page.getContent().getFirst());
+        assertEquals(2, page.getContent().size());
     }
     @Test
     public void testFindAllWithFiltersComplex(){
         Page<Event> page = eventDao.findAllWithFilters(
-            TestUtils.USER_1_ID,
-            TestUtils.EVENT_TITLE_2,
+            USER_1_ID,
+            EVENT_TITLE_2,
             SortFieldEvent.ATTENDEES,
             SortDirection.ASC,
-            TestUtils.CITY_1_NAME,
-            TestUtils.EVENT_DATE_OLDER,
-            TestUtils.EVENT_DATE_LATER,
+            CITY_1_NAME,
+            EVENT_DATE_OLDER,
+            EVENT_DATE_LATER,
             null,
             false,
             true,
-            true,
-            TestUtils.PAGE_1_BIG
-        );
-
-        assertNotNull(page);
-        assertNotNull(page.getContent());
-        assertEquals(1, page.getCurrentPage());
-        assertEquals(1, page.getTotalPages());
-        assertEquals(1, page.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_2, page.getContent().getFirst());
-    }
-    @Test
-    public void testFindAllWithFiltersComplexNoDestinationPastAttendingNoUser(){
-        Page<Event> page = eventDao.findAllWithFilters(
-            null,
-            TestUtils.EVENT_TITLE_2,
-            SortFieldEvent.ATTENDEES,
-            SortDirection.ASC,
-            "",
-            TestUtils.EVENT_DATE_OLDER,
-            TestUtils.EVENT_DATE_LATER,
-            null,
-            true,
-            false,
-            true,
-            TestUtils.PAGE_1_BIG
+            PAGE_1_BIG
         );
 
         assertNotNull(page);
@@ -537,20 +736,63 @@ public class EventHibernateDaoTest {
         assertEquals(0, page.getContent().size());
     }
     @Test
-    public void testFindAllWithFiltersComplexNoUserUpcoming(){
+    public void testFindAllWithFiltersComplexAttending(){
+        Page<Event> page = eventDao.findAllWithFilters(
+            USER_1_ID,
+            EVENT_TITLE_2,
+            SortFieldEvent.ATTENDEES,
+            SortDirection.ASC,
+            CITY_1_NAME,
+            EVENT_DATE_OLDER,
+            EVENT_DATE_LATER,
+            null,
+            true,
+            true,
+            PAGE_1_BIG
+        );
+
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(0, page.getTotalPages());
+        assertEquals(0, page.getContent().size());
+    }
+    @Test
+    public void testFindAllWithFiltersComplexNoDestinationPastAttendingNoUser(){
         Page<Event> page = eventDao.findAllWithFilters(
             null,
-            TestUtils.EVENT_TITLE_2,
+            EVENT_TITLE_DELETED,
             SortFieldEvent.ATTENDEES,
             SortDirection.ASC,
             "",
-            TestUtils.EVENT_DATE_OLDER,
-            TestUtils.EVENT_DATE_LATER,
+            EVENT_DATE_OLDER,
+            EVENT_DATE_LATER,
+            null,
+            true,
+            false,
+            PAGE_1_BIG
+        );
+
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(0, page.getTotalPages());
+        assertEquals(0, page.getContent().size());
+    }
+    @Test
+    public void testFindAllWithFiltersComplexNoUser(){
+        Page<Event> page = eventDao.findAllWithFilters(
+            null,
+            EVENT_TITLE_2,
+            SortFieldEvent.ATTENDEES,
+            SortDirection.ASC,
+            "",
+            EVENT_DATE_OLDER,
+            EVENT_DATE_LATER,
             null,
             false,
             true,
-            false,
-            TestUtils.PAGE_1_BIG
+            PAGE_1_BIG
         );
 
         assertNotNull(page);
@@ -558,23 +800,22 @@ public class EventHibernateDaoTest {
         assertEquals(1, page.getCurrentPage());
         assertEquals(1, page.getTotalPages());
         assertEquals(1, page.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_2, page.getContent().getFirst());
+        assertEqualsEvent(EVENT_2, page.getContent().getFirst());
     }
     @Test
-    public void testFindAllWithFiltersComplexNoUserUpcomingNoInterest(){
+    public void testFindAllWithFiltersComplexNoUserNoInterest(){
         Page<Event> page = eventDao.findAllWithFilters(
             null,
-            TestUtils.EVENT_TITLE_2,
+            EVENT_TITLE_2,
             SortFieldEvent.ATTENDEES,
             SortDirection.ASC,
             "",
-            TestUtils.EVENT_DATE_OLDER,
-            TestUtils.EVENT_DATE_LATER,
+            EVENT_DATE_OLDER,
+            EVENT_DATE_LATER,
             "",
             false,
             true,
-            false,
-            TestUtils.PAGE_1_BIG
+            PAGE_1_BIG
         );
 
         assertNotNull(page);
@@ -582,23 +823,22 @@ public class EventHibernateDaoTest {
         assertEquals(1, page.getCurrentPage());
         assertEquals(1, page.getTotalPages());
         assertEquals(1, page.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_2, page.getContent().getFirst());
+        assertEqualsEvent(EVENT_2, page.getContent().getFirst());
     }
     @Test
-    public void testFindAllWithFiltersNotUpcomingNotAttending(){
+    public void testFindAllWithFiltersNotAttending(){
         Page<Event> page = eventDao.findAllWithFilters(
-            TestUtils.USER_1_ID,
+            USER_1_ID,
             null,
             SortFieldEvent.DATE,
             SortDirection.ASC,
-            TestUtils.CITY_1_NAME,
-            TestUtils.EVENT_DATE_OLDER,
-            TestUtils.EVENT_DATE_LATER,
+            CITY_1_NAME,
+            EVENT_DATE_OLDER,
+            EVENT_DATE_LATER,
             null,
             false,
             false,
-            false,
-            TestUtils.PAGE_1_BIG
+            PAGE_1_BIG
         );
 
         assertNotNull(page);
@@ -606,24 +846,23 @@ public class EventHibernateDaoTest {
         assertEquals(1, page.getCurrentPage());
         assertEquals(1, page.getTotalPages());
         assertEquals(2, page.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_2, page.getContent().get(0));
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_3, page.getContent().get(1));
+        assertEqualsEvent(EVENT_2, page.getContent().get(0));
+        assertEqualsEvent(EVENT_3, page.getContent().get(1));
     }
     @Test
-    public void testFindAllWithFiltersNotUpcomingNotAttendingReverseSort(){
+    public void testFindAllWithFiltersNotAttendingReverseSort(){
         Page<Event> page = eventDao.findAllWithFilters(
-            TestUtils.USER_1_ID,
+            USER_1_ID,
             null,
             SortFieldEvent.ATTENDEES,
             SortDirection.DESC,
-            TestUtils.CITY_1_NAME,
-            TestUtils.EVENT_DATE_OLDER,
-            TestUtils.EVENT_DATE_LATER,
+            CITY_1_NAME,
+            EVENT_DATE_OLDER,
+            EVENT_DATE_LATER,
             null,
             false,
             false,
-            false,
-            TestUtils.PAGE_1_BIG
+            PAGE_1_BIG
         );
 
         assertNotNull(page);
@@ -631,8 +870,8 @@ public class EventHibernateDaoTest {
         assertEquals(1, page.getCurrentPage());
         assertEquals(1, page.getTotalPages());
         assertEquals(2, page.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_2, page.getContent().get(0));
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_3, page.getContent().get(1));
+        assertEqualsEvent(EVENT_2, page.getContent().get(0));
+        assertEqualsEvent(EVENT_3, page.getContent().get(1));
     }
     @Test
     public void testFindAllWithFiltersNoParams(){
@@ -647,19 +886,18 @@ public class EventHibernateDaoTest {
             null,
             false,
             false,
-            false,
-            TestUtils.PAGE_1_BIG
+            PAGE_1_BIG
         );
 
         assertNotNull(page);
         assertNotNull(page.getContent());
         assertEquals(1, page.getCurrentPage());
         assertEquals(1, page.getTotalPages());
-        assertEquals(TestUtils.TOTAL_EVENTS_NOT_DELETED, page.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_OLDER, page.getContent().get(0));
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_3, page.getContent().get(1));
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_2, page.getContent().get(2));
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_1, page.getContent().get(3));
+        assertEquals(TOTAL_EVENTS_NOT_DELETED, page.getContent().size());
+        assertEqualsEvent(EVENT_OLDER, page.getContent().get(0));
+        assertEqualsEvent(EVENT_3, page.getContent().get(1));
+        assertEqualsEvent(EVENT_2, page.getContent().get(2));
+        assertEqualsEvent(EVENT_1, page.getContent().get(3));
     }
     @Test
     public void testFindAllWithFiltersNoParamsEmpty(){
@@ -674,25 +912,24 @@ public class EventHibernateDaoTest {
             "",
             false,
             false,
-            false,
-            TestUtils.PAGE_1_BIG
+            PAGE_1_BIG
         );
 
         assertNotNull(page);
         assertNotNull(page.getContent());
         assertEquals(1, page.getCurrentPage());
         assertEquals(1, page.getTotalPages());
-        assertEquals(TestUtils.TOTAL_EVENTS_NOT_DELETED, page.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_1, page.getContent().get(0));
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_2, page.getContent().get(1));
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_3, page.getContent().get(2));
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_OLDER, page.getContent().get(3));
+        assertEquals(TOTAL_EVENTS_NOT_DELETED, page.getContent().size());
+        assertEqualsEvent(EVENT_1, page.getContent().get(0));
+        assertEqualsEvent(EVENT_2, page.getContent().get(1));
+        assertEqualsEvent(EVENT_OLDER, page.getContent().get(2));
+        assertEqualsEvent(EVENT_3, page.getContent().get(3));
     }
     @Test
     public void testFindAllWithFiltersNoParamsFilter(){
         Page<Event> page = eventDao.findAllWithFilters(
             null,
-            TestUtils.EVENT_TITLE_DEFAULT,
+            EVENT_TITLE_DEFAULT,
             SortFieldEvent.ATTENDEES,
             SortDirection.DESC,
             null,
@@ -701,8 +938,7 @@ public class EventHibernateDaoTest {
             null,
             false,
             false,
-            false,
-            TestUtils.PAGE_1_BIG
+            PAGE_1_BIG
         );
 
         assertNotNull(page);
@@ -710,23 +946,22 @@ public class EventHibernateDaoTest {
         assertEquals(1, page.getCurrentPage());
         assertEquals(1, page.getTotalPages());
         assertEquals(1, page.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_1, page.getContent().get(0));
+        assertEqualsEvent(EVENT_1, page.getContent().get(0));
     }
     @Test
     public void testFindAllWithFiltersNoParamsInterests(){
         Page<Event> page = eventDao.findAllWithFilters(
             null,
-            TestUtils.EVENT_TITLE_DEFAULT,
-            SortFieldEvent.ATTENDEES,
+            EVENT_TITLE_DEFAULT,
+            SortFieldEvent.RATING,
             SortDirection.DESC,
             null,
             null,
             null,
-            TestUtils.INTEREST_1_NAME,
+            INTEREST_1_NAME,
             false,
             false,
-            false,
-            TestUtils.PAGE_1_BIG
+            PAGE_1_BIG
         );
 
         assertNotNull(page);
@@ -734,200 +969,6 @@ public class EventHibernateDaoTest {
         assertEquals(1, page.getCurrentPage());
         assertEquals(1, page.getTotalPages());
         assertEquals(1, page.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_1, page.getContent().get(0));
-    }
-
-    @Test
-    public void testFindRecommended(){
-        TestUtils.deleteEvents(jdbcTemplate);
-        Map<String, Object> event1params = Map.of("user", TestUtils.USER_2);
-        Map<String, Object> event2params = Map.of("user", TestUtils.USER_2, "attending", TestUtils.USER_1);
-        Event event1 = TestUtils.insertEvent(ds, event1params);
-        Event event2 = TestUtils.insertEvent(ds, event2params);
-        TestUtils.insertEvent(ds, Map.of("user", TestUtils.USER_2, "deleted", true));
-        TestUtils.insertEvent(ds, Map.of("user", TestUtils.USER_2, "city", TestUtils.CITY_2));
-        TestUtils.insertEvent(ds, Map.of("user", TestUtils.USER_2, "date", LocalDate.now().plusDays(-2)));
-        Map<Long, Event> eventInfo = Map.of(event1.getId(), event1, event2.getId(), event2);
-
-        Page<Event> events = eventDao.findRecommended(TestUtils.USER_1_ID, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(1, events.getTotalPages());
-        assertNotNull(events.getContent());
-        assertEquals(2, events.getContent().size());
-        for (Event e : events.getContent()){
-            TestUtils.assertEqualsEvent(eventInfo.get(e.getId()), e);
-        }
-    }
-    @Test
-    public void testFindRecommendedEventsNoEvents(){
-        TestUtils.deleteEvents(jdbcTemplate);
-
-        Page<Event> events = eventDao.findRecommended(TestUtils.USER_1_ID, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(0, events.getTotalPages());
-        assertNotNull(events.getContent());
-        assertEquals(0, events.getContent().size());
-    }
-    @Test
-    public void testFindRecommendedWrongEmail(){
-        TestUtils.deleteEvents(jdbcTemplate);
-
-        Page<Event> events = eventDao.findRecommended(TestUtils.USER_1_ID, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(0, events.getTotalPages());
-        assertNotNull(events.getContent());
-        assertEquals(0, events.getContent().size());
-    }
-    @Test
-    public void testFindRecommendedOrder(){
-        TestUtils.deleteEvents(jdbcTemplate);
-        List<Map<String, Object>> maps = new ArrayList<>();
-        List<Event> eventData = new ArrayList<>();
-        maps.add(Map.of("user", TestUtils.USER_2, "limit", 30, "willAttend", 20));
-        maps.add(Map.of("user", TestUtils.USER_2, "limit", 30, "willAttend", 20, "date", TestUtils.EVENT_DATE_LATER));
-        maps.add(Map.of("user", TestUtils.USER_2, "limit", 30, "willAttend", 10));
-        maps.add(Map.of("user", TestUtils.USER_2, "limit", 30, "willAttend", 10, "date", TestUtils.EVENT_DATE_LATER));
-        maps.add(Map.of("user", TestUtils.USER_2, "limit", 30, "willAttend", 20, "attending", TestUtils.USER_1));
-        maps.add(Map.of("user", TestUtils.USER_2, "limit", 30, "willAttend", 20, "attending", TestUtils.USER_1, "date", TestUtils.EVENT_DATE_LATER));
-        maps.add(Map.of("user", TestUtils.USER_2, "limit", 30, "willAttend", 10, "attending", TestUtils.USER_1));
-        maps.add(Map.of("user", TestUtils.USER_2, "limit", 30, "willAttend", 10, "attending", TestUtils.USER_1, "date", TestUtils.EVENT_DATE_LATER));
-        maps.add(Map.of("user", TestUtils.USER_2, "limit", 20, "willAttend", 20));
-        maps.add(Map.of("user", TestUtils.USER_2, "limit", 20, "willAttend", 20, "date", TestUtils.EVENT_DATE_LATER));
-        maps.add(Map.of("user", TestUtils.USER_2, "limit", 10, "willAttend", 10));
-        maps.add(Map.of("user", TestUtils.USER_2, "limit", 10, "willAttend", 10, "date", TestUtils.EVENT_DATE_LATER));
-        maps.add(Map.of("user", TestUtils.USER_2, "limit", 20, "willAttend", 20, "attending", TestUtils.USER_1));
-        maps.add(Map.of("user", TestUtils.USER_2, "limit", 20, "willAttend", 20, "attending", TestUtils.USER_1, "date", TestUtils.EVENT_DATE_LATER));
-        maps.add(Map.of("user", TestUtils.USER_2, "limit", 10, "willAttend", 10, "attending", TestUtils.USER_1));
-        maps.add(Map.of("user", TestUtils.USER_2, "limit", 10, "willAttend", 10, "attending", TestUtils.USER_1, "date", TestUtils.EVENT_DATE_LATER));
-        for (Map<String, Object> params : maps) {
-            eventData.add(TestUtils.insertEvent(ds, params));
-        }
-
-        Page<Event> events = eventDao.findRecommended(TestUtils.USER_1_ID, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(events);
-        assertNotNull(events.getContent());
-        assertEquals(eventData.size(), events.getContent().size());
-        ListIterator<Event> iterator = eventData.listIterator();
-        while (iterator.hasNext()){
-            TestUtils.assertEqualsEvent(events.getContent().get(iterator.nextIndex()), iterator.next());
-        }
-    }
-
-    @Test
-    public void testFindAllEventsByAttendeePageOne(){
-        Page<Event> page1 = eventDao.findAllEventsByAttendee(TestUtils.USER_1_ID, TestUtils.PAGE_1_SINGLE);
-
-        assertNotNull(page1);
-        assertEquals(1, page1.getCurrentPage());
-        assertEquals(1, page1.getTotalPages());
-        assertNotNull(page1.getContent());
-        assertEquals(1, page1.getContent().size());
-    }
-    @Test
-    public void testFindAllEventsByAttendeePageTwo(){
-        Page<Event> page2 = eventDao.findAllEventsByAttendee(TestUtils.USER_1_ID, TestUtils.PAGE_2_SINGLE);
-
-        assertNotNull(page2);
-        assertEquals(2, page2.getCurrentPage());
-        assertEquals(1, page2.getTotalPages());
-        assertNotNull(page2.getContent());
-        assertEquals(0, page2.getContent().size());
-    }
-    @Test
-    public void testFindAllPagedByAttendee(){
-        Page<Event> events = eventDao.findAllEventsByAttendee(TestUtils.USER_1_ID, TestUtils.PAGE_1_SINGLE);
-
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(1, events.getTotalPages());
-        assertNotNull(events.getContent());
-        assertEquals(1, events.getContent().size());
-    }
-    @Test
-    public void testFindAllEventsByAttendeeWrongUserPaged(){
-        Page<Event> events = eventDao.findAllEventsByAttendee(12341234, TestUtils.PAGE_1_SINGLE);
-
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(0, events.getTotalPages());
-        assertNotNull(events.getContent());
-        assertEquals(0, events.getContent().size());
-    }
-
-    @Test   
-    public void testFindUpcomingEventsByAttendee(){
-        Page<Event> events = eventDao.findUpcomingEventsByAttendee(TestUtils.USER_1_ID, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(1, events.getTotalPages());
-        assertEquals(TestUtils.USER_1_ATTENDANCES_UPCOMING_NOT_OWN, events.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_2, events.getContent().getFirst());
-    }
-    @Test   
-    public void testFindUpcomingEventsByAttendee2(){
-        Page<Event> events = eventDao.findUpcomingEventsByAttendee(TestUtils.USER_2_ID, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(1, events.getTotalPages());
-        //Ignoring event 4 (past event)
-        assertEquals(TestUtils.USER_2_ATTENDANCES_UPCOMING_NOT_OWN, events.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_1, events.getContent().getFirst());
-    }
-    @Test   
-    public void testFindUpcomingEventsByAttendeeNotAttending(){
-        Page<Event> events = eventDao.findUpcomingEventsByAttendee(TestUtils.USER_I3_ID, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(0, events.getTotalPages());
-        assertEquals(0, events.getContent().size());
-    }
-    @Test   
-    public void testFindUpcomingEventsByAttendeeMissingUser(){
-        Page<Event> events = eventDao.findUpcomingEventsByAttendee(12341234l, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(0, events.getTotalPages());
-        assertEquals(0, events.getContent().size());
-    }
-
-    @Test
-    public void testFindFinishedEventsByAttendee(){
-        Page<Event> events = eventDao.findFinishedEventsByAttendee(TestUtils.USER_2_ID, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(1, events.getTotalPages());
-        //Ignoring event 2 (upcoming event)
-        assertEquals(TestUtils.USER_2_ATTENDANCES_UPCOMING_NOT_OWN, events.getContent().size());
-        TestUtils.assertEqualsEvent(TestUtils.EVENT_OLDER, events.getContent().getFirst());
-    }
-    @Test
-    public void testFindFinishedEventsByAttendeeNotAttending(){
-        Page<Event> events = eventDao.findFinishedEventsByAttendee(TestUtils.USER_I2_ID, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(0, events.getTotalPages());
-        assertEquals(0, events.getContent().size());
-    }
-    @Test
-    public void testFindFinishedEventsByAttendeeMissingUser(){
-        Page<Event> events = eventDao.findFinishedEventsByAttendee(12341234l, TestUtils.PAGE_1_BIG);
-
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(0, events.getTotalPages());
-        assertEquals(0, events.getContent().size());
+        assertEqualsEvent(EVENT_1, page.getContent().get(0));
     }
 }

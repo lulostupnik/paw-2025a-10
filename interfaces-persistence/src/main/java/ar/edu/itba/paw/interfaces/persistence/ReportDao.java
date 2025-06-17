@@ -1,8 +1,8 @@
 package ar.edu.itba.paw.interfaces.persistence;
+
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.ReportReason;
 import ar.edu.itba.paw.models.enums.ReportStatus;
-
 import java.util.Optional;
 
 public interface ReportDao {
@@ -16,7 +16,5 @@ public interface ReportDao {
     long countReportsAgainstUser(User reportedUser);
     Page<Report> findAllPaginated(PageParams params);
     Page<Report> findByStatusPaginated(ReportStatus status, PageParams params);
-    void delete(Report report);
-    void deleteById(Long id);
     Page<Report> findAll(String search, PageParams params);
 }

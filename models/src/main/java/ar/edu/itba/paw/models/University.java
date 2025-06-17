@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Getter
 @Entity
@@ -54,12 +55,20 @@ public class University{
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(name);
-        sb.append(" (");
-        sb.append(abbreviation);
-        sb.append(")");
-        return sb.toString();
+        return name +
+                " (" +
+                abbreviation +
+                ")";
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof University that)) return false;
+        return id != null && id.equals(that.id);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
 }

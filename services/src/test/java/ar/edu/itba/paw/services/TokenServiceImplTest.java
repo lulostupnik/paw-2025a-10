@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -103,6 +104,14 @@ public class TokenServiceImplTest {
 
         assertNotNull(maybeToken);
         assertEquals(TOKEN, maybeToken.get());
+    }
+
+    @Test(expected = InvalidTokenException.class)
+    public void testCheckTokenValidityInvalid() {
+        when(tokenDao.findByToken(eq(TOKEN_VALUE)))
+                .thenReturn(Optional.empty());
+
+        tokenService.checkTokenValidity(TOKEN_VALUE);
     }
 
     @Test

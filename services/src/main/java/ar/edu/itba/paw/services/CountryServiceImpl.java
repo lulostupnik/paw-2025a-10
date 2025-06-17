@@ -6,7 +6,6 @@ import ar.edu.itba.paw.models.Country;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -25,14 +24,11 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Override
-    @Cacheable(value = "countries")
     public List<Country> findCountries() {
-        LOGGER.debug("Getting all countries");
         return countryDao.findAll();
     }
 
     @Override
-    @Cacheable(value="countriesByName", key="#name")
     public Optional<Country> findCountryByName(final String name) {
         LOGGER.debug("Getting country {}", name);
         return countryDao.findByName(name);

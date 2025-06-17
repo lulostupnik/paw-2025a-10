@@ -5,31 +5,22 @@ import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
 import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
-import ar.edu.itba.paw.models.exceptions.InvalidException;
+import ar.edu.itba.paw.models.exceptions.EventResponseNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
-
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
 import ar.edu.itba.paw.webapp.utils.ImageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.swing.text.html.Option;
 import javax.validation.Valid;
-
-
-import java.util.List;
 import java.util.Optional;
-
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
-
 
 
 @Controller
@@ -39,14 +30,12 @@ public class EventController {
 
 
     private final EventService eventService;
-    private final UserService userService;
 
     private static final String REDIRECT = "redirect:/events/";
 
     @Autowired
-    public EventController(final EventService eventService, final UserService userService) {
+    public EventController(final EventService eventService) {
         this.eventService = eventService;
-        this.userService = userService;
     }
 
     @RequestMapping
@@ -77,7 +66,6 @@ public class EventController {
 
     @GetMapping(value = "/create")
     public ModelAndView createEventForm(@ModelAttribute("createEventForm") final CreateEventForm form) {
-        LOGGER.debug("Getting event creation form");
         return new ModelAndView("events/create");
     }
 
@@ -113,20 +101,18 @@ public class EventController {
         mav.addObject("attendedEventsCount", eventWithStatistics.getAttendedEventsCount());
         mav.addObject("topAttendeeCountry", eventWithStatistics.getTopAttendeeCountry());
         mav.addObject("topAttendeeCountryCount", eventWithStatistics.getTopAttendeeCountryCount());
-        mav.addObject("attendeesPage", userService.findEventAttendees(event.getId(), attendeesPageParams));
-        mav.addObject("attendeesCount", eventService.countEventAttendees(event.getId()));
+        mav.addObject("attendeesPage", eventService.findEventAttendees(event.getId(), attendeesPageParams));
+        mav.addObject("attendeesCount", event.getAttendeesCount());
         Page<EventResponse> eventResponsesPage = eventService.findEventResponses(event.getId(), pageParams);
         mav.addObject("eventResponsesPage", eventResponsesPage);
-        mav.addObject("commentsCount", eventService.countEventResponses(event.getId()));
-//        if(eventWithStatistics.isCreator()){
-//            mav.addObject("attendees", userService.findEventAttendees(id));
-//        }
+        mav.addObject("commentsCount", eventResponsesPage.getTotalElements());
         mav.addObject("attend", eventWithStatistics.isAttending());
         mav.addObject("isEventOwner", eventWithStatistics.isCreator());
         mav.addObject("isFull", event.getFull());
-        Optional<Double> maybeAverageRating = eventService.findRatingsAverageByEvent(event.getId());
-        LOGGER.debug("Average rating: {}", maybeAverageRating.orElse(0.0));
-        maybeAverageRating.ifPresent(rating -> mav.addObject("averageRating", rating));
+
+
+        mav.addObject("averageRating", event.getRating());
+
         if (user != null) {
             Optional<Rating> maybeUserRating = eventService.findRatingByUserAndEvent(user.getId(), event.getId());
             maybeUserRating.ifPresent(rating -> mav.addObject("userRating", rating.getRating()));
@@ -147,7 +133,7 @@ public class EventController {
     {
         EventWithStatistics eventWithStatistics = eventService.findEventWithStatistics(user,id).orElseThrow(() -> {
             LOGGER.error("eventWithStatistics not found for id: {}", id);
-            return new EventNotFoundException("eventWithStatistics not found");});
+            return new EventNotFoundException(id);});
         return populateEventDetails(eventWithStatistics,
                 id, repliesPage, attendeesPage, user );
     }
@@ -197,28 +183,14 @@ public class EventController {
 
         Event event = eventService.findEventById(id).orElseThrow(() -> {
             LOGGER.error("event not found for id: {}", id);
-            return new EventNotFoundException();});
-        long commentsCount = eventService.countEventResponses(event.getId());
+            return new EventNotFoundException(id);});
 
         ModelAndView mav = new ModelAndView("events/delete");
         mav.addObject("event", event);
-        mav.addObject("commentsCount", commentsCount);
         mav.addObject("isEventOwner", eventService.isEventOwnedByUser(user.getEmail(), event.getId()));
         return mav;
     }
 
-    @GetMapping(value = "/{eventId}/reply/{id}/delete")
-    public ModelAndView deleteEventReplyForm(@PathVariable(value = "eventId") long eventId,
-                                             @PathVariable("id") long id,
-                                             @ModelAttribute("deleteReplyForm") ReplyForm form) {
-        EventResponse er = eventService.findEventResponseById(id).orElseThrow(() -> {
-            LOGGER.error("Event response with id {} not found", id);
-            return new NotFoundException("eventResponse not found");}); //fixme porque return new NotFoundException
-        ModelAndView mav = new ModelAndView("events/delete-reply");
-        mav.addObject("event", er.getEvent());
-        mav.addObject("eventResponse", er);
-        return mav;
-    }
 
 
     @PostMapping(value = "/{id}")
@@ -227,14 +199,14 @@ public class EventController {
         if (errors.hasErrors()) {
             return getEvent(id, form, new RatingForm(), user, new PageParams(1, 4), new PageParams(1, 6));
         }
-        eventService.replyToEvent(user.getEmail(), id, form.getMessage());
+        eventService.createEventResponse(user.getEmail(), id, form.getMessage());
         return new ModelAndView(REDIRECT + id);
     }
 
     @PostMapping(value="/{id}/attend",produces = "application/json")
     public ModelAndView attendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer,
                                     @ModelAttribute("user") User user) {
-        eventService.createEventAttendance(user.getEmail(), id);
+        eventService.createEventAttendance(user.getId(), id);
         if (referer != null && !referer.isEmpty()) {
             return new ModelAndView("redirect:" + referer);
         } else {
@@ -245,7 +217,7 @@ public class EventController {
     @PostMapping(value="/{id}/dont-attend",produces = "application/json")
     public ModelAndView dontAttendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer,
                                         @ModelAttribute("user") User user) {
-        eventService.deleteEventAttendance(user.getEmail(), id);
+        eventService.deleteEventAttendance(user.getId(), id);
         if (referer != null && !referer.isEmpty()) {
             return new ModelAndView("redirect:" + referer);
         } else {
@@ -260,7 +232,7 @@ public class EventController {
 
         Event event = eventService.findEventById(eventId).orElseThrow(() -> {
             LOGGER.error("event not found for id: {}", eventId);
-            return new EventNotFoundException();});
+            return new EventNotFoundException(eventId);});
 
         if(!errors.hasErrors()) {
             form.setCity(event.getCity().getName());
@@ -301,15 +273,33 @@ public class EventController {
         return new ModelAndView(REDIRECT + eventId);
     }
 
-    @PostMapping("{eventId}/reply/{id}/delete")
-    public ModelAndView deleteEventReply(@PathVariable(value = "eventId") long eventId,
+    @GetMapping(value = "/reply/{id}/delete")
+    public ModelAndView deleteEventReplyForm(
+            @PathVariable("id") long id,
+            @ModelAttribute("deleteReplyForm") ReplyForm form) {
+        EventResponse er = eventService.findEventResponseById(id).orElseThrow(() -> {
+            LOGGER.error("Event response with id {} not found", id);
+            return new EventResponseNotFoundException("eventResponse not found");});
+        ModelAndView mav = new ModelAndView("events/delete-reply");
+        mav.addObject("event", er.getEvent());
+        mav.addObject("eventResponse", er);
+        return mav;
+    }
+
+    @PostMapping("/reply/{id}/delete")
+    public ModelAndView deleteEventReply(
             @PathVariable("id") long id, @Valid @ModelAttribute("deleteReplyForm") ReplyForm form,
                                          BindingResult errors) {
+        EventResponse er = eventService.findEventResponseById(id).orElseThrow(() ->{
+            LOGGER.error("Event response not found {}", id);
+            return new EventResponseNotFoundException("Event response doesn't exist");});
+
         if (errors.hasErrors()) {
-            return deleteEventReplyForm(eventId, id, form);
+            return deleteEventReplyForm(er.getEvent().getId(), form);
         }
-        eventService.deleteEventResponse(id, form.getMessage());
-        return new ModelAndView( "redirect:/events/" + eventId);
+
+        eventService.deleteEventResponse(er, form.getMessage());
+        return new ModelAndView( "redirect:/events/" + er.getEvent().getId());
     }
 
 

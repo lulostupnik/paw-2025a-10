@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.interfaces.services;
 
 import ar.edu.itba.paw.models.*;
-
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -13,15 +12,17 @@ public interface UserService {
     void resetPassword(String token, String newPassword);
     void initiatePasswordReset(String email);
     Optional<User> findUserByEmail(String email);
-//    Optional<UserAuthInfo> findAuthInfoByEmail(String email);
     Optional<User> findUserById(long id);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
     Page<User> findUsers(String search, PageParams pageParams);
-    Page<User> findEventAttendees(long eventId, PageParams pageParams);
     void blockUser(long userId);
     void unblockUser(long userId);
-    void checkTokenValidity(String token);
+
+    User updateUser(long userId, String username, String firstname, String lastname,
+                    String universityName, String careerName);
+
+    long updateProfilePicture(long userId, byte[] profilePicture);
 
     Optional<Double> findAverageRatingForCreatedEvents(long userId);
     Optional<Double> findAverageRatingForAttendedEvents(long userId);

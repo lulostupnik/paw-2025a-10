@@ -35,7 +35,6 @@
     display: none;
     background-color: white;
     border-radius: 0.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
 
@@ -187,15 +186,6 @@
     background-color: rgb(249, 250, 251);
 }
 
-
-/*.status-badge {*/
-/*    display: inline-block;*/
-/*    padding: 0.25rem 0.75rem;*/
-/*    border-radius: 9999px;*/
-/*    font-size: 0.75rem;*/
-/*    font-weight: 500;*/
-/*}*/
-/* Report Status Badges */
 .status-badge {
     display: inline-flex;
     align-items: center;
@@ -413,7 +403,6 @@
 
 
 
-/* PENDING Status - Orange/Amber */
 .status-pending {
     color: #92400e;
 }
@@ -422,7 +411,6 @@
     font-size: 0.875rem;
 }
 
-/* UNDER_REVIEW Status - Blue */
 .status-under-review {
     color: #1e40af;
 }
@@ -431,7 +419,6 @@
     font-size: 0.875rem;
 }
 
-/* RESOLVED Status - Green */
 .status-resolved {
     color: #065f46;
 }
@@ -440,7 +427,6 @@
     font-size: 0.875rem;
 }
 
-/* DISMISSED Status - Gray */
 .status-dismissed {
     color: #374151;
 }
@@ -449,7 +435,6 @@
     font-size: 0.875rem;
 }
 
-/* Alternative design with dots instead of emojis */
 .status-badge.dot-style::before {
     content: "";
     width: 0.5rem;
@@ -476,7 +461,6 @@
 
 
 
-/* Priority indicators for urgent reports */
 .status-badge.priority-high {
     position: relative;
     animation: pulse 2s infinite;

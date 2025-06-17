@@ -6,8 +6,11 @@ import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
+import ar.edu.itba.paw.webapp.form.EditPictureForm;
+import ar.edu.itba.paw.webapp.form.EditUserForm;
 import ar.edu.itba.paw.webapp.form.UpdatePasswordForm;
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
+import ar.edu.itba.paw.webapp.utils.ImageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +18,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
 import javax.validation.Valid;
 import java.util.Optional;
 
@@ -38,10 +40,11 @@ public class ProfileController {
         this.userService = userService;
     }
 
-    private void addUserJourneyToMav(User user, ModelAndView mav){
-        Optional<Journey> maybeJourney = journeyService.getJourneyByEmail(user.getEmail());
-        maybeJourney.map(journey -> mav.addObject("userJourney", journey)).orElseGet(() -> mav.addObject("userJourney", null));
+    private void addUserJourneyToMav(User user, ModelAndView mav) {;
+        journeyService.findJourneyByUserId(user.getId())
+                .ifPresent(journey -> mav.addObject("userJourney", journey));
     }
+
 
     @GetMapping(value = "{id}/info")
     public ModelAndView getInfo(
@@ -91,7 +94,7 @@ public class ProfileController {
         User profileUser = userService.findUserById(id).orElseThrow(() -> new UserNotFoundException(id));
 
         ModelAndView mav = new ModelAndView(PROFILE);
-        mav.addObject("events", eventService.findEvents(profileUser.getEmail(), pageParam));
+        mav.addObject("events", eventService.findEvents(profileUser.getId(), pageParam));
         mav.addObject("isMine", user.getId().equals(id));
         mav.addObject("isEventTab", true);
         mav.addObject("userAttendingEvents", eventService.findUpcomingEventsByAttendee(profileUser.getId(), attendingPage));
@@ -116,8 +119,51 @@ public class ProfileController {
             return getChangePassword(updatePasswordForm);
         }
         userService.updatePassword(user.getId(), updatePasswordForm.getPassword());
-        return new ModelAndView("redirect:/profile/info");
+        return new ModelAndView("redirect:/profile/"+ user.getId() + "/info");
     }
+    @GetMapping(value = "/edit")
+    public ModelAndView getEditProfile(@ModelAttribute("editUserForm") EditUserForm editUserForm,
+                                       BindingResult errors, @ModelAttribute("user") User user) {
+        ModelAndView mav = new ModelAndView("profile/edit-profile");
 
+        if(!errors.hasErrors()){
+
+            editUserForm.setUserId(user.getId());
+            editUserForm.setUsername(user.getUsername());
+            editUserForm.setFirstName(user.getFirstname());
+            editUserForm.setLastName(user.getLastname());
+            editUserForm.setOriginUniversity(user.getUniversity().getName());
+            editUserForm.setCareer(user.getCareer().getName());
+        }
+        addUserJourneyToMav(user,mav);
+        return mav;
+    }
+    @PostMapping(value = "/edit")
+    public ModelAndView editProfile(@Valid @ModelAttribute("editUserForm") EditUserForm editUserForm,
+                                    BindingResult errors, @ModelAttribute("user") User user) {
+        if (errors.hasErrors()) {
+            return getEditProfile(editUserForm, errors, user);
+        }
+        userService.updateUser(editUserForm.getUserId(), editUserForm.getUsername(),
+                editUserForm.getFirstName(), editUserForm.getLastName(), editUserForm.getOriginUniversity(),
+                editUserForm.getCareer());
+        return new ModelAndView("redirect:/profile/"+ editUserForm.getUserId() + "/info");
+    }
+    @GetMapping(value = "/edit-picture")
+    public ModelAndView getEditPicture(@ModelAttribute("user") User user, @ModelAttribute("editPictureForm") EditPictureForm editPictureForm) {
+        ModelAndView mav = new ModelAndView("profile/edit-profile-picture");
+        addUserJourneyToMav(user, mav);
+        return mav;
+    }
+    @PostMapping(value = "/edit-picture")
+    public ModelAndView editPicture(@ModelAttribute("user") User user, @Valid @ModelAttribute("editPictureForm") EditPictureForm editPictureForm,
+                                    BindingResult errors) {
+    if (errors.hasErrors()) {
+        return getEditPicture(user, editPictureForm);
+    }
+        byte[] flyerContent = ImageUtils.getBytes(editPictureForm.getPicture());
+        userService.updateProfilePicture(user.getId(), flyerContent);
+        return new ModelAndView("redirect:/profile/"+ user.getId() + "/info");
+    }
 
 }

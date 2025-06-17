@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -29,19 +30,19 @@ public class Report {
     @JoinColumn(name = "reporting_user_id", nullable = false)
     private User reportingUser;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "journey_id")
     private Journey journey;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "journey_response_id")
     private JourneyResponse journeyResponse;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
     private Event event;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_response_id")
     private EventResponse eventResponse;
 
@@ -154,6 +155,16 @@ public class Report {
                 ", deleted=" + deleted +
                 ", createdAt=" + createdAt +
                 '}';
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Report report)) return false;
+        return id != null && id.equals(report.id);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
 

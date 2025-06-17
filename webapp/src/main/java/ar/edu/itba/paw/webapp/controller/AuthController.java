@@ -4,11 +4,8 @@ import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.webapp.auth.LoginHelper;
 import ar.edu.itba.paw.webapp.form.CreateUserForm;
-
 import ar.edu.itba.paw.webapp.form.EmailForm;
 import ar.edu.itba.paw.webapp.form.UpdatePasswordForm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
@@ -16,23 +13,21 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import javax.validation.Valid;
-
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 
 @Controller
 public class AuthController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
-
     private final UserService userService;
     private final LoginHelper loginHelper;
+    private final TokenService tokenService;
 
     @Autowired
-    public AuthController(final UserService userService, final LoginHelper loginHelper) {
+    public AuthController(final UserService userService, final LoginHelper loginHelper, TokenService tokenService) {
         this.userService = userService;
         this.loginHelper = loginHelper;
+        this.tokenService = tokenService;
     }
     @GetMapping(value ="/validate")
     public ModelAndView validateEmail(@RequestParam("token") String token, RedirectAttributes redirectAttributes) {
@@ -50,7 +45,7 @@ public class AuthController {
 
     @GetMapping(value ="/reset-password")
     public ModelAndView changePassForm(@RequestParam("token") String token, @ModelAttribute("updatePasswordForm") UpdatePasswordForm form) {
-        userService.checkTokenValidity(token);
+        tokenService.checkTokenValidity(token);
         ModelAndView mav = new ModelAndView("auth/reset-password");
         mav.addObject("token", token);
         return mav;
@@ -58,7 +53,7 @@ public class AuthController {
 
     @PostMapping(value ="/reset-password")
     public ModelAndView changePass(@RequestParam("token") String token, @Valid @ModelAttribute("updatePasswordForm")UpdatePasswordForm form, final BindingResult errors) {
-        userService.checkTokenValidity(token);
+        tokenService.checkTokenValidity(token);
 
         if(errors.hasErrors()) {
             return changePassForm(token, form);

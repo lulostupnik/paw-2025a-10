@@ -4,11 +4,8 @@ import ar.edu.itba.paw.interfaces.persistence.TokenDao;
 import ar.edu.itba.paw.models.Token;
 import ar.edu.itba.paw.models.User;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -17,6 +14,7 @@ public class TokenHibernateDao implements TokenDao {
 
     @PersistenceContext
     private EntityManager entityManager;
+
 
     @Override
     public Token create(User user, String token, LocalDateTime expirationDate) {
@@ -27,8 +25,10 @@ public class TokenHibernateDao implements TokenDao {
 
     @Override
     public Optional<Token> findByToken(String token) {
-        return entityManager.createQuery("FROM Token t WHERE t.token = :token", Token.class)
+        return entityManager.createQuery(
+                        "FROM Token t WHERE t.token = :token AND t.expirationDate IS NOT NULL AND t.expirationDate >= :now", Token.class)
                 .setParameter("token", token)
+                .setParameter("now", LocalDateTime.now())
                 .getResultList()
                 .stream()
                 .findFirst();
@@ -45,11 +45,12 @@ public class TokenHibernateDao implements TokenDao {
 
     @Override
     public void deleteByToken(Token token) {
-        final Token tkn = entityManager.getReference(Token.class, token.getTokenId());
-        entityManager.remove(tkn);
-        entityManager.flush();
-        //Ver tema token no se encuentra en la base de datos
-        //no deberia llegar a este punto
+            Token managedToken = entityManager.find(Token.class, token.getId());
+            if (managedToken != null) {
+                User user = managedToken.getUser();
+                user.setToken(null); // This will trigger orphan removal
+                entityManager.flush();
+            }
     }
 
 

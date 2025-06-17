@@ -112,7 +112,6 @@ CREATE TABLE IF NOT EXISTS events(
     attendees_limit INTEGER,
     address VARCHAR(255),
     flyer_image_id BIGINT NOT NULL,
-    attendees_count INTEGER DEFAULT 0 NOT NULL,
     title VARCHAR(255) NOT NULL,
     deleted BOOLEAN DEFAULT FALSE NOT NULL,
     deleted_message VARCHAR(1000),
@@ -186,4 +185,15 @@ CREATE TABLE IF NOT EXISTS tokens (
     token VARCHAR(100) UNIQUE,
     token_expiration TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE SEQUENCE tips_id_seq START WITH 2;
+CREATE TABLE IF NOT EXISTS tips (
+    id BIGINT DEFAULT nextval('tips_id_seq') PRIMARY KEY,
+    journey_id BIGINT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content VARCHAR(2047) NOT NULL,
+    date_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    FOREIGN KEY(journey_id) REFERENCES journeys ON DELETE CASCADE
 );

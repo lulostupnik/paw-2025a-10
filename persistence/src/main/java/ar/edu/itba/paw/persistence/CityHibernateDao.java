@@ -2,15 +2,12 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.CityDao;
 import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.exceptions.CityAlreadyExistsException;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.likePattern;
 
@@ -103,15 +100,6 @@ public class CityHibernateDao implements CityDao {
 
     }
 
-    @Override
-    public void update(long id, String name, Country country) {
-        final City city = em.find(City.class, id);
-        if (city != null) {
-            city.setName(name);
-            city.setCountry(country);
-            em.merge(city);
-        }
-    }
     private Optional<City> findByNameAndCountryWithDeleted(String name, Country country) {
         return em.createQuery("from City as c where c.name = :name and c.country.id = :country_id", City.class)
                 .setParameter("name", name)
@@ -130,7 +118,7 @@ public class CityHibernateDao implements CityDao {
                 em.merge(city);
                 return city;
             } else {
-                throw new IllegalArgumentException("City with this name and country already exists.");
+                throw new CityAlreadyExistsException(nameEn, country.getName());
             }
         }
         final City city = new City(nameEn, country);
@@ -138,12 +126,5 @@ public class CityHibernateDao implements CityDao {
         return city;
     }
 
-    @Override
-    public void delete(long id) {
-        final City city = em.find(City.class, id);
-        if (city != null) {
-            city.setDeleted(true);
-            em.merge(city);
-        }
-    }
+
 }

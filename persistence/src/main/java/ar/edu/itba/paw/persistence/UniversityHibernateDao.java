@@ -1,19 +1,16 @@
 package ar.edu.itba.paw.persistence;
-import ar.edu.itba.paw.interfaces.persistence.CityDao;
+
 import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
 import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import ar.edu.itba.paw.models.exceptions.UniversityAlreadyExistsException;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Map;
 import java.util.Optional;
-
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.likePattern;
 
@@ -23,13 +20,7 @@ public class UniversityHibernateDao implements UniversityDao {
     @PersistenceContext
     private EntityManager em;
 
-    private final CityDao cityDao;
 
-    @Autowired
-    public  UniversityHibernateDao(CityDao cityDao) {
-        this.cityDao = cityDao;
-        // Default constructor for Spring
-    }
     private Optional<University> findByNameAndCityWithDeleted(String name, String cityName) {
         return em.createQuery("from University as u where u.name= :name and u.city.name = :cityName", University.class)
                 .setParameter("name", name)
@@ -44,7 +35,7 @@ public class UniversityHibernateDao implements UniversityDao {
         Optional <University> existingUniversity = findByNameAndCityWithDeleted(name, city.getName());
         if (existingUniversity.isPresent()) {
             if( !existingUniversity.get().isDeleted()) {
-                throw new IllegalArgumentException("University with this name and city already exists and is not deleted."); //@TODO: change this to a custom exception
+                throw new UniversityAlreadyExistsException(name, city.getName());
             }
             final University university = existingUniversity.get();
             university.setDeleted(false);
@@ -56,28 +47,6 @@ public class UniversityHibernateDao implements UniversityDao {
         final University university = new University(name, abbreviation, city);
         em.persist(university);
         return university;
-    }
-
-    @Override
-    public void update(long id, String newName, String newAbbreviation, String newCityName) {
-        final University university = em.find(University.class, id);
-        if (university != null) {
-            university.setName(newName);
-            university.setAbbreviation(newAbbreviation);
-            //university.getCity().setName(newCityName);  //TODO this breaks cities. quick patch below
-            university.setCity(cityDao.findByName(newCityName).orElseThrow(IllegalArgumentException::new));
-            em.merge(university);
-        }
-    }
-
-    @Override
-    public void delete(long id) {
-        final University university = em.find(University.class, id);
-        if (university != null) {
-            university.setDeleted(true);
-            em.merge(university);
-        }
-
     }
 
     @Override
@@ -103,7 +72,7 @@ public class UniversityHibernateDao implements UniversityDao {
         final String pattern = likePattern(searchTerm);
 
         final String countSql = """
-                SELECT COUNT(*) 
+                SELECT COUNT(*)
                 FROM universities u
                 WHERE (LOWER(u.name) like LOWER( :pattern )  OR LOWER (u.abbreviation) like LOWER( :pattern ) ) and u.deleted = false
                 """;

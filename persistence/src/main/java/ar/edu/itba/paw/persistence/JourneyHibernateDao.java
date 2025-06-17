@@ -20,31 +20,15 @@ public class JourneyHibernateDao implements JourneyDao {
 
     @Override
     public Journey create(User user, University university, LocalDate startDate, LocalDate endDate, String description) {
-        Optional<Journey> existingJourney = findByUserWithDeleted(user.getId());
-        if (existingJourney.isPresent()) {
-            if( !existingJourney.get().isDeleted()) {
-                throw new IllegalArgumentException("User already has an active journey."); //@TODO: change this to a custom exception
-            }
-            // If a journey already exists for the user, we can update it instead of creating a new one.
-            Journey journey = existingJourney.get();
-            journey.setDestinationUniversity(university);
-            journey.setStartDate(startDate);
-            journey.setEndDate(endDate);
-            journey.setDescription(description);
-            journey.setDeleted(false);
-            em.merge(journey);
-            return journey;
-        }
         final Journey journey = new Journey(user, startDate, endDate, university, description);
         em.persist(journey);
         return journey;
     }
-    private Optional<Journey> findByUserWithDeleted(long userId) {
-        return em.createQuery("FROM Journey j WHERE j.user.id = :userId", Journey.class)
-                .setParameter("userId", userId)
-                .getResultList()
-                .stream()
-                .findFirst();
+
+    @Override
+    public void hardDelete(Journey journey) {
+        em.remove(em.contains(journey) ? journey : em.merge(journey));
+        em.flush();
     }
 
     @Override
@@ -55,9 +39,6 @@ public class JourneyHibernateDao implements JourneyDao {
                 .stream()
                 .findFirst();
     }
-
-
-
 
     @Override
     public Page<Journey> findAll(final PageParams pageParams) {
@@ -120,26 +101,21 @@ public class JourneyHibernateDao implements JourneyDao {
         );
     }
 
-    @Override
-    public Page<Journey> search(String search, PageParams pageParams) {
-        return null;
-    }
 
     private String getOrderByColumn(SortFieldJourney orderBy, boolean jql) {
         if(orderBy == null){
-            return "j.id";
+            return jql ? "id" : "j.id";
         }
         return switch (orderBy) {
             case START_DATE -> jql? "startDate":"j.start_date";
             case END_DATE   -> jql? "endDate":"j.end_date";
-            default         -> "j.id";
+            default         -> jql? "id" : "j.id";
         };
     }
     @Override
     public Page<Journey> search(final String searchTerm, final Long userId, final SortFieldJourney orderBy, final SortDirection direction,
                                 final String city, final LocalDate startDate, final LocalDate endDate, final String interest,
-                                final boolean isPast, final boolean isUpcoming, final boolean isMyDestination, final boolean isOngoing,
-                                final PageParams pageParams) {
+                                final boolean isMyDestination, final PageParams pageParams) {
 
         final String pattern = likePattern(searchTerm);
 
@@ -148,7 +124,6 @@ public class JourneyHibernateDao implements JourneyDao {
 
         StringBuilder countSql = new StringBuilder("SELECT COUNT(DISTINCT j.id) FROM journeys j");
 
-//        StringBuilder idSql = new StringBuilder(" SELECT DISTINCT j.id FROM journeys j");
         StringBuilder idSql = new StringBuilder("SELECT id FROM (SELECT j.id as id, j.start_date, j.end_date FROM journeys j");
 
         boolean joinedUsers = false;
@@ -214,19 +189,6 @@ public class JourneyHibernateDao implements JourneyDao {
             paramMap.put("pattern", pattern);
         }
 
-        if (isOngoing) {
-            filters.add("j.start_date <= :now AND j.end_date >= :now");
-            paramMap.put("now", LocalDate.now());
-        } else {
-            if (isUpcoming) {
-                filters.add("j.start_date > :now");
-                paramMap.put("now", LocalDate.now());
-            }
-            if (isPast) {
-                filters.add("j.end_date < :now");
-                paramMap.put("now", LocalDate.now());
-            }
-        }
 
         if (isMyDestination && userId != null) {
             if (!joinedUnis){
@@ -298,9 +260,6 @@ public class JourneyHibernateDao implements JourneyDao {
             FROM journeys j
             JOIN users u ON j.user_id = u.id
             JOIN universities dest_univ ON j.destination_university_id = dest_univ.id
-            JOIN cities dest_city ON dest_univ.city_id = dest_city.id
-            JOIN universities uu ON u.university = uu.id
-            JOIN cities uc ON uu.city_id = uc.id
             CROSS JOIN user_journey uj
             CROSS JOIN user_data ud
             WHERE j.user_id != ud.id AND j.deleted = FALSE
@@ -348,12 +307,6 @@ public class JourneyHibernateDao implements JourneyDao {
             FROM journeys j
             JOIN users u ON j.user_id = u.id
             JOIN universities dest_univ ON j.destination_university_id = dest_univ.id
-            JOIN cities dest_city ON dest_univ.city_id = dest_city.id
-            JOIN countries dest_country ON dest_city.country_id = dest_country.id
-            JOIN universities uu ON u.university = uu.id
-            JOIN cities uc ON uu.city_id = uc.id
-            JOIN countries co ON uc.country_id = co.id
-            LEFT JOIN careers c ON u.career_id = c.id
             CROSS JOIN user_journey uj
             CROSS JOIN user_data ud
             WHERE j.user_id != ud.id AND j.deleted = FALSE
@@ -376,7 +329,7 @@ public class JourneyHibernateDao implements JourneyDao {
             origin_uni_match_off_travel_score +
             origin_city_match_off_travel_score
         ) DESC
-    """; //fixme ES POSIBLE QUE HAYAN JOINS innecesarios porque estaban por el ROWMAPPER.
+    """;
 
         final String jpqlFetch = "FROM Journey j WHERE j.id IN :ids";
 
@@ -385,37 +338,3 @@ public class JourneyHibernateDao implements JourneyDao {
 
 }
 
-
-
-//
-//@Override
-//public void delete(long id) {
-//    final Journey journey = em.find(Journey.class, id);
-//    if (journey != null) {
-//        journey.setDeleted(true);
-//        em.merge(journey);
-//    }
-//
-//}
-
-//
-//@Override
-//public void update(long journeyId, University destinationUniversity, LocalDate startDate, LocalDate endDate, String description) {
-//    final Journey journey = em.find(Journey.class, journeyId);
-//    if (journey != null) {
-//        journey.setDestinationUniversity(destinationUniversity);
-//        journey.setStartDate(startDate);
-//        journey.setEndDate(endDate);
-//        journey.setDescription(description);
-//    }
-//}
-
-//
-//    @Override
-//    public void updateDeletionMessage(long id, String message) {
-//        final Journey journey = em.find(Journey.class, id);
-//        if (journey != null) {
-//            journey.setDeletionMessage(message);
-//            em.merge(journey);
-//        }
-//    }

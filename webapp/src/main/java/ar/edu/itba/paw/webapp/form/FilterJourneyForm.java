@@ -2,7 +2,6 @@ package ar.edu.itba.paw.webapp.form;
 
 import ar.edu.itba.paw.webapp.validation.ValidFilterDateRange;
 import org.springframework.format.annotation.DateTimeFormat;
-
 import java.time.LocalDate;
 
 @ValidFilterDateRange
@@ -95,24 +94,22 @@ public class FilterJourneyForm {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{destination: \"");
-        sb.append(destination);
-        sb.append("\", interests: \"");
-        sb.append(interests);
-        sb.append("\", startDate: \"");
-        sb.append(startDate);
-        sb.append("\", endDate: \"");
-        sb.append(endDate);
-        sb.append("\", isMyDestination: \"");
-        sb.append(isMyDestination);
-        sb.append("\", isUpcoming: \"");
-        sb.append(isUpcoming);
-        sb.append("\", isPast: \"");
-        sb.append(isPast);
-        sb.append("\", isOngoing: \"");
-        sb.append(isOngoing);
-        sb.append("\"}");
-        return sb.toString();
+        return "{destination: \"" +
+                destination +
+                "\", interests: \"" +
+                interests +
+                "\", startDate: \"" +
+                startDate +
+                "\", endDate: \"" +
+                endDate +
+                "\", isMyDestination: \"" +
+                isMyDestination +
+                "\", isUpcoming: \"" +
+                isUpcoming +
+                "\", isPast: \"" +
+                isPast +
+                "\", isOngoing: \"" +
+                isOngoing +
+                "\"}";
     }
 }

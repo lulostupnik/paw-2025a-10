@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.models;
 
 import lombok.Getter;
-
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
@@ -21,8 +20,7 @@ public class EventAttendanceId implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof EventAttendanceId)) return false;
-        EventAttendanceId that = (EventAttendanceId) o;
+        if (!(o instanceof EventAttendanceId that)) return false;
         return Objects.equals(userId, that.userId) &&
                 Objects.equals(eventId, that.eventId);
     }

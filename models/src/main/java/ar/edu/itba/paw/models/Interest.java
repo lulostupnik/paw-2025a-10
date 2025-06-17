@@ -1,10 +1,9 @@
 package ar.edu.itba.paw.models;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-
 import javax.persistence.*;
+import java.util.Objects;
 
 @Getter
 @Entity
@@ -32,6 +31,16 @@ public class Interest {
     @Override
     public String toString() {
         return name;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Interest interest)) return false;
+        return id != null && id.equals(interest.id);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
 }

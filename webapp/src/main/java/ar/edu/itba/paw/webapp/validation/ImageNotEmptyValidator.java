@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.webapp.validation;
 
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.validation.ConstraintValidator;
 
 public class ImageNotEmptyValidator implements ConstraintValidator<ImageNotEmpty, MultipartFile> {

@@ -4,16 +4,12 @@ import ar.edu.itba.paw.interfaces.persistence.CareerDao;
 import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
-import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.exceptions.CareerAlreadyExistsException;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.likePattern;
 
@@ -52,7 +48,8 @@ public class CareerHibernateDao implements CareerDao {
                 SELECT c.id
                 FROM careers c
                 WHERE c.deleted = false
-                """; // todo falta ORDER BY
+                ORDER BY c.id
+                """;
 
         final String jpqlFetch = """
                 FROM Career c
@@ -121,7 +118,7 @@ public class CareerHibernateDao implements CareerDao {
                 em.merge(career);
                 return career;
             } else {
-                throw new IllegalArgumentException("Career with name '" + name + "' already exists."); //@TODO: change to custom exception
+                throw new CareerAlreadyExistsException(name);
             }
         }
         final Career career = new Career(name);
@@ -129,22 +126,5 @@ public class CareerHibernateDao implements CareerDao {
         return career;
     }
 
-    @Override
-    public void update(long id, String name) {
-        final Career career = em.find(Career.class, id);
-        if (career != null) {
-            career.setName(name);
-            career.setDeleted(false);
-            em.merge(career);
-        }
-    }
 
-    @Override
-    public void delete(long id) {
-        final Career career = em.find(Career.class, id);
-        if (career != null) {
-            career.setDeleted(true);
-            em.merge(career);
-        }
-    }
 }

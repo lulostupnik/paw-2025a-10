@@ -21,6 +21,7 @@ import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.exceptions.CityNotFoundException;
+import ar.edu.itba.paw.models.exceptions.UniversityNotFoundException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UniversityServiceImplTest {
@@ -35,7 +36,7 @@ public class UniversityServiceImplTest {
     private static final City CITY = new City(CITY_NAME, COUNTRY, ID_1);
     private static final University UNI_1 = new University(ID_1, NAME, ABBREVIATION, CITY);
     private static final List<University> UNIS = List.of(UNI_1);
-    private static final Page<University> UNI_PAGE = new Page<>(UNIS, 1, 1);
+    private static final Page<University> UNI_PAGE = new Page<>(UNIS, 1, 1, 1);
     private static final PageParams PAGE_PARAMS = new PageParams(1, 10);
     @InjectMocks
     private UniversityServiceImpl uniService;
@@ -129,11 +130,37 @@ public class UniversityServiceImplTest {
 
     @Test
     public void testUpdateUniversity(){
-        uniService.updateUniversity(ID_1, CITY_NAME, ABBREVIATION, NAME);
-    }
+        University uni = new University(ID_1, null, null, null);
+        when(
+            cityService.findCityByName(eq(CITY_NAME))
+        ).thenReturn(Optional.of(CITY));
+        when(
+            uniDao.findById(eq(ID_1))
+        ).thenReturn(Optional.of(uni));
 
-    @Test
-    public void testDeleteUniversity(){
-        uniService.deleteUniversity(ID_1);
+        uniService.updateUniversity(ID_1, NAME, ABBREVIATION, CITY_NAME);
+
+        assertEquals(NAME, uni.getName());
+        assertEquals(ABBREVIATION, uni.getAbbreviation());
+        assertEquals(CITY_NAME, uni.getCity().getName());
+    }
+    @Test(expected = UniversityNotFoundException.class)
+    public void testUpdateUniversityNotFound(){
+        when(
+            cityService.findCityByName(eq(CITY_NAME))
+        ).thenReturn(Optional.of(CITY));
+        when(
+            uniDao.findById(eq(ID_1))
+        ).thenReturn(Optional.empty());
+
+        uniService.updateUniversity(ID_1, NAME, ABBREVIATION, CITY_NAME);
+    }
+    @Test(expected = CityNotFoundException.class)
+    public void testUpdateUniversityCityNotFound(){
+        when(
+            cityService.findCityByName(eq(CITY_NAME))
+        ).thenReturn(Optional.empty());
+
+        uniService.updateUniversity(ID_1, NAME, ABBREVIATION, CITY_NAME);
     }
 }

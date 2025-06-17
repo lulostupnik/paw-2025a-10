@@ -49,11 +49,11 @@ INSERT INTO journey_responses(id, user_id, journey_id, message, date_time, delet
 INSERT INTO journey_responses(id, user_id, journey_id, message, date_time, deleted) VALUES(3, 3, 1, 'COOL!', CURRENT_DATE + INTERVAL '2' HOUR, FALSE);
 INSERT INTO journey_responses(id, user_id, journey_id, message, date_time, deleted) VALUES(4, 3, 1, 'COOL!', CURRENT_DATE + INTERVAL '0' HOUR, TRUE);
 
-INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attendees_limit, attendees_count, description, title, flyer_image_id, deleted) VALUES(1, 1, 1, CURRENT_DATE + INTERVAL '7' DAY,   TIME '00:00:00', 'cool place', 30,   3, 'cool event', 'warm event',     1, FALSE);
-INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attendees_limit, attendees_count, description, title, flyer_image_id, deleted) VALUES(2, 2, 1, CURRENT_DATE + INTERVAL '7' DAY,   TIME '00:00:00', 'cool place', NULL, 1, 'cool event', 'another event',  1, FALSE);
-INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attendees_limit, attendees_count, description, title, flyer_image_id, deleted) VALUES(3, 2, 1, CURRENT_DATE + INTERVAL '7' DAY,   TIME '00:00:00', 'cool place', 30,   0, 'cool event', 'one more event', 1, FALSE);
-INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attendees_limit, attendees_count, description, title, flyer_image_id, deleted) VALUES(4, 1, 1, CURRENT_DATE - INTERVAL '100' DAY, TIME '00:00:00', 'cool place', 30,   0, 'cool event', 'older event',    1, FALSE);
-INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attendees_limit, attendees_count, description, title, flyer_image_id, deleted) VALUES(5, 2, 1, CURRENT_DATE + INTERVAL '7' DAY,   NULL,            'cool place', 30,   0, 'cool event', 'deleted',        1, TRUE);
+INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attendees_limit, description, title, flyer_image_id, deleted) VALUES(1, 1, 1, CURRENT_DATE + INTERVAL '7' DAY,   TIME '00:00:00', 'cool place', 30,   'cool event', 'warm event',     1, FALSE);
+INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attendees_limit, description, title, flyer_image_id, deleted) VALUES(2, 2, 1, CURRENT_DATE + INTERVAL '7' DAY,   TIME '00:00:00', 'cool place', NULL, 'cool event', 'another event',  1, FALSE);
+INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attendees_limit, description, title, flyer_image_id, deleted) VALUES(3, 2, 1, CURRENT_DATE + INTERVAL '7' DAY,   TIME '00:00:00', 'cool place', 30,   'cool event', 'one more event', 1, FALSE);
+INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attendees_limit, description, title, flyer_image_id, deleted) VALUES(4, 1, 1, CURRENT_DATE - INTERVAL '100' DAY, TIME '00:00:00', 'cool place', 30,   'cool event', 'older event',    1, FALSE);
+INSERT INTO events(id, user_id, city_id, event_date, event_time, address, attendees_limit, description, title, flyer_image_id, deleted) VALUES(5, 2, 1, CURRENT_DATE + INTERVAL '7' DAY,   NULL,            'cool place', 30,   'cool event', 'deleted',        1, TRUE);
 
 INSERT INTO event_attendances(user_id, event_id) VALUES(1, 1);
 INSERT INTO event_attendances(user_id, event_id) VALUES(2, 1);
@@ -85,3 +85,5 @@ INSERT INTO reports(id, reported_user_id, reporting_user_id, journey_id, event_i
 INSERT INTO reports(id, reported_user_id, reporting_user_id, journey_id, event_id, event_response_id, journey_response_id, description, reason, deleted, status) VALUES(5, 3, 1, null, null, null, null, 'illegal',        'HARASSMENT', FALSE, 'RESOLVED');
 INSERT INTO reports(id, reported_user_id, reporting_user_id, journey_id, event_id, event_response_id, journey_response_id, description, reason, deleted, status) VALUES(6, 3, 1, null, null, null, null, 'illegal',        'HARASSMENT', FALSE, 'DISMISSED');
 INSERT INTO reports(id, reported_user_id, reporting_user_id, journey_id, event_id, event_response_id, journey_response_id, description, reason, deleted, status) VALUES(7, 3, 1, null, null, null, null, 'illegal',        'HARASSMENT', TRUE, 'DISMISSED');
+
+INSERT INTO tips(id, journey_id, title, content) VALUES (1, 1, 'title', 'content');

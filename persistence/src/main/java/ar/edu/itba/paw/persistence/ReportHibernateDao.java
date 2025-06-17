@@ -1,12 +1,10 @@
 package ar.edu.itba.paw.persistence;
 
-
 import ar.edu.itba.paw.interfaces.persistence.ReportDao;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.ReportReason;
 import ar.edu.itba.paw.models.enums.ReportStatus;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
@@ -162,20 +160,6 @@ public class ReportHibernateDao implements ReportDao {
         );
     }
 
-    @Override
-    public void delete(Report report) {
-        report.markAsDeleted();
-        em.merge(report);
-    }
-
-    @Override
-    public void deleteById(Long id) {
-        final Report report = em.find(Report.class, id);
-        if (report != null) {
-            report.markAsDeleted();
-            em.merge(report);
-        }
-    }
 
     @Override
     public Page<Report> findAll(String search, PageParams params) {

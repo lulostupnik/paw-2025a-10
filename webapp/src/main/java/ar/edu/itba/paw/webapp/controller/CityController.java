@@ -5,13 +5,13 @@ import ar.edu.itba.paw.interfaces.services.CountryService;
 import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.exceptions.CityNotFoundException;
 import ar.edu.itba.paw.webapp.form.CreateCityForm;
 import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
 import ar.edu.itba.paw.webapp.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -64,7 +64,7 @@ public class CityController {
     public ModelAndView getCity(@PathVariable(value = "id") final long id) {
         City city = cityService.findCityById(id).orElseThrow(() -> {
             LOGGER.error("City not found for id: {}", id);
-            return new NotFoundException("City not found");
+            return new CityNotFoundException("City not found");
         });
         ModelAndView mav = new ModelAndView(CITY_DETAIL);
         mav.addObject("city", city);
@@ -76,11 +76,11 @@ public class CityController {
                                        @ModelAttribute(CITY_CREATE_FORM) final CreateCityForm form, BindingResult errors) {
         City city = cityService.findCityById(id).orElseThrow(() -> {
             LOGGER.error("City not found for id: {}", id);
-            return new NotFoundException("City not found");
+            return new CityNotFoundException("City not found");
         });
         if(!errors.hasErrors()){
             form.setName(city.getName());
-            form.setCountry(city.getCountry().getName()); // fixme: estaría mejor que le llegue un Country en vez del nombre del Country
+            form.setCountry(city.getCountry().getName());
         }
 
         ModelAndView mav = new ModelAndView(CREATE_CITY);

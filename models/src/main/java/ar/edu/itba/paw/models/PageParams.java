@@ -26,6 +26,6 @@ public class PageParams {
     }
     @Override
     public int hashCode() {
-        return Objects.hash(page, size);  //fixme esto esta bien? jpa es raro el hash, aunq esto no es una entidad.
+        return Objects.hash(page, size);
     }
 }

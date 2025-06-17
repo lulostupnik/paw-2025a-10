@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Getter
 @Entity
@@ -39,6 +40,17 @@ public class UserInterest {
         this.interest = category;
         this.score = score;
         this.id = new UserInterestId(user.getId(), category.getId());
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UserInterest that)) return false;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
 }

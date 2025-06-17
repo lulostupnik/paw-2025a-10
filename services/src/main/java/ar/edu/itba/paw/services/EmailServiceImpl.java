@@ -53,18 +53,14 @@ public class EmailServiceImpl implements EmailService {
         this.imageService = imageService;
     }
 
-    private void sendHtmlMessage(final Optional<byte[]> maybeImage,final Optional<String> maybeImageCid,final User emailRecipient, final String templateName, final Map<String, Object> variables,final String subjectKey, final Optional<Object[]> maybeSubjectArgs) {
+    private void sendHtmlMessage(final Optional<byte[]> maybeImage,final Optional<String> maybeImageCid,final EmailUser emailRecipient, final String templateName, final Map<String, Object> variables,final String subjectKey, final Optional<Object[]> maybeSubjectArgs) {
         try {
-            LOGGER.debug("Sending email to: {}", emailRecipient.getEmail());
-            LOGGER.debug("Locale of recipient: {}", emailRecipient.getLocale());
-            LOGGER.debug("Subject key: {}", subjectKey);
-            LOGGER.debug("Subject args: {}", maybeSubjectArgs.orElse(null));
+            LOGGER.debug("Sending email to: {}. Locale of recipient: {}. Subject key: {}", emailRecipient.getEmail(), emailRecipient.getLocale(), subjectKey);
             String subject = messageSource.getMessage(
                     subjectKey,
                     maybeSubjectArgs.orElse(null),
                     emailRecipient.getLocale()
             );
-            LOGGER.debug("Resolved subject: {}", subject);
 
 
             MimeMessage message = emailSender.createMimeMessage();
@@ -72,49 +68,45 @@ public class EmailServiceImpl implements EmailService {
             Context context = new Context(emailRecipient.getLocale());
             context.setVariables(variables);
             String htmlContent = templateEngine.process(templateName, context);
-            LOGGER.debug("Rendered template [{}] for locale [{}]", templateName,emailRecipient.getLocale());
             helper.setFrom(fromEmail);
             helper.setTo(emailRecipient.getEmail());
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
             if(maybeImageCid.isPresent() && maybeImage.isPresent() && maybeImage.get().length > 0){
-                LOGGER.debug("Attaching image with CID: {}", maybeImageCid.get());
                 DataSource imageSource = new ByteArrayDataSource(maybeImage.get(), "image/jpeg");
                 helper.addInline(maybeImageCid.get(), imageSource);
             }
             emailSender.send(message);
         } catch (Exception e) {
-            LOGGER.warn("Failed to send email", e);
-        }
+            LOGGER.warn("Failed to send email with template {} to email {}", templateName, emailRecipient.getEmail(), e);        }
     }
 
 
-    private Map<String, Object> buildAnswerVariables(User commenter, String message, String idKey, long id, boolean hasProfilePicture) {
+    private Map<String, Object> buildAnswerVariables(EmailUser commenter, String message, String idKey, long id, boolean hasProfilePicture) {
 
         return Map.of(
                 "firstname", commenter.getFirstname(),
                 "lastname", commenter.getLastname(),
                 "username", commenter.getUsername(),
-                "career",  commenter.getCareer().getName(),
-                "university", commenter.getUniversity().getName(),
+                "career",  commenter.getCareerName(),
+                "university", commenter.getUniversityName(),
                 "message", message,
                 "hasProfileImage", hasProfilePicture,
                 idKey, id,
                 "baseUrl", baseUrl
         );
     }
-    private Map<String, Object> answerJourneyNotificationVariables(User commenter,  Journey journey,String message, byte[] profileArray) {
+    private Map<String, Object> answerJourneyNotificationVariables(EmailUser commenter,  EmailJourney journey,String message, byte[] profileArray) {
         return buildAnswerVariables(commenter, message, "journeyId", journey.getId(), profileArray != null && profileArray.length > 0);
     }
-    private Map<String, Object> answerEventNotificationVariables(User commenter, Event event, String message, byte[] profileArray) {
+    private Map<String, Object> answerEventNotificationVariables(EmailUser commenter, EmailEvent event, String message, byte[] profileArray) {
         return buildAnswerVariables(commenter, message, "eventId", event.getId(), profileArray != null && profileArray.length > 0);
     }
 
 
     @Override
-    public void sendEventCommentDeletionNotification(final EventResponse deletedComment,final Event event , final User commentAuthor,final  String adminMessage) {
+    public void sendEventCommentDeletionNotification(final EventResponse deletedComment,final EmailEvent event , final EmailUser commentAuthor,final  String adminMessage) {
 
-        LOGGER.debug("Retrieved User (comment author): {}", commentAuthor);
         Map<String, Object> variables = new HashMap<>();
         variables.put("isEvent", true);
         variables.put("contentTitle", event.getTitle());
@@ -143,7 +135,7 @@ public class EmailServiceImpl implements EmailService {
 
 
     @Override
-    public void sendJourneyCommentDeletionNotification(final JourneyResponse deletedComment,final  Journey journey, final User commentAuthor ,final String adminMessage) {
+    public void sendJourneyCommentDeletionNotification(final JourneyResponse deletedComment,final  EmailJourney journey, final EmailUser commentAuthor ,final String adminMessage) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("isEvent", false);
         variables.put("contentId", journey.getId());
@@ -157,15 +149,15 @@ public class EmailServiceImpl implements EmailService {
                 "email.comment.deletion.title", Optional.empty());
     }
 
-    private byte[] getUserImageData(User user){
+    private byte[] getUserImageData(EmailUser user){
         return imageService.findImage(user.getProfilePictureId()).orElseThrow(() -> {
-            LOGGER.error("User does not have profile picture");
-            return new InvalidImageException("User does not have profile picture");
+            LOGGER.error("EmailUser with ID {} does not have profile picture", user.getId());
+            return new InvalidImageException();
         }).getData();
     }
     @Override
-    public void answerEventOwnerNotification(final String message, final User commenter, final Event event) {
-        User eventUser = event.getUser();
+    public void answerEventOwnerNotification(final String message, final EmailUser commenter, final EmailEvent event) {
+        EmailUser eventUser = event.getUser();
 
         if(commenter.getEmail().equals(eventUser.getEmail())){
             return;
@@ -177,8 +169,8 @@ public class EmailServiceImpl implements EmailService {
         sendHtmlMessage(profileImageOptional,profileCidOptional,eventUser, "event-response", variables, "email.event.reply.title", Optional.empty());
     }
     @Override
-    public void answerEventNotification(final List<User> oldRepliers,final String message, final User commenter, final Event event) {
-        User eventUser = event.getUser();
+    public void answerEventNotification(final List<EmailUser> oldRepliers,final String message, final EmailUser commenter, final EmailEvent event) {
+        EmailUser eventUser = event.getUser();
 
         byte[] profilePictureData = getUserImageData(commenter);
         Optional<byte[]> profileImageOptional = Optional.of(profilePictureData);
@@ -186,7 +178,7 @@ public class EmailServiceImpl implements EmailService {
         Map<String, Object> variables = answerEventNotificationVariables(commenter, event, message,  profilePictureData);
 
 
-        for(User recipient : oldRepliers){
+        for(EmailUser recipient : oldRepliers){
             if(recipient.getEmail().equals(eventUser.getEmail()) || recipient.getEmail().equals(commenter.getEmail())){
                 continue;
             }
@@ -196,8 +188,8 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void answerJourneyOwnerNotification(final String message, final User commenter, final Journey journey) {
-        User journeyUser = journey.getUser();
+    public void answerJourneyOwnerNotification(final String message, final EmailUser commenter, final EmailJourney journey) {
+        EmailUser journeyUser = journey.getUser();
         if(commenter.getEmail().equals(journeyUser.getEmail())){
             return;
         }
@@ -211,15 +203,15 @@ public class EmailServiceImpl implements EmailService {
 
     }
     @Override
-    public void answerJourneyNotification(final List<User> oldRepliers, final String message, final User commenter, final Journey journey) {
-        User journeyUser = journey.getUser();
+    public void answerJourneyNotification(final List<EmailUser> oldRepliers, final String message, final EmailUser commenter, final EmailJourney journey) {
+        EmailUser journeyUser = journey.getUser();
 
         byte[] profilePictureData = getUserImageData(commenter);
         Map<String, Object> variables = answerJourneyNotificationVariables(commenter, journey, message,  profilePictureData);
         Optional<byte[]> profileImageOptional = Optional.of(profilePictureData);
         Optional<String> profileCidOptional = Optional.of("profileImage");
 
-        for(User recipient: oldRepliers){
+        for(EmailUser recipient: oldRepliers){
             if(recipient.getEmail().equals(journeyUser.getEmail()) || recipient.getEmail().equals(commenter.getEmail())){
                 continue;
             }
@@ -227,7 +219,7 @@ public class EmailServiceImpl implements EmailService {
         }
     }
     @Override
-    public void sendEventDeletionNotification(final Event event,final String adminMessage) {
+    public void sendEventDeletionNotification(final EmailEvent event,final String adminMessage) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("eventTitle", event.getTitle());
         variables.put("eventId", event.getId());
@@ -240,7 +232,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendJourneyDeletionNotification(final Journey journey,final String adminMessage) {
+    public void sendJourneyDeletionNotification(final EmailJourney journey,final String adminMessage) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("journeyId", journey.getId());
         variables.put("adminMessage", adminMessage);
@@ -252,7 +244,7 @@ public class EmailServiceImpl implements EmailService {
 
 
     @Override
-    public void sendUserBlockedNotification(final User blockedUser) {
+    public void sendUserBlockedNotification(final EmailUser blockedUser) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("username", blockedUser.getUsername());
         variables.put("baseUrl", baseUrl);
@@ -263,7 +255,7 @@ public class EmailServiceImpl implements EmailService {
                 "email.user.blocked.title", Optional.empty());
     }
     @Override
-    public void sendUserUnblockedNotification(final User unblockedUser) {
+    public void sendUserUnblockedNotification(final EmailUser unblockedUser) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("username", unblockedUser.getUsername());
         variables.put("baseUrl", baseUrl);
@@ -274,7 +266,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendValidationEmail(final User user,final String token) {
+    public void sendValidationEmail(final EmailUser user,final String token) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("firstName", user.getUsername());
         variables.put("validationToken", token);
@@ -285,7 +277,7 @@ public class EmailServiceImpl implements EmailService {
                 "email.validation.title", Optional.empty());
     }
     @Override
-    public void sendForgotPassEmail(final User user, final String token) {
+    public void sendForgotPassEmail(final EmailUser user, final String token) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("firstName", user.getUsername());
         variables.put("resetToken", token);
@@ -298,9 +290,9 @@ public class EmailServiceImpl implements EmailService {
 
 
     @Override
-    public void sendEventReminderNotification(final Event event, final List<User> attendees) {
+    public void sendEventReminderNotification(final EmailEvent event, final List<EmailUser> attendees) {
 
-        for (User attendee : attendees) {
+        for (EmailUser attendee : attendees) {
             Map<String, Object> variables = new HashMap<>();
             variables.put("firstname", attendee.getFirstname());
             variables.put("event", event);

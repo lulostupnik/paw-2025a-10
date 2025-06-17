@@ -4,28 +4,21 @@ import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.interfaces.services.UserService;
-import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
 import java.util.Objects;
 
 @Component
 public class AccessHelper {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AccessHelper.class);
 
     private final EventService eventService;
     private final JourneyService journeyService;
-    private final UserService userService;
 
     @Autowired
-    public AccessHelper(final JourneyService journeyService, final EventService eventService, UniversityService universityService, UserService userService) {
+    public AccessHelper(final JourneyService journeyService, final EventService eventService) {
         this.journeyService = journeyService;
         this.eventService = eventService;
-        this.userService = userService;
     }
 
     public boolean isUserEventOwner(long eventId){
@@ -40,13 +33,10 @@ public class AccessHelper {
         return journeyService.isJourneyOwnedByUser(email, journeyId);
     }
 
-    public boolean isUserBlocked(){
+    public boolean isUserTipOwner(long tipId) {
         if (Objects.equals(SecurityContextHolder.getContext().getAuthentication().getName(), "AnonymousUser")) return false;
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userService.findUserByEmail(email).orElseThrow(() ->{
-                LOGGER.warn("User not found: {}", email);
-                return new UserNotFoundException("User not found");
-        }).isBlocked();
+        return journeyService.isTipOwnedByUser(tipId, email);
     }
 
 

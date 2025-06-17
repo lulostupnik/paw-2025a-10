@@ -2,13 +2,11 @@
 
     import lombok.Getter;
     import lombok.Setter;
-
+    import org.hibernate.annotations.Formula;
     import javax.persistence.*;
     import java.time.LocalDate;
     import java.time.LocalDateTime;
     import java.time.LocalTime;
-    import java.util.ArrayList;
-    import java.util.List;
 
     @Getter
     @Entity
@@ -56,10 +54,12 @@
         @Setter
         private  Integer attendeesLimit;
 
-        @Column(name = "attendees_count")
-        @Setter
-        private  int attendeesCount; //FIXME: yo borraria esto
-        
+        @Formula("(SELECT COUNT(*) FROM event_attendances ea WHERE ea.event_id = id)")
+        private  int attendeesCount;
+
+        @Formula("(SELECT AVG(r.rating) FROM ratings r WHERE r.event_id = id)")
+        private Double rating;
+
         @Column(name="deleted", nullable = false)
         @Setter
         private  boolean deleted;
@@ -85,13 +85,12 @@
             this.time = time;
             this.address = address;
             this.attendeesLimit = attendeesLimit;
-            this.attendeesCount = 1; //user that created the event @TODO
             this.deleted = false;
 
         }
         public Event(final Long id, final User user, final LocalDate date, final String description,
                      final long flyerImageId, final City city, final String title,
-                     final LocalTime time, final String address, final Integer attendeesLimit, final int attendeesCount) {
+                     final LocalTime time, final String address, final Integer attendeesLimit) {
             this.id = id;
             this.user = user;
             this.date = date;
@@ -102,7 +101,6 @@
             this.time = time;
             this.address = address;
             this.attendeesLimit = attendeesLimit;
-            this.attendeesCount = attendeesCount; //user that created the event @TODO
             this.deleted = false;
         }
 
@@ -123,27 +121,25 @@
 
         @Override
         public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("{eventID: ");
-            sb.append(id);
-            sb.append(", user: ");
-            sb.append(user);
-            sb.append(", city: ");
-            sb.append(city);
-            sb.append(", date: \"");
-            sb.append(date);
-            sb.append("\", time: \"");
-            sb.append(time != null ? time : "all-day");
-            sb.append("\", address: \"");
-            sb.append(address);
-            sb.append("\", attendeesLimit: ");
-            sb.append(attendeesLimit);
-            sb.append(", description: \"");
-            sb.append(description);
-            sb.append("\", flyerID: ");
-            sb.append(flyerImageId);
-            sb.append("}");
-            return sb.toString();
+            return "{eventID: " +
+                    id +
+                    ", user: " +
+                    user +
+                    ", city: " +
+                    city +
+                    ", date: \"" +
+                    date +
+                    "\", time: \"" +
+                    (time != null ? time : "all-day") +
+                    "\", address: \"" +
+                    address +
+                    "\", attendeesLimit: " +
+                    attendeesLimit +
+                    ", description: \"" +
+                    description +
+                    "\", flyerID: " +
+                    flyerImageId +
+                    "}";
         }
 
         @Override

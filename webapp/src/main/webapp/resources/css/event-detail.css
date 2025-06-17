@@ -43,7 +43,6 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    flex-shrink: 0;
 }
 
 
@@ -106,14 +105,15 @@
 }
 
 
-.attendance-status,
-form[action*="/attend-detail"] {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-}
 
-.attending-detail-badge,
+
+.attending-detail-badge {
+    background-color: #10b981;
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+}
 .attend-detail-button {
     display: flex;
     align-items: center;
@@ -127,11 +127,6 @@ form[action*="/attend-detail"] {
     cursor: pointer;
 }
 
-.attending-detail-badge {
-    background-color: #10b981;
-    color: white;
-    transition: padding-right 0.3s ease;
-}
 
 .attend-detail-button {
     background-color: #3b82f6;
@@ -145,9 +140,6 @@ form[action*="/attend-detail"] {
     box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
 }
 
-.attendance-status:hover .attending-detail-badge {
-    padding-right: 3rem;
-}
 
 .cancel-attendance {
     position: absolute;
@@ -160,7 +152,7 @@ form[action*="/attend-detail"] {
     transition: all 0.3s ease;
 }
 
-.attendance-status:hover .cancel-attendance {
+.cancel-attendance {
     opacity: 1;
     transform: translateX(20%);
 }
@@ -674,13 +666,11 @@ form[action*="/attend-detail"] {
         justify-content: center;
     }
 
-    .attendance-status,
     form[action*="/attend-detail"],
     .event-full {
         width: 100%;
     }
 
-    .attending-detail-badge,
     .attend-detail-button,
     .event-full,
     button[type="submit"] {

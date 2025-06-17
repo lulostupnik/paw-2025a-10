@@ -45,12 +45,12 @@ public class ReportServiceImplTest {
     private static final ReportReason MISINFORMATION = ReportReason.MISINFORMATION;
     private static final Report REPORT = new Report(USER, USER, DESC, MISINFORMATION);
     private static final Journey JOURNEY = new Journey(JOURNEY_ID, USER, null, null, null, DESC);
-    private static final Event EVENT = new Event(EVENT_ID, USER, null, DESC, EVENT_ID, null, DESC, null, DESC, null, 0);
+    private static final Event EVENT = new Event(EVENT_ID, USER, null, DESC, EVENT_ID, null, DESC, null, DESC, null);
     private static final EventResponse EVENT_RESPONSE = new EventResponse(EVENT_RESPONSE_ID, USER, EVENT, DESC, null);
     private static final JourneyResponse JOURNEY_RESPONSE = new JourneyResponse(JOURNEY_RESPONSE_ID, USER, JOURNEY, DESC, null);
     private static final PageParams PAGE_PARAMS = new PageParams(1, 10);
     private static final List<Report> REPORTS = List.of(REPORT);
-    private static final Page<Report> REPORT_PAGE = new Page<>(REPORTS, 1, 1);
+    private static final Page<Report> REPORT_PAGE = new Page<>(REPORTS, 1, 1, 1);
     @InjectMocks
     ReportServiceImpl reportService;
 
@@ -64,7 +64,7 @@ public class ReportServiceImplTest {
     @Test
     public void testCreateReportForJourney(){
         when(
-            journeyService.getJourneyById(eq(JOURNEY_ID))
+            journeyService.findJourneyById(eq(JOURNEY_ID))
         ).thenReturn(Optional.of(JOURNEY));
         when(
             reportDao.create(
@@ -89,7 +89,7 @@ public class ReportServiceImplTest {
     @Test(expected = JourneyNotFoundException.class)
     public void testCreateReportForJourneyNotFound(){
         when(
-            journeyService.getJourneyById(eq(JOURNEY_ID))
+            journeyService.findJourneyById(eq(JOURNEY_ID))
         ).thenReturn(Optional.empty());
 
         reportService.createReportForJourney(

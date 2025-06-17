@@ -2,14 +2,11 @@ package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.EventRatingDao;
 import ar.edu.itba.paw.models.Event;
-import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.Rating;
 import ar.edu.itba.paw.models.User;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -43,12 +40,4 @@ public class EventRatingHibernateDao implements EventRatingDao {
                 .intValue();
     }
 
-    @Override
-    public Optional<Double> findRatingsAverageByEvent(long eventId) {
-        return Optional.ofNullable(  em.createQuery(
-                "SELECT AVG(r.rating) FROM Rating r WHERE r.event.id = :eventId", Double.class)
-                .setParameter("eventId", eventId)
-                .getSingleResult()
-        );
-    }
 }

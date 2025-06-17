@@ -1,13 +1,11 @@
 package ar.edu.itba.paw.models;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Getter
 @Entity
@@ -65,15 +63,13 @@ public class JourneyResponse {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{userId: ");
-        sb.append(user);
-        sb.append(", journeyId: ");
-        sb.append(journey);
-        sb.append(", message: \"");
-        sb.append(message);
-        sb.append("\"}");
-        return sb.toString();
+        return "{userId: " +
+                user +
+                ", journeyId: " +
+                journey +
+                ", message: \"" +
+                message +
+                "\"}";
     }
 }
 

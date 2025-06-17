@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.webapp.config;
 
+
 import ar.edu.itba.paw.webapp.auth.AccessHelper;
 import ar.edu.itba.paw.webapp.auth.AuthEntryPointHandler;
 import ar.edu.itba.paw.webapp.auth.CustomAuthenticationFailureHandler;
@@ -19,11 +20,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -32,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 @PropertySource("classpath:application.properties")
 public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     @Autowired
-    private PawUserDetailsService  userDetailsService;
+    private PawUserDetailsService userDetailsService;
     @Autowired
     private AccessHelper accessHelper;
     @Autowired
@@ -69,25 +67,26 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
-        LOGGER.info("Configuring security (has key from properties file = {})", authKey.length() > 0);
+        LOGGER.info("Configuring security (has key from properties file = {})", !authKey.isEmpty());
         http.userDetailsService(userDetailsService)
                 .sessionManagement()
                 .invalidSessionUrl("/")
                 .and().authorizeRequests()
                 .antMatchers("/register", "/login", "/reset-password", "/forgot_pass", "/validate", "/not-verified").anonymous()
                 .antMatchers("/universities", "/careers", "/interests", "/cities").permitAll()
-                .antMatchers("/events/create", "/journeys/create").access("isAuthenticated() and !@accessHelper.isUserBlocked()")
+                .antMatchers("/events/create", "/journeys/create", "interests/edit").access("isAuthenticated()")
                 .antMatchers(HttpMethod.GET,"/events", "/", "/events/{id}", "/journeys", "/journeys/{id}", "/images/{id}", "/blocked").permitAll()
-                .antMatchers(HttpMethod.POST, "users/{id}/block", "users/{id}/unblock").access("hasRole('ADMIN') and !@accessHelper.isUserBlocked()")
-                .antMatchers("/dashboard/**","interests/**", "careers/**", "/universities/**","cities/**", "users/**", "reports/**").access("hasRole('ADMIN') and !@accessHelper.isUserBlocked()")
-                .antMatchers("/journeys/{id}/update").access("@accessHelper.isUserJourneyOwner(#id) and !@accessHelper.isUserBlocked()")
-                .antMatchers("/events/{id}/update").access("@accessHelper.isUserEventOwner(#id) and !@accessHelper.isUserBlocked()")
-                .antMatchers("/journeys/{id}/delete").access("(@accessHelper.isUserJourneyOwner(#id) or hasRole('ADMIN')) and !@accessHelper.isUserBlocked()")
-                .antMatchers("/events/{id}/delete").access("(@accessHelper.isUserEventOwner(#id) or hasRole('ADMIN')) and !@accessHelper.isUserBlocked()")
-                .antMatchers("/journeys/{journeyId}/reply/{id}/delete").access("hasRole('ADMIN') and !@accessHelper.isUserBlocked() ")
-                .antMatchers("/events/{eventId}/reply/{id}/delete").access("hasRole('ADMIN') and !@accessHelper.isUserBlocked()" )
-                .antMatchers(HttpMethod.POST, "/journeys/*", "/events/*/attend").access("isAuthenticated() and !@accessHelper.isUserBlocked()")
-                .antMatchers("/**").access("isAuthenticated() and !@accessHelper.isUserBlocked()")
+                .antMatchers(HttpMethod.POST, "/users/{id}/block", "/users/{id}/unblock","/reports/{id}/status").access("hasRole('ADMIN')")
+                .antMatchers("/dashboard/**","/interests/**", "/careers/**", "/universities/**","/cities/**", "/users/**", "/reports/{id}").access("hasRole('ADMIN')")
+                .antMatchers("/journeys/tips/{id}/**").access("@accessHelper.isUserTipOwner(#id)")
+                .antMatchers("/journeys/{id}/update", "/journeys/{id}/tips/create").access("@accessHelper.isUserJourneyOwner(#id)")
+                .antMatchers("/events/{id}/update").access("@accessHelper.isUserEventOwner(#id)")
+                .antMatchers("/journeys/{id}/delete").access("(@accessHelper.isUserJourneyOwner(#id) or hasRole('ADMIN'))")
+                .antMatchers("/events/{id}/delete").access("(@accessHelper.isUserEventOwner(#id) or hasRole('ADMIN'))")
+                .antMatchers("/journeys/reply/{id}/delete").access("hasRole('ADMIN') ")
+                .antMatchers("/events/reply/{id}/delete").access("hasRole('ADMIN')" )
+                .antMatchers(HttpMethod.POST, "/journeys/*", "/events/*/attend").access("isAuthenticated()")
+                .antMatchers("/**").access("isAuthenticated()")
                 .and().formLogin()
                 .usernameParameter("j_username")
                 .passwordParameter("j_password")
