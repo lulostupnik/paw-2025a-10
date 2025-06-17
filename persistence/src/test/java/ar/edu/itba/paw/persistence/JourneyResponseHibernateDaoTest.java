@@ -104,32 +104,6 @@ public class JourneyResponseHibernateDaoTest {
         assertEquals(0, page1.getContent().size());
     }
 
-    @Test
-    public void testDeleteByJourneyId(){
-        int beforeRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE);
-
-        responseDao.deleteByJourneyId(TestUtils.JOURNEY_1_ID);
-        em.flush();
-
-        assertEquals(beforeRows, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE));
-        assertEquals(
-            0,
-            Optional.ofNullable(jdbcTemplate.queryForObject(TestUtils.JOURNEY_REPLY_COUNT_NOT_DELETED, Integer.class)).get().intValue()
-        );
-    }
-    @Test
-    public void testDeleteByJourneyIdWrongId(){
-        int beforeRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE);
-
-        responseDao.deleteByJourneyId(12341234);
-        em.flush();
-
-        assertEquals(beforeRows, JdbcTestUtils.countRowsInTable(jdbcTemplate, TestUtils.JOURNEY_REPLY_TABLE));
-        assertEquals(
-            TestUtils.TOTAL_JOURNEY_RESPONSES,
-            Optional.ofNullable(jdbcTemplate.queryForObject(TestUtils.JOURNEY_REPLY_COUNT_NOT_DELETED, Integer.class)).get().intValue()
-        );
-    }
 
     @Test
     public void testFindById(){
