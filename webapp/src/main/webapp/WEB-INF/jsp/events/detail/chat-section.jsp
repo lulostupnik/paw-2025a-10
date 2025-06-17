@@ -22,20 +22,6 @@
             <spring:message code="event.responses" />
             <span class="count">(<c:out value="${commentsCount}" />)</span>
         </h2>
-        <c:if test="${showToggle eq 'true'}">
-            <button class="toggle-button" data-toggle="${param.chatListId}" onclick="toggleSection('${param.chatListId}')">
-                <span class="collapse-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="18 15 12 9 6 15"></polyline>
-                    </svg>
-                </span>
-                <span class="expand-icon" style="display: none;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                </span>
-            </button>
-        </c:if>
     </div>
 
     <div id="${param.chatListId}" class="chat-list">
