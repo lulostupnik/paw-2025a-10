@@ -10,6 +10,6 @@ public interface CareerService {
     Optional<Career> findCareerByName(String name);
     Page<Career> searchCareers(String search, PageParams pageParams);
     Career createCareer(String name);
-    void updateCareer(long id, String name);
+    Career updateCareer(long id, String name);
     void deleteCareer(long id);
 }

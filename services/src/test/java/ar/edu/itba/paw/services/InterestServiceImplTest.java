@@ -58,17 +58,7 @@ public class InterestServiceImplTest {
         assertEquals(INTEREST, maybeInterest.get());
     }
 
-    @Test
-    public void testFindInterestsByUser(){
-        when(
-            uiDao.findAllByUser(eq(USER))
-        ).thenReturn(USER_INTERESTS);
 
-        List<UserInterest> interests = interestService.findInterestsByUser(USER);
-
-        assertNotNull(interests);
-        assertEquals(USER_INTERESTS, interests);
-    }
 
     @Test
     public void testUpdateUserInterestScores(){

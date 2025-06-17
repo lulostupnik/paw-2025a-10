@@ -225,7 +225,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateUser(final long userId, final String username,
+    public User updateUser(final long userId, final String username,
                            final String firstname, final String lastname, final String universityName,
                            final String careerName) {
         LOGGER.debug("Updating user with ID: {}", userId);
@@ -255,11 +255,12 @@ public class UserServiceImpl implements UserService {
         user.setCareer(career);
 
         LOGGER.info("User updated successfully with ID: {}", userId);
+        return user;
     }
 
     @Override
     @Transactional
-    public void updateProfilePicture(final long userId, final byte[] profilePicture) {
+    public long updateProfilePicture(final long userId, final byte[] profilePicture) {
         LOGGER.debug("Updating profile picture for user ID: {}", userId);
 
         User user = userDao.findById(userId)
@@ -273,5 +274,6 @@ public class UserServiceImpl implements UserService {
         user.setProfilePictureId(newProfilePictureId);
 
         LOGGER.info("Profile picture updated successfully for user ID: {}", userId);
+        return newProfilePictureId;
     }
 }

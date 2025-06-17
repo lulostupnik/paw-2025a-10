@@ -83,7 +83,7 @@ public class UniversityServiceImpl implements UniversityService {
             @CacheEvict(value = "universitiesById", key = "#id"),
             @CacheEvict(value = "universitiesByName", allEntries = true)
     })
-    public void updateUniversity(final long id, final String name, final String abbreviation, final String cityName) {
+    public University updateUniversity(final long id, final String name, final String abbreviation, final String cityName) {
         LOGGER.debug("Updating university with id {}, name {}, abbreviation {}, city {}", id, name, abbreviation, cityName);
         City city = cityService.findCityByName(cityName).orElseThrow(() -> {
             LOGGER.error("City not found with name: {}", cityName);
@@ -98,6 +98,7 @@ public class UniversityServiceImpl implements UniversityService {
         university.setCity(city);
 
         LOGGER.info("University updated successfully with id: {}, name: {}, abbreviation: {}, city: {}", id, name, abbreviation, cityName);
+        return university;
     }
 
     @Override

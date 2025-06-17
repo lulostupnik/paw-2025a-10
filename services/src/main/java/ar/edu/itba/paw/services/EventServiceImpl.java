@@ -72,7 +72,7 @@ public class EventServiceImpl implements EventService {
 
         @Override
         @Transactional
-        public void replyToEvent(final String email, final long eventId, final String message) {
+        public EventResponse replyToEvent(final String email, final long eventId, final String message) {
             LOGGER.debug("Replying to event {}", eventId);
             Event event = eventDao.findById(eventId).orElseThrow(() -> {
                 LOGGER.error("Event not found {}", eventId);
@@ -84,7 +84,7 @@ public class EventServiceImpl implements EventService {
                 return new UserNotFoundException(email);
             });
 
-            eventResponseDao.create(responder, event, message);
+            EventResponse eventResponse = eventResponseDao.create(responder, event, message);
             LOGGER.info("Event response {} created", eventId);
 
             int page = 1;
@@ -122,6 +122,7 @@ public class EventServiceImpl implements EventService {
 
             emailService.answerEventOwnerNotification(message, emailResponder, emailEvent);
             LOGGER.info("Email notifications sent to event owner for event {}", eventId);
+            return eventResponse;
 
         }
 
@@ -197,7 +198,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public void createEventAttendance(final long userId, final  long eventId) {
+    public EventAttendance createEventAttendance(final long userId, final  long eventId) {
         LOGGER.debug("User {} is attending event {}", userId, eventId);
         Event event = eventDao.findById(eventId).orElseThrow(() -> {
             LOGGER.warn("Event not found {}", eventId);
@@ -217,9 +218,9 @@ public class EventServiceImpl implements EventService {
         }
 
         if (event.getAttendeesLimit() == null || event.getAttendeesCount() < event.getAttendeesLimit()) {
-            eventAttendanceDao.create(user, event);
+            EventAttendance attendance = eventAttendanceDao.create(user, event);
             LOGGER.info("User {} is now attending event {}", userId, eventId);
-            return;
+            return attendance ;
         }
         LOGGER.warn("User {} trying to attend a full event ({})", userId, eventId);
         throw new EventIsFullException(eventId);
@@ -229,14 +230,14 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public void createEventAttendance(final String email, final  long eventId) {
+    public EventAttendance createEventAttendance(final String email, final  long eventId) {
         long userId = userService.findUserByEmail(email).orElseThrow(
                 () -> {
                     LOGGER.warn("User not found {}", email);
                     return new UserNotFoundException(email);
                 }
         ).getId();
-        createEventAttendance(userId, eventId);
+        return createEventAttendance(userId, eventId);
     }
 
     @Override
@@ -265,23 +266,24 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public void rateEvent(User user, long eventId, double rating) {
+    public Rating rateEvent(User user, long eventId, double rating) {
         Event event = eventDao.findById(eventId).orElseThrow(() -> {
             LOGGER.warn("Event not found {}", eventId);
             return new EventNotFoundException(eventId);
         });
-        eventRatingDao.rateEvent(user, event, rating);
+       return eventRatingDao.rateEvent(user, event, rating);
     }
 
     @Transactional
     @Override
-    public void updateEventRating(User user, long eventId, double value) {
+    public Rating updateEventRating(User user, long eventId, double value) {
         Rating rating = eventRatingDao.findRatingByUserAndEvent(user.getId(), eventId)
                 .orElseThrow(() -> {
                     LOGGER.warn("Rating not found for user {} and event {}", user.getId(), eventId);
                     return new RatingNotFoundException(user.getId(), eventId);
                 });
         rating.setRating(value);
+        return rating;
     }
 
     @Override
@@ -401,7 +403,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public void updateEvent(final long eventId, final String cityName, final  LocalDate date, final  byte[] flyer, final String description,
+    public Event updateEvent(final long eventId, final String cityName, final  LocalDate date, final  byte[] flyer, final String description,
                             final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
         LOGGER.debug("Editing event {}", eventId);
         Event currentEvent = eventDao.findById(eventId)
@@ -433,6 +435,7 @@ public class EventServiceImpl implements EventService {
         currentEvent.setDate(date);
 
         LOGGER.info("Event {} updated", eventId);
+        return currentEvent;
     }
 
     @Override

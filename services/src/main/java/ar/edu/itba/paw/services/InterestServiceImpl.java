@@ -87,7 +87,7 @@ public class InterestServiceImpl implements InterestService {
             @CacheEvict(value = "interestsById", key = "#id"),
             @CacheEvict(value = "interestsByName", allEntries = true)
     })
-    public void updateInterest(final long id, String interest) {
+    public Interest updateInterest(final long id, String interest) {
         LOGGER.debug("Editing interest {} with name {}", id, interest);
         Interest i = interestDao.findById(id)
                 .orElseThrow(() -> {
@@ -97,12 +97,12 @@ public class InterestServiceImpl implements InterestService {
         i.setName(interest);
 
         LOGGER.info("Interest {} updated", id);
+        return i;
     }
 
     @Override
     @Transactional
     public void createUserInterests(final List<String> interests, final  long userId) {
-        LOGGER.debug("Adding interest list to user {}", userId);
         userInterestDao.createUserInterests(interests, userId);
         LOGGER.info("Interests {} added to user {}", interests, userId);
     }

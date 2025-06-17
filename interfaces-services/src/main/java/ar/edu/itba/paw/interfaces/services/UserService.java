@@ -19,10 +19,10 @@ public interface UserService {
     void blockUser(long userId);
     void unblockUser(long userId);
 
-    void updateUser(long userId, String username, String firstname, String lastname,
+    User updateUser(long userId, String username, String firstname, String lastname,
                     String universityName, String careerName);
 
-    void updateProfilePicture(long userId, byte[] profilePicture);
+    long updateProfilePicture(long userId, byte[] profilePicture);
 
     Optional<Double> findAverageRatingForCreatedEvents(long userId);
     Optional<Double> findAverageRatingForAttendedEvents(long userId);

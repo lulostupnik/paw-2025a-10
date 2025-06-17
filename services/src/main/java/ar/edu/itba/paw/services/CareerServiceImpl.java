@@ -75,7 +75,7 @@ public class CareerServiceImpl implements CareerService {
                     @CacheEvict(value = "careersByName", allEntries = true)
             }
     )
-    public void updateCareer(final long id, final String name) {
+    public Career updateCareer(final long id, final String name) {
         LOGGER.debug("Updating career {} to {}", id, name);
         Career career = careerDao.findById(id).orElseThrow(() -> {
             LOGGER.error("Career not found with id: {}", id);
@@ -83,6 +83,7 @@ public class CareerServiceImpl implements CareerService {
         });
         career.setName(name);
         LOGGER.info("Career {} updated to {}", id, name);
+        return career;
     }
 
     @Override

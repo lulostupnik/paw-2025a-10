@@ -15,11 +15,11 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
     private EntityManager em;
 
     @Override
-    public void create(long userId, long eventId) {
+    public EventAttendance create(long userId, long eventId) {
         final Event event = em.find(Event.class, eventId);
         final User user = em.find(User.class, userId);
 
-        create(user, event);
+        return create(user, event);
     }
 
     @Override
@@ -39,11 +39,10 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
     }
 
     @Override
-    public void create(User user, Event event) {
-        if (event != null && user != null) {
-            EventAttendance attendance = new EventAttendance(user, event);
-            em.persist(attendance);
-        }
+    public EventAttendance create(User user, Event event) {
+        EventAttendance attendance = new EventAttendance(user, event);
+        em.persist(attendance);
+        return attendance;
     }
 
     @Override
@@ -54,7 +53,7 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
                     .setParameter("event", event)
                     .getSingleResult();
 
-            em.remove(attendance);  //query throws NoResultException -> can't be null
+            em.remove(attendance);
         }
     }
 

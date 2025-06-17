@@ -66,7 +66,7 @@ public class CityServiceImpl implements CityService {
                     @CacheEvict(value = "universitiesByName", allEntries = true)
             }
     )
-    public void updateCity(final long id,final String name,final String countryName) {
+    public City updateCity(final long id,final String name,final String countryName) {
         LOGGER.debug("Updating city with id {}, name {}, country {}", id, name, countryName);
         Country country = countryService.findCountryByName(countryName)
                 .orElseThrow(() -> {
@@ -79,6 +79,7 @@ public class CityServiceImpl implements CityService {
         city.setName(name);
         city.setCountry(country);
         LOGGER.info("City with id {} updated successfully", id);
+        return city;
     }
 
     @Override
