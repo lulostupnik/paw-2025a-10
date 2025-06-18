@@ -10,7 +10,6 @@ import javax.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 class HibernateDaoUtils {
 
@@ -76,11 +75,9 @@ class HibernateDaoUtils {
 
         for (Object result : rawResults) {
             if (result != null) {
-                if (!(result instanceof Number)) {
-                    continue;
+                if (result instanceof Number) {
+                    ids.add(((Number) result).longValue());
                 }
-                ids.add(((Number) result).longValue());
-
             }
         }
 
