@@ -385,7 +385,7 @@ public class EventHibernateDao implements EventDao {
     @Override
     public Page<Event> findAllWithFilters(Long userId, String searchTerm, SortFieldEvent sortBy,
                                           SortDirection direction, String destination, LocalDate startDate,
-                                          LocalDate endDate, String interest,
+                                          LocalDate endDate, LocalTime startTime, LocalTime endTime, String interest,
                                           boolean attending, boolean isCreator, PageParams pageParams) {
 
         final String search = likePattern(searchTerm);
@@ -399,7 +399,7 @@ public class EventHibernateDao implements EventDao {
         JOIN users us ON e.user_id = us.id
         JOIN universities un ON us.university = un.id
         JOIN cities ci ON un.city_id = ci.id
-    """);
+        """);
 
         StringBuilder idSql = new StringBuilder("""
         SELECT e.id
@@ -407,7 +407,7 @@ public class EventHibernateDao implements EventDao {
         JOIN users us ON e.user_id = us.id
         JOIN universities un ON us.university = un.id
         JOIN cities ci ON un.city_id = ci.id
-    """);
+        """);
 
         if (interest != null && !interest.isEmpty()) {
             countSql.append(" JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id ");
@@ -451,6 +451,24 @@ public class EventHibernateDao implements EventDao {
         if (endDate != null) {
             filters.add("e.event_date <= :endDate");
             paramMap.put("endDate", Date.valueOf(endDate));
+        }
+
+        if (startTime != null || endTime != null) {
+            String timeCondition;
+
+            if (startTime != null && endTime != null) {
+                timeCondition = "((e.event_time IS NOT NULL AND e.event_time >= :startTime AND e.event_time <= :endTime) OR e.event_time IS NULL)";
+                paramMap.put("startTime", startTime);
+                paramMap.put("endTime", endTime);
+            } else if (startTime != null) {
+                timeCondition = "((e.event_time IS NOT NULL AND e.event_time >= :startTime) OR e.event_time IS NULL)";
+                paramMap.put("startTime", startTime);
+            } else {
+                timeCondition = "((e.event_time IS NOT NULL AND e.event_time <= :endTime) OR e.event_time IS NULL)";
+                paramMap.put("endTime", endTime);
+            }
+
+            filters.add(timeCondition);
         }
 
         if (attending && userId != null) {

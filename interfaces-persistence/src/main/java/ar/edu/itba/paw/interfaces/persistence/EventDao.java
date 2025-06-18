@@ -18,8 +18,8 @@ public interface EventDao {
     Page<Event> findAll(PageParams pageParams);
     Page<Event> findAllWithFilters(Long userId, String search,
                                    SortFieldEvent sortBy, SortDirection direction, String destination,
-                                   LocalDate startDate, LocalDate endDate, String interest,
-                                   boolean isAttending, boolean isCreator, PageParams pageParams);
+                                   LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime,
+                                   String interest, boolean isAttending, boolean isCreator, PageParams pageParams);
     Page<Event> search(String search, PageParams pageParams);
     Optional<CountryAttendeeCount> findTopAttendeeCountry(long eventId);
 

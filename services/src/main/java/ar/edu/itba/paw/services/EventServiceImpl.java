@@ -283,6 +283,8 @@ public class EventServiceImpl implements EventService {
                 null, // destination
                 LocalDate.now(), // startDate
                 null, // endDate
+                LocalTime.now(),
+                null,
                 null, // interest
                 true, // attending
                 false, // isCreator
@@ -299,7 +301,9 @@ public class EventServiceImpl implements EventService {
                 SortDirection.DESC, // direction
                 null, // destination
                 null, // startDate
-                LocalDate.now().minusDays(1), // endDate
+                LocalDate.now(), // endDate
+                null,
+                LocalTime.now(),
                 null, // interest
                 true, // attending
                 false, // isCreator
@@ -348,12 +352,20 @@ public class EventServiceImpl implements EventService {
 
         LocalDate adjustedStartDate = startDate;
         LocalDate adjustedEndDate = endDate;
+        LocalTime startTime = null;
+        LocalTime endTime = null;
 
         if (isUpcoming) {
             adjustedStartDate = ensureStartDateForUpcomingEvents(startDate);
+            if (adjustedStartDate.equals(LocalDate.now())) {
+                startTime = LocalTime.now();
+            }
         }
         if (isPast) {
             adjustedEndDate = capEndDateForPastEvents(endDate);
+            if (adjustedEndDate.equals(LocalDate.now())) {
+                endTime = LocalTime.now();
+            }
         }
 
         return eventDao.findAllWithFilters(
@@ -364,6 +376,8 @@ public class EventServiceImpl implements EventService {
                 destination,
                 adjustedStartDate,
                 adjustedEndDate,
+                startTime,
+                endTime,
                 interest,
                 attending,
                 false,
@@ -482,6 +496,13 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Page<Event> findCreatedByJourney(final Journey journey, final PageParams pageParams){
+        LocalDate cappedEndDate = capEndDateForPastEvents(journey.getEndDate());
+        LocalTime endTime = null;
+
+        if (cappedEndDate.equals(LocalDate.now())) {
+            endTime = LocalTime.now();
+        }
+
         return eventDao.findAllWithFilters(
                 journey.getUser().getId(),
                 null,
@@ -489,7 +510,9 @@ public class EventServiceImpl implements EventService {
                 SortDirection.ASC,
                 null,
                 journey.getStartDate(),
-                capEndDateForPastEvents(journey.getEndDate()),
+                cappedEndDate,
+                null,
+                endTime,
                 null,
                 false,
                 true,
@@ -499,6 +522,13 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Page<Event> findAttendedByJourney(final Journey journey, final PageParams pageParams){
+        LocalDate cappedEndDate = capEndDateForPastEvents(journey.getEndDate());
+        LocalTime endTime = null;
+
+        if (cappedEndDate.equals(LocalDate.now())) {
+            endTime = LocalTime.now();
+        }
+
         return eventDao.findAllWithFilters(
                 journey.getUser().getId(),
                 null,
@@ -506,7 +536,9 @@ public class EventServiceImpl implements EventService {
                 SortDirection.ASC,
                 null,
                 journey.getStartDate(),
-                capEndDateForPastEvents(journey.getEndDate()),
+                cappedEndDate,
+                null,
+                endTime,
                 null,
                 true,
                 false,
@@ -515,7 +547,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private LocalDate capEndDateForPastEvents(LocalDate endDate) {
-        LocalDate yesterday = LocalDate.now().minusDays(1);
+        LocalDate yesterday = LocalDate.now();
         return endDate == null || endDate.isAfter(yesterday) ? yesterday : endDate;
     }
 
