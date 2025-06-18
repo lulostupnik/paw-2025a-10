@@ -352,6 +352,8 @@ public class JourneyHibernateDaoTest {
             JOURNEY_END_DATE,
             INTEREST_1_NAME,
             true,
+            false,
+            false,
             PAGE_1_BIG
         );
 
@@ -373,6 +375,8 @@ public class JourneyHibernateDaoTest {
             JOURNEY_END_DATE,
             INTEREST_1_NAME,
             true,
+            false,
+            false,
             PAGE_1_BIG
         );
 
@@ -394,6 +398,8 @@ public class JourneyHibernateDaoTest {
             JOURNEY_END_DATE,
             INTEREST_1_NAME,
             true,
+            false,
+            false,
             PAGE_1_BIG
         );
 
@@ -416,6 +422,8 @@ public class JourneyHibernateDaoTest {
             JOURNEY_END_DATE,
             null,
             false,
+            false,
+            false,
             PAGE_1_BIG
         );
 
@@ -437,6 +445,8 @@ public class JourneyHibernateDaoTest {
             JOURNEY_END_DATE,
             null,
             true,
+            false,
+            false,
             PAGE_1_BIG
         );
 
@@ -458,6 +468,8 @@ public class JourneyHibernateDaoTest {
             JOURNEY_START_DATE,
             JOURNEY_END_DATE,
             null,
+            false,
+            false,
             false,
             PAGE_1_BIG
         );
@@ -481,6 +493,8 @@ public class JourneyHibernateDaoTest {
             JOURNEY_END_DATE,
             "",
             false,
+            false,
+            false,
             PAGE_1_BIG
         );
 
@@ -503,6 +517,8 @@ public class JourneyHibernateDaoTest {
             JOURNEY_END_DATE,
             null,
             false,
+            false,
+            false,
             PAGE_1_BIG
         );
 
@@ -523,6 +539,8 @@ public class JourneyHibernateDaoTest {
             null,
             null,
             null,
+            false,
+            false,
             false,
             PAGE_1_BIG
         );
@@ -546,6 +564,8 @@ public class JourneyHibernateDaoTest {
             null,
             "",
             false,
+            false,
+            false,
             PAGE_1_BIG
         );
 
@@ -568,6 +588,8 @@ public class JourneyHibernateDaoTest {
             null,
             null,
             null,
+            false,
+            false,
             false,
             PAGE_1_BIG
         );

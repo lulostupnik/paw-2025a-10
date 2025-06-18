@@ -272,6 +272,8 @@ public class JourneyServiceImplTest {
                 eq(null),
                 eq(null),
                 eq(false),
+                eq(false),
+                eq(false),
                 any(PageParams.class)
             )
         ).thenReturn(JOURNEY_PAGE);
@@ -329,6 +331,8 @@ public class JourneyServiceImplTest {
                 any(LocalDate.class),
                 eq(INTEREST_NAME),
                 eq(true),
+                eq(false),
+                eq(false),
                 eq(PAGE_1_DEFAULT)
             )
         ).thenReturn(JOURNEY_PAGE);
@@ -365,6 +369,8 @@ public class JourneyServiceImplTest {
                 any(LocalDate.class),
                 eq(INTEREST_NAME),
                 eq(true),
+                eq(false),
+                eq(false),
                 eq(PAGE_1_DEFAULT)
             )
         ).thenReturn(JOURNEY_PAGE);
@@ -401,6 +407,8 @@ public class JourneyServiceImplTest {
                 any(LocalDate.class),
                 eq(INTEREST_NAME),
                 eq(true),
+                eq(false),
+                eq(false),
                 eq(PAGE_1_DEFAULT)
             )
         ).thenReturn(JOURNEY_PAGE);
@@ -436,6 +444,8 @@ public class JourneyServiceImplTest {
                 eq(START_DATE),
                 any(LocalDate.class),
                 eq(INTEREST_NAME),
+                eq(true),
+                eq(false),
                 eq(true),
                 eq(PAGE_1_DEFAULT)
             )
@@ -473,6 +483,8 @@ public class JourneyServiceImplTest {
                 any(LocalDate.class),
                 eq(INTEREST_NAME),
                 eq(false),
+                eq(false),
+                eq(true),
                 eq(PAGE_1_DEFAULT)
             )
         ).thenReturn(JOURNEY_PAGE);
@@ -509,6 +521,8 @@ public class JourneyServiceImplTest {
                 any(LocalDate.class),
                 eq(INTEREST_NAME),
                 eq(false),
+                eq(false),
+                eq(true),
                 eq(PAGE_1_DEFAULT)
             )
         ).thenReturn(JOURNEY_PAGE);
@@ -544,6 +558,8 @@ public class JourneyServiceImplTest {
                 any(LocalDate.class),
                 eq(END_DATE),
                 eq(INTEREST_NAME),
+                eq(false),
+                eq(true),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
             )
@@ -581,6 +597,8 @@ public class JourneyServiceImplTest {
                 eq(END_DATE),
                 eq(INTEREST_NAME),
                 eq(false),
+                eq(true),
+                eq(false),
                 eq(PAGE_1_DEFAULT)
             )
         ).thenReturn(JOURNEY_PAGE);
@@ -616,6 +634,8 @@ public class JourneyServiceImplTest {
                 any(LocalDate.class),
                 eq(END_DATE),
                 eq(INTEREST_NAME),
+                eq(false),
+                eq(true),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
             )
@@ -653,6 +673,8 @@ public class JourneyServiceImplTest {
                 eq(END_DATE),
                 eq(INTEREST_NAME),
                 eq(false),
+                eq(false),
+                eq(false),
                 eq(PAGE_1_DEFAULT)
             )
         ).thenReturn(JOURNEY_PAGE);
@@ -688,6 +710,8 @@ public class JourneyServiceImplTest {
                 any(LocalDate.class),
                 eq(END_DATE),
                 eq(INTEREST_NAME),
+                eq(false),
+                eq(true),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
             )
@@ -746,6 +770,8 @@ public class JourneyServiceImplTest {
                 eq(END_DATE),
                 eq(INTEREST_NAME),
                 eq(true),
+                eq(true),
+                eq(false),
                 any(PageParams.class)
             )
         ).thenReturn(JOURNEY_PAGE);

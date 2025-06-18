@@ -154,6 +154,8 @@ public class JourneyServiceImpl implements JourneyService {
                 null,
 
                 false,
+                false,
+                false,
 
                 pageParams
         );
@@ -218,6 +220,8 @@ public class JourneyServiceImpl implements JourneyService {
                 adjustedEndDate,
                 interest,
                 isMyDestination,
+                isUpcoming,
+                isPast,
                 pageParams
         );
 
