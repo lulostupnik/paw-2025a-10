@@ -27,8 +27,6 @@ public class CreateEventForm {
     @FutureDate
     private LocalDate date;
 
-
-
     @NotNull
     @ImageSize()
     @ContentType({"image/jpeg", "image/jpg", "image/png"})

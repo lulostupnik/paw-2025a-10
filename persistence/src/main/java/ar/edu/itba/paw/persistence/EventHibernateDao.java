@@ -464,7 +464,7 @@ public class EventHibernateDao implements EventDao {
                 timeCondition = "((e.event_time IS NOT NULL AND e.event_time >= :startTime) OR e.event_time IS NULL)";
                 paramMap.put("startTime", startTime);
             } else {
-                timeCondition = "((e.event_time IS NOT NULL AND e.event_time <= :endTime) OR e.event_time IS NULL)";
+                timeCondition = " (e.event_time IS NOT NULL AND e.event_time <= :endTime) ";
                 paramMap.put("endTime", endTime);
             }
 
