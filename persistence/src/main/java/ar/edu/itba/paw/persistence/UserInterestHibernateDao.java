@@ -91,6 +91,10 @@ public class UserInterestHibernateDao implements UserInterestDao {
     }
 
 
+    /**
+     * Nota: Este método está en el DAO porque obtener todos los intereses del usuario
+     * desde el servicio podría ser ineficiente si tiene muchos intereses.
+     */
     @Override
     public void updateUserInterests(long[] interestIds, long userId) {
         List<UserInterest> userInterests = findAllByUserId(userId);
@@ -112,7 +116,7 @@ public class UserInterestHibernateDao implements UserInterestDao {
 
 
     /**
-     * Nota: Este update es el único que se hace directamente en un DAO porque hacerlo en servicios
+     * Nota: Este update se hace en un DAO porque hacerlo en servicios
      * requeriría iterar a través de páginas (ya que no hay límite en la cantidad de intereses),
      * y generar N updates individuales. Con esta query nativa logramos:
      * - Código más limpio (1 query vs loops anidados con lógica de paginación compleja)
