@@ -87,9 +87,9 @@
         <jsp:param name="pageObjectTotalPages" value="${tipsPage.totalPages}" />
         <jsp:param name="currentPage" value="${tipsPage.currentPage}" />
         <jsp:param name="pageSize" value="${tipsPageSize}" />
-        <jsp:param name="baseUrl" value="/journeys/${journey.id}?interestsPage=${interestPage.currentPage}&interestsSize=${interestPageSize}&eventsPage=${eventsPage.currentPage}&eventsSize=${eventsPageSize}&chatPage=${journeyResponsesPage.currentPage}&chatSize=${chatPageSize}" />
+        <jsp:param name="baseUrl" value="/journeys/${journey.id}" />
         <jsp:param name="paramName" value="tipsPage" />
-        <jsp:param name="sizeParamName" value="tipsSize" />
+        <jsp:param name="sizeParamName" value="tipsSizes" />
     </jsp:include>
 </c:if>
 
