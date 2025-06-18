@@ -121,7 +121,7 @@
 
     <div class="auth-footer">
       <a  class="auth-link" href="<c:url value='/'/>" class="btn-text">
-        <spring:message code="aut.back.to.landing" text="Back to cities"/>
+        <spring:message code="auth.back.to.landing" text="Back to cities"/>
       </a>
     </div>
   </div>

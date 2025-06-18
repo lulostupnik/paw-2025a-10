@@ -4,12 +4,11 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 
-<c:set var="lang" value="${not empty sessionScope.lang ? sessionScope.lang : pageContext.response.locale}" />
 <fmt:setLocale value="${lang}" />
 <fmt:setBundle basename="i18n.messages" />
 
 <!DOCTYPE html>
-<html lang="<c:out value='${lang}'/>">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

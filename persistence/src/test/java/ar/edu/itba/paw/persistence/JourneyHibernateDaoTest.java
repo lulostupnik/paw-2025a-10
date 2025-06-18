@@ -112,7 +112,9 @@ public class JourneyHibernateDaoTest {
             JOURNEY_DESCRIPTION
         );
         em.flush();
-    }    @Test(expected = PersistenceException.class)
+    }
+
+    @Test(expected = PersistenceException.class)
     public void testCreateMissingUni(){
         journeyDao.create(
             USER_1,
@@ -245,8 +247,8 @@ public class JourneyHibernateDaoTest {
 
     @Test
     public void testRecommendedJourneysBasic(){
-        //JOURNEY_2 should have internal score of 95 (30 match city, 50 match uni, 15 overlap)
-        //should have internal score of 80 (30 match city, 50 match uni)
+        // JOURNEY_2 debería tener un puntaje interno de 95 (30 por coincidencia de ciudad, 50 por coincidencia de universidad, 15 por superposición de fechas)
+        // debería tener un puntaje interno de 80 (30 por coincidencia de ciudad, 50 por coincidencia de universidad)
         Journey newJourney = insertJourney(ds, Map.of("user", USER_3, "startDate", JOURNEY_END_DATE.plusDays(2), "endDate", JOURNEY_END_DATE.plusDays(40)));
 
         Page<Journey> page1 = journeyDao.findRecommended(USER_1_MAIL, PAGE_1_BIG);
@@ -259,6 +261,7 @@ public class JourneyHibernateDaoTest {
 
         assertEqualsJourneyList(List.of(JOURNEY_2, newJourney), page1.getContent());
     }
+
     @Test
     public void testRecommendedJourneysNoJourneys(){
         deleteJourneys(jdbcTemplate);
@@ -270,13 +273,14 @@ public class JourneyHibernateDaoTest {
         assertNotNull(page1.getContent());
         assertEquals(0, page1.getContent().size());
     }
+
     @Test
     public void testRecommendedJourneysGoingToMyCity(){
         deleteJourneys(jdbcTemplate);
         insertJourney(ds, Map.of("user", USER_1));
-        //should have internal score of 80 (30 match origin city while there, 50 match origin uni while there)
+        // debería tener un puntaje interno de 80 (30 por coincidencia con ciudad de origen mientras está allí, 50 por coincidencia con universidad de origen mientras está allí)
         Journey newJourney1 = insertJourney(ds, Map.of("user", USER_3, "destination", UNI_1, "startDate", JOURNEY_END_DATE.plusDays(-5), "endDate", JOURNEY_END_DATE.plusDays(20)));
-        //should have an internal score of 15 (date overlap only)
+        // debería tener un puntaje interno de 15 (solo superposición de fechas)
         Journey newJourney2 = insertJourney(ds, Map.of("user", USER_4, "destination", UNI_1, "startDate", JOURNEY_END_DATE.plusDays(-10), "endDate", JOURNEY_END_DATE.plusDays(-2)));
 
         Page<Journey> page1 = journeyDao.findRecommended(USER_1_MAIL, PAGE_1_BIG);
@@ -288,15 +292,16 @@ public class JourneyHibernateDaoTest {
         assertEquals(2, page1.getContent().size());
         assertEqualsJourneyList(List.of(newJourney1, newJourney2), page1.getContent());
     }
+
     @Test
     public void testRecommendedJourneysWithInterests(){
-        //should have internal score of 116 (50 + 30 match dest uni, 15 overlap, 21 interest match)
+        // debería tener un puntaje interno de 116 (50 + 30 por coincidencia con universidad de destino, 15 superposición, 21 coincidencia de intereses)
         Journey newJourney1 = insertJourney(ds, Map.of("user", USER_I3));
-        //should have internal score of 113 (50 + 30 match dest uni, 15 overlap, 18 interest match)
+        // debería tener un puntaje interno de 113 (50 + 30 por coincidencia con universidad de destino, 15 superposición, 18 coincidencia de intereses)
         Journey newJourney2 = insertJourney(ds, Map.of("user", USER_I2));
-        //should have internal score of 107 (50 + 30 match dest uni, 15 overlap, 12 interest match)
+        // debería tener un puntaje interno de 107 (50 + 30 por coincidencia con universidad de destino, 15 superposición, 12 coincidencia de intereses)
         Journey newJourney3 = insertJourney(ds, Map.of("user", USER_I1));
-        //JOURNEY_2 should have internal score of 95 (50 + 30 match dest uni, 15 overlap)
+        // JOURNEY_2 debería tener un puntaje interno de 95 (50 + 30 por coincidencia con universidad de destino, 15 superposición)
 
         Page<Journey> page1 = journeyDao.findRecommended(USER_1_MAIL, PAGE_1_BIG);
 
@@ -307,20 +312,21 @@ public class JourneyHibernateDaoTest {
         assertEquals(4, page1.getContent().size());
         assertEqualsJourneyList(List.of(JOURNEY_2, newJourney1, newJourney2, newJourney3), page1.getContent());
     }
+
     @Test
     public void testRecommendedJourneysWithInterestsComplex(){
         deleteJourneys(jdbcTemplate);
         insertJourney(ds, Map.of("user", USER_1));
-        //should have internal score of 107 (50 + 30 match dest uni, 15 overlap, 12 interest match)
+        // debería tener un puntaje interno de 107 (50 + 30 por coincidencia con universidad de destino, 15 superposición, 12 coincidencia de intereses)
         Journey newJourney1 = insertJourney(ds, Map.of("user", USER_I1));
-        //should have internal score of 98 (50 + 30 match origin uni, 18 interest match)
+        // debería tener un puntaje interno de 98 (50 + 30 por coincidencia con universidad de origen, 18 coincidencia de intereses)
         Journey newJourney2 = insertJourney(ds, Map.of("user", USER_I2, "destination", UNI_1, "startDate", JOURNEY_END_DATE.plusDays(2), "endDate", JOURNEY_END_DATE.plusDays(30)));
-        //should have internal score of 36 (15 overlap, 21 interest match)
+        // debería tener un puntaje interno de 36 (15 superposición, 21 coincidencia de intereses)
         Journey newJourney3 = insertJourney(ds, Map.of("user", USER_I3, "destination", UNI_1, "startDate", JOURNEY_END_DATE.plusDays(-7), "endDate", JOURNEY_END_DATE.plusDays(-3)));
-        //JOURNEY_2 should have internal score of 95 (50 + 30 match dest uni, 15 overlap)
-        //should have internal score of 80 (50 + 30 match dest uni)
+        // JOURNEY_2 debería tener un puntaje interno de 95 (50 + 30 por coincidencia con universidad de destino, 15 superposición)
+        // debería tener un puntaje interno de 80 (50 + 30 por coincidencia con universidad de destino)
         Journey newJourney4 = insertJourney(ds, Map.of("user", USER_3, "startDate", JOURNEY_END_DATE.plusDays(2), "endDate", JOURNEY_END_DATE.plusDays(20)));
-        //should have internal score of 45 (30 city match, 15 overlap)
+        // debería tener un puntaje interno de 45 (30 por coincidencia de ciudad, 15 superposición)
         Journey newJourney5 = insertJourney(ds, Map.of("user", USER_4, "destination", UNI_3));
 
         Page<Journey> page1 = journeyDao.findRecommended(USER_1_MAIL, PAGE_1_BIG);
@@ -332,6 +338,7 @@ public class JourneyHibernateDaoTest {
         assertEquals(5, page1.getContent().size());
         assertEqualsJourneyList(List.of(newJourney1, newJourney2, newJourney3, newJourney4, newJourney5), page1.getContent());
     }
+
 
     @Test
     public void testFindAllWithFilters(){

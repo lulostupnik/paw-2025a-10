@@ -114,13 +114,4 @@ public class TokenServiceImplTest {
         tokenService.checkTokenValidity(TOKEN_VALUE);
     }
 
-    // @Test
-    // public void testDelete(){
-    //     tokenService.delete(TOKEN);
-    // }
-
-    // @Test
-    // public void testDeleteExpiredTokens(){
-    //     tokenService.deleteExpiredTokens();
-    // }
 }

@@ -524,14 +524,6 @@ public class EventServiceImplTest {
         eventService.createEventAttendance(USER_ID, EVENT_ID);
     }
 
-    // @Test
-    // public void testDeleteEventAttendanceId(){
-    //     when(
-    //         eventDao.findById(eq(EVENT_ID))
-    //     ).thenReturn(Optional.of(EVENT));
-
-    //     eventService.deleteEventAttendance(USER_ID, EVENT_ID);
-    // }
     @Test(expected = EventNotInTheFutureException.class)
     public void testDeleteEventAttendanceIdPast(){
         when(
@@ -1193,52 +1185,4 @@ public class EventServiceImplTest {
         assertEquals(EVENTS_PAGE, events);
     }
 
-    // @Test
-    // public void testSendEventReminders(){
-    //     when(
-    //         eventDao.findAllBetweenDates(
-    //             any(LocalDate.class), 
-    //             any(LocalDate.class), 
-    //             any(PageParams.class)
-    //         )
-    //     ).thenReturn(new Page<>(EVENTS, 1, 2, 2));
-    //     when(
-    //         attendanceDao.findAttendeesByEventId(
-    //             eq(EVENT_ID), 
-    //             any(PageParams.class)
-    //         )
-    //     ).thenReturn(new Page<>(USERS, 1, 2, 2));
-
-    //     eventService.sendEventReminders();
-    // }
-    // @Test
-    // public void testSendEventRemindersNoAttendees(){
-    //     when(
-    //         eventDao.findAllBetweenDates(
-    //             any(LocalDate.class), 
-    //             any(LocalDate.class), 
-    //             any(PageParams.class)
-    //         )
-    //     ).thenReturn(EVENTS_PAGE);
-    //     when(
-    //         attendanceDao.findAttendeesByEventId(
-    //             eq(EVENT_ID), 
-    //             any(PageParams.class)
-    //         )
-    //     ).thenReturn(new Page<>(List.of(), 1, 1, 0));
-
-    //     eventService.sendEventReminders();
-    // }
-    // @Test
-    // public void testSendEventRemindersNoEvents(){
-    //     when(
-    //         eventDao.findAllBetweenDates(
-    //             any(LocalDate.class), 
-    //             any(LocalDate.class), 
-    //             any(PageParams.class)
-    //         )
-    //     ).thenReturn(new Page<>(List.of(), 1, 1, 0));
-
-    //     eventService.sendEventReminders();
-    // }
 }

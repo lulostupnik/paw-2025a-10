@@ -450,17 +450,6 @@ public class UserServiceImplTest {
         assertEquals(PASSWORD, newUser.getPassword());
     }
 
-    // @Test
-    // public void testInitiatePasswordReset(){
-    //     when(
-    //         userDao.findByEmail(eq(EMAIL))
-    //     ).thenReturn(Optional.of(USER));
-    //     when(
-    //         tokenService.userTokenControl(eq(USER))
-    //     ).thenReturn(TOKEN);
-
-    //     userService.initiatePasswordReset(EMAIL);
-    // }
     @Test(expected = UserValidatedException.class)
     public void testInitiatePasswordResetUserNotValidated(){
         when(
