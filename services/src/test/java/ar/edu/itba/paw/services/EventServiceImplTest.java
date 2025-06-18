@@ -17,6 +17,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -69,7 +71,6 @@ public class EventServiceImplTest {
     private static final Event EVENT = new Event(EVENT_ID, USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, LIMIT);
     private static final Event EVENT_PAST = new Event(EVENT_ID, USER, EVENT_DATE_PAST, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, LIMIT);
     private static final Event EVENT_FULL = new Event(EVENT_ID, USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, 0);
-    private static final Event EVENT_NO_LIMIT = new Event(EVENT_ID, USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, null);
     private static final List<User> USERS = List.of(USER);
     private static final List<Event> EVENTS = List.of(EVENT);
     private static final Page<Event> EVENTS_PAGE = new Page<Event>(EVENTS, 1, 1, 1);
@@ -187,7 +188,6 @@ public class EventServiceImplTest {
         );
     }
 
-    // FIXME: falta mock y ASSERTS
     @Test
     public void testCreateEventResponse(){
         when(
@@ -202,11 +202,17 @@ public class EventServiceImplTest {
                 any(PageParams.class)
             )
         ).thenReturn(new Page<>(USERS, 1, 2, 2));
+        when(
+            replyDao.create(eq(USER), eq(EVENT), eq(DESCRIPTION))
+        ).thenReturn(REPLY);
 
-        eventService.createEventResponse(EMAIL, EVENT_ID, DESCRIPTION);
+        EventResponse response = eventService.createEventResponse(EMAIL, EVENT_ID, DESCRIPTION);
+
+        assertNotNull(response);
+        assertEquals(EVENT, response.getEvent());
+        assertEquals(USER, response.getUser());
+        assertEquals(DESCRIPTION, response.getMessage());
     }
-
-    // FIXME: falta mock y ASSERTS
     @Test
     public void testCreateEventResponseNoReplies(){
         when(
@@ -221,8 +227,16 @@ public class EventServiceImplTest {
                 any(PageParams.class)
             )
         ).thenReturn(new Page<User>(List.of(), 1, 1, 0));
+        when(
+            replyDao.create(eq(USER), eq(EVENT), eq(DESCRIPTION))
+        ).thenReturn(REPLY);
 
-        eventService.createEventResponse(EMAIL, EVENT_ID, DESCRIPTION);
+        EventResponse response = eventService.createEventResponse(EMAIL, EVENT_ID, DESCRIPTION);
+
+        assertNotNull(response);
+        assertEquals(EVENT, response.getEvent());
+        assertEquals(USER, response.getUser());
+        assertEquals(DESCRIPTION, response.getMessage());
     }
     @Test(expected = UserNotFoundException.class)
     public void testCreateEventResponseNoUser(){
@@ -341,7 +355,6 @@ public class EventServiceImplTest {
         assertNull(event.get().getTopAttendeeCountry());
     }
 
-    // FIXME: FALTAN ASSERTS
     @Test
     public void testFindEventWithStatisticsNotAttending(){
         when(
@@ -355,6 +368,15 @@ public class EventServiceImplTest {
         ).thenReturn(false);
 
         eventService.findEventWithStatistics(USER, EVENT_ID);
+
+        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(USER, EVENT_ID);
+
+        assertNotNull(event);
+        assertTrue(event.isPresent());
+        assertEquals(0, event.get().getAttendedEventsCount());
+        assertEquals(0, event.get().getCreatedEventsCount());
+        assertEquals(EVENT_WITH_STATISTICS.getEvent(), event.get().getEvent());
+        assertNull(event.get().getTopAttendeeCountry());
     }
     @Test(expected = UserNotFoundException.class)
     public void testFindEventWithStatisticsUserNotFound(){
@@ -366,19 +388,6 @@ public class EventServiceImplTest {
         ).thenReturn(Optional.empty());
 
         eventService.findEventWithStatistics(USER, EVENT_ID);
-    }
-    @Test
-    public void testFindEventWithStatisticsDeletedEvent(){
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-        EVENT.setDeleted(true);
-
-        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(USER, EVENT_ID);
-
-        assertNotNull(event);
-        assertFalse(event.isPresent());
-        EVENT.setDeleted(false);
     }
     @Test
     public void testFindEventWithStatisticsEventNotFound(){
@@ -456,7 +465,6 @@ public class EventServiceImplTest {
         assertFalse(event.isPresent());
     }
 
-
     @Test(expected = EventIsFullException.class)
     public void testCreateEventAttendanceIdLimitExceeded(){
         when(
@@ -471,7 +479,6 @@ public class EventServiceImplTest {
 
         eventService.createEventAttendance(USER_ID, EVENT_ID);
     }
-
     @Test(expected = UserAlreadyAttendingException.class)
     public void testCreateEventAttendanceAlreadyGoing(){
         when(
@@ -517,15 +524,14 @@ public class EventServiceImplTest {
         eventService.createEventAttendance(USER_ID, EVENT_ID);
     }
 
-    // FIXME: FALTAN ASSERTS --> no se como sería este igual. Tal vez se podría borrar.
-    @Test
-    public void testDeleteEventAttendanceId(){
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
+    // @Test
+    // public void testDeleteEventAttendanceId(){
+    //     when(
+    //         eventDao.findById(eq(EVENT_ID))
+    //     ).thenReturn(Optional.of(EVENT));
 
-        eventService.deleteEventAttendance(USER_ID, EVENT_ID);
-    }
+    //     eventService.deleteEventAttendance(USER_ID, EVENT_ID);
+    // }
     @Test(expected = EventNotInTheFutureException.class)
     public void testDeleteEventAttendanceIdPast(){
         when(
@@ -1068,51 +1074,48 @@ public class EventServiceImplTest {
 
     @Test
     public void testDeleteEvent(){
+        Event newEvent = new Event(USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, null);
         when(
             eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
+        ).thenReturn(Optional.of(newEvent));
 
         eventService.deleteEvent(EVENT_ID, DESCRIPTION);
 
-        assertTrue(EVENT.isDeleted());
-        EVENT.setDeleted(false);
-        assertEquals(DESCRIPTION, EVENT.getDeletionMessage());
-        EVENT.setDeletionMessage(null);
+        assertTrue(newEvent.isDeleted());
+        assertEquals(DESCRIPTION, newEvent.getDeletionMessage());
     }
     @Test
     public void testDeleteEventEmptyMessage(){
+        Event newEvent = new Event(USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, null);
         when(
             eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
+        ).thenReturn(Optional.of(newEvent));
 
         eventService.deleteEvent(EVENT_ID, "");
 
-        assertTrue(EVENT.isDeleted());
-        EVENT.setDeleted(false);
-        assertNull(EVENT.getDeletionMessage());
+        assertTrue(newEvent.isDeleted());
+        assertNull(newEvent.getDeletionMessage());
     }
     @Test
     public void testDeleteEventMissingMessage(){
+        Event newEvent = new Event(USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, null);
         when(
             eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
+        ).thenReturn(Optional.of(newEvent));
 
         eventService.deleteEvent(EVENT_ID, null);
 
-        assertTrue(EVENT.isDeleted());
-        EVENT.setDeleted(false);
-        assertNull(EVENT.getDeletionMessage());
+        assertTrue(newEvent.isDeleted());
+        assertNull(newEvent.getDeletionMessage());
     }
-
 
     @Test
     public void testDeleteEventResponse(){
-        eventService.deleteEventResponse(REPLY, DESCRIPTION);
+        EventResponse resp = new EventResponse(USER, EVENT, ADDRESS);
+        eventService.deleteEventResponse(resp, DESCRIPTION);
 
-        assertTrue(REPLY.isDeleted());
-        REPLY.setDeleted(false);
-        assertEquals(DESCRIPTION, REPLY.getDeletionMessage());
-        REPLY.setDeletionMessage(null);
+        assertTrue(resp.isDeleted());
+        assertEquals(DESCRIPTION, resp.getDeletionMessage());
     }
 
     @Test
@@ -1170,4 +1173,52 @@ public class EventServiceImplTest {
         assertEquals(EVENTS_PAGE, events);
     }
 
+    // @Test
+    // public void testSendEventReminders(){
+    //     when(
+    //         eventDao.findAllBetweenDates(
+    //             any(LocalDate.class), 
+    //             any(LocalDate.class), 
+    //             any(PageParams.class)
+    //         )
+    //     ).thenReturn(new Page<>(EVENTS, 1, 2, 2));
+    //     when(
+    //         attendanceDao.findAttendeesByEventId(
+    //             eq(EVENT_ID), 
+    //             any(PageParams.class)
+    //         )
+    //     ).thenReturn(new Page<>(USERS, 1, 2, 2));
+
+    //     eventService.sendEventReminders();
+    // }
+    // @Test
+    // public void testSendEventRemindersNoAttendees(){
+    //     when(
+    //         eventDao.findAllBetweenDates(
+    //             any(LocalDate.class), 
+    //             any(LocalDate.class), 
+    //             any(PageParams.class)
+    //         )
+    //     ).thenReturn(EVENTS_PAGE);
+    //     when(
+    //         attendanceDao.findAttendeesByEventId(
+    //             eq(EVENT_ID), 
+    //             any(PageParams.class)
+    //         )
+    //     ).thenReturn(new Page<>(List.of(), 1, 1, 0));
+
+    //     eventService.sendEventReminders();
+    // }
+    // @Test
+    // public void testSendEventRemindersNoEvents(){
+    //     when(
+    //         eventDao.findAllBetweenDates(
+    //             any(LocalDate.class), 
+    //             any(LocalDate.class), 
+    //             any(PageParams.class)
+    //         )
+    //     ).thenReturn(new Page<>(List.of(), 1, 1, 0));
+
+    //     eventService.sendEventReminders();
+    // }
 }

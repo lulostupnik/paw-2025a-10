@@ -188,7 +188,6 @@ public class JourneyServiceImplTest {
         );
     }
 
-    // FIXME: FALTAN asserts
     @Test
     public void testCreateJourneyResponse(){
         when(
@@ -203,11 +202,18 @@ public class JourneyServiceImplTest {
                 any(PageParams.class)
             )
         ).thenReturn(new Page<>(USERS, 1, 1, 1));
+        when(
+            replyDao.create(eq(USER), eq(JOURNEY), eq(DESCRIPTION))
+        ).thenReturn(REPLY);
 
-        journeyService.createJourneyResponse(EMAIL, JOURNEY_ID, DESCRIPTION);
+        JourneyResponse reply = journeyService.createJourneyResponse(EMAIL, JOURNEY_ID, DESCRIPTION);
+
+        assertNotNull(reply);
+        assertEquals(USER, reply.getUser());
+        assertEquals(JOURNEY, reply.getJourney());
+        assertEquals(DESCRIPTION, reply.getMessage());
     }
 
-    // FIXME: faltan asserts
     @Test
     public void testCreateJourneyResponseNoMails(){
         when(
@@ -222,8 +228,16 @@ public class JourneyServiceImplTest {
                 any(PageParams.class)
             )
         ).thenReturn(new Page<>(List.of(), 1, 10, 0));
+        when(
+            replyDao.create(eq(USER), eq(JOURNEY), eq(DESCRIPTION))
+        ).thenReturn(REPLY);
 
-        journeyService.createJourneyResponse(EMAIL, JOURNEY_ID, DESCRIPTION);
+        JourneyResponse reply = journeyService.createJourneyResponse(EMAIL, JOURNEY_ID, DESCRIPTION);
+
+        assertNotNull(reply);
+        assertEquals(USER, reply.getUser());
+        assertEquals(JOURNEY, reply.getJourney());
+        assertEquals(DESCRIPTION, reply.getMessage());
     }
     @Test(expected = UserNotFoundException.class)
     public void testCreateJourneyResponseUserNotFound(){
@@ -854,14 +868,17 @@ public class JourneyServiceImplTest {
         journeyService.findRecommendedJourneys(EMAIL, 0);
     }
 
-    // FIXME: FALTA assert, pero no sabría como assertear esto
     @Test
     public void testDeleteJourney(){
+        Journey newJourney = new Journey(USER, START_DATE, END_DATE, UNI, DESCRIPTION);
         when(
             journeyDao.findById(eq(JOURNEY_ID))
-        ).thenReturn(Optional.of(JOURNEY));
+        ).thenReturn(Optional.of(newJourney));
 
         journeyService.deleteJourney(JOURNEY_ID, DESCRIPTION);
+
+        assertTrue(newJourney.isDeleted());
+        assertEquals(DESCRIPTION, newJourney.getDeletionMessage());
     }
 
     @Test
@@ -1039,14 +1056,17 @@ public class JourneyServiceImplTest {
         assertEquals(REPLY, maybeResponse.get());
     }
 
-    // FIXME: FALTA assert
     @Test
     public void testDeleteJourneyJourneyResponse(){
+        JourneyResponse newReply = new JourneyResponse(USER, JOURNEY, CAREER_NAME);
         when(
             replyDao.findById(eq(REPLY_ID))
-        ).thenReturn(Optional.of(REPLY));
+        ).thenReturn(Optional.of(newReply));
 
         journeyService.deleteJourneyResponse(REPLY_ID, DESCRIPTION);
+
+        assertTrue(newReply.isDeleted());
+        assertEquals(DESCRIPTION, newReply.getDeletionMessage());
     }
 
     @Test
