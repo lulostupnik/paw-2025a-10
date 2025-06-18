@@ -232,11 +232,17 @@
 
 <script>
   function goBack(){
+    console.log(peekNavigationStack())
     const rutaAnterior = popFromNavigationStack()
-    if (rutaAnterior) {
+    if (rutaAnterior !== null && rutaAnterior !== undefined && rutaAnterior !== "" && rutaAnterior !== window.location.href) {
       window.location.href = rutaAnterior;
     } else {
-      window.location.href = "<c:url value='/events'/>"
+      const route2 = popFromNavigationStack()
+      if(route2){
+        window.location.href= route2;
+      } else{
+        window.location.href = "<c:url value='/journeys'/>"
+      }
     }
   }
   function saveLink(){
