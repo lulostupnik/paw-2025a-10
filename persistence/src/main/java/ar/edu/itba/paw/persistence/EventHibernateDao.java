@@ -461,10 +461,10 @@ public class EventHibernateDao implements EventDao {
                 paramMap.put("startTime", startTime);
                 paramMap.put("endTime", endTime);
             } else if (startTime != null) {
-                timeCondition = "((e.event_time IS NOT NULL AND e.event_time >= :startTime) OR e.event_time IS NULL)";
+                timeCondition = "  ( (e.event_time IS NOT NULL AND e.event_time >= :startTime) OR ( e.event_date > :startDate)) ";
                 paramMap.put("startTime", startTime);
             } else {
-                timeCondition = " (e.event_time IS NOT NULL AND e.event_time <= :endTime) ";
+                timeCondition = " (( e.event_time IS NOT NULL AND e.event_time <= :endTime) OR e.event_time IS NULL OR e.event_date < :endDate ) ";
                 paramMap.put("endTime", endTime);
             }
 
@@ -472,8 +472,8 @@ public class EventHibernateDao implements EventDao {
         }
 
         if (attending && userId != null) {
-            countSql.append(" LEFT JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :userId ");
-            idSql.append(" LEFT JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :userId ");
+            countSql.append(" LEFT JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :userId AND e.user_id != :userId ");
+            idSql.append(" LEFT JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :userId AND e.user_id != :userId ");
             filters.add("ea.user_id IS NOT NULL");
         }
 
