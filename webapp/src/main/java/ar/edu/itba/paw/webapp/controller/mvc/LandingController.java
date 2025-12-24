@@ -1,4 +1,4 @@
-package ar.edu.itba.paw.webapp.controller;
+package ar.edu.itba.paw.webapp.controller.mvc;
 
 import java.util.List;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.servlet.ModelAndView;
 import ar.edu.itba.paw.interfaces.services.EventService;
+@Deprecated
 
 @Controller
 public class LandingController {

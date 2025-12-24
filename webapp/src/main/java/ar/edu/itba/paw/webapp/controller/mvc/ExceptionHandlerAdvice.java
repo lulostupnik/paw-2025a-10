@@ -1,4 +1,4 @@
-package ar.edu.itba.paw.webapp.controller;
+package ar.edu.itba.paw.webapp.controller.mvc;
 
 import ar.edu.itba.paw.models.exceptions.*;
 import org.slf4j.Logger;
@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
+@Deprecated
 
 @ControllerAdvice
 public class ExceptionHandlerAdvice {

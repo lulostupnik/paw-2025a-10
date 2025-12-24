@@ -1,10 +1,8 @@
 package ar.edu.itba.paw.webapp.config;
 
 
-import ar.edu.itba.paw.webapp.auth.AccessHelper;
-import ar.edu.itba.paw.webapp.auth.AuthEntryPointHandler;
-import ar.edu.itba.paw.webapp.auth.CustomAuthenticationFailureHandler;
-import ar.edu.itba.paw.webapp.auth.PawUserDetailsService;
+import ar.edu.itba.paw.webapp.auth.*;
+import ar.edu.itba.paw.webapp.auth.filters.JwtFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -22,6 +21,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -35,6 +36,8 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     private AccessHelper accessHelper;
     @Autowired
     private CustomAuthenticationFailureHandler failureHandler;
+    @Autowired
+    private JwtFilter jwtTokenFilter;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebAuthConfig.class);
 
@@ -112,5 +115,9 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
         web.ignoring()
                 .antMatchers("/resources/css/**", "/resources/js/**", "/resources/images/**",
                         "/resources/favicon.ico", "/errors/*", "/resources/icons/**");
+    }
+    @Bean
+    public JwtUtils jwtTokenUtil(@Value("classpath:jwtSecret.key") Resource jwtKeyRes) throws IOException {
+        return new JwtUtils(jwtKeyRes);
     }
 }

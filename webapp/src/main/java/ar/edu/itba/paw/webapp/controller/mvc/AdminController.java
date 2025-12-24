@@ -1,4 +1,4 @@
-package ar.edu.itba.paw.webapp.controller;
+package ar.edu.itba.paw.webapp.controller.mvc;
 
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.PageParams;
@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+@Deprecated
 
 @Controller
 @RequestMapping("/dashboard")

@@ -1,4 +1,4 @@
-package ar.edu.itba.paw.webapp.controller;
+package ar.edu.itba.paw.webapp.controller.mvc;
 
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
@@ -22,6 +22,7 @@ import javax.validation.Valid;
 import java.util.Optional;
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 
+@Deprecated
 
 @Controller
 @RequestMapping("/events")

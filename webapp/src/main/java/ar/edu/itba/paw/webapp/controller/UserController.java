@@ -2,58 +2,45 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.User;
-import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.stereotype.Component;
 
-@Controller
-@RequestMapping("/users")
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import java.net.URI;
+import java.util.List;
+import java.util.Optional;
+
+@Path("users")
+@Component
 public class UserController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
-    private final UserService userService;
-
     @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
+    private UserService us;
+    @Context
+    private UriInfo uriInfo;
+    @GET
+    @Produces(value = { MediaType.APPLICATION_JSON, })
+    public Response listUsers() {
+        final List<User> allUsers = us.findUsers("", null).getContent();
+        return Response.ok(new GenericEntity<>(allUsers) {}).build();
     }
-
-    @GetMapping(value= "/{id}")
-    public ModelAndView getUser(@PathVariable(value = "id") final long id) {
-        User user = userService.findUserById(id).orElseThrow((
-
-        ) -> {
-            LOGGER.error("User not found for id: {}", id);
-            return new UserNotFoundException("User not found");
-        });
-        ModelAndView mav = new ModelAndView("users/detail");
-        mav.addObject("userToDisplay", user);
-        return mav;
+    @POST
+    @Produces(value = { MediaType.APPLICATION_JSON, })
+    public Response createUser(final UserDTO userDto) {
+        final User user = us.createUser(userDto.getUsername(), userDto.getPassword());
+        final URI uri = uriInfo.getAbsolutePathBuilder()
+                .path(String.valueOf(user.getId())).build();
+        return Response.created(uri).build();
     }
-
-    @PostMapping(value = "/{id}/block")
-    public ModelAndView blockUser(@PathVariable("id") long id, @RequestHeader(value = "Referer",required = false) String referer) {
-        userService.blockUser(id);
-        if(referer != null) {
-            return new ModelAndView("redirect:" + referer);
+    @GET
+    @Path("/{id}")
+    @Produces(value = { MediaType.APPLICATION_JSON, })
+    public Response getById(@PathParam("id") final long id) {
+        final Optional<User> maybeUser = us.findUserById(id);
+        if (maybeUser.isPresent()) {
+            return Response.ok(new UserDTO(maybeUser.get())).build();
         } else {
-            return new ModelAndView("redirect:dashboard/users");
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
-
-    @PostMapping(value = "/{id}/unblock")
-    public ModelAndView unblockUser(@PathVariable("id") long id, @RequestHeader(value = "Referer",required = false) String referer) {
-        userService.unblockUser(id);
-        if(referer != null) {
-            return new ModelAndView("redirect:" + referer);
-        } else {
-            return new ModelAndView("redirect:dashboard/users");
-        }
-    }
-
-
-
 }
