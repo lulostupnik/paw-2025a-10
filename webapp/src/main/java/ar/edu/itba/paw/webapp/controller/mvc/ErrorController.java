@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 @Deprecated
-
-@Controller
-@RequestMapping("/errors")
+//
+//@Controller
+//@RequestMapping("/errors")
 public class ErrorController {
     private static final String ERROR_VIEW = "errors/error";
     @ResponseStatus(HttpStatus.FORBIDDEN)

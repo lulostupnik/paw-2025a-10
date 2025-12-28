@@ -19,8 +19,8 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
 @Deprecated
 
-@Controller
-@RequestMapping("/cities")
+//@Controller
+//@RequestMapping("/cities")
 public class CityController {
     private static final Logger LOGGER = LoggerFactory.getLogger(CityController.class);
     private final CityService cityService;

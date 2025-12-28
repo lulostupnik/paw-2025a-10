@@ -20,8 +20,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Deprecated
 
-@Controller
-@RequestMapping("/journeys")
+//@Controller
+//@RequestMapping("/journeys")
 public class JourneyController {
     private static final Logger LOGGER = LoggerFactory.getLogger(JourneyController.class);
 

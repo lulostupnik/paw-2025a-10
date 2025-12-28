@@ -19,8 +19,8 @@ import javax.validation.Valid;
 
 @Deprecated
 
-@Controller
-@RequestMapping("/careers")
+//@Controller
+//@RequestMapping("/careers")
 public class CareerController {
     private static final Logger LOGGER = LoggerFactory.getLogger(CareerController.class);
     private final CareerService careerService;

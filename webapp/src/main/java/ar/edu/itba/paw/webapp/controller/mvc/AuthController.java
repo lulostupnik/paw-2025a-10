@@ -17,7 +17,7 @@ import javax.validation.Valid;
 import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 @Deprecated
 
-@Controller
+//@Controller
 public class AuthController {
 
     private final UserService userService;

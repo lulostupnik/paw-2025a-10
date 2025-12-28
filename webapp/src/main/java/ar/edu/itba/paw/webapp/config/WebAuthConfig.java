@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.config;
 
 
 import ar.edu.itba.paw.webapp.auth.*;
+import ar.edu.itba.paw.webapp.auth.filters.AuthAnywhereFilter;
 import ar.edu.itba.paw.webapp.auth.filters.JwtFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.Resource;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -21,8 +23,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -38,6 +41,9 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     private CustomAuthenticationFailureHandler failureHandler;
     @Autowired
     private JwtFilter jwtTokenFilter;
+
+    @Autowired
+    private AuthAnywhereFilter authAnywhereFilter;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebAuthConfig.class);
 
@@ -71,11 +77,10 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
         LOGGER.info("Configuring security (has key from properties file = {})", !authKey.isEmpty());
-        http.userDetailsService(userDetailsService)
-                .sessionManagement()
-                .invalidSessionUrl("/")
+        http.sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().authorizeRequests()
-                .antMatchers("/register", "/login", "/reset-password", "/forgot_pass", "/validate", "/not-verified").anonymous()
+                .antMatchers("/api/users","/register", "/login", "/reset-password", "/forgot_pass", "/validate", "/not-verified").anonymous()
                 .antMatchers("/universities", "/careers", "/interests", "/cities").permitAll()
                 .antMatchers("/events/create", "/journeys/create", "/interests/edit").access("isAuthenticated()")
                 .antMatchers(HttpMethod.GET,"/events", "/", "/events/{id}", "/journeys", "/journeys/{id}", "/images/{id}", "/blocked").permitAll()
@@ -104,10 +109,21 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .and().logout()
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login")
-                .and().exceptionHandling()
-                .accessDeniedPage("/errors/403")
-                .authenticationEntryPoint(authEntryPointHandler())
-                .and().csrf().disable();
+                .and()
+                .exceptionHandling()
+                .authenticationEntryPoint((request, response, ex) -> {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
+                })
+
+                // Disable client-side cache handling
+                .and().headers().cacheControl().disable()
+
+                .and()
+                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(authAnywhereFilter, UsernamePasswordAuthenticationFilter.class)
+
+                // Enable CORS and disable csrf rules
+                .cors().and().csrf().disable();
     }
 
     @Override
@@ -117,7 +133,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                         "/resources/favicon.ico", "/errors/*", "/resources/icons/**");
     }
     @Bean
-    public JwtUtils jwtTokenUtil(@Value("classpath:jwtSecret.key") Resource jwtKeyRes) throws IOException {
-        return new JwtUtils(jwtKeyRes);
+    public JwtUtils jwtTokenUtil(@Value("${jwtSecret.key}") String jwtSecret) {
+        return new JwtUtils(jwtSecret);
     }
 }

@@ -16,8 +16,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
 @Deprecated
 
-@Controller
-@RequestMapping("/reports")
+//@Controller
+//@RequestMapping("/reports")
 public class ReportController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportController.class);
 

@@ -13,7 +13,7 @@ import org.springframework.web.servlet.ModelAndView;
 import ar.edu.itba.paw.interfaces.services.EventService;
 @Deprecated
 
-@Controller
+//@Controller
 public class LandingController {
     private final EventService eventService;
     private final JourneyService journeyService;

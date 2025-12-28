@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 @Deprecated
 
-@Controller
-@RequestMapping("/dashboard")
+//@Controller
+//@RequestMapping("/dashboard")
 public class AdminController {
 
     private final EventService eventService;

@@ -10,8 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 @Deprecated
-@Controller
-@RequestMapping("/users")
+//@Controller
+//@RequestMapping("/users")
 public class UserController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;

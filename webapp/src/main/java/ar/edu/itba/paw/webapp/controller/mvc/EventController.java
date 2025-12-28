@@ -24,8 +24,8 @@ import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 
 @Deprecated
 
-@Controller
-@RequestMapping("/events")
+//@Controller
+//@RequestMapping("/events")
 public class EventController {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventController.class);
 

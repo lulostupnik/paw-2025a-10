@@ -17,8 +17,8 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
 @Deprecated
 
-@Controller
-@RequestMapping("/interests")
+//@Controller
+//@RequestMapping("/interests")
 public class InterestController {
     private static final Logger LOGGER = LoggerFactory.getLogger(InterestController.class);
 

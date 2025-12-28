@@ -13,8 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 @Deprecated
 
-@Controller
-@RequestMapping("/images")
+//@Controller
+//@RequestMapping("/images")
 public class ImageController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageController.class);
 

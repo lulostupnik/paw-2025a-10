@@ -1,0 +1,68 @@
+package ar.edu.itba.paw.webapp.dto;
+
+import ar.edu.itba.paw.models.User;
+
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.util.List;
+
+import ar.edu.itba.paw.webapp.utils.UriUtils;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+public class UserDto {
+
+    private  long id;
+    private  String username;
+    private String email;
+    private String role;
+    private Boolean isActive;
+
+
+    private URI selfUrl;
+
+
+    public static UserDto fromUser(final UriInfo uriInfo, final User user) {
+        final UserDto dto = new UserDto();
+        dto.id = user.getId();
+        dto.email = user.getEmail();
+        dto.username = user.getUsername();
+        dto.role = user.getRole().toString().replaceAll("^ROLE_", "").toLowerCase();
+        dto.isActive = ! user.isBlocked() && user.isValidated(); //TODO:ver esto
+//        dto.preferredLanguage = user.getPreferredLanguage();
+
+        dto.selfUrl = UriUtils.getUserUri(uriInfo, user.getId());
+
+        return dto;
+    }
+    public static List<UserDto> fromUserCollection(final UriInfo uriInfo, final java.util.Collection<User> users) {
+        return users.stream().map(user -> fromUser(uriInfo, user)).toList();
+    }
+
+    public URI getSelfUrl() {
+        return selfUrl;
+    }
+    public Boolean getActive() {
+        return isActive;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public long getId() {
+        return id;
+    }
+}

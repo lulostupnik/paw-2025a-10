@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 @Deprecated
 
-@ControllerAdvice
+//@ControllerAdvice
 public class UserControllerAdvice {
 
     private final UserService userService;

@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 
 public class JwtUtils {
@@ -28,8 +29,9 @@ public class JwtUtils {
 
     private final Key jwtSecretKey;
 
-    public JwtUtils(Resource jwtKeyRes) throws IOException {
-        jwtSecretKey = Keys.hmacShaKeyFor(FileCopyUtils.copyToString(new InputStreamReader(jwtKeyRes.getInputStream())).getBytes(StandardCharsets.UTF_8));
+    public JwtUtils(String jwtSecretB64) {
+        byte[] bytes = Base64.getDecoder().decode(jwtSecretB64);
+        jwtSecretKey = Keys.hmacShaKeyFor(bytes);
     }
 
     private String generateToken(ServletUriComponentsBuilder uriBuilder, User user, JwtType type, long expirationTimeMilis) {

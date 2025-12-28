@@ -18,8 +18,8 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
 @Deprecated
 
-@Controller
-@RequestMapping("/universities")
+//@Controller
+//@RequestMapping("/universities")
 public class UniversityController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UniversityController.class);
     private final UniversityService universityService;

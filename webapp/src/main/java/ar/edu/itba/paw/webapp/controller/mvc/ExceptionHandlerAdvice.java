@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 @Deprecated
 
-@ControllerAdvice
+//@ControllerAdvice
 public class ExceptionHandlerAdvice {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionHandlerAdvice.class);

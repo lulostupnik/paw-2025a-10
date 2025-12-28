@@ -22,8 +22,8 @@ import javax.validation.Valid;
 import java.util.Optional;
 @Deprecated
 
-@Controller
-@RequestMapping("/profile")
+//@Controller
+//@RequestMapping("/profile")
 public class ProfileController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileController.class);
     private final JourneyService journeyService;
