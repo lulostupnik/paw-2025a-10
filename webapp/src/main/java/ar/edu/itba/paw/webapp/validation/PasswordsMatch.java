@@ -14,4 +14,6 @@ public @interface PasswordsMatch {
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
+
+    boolean optional() default false;
 }

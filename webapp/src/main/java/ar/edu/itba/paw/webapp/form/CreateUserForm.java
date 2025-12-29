@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
 
-@PasswordsMatch
+@PasswordsMatch(optional = true)
 public class CreateUserForm {
 
     @Email
@@ -36,20 +36,23 @@ public class CreateUserForm {
     private String password;
 
     @Size(min = 8, max = 100)
-    @NotNull
+    // @NotNull
     private String confirmPassword;
 
     @Size(min = 2, max = 100)
     @NotNull
     private String lastName;
 
-    @NotNull
+    // @NotNull
     @ImageSize()
     @ContentType({"image/jpeg", "image/jpg", "image/png"})
-    @ImageNotEmpty
+    // @ImageNotEmpty
     private MultipartFile profilePicture;
 
-    @Size( max = 100)
+    // TODO: ver si dejamos este o el anterior
+    private String profilePictureBase64;
+
+    @Size(max = 100)
     @NotEmpty
     @NotNull
     @ExistingUniversity
@@ -104,6 +107,14 @@ public class CreateUserForm {
 
     public void setProfilePicture(MultipartFile profilePicture) {
         this.profilePicture = profilePicture;
+    }
+
+    public String getProfilePictureBase64() {
+        return profilePictureBase64;
+    }
+
+    public void setProfilePictureBase64(String profilePictureBase64) {
+        this.profilePictureBase64 = profilePictureBase64;
     }
 
     public String getOriginUniversity() {

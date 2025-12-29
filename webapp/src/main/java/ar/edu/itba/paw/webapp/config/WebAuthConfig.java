@@ -81,6 +81,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().authorizeRequests()
                 .antMatchers("/api/users","/register", "/login", "/reset-password", "/forgot_pass", "/validate", "/not-verified").anonymous()
+                .antMatchers(HttpMethod.PATCH, "/api/users/*").anonymous()
                 .antMatchers("/universities", "/careers", "/interests", "/cities").permitAll()
                 .antMatchers("/events/create", "/journeys/create", "/interests/edit").access("isAuthenticated()")
                 .antMatchers(HttpMethod.GET,"/events", "/", "/events/{id}", "/journeys", "/journeys/{id}", "/images/{id}", "/blocked").permitAll()
