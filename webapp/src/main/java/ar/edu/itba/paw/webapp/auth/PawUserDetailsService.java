@@ -38,14 +38,15 @@ public class PawUserDetailsService implements UserDetailsService {
 
         Collection<? extends GrantedAuthority> authorities = determineAuthorities(user.getRole());
 
-        return new org.springframework.security.core.userdetails.User(
+        return new PawUserDetails(
                 username,
                 user.getPassword(),
                 user.isValidated(),
                 true,
                 true,
                 !user.isBlocked(),
-                authorities
+                authorities,
+                user.getId()
         );
     }
 

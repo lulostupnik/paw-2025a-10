@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -95,8 +97,8 @@ public class UserController {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @PreAuthorize("@accessHelper.isCurrentUser(#id)")
     public Response updateUser(@PathParam("id") final long id /* TODO: @Valid UpdateUserForm form */) {
-        // TODO: Verify user is owner (from SecurityContext)
         // TODO: Create form class for full user update
         // final User user = us.updateUser(id, username, firstname, lastname, universityName, careerName);
         // return Response.ok(UserDto.fromUser(uriInfo, user)).build();
@@ -149,8 +151,8 @@ public class UserController {
 
     @DELETE
     @Path("/{id}")
+    @PreAuthorize("@accessHelper.isCurrentUser(#id) or hasRole('ADMIN')")
     public Response deleteUser(@PathParam("id") final long id) {
-        // TODO: This endpoint should be admin-only (or for the user requesting it?)
         // TODO: Implement user deletion (might need to add to UserService)
         // return Response.noContent().build();
         return Response.status(Response.Status.NOT_IMPLEMENTED).build();
