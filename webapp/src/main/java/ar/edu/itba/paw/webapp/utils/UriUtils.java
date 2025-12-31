@@ -135,4 +135,63 @@ public final class UriUtils {
         return uriInfo.getBaseUriBuilder().path(UNIVERSITIES_URL).build();
     }
 
+    public static URI getUniversityUri(final UriInfo uriInfo, final long universityId) {
+        return uriInfo.getBaseUriBuilder().path(UNIVERSITIES_URL).path(String.valueOf(universityId)).build();
+    }
+
+    // ==================== CAREERS ====================
+
+    public static URI getCareersUri(final UriInfo uriInfo) {
+        return uriInfo.getBaseUriBuilder().path(CAREERS_URL).build();
+    }
+
+    public static URI getCareerUri(final UriInfo uriInfo, final long careerId) {
+        return uriInfo.getBaseUriBuilder().path(CAREERS_URL).path(String.valueOf(careerId)).build();
+    }
+
+    // ==================== CITIES ====================
+
+    public static URI getCitiesUri(final UriInfo uriInfo) {
+        return uriInfo.getBaseUriBuilder().path(CITIES_URL).build();
+    }
+
+    public static URI getCityUri(final UriInfo uriInfo, final long cityId) {
+        return uriInfo.getBaseUriBuilder().path(CITIES_URL).path(String.valueOf(cityId)).build();
+    }
+
+    // ==================== COUNTRIES ====================
+
+    public static URI getCountriesUri(final UriInfo uriInfo) {
+        return uriInfo.getBaseUriBuilder().path(COUNTRIES_URL).build();
+    }
+
+    public static URI getCountryUri(final UriInfo uriInfo, final long countryId) {
+        return uriInfo.getBaseUriBuilder().path(COUNTRIES_URL).path(String.valueOf(countryId)).build();
+    }
+
+    // ==================== IMAGES ====================
+
+    public static URI getImagesUri(final UriInfo uriInfo) {
+        return uriInfo.getBaseUriBuilder().path(IMAGES_URL).build();
+    }
+
+    public static URI getImageUri(final UriInfo uriInfo, final long imageId) {
+        return uriInfo.getBaseUriBuilder().path(IMAGES_URL).path(String.valueOf(imageId)).build();
+    }
+
+    // ==================== PASSWORD RESET TOKENS ====================
+
+    public static URI getPasswordResetTokensUri(final UriInfo uriInfo) {
+        return uriInfo.getBaseUriBuilder().path(PASSWORD_RESET_TOKENS_URL).build();
+    }
+
+    // ==================== RATINGS (Alternative top-level) ====================
+
+    public static URI getRatingsUri(final UriInfo uriInfo) {
+        return uriInfo.getBaseUriBuilder().path(RATINGS_URL).build();
+    }
+
+    public static URI getRatingUri(final UriInfo uriInfo, final long ratingId) {
+        return uriInfo.getBaseUriBuilder().path(RATINGS_URL).path(String.valueOf(ratingId)).build();
+    }
 }
