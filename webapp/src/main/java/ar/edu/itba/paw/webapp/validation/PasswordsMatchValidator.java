@@ -6,11 +6,23 @@ import javax.validation.ConstraintValidatorContext;
 
 public class PasswordsMatchValidator implements ConstraintValidator<PasswordsMatch, CreateUserForm> {
 
+    private boolean optional;
+
+    @Override
+    public void initialize(PasswordsMatch constraintAnnotation) {
+        this.optional = constraintAnnotation.optional();
+    }
+
     @Override
     public boolean isValid(CreateUserForm form, ConstraintValidatorContext context) {
         if (form.getPassword() == null && form.getConfirmPassword() == null)
             return true;
-        if ((form.getPassword() == null && form.getConfirmPassword() != null) || (form.getPassword() != null && form.getConfirmPassword() == null) )
+
+        if (optional && form.getConfirmPassword() == null) {
+            return true;
+        }
+
+        if ((form.getPassword() == null && form.getConfirmPassword() != null) || (form.getPassword() != null && form.getConfirmPassword() == null))
             return false;
 
         boolean matches = form.getPassword().equals(form.getConfirmPassword());

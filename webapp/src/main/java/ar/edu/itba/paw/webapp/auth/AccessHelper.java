@@ -5,6 +5,7 @@ import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import java.util.Objects;
@@ -19,6 +20,23 @@ public class AccessHelper {
     public AccessHelper(final JourneyService journeyService, final EventService eventService) {
         this.journeyService = journeyService;
         this.eventService = eventService;
+    }
+
+    public Long getCurrentUserId() {
+        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            return null;
+        }
+        final Object principal = auth.getPrincipal();
+        if (principal instanceof PawUserDetails) {
+            return ((PawUserDetails) principal).getUserId();
+        }
+        return null;
+    }
+
+    public boolean isCurrentUser(long userId) {
+        final Long currentUserId = getCurrentUserId();
+        return currentUserId != null && currentUserId == userId;
     }
 
     public boolean isUserEventOwner(long eventId){

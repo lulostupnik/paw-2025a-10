@@ -43,6 +43,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public User createUser(final String email,final  String username,final  String firstname, final  String lastname,final  String universityName, final String careerName,final  byte[] profilePicture, final List<String> interests,final  String password, final Locale locale) {
         LOGGER.debug("Creating new user with email: {} and username: {}", email, username);
+        // TODO: Add proper REST exception mapper to return 400 Bad Request instead of 500 for UniversityNotFoundException
         University university = universityService.findByName(universityName)
                 .orElseThrow(() -> {
                     LOGGER.error("University not found: '{}' during user creation for email: {}", universityName, email);

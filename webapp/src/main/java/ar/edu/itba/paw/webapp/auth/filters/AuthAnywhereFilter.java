@@ -95,7 +95,7 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
                 response.setHeader("X-GoTogether-RefreshToken", jwtTokenUtil.generateRefreshToken(uriBuilder, user));
             }
         } catch (Exception e) {
-            response.addHeader("WWW-Authenticate", "Basic realm=\"GoTogether\"");
+            response.addHeader("WWW-Authenticate", "Basic realm=\"GoTogether\""); // TODO: REVISAR: sacaría esta linea de acá y lo dejaría solo en WebAuthConfig, pero no estoy seguro
         }
 
         filterChain.doFilter(request, response);
