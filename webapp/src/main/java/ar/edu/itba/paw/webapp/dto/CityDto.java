@@ -17,16 +17,18 @@ public class CityDto {
 
     private long id;
     private String name;
+    private String country; // TODO: revisar ¿esto o la URI?
 
     private URI selfUrl;
-    private URI countryUrl;
+    // private URI countryUrl;
 
     public static CityDto fromCity(final UriInfo uriInfo, final City city) {
         final CityDto dto = new CityDto();
         dto.id = city.getId();
         dto.name = city.getName();
+        dto.country = city.getCountry().getName();
         dto.selfUrl = UriUtils.getCityUri(uriInfo, city.getId());
-        dto.countryUrl = UriUtils.getCountryUri(uriInfo, city.getCountry().getId());
+        // dto.countryUrl = UriUtils.getCountryUri(uriInfo, city.getCountry().getId());
         return dto;
     }
 
@@ -38,5 +40,5 @@ public class CityDto {
     public long getId() { return id; }
     public String getName() { return name; }
     public URI getSelfUrl() { return selfUrl; }
-    public URI getCountryUrl() { return countryUrl; }
+    // public URI getCountryUrl() { return countryUrl; }
 }
