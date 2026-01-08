@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { getUsername, isAdmin, isLoggedIn, logout } from "../../auth/auth";
+import { getUsername, isAdmin, isLoggedIn, logout } from "../auth/auth";
 
 const linkStyle = ({ isActive }: { isActive: boolean }) => ({
     padding: "8px 12px",
