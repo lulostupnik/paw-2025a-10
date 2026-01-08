@@ -1,34 +1,54 @@
 import { createBrowserRouter } from "react-router-dom";
-import AppLayout from "./layouts/AppLayout";
-import AuthLayout from "./layouts/AuthLayout";
+import MainLayout from "./layouts/MainLayout";
+import RequireAuth from "./guards/RequireAuth";
 
-import HomePage from "./pages/HomePage";
-import JourneysPage from "./pages/JourneysPage";
-import EventsPage from "./pages/EventsPage";
-import ProfilePage from "./pages/ProfilePage";
-import AdminPage from "./pages/AdminPage";
-import LoginPage from "./pages/LoginPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
-export const router = createBrowserRouter([
-    // auth area
-    {
-        element: <AuthLayout />,
-        children: [{ path: "/login", element: <LoginPage /> }],
-    },
+import LandingPage from "../features/landing/pages/LandingPage";
+import ExplorePage from "../features/explore/pages/ExplorePage";
 
-    // app area
+import JourneysListPage from "../features/journeys/pages/JourneysPage.tsx";
+import JourneyDetailPage from "../features/journeys/pages/JourneysDetailsPage.tsx";
+import JourneyCreatePage from "../features/journeys/pages/JourneysCreatePage.tsx";
+
+import EventsListPage from "../features/events/pages/EventsPage.tsx";
+import EventDetailPage from "../features/events/pages/EventsDetailsPage.tsx";
+
+import ProfilePage from "../features/profile/pages/ProfilePage";
+import AdminPage from "../features/auth/pages/AdminPage";
+
+import LoginPage from "../features/auth/pages/LoginPage";
+import RegisterPage from "../features/auth/pages/RegisterPage";
+
+export const router = createBrowserRouter([
     {
         path: "/",
-        element: <AppLayout />,
+        element: <MainLayout />,
         children: [
-            { index: true, element: <HomePage /> },
-            { path: "journeys", element: <JourneysPage /> },
-            { path: "events", element: <EventsPage /> },
-            { path: "profile", element: <ProfilePage /> },
-            { path: "admin", element: <AdminPage /> },
+            // PUBLIC
+            { index: true, element: <LandingPage /> },
+            { path: "explore", element: <ExplorePage /> },
+
+            { path: "journeys", element: <JourneysListPage /> },
+            { path: "journeys/:id", element: <JourneyDetailPage /> },
+
+            { path: "events", element: <EventsListPage /> },
+            { path: "events/:id", element: <EventDetailPage /> },
+
+            { path: "login", element: <LoginPage /> },
+            { path: "register", element: <RegisterPage /> },
+
+            // PRIVATE PAGES (same layout, guarded)
+            {
+                element: <RequireAuth />,
+                children: [
+                    { path: "journeys/create", element: <JourneyCreatePage /> },
+                    { path: "profile", element: <ProfilePage /> },
+                    { path: "admin", element: <AdminPage /> },
+                ],
+            },
+
+            { path: "*", element: <NotFoundPage /> },
         ],
     },
-
-    { path: "*", element: <NotFoundPage /> },
 ]);
