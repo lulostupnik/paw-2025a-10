@@ -1,48 +1,37 @@
 import { useNavigate } from "react-router-dom";
+import Button from "@/components/ui/Button";
 
-export default function LoginRequiredModal({
-                                               open,
-                                               onClose,
-                                               nextPath,
-                                           }: {
+interface LoginRequiredModalProps {
     open: boolean;
     onClose: () => void;
     nextPath?: string;
-}) {
+}
+
+export default function LoginRequiredModal({ open, onClose, nextPath }: LoginRequiredModalProps) {
     const nav = useNavigate();
     if (!open) return null;
 
     const next = nextPath ? `?next=${encodeURIComponent(nextPath)}` : "";
 
     return (
-        <div
-            onClick={onClose}
-            style={{
-                position: "fixed",
-                inset: 0,
-                background: "rgba(0,0,0,.35)",
-                display: "grid",
-                placeItems: "center",
-                padding: 16,
-            }}
-        >
-            <div
-                onClick={(e) => e.stopPropagation()}
-                style={{ width: 440, maxWidth: "100%", background: "#fff", borderRadius: 14, padding: 18 }}
-            >
-                <h3 style={{ marginTop: 0 }}>Necesitás una cuenta</h3>
-                <p>Para realizar esta acción tenés que iniciar sesión o registrarte.</p>
-
-                <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 16 }}>
-                    <button onClick={onClose} style={{ padding: "10px 12px" }}>
+        <div className="modal-overlay" role="presentation" onClick={onClose}>
+            <div className="modal-card" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 8v4" />
+                        <path d="M12 16h.01" />
+                    </svg>
+                </div>
+                <h3>Necesitas una cuenta</h3>
+                <p>Para realizar esta acción debes iniciar sesión o registrarte.</p>
+                <div className="modal-actions">
+                    <Button variant="danger" onClick={onClose}>
                         Cancelar
-                    </button>
-                    <button onClick={() => nav(`/login${next}`)} style={{ padding: "10px 12px" }}>
+                    </Button>
+                    <Button variant="primary" onClick={() => nav(`/login${next}`)}>
                         Iniciar sesión
-                    </button>
-                    <button onClick={() => nav(`/register${next}`)} style={{ padding: "10px 12px" }}>
-                        Registrarse
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>

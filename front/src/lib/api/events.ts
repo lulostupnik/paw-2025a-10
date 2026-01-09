@@ -31,6 +31,7 @@ export interface EventSummary {
     isFull?: boolean;
     isFuture?: boolean;
     flyerUrl?: string;
+    imageUrl?: string;
 }
 
 export interface FetchEventsParams {
@@ -85,4 +86,5 @@ export const mapEventDtoToSummary = (dto: EventDto): EventSummary => ({
     isFull: dto.isFull ?? false,
     isFuture: dto.isFuture ?? false,
     flyerUrl: dto.flyerUrl ?? undefined,
+    imageUrl: dto.flyerUrl ?? undefined,
 });

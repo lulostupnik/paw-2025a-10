@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
-import EventCard from "@/components/EventCard";
+import EventCard from "@/components/cards/EventCard";
 import EmptyState from "@/components/EmptyState";
+import LoginRequiredModal from "@/components/LoginRequiredModal";
 import { useEvents } from "@/hooks/useEvents";
+import { useAuthGate } from "@/hooks/useAuthGate";
 import { useI18n } from "@/lib/i18n";
 import heroImage from "@/assets/cityscape.jpeg";
 
@@ -69,6 +71,11 @@ export default function LandingPage() {
         loading: featuredEventsLoading,
         error: featuredEventsError,
     } = useEvents({ size: 3 });
+    const gate = useAuthGate();
+
+    const handleCreateEvent = () => {
+        gate.runOrPrompt(() => navigate("/events/create"));
+    };
 
     return (
         <div className="page-shell landing-page">
@@ -137,26 +144,54 @@ export default function LandingPage() {
                 </div>
                 <div className="section__panel">
                     {featuredEventsLoading && <p className="section__helper">{t("landing.featured.events.loading")}</p>}
-                    {featuredEventsError && (
-                        <p className="section__helper section__helper--error">{t("landing.featured.events.error")}</p>
+                    {!featuredEventsLoading && featuredEventsError && (
+                        <EmptyState
+                            title={t("landing.featured.events.error")}
+                            action={
+                                <Button variant="primary" size="sm" onClick={handleCreateEvent}>
+                                    {t("events.cta.button")}
+                                </Button>
+                            }
+                        />
                     )}
                     {!featuredEventsLoading && !featuredEventsError && featuredEvents.length === 0 && (
-                        <EmptyState title={t("landing.featured.events.empty")} />
+                        <EmptyState
+                            title={t("events.list.empty")}
+                            description={t("events.list.empty.description") || undefined}
+                            action={
+                                <Button variant="primary" size="sm" onClick={handleCreateEvent}>
+                                    {t("events.cta.button")}
+                                </Button>
+                            }
+                        />
                     )}
-                    {featuredEvents.length > 0 && (
-                        <div className="events-grid">
-                            {featuredEvents.map((event) => (
-                                <EventCard
-                                    key={event.id}
-                                    event={event}
-                                    actionSlot={
-                                        <Button variant="ghost" size="sm" onClick={() => navigate(`/events/${event.id}`)}>
-                                            {t("landing.event.view")}
-                                        </Button>
-                                    }
-                                />
-                            ))}
-                        </div>
+                    {!featuredEventsError && featuredEvents.length > 0 && (
+                        <>
+                            <div className="listing-grid listing-grid--compact">
+                                {featuredEvents.map((event) => (
+                                    <EventCard
+                                        key={event.id}
+                                        event={event}
+                                        actionSlot={
+                                            <Button variant="ghost" size="sm" onClick={() => navigate(`/events/${event.id}`)}>
+                                                {t("landing.event.view")}
+                                            </Button>
+                                        }
+                                    />
+                                ))}
+                            </div>
+                            <div className="listing-cta card">
+                                <div>
+                                    <h3>{t("events.cta.title")}</h3>
+                                    <p>{t("events.cta.description")}</p>
+                                </div>
+                                <div className="listing-cta__actions">
+                                    <Button type="button" variant="primary" onClick={handleCreateEvent}>
+                                        {t("events.cta.button")}
+                                    </Button>
+                                </div>
+                            </div>
+                        </>
                     )}
                 </div>
             </section>
@@ -213,6 +248,7 @@ export default function LandingPage() {
                     &copy; {currentYear} {t("app.name")}. {t("landing.footer.copyright")}
                 </p>
             </footer>
+            <LoginRequiredModal open={gate.open} onClose={gate.close} nextPath="/events/create" />
         </div>
     );
 }
