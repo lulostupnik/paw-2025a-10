@@ -2,34 +2,36 @@ import { NavLink, useNavigate } from "react-router-dom";
 import Button from "./ui/Button";
 import { getUsername, isAdmin, isLoggedIn, logout } from "../auth/auth";
 import { classNames } from "../utils/classNames";
+import { useI18n } from "../i18n";
 
 const linkClassName = ({ isActive }: { isActive: boolean }) => classNames("top-bar__link", isActive && "is-active");
 
 export default function TopBar() {
     const nav = useNavigate();
     const logged = isLoggedIn();
+    const { t } = useI18n();
 
     return (
         <header className="top-bar">
             <NavLink to="/" className="top-bar__brand">
-                GoTogether
+                {t("app.name")}
             </NavLink>
 
             <nav className="top-bar__nav">
                 {logged && (
                     <NavLink to="/explore" className={linkClassName}>
-                        Explorar
+                        {t("nav.explore")}
                     </NavLink>
                 )}
                 <NavLink to="/journeys" className={linkClassName}>
-                    Viajes
+                    {t("nav.journeys")}
                 </NavLink>
                 <NavLink to="/events" className={linkClassName}>
-                    Eventos
+                    {t("nav.events")}
                 </NavLink>
                 {logged && isAdmin() && (
                     <NavLink to="/admin" className={linkClassName}>
-                        Administrador
+                        {t("admin.manage.reports")}
                     </NavLink>
                 )}
             </nav>
@@ -38,10 +40,10 @@ export default function TopBar() {
                 {!logged ? (
                     <>
                         <Button size="sm" variant="ghost" onClick={() => nav("/login")}>
-                            Iniciar sesión
+                            {t("nav.login")}
                         </Button>
                         <Button size="sm" onClick={() => nav("/register")}>
-                            Registrarse
+                            {t("nav.register")}
                         </Button>
                     </>
                 ) : (
@@ -55,7 +57,7 @@ export default function TopBar() {
                                 nav("/", { replace: true });
                             }}
                         >
-                            Logout
+                            {t("nav.logout")}
                         </Button>
                     </>
                 )}
