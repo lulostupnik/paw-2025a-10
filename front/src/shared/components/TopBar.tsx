@@ -3,6 +3,7 @@ import Button from "./ui/Button";
 import { getUsername, isAdmin, isLoggedIn, logout } from "../auth/auth";
 import { classNames } from "../utils/classNames";
 import { useI18n } from "../i18n";
+import Logo from "./Logo";
 
 const linkClassName = ({ isActive }: { isActive: boolean }) => classNames("top-bar__link", isActive && "is-active");
 
@@ -13,8 +14,8 @@ export default function TopBar() {
 
     return (
         <header className="top-bar">
-            <NavLink to="/" className="top-bar__brand">
-                {t("app.name")}
+            <NavLink to="/" className="top-bar__brand" aria-label={t("app.name")}>
+                <Logo text={t("app.name")} />
             </NavLink>
 
             <nav className="top-bar__nav">

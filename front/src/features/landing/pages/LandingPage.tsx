@@ -1,5 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import Button from "../../../shared/components/ui/Button";
+import EventCard from "../../../shared/components/EventCard";
+import EmptyState from "../../../shared/components/EmptyState";
+import { useEvents } from "../../../shared/hooks/useEvents";
 import { useI18n } from "../../../shared/i18n";
 import heroImage from "../../../assets/cityscape.jpeg";
 
@@ -43,30 +46,6 @@ const STEPS = [
     { titleKey: "landing.step3.title", descriptionKey: "landing.step3.description" },
 ] as const;
 
-const FEATURED_EVENTS = [
-    {
-        titleKey: "landing.event1.title",
-        descriptionKey: "landing.event1.description",
-        locationKey: "landing.event1.location",
-        dateKey: "landing.event1.date",
-        organizerKey: "landing.event1.organizer",
-    },
-    {
-        titleKey: "landing.event2.title",
-        descriptionKey: "landing.event2.description",
-        locationKey: "landing.event2.location",
-        dateKey: "landing.event2.date",
-        organizerKey: "landing.event2.organizer",
-    },
-    {
-        titleKey: "landing.event3.title",
-        descriptionKey: "landing.event3.description",
-        locationKey: "landing.event3.location",
-        dateKey: "landing.event3.date",
-        organizerKey: "landing.event3.organizer",
-    },
-] as const;
-
 const TESTIMONIALS = [
     { nameKey: "landing.testimonial1.name", roleKey: "landing.testimonial1.role", textKey: "landing.testimonial1.text" },
     { nameKey: "landing.testimonial2.name", roleKey: "landing.testimonial2.role", textKey: "landing.testimonial2.text" },
@@ -85,6 +64,11 @@ export default function LandingPage() {
     const { t } = useI18n();
     const navigate = useNavigate();
     const currentYear = new Date().getFullYear();
+    const {
+        events: featuredEvents,
+        loading: featuredEventsLoading,
+        error: featuredEventsError,
+    } = useEvents({ size: 3 });
 
     return (
         <div className="page-shell landing-page">
@@ -151,31 +135,29 @@ export default function LandingPage() {
                         {t("landing.featured.events.cta")}
                     </Button>
                 </div>
-                <div className="events-grid">
-                    {FEATURED_EVENTS.map((event) => (
-                        <article key={event.titleKey} className="event-card card">
-                            <header className="event-card__header">
-                                <h3>{t(event.titleKey)}</h3>
-                                <p>{t(event.locationKey)}</p>
-                            </header>
-                            <p className="event-card__description">{t(event.descriptionKey)}</p>
-                            <dl className="event-card__meta">
-                                <div>
-                                    <dt>{t("journey.filter.startDate")}</dt>
-                                    <dd>{t(event.dateKey)}</dd>
-                                </div>
-                                <div>
-                                    <dt>{t("journey.host")}</dt>
-                                    <dd>{t(event.organizerKey)}</dd>
-                                </div>
-                            </dl>
-                            <div className="event-card__footer">
-                                <Button variant="ghost" size="sm" onClick={() => navigate("/events")}>
-                                    {t("landing.event.view")}
-                                </Button>
-                            </div>
-                        </article>
-                    ))}
+                <div className="section__panel">
+                    {featuredEventsLoading && <p className="section__helper">{t("landing.featured.events.loading")}</p>}
+                    {featuredEventsError && (
+                        <p className="section__helper section__helper--error">{t("landing.featured.events.error")}</p>
+                    )}
+                    {!featuredEventsLoading && !featuredEventsError && featuredEvents.length === 0 && (
+                        <EmptyState title={t("landing.featured.events.empty")} />
+                    )}
+                    {featuredEvents.length > 0 && (
+                        <div className="events-grid">
+                            {featuredEvents.map((event) => (
+                                <EventCard
+                                    key={event.id}
+                                    event={event}
+                                    actionSlot={
+                                        <Button variant="ghost" size="sm" onClick={() => navigate(`/events/${event.id}`)}>
+                                            {t("landing.event.view")}
+                                        </Button>
+                                    }
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
             </section>
 
