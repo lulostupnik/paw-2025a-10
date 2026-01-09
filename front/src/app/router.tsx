@@ -1,29 +1,29 @@
 import { createBrowserRouter } from "react-router-dom";
-import MainLayout from "./layouts/MainLayout";
-import RequireAuth from "./guards/RequireAuth";
+import MainLayout from "@app/layouts/MainLayout";
+import RequireAuth from "@app/guards/RequireAuth";
 
-import NotFoundPage from "./pages/NotFoundPage";
-import ForbiddenPage from "./pages/ForbiddenPage";
-import ServerErrorPage from "./pages/ServerErrorPage";
-import BadRequestPage from "./pages/BadRequestPage";
-import MethodNotAllowedPage from "./pages/MethodNotAllowedPage";
-import UnsupportedMediaPage from "./pages/UnsupportedMediaPage";
+import NotFoundPage from "@/pages/errors/NotFoundPage";
+import ForbiddenPage from "@/pages/errors/ForbiddenPage";
+import ServerErrorPage from "@/pages/errors/ServerErrorPage";
+import BadRequestPage from "@/pages/errors/BadRequestPage";
+import MethodNotAllowedPage from "@/pages/errors/MethodNotAllowedPage";
+import UnsupportedMediaPage from "@/pages/errors/UnsupportedMediaPage";
 
-import LandingPage from "../features/landing/pages/LandingPage";
-import ExplorePage from "../features/explore/pages/ExplorePage";
+import LandingPage from "@/pages/landing/LandingPage";
+import ExplorePage from "@/pages/explore/ExplorePage";
 
-import JourneysListPage from "../features/journeys/pages/JourneysPage.tsx";
-import JourneyDetailPage from "../features/journeys/pages/JourneysDetailsPage.tsx";
-import JourneyCreatePage from "../features/journeys/pages/JourneysCreatePage.tsx";
+import JourneysListPage from "@/pages/journeys/JourneysPage";
+import JourneyDetailPage from "@/pages/journeys/JourneyDetailsPage";
+import JourneyCreatePage from "@/pages/journeys/JourneyCreatePage";
 
-import EventsListPage from "../features/events/pages/EventsPage.tsx";
-import EventDetailPage from "../features/events/pages/EventsDetailsPage.tsx";
+import EventsListPage from "@/pages/events/EventsPage";
+import EventDetailPage from "@/pages/events/EventDetailsPage";
 
-import ProfilePage from "../features/profile/pages/ProfilePage";
-import AdminPage from "../features/auth/pages/AdminPage";
+import ProfilePage from "@/pages/profile/ProfilePage";
+import AdminPage from "@/pages/admin/AdminPage";
 
-import LoginPage from "../features/auth/pages/LoginPage";
-import RegisterPage from "../features/auth/pages/RegisterPage";
+import LoginPage from "@/pages/auth/LoginPage";
+import RegisterPage from "@/pages/auth/RegisterPage";
 
 export const router = createBrowserRouter([
     {
