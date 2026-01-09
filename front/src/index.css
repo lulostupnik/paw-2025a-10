@@ -921,9 +921,99 @@ textarea.input-control {
   align-items: center;
 }
 
-.top-bar__username {
+.top-bar__profile {
+  position: relative;
+}
+
+.top-bar__profile-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  padding: 0.3rem 0.85rem 0.3rem 0.35rem;
+  background: var(--color-surface);
+  cursor: pointer;
+  min-height: 44px;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.top-bar__profile-trigger:is(:hover, :focus-visible) {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+.top-bar__profile-trigger svg {
+  width: 16px;
+  height: 16px;
+}
+
+.top-bar__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.top-bar__profile-name {
   font-weight: 600;
-  color: var(--color-gray-700);
+  color: var(--color-gray-800);
+}
+
+.top-bar__chevron {
+  color: var(--color-gray-500);
+  display: inline-flex;
+}
+
+.top-bar__profile-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 200px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  padding: 0.35rem;
+  opacity: 0;
+  transform: translateY(-0.5rem);
+  pointer-events: none;
+  transition: opacity var(--transition-base), transform var(--transition-base);
+  z-index: 20;
+}
+
+.top-bar__profile-menu.is-open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.top-bar__profile-menu-item {
+  width: 100%;
+  text-align: left;
+  padding: 0.65rem 0.75rem;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  color: var(--color-gray-800);
+  cursor: pointer;
+}
+
+.top-bar__profile-menu-item:hover,
+.top-bar__profile-menu-item:focus-visible {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.top-bar__profile-menu-item--danger {
+  color: var(--color-error);
 }
 
 @media (max-width: 768px) {
