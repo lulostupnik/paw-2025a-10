@@ -110,7 +110,9 @@ public class JourneyController {
                 form.getDescription()
         );
 
-        return Response.created(UriUtils.getJourneyUri(uriInfo, journey.getId())).build();
+        return Response.created(UriUtils.getJourneyUri(uriInfo, journey.getId()))
+                .entity(JourneyDto.fromJourney(uriInfo, journey))
+                .build();
     }
 
     @PUT
