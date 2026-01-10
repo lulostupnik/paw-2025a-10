@@ -49,7 +49,7 @@ public class JourneyController {
         final ModelAndView mav = new ModelAndView("journeys/list");
         boolean hasJourney = user != null && js.existsByUser(user);
         if(! errors.hasErrors()) {
-            mav.addObject("journeys", js.findJourneys(search, user, SortFieldJourney.from(sortBy), SortDirection.from(direction),
+            mav.addObject("journeys", js.findJourneys(search, user.getId(), SortFieldJourney.from(sortBy), SortDirection.from(direction),
                     fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests(), fjf.getIsPast(), fjf.getIsUpcoming(), fjf.getIsMyDestination(),
                     fjf.getIsOngoing(), pageParams));
         }

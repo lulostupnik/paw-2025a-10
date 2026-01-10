@@ -41,6 +41,15 @@ public class JourneyHibernateDao implements JourneyDao {
     }
 
     @Override
+    public Optional<Journey> findByUserId(long userId) {
+        return em.createQuery("FROM Journey j WHERE j.user.id = :userId AND j.deleted = false", Journey.class)
+                .setParameter("userId", userId)
+                .getResultList()
+                .stream()
+                .findFirst();
+    }
+
+    @Override
     public Page<Journey> findAll(final PageParams pageParams) {
         final String countSql = """
         SELECT COUNT(*) FROM journeys j

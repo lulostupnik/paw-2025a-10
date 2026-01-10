@@ -188,13 +188,12 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
-    public Page<Journey> findJourneys(final String search, final User user, final SortFieldJourney sortBy, final SortDirection direction, final  String destination,
+    public Page<Journey> findJourneys(final String search, final Long userId, final SortFieldJourney sortBy, final SortDirection direction, final  String destination,
                                       final LocalDate startDate, final LocalDate endDate, final String interest,
                                       final boolean isPast, final boolean isUpcoming, final  boolean isMyDestination, final boolean isOngoing,
                                       final PageParams pageParams) {
-        if(user != null && isMyDestination && ! existsByUser(user)){
-            LOGGER.warn("User has no journeys");
-            throw new UserHasNoJourneyException(user.getId());
+        if (userId != null && isMyDestination) {
+            journeyDao.findByUserId(userId).orElseThrow(() -> new UserHasNoJourneyException(userId));
         }
 
         LocalDate adjustedStartDate = startDate;
@@ -212,7 +211,7 @@ public class JourneyServiceImpl implements JourneyService {
 
         return journeyDao.search(
                 search,
-                user != null ? user.getId() : null,
+                userId,
                 sortBy,
                 direction,
                 destination,

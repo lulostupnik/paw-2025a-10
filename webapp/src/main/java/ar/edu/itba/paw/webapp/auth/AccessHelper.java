@@ -2,8 +2,6 @@ package ar.edu.itba.paw.webapp.auth;
 
 import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
-import ar.edu.itba.paw.interfaces.services.UniversityService;
-import ar.edu.itba.paw.interfaces.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

@@ -74,6 +74,7 @@ public class JourneyServiceImplTest {
     private static final List<JourneyResponse> REPLIES = List.of(JOURNEY_REPLY);
     private static final Page<JourneyResponse> REPLY_PAGE = new Page<>(REPLIES, 1, 1, 1);
 
+    private static final Long USER_ID_WITH_JOURNEY = USER_ID_2;
     private static final User USER_WITH_JOURNEY = new User(USER_ID_2, EMAIL_2, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, JOURNEY, IMAGE_ID, LOCALE, false, true);
     private static final User USER_WITH_JOURNEY_DELETED = new User(USER_ID_2, EMAIL_2, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, JOURNEY_DELETED, IMAGE_ID, LOCALE, false, true);
 
@@ -339,7 +340,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            USER_ID_WITH_JOURNEY,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             UNI_NAME,
@@ -377,7 +378,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            USER_ID_WITH_JOURNEY,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             UNI_NAME,
@@ -415,7 +416,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            USER_ID_WITH_JOURNEY,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             UNI_NAME,
@@ -453,7 +454,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            USER_ID_WITH_JOURNEY,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             UNI_NAME,
@@ -491,7 +492,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            USER_ID_WITH_JOURNEY,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             UNI_NAME,
@@ -529,7 +530,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            USER_ID_WITH_JOURNEY,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             UNI_NAME,
@@ -567,7 +568,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            USER_ID_WITH_JOURNEY,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             UNI_NAME,
@@ -605,7 +606,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            USER_ID_WITH_JOURNEY,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             UNI_NAME,
@@ -643,7 +644,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            USER_ID_WITH_JOURNEY,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             UNI_NAME,
@@ -681,7 +682,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            USER_ID_WITH_JOURNEY,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             UNI_NAME,
@@ -719,7 +720,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            USER_ID_WITH_JOURNEY,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             UNI_NAME,
@@ -740,7 +741,7 @@ public class JourneyServiceImplTest {
     public void testFindJourneysUserHasNoJourneys(){    
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER,
+            USER_ID,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             UNI_NAME,
