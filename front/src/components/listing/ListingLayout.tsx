@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import SearchBar from "./SearchBar";
 import Tabs, { type TabOption } from "./Tabs";
 import ToolbarButton from "./ToolbarButton";
@@ -9,6 +9,7 @@ interface ToolbarButtonConfig {
     label: string;
     icon?: ReactNode;
     onClick?: () => void;
+    ref?: Ref<HTMLButtonElement>;
 }
 
 interface ListingLayoutProps {
@@ -57,7 +58,13 @@ export default function ListingLayout({
                         />
                         <div className="listing-toolbar__actions">
                             {toolbarButtons?.map((button) => (
-                                <ToolbarButton key={button.id} label={button.label} icon={button.icon} onClick={button.onClick} />
+                                <ToolbarButton
+                                    key={button.id}
+                                    label={button.label}
+                                    icon={button.icon}
+                                    onClick={button.onClick}
+                                    ref={button.ref}
+                                />
                             ))}
                             <PrimaryActionButton label={createLabel} onClick={onCreate} />
                         </div>

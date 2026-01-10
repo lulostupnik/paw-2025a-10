@@ -1,20 +1,40 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ListingLayout from "@/components/listing/ListingLayout";
 import EmptyState from "@/components/EmptyState";
 import EventCard from "@/components/cards/EventCard";
 import Button from "@/components/ui/Button";
+import ListingFiltersDialog from "@/components/listing/ListingFiltersDialog";
+import ListingSortDropdown from "@/components/listing/ListingSortDropdown";
 import { useEvents } from "@/hooks/useEvents";
 import { useI18n } from "@/lib/i18n";
 import { useAuthGate } from "@/hooks/useAuthGate";
 import LoginRequiredModal from "@/components/LoginRequiredModal";
+import { useUrlSyncedListingFilters, type ListingFiltersState } from "@/hooks/useListingFilters";
 
 export default function EventsListPage() {
     const { t } = useI18n();
     const navigate = useNavigate();
     const gate = useAuthGate();
-    const { events, loading, error, refetch } = useEvents({ size: 12 });
+    const { events, loading, error } = useEvents({ size: 12 });
     const [search, setSearch] = useState("");
+    const [filtersOpen, setFiltersOpen] = useState(false);
+    const [sortOpen, setSortOpen] = useState(false);
+    const filtersButtonRef = useRef<HTMLButtonElement>(null);
+    const sortButtonRef = useRef<HTMLButtonElement>(null);
+    const { filters, applyFilters, resetFilters } = useUrlSyncedListingFilters();
+    const [selectedSort, setSelectedSort] = useState("event-date-asc");
+    const eventSortOptions = useMemo(
+        () => [
+            { id: "event-date-asc", label: t("event.sort.date.asc") },
+            { id: "event-date-desc", label: t("event.sort.date.desc") },
+            { id: "event-attendees-asc", label: t("event.sort.attendees.asc") },
+            { id: "event-attendees-desc", label: t("event.sort.attendees.desc") },
+            { id: "event-rating-asc", label: t("event.sort.rating.asc") },
+            { id: "event-rating-desc", label: t("event.sort.rating.desc") },
+        ],
+        [t]
+    );
     const eventTabs = useMemo(
         () => [
             { id: "all", label: t("events.tabs.all") },
@@ -23,6 +43,16 @@ export default function EventsListPage() {
         ],
         [t]
     );
+    const openFilters = useCallback(() => {
+        setSortOpen(false);
+        setFiltersOpen((prev) => !prev);
+    }, []);
+    const closeFilters = useCallback(() => setFiltersOpen(false), []);
+    const toggleSort = useCallback(() => {
+        setFiltersOpen(false);
+        setSortOpen((prev) => !prev);
+    }, []);
+    const closeSort = useCallback(() => setSortOpen(false), []);
     const toolbarButtons = useMemo(
         () => [
             {
@@ -35,6 +65,8 @@ export default function EventsListPage() {
                         <path d="M10 18h4" />
                     </svg>
                 ),
+                onClick: openFilters,
+                ref: filtersButtonRef,
             },
             {
                 id: "sort",
@@ -47,9 +79,11 @@ export default function EventsListPage() {
                         <path d="M17 19V5" />
                     </svg>
                 ),
+                onClick: toggleSort,
+                ref: sortButtonRef,
             },
         ],
-        [t]
+        [openFilters, t, toggleSort]
     );
     const [activeTab, setActiveTab] = useState(eventTabs[0].id);
 
@@ -57,53 +91,91 @@ export default function EventsListPage() {
         gate.runOrPrompt(() => navigate("/events/create"));
     };
 
+    const handleApplyFilters = useCallback(
+        (next: ListingFiltersState) => {
+            applyFilters(next);
+            closeFilters();
+        },
+        [applyFilters, closeFilters]
+    );
+
+    const handleResetFilters = useCallback(() => {
+        resetFilters();
+    }, [resetFilters]);
+
+    const handleSortSelect = useCallback(
+        (id: string) => {
+            setSelectedSort(id);
+            closeSort();
+        },
+        [closeSort]
+    );
+
     return (
         <>
             <div className="page-shell listing-page-shell">
-            <ListingLayout
-                title={t("events.page.title")}
-                searchPlaceholder={t("events.search.placeholder")}
-                searchAriaLabel={t("events.search.placeholder")}
-                searchValue={search}
-                onSearchChange={setSearch}
-                tabs={eventTabs}
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-                toolbarButtons={toolbarButtons}
-                createLabel={t("events.create")}
-                onCreate={handleCreate}
-            >
-                {loading && <p className="section__helper">{t("events.list.loading")}</p>}
+                <ListingLayout
+                    title={t("events.page.title")}
+                    searchPlaceholder={t("events.search.placeholder")}
+                    searchAriaLabel={t("events.search.placeholder")}
+                    searchValue={search}
+                    onSearchChange={setSearch}
+                    tabs={eventTabs}
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                    toolbarButtons={toolbarButtons}
+                    createLabel={t("events.create")}
+                    onCreate={handleCreate}
+                >
+                    {loading && <p className="section__helper">{t("events.list.loading")}</p>}
 
-                {!loading && (error || events.length === 0) ? (
-                    <EmptyState
-                        title={t("events.list.empty")}
-                        description={t("events.list.empty.description") || undefined}
-                        action={
-                            <div className="listing-cta__actions">
-                                <Button type="button" variant="primary" size="sm" onClick={handleCreate}>
-                                    {t("events.cta.button")}
-                                </Button>
-                            </div>
-                        }
-                    />
-                ) : (
-                    <div className="listing-grid">
-                        {events.map((event) => (
-                            <EventCard
-                                key={event.id}
-                                event={event}
-                                actionSlot={
-                                    <Button size="sm" variant="outline" onClick={() => navigate(`/events/${event.id}`)}>
-                                        {t("landing.event.view")}
+                    {!loading && (error || events.length === 0) ? (
+                        <EmptyState
+                            title={t("events.list.empty")}
+                            description={t("events.list.empty.description") || undefined}
+                            action={
+                                <div className="listing-cta__actions">
+                                    <Button type="button" variant="primary" size="sm" onClick={handleCreate}>
+                                        {t("events.cta.button")}
                                     </Button>
-                                }
-                            />
-                        ))}
-                    </div>
-                )}
-            </ListingLayout>
+                                </div>
+                            }
+                        />
+                    ) : (
+                        <div className="listing-grid">
+                            {events.map((event) => (
+                                <EventCard
+                                    key={event.id}
+                                    event={event}
+                                    actionSlot={
+                                        <Button size="sm" variant="outline" onClick={() => navigate(`/events/${event.id}`)}>
+                                            {t("landing.event.view")}
+                                        </Button>
+                                    }
+                                />
+                            ))}
+                        </div>
+                    )}
+                </ListingLayout>
             </div>
+            <ListingFiltersDialog
+                mode="events"
+                open={filtersOpen}
+                filters={filters}
+                anchorRef={filtersButtonRef}
+                onClose={closeFilters}
+                onApply={handleApplyFilters}
+                onReset={handleResetFilters}
+            />
+            <ListingSortDropdown
+                title={t("listing.sort")}
+                open={sortOpen}
+                anchorRef={sortButtonRef}
+                options={eventSortOptions}
+                selectedId={selectedSort}
+                onSelect={handleSortSelect}
+                onClose={closeSort}
+            />
             <LoginRequiredModal open={gate.open} onClose={gate.close} nextPath="/events/create" />
         </>
     );

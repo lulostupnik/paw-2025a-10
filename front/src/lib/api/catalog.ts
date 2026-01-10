@@ -47,3 +47,5 @@ export const searchCareers: CatalogSearchFn = (query, signal) => requestCatalog(
 export const searchUniversities: CatalogSearchFn = (query, signal) => requestCatalog("/universities", query, signal);
 
 export const searchInterests: CatalogSearchFn = (query, signal) => requestCatalog("/interests", query, signal);
+
+export const searchCities: CatalogSearchFn = (query, signal) => requestCatalog("/cities", query, signal);
