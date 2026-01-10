@@ -11,11 +11,15 @@ import ar.edu.itba.paw.webapp.auth.AccessHelper;
 import ar.edu.itba.paw.webapp.dto.JourneyDto;
 import ar.edu.itba.paw.webapp.dto.JourneyResponseDto;
 import ar.edu.itba.paw.webapp.dto.TipDto;
+import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
+import ar.edu.itba.paw.webapp.form.DeleteMessageForm;
+import ar.edu.itba.paw.webapp.form.UpdateJourneyForm;
 import ar.edu.itba.paw.webapp.utils.DateUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.time.LocalDate;
@@ -58,7 +62,7 @@ public class JourneyController {
         final LocalDate startDate = DateUtils.parseDate(startDateStr);
         final LocalDate endDate = DateUtils.parseDate(endDateStr);
         final SortFieldJourney sortField = SortFieldJourney.from(sort);
-        final SortDirection sortDirection = SortDirection.from(direction);
+        final SortDirection sortDirection = SortDirection.from(direction); // TODO: revisar si funcionan bien los sorts.
 
         final List<Journey> journeys = journeyService.findJourneys(
                 search,
@@ -78,6 +82,60 @@ public class JourneyController {
 
         final List<JourneyDto> journeyDtos = JourneyDto.fromJourneyCollection(uriInfo, journeys);
         return Response.ok(new GenericEntity<>(journeyDtos) {}).build();
+    }
+
+
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getJourneyById(@PathParam("id") final long id) {
+        final Optional<Journey> maybeJourney = journeyService.findJourneyById(id);
+        if (maybeJourney.isPresent()) {
+            return Response.ok(JourneyDto.fromJourney(uriInfo, maybeJourney.get())).build();
+        }
+        return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createJourney(@Valid final CreateJourneyForm form) {
+        final Long userId = accessHelper.getCurrentUserId();
+
+        final Journey journey = journeyService.createJourney(
+                userId,
+                form.getDestinationUniversity(),
+                form.getStartDate(),
+                form.getEndDate(),
+                form.getDescription()
+        );
+
+        return Response.created(UriUtils.getJourneyUri(uriInfo, journey.getId())).build();
+    }
+
+    @PUT
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateJourney(@PathParam("id") final long id, @Valid final UpdateJourneyForm form) {
+        final Journey journey = journeyService.updateJourney(
+                id,
+                form.getDestinationUniversity(),
+                form.getStartDate(),
+                form.getEndDate(),
+                form.getDescription()
+        );
+
+        return Response.ok(JourneyDto.fromJourney(uriInfo, journey)).build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response deleteJourney(@PathParam("id") final long id, @Valid final DeleteMessageForm form) {
+        final String message = form != null ? form.getMessage() : null;
+        journeyService.deleteJourney(id, message);
+        return Response.noContent().build();
     }
 
 }

@@ -124,7 +124,7 @@ public class JourneyServiceImplTest {
         ).thenReturn(JOURNEY);
 
         Journey journey = journeyService.createJourney(
-            USER, 
+            USER_ID,
             UNI_NAME, 
             START_DATE, 
             END_DATE, 
@@ -141,7 +141,7 @@ public class JourneyServiceImplTest {
         ).thenReturn(Optional.empty());
 
         journeyService.createJourney(
-            USER, 
+            USER_ID,
             UNI_NAME, 
             START_DATE, 
             END_DATE, 
@@ -151,7 +151,7 @@ public class JourneyServiceImplTest {
     @Test(expected = InvalidDateException.class)
     public void testCreateJourneyMissingStartDate(){
         journeyService.createJourney(
-            USER, 
+                USER_ID,
             UNI_NAME, 
             null, 
             END_DATE, 
@@ -161,7 +161,7 @@ public class JourneyServiceImplTest {
     @Test(expected = InvalidDateException.class)
     public void testCreateJourneyMissingEndDate(){
         journeyService.createJourney(
-            USER,
+                USER_ID,
             UNI_NAME, 
             START_DATE, 
             null, 
@@ -171,7 +171,7 @@ public class JourneyServiceImplTest {
     @Test(expected = InvalidDateException.class)
     public void testCreateJourneyFlippedDates(){
         journeyService.createJourney(
-            USER, 
+                USER_ID,
             UNI_NAME, 
             END_DATE, 
             START_DATE, 
@@ -181,7 +181,7 @@ public class JourneyServiceImplTest {
     @Test(expected = InvalidDateException.class)
     public void testCreateJourneyStartsBeforeNow(){
         journeyService.createJourney(
-            USER, 
+                USER_ID,
             UNI_NAME, 
             START_DATE.plusDays(-1), 
             START_DATE, 

@@ -56,8 +56,15 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    public Journey createJourney(final User user, final String destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
-        LOGGER.debug("Creating journey for {}", user);
+    public Journey createJourney(final long userId, final String destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
+        LOGGER.debug("Creating journey for user {}", userId);
+
+        User user = userService.findUserById(userId)
+                .orElseThrow(() -> {
+                    LOGGER.warn("User with id {} not found", userId);
+                    return new UserNotFoundException(userId);
+                });
+
         checkDates(startDate, endDate);
         University destination = universityService.findByName(destinationUniversity)
                 .orElseThrow(() -> {
@@ -69,11 +76,11 @@ public class JourneyServiceImpl implements JourneyService {
         Journey existingJourney = user.getJourney();
         if (existingJourney != null) {
             if (!existingJourney.isDeleted()) {
-                LOGGER.warn("User {} already has an active journey", user.getId());
-                throw new UserWithActiveJourneyException(user.getId());
+                LOGGER.warn("User {} already has an active journey", userId);
+                throw new UserWithActiveJourneyException(userId);
             }
             // Hard delete the soft-deleted journey and its responses
-            LOGGER.info("Hard deleting previous journey {} and its responses for user {}", existingJourney.getId(), user.getId());
+            LOGGER.info("Hard deleting previous journey {} and its responses for user {}", existingJourney.getId(), userId);
             tipDao.deleteByJourney(existingJourney.getId());
             journeyResponseDao.hardDeleteByJourneyId(existingJourney.getId());
             journeyDao.hardDelete(existingJourney);

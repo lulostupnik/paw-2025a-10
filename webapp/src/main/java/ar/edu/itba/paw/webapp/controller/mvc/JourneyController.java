@@ -66,7 +66,7 @@ public class JourneyController {
             return createJourneyForm(jf, user);
         }
 
-        final Journey journey = js.createJourney(user,
+        final Journey journey = js.createJourney(user.getId(),
                 jf.getDestinationUniversity(), jf.getStartDate(), jf.getEndDate(), jf.getDescription());
 
         return new ModelAndView(REDIRECT_JOURNEY + journey.getId());
