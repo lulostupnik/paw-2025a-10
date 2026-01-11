@@ -1116,12 +1116,15 @@ public class JourneyServiceImplTest {
 
 
     @Test
-    public void testFindTipsByJourney(){
+    public void testFindTipsByJourneyId(){
         when(
-            tipDao.findByJourney(eq(JOURNEY), any(PageParams.class))
+            journeyDao.findById(eq(JOURNEY_ID))
+        ).thenReturn(Optional.of(JOURNEY));
+        when(
+            tipDao.findByJourneyId(eq(JOURNEY_ID), any(PageParams.class))
         ).thenReturn(TIP_PAGE);
 
-        Page<Tip> tips = journeyService.findTipsByJourney(JOURNEY, PAGE_1_DEFAULT);
+        Page<Tip> tips = journeyService.findTipsByJourneyId(JOURNEY_ID, PAGE_1_DEFAULT);
 
         assertNotNull(tips);
         assertEquals(TIP_PAGE, tips);

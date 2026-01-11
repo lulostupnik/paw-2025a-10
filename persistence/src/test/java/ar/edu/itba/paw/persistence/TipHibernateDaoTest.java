@@ -142,8 +142,8 @@ public class TipHibernateDaoTest {
     }
 
     @Test
-    public void testFindTipsByJourney(){
-        Page<Tip> tips = tipDao.findByJourney(JOURNEY_1, PAGE_1_BIG);
+    public void testFindTipsByJourneyId(){
+        Page<Tip> tips = tipDao.findByJourneyId(JOURNEY_1_ID, PAGE_1_BIG);
 
         assertNotNull(tips);
         assertEquals(1, tips.getCurrentPage());
@@ -152,8 +152,8 @@ public class TipHibernateDaoTest {
         assertEqualsTip(TIP_1, tips.getContent().getFirst());
     }
     @Test
-    public void testFindTipsByJourneyNoTips(){
-        Page<Tip> tips = tipDao.findByJourney(JOURNEY_2, PAGE_1_BIG);
+    public void testFindTipsByJourneyIdNoTips(){
+        Page<Tip> tips = tipDao.findByJourneyId(JOURNEY_2_ID, PAGE_1_BIG);
 
         assertNotNull(tips);
         assertEquals(1, tips.getCurrentPage());
