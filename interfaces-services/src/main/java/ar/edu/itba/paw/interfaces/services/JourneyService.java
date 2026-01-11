@@ -14,6 +14,7 @@ public interface JourneyService {
     void deleteJourney(long id, String message);
 
     JourneyResponse createJourneyResponse(String email, long journeyId, String message);
+    JourneyResponse createJourneyResponse(long userId, long journeyId, String message);
     void deleteJourneyResponse(long id, String message);
 
     Page<Journey> findJourneys(String search, PageParams pageParams);

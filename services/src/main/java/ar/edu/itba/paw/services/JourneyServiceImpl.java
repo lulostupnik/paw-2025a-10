@@ -149,6 +149,61 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyResponse;
     }
 
+    @Override
+    @Transactional
+    public JourneyResponse createJourneyResponse(final long userId, final long journeyId, final String message) {
+        LOGGER.debug("Replying to journey {} by user {}", journeyId, userId);
+        Journey journey = journeyDao.findById(journeyId)
+                .orElseThrow(() -> {
+                    LOGGER.warn("Journey with id {} not found", journeyId);
+                    return new JourneyNotFoundException(journeyId);
+                });
+
+        User responder = userService.findUserById(userId)
+                .orElseThrow(() -> {
+                    LOGGER.warn("User with id {} not found", userId);
+                    return new UserNotFoundException(userId);
+                });
+
+        JourneyResponse journeyResponse = journeyResponseDao.create(responder, journey, message);
+
+        interestService.updateMatchingInterestScores(responder.getId(), journey.getUser().getId());
+        LOGGER.info("Interest scores updated for responder {}", responder.getId());
+
+        int page = 1;
+        int pageSize = 50;
+        Page<User> respondersPage;
+
+        EmailJourney emailJourney = new EmailJourney(journey);
+        EmailUser emailResponder = new EmailUser(responder);
+        do {
+            respondersPage = journeyResponseDao.findRespondersByJourneyId(
+                    journeyId,
+                    new PageParams(page, pageSize)
+            );
+
+            List<EmailUser> responders = respondersPage.getContent().stream()
+                    .map(EmailUser::new)
+                    .toList();
+
+            if (!responders.isEmpty()) {
+                emailService.answerJourneyNotification(
+                        responders,
+                        message,
+                        emailResponder,
+                        emailJourney
+                );
+            }
+
+            page++;
+        } while (page <= respondersPage.getTotalPages());
+        LOGGER.info("Journey response notifications sent to all responders for journey {}", journeyId);
+
+        emailService.answerJourneyOwnerNotification(message, emailResponder, emailJourney);
+        LOGGER.info("Journey response notifications sent to owner for journey {}", journeyId);
+        return journeyResponse;
+    }
+
     private Page<Journey> searchByTerm(final String searchTerm, final PageParams pageParams){
         return journeyDao.search(
                 searchTerm,
@@ -384,6 +439,10 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     public Page<JourneyResponse> findJourneyResponses(final long journeyId, final PageParams pageParams) {
         LOGGER.debug("Finding all journey responses for journey {}", journeyId);
+        journeyDao.findById(journeyId).orElseThrow(() -> {
+            LOGGER.warn("Journey with id {} not found", journeyId);
+            return new JourneyNotFoundException(journeyId);
+        });
         return journeyResponseDao.findAllByJourneyId(journeyId, pageParams);
     }
 

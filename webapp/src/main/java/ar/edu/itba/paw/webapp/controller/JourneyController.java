@@ -12,6 +12,8 @@ import ar.edu.itba.paw.webapp.dto.JourneyDto;
 import ar.edu.itba.paw.webapp.dto.JourneyResponseDto;
 import ar.edu.itba.paw.webapp.dto.TipDto;
 import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
+import ar.edu.itba.paw.webapp.form.CreateJourneyResponseForm;
+import ar.edu.itba.paw.webapp.form.CreateTipForm;
 import ar.edu.itba.paw.webapp.form.DeleteMessageForm;
 import ar.edu.itba.paw.webapp.form.UpdateJourneyForm;
 import ar.edu.itba.paw.webapp.utils.DateUtils;
@@ -173,5 +175,99 @@ public class JourneyController {
         return Response.status(Response.Status.NOT_FOUND).build();
     }
 
+    @POST
+    @Path("/{journeyId}/tips")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createTip(
+            @PathParam("journeyId") final long journeyId,
+            @Valid final CreateTipForm form
+    ) {
+        final Tip tip = journeyService.createTip(journeyId, form.getTitle(), form.getContent());
+        return Response.created(UriUtils.getJourneyTipUri(uriInfo, journeyId, tip.getId()))
+                .entity(TipDto.fromTip(uriInfo, tip))
+                .build();
+    }
+
+    @PUT
+    @Path("/{journeyId}/tips/{tipId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateTip(
+            @PathParam("journeyId") final long journeyId,
+            @PathParam("tipId") final long tipId,
+            @Valid final CreateTipForm form
+    ) {
+        final Tip tip = journeyService.updateTip(tipId, form.getTitle(), form.getContent());
+        return Response.ok(TipDto.fromTip(uriInfo, tip)).build();
+    }
+
+    @DELETE
+    @Path("/{journeyId}/tips/{tipId}")
+    public Response deleteTip(
+            @PathParam("journeyId") final long journeyId,
+            @PathParam("tipId") final long tipId
+    ) {
+        journeyService.deleteTip(tipId);
+        return Response.noContent().build();
+    }
+
+    // ==================== RESPONSES ====================
+
+    @GET
+    @Path("/{journeyId}/responses")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response listJourneyResponses(
+            @PathParam("journeyId") final long journeyId,
+            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("4") int size
+    ) {
+        final List<JourneyResponse> responses = journeyService.findJourneyResponses(journeyId, new PageParams(page + 1, size)).getContent();
+        final List<JourneyResponseDto> responseDtos = JourneyResponseDto.fromJourneyResponseCollection(uriInfo, responses);
+        return Response.ok(new GenericEntity<>(responseDtos) {}).build();
+    }
+
+    @GET
+    @Path("/{journeyId}/responses/{responseId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getJourneyResponseById(
+            @PathParam("journeyId") final long journeyId,
+            @PathParam("responseId") final long responseId
+    ) {
+        // TODO: Verificar que la respuesta pertenezca al journey --> ¿pasar journeyID al servicio?
+        final Optional<JourneyResponse> maybeResponse = journeyService.findJourneyResponseById(responseId);
+        if (maybeResponse.isPresent()) {
+            return Response.ok(JourneyResponseDto.fromJourneyResponse(uriInfo, maybeResponse.get())).build();
+        }
+        return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+    @POST
+    @Path("/{journeyId}/responses")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createJourneyResponse(
+            @PathParam("journeyId") final long journeyId,
+            @Valid final CreateJourneyResponseForm form
+    ) {
+        final Long userId = accessHelper.getCurrentUserId();
+        final JourneyResponse response = journeyService.createJourneyResponse(userId, journeyId, form.getMessage());
+        return Response.created(UriUtils.getJourneyResponseUri(uriInfo, journeyId, response.getId()))
+                .entity(JourneyResponseDto.fromJourneyResponse(uriInfo, response))
+                .build();
+    }
+
+    @DELETE
+    @Path("/{journeyId}/responses/{responseId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response deleteJourneyResponse(
+            @PathParam("journeyId") final long journeyId,
+            @PathParam("responseId") final long responseId,
+            @Valid final DeleteMessageForm form
+    ) {
+        final String message = form != null ? form.getMessage() : null;
+        journeyService.deleteJourneyResponse(responseId, message);
+        return Response.noContent().build();
+    }
 
 }
