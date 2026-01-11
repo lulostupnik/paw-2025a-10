@@ -388,9 +388,13 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
-    public Page<Tip> findTipsByJourney(Journey journey, PageParams pageParams) {
-        LOGGER.debug("Finding tips for journey {}", journey);
-        return tipDao.findByJourney(journey, pageParams);
+    public Page<Tip> findTipsByJourneyId(long journeyId, PageParams pageParams) {
+        LOGGER.debug("Finding tips for journey {}", journeyId);
+        journeyDao.findById(journeyId).orElseThrow(() -> {
+            LOGGER.warn("Journey with id {} not found", journeyId);
+            return new JourneyNotFoundException(journeyId);
+        });
+        return tipDao.findByJourneyId(journeyId, pageParams);
     }
 
     @Override

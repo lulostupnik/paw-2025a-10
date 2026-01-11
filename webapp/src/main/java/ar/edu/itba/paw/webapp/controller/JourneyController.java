@@ -67,7 +67,7 @@ public class JourneyController {
         final List<Journey> journeys = journeyService.findJourneys(
                 search,
                 userId,
-                sortField,
+                sortField,        // TODO: revisar
                 sortDirection,
                 destination,
                 startDate,
@@ -139,5 +139,39 @@ public class JourneyController {
         journeyService.deleteJourney(id, message);
         return Response.noContent().build();
     }
+
+
+    // ==================== TIPS ====================
+
+    @GET
+    @Path("/{journeyId}/tips")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response listTips(
+            @PathParam("journeyId") final long journeyId,
+            @QueryParam("search") String search,
+            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("6") int size
+    ) {
+        final List<Tip> tips = journeyService.findTipsByJourneyId(journeyId, new PageParams(page + 1, size)).getContent();
+        final List<TipDto> tipDtos = TipDto.fromTipCollection(uriInfo, tips);
+        return Response.ok(new GenericEntity<>(tipDtos) {}).build();
+    }
+
+    @GET
+    @Path("/{journeyId}/tips/{tipId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getTipById(
+            @PathParam("journeyId") final long journeyId,
+            @PathParam("tipId") final long tipId
+    ) {
+        // TODO: Verificar que el tip le pertenece al journey --> mandarle el journeyId el método de servicio
+        //  ¿quizas hacer que en realidad la clave del tip sea una clave compuesta? No se, medio fiaca
+        final Optional<Tip> maybeTip = journeyService.findTipById(tipId);
+        if (maybeTip.isPresent()) {
+            return Response.ok(TipDto.fromTip(uriInfo, maybeTip.get())).build();
+        }
+        return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
 
 }

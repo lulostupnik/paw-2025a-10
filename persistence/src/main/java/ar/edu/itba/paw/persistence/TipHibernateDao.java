@@ -46,7 +46,7 @@ public class TipHibernateDao implements TipDao {
     }
 
     @Override
-    public Page<Tip> findByJourney(Journey journey, PageParams pageParams) {
+    public Page<Tip> findByJourneyId(long journeyId, PageParams pageParams) {
         final String countSql = """
         SELECT COUNT(*)
         FROM tips
@@ -56,7 +56,7 @@ public class TipHibernateDao implements TipDao {
         final String idSql = """
         SELECT t.id
         FROM tips t
-        WHERE t.journey_id = :journeyId 
+        WHERE t.journey_id = :journeyId
         ORDER BY t.date_time
     """;
 
@@ -70,7 +70,7 @@ public class TipHibernateDao implements TipDao {
                 em,
                 countSql,
                 idSql,
-                Map.of("journeyId", journey.getId()),
+                Map.of("journeyId", journeyId),
                 jpqlFetch,
                 Tip.class,
                 pageParams,

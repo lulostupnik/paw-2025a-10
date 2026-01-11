@@ -33,7 +33,7 @@ public interface JourneyService {
     Optional<JourneyResponse> findJourneyResponseById(long id);
     Page<JourneyResponse> findJourneyResponses(long eventId, PageParams pageParams);
 
-    Page<Tip> findTipsByJourney(Journey journey, PageParams pageParams);
+    Page<Tip> findTipsByJourneyId(long journeyId, PageParams pageParams);
     Tip createTip(long journeyId, String title, String content);
     Tip updateTip(long tipId, String title, String content);
     void deleteTip(long tipId);

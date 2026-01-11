@@ -15,5 +15,5 @@ public interface TipDao {
 
     Optional<Tip> findById(long tipId);
 
-    Page<Tip> findByJourney(Journey journey, PageParams pageParams);
+    Page<Tip> findByJourneyId(long journeyId, PageParams pageParams);
 }
