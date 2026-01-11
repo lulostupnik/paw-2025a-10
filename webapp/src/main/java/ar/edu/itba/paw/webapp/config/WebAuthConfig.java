@@ -117,6 +117,21 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/journeys/*/responses").access("isAuthenticated()")
                 .antMatchers(HttpMethod.DELETE, "/api/journeys/*/responses/*").access("hasRole('ADMIN')")
 
+                .antMatchers(HttpMethod.GET, "/api/events", "/api/events/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/events").access("isAuthenticated()")
+                .antMatchers(HttpMethod.PUT, "/api/events/{id}").access("@accessHelper.isUserEventOwner(#id)")
+                .antMatchers(HttpMethod.DELETE, "/api/events/{id}").access("@accessHelper.isUserEventOwner(#id) or hasRole('ADMIN')")
+
+                .antMatchers(HttpMethod.POST, "/api/events/*/responses").access("isAuthenticated()")
+                .antMatchers(HttpMethod.DELETE, "/api/events/*/responses/*").access("hasRole('ADMIN')")
+
+                .antMatchers(HttpMethod.POST, "/api/events/*/attendances").access("isAuthenticated()")
+                .antMatchers(HttpMethod.DELETE, "/api/events/*/attendances").access("isAuthenticated()")
+
+                .antMatchers(HttpMethod.POST, "/api/events/*/ratings").access("isAuthenticated()")
+                .antMatchers(HttpMethod.PUT, "/api/events/*/ratings/*").access("isAuthenticated()")
+                .antMatchers(HttpMethod.DELETE, "/api/events/*/ratings/*").access("isAuthenticated()")
+
                 .antMatchers(HttpMethod.GET, "/api/images/*").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/images").access("isAuthenticated()")
                 .antMatchers(HttpMethod.DELETE, "/api/images/*").access("hasRole('ADMIN')")
