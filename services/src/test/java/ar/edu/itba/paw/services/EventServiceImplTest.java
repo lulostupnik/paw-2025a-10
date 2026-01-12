@@ -736,6 +736,7 @@ public class EventServiceImplTest {
         assertNotNull(page);
         assertEquals(EVENTS_PAGE, page);
     }
+
     @Test
     public void testSearchEventsWithFilters(){
         when(
@@ -758,7 +759,7 @@ public class EventServiceImplTest {
 
         Page<Event> page = eventService.searchEventsWithFilters(
             TITLE,
-            USER,
+            USER_ID,
             SortFieldEvent.from(""),
             SortDirection.from(""),
             CITY_NAME,
@@ -796,7 +797,7 @@ public class EventServiceImplTest {
 
         Page<Event> page = eventService.searchEventsWithFilters(
             TITLE,
-            USER,
+            USER_ID,
             SortFieldEvent.from(""),
             SortDirection.from(""),
             CITY_NAME,
@@ -834,7 +835,7 @@ public class EventServiceImplTest {
 
         Page<Event> page = eventService.searchEventsWithFilters(
             TITLE,
-            USER,
+            USER_ID,
             SortFieldEvent.from(""),
             SortDirection.from(""),
             CITY_NAME,
@@ -872,7 +873,7 @@ public class EventServiceImplTest {
 
         Page<Event> page = eventService.searchEventsWithFilters(
             TITLE,
-            USER,
+            USER_ID,
             SortFieldEvent.from(""),
             SortDirection.from(""),
             CITY_NAME,
@@ -910,7 +911,7 @@ public class EventServiceImplTest {
 
         Page<Event> page = eventService.searchEventsWithFilters(
             TITLE,
-            USER,
+            USER_ID,
             SortFieldEvent.from(""),
             SortDirection.from(""),
             CITY_NAME,

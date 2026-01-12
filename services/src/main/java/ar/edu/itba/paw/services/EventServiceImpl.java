@@ -413,10 +413,10 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Page<Event> searchEventsWithFilters(final String search, final User user, final SortFieldEvent sortBy, final  SortDirection direction, final String destination, final LocalDate startDate, final LocalDate endDate, final String interest,
-                                               final boolean isPast, final  boolean isUpcoming, final  boolean attending,
+    public Page<Event> searchEventsWithFilters(final String search, final Long userId, final SortFieldEvent sortBy, final SortDirection direction, final String destination, final LocalDate startDate, final LocalDate endDate, final String interest,
+                                               final boolean isPast, final boolean isUpcoming, final boolean attending,
                                                final PageParams pageParams) {
-        LOGGER.debug("Getting events with search {}, user {}, sortBy {}, direction {}, destination {}, startDate {}, endDate {}, interest {}, isPast {}, isUpcoming {}, attending {}",search,user,sortBy,direction,destination,startDate,endDate,interest,isPast,isUpcoming,attending);
+        LOGGER.debug("Getting events with search {}, userId {}, sortBy {}, direction {}, destination {}, startDate {}, endDate {}, interest {}, isPast {}, isUpcoming {}, attending {}", search, userId, sortBy, direction, destination, startDate, endDate, interest, isPast, isUpcoming, attending);
 
         LocalDate adjustedStartDate = startDate;
         LocalDate adjustedEndDate = endDate;
@@ -437,7 +437,7 @@ public class EventServiceImpl implements EventService {
         }
 
         return eventDao.findAllWithFilters(
-                user == null ? null : user.getId(),
+                userId,
                 search,
                 sortBy,
                 direction,

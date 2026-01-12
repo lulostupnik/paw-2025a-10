@@ -49,10 +49,10 @@ public interface EventService {
     List<Event> findTopEvents(int limit);
     boolean isEventOwnedByUser(String email, long eventId);
 
-    Page<Event> searchEventsWithFilters(String search, User user,
+    Page<Event> searchEventsWithFilters(String search, Long userId,
                                         SortFieldEvent sortBy, SortDirection direction, String destination, LocalDate startDate, LocalDate endDate, String interest,
                                         boolean isPast, boolean isUpcoming, boolean attending,
-                                        PageParams pageParams );
+                                        PageParams pageParams);
 
     EventResponse createEventResponse(String email, long eventId, String message);
     EventResponse createEventResponse(long userId, long eventId, String message);
