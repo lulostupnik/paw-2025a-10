@@ -31,9 +31,10 @@ public class EditEventForm {
     private LocalDate date;
 
     @ImageSize()
-    @NotNull
     @ContentType({"image/jpeg", "image/jpg", "image/png"})
     private MultipartFile flyer;
+
+    private String flyerBase64;
 
     @Size(min = 2, max = 2047)
     @NotNull
@@ -72,6 +73,14 @@ public class EditEventForm {
 
     public void setFlyer(MultipartFile flyer) {
         this.flyer = flyer;
+    }
+
+    public String getFlyerBase64() {
+        return flyerBase64;
+    }
+
+    public void setFlyerBase64(String flyerBase64) {
+        this.flyerBase64 = flyerBase64;
     }
 
     public String getDescription() {
@@ -122,7 +131,7 @@ public class EditEventForm {
                 (time == null ? "All-day" : time) +
                 "\", description: \"" +
                 description +
-                "\", profilePictureSize: " +
+                "\", flyerSize: " +
                 (flyer == null || flyer.isEmpty() ? 0 : flyer.getSize()) +
                 ", title: \"" +
                 title +
