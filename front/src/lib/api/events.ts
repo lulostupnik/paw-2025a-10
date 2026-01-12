@@ -1,0 +1,90 @@
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "/api").replace(/\/$/, "");
+const EVENTS_ENDPOINT = `${API_BASE_URL}/events`;
+
+export interface EventDto {
+    id: number;
+    title: string;
+    description?: string | null;
+    date?: string | null;
+    time?: string | null;
+    address?: string | null;
+    attendeesLimit?: number | null;
+    attendeesCount?: number | null;
+    rating?: number | null;
+    isFull?: boolean;
+    isFuture?: boolean;
+    selfUrl?: string;
+    creatorUrl?: string;
+    cityUrl?: string;
+    flyerUrl?: string;
+}
+
+export interface EventSummary {
+    id: number;
+    title: string;
+    description?: string;
+    date?: string;
+    time?: string;
+    address?: string;
+    attendeesLimit?: number | null;
+    attendeesCount?: number | null;
+    isFull?: boolean;
+    isFuture?: boolean;
+    flyerUrl?: string;
+    imageUrl?: string;
+}
+
+export interface FetchEventsParams {
+    page?: number;
+    size?: number;
+    upcoming?: boolean;
+    search?: string;
+}
+
+export async function fetchEvents(params: FetchEventsParams = {}, signal?: AbortSignal): Promise<EventDto[]> {
+    const query = new URLSearchParams();
+
+    if (typeof params.page === "number") {
+        query.set("page", String(params.page));
+    }
+
+    if (typeof params.size === "number") {
+        query.set("size", String(params.size));
+    }
+
+    if (typeof params.search === "string" && params.search.trim().length > 0) {
+        query.set("search", params.search.trim());
+    }
+
+    if (typeof params.upcoming === "boolean") {
+        query.set("upcoming", String(params.upcoming));
+    }
+
+    const queryString = query.toString();
+    const response = await fetch(`${EVENTS_ENDPOINT}${queryString ? `?${queryString}` : ""}`, {
+        signal,
+        headers: { Accept: "application/json" },
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch events");
+    }
+
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
+}
+
+export const mapEventDtoToSummary = (dto: EventDto): EventSummary => ({
+    id: dto.id,
+    title: dto.title,
+    description: dto.description ?? undefined,
+    date: dto.date ?? undefined,
+    time: dto.time ?? undefined,
+    address: dto.address ?? undefined,
+    attendeesLimit: typeof dto.attendeesLimit === "number" ? dto.attendeesLimit : undefined,
+    attendeesCount: typeof dto.attendeesCount === "number" ? dto.attendeesCount : undefined,
+    isFull: dto.isFull ?? false,
+    isFuture: dto.isFuture ?? false,
+    flyerUrl: dto.flyerUrl ?? undefined,
+    imageUrl: dto.flyerUrl ?? undefined,
+});

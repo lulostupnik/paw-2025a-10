@@ -27,11 +27,12 @@ public class CreateEventForm {
     @FutureDate
     private LocalDate date;
 
-    @NotNull
     @ImageSize()
     @ContentType({"image/jpeg", "image/jpg", "image/png"})
     @ImageNotEmpty
     private MultipartFile flyer;
+
+    private String flyerBase64;
 
     @Size(min = 2, max = 2047)
     @NotNull
@@ -72,6 +73,14 @@ public class CreateEventForm {
         this.flyer = flyer;
     }
 
+    public String getFlyerBase64() {
+        return flyerBase64;
+    }
+
+    public void setFlyerBase64(String flyerBase64) {
+        this.flyerBase64 = flyerBase64;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -102,7 +111,7 @@ public class CreateEventForm {
     }
     public void setAttendeesLimit(Integer attendeesLimit) {
         this.attendeesLimit = attendeesLimit;
-    }  
+    }
     @Override
     public String toString(){
         return "{city: \"" +
@@ -113,7 +122,7 @@ public class CreateEventForm {
                 (time == null ? "All-day" : time) +
                 "\", description: \"" +
                 description +
-                "\", profilePictureSize: " +
+                "\", flyerSize: " +
                 (flyer == null || flyer.isEmpty() ? 0 : flyer.getSize()) +
                 ", title: \"" +
                 title +

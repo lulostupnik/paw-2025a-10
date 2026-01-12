@@ -20,7 +20,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
 import java.util.Optional;
-import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
 
 @Deprecated
 
@@ -53,7 +52,7 @@ public class EventController {
                 search, filterForm, pageParams, sortBy, direction);
 
         if(! errors.hasErrors()) {
-            Page<Event> userEventsPage = eventService.searchEventsWithFilters(search, user, SortFieldEvent.from(sortBy), SortDirection.from(direction),
+            Page<Event> userEventsPage = eventService.searchEventsWithFilters(search, user.getId(), SortFieldEvent.from(sortBy), SortDirection.from(direction),
                     filterForm.getDestination(), filterForm.getStartDate(), filterForm.getEndDate(), filterForm.getInterests(),
                     filterForm.getIsPast(), filterForm.getIsUpcoming(), filterForm.getAttending(), pageParams);
             mav.addObject("eventsPage", userEventsPage);
@@ -78,16 +77,15 @@ public class EventController {
             LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
             return createEventForm(eventForm);
         }
-        byte[] flyerBytes = getBytes(eventForm.getFlyer());
         Event event = eventService.createEvent(
             user.getEmail(),
-            eventForm.getCity(), 
-            eventForm.getDate(), 
-            flyerBytes, 
-            eventForm.getDescription(), 
-            eventForm.getTitle(), 
-            eventForm.getTime(), 
-            eventForm.getAddress(), 
+            eventForm.getCity(),
+            eventForm.getDate(),
+            ImageUtils.getBytes(eventForm.getFlyer()),
+            eventForm.getDescription(),
+            eventForm.getTitle(),
+            eventForm.getTime(),
+            eventForm.getAddress(),
             eventForm.getAttendeesLimit()
         );
         return new ModelAndView(REDIRECT + event.getId());
@@ -259,12 +257,11 @@ public class EventController {
         if(errors.hasErrors()) {
             return showUpdateEventForm(eventId, user, form, errors);
         }
-        byte[] flyerContent = ImageUtils.getBytes(form.getFlyer());
         eventService.updateEvent(
                 eventId,
                 form.getCity(),
                 form.getDate(),
-                flyerContent,
+                ImageUtils.getBytes(form.getFlyer()),
                 form.getDescription(),
                 form.getTitle(),
                 form.getTime(),

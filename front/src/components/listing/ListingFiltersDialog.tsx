@@ -1,0 +1,517 @@
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import type { FormEvent } from "react";
+import Button from "@/components/ui/Button";
+import { classNames } from "@/lib/utils/classNames";
+import { useI18n } from "@/lib/i18n";
+import {
+    searchCities,
+    searchInterests,
+    type CatalogOption,
+    type CatalogSearchFn,
+} from "@/lib/api/catalog";
+import type { ListingFiltersState } from "@/hooks/useListingFilters";
+import { EMPTY_LISTING_FILTERS } from "@/hooks/useListingFilters";
+
+export type ListingFilterMode = "events" | "journeys";
+
+interface ListingFiltersDialogProps {
+    mode: ListingFilterMode;
+    open: boolean;
+    filters: ListingFiltersState;
+    anchorRef?: { current: HTMLElement | null } | null;
+    onClose: () => void;
+    onApply: (filters: ListingFiltersState) => void;
+    onReset: () => void;
+}
+
+interface AutocompleteFieldProps {
+    label: string;
+    placeholder: string;
+    value: CatalogOption | null;
+    onChange: (option: CatalogOption | null) => void;
+    fetcher: CatalogSearchFn;
+    clearLabel: string;
+    loadingLabel: string;
+    emptyLabel: string;
+    toggleLabel: string;
+}
+
+interface DateFieldProps {
+    label: string;
+    value: string;
+    onChange: (value: string) => void;
+    placeholder: string;
+    max?: string;
+    min?: string;
+    helperText?: string;
+    error?: string;
+}
+
+const CalendarIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden="true">
+        <rect x="3" y="5" width="18" height="16" rx="2" ry="2" />
+        <path d="M3 10h18" />
+        <path d="M8 3v4" />
+        <path d="M16 3v4" />
+    </svg>
+);
+
+const FilterIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+        <path d="M4 6h16" />
+        <path d="M6 12h12" />
+        <path d="M10 18h4" />
+    </svg>
+);
+
+const ResetIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+        <path d="m18 6-12 12" />
+        <path d="m6 6 12 12" />
+    </svg>
+);
+
+export default function ListingFiltersDialog({
+    mode,
+    open,
+    filters,
+    anchorRef,
+    onClose,
+    onApply,
+    onReset,
+}: ListingFiltersDialogProps) {
+    const { t } = useI18n();
+    const [draft, setDraft] = useState<ListingFiltersState>(filters);
+    const titleId = useId();
+    const panelRef = useRef<HTMLDivElement>(null);
+    const [position, setPosition] = useState<{ top: number; left: number }>({ top: 120, left: 16 });
+
+    useEffect(() => {
+        if (!open) {
+            return;
+        }
+        setDraft(filters);
+    }, [filters, open]);
+
+    useEffect(() => {
+        if (!open) {
+            return;
+        }
+        const handleKey = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                onClose();
+            }
+        };
+        document.addEventListener("keydown", handleKey);
+        return () => document.removeEventListener("keydown", handleKey);
+    }, [open, onClose]);
+
+    useLayoutEffect(() => {
+        if (!open) {
+            return;
+        }
+        const updatePosition = () => {
+            const anchor = anchorRef?.current;
+            const panel = panelRef.current;
+            const spacing = 8;
+            const fallbackWidth = Math.min(980, window.innerWidth - 32);
+            const fallbackHeight = Math.min(620, window.innerHeight - 32);
+            const panelWidth = panel?.offsetWidth ?? fallbackWidth;
+            const panelHeight = panel?.offsetHeight ?? fallbackHeight;
+            const maxLeft = Math.max(16, window.innerWidth - panelWidth - 16);
+            const maxTop = Math.max(16, window.innerHeight - panelHeight - 16);
+
+            if (anchor) {
+                const rect = anchor.getBoundingClientRect();
+                const desiredLeft = window.innerWidth / 2 - panelWidth / 2;
+                const safeLeft = Math.min(Math.max(16, desiredLeft), maxLeft);
+                const desiredTop = rect.bottom + spacing;
+                const safeTop = Math.min(Math.max(16, desiredTop), maxTop);
+                setPosition({ top: safeTop, left: safeLeft });
+            } else {
+                const centeredLeft = Math.max(16, (window.innerWidth - panelWidth) / 2);
+                setPosition({ top: Math.min(160, maxTop), left: centeredLeft });
+            }
+        };
+
+        updatePosition();
+        window.addEventListener("resize", updatePosition);
+        window.addEventListener("scroll", updatePosition, true);
+        return () => {
+            window.removeEventListener("resize", updatePosition);
+            window.removeEventListener("scroll", updatePosition, true);
+        };
+    }, [anchorRef, open]);
+
+    useEffect(() => {
+        if (!open) {
+            return;
+        }
+        const handlePointerDown = (event: MouseEvent) => {
+            const target = event.target as Node;
+            if (panelRef.current?.contains(target)) {
+                return;
+            }
+            if (anchorRef?.current && anchorRef.current.contains(target)) {
+                return;
+            }
+            onClose();
+        };
+        document.addEventListener("mousedown", handlePointerDown);
+        return () => document.removeEventListener("mousedown", handlePointerDown);
+    }, [anchorRef, onClose, open]);
+
+    const labels = useMemo(() => {
+        if (mode === "events") {
+            return {
+                title: t("event.filter.title"),
+                cityLabel: t("event.filter.city", { defaultValue: t("journey.filter.destination") }),
+                cityPlaceholder: t("event.filter.city.placeholder"),
+                afterLabel: t("event.filter.afterDate"),
+                beforeLabel: t("event.filter.beforeDate"),
+                interestLabel: t("event.filter.interest"),
+                interestPlaceholder: t("event.filter.interest.placeholder"),
+                applyLabel: t("event.filter.button"),
+                resetLabel: t("event.filter.reset"),
+                closeLabel: t("event.filter.close"),
+            } as const;
+        }
+        return {
+            title: t("journey.filter.title"),
+            cityLabel: t("journey.filter.destination"),
+            cityPlaceholder: t("journey.filter.destination.placeholder"),
+            afterLabel: t("journey.filter.startDate"),
+            beforeLabel: t("journey.filter.endDate"),
+            interestLabel: t("journey.filter.interest"),
+            interestPlaceholder: t("journey.filter.interest.placeholder"),
+            applyLabel: t("journey.filter.button"),
+            resetLabel: t("journey.filter.reset"),
+            closeLabel: t("journey.filter.close"),
+        } as const;
+    }, [mode, t]);
+
+    const formatLabel = t("listing.filters.dateFormat");
+    const loadingLabel = t("listing.filters.autocomplete.loading");
+    const emptyLabel = t("listing.filters.autocomplete.empty");
+    const clearLabel = t("listing.filters.autocomplete.clear");
+    const toggleLabel = t("listing.filters.autocomplete.toggle");
+
+    const cityOption = draft.cityId && draft.cityName ? { id: draft.cityId, name: draft.cityName } : null;
+    const interestOption = draft.interestId && draft.interestName ? { id: draft.interestId, name: draft.interestName } : null;
+
+    const hasDateConflict = Boolean(draft.afterDate && draft.beforeDate && draft.afterDate > draft.beforeDate);
+    const dateErrorMessage = hasDateConflict
+        ? t("listing.filters.error.dateRange", {
+              values: { afterLabel: labels.afterLabel, beforeLabel: labels.beforeLabel },
+          })
+        : undefined;
+
+    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (hasDateConflict) {
+            return;
+        }
+        onApply(draft);
+    };
+
+    const handleReset = () => {
+        setDraft({ ...EMPTY_LISTING_FILTERS });
+        onReset();
+    };
+
+    const handleCityChange = (option: CatalogOption | null) => {
+        setDraft((prev) => ({
+            ...prev,
+            cityId: option?.id ?? null,
+            cityName: option?.name ?? "",
+        }));
+    };
+
+    const handleInterestChange = (option: CatalogOption | null) => {
+        setDraft((prev) => ({
+            ...prev,
+            interestId: option?.id ?? null,
+            interestName: option?.name ?? "",
+        }));
+    };
+
+    const handleDateChange = (field: "afterDate" | "beforeDate") => (value: string) => {
+        setDraft((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+    };
+
+    if (!open) {
+        return null;
+    }
+
+    return (
+        <div
+            ref={panelRef}
+            className="filters-dropdown"
+            role="dialog"
+            aria-modal="false"
+            aria-labelledby={titleId}
+            style={{ top: `${position.top}px`, left: `${position.left}px` }}
+        >
+            <header className="filters-header">
+                <div>
+                    <p className="eyebrow">{t("listing.filters")}</p>
+                    <h2 id={titleId}>{labels.title}</h2>
+                </div>
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="filters-close-btn"
+                    aria-label={labels.closeLabel}
+                    onClick={onClose}
+                >
+                    ×
+                </Button>
+            </header>
+
+            <form className="filters-form" onSubmit={handleSubmit}>
+                <div className="filters-grid">
+                    <AutocompleteField
+                        label={labels.cityLabel}
+                        placeholder={labels.cityPlaceholder}
+                        value={cityOption}
+                        onChange={handleCityChange}
+                        fetcher={searchCities}
+                        clearLabel={clearLabel}
+                        loadingLabel={loadingLabel}
+                        emptyLabel={emptyLabel}
+                        toggleLabel={toggleLabel}
+                    />
+                    <DateField
+                        label={labels.afterLabel}
+                        placeholder="dd / mm / yyyy"
+                        value={draft.afterDate}
+                        onChange={handleDateChange("afterDate")}
+                        max={draft.beforeDate || undefined}
+                        helperText={formatLabel}
+                    />
+                    <DateField
+                        label={labels.beforeLabel}
+                        placeholder="dd / mm / yyyy"
+                        value={draft.beforeDate}
+                        onChange={handleDateChange("beforeDate")}
+                        min={draft.afterDate || undefined}
+                        helperText={formatLabel}
+                        error={dateErrorMessage}
+                    />
+                    <AutocompleteField
+                        label={labels.interestLabel}
+                        placeholder={labels.interestPlaceholder}
+                        value={interestOption}
+                        onChange={handleInterestChange}
+                        fetcher={searchInterests}
+                        clearLabel={clearLabel}
+                        loadingLabel={loadingLabel}
+                        emptyLabel={emptyLabel}
+                        toggleLabel={toggleLabel}
+                    />
+                </div>
+
+                <div className="filters-actions">
+                    <Button type="button" variant="danger" onClick={handleReset} className="filters-action">
+                        <span className="filters-action__icon" aria-hidden="true">
+                            <ResetIcon />
+                        </span>
+                        {labels.resetLabel}
+                    </Button>
+                    <Button type="submit" variant="primary" className="filters-action" disabled={hasDateConflict}>
+                        <span className="filters-action__icon" aria-hidden="true">
+                            <FilterIcon />
+                        </span>
+                        {labels.applyLabel}
+                    </Button>
+                </div>
+            </form>
+        </div>
+    );
+}
+
+function AutocompleteField({
+    label,
+    placeholder,
+    value,
+    onChange,
+    fetcher,
+    clearLabel,
+    loadingLabel,
+    emptyLabel,
+    toggleLabel,
+}: AutocompleteFieldProps) {
+    const inputId = useId();
+    const containerRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+    const [query, setQuery] = useState(value?.name ?? "");
+    const [open, setOpen] = useState(false);
+    const [options, setOptions] = useState<CatalogOption[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        setQuery(value?.name ?? "");
+    }, [value]);
+
+    useEffect(() => {
+        if (!open) {
+            return;
+        }
+        const controller = new AbortController();
+        const handle = window.setTimeout(() => {
+            setLoading(true);
+            fetcher(query, controller.signal)
+                .then((result) => setOptions(result))
+                .catch(() => setOptions([]))
+                .finally(() => setLoading(false));
+        }, 200);
+
+        return () => {
+            controller.abort();
+            window.clearTimeout(handle);
+        };
+    }, [fetcher, open, query]);
+
+    useEffect(() => {
+        if (!open) {
+            return;
+        }
+        const handleClick = (event: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                setOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClick);
+        return () => document.removeEventListener("mousedown", handleClick);
+    }, [open]);
+
+    const showClear = Boolean(value);
+
+    const handleToggle = () => {
+        setOpen((prev) => !prev);
+        inputRef.current?.focus();
+    };
+
+    const handleClear = () => {
+        setQuery("");
+        onChange(null);
+        setOpen(false);
+        inputRef.current?.focus();
+    };
+
+    return (
+        <div className="form-field filters-field" ref={containerRef}>
+            <label className="form-field__label" htmlFor={inputId}>
+                {label}
+            </label>
+            <div className="filters-field__control">
+                <input
+                    id={inputId}
+                    ref={inputRef}
+                    className="input-control"
+                    value={query}
+                    placeholder={placeholder}
+                    onChange={(event) => {
+                        setQuery(event.target.value);
+                        setOpen(true);
+                    }}
+                    onFocus={() => setOpen(true)}
+                    autoComplete="off"
+                    spellCheck="false"
+                    aria-expanded={open}
+                    aria-haspopup="listbox"
+                />
+                {showClear && (
+                    <button
+                        type="button"
+                        className="filters-field__icon-btn filters-field__icon-btn--clear"
+                        onClick={handleClear}
+                        aria-label={clearLabel}
+                    >
+                        ×
+                    </button>
+                )}
+                <button
+                    type="button"
+                    className={classNames(
+                        "filters-field__icon-btn",
+                        "filters-field__icon-btn--toggle",
+                        open && "is-open"
+                    )}
+                    aria-label={toggleLabel}
+                    onClick={handleToggle}
+                >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+            </div>
+            <div className={classNames("autocomplete-panel", open && "is-open")}
+                role="listbox"
+                aria-label={label}
+            >
+                {loading && <p className="autocomplete-status">{loadingLabel}</p>}
+                {!loading && options.length === 0 && <p className="autocomplete-status">{emptyLabel}</p>}
+                {!loading &&
+                    options.map((option) => (
+                        <button
+                            type="button"
+                            key={option.id}
+                            className="autocomplete-option"
+                            role="option"
+                            onMouseDown={(event) => event.preventDefault()}
+                            onClick={() => {
+                                onChange(option);
+                                setOpen(false);
+                            }}
+                        >
+                            {option.name}
+                        </button>
+                    ))}
+            </div>
+        </div>
+    );
+}
+
+function DateField({ label, value, onChange, placeholder, max, min, helperText, error }: DateFieldProps) {
+    const inputId = useId();
+    const describedBy = error ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined;
+    return (
+        <div className="form-field filters-field">
+            <label className="form-field__label" htmlFor={inputId}>
+                {label}
+            </label>
+            <div className="filters-field__control filters-field__control--date">
+                <span className="filters-field__icon" aria-hidden="true">
+                    <CalendarIcon />
+                </span>
+                <input
+                    id={inputId}
+                    type="date"
+                    className={classNames("input-control", error && "input-control--error")}
+                    value={value}
+                    onChange={(event) => onChange(event.target.value)}
+                    placeholder={placeholder}
+                    max={max}
+                    min={min}
+                    aria-invalid={error ? true : undefined}
+                    aria-describedby={describedBy}
+                />
+            </div>
+            {helperText && !error && (
+                <p id={describedBy} className="form-field__text">
+                    {helperText}
+                </p>
+            )}
+            {error && (
+                <p id={describedBy} className="form-field__text form-field__text--error">
+                    {error}
+                </p>
+            )}
+        </div>
+    );
+}
