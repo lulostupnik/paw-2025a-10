@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
-import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -97,7 +96,6 @@ public class UserController {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @PreAuthorize( "@accessHelper.isCurrentUser(#id)")
     public Response updateUser(@PathParam("id") final long id,  @Valid EditUserForm form ) {
         // TODO: Create form class for full user update
          final User user = us.updateUser(id, form.getUsername(), form.getFirstName(), form.getLastName(),
@@ -151,7 +149,6 @@ public class UserController {
 
     @DELETE
     @Path("/{id}")
-    @PreAuthorize( "@accessHelper.isCurrentUser(#id) OR hasRole('ADMIN')" )
     public Response deleteUser(@PathParam("id") final long id) {
         // TODO: Implement user deletion (might need to add to UserService)
         // return Response.noContent().build();
@@ -220,11 +217,11 @@ public class UserController {
         }
 
         // This is a slow computed operation
-        final Optional<Double> rating = us.findAverageRatingForCreatedEvents(userId);
+        final Optional<Double> createdRating = us.findAverageRatingForCreatedEvents(userId);
         final Optional<Double> attendedRating = us.findAverageRatingForAttendedEvents(userId);
         // TODO: Get total ratings count (might need to add to UserService)
 
-        return Response.ok(UserRatingDto.fromRating(rating.orElse(null))).build();
+        return Response.ok(UserRatingDto.fromRatings(createdRating.orElse(null),attendedRating.orElse(null) )).build();
     }
 
 
