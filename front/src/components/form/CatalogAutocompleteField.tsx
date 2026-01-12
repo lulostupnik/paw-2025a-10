@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type ChangeEvent } from "react";
 import { classNames } from "@/lib/utils/classNames";
 import type { CatalogOption, CatalogSearchFn } from "@/lib/api/catalog";
+import { useI18n } from "@/lib/i18n";
 
 interface CatalogAutocompleteFieldProps {
     label: string;
@@ -27,10 +28,11 @@ export default function CatalogAutocompleteField({
     fetcher,
     error,
     required = false,
-    loadingLabel = "Buscando...",
-    emptyLabel = "No se encontraron resultados",
+    loadingLabel,
+    emptyLabel,
     onBlur,
 }: CatalogAutocompleteFieldProps) {
+    const { t } = useI18n();
     const [open, setOpen] = useState(false);
     const [options, setOptions] = useState<CatalogOption[]>([]);
     const [loading, setLoading] = useState(false);
@@ -104,6 +106,11 @@ export default function CatalogAutocompleteField({
         setOpen(false);
     };
 
+    const loadingText = loadingLabel ?? t("autocomplete.loading");
+    const emptyText = emptyLabel ?? t("autocomplete.empty");
+    const clearAria = t("autocomplete.clear");
+    const toggleAria = t("autocomplete.toggle");
+
     return (
         <div className="form-field create-autocomplete" ref={containerRef}>
             <label className="input-label" htmlFor={inputId}>
@@ -136,7 +143,7 @@ export default function CatalogAutocompleteField({
                         type="button"
                         className="filters-field__icon-btn filters-field__icon-btn--clear"
                         onClick={handleClear}
-                        aria-label="Limpiar selección"
+                        aria-label={clearAria}
                     >
                         ×
                     </button>
@@ -148,7 +155,7 @@ export default function CatalogAutocompleteField({
                         "filters-field__icon-btn--toggle",
                         open && "is-open"
                     )}
-                    aria-label="Mostrar u ocultar opciones"
+                    aria-label={toggleAria}
                     onClick={() => {
                         setOpen((prev) => !prev);
                         inputRef.current?.focus();
@@ -160,9 +167,9 @@ export default function CatalogAutocompleteField({
                 </button>
             </div>
             <div className={classNames("autocomplete-panel", open && "is-open")} role="listbox" aria-label={label}>
-                {loading && <p className="autocomplete-status">{loadingLabel}</p>}
+                {loading && <p className="autocomplete-status">{loadingText}</p>}
                 {!loading && options.length === 0 && query.trim() && (
-                    <p className="autocomplete-status">{emptyLabel}</p>
+                    <p className="autocomplete-status">{emptyText}</p>
                 )}
                 {!loading &&
                     options.map((option) => (

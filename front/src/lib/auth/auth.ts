@@ -12,8 +12,8 @@ export function getUsername(): string {
 
 export function loginFake(opts?: { admin?: boolean }) {
     localStorage.setItem("token", "dev-token");
-    localStorage.setItem("username", "ivovila1");
-    localStorage.setItem("role", opts?.admin ? "ADMIN" : "USER");
+    localStorage.setItem("username", "username");
+    localStorage.setItem("role", "ADMIN");
 }
 
 export function logout() {

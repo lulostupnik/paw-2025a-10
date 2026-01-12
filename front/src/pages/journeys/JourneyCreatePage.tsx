@@ -4,6 +4,7 @@ import Button from "@/components/ui/Button";
 import { classNames } from "@/lib/utils/classNames";
 import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField";
 import { searchUniversities, type CatalogOption } from "@/lib/api/catalog";
+import { useI18n } from "@/lib/i18n";
 
 interface JourneyFormState {
     startDate: string;
@@ -25,6 +26,7 @@ const INITIAL_FORM: JourneyFormState = {
 
 export default function JourneyCreatePage() {
     const navigate = useNavigate();
+    const { t } = useI18n();
     const [form, setForm] = useState<JourneyFormState>({ ...INITIAL_FORM });
     const [errors, setErrors] = useState<JourneyErrors>({});
     const [touched, setTouched] = useState<JourneyTouched>({});
@@ -48,22 +50,22 @@ export default function JourneyCreatePage() {
     const validate = useCallback((state: JourneyFormState): JourneyErrors => {
         const nextErrors: JourneyErrors = {};
         if (!state.startDate) {
-            nextErrors.startDate = "La fecha de inicio es obligatoria.";
+            nextErrors.startDate = t("journey.create.validation.startDate");
         }
         if (!state.endDate) {
-            nextErrors.endDate = "La fecha de regreso es obligatoria.";
+            nextErrors.endDate = t("journey.create.validation.endDate");
         }
         if (state.startDate && state.endDate && state.startDate > state.endDate) {
-            nextErrors.endDate = "La fecha de regreso debe ser posterior o igual a la de inicio.";
+            nextErrors.endDate = t("journey.create.validation.range");
         }
         if (!state.destination) {
-            nextErrors.destination = "Selecciona la universidad de destino.";
+            nextErrors.destination = t("journey.create.validation.destination");
         }
         if (!state.description.trim()) {
-            nextErrors.description = "La descripción del viaje es obligatoria.";
+            nextErrors.description = t("journey.create.validation.description");
         }
         return nextErrors;
-    }, []);
+    }, [t]);
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -102,27 +104,25 @@ export default function JourneyCreatePage() {
         navigate(-1);
     };
 
-    const descriptionHelper = "Comparte las motivaciones de tu viaje, tus expectativas y recomendaciones para otros estudiantes.";
+    const descriptionHelper = t("journey.create.description.helper");
 
     return (
         <div className="page-shell journey-create-page">
             <div className="journey-create-card card">
                 <header className="journey-create-header">
                     <div>
-                        <p className="eyebrow">Nueva experiencia</p>
-                        <h1>Crear viaje</h1>
-                        <p className="journey-create-header__lead">
-                            Completa los datos para publicar tu viaje y ayudar a otros estudiantes con tu experiencia.
-                        </p>
+                        <p className="eyebrow">{t("journey.create.eyebrow")}</p>
+                        <h1>{t("journey.create.title")}</h1>
+                        <p className="journey-create-header__lead">{t("journey.create.subtitle")}</p>
                     </div>
-                    <div className="journey-create-meta">Campos marcados con * son obligatorios.</div>
+                    <div className="journey-create-meta">{t("form.requiredHint")}</div>
                 </header>
 
                 <form className="journey-form" onSubmit={handleSubmit} noValidate>
                     <div className="journey-form__grid journey-form__grid--two">
                         <div className="form-field">
                             <label className="input-label" htmlFor="journey-start-date">
-                                Fecha de inicio <span className="required-indicator" aria-hidden="true">*</span>
+                                {t("journey.create.startDate")} <span className="required-indicator" aria-hidden="true">*</span>
                             </label>
                             <input
                                 id="journey-start-date"
@@ -131,7 +131,7 @@ export default function JourneyCreatePage() {
                                 value={form.startDate}
                                 onChange={handleDateChange("startDate")}
                                 onBlur={() => markTouched("startDate")}
-                                placeholder="dd/mm/yyyy"
+                                placeholder={t("common.date.placeholder")}
                             />
                             {touched.startDate && errors.startDate && (
                                 <p className="form-field__text form-field__text--error">{errors.startDate}</p>
@@ -139,7 +139,7 @@ export default function JourneyCreatePage() {
                         </div>
                         <div className="form-field">
                             <label className="input-label" htmlFor="journey-end-date">
-                                Fecha de regreso <span className="required-indicator" aria-hidden="true">*</span>
+                                {t("journey.create.endDate")} <span className="required-indicator" aria-hidden="true">*</span>
                             </label>
                             <input
                                 id="journey-end-date"
@@ -148,7 +148,7 @@ export default function JourneyCreatePage() {
                                 value={form.endDate}
                                 onChange={handleDateChange("endDate")}
                                 onBlur={() => markTouched("endDate")}
-                                placeholder="dd/mm/yyyy"
+                                placeholder={t("common.date.placeholder")}
                                 min={form.startDate || undefined}
                             />
                             {touched.endDate && errors.endDate && (
@@ -158,8 +158,8 @@ export default function JourneyCreatePage() {
                     </div>
 
                     <CatalogAutocompleteField
-                        label="Universidad de destino"
-                        placeholder="Escribe para buscar universidades..."
+                        label={t("journey.create.destination.label")}
+                        placeholder={t("journey.create.destination.placeholder")}
                         value={form.destination}
                         query={destinationQuery}
                         onQueryChange={setDestinationQuery}
@@ -172,21 +172,19 @@ export default function JourneyCreatePage() {
 
                     <div className="form-field">
                         <label className="input-label" htmlFor="journey-description">
-                            Descripción <span className="required-indicator" aria-hidden="true">*</span>
+                            {t("journey.create.description.label")} <span className="required-indicator" aria-hidden="true">*</span>
                         </label>
                         <textarea
                             id="journey-description"
                             ref={descriptionRef}
                             className={classNames("input-control", touched.description && errors.description && "input-control--error")}
-                            placeholder="Ingresa detalles del viaje"
+                            placeholder={t("journey.create.description.placeholder")}
                             value={form.description}
                             onChange={handleDescriptionChange}
                             onBlur={() => markTouched("description")}
                             rows={6}
                         />
-                        {!errors.description && (
-                            <p className="form-field__text">{descriptionHelper}</p>
-                        )}
+                        {!errors.description && <p className="form-field__text">{descriptionHelper}</p>}
                         {touched.description && errors.description && (
                             <p className="form-field__text form-field__text--error">{errors.description}</p>
                         )}
@@ -194,10 +192,10 @@ export default function JourneyCreatePage() {
 
                     <div className="journey-form__actions">
                         <Button type="button" variant="ghost" onClick={handleCancel} disabled={submitting}>
-                            Cancelar
+                            {t("common.cancel")}
                         </Button>
                         <Button type="submit" variant="primary" disabled={submitting}>
-                            {submitting ? "Publicando..." : "Publicar viaje"}
+                            {submitting ? t("journey.create.submitting") : t("journey.create.submit")}
                         </Button>
                     </div>
                 </form>

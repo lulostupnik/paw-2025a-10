@@ -7,6 +7,7 @@ import { classNames } from "@/lib/utils/classNames";
 import { searchCities, type CatalogOption } from "@/lib/api/catalog";
 import { useNavigate } from "react-router-dom";
 import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField";
+import { useI18n } from "@/lib/i18n";
 
 const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png"];
 const ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png"];
@@ -44,6 +45,7 @@ const INITIAL_FORM: FormState = {
 
 export default function EventCreatePage() {
     const navigate = useNavigate();
+    const { t } = useI18n();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [form, setForm] = useState<FormState>({ ...INITIAL_FORM });
     const [errors, setErrors] = useState<FormErrors>({});
@@ -90,35 +92,35 @@ export default function EventCreatePage() {
         (state: FormState): FormErrors => {
             const nextErrors: FormErrors = {};
             if (!state.name.trim()) {
-                nextErrors.name = "El nombre del evento es obligatorio.";
+                nextErrors.name = t("event.create.validation.name");
             }
             if (!state.city) {
-                nextErrors.city = "Selecciona una ciudad.";
+                nextErrors.city = t("event.create.validation.city");
             }
             if (!state.date) {
-                nextErrors.date = "Selecciona una fecha.";
+                nextErrors.date = t("event.create.validation.date");
             }
             if (!state.allDay && !state.time.trim()) {
-                nextErrors.time = "Define un horario para el evento.";
+                nextErrors.time = t("event.create.validation.time");
             }
             if (!state.description.trim()) {
-                nextErrors.description = "La descripción es obligatoria.";
+                nextErrors.description = t("event.create.validation.description");
             }
             if (!state.unlimited && state.participantLimit.trim()) {
                 const parsed = Number(state.participantLimit);
                 if (Number.isNaN(parsed) || parsed <= 0) {
-                    nextErrors.participantLimit = "Ingresa un número válido mayor a 0.";
+                    nextErrors.participantLimit = t("event.create.validation.limitInvalid");
                 }
             }
             if (!state.unlimited && !state.participantLimit.trim()) {
-                nextErrors.participantLimit = "Define el límite o marca 'Sin límite'.";
+                nextErrors.participantLimit = t("event.create.validation.limitRequired");
             }
             if (!state.flyer) {
-                nextErrors.flyer = "Debes subir el folleto del evento.";
+                nextErrors.flyer = t("event.create.validation.flyerMissing");
             }
             return nextErrors;
         },
-        []
+        [t]
     );
 
     const handleFileSelection = useCallback(
@@ -133,14 +135,14 @@ export default function EventCreatePage() {
             const validSize = file.size <= MAX_FILE_SIZE;
 
             if (!matchesExtension && !matchesMime) {
-                setErrors((prev) => ({ ...prev, flyer: "Solo se aceptan archivos JPG o PNG." }));
+                setErrors((prev) => ({ ...prev, flyer: t("event.create.validation.flyerType") }));
                 setForm((prev) => ({ ...prev, flyer: null }));
                 markTouched("flyer");
                 return;
             }
 
             if (!validSize) {
-                setErrors((prev) => ({ ...prev, flyer: "El archivo no puede superar los 2MB." }));
+                setErrors((prev) => ({ ...prev, flyer: t("event.create.validation.flyerSize") }));
                 setForm((prev) => ({ ...prev, flyer: null }));
                 markTouched("flyer");
                 return;
@@ -150,7 +152,7 @@ export default function EventCreatePage() {
             setErrors((prev) => ({ ...prev, flyer: undefined }));
             markTouched("flyer");
         },
-        [markTouched]
+        [markTouched, t]
     );
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -200,14 +202,12 @@ export default function EventCreatePage() {
             <div className="event-create-card card">
                 <header className="event-create-header">
                     <div>
-                        <p className="eyebrow">Nuevo evento</p>
-                        <h1>Crear evento</h1>
-                        <p className="event-create-header__lead">
-                            Completa los siguientes datos para publicar tu evento y llegar a más estudiantes.
-                        </p>
+                        <p className="eyebrow">{t("event.create.eyebrow")}</p>
+                        <h1>{t("event.create.title")}</h1>
+                        <p className="event-create-header__lead">{t("event.create.subtitle")}</p>
                     </div>
                     <div className="event-create-meta">
-                        <span>Campos marcados con * son obligatorios.</span>
+                        <span>{t("form.requiredHint")}</span>
                     </div>
                 </header>
 
@@ -215,10 +215,10 @@ export default function EventCreatePage() {
                     <TextField
                         label={
                             <span className="input-label">
-                                Nombre del evento <span className="required-indicator" aria-hidden="true">*</span>
+                                {t("event.create.name.label")} <span className="required-indicator" aria-hidden="true">*</span>
                             </span>
                         }
-                        placeholder="Ingresa el nombre del evento"
+                        placeholder={t("event.create.name.placeholder")}
                         value={form.name}
                         onChange={handleTextChange("name")}
                         onBlur={() => markTouched("name")}
@@ -226,8 +226,8 @@ export default function EventCreatePage() {
                     />
 
                     <CatalogAutocompleteField
-                        label="Ciudad"
-                        placeholder="Escribe para buscar ciudad..."
+                        label={t("event.create.city.label")}
+                        placeholder={t("event.create.city.placeholder")}
                         value={form.city}
                         query={cityQuery}
                         onQueryChange={setCityQuery}
@@ -242,7 +242,7 @@ export default function EventCreatePage() {
                         <div className="event-form__grid event-form__grid--two">
                             <div className="form-field">
                                 <label className="input-label" htmlFor="field-date">
-                                    Fecha <span className="required-indicator" aria-hidden="true">*</span>
+                                    {t("event.create.date.label")} <span className="required-indicator" aria-hidden="true">*</span>
                                 </label>
                                 <input
                                     id="field-date"
@@ -251,7 +251,7 @@ export default function EventCreatePage() {
                                     value={form.date}
                                     onChange={handleDateChange}
                                     onBlur={() => markTouched("date")}
-                                    placeholder="dd/mm/yyyy"
+                                    placeholder={t("common.date.placeholder")}
                                 />
                                 {touched.date && errors.date && (
                                     <p className="form-field__text form-field__text--error">{errors.date}</p>
@@ -260,12 +260,12 @@ export default function EventCreatePage() {
 
                             <div className="form-field">
                                 <label className="form-field__label" htmlFor="field-time">
-                                    Hora
+                                    {t("event.create.time.label")}
                                 </label>
                                 <input
                                     id="field-time"
                                     type="time"
-                                    placeholder="--:--"
+                                    placeholder={t("common.time.placeholder")}
                                     className={classNames(
                                         "input-control",
                                         timeFieldDisabled && "input-control--disabled",
@@ -282,7 +282,7 @@ export default function EventCreatePage() {
                             </div>
                         </div>
                         <Checkbox
-                            label="Todo el día"
+                            label={t("event.create.allDay")}
                             checked={form.allDay}
                             onChange={(event) => handleAllDayToggle(event.target.checked)}
                             containerClassName="event-form__checkbox"
@@ -291,12 +291,12 @@ export default function EventCreatePage() {
 
                     <div className="form-field">
                         <label className="input-label" htmlFor="field-description">
-                            Descripción <span className="required-indicator" aria-hidden="true">*</span>
+                            {t("event.create.description.label")} <span className="required-indicator" aria-hidden="true">*</span>
                         </label>
                         <textarea
                             id="field-description"
                             className={classNames("input-control", touched.description && errors.description && "input-control--error")}
-                            placeholder="Ingresa la descripción del evento"
+                            placeholder={t("event.create.description.placeholder")}
                             value={form.description}
                             onChange={handleTextChange("description")}
                             onBlur={() => markTouched("description")}
@@ -307,8 +307,8 @@ export default function EventCreatePage() {
                     </div>
 
                     <TextField
-                        label="Dirección"
-                        placeholder="Ingresa la dirección del evento (si es que tiene una):"
+                        label={t("event.create.address.label")}
+                        placeholder={t("event.create.address.placeholder")}
                         value={form.address}
                         onChange={handleTextChange("address")}
                         onBlur={() => markTouched("address")}
@@ -317,7 +317,7 @@ export default function EventCreatePage() {
                     <div className="event-form__row event-form__row--limit">
                         <div className="form-field">
                             <label className="form-field__label" htmlFor="field-limit">
-                                Límite de participantes
+                                {t("event.create.limit.label")}
                             </label>
                             <input
                                 id="field-limit"
@@ -338,7 +338,7 @@ export default function EventCreatePage() {
                             )}
                         </div>
                         <Checkbox
-                            label="Sin límite"
+                            label={t("event.create.unlimited")}
                             checked={form.unlimited}
                             onChange={(event) => handleUnlimitedToggle(event.target.checked)}
                             containerClassName="event-form__checkbox"
@@ -347,7 +347,7 @@ export default function EventCreatePage() {
 
                     <div className="form-field">
                         <label className="input-label" htmlFor="field-flyer">
-                            Subir folleto para el evento
+                            {t("event.create.flyer.label")}
                             <span className="required-indicator" aria-hidden="true">*</span>
                         </label>
                         <div
@@ -392,15 +392,15 @@ export default function EventCreatePage() {
                                                 fileInputRef.current?.click();
                                             }}
                                         >
-                                            Cambiar
+                                            {t("event.create.flyer.change")}
                                         </button>
                                     </div>
                                 </div>
                             ) : (
                                 <div className="upload-placeholder">
                                     <UploadIcon />
-                                    <p>Subir folleto del evento ( PNG o JPG )</p>
-                                    <p className="upload-hint">JPG o PNG, máximo 2MB</p>
+                                    <p>{t("event.create.flyer.placeholder")}</p>
+                                    <p className="upload-hint">{t("event.create.flyer.helper")}</p>
                                 </div>
                             )}
                         </div>
@@ -420,10 +420,10 @@ export default function EventCreatePage() {
 
                     <div className="event-form__actions">
                         <Button type="button" variant="ghost" onClick={handleCancel} disabled={submitting}>
-                            Cancelar
+                            {t("common.cancel")}
                         </Button>
                         <Button type="submit" variant="primary" disabled={submitting}>
-                            {submitting ? "Creando..." : "Crear evento"}
+                            {submitting ? t("event.create.submitting") : t("event.create.submit")}
                         </Button>
                     </div>
                 </form>

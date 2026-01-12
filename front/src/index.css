@@ -1030,6 +1030,117 @@ h4 { font-size: 1.125rem; }
   position: relative;
 }
 
+/* Explore page */
+.explore-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  padding-bottom: 4rem;
+}
+
+.explore-hero {
+  display: grid;
+  gap: 2rem;
+  background: linear-gradient(135deg, var(--color-primary-light), #fdfbff);
+  border: none;
+  box-shadow: var(--shadow-card);
+}
+
+@media (min-width: 900px) {
+  .explore-hero {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: center;
+  }
+}
+
+.explore-hero__lead {
+  margin: 1rem 0 1.5rem;
+  color: var(--color-gray-600);
+  max-width: 520px;
+}
+
+.explore-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.explore-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.explore-section__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.explore-section__description {
+  margin: 0.4rem 0 0;
+  color: var(--color-gray-600);
+}
+
+.explore-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.explore-action-card {
+  display: flex;
+  gap: 0.85rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  text-decoration: none;
+  color: inherit;
+  background: var(--color-white);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.explore-action-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-soft);
+  transform: translateY(-2px);
+}
+
+.explore-action-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.explore-action-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.explore-action-title {
+  margin: 0 0 0.2rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+
+.explore-action-desc {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-gray-600);
+}
+
+.explore-empty {
+  margin-top: 0;
+}
+
+
 .event-file-info {
   display: inline-flex;
   align-items: center;
