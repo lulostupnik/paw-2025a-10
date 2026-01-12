@@ -1,9 +1,9 @@
 import { useId } from "react";
-import type { InputHTMLAttributes } from "react";
+import type { InputHTMLAttributes, ReactNode } from "react";
 import { classNames } from "@/lib/utils/classNames";
 
 interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
-    label: string;
+    label: ReactNode;
     helperText?: string;
     errorText?: string;
     containerClassName?: string;

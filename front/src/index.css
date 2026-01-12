@@ -904,6 +904,152 @@ h4 { font-size: 1.125rem; }
   gap: 1rem;
 }
 
+/* Event create page */
+.event-create-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-bottom: 4rem;
+}
+
+.event-create-card {
+  padding: clamp(1.75rem, 3vw, 2.75rem);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.event-create-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.event-create-header__lead {
+  margin: 0;
+  color: var(--color-gray-600);
+  max-width: 640px;
+}
+
+.event-create-meta {
+  font-size: 0.9rem;
+  color: var(--color-gray-500);
+}
+
+@media (min-width: 768px) {
+  .event-create-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .event-create-meta {
+    text-align: right;
+    margin-top: 0.25rem;
+  }
+}
+
+.event-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.event-form__grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 560px) {
+  .event-form__grid--two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.event-form__row {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 720px) {
+  .event-form__row--datetime,
+  .event-form__row--limit {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+}
+
+.event-form__checkbox {
+  margin: 0;
+  align-self: flex-start;
+}
+
+@media (min-width: 720px) {
+  .event-form__checkbox {
+    justify-self: end;
+  }
+}
+
+.event-form__checkbox.form-field {
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0;
+  height: var(--input-height);
+  margin-top: calc(0.9rem + 0.4rem);
+}
+
+.event-form__checkbox .checkbox-field {
+  margin: 0;
+}
+
+.event-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.event-autocomplete {
+  position: relative;
+}
+
+.event-file-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  text-align: left;
+}
+
+.event-file-info svg {
+  width: 48px;
+  height: 48px;
+  color: var(--color-primary);
+}
+
+.event-file-info__name {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-gray-800);
+}
+
+.event-file-info__change {
+  display: inline-flex;
+  gap: 0.25rem;
+  align-items: center;
+  border: none;
+  background: transparent;
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.event-file-info__change:hover {
+  text-decoration: underline;
+}
+
 .input-with-addon {
   position: relative;
   display: flex;
@@ -1341,6 +1487,18 @@ textarea.input-control {
 
 .input-control--error:focus-visible {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+}
+
+.input-control:disabled,
+.input-control--disabled {
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-500);
+  cursor: not-allowed;
+}
+
+.input-control:disabled::placeholder,
+.input-control--disabled::placeholder {
+  color: var(--color-gray-400);
 }
 
 .form-field__text {

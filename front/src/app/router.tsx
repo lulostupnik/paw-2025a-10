@@ -18,6 +18,7 @@ import JourneyCreatePage from "@/pages/journeys/JourneyCreatePage";
 
 import EventsListPage from "@/pages/events/EventsPage";
 import EventDetailPage from "@/pages/events/EventDetailsPage";
+import EventCreatePage from "@/pages/events/EventCreatePage";
 
 import ProfilePage from "@/pages/profile/ProfilePage";
 import AdminPage from "@/pages/admin/AdminPage";
@@ -53,6 +54,7 @@ export const router = createBrowserRouter([
                 element: <RequireAuth />,
                 children: [
                     { path: "journeys/create", element: <JourneyCreatePage /> },
+                    { path: "events/create", element: <EventCreatePage /> },
                     { path: "profile", element: <ProfilePage /> },
                     { path: "admin", element: <AdminPage /> },
                 ],
