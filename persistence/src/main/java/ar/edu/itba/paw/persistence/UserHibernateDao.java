@@ -55,52 +55,100 @@ public class UserHibernateDao implements UserDao {
 
 
     @Override
-    public Page<User> findAll(final PageParams pageParams) {
-        final String countSql = "SELECT COUNT(*) FROM users";
+    public Page<User> findUsers(String search, final PageParams pageParams, Long attendingEventId,
+                              Long universityId,
+                              Long careerId,
+                              Long interestId,
+                             Boolean blocked) {
+            // 1) Partes acumulables
+            final List<String> joins = new ArrayList<>();
+            final List<String> predicates = new ArrayList<>();
+            final Map<String, Object> parameters = new HashMap<>();
 
-        final String idSql = """
-        SELECT u.id
-        FROM users u
-        ORDER BY u.id ASC
-    """;
+            // 2) Filtros
 
-        final String jpqlFetch = """
+            // --- SEARCH (requiere join con universities para un.name)
+            if (search != null && !search.isBlank()) {
+                maybeAddJoin(joins, "JOIN universities un ON u.university = un.id");
+
+                final String pattern = likePattern(search);
+                predicates.add("""
+            (
+                LOWER(u.firstname) LIKE LOWER(:pattern)
+                OR LOWER(un.name) LIKE LOWER(:pattern)
+                OR LOWER(u.email) LIKE LOWER(:pattern)
+            )
+        """);
+                parameters.put("pattern", pattern);
+            }
+
+            // --- attendingEventId (requiere join event_attendances)
+            if (attendingEventId != null) {
+                maybeAddJoin(joins, "JOIN event_attendances ea ON u.id = ea.user_id");
+                predicates.add("ea.event_id = :attendingEventId");
+                parameters.put("attendingEventId", attendingEventId);
+            }
+
+            // --- Ejemplos de otros filtros que ya tenés (ajustá columnas/tablas reales)
+            if (universityId != null) {
+                // si u.university es FK directa (id), no necesitás join:
+                predicates.add("u.university = :universityId");
+                parameters.put("universityId", universityId);
+            }
+
+            if (blocked != null) {
+                predicates.add("u.blocked = :blocked");
+                parameters.put("blocked", blocked);
+            }
+
+            // Si careerId/interestId dependen de tablas puente, hacés join + predicate:
+            if (careerId != null) {
+                predicates.add("u.career_id = :careerId");
+                parameters.put("careerId", careerId);
+            }
+
+            if (interestId != null) {
+                maybeAddJoin(joins, "JOIN user_interest ui ON ui.user_id = u.id");
+                predicates.add("ui.category_id = :interestId");
+                parameters.put("interestId", interestId);
+            }
+
+            // 3) Build final SQL (count + ids) sin riesgo de orden
+            final String baseFrom = "FROM users u\n";
+            final String joinSql = joins.isEmpty() ? "" : String.join("\n", joins) + "\n";
+            final String whereSql = predicates.isEmpty()
+                    ? ""
+                    : "WHERE " + String.join("\n  AND ", predicates) + "\n";
+
+            final String countSql = "SELECT COUNT(*)\n" + baseFrom + joinSql + whereSql;
+            final String idSql = "SELECT u.id\n" + baseFrom + joinSql + whereSql + "ORDER BY u.id ASC";
+
+            final String jpqlFetch = """
         FROM User u
         WHERE u.id IN :ids
         ORDER BY u.id ASC
     """;
 
-        return fetchPageByIds(em, countSql, idSql, Map.of(), jpqlFetch, User.class, pageParams,Map.of());
+            // OJO: estabas pasando Map.of() en vez de parameters. Acá va parameters.
+            return fetchPageByIds(
+                    em,
+                    countSql,
+                    idSql,
+                    parameters,
+                    jpqlFetch,
+                    User.class,
+                    pageParams,
+                    Map.of()
+            );
+        }
+
+
+
+    /** Evita duplicar joins si dos filtros requieren el mismo */
+    private static void maybeAddJoin(List<String> joins, String join) {
+        if (!joins.contains(join)) joins.add(join);
     }
 
-
-    @Override
-    public Page<User> search(final String search, final PageParams pageParams) {
-        final String pattern = likePattern(search);
-
-        final String countSql = """
-        SELECT COUNT(*)
-        FROM users u
-        JOIN universities un ON u.university = un.id
-        WHERE LOWER(u.firstname) LIKE LOWER( :pattern )
-           OR LOWER(un.name) LIKE LOWER( :pattern )
-           OR LOWER(u.email) LIKE LOWER( :pattern )
-    """;
-
-        final String idSql = """
-        SELECT u.id
-        FROM users u
-        JOIN universities un ON u.university = un.id
-        WHERE LOWER(u.firstname) LIKE LOWER( :pattern )
-           OR LOWER(un.name) LIKE LOWER( :pattern )
-           OR LOWER(u.email) LIKE LOWER( :pattern )
-        ORDER BY u.id DESC
-    """;
-
-        final String jpqlFetch = "FROM User u WHERE u.id IN :ids ORDER BY u.id DESC";
-
-        return fetchPageByIds(em, countSql, idSql, Map.of("pattern", pattern), jpqlFetch, User.class, pageParams,Map.of());
-    }
 
 
     @Override

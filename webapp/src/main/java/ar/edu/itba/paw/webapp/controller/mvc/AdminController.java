@@ -44,15 +44,15 @@ public class AdminController {
         return mav;
     }
 
-    @RequestMapping("/users")
-    public ModelAndView dashboardUsers(
-            @PageParamCustomizer(sizeParamName = "pageSize") PageParams  pageParams,
-            @RequestParam(value = "search", required = false) String search) {
-        ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
-        mav.addObject("pagedUsers", userService.findUsers(search, pageParams));
-
-        return mav;
-    }
+//    @RequestMapping("/users")
+//    public ModelAndView dashboardUsers(
+//            @PageParamCustomizer(sizeParamName = "pageSize") PageParams  pageParams,
+//            @RequestParam(value = "search", required = false) String search) {
+//        ModelAndView mav = new ModelAndView(ADMIN_DASHBOARD);
+//        mav.addObject("pagedUsers", userService.findUsers(search, pageParams));
+//
+//        return mav;
+//    }
     @RequestMapping("/reports")
     public ModelAndView dashboardReports(
             @PageParamCustomizer(sizeParamName = "pageSize") PageParams  pageParams,
