@@ -905,75 +905,87 @@ h4 { font-size: 1.125rem; }
 }
 
 /* Event create page */
-.event-create-page {
+.event-create-page,
+.journey-create-page {
   display: flex;
   flex-direction: column;
   gap: 2rem;
   padding-bottom: 4rem;
 }
 
-.event-create-card {
+.event-create-card,
+.journey-create-card {
   padding: clamp(1.75rem, 3vw, 2.75rem);
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
-.event-create-header {
+.event-create-header,
+.journey-create-header {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.event-create-header__lead {
+.event-create-header__lead,
+.journey-create-header__lead {
   margin: 0;
   color: var(--color-gray-600);
   max-width: 640px;
 }
 
-.event-create-meta {
+.event-create-meta,
+.journey-create-meta {
   font-size: 0.9rem;
   color: var(--color-gray-500);
 }
 
 @media (min-width: 768px) {
-  .event-create-header {
+  .event-create-header,
+  .journey-create-header {
     flex-direction: row;
     justify-content: space-between;
     align-items: flex-start;
   }
 
-  .event-create-meta {
+  .event-create-meta,
+  .journey-create-meta {
     text-align: right;
     margin-top: 0.25rem;
   }
 }
 
-.event-form {
+.event-form,
+.journey-form {
   display: flex;
   flex-direction: column;
   gap: 1.75rem;
 }
 
-.event-form__grid {
+.event-form__grid,
+.journey-form__grid {
   display: grid;
   gap: 1rem;
 }
 
 @media (min-width: 560px) {
-  .event-form__grid--two {
+  .event-form__grid--two,
+  .journey-form__grid--two {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-.event-form__row {
+.event-form__row,
+.journey-form__row {
   display: grid;
   gap: 1.25rem;
 }
 
 @media (min-width: 720px) {
   .event-form__row--datetime,
-  .event-form__row--limit {
+  .event-form__row--limit,
+  .journey-form__row--dates {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: end;
   }
@@ -1004,14 +1016,17 @@ h4 { font-size: 1.125rem; }
   margin: 0;
 }
 
-.event-form__actions {
+.event-form__actions,
+.journey-form__actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 0.75rem;
 }
 
-.event-autocomplete {
+.event-autocomplete,
+.create-autocomplete,
+.journey-autocomplete {
   position: relative;
 }
 
