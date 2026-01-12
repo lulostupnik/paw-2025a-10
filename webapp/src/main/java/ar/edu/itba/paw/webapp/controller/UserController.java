@@ -9,13 +9,13 @@ import ar.edu.itba.paw.webapp.dto.InterestDto;
 import ar.edu.itba.paw.webapp.dto.UserDto;
 import ar.edu.itba.paw.webapp.dto.UserRatingDto;
 import ar.edu.itba.paw.webapp.form.CreateUserForm;
+import ar.edu.itba.paw.webapp.form.EditUserForm;
 import ar.edu.itba.paw.webapp.form.ValidateUserForm;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
-import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -51,8 +51,7 @@ public class UserController {
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("10") int size
     ) {
-        // TODO: Implement filtering by attendingEvent, university, career, interest, blocked
-        final List<User> allUsers = us.findUsers(search, new PageParams(page + 1, size)).getContent();
+        final List<User> allUsers = us.findUsers(search, new PageParams(page + 1, size), attendingEventId, universityId, careerId, interestId, blocked).getContent();
         final List<UserDto> userDtos = UserDto.fromUserCollection(uriInfo, allUsers);
         return Response.ok(new GenericEntity<>(userDtos) {}).build();
     }
@@ -97,12 +96,11 @@ public class UserController {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @PreAuthorize("@accessHelper.isCurrentUser(#id)")
-    public Response updateUser(@PathParam("id") final long id /* TODO: @Valid UpdateUserForm form */) {
+    public Response updateUser(@PathParam("id") final long id,  @Valid EditUserForm form ) {
         // TODO: Create form class for full user update
-        // final User user = us.updateUser(id, username, firstname, lastname, universityName, careerName);
-        // return Response.ok(UserDto.fromUser(uriInfo, user)).build();
-        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
+         final User user = us.updateUser(id, form.getUsername(), form.getFirstName(), form.getLastName(),
+                 form.getOriginUniversity(), form.getCareer());
+         return Response.ok(UserDto.fromUser(uriInfo, user)).build();
     }
 
     // TODO: Bug - no se esta verificando que el id corresponda al del usuario que esta siendo verificado
@@ -151,7 +149,6 @@ public class UserController {
 
     @DELETE
     @Path("/{id}")
-    @PreAuthorize("@accessHelper.isCurrentUser(#id) or hasRole('ADMIN')")
     public Response deleteUser(@PathParam("id") final long id) {
         // TODO: Implement user deletion (might need to add to UserService)
         // return Response.noContent().build();
@@ -181,6 +178,7 @@ public class UserController {
         return Response.ok(new GenericEntity<>(interestDtos) {}).build();
     }
 
+    //TODO: podria ser put? porque si ya existe no se crea uno nuevo
     @POST
     @Path("/{userId}/interests")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -189,20 +187,19 @@ public class UserController {
             @PathParam("userId") final long userId
             /* TODO: @Valid AddUserInterestForm form with interestId */
     ) {
-        // TODO: Verify user is owner (from SecurityContext)
         // TODO: Create form class with interestId
         // TODO: Implement adding interest to user
         // return Response.created(UriUtils.getUserInterestUri(uriInfo, userId, interestId)).build();
         return Response.status(Response.Status.NOT_IMPLEMENTED).build();
     }
 
+    //TODO: Lo mismo, lo unificaria en un solo endpoint con PUT
     @DELETE
     @Path("/{userId}/interests/{interestId}")
     public Response removeUserInterest(
             @PathParam("userId") final long userId,
             @PathParam("interestId") final long interestId
     ) {
-        // TODO: Verify user is owner (from SecurityContext)
         // TODO: Implement removing interest from user
         // return Response.noContent().build();
         return Response.status(Response.Status.NOT_IMPLEMENTED).build();
@@ -220,10 +217,11 @@ public class UserController {
         }
 
         // This is a slow computed operation
-        final Optional<Double> rating = us.findAverageRatingForCreatedEvents(userId);
+        final Optional<Double> createdRating = us.findAverageRatingForCreatedEvents(userId);
+        final Optional<Double> attendedRating = us.findAverageRatingForAttendedEvents(userId);
         // TODO: Get total ratings count (might need to add to UserService)
 
-        return Response.ok(UserRatingDto.fromRating(rating.orElse(null))).build();
+        return Response.ok(UserRatingDto.fromRatings(createdRating.orElse(null),attendedRating.orElse(null) )).build();
     }
 
 

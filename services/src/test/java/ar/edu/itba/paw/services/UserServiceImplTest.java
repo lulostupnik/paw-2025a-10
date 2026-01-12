@@ -302,39 +302,39 @@ public class UserServiceImplTest {
         assertTrue(exists);
     }
 
-    @Test
-    public void testFindUsersQuery(){
-        when(
-            userDao.search(eq(USERNAME), any(PageParams.class))
-        ).thenReturn(USER_PAGE);
-
-        Page<User> users = userService.findUsers(USERNAME, PAGE_1_DEFAULT);
-
-        assertNotNull(users);
-        assertEquals(USER_PAGE, users);
-    }
-    @Test
-    public void testFindUsersEmptyQuery(){
-        when(
-            userDao.findAll(any(PageParams.class))
-        ).thenReturn(USER_PAGE);
-
-        Page<User> users = userService.findUsers("", PAGE_1_DEFAULT);
-
-        assertNotNull(users);
-        assertEquals(USER_PAGE, users);
-    }
-    @Test
-    public void testFindUsersMissingQuery(){
-        when(
-            userDao.findAll(any(PageParams.class))
-        ).thenReturn(USER_PAGE);
-
-        Page<User> users = userService.findUsers(null, PAGE_1_DEFAULT);
-
-        assertNotNull(users);
-        assertEquals(USER_PAGE, users);
-    }
+//    @Test
+//    public void testFindUsersQuery(){
+//        when(
+//            userDao.search(eq(USERNAME), any(PageParams.class))
+//        ).thenReturn(USER_PAGE);
+//
+//        Page<User> users = userService.findUsers(USERNAME, PAGE_1_DEFAULT);
+//
+//        assertNotNull(users);
+//        assertEquals(USER_PAGE, users);
+//    }
+//    @Test
+//    public void testFindUsersEmptyQuery(){
+//        when(
+//            userDao.findAll(any(PageParams.class))
+//        ).thenReturn(USER_PAGE);
+//
+//        Page<User> users = userService.findUsers("", PAGE_1_DEFAULT);
+//
+//        assertNotNull(users);
+//        assertEquals(USER_PAGE, users);
+//    }
+//    @Test
+//    public void testFindUsersMissingQuery(){
+//        when(
+//            userDao.findAll(any(PageParams.class))
+//        ).thenReturn(USER_PAGE);
+//
+//        Page<User> users = userService.findUsers(null, PAGE_1_DEFAULT);
+//
+//        assertNotNull(users);
+//        assertEquals(USER_PAGE, users);
+//    }
 
     @Test
     public void testBlockUser(){

@@ -16,9 +16,12 @@ public interface UserDao {
 
     boolean existsByEmail(String email);
 
-    Page<User> findAll(PageParams pageParams);
+    Page<User> findUsers(String search, PageParams pageParams, Long attendingEventId,
+                         Long universityId,
+                         Long careerId,
+                         Long interestId,
+                         Boolean blocked);
 
-    Page<User> search(String search, PageParams pageParams);
 
     Optional<Double> findAverageRatingForCreatedEvents(long userId);
     Optional<Double> findAverageRatingForAttendedEvents(long userId);

@@ -8,14 +8,22 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class UserRatingDto {
 
-    private Double rating;
+    private Double attendedEventsRating;
+    private Double hostedEventsRating;
     // private int totalRatings;
 
-    public static UserRatingDto fromRating(final Double rating) {
+    public static UserRatingDto fromRatings(final Double attendedEventsRating, final Double hostedEventsRating) {
         final UserRatingDto dto = new UserRatingDto();
-        dto.rating = rating;
+        dto.hostedEventsRating = hostedEventsRating;
+        dto.attendedEventsRating = attendedEventsRating;
         return dto;
     }
 
-    public Double getRating() { return rating; }
+    public Double getAttendedEventsRating() {
+        return attendedEventsRating;
+    }
+    public Double getHostedEventsRating() {
+        return hostedEventsRating;
+    }
+
 }
