@@ -23,6 +23,19 @@ import EventCreatePage from "@/pages/events/EventCreatePage";
 import ProfilePage from "@/pages/profile/ProfilePage";
 import AdminPage from "@/pages/admin/AdminPage";
 import ReportDetailPage from "@/pages/admin/ReportDetailPage";
+import UserDetailPage from "@/pages/users/UserDetailPage";
+import UniversityDetailPage from "@/pages/universities/UniversityDetailPage";
+import UniversityCreatePage from "@/pages/universities/UniversityCreatePage";
+import UniversityEditPage from "@/pages/universities/UniversityEditPage";
+import InterestDetailPage from "@/pages/interests/InterestDetailPage";
+import InterestCreatePage from "@/pages/interests/InterestCreatePage";
+import InterestEditPage from "@/pages/interests/InterestEditPage";
+import CityDetailPage from "@/pages/cities/CityDetailPage";
+import CityCreatePage from "@/pages/cities/CityCreatePage";
+import CityEditPage from "@/pages/cities/CityEditPage";
+import CareerDetailPage from "@/pages/careers/CareerDetailPage";
+import CareerCreatePage from "@/pages/careers/CareerCreatePage";
+import CareerEditPage from "@/pages/careers/CareerEditPage";
 
 import LoginPage from "@/pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
@@ -59,6 +72,19 @@ export const router = createBrowserRouter([
                     { path: "profile", element: <ProfilePage /> },
                     { path: "admin", element: <AdminPage /> },
                     { path: "reports/:id", element: <ReportDetailPage /> },
+                    { path: "users/:id", element: <UserDetailPage /> },
+                    { path: "universities/create", element: <UniversityCreatePage /> },
+                    { path: "universities/:id/edit", element: <UniversityEditPage /> },
+                    { path: "universities/:id", element: <UniversityDetailPage /> },
+                    { path: "interests/create", element: <InterestCreatePage /> },
+                    { path: "interests/:id/edit", element: <InterestEditPage /> },
+                    { path: "interests/:id", element: <InterestDetailPage /> },
+                    { path: "cities/create", element: <CityCreatePage /> },
+                    { path: "cities/:id/edit", element: <CityEditPage /> },
+                    { path: "cities/:id", element: <CityDetailPage /> },
+                    { path: "careers/create", element: <CareerCreatePage /> },
+                    { path: "careers/:id/edit", element: <CareerEditPage /> },
+                    { path: "careers/:id", element: <CareerDetailPage /> },
                 ],
             },
 

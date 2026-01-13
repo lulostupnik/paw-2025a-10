@@ -79,7 +79,7 @@ interface ReportDetail {
     eventResponse?: ReportEventResponse | null;
 }
 
-const REPORTS_LIST_PATH = "/dashboard/reports";
+const REPORTS_LIST_PATH = "/admin?tab=reports";
 const API_ENDPOINTS = {
     reportDetail: "/api/reports/:id", // TODO: replace with real endpoint.
     updateStatus: "/api/reports/:id/status", // TODO: replace with real endpoint.
