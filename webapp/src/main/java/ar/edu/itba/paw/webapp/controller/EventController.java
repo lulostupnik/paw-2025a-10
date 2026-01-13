@@ -53,10 +53,9 @@ public class EventController {
             @QueryParam("direction") String direction,
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("8") int size,
-            // TODO: implement filters for attendedBy, university, minRating, hasCapacity
             @QueryParam("attendedBy") Long attendedByUserId,
             @QueryParam("university") String university,
-            @QueryParam("minRating") Integer minRating,
+            @QueryParam("minRating") Integer minRating, //TODO: check, anda raro
             @QueryParam("hasCapacity") Boolean hasCapacity
     ) {
         final LocalDate startDate = DateUtils.parseDate(startDateStr);
@@ -79,6 +78,10 @@ public class EventController {
                 past,
                 upcoming,
                 attending,
+                attendedByUserId,
+                university,
+                minRating,
+                hasCapacity,
                 new PageParams(page + 1, size)
         );
 

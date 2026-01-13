@@ -98,8 +98,8 @@ public class ProfileController {
         mav.addObject("events", eventService.findEvents(profileUser.getId(), pageParam));
         mav.addObject("isMine", user.getId().equals(id));
         mav.addObject("isEventTab", true);
-        mav.addObject("userAttendingEvents", eventService.findUpcomingEventsByAttendee(profileUser.getId(), attendingPage));
-        mav.addObject("finishedEvents", eventService.findFinishedEventsByAttendee(profileUser.getId(), finishedPage));
+//        mav.addObject("userAttendingEvents", eventService.findUpcomingEventsByAttendee(profileUser.getId(), attendingPage));
+//        mav.addObject("finishedEvents", eventService.findFinishedEventsByAttendee(profileUser.getId(), finishedPage));
         mav.addObject("currentPageUserEvents", pageParam.getPage());
         mav.addObject("currentPageUserAttending", attendingPage.getPage());
         mav.addObject("currentPageUserFinished", finishedPage.getPage());

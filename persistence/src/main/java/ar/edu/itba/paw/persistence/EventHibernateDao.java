@@ -386,7 +386,8 @@ public class EventHibernateDao implements EventDao {
     public Page<Event> findAllWithFilters(Long userId, String searchTerm, SortFieldEvent sortBy,
                                           SortDirection direction, String destination, LocalDate startDate,
                                           LocalDate endDate, LocalTime startTime, LocalTime endTime, String interest,
-                                          boolean attending, boolean isCreator, PageParams pageParams) {
+                                          boolean attending, boolean isCreator, Long attendedByUserId, String university,
+                                          Integer minRating, Boolean hasCapacity, PageParams pageParams) {
 
         final String search = likePattern(searchTerm);
 
@@ -475,6 +476,28 @@ public class EventHibernateDao implements EventDao {
             countSql.append(" LEFT JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :userId AND e.user_id != :userId ");
             idSql.append(" LEFT JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :userId AND e.user_id != :userId ");
             filters.add("ea.user_id IS NOT NULL");
+        }
+
+        if(attendedByUserId != null){
+            countSql.append(" LEFT JOIN event_attendances ea2 ON ea2.event_id = e.id AND ea2.user_id = :attendedByUserId ");
+            idSql.append(" LEFT JOIN event_attendances ea2 ON ea2.event_id = e.id AND ea2.user_id = :attendedByUserId ");
+            filters.add("ea2.user_id IS NOT NULL");
+            paramMap.put("attendedByUserId", attendedByUserId);
+        }
+        if (university != null && !university.isEmpty()) {
+            filters.add("un.name = :university");
+            paramMap.put("university", university);
+        }
+        if (minRating != null) { //TODO:check anda raro
+            filters.add("COALESCE((SELECT AVG(r.rating) FROM ratings r WHERE r.event_id = e.id),0) >= :minRating");
+            paramMap.put("minRating", minRating);
+        }
+        if (hasCapacity != null) {
+            if (hasCapacity) {
+                filters.add(" (e.attendees_limit IS NULL OR (SELECT COUNT(*) FROM event_attendances ea WHERE ea.event_id = e.id) < e.attendees_limit) ");
+            } else {
+                filters.add(" (e.attendees_limit IS NOT NULL AND (SELECT COUNT(*) FROM event_attendances ea WHERE ea.event_id = e.id) >= e.attendees_limit) ");
+            }
         }
 
 

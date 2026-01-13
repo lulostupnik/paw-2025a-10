@@ -706,6 +706,10 @@ public class EventHibernateDaoTest {
             null,
             false,
             true,
+                null,
+                null,
+                null,
+                false,
             PAGE_1_BIG
         );
 
@@ -730,6 +734,10 @@ public class EventHibernateDaoTest {
             null,
             false,
             true,
+                null,
+                null,
+                null,
+                false,
             PAGE_1_BIG
         );
 
@@ -754,6 +762,10 @@ public class EventHibernateDaoTest {
             null,
             true,
             true,
+                null,
+                null,
+                null,
+                false,
             PAGE_1_BIG
         );
 
@@ -778,6 +790,10 @@ public class EventHibernateDaoTest {
             null,
             true,
             false,
+                null,
+                null,
+                null,
+                false,
             PAGE_1_BIG
         );
 
@@ -802,6 +818,10 @@ public class EventHibernateDaoTest {
             null,
             false,
             true,
+                null,
+                null,
+                null,
+                false,
             PAGE_1_BIG
         );
 
@@ -827,6 +847,10 @@ public class EventHibernateDaoTest {
             "",
             false,
             true,
+                null,
+                null,
+                null,
+                false,
             PAGE_1_BIG
         );
 
@@ -852,6 +876,10 @@ public class EventHibernateDaoTest {
             null,
             false,
             false,
+                null,
+                null,
+                null,
+                false,
             PAGE_1_BIG
         );
 
@@ -878,6 +906,10 @@ public class EventHibernateDaoTest {
             null,
             false,
             false,
+                null,
+                null,
+                null,
+                false,
             PAGE_1_BIG
         );
 
@@ -904,6 +936,10 @@ public class EventHibernateDaoTest {
             null,
             false,
             false,
+                null,
+                null,
+                null,
+                false,
             PAGE_1_BIG
         );
 
@@ -932,6 +968,10 @@ public class EventHibernateDaoTest {
             "",
             false,
             false,
+                null,
+                null,
+                null,
+                false,
             PAGE_1_BIG
         );
 
@@ -960,6 +1000,10 @@ public class EventHibernateDaoTest {
             null,
             false,
             false,
+                null,
+                null,
+                null,
+                false,
             PAGE_1_BIG
         );
 
@@ -985,6 +1029,10 @@ public class EventHibernateDaoTest {
             INTEREST_1_NAME,
             false,
             false,
+                null,
+                null,
+                null,
+                false,
             PAGE_1_BIG
         );
 

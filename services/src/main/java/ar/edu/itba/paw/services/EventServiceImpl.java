@@ -340,44 +340,44 @@ public class EventServiceImpl implements EventService {
         return eventRatingDao.countRatingsByEvent(eventId);
     }
 
-
-    @Override
-    public Page<Event> findUpcomingEventsByAttendee(long userId, PageParams pageParams) {
-        return eventDao.findAllWithFilters(
-                userId,
-                null, // searchTerm
-                null, // sortBy
-                SortDirection.DESC, // direction
-                null, // destination
-                LocalDate.now(), // startDate
-                null, // endDate
-                LocalTime.now(),
-                null,
-                null, // interest
-                true, // attending
-                false, // isCreator
-                pageParams
-        );
-    }
-
-    @Override
-    public Page<Event> findFinishedEventsByAttendee(long userId, PageParams pageParams) {
-        return  eventDao.findAllWithFilters(
-                userId,
-                null, // searchTerm
-                null, // sortBy
-                SortDirection.DESC, // direction
-                null, // destination
-                null, // startDate
-                LocalDate.now(), // endDate
-                null,
-                LocalTime.now(),
-                null, // interest
-                true, // attending
-                false, // isCreator
-                pageParams
-        );
-    }
+//
+//    @Override
+//    public Page<Event> findUpcomingEventsByAttendee(long userId, PageParams pageParams) {
+//        return eventDao.findAllWithFilters(
+//                userId,
+//                null, // searchTerm
+//                null, // sortBy
+//                SortDirection.DESC, // direction
+//                null, // destination
+//                LocalDate.now(), // startDate
+//                null, // endDate
+//                LocalTime.now(),
+//                null,
+//                null, // interest
+//                true, // attending
+//                false, // isCreator
+//                pageParams
+//        );
+//    }
+//
+//    @Override
+//    public Page<Event> findFinishedEventsByAttendee(long userId, PageParams pageParams) {
+//        return  eventDao.findAllWithFilters(
+//                userId,
+//                null, // searchTerm
+//                null, // sortBy
+//                SortDirection.DESC, // direction
+//                null, // destination
+//                null, // startDate
+//                LocalDate.now(), // endDate
+//                null,
+//                LocalTime.now(),
+//                null, // interest
+//                true, // attending
+//                false, // isCreator
+//                pageParams
+//        );
+//    }
 
     @Override
     public List<Event> findRecommendedEvents(final long userId, final  int limit) {
@@ -414,8 +414,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Page<Event> searchEventsWithFilters(final String search, final Long userId, final SortFieldEvent sortBy, final SortDirection direction, final String destination, final LocalDate startDate, final LocalDate endDate, final String interest,
-                                               final boolean isPast, final boolean isUpcoming, final boolean attending,
-                                               final PageParams pageParams) {
+                                               final boolean isPast, final boolean isUpcoming, final boolean attending, Long attendedByUserId,
+                                               String university, Integer minRating, Boolean hasCapacity, final PageParams pageParams) {
         LOGGER.debug("Getting events with search {}, userId {}, sortBy {}, direction {}, destination {}, startDate {}, endDate {}, interest {}, isPast {}, isUpcoming {}, attending {}", search, userId, sortBy, direction, destination, startDate, endDate, interest, isPast, isUpcoming, attending);
 
         LocalDate adjustedStartDate = startDate;
@@ -449,6 +449,10 @@ public class EventServiceImpl implements EventService {
                 interest,
                 attending,
                 false,
+                attendedByUserId,
+                university,
+                minRating,
+                hasCapacity,
                 pageParams
         );
 
@@ -595,6 +599,10 @@ public class EventServiceImpl implements EventService {
                 null,
                 false,
                 true,
+                null,
+                null,
+                null,
+                false,
                 pageParams
         );
     }
@@ -620,6 +628,10 @@ public class EventServiceImpl implements EventService {
                 endTime,
                 null,
                 true,
+                false,
+                null,
+                null,
+                null,
                 false,
                 pageParams
         );

@@ -43,15 +43,16 @@ public interface EventService {
     void deleteRating(long ratingId);
     int countRatingsByEvent(long eventId);
 
-    Page<Event> findUpcomingEventsByAttendee(long userId,PageParams pageParams);
-    Page<Event> findFinishedEventsByAttendee(long userId, PageParams pageParams);
+//    Page<Event> findUpcomingEventsByAttendee(long userId,PageParams pageParams);
+//    Page<Event> findFinishedEventsByAttendee(long userId, PageParams pageParams);
     List<Event> findRecommendedEvents(long userId, int limit);
     List<Event> findTopEvents(int limit);
     boolean isEventOwnedByUser(String email, long eventId);
 
     Page<Event> searchEventsWithFilters(String search, Long userId,
                                         SortFieldEvent sortBy, SortDirection direction, String destination, LocalDate startDate, LocalDate endDate, String interest,
-                                        boolean isPast, boolean isUpcoming, boolean attending,
+                                        boolean isPast, boolean isUpcoming, boolean attending, Long attendedByUserId,
+                                        String university, Integer minRating, Boolean hasCapacity,
                                         PageParams pageParams);
 
     EventResponse createEventResponse(String email, long eventId, String message);

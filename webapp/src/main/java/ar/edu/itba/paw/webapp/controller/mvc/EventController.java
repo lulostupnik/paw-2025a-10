@@ -38,31 +38,31 @@ public class EventController {
         this.eventService = eventService;
     }
 
-    @RequestMapping
-    public ModelAndView getEvents(@ModelAttribute("user") User user,
-                                  @PageParamCustomizer(defaultSize = 8) PageParams  pageParams,
-                                  @RequestParam(value = "search", required = false) String search,
-                                  @Valid @ModelAttribute("filterEventForm") FilterEventForm filterForm,
-                                  BindingResult errors,
-                                  @RequestParam(value = "sort", required = false) String sortBy,
-                                  @RequestParam(value = "direction", required = false) String direction) {
-
-        ModelAndView mav = new ModelAndView("events/list");
-        LOGGER.debug("Getting events list with search: {}, filter: {}, pageParams: {}, sortBy: {}, direction: {}",
-                search, filterForm, pageParams, sortBy, direction);
-
-        if(! errors.hasErrors()) {
-            Page<Event> userEventsPage = eventService.searchEventsWithFilters(search, user.getId(), SortFieldEvent.from(sortBy), SortDirection.from(direction),
-                    filterForm.getDestination(), filterForm.getStartDate(), filterForm.getEndDate(), filterForm.getInterests(),
-                    filterForm.getIsPast(), filterForm.getIsUpcoming(), filterForm.getAttending(), pageParams);
-            mav.addObject("eventsPage", userEventsPage);
-        }
-
-        mav.addObject("currentPage", pageParams.getPage());
-        mav.addObject("pageSize", pageParams.getSize());
-        return mav;
-    }
-
+//    @RequestMapping
+//    public ModelAndView getEvents(@ModelAttribute("user") User user,
+//                                  @PageParamCustomizer(defaultSize = 8) PageParams  pageParams,
+//                                  @RequestParam(value = "search", required = false) String search,
+//                                  @Valid @ModelAttribute("filterEventForm") FilterEventForm filterForm,
+//                                  BindingResult errors,
+//                                  @RequestParam(value = "sort", required = false) String sortBy,
+//                                  @RequestParam(value = "direction", required = false) String direction) {
+//
+//        ModelAndView mav = new ModelAndView("events/list");
+//        LOGGER.debug("Getting events list with search: {}, filter: {}, pageParams: {}, sortBy: {}, direction: {}",
+//                search, filterForm, pageParams, sortBy, direction);
+//
+//        if(! errors.hasErrors()) {
+//            Page<Event> userEventsPage = eventService.searchEventsWithFilters(search, user.getId(), SortFieldEvent.from(sortBy), SortDirection.from(direction),
+//                    filterForm.getDestination(), filterForm.getStartDate(), filterForm.getEndDate(), filterForm.getInterests(),
+//                    filterForm.getIsPast(), filterForm.getIsUpcoming(), filterForm.getAttending(), pageParams);
+//            mav.addObject("eventsPage", userEventsPage);
+//        }
+//
+//        mav.addObject("currentPage", pageParams.getPage());
+//        mav.addObject("pageSize", pageParams.getSize());
+//        return mav;
+//    }
+//
 
     @GetMapping(value = "/create")
     public ModelAndView createEventForm(@ModelAttribute("createEventForm") final CreateEventForm form) {
