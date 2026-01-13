@@ -22,6 +22,7 @@ import EventCreatePage from "@/pages/events/EventCreatePage";
 
 import ProfilePage from "@/pages/profile/ProfilePage";
 import AdminPage from "@/pages/admin/AdminPage";
+import ReportDetailPage from "@/pages/admin/ReportDetailPage";
 
 import LoginPage from "@/pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
@@ -57,6 +58,7 @@ export const router = createBrowserRouter([
                     { path: "events/create", element: <EventCreatePage /> },
                     { path: "profile", element: <ProfilePage /> },
                     { path: "admin", element: <AdminPage /> },
+                    { path: "reports/:id", element: <ReportDetailPage /> },
                 ],
             },
 
