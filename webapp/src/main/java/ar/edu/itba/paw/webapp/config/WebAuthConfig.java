@@ -84,6 +84,8 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .and().authorizeRequests()
                 .antMatchers("/register", "/login", "/reset-password", "/forgot_pass", "/validate", "/not-verified").anonymous()
 
+                .antMatchers(HttpMethod.HEAD, "/api/").access("isAuthenticated()")
+
                 .antMatchers(HttpMethod.GET, "/api/users").permitAll() //TODO:solo ADMIN?
                 .antMatchers(HttpMethod.POST, "/api/users").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/users/{id}").access("isAuthenticated()")
@@ -144,7 +146,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE, "/api/events/*/ratings/*").access("isAuthenticated()")//TODO: solo lo puede hacer el dueño del rating
 
                 .antMatchers(HttpMethod.GET, "/api/reports", "/api/reports/{id}").access("hasRole('ADMIN') and isAuthenticated()")
-                .antMatchers(HttpMethod.POST, "/api/reports").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/reports").access("isAuthenticated()")
                 .antMatchers(HttpMethod.DELETE, "/api/reports/{id}").access("hasRole('ADMIN') and isAuthenticated()")
                 .antMatchers(HttpMethod.PUT, "/api/reports/{id}").access("hasRole('ADMIN') and isAuthenticated()")
 

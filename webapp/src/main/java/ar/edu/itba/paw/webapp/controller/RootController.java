@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 @Path("/")
 @Component
 public class RootController {
-
     @HEAD
     @Produces(MediaType.TEXT_PLAIN)
     public Response head() {
