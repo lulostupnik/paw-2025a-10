@@ -1,7 +1,9 @@
 package ar.edu.itba.paw.webapp.auth.filters;
 
+import ar.edu.itba.paw.interfaces.services.EmailService;
 import ar.edu.itba.paw.interfaces.services.TokenService;
 import ar.edu.itba.paw.interfaces.services.UserService;
+import ar.edu.itba.paw.models.EmailUser;
 import ar.edu.itba.paw.models.Token;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.auth.JwtUtils;
@@ -47,6 +49,8 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
 
     @Autowired
     private UserDetailsService userDetailsService;
+    @Autowired
+    private EmailService emailService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -82,7 +86,9 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 } else if (!user.isValidated()) {
-//                    userService.sendVerificationToken(user.getEmail()); TODO: Decide if we want to resend verification email on every login attempt
+                    //TODO:No se si lo haria asi pero esto es como manejamos los tokens
+//                    Token token = tokenService.userTokenControl(user);
+//                    emailService.sendValidationEmail(new EmailUser(user),token.getToken());
                     throw new UserNotVerifiedException(user.getEmail());
                 } else {
                     final Authentication auth = authenticationManager.authenticate(
