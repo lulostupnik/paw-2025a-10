@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.time.LocalDate;
@@ -193,7 +194,7 @@ public class EventController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createEventResponse(
             @PathParam("eventId") final long eventId,
-            @Valid final CreateEventResponseForm form
+            @Valid @NotNull final CreateEventResponseForm form
     ) {
         final Long userId = accessHelper.getCurrentUserId();
         final EventResponse response = eventService.createEventResponse(userId, eventId, form.getMessage());

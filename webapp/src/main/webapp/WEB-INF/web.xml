@@ -41,7 +41,7 @@
     </init-param>
     <init-param>
       <param-name>jersey.config.server.provider.classnames</param-name>
-      <param-value>org.glassfish.jersey.media.multipart.MultiPartFeature</param-value>
+      <param-value>org.glassfish.jersey.media.multipart.MultiPartFeature,org.glassfish.jersey.server.validation.ValidationFeature</param-value>
     </init-param>
     <init-param>
       <param-name>jersey.config.servlet.filter.contextPath</param-name>
