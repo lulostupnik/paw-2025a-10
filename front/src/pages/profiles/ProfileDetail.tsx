@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
 import { useProfileEvents } from "@/hooks/profiles/useProfileEvents";
@@ -73,17 +73,6 @@ export default function ProfileDetail() {
         }
     }, [fromState, returnPathKey]);
 
-    const buildScenarioLink = (scenario: string) => {
-        const next = new URLSearchParams(searchParams);
-        if (scenario === "normal") {
-            next.delete("profileScenario");
-            next.delete("scenario");
-        } else {
-            next.set("profileScenario", scenario);
-        }
-        return `${location.pathname}?${next.toString()}`;
-    };
-
     const handleBack = () => {
         if (returnPath) {
             navigate(returnPath, { replace: true });
@@ -156,16 +145,6 @@ export default function ProfileDetail() {
                         <div className="header-container">
                             <h2 className="page-title">{t("profile.page.title")}</h2>
                         </div>
-                        {import.meta.env.DEV && (
-                            <div className="profile-dev-links">
-                                <span>Scenario:</span>
-                                <Link to={buildScenarioLink("normal")}>normal</Link>
-                                <Link to={buildScenarioLink("empty")}>empty</Link>
-                                <Link to={buildScenarioLink("loading")}>loading</Link>
-                                <Link to={buildScenarioLink("error")}>error</Link>
-                            </div>
-                        )}
-
                         <ProfileHeader profile={profile} />
 
                         <div className="profile-tabs-container">

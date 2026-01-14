@@ -12,11 +12,10 @@ interface UsersTabProps {
     data: PagedResult<AdminUser>;
     searchValue: string;
     onSearchChange: (value: string) => void;
-    onSearchSubmit: () => void;
+    onSearchSubmit: (value: string) => void;
     onPageChange: (page: number) => void;
     isLoading: boolean;
     isError: boolean;
-    searchIconSrc: string;
     blockIconSrc: string;
     unblockIconSrc: string;
 }
@@ -36,7 +35,6 @@ export default function UsersTab({
     onPageChange,
     isLoading,
     isError,
-    searchIconSrc,
     blockIconSrc,
     unblockIconSrc,
 }: UsersTabProps) {
@@ -63,7 +61,6 @@ export default function UsersTab({
                 searchButtonLabel={t("admin.search.button")}
                 onSearchChange={onSearchChange}
                 onSearchSubmit={onSearchSubmit}
-                searchIconSrc={searchIconSrc}
             />
             <div className="table-container">
                 <table className="data-table">

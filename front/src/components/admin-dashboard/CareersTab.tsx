@@ -10,11 +10,10 @@ interface CareersTabProps {
     data: PagedResult<AdminCareer>;
     searchValue: string;
     onSearchChange: (value: string) => void;
-    onSearchSubmit: () => void;
+    onSearchSubmit: (value: string) => void;
     onPageChange: (page: number) => void;
     isLoading: boolean;
     isError: boolean;
-    searchIconSrc: string;
     plusIconSrc: string;
 }
 
@@ -26,7 +25,6 @@ export default function CareersTab({
     onPageChange,
     isLoading,
     isError,
-    searchIconSrc,
     plusIconSrc,
 }: CareersTabProps) {
     const navigate = useNavigate();
@@ -44,7 +42,6 @@ export default function CareersTab({
                 searchButtonLabel={t("admin.search.button")}
                 onSearchChange={onSearchChange}
                 onSearchSubmit={onSearchSubmit}
-                searchIconSrc={searchIconSrc}
                 actions={
                     <Link to="/careers/create" className="btn btn-primary btn-with-icon">
                         <img src={plusIconSrc} alt={t("careers.create.button")} className="btn-icon" />

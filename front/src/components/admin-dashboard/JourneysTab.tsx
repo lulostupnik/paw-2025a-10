@@ -10,11 +10,10 @@ interface JourneysTabProps {
     data: PagedResult<AdminJourney>;
     searchValue: string;
     onSearchChange: (value: string) => void;
-    onSearchSubmit: () => void;
+    onSearchSubmit: (value: string) => void;
     onPageChange: (page: number) => void;
     isLoading: boolean;
     isError: boolean;
-    searchIconSrc: string;
 }
 
 export default function JourneysTab({
@@ -25,7 +24,6 @@ export default function JourneysTab({
     onPageChange,
     isLoading,
     isError,
-    searchIconSrc,
 }: JourneysTabProps) {
     const navigate = useNavigate();
     const { t } = useI18n();
@@ -42,7 +40,6 @@ export default function JourneysTab({
                 searchButtonLabel={t("admin.search.button")}
                 onSearchChange={onSearchChange}
                 onSearchSubmit={onSearchSubmit}
-                searchIconSrc={searchIconSrc}
             />
             <div className="table-container">
                 <table className="data-table">

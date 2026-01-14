@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import Button from "./ui/Button";
 import { getUsername, isAdmin, isLoggedIn, logout } from "@/lib/auth/auth";
@@ -24,12 +24,36 @@ export default function TopBar() {
     const { t } = useI18n();
     const [menuOpen, setMenuOpen] = useState(false);
     const profileRef = useRef<HTMLDivElement>(null);
+    const headerRef = useRef<HTMLElement | null>(null);
+
+    const updateTopBarOffset = useCallback(() => {
+        if (typeof window === "undefined" || !headerRef.current) {
+            return;
+        }
+        document.documentElement.style.setProperty("--top-bar-offset", `${headerRef.current.offsetHeight}px`);
+    }, []);
 
     useEffect(() => {
         if (!logged && menuOpen) {
             setMenuOpen(false);
         }
     }, [logged, menuOpen]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            return undefined;
+        }
+
+        updateTopBarOffset();
+        window.addEventListener("resize", updateTopBarOffset);
+        return () => {
+            window.removeEventListener("resize", updateTopBarOffset);
+        };
+    }, [updateTopBarOffset]);
+
+    useEffect(() => {
+        updateTopBarOffset();
+    }, [updateTopBarOffset, logged, username]);
 
     useEffect(() => {
         if (!menuOpen) {
@@ -47,7 +71,7 @@ export default function TopBar() {
     }, [menuOpen]);
 
     return (
-        <header className="top-bar">
+        <header className="top-bar" ref={headerRef}>
             <NavLink to="/" className="top-bar__brand" aria-label={t("app.name")}>
                 <Logo text={t("app.name")} />
             </NavLink>

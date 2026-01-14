@@ -10,11 +10,10 @@ interface ReportsTabProps {
     data: PagedResult<AdminReport>;
     searchValue: string;
     onSearchChange: (value: string) => void;
-    onSearchSubmit: () => void;
+    onSearchSubmit: (value: string) => void;
     onPageChange: (page: number) => void;
     isLoading: boolean;
     isError: boolean;
-    searchIconSrc: string;
 }
 
 const getReasonLabel = (reason: string, t: (key: string, options?: { defaultValue?: string }) => string) => {
@@ -59,7 +58,6 @@ export default function ReportsTab({
     onPageChange,
     isLoading,
     isError,
-    searchIconSrc,
 }: ReportsTabProps) {
     const navigate = useNavigate();
     const { t } = useI18n();
@@ -76,7 +74,6 @@ export default function ReportsTab({
                 searchButtonLabel={t("admin.search.button")}
                 onSearchChange={onSearchChange}
                 onSearchSubmit={onSearchSubmit}
-                searchIconSrc={searchIconSrc}
             />
             <div className="table-container">
                 <table className="data-table">

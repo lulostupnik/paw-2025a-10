@@ -14,7 +14,6 @@ import CareersTab from "@/components/admin-dashboard/CareersTab";
 import ReportsTab from "@/components/admin-dashboard/ReportsTab";
 import { useAdminDashboardData } from "@/hooks/useAdminDashboardData";
 import type { AdminDashboardScenario, AdminDashboardTab } from "@/mocks/adminDashboard.mock";
-import searchIcon from "@/assets/icons/search.svg";
 import plusIcon from "@/assets/icons/plus.svg";
 import blockIcon from "@/assets/icons/block.svg";
 import unblockIcon from "@/assets/icons/unblock.svg";
@@ -92,8 +91,8 @@ export default function AdminPage() {
         updateParams(tab, "", 1);
     };
 
-    const handleSearchSubmit = () => {
-        updateParams(activeTab, searchValue, 1);
+    const handleSearchSubmit = (value: string) => {
+        updateParams(activeTab, value, 1);
     };
 
     const handlePageChange = (nextPage: number) => {
@@ -124,7 +123,6 @@ export default function AdminPage() {
                             onPageChange={handlePageChange}
                             isLoading={isLoading}
                             isError={isError}
-                            searchIconSrc={searchIcon}
                         />
                     )}
 
@@ -137,7 +135,6 @@ export default function AdminPage() {
                             onPageChange={handlePageChange}
                             isLoading={isLoading}
                             isError={isError}
-                            searchIconSrc={searchIcon}
                             blockIconSrc={blockIcon}
                             unblockIconSrc={unblockIcon}
                         />
@@ -152,7 +149,6 @@ export default function AdminPage() {
                             onPageChange={handlePageChange}
                             isLoading={isLoading}
                             isError={isError}
-                            searchIconSrc={searchIcon}
                         />
                     )}
 
@@ -165,7 +161,6 @@ export default function AdminPage() {
                             onPageChange={handlePageChange}
                             isLoading={isLoading}
                             isError={isError}
-                            searchIconSrc={searchIcon}
                             plusIconSrc={plusIcon}
                         />
                     )}
@@ -179,7 +174,6 @@ export default function AdminPage() {
                             onPageChange={handlePageChange}
                             isLoading={isLoading}
                             isError={isError}
-                            searchIconSrc={searchIcon}
                             plusIconSrc={plusIcon}
                         />
                     )}
@@ -193,7 +187,6 @@ export default function AdminPage() {
                             onPageChange={handlePageChange}
                             isLoading={isLoading}
                             isError={isError}
-                            searchIconSrc={searchIcon}
                             plusIconSrc={plusIcon}
                         />
                     )}
@@ -207,7 +200,6 @@ export default function AdminPage() {
                             onPageChange={handlePageChange}
                             isLoading={isLoading}
                             isError={isError}
-                            searchIconSrc={searchIcon}
                             plusIconSrc={plusIcon}
                         />
                     )}
@@ -221,7 +213,6 @@ export default function AdminPage() {
                             onPageChange={handlePageChange}
                             isLoading={isLoading}
                             isError={isError}
-                            searchIconSrc={searchIcon}
                         />
                     )}
                 </div>

@@ -10,11 +10,10 @@ interface CitiesTabProps {
     data: PagedResult<AdminCity>;
     searchValue: string;
     onSearchChange: (value: string) => void;
-    onSearchSubmit: () => void;
+    onSearchSubmit: (value: string) => void;
     onPageChange: (page: number) => void;
     isLoading: boolean;
     isError: boolean;
-    searchIconSrc: string;
     plusIconSrc: string;
 }
 
@@ -26,7 +25,6 @@ export default function CitiesTab({
     onPageChange,
     isLoading,
     isError,
-    searchIconSrc,
     plusIconSrc,
 }: CitiesTabProps) {
     const navigate = useNavigate();
@@ -44,7 +42,6 @@ export default function CitiesTab({
                 searchButtonLabel={t("admin.search.button")}
                 onSearchChange={onSearchChange}
                 onSearchSubmit={onSearchSubmit}
-                searchIconSrc={searchIconSrc}
                 actions={
                     <Link to="/cities/create" className="btn btn-primary btn-with-icon">
                         <img src={plusIconSrc} alt={t("cities.create.button")} className="btn-icon" />

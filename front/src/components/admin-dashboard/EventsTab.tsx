@@ -10,11 +10,10 @@ interface EventsTabProps {
     data: PagedResult<AdminEvent>;
     searchValue: string;
     onSearchChange: (value: string) => void;
-    onSearchSubmit: () => void;
+    onSearchSubmit: (value: string) => void;
     onPageChange: (page: number) => void;
     isLoading: boolean;
     isError: boolean;
-    searchIconSrc: string;
 }
 
 const getProgressPercent = (count: number, limit?: number | null) => {
@@ -33,7 +32,6 @@ export default function EventsTab({
     onPageChange,
     isLoading,
     isError,
-    searchIconSrc,
 }: EventsTabProps) {
     const navigate = useNavigate();
     const { t } = useI18n();
@@ -50,7 +48,6 @@ export default function EventsTab({
                 searchButtonLabel={t("admin.search.button")}
                 onSearchChange={onSearchChange}
                 onSearchSubmit={onSearchSubmit}
-                searchIconSrc={searchIconSrc}
             />
             <div className="table-container">
                 <table className="data-table">

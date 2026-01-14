@@ -10,11 +10,10 @@ interface InterestsTabProps {
     data: PagedResult<AdminInterest>;
     searchValue: string;
     onSearchChange: (value: string) => void;
-    onSearchSubmit: () => void;
+    onSearchSubmit: (value: string) => void;
     onPageChange: (page: number) => void;
     isLoading: boolean;
     isError: boolean;
-    searchIconSrc: string;
     plusIconSrc: string;
 }
 
@@ -26,7 +25,6 @@ export default function InterestsTab({
     onPageChange,
     isLoading,
     isError,
-    searchIconSrc,
     plusIconSrc,
 }: InterestsTabProps) {
     const navigate = useNavigate();
@@ -44,7 +42,6 @@ export default function InterestsTab({
                 searchButtonLabel={t("admin.search.button")}
                 onSearchChange={onSearchChange}
                 onSearchSubmit={onSearchSubmit}
-                searchIconSrc={searchIconSrc}
                 actions={
                     <Link to="/interests/create" className="btn btn-primary btn-with-icon">
                         <img src={plusIconSrc} alt={t("interests.create.button")} className="btn-icon" />
