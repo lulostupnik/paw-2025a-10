@@ -4,9 +4,11 @@ import ar.edu.itba.paw.interfaces.persistence.*;
 import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.interfaces.services.ReportService;
+import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.ReportReason;
 import ar.edu.itba.paw.models.enums.ReportStatus;
+import ar.edu.itba.paw.models.enums.ReportType;
 import ar.edu.itba.paw.models.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,14 +24,42 @@ public class ReportServiceImpl implements ReportService {
     private final ReportDao reportDao;
     private final JourneyService journeyService;
     private final EventService eventService;
+    private final UserService userService;
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportServiceImpl.class);
     @Autowired
     public ReportServiceImpl(final ReportDao reportDao, final JourneyService journeyService,
-                             final EventService eventService) {
+                             final EventService eventService, final UserService userService) {
         this.reportDao = reportDao;
         this.journeyService = journeyService;
         this.eventService = eventService;
+        this.userService = userService;
     }
+
+
+    @Override
+    @Transactional
+    public Report createReport(
+            ReportType type,
+            long reportingUserId,
+            long targetId,
+            String description,
+            ReportReason reason
+    ) {
+        Optional<User> maybeUser = userService.findUserById(reportingUserId);
+        if(maybeUser.isPresent()){
+            User reportingUser = maybeUser.get();
+            return switch (type) {
+                case JOURNEY -> createReportForJourney(reportingUser, targetId, description, reason);
+                case EVENT -> createReportForEvent(reportingUser, targetId, description, reason);
+                case JOURNEY_RESPONSE -> createReportForJourneyResponse(reportingUser, targetId, description, reason);
+                case EVENT_RESPONSE -> createReportForEventResponse(reportingUser, targetId, description, reason);
+            };
+        }
+        //TODO:No se que devolver
+        return null;
+
+    }
+
 
     @Override
     @Transactional
@@ -104,6 +134,7 @@ public class ReportServiceImpl implements ReportService {
         report.setDeleted(true);
         LOGGER.info("Report with id: " + report.getId() + " has been marked as deleted.");
     }
+
 
     @Transactional
     @Override
