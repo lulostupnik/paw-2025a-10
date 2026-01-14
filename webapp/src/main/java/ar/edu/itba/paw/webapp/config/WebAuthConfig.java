@@ -131,15 +131,17 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT, "/api/events/{id}").access("@accessHelper.isUserEventOwner(#id)")
                 .antMatchers(HttpMethod.DELETE, "/api/events/{id}").access("@accessHelper.isUserEventOwner(#id) or hasRole('ADMIN')")
 
+                .antMatchers(HttpMethod.GET, "/api/events/*/responses").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/events/*/responses").access("isAuthenticated()")
                 .antMatchers(HttpMethod.DELETE, "/api/events/*/responses/*").access("hasRole('ADMIN')")
 
                 .antMatchers(HttpMethod.POST, "/api/events/*/attendances").access("isAuthenticated()")
                 .antMatchers(HttpMethod.DELETE, "/api/events/*/attendances").access("isAuthenticated()")
 
-                .antMatchers(HttpMethod.POST, "/api/events/*/ratings").access("isAuthenticated()")
-                .antMatchers(HttpMethod.PUT, "/api/events/*/ratings/*").access("isAuthenticated()")
-                .antMatchers(HttpMethod.DELETE, "/api/events/*/ratings/*").access("isAuthenticated()")
+                .antMatchers(HttpMethod.GET, "/api/events/*/ratings").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/events/*/ratings").access("isAuthenticated()") //TODO: solo si fue al evento
+                .antMatchers(HttpMethod.PUT, "/api/events/*/ratings/*").access(" @accessHelper.isCurrentUser(#id) ") //TODO: solo lo puede hacer el dueño del rating
+                .antMatchers(HttpMethod.DELETE, "/api/events/*/ratings/*").access("isAuthenticated()")//TODO: solo lo puede hacer el dueño del rating
 
                 .antMatchers(HttpMethod.GET, "/api/reports", "/api/reports/{id}").access("hasRole('ADMIN') and isAuthenticated()")
                 .antMatchers(HttpMethod.POST, "/api/reports").permitAll()
@@ -149,6 +151,8 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/images/*").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/images").access("isAuthenticated()")
                 .antMatchers(HttpMethod.DELETE, "/api/images/*").access("hasRole('ADMIN')")
+
+
                 .antMatchers("/universities", "/careers", "/interests", "/cities").permitAll()
                 .antMatchers("/events/create", "/journeys/create", "/interests/edit").access("isAuthenticated()")
                 .antMatchers(HttpMethod.GET,"/events", "/", "/events/{id}", "/journeys", "/journeys/{id}", "/images/{id}", "/blocked").permitAll()
