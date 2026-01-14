@@ -11,7 +11,7 @@ const SCENARIO: AdminDetailScenario = "normal";
 export default function CareerDetailPage() {
     const { t } = useI18n();
     const { id } = useParams();
-    const { data: career, isLoading, isError } = useAdminCareerDetailData({ scenario: SCENARIO });
+    const { data: career, isLoading, isError } = useAdminCareerDetailData({ scenario: SCENARIO, id });
     const [modalOpen, setModalOpen] = useState(false);
 
     if (!isAdmin()) {

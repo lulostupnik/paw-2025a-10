@@ -119,7 +119,9 @@ export const useAdminDashboardData = ({
     overrides,
 }: AdminDashboardDataParams = {}) => {
     const query = normalize(search.trim());
-    // TODO: Replace mock data with real API calls, caching, and error handling.
+    // TODO: GET /api/admin/dashboard?search={search}&page={page}&pageSize={pageSize}
+    // TODO: expected response shape: AdminDashboardData
+    const USE_MOCKS = true;
     const baseData = useMemo(() => getAdminDashboardMock(scenario), [scenario]);
     const data = useMemo(() => ({ ...baseData, ...overrides }), [baseData, overrides]);
 
@@ -142,8 +144,11 @@ export const useAdminDashboardData = ({
         };
     }, [data, query]);
 
-    const paged = useMemo<AdminDashboardData>(
-        () => ({
+    const paged = useMemo<AdminDashboardData>(() => {
+        if (!USE_MOCKS) {
+            // TODO: Replace in-memory pagination when backend handles it.
+        }
+        return {
             journeys: paginate(filteredData.journeys, page, pageSize),
             users: paginate(filteredData.users, page, pageSize),
             events: paginate(filteredData.events, page, pageSize),
@@ -152,9 +157,8 @@ export const useAdminDashboardData = ({
             cities: paginate(filteredData.cities, page, pageSize),
             careers: paginate(filteredData.careers, page, pageSize),
             reports: paginate(filteredData.reports, page, pageSize),
-        }),
-        [filteredData, page, pageSize]
-    );
+        };
+    }, [filteredData, page, pageSize]);
 
     return {
         data: paged,

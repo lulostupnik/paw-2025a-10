@@ -11,7 +11,7 @@ const SCENARIO: AdminDetailScenario = "normal";
 export default function UniversityDetailPage() {
     const { t } = useI18n();
     const { id } = useParams();
-    const { data: university, isLoading, isError } = useAdminUniversityDetailData({ scenario: SCENARIO });
+    const { data: university, isLoading, isError } = useAdminUniversityDetailData({ scenario: SCENARIO, id });
     const [modalOpen, setModalOpen] = useState(false);
 
     if (!isAdmin()) {

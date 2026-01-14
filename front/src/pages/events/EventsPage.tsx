@@ -147,11 +147,6 @@ export default function EventsListPage() {
                                 <EventCard
                                     key={event.id}
                                     event={event}
-                                    actionSlot={
-                                        <Button size="sm" variant="outline" onClick={() => navigate(`/events/${event.id}`)}>
-                                            {t("landing.event.view")}
-                                        </Button>
-                                    }
                                 />
                             ))}
                         </div>

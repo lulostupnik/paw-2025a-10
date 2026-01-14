@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
@@ -17,7 +17,8 @@ const getInitials = (firstname: string, lastname: string) =>
 
 export default function UserDetailPage() {
     const { t } = useI18n();
-    const { data: user, isLoading, isError } = useAdminUserDetailData({ scenario: SCENARIO });
+    const { id } = useParams();
+    const { data: user, isLoading, isError } = useAdminUserDetailData({ scenario: SCENARIO, id });
     const [modalOpen, setModalOpen] = useState(false);
 
     if (!isAdmin()) {

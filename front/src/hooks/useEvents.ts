@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { EventSummary, FetchEventsParams } from "@/lib/api/events";
 import { fetchEvents, mapEventDtoToSummary } from "@/lib/api/events";
+import { getEventsMock, type EventListScenario } from "@/mocks/events.mock";
 
 interface UseEventsResult {
     events: EventSummary[];
@@ -14,11 +15,33 @@ export function useEvents(params?: FetchEventsParams): UseEventsResult {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [reloadKey, setReloadKey] = useState(0);
+    const scenario = useMemo<EventListScenario>(() => {
+        const search = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+        const raw = search?.get("eventsScenario") ?? search?.get("scenario");
+        if (raw === "empty" || raw === "error" || raw === "loading") {
+            return raw;
+        }
+        return "normal";
+    }, []);
 
     const serializedParams = useMemo(() => JSON.stringify(params ?? {}), [params]);
     const memoizedParams = useMemo<FetchEventsParams>(() => ({ ...(params ?? {}) }), [serializedParams]);
 
     useEffect(() => {
+        // TODO: GET /api/events?page={page}&size={size}&search={search}&upcoming={upcoming}
+        // TODO: expected response shape: EventDto[]
+        const USE_MOCKS = true;
+        if (USE_MOCKS) {
+            setLoading(scenario === "loading");
+            setError(scenario === "error" ? "Failed to fetch events" : null);
+            if (scenario === "loading" || scenario === "error") {
+                setEvents([]);
+                return;
+            }
+            setEvents(getEventsMock(scenario));
+            return;
+        }
+
         const controller = new AbortController();
         setLoading(true);
         setError(null);
@@ -44,7 +67,7 @@ export function useEvents(params?: FetchEventsParams): UseEventsResult {
             });
 
         return () => controller.abort();
-    }, [memoizedParams, reloadKey]);
+    }, [memoizedParams, reloadKey, scenario]);
 
     const refetch = useCallback(() => setReloadKey((key) => key + 1), []);
 

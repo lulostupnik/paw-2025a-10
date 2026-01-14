@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
-import { isAdmin } from "@/lib/auth/auth";
+import { getUserId, isAdmin } from "@/lib/auth/auth";
 import CreatorCard from "@/components/detail/CreatorCard";
 import AdminPagination from "@/components/admin-dashboard/AdminPagination";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import type { EventDetailScenario } from "@/mocks/eventDetail.mock";
+import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 
 const SCENARIO: EventDetailScenario = "normal";
 
@@ -80,8 +81,9 @@ const renderStars = (rating: number) => {
 export default function EventDetailPage() {
     const { t, locale } = useI18n();
     const navigate = useNavigate();
+    const location = useLocation();
     const { id } = useParams();
-    const { data, isLoading, isError } = useEventDetailData({ scenario: SCENARIO });
+    const { data, isLoading, isError } = useEventDetailData({ scenario: SCENARIO, eventId: id });
     const [actionMenuOpen, setActionMenuOpen] = useState(false);
     const [openCommentMenuId, setOpenCommentMenuId] = useState<number | null>(null);
     const [activeTab, setActiveTab] = useState<"details" | "chat" | "rating">("details");
@@ -89,7 +91,7 @@ export default function EventDetailPage() {
     const [commentsPage, setCommentsPage] = useState(1);
     const [ratingValue, setRatingValue] = useState<number>(data.averageRating ?? 0);
 
-    const isOwner = false;
+    const isOwner = data.user.id === getUserId();
     const admin = isAdmin();
     const isAttending = true;
     const isFull = data.attendeesLimit ? data.attendeesCount >= data.attendeesLimit : false;
@@ -105,6 +107,19 @@ export default function EventDetailPage() {
         return <div className="event-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
     }
 
+    const handleBack = () => {
+        const previous = popFromNavigationStack();
+        if (previous && previous !== `${location.pathname}${location.search}`) {
+            navigate(previous);
+            return;
+        }
+        if (window.history.length > 1) {
+            navigate(-1);
+            return;
+        }
+        navigate("/events");
+    };
+
     return (
         <div className="event-detail-page">
             <div className="layout-container">
@@ -114,13 +129,7 @@ export default function EventDetailPage() {
                             <button
                                 type="button"
                                 className="back-link"
-                                onClick={() => {
-                                    if (window.history.length > 1) {
-                                        navigate(-1);
-                                    } else {
-                                        navigate("/events");
-                                    }
-                                }}
+                                onClick={handleBack}
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M19 12H5"></path>

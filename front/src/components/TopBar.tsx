@@ -107,7 +107,7 @@ export default function TopBar() {
                                 className="top-bar__profile-menu-item"
                                 onClick={() => {
                                     setMenuOpen(false);
-                                    nav("/profile");
+                                    nav("/profiles/me/info");
                                 }}
                             >
                                 {t("nav.profile")}

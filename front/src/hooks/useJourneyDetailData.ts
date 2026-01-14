@@ -3,11 +3,19 @@ import { type JourneyDetail, type JourneyDetailScenario, getJourneyDetailMock } 
 
 interface JourneyDetailParams {
     scenario?: JourneyDetailScenario;
+    journeyId?: string;
 }
 
-export const useJourneyDetailData = ({ scenario = "normal" }: JourneyDetailParams = {}) => {
-    // TODO: replace mock journey detail with API fetch + caching + error handling.
-    const data = useMemo<JourneyDetail>(() => getJourneyDetailMock(scenario), [scenario]);
+export const useJourneyDetailData = ({ scenario = "normal", journeyId }: JourneyDetailParams = {}) => {
+    // TODO: GET /api/journeys/{journeyId}
+    // TODO: expected response shape: JourneyDetail
+    const USE_MOCKS = true;
+    const data = useMemo<JourneyDetail>(() => {
+        if (USE_MOCKS) {
+            return getJourneyDetailMock(scenario);
+        }
+        return getJourneyDetailMock(scenario);
+    }, [scenario, journeyId]);
 
     return {
         data,

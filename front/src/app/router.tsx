@@ -20,7 +20,12 @@ import EventsListPage from "@/pages/events/EventsPage";
 import EventDetailPage from "@/pages/events/EventDetailsPage";
 import EventCreatePage from "@/pages/events/EventCreatePage";
 
-import ProfilePage from "@/pages/profile/ProfilePage";
+import ProfileDetail from "@/pages/profiles/ProfileDetail";
+import ProfileForm from "@/pages/profiles/ProfileForm";
+import ProfilePictureForm from "@/pages/profiles/ProfilePictureForm";
+import ProfilePasswordForm from "@/pages/profiles/ProfilePasswordForm";
+import ProfileInterestsEdit from "@/pages/profiles/ProfileInterestsEdit";
+import ProfileRedirect from "@/pages/profiles/ProfileRedirect";
 import AdminPage from "@/pages/admin/AdminPage";
 import ReportDetailPage from "@/pages/admin/ReportDetailPage";
 import UserDetailPage from "@/pages/users/UserDetailPage";
@@ -69,7 +74,12 @@ export const router = createBrowserRouter([
                 children: [
                     { path: "journeys/create", element: <JourneyCreatePage /> },
                     { path: "events/create", element: <EventCreatePage /> },
-                    { path: "profile", element: <ProfilePage /> },
+                    { path: "profiles/:profileId", element: <ProfileRedirect /> },
+                    { path: "profiles/:profileId/:tab", element: <ProfileDetail /> },
+                    { path: "profiles/me/edit", element: <ProfileForm /> },
+                    { path: "profiles/me/edit-picture", element: <ProfilePictureForm /> },
+                    { path: "profiles/me/change-password", element: <ProfilePasswordForm /> },
+                    { path: "profiles/me/interests/edit", element: <ProfileInterestsEdit /> },
                     { path: "admin", element: <AdminPage /> },
                     { path: "reports/:id", element: <ReportDetailPage /> },
                     { path: "users/:id", element: <UserDetailPage /> },

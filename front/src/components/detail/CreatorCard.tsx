@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
+import { pushToNavigationStack } from "@/lib/utils/navigationStack";
 
 interface CreatorCardProps {
     creator: {
@@ -24,9 +25,15 @@ const getInitials = (firstname: string, lastname: string) =>
 
 export default function CreatorCard({ creator, isJourneyCreator = false, showName = true }: CreatorCardProps) {
     const { t } = useI18n();
+    const location = useLocation();
 
     return (
-        <Link to={`/users/${creator.id}`} className="profile-card-link">
+        <Link
+            to={`/profiles/${creator.id}/info`}
+            state={{ from: `${location.pathname}${location.search}` }}
+            className="profile-card-link"
+            onClick={() => pushToNavigationStack(`${location.pathname}${location.search}`)}
+        >
             <div className="event-creator">
                 <h3 className="creator-title">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

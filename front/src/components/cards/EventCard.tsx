@@ -1,13 +1,14 @@
-import type { ReactNode } from "react";
 import { useMemo } from "react";
+import { Link, useLocation } from "react-router-dom";
 import BaseCard from "./BaseCard";
 import CardMetaRow from "./CardMetaRow";
 import type { EventSummary } from "@/lib/api/events";
+import type { ProfileEvent } from "@/types/event";
 import { useI18n } from "@/lib/i18n";
+import { pushToNavigationStack } from "@/lib/utils/navigationStack";
 
 interface EventCardProps {
-    event: EventSummary;
-    actionSlot?: ReactNode;
+    event: EventSummary | ProfileEvent;
 }
 
 const ClockIcon = () => (
@@ -31,15 +32,33 @@ const UsersIcon = () => (
     </svg>
 );
 
-export default function EventCard({ event, actionSlot }: EventCardProps) {
+const UserIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+        <circle cx="12" cy="8" r="4" />
+        <path d="M5.5 20a6.5 6.5 0 0 1 13 0" />
+    </svg>
+);
+
+export default function EventCard({ event }: EventCardProps) {
     const { t, locale } = useI18n();
+    const location = useLocation();
 
     const dateFormatter = useMemo(() => new Intl.DateTimeFormat(locale, { dateStyle: "medium" }), [locale]);
     const timeFormatter = useMemo(() => new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" }), [locale]);
 
     const dateLabel = event.date ? dateFormatter.format(new Date(`${event.date}T00:00:00`)) : t("events.card.dateFallback");
-    const timeLabel = event.date && event.time ? timeFormatter.format(new Date(`${event.date}T${event.time}`)) : t("events.card.timeFallback");
-    const locationLabel = event.address?.trim() || t("events.card.locationFallback");
+    const timeLabel =
+        "time" in event && event.date && event.time
+            ? timeFormatter.format(new Date(`${event.date}T${event.time}`))
+            : t("events.card.timeFallback");
+    const locationLabel =
+        ("city" in event && event.city?.name) || ("address" in event && event.address?.trim()) || t("events.card.locationFallback");
+    const organizerName = "user" in event ? event.user?.username : undefined;
+    const imageUrl =
+        ("flyerImageUrl" in event && event.flyerImageUrl) ||
+        ("flyerUrl" in event && event.flyerUrl) ||
+        ("imageUrl" in event && event.imageUrl) ||
+        undefined;
 
     let capacityLabel: string;
     if (typeof event.attendeesLimit === "number") {
@@ -59,15 +78,22 @@ export default function EventCard({ event, actionSlot }: EventCardProps) {
     }
 
     return (
-        <BaseCard imageUrl={event.imageUrl ?? event.flyerUrl} badge={event.isFull ? t("events.card.status.full") : undefined} footer={actionSlot}>
-            <h3 className="listing-card__title">{event.title}</h3>
-            <p className="listing-card__subtitle">{locationLabel}</p>
-            {event.description && <p className="listing-card__description">{event.description}</p>}
-            <div className="listing-card__meta">
-                <CardMetaRow icon={<ClockIcon />} label={t("events.card.date")} value={`${dateLabel} • ${timeLabel}`} />
-                <CardMetaRow icon={<MapPinIcon />} label={t("events.card.location")} value={locationLabel} />
-                <CardMetaRow icon={<UsersIcon />} label={t("events.card.capacity")} value={capacityLabel} />
-            </div>
-        </BaseCard>
+        <Link
+            to={`/events/${event.id}`}
+            className="listing-card-link"
+            onClick={() => pushToNavigationStack(`${location.pathname}${location.search}`)}
+        >
+            <BaseCard imageUrl={imageUrl} badge={event.isFull ? t("events.card.status.full") : undefined}>
+                <h3 className="listing-card__title">{event.title}</h3>
+                <p className="listing-card__subtitle">{locationLabel}</p>
+                {event.description && <p className="listing-card__description">{event.description}</p>}
+                <div className="listing-card__meta">
+                    <CardMetaRow icon={<ClockIcon />} label={t("events.card.date")} value={`${dateLabel} • ${timeLabel}`} />
+                    <CardMetaRow icon={<MapPinIcon />} label={t("events.card.location")} value={locationLabel} />
+                    <CardMetaRow icon={<UsersIcon />} label={t("events.card.capacity")} value={capacityLabel} />
+                    {organizerName && <CardMetaRow icon={<UserIcon />} label={t("event.organizer")} value={organizerName} />}
+                </div>
+            </BaseCard>
+        </Link>
     );
 }

@@ -11,7 +11,7 @@ const SCENARIO: AdminDetailScenario = "normal";
 export default function CityDetailPage() {
     const { t } = useI18n();
     const { id } = useParams();
-    const { data: city, isLoading, isError } = useAdminCityDetailData({ scenario: SCENARIO });
+    const { data: city, isLoading, isError } = useAdminCityDetailData({ scenario: SCENARIO, id });
     const [modalOpen, setModalOpen] = useState(false);
 
     if (!isAdmin()) {

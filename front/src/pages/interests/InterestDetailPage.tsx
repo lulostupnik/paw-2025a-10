@@ -11,7 +11,7 @@ const SCENARIO: AdminDetailScenario = "normal";
 export default function InterestDetailPage() {
     const { t } = useI18n();
     const { id } = useParams();
-    const { data: interest, isLoading, isError } = useAdminInterestDetailData({ scenario: SCENARIO });
+    const { data: interest, isLoading, isError } = useAdminInterestDetailData({ scenario: SCENARIO, id });
     const [modalOpen, setModalOpen] = useState(false);
 
     if (!isAdmin()) {

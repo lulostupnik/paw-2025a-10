@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
-import { isAdmin } from "@/lib/auth/auth";
+import { getUserId, isAdmin } from "@/lib/auth/auth";
 import CreatorCard from "@/components/detail/CreatorCard";
 import AdminPagination from "@/components/admin-dashboard/AdminPagination";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
 import type { JourneyDetailScenario } from "@/mocks/journeyDetail.mock";
+import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 
 const SCENARIO: JourneyDetailScenario = "normal";
 
@@ -47,8 +48,9 @@ const formatDateTime = (value: string, locale: string) => {
 export default function JourneyDetailPage() {
     const { t, locale } = useI18n();
     const navigate = useNavigate();
+    const location = useLocation();
     const { id } = useParams();
-    const { data, isLoading, isError } = useJourneyDetailData({ scenario: SCENARIO });
+    const { data, isLoading, isError } = useJourneyDetailData({ scenario: SCENARIO, journeyId: id });
     const [actionMenuOpen, setActionMenuOpen] = useState(false);
     const [commentsOpen, setCommentsOpen] = useState(true);
     const [eventsOpen, setEventsOpen] = useState(true);
@@ -57,7 +59,7 @@ export default function JourneyDetailPage() {
     const [eventsPage, setEventsPage] = useState(1);
     const [commentsPage, setCommentsPage] = useState(1);
 
-    const isOwner = false;
+    const isOwner = data.user.id === getUserId();
     const admin = isAdmin();
 
     const pagedInterests = useMemo(() => paginate(data.interests, interestsPage, 8), [data.interests, interestsPage]);
@@ -72,6 +74,19 @@ export default function JourneyDetailPage() {
         return <div className="journey-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
     }
 
+    const handleBack = () => {
+        const previous = popFromNavigationStack();
+        if (previous && previous !== `${location.pathname}${location.search}`) {
+            navigate(previous);
+            return;
+        }
+        if (window.history.length > 1) {
+            navigate(-1);
+            return;
+        }
+        navigate("/journeys");
+    };
+
     return (
         <div className="journey-detail-page">
             <div className="layout-container">
@@ -81,13 +96,7 @@ export default function JourneyDetailPage() {
                             <button
                                 type="button"
                                 className="back-link"
-                                onClick={() => {
-                                    if (window.history.length > 1) {
-                                        navigate(-1);
-                                    } else {
-                                        navigate("/journeys");
-                                    }
-                                }}
+                                onClick={handleBack}
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon">
                                     <path d="M19 12H5"></path>
