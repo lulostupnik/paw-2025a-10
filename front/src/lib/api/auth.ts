@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api/client";
-import { getUserId, setSession } from "@/lib/auth/auth";
+import { setAuthTokens, setSession } from "@/lib/auth/auth";
 
 export interface LoginCredentials {
     email: string;
@@ -18,6 +18,10 @@ interface UserDto {
     username?: string;
     email?: string;
     role?: string;
+}
+
+interface JwtPayload {
+    selfUrl?: string;
 }
 
 function encodeBasicCredentials({ email, password }: LoginCredentials) {
@@ -41,6 +45,42 @@ function encodeBasicCredentials({ email, password }: LoginCredentials) {
     return raw;
 }
 
+function decodeJwtPayload(token: string): JwtPayload | null {
+    const parts = token.split(".");
+    if (parts.length < 2) {
+        return null;
+    }
+    const payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const padded = payload.padEnd(payload.length + ((4 - (payload.length % 4)) % 4), "=");
+    if (typeof globalThis?.atob !== "function") {
+        return null;
+    }
+    try {
+        const json = globalThis.atob(padded);
+        return JSON.parse(json) as JwtPayload;
+    } catch {
+        return null;
+    }
+}
+
+function getHeaderValue(headers: Record<string, unknown>, name: string): string | undefined {
+    const direct = headers[name];
+    if (typeof direct === "string") {
+        return direct;
+    }
+    if (Array.isArray(direct)) {
+        return direct[0];
+    }
+    const lower = headers[name.toLowerCase()];
+    if (typeof lower === "string") {
+        return lower;
+    }
+    if (Array.isArray(lower)) {
+        return lower[0];
+    }
+    return undefined;
+}
+
 function normalizeRole(role?: string): string | undefined {
     if (typeof role !== "string" || role.length === 0) {
         return undefined;
@@ -51,14 +91,20 @@ function normalizeRole(role?: string): string | undefined {
 export async function login(credentials: LoginCredentials): Promise<AuthenticatedUser> {
     const basic = encodeBasicCredentials(credentials);
 
-    await apiClient.get("/", {
+    const loginResponse = await apiClient.head("/", {
         headers: { Authorization: `Basic ${basic}` },
-        params: { size: 1 },
     });
 
-    const userId = getUserId();
-    if (typeof userId === "number" && Number.isFinite(userId)) {
-        const { data } = await apiClient.get<UserDto>(`/users/${userId}`);
+    const authToken = getHeaderValue(loginResponse.headers, "x-gotogether-authtoken");
+    const refreshToken = getHeaderValue(loginResponse.headers, "x-gotogether-refreshtoken");
+    if (authToken || refreshToken) {
+        setAuthTokens({ authToken, refreshToken });
+    }
+
+    const payload = authToken ? decodeJwtPayload(authToken) : null;
+    const selfUrl = payload?.selfUrl;
+    if (selfUrl) {
+        const { data } = await apiClient.get<UserDto>(selfUrl);
         const normalizedRole = normalizeRole(data.role);
         const username = data.username ?? data.email ?? credentials.email;
         const email = data.email ?? credentials.email;

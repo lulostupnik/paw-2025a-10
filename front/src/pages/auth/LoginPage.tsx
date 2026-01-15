@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
-import { loginFake } from "@/lib/auth/auth";
+import { login } from "@/lib/api/auth";
 import { useI18n } from "@/lib/i18n";
 import { classNames } from "@/lib/utils/classNames";
 
@@ -33,6 +33,7 @@ export default function LoginPage() {
     const [touched, setTouched] = useState({ email: false, password: false });
     const [showPassword, setShowPassword] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [authError, setAuthError] = useState("");
 
     const errors = useMemo(() => {
         const result: Record<string, string> = {};
@@ -49,17 +50,22 @@ export default function LoginPage() {
         return result;
     }, [form, t]);
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setTouched({ email: true, password: true });
         if (Object.keys(errors).length > 0) {
             return;
         }
         setSubmitting(true);
-        setTimeout(() => {
-            loginFake();
+        setAuthError("");
+        try {
+            await login({ email: form.email.trim(), password: form.password });
             nav(next, { replace: true });
-        }, 500);
+        } catch {
+            setAuthError(t("login.error.description"));
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
@@ -71,6 +77,7 @@ export default function LoginPage() {
             </header>
 
             <form className="auth-card card" onSubmit={handleSubmit} noValidate>
+                {authError && <p className="form-field__text form-field__text--error">{authError}</p>}
                 <div className="form-field">
                     <label className="input-label" htmlFor="login-email">
                         {t("login.email")}
