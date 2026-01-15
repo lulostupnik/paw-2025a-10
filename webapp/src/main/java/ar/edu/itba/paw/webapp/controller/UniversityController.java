@@ -3,6 +3,7 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
+import ar.edu.itba.paw.models.exceptions.UniversityNotFoundException;
 import ar.edu.itba.paw.webapp.dto.UniversityDto;
 import ar.edu.itba.paw.webapp.form.CreateUniversityForm;
 import ar.edu.itba.paw.webapp.form.UpdateUniversityForm;
@@ -44,11 +45,8 @@ public class UniversityController {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUniversityById(@PathParam("id") final long id) {
-        final Optional<University> maybeUniversity = universityService.findById(id);
-        if (maybeUniversity.isPresent()) {
-            return Response.ok(UniversityDto.fromUniversity(uriInfo, maybeUniversity.get())).build();
-        }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        final University university = universityService.findById(id).orElseThrow(() -> new UniversityNotFoundException(id));
+        return Response.ok(UniversityDto.fromUniversity(uriInfo, university)).build();
     }
 
     @POST

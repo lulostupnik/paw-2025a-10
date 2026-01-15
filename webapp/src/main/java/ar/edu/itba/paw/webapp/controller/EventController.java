@@ -4,6 +4,9 @@ import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
+import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
+import ar.edu.itba.paw.models.exceptions.EventResponseNotFoundException;
+import ar.edu.itba.paw.models.exceptions.RatingNotFoundException;
 import ar.edu.itba.paw.webapp.auth.AccessHelper;
 import ar.edu.itba.paw.webapp.dto.EventDto;
 import ar.edu.itba.paw.webapp.dto.EventResponseDto;
@@ -94,11 +97,8 @@ public class EventController {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getEventById(@PathParam("id") final long id) {
-        final Optional<Event> maybeEvent = eventService.findEventById(id);
-        if (maybeEvent.isPresent()) {
-            return Response.ok(EventDto.fromEvent(uriInfo, maybeEvent.get())).build();
-        }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        final Event event = eventService.findEventById(id).orElseThrow(() -> new EventNotFoundException(id));
+        return Response.ok(EventDto.fromEvent(uriInfo, event)).build();
     }
 
     @POST
@@ -181,11 +181,8 @@ public class EventController {
             @PathParam("eventId") final long eventId,
             @PathParam("responseId") final long responseId
     ) {
-        final Optional<EventResponse> maybeResponse = eventService.findEventResponseById(responseId);
-        if (maybeResponse.isPresent()) {
-            return Response.ok(EventResponseDto.fromEventResponse(uriInfo, maybeResponse.get())).build();
-        }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        final EventResponse response = eventService.findEventResponseById(responseId).orElseThrow(() -> new EventResponseNotFoundException(responseId));
+        return Response.ok(EventResponseDto.fromEventResponse(uriInfo, response)).build();
     }
 
     @POST
@@ -271,11 +268,8 @@ public class EventController {
             @PathParam("eventId") final long eventId,
             @PathParam("ratingId") final long ratingId
     ) {
-        final Optional<Rating> maybeRating = eventService.findRatingById(ratingId);
-        if (maybeRating.isPresent()) {
-            return Response.ok(RatingDto.fromRating(uriInfo, maybeRating.get())).build();
-        }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        final Rating rating = eventService.findRatingById(ratingId).orElseThrow(() -> new RatingNotFoundException(ratingId));
+        return Response.ok(RatingDto.fromRating(uriInfo, rating)).build();
     }
 
     @POST

@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class CityNotFoundException extends RuntimeException {
-
+public class CityNotFoundException extends NotFoundException {
 
     public CityNotFoundException(Long cityId) {
         super(String.format("City not found with id: %d", cityId));

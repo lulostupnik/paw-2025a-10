@@ -3,6 +3,7 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.models.exceptions.CityNotFoundException;
 import ar.edu.itba.paw.webapp.dto.CityDto;
 import ar.edu.itba.paw.webapp.form.CreateCityForm;
 import ar.edu.itba.paw.webapp.form.UpdateCityForm;
@@ -43,11 +44,8 @@ public class CityController {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCityById(@PathParam("id") final long id) {
-        final Optional<City> maybeCity = cityService.findCityById(id);
-        if (maybeCity.isPresent()) {
-            return Response.ok(CityDto.fromCity(uriInfo, maybeCity.get())).build();
-        }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        final City city = cityService.findCityById(id).orElseThrow(() -> new CityNotFoundException(id));
+        return Response.ok(CityDto.fromCity(uriInfo, city)).build();
     }
 
     @POST

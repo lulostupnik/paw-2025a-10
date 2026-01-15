@@ -5,6 +5,7 @@ import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.UserInterest;
+import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.dto.InterestDto;
 import ar.edu.itba.paw.webapp.dto.UserDto;
 import ar.edu.itba.paw.webapp.dto.UserRatingDto;
@@ -62,11 +63,8 @@ public class UserController {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getById(@PathParam("id") final long id) {
-        final Optional<User> maybeUser = us.findUserById(id);
-        if (maybeUser.isPresent()) {
-            return Response.ok(UserDto.fromUser(uriInfo, maybeUser.get())).build();
-        }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        final User user = us.findUserById(id).orElseThrow(() -> new UserNotFoundException(id));
+        return Response.ok(UserDto.fromUser(uriInfo, user)).build();
     }
 
     @POST
@@ -165,12 +163,10 @@ public class UserController {
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("20") int size
     ) {
-        final Optional<User> maybeUser = us.findUserById(userId);
-        if (maybeUser.isEmpty()) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+        final User user = us.findUserById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
-        final List<UserInterest> userInterests = interestService.findInterestsByUser(maybeUser.get(), new PageParams(page + 1, size)).getContent();
+        final List<UserInterest> userInterests = interestService.findInterestsByUser(user, new PageParams(page + 1, size)).getContent();
         // TODO: Create UserInterestDto or reuse InterestDto
         final List<InterestDto> interestDtos = userInterests.stream()
                 .map(ui -> InterestDto.fromInterest(uriInfo, ui.getInterest()))
@@ -211,10 +207,7 @@ public class UserController {
     @Path("/{userId}/rating")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUserRating(@PathParam("userId") final long userId) {
-        final Optional<User> maybeUser = us.findUserById(userId);
-        if (maybeUser.isEmpty()) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+        us.findUserById(userId).orElseThrow(() -> new UserNotFoundException(userId));
 
         // This is a slow computed operation
         final Optional<Double> createdRating = us.findAverageRatingForCreatedEvents(userId);

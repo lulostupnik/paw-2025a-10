@@ -1,6 +1,6 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class InterestsNotFoundException extends RuntimeException {
+public class InterestsNotFoundException extends NotFoundException {
     public InterestsNotFoundException(String message) {
         super(message);
     }

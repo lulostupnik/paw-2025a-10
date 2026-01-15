@@ -6,6 +6,7 @@ import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.Report;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
+import ar.edu.itba.paw.models.exceptions.ReportNotFoundException;
 import ar.edu.itba.paw.webapp.auth.AccessHelper;
 import ar.edu.itba.paw.webapp.dto.JourneyDto;
 import ar.edu.itba.paw.webapp.dto.ReportDto;
@@ -60,11 +61,8 @@ public class ReportController {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getReportById(@PathParam("id") final long id) {
-        final Optional<Report> maybeReport = reportService.findById(id);
-        if (maybeReport.isPresent()) {
-            return Response.ok(ReportDto.fromReport(uriInfo, maybeReport.get())).build();
-        }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        final Report report = reportService.findById(id).orElseThrow(() -> new ReportNotFoundException(id));
+        return Response.ok(ReportDto.fromReport(uriInfo, report)).build();
     }
 
     @POST

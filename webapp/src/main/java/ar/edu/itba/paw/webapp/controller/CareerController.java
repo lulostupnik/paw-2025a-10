@@ -3,6 +3,7 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.interfaces.services.CareerService;
 import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.models.exceptions.CareerNotFoundException;
 import ar.edu.itba.paw.webapp.dto.CareerDto;
 import ar.edu.itba.paw.webapp.form.CreateCareerForm;
 import ar.edu.itba.paw.webapp.form.UpdateCareerForm;
@@ -42,11 +43,8 @@ public class CareerController {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCareerById(@PathParam("id") final long id) {
-        final Optional<Career> maybeCareer = careerService.findCareerById(id);
-        if (maybeCareer.isPresent()) {
-            return Response.ok(CareerDto.fromCareer(uriInfo, maybeCareer.get())).build();
-        }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        final Career career = careerService.findCareerById(id).orElseThrow(() -> new CareerNotFoundException(id));
+        return Response.ok(CareerDto.fromCareer(uriInfo, career)).build();
     }
 
     @POST

@@ -3,6 +3,7 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.models.exceptions.InterestsNotFoundException;
 import ar.edu.itba.paw.webapp.dto.InterestDto;
 import ar.edu.itba.paw.webapp.form.CreateInterestForm;
 import ar.edu.itba.paw.webapp.form.UpdateInterestForm;
@@ -44,11 +45,8 @@ public class InterestController {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getInterestById(@PathParam("id") final long id) {
-        final Optional<Interest> maybeInterest = interestService.findInterestById(id);
-        if (maybeInterest.isPresent()) {
-            return Response.ok(InterestDto.fromInterest(uriInfo, maybeInterest.get())).build();
-        }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        final Interest interest = interestService.findInterestById(id).orElseThrow(() -> new InterestsNotFoundException(id));
+        return Response.ok(InterestDto.fromInterest(uriInfo, interest)).build();
     }
 
     @POST

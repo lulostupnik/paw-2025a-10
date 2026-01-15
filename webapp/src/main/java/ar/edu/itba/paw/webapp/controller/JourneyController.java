@@ -7,6 +7,9 @@ import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.Tip;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
+import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
+import ar.edu.itba.paw.models.exceptions.JourneyResponseNotFoundException;
+import ar.edu.itba.paw.models.exceptions.TipNotFoundException;
 import ar.edu.itba.paw.webapp.auth.AccessHelper;
 import ar.edu.itba.paw.webapp.dto.JourneyDto;
 import ar.edu.itba.paw.webapp.dto.JourneyResponseDto;
@@ -91,11 +94,8 @@ public class JourneyController {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getJourneyById(@PathParam("id") final long id) {
-        final Optional<Journey> maybeJourney = journeyService.findJourneyById(id);
-        if (maybeJourney.isPresent()) {
-            return Response.ok(JourneyDto.fromJourney(uriInfo, maybeJourney.get())).build();
-        }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        final Journey journey = journeyService.findJourneyById(id).orElseThrow(() -> new JourneyNotFoundException(id));
+        return Response.ok(JourneyDto.fromJourney(uriInfo, journey)).build();
     }
 
     @POST
@@ -168,11 +168,9 @@ public class JourneyController {
     ) {
         // TODO: Verificar que el tip le pertenece al journey --> mandarle el journeyId el método de servicio
         //  ¿quizas hacer que en realidad la clave del tip sea una clave compuesta? No se, medio fiaca
-        final Optional<Tip> maybeTip = journeyService.findTipById(tipId);
-        if (maybeTip.isPresent()) {
-            return Response.ok(TipDto.fromTip(uriInfo, maybeTip.get())).build();
-        }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        final Tip tip = journeyService.findTipById(tipId)
+                .orElseThrow(() -> new TipNotFoundException(tipId));
+        return Response.ok(TipDto.fromTip(uriInfo, tip)).build();
     }
 
     @POST
@@ -235,11 +233,9 @@ public class JourneyController {
             @PathParam("responseId") final long responseId
     ) {
         // TODO: Verificar que la respuesta pertenezca al journey --> ¿pasar journeyID al servicio?
-        final Optional<JourneyResponse> maybeResponse = journeyService.findJourneyResponseById(responseId);
-        if (maybeResponse.isPresent()) {
-            return Response.ok(JourneyResponseDto.fromJourneyResponse(uriInfo, maybeResponse.get())).build();
-        }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        final JourneyResponse response = journeyService.findJourneyResponseById(responseId)
+                .orElseThrow(() -> new JourneyResponseNotFoundException(responseId));
+        return Response.ok(JourneyResponseDto.fromJourneyResponse(uriInfo, response)).build();
     }
 
     @POST
