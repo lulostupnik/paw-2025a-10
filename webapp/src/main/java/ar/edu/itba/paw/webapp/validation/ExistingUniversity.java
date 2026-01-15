@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = {ExistingUniversityValidator.class})
 public @interface ExistingUniversity {
-    String message() default "{EmailNotInUse.message}";
+    String message() default "University does not exist";
 
     Class<?>[] groups() default {};
 

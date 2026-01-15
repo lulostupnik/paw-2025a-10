@@ -54,7 +54,9 @@ public class InterestController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createInterest(@Valid final CreateInterestForm form) {
         final Interest interest = interestService.createInterest(form.getName());
-        return Response.created(UriUtils.getInterestUri(uriInfo, interest.getId())).build();
+        return Response.created(UriUtils.getInterestUri(uriInfo, interest.getId()))
+                .entity(InterestDto.fromInterest(uriInfo, interest))
+                .build();
     }
 
     @PUT

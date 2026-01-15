@@ -5,7 +5,7 @@ import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.interfaces.services.CountryService;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.exceptions.CityNotFoundException;
-import ar.edu.itba.paw.models.exceptions.CountryNotFoundException;
+import ar.edu.itba.paw.models.exceptions.InvalidReferenceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +58,7 @@ public class CityServiceImpl implements CityService {
         Country country = countryService.findCountryByName(countryName)
                 .orElseThrow(() -> {
                     LOGGER.error("Country {} not found", countryName);
-                    return new CountryNotFoundException("Country not found for name", countryName);});
+                    return new InvalidReferenceException("Country", countryName);});
         City city = cityDao.findById(id)
                 .orElseThrow(() -> {
                     LOGGER.error("City with id {} not found", id);
@@ -76,7 +76,7 @@ public class CityServiceImpl implements CityService {
         Country country = countryService.findCountryByName(countryName)
                 .orElseThrow(() -> {
                     LOGGER.error("Country {} not found", countryName);
-                    return new CountryNotFoundException("Country not found for name", countryName);});
+                    return new InvalidReferenceException("Country", countryName);});
         City city = cityDao.create(cityName, country);
         LOGGER.info("City with name {} and country {} created successfully", cityName, countryName);
         return city;

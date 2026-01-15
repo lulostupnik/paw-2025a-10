@@ -65,7 +65,7 @@ public class ReportServiceImpl implements ReportService {
     @Transactional
     public Report createReportForJourney(User reportingUser, long journeyId, String description, ReportReason reason) {
         LOGGER.debug("Creating report for journey {} by user {}", journeyId, reportingUser.getId());
-        Journey journey = journeyService.findJourneyById(journeyId).orElseThrow(() -> new JourneyNotFoundException(journeyId));
+        Journey journey = journeyService.findJourneyById(journeyId).orElseThrow(() -> new InvalidReferenceException("Journey", journeyId));
         Report report = reportDao.create(journey.getUser(), reportingUser, journey, description, reason);
         LOGGER.info("Report for journey created, report: {}", report);
         return report;
@@ -75,7 +75,7 @@ public class ReportServiceImpl implements ReportService {
     @Transactional
     public Report createReportForEvent(User reportingUser, long eventId, String description, ReportReason reason) {
         LOGGER.debug("Creating report for event {} by user {}", eventId, reportingUser.getId());
-        Event event = eventService.findEventById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
+        Event event = eventService.findEventById(eventId).orElseThrow(() -> new InvalidReferenceException("Event", eventId));
         Report report =  reportDao.create(event.getUser(), reportingUser, event, description, reason);
         LOGGER.info("Report for event created, report: {}", report);
         return report;
@@ -86,7 +86,7 @@ public class ReportServiceImpl implements ReportService {
     public Report createReportForEventResponse(User reportingUser, long responseId, String description, ReportReason reason) {
         LOGGER.debug("Creating report for event response {} by user {}", responseId, reportingUser.getId());
         EventResponse eventResponse = eventService.findEventResponseById(responseId)
-                .orElseThrow(() -> new EventResponseNotFoundException("Event response not found with id: " + responseId));
+                .orElseThrow(() -> new InvalidReferenceException("EventResponse", responseId));
 
         Report report = reportDao.create(eventResponse.getUser(), reportingUser, eventResponse, description, reason);
         LOGGER.info("Report for event response created, report: {}", report);
@@ -98,7 +98,7 @@ public class ReportServiceImpl implements ReportService {
     public Report createReportForJourneyResponse(User reportingUser, long responseId, String description, ReportReason reason) {
         LOGGER.debug("Creating report for journey response {} by user {}", responseId, reportingUser.getId());
         JourneyResponse journeyResponse = journeyService.findJourneyResponseById(responseId)
-                .orElseThrow(() -> new JourneyResponseNotFoundException(responseId));
+                .orElseThrow(() -> new InvalidReferenceException("JourneyResponse", responseId));
         Report report =reportDao.create(journeyResponse.getUser(), reportingUser, journeyResponse, description, reason);
         LOGGER.info("Report for journey response created, reponse: {}", report);
         return  report; }

@@ -7,7 +7,7 @@ import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
-import ar.edu.itba.paw.models.exceptions.CityNotFoundException;
+import ar.edu.itba.paw.models.exceptions.InvalidReferenceException;
 import ar.edu.itba.paw.models.exceptions.UniversityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +58,7 @@ public class UniversityServiceImpl implements UniversityService {
         LOGGER.debug("Creating university with name {}, abbreviation {}, city {}", name, abbreviation, cityName);
         City city = cityService.findCityByName(cityName).orElseThrow(() -> {
             LOGGER.error("City not found with name: {}", cityName);
-            return new CityNotFoundException(cityName);
+            return new InvalidReferenceException("City", cityName);
         });
         University university = universityDao.create(name, abbreviation, city);
         LOGGER.info("University created successfully with name: {}, abbreviation: {}, in city: {}", name, abbreviation, cityName);
@@ -71,7 +71,7 @@ public class UniversityServiceImpl implements UniversityService {
         LOGGER.debug("Updating university with id {}, name {}, abbreviation {}, city {}", id, name, abbreviation, cityName);
         City city = cityService.findCityByName(cityName).orElseThrow(() -> {
             LOGGER.error("City not found with name: {}", cityName);
-            return new CityNotFoundException(cityName);
+            return new InvalidReferenceException("City", cityName);
         });
         University university = universityDao.findById(id).orElseThrow(() -> {
             LOGGER.error("University with id {} not found", id);

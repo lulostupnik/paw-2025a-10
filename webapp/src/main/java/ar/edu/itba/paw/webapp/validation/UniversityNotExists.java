@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = {UniversityNotExistsValidator.class})
 public @interface UniversityNotExists {
-    String message() default "{validation.interest.not.exists.message}";
+    String message() default "University already exists";
     Class<?>[] groups() default {};
     Class<? extends javax.validation.Payload>[] payload() default {};
 }

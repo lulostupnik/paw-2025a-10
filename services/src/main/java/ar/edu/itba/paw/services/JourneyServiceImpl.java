@@ -69,7 +69,7 @@ public class JourneyServiceImpl implements JourneyService {
         University destination = universityService.findByName(destinationUniversity)
                 .orElseThrow(() -> {
                     LOGGER.warn("Destination university not found: {}", destinationUniversity);
-                    return new UniversityNotFoundException(destinationUniversity);
+                    return new InvalidReferenceException("University", destinationUniversity);
                 }
         );
 
@@ -395,7 +395,7 @@ public class JourneyServiceImpl implements JourneyService {
         University university = universityService.findByName(destinationUniversity)
                 .orElseThrow(() -> {
                     LOGGER.warn("University not found: {}", destinationUniversity);
-                    return new UniversityNotFoundException(destinationUniversity);
+                    return new InvalidReferenceException("University", destinationUniversity);
                 });
         journey.setDestinationUniversity(university);
         journey.setStartDate(startDate);

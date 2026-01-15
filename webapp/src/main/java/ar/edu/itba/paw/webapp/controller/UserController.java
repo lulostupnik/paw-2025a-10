@@ -85,7 +85,9 @@ public class UserController {
                 registerForm.getPassword(),
                 LocaleContextHolder.getLocale()
         );
-        return Response.created(UriUtils.getUserUri(uriInfo, user.getId())).build();
+        return Response.created(UriUtils.getUserUri(uriInfo, user.getId()))
+                .entity(UserDto.fromUser(uriInfo, user))
+                .build();
     }
 
 

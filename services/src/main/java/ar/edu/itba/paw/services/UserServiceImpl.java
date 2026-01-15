@@ -43,17 +43,16 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public User createUser(final String email,final  String username,final  String firstname, final  String lastname,final  String universityName, final String careerName,final  byte[] profilePicture, final List<String> interests,final  String password, final Locale locale) {
         LOGGER.debug("Creating new user with email: {} and username: {}", email, username);
-        // TODO: Add proper REST exception mapper to return 400 Bad Request instead of 500 for UniversityNotFoundException
         University university = universityService.findByName(universityName)
                 .orElseThrow(() -> {
                     LOGGER.error("University not found: '{}' during user creation for email: {}", universityName, email);
-                    return new UniversityNotFoundException(universityName);
+                    return new InvalidReferenceException("University", universityName);
                 });
 
         Career career = careerService.findCareerByName(careerName)
                 .orElseThrow(() -> {
                     LOGGER.error("Career not found: '{}' during user creation for email: {}", careerName, email);
-                    return new CareerNotFoundException(careerName);
+                    return new InvalidReferenceException("Career", careerName);
                 });
 
         long profilePictureId = imageService.createImage(profilePicture);
@@ -242,13 +241,13 @@ public class UserServiceImpl implements UserService {
         University university = universityService.findByName(universityName)
                 .orElseThrow(() -> {
                     LOGGER.error("University not found: '{}' during user update for user ID: {}", universityName, userId);
-                    return new UniversityNotFoundException(universityName);
+                    return new InvalidReferenceException("University", universityName);
                 });
 
         Career career = careerService.findCareerByName(careerName)
                 .orElseThrow(() -> {
                     LOGGER.error("Career not found: '{}' during user update for user ID: {}", careerName, userId);
-                    return new CareerNotFoundException(careerName);
+                    return new InvalidReferenceException("Career", careerName);
                 });
 
         user.setUsername(username);

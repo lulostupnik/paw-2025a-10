@@ -53,7 +53,9 @@ public class CityController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createCity(@Valid final CreateCityForm form) {
         final City city = cityService.createCity(form.getName(), form.getCountry());
-        return Response.created(UriUtils.getCityUri(uriInfo, city.getId())).build();
+        return Response.created(UriUtils.getCityUri(uriInfo, city.getId()))
+                .entity(CityDto.fromCity(uriInfo, city))
+                .build();
     }
 
     @PUT

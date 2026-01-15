@@ -52,7 +52,9 @@ public class CareerController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createCareer(@Valid final CreateCareerForm form) {
         final Career career = careerService.createCareer(form.getName());
-        return Response.created(UriUtils.getCareerUri(uriInfo, career.getId())).build();
+        return Response.created(UriUtils.getCareerUri(uriInfo, career.getId()))
+                .entity(CareerDto.fromCareer(uriInfo, career))
+                .build();
     }
 
     @PUT

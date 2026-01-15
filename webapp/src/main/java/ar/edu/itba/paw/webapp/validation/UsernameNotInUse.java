@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = {UsernameNotInUseValidator.class})
 public @interface UsernameNotInUse {
 
-    String message() default "{UsernameNotInUse.message}";
+    String message() default "Username is already in use";
 
     Class<?>[] groups() default {};
 

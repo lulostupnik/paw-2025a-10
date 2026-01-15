@@ -54,7 +54,9 @@ public class UniversityController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createUniversity(@Valid final CreateUniversityForm form) {
         final University university = universityService.createUniversity(form.getName(), form.getAbbreviation(), form.getCity());
-        return Response.created(UriUtils.getUniversityUri(uriInfo, university.getId())).build();
+        return Response.created(UriUtils.getUniversityUri(uriInfo, university.getId()))
+                .entity(UniversityDto.fromUniversity(uriInfo, university))
+                .build();
     }
 
     @PUT

@@ -76,7 +76,7 @@ public class EventServiceImpl implements EventService {
     private Event createEventInternal(final User user, final String cityName, final LocalDate date, final byte[] flyer, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
         City city = cityService.findCityByName(cityName).orElseThrow(() ->{
             LOGGER.error("City not found {}", cityName);
-            return new CityNotFoundException(cityName);}
+            return new InvalidReferenceException("City", cityName);}
         );
         long flyerImageId = imageService.createImage(flyer);
         Event event = eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit);
@@ -471,7 +471,7 @@ public class EventServiceImpl implements EventService {
 
         City resolvedCity = cityService.findCityByName(cityName).orElseThrow(() -> {
             LOGGER.warn("City not found {}", cityName);
-            return new CityNotFoundException(cityName);}
+            return new InvalidReferenceException("City", cityName);}
         );
 
         long flyerImageId = currentEvent.getFlyerImageId();
