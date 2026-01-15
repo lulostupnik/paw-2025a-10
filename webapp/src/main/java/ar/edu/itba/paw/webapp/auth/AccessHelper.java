@@ -55,5 +55,16 @@ public class AccessHelper {
         return journeyService.isTipOwnedByUser(tipId, email);
     }
 
+    public boolean isUserEventAttendee(long eventId) {
+        Long userId = getCurrentUserId();
+        if (userId == null) return false;
+        return eventService.isUserEventAttendee(userId, eventId);
+    }
+
+    public boolean isUserRatingOwner(long ratingId) {
+        Long userId = getCurrentUserId();
+        if (userId == null) return false;
+        return eventService.isRatingOwnedByUser(ratingId, userId);
+    }
 
 }

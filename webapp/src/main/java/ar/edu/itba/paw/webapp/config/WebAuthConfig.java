@@ -86,7 +86,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
                 .antMatchers(HttpMethod.HEAD, "/api/").access("isAuthenticated()")
 
-                .antMatchers(HttpMethod.GET, "/api/users").permitAll() //TODO:solo ADMIN?
+                .antMatchers(HttpMethod.GET, "/api/users").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/users").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/users/{id}").access("isAuthenticated()")
                 .antMatchers(HttpMethod.PUT, "/api/users/{id}").access("@accessHelper.isCurrentUser(#id)")
@@ -141,9 +141,9 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE, "/api/events/*/attendances").access("isAuthenticated()")
 
                 .antMatchers(HttpMethod.GET, "/api/events/*/ratings").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/events/*/ratings").access("isAuthenticated()") //TODO: solo si fue al evento
-                .antMatchers(HttpMethod.PUT, "/api/events/*/ratings/*").access(" @accessHelper.isCurrentUser(#id) ") //TODO: solo lo puede hacer el dueño del rating
-                .antMatchers(HttpMethod.DELETE, "/api/events/*/ratings/*").access("isAuthenticated()")//TODO: solo lo puede hacer el dueño del rating
+                .antMatchers(HttpMethod.POST, "/api/events/{eventId}/ratings").access("@accessHelper.isUserEventAttendee(#eventId)")
+                .antMatchers(HttpMethod.PUT, "/api/events/*/ratings/{ratingId}").access("@accessHelper.isUserRatingOwner(#ratingId)")
+                .antMatchers(HttpMethod.DELETE, "/api/events/*/ratings/{ratingId}").access("@accessHelper.isUserRatingOwner(#ratingId) or hasRole('ADMIN')")
 
                 .antMatchers(HttpMethod.GET, "/api/reports", "/api/reports/{id}").access("hasRole('ADMIN') and isAuthenticated()")
                 .antMatchers(HttpMethod.POST, "/api/reports").access("isAuthenticated()")

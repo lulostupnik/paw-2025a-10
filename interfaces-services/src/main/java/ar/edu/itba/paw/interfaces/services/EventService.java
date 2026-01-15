@@ -48,6 +48,8 @@ public interface EventService {
     List<Event> findRecommendedEvents(long userId, int limit);
     List<Event> findTopEvents(int limit);
     boolean isEventOwnedByUser(String email, long eventId);
+    boolean isUserEventAttendee(long userId, long eventId);
+    boolean isRatingOwnedByUser(long ratingId, long userId);
 
     Page<Event> searchEventsWithFilters(String search, Long userId,
                                         SortFieldEvent sortBy, SortDirection direction, String destination, LocalDate startDate, LocalDate endDate, String interest,

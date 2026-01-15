@@ -413,6 +413,19 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public boolean isUserEventAttendee(final long userId, final long eventId) {
+        LOGGER.debug("Checking if user {} is attendee of event {}", userId, eventId);
+        return eventAttendanceDao.exists(userId, eventId);
+    }
+
+    @Override
+    public boolean isRatingOwnedByUser(final long ratingId, final long userId) {
+        LOGGER.debug("Checking if rating {} is owned by user {}", ratingId, userId);
+        Optional<Rating> rating = eventRatingDao.findById(ratingId);
+        return rating.isPresent() && rating.get().getUser().getId() == userId;
+    }
+
+    @Override
     public Page<Event> searchEventsWithFilters(final String search, final Long userId, final SortFieldEvent sortBy, final SortDirection direction, final String destination, final LocalDate startDate, final LocalDate endDate, final String interest,
                                                final boolean isPast, final boolean isUpcoming, final boolean attending, Long attendedByUserId,
                                                String university, Integer minRating, Boolean hasCapacity, final PageParams pageParams) {
