@@ -5,7 +5,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 public interface UserDao {
-    User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale, boolean validated);
+    User create(String email, String username, String firstname, String lastname, University university, Career career, Long profilePictureId, String password, Locale locale, boolean validated);
 
 
     Optional<User> findById(long id);

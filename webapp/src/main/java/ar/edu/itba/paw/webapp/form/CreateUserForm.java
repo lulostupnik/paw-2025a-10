@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.webapp.form;
 
 import ar.edu.itba.paw.webapp.validation.*;
-import org.springframework.web.multipart.MultipartFile;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -42,15 +41,6 @@ public class CreateUserForm {
     @Size(min = 2, max = 100)
     @NotNull
     private String lastName;
-
-    // @NotNull
-    @ImageSize()
-    @ContentType({"image/jpeg", "image/jpg", "image/png"})
-    // @ImageNotEmpty
-    private MultipartFile profilePicture;
-
-    // TODO: ver si dejamos este o el anterior
-    private String profilePictureBase64;
 
     @Size(max = 100)
     @NotEmpty
@@ -99,22 +89,6 @@ public class CreateUserForm {
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
-    }
-
-    public MultipartFile getProfilePicture() {
-        return profilePicture;
-    }
-
-    public void setProfilePicture(MultipartFile profilePicture) {
-        this.profilePicture = profilePicture;
-    }
-
-    public String getProfilePictureBase64() {
-        return profilePictureBase64;
-    }
-
-    public void setProfilePictureBase64(String profilePictureBase64) {
-        this.profilePictureBase64 = profilePictureBase64;
     }
 
     public String getOriginUniversity() {
@@ -169,8 +143,6 @@ public class CreateUserForm {
             }
             sb.append("}");
         }
-        sb.append(" profilePictureSize: ");
-        sb.append(profilePicture == null || profilePicture.isEmpty() ? 0 : profilePicture.getSize());
         sb.append("}");
         return sb.toString();
     }

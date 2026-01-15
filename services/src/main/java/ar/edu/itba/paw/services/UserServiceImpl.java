@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User createUser(final String email,final  String username,final  String firstname, final  String lastname,final  String universityName, final String careerName,final  byte[] profilePicture, final List<String> interests,final  String password, final Locale locale) {
+    public User createUser(final String email,final  String username,final  String firstname, final  String lastname,final  String universityName, final String careerName, final List<String> interests,final  String password, final Locale locale) {
         LOGGER.debug("Creating new user with email: {} and username: {}", email, username);
         University university = universityService.findByName(universityName)
                 .orElseThrow(() -> {
@@ -55,8 +55,7 @@ public class UserServiceImpl implements UserService {
                     return new InvalidReferenceException("Career", careerName);
                 });
 
-        long profilePictureId = imageService.createImage(profilePicture);
-        User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId, passwordEncoder.encode(password), Locale.of(locale.getLanguage()), false);
+        User user = userDao.create(email, username, firstname, lastname, university, career, null, passwordEncoder.encode(password), Locale.of(locale.getLanguage()), false);
         LOGGER.info("Successfully created user with ID: {} and email: {}", user.getId(), email);
         interestService.createUserInterests(interests, user.getId());
         LOGGER.info("User interests saved successfully for user ID: {}", user.getId());
@@ -277,5 +276,22 @@ public class UserServiceImpl implements UserService {
 
         LOGGER.info("Profile picture updated successfully for user ID: {}", userId);
         return newProfilePictureId;
+    }
+
+    @Override
+    public Optional<Image> getProfilePicture(final long userId) {
+        LOGGER.debug("Getting profile picture for user ID: {}", userId);
+
+        User user = userDao.findById(userId)
+                .orElseThrow(() -> {
+                    LOGGER.error("User with id {} not found", userId);
+                    return new UserNotFoundException(userId);
+                });
+
+        if (user.getProfilePictureId() == null) {
+            return Optional.empty();
+        }
+
+        return imageService.findImage(user.getProfilePictureId());
     }
 }
