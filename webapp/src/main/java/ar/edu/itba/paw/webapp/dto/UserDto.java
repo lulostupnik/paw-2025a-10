@@ -21,7 +21,7 @@ public class UserDto {
     private String email;
     private String role;
     private Boolean isActive;
-
+    private URI profilePictureUrl;
 
     private URI selfUrl;
 
@@ -32,8 +32,11 @@ public class UserDto {
         dto.email = user.getEmail();
         dto.username = user.getUsername();
         dto.role = user.getRole().toString().replaceAll("^ROLE_", "").toLowerCase();
-        dto.isActive = ! user.isBlocked() && user.isValidated(); //TODO:ver esto
-//        dto.preferredLanguage = user.getPreferredLanguage();
+        dto.isActive = ! user.isBlocked() && user.isValidated();
+        dto.profilePictureUrl = user.getProfilePictureId() != null
+                ? UriUtils.getUserProfilePictureUri(uriInfo, user.getId())
+                : null;
+        // dto.preferredLanguage = user.getPreferredLanguage();
 
         dto.selfUrl = UriUtils.getUserUri(uriInfo, user.getId());
 
@@ -46,6 +49,11 @@ public class UserDto {
     public URI getSelfUrl() {
         return selfUrl;
     }
+
+    public URI getProfilePictureUrl() {
+        return profilePictureUrl;
+    }
+
     public Boolean getActive() {
         return isActive;
     }

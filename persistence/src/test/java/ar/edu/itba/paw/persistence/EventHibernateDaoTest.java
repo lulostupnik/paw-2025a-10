@@ -149,7 +149,7 @@ public class EventHibernateDaoTest {
                 null, 
                 null, 
                 null, 
-                0, 
+                0L,
                 null, 
                 false, 
                 false), 

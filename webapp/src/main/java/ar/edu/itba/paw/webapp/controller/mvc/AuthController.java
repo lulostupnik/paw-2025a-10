@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
-import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
+
 @Deprecated
 
 //@Controller
@@ -116,10 +116,8 @@ public class AuthController {
             return registerForm(form);
         }
 
-        byte[] profilePicture = getBytes(form.getProfilePicture());
-
         userService.createUser(form.getEmail(), form.getUsername(), form.getFirstName(),
-                form.getLastName(), form.getOriginUniversity(), form.getCareer(), profilePicture,
+                form.getLastName(), form.getOriginUniversity(), form.getCareer(),
                 form.getInterests(), form.getPassword(), LocaleContextHolder.getLocale());
 
         return new ModelAndView("redirect:/login?registrationSuccess=true");

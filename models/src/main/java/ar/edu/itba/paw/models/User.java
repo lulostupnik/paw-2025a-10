@@ -45,8 +45,8 @@ public class User{
     private  Career career;
 
     @Setter
-    @Column(name = "profile_picture_id", nullable = false)
-    private  long profilePictureId;
+    @Column(name = "profile_picture_id")
+    private  Long profilePictureId;
 
     @Setter
     @Column(length=2, nullable = false, name="language")
@@ -82,7 +82,7 @@ public class User{
     }
     public User (final String email, final String username, final String firstname,
                 final String lastname, final University university, final Career career,
-                final long profilePictureId, final Locale locale,final boolean validated) {
+                final Long profilePictureId, final Locale locale,final boolean validated) {
         this.email = email;
         this.username = username;
         this.firstname = firstname;
@@ -98,7 +98,7 @@ public class User{
     }
     public User (final Long id, final String email, final String username, final String firstname,
                 final String lastname, final University university, final Career career,
-                final long profilePictureId, final Locale locale, final boolean blocked,final boolean validated) {
+                final Long profilePictureId, final Locale locale, final boolean blocked,final boolean validated) {
         this.id = id;
         this.email = email;
         this.username = username;
@@ -116,7 +116,7 @@ public class User{
     }
     public User (final Long id, final String email, final String username, final String firstname,
                 final String lastname, final University university, final Career career, final Journey journey,
-                final long profilePictureId, final Locale locale, final boolean blocked,final boolean validated) {
+                final Long profilePictureId, final Locale locale, final boolean blocked,final boolean validated) {
         this.id = id;
         this.email = email;
         this.username = username;
@@ -134,7 +134,7 @@ public class User{
     }
 
 
-    public User(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale, boolean validated) {
+    public User(String email, String username, String firstname, String lastname, University university, Career career, Long profilePictureId, String password, Locale locale, boolean validated) {
         this.email = email;
         this.username = username;
         this.firstname = firstname;

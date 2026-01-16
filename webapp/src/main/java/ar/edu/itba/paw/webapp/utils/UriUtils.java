@@ -44,6 +44,10 @@ public final class UriUtils {
         return uriInfo.getBaseUriBuilder().path(USERS_URL).path(String.valueOf(userId)).path("rating").build();
     }
 
+    public static URI getUserProfilePictureUri(final UriInfo uriInfo, final long userId) {
+        return uriInfo.getBaseUriBuilder().path(USERS_URL).path(String.valueOf(userId)).path("profilePicture").build();
+    }
+
     // ==================== JOURNEYS ====================
 
     public static URI getJourneysUri(final UriInfo uriInfo) {

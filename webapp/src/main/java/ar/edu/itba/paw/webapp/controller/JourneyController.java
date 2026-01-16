@@ -49,7 +49,7 @@ public class JourneyController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response listJourneys(
             @QueryParam("destination") String destination,
-            // @QueryParam("city") String city, // TODO: ver después
+            // @QueryParam("city") String city,
             @QueryParam("startDate") String startDateStr,
             @QueryParam("endDate") String endDateStr,
             @QueryParam("interest") String interest,
@@ -67,12 +67,12 @@ public class JourneyController {
         final LocalDate startDate = DateUtils.parseDate(startDateStr);
         final LocalDate endDate = DateUtils.parseDate(endDateStr);
         final SortFieldJourney sortField = SortFieldJourney.from(sort);
-        final SortDirection sortDirection = SortDirection.from(direction); // TODO: revisar si funcionan bien los sorts.
+        final SortDirection sortDirection = SortDirection.from(direction);
 
         final List<Journey> journeys = journeyService.findJourneys(
                 search,
                 userId,
-                sortField,        // TODO: revisar
+                sortField,
                 sortDirection,
                 destination,
                 startDate,

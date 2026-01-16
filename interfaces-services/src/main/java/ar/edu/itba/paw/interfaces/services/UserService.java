@@ -6,7 +6,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 public interface UserService {
-    User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, byte[] profilePicture, List<String> interests, String password, Locale locale);
+    User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, List<String> interests, String password, Locale locale);
     User verifyUser(String token);
     void updatePassword(long id, String newPassword);
     void resetPassword(String token, String newPassword);
@@ -28,6 +28,7 @@ public interface UserService {
                     String universityName, String careerName);
 
     long updateProfilePicture(long userId, byte[] profilePicture);
+    Optional<Image> getProfilePicture(long userId); // TODO: NOTE THAT THIS SHOULD THROW USERNOTFOUNDEXCEPTION IF THE USER IS NOT FOUND.
 
     Optional<Double> findAverageRatingForCreatedEvents(long userId);
     Optional<Double> findAverageRatingForAttendedEvents(long userId);
