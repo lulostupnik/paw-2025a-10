@@ -2,10 +2,45 @@ import axios from "axios";
 import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { getAuthToken, getRefreshToken, setAuthTokens } from "@/lib/auth/auth";
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "/api").replace(/\/$/, "");
+const DEFAULT_API_BASE_URL = import.meta.env.DEV ? "/webapp/api" : "/api";
+export const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? DEFAULT_API_BASE_URL).replace(/\/$/, "");
+const apiBasePath = (() => {
+    try {
+        return new URL(apiBaseUrl, typeof window !== "undefined" ? window.location.origin : "http://localhost").pathname.replace(/\/$/, "");
+    } catch {
+        return apiBaseUrl.replace(/\/$/, "");
+    }
+})();
+const apiContextPath = apiBasePath.endsWith("/api") ? apiBasePath.slice(0, -"/api".length) : "";
+
+export const normalizeApiPath = (value: string) => {
+    if (!value) {
+        return value;
+    }
+
+    const strip = (input: string) => {
+        let next = input;
+        if (next.startsWith(apiBaseUrl)) {
+            next = next.slice(apiBaseUrl.length);
+        }
+        if (apiBasePath && next.startsWith(apiBasePath)) {
+            next = next.slice(apiBasePath.length);
+        } else if (apiContextPath && next.startsWith(apiContextPath)) {
+            next = next.slice(apiContextPath.length);
+        }
+        return next.length === 0 ? "/" : next;
+    };
+
+    try {
+        const parsed = new URL(value, typeof window !== "undefined" ? window.location.origin : "http://localhost");
+        return strip(`${parsed.pathname}${parsed.search}`);
+    } catch {
+        return strip(value);
+    }
+};
 
 export const apiClient = axios.create({
-    baseURL: API_BASE_URL,
+    baseURL: apiBaseUrl,
     headers: {
         Accept: "application/json",
     },

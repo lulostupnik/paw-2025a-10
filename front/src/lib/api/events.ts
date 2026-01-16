@@ -1,5 +1,6 @@
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "/api").replace(/\/$/, "");
-const EVENTS_ENDPOINT = `${API_BASE_URL}/events`;
+import { apiBaseUrl } from "@/lib/api/client";
+
+const EVENTS_ENDPOINT = `${apiBaseUrl}/events`;
 
 export interface EventDto {
     id: number;

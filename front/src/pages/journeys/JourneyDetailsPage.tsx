@@ -5,7 +5,7 @@ import { getUserId, isAdmin } from "@/lib/auth/auth";
 import CreatorCard from "@/components/detail/CreatorCard";
 import AdminPagination from "@/components/admin-dashboard/AdminPagination";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
-import type { JourneyDetailScenario } from "@/mocks/journeyDetail.mock";
+import type { JourneyDetailScenario } from "@/mocks/journeys.mock";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 
 const SCENARIO: JourneyDetailScenario = "normal";
@@ -50,7 +50,7 @@ export default function JourneyDetailPage() {
     const navigate = useNavigate();
     const location = useLocation();
     const { id } = useParams();
-    const { data, isLoading, isError } = useJourneyDetailData({ scenario: SCENARIO, journeyId: id });
+    const { data, isLoading, isError, isNotFound } = useJourneyDetailData({ scenario: SCENARIO, journeyId: id });
     const [actionMenuOpen, setActionMenuOpen] = useState(false);
     const [commentsOpen, setCommentsOpen] = useState(true);
     const [eventsOpen, setEventsOpen] = useState(true);
@@ -59,7 +59,7 @@ export default function JourneyDetailPage() {
     const [eventsPage, setEventsPage] = useState(1);
     const [commentsPage, setCommentsPage] = useState(1);
 
-    const isOwner = data.user.id === getUserId();
+    const isOwner = data.user?.id === getUserId();
     const admin = isAdmin();
 
     const pagedInterests = useMemo(() => paginate(data.interests, interestsPage, 8), [data.interests, interestsPage]);
@@ -68,6 +68,23 @@ export default function JourneyDetailPage() {
 
     if (isLoading) {
         return <div className="journey-detail-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
+    }
+
+    if (isNotFound) {
+        return (
+            <div className="journey-detail-page">
+                <div className="layout-container">
+                    <div className="main-content">
+                        <div className="content-container">
+                            <div className="empty-state">
+                                <p className="empty-message">{t("journey.not.found.title")}</p>
+                                <p className="empty-message">{t("journey.not.found.message")}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     if (isError) {
@@ -218,7 +235,7 @@ export default function JourneyDetailPage() {
                                     <div className="user-details">
                                         <h1 className="journey-title">
                                             {t("journey.detail.section.title", {
-                                                values: { 0: data.user.firstname, 1: data.user.lastname },
+                                                values: { 0: data.user?.firstname ?? "—", 1: data.user?.lastname ?? "" },
                                             })}
                                         </h1>
                                         <div className="journey-meta">
@@ -228,7 +245,7 @@ export default function JourneyDetailPage() {
                                                     <circle cx="12" cy="10" r="3"></circle>
                                                 </svg>
                                                 <span className="destination-text">
-                                                    {data.destinationUniversity.city} - {data.destinationUniversity.name}
+                                                    {data.destinationUniversity?.city ?? "—"} - {data.destinationUniversity?.name ?? "—"}
                                                 </span>
                                             </div>
                                             <div className="journey-dates">
@@ -246,7 +263,7 @@ export default function JourneyDetailPage() {
                                     </div>
                                 </div>
 
-                                <CreatorCard creator={data.user} isJourneyCreator showName={false} />
+                                {data.user && <CreatorCard creator={data.user} isJourneyCreator showName={false} />}
 
                                 <div className="section-content">
                                     <div className="journey-description-card">
