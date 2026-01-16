@@ -1,17 +1,16 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ListingLayout from "@/components/listing/ListingLayout";
-import JourneyCard, { type JourneyPreview } from "@/components/cards/JourneyCard";
-import LoginRequiredModal from "@/components/LoginRequiredModal";
+import JourneyCard from "@/components/journeys/JourneyCard";
 import EmptyState from "@/components/EmptyState";
 import Button from "@/components/ui/Button";
 import ListingFiltersDialog from "@/components/listing/ListingFiltersDialog";
 import ListingSortDropdown from "@/components/listing/ListingSortDropdown";
+import LoginRequiredModal from "@/components/LoginRequiredModal";
 import { useAuthGate } from "@/hooks/useAuthGate";
 import { useI18n } from "@/lib/i18n";
+import { useJourneys } from "@/hooks/useJourneys";
 import { useUrlSyncedListingFilters, type ListingFiltersState } from "@/hooks/useListingFilters";
-
-const MOCK_JOURNEYS: JourneyPreview[] = [];
 
 export default function JourneysListPage() {
     const { t } = useI18n();
@@ -26,10 +25,11 @@ export default function JourneysListPage() {
     const [selectedSort, setSelectedSort] = useState("journey-start-asc");
     const journeyTabs = useMemo(
         () => [
-            { id: "all", label: t("journeys.tabs.all") },
-            { id: "in-progress", label: t("journeys.tabs.inProgress") },
-            { id: "upcoming", label: t("journeys.tabs.upcoming") },
-            { id: "past", label: t("journeys.tabs.past") },
+            { id: "all", label: t("journey.tabs.all") },
+            { id: "myDestination", label: t("journey.tabs.myDestination") },
+            { id: "ongoing", label: t("journey.tabs.ongoing") },
+            { id: "upcoming", label: t("journey.tabs.upcoming") },
+            { id: "past", label: t("journey.tabs.past") },
         ],
         [t]
     );
@@ -86,6 +86,22 @@ export default function JourneysListPage() {
     );
     const [activeTab, setActiveTab] = useState(journeyTabs[0].id);
 
+    const { journeys, loading, error } = useJourneys({
+        destination: filters.cityName || undefined,
+        startDate: filters.afterDate || undefined,
+        endDate: filters.beforeDate || undefined,
+        interest: filters.interestName || undefined,
+        upcoming: activeTab === "upcoming",
+        past: activeTab === "past",
+        ongoing: activeTab === "ongoing",
+        myDestination: activeTab === "myDestination",
+        search: search || undefined,
+        sort: selectedSort.includes("start") ? "start_date" : "end_date",
+        direction: selectedSort.endsWith("desc") ? "desc" : "asc",
+        page: 0,
+        size: 12,
+    });
+
     const handleCreate = () => {
         gate.runOrPrompt(() => nav("/journeys/create"));
     };
@@ -123,19 +139,27 @@ export default function JourneysListPage() {
                     createLabel={t("journeys.create")}
                     onCreate={handleCreate}
                 >
-                    {MOCK_JOURNEYS.length === 0 ? (
+                    {loading && <p className="section__helper">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</p>}
+                    {!loading && error && journeys.length > 0 && (
+                        <p className="section__helper">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</p>
+                    )}
+
+                    {!loading && error && journeys.length === 0 ? (
+                        <EmptyState title={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />
+                    ) : journeys.length === 0 ? (
                         <EmptyState
-                            title={t("journeys.list.empty")}
-                            description={t("journeys.list.empty.description") ?? undefined}
+                            title={t("journey.no.journeys")}
                             action={
-                                <Button type="button" variant="primary" size="sm" onClick={handleCreate}>
-                                    {t("journeys.cta.button")}
-                                </Button>
+                                <div className="listing-cta__actions">
+                                    <Button type="button" variant="primary" size="sm" onClick={handleCreate}>
+                                        {t("journey.create.button")}
+                                    </Button>
+                                </div>
                             }
                         />
                     ) : (
                         <div className="listing-grid">
-                            {MOCK_JOURNEYS.map((journey) => (
+                            {journeys.map((journey) => (
                                 <JourneyCard key={journey.id} journey={journey} />
                             ))}
                         </div>
