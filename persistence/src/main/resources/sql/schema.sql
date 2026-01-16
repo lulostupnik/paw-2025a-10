@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS users (
         username VARCHAR(50) NOT NULL UNIQUE,
         university BIGINT NOT NULL,
         career_id BIGINT NOT NULL,
-        profile_picture_id BIGINT NOT NULL,
+        profile_picture_id BIGINT,
         password VARCHAR(100) NOT NULL DEFAULT '$2b$10$KbQiA8xVuOPQkfiYJ0X0FubQbQjEJpTr6QOBD3qL6sYzFoq2nJ8fK',
         roles VARCHAR(50) DEFAULT 'user' CHECK (roles IN ('user', 'admin')),
         language VARCHAR(2) NOT NULL DEFAULT 'en',
@@ -370,3 +370,6 @@ COMMIT;
 
 -- ALTER TABLE events
 -- DROP COLUMN IF EXISTS attendees_count;
+
+-- Allow users to not have a profile picture (nullable)
+ALTER TABLE users ALTER COLUMN profile_picture_id DROP NOT NULL;

@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
         interestService.createUserInterests(interests, user.getId());
         LOGGER.info("User interests saved successfully for user ID: {}", user.getId());
         Token token = tokenService.userTokenControl(user);
-        emailService.sendValidationEmail(new EmailUser(user),token.getToken());
+        emailService.sendValidationEmail(new EmailUser(user), token.getToken());
         LOGGER.info("Validation email sent successfully to user ID: {}", user.getId());
         return user;
     }
