@@ -4,7 +4,8 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
 public final class UriUtils {
-    public static final String API_BASE_URL = "/api";
+    // Base URI already includes /webapp/api from Jersey; keep resource paths relative.
+    public static final String API_BASE_URL = "";
     public static final String USERS_URL = API_BASE_URL + "/users";
     public static final String JOURNEYS_URL = API_BASE_URL + "/journeys";
     public static final String EVENTS_URL = API_BASE_URL + "/events";

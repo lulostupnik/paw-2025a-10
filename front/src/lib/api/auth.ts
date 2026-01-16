@@ -1,4 +1,4 @@
-import { apiClient } from "@/lib/api/client";
+import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { setAuthTokens, setSession } from "@/lib/auth/auth";
 
 export interface LoginCredentials {
@@ -104,7 +104,7 @@ export async function login(credentials: LoginCredentials): Promise<Authenticate
     const payload = authToken ? decodeJwtPayload(authToken) : null;
     const selfUrl = payload?.selfUrl;
     if (selfUrl) {
-        const { data } = await apiClient.get<UserDto>(selfUrl);
+        const { data } = await apiClient.get<UserDto>(normalizeApiPath(selfUrl));
         const normalizedRole = normalizeRole(data.role);
         const username = data.username ?? data.email ?? credentials.email;
         const email = data.email ?? credentials.email;

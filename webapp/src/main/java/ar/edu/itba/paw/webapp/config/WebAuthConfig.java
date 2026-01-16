@@ -25,8 +25,12 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -82,6 +86,8 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().authorizeRequests()
+                // Allow CORS preflight requests to pass through security.
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/register", "/login", "/reset-password", "/forgot_pass", "/validate", "/not-verified").anonymous()
 
                 .antMatchers(HttpMethod.HEAD, "/api/").access("isAuthenticated()")
@@ -199,5 +205,20 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public JwtUtils jwtTokenUtil(@Value("${jwtSecret.key}") String jwtSecret) {
         return new JwtUtils(jwtSecret);
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setExposedHeaders(Arrays.asList("X-GoTogether-AuthToken", "X-GoTogether-RefreshToken", "WWW-Authenticate"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(TimeUnit.HOURS.toSeconds(1));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

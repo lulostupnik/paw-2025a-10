@@ -1,7 +1,7 @@
 import type { JourneyComment, JourneyDetail, JourneySummary } from "@/types/journey";
-import { apiClient } from "@/lib/api/client";
+import { apiBaseUrl, apiClient, normalizeApiPath } from "@/lib/api/client";
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "/api").replace(/\/$/, "");
+const API_BASE_URL = apiBaseUrl;
 
 interface UserApi {
     id: number;
@@ -38,22 +38,6 @@ interface JourneyResponseApi {
     selfUrl?: string | null;
 }
 
-const normalizeApiPath = (url: string) => {
-    const stripBase = (value: string) => {
-        if (value.startsWith(API_BASE_URL)) {
-            const next = value.slice(API_BASE_URL.length);
-            return next.length === 0 ? "/" : next;
-        }
-        return value;
-    };
-
-    try {
-        const parsed = new URL(url, typeof window !== "undefined" ? window.location.origin : "http://localhost");
-        return stripBase(`${parsed.pathname}${parsed.search}`);
-    } catch (error) {
-        return stripBase(url);
-    }
-};
 
 const parseIdFromUrl = (url?: string | null) => {
     if (!url) {

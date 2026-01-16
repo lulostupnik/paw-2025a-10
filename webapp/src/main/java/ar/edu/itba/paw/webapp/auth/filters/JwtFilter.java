@@ -68,6 +68,7 @@ public class JwtFilter extends OncePerRequestFilter {
             if (maybeUser.isPresent()) {
                 final User user = maybeUser.get();
                 final ServletUriComponentsBuilder uriBuilder = ServletUriComponentsBuilder.fromContextPath(request);
+                uriBuilder.path("/api");
                 response.setHeader("X-GoTogether-AuthToken", jwtTokenUtil.generateAccessToken(uriBuilder, user));
                 response.setHeader("X-GoTogether-RefreshToken", jwtTokenUtil.generateRefreshToken(uriBuilder, user));
             }
