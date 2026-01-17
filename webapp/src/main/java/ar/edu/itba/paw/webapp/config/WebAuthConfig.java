@@ -131,8 +131,8 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE, "/api/journeys/{id}").access("@accessHelper.isUserJourneyOwner(#id) or hasRole('ADMIN')")
 
                 .antMatchers(HttpMethod.POST, "/api/journeys/{journeyId}/tips").access("@accessHelper.isUserJourneyOwner(#journeyId)")
-                .antMatchers(HttpMethod.PUT, "/api/journeys/{journeyId}/tips/{tipId}").access("@accessHelper.isUserTipOwner(#tipId)")
-                .antMatchers(HttpMethod.DELETE, "/api/journeys/{journeyId}/tips/{tipId}").access("@accessHelper.isUserTipOwner(#tipId) or hasRole('ADMIN')")
+                .antMatchers(HttpMethod.PUT, "/api/journeys/{journeyId}/tips/{tipId}").access("@accessHelper.isUserTipOwner(#journeyId, #tipId)")
+                .antMatchers(HttpMethod.DELETE, "/api/journeys/{journeyId}/tips/{tipId}").access("@accessHelper.isUserTipOwner(#journeyId, #tipId) or hasRole('ADMIN')")
 
                 .antMatchers(HttpMethod.POST, "/api/journeys/*/responses").access("isAuthenticated()")
                 .antMatchers(HttpMethod.DELETE, "/api/journeys/*/responses/*").access("hasRole('ADMIN')")
@@ -151,8 +151,8 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
                 .antMatchers(HttpMethod.GET, "/api/events/*/ratings").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/events/{eventId}/ratings").access("@accessHelper.isUserEventAttendee(#eventId)")
-                .antMatchers(HttpMethod.PUT, "/api/events/*/ratings/{ratingId}").access("@accessHelper.isUserRatingOwner(#ratingId)")
-                .antMatchers(HttpMethod.DELETE, "/api/events/*/ratings/{ratingId}").access("@accessHelper.isUserRatingOwner(#ratingId) or hasRole('ADMIN')")
+                .antMatchers(HttpMethod.PUT, "/api/events/{eventId}/ratings/{ratingId}").access("@accessHelper.isUserRatingOwner(#eventId, #ratingId)")
+                .antMatchers(HttpMethod.DELETE, "/api/events/{eventId}/ratings/{ratingId}").access("@accessHelper.isUserRatingOwner(#eventId, #ratingId) or hasRole('ADMIN')")
 
                 .antMatchers(HttpMethod.GET, "/api/reports", "/api/reports/{id}").access("hasRole('ADMIN') and isAuthenticated()")
                 .antMatchers(HttpMethod.POST, "/api/reports").access("isAuthenticated()")

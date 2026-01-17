@@ -267,7 +267,7 @@ public class EventController {
             @PathParam("eventId") final long eventId,
             @PathParam("ratingId") final long ratingId
     ) {
-        final Rating rating = eventService.findRatingById(ratingId).orElseThrow(() -> new RatingNotFoundException(ratingId));
+        final Rating rating = eventService.findRatingById(eventId, ratingId).orElseThrow(() -> new RatingNotFoundException(eventId, ratingId, true));
         return Response.ok(RatingDto.fromRating(uriInfo, rating)).build();
     }
 
@@ -306,7 +306,7 @@ public class EventController {
             @PathParam("eventId") final long eventId,
             @PathParam("ratingId") final long ratingId
     ) {
-        eventService.deleteRating(ratingId);
+        eventService.deleteRating(eventId, ratingId);
         return Response.noContent().build();
     }
 }

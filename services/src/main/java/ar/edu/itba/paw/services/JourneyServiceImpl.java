@@ -508,11 +508,8 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    public Tip updateTip(long tipId, String title, String content) {
-        Tip tip = findTipById(tipId).orElseThrow(() -> {
-            LOGGER.error("Tip with id {} not found", tipId);
-            return new TipNotFoundException(tipId);
-        });
+    public Tip updateTip(long journeyId, long tipId, String title, String content) {
+        Tip tip = findTipById(journeyId, tipId).orElseThrow(() -> new TipNotFoundException(journeyId, tipId));
         tip.setTitle(title);
         tip.setContent(content);
         LOGGER.info("Tip updated: {}", tipId);
@@ -521,7 +518,8 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    public void deleteTip(long tipId) {
+    public void deleteTip(long journeyId, long tipId) {
+        findTipById(journeyId, tipId).orElseThrow(() -> new TipNotFoundException(journeyId, tipId));
         tipDao.delete(tipId);
     }
 
@@ -531,13 +529,21 @@ public class JourneyServiceImpl implements JourneyService {
         return tipDao.findById(tipId);
     }
 
+    @Override
+    public Optional<Tip> findTipById(long journeyId, long tipId) {
+        LOGGER.debug("Finding tip by id {} for journey {}", tipId, journeyId);
+        Optional<Tip> maybeTip = tipDao.findById(tipId);
+        if (maybeTip.isPresent() && maybeTip.get().getJourney().getId() != journeyId) {
+            LOGGER.warn("Tip {} does not belong to journey {}", tipId, journeyId);
+            return Optional.empty();
+        }
+        return maybeTip;
+    }
+
 
     @Override
-    public boolean isTipOwnedByUser(long tipId, String email) {
-        Tip tip = findTipById(tipId).orElseThrow(() -> {
-            LOGGER.error("Tip with id {} not found", tipId);
-            return new TipNotFoundException(tipId);
-        });
+    public boolean isTipOwnedByUser(long journeyId, long tipId, String email) {
+        Tip tip = findTipById(journeyId, tipId).orElseThrow(() -> new TipNotFoundException(journeyId, tipId));
         return tip.getJourney().getUser().getEmail().equals(email);
     }
 }

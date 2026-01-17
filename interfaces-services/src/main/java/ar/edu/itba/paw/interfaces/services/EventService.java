@@ -38,9 +38,9 @@ public interface EventService {
     Rating updateEventRating(User user, long eventId, double rating);
     Rating updateEventRating(long userId, long eventId, double rating);
     Optional<Rating> findRatingByUserAndEvent(long userId, long eventId);
-    Optional<Rating> findRatingById(long ratingId);
+    Optional<Rating> findRatingById(long eventId, long ratingId);
     Page<Rating> findRatingsByEventId(long eventId, PageParams pageParams);
-    void deleteRating(long ratingId);
+    void deleteRating(long eventId, long ratingId);
     int countRatingsByEvent(long eventId);
 
 //    Page<Event> findUpcomingEventsByAttendee(long userId,PageParams pageParams);
@@ -49,7 +49,7 @@ public interface EventService {
     List<Event> findTopEvents(int limit);
     boolean isEventOwnedByUser(String email, long eventId);
     boolean isUserEventAttendee(long userId, long eventId);
-    boolean isRatingOwnedByUser(long ratingId, long userId);
+    boolean isRatingOwnedByUser(long eventId, long ratingId, long userId);
 
     Page<Event> searchEventsWithFilters(String search, Long userId,
                                         SortFieldEvent sortBy, SortDirection direction, String destination, LocalDate startDate, LocalDate endDate, String interest,

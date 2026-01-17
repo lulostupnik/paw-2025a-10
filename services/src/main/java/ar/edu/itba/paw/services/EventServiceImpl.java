@@ -314,23 +314,26 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Optional<Rating> findRatingById(long ratingId) {
-        return eventRatingDao.findById(ratingId);
+    public Optional<Rating> findRatingById(long eventId, long ratingId) {
+        Optional<Rating> maybeRating = eventRatingDao.findById(ratingId);
+        if (maybeRating.isPresent() && maybeRating.get().getEvent().getId() != eventId) {
+            LOGGER.warn("Rating {} does not belong to event {}", ratingId, eventId);
+            return Optional.empty();
+        }
+        return maybeRating;
     }
 
     @Override
     public Page<Rating> findRatingsByEventId(long eventId, PageParams pageParams) {
-        eventDao.findById(eventId).orElseThrow(() -> {
-            LOGGER.warn("Event not found {}", eventId);
-            return new EventNotFoundException(eventId);
-        });
+        eventDao.findById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
         return eventRatingDao.findByEventId(eventId, pageParams);
     }
 
     @Override
     @Transactional
-    public void deleteRating(long ratingId) {
-        LOGGER.debug("Deleting rating {}", ratingId);
+    public void deleteRating(long eventId, long ratingId) {
+        LOGGER.debug("Deleting rating {} for event {}", ratingId, eventId);
+        findRatingById(eventId, ratingId).orElseThrow(() -> new RatingNotFoundException(eventId, ratingId, true));
         eventRatingDao.delete(ratingId);
         LOGGER.info("Rating {} deleted", ratingId);
     }
@@ -419,9 +422,9 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public boolean isRatingOwnedByUser(final long ratingId, final long userId) {
-        LOGGER.debug("Checking if rating {} is owned by user {}", ratingId, userId);
-        Optional<Rating> rating = eventRatingDao.findById(ratingId);
+    public boolean isRatingOwnedByUser(final long eventId, final long ratingId, final long userId) {
+        LOGGER.debug("Checking if rating {} for event {} is owned by user {}", ratingId, eventId, userId);
+        Optional<Rating> rating = findRatingById(eventId, ratingId);
         return rating.isPresent() && rating.get().getUser().getId() == userId;
     }
 

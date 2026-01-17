@@ -2,11 +2,13 @@ package ar.edu.itba.paw.webapp.auth;
 
 import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
+import ar.edu.itba.paw.models.Tip;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import java.util.Objects;
+import java.util.Optional;
 
 @Component
 public class AccessHelper {
@@ -49,10 +51,20 @@ public class AccessHelper {
         return journeyService.isJourneyOwnedByUser(email, journeyId);
     }
 
+    public boolean isUserTipOwner(long journeyId, long tipId) {
+        if (Objects.equals(SecurityContextHolder.getContext().getAuthentication().getName(), "AnonymousUser")) return false;
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return journeyService.isTipOwnedByUser(journeyId, tipId, email);
+    }
+
+
     public boolean isUserTipOwner(long tipId) {
         if (Objects.equals(SecurityContextHolder.getContext().getAuthentication().getName(), "AnonymousUser")) return false;
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return journeyService.isTipOwnedByUser(tipId, email);
+        Optional<Tip> tip = journeyService.findTipById(tipId);
+        if (tip.isEmpty()) return false;
+        long journeyId = tip.get().getJourney().getId();
+        return journeyService.isTipOwnedByUser(journeyId, tipId, email);
     }
 
     public boolean isUserEventAttendee(long eventId) {
@@ -61,10 +73,10 @@ public class AccessHelper {
         return eventService.isUserEventAttendee(userId, eventId);
     }
 
-    public boolean isUserRatingOwner(long ratingId) {
+    public boolean isUserRatingOwner(long eventId, long ratingId) {
         Long userId = getCurrentUserId();
         if (userId == null) return false;
-        return eventService.isRatingOwnedByUser(ratingId, userId);
+        return eventService.isRatingOwnedByUser(eventId, ratingId, userId);
     }
 
 }

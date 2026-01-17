@@ -39,10 +39,11 @@ public interface JourneyService {
 
     Page<Tip> findTipsByJourneyId(long journeyId, PageParams pageParams);
     Tip createTip(long journeyId, String title, String content);
-    Tip updateTip(long tipId, String title, String content);
-    void deleteTip(long tipId);
+    Tip updateTip(long journeyId, long tipId, String title, String content);
+    void deleteTip(long journeyId, long tipId);
     Optional<Tip> findTipById(long tipId);
-    boolean isTipOwnedByUser(long tipId, String email);
+    Optional<Tip> findTipById(long journeyId, long tipId);
+    boolean isTipOwnedByUser(long journeyId, long tipId, String email);
 }
 
 
