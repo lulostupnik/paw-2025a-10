@@ -169,8 +169,7 @@ public class JourneyController {
     ) {
         // TODO: Verificar que el tip le pertenece al journey --> mandarle el journeyId el método de servicio
         //  ¿quizas hacer que en realidad la clave del tip sea una clave compuesta? No se, medio fiaca
-        final Tip tip = journeyService.findTipById(tipId)
-                .orElseThrow(() -> new TipNotFoundException(tipId));
+        final Tip tip = journeyService.findTipById(tipId).orElseThrow(() -> new TipNotFoundException(tipId));
         return Response.ok(TipDto.fromTip(uriInfo, tip)).build();
     }
 
@@ -233,9 +232,7 @@ public class JourneyController {
             @PathParam("journeyId") final long journeyId,
             @PathParam("responseId") final long responseId
     ) {
-        // TODO: Verificar que la respuesta pertenezca al journey --> ¿pasar journeyID al servicio?
-        final JourneyResponse response = journeyService.findJourneyResponseById(responseId)
-                .orElseThrow(() -> new JourneyResponseNotFoundException(responseId));
+        final JourneyResponse response = journeyService.findJourneyResponseById(journeyId, responseId).orElseThrow(() -> new JourneyResponseNotFoundException(journeyId, responseId));
         return Response.ok(JourneyResponseDto.fromJourneyResponse(uriInfo, response)).build();
     }
 
@@ -263,7 +260,7 @@ public class JourneyController {
             @Valid final DeleteMessageForm form
     ) {
         final String message = form != null ? form.getMessage() : null;
-        journeyService.deleteJourneyResponse(responseId, message);
+        journeyService.deleteJourneyResponse(journeyId, responseId, message);
         return Response.noContent().build();
     }
 

@@ -181,7 +181,7 @@ public class EventController {
             @PathParam("eventId") final long eventId,
             @PathParam("responseId") final long responseId
     ) {
-        final EventResponse response = eventService.findEventResponseById(responseId).orElseThrow(() -> new EventResponseNotFoundException(responseId));
+        final EventResponse response = eventService.findEventResponseById(eventId, responseId).orElseThrow(() -> new EventResponseNotFoundException(eventId, responseId));
         return Response.ok(EventResponseDto.fromEventResponse(uriInfo, response)).build();
     }
 
@@ -208,9 +208,8 @@ public class EventController {
             @PathParam("responseId") final long responseId,
             @Valid final DeleteMessageForm form
     ) {
-        // TODO: chequear en servicio que el responseId sea de una respuesta hecha al eventId? --> mandar eventId
         final String message = form != null ? form.getMessage() : null;
-        eventService.deleteEventResponse(responseId, message);
+        eventService.deleteEventResponse(eventId, responseId, message);
         return Response.noContent().build();
     }
 

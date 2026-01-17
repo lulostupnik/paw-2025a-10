@@ -546,19 +546,20 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public void deleteEventResponse(final long responseId, final String message) {
-        LOGGER.debug("Deleting event response {}", responseId);
-        EventResponse eventResponse = eventResponseDao.findById(responseId).orElseThrow(() -> {
-            LOGGER.warn("Event response not found {}", responseId);
-            return new EventResponseNotFoundException(responseId);
-        });
+    public void deleteEventResponse(final long eventId, final long responseId, final String message) {
+        LOGGER.debug("Deleting event response {} for event {}", responseId, eventId);
+        EventResponse eventResponse = findEventResponseById(eventId, responseId)
+                .orElseThrow(() -> {
+                    LOGGER.warn("Event response {} not found for event {}", responseId, eventId);
+                    return new EventResponseNotFoundException(eventId, responseId);
+                });
         deleteEventResponse(eventResponse, message);
     }
 
     @Override
     public Page<EventResponse> findEventResponses(final long eventId, final PageParams pageParams) {
         LOGGER.debug("Getting all responses for event {} with pageParams {}", eventId, pageParams);
-        return eventResponseDao.listAllByEventId(eventId,pageParams);
+        return eventResponseDao.listAllByEventId(eventId, pageParams);
     }
 
     @Override
@@ -566,6 +567,18 @@ public class EventServiceImpl implements EventService {
         LOGGER.debug("Getting event response by id {}", id);
         return eventResponseDao.findById(id);
     }
+
+    @Override
+    public Optional<EventResponse> findEventResponseById(final long eventId, final long responseId) {
+        LOGGER.debug("Getting event response by id {} for event {}", responseId, eventId);
+        Optional<EventResponse> maybeResponse = eventResponseDao.findById(responseId);
+        if (maybeResponse.isPresent() && maybeResponse.get().getEvent().getId() != eventId) {
+            LOGGER.warn("Event response {} does not belong to event {}", responseId, eventId);
+            return Optional.empty();
+        }
+        return maybeResponse;
+    }
+
 
     @Override
     @Transactional(readOnly = true)

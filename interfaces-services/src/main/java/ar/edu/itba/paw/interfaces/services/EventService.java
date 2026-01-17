@@ -60,9 +60,10 @@ public interface EventService {
     EventResponse createEventResponse(String email, long eventId, String message);
     EventResponse createEventResponse(long userId, long eventId, String message);
     void deleteEventResponse(EventResponse eventResponse, String message);
-    void deleteEventResponse(long responseId, String message);
+    void deleteEventResponse(long eventId, long responseId, String message);
     Page<EventResponse> findEventResponses(long eventId, PageParams pageParams);
     Optional<EventResponse> findEventResponseById(long id);
+    Optional<EventResponse> findEventResponseById(long eventId, long responseId);
 
     Page<Event> findCreatedByJourney(Journey journey, PageParams pageParams);
     Page<Event> findAttendedByJourney(Journey journey, PageParams pageParams);

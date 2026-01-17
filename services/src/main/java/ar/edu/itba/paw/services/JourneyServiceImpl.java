@@ -423,6 +423,16 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
+    public Optional<JourneyResponse> findJourneyResponseById(final long journeyId, final long responseId) {
+        Optional<JourneyResponse> maybeResponse = journeyResponseDao.findById(responseId);
+        if (maybeResponse.isPresent() && maybeResponse.get().getJourney().getId() != journeyId) {
+            LOGGER.warn("Journey response {} does not belong to journey {}", responseId, journeyId);
+            return Optional.empty();
+        }
+        return maybeResponse;
+    }
+
+    @Override
     @Transactional
     public void deleteJourneyResponse(final long id, final String message) {
         LOGGER.debug("Deleting journey response {}", id);
@@ -444,6 +454,25 @@ public class JourneyServiceImpl implements JourneyService {
         journeyResponse.setDeleted(true);
         LOGGER.info("Journey response deleted: {}", id);
     }
+
+    @Override
+    @Transactional
+    public void deleteJourneyResponse(final long journeyId, final long responseId, final String message) {
+        LOGGER.debug("Deleting journey response {} for journey {}", responseId, journeyId);
+        JourneyResponse journeyResponse = findJourneyResponseById(journeyId, responseId).orElseThrow(() -> new JourneyResponseNotFoundException(journeyId, responseId));
+
+        User commentAuthor = journeyResponse.getUser();
+
+        emailService.sendJourneyCommentDeletionNotification(journeyResponse, new EmailJourney(journeyResponse.getJourney()), new EmailUser(commentAuthor), message);
+        LOGGER.info("Journey response deletion notification sent to user {}", commentAuthor.getEmail());
+
+        journeyResponse.setDeletionMessage(message);
+        LOGGER.info("Journey response deletion message updated: {}", message);
+
+        journeyResponse.setDeleted(true);
+        LOGGER.info("Journey response deleted: {}", responseId);
+    }
+
 
 
     @Override
