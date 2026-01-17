@@ -248,12 +248,21 @@ public class JourneyServiceImpl implements JourneyService {
         return startDate == null || startDate.isBefore(tomorrow) ? tomorrow : startDate;
     }
 
+    private void validateMutuallyExclusiveTimeFilters(boolean isPast, boolean isUpcoming, boolean isOngoing) {
+        int count = (isPast ? 1 : 0) + (isUpcoming ? 1 : 0) + (isOngoing ? 1 : 0);
+        if (count > 1) {
+            throw new MutuallyExclusiveFiltersException("past", "upcoming", "ongoing"); // ¿Es correcto mandar esto?
+        }
+    }
+
 
     @Override
     public Page<Journey> findJourneys(final String search, final Long userId, final SortFieldJourney sortBy, final SortDirection direction, final  String destination,
                                       final LocalDate startDate, final LocalDate endDate, final String interest,
                                       final boolean isPast, final boolean isUpcoming, final  boolean isMyDestination, final boolean isOngoing,
                                       final PageParams pageParams) {
+        validateMutuallyExclusiveTimeFilters(isPast, isUpcoming, isOngoing);
+
         if (userId != null && isMyDestination) {
             journeyDao.findByUserId(userId).orElseThrow(() -> new UserHasNoJourneyException(userId));
         }
