@@ -48,8 +48,8 @@ public class JourneyController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response listJourneys(
-            @QueryParam("destination") String destination,
-            // @QueryParam("city") String city,
+            @QueryParam("city") String city,
+            @QueryParam("university") String university,
             @QueryParam("startDate") String startDateStr,
             @QueryParam("endDate") String endDateStr,
             @QueryParam("interest") String interest,
@@ -63,7 +63,7 @@ public class JourneyController {
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("8") int size
     ) {
-        final Long userId = accessHelper.getCurrentUserId(); // TODO: raro?
+        final Long userId = accessHelper.getCurrentUserId();
         final LocalDate startDate = DateUtils.parseDate(startDateStr);
         final LocalDate endDate = DateUtils.parseDate(endDateStr);
         final SortFieldJourney sortField = SortFieldJourney.from(sort);
@@ -74,7 +74,8 @@ public class JourneyController {
                 userId,
                 sortField,
                 sortDirection,
-                destination,
+                city,
+                university,
                 startDate,
                 endDate,
                 interest,

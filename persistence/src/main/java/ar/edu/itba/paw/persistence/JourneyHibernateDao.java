@@ -123,7 +123,7 @@ public class JourneyHibernateDao implements JourneyDao {
     }
     @Override
     public Page<Journey> search(final String searchTerm, final Long userId, final SortFieldJourney orderBy, final SortDirection direction,
-                                final String city, final LocalDate startDate, final LocalDate endDate, final String interest,
+                                final String city, final String university, final LocalDate startDate, final LocalDate endDate, final String interest,
                                 final boolean isMyDestination, final boolean isUpcoming, final boolean isPast, final PageParams pageParams) {
 
         final String pattern = likePattern(searchTerm);
@@ -158,6 +158,16 @@ public class JourneyHibernateDao implements JourneyDao {
             filters.add("ci2.name = :city");
             paramMap.put("city", city);
             joinedUnis = true;
+        }
+
+        if (university != null && !university.isEmpty()) {
+            if (!joinedUnis) {
+                countSql.append(" JOIN universities un2 ON j.destination_university_id = un2.id");
+                idSql.append(" JOIN universities un2 ON j.destination_university_id = un2.id");
+                joinedUnis = true;
+            }
+            filters.add("un2.name = :university");
+            paramMap.put("university", university);
         }
 
         if (userId != null) {

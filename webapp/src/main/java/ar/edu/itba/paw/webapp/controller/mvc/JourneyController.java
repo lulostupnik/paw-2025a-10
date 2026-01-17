@@ -50,7 +50,7 @@ public class JourneyController {
         boolean hasJourney = user != null && js.existsByUser(user);
         if(! errors.hasErrors()) {
             mav.addObject("journeys", js.findJourneys(search, user.getId(), SortFieldJourney.from(sortBy), SortDirection.from(direction),
-                    fjf.getDestination(), fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests(), fjf.getIsPast(), fjf.getIsUpcoming(), fjf.getIsMyDestination(),
+                    fjf.getDestination(), null, fjf.getStartDate(), fjf.getEndDate(), fjf.getInterests(), fjf.getIsPast(), fjf.getIsUpcoming(), fjf.getIsMyDestination(),
                     fjf.getIsOngoing(), pageParams));
         }
         mav.addObject("hasJourney", hasJourney);

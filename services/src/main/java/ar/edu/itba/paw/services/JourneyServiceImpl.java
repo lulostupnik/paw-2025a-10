@@ -214,7 +214,7 @@ public class JourneyServiceImpl implements JourneyService {
                 null,
                 null,
                 null,
-
+                null,
                 false,
                 false,
                 false,
@@ -257,9 +257,9 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
-    public Page<Journey> findJourneys(final String search, final Long userId, final SortFieldJourney sortBy, final SortDirection direction, final  String destination,
-                                      final LocalDate startDate, final LocalDate endDate, final String interest,
-                                      final boolean isPast, final boolean isUpcoming, final  boolean isMyDestination, final boolean isOngoing,
+    public Page<Journey> findJourneys(final String search, final Long userId, final SortFieldJourney sortBy, final SortDirection direction, final String city,
+                                      final String university, final LocalDate startDate, final LocalDate endDate, final String interest,
+                                      final boolean isPast, final boolean isUpcoming, final boolean isMyDestination, final boolean isOngoing,
                                       final PageParams pageParams) {
         validateMutuallyExclusiveTimeFilters(isPast, isUpcoming, isOngoing);
 
@@ -285,7 +285,8 @@ public class JourneyServiceImpl implements JourneyService {
                 userId,
                 sortBy,
                 direction,
-                destination,
+                city,
+                university,
                 adjustedStartDate,
                 adjustedEndDate,
                 interest,
