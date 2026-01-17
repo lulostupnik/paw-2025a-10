@@ -8,7 +8,7 @@ import java.time.LocalTime;
 import java.util.Optional;
 
 public interface EventDao {
-    Event create(User user, City city, LocalDate date, String description, long flyerImageId, String title, LocalTime time, String address, Integer attendeesLimit);
+    Event create(User user, City city, LocalDate date, String description, Long flyerImageId, String title, LocalTime time, String address, Integer attendeesLimit);
 
     Optional<Event> findById(long id);
     Page<Event> findRecommended(long userId, PageParams pageParams);

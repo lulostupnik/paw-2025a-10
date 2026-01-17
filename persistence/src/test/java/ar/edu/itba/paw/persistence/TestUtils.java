@@ -748,7 +748,7 @@ class TestUtils {
         USER_ROW_MAPPER.mapRow(rs, n),
         rs.getDate("event_date").toLocalDate(),
         rs.getString("description"),
-        rs.getInt("flyer_image_id"),
+        rs.getLong("flyer_image_id"),
         CITY_DESTINATION_ROW_MAPPER.mapRow(rs, n),
         rs.getString("title"),
         rs.getTime("event_time") != null ? rs.getTime("event_time").toLocalTime() : null,

@@ -6,7 +6,6 @@ import javax.validation.constraints.*;
 import ar.edu.itba.paw.webapp.validation.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.NumberFormat;
-import org.springframework.web.multipart.MultipartFile;
 
 
 public class CreateEventForm {
@@ -26,13 +25,6 @@ public class CreateEventForm {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @FutureDate
     private LocalDate date;
-
-    @ImageSize()
-    @ContentType({"image/jpeg", "image/jpg", "image/png"})
-    @ImageNotEmpty
-    private MultipartFile flyer;
-
-    private String flyerBase64;
 
     @Size(min = 2, max = 2047)
     @NotNull
@@ -63,22 +55,6 @@ public class CreateEventForm {
 
     public void setDate(LocalDate date) {
         this.date = date;
-    }
-
-    public MultipartFile getFlyer() {
-        return flyer;
-    }
-
-    public void setFlyer(MultipartFile flyer) {
-        this.flyer = flyer;
-    }
-
-    public String getFlyerBase64() {
-        return flyerBase64;
-    }
-
-    public void setFlyerBase64(String flyerBase64) {
-        this.flyerBase64 = flyerBase64;
     }
 
     public String getDescription() {
@@ -122,9 +98,7 @@ public class CreateEventForm {
                 (time == null ? "All-day" : time) +
                 "\", description: \"" +
                 description +
-                "\", flyerSize: " +
-                (flyer == null || flyer.isEmpty() ? 0 : flyer.getSize()) +
-                ", title: \"" +
+                "\", title: \"" +
                 title +
                 "\", address: \"" +
                 address +

@@ -13,8 +13,8 @@ import ar.edu.itba.paw.webapp.dto.UserDto;
 import ar.edu.itba.paw.webapp.dto.UserRatingDto;
 import ar.edu.itba.paw.webapp.form.CreateUserForm;
 import ar.edu.itba.paw.webapp.form.EditUserForm;
-import ar.edu.itba.paw.webapp.form.ProfilePictureForm;
 import ar.edu.itba.paw.webapp.form.ValidateUserForm;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -24,6 +24,8 @@ import org.springframework.stereotype.Component;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 
@@ -233,19 +235,28 @@ public class UserController {
                 .build();
     }
 
+    // TODO: parece que hay business logic. Arreglar.
     @PUT
     @Path("/{userId}/profilePicture")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces({"image/jpeg", "image/png", "image/webp"})
     public Response updateUserProfilePicture(
             @PathParam("userId") final long userId,
-            @Valid @BeanParam final ProfilePictureForm form
+            @FormDataParam("profilePicture") final InputStream profilePictureStream
     ) {
-        us.updateProfilePicture(userId, form.getBytes());
+        if (profilePictureStream == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Profile picture is required").build();
+        }
+        try {
+            final byte[] bytes = profilePictureStream.readAllBytes();
+            us.updateProfilePicture(userId, bytes);
+        } catch (IOException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Failed to read profile picture").build();
+        }
         final Image image = us.getProfilePicture(userId).orElseThrow(() -> new ImageNotFoundException("Profile picture not found"));
 
         return Response.ok(image.getData())
-                .contentLocation(UriUtils.getUserProfilePictureUri(uriInfo, userId)) // tiene sentido esta linea? sirve de algo?
+                .contentLocation(UriUtils.getUserProfilePictureUri(uriInfo, userId))
                 .header("Content-Type", "image/jpeg")
                 .build();
     }

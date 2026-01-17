@@ -531,7 +531,7 @@ public class ReportHibernateDaoTest {
                 null, 
                 null, 
                 null, 
-                0, 
+                0L,
                 null, 
                 null, 
                 null, 

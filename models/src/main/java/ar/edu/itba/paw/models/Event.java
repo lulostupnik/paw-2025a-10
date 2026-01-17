@@ -31,7 +31,7 @@
 
         @Column(name = "flyer_image_id")
         @Setter
-        private  long flyerImageId;
+        private Long flyerImageId;
 
         @ManyToOne(fetch = FetchType.LAZY, optional = false)
         @JoinColumn(name = "city_id")
@@ -74,7 +74,7 @@
         /* For hibernate */ Event() {
         }
         public Event(final User user, final LocalDate date, final String description,
-                     final long flyerImageId, final City city, final String title,
+                     final Long flyerImageId, final City city, final String title,
                      final LocalTime time, final String address, final Integer attendeesLimit) {
             this.user = user;
             this.date = date;
@@ -89,7 +89,7 @@
 
         }
         public Event(final Long id, final User user, final LocalDate date, final String description,
-                     final long flyerImageId, final City city, final String title,
+                     final Long flyerImageId, final City city, final String title,
                      final LocalTime time, final String address, final Integer attendeesLimit) {
             this.id = id;
             this.user = user;

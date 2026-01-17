@@ -54,7 +54,7 @@ public class EventDto {
         dto.selfUrl = UriUtils.getEventUri(uriInfo, event.getId());
         dto.creatorUrl = UriUtils.getUserUri(uriInfo, event.getUser().getId());
         dto.cityUrl = UriUtils.getCityUri(uriInfo, event.getCity().getId());
-        dto.flyerUrl = UriUtils.getImageUri(uriInfo, event.getFlyerImageId());
+        dto.flyerUrl = event.getFlyerImageId() != null ? UriUtils.getEventFlyerUri(uriInfo, event.getId()) : null;
         dto.responsesUrl = UriUtils.getEventResponsesUri(uriInfo, event.getId());
         dto.attendancesUrl = UriUtils.getEventAttendancesUri(uriInfo, event.getId());
         dto.ratingsUrl = UriUtils.getEventRatingsUri(uriInfo, event.getId());

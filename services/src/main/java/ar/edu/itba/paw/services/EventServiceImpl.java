@@ -52,34 +52,33 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Event createEvent(final String email, final  String cityName, final LocalDate date, final byte[] flyer, final  String description, final  String title, final LocalTime time, final String address, final  Integer attendeesLimit) {
+    public Event createEvent(final String email, final String cityName, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
 
         LOGGER.debug("Creating event for user {}", email);
         User user = userService.findUserByEmail(email).orElseThrow(()-> {
                 LOGGER.error("User not found {}", email);
                 return new UserNotFoundException(email);}
         );
-        return createEventInternal(user, cityName, date, flyer, description, title, time, address, attendeesLimit);
+        return createEventInternal(user, cityName, date, description, title, time, address, attendeesLimit);
     }
 
     @Override
     @Transactional
-    public Event createEvent(final long userId, final String cityName, final LocalDate date, final byte[] flyer, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
+    public Event createEvent(final long userId, final String cityName, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
         LOGGER.debug("Creating event for user {}", userId);
         User user = userService.findUserById(userId).orElseThrow(() -> {
             LOGGER.error("User not found {}", userId);
             return new UserNotFoundException(userId);
         });
-        return createEventInternal(user, cityName, date, flyer, description, title, time, address, attendeesLimit);
+        return createEventInternal(user, cityName, date, description, title, time, address, attendeesLimit);
     }
 
-    private Event createEventInternal(final User user, final String cityName, final LocalDate date, final byte[] flyer, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
+    private Event createEventInternal(final User user, final String cityName, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
         City city = cityService.findCityByName(cityName).orElseThrow(() ->{
             LOGGER.error("City not found {}", cityName);
             return new InvalidReferenceException("City", cityName);}
         );
-        long flyerImageId = imageService.createImage(flyer);
-        Event event = eventDao.create(user, city, date, description, flyerImageId, title, time, address, attendeesLimit);
+        Event event = eventDao.create(user, city, date, description, null, title, time, address, attendeesLimit);
         LOGGER.info("Event {} created", event.getId());
         eventAttendanceDao.create(user, event);
         return event;
@@ -476,7 +475,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Event updateEvent(final long eventId, final String cityName, final  LocalDate date, final  byte[] flyer, final String description,
+    public Event updateEvent(final long eventId, final String cityName, final LocalDate date, final String description,
                             final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
         LOGGER.debug("Editing event {}", eventId);
         Event currentEvent = eventDao.findById(eventId)
@@ -489,15 +488,6 @@ public class EventServiceImpl implements EventService {
             LOGGER.warn("City not found {}", cityName);
             return new InvalidReferenceException("City", cityName);}
         );
-
-        long flyerImageId = currentEvent.getFlyerImageId();
-        boolean changeImage = flyer != null && flyer.length > 0;
-
-        if(changeImage){
-            imageService.deleteImage(flyerImageId);
-            LOGGER.info("Flyer image {} deleted", flyerImageId);
-            currentEvent.setFlyerImageId(imageService.createImage(flyer));
-        }
 
         currentEvent.setTitle(title);
         currentEvent.setDescription(description);
@@ -754,5 +744,32 @@ public class EventServiceImpl implements EventService {
         } while (attendeePage <= attendeesPage.getTotalPages());
 
         LOGGER.debug("Sent reminders to {} attendees for event: {}", totalAttendees, event.getTitle());
+    }
+
+    @Override
+    public Optional<Image> getEventFlyer(long eventId) {
+        LOGGER.debug("Getting flyer for event {}", eventId);
+        Long flyerId = eventDao.findById(eventId)
+                .orElseThrow(() -> new EventNotFoundException(eventId))
+                .getFlyerImageId();
+        if (flyerId == null) {
+            return Optional.empty();
+        }
+        return imageService.findImage(flyerId);
+    }
+
+    @Override
+    @Transactional
+    public void updateEventFlyer(long eventId, byte[] flyer) {
+        LOGGER.debug("Updating flyer for event {}", eventId);
+        Event event = eventDao.findById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
+        Long oldFlyerImageId = event.getFlyerImageId();
+        if (oldFlyerImageId != null) {
+            imageService.deleteImage(oldFlyerImageId);
+            LOGGER.info("Old flyer image {} deleted for event {}", oldFlyerImageId, eventId);
+        }
+        long newFlyerImageId = imageService.createImage(flyer);
+        event.setFlyerImageId(newFlyerImageId);
+        LOGGER.info("New flyer image {} created for event {}", newFlyerImageId, eventId);
     }
 }

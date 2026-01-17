@@ -20,7 +20,7 @@ public class EventHibernateDao implements EventDao {
     private EntityManager em;
 
     @Override
-    public Event create(User user, City city, LocalDate date, String description, long flyerImageId,
+    public Event create(User user, City city, LocalDate date, String description, Long flyerImageId,
                         String title, LocalTime time, String address, Integer attendeesLimit) {
         Event event = new Event(user, date, description, flyerImageId, city, title, time, address, attendeesLimit);
         em.persist(event);

@@ -124,7 +124,7 @@ public class EventResponseHibernateDaoTest {
                 null, 
                 null, 
                 null, 
-                0, 
+                0L,
                 null, 
                 null, 
                 null, 

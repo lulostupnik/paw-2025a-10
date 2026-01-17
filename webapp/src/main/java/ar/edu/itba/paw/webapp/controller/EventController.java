@@ -12,18 +12,23 @@ import ar.edu.itba.paw.webapp.dto.EventDto;
 import ar.edu.itba.paw.webapp.dto.EventResponseDto;
 import ar.edu.itba.paw.webapp.dto.RatingDto;
 import ar.edu.itba.paw.webapp.dto.UserDto;
+import ar.edu.itba.paw.models.Image;
+import ar.edu.itba.paw.models.exceptions.ImageNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
 import ar.edu.itba.paw.webapp.utils.DateUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import org.glassfish.jersey.media.multipart.FormDataParam;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
-import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -106,13 +111,11 @@ public class EventController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createEvent(@Valid final CreateEventForm form) {
         final Long userId = accessHelper.getCurrentUserId();
-        final byte[] flyerBytes = Base64.getDecoder().decode(form.getFlyerBase64());
 
         final Event event = eventService.createEvent(
                 userId,
                 form.getCity(),
                 form.getDate(),
-                flyerBytes,
                 form.getDescription(),
                 form.getTitle(),
                 form.getTime(),
@@ -130,16 +133,10 @@ public class EventController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateEvent(@PathParam("id") final long id, @Valid final EditEventForm form) {
-        byte[] flyerBytes = null;
-        if (form.getFlyerBase64() != null && !form.getFlyerBase64().isEmpty()) {
-            flyerBytes = Base64.getDecoder().decode(form.getFlyerBase64());
-        }
-
         final Event event = eventService.updateEvent(
                 id,
                 form.getCity(),
                 form.getDate(),
-                flyerBytes,
                 form.getDescription(),
                 form.getTitle(),
                 form.getTime(),
@@ -157,6 +154,44 @@ public class EventController {
         final String message = form != null ? form.getMessage() : null;
         eventService.deleteEvent(id, message);
         return Response.noContent().build();
+    }
+
+    // ==================== EVENT FLYER ====================
+
+    @GET
+    @Path("/{id}/flyer")
+    @Produces({"image/jpeg", "image/png", "image/webp"})
+    public Response getEventFlyer(@PathParam("id") final long id) {
+        final Image image = eventService.getEventFlyer(id).orElseThrow(() -> new ImageNotFoundException("Event flyer not found"));
+        return Response.ok(image.getData())
+                .header("Content-Type", "image/jpeg")
+                .header("Cache-Control", "max-age=31536000, immutable")
+                .build();
+    }
+
+    // TODO: ¿Esto tiene lógica de negocios? Pareciera que si, moverlo a service-layer
+    @PUT
+    @Path("/{id}/flyer")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces({"image/jpeg", "image/png", "image/webp"}) // TODO: ¿esto esta bien?
+    public Response updateEventFlyer(
+            @PathParam("id") final long id,
+            @FormDataParam("flyer") final InputStream flyerStream
+    ) {
+        if (flyerStream == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Flyer is required").build();
+        }
+        try {
+            final byte[] bytes = flyerStream.readAllBytes();
+            eventService.updateEventFlyer(id, bytes);
+        } catch (IOException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Failed to read flyer").build();
+        }
+        final Image image = eventService.getEventFlyer(id).orElseThrow(() -> new ImageNotFoundException("Event flyer not found"));
+        return Response.ok(image.getData())
+                .contentLocation(UriUtils.getEventFlyerUri(uriInfo, id))
+                .header("Content-Type", "image/jpeg")
+                .build();
     }
 
     // ==================== EVENT RESPONSES ====================

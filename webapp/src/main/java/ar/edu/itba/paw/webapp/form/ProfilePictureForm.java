@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.webapp.form;
 
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.validation.constraints.NotNull;
@@ -12,7 +13,7 @@ public class ProfilePictureForm {
     private InputStream profilePictureStream;
 
     @FormDataParam("profilePicture")
-    private org.glassfish.jersey.media.multipart.FormDataContentDisposition profilePictureDetails;
+    private FormDataContentDisposition profilePictureDetails;
 
     private byte[] bytes;
 

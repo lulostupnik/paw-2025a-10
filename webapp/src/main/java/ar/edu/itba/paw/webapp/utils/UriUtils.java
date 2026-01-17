@@ -89,6 +89,11 @@ public final class UriUtils {
         return uriInfo.getBaseUriBuilder().path(EVENTS_URL).path(String.valueOf(eventId)).build();
     }
 
+    // Event Flyer (sub-resource of events)
+    public static URI getEventFlyerUri(final UriInfo uriInfo, final long eventId) {
+        return uriInfo.getBaseUriBuilder().path(EVENTS_URL).path(String.valueOf(eventId)).path("flyer").build();
+    }
+
     // Event Responses (sub-resource of events)
     public static URI getEventResponsesUri(final UriInfo uriInfo, final long eventId) {
         return uriInfo.getBaseUriBuilder().path(EVENTS_URL).path(String.valueOf(eventId)).path("responses").build();

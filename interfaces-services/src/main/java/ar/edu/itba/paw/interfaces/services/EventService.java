@@ -9,12 +9,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EventService {
-    Event createEvent(String email, String cityName, LocalDate date, byte[] flyer, String description, String title, LocalTime time, String address, Integer attendeesLimit);
-    Event createEvent(long userId, String cityName, LocalDate date, byte[] flyer, String description, String title, LocalTime time, String address, Integer attendeesLimit);
+    Event createEvent(String email, String cityName, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit);
+    Event createEvent(long userId, String cityName, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit);
     Event updateEvent(long eventId,
                      String cityName,
                      LocalDate date,
-                     byte[] flyer,
                      String description,
                      String title,
                      LocalTime time,
@@ -76,5 +75,8 @@ public interface EventService {
     int countEventsAttendedByUser(long userId);
 
     Optional<EventWithUserInfo> findEventWithUserInfo(long userId, long eventId);
+
+    Optional<Image> getEventFlyer(long eventId);
+    void updateEventFlyer(long eventId, byte[] flyer);
 }
 
