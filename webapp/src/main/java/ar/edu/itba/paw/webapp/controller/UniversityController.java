@@ -6,6 +6,7 @@ import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.exceptions.UniversityNotFoundException;
 import ar.edu.itba.paw.webapp.dto.UniversityDto;
 import ar.edu.itba.paw.webapp.form.CreateUniversityForm;
+import ar.edu.itba.paw.webapp.form.PatchUniversityForm;
 import ar.edu.itba.paw.webapp.form.UpdateUniversityForm;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,6 @@ import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.util.List;
-import java.util.Optional;
 
 @Path("universities")
 @Component
@@ -68,6 +68,18 @@ public class UniversityController {
             @Valid final UpdateUniversityForm form
     ) {
         final University university = universityService.updateUniversity(id, form.getName(), form.getAbbreviation(), form.getCity());
+        return Response.ok(UniversityDto.fromUniversity(uriInfo, university)).build();
+    }
+
+    @PATCH
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response patchUniversity(
+            @PathParam("id") final long id,
+            @Valid final PatchUniversityForm form
+    ) {
+        final University university = universityService.patchUniversity(id, form.getName(), form.getAbbreviation(), form.getCity());
         return Response.ok(UniversityDto.fromUniversity(uriInfo, university)).build();
     }
 

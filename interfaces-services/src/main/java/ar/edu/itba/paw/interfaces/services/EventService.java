@@ -19,6 +19,14 @@ public interface EventService {
                      LocalTime time,
                      String address,
                      Integer attendeesLimit);
+    Event patchEvent(long eventId,
+                     String cityName,
+                     LocalDate date,
+                     String description,
+                     String title,
+                     LocalTime time,
+                     String address,
+                     Integer attendeesLimit);
     void deleteEvent(long id, String message);
 
     Optional<Event> findEventById(long id);

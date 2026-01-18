@@ -18,6 +18,8 @@ import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
 import ar.edu.itba.paw.webapp.form.CreateJourneyResponseForm;
 import ar.edu.itba.paw.webapp.form.CreateTipForm;
 import ar.edu.itba.paw.webapp.form.DeleteMessageForm;
+import ar.edu.itba.paw.webapp.form.PatchJourneyForm;
+import ar.edu.itba.paw.webapp.form.PatchTipForm;
 import ar.edu.itba.paw.webapp.form.UpdateJourneyForm;
 import ar.edu.itba.paw.webapp.utils.DateUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
@@ -134,6 +136,22 @@ public class JourneyController {
         return Response.ok(JourneyDto.fromJourney(uriInfo, journey)).build();
     }
 
+    @PATCH
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response patchJourney(@PathParam("id") final long id, @Valid final PatchJourneyForm form) {
+        final Journey journey = journeyService.patchJourney(
+                id,
+                form.getDestinationUniversity(),
+                form.getStartDate(),
+                form.getEndDate(),
+                form.getDescription()
+        );
+
+        return Response.ok(JourneyDto.fromJourney(uriInfo, journey)).build();
+    }
+
     @DELETE
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -195,6 +213,24 @@ public class JourneyController {
             @Valid final CreateTipForm form
     ) {
         final Tip tip = journeyService.updateTip(journeyId, tipId, form.getTitle(), form.getContent());
+        return Response.ok(TipDto.fromTip(uriInfo, tip)).build();
+    }
+
+    @PATCH
+    @Path("/{journeyId}/tips/{tipId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response patchTip(
+            @PathParam("journeyId") final long journeyId,
+            @PathParam("tipId") final long tipId,
+            @Valid final PatchTipForm form
+    ) {
+        final Tip tip = journeyService.patchTip(
+                journeyId,
+                tipId,
+                form.getTitle(),
+                form.getContent()
+        );
         return Response.ok(TipDto.fromTip(uriInfo, tip)).build();
     }
 

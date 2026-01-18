@@ -11,6 +11,7 @@ public interface JourneyService {
     Journey createJourney(long userId, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
 
     Journey updateJourney(long journeyId, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
+    Journey patchJourney(long journeyId, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
     void deleteJourney(long id, String message);
 
     JourneyResponse createJourneyResponse(String email, long journeyId, String message);
@@ -40,6 +41,7 @@ public interface JourneyService {
     Page<Tip> findTipsByJourneyId(long journeyId, PageParams pageParams);
     Tip createTip(long journeyId, String title, String content);
     Tip updateTip(long journeyId, long tipId, String title, String content);
+    Tip patchTip(long journeyId, long tipId, String title, String content);
     void deleteTip(long journeyId, long tipId);
     Optional<Tip> findTipById(long tipId);
     Optional<Tip> findTipById(long journeyId, long tipId);

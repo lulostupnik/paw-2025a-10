@@ -478,16 +478,9 @@ public class EventServiceImpl implements EventService {
     public Event updateEvent(final long eventId, final String cityName, final LocalDate date, final String description,
                             final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
         LOGGER.debug("Editing event {}", eventId);
-        Event currentEvent = eventDao.findById(eventId)
-                .orElseThrow(() ->{
-                    LOGGER.warn("Event not found {}", eventId);
-                    return new EventNotFoundException(eventId);}
-                );
+        Event currentEvent = eventDao.findById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
 
-        City resolvedCity = cityService.findCityByName(cityName).orElseThrow(() -> {
-            LOGGER.warn("City not found {}", cityName);
-            return new InvalidReferenceException("City", cityName);}
-        );
+        City resolvedCity = cityService.findCityByName(cityName).orElseThrow(() -> new InvalidReferenceException("City", cityName));
 
         currentEvent.setTitle(title);
         currentEvent.setDescription(description);
@@ -498,6 +491,40 @@ public class EventServiceImpl implements EventService {
         currentEvent.setDate(date);
 
         LOGGER.info("Event {} updated", eventId);
+        return currentEvent;
+    }
+
+    @Override
+    @Transactional
+    public Event patchEvent(final long eventId, final String cityName, final LocalDate date, final String description,
+                            final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
+        LOGGER.debug("Patching event {}", eventId);
+        Event currentEvent = eventDao.findById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
+
+        if (cityName != null) {
+            City resolvedCity = cityService.findCityByName(cityName).orElseThrow(() -> new InvalidReferenceException("City", cityName));
+            currentEvent.setCity(resolvedCity);
+        }
+        if (title != null) {
+            currentEvent.setTitle(title);
+        }
+        if (description != null) {
+            currentEvent.setDescription(description);
+        }
+        if (time != null) {
+            currentEvent.setTime(time);
+        }
+        if (address != null) {
+            currentEvent.setAddress(address);
+        }
+        if (attendeesLimit != null) {
+            currentEvent.setAttendeesLimit(attendeesLimit);
+        }
+        if (date != null) {
+            currentEvent.setDate(date);
+        }
+
+        LOGGER.info("Event {} patched", eventId);
         return currentEvent;
     }
 

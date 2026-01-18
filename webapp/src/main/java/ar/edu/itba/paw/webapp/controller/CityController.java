@@ -6,6 +6,7 @@ import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.exceptions.CityNotFoundException;
 import ar.edu.itba.paw.webapp.dto.CityDto;
 import ar.edu.itba.paw.webapp.form.CreateCityForm;
+import ar.edu.itba.paw.webapp.form.PatchCityForm;
 import ar.edu.itba.paw.webapp.form.UpdateCityForm;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +68,18 @@ public class CityController {
             @Valid final UpdateCityForm form
     ) {
         final City city = cityService.updateCity(id, form.getName(), form.getCountry());
+        return Response.ok(CityDto.fromCity(uriInfo, city)).build();
+    }
+
+    @PATCH
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response patchCity(
+            @PathParam("id") final long id,
+            @Valid final PatchCityForm form
+    ) {
+        final City city = cityService.patchCity(id, form.getName(), form.getCountry());
         return Response.ok(CityDto.fromCity(uriInfo, city)).build();
     }
 

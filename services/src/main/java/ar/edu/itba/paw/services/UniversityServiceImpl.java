@@ -69,19 +69,34 @@ public class UniversityServiceImpl implements UniversityService {
     @Transactional
     public University updateUniversity(final long id, final String name, final String abbreviation, final String cityName) {
         LOGGER.debug("Updating university with id {}, name {}, abbreviation {}, city {}", id, name, abbreviation, cityName);
-        City city = cityService.findCityByName(cityName).orElseThrow(() -> {
-            LOGGER.error("City not found with name: {}", cityName);
-            return new InvalidReferenceException("City", cityName);
-        });
-        University university = universityDao.findById(id).orElseThrow(() -> {
-            LOGGER.error("University with id {} not found", id);
-            return new UniversityNotFoundException(id);
-        });
+        City city = cityService.findCityByName(cityName).orElseThrow(() -> new InvalidReferenceException("City", cityName));
+        University university = universityDao.findById(id).orElseThrow(() -> new UniversityNotFoundException(id));
         university.setName(name);
         university.setAbbreviation(abbreviation);
         university.setCity(city);
 
         LOGGER.info("University updated successfully with id: {}, name: {}, abbreviation: {}, city: {}", id, name, abbreviation, cityName);
+        return university;
+    }
+
+    @Override
+    @Transactional
+    public University patchUniversity(final long id, final String name, final String abbreviation, final String cityName) {
+        LOGGER.debug("Patching university with id {}", id);
+        University university = universityDao.findById(id).orElseThrow(() -> new UniversityNotFoundException(id));
+
+        if (name != null) {
+            university.setName(name);
+        }
+        if (abbreviation != null) {
+            university.setAbbreviation(abbreviation);
+        }
+        if (cityName != null) {
+            City city = cityService.findCityByName(cityName).orElseThrow(() -> new InvalidReferenceException("City", cityName));
+            university.setCity(city);
+        }
+
+        LOGGER.info("University patched successfully with id: {}", id);
         return university;
     }
 

@@ -6,6 +6,7 @@ import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.exceptions.CareerNotFoundException;
 import ar.edu.itba.paw.webapp.dto.CareerDto;
 import ar.edu.itba.paw.webapp.form.CreateCareerForm;
+import ar.edu.itba.paw.webapp.form.PatchCareerForm;
 import ar.edu.itba.paw.webapp.form.UpdateCareerForm;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +67,18 @@ public class CareerController {
             @Valid final UpdateCareerForm form
     ) {
         final Career career = careerService.updateCareer(id, form.getName());
+        return Response.ok(CareerDto.fromCareer(uriInfo, career)).build();
+    }
+
+    @PATCH
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response patchCareer(
+            @PathParam("id") final long id,
+            @Valid final PatchCareerForm form
+    ) {
+        final Career career = careerService.patchCareer(id, form.getName());
         return Response.ok(CareerDto.fromCareer(uriInfo, career)).build();
     }
 

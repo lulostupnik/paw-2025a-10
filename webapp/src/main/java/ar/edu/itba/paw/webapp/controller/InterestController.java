@@ -6,6 +6,7 @@ import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.exceptions.InterestsNotFoundException;
 import ar.edu.itba.paw.webapp.dto.InterestDto;
 import ar.edu.itba.paw.webapp.form.CreateInterestForm;
+import ar.edu.itba.paw.webapp.form.PatchInterestForm;
 import ar.edu.itba.paw.webapp.form.UpdateInterestForm;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +69,18 @@ public class InterestController {
             @Valid final UpdateInterestForm form
     ) {
         final Interest interest = interestService.updateInterest(id, form.getName());
+        return Response.ok(InterestDto.fromInterest(uriInfo, interest)).build();
+    }
+
+    @PATCH
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response patchInterest(
+            @PathParam("id") final long id,
+            @Valid final PatchInterestForm form
+    ) {
+        final Interest interest = interestService.patchInterest(id, form.getName());
         return Response.ok(InterestDto.fromInterest(uriInfo, interest)).build();
     }
 

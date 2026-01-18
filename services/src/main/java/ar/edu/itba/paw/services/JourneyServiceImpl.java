@@ -397,16 +397,8 @@ public class JourneyServiceImpl implements JourneyService {
     @Transactional
     public Journey updateJourney(final long journeyId, final  String destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
         LOGGER.debug("Editing journey {}", journeyId);
-        Journey journey = journeyDao.findById(journeyId)
-                .orElseThrow(() -> {
-                    LOGGER.warn("Journey with id {} not found", journeyId);
-                    return new JourneyNotFoundException(journeyId);
-                });
-        University university = universityService.findByName(destinationUniversity)
-                .orElseThrow(() -> {
-                    LOGGER.warn("University not found: {}", destinationUniversity);
-                    return new InvalidReferenceException("University", destinationUniversity);
-                });
+        Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> new JourneyNotFoundException(journeyId));
+        University university = universityService.findByName(destinationUniversity).orElseThrow(() -> new InvalidReferenceException("University", destinationUniversity));
         journey.setDestinationUniversity(university);
         journey.setStartDate(startDate);
         journey.setEndDate(endDate);
@@ -415,6 +407,29 @@ public class JourneyServiceImpl implements JourneyService {
         return journey;
     }
 
+    @Override
+    @Transactional
+    public Journey patchJourney(final long journeyId, final String destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
+        LOGGER.debug("Patching journey {}", journeyId);
+        Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> new JourneyNotFoundException(journeyId));
+
+        if (destinationUniversity != null) {
+            University university = universityService.findByName(destinationUniversity).orElseThrow(() -> new InvalidReferenceException("University", destinationUniversity));
+            journey.setDestinationUniversity(university);
+        }
+        if (startDate != null) {
+            journey.setStartDate(startDate);
+        }
+        if (endDate != null) {
+            journey.setEndDate(endDate);
+        }
+        if (description != null) {
+            journey.setDescription(description);
+        }
+
+        LOGGER.info("Journey patched: {}", journeyId);
+        return journey;
+    }
 
     @Override
     public Optional<JourneyResponse> findJourneyResponseById(final long id) {
@@ -513,6 +528,23 @@ public class JourneyServiceImpl implements JourneyService {
         tip.setTitle(title);
         tip.setContent(content);
         LOGGER.info("Tip updated: {}", tipId);
+        return tip;
+    }
+
+    @Override
+    @Transactional
+    public Tip patchTip(long journeyId, long tipId, String title, String content) {
+        LOGGER.debug("Patching tip {} for journey {}", tipId, journeyId);
+        Tip tip = findTipById(journeyId, tipId).orElseThrow(() -> new TipNotFoundException(journeyId, tipId));
+
+        if (title != null) {
+            tip.setTitle(title);
+        }
+        if (content != null) {
+            tip.setContent(content);
+        }
+
+        LOGGER.info("Tip patched: {}", tipId);
         return tip;
     }
 

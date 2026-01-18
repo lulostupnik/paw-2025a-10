@@ -8,6 +8,7 @@ public interface InterestService {
     Interest createInterest(String interest);
 
     Interest updateInterest(long id, String interest);
+    Interest patchInterest(long id, String interest);
     void deleteInterest(long id);
 
     void createUserInterests(List<String> interests, long userId);

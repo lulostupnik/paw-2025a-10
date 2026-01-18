@@ -10,6 +10,7 @@ public interface CityService {
     Optional<City> findCityById(long id);
     Page<City> searchCities(String search, PageParams pageParams);
     City updateCity(long id, String name, String country);
+    City patchCity(long id, String name, String country);
     City createCity(String name, String country);
 
     void deleteCity(long id);

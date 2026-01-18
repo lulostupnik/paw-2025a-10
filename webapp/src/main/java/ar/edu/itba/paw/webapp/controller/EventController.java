@@ -147,6 +147,25 @@ public class EventController {
         return Response.ok(EventDto.fromEvent(uriInfo, event)).build();
     }
 
+    @PATCH
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response patchEvent(@PathParam("id") final long id, @Valid final PatchEventForm form) {
+        final Event event = eventService.patchEvent(
+                id,
+                form.getCity(),
+                form.getDate(),
+                form.getDescription(),
+                form.getTitle(),
+                form.getTime(),
+                form.getAddress(),
+                form.getAttendeesLimit()
+        );
+
+        return Response.ok(EventDto.fromEvent(uriInfo, event)).build();
+    }
+
     @DELETE
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)

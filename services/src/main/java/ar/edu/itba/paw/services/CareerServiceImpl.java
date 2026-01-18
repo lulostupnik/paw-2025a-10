@@ -69,6 +69,20 @@ public class CareerServiceImpl implements CareerService {
 
     @Override
     @Transactional
+    public Career patchCareer(final long id, final String name) {
+        LOGGER.debug("Patching career {} with name {}", id, name);
+        Career career = careerDao.findById(id).orElseThrow(() -> new CareerNotFoundException(id));
+
+        if (name != null) {
+            career.setName(name);
+        }
+
+        LOGGER.info("Career {} patched", id);
+        return career;
+    }
+
+    @Override
+    @Transactional
     public void deleteCareer(final long id) {
         Optional<Career> maybeCareer = careerDao.findById(id);
         if (maybeCareer.isPresent()) {
