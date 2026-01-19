@@ -44,6 +44,10 @@ import CareerEditPage from "@/pages/careers/CareerEditPage";
 
 import LoginPage from "@/pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
+import ForgotPasswordPage from "@/pages/auth/ForgotPasswordPage";
+import EmailVerificationPage from "@/pages/auth/EmailVerificationPage";
+import PasswordResetConfirmationPage from "@/pages/auth/PasswordResetConfirmationPage";
+import BlockedAccountPage from "@/pages/auth/BlockedAccountPage";
 
 export const router = createBrowserRouter([
     {
@@ -52,7 +56,6 @@ export const router = createBrowserRouter([
         children: [
             // PUBLIC
             { index: true, element: <LandingPage /> },
-            { path: "explore", element: <ExplorePage /> },
 
             { path: "journeys", element: <JourneysListPage /> },
             { path: "journeys/:id", element: <JourneyDetailPage /> },
@@ -62,6 +65,10 @@ export const router = createBrowserRouter([
 
             { path: "login", element: <LoginPage /> },
             { path: "register", element: <RegisterPage /> },
+            { path: "forgot-password", element: <ForgotPasswordPage /> },
+            { path: "verify-email", element: <EmailVerificationPage /> },
+            { path: "password/reset/confirmation", element: <PasswordResetConfirmationPage /> },
+            { path: "blocked", element: <BlockedAccountPage /> },
             { path: "error/400", element: <BadRequestPage /> },
             { path: "error/403", element: <ForbiddenPage /> },
             { path: "error/405", element: <MethodNotAllowedPage /> },
@@ -72,6 +79,7 @@ export const router = createBrowserRouter([
             {
                 element: <RequireAuth />,
                 children: [
+                    { path: "explore", element: <ExplorePage /> },
                     { path: "journeys/create", element: <JourneyCreatePage /> },
                     { path: "events/create", element: <EventCreatePage /> },
                     { path: "profiles/:profileId", element: <ProfileRedirect /> },

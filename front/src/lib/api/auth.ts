@@ -121,3 +121,23 @@ export async function login(credentials: LoginCredentials): Promise<Authenticate
     setSession({ username: fallbackUser.username });
     return fallbackUser;
 }
+
+export interface PasswordResetRequest {
+    email: string;
+}
+
+export async function requestPasswordReset(body: PasswordResetRequest): Promise<void> {
+    await apiClient.post("/auth/password/forgot", body);
+}
+
+export interface EmailVerificationResponse {
+    id?: number;
+    username?: string;
+    email?: string;
+    validatedAt?: string;
+}
+
+export async function verifyEmailToken(token: string): Promise<EmailVerificationResponse> {
+    const { data } = await apiClient.post<EmailVerificationResponse>("/auth/email/verify", { token });
+    return data;
+}

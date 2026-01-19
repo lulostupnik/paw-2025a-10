@@ -34,6 +34,7 @@ public class CreateUserForm {
     @NotNull
     private String password;
 
+//    TODO: para mi esto no va, esa validacion si es de front, no?
     @Size(min = 8, max = 100)
     // @NotNull
     private String confirmPassword;

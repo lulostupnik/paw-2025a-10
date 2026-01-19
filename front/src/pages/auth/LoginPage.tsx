@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { isAxiosError } from "axios";
 import Button from "@/components/ui/Button";
 import { login } from "@/lib/api/auth";
 import { useI18n } from "@/lib/i18n";
@@ -61,7 +62,12 @@ export default function LoginPage() {
         try {
             await login({ email: form.email.trim(), password: form.password });
             nav(next, { replace: true });
-        } catch {
+        } catch (error) {
+            if (isAxiosError(error) && error.response?.status === 423) {
+                const normalizedEmail = form.email.trim();
+                nav("/blocked", { replace: true, state: { blockedEmail: normalizedEmail } });
+                return;
+            }
             setAuthError(t("login.error.description"));
         } finally {
             setSubmitting(false);
@@ -142,7 +148,7 @@ export default function LoginPage() {
                         <span className="checkbox-field__box" aria-hidden="true" />
                         <span className="checkbox-field__label-text">{t("remember_me")}</span>
                     </label>
-                    <Button type="button" variant="ghost" size="sm">
+                    <Button type="button" variant="ghost" size="sm" onClick={() => nav("/forgot-password")}>
                         {t("login.forgot_password")}
                     </Button>
                 </div>

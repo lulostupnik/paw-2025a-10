@@ -166,32 +166,19 @@ export default function LandingPage() {
                         />
                     )}
                     {!featuredEventsError && featuredEvents.length > 0 && (
-                        <>
-                            <div className="listing-grid listing-grid--compact">
-                                {featuredEvents.map((event) => (
-                                    <EventCard
-                                        key={event.id}
-                                        event={event}
-                                        actionSlot={
-                                            <Button variant="ghost" size="sm" onClick={() => navigate(`/events/${event.id}`)}>
-                                                {t("landing.event.view")}
-                                            </Button>
-                                        }
-                                    />
-                                ))}
-                            </div>
-                            <div className="listing-cta card">
-                                <div>
-                                    <h3>{t("events.cta.title")}</h3>
-                                    <p>{t("events.cta.description")}</p>
-                                </div>
-                                <div className="listing-cta__actions">
-                                    <Button type="button" variant="primary" onClick={handleCreateEvent}>
-                                        {t("events.cta.button")}
-                                    </Button>
-                                </div>
-                            </div>
-                        </>
+                        <div className="listing-grid listing-grid--compact">
+                            {featuredEvents.map((event) => (
+                                <EventCard
+                                    key={event.id}
+                                    event={event}
+                                    actionSlot={
+                                        <Button variant="ghost" size="sm" onClick={() => navigate(`/events/${event.id}`)}>
+                                            {t("landing.event.view")}
+                                        </Button>
+                                    }
+                                />
+                            ))}
+                        </div>
                     )}
                 </div>
             </section>
