@@ -38,6 +38,14 @@ interface JourneyResponseApi {
     selfUrl?: string | null;
 }
 
+interface TipApi {
+    id: number;
+    title: string;
+    content: string;
+    dateTime: string;
+    selfUrl?: string | null;
+    journeyUrl?: string | null;
+}
 
 const parseIdFromUrl = (url?: string | null) => {
     if (!url) {
@@ -71,6 +79,37 @@ export const getJourneys = async (params: FetchJourneysParams = {}, signal?: Abo
 export const getJourneyById = async (id: string | number, signal?: AbortSignal) => {
     const response = await apiClient.get<JourneySummary>(`/journeys/${id}`, { signal });
     return response.data;
+};
+
+export const createJourney = async (
+    payload: {
+        destinationUniversity: string;
+        startDate: string;
+        endDate: string;
+        description: string;
+    },
+    signal?: AbortSignal
+) => {
+    const response = await apiClient.post<JourneySummary>("/journeys", payload, { signal });
+    return response.data;
+};
+
+export const updateJourney = async (
+    id: string | number,
+    payload: {
+        destinationUniversity: string;
+        startDate: string;
+        endDate: string;
+        description: string;
+    },
+    signal?: AbortSignal
+) => {
+    const response = await apiClient.put<JourneySummary>(`/journeys/${id}`, payload, { signal });
+    return response.data;
+};
+
+export const deleteJourney = async (id: string | number, payload?: { message?: string | null }, signal?: AbortSignal) => {
+    await apiClient.delete(`/journeys/${id}`, { data: payload, signal });
 };
 
 export const getUserByUrl = async (url?: string | null, signal?: AbortSignal) => {
@@ -110,6 +149,56 @@ export const getJourneyResponses = async (journeyId: number, signal?: AbortSigna
     return response.data ?? [];
 };
 
+export const createJourneyResponse = async (journeyId: number, payload: { message: string }, signal?: AbortSignal) => {
+    const response = await apiClient.post<JourneyResponseApi>(`/journeys/${journeyId}/responses`, payload, { signal });
+    return response.data;
+};
+
+export const deleteJourneyResponse = async (
+    journeyId: number,
+    responseId: number,
+    payload?: { message?: string | null },
+    signal?: AbortSignal
+) => {
+    await apiClient.delete(`/journeys/${journeyId}/responses/${responseId}`, { data: payload, signal });
+};
+
+export const listJourneyTips = async (journeyId: number, params?: { page?: number; size?: number }, signal?: AbortSignal) => {
+    const response = await apiClient.get<TipApi[]>(`/journeys/${journeyId}/tips`, {
+        params,
+        signal,
+    });
+    return response.data ?? [];
+};
+
+export const getJourneyTip = async (journeyId: number, tipId: number, signal?: AbortSignal) => {
+    const response = await apiClient.get<TipApi>(`/journeys/${journeyId}/tips/${tipId}`, { signal });
+    return response.data;
+};
+
+export const createJourneyTip = async (
+    journeyId: number,
+    payload: { title: string; content: string },
+    signal?: AbortSignal
+) => {
+    const response = await apiClient.post<TipApi>(`/journeys/${journeyId}/tips`, payload, { signal });
+    return response.data;
+};
+
+export const updateJourneyTip = async (
+    journeyId: number,
+    tipId: number,
+    payload: { title: string; content: string },
+    signal?: AbortSignal
+) => {
+    const response = await apiClient.put<TipApi>(`/journeys/${journeyId}/tips/${tipId}`, payload, { signal });
+    return response.data;
+};
+
+export const deleteJourneyTip = async (journeyId: number, tipId: number, signal?: AbortSignal) => {
+    await apiClient.delete(`/journeys/${journeyId}/tips/${tipId}`, { signal });
+};
+
 export const resolveJourneySummary = async (journey: JourneySummary, signal?: AbortSignal): Promise<JourneySummary> => {
     const [user, university] = await Promise.all([
         getUserByUrl(journey.userUrl, signal),
@@ -135,9 +224,10 @@ export const buildJourneyDetail = async (journey: JourneySummary, signal?: Abort
     const city = university?.cityUrl ? await getCityByUrl(university.cityUrl, signal) : null;
 
     const userId = user?.id ?? parseIdFromUrl(journey.userUrl);
-    const [interests, responses] = await Promise.all([
+    const [interests, responses, tips] = await Promise.all([
         userId ? getUserInterests(userId, signal) : Promise.resolve([]),
         getJourneyResponses(journey.id, signal),
+        listJourneyTips(journey.id, { page: 0, size: 10 }, signal),
     ]);
 
     const responseUsers = await Promise.all(
@@ -176,6 +266,12 @@ export const buildJourneyDetail = async (journey: JourneySummary, signal?: Abort
         },
         interests: interests.map((interest) => interest.name),
         events: [], // TODO: fetch journey events endpoint when available.
+        tips: tips.map((tip) => ({
+            id: tip.id,
+            title: tip.title,
+            content: tip.content,
+            dateTime: tip.dateTime,
+        })),
         comments,
     };
 };

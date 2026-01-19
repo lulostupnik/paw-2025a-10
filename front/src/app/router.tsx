@@ -15,10 +15,19 @@ import ExplorePage from "@/pages/explore/ExplorePage";
 import JourneysListPage from "@/pages/journeys/JourneysPage";
 import JourneyDetailPage from "@/pages/journeys/JourneyDetailsPage";
 import JourneyCreatePage from "@/pages/journeys/JourneyCreatePage";
+import JourneyEditPage from "@/pages/journeys/JourneyEditPage";
+import JourneyDeletePage from "@/pages/journeys/JourneyDeletePage";
+import JourneyReplyDeletePage from "@/pages/journeys/JourneyReplyDeletePage";
+import JourneyTipCreatePage from "@/pages/journeys/JourneyTipCreatePage";
+import JourneyTipEditPage from "@/pages/journeys/JourneyTipEditPage";
+import JourneyTipDeletePage from "@/pages/journeys/JourneyTipDeletePage";
 
 import EventsListPage from "@/pages/events/EventsPage";
 import EventDetailPage from "@/pages/events/EventDetailsPage";
 import EventCreatePage from "@/pages/events/EventCreatePage";
+import EventEditPage from "@/pages/events/EventEditPage";
+import EventDeletePage from "@/pages/events/EventDeletePage";
+import EventReplyDeletePage from "@/pages/events/EventReplyDeletePage";
 
 import ProfileDetail from "@/pages/profiles/ProfileDetail";
 import ProfileForm from "@/pages/profiles/ProfileForm";
@@ -28,6 +37,7 @@ import ProfileInterestsEdit from "@/pages/profiles/ProfileInterestsEdit";
 import ProfileRedirect from "@/pages/profiles/ProfileRedirect";
 import AdminPage from "@/pages/admin/AdminPage";
 import ReportDetailPage from "@/pages/admin/ReportDetailPage";
+import ReportCreatePlaceholderPage from "@/pages/reports/ReportCreatePlaceholderPage";
 import UserDetailPage from "@/pages/users/UserDetailPage";
 import UniversityDetailPage from "@/pages/universities/UniversityDetailPage";
 import UniversityCreatePage from "@/pages/universities/UniversityCreatePage";
@@ -52,8 +62,6 @@ export const router = createBrowserRouter([
         children: [
             // PUBLIC
             { index: true, element: <LandingPage /> },
-            { path: "explore", element: <ExplorePage /> },
-
             { path: "journeys", element: <JourneysListPage /> },
             { path: "journeys/:id", element: <JourneyDetailPage /> },
 
@@ -72,8 +80,18 @@ export const router = createBrowserRouter([
             {
                 element: <RequireAuth />,
                 children: [
+                    { path: "explore", element: <ExplorePage /> },
                     { path: "journeys/create", element: <JourneyCreatePage /> },
+                    { path: "journeys/:id/update", element: <JourneyEditPage /> },
+                    { path: "journeys/:id/delete", element: <JourneyDeletePage /> },
+                    { path: "journeys/reply/:responseId/delete", element: <JourneyReplyDeletePage /> },
+                    { path: "journeys/:journeyId/tips/create", element: <JourneyTipCreatePage /> },
+                    { path: "journeys/tips/:tipId/update", element: <JourneyTipEditPage /> },
+                    { path: "journeys/tips/:tipId/delete", element: <JourneyTipDeletePage /> },
                     { path: "events/create", element: <EventCreatePage /> },
+                    { path: "events/:id/update", element: <EventEditPage /> },
+                    { path: "events/:id/delete", element: <EventDeletePage /> },
+                    { path: "events/reply/:responseId/delete", element: <EventReplyDeletePage /> },
                     { path: "profiles/:profileId", element: <ProfileRedirect /> },
                     { path: "profiles/:profileId/:tab", element: <ProfileDetail /> },
                     { path: "profiles/me/edit", element: <ProfileForm /> },
@@ -82,6 +100,10 @@ export const router = createBrowserRouter([
                     { path: "profiles/me/interests/edit", element: <ProfileInterestsEdit /> },
                     { path: "admin", element: <AdminPage /> },
                     { path: "reports/:id", element: <ReportDetailPage /> },
+                    { path: "reports/journeys/:id/create", element: <ReportCreatePlaceholderPage /> },
+                    { path: "reports/events/:id/create", element: <ReportCreatePlaceholderPage /> },
+                    { path: "reports/journey-responses/:id/create", element: <ReportCreatePlaceholderPage /> },
+                    { path: "reports/event-responses/:id/create", element: <ReportCreatePlaceholderPage /> },
                     { path: "users/:id", element: <UserDetailPage /> },
                     { path: "universities/create", element: <UniversityCreatePage /> },
                     { path: "universities/:id/edit", element: <UniversityEditPage /> },

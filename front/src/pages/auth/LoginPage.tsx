@@ -59,7 +59,7 @@ export default function LoginPage() {
         setSubmitting(true);
         setAuthError("");
         try {
-            await login({ email: form.email.trim(), password: form.password });
+            await login({ email: form.email.trim(), password: form.password, remember: form.remember });
             nav(next, { replace: true });
         } catch {
             setAuthError(t("login.error.description"));

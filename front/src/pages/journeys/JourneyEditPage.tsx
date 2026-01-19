@@ -1,10 +1,11 @@
-import { useCallback, useRef, useState, type ChangeEvent, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import Button from "@/components/ui/Button";
 import { classNames } from "@/lib/utils/classNames";
 import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField";
 import { searchUniversities, type CatalogOption } from "@/lib/api/catalog";
-import { createJourney } from "@/lib/api/journeys";
+import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
+import { updateJourney } from "@/lib/api/journeys";
 import { useI18n } from "@/lib/i18n";
 
 interface JourneyFormState {
@@ -25,16 +26,34 @@ const INITIAL_FORM: JourneyFormState = {
     description: "",
 };
 
-export default function JourneyCreatePage() {
-    const navigate = useNavigate();
+export default function JourneyEditPage() {
     const { t } = useI18n();
+    const navigate = useNavigate();
+    const { id } = useParams();
+    const { data, isLoading, isError, isNotFound } = useJourneyDetailData({ journeyId: id });
     const [form, setForm] = useState<JourneyFormState>({ ...INITIAL_FORM });
     const [errors, setErrors] = useState<JourneyErrors>({});
     const [touched, setTouched] = useState<JourneyTouched>({});
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [destinationQuery, setDestinationQuery] = useState(form.destination?.name ?? "");
+    const [seeded, setSeeded] = useState(false);
     const descriptionRef = useRef<HTMLTextAreaElement>(null);
+
+    useEffect(() => {
+        if (!data || seeded) {
+            return;
+        }
+        const destinationName = data.destinationUniversity?.name ?? "";
+        setForm({
+            startDate: data.startDate ?? "",
+            endDate: data.endDate ?? "",
+            destination: destinationName ? { id: 0, name: destinationName } : null,
+            description: data.description ?? "",
+        });
+        setDestinationQuery(destinationName);
+        setSeeded(true);
+    }, [data, seeded]);
 
     const markTouched = useCallback((field: JourneyField) => {
         setTouched((prev) => ({ ...prev, [field]: true }));
@@ -49,25 +68,28 @@ export default function JourneyCreatePage() {
         setForm((prev) => ({ ...prev, description: event.target.value }));
     };
 
-    const validate = useCallback((state: JourneyFormState): JourneyErrors => {
-        const nextErrors: JourneyErrors = {};
-        if (!state.startDate) {
-            nextErrors.startDate = t("journey.create.validation.startDate");
-        }
-        if (!state.endDate) {
-            nextErrors.endDate = t("journey.create.validation.endDate");
-        }
-        if (state.startDate && state.endDate && state.startDate > state.endDate) {
-            nextErrors.endDate = t("journey.create.validation.range");
-        }
-        if (!state.destination) {
-            nextErrors.destination = t("journey.create.validation.destination");
-        }
-        if (!state.description.trim()) {
-            nextErrors.description = t("journey.create.validation.description");
-        }
-        return nextErrors;
-    }, [t]);
+    const validate = useCallback(
+        (state: JourneyFormState): JourneyErrors => {
+            const nextErrors: JourneyErrors = {};
+            if (!state.startDate) {
+                nextErrors.startDate = t("journey.create.validation.startDate");
+            }
+            if (!state.endDate) {
+                nextErrors.endDate = t("journey.create.validation.endDate");
+            }
+            if (state.startDate && state.endDate && state.startDate > state.endDate) {
+                nextErrors.endDate = t("journey.create.validation.range");
+            }
+            if (!state.destination) {
+                nextErrors.destination = t("journey.create.validation.destination");
+            }
+            if (!state.description.trim()) {
+                nextErrors.description = t("journey.create.validation.description");
+            }
+            return nextErrors;
+        },
+        [t]
+    );
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -87,42 +109,60 @@ export default function JourneyCreatePage() {
             }
             return;
         }
+        if (!id) {
+            setSubmitError(t("journey.edit.error", { defaultValue: "No journey id provided." }));
+            return;
+        }
 
         try {
             setSubmitting(true);
-            const journey = await createJourney({
-                destinationUniversity: form.destination?.name ?? "",
-                startDate: form.startDate,
-                endDate: form.endDate,
-                description: form.description.trim(),
-            });
-            setForm({ ...INITIAL_FORM });
-            setDestinationQuery("");
-            setTouched({});
-            setErrors({});
-            navigate(`/journeys/${journey.id}`);
+            await updateJourney(
+                id,
+                {
+                    destinationUniversity: form.destination?.name ?? "",
+                    startDate: form.startDate,
+                    endDate: form.endDate,
+                    description: form.description.trim(),
+                },
+                undefined
+            );
+            navigate(`/journeys/${id}`);
         } catch (err) {
-            console.error("Failed to create journey", err);
-            setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            console.error("Failed to update journey", err);
+            setSubmitError(t("journey.edit.error", { defaultValue: "Error al actualizar el viaje." }));
         } finally {
             setSubmitting(false);
         }
     };
 
     const handleCancel = () => {
-        navigate(-1);
+        if (id) {
+            navigate(`/journeys/${id}`);
+        } else {
+            navigate("/journeys");
+        }
     };
 
-    const descriptionHelper = t("journey.create.description.helper");
+    if (isLoading) {
+        return <div className="journey-create-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
+    }
+
+    if (isNotFound) {
+        return <div className="journey-create-page">{t("journey.not.found.title", { defaultValue: "Journey not found." })}</div>;
+    }
+
+    if (isError) {
+        return <div className="journey-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+    }
 
     return (
         <div className="page-shell journey-create-page">
             <div className="journey-create-card card">
                 <header className="journey-create-header">
                     <div>
-                        <p className="eyebrow">{t("journey.create.eyebrow")}</p>
-                        <h1>{t("journey.create.title")}</h1>
-                        <p className="journey-create-header__lead">{t("journey.create.subtitle")}</p>
+                        <p className="eyebrow">{t("journey.edit.header")}</p>
+                        <h1>{t("journey.edit.title")}</h1>
+                        <p className="journey-create-header__lead">{t("journey.edit.subtitle")}</p>
                     </div>
                     <div className="journey-create-meta">{t("form.requiredHint")}</div>
                 </header>
@@ -187,13 +227,13 @@ export default function JourneyCreatePage() {
                             id="journey-description"
                             ref={descriptionRef}
                             className={classNames("input-control", touched.description && errors.description && "input-control--error")}
-                            placeholder={t("journey.create.description.placeholder")}
+                            placeholder={t("journey.description.hint")}
                             value={form.description}
                             onChange={handleDescriptionChange}
                             onBlur={() => markTouched("description")}
                             rows={6}
                         />
-                        {!errors.description && <p className="form-field__text">{descriptionHelper}</p>}
+                        {!errors.description && <p className="form-field__text">{t("journey.create.description.helper")}</p>}
                         {touched.description && errors.description && (
                             <p className="form-field__text form-field__text--error">{errors.description}</p>
                         )}
@@ -206,7 +246,7 @@ export default function JourneyCreatePage() {
                             {t("common.cancel")}
                         </Button>
                         <Button type="submit" variant="primary" disabled={submitting}>
-                            {submitting ? t("journey.create.submitting") : t("journey.create.submit")}
+                            {submitting ? t("journey.edit.submit") : t("journey.edit.submit")}
                         </Button>
                     </div>
                 </form>

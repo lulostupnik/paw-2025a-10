@@ -1,3 +1,5 @@
+import TopBar from "@/components/TopBar";
+
 export default function Navbar() {
-    return null;
+    return <TopBar />;
 }

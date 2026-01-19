@@ -4,67 +4,110 @@ const USERNAME_KEY = "username";
 const ROLE_KEY = "role";
 const USER_ID_KEY = "userId";
 
+type AuthStorage = "local" | "session";
+
+function getStoredValue(key: string): string | null {
+    return sessionStorage.getItem(key) ?? localStorage.getItem(key);
+}
+
+function clearStoredValue(key: string, storage: AuthStorage) {
+    if (storage === "local") {
+        localStorage.removeItem(key);
+    } else {
+        sessionStorage.removeItem(key);
+    }
+}
+
+function setStoredValue(key: string, value: string, storage: AuthStorage) {
+    if (storage === "local") {
+        localStorage.setItem(key, value);
+        sessionStorage.removeItem(key);
+    } else {
+        sessionStorage.setItem(key, value);
+        localStorage.removeItem(key);
+    }
+}
+
+function getActiveStorage(): AuthStorage {
+    if (sessionStorage.getItem(AUTH_TOKEN_KEY) || sessionStorage.getItem(REFRESH_TOKEN_KEY)) {
+        return "session";
+    }
+    return "local";
+}
+
 export function isLoggedIn(): boolean {
-    return Boolean(localStorage.getItem(AUTH_TOKEN_KEY));
+    return Boolean(getStoredValue(AUTH_TOKEN_KEY));
 }
 
 export function isAdmin(): boolean {
-    return localStorage.getItem(ROLE_KEY) === "ADMIN";
+    return getStoredValue(ROLE_KEY) === "ADMIN";
 }
 
 export function getUsername(): string {
-    return localStorage.getItem(USERNAME_KEY) || "user";
+    return getStoredValue(USERNAME_KEY) || "user";
 }
 
 export function getUserId(): number {
-    const raw = localStorage.getItem(USER_ID_KEY);
+    const raw = getStoredValue(USER_ID_KEY);
     const parsed = raw ? Number(raw) : NaN;
     return Number.isFinite(parsed) ? parsed : 1;
 }
 
 export function getAuthToken(): string | null {
-    return localStorage.getItem(AUTH_TOKEN_KEY);
+    return getStoredValue(AUTH_TOKEN_KEY);
 }
 
 export function getRefreshToken(): string | null {
-    return localStorage.getItem(REFRESH_TOKEN_KEY);
+    return getStoredValue(REFRESH_TOKEN_KEY);
 }
 
-export function setAuthTokens(tokens: { authToken?: string | null; refreshToken?: string | null }) {
+export function setAuthTokens(tokens: {
+    authToken?: string | null;
+    refreshToken?: string | null;
+    storage?: AuthStorage;
+}) {
+    const storage = tokens.storage ?? getActiveStorage();
     if (tokens.authToken) {
-        localStorage.setItem(AUTH_TOKEN_KEY, tokens.authToken);
+        setStoredValue(AUTH_TOKEN_KEY, tokens.authToken, storage);
     }
     if (tokens.refreshToken) {
-        localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
+        setStoredValue(REFRESH_TOKEN_KEY, tokens.refreshToken, storage);
     }
 }
 
-export function setSession(session: { username?: string; role?: string | null; userId?: number | null }) {
+export function setSession(session: {
+    username?: string;
+    role?: string | null;
+    userId?: number | null;
+    storage?: AuthStorage;
+}) {
+    const storage = session.storage ?? getActiveStorage();
     if (session.username) {
-        localStorage.setItem(USERNAME_KEY, session.username);
+        setStoredValue(USERNAME_KEY, session.username, storage);
     }
     if (typeof session.role === "string") {
-        localStorage.setItem(ROLE_KEY, session.role);
+        setStoredValue(ROLE_KEY, session.role, storage);
     }
     if (typeof session.userId === "number" && Number.isFinite(session.userId)) {
-        localStorage.setItem(USER_ID_KEY, String(session.userId));
+        setStoredValue(USER_ID_KEY, String(session.userId), storage);
     }
 }
 
-export function loginFake(opts?: { admin?: boolean }) {
-    localStorage.setItem(AUTH_TOKEN_KEY, "dev-token");
-    localStorage.setItem(REFRESH_TOKEN_KEY, "dev-refresh-token");
+export function loginFake(opts?: { admin?: boolean; remember?: boolean }) {
+    const storage: AuthStorage = opts?.remember ? "local" : "session";
+    setStoredValue(AUTH_TOKEN_KEY, "dev-token", storage);
+    setStoredValue(REFRESH_TOKEN_KEY, "dev-refresh-token", storage);
     setSession({
         username: "username",
         role: opts?.admin ? "ADMIN" : "USER",
         userId: 1,
+        storage,
     });
 }
 
 export function logout() {
-    localStorage.removeItem(AUTH_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    localStorage.removeItem(USERNAME_KEY);
-    localStorage.removeItem(ROLE_KEY);
-    localStorage.removeItem(USER_ID_KEY);
+    [AUTH_TOKEN_KEY, REFRESH_TOKEN_KEY, USERNAME_KEY, ROLE_KEY, USER_ID_KEY].forEach((key) => {
+        clearStoredValue(key, "local");
+        clearStoredValue(key, "session");
+    });
 }

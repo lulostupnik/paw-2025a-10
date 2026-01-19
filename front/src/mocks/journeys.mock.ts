@@ -88,6 +88,20 @@ const NORMAL_DETAIL: JourneyDetail = {
             time: "09:00",
         },
     ],
+    tips: [
+        {
+            id: 901,
+            title: "Documentos listos",
+            content: "Digitaliza tus documentos antes de viajar y guarda copias en la nube.",
+            dateTime: "2025-02-18T09:30",
+        },
+        {
+            id: 902,
+            title: "Transporte",
+            content: "Compra una tarjeta mensual de transporte para ahorrar en traslados diarios.",
+            dateTime: "2025-02-22T14:20",
+        },
+    ],
     comments: [
         {
             id: 701,
@@ -108,6 +122,7 @@ const EMPTY_DETAIL: JourneyDetail = {
     ...NORMAL_DETAIL,
     interests: [],
     events: [],
+    tips: [],
     comments: [],
 };
 

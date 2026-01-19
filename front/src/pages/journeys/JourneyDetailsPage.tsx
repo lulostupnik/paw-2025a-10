@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { getUserId, isAdmin } from "@/lib/auth/auth";
 import CreatorCard from "@/components/detail/CreatorCard";
 import AdminPagination from "@/components/admin-dashboard/AdminPagination";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
+import { createJourneyResponse } from "@/lib/api/journeys";
 import type { JourneyDetailScenario } from "@/mocks/journeys.mock";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 
@@ -50,20 +51,27 @@ export default function JourneyDetailPage() {
     const navigate = useNavigate();
     const location = useLocation();
     const { id } = useParams();
-    const { data, isLoading, isError, isNotFound } = useJourneyDetailData({ scenario: SCENARIO, journeyId: id });
+    const { data, isLoading, isError, isNotFound, refetch } = useJourneyDetailData({ scenario: SCENARIO, journeyId: id });
     const [actionMenuOpen, setActionMenuOpen] = useState(false);
     const [commentsOpen, setCommentsOpen] = useState(true);
     const [eventsOpen, setEventsOpen] = useState(true);
     const [openCommentMenuId, setOpenCommentMenuId] = useState<number | null>(null);
+    const [openTipMenuId, setOpenTipMenuId] = useState<number | null>(null);
     const [interestsPage, setInterestsPage] = useState(1);
     const [eventsPage, setEventsPage] = useState(1);
+    const [tipsPage, setTipsPage] = useState(1);
     const [commentsPage, setCommentsPage] = useState(1);
+    const [replyMessage, setReplyMessage] = useState("");
+    const [replyError, setReplyError] = useState<string | null>(null);
+    const [replySubmitting, setReplySubmitting] = useState(false);
+    const [replySuccess, setReplySuccess] = useState<string | null>(null);
 
     const isOwner = data.user?.id === getUserId();
     const admin = isAdmin();
 
     const pagedInterests = useMemo(() => paginate(data.interests, interestsPage, 8), [data.interests, interestsPage]);
     const pagedEvents = useMemo(() => paginate(data.events, eventsPage, 6), [data.events, eventsPage]);
+    const pagedTips = useMemo(() => paginate(data.tips, tipsPage, 10), [data.tips, tipsPage]);
     const pagedComments = useMemo(() => paginate(data.comments, commentsPage, 4), [data.comments, commentsPage]);
 
     if (isLoading) {
@@ -102,6 +110,32 @@ export default function JourneyDetailPage() {
             return;
         }
         navigate("/journeys");
+    };
+
+    const handleReplySubmit = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (!id) {
+            setReplyError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            return;
+        }
+        if (!replyMessage.trim()) {
+            setReplyError(t("NotNull.replyJourneyForm.message", { defaultValue: "Please enter a message." }));
+            return;
+        }
+        try {
+            setReplySubmitting(true);
+            setReplyError(null);
+            setReplySuccess(null);
+            await createJourneyResponse(Number(id), { message: replyMessage.trim() });
+            setReplyMessage("");
+            setReplySuccess(t("replyJourney.success"));
+            refetch();
+        } catch (err) {
+            console.error("Failed to submit journey response", err);
+            setReplyError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+        } finally {
+            setReplySubmitting(false);
+        }
     };
 
     return (
@@ -436,6 +470,147 @@ export default function JourneyDetailPage() {
                                 <div className="section-header">
                                     <h2 className="section-title">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon">
+                                            <path d="M9 11H5a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4l3 3V8l-3 3z"></path>
+                                            <path d="M22 4H12a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h9l1 1V6a2 2 0 0 0-2-2z"></path>
+                                        </svg>
+                                        {t("journey.detail.tips")}
+                                        <span className="count">({data.tips.length})</span>
+                                    </h2>
+                                </div>
+                                <div className="section-content">
+                                    {pagedTips.content.length === 0 ? (
+                                        <div className="empty-state">
+                                            <div className="empty-icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="empty-icon-img">
+                                                    <path d="M9 11H5a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4l3 3V8l-3 3z"></path>
+                                                    <path d="M22 4H12a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h9l1 1V6a2 2 0 0 0-2-2z"></path>
+                                                </svg>
+                                            </div>
+                                            <p className="empty-message">{t("journey.detail.no.tips")}</p>
+                                            {isOwner && <p className="empty-message">{t("journey.detail.add.first.tip")}</p>}
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="tips-container">
+                                                {pagedTips.content.map((tip) => (
+                                                    <div key={tip.id} className="tip-card">
+                                                        <div className="tip-header">
+                                                            <div className="tip-meta">
+                                                                <h3 className="tip-title">{tip.title}</h3>
+                                                                <p className="tip-date">{formatDate(tip.dateTime, locale)}</p>
+                                                            </div>
+                                                            {isOwner && (
+                                                                <div style={{ position: "relative", display: "inline-block" }}>
+                                                                    <button
+                                                                        type="button"
+                                                                        className="btn-action"
+                                                                        aria-label={t("tip.edit")}
+                                                                        onClick={() => setOpenTipMenuId((prev) => (prev === tip.id ? null : tip.id))}
+                                                                        style={{
+                                                                            background: "none",
+                                                                            border: "1px solid #e0e0e0",
+                                                                            borderRadius: "4px",
+                                                                            padding: "6px",
+                                                                            cursor: "pointer",
+                                                                        }}
+                                                                    >
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                            <circle cx="12" cy="12" r="1"></circle>
+                                                                            <circle cx="12" cy="5" r="1"></circle>
+                                                                            <circle cx="12" cy="19" r="1"></circle>
+                                                                        </svg>
+                                                                    </button>
+                                                                    {openTipMenuId === tip.id && (
+                                                                        <div
+                                                                            style={{
+                                                                                position: "absolute",
+                                                                                right: 0,
+                                                                                top: "100%",
+                                                                                backgroundColor: "white",
+                                                                                minWidth: "160px",
+                                                                                boxShadow: "0px 8px 16px 0px rgba(0,0,0,0.2)",
+                                                                                borderRadius: "6px",
+                                                                                zIndex: 1000,
+                                                                                border: "1px solid #e0e0e0",
+                                                                                padding: "6px 0",
+                                                                            }}
+                                                                        >
+                                                                            <Link
+                                                                                to={`/journeys/tips/${tip.id}/update?journeyId=${id}`}
+                                                                                style={{
+                                                                                    color: "#333",
+                                                                                    padding: "10px 14px",
+                                                                                    textDecoration: "none",
+                                                                                    display: "flex",
+                                                                                    alignItems: "center",
+                                                                                    gap: "10px",
+                                                                                    fontSize: "13px",
+                                                                                }}
+                                                                            >
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                                                </svg>
+                                                                                <span>{t("tip.edit")}</span>
+                                                                            </Link>
+                                                                            <Link
+                                                                                to={`/journeys/tips/${tip.id}/delete?journeyId=${id}`}
+                                                                                style={{
+                                                                                    color: "#333",
+                                                                                    padding: "10px 14px",
+                                                                                    textDecoration: "none",
+                                                                                    display: "flex",
+                                                                                    alignItems: "center",
+                                                                                    gap: "10px",
+                                                                                    fontSize: "13px",
+                                                                                }}
+                                                                            >
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                                    <path d="M3 6h18"></path>
+                                                                                    <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                                                                                </svg>
+                                                                                <span>{t("tip.delete")}</span>
+                                                                            </Link>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="tip-content">
+                                                            <p className="tip-message">{tip.content}</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <AdminPagination
+                                                totalPages={pagedTips.totalPages}
+                                                currentPage={pagedTips.currentPage}
+                                                pageSize={pagedTips.pageSize}
+                                                onPageChange={setTipsPage}
+                                                previousLabel={t("pagination.prev")}
+                                                nextLabel={t("pagination.next")}
+                                            />
+                                        </>
+                                    )}
+
+                                    {isOwner && (
+                                        <div className="add-tip-button-container">
+                                            <Link to={`/journeys/${id}/tips/create`} className="btn-primary btn-with-icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" className="btn-icon" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M12 5v14"></path>
+                                                    <path d="M5 12h14"></path>
+                                                </svg>
+                                                <span>{t("journey.tip.add")}</span>
+                                            </Link>
+                                        </div>
+                                    )}
+                                </div>
+                            </section>
+
+                            <section className="content-section">
+                                <div className="section-header">
+                                    <h2 className="section-title">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon">
                                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                                         </svg>
                                         {t("journey.detail.responses")}
@@ -544,7 +719,7 @@ export default function JourneyDetailPage() {
                                                                     )}
                                                                     {admin && (
                                                                         <Link
-                                                                            to={`/journeys/reply/${response.id}/delete`}
+                                                                            to={`/journeys/reply/${response.id}/delete?journeyId=${id}`}
                                                                             style={{
                                                                                 color: "#333",
                                                                                 padding: "10px 14px",
@@ -594,10 +769,7 @@ export default function JourneyDetailPage() {
                                         </h3>
                                         <form
                                             className="reply-form"
-                                            onSubmit={(event) => {
-                                                event.preventDefault();
-                                                // TODO: submit journey response.
-                                            }}
+                                            onSubmit={handleReplySubmit}
                                         >
                                             <div className="form-group">
                                                 <label className="form-label" htmlFor="journey-reply">
@@ -607,10 +779,22 @@ export default function JourneyDetailPage() {
                                                     id="journey-reply"
                                                     className="form-textarea"
                                                     placeholder={t("reply.message.hint")}
+                                                    value={replyMessage}
+                                                    onChange={(event) => {
+                                                        setReplyMessage(event.target.value);
+                                                        if (replyError) {
+                                                            setReplyError(null);
+                                                        }
+                                                        if (replySuccess) {
+                                                            setReplySuccess(null);
+                                                        }
+                                                    }}
                                                 />
                                             </div>
+                                            {replySuccess && <p className="form-field__text">{replySuccess}</p>}
+                                            {replyError && <p className="error-message">{replyError}</p>}
                                             <div className="form-actions">
-                                                <button type="submit" className="btn btn-primary">
+                                                <button type="submit" className="btn btn-primary" disabled={replySubmitting}>
                                                     {t("reply.submit")}
                                                 </button>
                                             </div>

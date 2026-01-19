@@ -92,13 +92,13 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
                 .antMatchers(HttpMethod.HEAD, "/api/").access("isAuthenticated()")
 
-                .antMatchers(HttpMethod.GET, "/api/users").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/users").permitAll()// TODO:revisar
                 .antMatchers(HttpMethod.POST, "/api/users").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/users/{id}").access("isAuthenticated()")
+                .antMatchers(HttpMethod.GET, "/api/users/{id}").permitAll()
                 .antMatchers(HttpMethod.PUT, "/api/users/{id}").access("@accessHelper.isCurrentUser(#id)")
                 .antMatchers(HttpMethod.DELETE, "/api/users/{id}").access("@accessHelper.isCurrentUser(#id) or hasRole('ADMIN')")
 
-                .antMatchers(HttpMethod.GET, "/api/users/{id}/interests").access("isAuthenticated()")
+                .antMatchers(HttpMethod.GET, "/api/users/{id}/interests").permitAll()// TODO:revisar
                 .antMatchers(HttpMethod.PUT, "/api/users/{id}/interests").access("@accessHelper.isCurrentUser(#id)")
                 .antMatchers(HttpMethod.DELETE, "/api/users/{id}/interests/{interestId}").access("@accessHelper.isCurrentUser(#id)")
 
@@ -134,7 +134,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT, "/api/journeys/{journeyId}/tips/{tipId}").access("@accessHelper.isUserTipOwner(#journeyId, #tipId)")
                 .antMatchers(HttpMethod.DELETE, "/api/journeys/{journeyId}/tips/{tipId}").access("@accessHelper.isUserTipOwner(#journeyId, #tipId) or hasRole('ADMIN')")
 
-                .antMatchers(HttpMethod.POST, "/api/journeys/*/responses").access("isAuthenticated()")
+                .antMatchers(HttpMethod.POST, "/api/journeys/{id}/responses").access("isAuthenticated()")
                 .antMatchers(HttpMethod.DELETE, "/api/journeys/*/responses/*").access("hasRole('ADMIN')")
 
                 .antMatchers(HttpMethod.GET, "/api/events", "/api/events/**").permitAll()

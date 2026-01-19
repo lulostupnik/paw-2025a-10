@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { buildJourneyDetail, getJourneyById } from "@/lib/api/journeys";
 import { type JourneyDetail, type JourneyDetailScenario, getJourneyDetailMock } from "@/mocks/journeys.mock";
 
@@ -12,6 +12,7 @@ export const useJourneyDetailData = ({ scenario = "normal", journeyId }: Journey
     const [isLoading, setLoading] = useState(false);
     const [isError, setError] = useState(false);
     const [isNotFound, setNotFound] = useState(false);
+    const [reloadToken, setReloadToken] = useState(0);
     const activeScenario = useMemo<JourneyDetailScenario>(() => scenario, [scenario]);
     const USE_MOCK_FALLBACK = true; // Set to false to disable fallback mocks.
 
@@ -84,12 +85,17 @@ export const useJourneyDetailData = ({ scenario = "normal", journeyId }: Journey
             });
 
         return () => controller.abort();
-    }, [activeScenario, journeyId, USE_MOCK_FALLBACK]);
+    }, [activeScenario, journeyId, USE_MOCK_FALLBACK, reloadToken]);
+
+    const refetch = useCallback(() => {
+        setReloadToken((prev) => prev + 1);
+    }, []);
 
     return {
         data,
         isLoading,
         isError,
         isNotFound,
+        refetch,
     };
 };

@@ -616,12 +616,12 @@ export default function EventDetailPage() {
                                                                                     </svg>
                                                                                     <span>{t("comment.report")}</span>
                                                                                 </Link>
-                                                                                {admin && (
-                                                                                    <Link
-                                                                                        to={`/events/reply/${response.id}/delete`}
-                                                                                        style={{
-                                                                                            color: "#333",
-                                                                                            padding: "10px 14px",
+                                                                                    {admin && (
+                                                                                        <Link
+                                                                                            to={`/events/reply/${response.id}/delete?eventId=${id}`}
+                                                                                            style={{
+                                                                                                color: "#333",
+                                                                                                padding: "10px 14px",
                                                                                             textDecoration: "none",
                                                                                             display: "flex",
                                                                                             alignItems: "center",

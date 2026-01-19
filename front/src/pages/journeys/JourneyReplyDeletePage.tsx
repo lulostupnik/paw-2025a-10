@@ -1,0 +1,172 @@
+import { useMemo, useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useI18n } from "@/lib/i18n";
+import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
+import { deleteJourneyResponse } from "@/lib/api/journeys";
+import { popFromNavigationStack } from "@/lib/utils/navigationStack";
+
+const formatDateTime = (value: string, locale: string) => {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+        return value;
+    }
+    return new Intl.DateTimeFormat(locale, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    }).format(date);
+};
+
+export default function JourneyReplyDeletePage() {
+    const { t, locale } = useI18n();
+    const navigate = useNavigate();
+    const { responseId } = useParams();
+    const [searchParams] = useSearchParams();
+    const journeyId = searchParams.get("journeyId");
+    const { data, isLoading, isError } = useJourneyDetailData({ journeyId: journeyId ?? undefined });
+    const [message, setMessage] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+
+    const response = useMemo(() => {
+        if (!responseId) {
+            return null;
+        }
+        const parsed = Number(responseId);
+        if (!Number.isFinite(parsed)) {
+            return null;
+        }
+        return data.comments.find((comment) => comment.id === parsed) ?? null;
+    }, [data.comments, responseId]);
+
+    const handleBack = () => {
+        const previous = popFromNavigationStack();
+        if (previous) {
+            navigate(previous);
+            return;
+        }
+        if (journeyId) {
+            navigate(`/journeys/${journeyId}`);
+            return;
+        }
+        navigate("/journeys");
+    };
+
+    const handleSubmit = async () => {
+        if (!journeyId || !responseId) {
+            setSubmitError(t("journey.edit.error", { defaultValue: "Missing identifiers." }));
+            return;
+        }
+        const parsedResponseId = Number(responseId);
+        if (!Number.isFinite(parsedResponseId)) {
+            setSubmitError(t("journey.edit.error", { defaultValue: "Invalid response id." }));
+            return;
+        }
+        try {
+            setSubmitting(true);
+            setSubmitError(null);
+            await deleteJourneyResponse(
+                Number(journeyId),
+                parsedResponseId,
+                message.trim() ? { message: message.trim() } : undefined
+            );
+            navigate(`/journeys/${journeyId}`);
+        } catch (err) {
+            console.error("Failed to delete journey response", err);
+            setSubmitError(t("journeyResponse.deleteWarning", { defaultValue: "Error al eliminar el comentario." }));
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    if (isLoading) {
+        return <div className="journey-detail-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
+    }
+
+    if (isError) {
+        return <div className="journey-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+    }
+
+    return (
+        <div className="journey-detail-page journey-reply-delete-page">
+            <div className="layout-container">
+                <div className="main-content">
+                    <div className="content-container">
+                        <div className="back-navigation">
+                            <button type="button" onClick={handleBack} className="back-link">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M19 12H5"></path>
+                                    <path d="M12 19l-7-7 7-7"></path>
+                                </svg>
+                                <span>{t("journey.edit.back")}</span>
+                            </button>
+                        </div>
+
+                        <div className="content-card">
+                            <div className="card-header">
+                                <h1 className="card-title">{t("journeyResponse.delete")}</h1>
+                            </div>
+                            <div className="card-content">
+                                <div className="reply-summary">
+                                    <h3>{t("journeyResponse.delete.summary")}</h3>
+                                    {response ? (
+                                        <div className="reply-content-preview">
+                                            <p>
+                                                <strong>{t("journeyResponse.author")}:</strong> {response.user.username}
+                                            </p>
+                                            <p>
+                                                <strong>{t("journeyResponse.date")}:</strong> {formatDateTime(response.dateTime, locale)}
+                                            </p>
+                                            <p>
+                                                <strong>{t("journeyResponse.content")}:</strong>
+                                            </p>
+                                            <div className="message-preview">{response.message}</div>
+                                        </div>
+                                    ) : (
+                                        <p className="empty-message">{t("journey.detail.no.responses")}</p>
+                                    )}
+                                </div>
+
+                                <div className="warning-message">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                    </svg>
+                                    <p>{t("journeyResponse.deleteWarning")}</p>
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="form-label" htmlFor="journey-reply-delete-message">
+                                        {t("delete.reason.label")}
+                                    </label>
+                                    <textarea
+                                        id="journey-reply-delete-message"
+                                        className="form-textarea"
+                                        placeholder={t("delete.reason.placeholder")}
+                                        value={message}
+                                        onChange={(event) => setMessage(event.target.value)}
+                                        rows={4}
+                                    />
+                                </div>
+
+                                {submitError && <p className="error-message">{submitError}</p>}
+
+                                <div className="form-actions">
+                                    <button type="button" className="btn-secondary" onClick={handleBack} disabled={submitting}>
+                                        {t("event.cancel")}
+                                    </button>
+                                    <button type="button" className="btn-danger" onClick={handleSubmit} disabled={submitting}>
+                                        {t("journeyResponse.confirmDelete")}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

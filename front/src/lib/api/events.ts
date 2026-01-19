@@ -1,4 +1,4 @@
-import { apiBaseUrl } from "@/lib/api/client";
+import { apiBaseUrl, apiClient } from "@/lib/api/client";
 
 const EVENTS_ENDPOINT = `${apiBaseUrl}/events`;
 
@@ -33,6 +33,15 @@ export interface EventSummary {
     isFuture?: boolean;
     flyerUrl?: string;
     imageUrl?: string;
+}
+
+interface EventResponseApi {
+    id: number;
+    message: string;
+    dateTime: string;
+    authorUrl?: string | null;
+    selfUrl?: string | null;
+    eventUrl?: string | null;
 }
 
 export interface FetchEventsParams {
@@ -89,3 +98,57 @@ export const mapEventDtoToSummary = (dto: EventDto): EventSummary => ({
     flyerUrl: dto.flyerUrl ?? undefined,
     imageUrl: dto.flyerUrl ?? undefined,
 });
+
+export const updateEvent = async (
+    id: number,
+    payload: {
+        city: string;
+        date: string;
+        description: string;
+        title: string;
+        time?: string | null;
+        address?: string | null;
+        attendeesLimit?: number | null;
+    },
+    signal?: AbortSignal
+) => {
+    const response = await apiClient.put<EventDto>(`/events/${id}`, payload, { signal });
+    return response.data;
+};
+
+export const deleteEvent = async (id: number, payload?: { message?: string | null }, signal?: AbortSignal) => {
+    await apiClient.delete(`/events/${id}`, { data: payload, signal });
+};
+
+export const createEventResponse = async (eventId: number, payload: { message: string }, signal?: AbortSignal) => {
+    const response = await apiClient.post<EventResponseApi>(`/events/${eventId}/responses`, payload, { signal });
+    return response.data;
+};
+
+export const deleteEventResponse = async (
+    eventId: number,
+    responseId: number,
+    payload?: { message?: string | null },
+    signal?: AbortSignal
+) => {
+    await apiClient.delete(`/events/${eventId}/responses/${responseId}`, { data: payload, signal });
+};
+
+export const attendEvent = async (eventId: number, signal?: AbortSignal) => {
+    const response = await apiClient.post(`/events/${eventId}/attendances`, undefined, { signal });
+    return response.data;
+};
+
+export const unattendEvent = async (eventId: number, signal?: AbortSignal) => {
+    await apiClient.delete(`/events/${eventId}/attendances`, { signal });
+};
+
+export const updateEventFlyer = async (eventId: number, flyer: File, signal?: AbortSignal) => {
+    const formData = new FormData();
+    formData.append("flyer", flyer);
+    const response = await apiClient.put(`/events/${eventId}/flyer`, formData, {
+        signal,
+        headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+};

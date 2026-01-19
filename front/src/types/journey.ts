@@ -50,6 +50,13 @@ export interface JourneyComment {
     dateTime: string;
 }
 
+export interface JourneyTip {
+    id: number;
+    title: string;
+    content: string;
+    dateTime: string;
+}
+
 export interface JourneyDetail {
     id: number;
     description: string;
@@ -67,5 +74,6 @@ export interface JourneyDetail {
     user?: JourneyCreator;
     interests: string[];
     events: JourneyEvent[];
+    tips: JourneyTip[];
     comments: JourneyComment[];
 }

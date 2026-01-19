@@ -4,6 +4,7 @@ import { setAuthTokens, setSession } from "@/lib/auth/auth";
 export interface LoginCredentials {
     email: string;
     password: string;
+    remember?: boolean;
 }
 
 export interface AuthenticatedUser {
@@ -90,6 +91,7 @@ function normalizeRole(role?: string): string | undefined {
 
 export async function login(credentials: LoginCredentials): Promise<AuthenticatedUser> {
     const basic = encodeBasicCredentials(credentials);
+    const storage = credentials.remember ? "local" : "session";
 
     const loginResponse = await apiClient.head("/", {
         headers: { Authorization: `Basic ${basic}` },
@@ -98,7 +100,7 @@ export async function login(credentials: LoginCredentials): Promise<Authenticate
     const authToken = getHeaderValue(loginResponse.headers, "x-gotogether-authtoken");
     const refreshToken = getHeaderValue(loginResponse.headers, "x-gotogether-refreshtoken");
     if (authToken || refreshToken) {
-        setAuthTokens({ authToken, refreshToken });
+        setAuthTokens({ authToken, refreshToken, storage });
     }
 
     const payload = authToken ? decodeJwtPayload(authToken) : null;
@@ -108,7 +110,7 @@ export async function login(credentials: LoginCredentials): Promise<Authenticate
         const normalizedRole = normalizeRole(data.role);
         const username = data.username ?? data.email ?? credentials.email;
         const email = data.email ?? credentials.email;
-        setSession({ username, role: normalizedRole, userId: data.id });
+        setSession({ username, role: normalizedRole, userId: data.id, storage });
         return { id: data.id, username, email, role: normalizedRole };
     }
 
@@ -118,6 +120,6 @@ export async function login(credentials: LoginCredentials): Promise<Authenticate
         email: credentials.email,
         role: undefined,
     };
-    setSession({ username: fallbackUser.username });
+    setSession({ username: fallbackUser.username, storage });
     return fallbackUser;
 }
