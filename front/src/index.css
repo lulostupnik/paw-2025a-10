@@ -902,6 +902,137 @@ h4 { font-size: 1.125rem; }
   max-width: 640px;
 }
 
+.status-card {
+  display: flex;
+  gap: 1rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.status-card__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-gray-100);
+  color: var(--color-gray-600);
+}
+
+.status-card__icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.status-card--success .status-card__icon {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--color-success);
+}
+
+.status-card--info .status-card__icon {
+  background: rgba(94, 72, 232, 0.12);
+  color: var(--color-primary);
+}
+
+.status-card--warning .status-card__icon {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--color-warning);
+}
+
+.status-card--error .status-card__icon {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--color-error);
+}
+
+.status-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.status-card__body h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.status-card__body p {
+  margin: 0;
+  color: var(--color-gray-600);
+}
+
+.status-card__list {
+  margin: 0.25rem 0 0;
+  padding-left: 1.25rem;
+  color: var(--color-gray-600);
+}
+
+.status-card__highlight {
+  font-weight: 600;
+  color: var(--color-gray-800);
+}
+
+.status-card__reference {
+  font-size: 0.875rem;
+  color: var(--color-gray-500);
+}
+
+.status-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.forgot-password-grid,
+.verification-grid,
+.password-confirmation-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 900px) {
+  .forgot-password-grid,
+  .verification-grid,
+  .password-confirmation-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.forgot-password-help,
+.verification-help,
+.password-confirmation-tips {
+  padding: clamp(1.25rem, 3vw, 2rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.forgot-password-help ul,
+.verification-help ul,
+.password-confirmation-tips ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--color-gray-600);
+}
+
+.forgot-password-support,
+.verification-help__cta {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.password-confirmation-tips a,
+.verification-help__cta .btn,
+.forgot-password-support .btn {
+  align-self: flex-start;
+}
+
 .register-form {
   padding: clamp(1.5rem, 3vw, 2.5rem);
   display: flex;
