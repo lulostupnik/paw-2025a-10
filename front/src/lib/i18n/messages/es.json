@@ -1000,6 +1000,7 @@
   "events.list.empty": "No hay eventos programados en este momento.",
   "events.list.empty.description": "Nuevas actividades aparecerán aquí apenas la comunidad las planifique.",
   "events.list.error": "No pudimos cargar los eventos. Intenta nuevamente.",
+  "events.list.error.description": "Actualiza la página o vuelve a intentarlo en unos minutos.",
   "events.card.date": "Fecha",
   "events.card.time": "Hora",
   "events.card.location": "Ubicación",

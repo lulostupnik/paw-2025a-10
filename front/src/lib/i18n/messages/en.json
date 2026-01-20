@@ -1095,6 +1095,7 @@
   "events.list.empty": "No events are scheduled right now.",
   "events.list.empty.description": "New activities will appear here as soon as the community plans them.",
   "events.list.error": "We couldn't load events. Please try again.",
+  "events.list.error.description": "Please refresh the page or try again later.",
   "events.card.date": "Date",
   "events.card.time": "Time",
   "events.card.location": "Location",
