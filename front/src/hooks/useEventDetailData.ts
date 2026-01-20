@@ -1,4 +1,6 @@
 import { useMemo } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { buildEventDetail, getEventById } from "@/lib/api/events";
 import { type EventDetail, type EventDetailScenario, getEventDetailMock } from "@/mocks/eventDetail.mock";
 
 interface EventDetailParams {
@@ -7,19 +9,37 @@ interface EventDetailParams {
 }
 
 export const useEventDetailData = ({ scenario = "normal", eventId }: EventDetailParams = {}) => {
-    // TODO: GET /api/events/{eventId}
-    // TODO: expected response shape: EventDetail
-    const USE_MOCKS = true;
+    const USE_MOCK_FALLBACK = true;
+    const query = useQuery({
+        queryKey: ["eventDetail", eventId],
+        queryFn: async ({ signal }) => {
+            if (!eventId) {
+                throw new Error("missing-event-id");
+            }
+            const event = await getEventById(eventId, signal);
+            return buildEventDetail(event, signal);
+        },
+        placeholderData: keepPreviousData,
+        enabled: Boolean(eventId) && scenario === "normal",
+    });
+
     const data = useMemo<EventDetail>(() => {
-        if (USE_MOCKS) {
-            return getEventDetailMock(scenario);
+        if (scenario === "loading") {
+            return getEventDetailMock("normal");
         }
-        return getEventDetailMock(scenario);
-    }, [scenario, eventId]);
+        if (scenario === "empty") {
+            return getEventDetailMock("empty");
+        }
+        if (scenario === "error") {
+            return USE_MOCK_FALLBACK ? getEventDetailMock("normal") : getEventDetailMock("empty");
+        }
+        return query.data ?? (USE_MOCK_FALLBACK ? getEventDetailMock("normal") : getEventDetailMock("empty"));
+    }, [scenario, query.data]);
 
     return {
         data,
-        isLoading: scenario === "loading",
-        isError: scenario === "error",
+        isLoading: scenario === "loading" || query.isLoading,
+        isError: scenario === "error" || query.isError,
+        isFetching: query.isFetching,
     };
 };

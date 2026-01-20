@@ -143,3 +143,15 @@ export async function verifyEmailToken(token: string): Promise<EmailVerification
     const { data } = await apiClient.post<EmailVerificationResponse>("/auth/email/verify", { token });
     return data;
 }
+
+export interface PasswordResetPayload {
+    token: string;
+    password: string;
+    confirmPassword: string;
+}
+
+export async function resetPassword(payload: PasswordResetPayload): Promise<void> {
+    // TODO: wire to the new password reset endpoint once available (legacy /reset-password no longer exists).
+    console.info("TODO: reset password", payload);
+    throw new Error("reset-password-not-implemented");
+}

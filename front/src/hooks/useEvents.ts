@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import type { EventSummary, FetchEventsParams } from "@/lib/api/events";
 import { fetchEvents, mapEventDtoToSummary } from "@/lib/api/events";
 import { getEventsMock, type EventListScenario } from "@/mocks/events.mock";
@@ -11,10 +12,6 @@ interface UseEventsResult {
 }
 
 export function useEvents(params?: FetchEventsParams): UseEventsResult {
-    const [events, setEvents] = useState<EventSummary[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-    const [reloadKey, setReloadKey] = useState(0);
     const scenario = useMemo<EventListScenario>(() => {
         const search = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
         const raw = search?.get("eventsScenario") ?? search?.get("scenario");
@@ -27,49 +24,47 @@ export function useEvents(params?: FetchEventsParams): UseEventsResult {
     const serializedParams = useMemo(() => JSON.stringify(params ?? {}), [params]);
     const memoizedParams = useMemo<FetchEventsParams>(() => ({ ...(params ?? {}) }), [serializedParams]);
 
-    useEffect(() => {
-        // TODO: GET /api/events?page={page}&size={size}&search={search}&upcoming={upcoming}
-        // TODO: expected response shape: EventDto[]
-        const USE_MOCKS = true;
-        if (USE_MOCKS) {
-            setLoading(scenario === "loading");
-            setError(scenario === "error" ? "Failed to fetch events" : null);
-            if (scenario === "loading" || scenario === "error") {
-                setEvents([]);
-                return;
-            }
-            setEvents(getEventsMock(scenario));
-            return;
-        }
+    const query = useQuery({
+        queryKey: ["events", memoizedParams],
+        queryFn: async ({ signal }) => {
+            const data = await fetchEvents(memoizedParams, signal);
+            return data.map(mapEventDtoToSummary);
+        },
+        placeholderData: keepPreviousData,
+        enabled: scenario === "normal",
+    });
 
-        const controller = new AbortController();
-        setLoading(true);
-        setError(null);
+    if (scenario === "loading") {
+        return {
+            events: [],
+            loading: true,
+            error: null,
+            refetch: () => undefined,
+        };
+    }
 
-        fetchEvents(memoizedParams, controller.signal)
-            .then((data) => {
-                if (controller.signal.aborted) {
-                    return;
-                }
-                setEvents(data.map(mapEventDtoToSummary));
-            })
-            .catch((err) => {
-                if (controller.signal.aborted) {
-                    return;
-                }
-                setEvents([]);
-                setError(err instanceof Error ? err.message : "unknown-error");
-            })
-            .finally(() => {
-                if (!controller.signal.aborted) {
-                    setLoading(false);
-                }
-            });
+    if (scenario === "error") {
+        return {
+            events: getEventsMock("normal"),
+            loading: false,
+            error: "Failed to fetch events",
+            refetch: () => undefined,
+        };
+    }
 
-        return () => controller.abort();
-    }, [memoizedParams, reloadKey, scenario]);
+    if (scenario === "empty") {
+        return {
+            events: [],
+            loading: false,
+            error: null,
+            refetch: () => undefined,
+        };
+    }
 
-    const refetch = useCallback(() => setReloadKey((key) => key + 1), []);
-
-    return { events, loading, error, refetch };
+    return {
+        events: query.data ?? getEventsMock("normal"),
+        loading: query.isLoading,
+        error: query.isError ? (query.error instanceof Error ? query.error.message : "unknown-error") : null,
+        refetch: query.refetch,
+    };
 }

@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import type { JourneySummary } from "@/types/journey";
 import { getJourneys, resolveJourneySummary, type FetchJourneysParams } from "@/lib/api/journeys";
 import { getJourneysMock, type JourneyListScenario } from "@/mocks/journeys.mock";
@@ -13,10 +14,6 @@ interface UseJourneysResult {
 const USE_MOCK_FALLBACK = true; // Set to false to disable fallback mocks.
 
 export function useJourneys(params?: FetchJourneysParams): UseJourneysResult {
-    const [journeys, setJourneys] = useState<JourneySummary[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [reloadKey, setReloadKey] = useState(0);
     const scenario = useMemo<JourneyListScenario>(() => {
         const search = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
         const raw = search?.get("journeysScenario") ?? search?.get("scenario");
@@ -29,57 +26,47 @@ export function useJourneys(params?: FetchJourneysParams): UseJourneysResult {
     const serializedParams = useMemo(() => JSON.stringify(params ?? {}), [params]);
     const memoizedParams = useMemo<FetchJourneysParams>(() => ({ ...(params ?? {}) }), [serializedParams]);
 
-    useEffect(() => {
-        if (scenario === "loading") {
-            setLoading(true);
-            setError(null);
-            setJourneys(USE_MOCK_FALLBACK ? getJourneysMock("normal") : []);
-            return;
-        }
+    const query = useQuery({
+        queryKey: ["journeys", memoizedParams],
+        queryFn: async ({ signal }) => {
+            const data = await getJourneys(memoizedParams, signal);
+            return Promise.all(data.map((journey) => resolveJourneySummary(journey, signal)));
+        },
+        placeholderData: keepPreviousData,
+        enabled: scenario === "normal",
+    });
 
-        if (scenario === "error") {
-            setLoading(false);
-            setError("Failed to fetch journeys");
-            setJourneys(USE_MOCK_FALLBACK ? getJourneysMock("normal") : []);
-            return;
-        }
+    if (scenario === "loading") {
+        return {
+            journeys: USE_MOCK_FALLBACK ? getJourneysMock("normal") : [],
+            loading: true,
+            error: null,
+            refetch: () => undefined,
+        };
+    }
 
-        if (scenario === "empty") {
-            setLoading(false);
-            setError(null);
-            setJourneys([]);
-            return;
-        }
+    if (scenario === "error") {
+        return {
+            journeys: USE_MOCK_FALLBACK ? getJourneysMock("normal") : [],
+            loading: false,
+            error: "Failed to fetch journeys",
+            refetch: () => undefined,
+        };
+    }
 
-        const controller = new AbortController();
-        setLoading(true);
-        setError(null);
+    if (scenario === "empty") {
+        return {
+            journeys: [],
+            loading: false,
+            error: null,
+            refetch: () => undefined,
+        };
+    }
 
-        getJourneys(memoizedParams, controller.signal)
-            .then(async (data) => {
-                if (controller.signal.aborted) {
-                    return;
-                }
-                const resolved = await Promise.all(data.map((journey) => resolveJourneySummary(journey, controller.signal)));
-                setJourneys(resolved);
-            })
-            .catch((err) => {
-                if (controller.signal.aborted) {
-                    return;
-                }
-                setError(err instanceof Error ? err.message : "unknown-error");
-                setJourneys(USE_MOCK_FALLBACK ? getJourneysMock("normal") : []);
-            })
-            .finally(() => {
-                if (!controller.signal.aborted) {
-                    setLoading(false);
-                }
-            });
-
-        return () => controller.abort();
-    }, [memoizedParams, reloadKey, scenario]);
-
-    const refetch = useCallback(() => setReloadKey((key) => key + 1), []);
-
-    return { journeys, loading, error, refetch };
+    return {
+        journeys: query.data ?? (USE_MOCK_FALLBACK ? getJourneysMock("normal") : []),
+        loading: query.isLoading,
+        error: query.isError ? (query.error instanceof Error ? query.error.message : "unknown-error") : null,
+        refetch: query.refetch,
+    };
 }

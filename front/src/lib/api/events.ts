@@ -1,4 +1,6 @@
-import { apiBaseUrl, apiClient } from "@/lib/api/client";
+import { apiBaseUrl, apiClient, normalizeApiPath } from "@/lib/api/client";
+import { getCityByUrl, getUserByUrl } from "@/lib/api/journeys";
+import type { EventDetail, EventRating, EventComment, EventAttendee } from "@/mocks/eventDetail.mock";
 
 const EVENTS_ENDPOINT = `${apiBaseUrl}/events`;
 
@@ -18,6 +20,11 @@ export interface EventDto {
     creatorUrl?: string;
     cityUrl?: string;
     flyerUrl?: string;
+    creatorUrl?: string;
+    cityUrl?: string;
+    responsesUrl?: string;
+    attendancesUrl?: string;
+    ratingsUrl?: string;
 }
 
 export interface EventSummary {
@@ -42,6 +49,21 @@ interface EventResponseApi {
     authorUrl?: string | null;
     selfUrl?: string | null;
     eventUrl?: string | null;
+}
+
+interface RatingApi {
+    id: number;
+    rating: number;
+    userUrl?: string | null;
+    selfUrl?: string | null;
+    eventUrl?: string | null;
+}
+
+interface UserApi {
+    id: number;
+    username: string;
+    email?: string | null;
+    profilePictureUrl?: string | null;
 }
 
 export interface FetchEventsParams {
@@ -84,6 +106,38 @@ export async function fetchEvents(params: FetchEventsParams = {}, signal?: Abort
     return Array.isArray(data) ? data : [];
 }
 
+export const getEventById = async (id: number | string, signal?: AbortSignal) => {
+    const response = await apiClient.get<EventDto>(`/events/${id}`, { signal });
+    return response.data;
+};
+
+export const listEventResponses = async (
+    eventId: number,
+    params: { page?: number; size?: number } = {},
+    signal?: AbortSignal
+) => {
+    const response = await apiClient.get<EventResponseApi[]>(`/events/${eventId}/responses`, { params, signal });
+    return response.data ?? [];
+};
+
+export const listEventAttendees = async (
+    eventId: number,
+    params: { page?: number; size?: number } = {},
+    signal?: AbortSignal
+) => {
+    const response = await apiClient.get<UserApi[]>(`/events/${eventId}/attendances`, { params, signal });
+    return response.data ?? [];
+};
+
+export const listEventRatings = async (
+    eventId: number,
+    params: { page?: number; size?: number } = {},
+    signal?: AbortSignal
+) => {
+    const response = await apiClient.get<RatingApi[]>(`/events/${eventId}/ratings`, { params, signal });
+    return response.data ?? [];
+};
+
 export const mapEventDtoToSummary = (dto: EventDto): EventSummary => ({
     id: dto.id,
     title: dto.title,
@@ -98,6 +152,84 @@ export const mapEventDtoToSummary = (dto: EventDto): EventSummary => ({
     flyerUrl: dto.flyerUrl ?? undefined,
     imageUrl: dto.flyerUrl ?? undefined,
 });
+
+export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): Promise<EventDetail> => {
+    const [creator, city, responses, attendees, ratings] = await Promise.all([
+        event.creatorUrl ? getUserByUrl(event.creatorUrl, signal) : Promise.resolve(null),
+        event.cityUrl ? getCityByUrl(event.cityUrl, signal) : Promise.resolve(null),
+        listEventResponses(event.id, { page: 0, size: 10 }, signal),
+        listEventAttendees(event.id, { page: 0, size: 10 }, signal),
+        listEventRatings(event.id, { page: 0, size: 10 }, signal),
+    ]);
+
+    const responseUsers = await Promise.all(
+        responses.map((response) =>
+            response.authorUrl ? getUserByUrl(normalizeApiPath(response.authorUrl), signal) : Promise.resolve(null)
+        )
+    );
+    const ratingUsers = await Promise.all(
+        ratings.map((rating) =>
+            rating.userUrl ? getUserByUrl(normalizeApiPath(rating.userUrl), signal) : Promise.resolve(null)
+        )
+    );
+
+    const comments: EventComment[] = responses.map((response, index) => ({
+        id: response.id,
+        message: response.message,
+        dateTime: response.dateTime,
+        user: {
+            username: responseUsers[index]?.username ?? "—",
+        },
+    }));
+
+    const attendeesList: EventAttendee[] = attendees.map((attendee) => ({
+        id: attendee.id,
+        firstname: attendee.username ?? "—",
+        lastname: "",
+        email: attendee.email ?? "",
+        profilePictureUrl: attendee.profilePictureUrl ?? null,
+    }));
+
+    const ratingsList: EventRating[] = ratings.map((rating, index) => ({
+        id: rating.id,
+        rating: rating.rating,
+        dateTime: new Date().toISOString(),
+        user: { username: ratingUsers[index]?.username ?? "—" },
+    }));
+
+    const averageRating = typeof event.rating === "number"
+        ? event.rating
+        : ratingsList.length > 0
+          ? ratingsList.reduce((sum, rating) => sum + rating.rating, 0) / ratingsList.length
+          : null;
+
+    return {
+        id: event.id,
+        title: event.title,
+        description: event.description ?? "",
+        city: { name: city?.name ?? "—" },
+        date: event.date ?? "",
+        time: event.time ?? null,
+        address: event.address ?? null,
+        flyerImageUrl: event.flyerUrl ?? null,
+        attendeesCount: typeof event.attendeesCount === "number" ? event.attendeesCount : attendeesList.length,
+        attendeesLimit: event.attendeesLimit ?? null,
+        isFuture: event.isFuture ?? false,
+        user: {
+            id: creator?.id ?? 0,
+            firstname: creator?.username ?? "—",
+            lastname: "",
+            username: creator?.username ?? "—",
+            profilePictureUrl: creator?.profilePictureUrl ?? null,
+            university: null,
+            career: null,
+        },
+        comments,
+        attendees: attendeesList,
+        ratings: ratingsList,
+        averageRating,
+    };
+};
 
 export const updateEvent = async (
     id: number,
@@ -150,5 +282,20 @@ export const updateEventFlyer = async (eventId: number, flyer: File, signal?: Ab
         signal,
         headers: { "Content-Type": "multipart/form-data" },
     });
+    return response.data;
+};
+
+export const createEventRating = async (eventId: number, payload: { rating: number }, signal?: AbortSignal) => {
+    const response = await apiClient.post(`/events/${eventId}/ratings`, payload, { signal });
+    return response.data;
+};
+
+export const updateEventRating = async (
+    eventId: number,
+    ratingId: number,
+    payload: { rating: number },
+    signal?: AbortSignal
+) => {
+    const response = await apiClient.put(`/events/${eventId}/ratings/${ratingId}`, payload, { signal });
     return response.data;
 };
