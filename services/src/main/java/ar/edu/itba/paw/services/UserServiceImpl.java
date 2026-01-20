@@ -70,19 +70,15 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public User verifyUser(String tokenStr) {
-        Token token = tokenService.getByToken(tokenStr)
-                .orElseThrow(() -> {
-                    LOGGER.error("Token is invalid, or expired for token: {}", tokenStr);
-                    return new InvalidTokenException(tokenStr);
-                });
+        Token token = tokenService.getByToken(tokenStr).orElseThrow(() -> new InvalidTokenException(tokenStr));
 
         final User user = token.getUser();
 
         tokenService.delete(token);
 
         if (user.isValidated()) {
-            LOGGER.error("User already validated {}", user.getId());
-            throw new UserValidatedException();
+            LOGGER.info("Token consumed for already validated user {}", user.getId());
+            return user;
         }
 
         user.setValidated(true);
@@ -211,14 +207,27 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void initiatePasswordReset(final String email) {
         LOGGER.debug("Attempting to send forgot password email to: {}", email);
-        User user = userDao.findByEmail(email).orElseThrow(()-> {
-            LOGGER.error("User with email {} not found", email);
-            return new UserNotFoundException(email);
-        });
-        if(!user.isValidated()){
+        User user = userDao.findByEmail(email).orElseThrow(()-> new UserNotFoundException(email));
+        if (!user.isValidated()){
             LOGGER.warn("User with email {} not validated", email);
             throw new UserValidatedException(email);
         }
+
+        // TODO: fijense que opinan. Arriba mandamos excepciones. Abajo simplemente ignoramos para evitar USER ENUMERATION.
+//        Optional<User> maybeUser = userDao.findByEmail(email);
+//
+//        if (maybeUser.isEmpty()) {
+//            LOGGER.info("Ignored password reset request for unknown email");
+//            return;
+//        }
+//
+//        User user = maybeUser.get();
+//
+//        if(!user.isValidated()){
+//            LOGGER.info("Ignored password reset request for non-validated user");
+//            return;
+//        }
+
         Token token = tokenService.userTokenControl(user);
         emailService.sendForgotPassEmail(new EmailUser(user), token.getToken());
         LOGGER.info("Forgot password email sent successfully to: {}", email);

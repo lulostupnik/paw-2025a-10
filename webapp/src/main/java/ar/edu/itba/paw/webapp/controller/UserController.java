@@ -8,12 +8,15 @@ import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.UserInterest;
 import ar.edu.itba.paw.models.exceptions.ImageNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
+import ar.edu.itba.paw.webapp.CustomMediaType;
 import ar.edu.itba.paw.webapp.dto.InterestDto;
 import ar.edu.itba.paw.webapp.dto.UserDto;
 import ar.edu.itba.paw.webapp.dto.UserRatingDto;
 import ar.edu.itba.paw.webapp.form.CreateUserForm;
 import ar.edu.itba.paw.webapp.form.EditUserForm;
-import ar.edu.itba.paw.webapp.form.ValidateUserForm;
+import ar.edu.itba.paw.webapp.form.PasswordForm;
+import ar.edu.itba.paw.webapp.form.PatchUserForm;
+import ar.edu.itba.paw.webapp.form.ForgotPasswordForm;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,6 +92,13 @@ public class UserController {
                 .build();
     }
 
+    @POST
+    @Consumes(CustomMediaType.USER_PASSWORD)
+    public Response requestPasswordReset(@Valid final ForgotPasswordForm form) {
+        us.initiatePasswordReset(form.getEmail());
+        return Response.noContent().build();
+    }
+
 
 
     @PUT
@@ -106,43 +116,24 @@ public class UserController {
 
     @PATCH
     @Path("/{id}")
+    @Consumes(CustomMediaType.USER_PASSWORD)
+    public Response updateForgottenPassword(
+            @PathParam("id") final long id,
+            @Valid final PasswordForm form
+    ) {
+        us.updatePassword(id, form.getPassword());
+        return Response.noContent().build();
+    }
+
+    @PATCH
+    @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response patchUser(
             @PathParam("id") final long id,
-            @Valid final ValidateUserForm form
-            /* TODO: Create a unified PatchUserForm that handles:
-               - validationToken (email validation)
-               - passwordResetToken + newPassword (password reset)
-               - blocked (admin block/unblock)
-               - password (password change - requires current password)
-            */
+            @Valid final PatchUserForm form
     ) {
-        // Currently only handles email validation
-        if (form.getValidationToken() != null) {
-            final User verifiedUser = us.verifyUser(form.getValidationToken());
-            if (verifiedUser == null) {
-                return Response.status(Response.Status.BAD_REQUEST).build(); // TODO: ¿es este el error correcto?
-            }
-            return Response.ok(UserDto.fromUser(uriInfo, verifiedUser)).build();
-        }
-
-        // TODO: Handle password reset with token
-        // if (form.getPasswordResetToken() != null && form.getNewPassword() != null) {
-        //     us.resetPassword(form.getPasswordResetToken(), form.getNewPassword());
-        //     return Response.ok().build();
-        // }
-
-        // TODO: Handle block/unblock (admin only)
-        // if (form.getBlocked() != null) {
-        //     if (form.getBlocked()) {
-        //         us.blockUser(id);
-        //     } else {
-        //         us.unblockUser(id);
-        //     }
-        //     return Response.ok(UserDto.fromUser(uriInfo, us.findUserById(id).get())).build();
-        // }
-
+        // TODO: implement
         return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
