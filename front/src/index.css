@@ -2254,6 +2254,13 @@ textarea.input-control {
     min-height: 36px;
     font-size: 0.825rem;
   }
+
+  .top-bar__profile-name {
+    font-weight: 600;
+    color: var(--color-gray-800);
+    width:0px;
+    overflow:hidden;
+  }
 }
 
 /* Utility */
