@@ -1,5 +1,6 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { getUserId, isAdmin } from "@/lib/auth/auth";
 import CreatorCard from "@/components/detail/CreatorCard";
@@ -7,7 +8,7 @@ import AdminPagination from "@/components/admin-dashboard/AdminPagination";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
 import { createJourneyResponse } from "@/lib/api/journeys";
 import type { JourneyDetailScenario } from "@/mocks/journeys.mock";
-import { popFromNavigationStack } from "@/lib/utils/navigationStack";
+import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
 
 const SCENARIO: JourneyDetailScenario = "normal";
 
@@ -51,7 +52,8 @@ export default function JourneyDetailPage() {
     const navigate = useNavigate();
     const location = useLocation();
     const { id } = useParams();
-    const { data, isLoading, isError, isNotFound, refetch } = useJourneyDetailData({ scenario: SCENARIO, journeyId: id });
+    const queryClient = useQueryClient();
+    const { data, isLoading, isError, isNotFound, refetch, isFetching } = useJourneyDetailData({ scenario: SCENARIO, journeyId: id });
     const [actionMenuOpen, setActionMenuOpen] = useState(false);
     const [commentsOpen, setCommentsOpen] = useState(true);
     const [eventsOpen, setEventsOpen] = useState(true);
@@ -130,6 +132,7 @@ export default function JourneyDetailPage() {
             setReplyMessage("");
             setReplySuccess(t("replyJourney.success"));
             refetch();
+            queryClient.invalidateQueries({ queryKey: ["journeyDetail", id] });
         } catch (err) {
             console.error("Failed to submit journey response", err);
             setReplyError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
@@ -158,6 +161,11 @@ export default function JourneyDetailPage() {
                         </div>
 
                         <div className="content-card journey-detail-card">
+                            {isFetching && (
+                                <p className="section__helper">
+                                    {t("admin.dashboard.loading", { defaultValue: "Actualizando..." })}
+                                </p>
+                            )}
                             <div className="journey-actions">
                                 <div style={{ position: "relative", display: "inline-block" }}>
                                     <button
@@ -242,6 +250,7 @@ export default function JourneyDetailPage() {
                                             {!isOwner && (
                                                 <Link
                                                     to={`/reports/journeys/${id}/create`}
+                                                    onClick={() => pushToNavigationStack(`${location.pathname}${location.search}`)}
                                                     style={{
                                                         color: "#333",
                                                         padding: "12px 16px",
@@ -697,12 +706,13 @@ export default function JourneyDetailPage() {
                                                                     }}
                                                                 >
                                                                     {(!isOwner || admin) && (
-                                                                        <Link
-                                                                            to={`/reports/journey-responses/${response.id}/create`}
-                                                                            style={{
-                                                                                color: "#333",
-                                                                                padding: "10px 14px",
-                                                                                textDecoration: "none",
+                                                                            <Link
+                                                                                to={`/reports/journey-responses/${response.id}/create`}
+                                                                                onClick={() => pushToNavigationStack(`${location.pathname}${location.search}`)}
+                                                                                style={{
+                                                                                    color: "#333",
+                                                                                    padding: "10px 14px",
+                                                                                    textDecoration: "none",
                                                                                 display: "flex",
                                                                                 alignItems: "center",
                                                                                 gap: "10px",

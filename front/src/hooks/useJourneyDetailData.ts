@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { buildJourneyDetail, getJourneyById } from "@/lib/api/journeys";
 import { type JourneyDetail, type JourneyDetailScenario, getJourneyDetailMock } from "@/mocks/journeys.mock";
 
@@ -8,94 +9,64 @@ interface JourneyDetailParams {
 }
 
 export const useJourneyDetailData = ({ scenario = "normal", journeyId }: JourneyDetailParams = {}) => {
-    const [data, setData] = useState<JourneyDetail>(() => getJourneyDetailMock("normal"));
-    const [isLoading, setLoading] = useState(false);
-    const [isError, setError] = useState(false);
-    const [isNotFound, setNotFound] = useState(false);
-    const [reloadToken, setReloadToken] = useState(0);
     const activeScenario = useMemo<JourneyDetailScenario>(() => scenario, [scenario]);
     const USE_MOCK_FALLBACK = true; // Set to false to disable fallback mocks.
 
-    useEffect(() => {
-        if (activeScenario === "loading") {
-            setLoading(true);
-            setError(false);
-            setNotFound(false);
-            setData(getJourneyDetailMock("normal"));
-            return;
-        }
-
-        if (activeScenario === "error") {
-            setLoading(false);
-            setError(true);
-            setNotFound(false);
-            if (USE_MOCK_FALLBACK) {
-                setData(getJourneyDetailMock("normal"));
+    const query = useQuery({
+        queryKey: ["journeyDetail", journeyId],
+        queryFn: async ({ signal }) => {
+            if (!journeyId) {
+                throw new Error("missing-journey-id");
             }
-            return;
-        }
+            const journey = await getJourneyById(journeyId, signal);
+            return buildJourneyDetail(journey, signal);
+        },
+        placeholderData: keepPreviousData,
+        enabled: Boolean(journeyId) && activeScenario === "normal",
+    });
 
-        if (activeScenario === "empty") {
-            setLoading(false);
-            setError(false);
-            setNotFound(false);
-            setData(getJourneyDetailMock("empty"));
-            return;
-        }
+    if (activeScenario === "loading") {
+        return {
+            data: getJourneyDetailMock("normal"),
+            isLoading: true,
+            isError: false,
+            isNotFound: false,
+            refetch: () => undefined,
+            isFetching: false,
+        };
+    }
 
-        if (!journeyId) {
-            setError(true);
-            setNotFound(false);
-            setLoading(false);
-            return;
-        }
+    if (activeScenario === "error") {
+        return {
+            data: USE_MOCK_FALLBACK ? getJourneyDetailMock("normal") : getJourneyDetailMock("empty"),
+            isLoading: false,
+            isError: true,
+            isNotFound: false,
+            refetch: () => undefined,
+            isFetching: false,
+        };
+    }
 
-        const controller = new AbortController();
-        setLoading(true);
-        setError(false);
-        setNotFound(false);
+    if (activeScenario === "empty") {
+        return {
+            data: getJourneyDetailMock("empty"),
+            isLoading: false,
+            isError: false,
+            isNotFound: false,
+            refetch: () => undefined,
+            isFetching: false,
+        };
+    }
 
-        getJourneyById(journeyId, controller.signal)
-            .then((journey) => buildJourneyDetail(journey, controller.signal))
-            .then((detail) => {
-                if (controller.signal.aborted) {
-                    return;
-                }
-                setData(detail);
-            })
-            .catch((err: { response?: { status?: number } }) => {
-                if (controller.signal.aborted) {
-                    return;
-                }
-                const status = err?.response?.status;
-                if (status === 404) {
-                    setNotFound(true);
-                    setError(false);
-                } else {
-                    setError(true);
-                }
-                if (USE_MOCK_FALLBACK) {
-                    setData(getJourneyDetailMock("normal"));
-                }
-            })
-            .finally(() => {
-                if (!controller.signal.aborted) {
-                    setLoading(false);
-                }
-            });
-
-        return () => controller.abort();
-    }, [activeScenario, journeyId, USE_MOCK_FALLBACK, reloadToken]);
-
-    const refetch = useCallback(() => {
-        setReloadToken((prev) => prev + 1);
-    }, []);
+    const status = (query.error as { response?: { status?: number } } | undefined)?.response?.status;
+    const isNotFound = status === 404;
 
     return {
-        data,
-        isLoading,
-        isError,
+        data: query.data ?? (USE_MOCK_FALLBACK ? getJourneyDetailMock("normal") : getJourneyDetailMock("empty")),
+        isLoading: query.isLoading,
+        isError: query.isError && !isNotFound,
         isNotFound,
-        refetch,
+        refetch: query.refetch,
+        isFetching: query.isFetching,
     };
 };

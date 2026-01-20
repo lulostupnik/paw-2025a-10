@@ -37,7 +37,7 @@ import ProfileInterestsEdit from "@/pages/profiles/ProfileInterestsEdit";
 import ProfileRedirect from "@/pages/profiles/ProfileRedirect";
 import AdminPage from "@/pages/admin/AdminPage";
 import ReportDetailPage from "@/pages/admin/ReportDetailPage";
-import ReportCreatePlaceholderPage from "@/pages/reports/ReportCreatePlaceholderPage";
+import ReportCreatePage from "@/pages/reports/ReportCreatePage";
 import UserDetailPage from "@/pages/users/UserDetailPage";
 import UniversityDetailPage from "@/pages/universities/UniversityDetailPage";
 import UniversityCreatePage from "@/pages/universities/UniversityCreatePage";
@@ -56,6 +56,7 @@ import LoginPage from "@/pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
 import ForgotPasswordPage from "@/pages/auth/ForgotPasswordPage";
 import EmailVerificationPage from "@/pages/auth/EmailVerificationPage";
+import PasswordResetPage from "@/pages/auth/PasswordResetPage";
 import PasswordResetConfirmationPage from "@/pages/auth/PasswordResetConfirmationPage";
 import BlockedAccountPage from "@/pages/auth/BlockedAccountPage";
 
@@ -77,6 +78,7 @@ export const router = createBrowserRouter([
             { path: "register", element: <RegisterPage /> },
             { path: "forgot-password", element: <ForgotPasswordPage /> },
             { path: "verify-email", element: <EmailVerificationPage /> },
+            { path: "reset-password", element: <PasswordResetPage /> },
             { path: "password/reset/confirmation", element: <PasswordResetConfirmationPage /> },
             { path: "blocked", element: <BlockedAccountPage /> },
             { path: "error/400", element: <BadRequestPage /> },
@@ -109,10 +111,10 @@ export const router = createBrowserRouter([
                     { path: "profiles/me/interests/edit", element: <ProfileInterestsEdit /> },
                     { path: "admin", element: <AdminPage /> },
                     { path: "reports/:id", element: <ReportDetailPage /> },
-                    { path: "reports/journeys/:id/create", element: <ReportCreatePlaceholderPage /> },
-                    { path: "reports/events/:id/create", element: <ReportCreatePlaceholderPage /> },
-                    { path: "reports/journey-responses/:id/create", element: <ReportCreatePlaceholderPage /> },
-                    { path: "reports/event-responses/:id/create", element: <ReportCreatePlaceholderPage /> },
+                    { path: "reports/journeys/:id/create", element: <ReportCreatePage reportType="JOURNEY" /> },
+                    { path: "reports/events/:id/create", element: <ReportCreatePage reportType="EVENT" /> },
+                    { path: "reports/journey-responses/:id/create", element: <ReportCreatePage reportType="JOURNEY_RESPONSE" /> },
+                    { path: "reports/event-responses/:id/create", element: <ReportCreatePage reportType="EVENT_RESPONSE" /> },
                     { path: "users/:id", element: <UserDetailPage /> },
                     { path: "universities/create", element: <UniversityCreatePage /> },
                     { path: "universities/:id/edit", element: <UniversityEditPage /> },

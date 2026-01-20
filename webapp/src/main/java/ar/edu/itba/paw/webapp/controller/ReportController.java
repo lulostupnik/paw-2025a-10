@@ -89,7 +89,7 @@ public class ReportController {
 
 
     @DELETE
-    @Path("/{id}/")
+    @Path("/{id}/") //TODO: xq tiene / al final?
     public Response deleteReport(
             @PathParam("id") final long id
     ) {

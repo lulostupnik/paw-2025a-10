@@ -1,12 +1,14 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
-import { getUserId, isAdmin } from "@/lib/auth/auth";
+import { getUserId, getUsername, isAdmin } from "@/lib/auth/auth";
 import CreatorCard from "@/components/detail/CreatorCard";
 import AdminPagination from "@/components/admin-dashboard/AdminPagination";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import type { EventDetailScenario } from "@/mocks/eventDetail.mock";
-import { popFromNavigationStack } from "@/lib/utils/navigationStack";
+import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
+import { attendEvent, createEventRating, unattendEvent, updateEventRating } from "@/lib/api/events";
 
 const SCENARIO: EventDetailScenario = "normal";
 
@@ -83,21 +85,47 @@ export default function EventDetailPage() {
     const navigate = useNavigate();
     const location = useLocation();
     const { id } = useParams();
-    const { data, isLoading, isError } = useEventDetailData({ scenario: SCENARIO, eventId: id });
+    const queryClient = useQueryClient();
+    const { data, isLoading, isError, isFetching } = useEventDetailData({ scenario: SCENARIO, eventId: id });
     const [actionMenuOpen, setActionMenuOpen] = useState(false);
     const [openCommentMenuId, setOpenCommentMenuId] = useState<number | null>(null);
     const [activeTab, setActiveTab] = useState<"details" | "chat" | "rating">("details");
     const [attendeesPage, setAttendeesPage] = useState(1);
     const [commentsPage, setCommentsPage] = useState(1);
-    const [ratingValue, setRatingValue] = useState<number>(data.averageRating ?? 0);
+    const [attendingOverride, setAttendingOverride] = useState<boolean | null>(null);
+    const [attendeesCountOverride, setAttendeesCountOverride] = useState<number | null>(null);
+    const [attendSubmitting, setAttendSubmitting] = useState(false);
+    const [attendError, setAttendError] = useState<string | null>(null);
+    const [ratingValue, setRatingValue] = useState<number>(0);
+    const [ratingSubmitting, setRatingSubmitting] = useState(false);
+    const [ratingError, setRatingError] = useState<string | null>(null);
 
-    const isOwner = data.user.id === getUserId();
+    const userId = getUserId();
+    const username = getUsername();
+    const isOwner = data.user.id === userId;
     const admin = isAdmin();
-    const isAttending = true;
-    const isFull = data.attendeesLimit ? data.attendeesCount >= data.attendeesLimit : false;
+    const isAttendingFromData = useMemo(
+        () => data.attendees.some((attendee) => attendee.id === userId),
+        [data.attendees, userId]
+    );
+    const isAttending = attendingOverride ?? isAttendingFromData;
+    const attendeesCount = attendeesCountOverride ?? data.attendeesCount;
+    const isFull = data.attendeesLimit ? attendeesCount >= data.attendeesLimit : false;
+    const existingRating = useMemo(
+        () => data.ratings.find((rating) => rating.user.username === username) ?? null,
+        [data.ratings, username]
+    );
 
     const pagedAttendees = useMemo(() => paginate(data.attendees, attendeesPage, 6), [data.attendees, attendeesPage]);
     const pagedComments = useMemo(() => paginate(data.comments, commentsPage, 4), [data.comments, commentsPage]);
+
+    useEffect(() => {
+        setAttendingOverride(null);
+        setAttendeesCountOverride(null);
+        setAttendError(null);
+        setRatingError(null);
+        setRatingValue(existingRating?.rating ?? 0);
+    }, [data.id, existingRating?.rating]);
 
     if (isLoading) {
         return <div className="event-detail-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
@@ -118,6 +146,71 @@ export default function EventDetailPage() {
             return;
         }
         navigate("/events");
+    };
+
+    const handleAttend = async () => {
+        if (!id || attendSubmitting) {
+            return;
+        }
+        setAttendSubmitting(true);
+        setAttendError(null);
+        try {
+            await attendEvent(Number(id));
+            setAttendingOverride(true);
+            setAttendeesCountOverride((prev) => (prev ?? data.attendeesCount) + 1);
+            queryClient.invalidateQueries({ queryKey: ["eventDetail", id] });
+        } catch (error) {
+            console.error("Failed to attend event", error);
+            setAttendError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+        } finally {
+            setAttendSubmitting(false);
+        }
+    };
+
+    const handleUnattend = async () => {
+        if (!id || attendSubmitting) {
+            return;
+        }
+        setAttendSubmitting(true);
+        setAttendError(null);
+        try {
+            await unattendEvent(Number(id));
+            setAttendingOverride(false);
+            setAttendeesCountOverride((prev) => Math.max(0, (prev ?? data.attendeesCount) - 1));
+            queryClient.invalidateQueries({ queryKey: ["eventDetail", id] });
+        } catch (error) {
+            console.error("Failed to unattend event", error);
+            setAttendError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+        } finally {
+            setAttendSubmitting(false);
+        }
+    };
+
+    const handleRatingSubmit = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (!id) {
+            setRatingError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            return;
+        }
+        if (!ratingValue) {
+            setRatingError(t("event.rating.placeholder", { defaultValue: "Select a rating." }));
+            return;
+        }
+        setRatingSubmitting(true);
+        setRatingError(null);
+        try {
+            if (existingRating?.id) {
+                await updateEventRating(Number(id), existingRating.id, { rating: ratingValue });
+            } else {
+                await createEventRating(Number(id), { rating: ratingValue });
+            }
+            queryClient.invalidateQueries({ queryKey: ["eventDetail", id] });
+        } catch (error) {
+            console.error("Failed to submit rating", error);
+            setRatingError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+        } finally {
+            setRatingSubmitting(false);
+        }
     };
 
     return (
@@ -200,9 +293,8 @@ export default function EventDetailPage() {
                                                                 cursor: "pointer",
                                                                 fontSize: "14px",
                                                             }}
-                                                            onClick={() => {
-                                                                // TODO: attend/cancel event.
-                                                            }}
+                                                            onClick={isAttending ? handleUnattend : handleAttend}
+                                                            disabled={attendSubmitting}
                                                         >
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                                 {isAttending ? (
@@ -246,6 +338,7 @@ export default function EventDetailPage() {
                                                     {!isOwner && (
                                                         <Link
                                                             to={`/reports/events/${id}/create`}
+                                                            onClick={() => pushToNavigationStack(`${location.pathname}${location.search}`)}
                                                             style={{
                                                                 color: "#333",
                                                                 padding: "12px 16px",
@@ -311,6 +404,11 @@ export default function EventDetailPage() {
                                         )}
                                     </div>
                                 </div>
+
+                                {isFetching && (
+                                    <p className="section__helper">{t("admin.dashboard.loading", { defaultValue: "Actualizando..." })}</p>
+                                )}
+                                {attendError && <p className="section__helper">{attendError}</p>}
 
                                 <div className="event-meta">
                                     <div className="meta-item">
@@ -463,11 +561,11 @@ export default function EventDetailPage() {
                                                                 <span className="stat-label">{t("event.stats.totalParticipants")}</span>
                                                                 {data.attendeesLimit ? (
                                                                     <span className="stat-value">
-                                                                        ({data.attendeesCount} / {data.attendeesLimit})
+                                                                        ({attendeesCount} / {data.attendeesLimit})
                                                                     </span>
                                                                 ) : (
                                                                     <span className="stat-value">
-                                                                        ({data.attendeesCount} / {t("event.noAttendeesLimit")})
+                                                                        ({attendeesCount} / {t("event.noAttendeesLimit")})
                                                                     </span>
                                                                 )}
                                                             </div>
@@ -597,11 +695,12 @@ export default function EventDetailPage() {
                                                                                     padding: "6px 0",
                                                                                 }}
                                                                             >
-                                                                                <Link
-                                                                                    to={`/reports/event-responses/${response.id}/create`}
-                                                                                    style={{
-                                                                                        color: "#333",
-                                                                                        padding: "10px 14px",
+                                                                                    <Link
+                                                                                        to={`/reports/event-responses/${response.id}/create`}
+                                                                                        onClick={() => pushToNavigationStack(`${location.pathname}${location.search}`)}
+                                                                                        style={{
+                                                                                            color: "#333",
+                                                                                            padding: "10px 14px",
                                                                                         textDecoration: "none",
                                                                                         display: "flex",
                                                                                         alignItems: "center",
@@ -728,53 +827,52 @@ export default function EventDetailPage() {
                                                         </div>
                                                     )}
 
-                                                    <div className="user-rating-form">
-                                                        <h3 className="rating-form-title">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                                                            </svg>
-                                                            {t("event.rating.add")}
-                                                        </h3>
-                                                        <form
-                                                            className="rating-form"
-                                                            onSubmit={(event) => {
-                                                                event.preventDefault();
-                                                                // TODO: submit rating for event.
-                                                            }}
-                                                        >
-                                                            <div className="rating-input-container">
-                                                                <label className="rating-label">{t("event.rating.yourRating")}</label>
-                                                                <div className="star-rating-input">
-                                                                    {Array.from({ length: 5 }, (_, index) => {
-                                                                        const value = index + 1;
-                                                                        return (
-                                                                            <label key={value} className="star-label">
-                                                                                <input
-                                                                                    type="radio"
-                                                                                    name="rating"
-                                                                                    value={value}
-                                                                                    checked={ratingValue === value}
-                                                                                    onChange={() => setRatingValue(value)}
-                                                                                />
-                                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2">
-                                                                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                                                                                </svg>
-                                                                            </label>
-                                                                        );
-                                                                    })}
+                                                    {isAttending && (
+                                                        <div className="user-rating-form">
+                                                            <h3 className="rating-form-title">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                                                </svg>
+                                                                {existingRating ? t("event.rating.update") : t("event.rating.add")}
+                                                            </h3>
+                                                            <form className="rating-form" onSubmit={handleRatingSubmit}>
+                                                                <div className="rating-input-container">
+                                                                    <label className="rating-label">{t("event.rating.yourRating")}</label>
+                                                                    <div className="star-rating-input">
+                                                                        {Array.from({ length: 5 }, (_, index) => {
+                                                                            const value = index + 1;
+                                                                            return (
+                                                                                <label key={value} className="star-label">
+                                                                                    <input
+                                                                                        type="radio"
+                                                                                        name="rating"
+                                                                                        value={value}
+                                                                                        checked={ratingValue === value}
+                                                                                        onChange={() => setRatingValue(value)}
+                                                                                    />
+                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2">
+                                                                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                                                                    </svg>
+                                                                                </label>
+                                                                            );
+                                                                        })}
+                                                                    </div>
+                                                                    <div className="rating-value-display">
+                                                                        <span id="current-rating-value">{ratingValue}</span>
+                                                                        <span className="rating-max">/ 5</span>
+                                                                    </div>
                                                                 </div>
-                                                                <div className="rating-value-display">
-                                                                    <span id="current-rating-value">{ratingValue}</span>
-                                                                    <span className="rating-max">/ 5</span>
+                                                                {ratingError && (
+                                                                    <p className="form-field__text form-field__text--error">{ratingError}</p>
+                                                                )}
+                                                                <div className="form-actions">
+                                                                    <button type="submit" className="btn btn-primary" disabled={ratingSubmitting}>
+                                                                        {existingRating ? t("event.rating.update.submit") : t("event.rating.submit")}
+                                                                    </button>
                                                                 </div>
-                                                            </div>
-                                                            <div className="form-actions">
-                                                                <button type="submit" className="btn btn-primary">
-                                                                    {t("event.rating.submit")}
-                                                                </button>
-                                                            </div>
-                                                        </form>
-                                                    </div>
+                                                            </form>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>

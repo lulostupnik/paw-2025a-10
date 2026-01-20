@@ -1,6 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
 import EmptyState from "@/components/EmptyState";
+import EventCard from "@/components/cards/EventCard";
+import JourneyCard from "@/components/journeys/JourneyCard";
+import { useEvents } from "@/hooks/useEvents";
+import { useJourneys } from "@/hooks/useJourneys";
 import { useI18n } from "@/lib/i18n";
 
 interface ActionIconProps {
@@ -44,6 +48,8 @@ function ActionIcon({ name }: ActionIconProps) {
 export default function ExplorePage() {
     const navigate = useNavigate();
     const { t } = useI18n();
+    const { journeys, loading: journeysLoading, error: journeysError } = useJourneys({ page: 0, size: 4 });
+    const { events, loading: eventsLoading, error: eventsError } = useEvents({ page: 0, size: 6 });
 
     const quickActions = [
         {
@@ -106,47 +112,75 @@ export default function ExplorePage() {
             <section className="explore-section">
                 <div className="explore-section__header">
                     <div>
-                        <p className="eyebrow">{t("explore.journeys.eyebrow")}</p>
-                        <h2>{t("explore.journeys.title")}</h2>
-                        <p className="explore-section__description">{t("explore.journeys.description")}</p>
+                        <p className="eyebrow">{t("dashboard.recommended.journeys")}</p>
+                        <h2>{t("dashboard.recommended.journeys")}</h2>
+                        <p className="explore-section__description">{t("dashboard.recommended.journeys.desc")}</p>
                     </div>
                     <Button type="button" variant="ghost" onClick={() => navigate("/journeys")}>
-                        {t("explore.journeys.button")}
+                        {t("dashboard.view.all")}
                     </Button>
                 </div>
-                <EmptyState
-                    title={t("explore.journeys.empty.title")}
-                    description={t("explore.journeys.empty.description")}
-                    action={
-                        <Button type="button" variant="primary" onClick={() => navigate("/journeys")}>
-                            {t("explore.journeys.empty.cta")}
-                        </Button>
-                    }
-                    className="explore-empty"
-                />
+                {journeysLoading && (
+                    <p className="section__helper">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</p>
+                )}
+                {!journeysLoading && journeysError && journeys.length === 0 ? (
+                    <EmptyState
+                        title={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}
+                        className="explore-empty"
+                    />
+                ) : journeys.length === 0 ? (
+                    <EmptyState
+                        title={t("dashboard.no.journeys")}
+                        action={
+                            <Button type="button" variant="primary" onClick={() => navigate("/journeys/create")}>
+                                {t("dashboard.create.journey")}
+                            </Button>
+                        }
+                        className="explore-empty"
+                    />
+                ) : (
+                    <div className="listing-grid">
+                        {journeys.map((journey) => (
+                            <JourneyCard key={journey.id} journey={journey} />
+                        ))}
+                    </div>
+                )}
             </section>
 
             <section className="explore-section">
                 <div className="explore-section__header">
                     <div>
-                        <p className="eyebrow">{t("explore.events.eyebrow")}</p>
-                        <h2>{t("explore.events.title")}</h2>
-                        <p className="explore-section__description">{t("explore.events.description")}</p>
+                        <p className="eyebrow">{t("dashboard.recommended.events")}</p>
+                        <h2>{t("dashboard.recommended.events")}</h2>
+                        <p className="explore-section__description">{t("dashboard.recommended.events.desc")}</p>
                     </div>
                     <Button type="button" variant="ghost" onClick={() => navigate("/events")}>
-                        {t("explore.events.button")}
+                        {t("dashboard.view.all")}
                     </Button>
                 </div>
-                <EmptyState
-                    title={t("explore.events.empty.title")}
-                    description={t("explore.events.empty.description")}
-                    action={
-                        <Button type="button" variant="primary" onClick={() => navigate("/events")}>
-                            {t("explore.events.empty.cta")}
-                        </Button>
-                    }
-                    className="explore-empty"
-                />
+                {eventsLoading && <p className="section__helper">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</p>}
+                {!eventsLoading && eventsError && events.length === 0 ? (
+                    <EmptyState
+                        title={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}
+                        className="explore-empty"
+                    />
+                ) : events.length === 0 ? (
+                    <EmptyState
+                        title={t("dashboard.no.events")}
+                        action={
+                            <Button type="button" variant="primary" onClick={() => navigate("/events/create")}>
+                                {t("dashboard.create.event")}
+                            </Button>
+                        }
+                        className="explore-empty"
+                    />
+                ) : (
+                    <div className="listing-grid">
+                        {events.map((event) => (
+                            <EventCard key={event.id} event={event} />
+                        ))}
+                    </div>
+                )}
             </section>
         </div>
     );
