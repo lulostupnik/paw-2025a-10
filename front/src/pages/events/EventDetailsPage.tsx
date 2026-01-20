@@ -5,10 +5,12 @@ import { useI18n } from "@/lib/i18n";
 import { getUserId, getUsername, isAdmin } from "@/lib/auth/auth";
 import CreatorCard from "@/components/detail/CreatorCard";
 import AdminPagination from "@/components/admin-dashboard/AdminPagination";
+import LoginRequiredModal from "@/components/LoginRequiredModal";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import type { EventDetailScenario } from "@/mocks/eventDetail.mock";
 import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
 import { attendEvent, createEventRating, unattendEvent, updateEventRating } from "@/lib/api/events";
+import { useAuthGate } from "@/hooks/useAuthGate";
 
 const SCENARIO: EventDetailScenario = "normal";
 
@@ -86,6 +88,7 @@ export default function EventDetailPage() {
     const location = useLocation();
     const { id } = useParams();
     const queryClient = useQueryClient();
+    const gate = useAuthGate();
     const { data, isLoading, isError, isFetching } = useEventDetailData({ scenario: SCENARIO, eventId: id });
     const [actionMenuOpen, setActionMenuOpen] = useState(false);
     const [openCommentMenuId, setOpenCommentMenuId] = useState<number | null>(null);
@@ -186,36 +189,46 @@ export default function EventDetailPage() {
         }
     };
 
-    const handleRatingSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    const handleRatingSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        if (!id) {
-            setRatingError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
-            return;
-        }
-        if (!ratingValue) {
-            setRatingError(t("event.rating.placeholder", { defaultValue: "Select a rating." }));
-            return;
-        }
-        setRatingSubmitting(true);
-        setRatingError(null);
-        try {
-            if (existingRating?.id) {
-                await updateEventRating(Number(id), existingRating.id, { rating: ratingValue });
-            } else {
-                await createEventRating(Number(id), { rating: ratingValue });
+        gate.runOrPrompt(async () => {
+            if (!id) {
+                setRatingError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                return;
             }
-            queryClient.invalidateQueries({ queryKey: ["eventDetail", id] });
-        } catch (error) {
-            console.error("Failed to submit rating", error);
-            setRatingError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
-        } finally {
-            setRatingSubmitting(false);
-        }
+            if (!ratingValue) {
+                setRatingError(t("event.rating.placeholder", { defaultValue: "Select a rating." }));
+                return;
+            }
+            setRatingSubmitting(true);
+            setRatingError(null);
+            try {
+                if (existingRating?.id) {
+                    await updateEventRating(Number(id), existingRating.id, { rating: ratingValue });
+                } else {
+                    await createEventRating(Number(id), { rating: ratingValue });
+                }
+                queryClient.invalidateQueries({ queryKey: ["eventDetail", id] });
+            } catch (error) {
+                console.error("Failed to submit rating", error);
+                setRatingError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            } finally {
+                setRatingSubmitting(false);
+            }
+        });
     };
 
-    return (
-        <div className="event-detail-page">
-            <div className="layout-container">
+    const handleReplySubmit = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        gate.runOrPrompt(() => {
+            // TODO: Integrate event response submission when backend endpoint is available.
+        });
+    };
+
+return (
+    <>
+    <div className="event-detail-page">
+        <div className="layout-container">
                 <div className="main-content">
                     <div className="content-container">
                         <div className="back-button-container">
@@ -764,13 +777,7 @@ export default function EventDetailPage() {
                                                         </svg>
                                                         {t("reply.message")}
                                                     </h3>
-                                                    <form
-                                                        className="reply-form"
-                                                        onSubmit={(event) => {
-                                                            event.preventDefault();
-                                                            // TODO: submit event response.
-                                                        }}
-                                                    >
+                                                    <form className="reply-form" onSubmit={handleReplySubmit}>
                                                         <div className="form-group">
                                                             <label className="form-label" htmlFor="event-reply">
                                                                 {t("reply.message")}
@@ -882,7 +889,13 @@ export default function EventDetailPage() {
                         </div>
                     </div>
                 </div>
-            </div>
         </div>
-    );
+    </div>
+    <LoginRequiredModal
+        open={gate.open}
+        onClose={gate.close}
+        nextPath={`${location.pathname}${location.search}`}
+    />
+    </>
+);
 }
