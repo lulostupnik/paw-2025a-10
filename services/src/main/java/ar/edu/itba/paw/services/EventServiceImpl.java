@@ -34,12 +34,13 @@ public class EventServiceImpl implements EventService {
     private final CityService cityService;
     private final EventAttendanceDao eventAttendanceDao;
     private final EventRatingDao eventRatingDao;
+    private final JourneyService journeyService;
 
     @Autowired
-    public EventServiceImpl(final UserService userService,final  EventResponseDao eventResponseDao,
-                            final EventDao eventDao,final EmailService emailService, final ImageService imageService,
-                            final CityService cityService,final  EventAttendanceDao eventAttendanceDao,
-                            final EventRatingDao eventRatingDao) {
+    public EventServiceImpl(final UserService userService, final EventResponseDao eventResponseDao,
+                            final EventDao eventDao, final EmailService emailService, final ImageService imageService,
+                            final CityService cityService, final EventAttendanceDao eventAttendanceDao,
+                            final EventRatingDao eventRatingDao, final JourneyService journeyService) {
         this.userService = userService;
         this.eventResponseDao = eventResponseDao;
         this.eventDao = eventDao;
@@ -48,6 +49,7 @@ public class EventServiceImpl implements EventService {
         this.cityService = cityService;
         this.eventAttendanceDao = eventAttendanceDao;
         this.eventRatingDao = eventRatingDao;
+        this.journeyService = journeyService;
     }
 
     @Override
@@ -428,31 +430,53 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Page<Event> searchEventsWithFilters(final String search, final Long userId, final SortFieldEvent sortBy, final SortDirection direction, final String destination, final LocalDate startDate, final LocalDate endDate, final String interest,
-                                               final boolean isPast, final boolean isUpcoming, final boolean attending, Long attendedByUserId,
-                                               String university, Integer minRating, Boolean hasCapacity, final PageParams pageParams) {
-        LOGGER.debug("Getting events with search {}, userId {}, sortBy {}, direction {}, destination {}, startDate {}, endDate {}, interest {}, isPast {}, isUpcoming {}, attending {}", search, userId, sortBy, direction, destination, startDate, endDate, interest, isPast, isUpcoming, attending);
+    public Page<Event> searchEventsWithFilters(final String search, final Long creatorId, final SortFieldEvent sortBy, final SortDirection direction, final String destination, final LocalDate startDate, final LocalDate endDate, final String interest,
+                                               final boolean isPast, final boolean isUpcoming, Long attendedByUserId,
+                                               String university, Integer minRating, Boolean hasCapacity, Long journeyId, final PageParams pageParams) {
+        LOGGER.debug("Getting events with search {}, creatorId {}, sortBy {}, direction {}, destination {}, startDate {}, endDate {}, interest {}, isPast {}, isUpcoming {}, attendedByUserId {}, journeyId {}", search, creatorId, sortBy, direction, destination, startDate, endDate, interest, isPast, isUpcoming, attendedByUserId, journeyId);
 
         LocalDate adjustedStartDate = startDate;
         LocalDate adjustedEndDate = endDate;
         LocalTime startTime = null;
         LocalTime endTime = null;
 
+        Long effectiveAttendedByUserId = attendedByUserId;
+
+        if (journeyId != null) {
+            if (attendedByUserId != null) {
+                throw new MutuallyExclusiveException("journeyId", "attendedByUserId");
+            }
+
+            Journey journey = journeyService.findJourneyById(journeyId).orElseThrow(() -> new JourneyNotFoundException(journeyId));
+
+            effectiveAttendedByUserId = journey.getUser().getId();
+
+            LocalDate journeyStartDate = journey.getStartDate();
+            if (adjustedStartDate == null || (journeyStartDate != null && journeyStartDate.isAfter(adjustedStartDate))) {
+                adjustedStartDate = journeyStartDate;
+            }
+
+            LocalDate journeyEndDate = journey.getEndDate();
+            if (adjustedEndDate == null || (journeyEndDate != null && journeyEndDate.isBefore(adjustedEndDate))) {
+                adjustedEndDate = journeyEndDate;
+            }
+        }
+
         if (isUpcoming) {
-            adjustedStartDate = ensureStartDateForUpcomingEvents(startDate);
+            adjustedStartDate = ensureStartDateForUpcomingEvents(adjustedStartDate);
             if (adjustedStartDate.equals(LocalDate.now())) {
                 startTime = LocalTime.now();
             }
         }
         if (isPast) {
-            adjustedEndDate = capEndDateForPastEvents(endDate);
+            adjustedEndDate = capEndDateForPastEvents(adjustedEndDate);
             if (adjustedEndDate.equals(LocalDate.now())) {
                 endTime = LocalTime.now();
             }
         }
 
         return eventDao.findAllWithFilters(
-                userId,
+                creatorId,
                 search,
                 sortBy,
                 direction,
@@ -462,9 +486,7 @@ public class EventServiceImpl implements EventService {
                 startTime,
                 endTime,
                 interest,
-                attending,
-                false,
-                attendedByUserId,
+                effectiveAttendedByUserId,
                 university,
                 minRating,
                 hasCapacity,
@@ -643,8 +665,6 @@ public class EventServiceImpl implements EventService {
                 null,
                 endTime,
                 null,
-                false,
-                true,
                 null,
                 null,
                 null,
@@ -663,7 +683,7 @@ public class EventServiceImpl implements EventService {
         }
 
         return eventDao.findAllWithFilters(
-                journey.getUser().getId(),
+                null,
                 null,
                 SortFieldEvent.DATE,
                 SortDirection.ASC,
@@ -672,12 +692,10 @@ public class EventServiceImpl implements EventService {
                 cappedEndDate,
                 null,
                 endTime,
-                null,
-                true,
-                false,
-                null,
-                null,
-                null,
+                null,                           // interest
+                journey.getUser().getId(),      // attendedByUserId
+                null,                           // university
+                null,                           // minRating
                 false,
                 pageParams
         );

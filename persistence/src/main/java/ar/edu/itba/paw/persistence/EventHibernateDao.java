@@ -383,10 +383,10 @@ public class EventHibernateDao implements EventDao {
     }
 
     @Override
-    public Page<Event> findAllWithFilters(Long userId, String searchTerm, SortFieldEvent sortBy,
+    public Page<Event> findAllWithFilters(Long creatorId, String searchTerm, SortFieldEvent sortBy,
                                           SortDirection direction, String destination, LocalDate startDate,
                                           LocalDate endDate, LocalTime startTime, LocalTime endTime, String interest,
-                                          boolean attending, boolean isCreator, Long attendedByUserId, String university,
+                                          Long attendedByUserId, String university,
                                           Integer minRating, Boolean hasCapacity, PageParams pageParams) {
 
         final String search = likePattern(searchTerm);
@@ -435,13 +435,9 @@ public class EventHibernateDao implements EventDao {
             paramMap.put("search", search);
         }
 
-        if (userId != null) {
-            if(isCreator){
-                filters.add("e.user_id = :userId");
-            } else {
-                filters.add("e.user_id != :userId");
-            }
-            paramMap.put("userId", userId);
+        if (creatorId != null) {
+            filters.add("e.user_id = :creatorId");
+            paramMap.put("creatorId", creatorId);
         }
 
         if (startDate != null) {
@@ -472,18 +468,12 @@ public class EventHibernateDao implements EventDao {
             filters.add(timeCondition);
         }
 
-        if (attending && userId != null) {
-            countSql.append(" LEFT JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :userId AND e.user_id != :userId ");
-            idSql.append(" LEFT JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :userId AND e.user_id != :userId ");
-            filters.add("ea.user_id IS NOT NULL");
-        }
-
-        if(attendedByUserId != null){
-            countSql.append(" LEFT JOIN event_attendances ea2 ON ea2.event_id = e.id AND ea2.user_id = :attendedByUserId ");
-            idSql.append(" LEFT JOIN event_attendances ea2 ON ea2.event_id = e.id AND ea2.user_id = :attendedByUserId ");
-            filters.add("ea2.user_id IS NOT NULL");
+        if (attendedByUserId != null) {
+            countSql.append(" JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :attendedByUserId ");
+            idSql.append(" JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :attendedByUserId ");
             paramMap.put("attendedByUserId", attendedByUserId);
         }
+
         if (university != null && !university.isEmpty()) {
             filters.add("un.name = :university");
             paramMap.put("university", university);

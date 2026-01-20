@@ -58,10 +58,10 @@ public interface EventService {
     boolean isUserEventAttendee(long userId, long eventId);
     boolean isRatingOwnedByUser(long eventId, long ratingId, long userId);
 
-    Page<Event> searchEventsWithFilters(String search, Long userId,
+    Page<Event> searchEventsWithFilters(String search, Long creatorId,
                                         SortFieldEvent sortBy, SortDirection direction, String destination, LocalDate startDate, LocalDate endDate, String interest,
-                                        boolean isPast, boolean isUpcoming, boolean attending, Long attendedByUserId,
-                                        String university, Integer minRating, Boolean hasCapacity,
+                                        boolean isPast, boolean isUpcoming, Long attendedByUserId,
+                                        String university, Integer minRating, Boolean hasCapacity, Long journeyId,
                                         PageParams pageParams);
 
     EventResponse createEventResponse(String email, long eventId, String message);

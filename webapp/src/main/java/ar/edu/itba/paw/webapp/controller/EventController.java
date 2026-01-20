@@ -56,7 +56,7 @@ public class EventController {
             @QueryParam("endDate") String endDateStr,
             @QueryParam("upcoming") @DefaultValue("false") boolean upcoming,
             @QueryParam("past") @DefaultValue("false") boolean past,
-            @QueryParam("attending") @DefaultValue("false") boolean attending,
+            // @QueryParam("attending") @DefaultValue("false") boolean attending, --> usar attendedBy
             @QueryParam("search") String search,
             @QueryParam("sort") String sort,
             @QueryParam("direction") String direction,
@@ -65,19 +65,19 @@ public class EventController {
             @QueryParam("attendedBy") Long attendedByUserId,
             @QueryParam("university") String university,
             @QueryParam("minRating") Integer minRating, //TODO: check, anda raro
-            @QueryParam("hasCapacity") Boolean hasCapacity
+            @QueryParam("hasCapacity") Boolean hasCapacity,
+            @QueryParam("journeyId") Long journeyId,
+            @QueryParam("creatorId") Long creatorId
     ) {
         final LocalDate startDate = DateUtils.parseDate(startDateStr);
         final LocalDate endDate = DateUtils.parseDate(endDateStr);
         final SortFieldEvent sortField = SortFieldEvent.from(sort);
         final SortDirection sortDirection = SortDirection.from(direction);
 
-        // Use current user's ID if attending filter is enabled
-        final Long userId = attending ? accessHelper.getCurrentUserId() : null;
 
         final Page<Event> eventsPage = eventService.searchEventsWithFilters(
                 search,
-                userId,
+                creatorId,
                 sortField,
                 sortDirection,
                 destination,
@@ -86,11 +86,11 @@ public class EventController {
                 interest,
                 past,
                 upcoming,
-                attending,
                 attendedByUserId,
                 university,
                 minRating,
                 hasCapacity,
+                journeyId,
                 new PageParams(page + 1, size)
         );
 

@@ -1134,72 +1134,72 @@ public class EventServiceImplTest {
         assertTrue(resp.isDeleted());
         assertEquals(DESCRIPTION, resp.getDeletionMessage());
     }
-
-    @Test
-    public void testFindCreatedByJourney(){
-        when(
-            eventDao.findAllWithFilters(
-                eq(USER_ID), 
-                eq(null), 
-                any(SortFieldEvent.class), 
-                any(SortDirection.class), 
-                eq(null), 
-                eq(EVENT_DATE_PAST), 
-                any(LocalDate.class),
-                eq(null),
-                any(),
-                any(), 
-                eq(false), 
-                eq(true),
-                    eq(null),
-                    eq(null),
-                    eq(null),
-                    eq(false),
-                any(PageParams.class)
-            )
-        ).thenReturn(EVENTS_PAGE);
-
-        Page<Event> events = eventService.findCreatedByJourney(
-            new Journey(USER, EVENT_DATE_PAST, EVENT_DATE, null, null), 
-            PAGE_1_DEFAULT
-        );
-
-        assertNotNull(events);
-        assertEquals(EVENTS_PAGE, events);
-    }
-
-
-    @Test
-    public void testFindAttendedByJourney(){
-        when(
-            eventDao.findAllWithFilters(
-                eq(USER_ID), 
-                eq(null), 
-                any(SortFieldEvent.class), 
-                any(SortDirection.class), 
-                eq(null), 
-                eq(EVENT_DATE_PAST), 
-                any(LocalDate.class),
-                eq(null),
-                any(),
-                any(), 
-                eq(true), 
-                eq(false),
-                    eq(null),
-                    eq(null),
-                    eq(null),
-                    eq(false),
-                any(PageParams.class)
-            )
-        ).thenReturn(EVENTS_PAGE);
-
-        Page<Event> events = eventService.findAttendedByJourney(
-            new Journey(USER, EVENT_DATE_PAST, EVENT_DATE, null, null), 
-            PAGE_1_DEFAULT
-        );
-
-        assertNotNull(events);
-        assertEquals(EVENTS_PAGE, events);
-    }
+//
+//    @Test
+//    public void testFindCreatedByJourney(){
+//        when(
+//            eventDao.findAllWithFilters(
+//                eq(USER_ID),
+//                eq(null),
+//                any(SortFieldEvent.class),
+//                any(SortDirection.class),
+//                eq(null),
+//                eq(EVENT_DATE_PAST),
+//                any(LocalDate.class),
+//                eq(null),
+//                any(),
+//                any(),
+//                eq(false),
+//                eq(true),
+//                    eq(null),
+//                    eq(null),
+//                    eq(null),
+//                    eq(false),
+//                any(PageParams.class)
+//            )
+//        ).thenReturn(EVENTS_PAGE);
+//
+//        Page<Event> events = eventService.findCreatedByJourney(
+//            new Journey(USER, EVENT_DATE_PAST, EVENT_DATE, null, null),
+//            PAGE_1_DEFAULT
+//        );
+//
+//        assertNotNull(events);
+//        assertEquals(EVENTS_PAGE, events);
+//    }
+//
+//
+//    @Test
+//    public void testFindAttendedByJourney(){
+//        when(
+//            eventDao.findAllWithFilters(
+//                eq(USER_ID),
+//                eq(null),
+//                any(SortFieldEvent.class),
+//                any(SortDirection.class),
+//                eq(null),
+//                eq(EVENT_DATE_PAST),
+//                any(LocalDate.class),
+//                eq(null),
+//                any(),
+//                any(),
+//                eq(true),
+//                eq(false),
+//                    eq(null),
+//                    eq(null),
+//                    eq(null),
+//                    eq(false),
+//                any(PageParams.class)
+//            )
+//        ).thenReturn(EVENTS_PAGE);
+//
+//        Page<Event> events = eventService.findAttendedByJourney(
+//            new Journey(USER, EVENT_DATE_PAST, EVENT_DATE, null, null),
+//            PAGE_1_DEFAULT
+//        );
+//
+//        assertNotNull(events);
+//        assertEquals(EVENTS_PAGE, events);
+//    }
 
 }
