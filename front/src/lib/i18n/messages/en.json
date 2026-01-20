@@ -30,6 +30,8 @@
   "register.success.title": "Registration Successful",
   "register.success.message": "A verification email has been sent to your email address. Please check your inbox and follow the instructions to validate your account.",
   "register.success.button": "Got it",
+  "register.error.generic": "We couldn't complete your registration. Please try again later.",
+  "register.error.conflict": "This email or username is already registered.",
   "career.none.selected": "No career has been selected",
   "university.none.selected": "No university has been selected",
   "university.none.selected.error": "Please select a university",

@@ -1058,6 +1058,37 @@ h4 { font-size: 1.125rem; }
   gap: 1rem;
 }
 
+.register-success-card {
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  text-align: center;
+}
+
+.register-success-card p {
+  margin: 0;
+  max-width: 560px;
+  color: var(--color-gray-600);
+}
+
+.register-success-card__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.register-success-card__icon svg {
+  width: 28px;
+  height: 28px;
+}
+
 /* Event create page */
 .event-create-page,
 .journey-create-page {
