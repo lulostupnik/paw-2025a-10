@@ -2268,7 +2268,7 @@ textarea.input-control {
   z-index: 2100;
   width: min(980px, calc(100vw - 2rem));
   max-height: calc(100vh - 2rem);
-  overflow: auto;
+  overflow: visible;
   background: var(--color-surface);
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);

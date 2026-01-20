@@ -1,14 +1,10 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Button from "@/components/ui/Button";
 import { classNames } from "@/lib/utils/classNames";
 import { useI18n } from "@/lib/i18n";
-import {
-    searchCities,
-    searchInterests,
-    type CatalogOption,
-    type CatalogSearchFn,
-} from "@/lib/api/catalog";
+import { searchCities, searchInterests, type CatalogOption, type CatalogSearchFn } from "@/lib/api/catalog";
 import type { ListingFiltersState } from "@/hooks/useListingFilters";
 import { EMPTY_LISTING_FILTERS } from "@/hooks/useListingFilters";
 
@@ -24,16 +20,17 @@ interface ListingFiltersDialogProps {
     onReset: () => void;
 }
 
-interface AutocompleteFieldProps {
+interface CatalogSelectFieldProps {
     label: string;
     placeholder: string;
     value: CatalogOption | null;
     onChange: (option: CatalogOption | null) => void;
     fetcher: CatalogSearchFn;
-    clearLabel: string;
+    catalogKey: string;
     loadingLabel: string;
     emptyLabel: string;
     toggleLabel: string;
+    changeLabel: string;
 }
 
 interface DateFieldProps {
@@ -71,15 +68,7 @@ const ResetIcon = () => (
     </svg>
 );
 
-export default function ListingFiltersDialog({
-    mode,
-    open,
-    filters,
-    anchorRef,
-    onClose,
-    onApply,
-    onReset,
-}: ListingFiltersDialogProps) {
+export default function ListingFiltersDialog({ mode, open, filters, anchorRef, onClose, onApply, onReset }: ListingFiltersDialogProps) {
     const { t } = useI18n();
     const [draft, setDraft] = useState<ListingFiltersState>(filters);
     const titleId = useId();
@@ -193,8 +182,8 @@ export default function ListingFiltersDialog({
     const formatLabel = t("listing.filters.dateFormat");
     const loadingLabel = t("listing.filters.autocomplete.loading");
     const emptyLabel = t("listing.filters.autocomplete.empty");
-    const clearLabel = t("listing.filters.autocomplete.clear");
     const toggleLabel = t("listing.filters.autocomplete.toggle");
+    const changeLabel = t("register.autocomplete.change");
 
     const cityOption = draft.cityId && draft.cityName ? { id: draft.cityId, name: draft.cityName } : null;
     const interestOption = draft.interestId && draft.interestName ? { id: draft.interestId, name: draft.interestName } : null;
@@ -274,16 +263,17 @@ export default function ListingFiltersDialog({
 
             <form className="filters-form" onSubmit={handleSubmit}>
                 <div className="filters-grid">
-                    <AutocompleteField
+                    <CatalogSelectField
                         label={labels.cityLabel}
                         placeholder={labels.cityPlaceholder}
                         value={cityOption}
                         onChange={handleCityChange}
                         fetcher={searchCities}
-                        clearLabel={clearLabel}
+                        catalogKey="city"
                         loadingLabel={loadingLabel}
                         emptyLabel={emptyLabel}
                         toggleLabel={toggleLabel}
+                        changeLabel={changeLabel}
                     />
                     <DateField
                         label={labels.afterLabel}
@@ -302,16 +292,17 @@ export default function ListingFiltersDialog({
                         helperText={formatLabel}
                         error={dateErrorMessage}
                     />
-                    <AutocompleteField
+                    <CatalogSelectField
                         label={labels.interestLabel}
                         placeholder={labels.interestPlaceholder}
                         value={interestOption}
                         onChange={handleInterestChange}
                         fetcher={searchInterests}
-                        clearLabel={clearLabel}
+                        catalogKey="interest"
                         loadingLabel={loadingLabel}
                         emptyLabel={emptyLabel}
                         toggleLabel={toggleLabel}
+                        changeLabel={changeLabel}
                     />
                 </div>
 
@@ -334,47 +325,38 @@ export default function ListingFiltersDialog({
     );
 }
 
-function AutocompleteField({
+const useDebouncedValue = (value: string, delay = 250) => {
+    const [debounced, setDebounced] = useState(value);
+
+    useEffect(() => {
+        const handle = window.setTimeout(() => setDebounced(value), delay);
+        return () => window.clearTimeout(handle);
+    }, [value, delay]);
+
+    return debounced;
+};
+
+function CatalogSelectField({
     label,
     placeholder,
     value,
     onChange,
     fetcher,
-    clearLabel,
+    catalogKey,
     loadingLabel,
     emptyLabel,
     toggleLabel,
-}: AutocompleteFieldProps) {
+    changeLabel,
+}: CatalogSelectFieldProps) {
     const inputId = useId();
     const containerRef = useRef<HTMLDivElement>(null);
-    const inputRef = useRef<HTMLInputElement>(null);
     const [query, setQuery] = useState(value?.name ?? "");
     const [open, setOpen] = useState(false);
-    const [options, setOptions] = useState<CatalogOption[]>([]);
-    const [loading, setLoading] = useState(false);
+    const debouncedQuery = useDebouncedValue(query);
 
     useEffect(() => {
         setQuery(value?.name ?? "");
     }, [value]);
-
-    useEffect(() => {
-        if (!open) {
-            return;
-        }
-        const controller = new AbortController();
-        const handle = window.setTimeout(() => {
-            setLoading(true);
-            fetcher(query, controller.signal)
-                .then((result) => setOptions(result))
-                .catch(() => setOptions([]))
-                .finally(() => setLoading(false));
-        }, 200);
-
-        return () => {
-            controller.abort();
-            window.clearTimeout(handle);
-        };
-    }, [fetcher, open, query]);
 
     useEffect(() => {
         if (!open) {
@@ -389,90 +371,97 @@ function AutocompleteField({
         return () => document.removeEventListener("mousedown", handleClick);
     }, [open]);
 
-    const showClear = Boolean(value);
+    const { data: options = [], isLoading } = useQuery<CatalogOption[]>({
+        queryKey: ["listing", "catalog", catalogKey, debouncedQuery],
+        queryFn: ({ signal }) => fetcher(debouncedQuery, signal),
+        enabled: open,
+        staleTime: 60_000,
+    });
 
-    const handleToggle = () => {
-        setOpen((prev) => !prev);
-        inputRef.current?.focus();
-    };
-
-    const handleClear = () => {
-        setQuery("");
-        onChange(null);
+    const handleSelect = (option: CatalogOption) => {
+        onChange(option);
         setOpen(false);
-        inputRef.current?.focus();
     };
 
     return (
-        <div className="form-field filters-field" ref={containerRef}>
-            <label className="form-field__label" htmlFor={inputId}>
+        <div className={classNames("form-field", "autocomplete-field")}
+            ref={containerRef}
+        >
+            <label className="input-label" htmlFor={inputId}>
                 {label}
             </label>
-            <div className="filters-field__control">
-                <input
-                    id={inputId}
-                    ref={inputRef}
-                    className="input-control"
-                    value={query}
-                    placeholder={placeholder}
-                    onChange={(event) => {
-                        setQuery(event.target.value);
-                        setOpen(true);
-                    }}
-                    onFocus={() => setOpen(true)}
-                    autoComplete="off"
-                    spellCheck="false"
-                    aria-expanded={open}
-                    aria-haspopup="listbox"
-                />
-                {showClear && (
+            {value ? (
+                <div className="selected-option">
+                    <div>
+                        <p className="selected-option__value">{value.name}</p>
+                    </div>
                     <button
                         type="button"
-                        className="filters-field__icon-btn filters-field__icon-btn--clear"
-                        onClick={handleClear}
-                        aria-label={clearLabel}
+                        className="selected-option__action"
+                        onClick={() => {
+                            onChange(null);
+                            setQuery("");
+                            setOpen(true);
+                        }}
                     >
-                        ×
+                        {changeLabel}
                     </button>
-                )}
-                <button
-                    type="button"
-                    className={classNames(
-                        "filters-field__icon-btn",
-                        "filters-field__icon-btn--toggle",
-                        open && "is-open"
-                    )}
-                    aria-label={toggleLabel}
-                    onClick={handleToggle}
-                >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
-                    </svg>
-                </button>
-            </div>
-            <div className={classNames("autocomplete-panel", open && "is-open")}
-                role="listbox"
-                aria-label={label}
-            >
-                {loading && <p className="autocomplete-status">{loadingLabel}</p>}
-                {!loading && options.length === 0 && <p className="autocomplete-status">{emptyLabel}</p>}
-                {!loading &&
-                    options.map((option) => (
+                </div>
+            ) : (
+                <>
+                    <div className="input-with-addon">
+                        <input
+                            id={inputId}
+                            className="input-control"
+                            value={query}
+                            placeholder={placeholder}
+                            onFocus={() => setOpen(true)}
+                            onChange={(event) => {
+                                setQuery(event.target.value);
+                                if (!open) {
+                                    setOpen(true);
+                                }
+                            }}
+                            autoComplete="off"
+                            spellCheck="false"
+                            aria-autocomplete="list"
+                            aria-expanded={open}
+                            aria-haspopup="listbox"
+                        />
                         <button
                             type="button"
-                            key={option.id}
-                            className="autocomplete-option"
-                            role="option"
-                            onMouseDown={(event) => event.preventDefault()}
-                            onClick={() => {
-                                onChange(option);
-                                setOpen(false);
-                            }}
+                            className="input-addon"
+                            onClick={() => setOpen((prev) => !prev)}
+                            aria-label={toggleLabel}
                         >
-                            {option.name}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                            </svg>
                         </button>
-                    ))}
-            </div>
+                    </div>
+                    <div className={classNames("autocomplete-panel", open && "is-open")}
+                        role="listbox"
+                        aria-label={label}
+                    >
+                        {isLoading && <p className="autocomplete-status">{loadingLabel}</p>}
+                        {!isLoading && options.length === 0 && (
+                            <p className="autocomplete-status">{emptyLabel}</p>
+                        )}
+                        {!isLoading &&
+                            options.map((option) => (
+                                <button
+                                    type="button"
+                                    key={option.id}
+                                    className="autocomplete-option"
+                                    onMouseDown={(event) => event.preventDefault()}
+                                    onClick={() => handleSelect(option)}
+                                >
+                                    {option.name}
+                                </button>
+                            ))}
+                    </div>
+                </>
+            )}
         </div>
     );
 }
