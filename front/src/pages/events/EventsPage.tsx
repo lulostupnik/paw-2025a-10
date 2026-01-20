@@ -11,12 +11,36 @@ import { useI18n } from "@/lib/i18n";
 import { useAuthGate } from "@/hooks/useAuthGate";
 import LoginRequiredModal from "@/components/LoginRequiredModal";
 import { useUrlSyncedListingFilters, type ListingFiltersState } from "@/hooks/useListingFilters";
+import type { FetchEventsParams } from "@/lib/api/events";
+
+const SORT_MAPPING: Record<
+    string,
+    { sort: FetchEventsParams["sort"]; direction: FetchEventsParams["direction"] }
+> = {
+    "event-date-asc": { sort: "date", direction: "asc" },
+    "event-date-desc": { sort: "date", direction: "desc" },
+    "event-attendees-asc": { sort: "attendees", direction: "asc" },
+    "event-attendees-desc": { sort: "attendees", direction: "desc" },
+    "event-rating-asc": { sort: "rating", direction: "asc" },
+    "event-rating-desc": { sort: "rating", direction: "desc" },
+};
+
+const mapSortParams = (id: string) => SORT_MAPPING[id] ?? SORT_MAPPING["event-date-asc"];
+
+const mapTabParams = (tab: string): Pick<FetchEventsParams, "upcoming" | "past"> => {
+    if (tab === "upcoming") {
+        return { upcoming: true };
+    }
+    if (tab === "past") {
+        return { past: true };
+    }
+    return {};
+};
 
 export default function EventsListPage() {
     const { t } = useI18n();
     const navigate = useNavigate();
     const gate = useAuthGate();
-    const { events, loading, error } = useEvents({ size: 12 });
     const [search, setSearch] = useState("");
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [sortOpen, setSortOpen] = useState(false);
@@ -87,6 +111,36 @@ export default function EventsListPage() {
     );
     const [activeTab, setActiveTab] = useState(eventTabs[0].id);
 
+    const normalizedSearch = search.trim();
+    const sortParams = useMemo(() => mapSortParams(selectedSort), [selectedSort]);
+    const tabParams = useMemo(() => mapTabParams(activeTab), [activeTab]);
+    const eventQueryParams = useMemo<FetchEventsParams>(() => {
+        const params: FetchEventsParams = {
+            page: 0,
+            size: 12,
+            ...sortParams,
+            ...tabParams,
+        };
+        if (normalizedSearch) {
+            params.search = normalizedSearch;
+        }
+        if (filters.cityName) {
+            params.destination = filters.cityName;
+        }
+        if (filters.interestName) {
+            params.interest = filters.interestName;
+        }
+        if (filters.afterDate) {
+            params.startDate = filters.afterDate;
+        }
+        if (filters.beforeDate) {
+            params.endDate = filters.beforeDate;
+        }
+        return params;
+    }, [filters.afterDate, filters.beforeDate, filters.cityName, filters.interestName, normalizedSearch, sortParams, tabParams]);
+
+    const { events, loading, error } = useEvents(eventQueryParams);
+
     const handleCreate = () => {
         gate.runOrPrompt(() => navigate("/events/create"));
     };
@@ -111,6 +165,11 @@ export default function EventsListPage() {
         [closeSort]
     );
 
+    const emptyStateTitle = error ? t("events.list.error") : t("events.list.empty");
+    const emptyStateDescription = error
+        ? t("events.list.error.description")
+        : t("events.list.empty.description") || undefined;
+
     return (
         <>
             <div className="page-shell listing-page-shell">
@@ -131,8 +190,8 @@ export default function EventsListPage() {
 
                     {!loading && (error || events.length === 0) ? (
                         <EmptyState
-                            title={t("events.list.empty")}
-                            description={t("events.list.empty.description") || undefined}
+                            title={emptyStateTitle}
+                            description={emptyStateDescription}
                             action={
                                 <div className="listing-cta__actions">
                                     <Button type="button" variant="primary" size="sm" onClick={handleCreate}>

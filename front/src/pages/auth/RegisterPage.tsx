@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, ChangeEvent } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
-import { loginFake } from "@/lib/auth/auth";
 import { useI18n } from "@/lib/i18n";
 import { classNames } from "@/lib/utils/classNames";
 import {
@@ -12,11 +11,7 @@ import {
     type CatalogOption,
     type CatalogSearchFn,
 } from "@/lib/api/catalog";
-
-function getNextPath(search: string) {
-    const params = new URLSearchParams(search);
-    return params.get("next") || "/explore";
-}
+import { useRegister } from "@/hooks/useRegister";
 
 type RegisterField =
     | "email"
@@ -27,8 +22,7 @@ type RegisterField =
     | "lastName"
     | "career"
     | "university"
-    | "interests"
-    | "profilePicture";
+    | "interests";
 
 interface RegisterFormData {
     email: string;
@@ -40,7 +34,6 @@ interface RegisterFormData {
     career: CatalogOption | null;
     university: CatalogOption | null;
     interests: CatalogOption[];
-    profilePicture: File | null;
 }
 
 interface ValidationResult {
@@ -65,7 +58,18 @@ const initialForm: RegisterFormData = {
     career: null,
     university: null,
     interests: [],
-    profilePicture: null,
+};
+
+const initialTouchedState: Record<RegisterField, boolean> = {
+    email: false,
+    username: false,
+    password: false,
+    confirmPassword: false,
+    firstName: false,
+    lastName: false,
+    career: false,
+    university: false,
+    interests: false,
 };
 
 function evaluatePassword(value: string): PasswordStrength {
@@ -386,53 +390,25 @@ function validateForm(data: RegisterFormData, t: (key: string, options?: Record<
         errors.interests = t("register.validation.interests.required");
     }
 
-    if (!data.profilePicture) {
-        errors.profilePicture = t("register.validation.profilePicture.required");
-    } else if (!data.profilePicture.type.startsWith("image/")) {
-        errors.profilePicture = t("register.validation.profilePicture.type");
-    }
-
     return errors;
 }
 
 export default function RegisterPage() {
     const { t } = useI18n();
     const nav = useNavigate();
-    const location = useLocation();
-    const next = getNextPath(location.search);
+    const { register: submitRegister, loading: registering, error: registerErrorKey, success, nextPath, reset } = useRegister();
 
     const [form, setForm] = useState(initialForm);
-    const [touched, setTouched] = useState<Record<RegisterField, boolean>>({
-        email: false,
-        username: false,
-        password: false,
-        confirmPassword: false,
-        firstName: false,
-        lastName: false,
-        career: false,
-        university: false,
-        interests: false,
-        profilePicture: false,
-    });
-    const [submitting, setSubmitting] = useState(false);
+    const [touched, setTouched] = useState<Record<RegisterField, boolean>>(initialTouchedState);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [dragging, setDragging] = useState(false);
-    const [picturePreview, setPicturePreview] = useState<string | null>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const passwordStrength = useMemo(() => evaluatePassword(form.password), [form.password]);
     const errors = useMemo(() => validateForm(form, t), [form, t]);
-
-    useEffect(() => {
-        if (!form.profilePicture) {
-            setPicturePreview(null);
-            return;
-        }
-        const url = URL.createObjectURL(form.profilePicture);
-        setPicturePreview(url);
-        return () => URL.revokeObjectURL(url);
-    }, [form.profilePicture]);
+    const loginTarget = useMemo(() => {
+        const query = nextPath ? `?next=${encodeURIComponent(nextPath)}` : "";
+        return `/login${query}`;
+    }, [nextPath]);
 
     const markTouched = (field: RegisterField) => {
         setTouched((prev) => ({ ...prev, [field]: true }));
@@ -443,18 +419,10 @@ export default function RegisterPage() {
         setForm((prev) => ({ ...prev, [field]: value }));
     };
 
-    const handleDrop = (files: FileList | null) => {
-        if (!files || files.length === 0) {
-            return;
-        }
-        const file = files[0];
-        setForm((prev) => ({ ...prev, profilePicture: file }));
-        markTouched("profilePicture");
-    };
-
-    const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        setTouched({
+        reset();
+        const touchedState: Record<RegisterField, boolean> = {
             email: true,
             username: true,
             password: true,
@@ -464,29 +432,65 @@ export default function RegisterPage() {
             career: true,
             university: true,
             interests: true,
-            profilePicture: true,
-        });
+        };
+        setTouched(touchedState);
 
         if (Object.keys(errors).length > 0) {
             return;
         }
 
-        setSubmitting(true);
-        setTimeout(() => {
-            loginFake();
-            nav(next, { replace: true });
-        }, 600);
+        try {
+            await submitRegister({
+                email: form.email.trim(),
+                username: form.username.trim(),
+                password: form.password,
+                confirmPassword: form.confirmPassword,
+                firstName: form.firstName.trim(),
+                lastName: form.lastName.trim(),
+                career: form.career?.name ?? "",
+                originUniversity: form.university?.name ?? "",
+                interests: form.interests.map((interest) => interest.name),
+            });
+            setForm(initialForm);
+            setTouched(initialTouchedState);
+        } catch {
+            // Error is handled by the hook
+        }
     };
+
+    const header = (
+        <header className="register-header">
+            <div>
+                <p className="eyebrow">{t("register.subtitle")}</p>
+                <h1>{t("register.title")}</h1>
+                <p className="register-header__lead">{t("register.description")}</p>
+            </div>
+        </header>
+    );
+
+    if (success) {
+        return (
+            <div className="page-shell register-page">
+                {header}
+                <div className="card register-success-card" role="status">
+                    <span className="register-success-card__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </span>
+                    <h2>{t("register.success.title")}</h2>
+                    <p>{t("register.success.message")}</p>
+                    <Button type="button" size="lg" onClick={() => nav(loginTarget)}>
+                        {t("register.success.button")}
+                    </Button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="page-shell register-page">
-            <header className="register-header">
-                <div>
-                    <p className="eyebrow">{t("register.subtitle")}</p>
-                    <h1>{t("register.title")}</h1>
-                    <p className="register-header__lead">{t("register.description")}</p>
-                </div>
-            </header>
+            {header}
 
             <form className="register-form card" onSubmit={onSubmit} noValidate>
                 <div className="register-grid">
@@ -614,6 +618,9 @@ export default function RegisterPage() {
                             )}
                         </div>
 
+                    </div>
+
+                    <div className="register-column">
                         <div className="register-row">
                             <div className="form-field">
                                 <label className="input-label" htmlFor="field-firstName">
@@ -623,12 +630,15 @@ export default function RegisterPage() {
                                 <input
                                     id="field-firstName"
                                     type="text"
-                                className={classNames("input-control", touched.firstName && errors.firstName && "input-control--error")}
-                                value={form.firstName}
-                                onChange={handleTextChange("firstName")}
-                                onBlur={() => markTouched("firstName")}
-                                placeholder={t("register.firstNamePlaceholder")}
-                            />
+                                    className={classNames(
+                                        "input-control",
+                                        touched.firstName && errors.firstName && "input-control--error"
+                                    )}
+                                    value={form.firstName}
+                                    onChange={handleTextChange("firstName")}
+                                    onBlur={() => markTouched("firstName")}
+                                    placeholder={t("register.firstNamePlaceholder")}
+                                />
                                 {touched.firstName && errors.firstName && (
                                     <p className="form-field__text form-field__text--error">{errors.firstName}</p>
                                 )}
@@ -642,20 +652,21 @@ export default function RegisterPage() {
                                 <input
                                     id="field-lastName"
                                     type="text"
-                                className={classNames("input-control", touched.lastName && errors.lastName && "input-control--error")}
-                                value={form.lastName}
-                                onChange={handleTextChange("lastName")}
-                                onBlur={() => markTouched("lastName")}
-                                placeholder={t("register.lastNamePlaceholder")}
-                            />
+                                    className={classNames(
+                                        "input-control",
+                                        touched.lastName && errors.lastName && "input-control--error"
+                                    )}
+                                    value={form.lastName}
+                                    onChange={handleTextChange("lastName")}
+                                    onBlur={() => markTouched("lastName")}
+                                    placeholder={t("register.lastNamePlaceholder")}
+                                />
                                 {touched.lastName && errors.lastName && (
                                     <p className="form-field__text form-field__text--error">{errors.lastName}</p>
                                 )}
                             </div>
                         </div>
-                    </div>
 
-                    <div className="register-column">
                         <SingleSelectField
                             label={t("register.career")}
                             name="career"
@@ -699,96 +710,25 @@ export default function RegisterPage() {
                             touched={touched.interests}
                         />
 
-                        <div className="form-field">
-                            <label className="input-label" htmlFor="field-profilePicture">
-                                {t("register.profilePicture")}
-                                <span className="required-indicator" aria-hidden="true">*</span>
-                            </label>
-                            <div
-                                className={classNames(
-                                    "upload-dropzone",
-                                    dragging && "is-dragging",
-                                    touched.profilePicture && errors.profilePicture && "has-error"
-                                )}
-                                onDragOver={(event) => {
-                                    event.preventDefault();
-                                    setDragging(true);
-                                }}
-                                onDragLeave={(event) => {
-                                    event.preventDefault();
-                                    setDragging(false);
-                                }}
-                                onDrop={(event) => {
-                                    event.preventDefault();
-                                    setDragging(false);
-                                    handleDrop(event.dataTransfer.files);
-                                }}
-                                onClick={() => fileInputRef.current?.click()}
-                                role="button"
-                                tabIndex={0}
-                                onKeyDown={(event) => {
-                                    if (event.key === "Enter" || event.key === " ") {
-                                        event.preventDefault();
-                                        fileInputRef.current?.click();
-                                    }
-                                }}
-                            >
-                                {picturePreview ? (
-                                    <div className="upload-preview">
-                                        <img src={picturePreview} alt={t("register.profilePicturePreview")} />
-                                        <button
-                                            type="button"
-                                            className="upload-remove"
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                setForm((prev) => ({ ...prev, profilePicture: null }));
-                                                markTouched("profilePicture");
-                                            }}
-                                        >
-                                            {t("register.profilePicture.remove")}
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <div className="upload-placeholder">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M3 7h18M5 7V5a2 2 0 012-2h10a2 2 0 012 2v2m-1 0v12a2 2 0 01-2 2H8a2 2 0 01-2-2V7m3 5l2.586 2.586a2 2 0 002.828 0L16 12m-7 5h.01"
-                                            />
-                                        </svg>
-                                        <p>{t("register.profilePicture.placeholder")}</p>
-                                        <p className="upload-hint">{t("register.profilePicture.helper")}</p>
-                                    </div>
-                                )}
-                                <input
-                                    ref={fileInputRef}
-                                    id="field-profilePicture"
-                                    type="file"
-                                    accept="image/*"
-                                    hidden
-                                    onChange={(event) => handleDrop(event.target.files)}
-                                    onBlur={() => markTouched("profilePicture")}
-                                />
-                            </div>
-                            {touched.profilePicture && errors.profilePicture && (
-                                <p className="form-field__text form-field__text--error">{errors.profilePicture}</p>
-                            )}
-                        </div>
                     </div>
                 </div>
 
                 <div className="form-actions">
-                    <Button type="submit" size="lg" fullWidth disabled={submitting}>
+                    <Button type="submit" size="lg" fullWidth disabled={registering}>
                         {t("register.submit")}
                     </Button>
+                    {registerErrorKey && (
+                        <p className="form-field__text form-field__text--error" role="alert">
+                            {t(registerErrorKey)}
+                        </p>
+                    )}
                     <div className="form-footnote">
                         <span>{t("register.have.account")}</span>
                         <Button
                             type="button"
                             variant="ghost"
                             size="sm"
-                            onClick={() => nav("/login")}
+                            onClick={() => nav(loginTarget)}
                             className="form-footnote__link"
                         >
                             {t("register.login")}

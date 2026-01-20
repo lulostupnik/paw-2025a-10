@@ -70,39 +70,22 @@ export interface FetchEventsParams {
     page?: number;
     size?: number;
     upcoming?: boolean;
+    past?: boolean;
     search?: string;
+    destination?: string;
+    interest?: string;
+    startDate?: string;
+    endDate?: string;
+    sort?: "date" | "attendees" | "rating";
+    direction?: "asc" | "desc";
 }
 
 export async function fetchEvents(params: FetchEventsParams = {}, signal?: AbortSignal): Promise<EventDto[]> {
-    const query = new URLSearchParams();
-
-    if (typeof params.page === "number") {
-        query.set("page", String(params.page));
-    }
-
-    if (typeof params.size === "number") {
-        query.set("size", String(params.size));
-    }
-
-    if (typeof params.search === "string" && params.search.trim().length > 0) {
-        query.set("search", params.search.trim());
-    }
-
-    if (typeof params.upcoming === "boolean") {
-        query.set("upcoming", String(params.upcoming));
-    }
-
-    const queryString = query.toString();
-    const response = await fetch(`${EVENTS_ENDPOINT}${queryString ? `?${queryString}` : ""}`, {
+    const response = await apiClient.get<EventDto[]>("/events", {
+        params,
         signal,
-        headers: { Accept: "application/json" },
     });
-
-    if (!response.ok) {
-        throw new Error("Failed to fetch events");
-    }
-
-    const data = await response.json();
+    const data = response.data;
     return Array.isArray(data) ? data : [];
 }
 

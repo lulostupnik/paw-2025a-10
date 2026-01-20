@@ -1,7 +1,4 @@
-import { apiBaseUrl } from "@/lib/api/client";
-
-const API_BASE_URL = apiBaseUrl;
-const JSON_HEADERS = { Accept: "application/json" } as const;
+import { apiClient } from "@/lib/api/client";
 
 export interface CatalogOption {
     id: number;
@@ -11,18 +8,10 @@ export interface CatalogOption {
 export type CatalogSearchFn = (query: string, signal?: AbortSignal) => Promise<CatalogOption[]>;
 
 async function requestCatalog(path: string, query: string, signal?: AbortSignal): Promise<CatalogOption[]> {
-    const params = new URLSearchParams();
-    if (query.trim().length > 0) {
-        params.set("search", query.trim());
-    }
-
-    const url = `${API_BASE_URL}${path}${params.toString() ? `?${params.toString()}` : ""}`;
-    const response = await fetch(url, { signal, headers: JSON_HEADERS });
-    if (!response.ok) {
-        throw new Error(`Failed to fetch ${path}`);
-    }
-
-    const payload = await response.json();
+    const trimmed = query.trim();
+    const params = trimmed.length > 0 ? { search: trimmed } : undefined;
+    const response = await apiClient.get(path, { params, signal });
+    const payload = response.data;
     const collection: unknown[] = Array.isArray(payload)
         ? payload
         : Array.isArray(payload?.content)

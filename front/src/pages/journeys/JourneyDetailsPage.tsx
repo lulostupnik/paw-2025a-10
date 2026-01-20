@@ -9,6 +9,8 @@ import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
 import { createJourneyResponse } from "@/lib/api/journeys";
 import type { JourneyDetailScenario } from "@/mocks/journeys.mock";
 import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
+import { useAuthGate } from "@/hooks/useAuthGate";
+import LoginRequiredModal from "@/components/LoginRequiredModal";
 
 const SCENARIO: JourneyDetailScenario = "normal";
 
@@ -53,6 +55,7 @@ export default function JourneyDetailPage() {
     const location = useLocation();
     const { id } = useParams();
     const queryClient = useQueryClient();
+    const gate = useAuthGate();
     const { data, isLoading, isError, isNotFound, refetch, isFetching } = useJourneyDetailData({ scenario: SCENARIO, journeyId: id });
     const [actionMenuOpen, setActionMenuOpen] = useState(false);
     const [commentsOpen, setCommentsOpen] = useState(true);
@@ -114,34 +117,37 @@ export default function JourneyDetailPage() {
         navigate("/journeys");
     };
 
-    const handleReplySubmit = async (event: FormEvent<HTMLFormElement>) => {
+    const handleReplySubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        if (!id) {
-            setReplyError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
-            return;
-        }
-        if (!replyMessage.trim()) {
-            setReplyError(t("NotNull.replyJourneyForm.message", { defaultValue: "Please enter a message." }));
-            return;
-        }
-        try {
-            setReplySubmitting(true);
-            setReplyError(null);
-            setReplySuccess(null);
-            await createJourneyResponse(Number(id), { message: replyMessage.trim() });
-            setReplyMessage("");
-            setReplySuccess(t("replyJourney.success"));
-            refetch();
-            queryClient.invalidateQueries({ queryKey: ["journeyDetail", id] });
-        } catch (err) {
-            console.error("Failed to submit journey response", err);
-            setReplyError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
-        } finally {
-            setReplySubmitting(false);
-        }
+        gate.runOrPrompt(async () => {
+            if (!id) {
+                setReplyError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                return;
+            }
+            if (!replyMessage.trim()) {
+                setReplyError(t("NotNull.replyJourneyForm.message", { defaultValue: "Please enter a message." }));
+                return;
+            }
+            try {
+                setReplySubmitting(true);
+                setReplyError(null);
+                setReplySuccess(null);
+                await createJourneyResponse(Number(id), { message: replyMessage.trim() });
+                setReplyMessage("");
+                setReplySuccess(t("replyJourney.success"));
+                refetch();
+                queryClient.invalidateQueries({ queryKey: ["journeyDetail", id] });
+            } catch (err) {
+                console.error("Failed to submit journey response", err);
+                setReplyError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            } finally {
+                setReplySubmitting(false);
+            }
+        });
     };
 
     return (
+        <>
         <div className="journey-detail-page">
             <div className="layout-container">
                 <div className="main-content">
@@ -817,5 +823,11 @@ export default function JourneyDetailPage() {
                 </div>
             </div>
         </div>
+        <LoginRequiredModal
+            open={gate.open}
+            onClose={gate.close}
+            nextPath={`${location.pathname}${location.search}`}
+        />
+        </>
     );
 }
