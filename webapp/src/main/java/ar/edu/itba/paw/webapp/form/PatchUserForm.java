@@ -24,10 +24,6 @@ public class PatchUserForm {
     @ExistingCareer
     private String career;
 
-    private String validationToken;
-
-    private Boolean blocked;
-
     public String getUsername() {
         return username;
     }
@@ -66,21 +62,5 @@ public class PatchUserForm {
 
     public void setCareer(String career) {
         this.career = career;
-    }
-
-    public String getValidationToken() {
-        return validationToken;
-    }
-
-    public void setValidationToken(String validationToken) {
-        this.validationToken = validationToken;
-    }
-
-    public Boolean getBlocked() {
-        return blocked;
-    }
-
-    public void setBlocked(Boolean blocked) {
-        this.blocked = blocked;
     }
 }

@@ -28,6 +28,8 @@ public interface UserService {
     User updateUser(long userId, String username, String firstname, String lastname,
                     String universityName, String careerName);
 
+    User patchUser(long userId, String username, String firstname, String lastname, String universityName, String careerName);
+
     long updateProfilePicture(long userId, byte[] profilePicture);
     Optional<Image> getProfilePicture(long userId); // TODO: NOTE THAT THIS SHOULD THROW USERNOTFOUNDEXCEPTION IF THE USER IS NOT FOUND.
 

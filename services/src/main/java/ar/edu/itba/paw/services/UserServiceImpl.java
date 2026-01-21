@@ -277,6 +277,41 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    public User patchUser(final long userId, final String username,
+                          final String firstname, final String lastname,
+                          final String universityName, final String careerName) {
+        LOGGER.debug("Patching user with ID: {}", userId);
+
+        User user = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+
+        if (username != null) {
+            user.setUsername(username);
+        }
+
+        if (firstname != null) {
+            user.setFirstname(firstname);
+        }
+
+        if (lastname != null) {
+            user.setLastname(lastname);
+        }
+
+        if (universityName != null) {
+            University university = universityService.findByName(universityName).orElseThrow(() -> new InvalidReferenceException("University", universityName));
+            user.setUniversity(university);
+        }
+
+        if (careerName != null) {
+            Career career = careerService.findCareerByName(careerName).orElseThrow(() -> new InvalidReferenceException("Career", careerName));
+            user.setCareer(career);
+        }
+
+        LOGGER.info("User patched successfully with ID: {}", userId);
+        return user;
+    }
+
+    @Override
+    @Transactional
     public long updateProfilePicture(final long userId, final byte[] profilePicture) {
         LOGGER.debug("Updating profile picture for user ID: {}", userId);
 

@@ -107,14 +107,20 @@ public class UserController {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateUser(@PathParam("id") final long id,  @Valid EditUserForm form ) {
-        // TODO: Create form class for full user update
+    public Response updateUser(@PathParam("id") final long id, @Valid EditUserForm form) {
          final User user = us.updateUser(id, form.getUsername(), form.getFirstName(), form.getLastName(),
                  form.getOriginUniversity(), form.getCareer());
          return Response.ok(UserDto.fromUser(uriInfo, user)).build();
     }
 
-
+    @PATCH
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response patchUser(@PathParam("id") final long id, @Valid PatchUserForm form) {
+        final User user = us.patchUser(id, form.getUsername(), form.getFirstName(), form.getLastName(), form.getOriginUniversity(), form.getCareer());
+        return Response.ok(UserDto.fromUser(uriInfo, user)).build();
+    }
 
     // ==================== PASSWORD ====================
 
@@ -150,7 +156,7 @@ public class UserController {
         return Response.status(Response.Status.NOT_IMPLEMENTED).build();
     }
 
-    // ==================== USER INTERESTS (Sub-resource) ====================
+    // ==================== USER INTERESTS ====================
 
     @GET
     @Path("/{userId}/interests")
