@@ -23,6 +23,7 @@ public interface UserService {
 
     void blockUser(long userId);
     void unblockUser(long userId);
+    void setBlockedStatus(long userId, boolean blocked);
 
     User updateUser(long userId, String username, String firstname, String lastname,
                     String universityName, String careerName);

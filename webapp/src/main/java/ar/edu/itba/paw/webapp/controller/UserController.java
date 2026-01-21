@@ -12,6 +12,7 @@ import ar.edu.itba.paw.webapp.CustomMediaType;
 import ar.edu.itba.paw.webapp.dto.InterestDto;
 import ar.edu.itba.paw.webapp.dto.UserDto;
 import ar.edu.itba.paw.webapp.dto.UserRatingDto;
+import ar.edu.itba.paw.webapp.form.BlockUserForm;
 import ar.edu.itba.paw.webapp.form.CreateUserForm;
 import ar.edu.itba.paw.webapp.form.EditUserForm;
 import ar.edu.itba.paw.webapp.form.PasswordForm;
@@ -21,6 +22,7 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 
@@ -114,10 +116,12 @@ public class UserController {
 
 
 
-    @PATCH
-    @Path("/{id}")
-    @Consumes(CustomMediaType.USER_PASSWORD)
-    public Response updateForgottenPassword(
+    // ==================== PASSWORD ====================
+
+    @PUT
+    @Path("/{id}/password")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updatePassword(
             @PathParam("id") final long id,
             @Valid final PasswordForm form
     ) {
@@ -125,16 +129,17 @@ public class UserController {
         return Response.noContent().build();
     }
 
-    @PATCH
-    @Path("/{id}")
+    // ==================== BLOCKED STATUS ====================
+
+    @PUT
+    @Path("/{id}/blocked")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response patchUser(
+    public Response updateBlockedStatus(
             @PathParam("id") final long id,
-            @Valid final PatchUserForm form
+            @Valid final BlockUserForm form
     ) {
-        // TODO: implement
-        return Response.status(Response.Status.BAD_REQUEST).build();
+        us.setBlockedStatus(id, form.getBlocked());
+        return Response.noContent().build();
     }
 
     @DELETE

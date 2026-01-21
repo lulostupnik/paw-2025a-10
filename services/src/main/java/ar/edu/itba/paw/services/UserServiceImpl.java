@@ -170,8 +170,15 @@ public class UserServiceImpl implements UserService {
         LOGGER.info("User unblocked successfully with ID: {}", userId);
     }
 
-
-
+    @Override
+    @Transactional
+    public void setBlockedStatus(final long userId, final boolean blocked) {
+        if (blocked) {
+            blockUser(userId);
+        } else {
+            unblockUser(userId);
+        }
+    }
 
     @Override
     public Optional<Double> findAverageRatingForCreatedEvents(long userId) {

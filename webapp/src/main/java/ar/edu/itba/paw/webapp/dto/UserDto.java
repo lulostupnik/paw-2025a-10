@@ -20,7 +20,7 @@ public class UserDto {
     private  String username;
     private String email;
     private String role;
-    private Boolean isActive;
+    private Boolean isActive; // TODO: ¿Esto está bien tenerlo acá? ¿Es necesario?
     private URI profilePictureUrl;
 
     private URI selfUrl;
