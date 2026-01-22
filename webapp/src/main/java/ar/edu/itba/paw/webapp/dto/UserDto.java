@@ -22,8 +22,13 @@ public class UserDto {
     private String role;
     private Boolean isActive; // TODO: ¿Esto está bien tenerlo acá? ¿Es necesario?
     private URI profilePictureUrl;
+    private String firstname;
+    private String lastname;
 
     private URI selfUrl;
+    private URI careerUrl;
+    private URI universityUrl;
+    private URI journeyUrl;
 
 
     public static UserDto fromUser(final UriInfo uriInfo, final User user) {
@@ -31,13 +36,17 @@ public class UserDto {
         dto.id = user.getId();
         dto.email = user.getEmail();
         dto.username = user.getUsername();
+        dto.firstname = user.getFirstname();
+        dto.lastname = user.getLastname();
         dto.role = user.getRole().toString().replaceAll("^ROLE_", "").toLowerCase();
         dto.isActive = ! user.isBlocked() && user.isValidated();
         dto.profilePictureUrl = user.getProfilePictureId() != null
                 ? UriUtils.getUserProfilePictureUri(uriInfo, user.getId())
                 : null;
         // dto.preferredLanguage = user.getPreferredLanguage();
-
+        dto.careerUrl = UriUtils.getCareerUri(uriInfo, user.getCareer().getId());
+        dto.universityUrl = UriUtils.getUniversityUri(uriInfo, user.getUniversity().getId());
+        dto.journeyUrl = UriUtils.getJourneyUri(uriInfo, user.getJourney().getId());
         dto.selfUrl = UriUtils.getUserUri(uriInfo, user.getId());
 
         return dto;
@@ -54,6 +63,17 @@ public class UserDto {
         return profilePictureUrl;
     }
 
+    public URI getJourneyUrl() {
+        return journeyUrl;
+    }    
+    
+    public URI getCareerUrl() {
+        return careerUrl;
+    }    
+    
+    public URI getUniversityUrl() {
+        return universityUrl;
+    }
     public Boolean getActive() {
         return isActive;
     }
@@ -68,6 +88,14 @@ public class UserDto {
 
     public String getUsername() {
         return username;
+    }
+
+    public String getFirstname() {
+        return firstname;
+    }
+    
+    public String getLastname() {
+        return lastname;
     }
 
     public long getId() {
