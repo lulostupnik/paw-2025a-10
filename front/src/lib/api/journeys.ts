@@ -7,6 +7,9 @@ interface UserApi {
     id: number;
     username: string;
     selfUrl?: string | null;
+    firstname?: string;
+    lastname?: string;
+    profilePictureUrl?: string | null;
 }
 
 interface UniversityApi {

@@ -1,8 +1,8 @@
-import { apiBaseUrl, apiClient, normalizeApiPath } from "@/lib/api/client";
+import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { getCityByUrl, getUserByUrl } from "@/lib/api/journeys";
 import type { EventDetail, EventRating, EventComment, EventAttendee } from "@/mocks/eventDetail.mock";
+import type { ProfileEvent } from "@/types/event";
 
-const EVENTS_ENDPOINT = `${apiBaseUrl}/events`;
 
 export interface EventDto {
     id: number;
@@ -62,20 +62,28 @@ interface UserApi {
     username: string;
     email?: string | null;
     profilePictureUrl?: string | null;
+    firstname: string | null;
+    lastname: string | null;
 }
 
 export interface FetchEventsParams {
-    page?: number;
-    size?: number;
-    upcoming?: boolean;
-    past?: boolean;
-    search?: string;
     destination?: string;
     interest?: string;
     startDate?: string;
     endDate?: string;
+    upcoming?: boolean;
+    past?: boolean;
+    search?: string;
     sort?: "date" | "attendees" | "rating";
     direction?: "asc" | "desc";
+    page?: number;
+    size?: number;
+    attendedBy?: number;
+    university?: string;
+    minRating?: number;
+    hasCapacity?: boolean;
+    journeyId?: number;
+    creatorId?: number;
 }
 
 export async function fetchEvents(params: FetchEventsParams = {}, signal?: AbortSignal): Promise<EventDto[]> {
@@ -133,6 +141,34 @@ export const mapEventDtoToSummary = (dto: EventDto): EventSummary => ({
     flyerUrl: dto.flyerUrl ?? undefined,
     imageUrl: dto.flyerUrl ?? undefined,
 });
+
+export const buildProfileEvent = (events: EventDto[]): ProfileEvent[] => {
+    const profileEvents: ProfileEvent[] = [];
+    events.forEach(async (e) => {
+        const [city, user] = await Promise.all([
+            getCityByUrl(e.cityUrl),
+            getUserByUrl(e.creatorUrl)
+        ])
+        profileEvents.push({
+            id: e.id,
+            title: e.title,
+            description: e.description ?? undefined,
+            date: e.date ?? '',
+            attendeesLimit: typeof e.attendeesLimit === "number" ? e.attendeesLimit : undefined,
+            attendeesCount: typeof e.attendeesCount === "number" ? e.attendeesCount : undefined,
+            isFull: e.isFull ?? false,
+            flyerImageUrl: e.flyerUrl ?? undefined,
+            city: {name: city?.name ?? ""},
+            user: {
+                id: user?.id ?? 0,
+                username: user?.username ?? "",
+                firstname: user?.firstname ?? "",
+                lastname: user?.lastname ?? ""
+            }
+        })
+    })
+    return profileEvents;
+};
 
 export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): Promise<EventDetail> => {
     const [creator, city, responses, attendees, ratings] = await Promise.all([

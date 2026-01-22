@@ -35,9 +35,9 @@ export default function ProfileDetail() {
     const activeTab = tab === "interests" || tab === "events" ? tab : "info";
     const rawEventsTab = searchParams.get("eventsTab");
     const eventsTab = rawEventsTab === "attending" || rawEventsTab === "finished" ? rawEventsTab : "created";
-    const createdPage = Number(searchParams.get("page")) || 1;
-    const attendingPage = Number(searchParams.get("attendingPage")) || 1;
-    const finishedPage = Number(searchParams.get("finishedPage")) || 1;
+    const createdPage = Number(searchParams.get("page")) || 0;
+    const attendingPage = Number(searchParams.get("attendingPage")) || 0;
+    const finishedPage = Number(searchParams.get("finishedPage")) || 0;
     const pageSize = Number(searchParams.get("size")) || 6;
 
     const { created, attending, finished } = useProfileEvents(profileId, {

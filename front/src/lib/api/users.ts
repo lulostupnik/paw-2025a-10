@@ -66,7 +66,7 @@ export const buildProfileDetail = async (user: ProfileDetail, signal?: AbortSign
         getUserRatingStats(user.id, signal),
         getUserInterests(user.id, signal),
         getUniversityByUrl(user.universityUrl, signal),
-        getCareerByUrl(user.careerUrl, signal)
+        getCareerByUrl(user.careerUrl, signal),
     ]);
 
 

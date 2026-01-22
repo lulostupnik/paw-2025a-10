@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { getUserId } from "@/lib/auth/auth";
 import type { ProfileDetail } from "@/types/profile";
 import { getProfileDetailMock, type ProfileScenario } from "@/mocks/profiles.mock";
@@ -24,7 +24,7 @@ export const useProfileDetail = ({ scenario = "normal", profileId }: ProfileDeta
     const USE_MOCK_FALLBACK = true; // Set to false to disable fallback mocks.
 
     const query = useQuery({
-        queryKey: ["journeyDetail", profileId],
+        queryKey: ["profileDetail", profileId],
         queryFn: async ({ signal }) => {
             if (!profileId || profileId == 'me') {
                 profileId = getUserId().toString()
