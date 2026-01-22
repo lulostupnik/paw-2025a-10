@@ -100,6 +100,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE, "/api/users/{id}").access("@accessHelper.isCurrentUser(#id) or hasRole('ADMIN')")
 
                 .antMatchers(HttpMethod.GET, "/api/users/{id}/interests").permitAll()// TODO:revisar
+                .antMatchers(HttpMethod.GET, "/api/users/{id}/rating").permitAll()// TODO:revisar
                 .antMatchers(HttpMethod.PUT, "/api/users/{id}/interests").access("@accessHelper.isCurrentUser(#id)")
                 .antMatchers(HttpMethod.DELETE, "/api/users/{id}/interests/{interestId}").access("@accessHelper.isCurrentUser(#id)")
 

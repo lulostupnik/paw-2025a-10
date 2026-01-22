@@ -30,7 +30,7 @@ export default function ProfileDetail() {
     const location = useLocation();
     const { profileId = "me", tab } = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
-    const { data: profile, isLoading, isError } = useProfileDetail(profileId);
+    const { data: profile, isLoading, isError } = useProfileDetail({profileId});
 
     const activeTab = tab === "interests" || tab === "events" ? tab : "info";
     const rawEventsTab = searchParams.get("eventsTab");

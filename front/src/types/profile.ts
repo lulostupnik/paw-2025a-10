@@ -6,18 +6,21 @@ export interface ProfileSummary {
     firstname: string;
     lastname: string;
     username: string;
+    email?: string | null;
     profilePictureUrl?: string | null;
-    university?: { name: string } | null;
-    career?: { name: string } | null;
+    universityUrl?: string | null;
+    careerUrl?: string | null;
+    journeyUrl?: string | null;
 }
 
 export interface ProfileDetail extends ProfileSummary {
-    email?: string | null;
     bio?: string | null;
     isMine: boolean;
     journey?: ProfileJourney | null;
     interests: ProfileInterest[];
     ratingStats: ProfileRatingStats;
+    university?: { name: string } | null;
+    career?: { name: string } | null;
 }
 
 export interface ProfileInterest {
