@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
-import type { AdminReport } from "@/mocks/adminDashboard.mock";
 import type { PagedResult } from "@/hooks/useAdminDashboardData";
+import type { ReportListItem } from "@/lib/api/reports";
 import AdminPagination from "./AdminPagination";
 import AdminTabHeader from "./AdminTabHeader";
 import ClickableRow from "./ClickableRow";
 
 interface ReportsTabProps {
-    data: PagedResult<AdminReport>;
+    data: PagedResult<ReportListItem>;
     searchValue: string;
     onSearchChange: (value: string) => void;
     onSearchSubmit: (value: string) => void;
@@ -19,7 +19,7 @@ interface ReportsTabProps {
 const getReasonLabel = (reason: string, t: (key: string, options?: { defaultValue?: string }) => string) => {
     const reasonKey = {
         SPAM: "report.reason.spam",
-        HARRASMENT: "report.reason.harassment",
+        HARASSMENT: "report.reason.harassment",
         INAPPROPRIATE_CONTENT: "report.reason.inappropriate",
         MISINFORMATION: "report.reason.misinformation",
         HATE_SPEECH: "report.reason.hate_speech",
@@ -50,6 +50,52 @@ const getStatusConfig = (status: string, t: (key: string, options?: { defaultVal
     }
 };
 
+const getTypeLabel = (type: ReportListItem["contentType"], t: (key: string, options?: { defaultValue?: string }) => string) => {
+    switch (type) {
+        case "journey":
+            return t("report.type.journey");
+        case "event":
+            return t("report.type.event");
+        case "journeyResponse":
+            return t("report.type.journey.comment");
+        case "eventResponse":
+            return t("report.type.event.comment");
+        default:
+            return t("report.detail.type", { defaultValue: "Reporte" });
+    }
+};
+
+const getTypeClass = (type: ReportListItem["contentType"]) => {
+    switch (type) {
+        case "journey":
+            return "report-type-journey";
+        case "event":
+            return "report-type-event";
+        case "journeyResponse":
+        case "eventResponse":
+            return "report-type-comment";
+        default:
+            return "report-type-default";
+    }
+};
+
+const formatDate = (value: string | null | undefined, locale: string) => {
+    if (!value) {
+        return "—";
+    }
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+        return value;
+    }
+    return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(date);
+};
+
+const normalizeDescription = (value: string) =>
+    value
+        .replace(/(Evento|Viaje)([A-Za-zÁÉÍÓÚÑáéíóúñ])/g, "$1 $2")
+        .replace(/\s+/g, " ")
+        .trim();
+
 export default function ReportsTab({
     data,
     searchValue,
@@ -60,7 +106,7 @@ export default function ReportsTab({
     isError,
 }: ReportsTabProps) {
     const navigate = useNavigate();
-    const { t } = useI18n();
+    const { t, locale } = useI18n();
     const isEmpty = !isLoading && !isError && data.content.length === 0;
     const loadingLabel = t("admin.dashboard.loading", { defaultValue: "Cargando datos..." });
     const errorLabel = t("admin.dashboard.error", { defaultValue: "No se pudieron cargar los datos." });
@@ -84,16 +130,41 @@ export default function ReportsTab({
                             <th>{t("admin.column.description")}</th>
                             <th>{t("admin.column.reason")}</th>
                             <th>{t("admin.column.status")}</th>
+                            <th>{t("admin.column.date")}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {data.content.map((report) => {
                             const status = getStatusConfig(report.status, t);
+                            const typeLabel = getTypeLabel(report.contentType, t);
+                            const descriptionText = report.description?.trim()
+                                ? normalizeDescription(report.description)
+                                : t("report.no.additional.details");
                             return (
                                 <ClickableRow key={report.id} onClick={() => navigate(`/reports/${report.id}`)}>
-                                    <td>{report.reportedUser.username}</td>
-                                    <td>{report.reportingUser.username}</td>
-                                    <td>{report.description}</td>
+                                    <td>
+                                        <div className="report-user">
+                                            <span>@{report.reportedUser.username}</span>
+                                            {report.reportedUser.blocked && (
+                                                <span className="report-user__badge">{t("user.status.blocked")}</span>
+                                            )}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div className="report-user">
+                                            <span>@{report.reportingUser.username}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div className="report-meta">
+                                            <span className={`report-type-badge ${getTypeClass(report.contentType)}`}>
+                                                {typeLabel}
+                                            </span>
+                                            <span className="report-description">
+                                                {descriptionText}
+                                            </span>
+                                        </div>
+                                    </td>
                                     <td>{getReasonLabel(report.reason, t)}</td>
                                     <td>
                                         <div className="report-status">
@@ -107,6 +178,9 @@ export default function ReportsTab({
                                                 />
                                             </div>
                                         </div>
+                                    </td>
+                                    <td>
+                                        <span className="report-date">{formatDate(report.createdAt, locale)}</span>
                                     </td>
                                 </ClickableRow>
                             );

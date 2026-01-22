@@ -34,13 +34,20 @@ export default function AdminPagination({
         }
     };
 
+    const canGoPrev = currentPage > 1;
+    const canGoNext = currentPage < totalPages;
+
     return (
         <div className="pagination">
-            {currentPage > 1 && (
-                <button type="button" className="page-link" onClick={handlePageClick(currentPage - 1)}>
-                    &laquo; {previousLabel}
-                </button>
-            )}
+            <button
+                type="button"
+                className={classNames("page-link", !canGoPrev && "page-link--disabled")}
+                onClick={canGoPrev ? handlePageClick(currentPage - 1) : undefined}
+                disabled={!canGoPrev}
+                aria-disabled={!canGoPrev}
+            >
+                &laquo; {previousLabel}
+            </button>
 
             {start > 1 && (
                 <>
@@ -72,11 +79,15 @@ export default function AdminPagination({
                 </>
             )}
 
-            {currentPage < totalPages && (
-                <button type="button" className="page-link" onClick={handlePageClick(currentPage + 1)}>
-                    {nextLabel} &raquo;
-                </button>
-            )}
+            <button
+                type="button"
+                className={classNames("page-link", !canGoNext && "page-link--disabled")}
+                onClick={canGoNext ? handlePageClick(currentPage + 1) : undefined}
+                disabled={!canGoNext}
+                aria-disabled={!canGoNext}
+            >
+                {nextLabel} &raquo;
+            </button>
         </div>
     );
 }

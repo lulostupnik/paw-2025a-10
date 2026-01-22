@@ -2060,7 +2060,7 @@ textarea.input-control {
 .top-bar {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 2000;
   height: 72px;
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
@@ -3238,6 +3238,16 @@ textarea.input-control {
   gap: 0.25rem;
 }
 
+.admin-dashboard .report-description {
+  color: var(--color-gray-700);
+  font-size: 0.875rem;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
 .admin-dashboard .status-progress {
   width: 100%;
   height: 2px;
@@ -3301,6 +3311,24 @@ textarea.input-control {
   text-decoration: none;
   transition: all 0.2s ease;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.admin-dashboard .page-link:hover,
+.admin-dashboard .page-link:focus-visible {
+  background-color: var(--color-gray-100);
+  border-color: var(--color-gray-300);
+}
+
+.admin-dashboard .page-link--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.admin-dashboard .page-link--disabled:hover,
+.admin-dashboard .page-link--disabled:focus-visible {
+  background-color: var(--color-white);
+  border-color: var(--color-gray-200);
 }
 
 .admin-dashboard .page-link:hover {
@@ -5153,6 +5181,70 @@ textarea.input-control {
   border-radius: 0.375rem;
   transition: all 0.2s ease;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.journey-detail-page .page-link:hover,
+.journey-detail-page .page-link:focus-visible,
+.event-detail-page .page-link:hover,
+.event-detail-page .page-link:focus-visible {
+  background-color: var(--color-gray-100);
+  border-color: var(--color-gray-300);
+}
+
+.journey-detail-page .page-link--disabled,
+.event-detail-page .page-link--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.journey-detail-page .page-link--disabled:hover,
+.journey-detail-page .page-link--disabled:focus-visible,
+.event-detail-page .page-link--disabled:hover,
+.event-detail-page .page-link--disabled:focus-visible {
+  background-color: var(--color-white);
+  border-color: var(--color-gray-200);
+}
+
+.journey-detail-page a[href*="/reports/"],
+.event-detail-page a[href*="/reports/"] {
+  color: #333 !important;
+  transition: color 0.2s ease;
+}
+
+.journey-detail-page a[href*="/reports/"]:hover,
+.journey-detail-page a[href*="/reports/"]:focus-visible,
+.event-detail-page a[href*="/reports/"]:hover,
+.event-detail-page a[href*="/reports/"]:focus-visible {
+  color: #dc2626 !important;
+}
+
+.journey-detail-page a[href*="/delete"],
+.journey-detail-page a[href*="/delete"],
+.event-detail-page a[href*="/delete"],
+.event-detail-page a[href*="/delete"] {
+  color: #333 !important;
+  transition: color 0.2s ease;
+}
+
+.journey-detail-page a[href*="/delete"]:hover,
+.journey-detail-page a[href*="/delete"]:focus-visible,
+.event-detail-page a[href*="/delete"]:hover,
+.event-detail-page a[href*="/delete"]:focus-visible {
+  color: #dc2626 !important;
+}
+
+.journey-detail-page a[href*="/update"],
+.event-detail-page a[href*="/update"] {
+  color: #333 !important;
+  transition: color 0.2s ease;
+}
+
+.journey-detail-page a[href*="/update"]:hover,
+.journey-detail-page a[href*="/update"]:focus-visible,
+.event-detail-page a[href*="/update"]:hover,
+.event-detail-page a[href*="/update"]:focus-visible {
+  color: var(--color-primary) !important;
 }
 
 .journey-detail-page .page-link.active,

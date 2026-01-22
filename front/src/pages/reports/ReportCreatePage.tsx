@@ -111,20 +111,22 @@ export default function ReportCreatePage({ reportType }: ReportCreatePageProps) 
     }
 
     return (
-        <div className="page-shell report-create-page">
-            <div className="card">
-                <header className="section-header">
+        <div className="page-shell report-create-page journey-create-page">
+            <div className="card journey-create-card">
+                <header className="journey-create-header">
                     <div>
-                        <h1 className="section-title">{t("report.modal.title")}</h1>
-                        <p className="section__helper">{t("report.modal.description")}</p>
+                        <p className="eyebrow">{t("report.modal.title")}</p>
+                        <h1>{t("report.modal.title")}</h1>
+                        <p className="journey-create-header__lead">{t("report.modal.description")}</p>
                     </div>
+                    <div className="journey-create-meta">{t("form.requiredHint")}</div>
                 </header>
 
                 {serverError && <p className="form-field__text form-field__text--error">{serverError}</p>}
 
-                <form onSubmit={handleSubmit} noValidate>
+                <form className="journey-form" onSubmit={handleSubmit} noValidate>
                     <div className="form-field">
-                        <label className="form-field__label" htmlFor="report-reason">
+                        <label className="input-label" htmlFor="report-reason">
                             {t("report.reason.label")}
                             <span className="required-indicator" aria-hidden="true">
                                 *
@@ -146,11 +148,13 @@ export default function ReportCreatePage({ reportType }: ReportCreatePageProps) 
                             <option value="VIOLENCE">{t("report.reason.violence")}</option>
                             <option value="OTHER">{t("report.reason.other")}</option>
                         </select>
-                        {touched && reasonError && <p className="form-field__text form-field__text--error">{reasonError}</p>}
+                        {touched && reasonError && (
+                            <p className="form-field__text form-field__text--error">{reasonError}</p>
+                        )}
                     </div>
 
                     <div className="form-field">
-                        <label className="form-field__label" htmlFor="report-description">
+                        <label className="input-label" htmlFor="report-description">
                             {t("report.description.label")}
                             <span className="required-indicator" aria-hidden="true">
                                 *
@@ -159,7 +163,7 @@ export default function ReportCreatePage({ reportType }: ReportCreatePageProps) 
                         <textarea
                             id="report-description"
                             className={touched && descriptionError ? "input-control input-control--error" : "input-control"}
-                            rows={4}
+                            rows={6}
                             maxLength={MAX_DESCRIPTION_LENGTH}
                             value={description}
                             onChange={(event) => setDescription(event.target.value)}
@@ -168,19 +172,23 @@ export default function ReportCreatePage({ reportType }: ReportCreatePageProps) 
                         />
                         <div className="form-field__text">
                             <span>{t("report.description.help")}</span>
-                            <span>{description.trim().length}/{MAX_DESCRIPTION_LENGTH}</span>
+                            <span>
+                                {description.trim().length}/{MAX_DESCRIPTION_LENGTH}
+                            </span>
                         </div>
                         {touched && descriptionError && (
                             <p className="form-field__text form-field__text--error">{descriptionError}</p>
                         )}
                     </div>
 
-                    <div className="form-actions">
+                    <div className="journey-form__actions">
                         <Button type="button" variant="ghost" onClick={handleBack} disabled={submitting}>
                             {t("report.modal.cancel")}
                         </Button>
                         <Button type="submit" variant="primary" disabled={submitting}>
-                            {submitting ? t("report.submitting", { defaultValue: "Submitting..." }) : t("report.modal.submit")}
+                            {submitting
+                                ? t("report.submitting", { defaultValue: "Submitting..." })
+                                : t("report.modal.submit")}
                         </Button>
                     </div>
                 </form>

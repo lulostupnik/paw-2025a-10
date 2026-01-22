@@ -20,8 +20,6 @@ export interface EventDto {
     creatorUrl?: string;
     cityUrl?: string;
     flyerUrl?: string;
-    creatorUrl?: string;
-    cityUrl?: string;
     responsesUrl?: string;
     attendancesUrl?: string;
     ratingsUrl?: string;

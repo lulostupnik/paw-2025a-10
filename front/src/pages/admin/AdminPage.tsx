@@ -13,6 +13,7 @@ import CitiesTab from "@/components/admin-dashboard/CitiesTab";
 import CareersTab from "@/components/admin-dashboard/CareersTab";
 import ReportsTab from "@/components/admin-dashboard/ReportsTab";
 import { useAdminDashboardData } from "@/hooks/useAdminDashboardData";
+import { useReports } from "@/hooks/useReports";
 import type { AdminDashboardScenario, AdminDashboardTab } from "@/mocks/adminDashboard.mock";
 import plusIcon from "@/assets/icons/plus.svg";
 import blockIcon from "@/assets/icons/block.svg";
@@ -63,6 +64,7 @@ export default function AdminPage() {
         page,
         pageSize,
     });
+    const reportsQuery  = useReports({ search: searchQuery, page, pageSize });
 
     const tabs = useMemo(
         () => [
@@ -206,13 +208,13 @@ export default function AdminPage() {
 
                     {activeTab === "reports" && (
                         <ReportsTab
-                            data={data.reports}
+                            data={reportsQuery.data}
                             searchValue={searchValue}
                             onSearchChange={setSearchValue}
                             onSearchSubmit={handleSearchSubmit}
                             onPageChange={handlePageChange}
-                            isLoading={isLoading}
-                            isError={isError}
+                            isLoading={reportsQuery.isLoading}
+                            isError={reportsQuery.isError}
                         />
                     )}
                 </div>

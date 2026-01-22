@@ -26,3 +26,7 @@ export const registerUser = async (payload: RegisterPayload, signal?: AbortSigna
     const { data } = await apiClient.post<RegisteredUser>("/users", payload, { signal });
     return data;
 };
+
+export const updateUserBlocked = async (userId: number, blocked: boolean, signal?: AbortSignal) => {
+    await apiClient.put(`/users/${userId}/blocked`, { blocked }, { signal });
+};
