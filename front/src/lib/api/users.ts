@@ -1,6 +1,7 @@
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import type { ProfileDetail, ProfileInterest, ProfileRatingStats } from "@/types/profile";
 import { getUniversityByUrl } from "./journeys";
+import { getUserId } from "../auth/auth";
 
 export interface RegisteredUser {
     id: number;
@@ -76,7 +77,7 @@ export const buildProfileDetail = async (user: ProfileDetail, signal?: AbortSign
         username: user.username,
         ratingStats: ratingStats,
         interests: interests,
-        isMine: user.isMine,
+        isMine: user.id == getUserId(),
         profilePictureUrl: user.profilePictureUrl,
         career,
         university
