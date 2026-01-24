@@ -47,7 +47,7 @@ export const apiClient = axios.create({
     withCredentials: true,
 });
 
-type RetriableRequestConfig = InternalAxiosRequestConfig & { _retry?: boolean };
+type RetriableRequestConfig = InternalAxiosRequestConfig & { _retry?: boolean; _useRefreshToken?: boolean };
 
 function getHeaderValue(headers: AxiosResponse["headers"] | undefined, name: string): string | undefined {
     if (!headers) {
@@ -79,6 +79,16 @@ function storeTokensFromHeaders(headers: AxiosResponse["headers"] | undefined) {
 }
 
 apiClient.interceptors.request.use((config) => {
+    const typedConfig = config as RetriableRequestConfig;
+    if (typedConfig._useRefreshToken) {
+        const refreshToken = getRefreshToken();
+        if (refreshToken) {
+            config.headers = config.headers ?? {};
+            config.headers.Authorization = `Bearer ${refreshToken}`;
+        }
+        return config;
+    }
+
     const token = getAuthToken();
     if (token) {
         config.headers = config.headers ?? {};
@@ -105,8 +115,9 @@ apiClient.interceptors.response.use(
         }
 
         originalRequest._retry = true;
+        originalRequest._useRefreshToken = true;
         originalRequest.headers = originalRequest.headers ?? {};
-        originalRequest.headers["X-GoTogether-RefreshToken"] = refreshToken;
+        originalRequest.headers.Authorization = `Bearer ${refreshToken}`;
 
         try {
             const response = await apiClient.request(originalRequest);

@@ -8,6 +8,14 @@ export type AdminDashboardTab =
     | "careers"
     | "reports";
 
+export interface PagedResult<T> {
+    content: T[];
+    totalPages: number;
+    currentPage: number;
+    pageSize: number;
+    totalItems: number;
+}
+
 export interface AdminJourney {
     id: number;
     user: {

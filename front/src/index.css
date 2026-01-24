@@ -4174,6 +4174,7 @@ textarea.input-control {
   transition: all var(--transition-base);
   background-color: rgba(79, 70, 229, 0.1);
   cursor: pointer;
+  margin-top: 0.5rem;
 }
 
 .journey-detail-page .back-link:hover,

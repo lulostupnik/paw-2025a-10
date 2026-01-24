@@ -93,18 +93,6 @@ export function setSession(session: {
     }
 }
 
-export function loginFake(opts?: { admin?: boolean; remember?: boolean }) {
-    const storage: AuthStorage = opts?.remember ? "local" : "session";
-    setStoredValue(AUTH_TOKEN_KEY, "dev-token", storage);
-    setStoredValue(REFRESH_TOKEN_KEY, "dev-refresh-token", storage);
-    setSession({
-        username: "username",
-        role: opts?.admin ? "ADMIN" : "USER",
-        userId: 1,
-        storage,
-    });
-}
-
 export function logout() {
     [AUTH_TOKEN_KEY, REFRESH_TOKEN_KEY, USERNAME_KEY, ROLE_KEY, USER_ID_KEY].forEach((key) => {
         clearStoredValue(key, "local");

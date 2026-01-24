@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
-import type { AdminEvent } from "@/types/admin";
-import type { PagedResult } from "@/hooks/useAdminDashboardData";
+import type { AdminEvent, PagedResult } from "@/types/admin";
 import AdminPagination from "./AdminPagination";
 import AdminTabHeader from "./AdminTabHeader";
 import ClickableRow from "./ClickableRow";

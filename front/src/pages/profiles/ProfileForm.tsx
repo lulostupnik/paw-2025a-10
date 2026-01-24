@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
 import { useProfileUpsert } from "@/hooks/profiles/useProfileUpsert";
@@ -16,6 +16,7 @@ interface ProfileFormState {
 
 export default function ProfileForm() {
     const { t } = useI18n();
+    const navigate = useNavigate();
     const { profileId = "me" } = useParams();
     const { data: profile, isLoading, isError } = useProfileDetail(profileId);
     const { updateProfile, isLoading: isSaving } = useProfileUpsert();
@@ -25,6 +26,7 @@ export default function ProfileForm() {
         username: "",
     });
     const [touched, setTouched] = useState({ firstName: false, lastName: false, username: false });
+    const [submitError, setSubmitError] = useState<string | null>(null);
     const [selectedUniversity, setSelectedUniversity] = useState<{ id: number; name: string } | null>(null);
     const [selectedCareer, setSelectedCareer] = useState<{ id: number; name: string } | null>(null);
 
@@ -75,16 +77,28 @@ export default function ProfileForm() {
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setTouched({ firstName: true, lastName: true, username: true });
+        setSubmitError(null);
         if (errors.firstName || errors.lastName || errors.username) {
             return;
         }
-        await updateProfile({
-            firstName: form.firstName.trim(),
-            lastName: form.lastName.trim(),
-            username: form.username.trim(),
-            originUniversity: selectedUniversity?.name,
-            career: selectedCareer?.name,
-        });
+        try {
+            await updateProfile({
+                firstName: form.firstName.trim(),
+                lastName: form.lastName.trim(),
+                username: form.username.trim(),
+                originUniversity: selectedUniversity?.name,
+                career: selectedCareer?.name,
+            });
+            if (profile) {
+                navigate(`/profiles/${profile.id}/info`, { replace: true });
+            }
+        } catch (err) {
+            setSubmitError(
+                err instanceof Error
+                    ? err.message
+                    : t("admin.dashboard.error", { defaultValue: "Error guardando los cambios." })
+            );
+        }
     };
 
     if (isLoading) {
@@ -193,6 +207,9 @@ export default function ProfileForm() {
                         </div>
                         {(universitiesQuery.isError || careersQuery.isError) && (
                             <p className="error-message">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</p>
+                        )}
+                        {submitError && (
+                            <p className="error-message">{submitError}</p>
                         )}
 
                         <div className="form-actions">
