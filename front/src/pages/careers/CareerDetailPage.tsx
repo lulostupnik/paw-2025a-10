@@ -1,18 +1,19 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useAdminCareerDetailData } from "@/hooks/useAdminDetailData";
-import type { AdminDetailScenario } from "@/mocks/adminDetail.mock";
-
-const SCENARIO: AdminDetailScenario = "normal";
+import { deleteCareer } from "@/lib/api/careers";
 
 export default function CareerDetailPage() {
     const { t } = useI18n();
+    const navigate = useNavigate();
     const { id } = useParams();
-    const { data: career, isLoading, isError } = useAdminCareerDetailData({ scenario: SCENARIO, id });
+    const { data: career, isLoading, isError } = useAdminCareerDetailData({ id });
     const [modalOpen, setModalOpen] = useState(false);
+    const [actionError, setActionError] = useState<string | null>(null);
+    const [actionSubmitting, setActionSubmitting] = useState(false);
 
     if (!isAdmin()) {
         return <ForbiddenPage />;
@@ -23,6 +24,10 @@ export default function CareerDetailPage() {
     }
 
     if (isError) {
+        return <div className="entity-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+    }
+
+    if (!career) {
         return <div className="entity-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
     }
 
@@ -48,7 +53,7 @@ export default function CareerDetailPage() {
                             </div>
 
                             <div className="detail-actions">
-                                <Link to="/admin?tab=careers" className="btn-text">
+                                <Link to="/admin/careers" className="btn-text">
                                     {t("back")}
                                 </Link>
                                 <div className="hero-cta">
@@ -94,14 +99,28 @@ export default function CareerDetailPage() {
                             <button
                                 type="button"
                                 className="cta-button delete-button"
-                                onClick={() => {
-                                    // TODO: call delete career endpoint.
-                                    setModalOpen(false);
+                                disabled={actionSubmitting}
+                                onClick={async () => {
+                                    if (!id) {
+                                        setActionError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                                        return;
+                                    }
+                                    setActionSubmitting(true);
+                                    setActionError(null);
+                                    try {
+                                        await deleteCareer(id);
+                                        navigate("/admin/careers");
+                                    } catch (error) {
+                                        console.error("Failed to delete career", error);
+                                        setActionError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                                        setActionSubmitting(false);
+                                    }
                                 }}
                             >
                                 {t("interest.delete.confirm")}
                             </button>
                         </div>
+                        {actionError && <p className="error-message">{actionError}</p>}
                     </div>
                 </div>
             )}

@@ -1,8 +1,10 @@
-import { useCallback, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import type { PageResult } from "@/types/pagination";
-import type { ProfileJourney } from "@/types/journey";
-import { getProfileDetailMock, type ProfileScenario } from "@/mocks/profiles.mock";
-import { getProfileScenarioFromSearch } from "@/hooks/profiles/useProfileScenario";
+import type { ProfileJourney, JourneySummary } from "@/types/journey";
+import { getProfileDetail } from "@/lib/api/users";
+import { getJourneyById, resolveJourneySummary } from "@/lib/api/journeys";
+import { getUserId } from "@/lib/auth/auth";
 
 export interface ProfileTripsParams {
     page?: number;
@@ -31,33 +33,46 @@ const paginate = <T,>(items: T[], page: number, pageSize: number): PageResult<T>
     };
 };
 
-const buildJourneys = (profileId: string, scenario: ProfileScenario): ProfileJourney[] => {
-    const profile = getProfileDetailMock(profileId, scenario);
-    return profile.journey ? [profile.journey] : [];
+const parseIdFromUrl = (url?: string | null) => {
+    if (!url) {
+        return null;
+    }
+    const match = url.match(/\/(\d+)(?:\/)?$/);
+    return match ? Number(match[1]) : null;
 };
 
+const buildJourneyTitle = (journey: JourneySummary) =>
+    journey.university ?? journey.city ?? `Journey #${journey.id}`;
+
 export const useProfileTrips = (profileId: string, params: ProfileTripsParams = {}): ProfileTripsResult => {
-    const scenario = getProfileScenarioFromSearch();
-    const [reloadKey, setReloadKey] = useState(0);
-
-    const data = useMemo(() => {
-        // TODO: GET /api/profiles/{profileId}/journeys?page={page}&size={size}
-        // TODO: expected response shape: { content: ProfileJourney[], totalPages, currentPage, pageSize, totalItems }
-        const USE_MOCKS = true;
-        if (USE_MOCKS) {
-            const journeys = buildJourneys(profileId, scenario);
-            return paginate(journeys, params.page ?? 1, params.size ?? 6);
-        }
-        return paginate([], params.page ?? 1, params.size ?? 6);
-    }, [params.page, params.size, profileId, reloadKey, scenario]);
-
-    const refetch = useCallback(() => setReloadKey((value) => value + 1), []);
+    const query = useQuery({
+        queryKey: ["profileTrips", profileId, params],
+        queryFn: async ({ signal }) => {
+            const resolvedId = profileId === "me" ? String(getUserId()) : profileId;
+            const user = await getProfileDetail(resolvedId, signal);
+            const journeyId = parseIdFromUrl(user.journeyUrl);
+            if (!journeyId) {
+                return paginate([], params.page ?? 1, params.size ?? 6);
+            }
+            const journey = await getJourneyById(journeyId, signal);
+            const resolved = await resolveJourneySummary(journey, signal);
+            const items: ProfileJourney[] = [
+                {
+                    id: resolved.id,
+                    title: buildJourneyTitle(resolved),
+                    deleted: false,
+                },
+            ];
+            return paginate(items, params.page ?? 1, params.size ?? 6);
+        },
+        placeholderData: keepPreviousData,
+    });
 
     return {
-        data,
-        isLoading: scenario === "loading",
-        isError: scenario === "error",
-        error: scenario === "error" ? "Failed to load profile journeys" : null,
-        refetch,
+        data: query.data ?? paginate([], params.page ?? 1, params.size ?? 6),
+        isLoading: query.isLoading,
+        isError: query.isError,
+        error: query.isError ? "Failed to load profile journeys" : null,
+        refetch: query.refetch,
     };
 };

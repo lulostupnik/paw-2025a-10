@@ -3,9 +3,9 @@ import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
-import { getCountryOptionsMock, type AdminCreateScenario } from "@/mocks/adminCreate.mock";
-
-const SCENARIO: AdminCreateScenario = "normal";
+import { useQuery } from "@tanstack/react-query";
+import { createCity, listCities } from "@/lib/api/cities";
+import { useNavigate } from "react-router-dom";
 
 interface CityFormState {
     name: string;
@@ -26,13 +26,24 @@ const formatTitleCase = (value: string) =>
 
 export default function CityCreatePage() {
     const { t } = useI18n();
+    const navigate = useNavigate();
     const [form, setForm] = useState(initialForm);
     const [touched, setTouched] = useState({ name: false, country: false });
     const [countryQuery, setCountryQuery] = useState("");
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
     const [countryOpen, setCountryOpen] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const [submitting, setSubmitting] = useState(false);
 
-    const countries = useMemo(() => getCountryOptionsMock(SCENARIO), [SCENARIO]);
+    const countriesQuery = useQuery({
+        queryKey: ["cityCountries"],
+        queryFn: async ({ signal }) => {
+            const cities = await listCities({ page: 0, size: 200 }, signal);
+            const unique = Array.from(new Set(cities.map((item) => item.country).filter(Boolean)));
+            return unique.map((name, index) => ({ id: index + 1, name: name ?? "" }));
+        },
+    });
+    const countries = useMemo(() => countriesQuery.data ?? [], [countriesQuery.data]);
 
     const filteredCountries = useMemo(() => {
         const query = countryQuery.trim().toLowerCase();
@@ -58,7 +69,15 @@ export default function CityCreatePage() {
         if (errors.name || errors.country) {
             return;
         }
-        // TODO: replace with API call to create city, handle success/error state.
+        setSubmitting(true);
+        setSubmitError(null);
+        createCity({ name: form.name.trim(), country: form.country.trim() })
+            .then((created) => navigate(`/cities/${created.id}`))
+            .catch((error) => {
+                console.error("Failed to create city", error);
+                setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            })
+            .finally(() => setSubmitting(false));
     };
 
     const handleCountrySelect = (value: string) => {
@@ -176,13 +195,17 @@ export default function CityCreatePage() {
                             {touched.country && errors.country && <p className="error-message">{errors.country}</p>}
                         </div>
 
-                        <button type="submit" className="form-button">
+                        <button type="submit" className="form-button" disabled={submitting}>
                             {t("createCity.submit")}
                         </button>
                     </form>
+                    {countriesQuery.isError && (
+                        <p className="error-message">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</p>
+                    )}
+                    {submitError && <p className="error-message">{submitError}</p>}
 
                     <div className="auth-footer">
-                        <Link to="/admin?tab=cities" className="auth-link">
+                        <Link to="/admin/cities" className="auth-link">
                             {t("city.back", { defaultValue: "Back to cities" })}
                         </Link>
                     </div>

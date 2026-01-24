@@ -3,9 +3,10 @@ import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
 import { useProfileUpsert } from "@/hooks/profiles/useProfileUpsert";
-import { getProfileInterestsMock } from "@/mocks/profiles.mock";
 import type { ProfileInterest } from "@/types/profile";
 import { classNames } from "@/lib/utils/classNames";
+import { useQuery } from "@tanstack/react-query";
+import { listInterests } from "@/lib/api/interests";
 
 export default function ProfileInterestsEdit() {
     const { t } = useI18n();
@@ -14,6 +15,7 @@ export default function ProfileInterestsEdit() {
     const [query, setQuery] = useState("");
     const [selected, setSelected] = useState<ProfileInterest[]>([]);
     const [open, setOpen] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
 
     useEffect(() => {
         if (profile) {
@@ -21,7 +23,14 @@ export default function ProfileInterestsEdit() {
         }
     }, [profile]);
 
-    const options = useMemo(() => getProfileInterestsMock("normal"), []);
+    const interestsQuery = useQuery({
+        queryKey: ["profileInterestsOptions"],
+        queryFn: async ({ signal }) => listInterests({ page: 0, size: 200 }, signal),
+    });
+    const options = useMemo(
+        () => (interestsQuery.data ?? []).map((item) => ({ id: item.id, name: item.name })),
+        [interestsQuery.data]
+    );
     const filtered = useMemo(() => {
         const normalized = query.trim().toLowerCase();
         if (!normalized) {
@@ -42,7 +51,13 @@ export default function ProfileInterestsEdit() {
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        await updateInterests(selected.map((interest) => interest.id));
+        try {
+            setSubmitError(null);
+            await updateInterests(selected.map((interest) => interest.id));
+        } catch (error) {
+            console.error("Failed to update interests", error);
+            setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+        }
     };
 
     if (isLoading) {
@@ -127,6 +142,10 @@ export default function ProfileInterestsEdit() {
                             {t("editInterests.submit")}
                         </button>
                     </form>
+                    {submitError && <p className="error-message">{submitError}</p>}
+                    {interestsQuery.isError && (
+                        <p className="error-message">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</p>
+                    )}
 
                     <div className="auth-footer">
                         <Link className="auth-link" to="/profiles/me/interests">

@@ -4,7 +4,9 @@ import { useI18n } from "@/lib/i18n";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
 import { useProfileUpsert } from "@/hooks/profiles/useProfileUpsert";
 import SingleSelectAutocomplete from "@/components/profiles/SingleSelectAutocomplete";
-import { getProfileCareersMock, getProfileUniversitiesMock } from "@/mocks/profiles.mock";
+import { useQuery } from "@tanstack/react-query";
+import { listCareers } from "@/lib/api/careers";
+import { listUniversities } from "@/lib/api/universities";
 
 interface ProfileFormState {
     firstName: string;
@@ -26,8 +28,23 @@ export default function ProfileForm() {
     const [selectedUniversity, setSelectedUniversity] = useState<{ id: number; name: string } | null>(null);
     const [selectedCareer, setSelectedCareer] = useState<{ id: number; name: string } | null>(null);
 
-    const universities = useMemo(() => getProfileUniversitiesMock(), []);
-    const careers = useMemo(() => getProfileCareersMock(), []);
+    const universitiesQuery = useQuery({
+        queryKey: ["profileUniversities"],
+        queryFn: async ({ signal }) => listUniversities({ page: 0, size: 200 }, signal),
+    });
+    const careersQuery = useQuery({
+        queryKey: ["profileCareers"],
+        queryFn: async ({ signal }) => listCareers({ page: 0, size: 200 }, signal),
+    });
+
+    const universities = useMemo(
+        () => (universitiesQuery.data ?? []).map((item) => ({ id: item.id, name: item.name })),
+        [universitiesQuery.data]
+    );
+    const careers = useMemo(
+        () => (careersQuery.data ?? []).map((item) => ({ id: item.id, name: item.name })),
+        [careersQuery.data]
+    );
 
     useEffect(() => {
         if (!profile) {
@@ -174,6 +191,9 @@ export default function ProfileForm() {
                                 />
                             </div>
                         </div>
+                        {(universitiesQuery.isError || careersQuery.isError) && (
+                            <p className="error-message">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</p>
+                        )}
 
                         <div className="form-actions">
                             <button type="submit" className="form-button" disabled={isSaving}>

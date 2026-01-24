@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
-import type { AdminCareer } from "@/mocks/adminDashboard.mock";
+import type { AdminCareer } from "@/types/admin";
 import type { PagedResult } from "@/hooks/useAdminDashboardData";
 import AdminPagination from "./AdminPagination";
 import AdminTabHeader from "./AdminTabHeader";

@@ -1,11 +1,11 @@
 import { useMemo, useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
-import { getCityOptionsMock, type AdminCreateScenario } from "@/mocks/adminCreate.mock";
-
-const SCENARIO: AdminCreateScenario = "normal";
+import { useQuery } from "@tanstack/react-query";
+import { createUniversity } from "@/lib/api/universities";
+import { listCities } from "@/lib/api/cities";
 
 interface UniversityFormState {
     name: string;
@@ -28,13 +28,23 @@ const formatTitleCase = (value: string) =>
 
 export default function UniversityCreatePage() {
     const { t } = useI18n();
+    const navigate = useNavigate();
     const [form, setForm] = useState(initialForm);
     const [touched, setTouched] = useState({ name: false, abbreviation: false, city: false });
     const [cityQuery, setCityQuery] = useState("");
     const [selectedCity, setSelectedCity] = useState<string | null>(null);
     const [cityOpen, setCityOpen] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const [submitting, setSubmitting] = useState(false);
 
-    const cities = useMemo(() => getCityOptionsMock(SCENARIO), [SCENARIO]);
+    const citiesQuery = useQuery({
+        queryKey: ["citiesOptions"],
+        queryFn: async ({ signal }) => listCities({ page: 0, size: 200 }, signal),
+    });
+    const cities = useMemo(
+        () => (citiesQuery.data ?? []).map((city) => ({ id: city.id, name: city.name })),
+        [citiesQuery.data]
+    );
 
     const filteredCities = useMemo(() => {
         const query = cityQuery.trim().toLowerCase();
@@ -61,7 +71,19 @@ export default function UniversityCreatePage() {
         if (errors.name || errors.abbreviation || errors.city) {
             return;
         }
-        // TODO: replace with API call to create university, handle success/error state.
+        setSubmitting(true);
+        setSubmitError(null);
+        createUniversity({
+            name: form.name.trim(),
+            abbreviation: form.abbreviation.trim(),
+            city: form.city.trim(),
+        })
+            .then((created) => navigate(`/universities/${created.id}`))
+            .catch((error) => {
+                console.error("Failed to create university", error);
+                setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            })
+            .finally(() => setSubmitting(false));
     };
 
     const handleCitySelect = (value: string) => {
@@ -199,13 +221,17 @@ export default function UniversityCreatePage() {
                             {touched.city && errors.city && <p className="error-message">{errors.city}</p>}
                         </div>
 
-                        <button type="submit" className="form-button">
+                        <button type="submit" className="form-button" disabled={submitting}>
                             {t("createUniversity.submit")}
                         </button>
                     </form>
+                    {citiesQuery.isError && (
+                        <p className="error-message">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</p>
+                    )}
+                    {submitError && <p className="error-message">{submitError}</p>}
 
                     <div className="auth-footer">
-                        <Link to="/admin?tab=universities" className="auth-link">
+                        <Link to="/admin/universities" className="auth-link">
                             {t("university.back", { defaultValue: "Back to universities" })}
                         </Link>
                     </div>

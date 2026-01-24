@@ -114,14 +114,7 @@ export async function login(credentials: LoginCredentials): Promise<Authenticate
         return { id: data.id, username, email, role: normalizedRole };
     }
 
-    const fallbackUser: AuthenticatedUser = {
-        id: null,
-        username: credentials.email,
-        email: credentials.email,
-        role: undefined,
-    };
-    setSession({ username: fallbackUser.username, storage });
-    return fallbackUser;
+    throw new Error("login-missing-user-context");
 }
 
 export interface PasswordResetRequest {

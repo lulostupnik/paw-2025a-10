@@ -1,7 +1,6 @@
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { getCityByUrl, getUserByUrl } from "@/lib/api/journeys";
-import type { EventDetail, EventRating, EventComment, EventAttendee } from "@/mocks/eventDetail.mock";
-import type { ProfileEvent } from "@/types/event";
+import type { EventAttendee, EventComment, EventDetail, EventRating, ProfileEvent } from "@/types/event";
 
 
 export interface EventDto {
@@ -142,32 +141,33 @@ export const mapEventDtoToSummary = (dto: EventDto): EventSummary => ({
     imageUrl: dto.flyerUrl ?? undefined,
 });
 
-export const buildProfileEvent = (events: EventDto[]): ProfileEvent[] => {
-    const profileEvents: ProfileEvent[] = [];
-    events.forEach(async (e) => {
-        const [city, user] = await Promise.all([
-            getCityByUrl(e.cityUrl),
-            getUserByUrl(e.creatorUrl)
-        ])
-        profileEvents.push({
-            id: e.id,
-            title: e.title,
-            description: e.description ?? undefined,
-            date: e.date ?? '',
-            attendeesLimit: typeof e.attendeesLimit === "number" ? e.attendeesLimit : undefined,
-            attendeesCount: typeof e.attendeesCount === "number" ? e.attendeesCount : undefined,
-            isFull: e.isFull ?? false,
-            flyerImageUrl: e.flyerUrl ?? undefined,
-            city: {name: city?.name ?? ""},
-            user: {
-                id: user?.id ?? 0,
-                username: user?.username ?? "",
-                firstname: user?.firstname ?? "",
-                lastname: user?.lastname ?? ""
-            }
+export const buildProfileEvent = async (events: EventDto[], signal?: AbortSignal): Promise<ProfileEvent[]> => {
+    const results = await Promise.all(
+        events.map(async (event) => {
+            const [city, user] = await Promise.all([
+                getCityByUrl(event.cityUrl, signal),
+                getUserByUrl(event.creatorUrl, signal),
+            ]);
+            return {
+                id: event.id,
+                title: event.title,
+                description: event.description ?? undefined,
+                date: event.date ?? "",
+                attendeesLimit: typeof event.attendeesLimit === "number" ? event.attendeesLimit : undefined,
+                attendeesCount: typeof event.attendeesCount === "number" ? event.attendeesCount : undefined,
+                isFull: event.isFull ?? false,
+                flyerImageUrl: event.flyerUrl ?? undefined,
+                city: { name: city?.name ?? "" },
+                user: {
+                    id: user?.id ?? 0,
+                    username: user?.username ?? "",
+                    firstname: user?.firstname ?? "",
+                    lastname: user?.lastname ?? "",
+                },
+            } satisfies ProfileEvent;
         })
-    })
-    return profileEvents;
+    );
+    return results;
 };
 
 export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): Promise<EventDetail> => {
@@ -265,6 +265,22 @@ export const updateEvent = async (
     return response.data;
 };
 
+export const createEvent = async (
+    payload: {
+        city: string;
+        date: string;
+        description: string;
+        title: string;
+        time?: string | null;
+        address?: string | null;
+        attendeesLimit?: number | null;
+    },
+    signal?: AbortSignal
+) => {
+    const response = await apiClient.post<EventDto>("/events", payload, { signal });
+    return response.data;
+};
+
 export const deleteEvent = async (id: number, payload?: { message?: string | null }, signal?: AbortSignal) => {
     await apiClient.delete(`/events/${id}`, { data: payload, signal });
 };
@@ -297,7 +313,8 @@ export const updateEventFlyer = async (eventId: number, flyer: File, signal?: Ab
     formData.append("flyer", flyer);
     const response = await apiClient.put(`/events/${eventId}/flyer`, formData, {
         signal,
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: { Accept: "image/jpeg, image/png, image/webp, */*" },
+        responseType: "arraybuffer",
     });
     return response.data;
 };

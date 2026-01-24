@@ -2,8 +2,9 @@ import { useState, type MouseEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { classNames } from "@/lib/utils/classNames";
 import { useI18n } from "@/lib/i18n";
-import type { AdminUser } from "@/mocks/adminDashboard.mock";
+import type { AdminUser } from "@/types/admin";
 import type { PagedResult } from "@/hooks/useAdminDashboardData";
+import { updateUserBlocked } from "@/lib/api/users";
 import AdminPagination from "./AdminPagination";
 import AdminTabHeader from "./AdminTabHeader";
 import ClickableRow from "./ClickableRow";
@@ -18,6 +19,7 @@ interface UsersTabProps {
     isError: boolean;
     blockIconSrc: string;
     unblockIconSrc: string;
+    onRefresh: () => void;
 }
 
 type UserAction = "block" | "unblock";
@@ -37,15 +39,22 @@ export default function UsersTab({
     isError,
     blockIconSrc,
     unblockIconSrc,
+    onRefresh,
 }: UsersTabProps) {
     const navigate = useNavigate();
     const { t } = useI18n();
     const [modalState, setModalState] = useState<ModalState | null>(null);
+    const [actionError, setActionError] = useState<string | null>(null);
+    const [actionSubmitting, setActionSubmitting] = useState(false);
     const isEmpty = !isLoading && !isError && data.content.length === 0;
     const loadingLabel = t("admin.dashboard.loading", { defaultValue: "Cargando datos..." });
     const errorLabel = t("admin.dashboard.error", { defaultValue: "No se pudieron cargar los datos." });
 
-    const closeModal = () => setModalState(null);
+    const closeModal = () => {
+        setModalState(null);
+        setActionError(null);
+        setActionSubmitting(false);
+    };
 
     const handleActionClick = (event: MouseEvent<HTMLButtonElement>, user: AdminUser, action: UserAction) => {
         event.stopPropagation();
@@ -166,14 +175,25 @@ export default function UsersTab({
                                     "cta-button",
                                     modalState.action === "block" ? "delete-button" : "primary"
                                 )}
-                                onClick={() => {
-                                    // TODO: call the real block/unblock endpoint and refresh data.
-                                    closeModal();
+                                disabled={actionSubmitting}
+                                onClick={async () => {
+                                    setActionError(null);
+                                    setActionSubmitting(true);
+                                    try {
+                                        await updateUserBlocked(modalState.user.id, modalState.action === "block");
+                                        onRefresh();
+                                        closeModal();
+                                    } catch (error) {
+                                        console.error("Failed to update user status", error);
+                                        setActionError(t("admin.dashboard.error", { defaultValue: "No se pudieron cargar los datos." }));
+                                        setActionSubmitting(false);
+                                    }
                                 }}
                             >
                                 {modalState.action === "block" ? t("user.block.confirm") : t("user.unblock.confirm")}
                             </button>
                         </div>
+                        {actionError && <p className="error-message">{actionError}</p>}
                     </div>
                 </div>
             )}

@@ -25,6 +25,15 @@ const INITIAL_FORM: JourneyFormState = {
     description: "",
 };
 
+const addDays = (dateValue: string, days: number) => {
+    const [year, month, day] = dateValue.split("-").map(Number);
+    if (!year || !month || !day) {
+        return "";
+    }
+    const nextDate = new Date(Date.UTC(year, month - 1, day + days));
+    return nextDate.toISOString().slice(0, 10);
+};
+
 export default function JourneyCreatePage() {
     const navigate = useNavigate();
     const { t } = useI18n();
@@ -57,7 +66,7 @@ export default function JourneyCreatePage() {
         if (!state.endDate) {
             nextErrors.endDate = t("journey.create.validation.endDate");
         }
-        if (state.startDate && state.endDate && state.startDate > state.endDate) {
+        if (state.startDate && state.endDate && state.startDate >= state.endDate) {
             nextErrors.endDate = t("journey.create.validation.range");
         }
         if (!state.destination) {
@@ -158,7 +167,7 @@ export default function JourneyCreatePage() {
                                 onChange={handleDateChange("endDate")}
                                 onBlur={() => markTouched("endDate")}
                                 placeholder={t("common.date.placeholder")}
-                                min={form.startDate || undefined}
+                                min={form.startDate ? addDays(form.startDate, 1) : undefined}
                             />
                             {touched.endDate && errors.endDate && (
                                 <p className="form-field__text form-field__text--error">{errors.endDate}</p>

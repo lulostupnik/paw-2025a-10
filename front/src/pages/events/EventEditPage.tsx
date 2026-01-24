@@ -256,6 +256,9 @@ export default function EventEditPage() {
     if (isError) {
         return <div className="event-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
     }
+    if (!data) {
+        return <div className="event-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+    }
 
     return (
         <div className="page-shell event-create-page">

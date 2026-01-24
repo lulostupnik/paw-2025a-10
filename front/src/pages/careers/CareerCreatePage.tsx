@@ -1,8 +1,9 @@
 import { useMemo, useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
+import { createCareer } from "@/lib/api/careers";
 
 interface CareerFormState {
     name: string;
@@ -21,8 +22,11 @@ const formatTitleCase = (value: string) =>
 
 export default function CareerCreatePage() {
     const { t } = useI18n();
+    const navigate = useNavigate();
     const [form, setForm] = useState(initialForm);
     const [touched, setTouched] = useState({ name: false });
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const [submitting, setSubmitting] = useState(false);
 
     const errors = useMemo(
         () => ({
@@ -37,7 +41,15 @@ export default function CareerCreatePage() {
         if (errors.name) {
             return;
         }
-        // TODO: replace with API call to create career, handle success/error state.
+        setSubmitting(true);
+        setSubmitError(null);
+        createCareer({ name: form.name.trim() })
+            .then((created) => navigate(`/careers/${created.id}`))
+            .catch((error) => {
+                console.error("Failed to create career", error);
+                setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            })
+            .finally(() => setSubmitting(false));
     };
 
     if (!isAdmin()) {
@@ -80,13 +92,14 @@ export default function CareerCreatePage() {
                             {touched.name && errors.name && <p className="error-message">{errors.name}</p>}
                         </div>
 
-                        <button type="submit" className="form-button">
+                        <button type="submit" className="form-button" disabled={submitting}>
                             {t("createCareer.submit", { defaultValue: "Create Career" })}
                         </button>
                     </form>
+                    {submitError && <p className="error-message">{submitError}</p>}
 
                     <div className="auth-footer">
-                        <Link to="/admin?tab=careers" className="auth-link">
+                        <Link to="/admin/careers" className="auth-link">
                             {t("career.back", { defaultValue: "Back to careers" })}
                         </Link>
                     </div>

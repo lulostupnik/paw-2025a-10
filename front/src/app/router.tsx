@@ -110,6 +110,7 @@ export const router = createBrowserRouter([
                     { path: "profiles/me/change-password", element: <ProfilePasswordForm /> },
                     { path: "profiles/me/interests/edit", element: <ProfileInterestsEdit /> },
                     { path: "admin", element: <AdminPage /> },
+                    { path: "admin/:tab", element: <AdminPage /> },
                     { path: "reports/:id", element: <ReportDetailPage /> },
                     { path: "reports/journeys/:id/create", element: <ReportCreatePage reportType="JOURNEY" /> },
                     { path: "reports/events/:id/create", element: <ReportCreatePage reportType="EVENT" /> },

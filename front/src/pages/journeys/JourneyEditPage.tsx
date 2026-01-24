@@ -26,6 +26,15 @@ const INITIAL_FORM: JourneyFormState = {
     description: "",
 };
 
+const addDays = (dateValue: string, days: number) => {
+    const [year, month, day] = dateValue.split("-").map(Number);
+    if (!year || !month || !day) {
+        return "";
+    }
+    const nextDate = new Date(Date.UTC(year, month - 1, day + days));
+    return nextDate.toISOString().slice(0, 10);
+};
+
 export default function JourneyEditPage() {
     const { t } = useI18n();
     const navigate = useNavigate();
@@ -77,7 +86,7 @@ export default function JourneyEditPage() {
             if (!state.endDate) {
                 nextErrors.endDate = t("journey.create.validation.endDate");
             }
-            if (state.startDate && state.endDate && state.startDate > state.endDate) {
+            if (state.startDate && state.endDate && state.startDate >= state.endDate) {
                 nextErrors.endDate = t("journey.create.validation.range");
             }
             if (!state.destination) {
@@ -154,6 +163,9 @@ export default function JourneyEditPage() {
     if (isError) {
         return <div className="journey-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
     }
+    if (!data) {
+        return <div className="journey-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+    }
 
     return (
         <div className="page-shell journey-create-page">
@@ -198,7 +210,7 @@ export default function JourneyEditPage() {
                                 onChange={handleDateChange("endDate")}
                                 onBlur={() => markTouched("endDate")}
                                 placeholder={t("common.date.placeholder")}
-                                min={form.startDate || undefined}
+                                min={form.startDate ? addDays(form.startDate, 1) : undefined}
                             />
                             {touched.endDate && errors.endDate && (
                                 <p className="form-field__text form-field__text--error">{errors.endDate}</p>

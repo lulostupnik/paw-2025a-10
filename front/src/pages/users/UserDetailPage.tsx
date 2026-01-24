@@ -1,12 +1,11 @@
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useAdminUserDetailData } from "@/hooks/useAdminDetailData";
-import type { AdminDetailScenario } from "@/mocks/adminDetail.mock";
-
-const SCENARIO: AdminDetailScenario = "normal";
+import { updateUserBlocked } from "@/lib/api/users";
 
 const getInitials = (firstname: string, lastname: string) =>
     [firstname, lastname]
@@ -17,9 +16,12 @@ const getInitials = (firstname: string, lastname: string) =>
 
 export default function UserDetailPage() {
     const { t } = useI18n();
+    const queryClient = useQueryClient();
     const { id } = useParams();
-    const { data: user, isLoading, isError } = useAdminUserDetailData({ scenario: SCENARIO, id });
+    const { data: user, isLoading, isError } = useAdminUserDetailData({ id });
     const [modalOpen, setModalOpen] = useState(false);
+    const [actionError, setActionError] = useState<string | null>(null);
+    const [actionSubmitting, setActionSubmitting] = useState(false);
 
     if (!isAdmin()) {
         return <ForbiddenPage />;
@@ -30,6 +32,10 @@ export default function UserDetailPage() {
     }
 
     if (isError) {
+        return <div className="entity-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+    }
+
+    if (!user) {
         return <div className="entity-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
     }
 
@@ -100,7 +106,7 @@ export default function UserDetailPage() {
                             </div>
 
                             <div className="detail-actions">
-                                <Link to="/admin?tab=users" className="btn-text">
+                                <Link to="/admin/users" className="btn-text">
                                     {t("users.back")}
                                 </Link>
                                 <button
@@ -151,14 +157,29 @@ export default function UserDetailPage() {
                             <button
                                 type="button"
                                 className={`cta-button ${user.blocked ? "primary" : "delete-button"}`}
-                                onClick={() => {
-                                    // TODO: call block/unblock endpoint for user id.
-                                    setModalOpen(false);
+                                disabled={actionSubmitting}
+                                onClick={async () => {
+                                    if (!id) {
+                                        setActionError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                                        return;
+                                    }
+                                    setActionSubmitting(true);
+                                    setActionError(null);
+                                    try {
+                                        await updateUserBlocked(Number(id), !user.blocked);
+                                        queryClient.invalidateQueries({ queryKey: ["adminUserDetail", id] });
+                                        setModalOpen(false);
+                                    } catch (error) {
+                                        console.error("Failed to update user status", error);
+                                        setActionError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                                        setActionSubmitting(false);
+                                    }
                                 }}
                             >
                                 {user.blocked ? t("user.unblock.confirm") : t("user.block.confirm")}
                             </button>
                         </div>
+                        {actionError && <p className="error-message">{actionError}</p>}
                     </div>
                 </div>
             )}

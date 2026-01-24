@@ -1,17 +1,21 @@
-import { useMemo } from "react";
-import {
-    type AdminCareer,
-    type AdminCity,
-    type AdminDashboardMockData,
-    type AdminDashboardScenario,
-    type AdminEvent,
-    type AdminInterest,
-    type AdminJourney,
-    type AdminReport,
-    type AdminUniversity,
-    type AdminUser,
-    getAdminDashboardMock,
-} from "@/mocks/adminDashboard.mock";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import type {
+    AdminCareer,
+    AdminCity,
+    AdminEvent,
+    AdminInterest,
+    AdminJourney,
+    AdminUniversity,
+    AdminUser,
+} from "@/types/admin";
+import { listCareers } from "@/lib/api/careers";
+import { listCities } from "@/lib/api/cities";
+import { fetchEvents } from "@/lib/api/events";
+import { listInterests } from "@/lib/api/interests";
+import { getJourneys, resolveJourneySummary } from "@/lib/api/journeys";
+import { listUniversities } from "@/lib/api/universities";
+import { getCityByUrl, getUserByUrl, getUniversityByUrl } from "@/lib/api/journeys";
+import { listUsers } from "@/lib/api/users";
 
 export interface PagedResult<T> {
     content: T[];
@@ -29,140 +33,176 @@ export interface AdminDashboardData {
     interests: PagedResult<AdminInterest>;
     cities: PagedResult<AdminCity>;
     careers: PagedResult<AdminCareer>;
-    reports: PagedResult<AdminReport>;
+    reports: PagedResult<never>;
 }
 
 interface AdminDashboardDataParams {
-    scenario?: AdminDashboardScenario;
     search?: string;
     page?: number;
     pageSize?: number;
-    overrides?: Partial<AdminDashboardMockData>;
 }
 
-const normalize = (value: string) => value.toLowerCase();
-const includesText = (value: string, query: string) => normalize(value).includes(query);
-
-const filterJourneys = (items: AdminJourney[], query: string) =>
-    items.filter(
-        (journey) =>
-            includesText(journey.user.username, query) ||
-            includesText(journey.destinationUniversity.name, query) ||
-            includesText(journey.destinationUniversity.city, query)
-    );
-
-const filterUsers = (items: AdminUser[], query: string) =>
-    items.filter(
-        (user) =>
-            includesText(user.firstname, query) ||
-            includesText(user.email, query) ||
-            includesText(user.university, query)
-    );
-
-const filterEvents = (items: AdminEvent[], query: string) =>
-    items.filter(
-        (event) =>
-            includesText(event.title, query) ||
-            includesText(event.user.username, query) ||
-            includesText(event.city, query)
-    );
-
-const filterUniversities = (items: AdminUniversity[], query: string) =>
-    items.filter(
-        (university) =>
-            includesText(university.name, query) ||
-            includesText(university.abbreviation, query) ||
-            includesText(university.city, query)
-    );
-
-const filterInterests = (items: AdminInterest[], query: string) =>
-    items.filter((interest) => includesText(interest.name, query));
-
-const filterCities = (items: AdminCity[], query: string) =>
-    items.filter((city) => includesText(city.name, query) || includesText(city.country, query));
-
-const filterCareers = (items: AdminCareer[], query: string) =>
-    items.filter((career) => includesText(career.name, query));
-
-const filterReports = (items: AdminReport[], query: string) =>
-    items.filter(
-        (report) =>
-            includesText(report.reportedUser.username, query) ||
-            includesText(report.reportingUser.username, query) ||
-            includesText(report.description, query) ||
-            includesText(report.reason, query) ||
-            includesText(report.status, query)
-    );
-
-const paginate = <T>(items: T[], page: number, pageSize: number): PagedResult<T> => {
+const buildPagedResult = <T>(items: T[], page: number, pageSize: number): PagedResult<T> => {
     const safePageSize = Math.max(1, pageSize);
     const totalItems = items.length;
-    const totalPages = Math.ceil(totalItems / safePageSize);
+    const totalPages = items.length < safePageSize ? page : page + 1;
     const safePage = Math.min(Math.max(page, 1), Math.max(totalPages, 1));
-    const start = (safePage - 1) * safePageSize;
-    const content = items.slice(start, start + safePageSize);
-
+    const content = items;
     return {
         content,
         totalPages,
-        currentPage: totalPages === 0 ? 1 : safePage,
+        currentPage: safePage,
         pageSize: safePageSize,
         totalItems,
     };
 };
 
 export const useAdminDashboardData = ({
-    scenario = "normal",
     search = "",
     page = 1,
     pageSize = 10,
-    overrides,
 }: AdminDashboardDataParams = {}) => {
-    const query = normalize(search.trim());
-    // TODO: GET /api/admin/dashboard?search={search}&page={page}&pageSize={pageSize}
-    // TODO: expected response shape: AdminDashboardData
-    const USE_MOCKS = true;
-    const baseData = useMemo(() => getAdminDashboardMock(scenario), [scenario]);
-    const data = useMemo(() => ({ ...baseData, ...overrides }), [baseData, overrides]);
+    const safePage = Math.max(1, page);
+    const safePageSize = Math.max(1, pageSize);
+    const params = {
+        search: search.trim() || undefined,
+        page: safePage - 1,
+        size: safePageSize,
+    };
 
-    // TODO: move filtering, sorting, and pagination to the API layer once available.
-    const filteredData = useMemo(() => {
-        if (!query) {
-            return data;
-        }
+    const query = useQuery({
+        queryKey: ["adminDashboard", params],
+        queryFn: async ({ signal }) => {
+            const [
+                journeys,
+                users,
+                events,
+                universities,
+                interests,
+                cities,
+                careers,
+            ] = await Promise.all([
+                getJourneys(params, signal),
+                listUsers(params, signal),
+                fetchEvents(params, signal),
+                listUniversities(params, signal),
+                listInterests(params, signal),
+                listCities(params, signal),
+                listCareers(params, signal),
+            ]);
 
-        return {
-            ...data,
-            journeys: filterJourneys(data.journeys, query),
-            users: filterUsers(data.users, query),
-            events: filterEvents(data.events, query),
-            universities: filterUniversities(data.universities, query),
-            interests: filterInterests(data.interests, query),
-            cities: filterCities(data.cities, query),
-            careers: filterCareers(data.careers, query),
-            reports: filterReports(data.reports, query),
-        };
-    }, [data, query]);
+            const resolvedJourneys = await Promise.all(
+                journeys.map((journey) => resolveJourneySummary(journey, signal))
+            );
+            const adminJourneys = resolvedJourneys.map(
+                (journey) =>
+                    ({
+                        id: journey.id,
+                        user: { username: journey.userName ?? "—" },
+                        destinationUniversity: {
+                            name: journey.university ?? "—",
+                            city: journey.city ?? "—",
+                        },
+                        startDate: journey.startDate,
+                        endDate: journey.endDate,
+                    }) satisfies AdminJourney
+            );
 
-    const paged = useMemo<AdminDashboardData>(() => {
-        if (!USE_MOCKS) {
-            // TODO: Replace in-memory pagination when backend handles it.
-        }
-        return {
-            journeys: paginate(filteredData.journeys, page, pageSize),
-            users: paginate(filteredData.users, page, pageSize),
-            events: paginate(filteredData.events, page, pageSize),
-            universities: paginate(filteredData.universities, page, pageSize),
-            interests: paginate(filteredData.interests, page, pageSize),
-            cities: paginate(filteredData.cities, page, pageSize),
-            careers: paginate(filteredData.careers, page, pageSize),
-            reports: paginate(filteredData.reports, page, pageSize),
-        };
-    }, [filteredData, page, pageSize]);
+            const adminUsers = await Promise.all(
+                users.map(async (user) => {
+                    const university = await getUniversityByUrl(user.universityUrl, signal);
+                    return {
+                        id: user.id,
+                        firstname: user.firstname ?? "",
+                        email: user.email ?? "",
+                        university: university?.name ?? "",
+                        blocked: user.active === false,
+                    } satisfies AdminUser;
+                })
+            );
+
+            const adminEvents = await Promise.all(
+                events.map(async (event) => {
+                    const [creator, city] = await Promise.all([
+                        getUserByUrl(event.creatorUrl, signal),
+                        getCityByUrl(event.cityUrl, signal),
+                    ]);
+                    return {
+                        id: event.id,
+                        title: event.title,
+                        user: { username: creator?.username ?? "—" },
+                        city: city?.name ?? "—",
+                        date: event.date ?? "",
+                        attendeesCount: typeof event.attendeesCount === "number" ? event.attendeesCount : 0,
+                        attendeesLimit: event.attendeesLimit ?? null,
+                    } satisfies AdminEvent;
+                })
+            );
+
+            const adminUniversities = await Promise.all(
+                universities.map(async (university) => {
+                    const city = await getCityByUrl(university.cityUrl, signal);
+                    return {
+                        id: university.id,
+                        name: university.name,
+                        abbreviation: university.abbreviation,
+                        city: city?.name ?? "",
+                    } satisfies AdminUniversity;
+                })
+            );
+
+            const adminInterests = interests.map(
+                (interest) =>
+                    ({
+                        id: interest.id,
+                        name: interest.name,
+                    }) satisfies AdminInterest
+            );
+
+            const adminCities = cities.map(
+                (city) =>
+                    ({
+                        id: city.id,
+                        name: city.name,
+                        country: city.country ?? "",
+                    }) satisfies AdminCity
+            );
+
+            const adminCareers = careers.map(
+                (career) =>
+                    ({
+                        id: career.id,
+                        name: career.name,
+                    }) satisfies AdminCareer
+            );
+
+            return {
+                journeys: buildPagedResult(adminJourneys, safePage, safePageSize),
+                users: buildPagedResult(adminUsers, safePage, safePageSize),
+                events: buildPagedResult(adminEvents, safePage, safePageSize),
+                universities: buildPagedResult(adminUniversities, safePage, safePageSize),
+                interests: buildPagedResult(adminInterests, safePage, safePageSize),
+                cities: buildPagedResult(adminCities, safePage, safePageSize),
+                careers: buildPagedResult(adminCareers, safePage, safePageSize),
+                reports: buildPagedResult([], safePage, safePageSize),
+            } satisfies AdminDashboardData;
+        },
+        placeholderData: keepPreviousData,
+    });
 
     return {
-        data: paged,
-        isLoading: scenario === "loading",
-        isError: scenario === "error",
+        data: query.data ?? {
+            journeys: buildPagedResult([], safePage, safePageSize),
+            users: buildPagedResult([], safePage, safePageSize),
+            events: buildPagedResult([], safePage, safePageSize),
+            universities: buildPagedResult([], safePage, safePageSize),
+            interests: buildPagedResult([], safePage, safePageSize),
+            cities: buildPagedResult([], safePage, safePageSize),
+            careers: buildPagedResult([], safePage, safePageSize),
+            reports: buildPagedResult([], safePage, safePageSize),
+        },
+        isLoading: query.isLoading,
+        isError: query.isError,
+        refetch: query.refetch,
     };
 };

@@ -58,6 +58,9 @@ export default function JourneyTipCreatePage() {
     if (isError) {
         return <div className="journey-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
     }
+    if (!data) {
+        return <div className="journey-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+    }
 
     return (
         <div className="journey-detail-page journey-tip-form-page">

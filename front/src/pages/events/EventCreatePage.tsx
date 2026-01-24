@@ -8,6 +8,7 @@ import { searchCities, type CatalogOption } from "@/lib/api/catalog";
 import { useNavigate } from "react-router-dom";
 import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField";
 import { useI18n } from "@/lib/i18n";
+import { createEvent, updateEventFlyer } from "@/lib/api/events";
 
 const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png"];
 const ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png"];
@@ -53,6 +54,7 @@ export default function EventCreatePage() {
     const [submitting, setSubmitting] = useState(false);
     const [dragging, setDragging] = useState(false);
     const [cityQuery, setCityQuery] = useState("");
+    const [submitError, setSubmitError] = useState<string | null>(null);
 
     const markTouched = useCallback((field: FormField) => {
         setTouched((prev) => ({ ...prev, [field]: true }));
@@ -155,7 +157,7 @@ export default function EventCreatePage() {
         [markTouched, t]
     );
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const nextErrors = validate(form);
         const touchedAll: TouchedState = {
@@ -173,21 +175,33 @@ export default function EventCreatePage() {
         if (Object.keys(nextErrors).length > 0) {
             return;
         }
+        setSubmitError(null);
 
-        setSubmitting(true);
-        window.setTimeout(() => {
-            console.info("Submitting event", {
-                ...form,
-                participantLimit: form.unlimited ? null : Number(form.participantLimit),
-                cityId: form.city?.id,
+        try {
+            setSubmitting(true);
+            const eventResponse = await createEvent({
+                city: form.city?.name ?? "",
+                date: form.date,
+                description: form.description.trim(),
+                title: form.name.trim(),
+                time: form.allDay ? null : form.time,
+                address: form.address.trim() || null,
+                attendeesLimit: form.unlimited ? null : Number(form.participantLimit),
             });
-            setSubmitting(false);
+            if (form.flyer) {
+                await updateEventFlyer(eventResponse.id, form.flyer);
+            }
             setForm({ ...INITIAL_FORM });
             setCityQuery("");
             setTouched({});
             setErrors({});
-            navigate("/events");
-        }, 500);
+            navigate(`/events/${eventResponse.id}`);
+        } catch (error) {
+            console.error("Failed to create event", error);
+            setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const handleCancel = () => {
@@ -417,6 +431,8 @@ export default function EventCreatePage() {
                             <p className="form-field__text form-field__text--error">{errors.flyer}</p>
                         )}
                     </div>
+
+                    {submitError && <p className="form-field__text form-field__text--error">{submitError}</p>}
 
                     <div className="event-form__actions">
                         <Button type="button" variant="ghost" onClick={handleCancel} disabled={submitting}>

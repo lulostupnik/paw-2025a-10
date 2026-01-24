@@ -46,7 +46,8 @@ public class UserDto {
         // dto.preferredLanguage = user.getPreferredLanguage();
         dto.careerUrl = UriUtils.getCareerUri(uriInfo, user.getCareer().getId());
         dto.universityUrl = UriUtils.getUniversityUri(uriInfo, user.getUniversity().getId());
-        dto.journeyUrl = UriUtils.getJourneyUri(uriInfo, user.getJourney().getId());
+        if(user.getJourney() != null)
+            dto.journeyUrl = UriUtils.getJourneyUri(uriInfo, user.getJourney().getId());
         dto.selfUrl = UriUtils.getUserUri(uriInfo, user.getId());
 
         return dto;

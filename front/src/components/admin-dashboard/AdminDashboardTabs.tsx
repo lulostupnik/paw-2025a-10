@@ -1,4 +1,4 @@
-import type { AdminDashboardTab } from "@/mocks/adminDashboard.mock";
+import type { AdminDashboardTab } from "@/types/admin";
 import { classNames } from "@/lib/utils/classNames";
 
 interface AdminDashboardTabsProps {

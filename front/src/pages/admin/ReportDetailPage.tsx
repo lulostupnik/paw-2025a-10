@@ -21,7 +21,7 @@ type ReportReason =
     | "OTHER"
     | string;
 
-const REPORTS_LIST_PATH = "/admin?tab=reports";
+const REPORTS_LIST_PATH = "/admin/reports";
 
 const formatDateTime = (value: string, locale: string) => {
     const date = new Date(value);

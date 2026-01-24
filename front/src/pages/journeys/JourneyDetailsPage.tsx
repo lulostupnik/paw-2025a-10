@@ -7,12 +7,9 @@ import CreatorCard from "@/components/detail/CreatorCard";
 import AdminPagination from "@/components/admin-dashboard/AdminPagination";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
 import { createJourneyResponse } from "@/lib/api/journeys";
-import type { JourneyDetailScenario } from "@/mocks/journeys.mock";
 import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
 import { useAuthGate } from "@/hooks/useAuthGate";
 import LoginRequiredModal from "@/components/LoginRequiredModal";
-
-const SCENARIO: JourneyDetailScenario = "normal";
 
 const paginate = <T,>(items: T[], page: number, pageSize: number) => {
     const totalItems = items.length;
@@ -56,7 +53,7 @@ export default function JourneyDetailPage() {
     const { id } = useParams();
     const queryClient = useQueryClient();
     const gate = useAuthGate();
-    const { data, isLoading, isError, isNotFound, refetch, isFetching } = useJourneyDetailData({ scenario: SCENARIO, journeyId: id });
+    const { data, isLoading, isError, isNotFound, refetch, isFetching } = useJourneyDetailData({ journeyId: id });
     const [actionMenuOpen, setActionMenuOpen] = useState(false);
     const [commentsOpen, setCommentsOpen] = useState(true);
     const [eventsOpen, setEventsOpen] = useState(true);
@@ -71,13 +68,19 @@ export default function JourneyDetailPage() {
     const [replySubmitting, setReplySubmitting] = useState(false);
     const [replySuccess, setReplySuccess] = useState<string | null>(null);
 
-    const isOwner = data.user?.id === getUserId();
+    const isOwner = data?.user?.id === getUserId();
     const admin = isAdmin();
 
-    const pagedInterests = useMemo(() => paginate(data.interests, interestsPage, 8), [data.interests, interestsPage]);
-    const pagedEvents = useMemo(() => paginate(data.events, eventsPage, 6), [data.events, eventsPage]);
-    const pagedTips = useMemo(() => paginate(data.tips, tipsPage, 10), [data.tips, tipsPage]);
-    const pagedComments = useMemo(() => paginate(data.comments, commentsPage, 4), [data.comments, commentsPage]);
+    const pagedInterests = useMemo(
+        () => paginate(data?.interests ?? [], interestsPage, 8),
+        [data?.interests, interestsPage]
+    );
+    const pagedEvents = useMemo(() => paginate(data?.events ?? [], eventsPage, 6), [data?.events, eventsPage]);
+    const pagedTips = useMemo(() => paginate(data?.tips ?? [], tipsPage, 10), [data?.tips, tipsPage]);
+    const pagedComments = useMemo(
+        () => paginate(data?.comments ?? [], commentsPage, 4),
+        [data?.comments, commentsPage]
+    );
 
     if (isLoading) {
         return <div className="journey-detail-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
@@ -101,6 +104,9 @@ export default function JourneyDetailPage() {
     }
 
     if (isError) {
+        return <div className="journey-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+    }
+    if (!data) {
         return <div className="journey-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
     }
 

@@ -1,12 +1,10 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useAdminCareerDetailData } from "@/hooks/useAdminDetailData";
-import type { AdminDetailScenario } from "@/mocks/adminDetail.mock";
-
-const SCENARIO: AdminDetailScenario = "normal";
+import { updateCareer } from "@/lib/api/careers";
 
 interface CareerFormState {
     name: string;
@@ -21,10 +19,13 @@ const formatTitleCase = (value: string) =>
 
 export default function CareerEditPage() {
     const { t } = useI18n();
+    const navigate = useNavigate();
     const { id } = useParams();
-    const { data: career, isLoading, isError } = useAdminCareerDetailData({ scenario: SCENARIO });
+    const { data: career, isLoading, isError } = useAdminCareerDetailData({ id });
     const [form, setForm] = useState<CareerFormState>({ name: "" });
     const [touched, setTouched] = useState({ name: false });
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         if (!career) {
@@ -46,7 +47,19 @@ export default function CareerEditPage() {
         if (errors.name) {
             return;
         }
-        // TODO: replace with API call to update career by id.
+        if (!id) {
+            setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            return;
+        }
+        setSubmitting(true);
+        setSubmitError(null);
+        updateCareer(id, { name: form.name.trim() })
+            .then(() => navigate(`/careers/${id}`))
+            .catch((error) => {
+                console.error("Failed to update career", error);
+                setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            })
+            .finally(() => setSubmitting(false));
     };
 
     if (!isAdmin()) {
@@ -58,6 +71,9 @@ export default function CareerEditPage() {
     }
 
     if (isError) {
+        return <div className="entity-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+    }
+    if (!career) {
         return <div className="entity-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
     }
 
@@ -97,10 +113,11 @@ export default function CareerEditPage() {
                             {touched.name && errors.name && <p className="error-message">{errors.name}</p>}
                         </div>
 
-                        <button type="submit" className="form-button">
+                        <button type="submit" className="form-button" disabled={submitting}>
                             {t("editCareer.submit", { defaultValue: "Update Career" })}
                         </button>
                     </form>
+                    {submitError && <p className="error-message">{submitError}</p>}
 
                     <div className="auth-footer">
                         <Link to={`/careers/${id}`} className="auth-link">

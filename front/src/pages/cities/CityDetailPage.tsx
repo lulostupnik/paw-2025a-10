@@ -1,18 +1,19 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useAdminCityDetailData } from "@/hooks/useAdminDetailData";
-import type { AdminDetailScenario } from "@/mocks/adminDetail.mock";
-
-const SCENARIO: AdminDetailScenario = "normal";
+import { deleteCity } from "@/lib/api/cities";
 
 export default function CityDetailPage() {
     const { t } = useI18n();
+    const navigate = useNavigate();
     const { id } = useParams();
-    const { data: city, isLoading, isError } = useAdminCityDetailData({ scenario: SCENARIO, id });
+    const { data: city, isLoading, isError } = useAdminCityDetailData({ id });
     const [modalOpen, setModalOpen] = useState(false);
+    const [actionError, setActionError] = useState<string | null>(null);
+    const [actionSubmitting, setActionSubmitting] = useState(false);
 
     if (!isAdmin()) {
         return <ForbiddenPage />;
@@ -23,6 +24,10 @@ export default function CityDetailPage() {
     }
 
     if (isError) {
+        return <div className="entity-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+    }
+
+    if (!city) {
         return <div className="entity-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
     }
 
@@ -53,7 +58,7 @@ export default function CityDetailPage() {
                             </div>
 
                             <div className="detail-actions">
-                                <Link to="/admin?tab=cities" className="btn-text">
+                                <Link to="/admin/cities" className="btn-text">
                                     {t("back")}
                                 </Link>
                                 <div className="hero-cta">
@@ -99,14 +104,28 @@ export default function CityDetailPage() {
                             <button
                                 type="button"
                                 className="cta-button delete-button"
-                                onClick={() => {
-                                    // TODO: call delete city endpoint.
-                                    setModalOpen(false);
+                                disabled={actionSubmitting}
+                                onClick={async () => {
+                                    if (!id) {
+                                        setActionError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                                        return;
+                                    }
+                                    setActionSubmitting(true);
+                                    setActionError(null);
+                                    try {
+                                        await deleteCity(id);
+                                        navigate("/admin/cities");
+                                    } catch (error) {
+                                        console.error("Failed to delete city", error);
+                                        setActionError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                                        setActionSubmitting(false);
+                                    }
                                 }}
                             >
                                 {t("city.delete.confirm")}
                             </button>
                         </div>
+                        {actionError && <p className="error-message">{actionError}</p>}
                     </div>
                 </div>
             )}

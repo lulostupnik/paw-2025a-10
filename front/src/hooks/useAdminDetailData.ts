@@ -1,101 +1,134 @@
-import { useMemo } from "react";
-import {
-    type AdminCareerDetail,
-    type AdminCityDetail,
-    type AdminDetailScenario,
-    type AdminInterestDetail,
-    type AdminUniversityDetail,
-    type AdminUserDetail,
-    getAdminCareerDetailMock,
-    getAdminCityDetailMock,
-    getAdminInterestDetailMock,
-    getAdminUniversityDetailMock,
-    getAdminUserDetailMock,
-} from "@/mocks/adminDetail.mock";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import type {
+    AdminCareerDetail,
+    AdminCityDetail,
+    AdminInterestDetail,
+    AdminUniversityDetail,
+    AdminUserDetail,
+} from "@/types/admin";
+import { getCareerById } from "@/lib/api/careers";
+import { getCityById } from "@/lib/api/cities";
+import { getInterestById } from "@/lib/api/interests";
+import { getUniversityById, getUniversityByUrl } from "@/lib/api/universities";
+import { getCareerByUrl, getUserById } from "@/lib/api/users";
+import { getCityByUrl } from "@/lib/api/journeys";
 
 interface AdminDetailParams {
-    scenario?: AdminDetailScenario;
     id?: string;
 }
 
-const useAdminDetailScenario = ({ scenario = "normal" }: AdminDetailParams = {}) => {
-    return {
-        isLoading: scenario === "loading",
-        isError: scenario === "error",
-    };
-};
-
 export const useAdminUserDetailData = (params?: AdminDetailParams) => {
-    const scenario = params?.scenario ?? "normal";
     const userId = params?.id;
-    // TODO: GET /api/admin/users/{userId}
-    // TODO: expected response shape: AdminUserDetail
-    const USE_MOCKS = true;
-    const data = useMemo<AdminUserDetail>(() => {
-        if (USE_MOCKS) {
-            return getAdminUserDetailMock(scenario);
-        }
-        return getAdminUserDetailMock(scenario);
-    }, [scenario, userId]);
-    return { data, ...useAdminDetailScenario({ scenario }) };
+    const query = useQuery({
+        queryKey: ["adminUserDetail", userId],
+        queryFn: async ({ signal }) => {
+            if (!userId) {
+                throw new Error("missing-user-id");
+            }
+            const user = await getUserById(userId, signal);
+            const [university, career] = await Promise.all([
+                getUniversityByUrl(user.universityUrl, signal),
+                getCareerByUrl(user.careerUrl, signal),
+            ]);
+            return {
+                id: user.id,
+                firstname: user.firstname ?? "",
+                lastname: user.lastname ?? "",
+                username: user.username ?? "",
+                email: user.email ?? "",
+                university: university ? { name: university.name } : null,
+                career: career ? { name: career.name } : null,
+                locale: null,
+                profilePictureUrl: user.profilePictureUrl ?? null,
+                blocked: user.active === false,
+            } satisfies AdminUserDetail;
+        },
+        placeholderData: keepPreviousData,
+        enabled: Boolean(userId),
+    });
+    return { data: query.data ?? null, isLoading: query.isLoading, isError: query.isError };
 };
 
 export const useAdminUniversityDetailData = (params?: AdminDetailParams) => {
-    const scenario = params?.scenario ?? "normal";
     const universityId = params?.id;
-    // TODO: GET /api/admin/universities/{universityId}
-    // TODO: expected response shape: AdminUniversityDetail
-    const USE_MOCKS = true;
-    const data = useMemo<AdminUniversityDetail>(() => {
-        if (USE_MOCKS) {
-            return getAdminUniversityDetailMock(scenario);
-        }
-        return getAdminUniversityDetailMock(scenario);
-    }, [scenario, universityId]);
-    return { data, ...useAdminDetailScenario({ scenario }) };
+    const query = useQuery({
+        queryKey: ["adminUniversityDetail", universityId],
+        queryFn: async ({ signal }) => {
+            if (!universityId) {
+                throw new Error("missing-university-id");
+            }
+            const university = await getUniversityById(universityId, signal);
+            const city = await getCityByUrl(university.cityUrl, signal);
+            return {
+                id: university.id,
+                name: university.name,
+                abbreviation: university.abbreviation,
+                city: { name: city?.name ?? "" },
+            } satisfies AdminUniversityDetail;
+        },
+        placeholderData: keepPreviousData,
+        enabled: Boolean(universityId),
+    });
+    return { data: query.data ?? null, isLoading: query.isLoading, isError: query.isError };
 };
 
 export const useAdminInterestDetailData = (params?: AdminDetailParams) => {
-    const scenario = params?.scenario ?? "normal";
     const interestId = params?.id;
-    // TODO: GET /api/admin/interests/{interestId}
-    // TODO: expected response shape: AdminInterestDetail
-    const USE_MOCKS = true;
-    const data = useMemo<AdminInterestDetail>(() => {
-        if (USE_MOCKS) {
-            return getAdminInterestDetailMock(scenario);
-        }
-        return getAdminInterestDetailMock(scenario);
-    }, [scenario, interestId]);
-    return { data, ...useAdminDetailScenario({ scenario }) };
+    const query = useQuery({
+        queryKey: ["adminInterestDetail", interestId],
+        queryFn: async ({ signal }) => {
+            if (!interestId) {
+                throw new Error("missing-interest-id");
+            }
+            const interest = await getInterestById(interestId, signal);
+            return {
+                id: interest.id,
+                name: interest.name,
+            } satisfies AdminInterestDetail;
+        },
+        placeholderData: keepPreviousData,
+        enabled: Boolean(interestId),
+    });
+    return { data: query.data ?? null, isLoading: query.isLoading, isError: query.isError };
 };
 
 export const useAdminCityDetailData = (params?: AdminDetailParams) => {
-    const scenario = params?.scenario ?? "normal";
     const cityId = params?.id;
-    // TODO: GET /api/admin/cities/{cityId}
-    // TODO: expected response shape: AdminCityDetail
-    const USE_MOCKS = true;
-    const data = useMemo<AdminCityDetail>(() => {
-        if (USE_MOCKS) {
-            return getAdminCityDetailMock(scenario);
-        }
-        return getAdminCityDetailMock(scenario);
-    }, [scenario, cityId]);
-    return { data, ...useAdminDetailScenario({ scenario }) };
+    const query = useQuery({
+        queryKey: ["adminCityDetail", cityId],
+        queryFn: async ({ signal }) => {
+            if (!cityId) {
+                throw new Error("missing-city-id");
+            }
+            const city = await getCityById(cityId, signal);
+            return {
+                id: city.id,
+                name: city.name,
+                country: city.country ?? "",
+            } satisfies AdminCityDetail;
+        },
+        placeholderData: keepPreviousData,
+        enabled: Boolean(cityId),
+    });
+    return { data: query.data ?? null, isLoading: query.isLoading, isError: query.isError };
 };
 
 export const useAdminCareerDetailData = (params?: AdminDetailParams) => {
-    const scenario = params?.scenario ?? "normal";
     const careerId = params?.id;
-    // TODO: GET /api/admin/careers/{careerId}
-    // TODO: expected response shape: AdminCareerDetail
-    const USE_MOCKS = true;
-    const data = useMemo<AdminCareerDetail>(() => {
-        if (USE_MOCKS) {
-            return getAdminCareerDetailMock(scenario);
-        }
-        return getAdminCareerDetailMock(scenario);
-    }, [scenario, careerId]);
-    return { data, ...useAdminDetailScenario({ scenario }) };
+    const query = useQuery({
+        queryKey: ["adminCareerDetail", careerId],
+        queryFn: async ({ signal }) => {
+            if (!careerId) {
+                throw new Error("missing-career-id");
+            }
+            const career = await getCareerById(careerId, signal);
+            return {
+                id: career.id,
+                name: career.name,
+            } satisfies AdminCareerDetail;
+        },
+        placeholderData: keepPreviousData,
+        enabled: Boolean(careerId),
+    });
+    return { data: query.data ?? null, isLoading: query.isLoading, isError: query.isError };
 };
