@@ -38,8 +38,8 @@ export default function JourneyReplyDeletePage() {
         if (!Number.isFinite(parsed)) {
             return null;
         }
-        return data.comments.find((comment) => comment.id === parsed) ?? null;
-    }, [data.comments, responseId]);
+        return data?.comments?.find((comment) => comment.id === parsed) ?? null;
+    }, [data?.comments, responseId]);
 
     const handleBack = () => {
         const previous = popFromNavigationStack();
@@ -86,6 +86,9 @@ export default function JourneyReplyDeletePage() {
     }
 
     if (isError) {
+        return <div className="journey-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+    }
+    if (!data) {
         return <div className="journey-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
     }
 

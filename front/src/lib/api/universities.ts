@@ -1,0 +1,61 @@
+import { apiClient, normalizeApiPath } from "@/lib/api/client";
+
+export interface UniversityDto {
+    id: number;
+    name: string;
+    abbreviation: string;
+    selfUrl?: string | null;
+    cityUrl?: string | null;
+}
+
+export interface UniversityPayload {
+    name: string;
+    abbreviation: string;
+    city: string;
+}
+
+export interface ListUniversitiesParams {
+    search?: string;
+    page?: number;
+    size?: number;
+}
+
+export const listUniversities = async (
+    params: ListUniversitiesParams = {},
+    signal?: AbortSignal
+): Promise<UniversityDto[]> => {
+    const response = await apiClient.get<UniversityDto[]>("/universities", { params, signal });
+    const data = response.data ?? [];
+    return Array.isArray(data) ? data : [];
+};
+
+export const getUniversityById = async (id: number | string, signal?: AbortSignal): Promise<UniversityDto> => {
+    const response = await apiClient.get<UniversityDto>(`/universities/${id}`, { signal });
+    return response.data;
+};
+
+export const getUniversityByUrl = async (url?: string | null, signal?: AbortSignal): Promise<UniversityDto | null> => {
+    if (!url) {
+        return null;
+    }
+    const response = await apiClient.get<UniversityDto>(normalizeApiPath(url), { signal });
+    return response.data ?? null;
+};
+
+export const createUniversity = async (payload: UniversityPayload, signal?: AbortSignal): Promise<UniversityDto> => {
+    const response = await apiClient.post<UniversityDto>("/universities", payload, { signal });
+    return response.data;
+};
+
+export const updateUniversity = async (
+    id: number | string,
+    payload: UniversityPayload,
+    signal?: AbortSignal
+): Promise<UniversityDto> => {
+    const response = await apiClient.put<UniversityDto>(`/universities/${id}`, payload, { signal });
+    return response.data;
+};
+
+export const deleteUniversity = async (id: number | string, signal?: AbortSignal): Promise<void> => {
+    await apiClient.delete(`/universities/${id}`, { signal });
+};

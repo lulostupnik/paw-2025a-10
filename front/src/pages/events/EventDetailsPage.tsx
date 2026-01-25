@@ -7,12 +7,9 @@ import CreatorCard from "@/components/detail/CreatorCard";
 import AdminPagination from "@/components/admin-dashboard/AdminPagination";
 import LoginRequiredModal from "@/components/LoginRequiredModal";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
-import type { EventDetailScenario } from "@/mocks/eventDetail.mock";
 import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
-import { attendEvent, createEventRating, unattendEvent, updateEventRating } from "@/lib/api/events";
+import { attendEvent, createEventRating, createEventResponse, unattendEvent, updateEventRating } from "@/lib/api/events";
 import { useAuthGate } from "@/hooks/useAuthGate";
-
-const SCENARIO: EventDetailScenario = "normal";
 
 const paginate = <T,>(items: T[], page: number, pageSize: number) => {
     const totalItems = items.length;
@@ -89,7 +86,7 @@ export default function EventDetailPage() {
     const { id } = useParams();
     const queryClient = useQueryClient();
     const gate = useAuthGate();
-    const { data, isLoading, isError, isFetching } = useEventDetailData({ scenario: SCENARIO, eventId: id });
+    const { data, isLoading, isError, isFetching } = useEventDetailData({ eventId: id });
     const [actionMenuOpen, setActionMenuOpen] = useState(false);
     const [openCommentMenuId, setOpenCommentMenuId] = useState<number | null>(null);
     const [activeTab, setActiveTab] = useState<"details" | "chat" | "rating">("details");
@@ -102,25 +99,35 @@ export default function EventDetailPage() {
     const [ratingValue, setRatingValue] = useState<number>(0);
     const [ratingSubmitting, setRatingSubmitting] = useState(false);
     const [ratingError, setRatingError] = useState<string | null>(null);
+    const [replyMessage, setReplyMessage] = useState("");
+    const [replyError, setReplyError] = useState<string | null>(null);
+    const [replySubmitting, setReplySubmitting] = useState(false);
+    const [replySuccess, setReplySuccess] = useState<string | null>(null);
 
     const userId = getUserId();
     const username = getUsername();
-    const isOwner = data.user.id === userId;
+    const isOwner = data?.user?.id === userId;
     const admin = isAdmin();
     const isAttendingFromData = useMemo(
-        () => data.attendees.some((attendee) => attendee.id === userId),
-        [data.attendees, userId]
+        () => data?.attendees?.some((attendee) => attendee.id === userId) ?? false,
+        [data?.attendees, userId]
     );
     const isAttending = attendingOverride ?? isAttendingFromData;
-    const attendeesCount = attendeesCountOverride ?? data.attendeesCount;
-    const isFull = data.attendeesLimit ? attendeesCount >= data.attendeesLimit : false;
+    const attendeesCount = attendeesCountOverride ?? (data?.attendeesCount ?? 0);
+    const isFull = data?.attendeesLimit ? attendeesCount >= data.attendeesLimit : false;
     const existingRating = useMemo(
-        () => data.ratings.find((rating) => rating.user.username === username) ?? null,
-        [data.ratings, username]
+        () => data?.ratings?.find((rating) => rating.user.username === username) ?? null,
+        [data?.ratings, username]
     );
 
-    const pagedAttendees = useMemo(() => paginate(data.attendees, attendeesPage, 6), [data.attendees, attendeesPage]);
-    const pagedComments = useMemo(() => paginate(data.comments, commentsPage, 4), [data.comments, commentsPage]);
+    const pagedAttendees = useMemo(
+        () => paginate(data?.attendees ?? [], attendeesPage, 6),
+        [data?.attendees, attendeesPage]
+    );
+    const pagedComments = useMemo(
+        () => paginate(data?.comments ?? [], commentsPage, 4),
+        [data?.comments, commentsPage]
+    );
 
     useEffect(() => {
         setAttendingOverride(null);
@@ -128,13 +135,13 @@ export default function EventDetailPage() {
         setAttendError(null);
         setRatingError(null);
         setRatingValue(existingRating?.rating ?? 0);
-    }, [data.id, existingRating?.rating]);
+    }, [data?.id, existingRating?.rating]);
 
     if (isLoading) {
         return <div className="event-detail-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
     }
 
-    if (isError) {
+    if (isError || !data) {
         return <div className="event-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
     }
 
@@ -220,8 +227,29 @@ export default function EventDetailPage() {
 
     const handleReplySubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        gate.runOrPrompt(() => {
-            // TODO: Integrate event response submission when backend endpoint is available.
+        gate.runOrPrompt(async () => {
+            if (!id) {
+                setReplyError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                return;
+            }
+            if (!replyMessage.trim()) {
+                setReplyError(t("NotNull.replyEventForm.message", { defaultValue: "Please enter a message." }));
+                return;
+            }
+            try {
+                setReplySubmitting(true);
+                setReplyError(null);
+                setReplySuccess(null);
+                await createEventResponse(Number(id), { message: replyMessage.trim() });
+                setReplyMessage("");
+                setReplySuccess(t("replyEvent.success", { defaultValue: "Message successfully sent!" }));
+                queryClient.invalidateQueries({ queryKey: ["eventDetail", id] });
+            } catch (error) {
+                console.error("Failed to submit event response", error);
+                setReplyError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            } finally {
+                setReplySubmitting(false);
+            }
         });
     };
 
@@ -786,10 +814,22 @@ return (
                                                                 id="event-reply"
                                                                 className="form-textarea"
                                                                 placeholder={t("reply.message.hint")}
+                                                                value={replyMessage}
+                                                                onChange={(event) => {
+                                                                    setReplyMessage(event.target.value);
+                                                                    if (replyError) {
+                                                                        setReplyError(null);
+                                                                    }
+                                                                    if (replySuccess) {
+                                                                        setReplySuccess(null);
+                                                                    }
+                                                                }}
                                                             />
                                                         </div>
+                                                        {replySuccess && <p className="form-field__text">{replySuccess}</p>}
+                                                        {replyError && <p className="error-message">{replyError}</p>}
                                                         <div className="form-actions">
-                                                            <button type="submit" className="btn btn-primary">
+                                                            <button type="submit" className="btn btn-primary" disabled={replySubmitting}>
                                                                 {t("reply.submit")}
                                                             </button>
                                                         </div>

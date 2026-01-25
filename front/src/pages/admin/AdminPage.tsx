@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
@@ -12,93 +12,108 @@ import InterestsTab from "@/components/admin-dashboard/InterestsTab";
 import CitiesTab from "@/components/admin-dashboard/CitiesTab";
 import CareersTab from "@/components/admin-dashboard/CareersTab";
 import ReportsTab from "@/components/admin-dashboard/ReportsTab";
-import { useAdminDashboardData } from "@/hooks/useAdminDashboardData";
 import { useReports } from "@/hooks/useReports";
-import type { AdminDashboardScenario, AdminDashboardTab } from "@/mocks/adminDashboard.mock";
+import {
+    useAdminCareers,
+    useAdminCities,
+    useAdminEvents,
+    useAdminInterests,
+    useAdminJourneys,
+    useAdminUniversities,
+    useAdminUsers,
+} from "@/hooks/admin/useAdminTabData";
+import type { AdminDashboardTab } from "@/types/admin";
 import plusIcon from "@/assets/icons/plus.svg";
 import blockIcon from "@/assets/icons/block.svg";
 import unblockIcon from "@/assets/icons/unblock.svg";
 
-// TODO: switch to "empty", "error", or "loading" to validate UI states.
-const SCENARIO: AdminDashboardScenario = "normal";
 const DEFAULT_TAB: AdminDashboardTab = "journeys";
+const ADMIN_TABS: AdminDashboardTab[] = [
+    "journeys",
+    "users",
+    "events",
+    "universities",
+    "interests",
+    "cities",
+    "careers",
+    "reports",
+];
+const ADMIN_TAB_SET = new Set(ADMIN_TABS);
 
 const parsePositiveInt = (value: string | null, fallback: number) => {
     const parsed = Number(value);
     return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 };
 
-const getTabParam = (value: string | null): AdminDashboardTab => {
-    switch (value) {
-        case "journeys":
-        case "users":
-        case "events":
-        case "universities":
-        case "interests":
-        case "cities":
-        case "careers":
-        case "reports":
-            return value;
-        default:
-            return DEFAULT_TAB;
+const getTabParam = (value?: string | null): AdminDashboardTab => {
+    if (value && ADMIN_TAB_SET.has(value as AdminDashboardTab)) {
+        return value as AdminDashboardTab;
     }
+    return DEFAULT_TAB;
 };
 
 export default function AdminPage() {
     const { t } = useI18n();
+    const navigate = useNavigate();
+    const { tab: tabParam } = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
     const [searchValue, setSearchValue] = useState(searchParams.get("search") ?? "");
 
-    const activeTab = getTabParam(searchParams.get("tab"));
+    const legacyTabParam = searchParams.get("tab");
+    const activeTab = getTabParam(tabParam ?? legacyTabParam);
     const searchQuery = searchParams.get("search") ?? "";
     const page = parsePositiveInt(searchParams.get("page"), 1);
     const pageSize = parsePositiveInt(searchParams.get("pageSize"), 10);
 
     useEffect(() => {
         setSearchValue(searchQuery);
-    }, [searchQuery, activeTab]);
+    }, [searchQuery]);
 
-    const { data, isLoading, isError } = useAdminDashboardData({
-        scenario: SCENARIO,
-        search: searchQuery,
-        page,
-        pageSize,
-    });
-    const reportsQuery  = useReports({ search: searchQuery, page, pageSize });
+    useEffect(() => {
+        if (tabParam === activeTab) {
+            return;
+        }
+        const nextParams = new URLSearchParams(searchParams);
+        nextParams.delete("tab");
+        const search = nextParams.toString();
+        navigate(
+            {
+                pathname: `/admin/${activeTab}`,
+                search: search ? `?${search}` : "",
+            },
+            { replace: true }
+        );
+    }, [activeTab, navigate, searchParams, tabParam]);
 
     const tabs = useMemo(
-        () => [
-            { key: "journeys" as const, label: t("admin.tab.journeys") },
-            { key: "users" as const, label: t("admin.tab.users") },
-            { key: "events" as const, label: t("admin.tab.events") },
-            { key: "universities" as const, label: t("admin.tab.universities") },
-            { key: "interests" as const, label: t("admin.tab.interests") },
-            { key: "cities" as const, label: t("admin.tab.cities") },
-            { key: "careers" as const, label: t("admin.tab.careers") },
-            { key: "reports" as const, label: t("admin.tab.reports") },
-        ],
+        () => ADMIN_TABS.map((key) => ({ key, label: t(`admin.tab.${key}`) })),
         [t]
     );
 
-    const updateParams = (nextTab: AdminDashboardTab, nextSearch: string, nextPage: number) => {
-        setSearchParams({
-            tab: nextTab,
-            search: nextSearch,
-            page: String(nextPage),
-            pageSize: String(pageSize),
-        });
+    const buildParams = (nextSearch: string, nextPage: number) => {
+        const nextParams = new URLSearchParams(searchParams);
+        nextParams.delete("tab");
+        nextParams.set("search", nextSearch);
+        nextParams.set("page", String(nextPage));
+        nextParams.set("pageSize", String(pageSize));
+        return nextParams;
     };
 
     const handleTabChange = (tab: AdminDashboardTab) => {
-        updateParams(tab, "", 1);
+        const nextParams = buildParams("", 1);
+        const search = nextParams.toString();
+        navigate({
+            pathname: `/admin/${tab}`,
+            search: search ? `?${search}` : "",
+        });
     };
 
     const handleSearchSubmit = (value: string) => {
-        updateParams(activeTab, value, 1);
+        setSearchParams(buildParams(value, 1));
     };
 
     const handlePageChange = (nextPage: number) => {
-        updateParams(activeTab, searchQuery, nextPage);
+        setSearchParams(buildParams(searchQuery, nextPage));
     };
 
     // TODO: replace with API-backed role checks when auth is fully wired.
@@ -117,108 +132,323 @@ export default function AdminPage() {
                     <AdminDashboardTabs activeTab={activeTab} tabs={tabs} onTabChange={handleTabChange} />
 
                     {activeTab === "journeys" && (
-                        <JourneysTab
-                            data={data.journeys}
+                        <AdminJourneysTabContainer
+                            searchQuery={searchQuery}
+                            page={page}
+                            pageSize={pageSize}
                             searchValue={searchValue}
                             onSearchChange={setSearchValue}
                             onSearchSubmit={handleSearchSubmit}
                             onPageChange={handlePageChange}
-                            isLoading={isLoading}
-                            isError={isError}
                         />
                     )}
 
                     {activeTab === "users" && (
-                        <UsersTab
-                            data={data.users}
+                        <AdminUsersTabContainer
+                            searchQuery={searchQuery}
+                            page={page}
+                            pageSize={pageSize}
                             searchValue={searchValue}
                             onSearchChange={setSearchValue}
                             onSearchSubmit={handleSearchSubmit}
                             onPageChange={handlePageChange}
-                            isLoading={isLoading}
-                            isError={isError}
                             blockIconSrc={blockIcon}
                             unblockIconSrc={unblockIcon}
                         />
                     )}
 
                     {activeTab === "events" && (
-                        <EventsTab
-                            data={data.events}
+                        <AdminEventsTabContainer
+                            searchQuery={searchQuery}
+                            page={page}
+                            pageSize={pageSize}
                             searchValue={searchValue}
                             onSearchChange={setSearchValue}
                             onSearchSubmit={handleSearchSubmit}
                             onPageChange={handlePageChange}
-                            isLoading={isLoading}
-                            isError={isError}
                         />
                     )}
 
                     {activeTab === "universities" && (
-                        <UniversitiesTab
-                            data={data.universities}
+                        <AdminUniversitiesTabContainer
+                            searchQuery={searchQuery}
+                            page={page}
+                            pageSize={pageSize}
                             searchValue={searchValue}
                             onSearchChange={setSearchValue}
                             onSearchSubmit={handleSearchSubmit}
                             onPageChange={handlePageChange}
-                            isLoading={isLoading}
-                            isError={isError}
                             plusIconSrc={plusIcon}
                         />
                     )}
 
                     {activeTab === "interests" && (
-                        <InterestsTab
-                            data={data.interests}
+                        <AdminInterestsTabContainer
+                            searchQuery={searchQuery}
+                            page={page}
+                            pageSize={pageSize}
                             searchValue={searchValue}
                             onSearchChange={setSearchValue}
                             onSearchSubmit={handleSearchSubmit}
                             onPageChange={handlePageChange}
-                            isLoading={isLoading}
-                            isError={isError}
                             plusIconSrc={plusIcon}
                         />
                     )}
 
                     {activeTab === "cities" && (
-                        <CitiesTab
-                            data={data.cities}
+                        <AdminCitiesTabContainer
+                            searchQuery={searchQuery}
+                            page={page}
+                            pageSize={pageSize}
                             searchValue={searchValue}
                             onSearchChange={setSearchValue}
                             onSearchSubmit={handleSearchSubmit}
                             onPageChange={handlePageChange}
-                            isLoading={isLoading}
-                            isError={isError}
                             plusIconSrc={plusIcon}
                         />
                     )}
 
                     {activeTab === "careers" && (
-                        <CareersTab
-                            data={data.careers}
+                        <AdminCareersTabContainer
+                            searchQuery={searchQuery}
+                            page={page}
+                            pageSize={pageSize}
                             searchValue={searchValue}
                             onSearchChange={setSearchValue}
                             onSearchSubmit={handleSearchSubmit}
                             onPageChange={handlePageChange}
-                            isLoading={isLoading}
-                            isError={isError}
                             plusIconSrc={plusIcon}
                         />
                     )}
 
                     {activeTab === "reports" && (
-                        <ReportsTab
-                            data={reportsQuery.data}
+                        <AdminReportsTabContainer
+                            searchQuery={searchQuery}
+                            page={page}
+                            pageSize={pageSize}
                             searchValue={searchValue}
                             onSearchChange={setSearchValue}
                             onSearchSubmit={handleSearchSubmit}
                             onPageChange={handlePageChange}
-                            isLoading={reportsQuery.isLoading}
-                            isError={reportsQuery.isError}
                         />
                     )}
                 </div>
             </div>
         </div>
+    );
+}
+
+interface AdminTabContainerProps {
+    searchQuery: string;
+    page: number;
+    pageSize: number;
+    searchValue: string;
+    onSearchChange: (value: string) => void;
+    onSearchSubmit: (value: string) => void;
+    onPageChange: (page: number) => void;
+}
+
+function AdminJourneysTabContainer({
+    searchQuery,
+    page,
+    pageSize,
+    searchValue,
+    onSearchChange,
+    onSearchSubmit,
+    onPageChange,
+}: AdminTabContainerProps) {
+    const { data, isLoading, isError } = useAdminJourneys({ search: searchQuery, page, pageSize });
+
+    return (
+        <JourneysTab
+            data={data}
+            searchValue={searchValue}
+            onSearchChange={onSearchChange}
+            onSearchSubmit={onSearchSubmit}
+            onPageChange={onPageChange}
+            isLoading={isLoading}
+            isError={isError}
+        />
+    );
+}
+
+function AdminUsersTabContainer({
+    searchQuery,
+    page,
+    pageSize,
+    searchValue,
+    onSearchChange,
+    onSearchSubmit,
+    onPageChange,
+    blockIconSrc,
+    unblockIconSrc,
+}: AdminTabContainerProps & { blockIconSrc: string; unblockIconSrc: string }) {
+    const { data, isLoading, isError, refetch } = useAdminUsers({ search: searchQuery, page, pageSize });
+
+    return (
+        <UsersTab
+            data={data}
+            searchValue={searchValue}
+            onSearchChange={onSearchChange}
+            onSearchSubmit={onSearchSubmit}
+            onPageChange={onPageChange}
+            isLoading={isLoading}
+            isError={isError}
+            blockIconSrc={blockIconSrc}
+            unblockIconSrc={unblockIconSrc}
+            onRefresh={refetch}
+        />
+    );
+}
+
+function AdminEventsTabContainer({
+    searchQuery,
+    page,
+    pageSize,
+    searchValue,
+    onSearchChange,
+    onSearchSubmit,
+    onPageChange,
+}: AdminTabContainerProps) {
+    const { data, isLoading, isError } = useAdminEvents({ search: searchQuery, page, pageSize });
+
+    return (
+        <EventsTab
+            data={data}
+            searchValue={searchValue}
+            onSearchChange={onSearchChange}
+            onSearchSubmit={onSearchSubmit}
+            onPageChange={onPageChange}
+            isLoading={isLoading}
+            isError={isError}
+        />
+    );
+}
+
+function AdminUniversitiesTabContainer({
+    searchQuery,
+    page,
+    pageSize,
+    searchValue,
+    onSearchChange,
+    onSearchSubmit,
+    onPageChange,
+    plusIconSrc,
+}: AdminTabContainerProps & { plusIconSrc: string }) {
+    const { data, isLoading, isError } = useAdminUniversities({ search: searchQuery, page, pageSize });
+
+    return (
+        <UniversitiesTab
+            data={data}
+            searchValue={searchValue}
+            onSearchChange={onSearchChange}
+            onSearchSubmit={onSearchSubmit}
+            onPageChange={onPageChange}
+            isLoading={isLoading}
+            isError={isError}
+            plusIconSrc={plusIconSrc}
+        />
+    );
+}
+
+function AdminInterestsTabContainer({
+    searchQuery,
+    page,
+    pageSize,
+    searchValue,
+    onSearchChange,
+    onSearchSubmit,
+    onPageChange,
+    plusIconSrc,
+}: AdminTabContainerProps & { plusIconSrc: string }) {
+    const { data, isLoading, isError } = useAdminInterests({ search: searchQuery, page, pageSize });
+
+    return (
+        <InterestsTab
+            data={data}
+            searchValue={searchValue}
+            onSearchChange={onSearchChange}
+            onSearchSubmit={onSearchSubmit}
+            onPageChange={onPageChange}
+            isLoading={isLoading}
+            isError={isError}
+            plusIconSrc={plusIconSrc}
+        />
+    );
+}
+
+function AdminCitiesTabContainer({
+    searchQuery,
+    page,
+    pageSize,
+    searchValue,
+    onSearchChange,
+    onSearchSubmit,
+    onPageChange,
+    plusIconSrc,
+}: AdminTabContainerProps & { plusIconSrc: string }) {
+    const { data, isLoading, isError } = useAdminCities({ search: searchQuery, page, pageSize });
+
+    return (
+        <CitiesTab
+            data={data}
+            searchValue={searchValue}
+            onSearchChange={onSearchChange}
+            onSearchSubmit={onSearchSubmit}
+            onPageChange={onPageChange}
+            isLoading={isLoading}
+            isError={isError}
+            plusIconSrc={plusIconSrc}
+        />
+    );
+}
+
+function AdminCareersTabContainer({
+    searchQuery,
+    page,
+    pageSize,
+    searchValue,
+    onSearchChange,
+    onSearchSubmit,
+    onPageChange,
+    plusIconSrc,
+}: AdminTabContainerProps & { plusIconSrc: string }) {
+    const { data, isLoading, isError } = useAdminCareers({ search: searchQuery, page, pageSize });
+
+    return (
+        <CareersTab
+            data={data}
+            searchValue={searchValue}
+            onSearchChange={onSearchChange}
+            onSearchSubmit={onSearchSubmit}
+            onPageChange={onPageChange}
+            isLoading={isLoading}
+            isError={isError}
+            plusIconSrc={plusIconSrc}
+        />
+    );
+}
+
+function AdminReportsTabContainer({
+    searchQuery,
+    page,
+    pageSize,
+    searchValue,
+    onSearchChange,
+    onSearchSubmit,
+    onPageChange,
+}: AdminTabContainerProps) {
+    const reportsQuery = useReports({ search: searchQuery, page, pageSize });
+
+    return (
+        <ReportsTab
+            data={reportsQuery.data}
+            searchValue={searchValue}
+            onSearchChange={onSearchChange}
+            onSearchSubmit={onSearchSubmit}
+            onPageChange={onPageChange}
+            isLoading={reportsQuery.isLoading}
+            isError={reportsQuery.isError}
+        />
     );
 }

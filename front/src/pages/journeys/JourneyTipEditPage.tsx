@@ -26,8 +26,8 @@ export default function JourneyTipEditPage() {
         if (!Number.isFinite(parsed)) {
             return null;
         }
-        return data.tips.find((item) => item.id === parsed) ?? null;
-    }, [data.tips, tipId]);
+        return data?.tips?.find((item) => item.id === parsed) ?? null;
+    }, [data?.tips, tipId]);
 
     useEffect(() => {
         if (!tip || seeded) {
@@ -82,6 +82,9 @@ export default function JourneyTipEditPage() {
     }
 
     if (isError) {
+        return <div className="journey-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+    }
+    if (!data) {
         return <div className="journey-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
     }
 

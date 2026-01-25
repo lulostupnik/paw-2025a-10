@@ -9,37 +9,38 @@ import { classNames } from "@/lib/utils/classNames";
 import { SUPPORT_EMAIL } from "@/lib/utils/support";
 
 type ResetStatus = "form" | "submitting" | "expired" | "invalid" | "blocked" | "error";
+type PasswordStrengthStatus = "empty" | "very-weak" | "weak" | "medium" | "strong";
 
-const getStrengthScore = (password: string) => {
-    if (!password) {
-        return 0;
+interface PasswordStrength {
+    level: number;
+    status: PasswordStrengthStatus;
+    labelKey: string;
+    class: string;
+}
+
+function evaluatePassword(value: string): PasswordStrength {
+    if (!value) {
+        return { level: 0, status: "empty", labelKey: "register.password.strength.empty", class: 'password-strength--very-weak'};
     }
+
     let score = 0;
-    if (password.length >= 8) score += 25;
-    if (/[A-Z]/.test(password)) score += 20;
-    if (/[a-z]/.test(password)) score += 20;
-    if (/[0-9]/.test(password)) score += 20;
-    if (/[^A-Za-z0-9]/.test(password)) score += 15;
-    return Math.min(score, 100);
-};
+    if (value.length >= 8) score += 1;
+    if (/[A-Z]/.test(value)) score += 1;
+    if (/[0-9]/.test(value)) score += 1;
+    if (/[^A-Za-z0-9]/.test(value) || value.length >= 12) score += 1;
 
-const getStrengthClass = (score: number) => {
-    if (score === 0) return "";
-    if (score < 25) return "strength-very-weak";
-    if (score < 50) return "strength-weak";
-    if (score < 75) return "strength-medium";
-    if (score < 90) return "strength-strong";
-    return "strength-very-strong";
-};
+    if (score <= 1) {
+        return { level: 1, status: "very-weak", labelKey: "register.password.strength.veryWeak", class: 'password-strength--very-weak' };
+    }
+    if (score === 2) {
+        return { level: 2, status: "weak", labelKey: "register.password.strength.weak", class: 'password-strength--weak'};
+    }
+    if (score === 3) {
+        return { level: 3, status: "medium", labelKey: "register.password.strength.medium", class: 'password-strength--medium'};
+    }
+    return { level: 4, status: "strong", labelKey: "register.password.strength.strong", class: 'password-strength--strong' };
+}
 
-const getStrengthLabel = (score: number, t: (key: string, options?: { defaultValue?: string }) => string) => {
-    if (score === 0) return "";
-    if (score < 25) return t("password.strength.very-weak", { defaultValue: "Muy debil" });
-    if (score < 50) return t("password.strength.weak", { defaultValue: "Debil" });
-    if (score < 75) return t("password.strength.medium", { defaultValue: "Media" });
-    if (score < 90) return t("password.strength.strong", { defaultValue: "Fuerte" });
-    return t("password.strength.very-strong", { defaultValue: "Muy fuerte" });
-};
 
 const mapResetError = (error: unknown): ResetStatus => {
     if (!isAxiosError(error)) {
@@ -69,9 +70,8 @@ export default function PasswordResetPage() {
     const [touched, setTouched] = useState({ password: false, confirmPassword: false });
     const [status, setStatus] = useState<ResetStatus>(() => (token ? "form" : "invalid"));
     const [serverError, setServerError] = useState("");
+    const passwordStrength = useMemo(() => evaluatePassword(password), [password]);
 
-    const strengthScore = useMemo(() => getStrengthScore(password), [password]);
-    const strengthLabel = useMemo(() => getStrengthLabel(strengthScore, t), [strengthScore, t]);
     const passwordsMatch = password && confirmPassword ? password === confirmPassword : true;
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -215,21 +215,30 @@ export default function PasswordResetPage() {
                         <input
                             id="password"
                             type="password"
-                            className={classNames("form-input required", touched.password && !password && "error")}
+                            className={classNames("form-input input-control required", touched.password && !password && "error")}
                             placeholder="••••••••"
                             value={password}
                             onChange={(event) => setPassword(event.target.value)}
                             onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
                         />
                     </div>
-                    <div className="password-strength">
-                        <div className="password-meter">
-                            <div className={classNames("password-bar", getStrengthClass(strengthScore))} style={{ width: `${strengthScore}%` }}></div>
+                    <div className={classNames("password-strength", passwordStrength.class)}>
+                        <div className="password-strength__header">
+                            <span>{t("register.password.strength.label")}</span>
+                            {passwordStrength.level > 0 && (
+                                <span>{t(passwordStrength.labelKey)}</span>
+                            )}
                         </div>
-                        <div className="password-feedback">
-                            <div className="password-status">
-                                <span className={classNames("password-label", getStrengthClass(strengthScore))}>{strengthLabel}</span>
-                            </div>
+                        <div className="password-strength__bars">
+                            {[0, 1, 2, 3].map((index) => (
+                                <span
+                                    key={index}
+                                    className={classNames(
+                                        "password-strength__bar",
+                                        passwordStrength.level > index && "is-filled"
+                                    )}
+                                />
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -243,7 +252,7 @@ export default function PasswordResetPage() {
                             id="confirmPassword"
                             type="password"
                             className={classNames(
-                                "form-input required",
+                                "form-input required input-control",
                                 touched.confirmPassword && (!confirmPassword || !passwordsMatch) && "error"
                             )}
                             placeholder="••••••••"
@@ -260,7 +269,7 @@ export default function PasswordResetPage() {
                     </div>
                 </div>
 
-                <button type="submit" className="form-button" disabled={status === "submitting"}>
+                <button type="submit" className="btn btn--primary btn--lg btn--full" disabled={status === "submitting"}>
                     {t("profile.edit.password.save")}
                 </button>
             </form>

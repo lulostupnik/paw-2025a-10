@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { isAxiosError } from "axios";
 import Button from "@/components/ui/Button";
 import StatusCard from "@/components/ui/StatusCard";
@@ -49,6 +49,7 @@ export default function EmailVerificationPage() {
     );
 
     useEffect(() => {
+        console.log(token)
         if (!token) {
             setState({ status: "invalid", reference: generateReference() });
             return;

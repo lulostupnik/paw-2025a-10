@@ -22,7 +22,7 @@ export default function EventDeletePage() {
     const [message, setMessage] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
-    const isOwner = data.user?.id === getUserId();
+    const isOwner = data?.user?.id === getUserId();
 
     const handleBack = () => {
         const previous = popFromNavigationStack();
@@ -60,6 +60,9 @@ export default function EventDeletePage() {
     }
 
     if (isError) {
+        return <div className="event-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+    }
+    if (!data) {
         return <div className="event-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
     }
 

@@ -44,15 +44,10 @@ public class UserDto {
                 ? UriUtils.getUserProfilePictureUri(uriInfo, user.getId())
                 : null;
         // dto.preferredLanguage = user.getPreferredLanguage();
-        dto.careerUrl = user.getCareer() != null
-                ? UriUtils.getCareerUri(uriInfo, user.getCareer().getId())
-                : null;
-        dto.universityUrl = user.getUniversity() != null
-                ? UriUtils.getUniversityUri(uriInfo, user.getUniversity().getId())
-                : null;
-        dto.journeyUrl = user.getJourney() != null
-                ? UriUtils.getJourneyUri(uriInfo, user.getJourney().getId())
-                : null;
+        dto.careerUrl = UriUtils.getCareerUri(uriInfo, user.getCareer().getId());
+        dto.universityUrl = UriUtils.getUniversityUri(uriInfo, user.getUniversity().getId());
+        if(user.getJourney() != null)
+            dto.journeyUrl = UriUtils.getJourneyUri(uriInfo, user.getJourney().getId());
         dto.selfUrl = UriUtils.getUserUri(uriInfo, user.getId());
 
         return dto;

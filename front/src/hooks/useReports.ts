@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import type { PagedResult } from "@/hooks/useAdminDashboardData";
+import type { PagedResult } from "@/types/admin";
 import { listReports, resolveReportListItem, type ListReportsParams, type ReportListItem } from "@/lib/api/reports";
 
 interface UseReportsParams {

@@ -1,5 +1,7 @@
 import { useCallback, useState } from "react";
 import type { ProfileEditPayload, ProfilePasswordPayload, ProfilePicturePayload } from "@/types/profile";
+import { getUserId } from "@/lib/auth/auth";
+import { updateUserPassword, updateUserProfile, updateUserProfilePicture } from "@/lib/api/users";
 
 interface UseProfileUpsertResult {
     isLoading: boolean;
@@ -31,13 +33,11 @@ export const useProfileUpsert = (): UseProfileUpsertResult => {
     const updateProfile = useCallback(
         async (payload: ProfileEditPayload) =>
             runMutation(async () => {
-                // TODO: PATCH /api/profiles/me
-                // TODO: request body: ProfileEditPayload
-                // TODO: expected response: ProfileDetail
-                const USE_MOCKS = true;
-                if (USE_MOCKS) {
-                    return;
+                const userId = getUserId();
+                if (!userId) {
+                    throw new Error("missing-user-id");
                 }
+                await updateUserProfile(userId, payload);
             }),
         [runMutation]
     );
@@ -45,13 +45,11 @@ export const useProfileUpsert = (): UseProfileUpsertResult => {
     const updatePassword = useCallback(
         async (payload: ProfilePasswordPayload) =>
             runMutation(async () => {
-                // TODO: POST /api/profiles/me/password
-                // TODO: request body: ProfilePasswordPayload
-                // TODO: expected response: { success: boolean }
-                const USE_MOCKS = true;
-                if (USE_MOCKS) {
-                    return;
+                const userId = getUserId();
+                if (!userId) {
+                    throw new Error("missing-user-id");
                 }
+                await updateUserPassword(userId, payload.password);
             }),
         [runMutation]
     );
@@ -59,13 +57,14 @@ export const useProfileUpsert = (): UseProfileUpsertResult => {
     const updatePicture = useCallback(
         async (payload: ProfilePicturePayload) =>
             runMutation(async () => {
-                // TODO: POST /api/profiles/me/picture
-                // TODO: request body: FormData with ProfilePicturePayload
-                // TODO: expected response: { profilePictureUrl: string }
-                const USE_MOCKS = true;
-                if (USE_MOCKS) {
-                    return;
+                const userId = getUserId();
+                if (!userId) {
+                    throw new Error("missing-user-id");
                 }
+                if (!payload.picture) {
+                    throw new Error("missing-profile-picture");
+                }
+                await updateUserProfilePicture(userId, payload.picture);
             }),
         [runMutation]
     );
@@ -73,13 +72,9 @@ export const useProfileUpsert = (): UseProfileUpsertResult => {
     const updateInterests = useCallback(
         async (interestIds: number[]) =>
             runMutation(async () => {
-                // TODO: PUT /api/profiles/me/interests
-                // TODO: request body: { interests: number[] }
-                // TODO: expected response: ProfileDetail
-                const USE_MOCKS = true;
-                if (USE_MOCKS) {
-                    return;
-                }
+                // TODO: Implement user interests update once backend supports add/remove in bulk.
+                console.warn("TODO: update user interests", interestIds);
+                throw new Error("profile-interests-not-implemented");
             }),
         [runMutation]
     );

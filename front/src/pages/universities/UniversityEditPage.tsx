@@ -1,14 +1,12 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useAdminUniversityDetailData } from "@/hooks/useAdminDetailData";
-import type { AdminDetailScenario } from "@/mocks/adminDetail.mock";
-import { getCityOptionsMock, type AdminCreateScenario } from "@/mocks/adminCreate.mock";
-
-const SCENARIO: AdminDetailScenario = "normal";
-const OPTIONS_SCENARIO: AdminCreateScenario = "normal";
+import { useQuery } from "@tanstack/react-query";
+import { updateUniversity } from "@/lib/api/universities";
+import { listCities } from "@/lib/api/cities";
 
 interface UniversityFormState {
     name: string;
@@ -25,8 +23,9 @@ const formatTitleCase = (value: string) =>
 
 export default function UniversityEditPage() {
     const { t } = useI18n();
+    const navigate = useNavigate();
     const { id } = useParams();
-    const { data: university, isLoading, isError } = useAdminUniversityDetailData({ scenario: SCENARIO });
+    const { data: university, isLoading, isError } = useAdminUniversityDetailData({ id });
     const [form, setForm] = useState<UniversityFormState>({
         name: "",
         abbreviation: "",
@@ -36,8 +35,17 @@ export default function UniversityEditPage() {
     const [cityQuery, setCityQuery] = useState("");
     const [selectedCity, setSelectedCity] = useState<string | null>(null);
     const [cityOpen, setCityOpen] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const [submitting, setSubmitting] = useState(false);
 
-    const cities = useMemo(() => getCityOptionsMock(OPTIONS_SCENARIO), [OPTIONS_SCENARIO]);
+    const citiesQuery = useQuery({
+        queryKey: ["citiesOptions"],
+        queryFn: async ({ signal }) => listCities({ page: 0, size: 200 }, signal),
+    });
+    const cities = useMemo(
+        () => (citiesQuery.data ?? []).map((city) => ({ id: city.id, name: city.name })),
+        [citiesQuery.data]
+    );
 
     const filteredCities = useMemo(() => {
         const query = cityQuery.trim().toLowerCase();
@@ -78,7 +86,23 @@ export default function UniversityEditPage() {
         if (errors.name || errors.abbreviation || errors.city) {
             return;
         }
-        // TODO: replace with API call to update university by id.
+        if (!id) {
+            setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            return;
+        }
+        setSubmitting(true);
+        setSubmitError(null);
+        updateUniversity(id, {
+            name: form.name.trim(),
+            abbreviation: form.abbreviation.trim(),
+            city: form.city.trim(),
+        })
+            .then(() => navigate(`/universities/${id}`))
+            .catch((error) => {
+                console.error("Failed to update university", error);
+                setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            })
+            .finally(() => setSubmitting(false));
     };
 
     const handleCitySelect = (value: string) => {
@@ -104,6 +128,9 @@ export default function UniversityEditPage() {
     }
 
     if (isError) {
+        return <div className="entity-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+    }
+    if (!university) {
         return <div className="entity-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
     }
 
@@ -224,10 +251,14 @@ export default function UniversityEditPage() {
                             {touched.city && errors.city && <p className="error-message">{errors.city}</p>}
                         </div>
 
-                        <button type="submit" className="form-button">
+                        <button type="submit" className="form-button" disabled={submitting}>
                             {t("updateUniversity.submit", { defaultValue: "Update University" })}
                         </button>
                     </form>
+                    {citiesQuery.isError && (
+                        <p className="error-message">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</p>
+                    )}
+                    {submitError && <p className="error-message">{submitError}</p>}
 
                     <div className="auth-footer">
                         <Link to={`/universities/${id}`} className="auth-link">

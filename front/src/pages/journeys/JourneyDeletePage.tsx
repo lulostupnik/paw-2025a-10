@@ -23,7 +23,7 @@ export default function JourneyDeletePage() {
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
 
-    const isOwner = useMemo(() => data.user?.id === getUserId(), [data.user?.id]);
+    const isOwner = useMemo(() => data?.user?.id === getUserId(), [data?.user?.id]);
 
     const handleBack = () => {
         const previous = popFromNavigationStack();
@@ -65,6 +65,9 @@ export default function JourneyDeletePage() {
     }
 
     if (isError) {
+        return <div className="journey-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+    }
+    if (!data) {
         return <div className="journey-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
     }
 

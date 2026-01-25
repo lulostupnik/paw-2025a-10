@@ -4,11 +4,9 @@ import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useAdminCityDetailData } from "@/hooks/useAdminDetailData";
-import type { AdminDetailScenario } from "@/mocks/adminDetail.mock";
-import { getCountryOptionsMock, type AdminCreateScenario } from "@/mocks/adminCreate.mock";
-
-const SCENARIO: AdminDetailScenario = "normal";
-const OPTIONS_SCENARIO: AdminCreateScenario = "normal";
+import { useQuery } from "@tanstack/react-query";
+import { listCities, updateCity } from "@/lib/api/cities";
+import { useNavigate } from "react-router-dom";
 
 interface CityFormState {
     name: string;
@@ -24,15 +22,26 @@ const formatTitleCase = (value: string) =>
 
 export default function CityEditPage() {
     const { t } = useI18n();
+    const navigate = useNavigate();
     const { id } = useParams();
-    const { data: city, isLoading, isError } = useAdminCityDetailData({ scenario: SCENARIO });
+    const { data: city, isLoading, isError } = useAdminCityDetailData({ id });
     const [form, setForm] = useState<CityFormState>({ name: "", country: "" });
     const [touched, setTouched] = useState({ name: false, country: false });
     const [countryQuery, setCountryQuery] = useState("");
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
     const [countryOpen, setCountryOpen] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const [submitting, setSubmitting] = useState(false);
 
-    const countries = useMemo(() => getCountryOptionsMock(OPTIONS_SCENARIO), [OPTIONS_SCENARIO]);
+    const countriesQuery = useQuery({
+        queryKey: ["cityCountries"],
+        queryFn: async ({ signal }) => {
+            const cities = await listCities({ page: 0, size: 200 }, signal);
+            const unique = Array.from(new Set(cities.map((item) => item.country).filter(Boolean)));
+            return unique.map((name, index) => ({ id: index + 1, name: name ?? "" }));
+        },
+    });
+    const countries = useMemo(() => countriesQuery.data ?? [], [countriesQuery.data]);
 
     const filteredCountries = useMemo(() => {
         const query = countryQuery.trim().toLowerCase();
@@ -70,7 +79,19 @@ export default function CityEditPage() {
         if (errors.name || errors.country) {
             return;
         }
-        // TODO: replace with API call to update city by id.
+        if (!id) {
+            setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            return;
+        }
+        setSubmitting(true);
+        setSubmitError(null);
+        updateCity(id, { name: form.name.trim(), country: form.country.trim() })
+            .then(() => navigate(`/cities/${id}`))
+            .catch((error) => {
+                console.error("Failed to update city", error);
+                setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            })
+            .finally(() => setSubmitting(false));
     };
 
     const handleCountrySelect = (value: string) => {
@@ -96,6 +117,9 @@ export default function CityEditPage() {
     }
 
     if (isError) {
+        return <div className="entity-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+    }
+    if (!city) {
         return <div className="entity-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
     }
 
@@ -198,10 +222,14 @@ export default function CityEditPage() {
                             {touched.country && errors.country && <p className="error-message">{errors.country}</p>}
                         </div>
 
-                        <button type="submit" className="form-button">
+                        <button type="submit" className="form-button" disabled={submitting}>
                             {t("editCity.submit", { defaultValue: "Update City" })}
                         </button>
                     </form>
+                    {countriesQuery.isError && (
+                        <p className="error-message">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</p>
+                    )}
+                    {submitError && <p className="error-message">{submitError}</p>}
 
                     <div className="auth-footer">
                         <Link to={`/cities/${id}`} className="auth-link">
