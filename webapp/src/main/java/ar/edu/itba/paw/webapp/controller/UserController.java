@@ -7,6 +7,7 @@ import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.UserInterest;
 import ar.edu.itba.paw.models.exceptions.ImageNotFoundException;
+import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.CustomMediaType;
 import ar.edu.itba.paw.webapp.dto.InterestDto;
@@ -17,6 +18,8 @@ import ar.edu.itba.paw.webapp.form.CreateUserForm;
 import ar.edu.itba.paw.webapp.form.EditUserForm;
 import ar.edu.itba.paw.webapp.form.PasswordForm;
 import ar.edu.itba.paw.webapp.form.PatchUserForm;
+import ar.edu.itba.paw.webapp.form.ResetPasswordForm;
+import ar.edu.itba.paw.webapp.form.ValidateUserForm;
 import ar.edu.itba.paw.webapp.form.ForgotPasswordForm;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
@@ -29,6 +32,9 @@ import org.springframework.stereotype.Component;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.Response.StatusType;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -101,6 +107,25 @@ public class UserController {
         return Response.noContent().build();
     }
 
+    @POST
+    @Consumes(CustomMediaType.PASSWORD_RESET)
+    public Response resetPassword(@Valid final ResetPasswordForm form){
+        us.resetPassword(form.getToken(), form.getPassword());
+        return Response.noContent().build();
+    }
+
+    @POST
+    @Consumes(CustomMediaType.ACCOUNT_VALIDATION_TOKEN)
+    public Response validateAccount(@Valid final ValidateUserForm form) {
+        try{
+            us.verifyUser(form.getValidationToken());
+        }
+        catch (InvalidTokenException e){
+            return Response.status(Status.NOT_FOUND).build();
+        }
+        return Response.accepted().build();
+    }
+
 
 
     @PUT
@@ -134,6 +159,7 @@ public class UserController {
         us.updatePassword(id, form.getPassword());
         return Response.noContent().build();
     }
+
 
     // ==================== BLOCKED STATUS ====================
 

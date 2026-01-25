@@ -6722,6 +6722,7 @@ textarea.input-control {
 
 .profile-form-page .form-input.error,
 .profile-password-page .form-input.error,
+.reset-password-page .form-input.error,
 .profile-form-page .autocomplete-input.error {
   border-color: #ef4444;
   background-color: #fee2e2;

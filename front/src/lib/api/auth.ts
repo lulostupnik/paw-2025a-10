@@ -122,7 +122,7 @@ export interface PasswordResetRequest {
 }
 
 export async function requestPasswordReset(body: PasswordResetRequest): Promise<void> {
-    await apiClient.post("/auth/password/forgot", body);
+    await apiClient.post("/users", body, {headers: {'Content-Type': 'application/vnd.gotogether.userPassword.v1+json'}});
 }
 
 export interface EmailVerificationResponse {
@@ -133,7 +133,7 @@ export interface EmailVerificationResponse {
 }
 
 export async function verifyEmailToken(token: string): Promise<EmailVerificationResponse> {
-    const { data } = await apiClient.post<EmailVerificationResponse>("/auth/email/verify", { token });
+    const { data } = await apiClient.post<EmailVerificationResponse>("/users", { 'validationToken': token }, {headers: {'Content-Type': 'application/vnd.gotogether.accountValidationToken.v1+json'}});
     return data;
 }
 
@@ -144,7 +144,5 @@ export interface PasswordResetPayload {
 }
 
 export async function resetPassword(payload: PasswordResetPayload): Promise<void> {
-    // TODO: wire to the new password reset endpoint once available (legacy /reset-password no longer exists).
-    console.info("TODO: reset password", payload);
-    throw new Error("reset-password-not-implemented");
+    await apiClient.post("/users", payload, {headers: {'Content-Type': 'application/vnd.gotogether.passwordReset.v1+json'}});
 }
