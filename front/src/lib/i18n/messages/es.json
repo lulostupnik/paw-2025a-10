@@ -992,6 +992,7 @@
   "events.create": "Crear Evento",
   "events.tabs.all": "Todos los Eventos",
   "events.tabs.upcoming": "Próximos Eventos",
+  "events.tabs.attending": "Eventos a los que asisto",
   "events.tabs.past": "Eventos Pasados",
   "events.list.empty": "Todavía no hay eventos disponibles",
   "events.list.empty.description": "Cuando la comunidad planee nuevas actividades, aparecerán aquí.",

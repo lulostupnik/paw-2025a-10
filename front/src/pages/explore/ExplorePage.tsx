@@ -3,6 +3,7 @@ import Button from "@/components/ui/Button";
 import EmptyState from "@/components/EmptyState";
 import EventCard from "@/components/cards/EventCard";
 import JourneyCard from "@/components/journeys/JourneyCard";
+import ListingSkeletonGrid from "@/components/listing/ListingSkeletonGrid";
 import { useEvents } from "@/hooks/useEvents";
 import { useJourneys } from "@/hooks/useJourneys";
 import { useI18n } from "@/lib/i18n";
@@ -120,9 +121,7 @@ export default function ExplorePage() {
                         {t("dashboard.view.all")}
                     </Button>
                 </div>
-                {journeysLoading && (
-                    <p className="section__helper">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</p>
-                )}
+                {journeysLoading && <ListingSkeletonGrid count={4} />}
                 {!journeysLoading && journeysError && journeys.length === 0 ? (
                     <EmptyState
                         title={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}
@@ -158,7 +157,7 @@ export default function ExplorePage() {
                         {t("dashboard.view.all")}
                     </Button>
                 </div>
-                {eventsLoading && <p className="section__helper">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</p>}
+                {eventsLoading && <ListingSkeletonGrid count={6} />}
                 {!eventsLoading && eventsError && events.length === 0 ? (
                     <EmptyState
                         title={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}

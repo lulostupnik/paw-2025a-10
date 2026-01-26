@@ -1087,6 +1087,7 @@
   "events.create": "Create Event",
   "events.tabs.all": "All Events",
   "events.tabs.upcoming": "Upcoming Events",
+  "events.tabs.attending": "Events I'm Attending",
   "events.tabs.past": "Past Events",
   "events.list.empty": "No events published yet",
   "events.list.empty.description": "New activities will appear here as soon as the community plans them.",
