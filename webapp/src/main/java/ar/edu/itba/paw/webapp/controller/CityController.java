@@ -2,12 +2,14 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.models.City;
+import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.exceptions.CityNotFoundException;
 import ar.edu.itba.paw.webapp.dto.CityDto;
 import ar.edu.itba.paw.webapp.form.CreateCityForm;
 import ar.edu.itba.paw.webapp.form.PatchCityForm;
 import ar.edu.itba.paw.webapp.form.UpdateCityForm;
+import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,8 +17,9 @@ import org.springframework.stereotype.Component;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.ResponseBuilder;
+
 import java.util.List;
-import java.util.Optional;
 
 @Path("cities")
 @Component
@@ -33,12 +36,13 @@ public class CityController {
     public Response listCities(
             // @QueryParam("country") Long countryId,
             @QueryParam("search") String search,
-            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("20") int size
     ) {
-        final List<City> cities = cityService.searchCities(search, new PageParams(page + 1, size)).getContent();
-        final List<CityDto> cityDtos = CityDto.fromCityCollection(uriInfo, cities);
-        return Response.ok(new GenericEntity<>(cityDtos) {}).build();
+        final Page<City> cities = cityService.searchCities(search, new PageParams(page, size));
+        final List<CityDto> cityDtos = CityDto.fromCityCollection(uriInfo, cities.getContent());
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(cityDtos) {});
+        return PagingUtils.insertPaginationLinks(response, uriInfo, cities).build();
     }
 
     @GET

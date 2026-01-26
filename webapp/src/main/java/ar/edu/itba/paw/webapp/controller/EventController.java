@@ -16,6 +16,7 @@ import ar.edu.itba.paw.models.Image;
 import ar.edu.itba.paw.models.exceptions.ImageNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
 import ar.edu.itba.paw.webapp.utils.DateUtils;
+import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,11 +27,12 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.ResponseBuilder;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Path("events")
 @Component
@@ -60,7 +62,7 @@ public class EventController {
             @QueryParam("search") String search,
             @QueryParam("sort") String sort,
             @QueryParam("direction") String direction,
-            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("8") int size,
             @QueryParam("attendedBy") Long attendedByUserId,
             @QueryParam("university") String university,
@@ -91,11 +93,12 @@ public class EventController {
                 minRating,
                 hasCapacity,
                 journeyId,
-                new PageParams(page + 1, size)
+                new PageParams(page, size)
         );
 
         final List<EventDto> eventDtos = EventDto.fromEventCollection(uriInfo, eventsPage.getContent());
-        return Response.ok(new GenericEntity<>(eventDtos) {}).build();
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(eventDtos) {});
+        return PagingUtils.insertPaginationLinks(response, uriInfo, eventsPage).build();
     }
 
     @GET
@@ -220,12 +223,13 @@ public class EventController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response listEventResponses(
             @PathParam("eventId") final long eventId,
-            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("4") int size
     ) {
-        final List<EventResponse> responses = eventService.findEventResponses(eventId, new PageParams(page + 1, size)).getContent();
-        final List<EventResponseDto> responseDtos = EventResponseDto.fromEventResponseCollection(uriInfo, responses);
-        return Response.ok(new GenericEntity<>(responseDtos) {}).build();
+        final Page<EventResponse> responses = eventService.findEventResponses(eventId, new PageParams(page, size));
+        final List<EventResponseDto> responseDtos = EventResponseDto.fromEventResponseCollection(uriInfo, responses.getContent());
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(responseDtos) {});
+        return PagingUtils.insertPaginationLinks(response, uriInfo, responses).build();
     }
 
     @GET
@@ -274,12 +278,13 @@ public class EventController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response listEventAttendees(
             @PathParam("eventId") final long eventId,
-            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("10") int size
     ) {
-        final List<User> attendees = eventService.findEventAttendees(eventId, new PageParams(page + 1, size)).getContent();
-        final List<UserDto> attendeeDtos = UserDto.fromUserCollection(uriInfo, attendees);
-        return Response.ok(new GenericEntity<>(attendeeDtos) {}).build();
+        final Page<User> attendees = eventService.findEventAttendees(eventId, new PageParams(page, size));
+        final List<UserDto> attendeeDtos = UserDto.fromUserCollection(uriInfo, attendees.getContent());
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(attendeeDtos) {});
+        return PagingUtils.insertPaginationLinks(response, uriInfo, attendees).build();
     }
 
     @POST
@@ -287,7 +292,7 @@ public class EventController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response attendEvent(@PathParam("eventId") final long eventId) {
         final Long userId = accessHelper.getCurrentUserId();
-        final EventAttendance attendance = eventService.createEventAttendance(userId, eventId);
+        eventService.createEventAttendance(userId, eventId);
         return Response.created(UriUtils.getEventAttendancesUri(uriInfo, eventId)).build();
     }
 
@@ -306,12 +311,13 @@ public class EventController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response listEventRatings(
             @PathParam("eventId") final long eventId,
-            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("10") int size
     ) {
-        final List<Rating> ratings = eventService.findRatingsByEventId(eventId, new PageParams(page + 1, size)).getContent();
-        final List<RatingDto> ratingDtos = RatingDto.fromRatingCollection(uriInfo, ratings);
-        return Response.ok(new GenericEntity<>(ratingDtos) {}).build();
+        final Page<Rating> ratings = eventService.findRatingsByEventId(eventId, new PageParams(page, size));
+        final List<RatingDto> ratingDtos = RatingDto.fromRatingCollection(uriInfo, ratings.getContent());
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(ratingDtos) {});
+        return PagingUtils.insertPaginationLinks(response, uriInfo, ratings).build();
     }
 
     @GET

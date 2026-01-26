@@ -2,12 +2,14 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.models.Interest;
+import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.exceptions.InterestsNotFoundException;
 import ar.edu.itba.paw.webapp.dto.InterestDto;
 import ar.edu.itba.paw.webapp.form.CreateInterestForm;
 import ar.edu.itba.paw.webapp.form.PatchInterestForm;
 import ar.edu.itba.paw.webapp.form.UpdateInterestForm;
+import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,8 +17,9 @@ import org.springframework.stereotype.Component;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.ResponseBuilder;
+
 import java.util.List;
-import java.util.Optional;
 
 @Path("interests")
 @Component
@@ -33,13 +36,14 @@ public class InterestController {
     public Response listInterests(
             // @QueryParam("user") Long userId,
             @QueryParam("search") String search,
-            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("20") int size
     ) {
         // TODO: parametro de usuarios? ¿Acá o en /users/{id}/interests? ¿en webapp o en capa de servicios?
-        final List<Interest> interests = interestService.findInterests(search, new PageParams(page + 1, size)).getContent();
-        final List<InterestDto> interestDtos = InterestDto.fromInterestCollection(uriInfo, interests);
-        return Response.ok(new GenericEntity<>(interestDtos) {}).build();
+        final Page<Interest> interests = interestService.findInterests(search, new PageParams(page, size));
+        final List<InterestDto> interestDtos = InterestDto.fromInterestCollection(uriInfo, interests.getContent());
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(interestDtos) {});
+        return PagingUtils.insertPaginationLinks(response, uriInfo, interests).build();
     }
 
     @GET

@@ -1,6 +1,7 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.UniversityService;
+import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.exceptions.UniversityNotFoundException;
@@ -8,6 +9,7 @@ import ar.edu.itba.paw.webapp.dto.UniversityDto;
 import ar.edu.itba.paw.webapp.form.CreateUniversityForm;
 import ar.edu.itba.paw.webapp.form.PatchUniversityForm;
 import ar.edu.itba.paw.webapp.form.UpdateUniversityForm;
+import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,6 +17,8 @@ import org.springframework.stereotype.Component;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.ResponseBuilder;
+
 import java.util.List;
 
 @Path("universities")
@@ -33,12 +37,13 @@ public class UniversityController {
             // @QueryParam("city") Long cityId, --> por lo menos por ahora no
             // @QueryParam("country") Long countryId, --> idem
             @QueryParam("search") String search,
-            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("20") int size
     ) {
-        final List<University> universities = universityService.findUniversities(search, new PageParams(page + 1, size)).getContent();
-        final List<UniversityDto> universityDtos = UniversityDto.fromUniversityCollection(uriInfo, universities);
-        return Response.ok(new GenericEntity<>(universityDtos) {}).build();
+        final Page<University> universities = universityService.findUniversities(search, new PageParams(page, size));
+        final List<UniversityDto> universityDtos = UniversityDto.fromUniversityCollection(uriInfo, universities.getContent());
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(universityDtos) {});
+        return PagingUtils.insertPaginationLinks(response, uriInfo, universities).build();
     }
 
     @GET

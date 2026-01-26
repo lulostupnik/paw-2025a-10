@@ -2,12 +2,14 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.CareerService;
 import ar.edu.itba.paw.models.Career;
+import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.exceptions.CareerNotFoundException;
 import ar.edu.itba.paw.webapp.dto.CareerDto;
 import ar.edu.itba.paw.webapp.form.CreateCareerForm;
 import ar.edu.itba.paw.webapp.form.PatchCareerForm;
 import ar.edu.itba.paw.webapp.form.UpdateCareerForm;
+import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,8 +17,9 @@ import org.springframework.stereotype.Component;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.ResponseBuilder;
+
 import java.util.List;
-import java.util.Optional;
 
 @Path("careers")
 @Component
@@ -32,12 +35,13 @@ public class CareerController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response listCareers(
             @QueryParam("search") String search,
-            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("20") int size
     ) {
-        final List<Career> careers = careerService.searchCareers(search, new PageParams(page + 1, size)).getContent();
-        final List<CareerDto> careerDtos = CareerDto.fromCareerCollection(uriInfo, careers);
-        return Response.ok(new GenericEntity<>(careerDtos) {}).build();
+        final Page<Career> careers = careerService.searchCareers(search, new PageParams(page, size));
+        final List<CareerDto> careerDtos = CareerDto.fromCareerCollection(uriInfo, careers.getContent());
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(careerDtos) {});
+        return PagingUtils.insertPaginationLinks(response, uriInfo, careers).build();
     }
 
     @GET

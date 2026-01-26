@@ -3,6 +3,7 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.models.Journey;
 import ar.edu.itba.paw.models.JourneyResponse;
+import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.Tip;
 import ar.edu.itba.paw.models.enums.SortDirection;
@@ -22,6 +23,7 @@ import ar.edu.itba.paw.webapp.form.PatchJourneyForm;
 import ar.edu.itba.paw.webapp.form.PatchTipForm;
 import ar.edu.itba.paw.webapp.form.UpdateJourneyForm;
 import ar.edu.itba.paw.webapp.utils.DateUtils;
+import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,9 +31,10 @@ import org.springframework.stereotype.Component;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.ResponseBuilder;
+
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Path("journeys")
 @Component
@@ -62,7 +65,7 @@ public class JourneyController {
             @QueryParam("search") String search,
             @QueryParam("sort") String sort,
             @QueryParam("direction") String direction,
-            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("8") int size
     ) {
         final Long userId = accessHelper.getCurrentUserId();
@@ -71,7 +74,7 @@ public class JourneyController {
         final SortFieldJourney sortField = SortFieldJourney.from(sort);
         final SortDirection sortDirection = SortDirection.from(direction);
 
-        final List<Journey> journeys = journeyService.findJourneys(
+        final Page<Journey> journeys = journeyService.findJourneys(
                 search,
                 userId,
                 sortField,
@@ -85,11 +88,12 @@ public class JourneyController {
                 upcoming,
                 myDestination,
                 ongoing,
-                new PageParams(page + 1, size)
-        ).getContent();
+                new PageParams(page, size)
+        );
 
-        final List<JourneyDto> journeyDtos = JourneyDto.fromJourneyCollection(uriInfo, journeys);
-        return Response.ok(new GenericEntity<>(journeyDtos) {}).build();
+        final List<JourneyDto> journeyDtos = JourneyDto.fromJourneyCollection(uriInfo, journeys.getContent());
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(journeyDtos) {});
+        return PagingUtils.insertPaginationLinks(response, uriInfo, journeys).build();
     }
 
 
@@ -170,12 +174,13 @@ public class JourneyController {
     public Response listTips(
             @PathParam("journeyId") final long journeyId,
             @QueryParam("search") String search,
-            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("6") int size
     ) {
-        final List<Tip> tips = journeyService.findTipsByJourneyId(journeyId, new PageParams(page + 1, size)).getContent();
-        final List<TipDto> tipDtos = TipDto.fromTipCollection(uriInfo, tips);
-        return Response.ok(new GenericEntity<>(tipDtos) {}).build();
+        final Page<Tip> tips = journeyService.findTipsByJourneyId(journeyId, new PageParams(page, size));
+        final List<TipDto> tipDtos = TipDto.fromTipCollection(uriInfo, tips.getContent());
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(tipDtos) {});
+        return PagingUtils.insertPaginationLinks(response, uriInfo, tips).build();
     }
 
     @GET
@@ -251,12 +256,13 @@ public class JourneyController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response listJourneyResponses(
             @PathParam("journeyId") final long journeyId,
-            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("4") int size
     ) {
-        final List<JourneyResponse> responses = journeyService.findJourneyResponses(journeyId, new PageParams(page + 1, size)).getContent();
-        final List<JourneyResponseDto> responseDtos = JourneyResponseDto.fromJourneyResponseCollection(uriInfo, responses);
-        return Response.ok(new GenericEntity<>(responseDtos) {}).build();
+        final Page<JourneyResponse> responses = journeyService.findJourneyResponses(journeyId, new PageParams(page, size));
+        final List<JourneyResponseDto> responseDtos = JourneyResponseDto.fromJourneyResponseCollection(uriInfo, responses.getContent());
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(responseDtos) {});
+        return PagingUtils.insertPaginationLinks(response, uriInfo, responses).build();
     }
 
     @GET

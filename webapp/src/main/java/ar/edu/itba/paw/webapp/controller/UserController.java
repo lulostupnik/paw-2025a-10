@@ -3,11 +3,11 @@ package ar.edu.itba.paw.webapp.controller;
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.Image;
+import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.UserInterest;
 import ar.edu.itba.paw.models.exceptions.ImageNotFoundException;
-import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.webapp.CustomMediaType;
 import ar.edu.itba.paw.webapp.dto.InterestDto;
@@ -18,22 +18,20 @@ import ar.edu.itba.paw.webapp.form.CreateUserForm;
 import ar.edu.itba.paw.webapp.form.EditUserForm;
 import ar.edu.itba.paw.webapp.form.PasswordForm;
 import ar.edu.itba.paw.webapp.form.PatchUserForm;
-import ar.edu.itba.paw.webapp.form.ResetPasswordForm;
-import ar.edu.itba.paw.webapp.form.ValidateUserForm;
 import ar.edu.itba.paw.webapp.form.ForgotPasswordForm;
 import org.glassfish.jersey.media.multipart.FormDataParam;
+
+import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.Response.StatusType;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,12 +61,13 @@ public class UserController {
             @QueryParam("interest") Long interestId,
             @QueryParam("search") String search,
             @QueryParam("blocked") Boolean blocked,
-            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("10") int size
     ) {
-        final List<User> allUsers = us.findUsers(search, new PageParams(page + 1, size), attendingEventId, universityId, careerId, interestId, blocked).getContent();
-        final List<UserDto> userDtos = UserDto.fromUserCollection(uriInfo, allUsers);
-        return Response.ok(new GenericEntity<>(userDtos) {}).build();
+        final Page<User> allUsers = us.findUsers(search, new PageParams(page, size), attendingEventId, universityId, careerId, interestId, blocked);
+        final List<UserDto> userDtos = UserDto.fromUserCollection(uriInfo, allUsers.getContent());
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(userDtos) {});
+        return PagingUtils.insertPaginationLinks(response, uriInfo, allUsers).build();
     }
 
     // TODO: ¿Esto quien lo puede acceder?
@@ -106,27 +105,6 @@ public class UserController {
         us.initiatePasswordReset(form.getEmail());
         return Response.noContent().build();
     }
-
-    @POST
-    @Consumes(CustomMediaType.PASSWORD_RESET)
-    public Response resetPassword(@Valid final ResetPasswordForm form){
-        us.resetPassword(form.getToken(), form.getPassword());
-        return Response.noContent().build();
-    }
-
-    @POST
-    @Consumes(CustomMediaType.ACCOUNT_VALIDATION_TOKEN)
-    public Response validateAccount(@Valid final ValidateUserForm form) {
-        try{
-            us.verifyUser(form.getValidationToken());
-        }
-        catch (InvalidTokenException e){
-            return Response.status(Status.NOT_FOUND).build();
-        }
-        return Response.accepted().build();
-    }
-
-
 
     @PUT
     @Path("/{id}")
@@ -189,18 +167,19 @@ public class UserController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response listUserInterests(
             @PathParam("userId") final long userId,
-            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("20") int size
     ) {
         final User user = us.findUserById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
-        final List<UserInterest> userInterests = interestService.findInterestsByUser(user, new PageParams(page + 1, size)).getContent();
+        final Page<UserInterest> userInterests = interestService.findInterestsByUser(user, new PageParams(page, size));
         // TODO: Create UserInterestDto or reuse InterestDto
-        final List<InterestDto> interestDtos = userInterests.stream()
+        final List<InterestDto> interestDtos = userInterests.getContent().stream()
                 .map(ui -> InterestDto.fromInterest(uriInfo, ui.getInterest()))
                 .toList();
-        return Response.ok(new GenericEntity<>(interestDtos) {}).build();
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(interestDtos) {});
+        return PagingUtils.insertPaginationLinks(response, uriInfo, userInterests).build();
     }
 
     //TODO: podria ser put? porque si ya existe no se crea uno nuevo
