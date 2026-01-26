@@ -112,8 +112,12 @@ export default function AdminPage() {
         setSearchParams(buildParams(value, 1));
     };
 
-    const handlePageChange = (nextPage: number) => {
-        setSearchParams(buildParams(searchQuery, nextPage));
+    const handlePageChange = (nextPage: number | string) => {
+        if (typeof(nextPage) === 'string'){
+            const url = new URL(nextPage);
+            setSearchParams(url.searchParams)
+        } else
+            setSearchParams(buildParams(searchQuery, nextPage));
     };
 
     // TODO: replace with API-backed role checks when auth is fully wired.
@@ -245,7 +249,7 @@ interface AdminTabContainerProps {
     searchValue: string;
     onSearchChange: (value: string) => void;
     onSearchSubmit: (value: string) => void;
-    onPageChange: (page: number) => void;
+    onPageChange: (page: number | string) => void;
 }
 
 function AdminJourneysTabContainer({

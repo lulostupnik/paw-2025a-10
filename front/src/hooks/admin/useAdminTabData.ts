@@ -10,7 +10,7 @@ import type {
     AdminUser,
 } from "@/types/admin";
 import { useJourneys } from "@/hooks/useJourneys";
-import { fetchEventPage, fetchEvents } from "@/lib/api/events";
+import { fetchEvents } from "@/lib/api/events";
 import { getCityByUrl, getUniversityByUrl, getUserByUrl } from "@/lib/api/journeys";
 import { listCareers } from "@/lib/api/careers";
 import { listCities } from "@/lib/api/cities";
@@ -97,7 +97,7 @@ export const useAdminUsers = ({
     pageSize = 10,
     url = undefined
 }: AdminTabParams = {}): AdminTabResult<AdminUser> => {
-    const { params, safePage, safePageSize } = useAdminListParams({ search, page, pageSize, url });
+    const { params } = useAdminListParams({ search, page, pageSize, url });
 
     const query = useQuery({
         queryKey: ["adminUsers", params],
@@ -132,14 +132,13 @@ export const useAdminEvents = ({
     search = "",
     page = 1,
     pageSize = 10,
-    url = undefined
 }: AdminTabParams = {}): AdminTabResult<AdminEvent> => {
-    const { params, safePage, safePageSize } = useAdminListParams({ search, page, pageSize });
+    const { params } = useAdminListParams({ search, page, pageSize });
 
     const query = useQuery({
         queryKey: ["adminEvents", params],
         queryFn: async ({ signal }) => {
-            const events = url ? await fetchEventPage(url, signal) : await fetchEvents(params, signal);
+            const events = await fetchEvents(params, signal);
             const adminEvents = await Promise.all(
                 events.content.map(async (event) => {
                     const [creator, city] = await Promise.all([
@@ -175,7 +174,7 @@ export const useAdminUniversities = ({
     page = 1,
     pageSize = 10,
 }: AdminTabParams = {}): AdminTabResult<AdminUniversity> => {
-    const { params, safePage, safePageSize } = useAdminListParams({ search, page, pageSize });
+    const { params } = useAdminListParams({ search, page, pageSize });
 
     const query = useQuery({
         queryKey: ["adminUniversities", params],
@@ -210,7 +209,7 @@ export const useAdminInterests = ({
     page = 1,
     pageSize = 10,
 }: AdminTabParams = {}): AdminTabResult<AdminInterest> => {
-    const { params, safePage, safePageSize } = useAdminListParams({ search, page, pageSize });
+    const { params } = useAdminListParams({ search, page, pageSize });
 
     const query = useQuery({
         queryKey: ["adminInterests", params],
@@ -241,7 +240,7 @@ export const useAdminCities = ({
     page = 1,
     pageSize = 10,
 }: AdminTabParams = {}): AdminTabResult<AdminCity> => {
-    const { params, safePage, safePageSize } = useAdminListParams({ search, page, pageSize });
+    const { params } = useAdminListParams({ search, page, pageSize });
 
     const query = useQuery({
         queryKey: ["adminCities", params],
@@ -273,7 +272,7 @@ export const useAdminCareers = ({
     page = 1,
     pageSize = 10,
 }: AdminTabParams = {}): AdminTabResult<AdminCareer> => {
-    const { params, safePage, safePageSize } = useAdminListParams({ search, page, pageSize });
+    const { params } = useAdminListParams({ search, page, pageSize });
 
     const query = useQuery({
         queryKey: ["adminCareers", params],

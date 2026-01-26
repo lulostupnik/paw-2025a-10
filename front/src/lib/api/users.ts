@@ -52,7 +52,7 @@ export interface UserApi {
 }
 
 export const listUsers = async (params: ListUsersParams = {}, signal?: AbortSignal): Promise<PageResult<UserApi>> => {
-    const response = params.url ? await apiClient.get<UserApi[]>(params.url ?? "") : await apiClient.get<UserApi[]>("/users", { params, signal });
+    const response = await apiClient.get<UserApi[]>("/users", { params, signal });
     return toPaged(response);
 };
 

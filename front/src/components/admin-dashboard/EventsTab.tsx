@@ -11,7 +11,7 @@ interface EventsTabProps {
     searchValue: string;
     onSearchChange: (value: string) => void;
     onSearchSubmit: (value: string) => void;
-    onPageChange: (page: number) => void;
+    onPageChange: (page: number | string) => void;
     isLoading: boolean;
     isError: boolean;
 }
@@ -99,6 +99,10 @@ export default function EventsTab({
                     totalPages={data.totalPages}
                     currentPage={data.currentPage}
                     pageSize={data.pageSize}
+                    nextPage={data.next}
+                    lastPage={data.last}
+                    prevPage={data.prev}
+                    firstPage={data.first}
                     onPageChange={onPageChange}
                     previousLabel={t("pagination.prev")}
                     nextLabel={t("pagination.next")}

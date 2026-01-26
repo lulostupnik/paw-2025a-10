@@ -9,7 +9,7 @@ interface PaginationProps {
     lastPage?: string | null;
     prevPage?: string | null;
     firstPage?: string | null;
-    onPageChange: (page: number) => void;
+    onPageChange: (page: number | string) => void;
     previousLabel: string;
     nextLabel: string;
 }
@@ -38,7 +38,7 @@ export default function Pagination({
 
     const handlePageClick = (page: number | string) => () => {
         if (typeof(page) === 'string'){
-            console.log(page);
+            onPageChange(page)
         }
         else if (page !== currentPage) {
             onPageChange(page);

@@ -94,11 +94,6 @@ export async function fetchEvents(params: FetchEventsParams = {}, signal?: Abort
     return toPaged(response);
 }
 
-export async function fetchEventPage(page: string, signal?: AbortSignal): Promise<PageResult<EventDto>> {
-    const response = await apiClient.get<EventDto[]>(page, { signal });
-    return toPaged(response);
-}
-
 export const getEventById = async (id: number | string, signal?: AbortSignal) => {
     const response = await apiClient.get<EventDto>(`/events/${id}`, { signal });
     return response.data;
