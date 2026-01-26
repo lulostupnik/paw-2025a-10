@@ -49,8 +49,8 @@ function ActionIcon({ name }: ActionIconProps) {
 export default function ExplorePage() {
     const navigate = useNavigate();
     const { t } = useI18n();
-    const { journeys, loading: journeysLoading, error: journeysError } = useJourneys({ page: 0, size: 4 });
-    const { events, loading: eventsLoading, error: eventsError } = useEvents({ page: 0, size: 6 });
+    const { journeys, loading: journeysLoading, error: journeysError } = useJourneys({ page: 1, size: 4 });
+    const { events, loading: eventsLoading, error: eventsError } = useEvents({ page: 1, size: 6 });
 
     const quickActions = [
         {
@@ -122,12 +122,12 @@ export default function ExplorePage() {
                     </Button>
                 </div>
                 {journeysLoading && <ListingSkeletonGrid count={4} />}
-                {!journeysLoading && journeysError && journeys.length === 0 ? (
+                {!journeysLoading && journeysError && journeys.content.length === 0 ? (
                     <EmptyState
                         title={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}
                         className="explore-empty"
                     />
-                ) : journeys.length === 0 ? (
+                ) : journeys.content.length === 0 ? (
                     <EmptyState
                         title={t("dashboard.no.journeys")}
                         action={
@@ -139,7 +139,7 @@ export default function ExplorePage() {
                     />
                 ) : (
                     <div className="listing-grid">
-                        {journeys.map((journey) => (
+                        {journeys.content.map((journey) => (
                             <JourneyCard key={journey.id} journey={journey} />
                         ))}
                     </div>
@@ -158,12 +158,12 @@ export default function ExplorePage() {
                     </Button>
                 </div>
                 {eventsLoading && <ListingSkeletonGrid count={6} />}
-                {!eventsLoading && eventsError && events.length === 0 ? (
+                {!eventsLoading && eventsError && events.content.length === 0 ? (
                     <EmptyState
                         title={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}
                         className="explore-empty"
                     />
-                ) : events.length === 0 ? (
+                ) : events.content.length === 0 ? (
                     <EmptyState
                         title={t("dashboard.no.events")}
                         action={
@@ -175,7 +175,7 @@ export default function ExplorePage() {
                     />
                 ) : (
                     <div className="listing-grid">
-                        {events.map((event) => (
+                        {events.content.map((event) => (
                             <EventCard key={event.id} event={event} />
                         ))}
                     </div>

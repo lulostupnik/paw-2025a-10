@@ -1,6 +1,7 @@
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { getCityByUrl, getUserByUrl } from "@/lib/api/journeys";
 import type { EventAttendee, EventComment, EventDetail, EventRating, ProfileEvent } from "@/types/event";
+import { toPaged, type PageResult } from "@/types/pagination";
 
 
 export interface EventDto {
@@ -85,13 +86,17 @@ export interface FetchEventsParams {
     creatorId?: number;
 }
 
-export async function fetchEvents(params: FetchEventsParams = {}, signal?: AbortSignal): Promise<EventDto[]> {
+export async function fetchEvents(params: FetchEventsParams = {}, signal?: AbortSignal): Promise<PageResult<EventDto>> {
     const response = await apiClient.get<EventDto[]>("/events", {
         params,
         signal,
     });
-    const data = response.data;
-    return Array.isArray(data) ? data : [];
+    return toPaged(response);
+}
+
+export async function fetchEventPage(page: string, signal?: AbortSignal): Promise<PageResult<EventDto>> {
+    const response = await apiClient.get<EventDto[]>(page, { signal });
+    return toPaged(response);
 }
 
 export const getEventById = async (id: number | string, signal?: AbortSignal) => {
@@ -103,27 +108,27 @@ export const listEventResponses = async (
     eventId: number,
     params: { page?: number; size?: number } = {},
     signal?: AbortSignal
-) => {
+): Promise<PageResult<EventResponseApi>> => {
     const response = await apiClient.get<EventResponseApi[]>(`/events/${eventId}/responses`, { params, signal });
-    return response.data ?? [];
+    return toPaged(response);
 };
 
 export const listEventAttendees = async (
     eventId: number,
     params: { page?: number; size?: number } = {},
     signal?: AbortSignal
-) => {
+): Promise<PageResult<UserApi>> => {
     const response = await apiClient.get<UserApi[]>(`/events/${eventId}/attendances`, { params, signal });
-    return response.data ?? [];
+    return toPaged(response);
 };
 
 export const listEventRatings = async (
     eventId: number,
     params: { page?: number; size?: number } = {},
     signal?: AbortSignal
-) => {
+): Promise<PageResult<RatingApi>> => {
     const response = await apiClient.get<RatingApi[]>(`/events/${eventId}/ratings`, { params, signal });
-    return response.data ?? [];
+    return toPaged(response);
 };
 
 export const mapEventDtoToSummary = (dto: EventDto): EventSummary => ({
@@ -174,23 +179,23 @@ export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): P
     const [creator, city, responses, attendees, ratings] = await Promise.all([
         event.creatorUrl ? getUserByUrl(event.creatorUrl, signal) : Promise.resolve(null),
         event.cityUrl ? getCityByUrl(event.cityUrl, signal) : Promise.resolve(null),
-        listEventResponses(event.id, { page: 0, size: 10 }, signal),
-        listEventAttendees(event.id, { page: 0, size: 10 }, signal),
-        listEventRatings(event.id, { page: 0, size: 10 }, signal),
+        listEventResponses(event.id, { page: 1, size: 10 }, signal),
+        listEventAttendees(event.id, { page: 1, size: 10 }, signal),
+        listEventRatings(event.id, { page: 1, size: 10 }, signal),
     ]);
 
     const responseUsers = await Promise.all(
-        responses.map((response) =>
+        responses.content.map((response) =>
             response.authorUrl ? getUserByUrl(normalizeApiPath(response.authorUrl), signal) : Promise.resolve(null)
         )
     );
     const ratingUsers = await Promise.all(
-        ratings.map((rating) =>
+        ratings.content.map((rating) =>
             rating.userUrl ? getUserByUrl(normalizeApiPath(rating.userUrl), signal) : Promise.resolve(null)
         )
     );
 
-    const comments: EventComment[] = responses.map((response, index) => ({
+    const comments: EventComment[] = responses.content.map((response, index) => ({
         id: response.id,
         message: response.message,
         dateTime: response.dateTime,
@@ -199,7 +204,7 @@ export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): P
         },
     }));
 
-    const attendeesList: EventAttendee[] = attendees.map((attendee) => ({
+    const attendeesList: EventAttendee[] = attendees.content.map((attendee) => ({
         id: attendee.id,
         firstname: attendee.username ?? "—",
         lastname: "",
@@ -207,7 +212,7 @@ export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): P
         profilePictureUrl: attendee.profilePictureUrl ?? null,
     }));
 
-    const ratingsList: EventRating[] = ratings.map((rating, index) => ({
+    const ratingsList: EventRating[] = ratings.content.map((rating, index) => ({
         id: rating.id,
         rating: rating.rating,
         dateTime: new Date().toISOString(),

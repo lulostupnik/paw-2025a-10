@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { getUserId, isAdmin } from "@/lib/auth/auth";
 import CreatorCard from "@/components/detail/CreatorCard";
-import AdminPagination from "@/components/admin-dashboard/AdminPagination";
+import Pagination from "@/components/listing/Pagination";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
 import { createJourneyResponse } from "@/lib/api/journeys";
 import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
@@ -355,7 +355,7 @@ export default function JourneyDetailPage() {
                                                     </div>
                                                 ))}
                                             </div>
-                                            <AdminPagination
+                                            <Pagination
                                                 totalPages={pagedInterests.totalPages}
                                                 currentPage={pagedInterests.currentPage}
                                                 pageSize={pagedInterests.pageSize}
@@ -473,7 +473,7 @@ export default function JourneyDetailPage() {
                                                         </Link>
                                                     ))}
                                                 </div>
-                                                <AdminPagination
+                                                <Pagination
                                                     totalPages={pagedEvents.totalPages}
                                                     currentPage={pagedEvents.currentPage}
                                                     pageSize={pagedEvents.pageSize}
@@ -603,7 +603,7 @@ export default function JourneyDetailPage() {
                                                     </div>
                                                 ))}
                                             </div>
-                                            <AdminPagination
+                                            <Pagination
                                                 totalPages={pagedTips.totalPages}
                                                 currentPage={pagedTips.currentPage}
                                                 pageSize={pagedTips.pageSize}
@@ -769,7 +769,7 @@ export default function JourneyDetailPage() {
                                                 </div>
                                             ))
                                         )}
-                                        <AdminPagination
+                                        <Pagination
                                             totalPages={pagedComments.totalPages}
                                             currentPage={pagedComments.currentPage}
                                             pageSize={pagedComments.pageSize}

@@ -154,7 +154,7 @@ export default function LandingPage() {
                             }
                         />
                     )}
-                    {!featuredEventsLoading && !featuredEventsError && featuredEvents.length === 0 && (
+                    {!featuredEventsLoading && !featuredEventsError && featuredEvents.content.length === 0 && (
                         <EmptyState
                             title={t("events.list.empty")}
                             description={t("events.list.empty.description") || undefined}
@@ -165,9 +165,9 @@ export default function LandingPage() {
                             }
                         />
                     )}
-                    {!featuredEventsError && featuredEvents.length > 0 && (
+                    {!featuredEventsError && featuredEvents.content.length > 0 && (
                         <div className="listing-grid listing-grid--compact">
-                            {featuredEvents.map((event) => (
+                            {featuredEvents.content.map((event) => (
                                 <EventCard
                                     key={event.id}
                                     event={event}

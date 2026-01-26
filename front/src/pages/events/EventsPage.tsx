@@ -151,7 +151,7 @@ export default function EventsListPage() {
     const tabParams = useMemo(() => mapTabParams(activeTab, userId), [activeTab, userId]);
     const eventQueryParams = useMemo<FetchEventsParams>(() => {
         const params: FetchEventsParams = {
-            page: 0,
+            page: 1,
             size: 12,
             ...sortParams,
             ...tabParams,
@@ -265,7 +265,7 @@ export default function EventsListPage() {
                 >
                     {loading && <ListingSkeletonGrid count={12} />}
 
-                    {!loading && (error || events.length === 0) ? (
+                    {!loading && (error || events.content.length === 0) ? (
                         <EmptyState
                             title={emptyStateTitle}
                             description={emptyStateDescription}
@@ -279,7 +279,7 @@ export default function EventsListPage() {
                         />
                     ) : (
                         <div className="listing-grid">
-                            {events.map((event) => (
+                            {events.content.map((event) => (
                                 <EventCard
                                     key={event.id}
                                     event={event}

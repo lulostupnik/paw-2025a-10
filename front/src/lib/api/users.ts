@@ -2,6 +2,7 @@ import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import type { ProfileDetail, ProfileEditPayload, ProfileInterest, ProfileRatingStats, ProfileSummary } from "@/types/profile";
 import { getUniversityByUrl } from "./journeys";
 import { getUserId } from "../auth/auth";
+import { toPaged, type PageResult } from "@/types/pagination";
 
 export interface RegisteredUser {
     id: number;
@@ -34,6 +35,7 @@ export interface ListUsersParams {
     page?: number;
     size?: number;
     blocked?: boolean;
+    url?: string;
 }
 
 export interface UserApi {
@@ -49,10 +51,9 @@ export interface UserApi {
     active?: boolean | null;
 }
 
-export const listUsers = async (params: ListUsersParams = {}, signal?: AbortSignal): Promise<UserApi[]> => {
-    const response = await apiClient.get<UserApi[]>("/users", { params, signal });
-    const data = response.data ?? [];
-    return Array.isArray(data) ? data : [];
+export const listUsers = async (params: ListUsersParams = {}, signal?: AbortSignal): Promise<PageResult<UserApi>> => {
+    const response = params.url ? await apiClient.get<UserApi[]>(params.url ?? "") : await apiClient.get<UserApi[]>("/users", { params, signal });
+    return toPaged(response);
 };
 
 export const mapUserToProfileSummary = (user: UserApi): ProfileSummary => ({
@@ -121,9 +122,9 @@ export const getUserRatingStats = async (userId: string | number, signal?: Abort
     return response.data
 }
 
-export const getUserInterests = async (userId: string | number, signal?: AbortSignal): Promise<ProfileInterest[]> => {
+export const getUserInterests = async (userId: string | number, signal?: AbortSignal): Promise<PageResult<ProfileInterest>> => {
     const response = await apiClient.get<ProfileInterest[]>(`/users/${userId}/interests`, { signal });
-    return response.data
+    return toPaged(response);
 }
 
 export const getCareerByUrl = async (url?: string | null, signal?: AbortSignal) => {
@@ -152,7 +153,7 @@ export const buildProfileDetail = async (user: ProfileDetail, signal?: AbortSign
         careerUrl: user.careerUrl ?? null,
         journeyUrl: user.journeyUrl ?? null,
         ratingStats: ratingStats,
-        interests: interests,
+        interests: interests.content,
         isMine: user.id == getUserId(),
         profilePictureUrl: user.profilePictureUrl,
         career,

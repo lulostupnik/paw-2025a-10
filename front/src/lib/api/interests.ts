@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/api/client";
+import { toPaged, type PageResult } from "@/types/pagination";
 
 export interface InterestDto {
     id: number;
@@ -16,10 +17,9 @@ export interface ListInterestsParams {
     size?: number;
 }
 
-export const listInterests = async (params: ListInterestsParams = {}, signal?: AbortSignal): Promise<InterestDto[]> => {
+export const listInterests = async (params: ListInterestsParams = {}, signal?: AbortSignal): Promise<PageResult<InterestDto>> => {
     const response = await apiClient.get<InterestDto[]>("/interests", { params, signal });
-    const data = response.data ?? [];
-    return Array.isArray(data) ? data : [];
+    return toPaged(response);
 };
 
 export const getInterestById = async (id: number | string, signal?: AbortSignal): Promise<InterestDto> => {

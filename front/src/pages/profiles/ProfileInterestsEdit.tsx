@@ -7,6 +7,7 @@ import type { ProfileInterest } from "@/types/profile";
 import { classNames } from "@/lib/utils/classNames";
 import { useQuery } from "@tanstack/react-query";
 import { listInterests } from "@/lib/api/interests";
+import { emptyPage } from "@/types/pagination";
 
 export default function ProfileInterestsEdit() {
     const { t } = useI18n();
@@ -25,10 +26,10 @@ export default function ProfileInterestsEdit() {
 
     const interestsQuery = useQuery({
         queryKey: ["profileInterestsOptions"],
-        queryFn: async ({ signal }) => listInterests({ page: 0, size: 200 }, signal),
+        queryFn: async ({ signal }) => listInterests({ page: 1, size: 200 }, signal),
     });
     const options = useMemo(
-        () => (interestsQuery.data ?? []).map((item) => ({ id: item.id, name: item.name })),
+        () => (interestsQuery.data ?? emptyPage()).content.map((item) => ({ id: item.id, name: item.name })),
         [interestsQuery.data]
     );
     const filtered = useMemo(() => {

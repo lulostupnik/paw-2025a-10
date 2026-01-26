@@ -8,42 +8,43 @@ import type {
     AdminJourney,
     AdminUniversity,
     AdminUser,
-    PagedResult,
 } from "@/types/admin";
 import { useJourneys } from "@/hooks/useJourneys";
-import { fetchEvents } from "@/lib/api/events";
+import { fetchEventPage, fetchEvents } from "@/lib/api/events";
 import { getCityByUrl, getUniversityByUrl, getUserByUrl } from "@/lib/api/journeys";
 import { listCareers } from "@/lib/api/careers";
 import { listCities } from "@/lib/api/cities";
 import { listInterests } from "@/lib/api/interests";
 import { listUniversities } from "@/lib/api/universities";
-import { listUsers } from "@/lib/api/users";
-import { buildPagedResult } from "@/lib/admin/pagination";
+import { listUsers, type UserApi } from "@/lib/api/users";
+import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
 
 interface AdminTabParams {
     search?: string;
     page?: number;
     pageSize?: number;
+    url?: string;
 }
 
 interface AdminTabResult<T> {
-    data: PagedResult<T>;
+    data: PageResult<T>;
     isLoading: boolean;
     isError: boolean;
     refetch: () => void;
 }
 
-const buildListParams = (search: string, page: number, pageSize: number) => ({
+const buildListParams = (search: string, page: number, pageSize: number, url?: string) => ({
     search: search.trim() || undefined,
-    page: page - 1,
+    page: page,
     size: pageSize,
+    url: url
 });
 
-const useAdminListParams = ({ search = "", page = 1, pageSize = 10 }: AdminTabParams) => {
+const useAdminListParams = ({ search = "", page = 1, pageSize = 10, url = undefined }: AdminTabParams) => {
     const safePage = Math.max(1, page);
     const safePageSize = Math.max(1, pageSize);
     const params = useMemo(
-        () => buildListParams(search, safePage, safePageSize),
+        () => buildListParams(search, safePage, safePageSize, url),
         [search, safePage, safePageSize]
     );
 
@@ -66,7 +67,7 @@ export const useAdminJourneys = ({
 
     const adminJourneys = useMemo(
         () =>
-            journeysQuery.journeys.map(
+            journeysQuery.journeys.content.map(
                 (journey) =>
                     ({
                         id: journey.id,
@@ -83,7 +84,7 @@ export const useAdminJourneys = ({
     );
 
     return {
-        data: buildPagedResult(adminJourneys, safePage, safePageSize),
+        data: mapPageList(journeysQuery.journeys, adminJourneys),
         isLoading: journeysQuery.loading,
         isError: Boolean(journeysQuery.error),
         refetch: journeysQuery.refetch,
@@ -94,15 +95,16 @@ export const useAdminUsers = ({
     search = "",
     page = 1,
     pageSize = 10,
+    url = undefined
 }: AdminTabParams = {}): AdminTabResult<AdminUser> => {
-    const { params, safePage, safePageSize } = useAdminListParams({ search, page, pageSize });
+    const { params, safePage, safePageSize } = useAdminListParams({ search, page, pageSize, url });
 
     const query = useQuery({
         queryKey: ["adminUsers", params],
         queryFn: async ({ signal }) => {
             const users = await listUsers(params, signal);
-            return Promise.all(
-                users.map(async (user) => {
+            const adminUsers = await Promise.all(
+                users.content.map(async (user: UserApi): Promise<AdminUser> => {
                     const university = await getUniversityByUrl(user.universityUrl, signal);
                     return {
                         id: user.id,
@@ -113,12 +115,13 @@ export const useAdminUsers = ({
                     } satisfies AdminUser;
                 })
             );
+            return mapPageList(users, adminUsers);
         },
         placeholderData: keepPreviousData,
     });
 
     return {
-        data: buildPagedResult(query.data ?? [], safePage, safePageSize),
+        data: query.data ?? emptyPage(),
         isLoading: query.isLoading,
         isError: query.isError,
         refetch: query.refetch,
@@ -129,15 +132,16 @@ export const useAdminEvents = ({
     search = "",
     page = 1,
     pageSize = 10,
+    url = undefined
 }: AdminTabParams = {}): AdminTabResult<AdminEvent> => {
     const { params, safePage, safePageSize } = useAdminListParams({ search, page, pageSize });
 
     const query = useQuery({
         queryKey: ["adminEvents", params],
         queryFn: async ({ signal }) => {
-            const events = await fetchEvents(params, signal);
-            return Promise.all(
-                events.map(async (event) => {
+            const events = url ? await fetchEventPage(url, signal) : await fetchEvents(params, signal);
+            const adminEvents = await Promise.all(
+                events.content.map(async (event) => {
                     const [creator, city] = await Promise.all([
                         getUserByUrl(event.creatorUrl, signal),
                         getCityByUrl(event.cityUrl, signal),
@@ -153,12 +157,13 @@ export const useAdminEvents = ({
                     } satisfies AdminEvent;
                 })
             );
+            return mapPageList(events, adminEvents);
         },
         placeholderData: keepPreviousData,
     });
 
     return {
-        data: buildPagedResult(query.data ?? [], safePage, safePageSize),
+        data: query.data ?? emptyPage(),
         isLoading: query.isLoading,
         isError: query.isError,
         refetch: query.refetch,
@@ -176,8 +181,8 @@ export const useAdminUniversities = ({
         queryKey: ["adminUniversities", params],
         queryFn: async ({ signal }) => {
             const universities = await listUniversities(params, signal);
-            return Promise.all(
-                universities.map(async (university) => {
+            const adminUniversities = await Promise.all(
+                universities.content.map(async (university) => {
                     const city = await getCityByUrl(university.cityUrl, signal);
                     return {
                         id: university.id,
@@ -187,12 +192,13 @@ export const useAdminUniversities = ({
                     } satisfies AdminUniversity;
                 })
             );
+            return mapPageList(universities, adminUniversities);
         },
         placeholderData: keepPreviousData,
     });
 
     return {
-        data: buildPagedResult(query.data ?? [], safePage, safePageSize),
+        data: query.data ?? emptyPage(),
         isLoading: query.isLoading,
         isError: query.isError,
         refetch: query.refetch,
@@ -210,19 +216,20 @@ export const useAdminInterests = ({
         queryKey: ["adminInterests", params],
         queryFn: async ({ signal }) => {
             const interests = await listInterests(params, signal);
-            return interests.map(
+            const adminInterests = interests.content.map(
                 (interest) =>
                     ({
                         id: interest.id,
                         name: interest.name,
                     }) satisfies AdminInterest
             );
+            return mapPageList(interests, adminInterests);
         },
         placeholderData: keepPreviousData,
     });
 
     return {
-        data: buildPagedResult(query.data ?? [], safePage, safePageSize),
+        data: query.data ?? emptyPage(),
         isLoading: query.isLoading,
         isError: query.isError,
         refetch: query.refetch,
@@ -240,7 +247,7 @@ export const useAdminCities = ({
         queryKey: ["adminCities", params],
         queryFn: async ({ signal }) => {
             const cities = await listCities(params, signal);
-            return cities.map(
+            const adminCities = cities.content.map(
                 (city) =>
                     ({
                         id: city.id,
@@ -248,12 +255,13 @@ export const useAdminCities = ({
                         country: city.country ?? "",
                     }) satisfies AdminCity
             );
+            return mapPageList(cities, adminCities);
         },
         placeholderData: keepPreviousData,
     });
 
     return {
-        data: buildPagedResult(query.data ?? [], safePage, safePageSize),
+        data: query.data ?? emptyPage(),
         isLoading: query.isLoading,
         isError: query.isError,
         refetch: query.refetch,
@@ -271,19 +279,20 @@ export const useAdminCareers = ({
         queryKey: ["adminCareers", params],
         queryFn: async ({ signal }) => {
             const careers = await listCareers(params, signal);
-            return careers.map(
+            const adminCareers = careers.content.map(
                 (career) =>
                     ({
                         id: career.id,
                         name: career.name,
                     }) satisfies AdminCareer
             );
+            return mapPageList(careers, adminCareers);
         },
         placeholderData: keepPreviousData,
     });
 
     return {
-        data: buildPagedResult(query.data ?? [], safePage, safePageSize),
+        data: query.data ?? emptyPage(),
         isLoading: query.isLoading,
         isError: query.isError,
         refetch: query.refetch,

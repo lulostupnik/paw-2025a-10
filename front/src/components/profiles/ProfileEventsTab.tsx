@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
-import AdminPagination from "@/components/admin-dashboard/AdminPagination";
+import Pagination from "@/components/listing/Pagination";
 import EventCard from "@/components/cards/EventCard";
 import type { PageResult } from "@/types/pagination";
 import type { ProfileEvent } from "@/types/event";
@@ -96,7 +96,7 @@ export default function ProfileEventsTab({
                             ))
                         )}
                     </div>
-                    <AdminPagination
+                    <Pagination
                         totalPages={created.totalPages}
                         currentPage={created.currentPage}
                         pageSize={created.pageSize}
@@ -126,7 +126,7 @@ export default function ProfileEventsTab({
                             ))
                         )}
                     </div>
-                    <AdminPagination
+                    <Pagination
                         totalPages={attending.totalPages}
                         currentPage={attending.currentPage}
                         pageSize={attending.pageSize}
@@ -156,7 +156,7 @@ export default function ProfileEventsTab({
                             ))
                         )}
                     </div>
-                    <AdminPagination
+                    <Pagination
                         totalPages={finished.totalPages}
                         currentPage={finished.currentPage}
                         pageSize={finished.pageSize}

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import type { PagedResult } from "@/types/admin";
 import { listReports, resolveReportListItem, type ListReportsParams, type ReportListItem } from "@/lib/api/reports";
+import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
 
 interface UseReportsParams {
     search?: string;
@@ -10,17 +10,10 @@ interface UseReportsParams {
 }
 
 interface UseReportsResult {
-    data: PagedResult<ReportListItem>;
+    data: PageResult<ReportListItem>;
     isLoading: boolean;
     isError: boolean;
 }
-
-const getTotalPages = (currentPage: number, pageSize: number, count: number) => {
-    if (count < pageSize) {
-        return currentPage;
-    }
-    return currentPage + 1;
-};
 
 export const useReports = ({ search = "", page = 1, pageSize = 10 }: UseReportsParams = {}): UseReportsResult => {
     const safePage = Math.max(1, page);
@@ -28,7 +21,7 @@ export const useReports = ({ search = "", page = 1, pageSize = 10 }: UseReportsP
     const params = useMemo<ListReportsParams>(
         () => ({
             search: search.trim() || undefined,
-            page: safePage - 1,
+            page: safePage,
             size: safePageSize,
         }),
         [safePage, safePageSize, search]
@@ -38,22 +31,14 @@ export const useReports = ({ search = "", page = 1, pageSize = 10 }: UseReportsP
         queryKey: ["reports", params],
         queryFn: async ({ signal }) => {
             const reports = await listReports(params, signal);
-            return Promise.all(reports.map((report) => resolveReportListItem(report, signal)));
+            const reportItems = await Promise.all(reports.content.map((report) => resolveReportListItem(report, signal)));
+            return mapPageList(reports, reportItems);
         },
         placeholderData: keepPreviousData,
     });
 
-    const content = query.data ?? [];
-    const totalPages = getTotalPages(safePage, safePageSize, content.length);
-
     return {
-        data: {
-            content,
-            totalPages,
-            currentPage: safePage,
-            pageSize: safePageSize,
-            totalItems: content.length,
-        },
+        data: query.data ?? emptyPage(),
         isLoading: query.isLoading,
         isError: query.isError,
     };

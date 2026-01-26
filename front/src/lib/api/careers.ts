@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/api/client";
+import { toPaged, type PageResult } from "@/types/pagination";
 
 export interface CareerDto {
     id: number;
@@ -16,10 +17,9 @@ export interface ListCareersParams {
     size?: number;
 }
 
-export const listCareers = async (params: ListCareersParams = {}, signal?: AbortSignal): Promise<CareerDto[]> => {
+export const listCareers = async (params: ListCareersParams = {}, signal?: AbortSignal): Promise<PageResult<CareerDto>> => {
     const response = await apiClient.get<CareerDto[]>("/careers", { params, signal });
-    const data = response.data ?? [];
-    return Array.isArray(data) ? data : [];
+    return toPaged(response);
 };
 
 export const getCareerById = async (id: number | string, signal?: AbortSignal): Promise<CareerDto> => {

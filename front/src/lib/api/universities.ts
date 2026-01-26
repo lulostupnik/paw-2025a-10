@@ -1,4 +1,5 @@
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
+import { toPaged, type PageResult } from "@/types/pagination";
 
 export interface UniversityDto {
     id: number;
@@ -23,10 +24,9 @@ export interface ListUniversitiesParams {
 export const listUniversities = async (
     params: ListUniversitiesParams = {},
     signal?: AbortSignal
-): Promise<UniversityDto[]> => {
+): Promise<PageResult<UniversityDto>> => {
     const response = await apiClient.get<UniversityDto[]>("/universities", { params, signal });
-    const data = response.data ?? [];
-    return Array.isArray(data) ? data : [];
+    return toPaged(response);
 };
 
 export const getUniversityById = async (id: number | string, signal?: AbortSignal): Promise<UniversityDto> => {

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, type ReactElement } from "react";
 import { Link, useLocation } from "react-router-dom";
 import BaseCard from "./BaseCard";
 import CardMetaRow from "./CardMetaRow";
@@ -9,6 +9,7 @@ import { pushToNavigationStack } from "@/lib/utils/navigationStack";
 
 interface EventCardProps {
     event: EventSummary | ProfileEvent;
+    actionSlot?: ReactElement | null;
 }
 
 const ClockIcon = () => (

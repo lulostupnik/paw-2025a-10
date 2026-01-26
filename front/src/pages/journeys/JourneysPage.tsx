@@ -130,7 +130,7 @@ export default function JourneysListPage() {
         search: search || undefined,
         sort: selectedSort.includes("start") ? "start_date" : "end_date",
         direction: selectedSort.endsWith("desc") ? "desc" : "asc",
-        page: 0,
+        page: 1,
         size: 12,
     });
 
@@ -214,13 +214,13 @@ export default function JourneysListPage() {
                     onCreate={handleCreate}
                 >
                     {loading && <ListingSkeletonGrid count={12} />}
-                    {!loading && error && journeys.length > 0 && (
+                    {!loading && error && journeys.content.length > 0 && (
                         <p className="section__helper">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</p>
                     )}
 
-                    {!loading && error && journeys.length === 0 ? (
+                    {!loading && error && journeys.content.length === 0 ? (
                         <EmptyState title={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />
-                    ) : journeys.length === 0 ? (
+                    ) : journeys.content.length === 0 ? (
                         <EmptyState
                             title={t("journey.no.journeys")}
                             action={
@@ -233,7 +233,7 @@ export default function JourneysListPage() {
                         />
                     ) : (
                         <div className="listing-grid">
-                            {journeys.map((journey) => (
+                            {journeys.content.map((journey) => (
                                 <JourneyCard key={journey.id} journey={journey} />
                             ))}
                         </div>

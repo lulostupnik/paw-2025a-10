@@ -7,6 +7,7 @@ import SingleSelectAutocomplete from "@/components/profiles/SingleSelectAutocomp
 import { useQuery } from "@tanstack/react-query";
 import { listCareers } from "@/lib/api/careers";
 import { listUniversities } from "@/lib/api/universities";
+import { emptyPage } from "@/types/pagination";
 
 interface ProfileFormState {
     firstName: string;
@@ -32,19 +33,19 @@ export default function ProfileForm() {
 
     const universitiesQuery = useQuery({
         queryKey: ["profileUniversities"],
-        queryFn: async ({ signal }) => listUniversities({ page: 0, size: 200 }, signal),
+        queryFn: async ({ signal }) => listUniversities({ page: 1, size: 200 }, signal),
     });
     const careersQuery = useQuery({
         queryKey: ["profileCareers"],
-        queryFn: async ({ signal }) => listCareers({ page: 0, size: 200 }, signal),
+        queryFn: async ({ signal }) => listCareers({ page: 1, size: 200 }, signal),
     });
 
     const universities = useMemo(
-        () => (universitiesQuery.data ?? []).map((item) => ({ id: item.id, name: item.name })),
+        () => (universitiesQuery.data ?? emptyPage()).content.map((item) => ({ id: item.id, name: item.name })),
         [universitiesQuery.data]
     );
     const careers = useMemo(
-        () => (careersQuery.data ?? []).map((item) => ({ id: item.id, name: item.name })),
+        () => (careersQuery.data ?? emptyPage()).content.map((item) => ({ id: item.id, name: item.name })),
         [careersQuery.data]
     );
 

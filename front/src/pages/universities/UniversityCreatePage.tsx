@@ -6,6 +6,7 @@ import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useQuery } from "@tanstack/react-query";
 import { createUniversity } from "@/lib/api/universities";
 import { listCities } from "@/lib/api/cities";
+import { emptyPage } from "@/types/pagination";
 
 interface UniversityFormState {
     name: string;
@@ -39,10 +40,10 @@ export default function UniversityCreatePage() {
 
     const citiesQuery = useQuery({
         queryKey: ["citiesOptions"],
-        queryFn: async ({ signal }) => listCities({ page: 0, size: 200 }, signal),
+        queryFn: async ({ signal }) => listCities({ page: 1, size: 200 }, signal),
     });
     const cities = useMemo(
-        () => (citiesQuery.data ?? []).map((city) => ({ id: city.id, name: city.name })),
+        () => (citiesQuery.data ?? emptyPage()).content.map((city) => ({ id: city.id, name: city.name })),
         [citiesQuery.data]
     );
 

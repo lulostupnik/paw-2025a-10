@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
-import type { PagedResult } from "@/types/admin";
 import type { ReportListItem } from "@/lib/api/reports";
-import AdminPagination from "./AdminPagination";
+import Pagination from "../listing/Pagination";
 import AdminTabHeader from "./AdminTabHeader";
 import ClickableRow from "./ClickableRow";
+import type { PageResult } from "@/types/pagination";
 
 interface ReportsTabProps {
-    data: PagedResult<ReportListItem>;
+    data: PageResult<ReportListItem>;
     searchValue: string;
     onSearchChange: (value: string) => void;
     onSearchSubmit: (value: string) => void;
@@ -134,7 +134,7 @@ export default function ReportsTab({
                         </tr>
                     </thead>
                     <tbody>
-                        {data.content.map((report) => {
+                        {data.content.map((report: ReportListItem) => {
                             const status = getStatusConfig(report.status, t);
                             const typeLabel = getTypeLabel(report.contentType, t);
                             const descriptionText = report.description?.trim()
@@ -192,7 +192,7 @@ export default function ReportsTab({
                 {isError && <div className="no-results">{errorLabel}</div>}
                 {isEmpty && <div className="no-results">{t("admin.no.results")}</div>}
 
-                <AdminPagination
+                <Pagination
                     totalPages={data.totalPages}
                     currentPage={data.currentPage}
                     pageSize={data.pageSize}

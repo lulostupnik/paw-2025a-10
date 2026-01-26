@@ -2,14 +2,15 @@ import { useState, type MouseEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { classNames } from "@/lib/utils/classNames";
 import { useI18n } from "@/lib/i18n";
-import type { AdminUser, PagedResult } from "@/types/admin";
+import type { AdminUser } from "@/types/admin";
 import { updateUserBlocked } from "@/lib/api/users";
-import AdminPagination from "./AdminPagination";
+import Pagination from "../listing/Pagination";
 import AdminTabHeader from "./AdminTabHeader";
 import ClickableRow from "./ClickableRow";
+import type { PageResult } from "@/types/pagination";
 
 interface UsersTabProps {
-    data: PagedResult<AdminUser>;
+    data: PageResult<AdminUser>;
     searchValue: string;
     onSearchChange: (value: string) => void;
     onSearchSubmit: (value: string) => void;
@@ -122,7 +123,7 @@ export default function UsersTab({
                 {isError && <div className="no-results">{errorLabel}</div>}
                 {isEmpty && <div className="no-results">{t("admin.no.results")}</div>}
 
-                <AdminPagination
+                <Pagination
                     totalPages={data.totalPages}
                     currentPage={data.currentPage}
                     pageSize={data.pageSize}

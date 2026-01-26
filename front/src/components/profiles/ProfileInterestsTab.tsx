@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
-import AdminPagination from "@/components/admin-dashboard/AdminPagination";
+import Pagination from "@/components/listing/Pagination";
 import type { ProfileInterest } from "@/types/profile";
 
 interface ProfileInterestsTabProps {
@@ -35,7 +35,7 @@ export default function ProfileInterestsTab({
                                 </div>
                             ))}
 
-                            <AdminPagination
+                            <Pagination
                                 totalPages={totalPages}
                                 currentPage={page}
                                 pageSize={pageSize}

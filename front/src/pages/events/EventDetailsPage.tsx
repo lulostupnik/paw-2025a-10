@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { getUserId, getUsername, isAdmin } from "@/lib/auth/auth";
 import CreatorCard from "@/components/detail/CreatorCard";
-import AdminPagination from "@/components/admin-dashboard/AdminPagination";
+import Pagination from "@/components/listing/Pagination";
 import LoginRequiredModal from "@/components/LoginRequiredModal";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
@@ -651,7 +651,7 @@ return (
                                                     )}
                                                 </div>
 
-                                                <AdminPagination
+                                                <Pagination
                                                     totalPages={pagedAttendees.totalPages}
                                                     currentPage={pagedAttendees.currentPage}
                                                     pageSize={pagedAttendees.pageSize}
@@ -787,7 +787,7 @@ return (
                                                         ))
                                                     )}
 
-                                                    <AdminPagination
+                                                    <Pagination
                                                         totalPages={pagedComments.totalPages}
                                                         currentPage={pagedComments.currentPage}
                                                         pageSize={pagedComments.pageSize}

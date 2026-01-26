@@ -38,8 +38,8 @@ export default function CityCreatePage() {
     const countriesQuery = useQuery({
         queryKey: ["cityCountries"],
         queryFn: async ({ signal }) => {
-            const cities = await listCities({ page: 0, size: 200 }, signal);
-            const unique = Array.from(new Set(cities.map((item) => item.country).filter(Boolean)));
+            const cities = await listCities({ page: 1, size: 200 }, signal);    //TODO Shouln't we have a GET countries endpoint?
+            const unique = Array.from(new Set(cities.content.map((item) => item.country).filter(Boolean)));
             return unique.map((name, index) => ({ id: index + 1, name: name ?? "" }));
         },
     });

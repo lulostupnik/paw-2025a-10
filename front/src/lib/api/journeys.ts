@@ -1,7 +1,6 @@
 import type { JourneyComment, JourneyDetail, JourneySummary } from "@/types/journey";
-import { apiBaseUrl, apiClient, normalizeApiPath } from "@/lib/api/client";
-
-const API_BASE_URL = apiBaseUrl;
+import { apiClient, normalizeApiPath } from "@/lib/api/client";
+import { toPaged, type PageResult } from "@/types/pagination";
 
 interface UserApi {
     id: number;
@@ -76,7 +75,7 @@ export interface FetchJourneysParams {
 
 export const getJourneys = async (params: FetchJourneysParams = {}, signal?: AbortSignal) => {
     const response = await apiClient.get<JourneySummary[]>("/journeys", { params, signal });
-    return response.data ?? [];
+    return toPaged(response);
 };
 
 export const getJourneyById = async (id: string | number, signal?: AbortSignal) => {
@@ -144,12 +143,12 @@ export const getUserInterests = async (userId: number, signal?: AbortSignal) => 
     return response.data ?? [];
 };
 
-export const getJourneyResponses = async (journeyId: number, signal?: AbortSignal) => {
+export const getJourneyResponses = async (journeyId: number, signal?: AbortSignal): Promise<PageResult<JourneyResponseApi>> => {
     const response = await apiClient.get<JourneyResponseApi[]>(`/journeys/${journeyId}/responses`, {
-        params: { page: 0, size: 50 }, // TODO: support paginated responses.
+        params: { page: 1, size: 50 }, // TODO: support paginated responses.
         signal,
     });
-    return response.data ?? [];
+    return toPaged(response);
 };
 
 export const createJourneyResponse = async (journeyId: number, payload: { message: string }, signal?: AbortSignal) => {
@@ -166,12 +165,12 @@ export const deleteJourneyResponse = async (
     await apiClient.delete(`/journeys/${journeyId}/responses/${responseId}`, { data: payload, signal });
 };
 
-export const listJourneyTips = async (journeyId: number, params?: { page?: number; size?: number }, signal?: AbortSignal) => {
+export const listJourneyTips = async (journeyId: number, params?: { page?: number; size?: number }, signal?: AbortSignal): Promise<PageResult<TipApi>> => {
     const response = await apiClient.get<TipApi[]>(`/journeys/${journeyId}/tips`, {
         params,
         signal,
     });
-    return response.data ?? [];
+    return toPaged(response);
 };
 
 export const getJourneyTip = async (journeyId: number, tipId: number, signal?: AbortSignal) => {
@@ -230,14 +229,14 @@ export const buildJourneyDetail = async (journey: JourneySummary, signal?: Abort
     const [interests, responses, tips] = await Promise.all([
         userId ? getUserInterests(userId, signal) : Promise.resolve([]),
         getJourneyResponses(journey.id, signal),
-        listJourneyTips(journey.id, { page: 0, size: 10 }, signal),
+        listJourneyTips(journey.id, { page: 1, size: 10 }, signal),
     ]);
 
     const responseUsers = await Promise.all(
-        responses.map((response) => (response.authorUrl ? getUserByUrl(response.authorUrl, signal) : Promise.resolve(null)))
+        responses.content.map((response) => (response.authorUrl ? getUserByUrl(response.authorUrl, signal) : Promise.resolve(null)))
     );
 
-    const comments: JourneyComment[] = responses.map((response, index) => ({
+    const comments: JourneyComment[] = responses.content.map((response, index) => ({
         id: response.id,
         message: response.message,
         dateTime: response.dateTime,
@@ -269,7 +268,7 @@ export const buildJourneyDetail = async (journey: JourneySummary, signal?: Abort
         },
         interests: interests.map((interest) => interest.name),
         events: [], // TODO: fetch journey events endpoint when available.
-        tips: tips.map((tip) => ({
+        tips: tips.content.map((tip) => ({
             id: tip.id,
             title: tip.title,
             content: tip.content,

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import type { PageResult } from "@/types/pagination";
+import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
 import type { ProfileSummary } from "@/types/profile";
 import { listUsers, mapUserToProfileSummary } from "@/lib/api/users";
 
@@ -18,20 +18,6 @@ interface UseProfilesListResult {
     refetch: () => void;
 }
 
-const paginate = <T,>(items: T[], page: number, pageSize: number): PageResult<T> => {
-    const totalItems = items.length;
-    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-    const safePage = Math.min(Math.max(page, 1), totalPages);
-    const start = (safePage - 1) * pageSize;
-    return {
-        content: items.slice(start, start + pageSize),
-        totalPages,
-        currentPage: safePage,
-        pageSize,
-        totalItems,
-    };
-};
-
 export const useProfilesList = (params: FetchProfilesParams = {}): UseProfilesListResult => {
     const query = useQuery({
         queryKey: ["profilesList", params],
@@ -41,19 +27,19 @@ export const useProfilesList = (params: FetchProfilesParams = {}): UseProfilesLi
             const users = await listUsers(
                 {
                     search: params.search?.trim() || undefined,
-                    page: page - 1,
+                    page: page,
                     size,
                 },
                 signal
             );
-            const summaries = users.map(mapUserToProfileSummary);
-            return paginate(summaries, page, size);
+            const summaries = users.content.map(mapUserToProfileSummary);
+            return mapPageList(users, summaries);
         },
         placeholderData: keepPreviousData,
     });
 
     return {
-        data: query.data ?? paginate([], params.page ?? 1, params.size ?? 10),
+        data: query.data ?? emptyPage(),
         isLoading: query.isLoading,
         isError: query.isError,
         error: query.isError ? "Failed to load profiles" : null,

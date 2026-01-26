@@ -133,8 +133,10 @@ export interface EmailVerificationResponse {
 }
 
 export async function verifyEmailToken(token: string): Promise<EmailVerificationResponse> {
-    const { data } = await apiClient.post<EmailVerificationResponse>("/users", { 'validationToken': token }, {headers: {'Content-Type': 'application/vnd.gotogether.accountValidationToken.v1+json'}});
-    return data;
+    const loginResponse = await apiClient.head("/", {
+        headers: { Authorization: `Basic ${token}` },
+    });
+    return loginResponse.data;
 }
 
 export interface PasswordResetPayload {

@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import type { AdminInterest, PagedResult } from "@/types/admin";
-import AdminPagination from "./AdminPagination";
+import Pagination from "../listing/Pagination";
 import AdminTabHeader from "./AdminTabHeader";
 import ClickableRow from "./ClickableRow";
 
@@ -74,7 +74,7 @@ export default function InterestsTab({
                 {isError && <div className="no-results">{errorLabel}</div>}
                 {isEmpty && <div className="no-results">{t("admin.no.results")}</div>}
 
-                <AdminPagination
+                <Pagination
                     totalPages={data.totalPages}
                     currentPage={data.currentPage}
                     pageSize={data.pageSize}

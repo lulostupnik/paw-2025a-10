@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/api/client";
+import { toPaged, type PageResult } from "@/types/pagination";
 
 export interface CityDto {
     id: number;
@@ -18,10 +19,9 @@ export interface ListCitiesParams {
     size?: number;
 }
 
-export const listCities = async (params: ListCitiesParams = {}, signal?: AbortSignal): Promise<CityDto[]> => {
+export const listCities = async (params: ListCitiesParams = {}, signal?: AbortSignal): Promise<PageResult<CityDto>> => {
     const response = await apiClient.get<CityDto[]>("/cities", { params, signal });
-    const data = response.data ?? [];
-    return Array.isArray(data) ? data : [];
+    return toPaged(response);
 };
 
 export const getCityById = async (id: number | string, signal?: AbortSignal): Promise<CityDto> => {

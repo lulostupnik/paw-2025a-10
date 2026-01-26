@@ -2,6 +2,7 @@ import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { getEventById, type EventDto } from "@/lib/api/events";
 import { getJourneyById } from "@/lib/api/journeys";
 import type { JourneySummary } from "@/types/journey";
+import { toPaged, type PageResult } from "@/types/pagination";
 
 export type ReportType = "JOURNEY" | "EVENT" | "JOURNEY_RESPONSE" | "EVENT_RESPONSE";
 export type ReportReason =
@@ -50,6 +51,8 @@ interface UserDto {
     isActive?: boolean | null;
     active?: boolean | null;
     selfUrl?: string | null;
+    firstname: string;
+    lastname: string;
 }
 
 interface JourneyResponseDto {
@@ -69,6 +72,8 @@ interface EventResponseDto {
 export interface ReportUser {
     id: number;
     username: string;
+    firstname: string;
+    lastname: string;
     email?: string | null;
     blocked: boolean;
 }
@@ -155,6 +160,8 @@ const mapUser = (user: UserDto | null): ReportUser => ({
     username: user?.username ?? "—",
     email: user?.email ?? null,
     blocked: user?.isActive === false || user?.active === false,
+    firstname: user?.firstname ?? "—",
+    lastname: user?.lastname ?? "—"
 });
 
 const resolveContentType = (report: ReportDto): ReportListItem["contentType"] => {
@@ -173,10 +180,9 @@ const resolveContentType = (report: ReportDto): ReportListItem["contentType"] =>
     return "unknown";
 };
 
-export const listReports = async (params: ListReportsParams = {}, signal?: AbortSignal): Promise<ReportDto[]> => {
+export const listReports = async (params: ListReportsParams = {}, signal?: AbortSignal): Promise<PageResult<ReportDto>> => {
     const response = await apiClient.get<ReportDto[]>("/reports", { params, signal });
-    const data = response.data ?? [];
-    return Array.isArray(data) ? data : [];
+    return toPaged(response);
 };
 
 export const getReportById = async (id: number | string, signal?: AbortSignal): Promise<ReportDto> => {
