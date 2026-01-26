@@ -73,6 +73,7 @@ export default function ListingFiltersDialog({ mode, open, filters, anchorRef, o
     const [draft, setDraft] = useState<ListingFiltersState>(filters);
     const titleId = useId();
     const panelRef = useRef<HTMLDivElement>(null);
+    const lastFocusedRef = useRef<HTMLElement | null>(null);
     const [position, setPosition] = useState<{ top: number; left: number }>({ top: 120, left: 16 });
 
     useEffect(() => {
@@ -86,14 +87,46 @@ export default function ListingFiltersDialog({ mode, open, filters, anchorRef, o
         if (!open) {
             return;
         }
+        lastFocusedRef.current = document.activeElement as HTMLElement | null;
+        const focusable = panelRef.current?.querySelectorAll<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        focusable?.[0]?.focus();
         const handleKey = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
                 onClose();
+                return;
+            }
+            if (event.key !== "Tab") {
+                return;
+            }
+            const items = panelRef.current?.querySelectorAll<HTMLElement>(
+                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            if (!items || items.length === 0) {
+                return;
+            }
+            const first = items[0];
+            const last = items[items.length - 1];
+            const active = document.activeElement as HTMLElement | null;
+            if (event.shiftKey && active === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && active === last) {
+                event.preventDefault();
+                first.focus();
             }
         };
         document.addEventListener("keydown", handleKey);
-        return () => document.removeEventListener("keydown", handleKey);
-    }, [open, onClose]);
+        return () => {
+            document.removeEventListener("keydown", handleKey);
+            if (anchorRef?.current) {
+                anchorRef.current.focus();
+            } else {
+                lastFocusedRef.current?.focus();
+            }
+        };
+    }, [anchorRef, onClose, open]);
 
     useLayoutEffect(() => {
         if (!open) {
@@ -240,7 +273,7 @@ export default function ListingFiltersDialog({ mode, open, filters, anchorRef, o
             ref={panelRef}
             className="filters-dropdown"
             role="dialog"
-            aria-modal="false"
+            aria-modal="true"
             aria-labelledby={titleId}
             style={{ top: `${position.top}px`, left: `${position.left}px` }}
         >

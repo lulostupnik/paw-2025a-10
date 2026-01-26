@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import Button from "./ui/Button";
-import { getUsername, isAdmin, isLoggedIn, logout } from "@/lib/auth/auth";
+import { getUserId, getUsername, isAdmin, isLoggedIn, logout } from "@/lib/auth/auth";
 import { classNames } from "@/lib/utils/classNames";
 import { useI18n } from "@/lib/i18n";
 import Logo from "./Logo";
+import { apiBaseUrl } from "@/lib/api/client";
 
 const linkClassName = ({ isActive }: { isActive: boolean }) => classNames("top-bar__link", isActive && "is-active");
 
@@ -21,10 +22,15 @@ export default function TopBar() {
     const nav = useNavigate();
     const logged = isLoggedIn();
     const username = getUsername();
+    const userId = logged ? getUserId() : null;
     const { t } = useI18n();
+    const [navOpen, setNavOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
+    const [avatarError, setAvatarError] = useState(false);
     const profileRef = useRef<HTMLDivElement>(null);
     const headerRef = useRef<HTMLElement | null>(null);
+    const profilePictureSrc = logged && userId ? `${apiBaseUrl}/users/${userId}/profilePicture` : null;
+    const showProfilePicture = Boolean(profilePictureSrc && !avatarError);
 
     const updateTopBarOffset = useCallback(() => {
         if (typeof window === "undefined" || !headerRef.current) {
@@ -37,7 +43,10 @@ export default function TopBar() {
         if (!logged && menuOpen) {
             setMenuOpen(false);
         }
-    }, [logged, menuOpen]);
+        if (!logged && navOpen) {
+            setNavOpen(false);
+        }
+    }, [logged, menuOpen, navOpen]);
 
     useEffect(() => {
         if (typeof window === "undefined") {
@@ -76,20 +85,31 @@ export default function TopBar() {
                 <Logo text={t("app.name")} />
             </NavLink>
 
-            <nav className="top-bar__nav">
+            <button
+                type="button"
+                className="top-bar__menu-toggle"
+                aria-label={t("nav.toggle", { defaultValue: "Toggle navigation" })}
+                onClick={() => setNavOpen((prev) => !prev)}
+            >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+
+            <nav className={classNames("top-bar__nav", navOpen && "is-open")}>
                 {logged && (
-                    <NavLink to="/explore" className={linkClassName}>
+                    <NavLink to="/explore" className={linkClassName} onClick={() => setNavOpen(false)}>
                         {t("nav.explore")}
                     </NavLink>
                 )}
-                <NavLink to="/journeys" className={linkClassName}>
+                <NavLink to="/journeys" className={linkClassName} onClick={() => setNavOpen(false)}>
                     {t("nav.journeys")}
                 </NavLink>
-                <NavLink to="/events" className={linkClassName}>
+                <NavLink to="/events" className={linkClassName} onClick={() => setNavOpen(false)}>
                     {t("nav.events")}
                 </NavLink>
                 {logged && isAdmin() && (
-                    <NavLink to="/admin" className={linkClassName}>
+                    <NavLink to="/admin" className={linkClassName} onClick={() => setNavOpen(false)}>
                         {t("admin.manage.reports")}
                     </NavLink>
                 )}
@@ -115,7 +135,16 @@ export default function TopBar() {
                             aria-expanded={menuOpen}
                         >
                             <span className="top-bar__avatar" aria-hidden="true">
-                                {getInitials(username)}
+                                {showProfilePicture ? (
+                                    <img
+                                        src={profilePictureSrc ?? ""}
+                                        alt=""
+                                        className="top-bar__avatar-image"
+                                        onError={() => setAvatarError(true)}
+                                    />
+                                ) : (
+                                    getInitials(username)
+                                )}
                             </span>
                             <span className="top-bar__profile-name">{username}</span>
                             <span className="top-bar__chevron" aria-hidden="true">
@@ -151,6 +180,14 @@ export default function TopBar() {
                     </div>
                 )}
             </div>
+            {navOpen && (
+                <button
+                    type="button"
+                    className="top-bar__overlay"
+                    aria-label={t("nav.close", { defaultValue: "Close navigation" })}
+                    onClick={() => setNavOpen(false)}
+                />
+            )}
         </header>
     );
 }
