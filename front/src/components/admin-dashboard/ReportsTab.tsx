@@ -11,7 +11,7 @@ interface ReportsTabProps {
     searchValue: string;
     onSearchChange: (value: string) => void;
     onSearchSubmit: (value: string) => void;
-    onPageChange: (page: number) => void;
+    onPageChange: (page: number | string) => void;
     isLoading: boolean;
     isError: boolean;
 }
@@ -199,6 +199,10 @@ export default function ReportsTab({
                     onPageChange={onPageChange}
                     previousLabel={t("pagination.prev")}
                     nextLabel={t("pagination.next")}
+                    firstPage={data.first}
+                    lastPage={data.last}
+                    nextPage={data.next}
+                    prevPage={data.prev}
                 />
             </div>
         </div>

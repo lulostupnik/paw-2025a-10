@@ -13,9 +13,9 @@ interface ProfileEventsTabProps {
     attending: PageResult<ProfileEvent>;
     finished: PageResult<ProfileEvent>;
     onTabChange: (tab: "created" | "attending" | "finished") => void;
-    onCreatedPageChange: (page: number) => void;
-    onAttendingPageChange: (page: number) => void;
-    onFinishedPageChange: (page: number) => void;
+    onCreatedPageChange: (page: number | string) => void;
+    onAttendingPageChange: (page: number | string) => void;
+    onFinishedPageChange: (page: number | string) => void;
 }
 
 export default function ProfileEventsTab({
@@ -103,6 +103,10 @@ export default function ProfileEventsTab({
                         onPageChange={onCreatedPageChange}
                         previousLabel={t("pagination.prev")}
                         nextLabel={t("pagination.next")}
+                        firstPage={created.first}
+                        lastPage={created.last}
+                        nextPage={created.next}
+                        prevPage={created.prev}
                     />
                 </div>
 
@@ -133,6 +137,10 @@ export default function ProfileEventsTab({
                         onPageChange={onAttendingPageChange}
                         previousLabel={t("pagination.prev")}
                         nextLabel={t("pagination.next")}
+                        firstPage={attending.first}
+                        lastPage={attending.last}
+                        nextPage={attending.next}
+                        prevPage={attending.prev}
                     />
                 </div>
 
@@ -163,7 +171,11 @@ export default function ProfileEventsTab({
                         onPageChange={onFinishedPageChange}
                         previousLabel={t("pagination.prev")}
                         nextLabel={t("pagination.next")}
-                    />
+                        firstPage={finished.first}
+                        lastPage={finished.last}
+                        nextPage={finished.next}
+                        prevPage={finished.prev}
+                        />
                 </div>
             </div>
         </div>

@@ -1,16 +1,17 @@
 import { useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
-import type { AdminJourney, PagedResult } from "@/types/admin";
+import type { AdminJourney } from "@/types/admin";
 import Pagination from "../listing/Pagination";
 import AdminTabHeader from "./AdminTabHeader";
 import ClickableRow from "./ClickableRow";
+import type { PageResult } from "@/types/pagination";
 
 interface JourneysTabProps {
-    data: PagedResult<AdminJourney>;
+    data: PageResult<AdminJourney>;
     searchValue: string;
     onSearchChange: (value: string) => void;
     onSearchSubmit: (value: string) => void;
-    onPageChange: (page: number) => void;
+    onPageChange: (page: number | string) => void;
     isLoading: boolean;
     isError: boolean;
 }
@@ -78,6 +79,10 @@ export default function JourneysTab({
                     onPageChange={onPageChange}
                     previousLabel={t("pagination.prev")}
                     nextLabel={t("pagination.next")}
+                    firstPage={data.first}
+                    lastPage={data.last}
+                    nextPage={data.next}
+                    prevPage={data.prev}
                 />
             </div>
         </div>

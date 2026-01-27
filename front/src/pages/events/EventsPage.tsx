@@ -14,6 +14,7 @@ import LoginRequiredModal from "@/components/LoginRequiredModal";
 import { useUrlSyncedListingFilters, type ListingFiltersState } from "@/hooks/useListingFilters";
 import type { FetchEventsParams } from "@/lib/api/events";
 import { getUserId, isLoggedIn } from "@/lib/auth/auth";
+import Pagination from "@/components/listing/Pagination";
 
 const SORT_MAPPING: Record<
     string,
@@ -63,6 +64,8 @@ export default function EventsListPage() {
     const sortButtonRef = useRef<HTMLButtonElement>(null);
     const { filters, applyFilters, resetFilters } = useUrlSyncedListingFilters();
     const [selectedSort, setSelectedSort] = useState(initialSort);
+    const initialPage = searchParams.get("page") ?? "1";
+
     const eventSortOptions = useMemo(
         () => [
             { id: "event-date-asc", label: t("event.sort.date.asc") },
@@ -151,7 +154,7 @@ export default function EventsListPage() {
     const tabParams = useMemo(() => mapTabParams(activeTab, userId), [activeTab, userId]);
     const eventQueryParams = useMemo<FetchEventsParams>(() => {
         const params: FetchEventsParams = {
-            page: 1,
+            page: parseInt(searchParams.get("page") ?? "1"),
             size: 12,
             ...sortParams,
             ...tabParams,
@@ -172,7 +175,7 @@ export default function EventsListPage() {
             params.endDate = filters.beforeDate;
         }
         return params;
-    }, [filters.afterDate, filters.beforeDate, filters.cityName, filters.interestName, normalizedSearch, sortParams, tabParams]);
+    }, [filters.afterDate, filters.beforeDate, filters.cityName, filters.interestName, normalizedSearch, sortParams, tabParams, searchParams]);
 
     const { events, loading, error } = useEvents(eventQueryParams);
 
@@ -241,6 +244,24 @@ export default function EventsListPage() {
         [setSearchParams]
     );
 
+    const handlePageChange = useCallback(
+        (page: number | string) => {
+            if (typeof(page) === 'string'){
+                const url = new URL(page);
+                setSearchParams((prev) => {
+                    return url.searchParams
+                }, {replace: true})
+            } else {
+                setSearchParams((prev) => {
+                    const next = new URLSearchParams(prev);
+                    next.set("page", page.toString())
+                    return next
+                }, {replace: true})
+            }
+        },
+        [setSearchParams]
+    );
+
     const emptyStateTitle = error ? t("events.list.error") : t("events.list.empty");
     const emptyStateDescription = error
         ? t("events.list.error.description")
@@ -287,6 +308,18 @@ export default function EventsListPage() {
                             ))}
                         </div>
                     )}
+                    <Pagination
+                        totalPages={events.totalPages}
+                        currentPage={events.currentPage}
+                        pageSize={events.pageSize}
+                        nextPage={events.next}
+                        lastPage={events.last}
+                        prevPage={events.prev}
+                        firstPage={events.first}
+                        onPageChange={handlePageChange}
+                        previousLabel={t("pagination.prev")}
+                        nextLabel={t("pagination.next")}
+                    />
                 </ListingLayout>
             </div>
             <ListingFiltersDialog

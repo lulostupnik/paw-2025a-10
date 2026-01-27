@@ -1,16 +1,17 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
-import type { AdminCity, PagedResult } from "@/types/admin";
+import type { AdminCity } from "@/types/admin";
 import Pagination from "../listing/Pagination";
 import AdminTabHeader from "./AdminTabHeader";
 import ClickableRow from "./ClickableRow";
+import type { PageResult } from "@/types/pagination";
 
 interface CitiesTabProps {
-    data: PagedResult<AdminCity>;
+    data: PageResult<AdminCity>;
     searchValue: string;
     onSearchChange: (value: string) => void;
     onSearchSubmit: (value: string) => void;
-    onPageChange: (page: number) => void;
+    onPageChange: (page: number | string) => void;
     isLoading: boolean;
     isError: boolean;
     plusIconSrc: string;
@@ -83,6 +84,10 @@ export default function CitiesTab({
                     onPageChange={onPageChange}
                     previousLabel={t("pagination.prev")}
                     nextLabel={t("pagination.next")}
+                    firstPage={data.first}
+                    lastPage={data.last}
+                    nextPage={data.next}
+                    prevPage={data.prev}
                 />
             </div>
         </div>

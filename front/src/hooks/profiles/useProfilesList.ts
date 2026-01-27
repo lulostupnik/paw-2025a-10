@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
 import type { ProfileSummary } from "@/types/profile";

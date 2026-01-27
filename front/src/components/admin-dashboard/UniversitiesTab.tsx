@@ -1,16 +1,17 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
-import type { AdminUniversity, PagedResult } from "@/types/admin";
+import type { AdminUniversity } from "@/types/admin";
 import Pagination from "../listing/Pagination";
 import AdminTabHeader from "./AdminTabHeader";
 import ClickableRow from "./ClickableRow";
+import type { PageResult } from "@/types/pagination";
 
 interface UniversitiesTabProps {
-    data: PagedResult<AdminUniversity>;
+    data: PageResult<AdminUniversity>;
     searchValue: string;
     onSearchChange: (value: string) => void;
     onSearchSubmit: (value: string) => void;
-    onPageChange: (page: number) => void;
+    onPageChange: (page: number | string) => void;
     isLoading: boolean;
     isError: boolean;
     plusIconSrc: string;
@@ -85,6 +86,10 @@ export default function UniversitiesTab({
                     onPageChange={onPageChange}
                     previousLabel={t("pagination.prev")}
                     nextLabel={t("pagination.next")}
+                    nextPage={data.next}
+                    lastPage={data.last}
+                    prevPage={data.prev}
+                    firstPage={data.first}
                 />
             </div>
         </div>

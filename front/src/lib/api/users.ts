@@ -35,7 +35,11 @@ export interface ListUsersParams {
     page?: number;
     size?: number;
     blocked?: boolean;
-    url?: string;
+}
+
+export interface ListUserInterestParams {
+    page?: number;
+    size?: number;
 }
 
 export interface UserApi {
@@ -122,8 +126,8 @@ export const getUserRatingStats = async (userId: string | number, signal?: Abort
     return response.data
 }
 
-export const getUserInterests = async (userId: string | number, signal?: AbortSignal): Promise<PageResult<ProfileInterest>> => {
-    const response = await apiClient.get<ProfileInterest[]>(`/users/${userId}/interests`, { signal });
+export const getUserInterests = async (userId: string | number, params: ListUserInterestParams = {}, signal?: AbortSignal): Promise<PageResult<ProfileInterest>> => {
+    const response = await apiClient.get<ProfileInterest[]>(`/users/${userId}/interests`, { params, signal });
     return toPaged(response);
 }
 
@@ -136,9 +140,8 @@ export const getCareerByUrl = async (url?: string | null, signal?: AbortSignal) 
 };
 
 export const buildProfileDetail = async (user: ProfileDetail, signal?: AbortSignal): Promise<ProfileDetail> => {
-    const [ratingStats, interests, university, career] = await Promise.all([
+    const [ratingStats, university, career] = await Promise.all([
         getUserRatingStats(user.id, signal),
-        getUserInterests(user.id, signal),
         getUniversityByUrl(user.universityUrl, signal),
         getCareerByUrl(user.careerUrl, signal),
     ]);
@@ -153,7 +156,6 @@ export const buildProfileDetail = async (user: ProfileDetail, signal?: AbortSign
         careerUrl: user.careerUrl ?? null,
         journeyUrl: user.journeyUrl ?? null,
         ratingStats: ratingStats,
-        interests: interests.content,
         isMine: user.id == getUserId(),
         profilePictureUrl: user.profilePictureUrl,
         career,

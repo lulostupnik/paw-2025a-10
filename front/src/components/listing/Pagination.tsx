@@ -5,10 +5,10 @@ interface PaginationProps {
     totalPages: number;
     currentPage: number;
     pageSize: number;
-    nextPage?: string | null;
-    lastPage?: string | null;
-    prevPage?: string | null;
-    firstPage?: string | null;
+    nextPage: string | null;
+    lastPage: string | null;
+    prevPage: string | null;
+    firstPage: string | null;
     onPageChange: (page: number | string) => void;
     previousLabel: string;
     nextLabel: string;
@@ -27,8 +27,25 @@ export default function Pagination({
     prevPage
 }: PaginationProps) {
     const { start, end } = useMemo(() => {
-        const startValue = Math.max(1, currentPage - 2);
-        const endValue = Math.min(totalPages, currentPage + 2);
+        const TOTAL_ELEMENTS = 7;
+        if (totalPages <= TOTAL_ELEMENTS) {
+            return {start: 1, end: totalPages}
+        }
+        const sideOffset = Math.floor(TOTAL_ELEMENTS/2);
+        let startValue = Math.max(1, currentPage - sideOffset);
+        let endValue = Math.min(totalPages, currentPage + sideOffset);
+
+        if (currentPage > sideOffset) startValue += 2;                  //make room for first and ellipsis
+        if (totalPages - currentPage > sideOffset - 1) endValue -= 2;   //make room for last and ellipsis
+
+        const prevEndValue = endValue;
+        if (startValue < sideOffset){
+            endValue += sideOffset - currentPage + 1;
+        }
+        if (prevEndValue > totalPages - sideOffset){
+            startValue -= sideOffset - (totalPages - currentPage);
+        }
+
         return { start: startValue, end: endValue };
     }, [currentPage, totalPages]);
 

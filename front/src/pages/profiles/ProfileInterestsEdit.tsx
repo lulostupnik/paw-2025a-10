@@ -18,12 +18,6 @@ export default function ProfileInterestsEdit() {
     const [open, setOpen] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
 
-    useEffect(() => {
-        if (profile) {
-            setSelected(profile.interests);
-        }
-    }, [profile]);
-
     const interestsQuery = useQuery({
         queryKey: ["profileInterestsOptions"],
         queryFn: async ({ signal }) => listInterests({ page: 1, size: 200 }, signal),

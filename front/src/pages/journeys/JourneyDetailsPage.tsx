@@ -11,19 +11,6 @@ import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navig
 import { useAuthGate } from "@/hooks/useAuthGate";
 import LoginRequiredModal from "@/components/LoginRequiredModal";
 
-const paginate = <T,>(items: T[], page: number, pageSize: number) => {
-    const totalItems = items.length;
-    const totalPages = Math.ceil(totalItems / pageSize) || 1;
-    const safePage = Math.min(Math.max(page, 1), totalPages);
-    const start = (safePage - 1) * pageSize;
-    return {
-        content: items.slice(start, start + pageSize),
-        totalPages,
-        currentPage: safePage,
-        pageSize,
-    };
-};
-
 const formatDate = (value: string, locale: string) => {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) {

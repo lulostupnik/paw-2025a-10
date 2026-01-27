@@ -344,7 +344,7 @@ export default function EventEditPage() {
                         <Checkbox
                             label={t("event.create.allday.label")}
                             checked={form.allDay}
-                            onChange={handleAllDayToggle}
+                            onChange={(event) => handleAllDayToggle(event.target.checked)}
                         />
                     </div>
 
@@ -393,7 +393,7 @@ export default function EventEditPage() {
                         <Checkbox
                             label={t("event.create.limit.unlimited")}
                             checked={form.unlimited}
-                            onChange={handleUnlimitedToggle}
+                            onChange={(event) => handleUnlimitedToggle(event.target.checked)}
                         />
                     </div>
 

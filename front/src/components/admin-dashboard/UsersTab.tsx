@@ -14,7 +14,7 @@ interface UsersTabProps {
     searchValue: string;
     onSearchChange: (value: string) => void;
     onSearchSubmit: (value: string) => void;
-    onPageChange: (page: number) => void;
+    onPageChange: (page: number | string) => void;
     isLoading: boolean;
     isError: boolean;
     blockIconSrc: string;
@@ -130,6 +130,10 @@ export default function UsersTab({
                     onPageChange={onPageChange}
                     previousLabel={t("pagination.prev")}
                     nextLabel={t("pagination.next")}
+                    nextPage={data.next}
+                    lastPage={data.last}
+                    prevPage={data.prev}
+                    firstPage={data.first}
                 />
             </div>
 

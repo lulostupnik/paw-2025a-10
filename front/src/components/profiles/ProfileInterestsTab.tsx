@@ -2,22 +2,17 @@ import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import Pagination from "@/components/listing/Pagination";
 import type { ProfileInterest } from "@/types/profile";
+import type { PageResult } from "@/types/pagination";
 
 interface ProfileInterestsTabProps {
-    interests: ProfileInterest[];
     isMine: boolean;
-    page: number;
-    totalPages: number;
-    pageSize: number;
-    onPageChange: (page: number) => void;
+    page: PageResult<ProfileInterest>
+    onPageChange: (page: number | string) => void;
 }
 
 export default function ProfileInterestsTab({
-    interests,
-    isMine,
+    isMine, 
     page,
-    totalPages,
-    pageSize,
     onPageChange,
 }: ProfileInterestsTabProps) {
     const { t } = useI18n();
@@ -27,21 +22,25 @@ export default function ProfileInterestsTab({
             <div className="profile-card">
                 <h2 className="section-title">{t("profile.home.interest")}</h2>
                 <div className="info-list">
-                    {interests.length > 0 ? (
+                    {page.content?.length > 0 ? (
                         <>
-                            {interests.map((interest) => (
+                            {page.content.map((interest) => (
                                 <div key={interest.id} className="info-item">
                                     <p className="info-value">{interest.name}</p>
                                 </div>
                             ))}
 
                             <Pagination
-                                totalPages={totalPages}
-                                currentPage={page}
-                                pageSize={pageSize}
+                                totalPages={page.totalPages}
+                                currentPage={page.currentPage}
+                                pageSize={page.pageSize}
                                 onPageChange={onPageChange}
                                 previousLabel={t("pagination.prev")}
                                 nextLabel={t("pagination.next")}
+                                nextPage={page.next}
+                                prevPage={page.prev}
+                                lastPage={page.last}
+                                firstPage={page.first}
                             />
 
                             {isMine && (

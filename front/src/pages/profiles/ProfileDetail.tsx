@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect } from "react";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
@@ -8,21 +8,8 @@ import ProfileTabs from "@/components/profiles/ProfileTabs";
 import ProfileInfoTab from "@/components/profiles/ProfileInfoTab";
 import ProfileInterestsTab from "@/components/profiles/ProfileInterestsTab";
 import ProfileEventsTab from "@/components/profiles/ProfileEventsTab";
-import type { ProfileInterest } from "@/types/profile";
-
-const paginate = <T,>(items: T[], page: number, pageSize: number) => {
-    const totalItems = items.length;
-    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-    const safePage = Math.min(Math.max(page, 1), totalPages);
-    const start = (safePage - 1) * pageSize;
-    return {
-        content: items.slice(start, start + pageSize),
-        totalPages,
-        currentPage: safePage,
-        pageSize,
-        totalItems,
-    };
-};
+import { useProfileInterests } from "@/hooks/profiles/useProfileInterests";
+import { emptyPage } from "@/types/pagination";
 
 export default function ProfileDetail() {
     const { t } = useI18n();
@@ -35,21 +22,17 @@ export default function ProfileDetail() {
     const activeTab = tab === "interests" || tab === "events" ? tab : "info";
     const rawEventsTab = searchParams.get("eventsTab");
     const eventsTab = rawEventsTab === "attending" || rawEventsTab === "finished" ? rawEventsTab : "created";
-    const createdPage = Number(searchParams.get("page")) || 0;
-    const attendingPage = Number(searchParams.get("attendingPage")) || 0;
-    const finishedPage = Number(searchParams.get("finishedPage")) || 0;
+    const page = Number(searchParams.get("page")) || 1;
     const pageSize = Number(searchParams.get("size")) || 6;
 
-    const { created, attending, finished } = useProfileEvents(profileId, {
-        createdPage,
-        attendingPage,
-        finishedPage,
+    const { created, attending, finished } = activeTab === 'events' ? useProfileEvents(profileId, {
+        createdPage: page,
+        attendingPage : page,
+        finishedPage : page,
         size: pageSize,
-    });
+    }) : {created: null, attending: null, finished: null};
 
-    const interestsPage = Number(searchParams.get("page")) || 1;
-    const interestsPageSize = 4;
-    const pagedInterests = useMemo(() => paginate<ProfileInterest>(profile?.interests ?? [], interestsPage, interestsPageSize), [interestsPage, interestsPageSize, profile?.interests]);
+    const pagedInterests = activeTab === 'interests' ? useProfileInterests({profileId, page, size: pageSize}) : null;
 
     const updateSearch = (updates: Record<string, string>) => {
         const next = new URLSearchParams(searchParams);
@@ -80,6 +63,24 @@ export default function ProfileDetail() {
             navigate("/events", { replace: true });
         }
     };
+
+    const handlePageChange = useCallback(
+        (page: number | string) => {
+            if (typeof(page) === 'string'){
+                const url = new URL(page);
+                setSearchParams((prev) => {
+                    return url.searchParams
+                }, {replace: true})
+            } else {
+                setSearchParams((prev) => {
+                    const next = new URLSearchParams(prev);
+                    next.set("page", page.toString())
+                    return next
+                }, {replace: true})
+            }
+        },
+        [setSearchParams]
+    );
 
     if (isLoading) {
         return (
@@ -154,25 +155,22 @@ export default function ProfileDetail() {
                                 {activeTab === "info" && <ProfileInfoTab profile={profile} />}
                                 {activeTab === "interests" && (
                                     <ProfileInterestsTab
-                                        interests={pagedInterests.content}
                                         isMine={profile.isMine}
-                                        page={pagedInterests.currentPage}
-                                        totalPages={pagedInterests.totalPages}
-                                        pageSize={pagedInterests.pageSize}
-                                        onPageChange={(page) => updateSearch({ page: String(page) })}
+                                        page={pagedInterests?.data ?? emptyPage()}
+                                        onPageChange={handlePageChange}
                                     />
                                 )}
                                 {activeTab === "events" && (
                                     <ProfileEventsTab
                                         isMine={profile.isMine}
                                         activeTab={eventsTab}
-                                        created={created}
-                                        attending={attending}
-                                        finished={finished}
+                                        created={created ?? emptyPage()}
+                                        attending={attending ?? emptyPage()}
+                                        finished={finished ?? emptyPage()}
                                         onTabChange={(nextTab) => updateSearch({ eventsTab: nextTab })}
-                                        onCreatedPageChange={(page) => updateSearch({ page: String(page) })}
-                                        onAttendingPageChange={(page) => updateSearch({ attendingPage: String(page) })}
-                                        onFinishedPageChange={(page) => updateSearch({ finishedPage: String(page) })}
+                                        onCreatedPageChange={handlePageChange}
+                                        onAttendingPageChange={handlePageChange}
+                                        onFinishedPageChange={handlePageChange}
                                     />
                                 )}
                             </div>

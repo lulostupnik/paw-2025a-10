@@ -17,7 +17,6 @@ export interface ProfileDetail extends ProfileSummary {
     bio?: string | null;
     isMine: boolean;
     journey?: ProfileJourney | null;
-    interests: ProfileInterest[];
     ratingStats: ProfileRatingStats;
     university?: { name: string } | null;
     career?: { name: string } | null;

@@ -13,6 +13,7 @@ import { useI18n } from "@/lib/i18n";
 import { useJourneys } from "@/hooks/useJourneys";
 import { useUrlSyncedListingFilters, type ListingFiltersState } from "@/hooks/useListingFilters";
 import { isLoggedIn } from "@/lib/auth/auth";
+import Pagination from "@/components/listing/Pagination";
 
 const DEFAULT_SORT = "journey-start-asc";
 
@@ -130,7 +131,7 @@ export default function JourneysListPage() {
         search: search || undefined,
         sort: selectedSort.includes("start") ? "start_date" : "end_date",
         direction: selectedSort.endsWith("desc") ? "desc" : "asc",
-        page: 1,
+        page: parseInt(searchParams.get("page") ?? "1"),
         size: 12,
     });
 
@@ -196,6 +197,24 @@ export default function JourneysListPage() {
         [setSearchParams]
     );
 
+    const handlePageChange = useCallback(
+        (page: number | string) => {
+            if (typeof(page) === 'string'){
+                const url = new URL(page);
+                setSearchParams((prev) => {
+                    return url.searchParams
+                }, {replace: true})
+            } else {
+                setSearchParams((prev) => {
+                    const next = new URLSearchParams(prev);
+                    next.set("page", page.toString())
+                    return next
+                }, {replace: true})
+            }
+        },
+        [setSearchParams]
+    );
+
     return (
         <>
             <div className="page-shell listing-page-shell">
@@ -238,6 +257,18 @@ export default function JourneysListPage() {
                             ))}
                         </div>
                     )}
+                    <Pagination
+                        totalPages={journeys.totalPages}
+                        currentPage={journeys.currentPage}
+                        pageSize={journeys.pageSize}
+                        previousLabel=""
+                        nextLabel=""
+                        nextPage={journeys.next}
+                        prevPage={journeys.prev}
+                        lastPage={journeys.last}
+                        firstPage={journeys.first}
+                        onPageChange={handlePageChange}
+                    />
                 </ListingLayout>
             </div>
             <ListingFiltersDialog

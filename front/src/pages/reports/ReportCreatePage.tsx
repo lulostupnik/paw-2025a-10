@@ -26,7 +26,7 @@ export default function ReportCreatePage({ reportType }: ReportCreatePageProps) 
     const navigate = useNavigate();
     const { id } = useParams();
     const targetId = Number(id);
-    const [reason, setReason] = useState<ReportReason | "">("");
+    const [reason, setReason] = useState<ReportReason>(REASONS[0]);
     const [description, setDescription] = useState("");
     const [touched, setTouched] = useState(false);
     const [submitting, setSubmitting] = useState(false);
