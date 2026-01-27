@@ -22,6 +22,7 @@ import ar.edu.itba.paw.webapp.form.DeleteMessageForm;
 import ar.edu.itba.paw.webapp.form.PatchJourneyForm;
 import ar.edu.itba.paw.webapp.form.PatchTipForm;
 import ar.edu.itba.paw.webapp.form.UpdateJourneyForm;
+import ar.edu.itba.paw.webapp.utils.CacheUtils;
 import ar.edu.itba.paw.webapp.utils.DateUtils;
 import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
@@ -100,9 +101,9 @@ public class JourneyController {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getJourneyById(@PathParam("id") final long id) {
+    public Response getJourneyById(@Context Request req, @PathParam("id") final long id) {
         final Journey journey = journeyService.findJourneyById(id).orElseThrow(() -> new JourneyNotFoundException(id));
-        return Response.ok(JourneyDto.fromJourney(uriInfo, journey)).build();
+        return CacheUtils.withEtag(req, journey, () -> JourneyDto.fromJourney(uriInfo, journey));
     }
 
     @POST

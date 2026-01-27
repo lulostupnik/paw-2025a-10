@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Getter
 @Entity
@@ -104,7 +105,15 @@ public class Journey{
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return Objects.hash(
+                id,
+                startDate,
+                endDate,
+                destinationUniversity != null ? destinationUniversity.getId() : null,
+                description,
+                deleted,
+                deletionMessage
+        );
     }
 }
 

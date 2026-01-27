@@ -94,7 +94,7 @@ public class User{
         this.isBlocked = false;
         this.journey = null;
         this.validated = validated;
-        this.role =  UserRoles.USER;;
+        this.role =  UserRoles.USER;
     }
     public User (final Long id, final String email, final String username, final String firstname,
                 final String lastname, final University university, final Career career,
@@ -178,7 +178,21 @@ public class User{
     }
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(
+                id,
+                email,
+                username,
+                firstname,
+                lastname,
+                profilePictureId,
+                locale,
+                isBlocked,
+                validated,
+                role,
+                university != null ? university.getId() : null,
+                career != null ? career.getId() : null,
+                journey != null ? journey.getId() : null
+        );
     }
 
 }

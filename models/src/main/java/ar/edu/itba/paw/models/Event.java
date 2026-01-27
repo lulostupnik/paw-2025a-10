@@ -7,6 +7,7 @@
     import java.time.LocalDate;
     import java.time.LocalDateTime;
     import java.time.LocalTime;
+    import java.util.Objects;
 
     @Getter
     @Entity
@@ -151,7 +152,21 @@
 
         @Override
         public int hashCode() {
-            return id != null ? id.hashCode() : 0;
+            return Objects.hash(
+                    id,
+                    date,
+                    description,
+                    flyerImageId,
+                    city != null ? city.getId() : null,
+                    title,
+                    time,
+                    address,
+                    attendeesLimit,
+                    attendeesCount,
+                    rating,
+                    deleted,
+                    deletionMessage
+            );
         }
 
     }

@@ -15,6 +15,7 @@ import ar.edu.itba.paw.webapp.dto.UserDto;
 import ar.edu.itba.paw.models.Image;
 import ar.edu.itba.paw.models.exceptions.ImageNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
+import ar.edu.itba.paw.webapp.utils.CacheUtils;
 import ar.edu.itba.paw.webapp.utils.DateUtils;
 import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
@@ -104,9 +105,9 @@ public class EventController {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getEventById(@PathParam("id") final long id) {
+    public Response getEventById(@Context Request req, @PathParam("id") final long id) {
         final Event event = eventService.findEventById(id).orElseThrow(() -> new EventNotFoundException(id));
-        return Response.ok(EventDto.fromEvent(uriInfo, event)).build();
+        return CacheUtils.withEtag(req, event, () -> EventDto.fromEvent(uriInfo, event));
     }
 
     @POST
@@ -185,10 +186,10 @@ public class EventController {
     @Produces({"image/jpeg", "image/png", "image/webp"})
     public Response getEventFlyer(@PathParam("id") final long id) {
         final Image image = eventService.getEventFlyer(id).orElseThrow(() -> new ImageNotFoundException("Event flyer not found"));
-        return Response.ok(image.getData())
-                .header("Content-Type", "image/jpeg")
-                .header("Cache-Control", "max-age=31536000, immutable")
-                .build();
+        final Response.ResponseBuilder responseBuilder = Response.ok(image.getData())
+                .header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
+                .header(HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=\"event_%d_flyer.jpg\"", id));
+        return CacheUtils.withMaxAge(responseBuilder, CacheUtils.ONE_MONTH).build();
     }
 
     // TODO: ¿Esto tiene lógica de negocios? Pareciera que si, moverlo a service-layer

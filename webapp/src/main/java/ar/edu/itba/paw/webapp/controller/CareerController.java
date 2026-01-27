@@ -10,6 +10,7 @@ import ar.edu.itba.paw.webapp.form.CreateCareerForm;
 import ar.edu.itba.paw.webapp.form.PatchCareerForm;
 import ar.edu.itba.paw.webapp.form.UpdateCareerForm;
 import ar.edu.itba.paw.webapp.utils.PagingUtils;
+import ar.edu.itba.paw.webapp.utils.CacheUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -47,9 +48,9 @@ public class CareerController {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCareerById(@PathParam("id") final long id) {
+    public Response getCareerById(@Context Request req, @PathParam("id") final long id) {
         final Career career = careerService.findCareerById(id).orElseThrow(() -> new CareerNotFoundException(id));
-        return Response.ok(CareerDto.fromCareer(uriInfo, career)).build();
+        return CacheUtils.withEtag(req, career, () -> CareerDto.fromCareer(uriInfo, career));
     }
 
     @POST

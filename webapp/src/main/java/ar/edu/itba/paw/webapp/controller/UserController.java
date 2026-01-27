@@ -20,6 +20,7 @@ import ar.edu.itba.paw.webapp.form.PasswordForm;
 import ar.edu.itba.paw.webapp.form.PatchUserForm;
 import ar.edu.itba.paw.webapp.form.ForgotPasswordForm;
 import org.glassfish.jersey.media.multipart.FormDataParam;
+import ar.edu.itba.paw.webapp.utils.CacheUtils;
 
 import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
@@ -31,6 +32,8 @@ import org.springframework.stereotype.Component;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.Response.StatusType;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import java.io.IOException;
@@ -70,13 +73,12 @@ public class UserController {
         return PagingUtils.insertPaginationLinks(response, uriInfo, allUsers).build();
     }
 
-    // TODO: ¿Esto quien lo puede acceder?
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getById(@PathParam("id") final long id) {
         final User user = us.findUserById(id).orElseThrow(() -> new UserNotFoundException(id));
-        return Response.ok(UserDto.fromUser(uriInfo, user)).build();
+        return Response.ok(UserDto.fromUser(uriInfo, user)).build(); // todo: este se cachea?
     }
 
     @POST
@@ -235,11 +237,10 @@ public class UserController {
     @Produces({"image/jpeg", "image/png", "image/webp"})
     public Response getUserProfilePicture(@PathParam("userId") final long userId) {
         final Image image = us.getProfilePicture(userId).orElseThrow(() -> new ImageNotFoundException("Profile picture not found"));
-
-        return Response.ok(image.getData())
-                .header("Content-Type", "image/jpeg")
-                .header("Cache-Control", "max-age=31536000, immutable")
-                .build();
+        final Response.ResponseBuilder responseBuilder = Response.ok(image.getData())
+                .header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
+                .header(HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=\"profile_%d.jpg\"", userId));
+        return CacheUtils.withMaxAge(responseBuilder, CacheUtils.ONE_MONTH).build();
     }
 
     // TODO: parece que hay business logic. Arreglar.

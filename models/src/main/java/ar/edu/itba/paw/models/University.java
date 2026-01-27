@@ -68,7 +68,13 @@ public class University{
     }
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(
+                id,
+                name,
+                abbreviation,
+                city != null ? city.getId() : null,
+                deleted
+        );
     }
 
 }

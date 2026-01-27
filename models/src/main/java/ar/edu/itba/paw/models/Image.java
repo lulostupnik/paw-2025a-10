@@ -37,6 +37,8 @@ public class Image {
     }
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        int result = Objects.hash(id);
+        result = 31 * result + java.util.Arrays.hashCode(data);
+        return result;
     }
 }

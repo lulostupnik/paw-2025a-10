@@ -10,6 +10,7 @@ import ar.edu.itba.paw.webapp.form.CreateInterestForm;
 import ar.edu.itba.paw.webapp.form.PatchInterestForm;
 import ar.edu.itba.paw.webapp.form.UpdateInterestForm;
 import ar.edu.itba.paw.webapp.utils.PagingUtils;
+import ar.edu.itba.paw.webapp.utils.CacheUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -49,9 +50,9 @@ public class InterestController {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getInterestById(@PathParam("id") final long id) {
+    public Response getInterestById(@Context Request req, @PathParam("id") final long id) {
         final Interest interest = interestService.findInterestById(id).orElseThrow(() -> new InterestsNotFoundException(id));
-        return Response.ok(InterestDto.fromInterest(uriInfo, interest)).build();
+        return CacheUtils.withEtag(req, interest, () -> InterestDto.fromInterest(uriInfo, interest));
     }
 
     @POST

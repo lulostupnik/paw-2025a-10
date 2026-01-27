@@ -20,7 +20,7 @@ public final class UriUtils {
     public static final String RATINGS_URL = API_BASE_URL + "/ratings";
 
     private UriUtils() {
-        // Utility class
+        throw new AssertionError("Utility class should not be instantiated");
     }
 
 

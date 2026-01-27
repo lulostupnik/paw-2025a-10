@@ -10,6 +10,7 @@ import ar.edu.itba.paw.webapp.form.CreateUniversityForm;
 import ar.edu.itba.paw.webapp.form.PatchUniversityForm;
 import ar.edu.itba.paw.webapp.form.UpdateUniversityForm;
 import ar.edu.itba.paw.webapp.utils.PagingUtils;
+import ar.edu.itba.paw.webapp.utils.CacheUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -49,9 +50,9 @@ public class UniversityController {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUniversityById(@PathParam("id") final long id) {
+    public Response getUniversityById(@Context Request req, @PathParam("id") final long id) {
         final University university = universityService.findById(id).orElseThrow(() -> new UniversityNotFoundException(id));
-        return Response.ok(UniversityDto.fromUniversity(uriInfo, university)).build();
+        return CacheUtils.withEtag(req, university, () -> UniversityDto.fromUniversity(uriInfo, university));
     }
 
     @POST

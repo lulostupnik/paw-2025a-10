@@ -9,6 +9,7 @@ import ar.edu.itba.paw.webapp.dto.CityDto;
 import ar.edu.itba.paw.webapp.form.CreateCityForm;
 import ar.edu.itba.paw.webapp.form.PatchCityForm;
 import ar.edu.itba.paw.webapp.form.UpdateCityForm;
+import ar.edu.itba.paw.webapp.utils.CacheUtils;
 import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,9 +49,9 @@ public class CityController {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCityById(@PathParam("id") final long id) {
+    public Response getCityById(@Context Request req, @PathParam("id") final long id) {
         final City city = cityService.findCityById(id).orElseThrow(() -> new CityNotFoundException(id));
-        return Response.ok(CityDto.fromCity(uriInfo, city)).build();
+        return CacheUtils.withEtag(req, city, () -> CityDto.fromCity(uriInfo, city));
     }
 
     @POST

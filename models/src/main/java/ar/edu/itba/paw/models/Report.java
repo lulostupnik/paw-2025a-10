@@ -164,7 +164,14 @@ public class Report {
     }
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(
+                id,
+                description,
+                reason,
+                deleted,
+                status,
+                updatedAt
+        );
     }
 }
 

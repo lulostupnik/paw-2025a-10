@@ -11,7 +11,7 @@ public final class DateUtils {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(Constants.DATE_FORMAT);
 
     private DateUtils() {
-        throw new AssertionError("Cannot instantiate utility class");
+        throw new AssertionError("Utility class should not be instantiated");
     }
 
     public static LocalDate parseDate(String dateStr) {
