@@ -431,49 +431,10 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Page<Event> searchEventsWithFilters(final String search, final Long creatorId, final SortFieldEvent sortBy, final SortDirection direction, final String destination, final LocalDate startDate, final LocalDate endDate, final String interest,
-                                               final boolean isPast, final boolean isUpcoming, Long attendedByUserId,
-                                               String university, Integer minRating, Boolean hasCapacity, Long journeyId, final PageParams pageParams) {
-        LOGGER.debug("Getting events with search {}, creatorId {}, sortBy {}, direction {}, destination {}, startDate {}, endDate {}, interest {}, isPast {}, isUpcoming {}, attendedByUserId {}, journeyId {}", search, creatorId, sortBy, direction, destination, startDate, endDate, interest, isPast, isUpcoming, attendedByUserId, journeyId);
+                                              Long attendedByUserId,
+                                               String university, Integer minRating, Boolean hasCapacity, final PageParams pageParams) {
+        LOGGER.debug("Getting events with search {}, creatorId {}, sortBy {}, direction {}, destination {}, startDate {}, endDate {}, interest {}, attendedByUserId {}", search, creatorId, sortBy, direction, destination, startDate, endDate, interest, attendedByUserId);
 
-        LocalDate adjustedStartDate = startDate;
-        LocalDate adjustedEndDate = endDate;
-        LocalTime startTime = null;
-        LocalTime endTime = null;
-
-        Long effectiveAttendedByUserId = attendedByUserId;
-
-        if (journeyId != null) {
-            if (attendedByUserId != null) {
-                throw new MutuallyExclusiveException("journeyId", "attendedByUserId");
-            }
-
-            Journey journey = journeyService.findJourneyById(journeyId).orElseThrow(() -> new JourneyNotFoundException(journeyId));
-
-            effectiveAttendedByUserId = journey.getUser().getId();
-
-            LocalDate journeyStartDate = journey.getStartDate();
-            if (adjustedStartDate == null || (journeyStartDate != null && journeyStartDate.isAfter(adjustedStartDate))) {
-                adjustedStartDate = journeyStartDate;
-            }
-
-            LocalDate journeyEndDate = journey.getEndDate();
-            if (adjustedEndDate == null || (journeyEndDate != null && journeyEndDate.isBefore(adjustedEndDate))) {
-                adjustedEndDate = journeyEndDate;
-            }
-        }
-
-        if (isUpcoming) {
-            adjustedStartDate = ensureStartDateForUpcomingEvents(adjustedStartDate);
-            if (adjustedStartDate.equals(LocalDate.now())) {
-                startTime = LocalTime.now();
-            }
-        }
-        if (isPast) {
-            adjustedEndDate = capEndDateForPastEvents(adjustedEndDate);
-            if (adjustedEndDate.equals(LocalDate.now())) {
-                endTime = LocalTime.now();
-            }
-        }
 
         return eventDao.findAllWithFilters(
                 creatorId,
@@ -481,12 +442,12 @@ public class EventServiceImpl implements EventService {
                 sortBy,
                 direction,
                 destination,
-                adjustedStartDate,
-                adjustedEndDate,
-                startTime,
-                endTime,
+                startDate,
+                endDate,
+                null,
+                null,
                 interest,
-                effectiveAttendedByUserId,
+                attendedByUserId,
                 university,
                 minRating,
                 hasCapacity,

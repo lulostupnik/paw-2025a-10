@@ -60,9 +60,8 @@ public interface EventService {
 
     Page<Event> searchEventsWithFilters(String search, Long creatorId,
                                         SortFieldEvent sortBy, SortDirection direction, String destination, LocalDate startDate, LocalDate endDate, String interest,
-                                        boolean isPast, boolean isUpcoming, Long attendedByUserId,
-                                        String university, Integer minRating, Boolean hasCapacity, Long journeyId,
-                                        PageParams pageParams);
+                                        Long attendedByUserId,
+                                        String university, Integer minRating, Boolean hasCapacity, PageParams pageParams);
 
     EventResponse createEventResponse(String email, long eventId, String message);
     EventResponse createEventResponse(long userId, long eventId, String message);

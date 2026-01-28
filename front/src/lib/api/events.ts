@@ -69,10 +69,8 @@ interface UserApi {
 export interface FetchEventsParams {
     destination?: string;
     interest?: string;
-    startDate?: string;
-    endDate?: string;
-    upcoming?: boolean;
-    past?: boolean;
+    afterDate?: string;
+    beforeDate?: string;
     search?: string;
     sort?: "date" | "attendees" | "rating";
     direction?: "asc" | "desc";

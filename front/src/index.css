@@ -4869,6 +4869,50 @@ textarea.input-control {
   color: var(--color-primary);
 }
 
+.journey-detail-page .events-filter-subtabs {
+  display: flex;
+  border-bottom: 2px solid #e9ecef;
+  margin-bottom: 24px;
+  gap: 0;
+}
+
+.journey-detail-page .events-subtab {
+  background: none;
+  border: none;
+  padding: 12px 24px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6c757d;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
+  position: relative;
+  flex: 1;
+  text-align: center;
+}
+
+.journey-detail-page .events-subtab:hover {
+  color: #495057;
+  background-color: #f8f9fa;
+}
+
+.journey-detail-page .events-subtab.active {
+  color: #007bff;
+  border-bottom-color: #007bff;
+  background-color: #fff;
+}
+
+@media (max-width: 768px) {
+  .journey-detail-page .events-filter-subtabs {
+    margin-bottom: 16px;
+  }
+
+  .journey-detail-page .events-subtab {
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+}
+
 .event-detail-page .event-detail-container {
   background-color: var(--color-white);
   border-radius: 1rem;

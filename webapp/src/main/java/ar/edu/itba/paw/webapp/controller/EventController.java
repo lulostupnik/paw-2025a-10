@@ -55,10 +55,8 @@ public class EventController {
     public Response listEvents(
             @QueryParam("destination") String destination,
             @QueryParam("interest") String interest,
-            @QueryParam("startDate") String startDateStr,
-            @QueryParam("endDate") String endDateStr,
-            @QueryParam("upcoming") @DefaultValue("false") boolean upcoming,
-            @QueryParam("past") @DefaultValue("false") boolean past,
+            @QueryParam("afterDate") String afterDateStr,
+            @QueryParam("beforeDate") String beforeDateStr,
             // @QueryParam("attending") @DefaultValue("false") boolean attending, --> usar attendedBy
             @QueryParam("search") String search,
             @QueryParam("sort") String sort,
@@ -69,11 +67,10 @@ public class EventController {
             @QueryParam("university") String university,
             @QueryParam("minRating") Integer minRating, //TODO: check, anda raro
             @QueryParam("hasCapacity") Boolean hasCapacity,
-            @QueryParam("journeyId") Long journeyId,
             @QueryParam("creatorId") Long creatorId
     ) {
-        final LocalDate startDate = DateUtils.parseDate(startDateStr);
-        final LocalDate endDate = DateUtils.parseDate(endDateStr);
+        final LocalDate startDate = DateUtils.parseDate(afterDateStr);
+        final LocalDate endDate = DateUtils.parseDate(beforeDateStr);
         final SortFieldEvent sortField = SortFieldEvent.from(sort);
         final SortDirection sortDirection = SortDirection.from(direction);
 
@@ -87,13 +84,10 @@ public class EventController {
                 startDate,
                 endDate,
                 interest,
-                past,
-                upcoming,
                 attendedByUserId,
                 university,
                 minRating,
                 hasCapacity,
-                journeyId,
                 new PageParams(page, size)
         );
 

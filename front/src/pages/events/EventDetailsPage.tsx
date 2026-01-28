@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { getUserId, getUsername, isAdmin } from "@/lib/auth/auth";
 import CreatorCard from "@/components/detail/CreatorCard";
@@ -8,8 +8,10 @@ import Pagination from "@/components/listing/Pagination";
 import LoginRequiredModal from "@/components/LoginRequiredModal";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
-import { attendEvent, createEventRating, createEventResponse, unattendEvent, updateEventRating } from "@/lib/api/events";
+import { attendEvent, createEventRating, createEventResponse, listEventAttendees, listEventResponses, unattendEvent, updateEventRating } from "@/lib/api/events";
 import { useAuthGate } from "@/hooks/useAuthGate";
+import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
+import { getUserByUrl } from "@/lib/api/journeys";
 
 const formatDate = (value: string, locale: string) => {
     const date = new Date(value);
@@ -66,6 +68,48 @@ const renderStars = (rating: number) => {
     return <div className="rating-stars-display">{stars}</div>;
 };
 
+interface EventResponseApi {
+    id: number;
+    message: string;
+    dateTime: string;
+    authorUrl?: string | null;
+}
+
+interface EventAttendeeApi {
+    id: number;
+    username?: string | null;
+    firstname?: string | null;
+    lastname?: string | null;
+    email?: string | null;
+    profilePictureUrl?: string | null;
+}
+
+const mapEventAttendeesPage = (page: PageResult<EventAttendeeApi>) => {
+    const mapped = page.content.map((attendee) => ({
+        id: attendee.id,
+        firstname: attendee.firstname ?? attendee.username ?? "—",
+        lastname: attendee.lastname ?? "",
+        email: attendee.email ?? "",
+        profilePictureUrl: attendee.profilePictureUrl ?? null,
+    }));
+    return mapPageList(page, mapped);
+};
+
+const mapEventResponsesPage = async (page: PageResult<EventResponseApi>, signal?: AbortSignal) => {
+    const users = await Promise.all(
+        page.content.map((response) => (response.authorUrl ? getUserByUrl(response.authorUrl, signal) : Promise.resolve(null)))
+    );
+    const mapped = page.content.map((response, index) => ({
+        id: response.id,
+        message: response.message,
+        dateTime: response.dateTime,
+        user: {
+            username: users[index]?.username ?? "—",
+        },
+    }));
+    return mapPageList(page, mapped);
+};
+
 export default function EventDetailPage() {
     const { t, locale } = useI18n();
     const navigate = useNavigate();
@@ -107,14 +151,42 @@ export default function EventDetailPage() {
         [data?.ratings, username]
     );
 
-    const pagedAttendees = useMemo(
-        () => paginate(data?.attendees ?? [], attendeesPage, 6),
-        [data?.attendees, attendeesPage]
-    );
-    const pagedComments = useMemo(
-        () => paginate(data?.comments ?? [], commentsPage, 4),
-        [data?.comments, commentsPage]
-    );
+    const attendeesPageSize = 6;
+    const commentsPageSize = 4;
+    const attendeesQuery = useQuery({
+        queryKey: ["eventAttendees", id, attendeesPage],
+        queryFn: async ({ signal }) => {
+            if (!id) {
+                return Promise.resolve(emptyPage());
+            }
+            const page = await listEventAttendees(Number(id), { page: attendeesPage, size: attendeesPageSize }, signal);
+            return mapEventAttendeesPage(page as PageResult<EventAttendeeApi>);
+        },
+        enabled: Boolean(id),
+        placeholderData: keepPreviousData,
+    });
+    const commentsQuery = useQuery({
+        queryKey: ["eventComments", id, commentsPage],
+        queryFn: async ({ signal }) => {
+            if (!id) {
+                return Promise.resolve(emptyPage());
+            }
+            const page = await listEventResponses(Number(id), { page: commentsPage, size: commentsPageSize }, signal);
+            return mapEventResponsesPage(page as PageResult<EventResponseApi>, signal);
+        },
+        enabled: Boolean(id),
+        placeholderData: keepPreviousData,
+    });
+    const attendeesPageData = attendeesQuery.data ?? emptyPage();
+    const commentsPageData = commentsQuery.data ?? emptyPage();
+
+    const parsePageFromLink = (page: number | string) => {
+        if (typeof page === "string") {
+            const url = new URL(page);
+            return Number(url.searchParams.get("page") ?? "1");
+        }
+        return page;
+    };
 
     useEffect(() => {
         setAttendingOverride(null);
@@ -534,7 +606,7 @@ return (
                                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                                         </svg>
                                         <span>{t("event.chat")}</span>
-                                        <span className="count">({data.comments.length})</span>
+                                        <span className="count">({commentsPageData.content.length})</span>
                                     </button>
                                     {!data.isFuture && (
                                         <button
@@ -602,7 +674,9 @@ return (
                                                 </div>
 
                                                 <div id="attendees-list" className="attendees-grid">
-                                                    {pagedAttendees.content.length === 0 ? (
+                                                    {attendeesQuery.isLoading ? (
+                                                        <p className="section__helper">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</p>
+                                                    ) : attendeesPageData.content.length === 0 ? (
                                                         <div className="empty-state">
                                                             <div className="empty-icon">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
@@ -615,7 +689,7 @@ return (
                                                             <p className="empty-message">{t("event.no.attendees")}</p>
                                                         </div>
                                                     ) : (
-                                                        pagedAttendees.content.map((attendee) => (
+                                                        attendeesPageData.content.map((attendee) => (
                                                             <div key={attendee.id} className="attendee-card">
                                                                 <div className="attendee-avatar">
                                                                     {attendee.profilePictureUrl ? (
@@ -639,10 +713,14 @@ return (
                                                 </div>
 
                                                 <Pagination
-                                                    totalPages={pagedAttendees.totalPages}
-                                                    currentPage={pagedAttendees.currentPage}
-                                                    pageSize={pagedAttendees.pageSize}
-                                                    onPageChange={setAttendeesPage}
+                                                    totalPages={attendeesPageData.totalPages}
+                                                    currentPage={attendeesPageData.currentPage}
+                                                    pageSize={attendeesPageData.pageSize}
+                                                    nextPage={attendeesPageData.next}
+                                                    prevPage={attendeesPageData.prev}
+                                                    firstPage={attendeesPageData.first}
+                                                    lastPage={attendeesPageData.last}
+                                                    onPageChange={(page) => setAttendeesPage(parsePageFromLink(page))}
                                                     previousLabel={t("pagination.prev")}
                                                     nextLabel={t("pagination.next")}
                                                 />
@@ -659,12 +737,14 @@ return (
                                                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                                                         </svg>
                                                         {t("event.responses")}
-                                                        <span className="count">({data.comments.length})</span>
+                                                        <span className="count">({commentsPageData.content.length})</span>
                                                     </h2>
                                                 </div>
 
                                                 <div id="chat-list" className="chat-list">
-                                                    {pagedComments.content.length === 0 ? (
+                                                    {commentsQuery.isLoading ? (
+                                                        <p className="section__helper">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</p>
+                                                    ) : commentsPageData.content.length === 0 ? (
                                                         <div className="empty-state">
                                                             <div className="empty-icon">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
@@ -674,7 +754,7 @@ return (
                                                             <p className="empty-message">{t("event.no.responses")}</p>
                                                         </div>
                                                     ) : (
-                                                        pagedComments.content.map((response) => (
+                                                        commentsPageData.content.map((response) => (
                                                             <div key={response.id} className="chat-message">
                                                                 <div className="message-header">
                                                                     <div className="message-user">
@@ -774,14 +854,18 @@ return (
                                                         ))
                                                     )}
 
-                                                    <Pagination
-                                                        totalPages={pagedComments.totalPages}
-                                                        currentPage={pagedComments.currentPage}
-                                                        pageSize={pagedComments.pageSize}
-                                                        onPageChange={setCommentsPage}
-                                                        previousLabel={t("pagination.prev")}
-                                                        nextLabel={t("pagination.next")}
-                                                    />
+                                                <Pagination
+                                                    totalPages={commentsPageData.totalPages}
+                                                    currentPage={commentsPageData.currentPage}
+                                                    pageSize={commentsPageData.pageSize}
+                                                    nextPage={commentsPageData.next}
+                                                    prevPage={commentsPageData.prev}
+                                                    firstPage={commentsPageData.first}
+                                                    lastPage={commentsPageData.last}
+                                                    onPageChange={(page) => setCommentsPage(parsePageFromLink(page))}
+                                                    previousLabel={t("pagination.prev")}
+                                                    nextLabel={t("pagination.next")}
+                                                />
                                                 </div>
 
                                                 <div className="reply-container">

@@ -143,9 +143,13 @@ export const getUserInterests = async (userId: number, signal?: AbortSignal) => 
     return response.data ?? [];
 };
 
-export const getJourneyResponses = async (journeyId: number, signal?: AbortSignal): Promise<PageResult<JourneyResponseApi>> => {
+export const getJourneyResponses = async (
+    journeyId: number,
+    params: { page?: number; size?: number } = {},
+    signal?: AbortSignal
+): Promise<PageResult<JourneyResponseApi>> => {
     const response = await apiClient.get<JourneyResponseApi[]>(`/journeys/${journeyId}/responses`, {
-        params: { page: 1, size: 50 }, // TODO: support paginated responses.
+        params,
         signal,
     });
     return toPaged(response);
@@ -228,7 +232,7 @@ export const buildJourneyDetail = async (journey: JourneySummary, signal?: Abort
     const userId = user?.id ?? parseIdFromUrl(journey.userUrl);
     const [interests, responses, tips] = await Promise.all([
         userId ? getUserInterests(userId, signal) : Promise.resolve([]),
-        getJourneyResponses(journey.id, signal),
+        getJourneyResponses(journey.id, { page: 1, size: 4 }, signal),
         listJourneyTips(journey.id, { page: 1, size: 10 }, signal),
     ]);
 
@@ -267,7 +271,7 @@ export const buildJourneyDetail = async (journey: JourneySummary, signal?: Abort
             profilePictureUrl: journey.profilePictureUrl ?? null, // TODO: backend must provide profile picture id/url endpoint.
         },
         interests: interests.map((interest) => interest.name),
-        events: [], // TODO: fetch journey events endpoint when available.
+        events: [],
         tips: tips.content.map((tip) => ({
             id: tip.id,
             title: tip.title,

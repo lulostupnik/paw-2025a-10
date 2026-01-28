@@ -15,6 +15,7 @@ import { useUrlSyncedListingFilters, type ListingFiltersState } from "@/hooks/us
 import type { FetchEventsParams } from "@/lib/api/events";
 import { getUserId, isLoggedIn } from "@/lib/auth/auth";
 import Pagination from "@/components/listing/Pagination";
+import { getTodayIsoDate } from "@/lib/utils/date";
 
 const SORT_MAPPING: Record<
     string,
@@ -32,12 +33,16 @@ const SORT_IDS = new Set(Object.keys(SORT_MAPPING));
 
 const mapSortParams = (id: string) => SORT_MAPPING[id] ?? SORT_MAPPING["event-date-asc"];
 
-const mapTabParams = (tab: string, userId: number | null): Pick<FetchEventsParams, "upcoming" | "past" | "attendedBy"> => {
+const mapTabParams = (
+    tab: string,
+    userId: number | null,
+    today: string
+): Pick<FetchEventsParams, "afterDate" | "beforeDate" | "attendedBy"> => {
     if (tab === "upcoming") {
-        return { upcoming: true };
+        return { afterDate: today };
     }
     if (tab === "past") {
-        return { past: true };
+        return { beforeDate: today };
     }
     if (tab === "attending" && typeof userId === "number") {
         return { attendedBy: userId };
@@ -52,6 +57,7 @@ export default function EventsListPage() {
     const gate = useAuthGate();
     const logged = isLoggedIn();
     const userId = logged ? getUserId() : null;
+    const today = getTodayIsoDate();
     const initialSearch = searchParams.get("search") ?? "";
     const initialTabParam = searchParams.get("tab") ?? "all";
     const initialTab = logged || initialTabParam !== "attending" ? initialTabParam : "all";
@@ -151,7 +157,7 @@ export default function EventsListPage() {
 
     const normalizedSearch = search.trim();
     const sortParams = useMemo(() => mapSortParams(selectedSort), [selectedSort]);
-    const tabParams = useMemo(() => mapTabParams(activeTab, userId), [activeTab, userId]);
+    const tabParams = useMemo(() => mapTabParams(activeTab, userId, today), [activeTab, today, userId]);
     const eventQueryParams = useMemo<FetchEventsParams>(() => {
         const params: FetchEventsParams = {
             page: parseInt(searchParams.get("page") ?? "1"),
@@ -168,11 +174,17 @@ export default function EventsListPage() {
         if (filters.interestName) {
             params.interest = filters.interestName;
         }
-        if (filters.afterDate) {
-            params.startDate = filters.afterDate;
+        const filterAfter = filters.afterDate || undefined;
+        const filterBefore = filters.beforeDate || undefined;
+        const tabAfter = tabParams.afterDate;
+        const tabBefore = tabParams.beforeDate;
+        const effectiveAfter = tabAfter && filterAfter ? (tabAfter > filterAfter ? tabAfter : filterAfter) : tabAfter || filterAfter;
+        const effectiveBefore = tabBefore && filterBefore ? (tabBefore < filterBefore ? tabBefore : filterBefore) : tabBefore || filterBefore;
+        if (effectiveAfter) {
+            params.afterDate = effectiveAfter;
         }
-        if (filters.beforeDate) {
-            params.endDate = filters.beforeDate;
+        if (effectiveBefore) {
+            params.beforeDate = effectiveBefore;
         }
         return params;
     }, [filters.afterDate, filters.beforeDate, filters.cityName, filters.interestName, normalizedSearch, sortParams, tabParams, searchParams]);

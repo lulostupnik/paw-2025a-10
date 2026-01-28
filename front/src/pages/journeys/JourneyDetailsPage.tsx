@@ -1,12 +1,15 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useCallback, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { getUserId, isAdmin } from "@/lib/auth/auth";
 import CreatorCard from "@/components/detail/CreatorCard";
 import Pagination from "@/components/listing/Pagination";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
-import { createJourneyResponse } from "@/lib/api/journeys";
+import { createJourneyResponse, getCityByUrl, getJourneyResponses, getUserByUrl, listJourneyTips } from "@/lib/api/journeys";
+import { fetchEvents, type EventDto } from "@/lib/api/events";
+import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
+import { getUserInterests } from "@/lib/api/users";
 import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
 import { useAuthGate } from "@/hooks/useAuthGate";
 import LoginRequiredModal from "@/components/LoginRequiredModal";
@@ -33,6 +36,44 @@ const formatDateTime = (value: string, locale: string) => {
     }).format(date);
 };
 
+const mapEventPageToJourneyEvents = async (page: PageResult<EventDto>, signal?: AbortSignal) => {
+    const cities = await Promise.all(
+        page.content.map((event) => (event.cityUrl ? getCityByUrl(event.cityUrl, signal) : Promise.resolve(null)))
+    );
+    const mapped = page.content.map((event, index) => ({
+        id: event.id,
+        title: event.title,
+        description: event.description ?? "",
+        date: event.date ?? "",
+        time: event.time ?? null,
+        city: cities[index]?.name ?? "—",
+        flyerImageUrl: event.flyerUrl ?? null,
+    }));
+    return mapPageList(page, mapped);
+};
+
+interface JourneyResponseApi {
+    id: number;
+    message: string;
+    dateTime: string;
+    authorUrl?: string | null;
+}
+
+const mapJourneyResponsesPage = async (page: PageResult<JourneyResponseApi>, signal?: AbortSignal) => {
+    const users = await Promise.all(
+        page.content.map((response) => (response.authorUrl ? getUserByUrl(response.authorUrl, signal) : Promise.resolve(null)))
+    );
+    const mapped = page.content.map((response, index) => ({
+        id: response.id,
+        message: response.message,
+        dateTime: response.dateTime,
+        user: {
+            username: users[index]?.username ?? "—",
+        },
+    }));
+    return mapPageList(page, mapped);
+};
+
 export default function JourneyDetailPage() {
     const { t, locale } = useI18n();
     const navigate = useNavigate();
@@ -47,7 +88,9 @@ export default function JourneyDetailPage() {
     const [openCommentMenuId, setOpenCommentMenuId] = useState<number | null>(null);
     const [openTipMenuId, setOpenTipMenuId] = useState<number | null>(null);
     const [interestsPage, setInterestsPage] = useState(1);
-    const [eventsPage, setEventsPage] = useState(1);
+    const [eventsSubtab, setEventsSubtab] = useState<"created" | "attending">("created");
+    const [createdEventsPage, setCreatedEventsPage] = useState(1);
+    const [attendingEventsPage, setAttendingEventsPage] = useState(1);
     const [tipsPage, setTipsPage] = useState(1);
     const [commentsPage, setCommentsPage] = useState(1);
     const [replyMessage, setReplyMessage] = useState("");
@@ -58,15 +101,144 @@ export default function JourneyDetailPage() {
     const isOwner = data?.user?.id === getUserId();
     const admin = isAdmin();
 
-    const pagedInterests = useMemo(
-        () => paginate(data?.interests ?? [], interestsPage, 8),
-        [data?.interests, interestsPage]
+    const interestsPageSize = 8;
+    const tipsPageSize = 10;
+    const commentsPageSize = 4;
+    const eventsPageSize = 6;
+    const journeyOwnerId = data?.user?.id ?? null;
+
+    const interestsQuery = useQuery({
+        queryKey: ["journeyInterests", journeyOwnerId, interestsPage],
+        queryFn: ({ signal }) => {
+            if (!journeyOwnerId) {
+                return Promise.resolve(emptyPage());
+            }
+            return getUserInterests(journeyOwnerId, { page: interestsPage, size: interestsPageSize }, signal);
+        },
+        enabled: Boolean(journeyOwnerId),
+        placeholderData: keepPreviousData,
+    });
+
+    const tipsQuery = useQuery({
+        queryKey: ["journeyTips", id, tipsPage],
+        queryFn: ({ signal }) => {
+            if (!id) {
+                return Promise.resolve(emptyPage());
+            }
+            return listJourneyTips(Number(id), { page: tipsPage, size: tipsPageSize }, signal);
+        },
+        enabled: Boolean(id),
+        placeholderData: keepPreviousData,
+    });
+
+    const commentsQuery = useQuery({
+        queryKey: ["journeyComments", id, commentsPage],
+        queryFn: async ({ signal }) => {
+            if (!id) {
+                return Promise.resolve(emptyPage());
+            }
+            const page = await getJourneyResponses(Number(id), { page: commentsPage, size: commentsPageSize }, signal);
+            return mapJourneyResponsesPage(page as PageResult<JourneyResponseApi>, signal);
+        },
+        enabled: Boolean(id),
+        placeholderData: keepPreviousData,
+    });
+
+    const createdEventsQuery = useQuery({
+        queryKey: ["journeyEvents", "created", journeyOwnerId, data?.startDate, data?.endDate, createdEventsPage],
+        queryFn: async ({ signal }) => {
+            if (!journeyOwnerId || !data?.startDate || !data?.endDate) {
+                return emptyPage();
+            }
+            const page = await fetchEvents(
+                {
+                    creatorId: journeyOwnerId,
+                    afterDate: data.startDate,
+                    beforeDate: data.endDate,
+                    page: createdEventsPage,
+                    size: eventsPageSize,
+                },
+                signal
+            );
+            return mapEventPageToJourneyEvents(page, signal);
+        },
+        enabled: Boolean(journeyOwnerId && data?.startDate && data?.endDate),
+        placeholderData: keepPreviousData,
+    });
+
+    const attendingEventsQuery = useQuery({
+        queryKey: ["journeyEvents", "attending", journeyOwnerId, data?.startDate, data?.endDate, attendingEventsPage],
+        queryFn: async ({ signal }) => {
+            if (!journeyOwnerId || !data?.startDate || !data?.endDate) {
+                return emptyPage();
+            }
+            const page = await fetchEvents(
+                {
+                    attendedBy: journeyOwnerId,
+                    afterDate: data.startDate,
+                    beforeDate: data.endDate,
+                    page: attendingEventsPage,
+                    size: eventsPageSize,
+                },
+                signal
+            );
+            return mapEventPageToJourneyEvents(page, signal);
+        },
+        enabled: Boolean(journeyOwnerId && data?.startDate && data?.endDate),
+        placeholderData: keepPreviousData,
+    });
+
+    const activeEventsPage =
+        eventsSubtab === "created"
+            ? createdEventsQuery.data ?? emptyPage()
+            : attendingEventsQuery.data ?? emptyPage();
+    const eventsLoading = eventsSubtab === "created" ? createdEventsQuery.isLoading : attendingEventsQuery.isLoading;
+
+    const interestsPageData = interestsQuery.data ?? emptyPage();
+    const tipsPageData = tipsQuery.data ?? emptyPage();
+    const commentsPageData = commentsQuery.data ?? emptyPage();
+
+    const parsePageFromLink = useCallback((page: number | string) => {
+        if (typeof page === "string") {
+            const url = new URL(page);
+            return Number(url.searchParams.get("page") ?? "1");
+        }
+        return page;
+    }, []);
+
+    const handleCreatedEventsPageChange = useCallback(
+        (page: number | string) => {
+            setCreatedEventsPage(parsePageFromLink(page));
+        },
+        [parsePageFromLink]
     );
-    const pagedEvents = useMemo(() => paginate(data?.events ?? [], eventsPage, 6), [data?.events, eventsPage]);
-    const pagedTips = useMemo(() => paginate(data?.tips ?? [], tipsPage, 10), [data?.tips, tipsPage]);
-    const pagedComments = useMemo(
-        () => paginate(data?.comments ?? [], commentsPage, 4),
-        [data?.comments, commentsPage]
+
+    const handleAttendingEventsPageChange = useCallback(
+        (page: number | string) => {
+            setAttendingEventsPage(parsePageFromLink(page));
+        },
+        [parsePageFromLink]
+    );
+
+    const handleInterestsPageChange = useCallback(
+        (page: number | string) => {
+            setInterestsPage(parsePageFromLink(page));
+        },
+        [parsePageFromLink]
+    );
+
+    const handleTipsPageChange = useCallback(
+        (page: number | string) => {
+            setTipsPage(parsePageFromLink(page));
+        },
+        [parsePageFromLink]
+    );
+
+    const handleCommentsPageChange = useCallback(
+        (page: number | string) => {
+            setCommentsPage(parsePageFromLink(page));
+        },
+        [parsePageFromLink]
     );
 
     if (isLoading) {
@@ -324,7 +496,9 @@ export default function JourneyDetailPage() {
                                     </h2>
                                 </div>
                                 <div className="section-content">
-                                    {pagedInterests.content.length === 0 ? (
+                                    {interestsQuery.isLoading ? (
+                                        <p className="section__helper">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</p>
+                                    ) : interestsPageData.content.length === 0 ? (
                                         <div className="empty-state">
                                             <div className="empty-icon">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="empty-icon-img">
@@ -336,17 +510,21 @@ export default function JourneyDetailPage() {
                                     ) : (
                                         <>
                                             <div className="interests-container">
-                                                {pagedInterests.content.map((interest) => (
-                                                    <div key={interest} className="interest-tag">
-                                                        {interest}
+                                                {interestsPageData.content.map((interest) => (
+                                                    <div key={interest.id} className="interest-tag">
+                                                        {interest.name}
                                                     </div>
                                                 ))}
                                             </div>
                                             <Pagination
-                                                totalPages={pagedInterests.totalPages}
-                                                currentPage={pagedInterests.currentPage}
-                                                pageSize={pagedInterests.pageSize}
-                                                onPageChange={setInterestsPage}
+                                                totalPages={interestsPageData.totalPages}
+                                                currentPage={interestsPageData.currentPage}
+                                                pageSize={interestsPageData.pageSize}
+                                                nextPage={interestsPageData.next}
+                                                prevPage={interestsPageData.prev}
+                                                firstPage={interestsPageData.first}
+                                                lastPage={interestsPageData.last}
+                                                onPageChange={handleInterestsPageChange}
                                                 previousLabel={t("pagination.prev")}
                                                 nextLabel={t("pagination.next")}
                                             />
@@ -365,7 +543,7 @@ export default function JourneyDetailPage() {
                                             <line x1="3" y1="10" x2="21" y2="10"></line>
                                         </svg>
                                         {t("journey.detail.events")}
-                                        <span className="count">({pagedEvents.totalPages})</span>
+                                        <span className="count">({activeEventsPage.totalPages})</span>
                                     </h2>
                                     <button
                                         type="button"
@@ -388,7 +566,25 @@ export default function JourneyDetailPage() {
 
                                 {eventsOpen && (
                                     <div id="events-list" className="section-content events-list">
-                                        {pagedEvents.content.length === 0 ? (
+                                        <div className="events-filter-subtabs">
+                                            <button
+                                                type="button"
+                                                className={`events-subtab ${eventsSubtab === "created" ? "active" : ""}`}
+                                                onClick={() => setEventsSubtab("created")}
+                                            >
+                                                {t("journey.events.created", { defaultValue: "Created" })}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={`events-subtab ${eventsSubtab === "attending" ? "active" : ""}`}
+                                                onClick={() => setEventsSubtab("attending")}
+                                            >
+                                                {t("journey.events.attending", { defaultValue: "Attending" })}
+                                            </button>
+                                        </div>
+                                        {eventsLoading ? (
+                                            <p className="section__helper">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</p>
+                                        ) : activeEventsPage.content.length === 0 ? (
                                             <div className="empty-state">
                                                 <div className="empty-icon">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="empty-icon-img">
@@ -398,12 +594,16 @@ export default function JourneyDetailPage() {
                                                         <line x1="3" y1="10" x2="21" y2="10"></line>
                                                     </svg>
                                                 </div>
-                                                <p className="empty-message">{t("journey.detail.no.events")}</p>
+                                                <p className="empty-message">
+                                                    {eventsSubtab === "created"
+                                                        ? t("journey.events.no.created", { defaultValue: "No events created during this journey" })
+                                                        : t("journey.events.no.attending", { defaultValue: "No events attended during this journey" })}
+                                                </p>
                                             </div>
                                         ) : (
                                             <>
                                                 <div className="journey-events-container">
-                                                    {pagedEvents.content.map((event) => (
+                                                    {activeEventsPage.content.map((event) => (
                                                         <Link key={event.id} to={`/events/${event.id}`} className="journey-event-card-link">
                                                             <div className="journey-event-card">
                                                                 <div className="journey-event-left">
@@ -461,10 +661,14 @@ export default function JourneyDetailPage() {
                                                     ))}
                                                 </div>
                                                 <Pagination
-                                                    totalPages={pagedEvents.totalPages}
-                                                    currentPage={pagedEvents.currentPage}
-                                                    pageSize={pagedEvents.pageSize}
-                                                    onPageChange={setEventsPage}
+                                                    totalPages={activeEventsPage.totalPages}
+                                                    currentPage={activeEventsPage.currentPage}
+                                                    pageSize={activeEventsPage.pageSize}
+                                                    nextPage={activeEventsPage.next}
+                                                    prevPage={activeEventsPage.prev}
+                                                    firstPage={activeEventsPage.first}
+                                                    lastPage={activeEventsPage.last}
+                                                    onPageChange={eventsSubtab === "created" ? handleCreatedEventsPageChange : handleAttendingEventsPageChange}
                                                     previousLabel={t("pagination.prev")}
                                                     nextLabel={t("pagination.next")}
                                                 />
@@ -482,11 +686,13 @@ export default function JourneyDetailPage() {
                                             <path d="M22 4H12a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h9l1 1V6a2 2 0 0 0-2-2z"></path>
                                         </svg>
                                         {t("journey.detail.tips")}
-                                        <span className="count">({data.tips.length})</span>
+                                        <span className="count">({tipsPageData.content.length})</span>
                                     </h2>
                                 </div>
                                 <div className="section-content">
-                                    {pagedTips.content.length === 0 ? (
+                                    {tipsQuery.isLoading ? (
+                                        <p className="section__helper">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</p>
+                                    ) : tipsPageData.content.length === 0 ? (
                                         <div className="empty-state">
                                             <div className="empty-icon">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="empty-icon-img">
@@ -500,7 +706,7 @@ export default function JourneyDetailPage() {
                                     ) : (
                                         <>
                                             <div className="tips-container">
-                                                {pagedTips.content.map((tip) => (
+                                                {tipsPageData.content.map((tip) => (
                                                     <div key={tip.id} className="tip-card">
                                                         <div className="tip-header">
                                                             <div className="tip-meta">
@@ -591,10 +797,14 @@ export default function JourneyDetailPage() {
                                                 ))}
                                             </div>
                                             <Pagination
-                                                totalPages={pagedTips.totalPages}
-                                                currentPage={pagedTips.currentPage}
-                                                pageSize={pagedTips.pageSize}
-                                                onPageChange={setTipsPage}
+                                                totalPages={tipsPageData.totalPages}
+                                                currentPage={tipsPageData.currentPage}
+                                                pageSize={tipsPageData.pageSize}
+                                                nextPage={tipsPageData.next}
+                                                prevPage={tipsPageData.prev}
+                                                firstPage={tipsPageData.first}
+                                                lastPage={tipsPageData.last}
+                                                onPageChange={handleTipsPageChange}
                                                 previousLabel={t("pagination.prev")}
                                                 nextLabel={t("pagination.next")}
                                             />
@@ -622,7 +832,7 @@ export default function JourneyDetailPage() {
                                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                                         </svg>
                                         {t("journey.detail.responses")}
-                                        <span className="count">({data.comments.length})</span>
+                                        <span className="count">({commentsPageData.content.length})</span>
                                     </h2>
                                     <button
                                         type="button"
@@ -645,7 +855,9 @@ export default function JourneyDetailPage() {
 
                                 {commentsOpen && (
                                     <div id="comments-list" className="section-content responses-list">
-                                        {pagedComments.content.length === 0 ? (
+                                        {commentsQuery.isLoading ? (
+                                            <p className="section__helper">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</p>
+                                        ) : commentsPageData.content.length === 0 ? (
                                             <div className="empty-state">
                                                 <div className="empty-icon">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="empty-icon-img">
@@ -655,7 +867,7 @@ export default function JourneyDetailPage() {
                                                 <p className="empty-message">{t("journey.detail.no.responses")}</p>
                                             </div>
                                         ) : (
-                                            pagedComments.content.map((response) => (
+                                            commentsPageData.content.map((response) => (
                                                 <div key={response.id} className="chat-message">
                                                     <div className="response-header">
                                                         <div className="response-user">
@@ -757,10 +969,14 @@ export default function JourneyDetailPage() {
                                             ))
                                         )}
                                         <Pagination
-                                            totalPages={pagedComments.totalPages}
-                                            currentPage={pagedComments.currentPage}
-                                            pageSize={pagedComments.pageSize}
-                                            onPageChange={setCommentsPage}
+                                            totalPages={commentsPageData.totalPages}
+                                            currentPage={commentsPageData.currentPage}
+                                            pageSize={commentsPageData.pageSize}
+                                            nextPage={commentsPageData.next}
+                                            prevPage={commentsPageData.prev}
+                                            firstPage={commentsPageData.first}
+                                            lastPage={commentsPageData.last}
+                                            onPageChange={handleCommentsPageChange}
                                             previousLabel={t("pagination.prev")}
                                             nextLabel={t("pagination.next")}
                                         />

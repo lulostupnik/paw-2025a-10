@@ -3,6 +3,7 @@ import type { ProfileEvent } from "@/types/event";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { buildProfileEvent, fetchEvents } from "@/lib/api/events";
 import { getUserId } from "@/lib/auth/auth";
+import { getTodayIsoDate } from "@/lib/utils/date";
 
 export interface ProfileEventsParams {
     createdPage?: number;
@@ -29,10 +30,11 @@ export const useProfileEvents = (profileId: string, params: ProfileEventsParams 
             if (!resolvedId || resolvedId === "me") {
                 resolvedId = getUserId().toString();
             }
+            const today = getTodayIsoDate();
             const [createdEvents, attendingEvents, finishedEvents] = await Promise.all([
                 fetchEvents({ creatorId: Number(resolvedId), page: params.createdPage, size: params.size }, signal),
-                fetchEvents({ attendedBy: Number(resolvedId), past: false, page: params.attendingPage, size: params.size }, signal),
-                fetchEvents({ creatorId: Number(resolvedId), past: true, page: params.finishedPage, size: params.size }, signal),
+                fetchEvents({ attendedBy: Number(resolvedId), afterDate: today, page: params.attendingPage, size: params.size }, signal),
+                fetchEvents({ creatorId: Number(resolvedId), beforeDate: today, page: params.finishedPage, size: params.size }, signal),
             ]);
             return {
                 created: mapPageList(createdEvents, await buildProfileEvent(createdEvents.content, signal)),
