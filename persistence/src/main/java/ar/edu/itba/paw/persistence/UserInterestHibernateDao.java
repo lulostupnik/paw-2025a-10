@@ -6,6 +6,7 @@ import ar.edu.itba.paw.interfaces.persistence.UserInterestDao;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.exceptions.InterestsNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
+import ar.edu.itba.paw.models.exceptions.UserInterestNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
@@ -13,6 +14,7 @@ import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 
@@ -32,6 +34,34 @@ public class UserInterestHibernateDao implements UserInterestDao {
         final UserInterest userInterest = new UserInterest(user, interest);
         em.persist(userInterest);
         return userInterest;
+    }
+
+    @Override
+    public Optional<UserInterest> findById(long userId, long interestId) {
+        List<UserInterest> results = em.createQuery(
+                "FROM UserInterest ui WHERE ui.user.id = :userId AND ui.interest.id = :interestId",
+                UserInterest.class
+        )
+                .setParameter("userId", userId)
+                .setParameter("interestId", interestId)
+                .getResultList();
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
+    }
+
+    @Override
+    public UserInterest create(long userId, long interestId) {
+        User user = userDao.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        Interest interest = interestDao.findById(interestId)
+                .orElseThrow(() -> new InterestsNotFoundException(interestId));
+        return create(user, interest);
+    }
+
+    @Override
+    public void delete(long userId, long interestId) {
+        UserInterest userInterest = findById(userId, interestId)
+                .orElseThrow(() -> new UserInterestNotFoundException(userId, interestId));
+        em.remove(userInterest);
     }
 
     @Override

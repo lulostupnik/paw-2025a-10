@@ -279,7 +279,7 @@ public class EventController {
             @QueryParam("size") @DefaultValue("10") int size
     ) {
         final Page<User> attendees = eventService.findEventAttendees(eventId, new PageParams(page, size));
-        final List<UserDto> attendeeDtos = UserDto.fromUserCollection(uriInfo, attendees.getContent());
+        final List<UserDto> attendeeDtos = UserDto.fromUserCollection(uriInfo, attendees.getContent()); // TODO: creo que esto esta mal, no queremos los dtos de usuarios!!!! --> cambiar
         final ResponseBuilder response = Response.ok(new GenericEntity<>(attendeeDtos) {});
         return PagingUtils.insertPaginationLinks(response, uriInfo, attendees).build();
     }

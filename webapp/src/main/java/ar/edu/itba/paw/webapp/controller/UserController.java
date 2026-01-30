@@ -9,10 +9,14 @@ import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.UserInterest;
 import ar.edu.itba.paw.models.exceptions.ImageNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
+import ar.edu.itba.paw.models.exceptions.UserInterestNotFoundException;
+import ar.edu.itba.paw.webapp.auth.AccessHelper;
 import ar.edu.itba.paw.webapp.CustomMediaType;
 import ar.edu.itba.paw.webapp.dto.InterestDto;
 import ar.edu.itba.paw.webapp.dto.UserDto;
+import ar.edu.itba.paw.webapp.dto.UserInterestDto;
 import ar.edu.itba.paw.webapp.dto.UserRatingDto;
+import ar.edu.itba.paw.webapp.form.AddUserInterestForm;
 import ar.edu.itba.paw.webapp.form.BlockUserForm;
 import ar.edu.itba.paw.webapp.form.CreateUserForm;
 import ar.edu.itba.paw.webapp.form.EditUserForm;
@@ -50,6 +54,9 @@ public class UserController {
 
     @Autowired
     private InterestService interestService;
+
+    @Autowired
+    private AccessHelper accessHelper;
 
     @Context
     private UriInfo uriInfo;
@@ -154,13 +161,6 @@ public class UserController {
         return Response.noContent().build();
     }
 
-    @DELETE
-    @Path("/{id}")
-    public Response deleteUser(@PathParam("id") final long id) {
-        // TODO: Implement user deletion (might need to add to UserService)
-        // return Response.noContent().build();
-        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
-    }
 
     // ==================== USER INTERESTS ====================
 
@@ -176,39 +176,45 @@ public class UserController {
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
         final Page<UserInterest> userInterests = interestService.findInterestsByUser(user, new PageParams(page, size));
-        // TODO: Create UserInterestDto or reuse InterestDto
-        final List<InterestDto> interestDtos = userInterests.getContent().stream()
-                .map(ui -> InterestDto.fromInterest(uriInfo, ui.getInterest()))
-                .toList();
+        final List<UserInterestDto> interestDtos = UserInterestDto.fromUserInterestCollection(uriInfo, userInterests.getContent());
         final ResponseBuilder response = Response.ok(new GenericEntity<>(interestDtos) {});
         return PagingUtils.insertPaginationLinks(response, uriInfo, userInterests).build();
     }
 
-    //TODO: podria ser put? porque si ya existe no se crea uno nuevo
     @POST
     @Path("/{userId}/interests")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response addUserInterest(
-            @PathParam("userId") final long userId
-            /* TODO: @Valid AddUserInterestForm form with interestId */
+            @PathParam("userId") final long userId,
+            @Valid final AddUserInterestForm form
     ) {
-        // TODO: Create form class with interestId
-        // TODO: Implement adding interest to user
-        // return Response.created(UriUtils.getUserInterestUri(uriInfo, userId, interestId)).build();
-        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
+        final UserInterest userInterest = interestService.addUserInterest(userId, form.getInterestId());
+        return Response.created(UriUtils.getUserInterestUri(uriInfo, userId, form.getInterestId()))
+                .entity(UserInterestDto.fromUserInterest(uriInfo, userInterest))
+                .build();
     }
 
-    //TODO: Lo mismo, lo unificaria en un solo endpoint con PUT
+    @GET
+    @Path("/{userId}/interests/{interestId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUserInterest(
+            @PathParam("userId") final long userId,
+            @PathParam("interestId") final long interestId
+    ) {
+        final UserInterest userInterest = interestService.findUserInterest(userId, interestId)
+                .orElseThrow(() -> new UserInterestNotFoundException(userId, interestId));
+        return Response.ok(UserInterestDto.fromUserInterest(uriInfo, userInterest)).build();
+    }
+
     @DELETE
     @Path("/{userId}/interests/{interestId}")
     public Response removeUserInterest(
             @PathParam("userId") final long userId,
             @PathParam("interestId") final long interestId
     ) {
-        // TODO: Implement removing interest from user
-        // return Response.noContent().build();
-        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
+        interestService.removeUserInterest(userId, interestId);
+        return Response.noContent().build();
     }
 
     // ==================== USER RATING (Computed value) ====================

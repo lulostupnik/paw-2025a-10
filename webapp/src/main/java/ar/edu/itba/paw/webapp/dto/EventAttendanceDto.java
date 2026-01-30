@@ -4,8 +4,13 @@ import ar.edu.itba.paw.models.EventAttendance;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 
 import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.net.URI;
 
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class EventAttendanceDto {
     // TODO: El DTO puede estar "vacío"? O deberíamos poner acá userId y eventId o algo por el estilo?
 

@@ -55,6 +55,29 @@ public class InterestServiceImpl implements InterestService {
     }
 
     @Override
+    public Optional<UserInterest> findUserInterest(final long userId, final long interestId) {
+        LOGGER.debug("Finding interest {} for user {}", interestId, userId);
+        return userInterestDao.findById(userId, interestId);
+    }
+
+    @Override
+    @Transactional
+    public UserInterest addUserInterest(final long userId, final long interestId) {
+        LOGGER.debug("Adding interest {} to user {}", interestId, userId);
+        UserInterest userInterest = userInterestDao.create(userId, interestId);
+        LOGGER.info("Interest {} added to user {}", interestId, userId);
+        return userInterest;
+    }
+
+    @Override
+    @Transactional
+    public void removeUserInterest(final long userId, final long interestId) {
+        LOGGER.debug("Removing interest {} from user {}", interestId, userId);
+        userInterestDao.delete(userId, interestId);
+        LOGGER.info("Interest {} removed from user {}", interestId, userId);
+    }
+
+    @Override
     @Transactional
     public Interest createInterest(final String name) {
 
