@@ -273,15 +273,15 @@ public class EventController {
     @GET
     @Path("/{eventId}/attendances")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response listEventAttendees(
+    public Response listEventAttendances(
             @PathParam("eventId") final long eventId,
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("10") int size
     ) {
-        final Page<User> attendees = eventService.findEventAttendees(eventId, new PageParams(page, size));
-        final List<UserDto> attendeeDtos = UserDto.fromUserCollection(uriInfo, attendees.getContent()); // TODO: creo que esto esta mal, no queremos los dtos de usuarios!!!! --> cambiar
-        final ResponseBuilder response = Response.ok(new GenericEntity<>(attendeeDtos) {});
-        return PagingUtils.insertPaginationLinks(response, uriInfo, attendees).build();
+        final Page<EventAttendance> attendances = eventService.findEventAttendances(eventId, new PageParams(page, size));
+        final List<EventAttendanceDto> attendanceDtos = EventAttendanceDto.fromEventAttendanceCollection(uriInfo, attendances.getContent());
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(attendanceDtos) {});
+        return PagingUtils.insertPaginationLinks(response, uriInfo, attendances).build();
     }
 
     @POST

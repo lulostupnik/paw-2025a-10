@@ -8,6 +8,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.net.URI;
+import java.util.Collection;
+import java.util.List;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -24,6 +26,10 @@ public class EventAttendanceDto {
         dto.eventUrl = UriUtils.getEventUri(uriInfo, attendance.getEvent().getId());
         dto.selfUrl = UriUtils.getEventAttendanceUri(uriInfo, attendance.getEvent().getId(), attendance.getUser().getId());
         return dto;
+    }
+
+    public static List<EventAttendanceDto> fromEventAttendanceCollection(final UriInfo uriInfo, final Collection<EventAttendance> attendances) {
+        return attendances.stream().map(a -> fromEventAttendance(uriInfo, a)).toList();
     }
 
     public URI getUserUrl() {

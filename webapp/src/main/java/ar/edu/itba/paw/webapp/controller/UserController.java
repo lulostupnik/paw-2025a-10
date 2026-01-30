@@ -12,7 +12,6 @@ import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserInterestNotFoundException;
 import ar.edu.itba.paw.webapp.auth.AccessHelper;
 import ar.edu.itba.paw.webapp.CustomMediaType;
-import ar.edu.itba.paw.webapp.dto.InterestDto;
 import ar.edu.itba.paw.webapp.dto.UserDto;
 import ar.edu.itba.paw.webapp.dto.UserInterestDto;
 import ar.edu.itba.paw.webapp.dto.UserRatingDto;
@@ -36,8 +35,6 @@ import org.springframework.stereotype.Component;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.Response.StatusType;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import java.io.IOException;
@@ -61,7 +58,6 @@ public class UserController {
     @Context
     private UriInfo uriInfo;
 
-    // TODO: Revisar: esto solo lo pueden pedir los admins, ¿no? -> ver que se este cumpliendo
     @GET
     @Produces(value = { MediaType.APPLICATION_JSON, })
     public Response listUsers(

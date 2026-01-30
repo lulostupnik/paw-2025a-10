@@ -14,6 +14,7 @@ public interface EventAttendanceDao {
     boolean exists(User user, Event event);
 
     Page<User> findAttendeesByEventId(long eventId, PageParams pageParams);
+    Page<EventAttendance> findByEventId(long eventId, PageParams pageParams);
 
     int countEventsAttendedByUser(long userId);
 

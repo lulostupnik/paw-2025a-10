@@ -124,6 +124,39 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
         );
     }
 
+    @Override
+    public Page<EventAttendance> findByEventId(final long eventId, final PageParams pageParams) {
+        final String countSql = """
+            SELECT COUNT(*)
+            FROM event_attendances ea
+            WHERE ea.event_id = :eventId
+        """;
+
+        final String idSql = """
+            SELECT ea.user_id
+            FROM event_attendances ea
+            WHERE ea.event_id = :eventId
+            ORDER BY ea.user_id
+        """;
+
+        final String jpqlFetch = """
+            FROM EventAttendance ea
+            WHERE ea.user.id IN :ids AND ea.event.id = :eventId
+            ORDER BY ea.user.id
+        """;
+
+        return fetchPageByIds(
+                em,
+                countSql,
+                idSql,
+                Map.of("eventId", eventId),
+                jpqlFetch,
+                EventAttendance.class,
+                pageParams,
+                Map.of("eventId", eventId)
+        );
+    }
+
 
     @Override
     public int countEventsAttendedByUser(long userId) {
