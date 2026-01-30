@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
@@ -49,14 +50,14 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
 
     @Override
     public Optional<EventAttendance> findById(long userId, long eventId) {
-        return em.createQuery(
+        List<EventAttendance> results = em.createQuery(
                 "FROM EventAttendance ea WHERE ea.user.id = :userId AND ea.event.id = :eventId",
                 EventAttendance.class
         )
                 .setParameter("userId", userId)
                 .setParameter("eventId", eventId)
-                .getResultStream()
-                .findFirst();
+                .getResultList();
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
     }
 
     @Override
