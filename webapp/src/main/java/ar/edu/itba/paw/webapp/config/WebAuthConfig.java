@@ -151,6 +151,8 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/events/*/responses").access("isAuthenticated()")
                 .antMatchers(HttpMethod.DELETE, "/api/events/*/responses/*").access("hasRole('ADMIN')")
 
+                .antMatchers(HttpMethod.GET, "/api/events/*/attendance").access("isAuthenticated()")
+                .antMatchers(HttpMethod.GET, "/api/events/*/attendances/*").permitAll() // TODO: decidir
                 .antMatchers(HttpMethod.POST, "/api/events/*/attendances").access("isAuthenticated()")
                 .antMatchers(HttpMethod.DELETE, "/api/events/*/attendances").access("isAuthenticated()")
                 .antMatchers(HttpMethod.DELETE, "/api/events/*/attendances/{userId}").access("@accessHelper.isCurrentUser(#userId)")

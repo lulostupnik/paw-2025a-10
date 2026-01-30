@@ -9,6 +9,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.Map;
+import java.util.Optional;
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 
 @Repository
@@ -44,6 +45,18 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
         final Event event = em.find(Event.class, eventId);
         final User user = em.find(User.class, userId);
         return exists(user, event);
+    }
+
+    @Override
+    public Optional<EventAttendance> findById(long userId, long eventId) {
+        return em.createQuery(
+                "FROM EventAttendance ea WHERE ea.user.id = :userId AND ea.event.id = :eventId",
+                EventAttendance.class
+        )
+                .setParameter("userId", userId)
+                .setParameter("eventId", eventId)
+                .getResultStream()
+                .findFirst();
     }
 
     @Override

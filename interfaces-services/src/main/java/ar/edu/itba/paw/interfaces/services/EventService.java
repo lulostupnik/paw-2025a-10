@@ -37,7 +37,7 @@ public interface EventService {
     Page<Event> findEvents(long userId, PageParams pageParams);
 
     EventAttendance createEventAttendance(long userId, long eventId);
-
+    Optional<EventAttendance> findEventAttendance(long userId, long eventId);
     void deleteEventAttendance(long userId, long eventId);
 
     Rating rateEvent(User user, long eventId, double rating);

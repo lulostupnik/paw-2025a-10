@@ -4,10 +4,12 @@ import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
+import ar.edu.itba.paw.models.exceptions.EventAttendanceNotFoundException;
 import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.models.exceptions.EventResponseNotFoundException;
 import ar.edu.itba.paw.models.exceptions.RatingNotFoundException;
 import ar.edu.itba.paw.webapp.auth.AccessHelper;
+import ar.edu.itba.paw.webapp.dto.EventAttendanceDto;
 import ar.edu.itba.paw.webapp.dto.EventDto;
 import ar.edu.itba.paw.webapp.dto.EventResponseDto;
 import ar.edu.itba.paw.webapp.dto.RatingDto;
@@ -288,11 +290,34 @@ public class EventController {
     public Response attendEvent(@PathParam("eventId") final long eventId) {
         final Long userId = accessHelper.getCurrentUserId();
         eventService.createEventAttendance(userId, eventId);
-        return Response.created(UriUtils.getEventAttendancesUri(uriInfo, eventId)).build();
+        return Response.created(UriUtils.getEventAttendanceUri(uriInfo, eventId, userId)).build();
     }
 
+    @GET
+    @Path("/{eventId}/attendance")
+    public Response getCurrentUserAttendance(@PathParam("eventId") final long eventId) {
+        final Long userId = accessHelper.getCurrentUserId();
+        eventService.findEventAttendance(userId, eventId).orElseThrow(EventAttendanceNotFoundException::new);
+        return Response.status(Response.Status.FOUND)
+                .location(UriUtils.getEventAttendanceUri(uriInfo, eventId, userId))
+                .build();
+    }
+
+    @GET
+    @Path("/{eventId}/attendances/{userId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getEventAttendance(
+            @PathParam("eventId") final long eventId,
+            @PathParam("userId") final long userId
+    ) {
+        final EventAttendance attendance = eventService.findEventAttendance(userId, eventId)
+                .orElseThrow(() -> new EventAttendanceNotFoundException(userId, eventId));
+        return Response.ok(EventAttendanceDto.fromEventAttendance(uriInfo, attendance)).build();
+    }
+
+
     @DELETE
-    @Path("/{eventId}/attendances")
+    @Path("/{eventId}/attendance")
     public Response unattendEvent(@PathParam("eventId") final long eventId) {
         final Long userId = accessHelper.getCurrentUserId();
         return Response.temporaryRedirect(UriUtils.getEventAttendanceUri(uriInfo, eventId, userId)).build(); // TODO: ¿tiene que retornar 404 si no existe o simplemente dejamos que el otro endpoint le tire el 404?

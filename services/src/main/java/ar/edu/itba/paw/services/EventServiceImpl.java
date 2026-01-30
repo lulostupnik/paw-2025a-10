@@ -252,6 +252,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public Optional<EventAttendance> findEventAttendance(final long userId, final long eventId) {
+        return eventAttendanceDao.findById(userId, eventId);
+    }
+
+    @Override
     @Transactional
     public void deleteEventAttendance(final long userId, final  long eventId) {
         LOGGER.debug("User {} is canceling attendance for event {}", userId, eventId);
