@@ -109,6 +109,11 @@ public final class UriUtils {
         return uriInfo.getBaseUriBuilder().path(EVENTS_URL).path(String.valueOf(eventId)).path("attendances").build();
     }
 
+    public static URI getEventAttendanceUri(final UriInfo uriInfo, final long eventId, final long userId) {
+        return uriInfo.getBaseUriBuilder().path(EVENTS_URL).path(String.valueOf(eventId))
+                .path("attendances").path(String.valueOf(userId)).build();
+    }
+
     // Ratings (sub-resource of events)
     public static URI getEventRatingsUri(final UriInfo uriInfo, final long eventId) {
         return uriInfo.getBaseUriBuilder().path(EVENTS_URL).path(String.valueOf(eventId)).path("ratings").build();

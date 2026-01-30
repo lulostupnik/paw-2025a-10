@@ -255,13 +255,12 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public void deleteEventAttendance(final long userId, final  long eventId) {
         LOGGER.debug("User {} is canceling attendance for event {}", userId, eventId);
-        Event event = eventDao.findById(eventId).orElseThrow(()->{
-            LOGGER.warn("Event not found {}", eventId);
-            return new EventNotFoundException(eventId);
-        });
+        Event event = eventDao.findById(eventId).orElseThrow(()-> new EventNotFoundException(eventId));
         if(! event.getIsFuture()){
-            LOGGER.info("Event (id {}) is not in the future", eventId);
             throw new EventNotInTheFutureException(eventId);
+        }
+        if (!eventAttendanceDao.exists(userId, eventId)) {
+            throw new EventAttendanceNotFoundException(userId, eventId);
         }
         eventAttendanceDao.delete(userId, eventId);
         LOGGER.info("User {} has canceled attendance for event {}", userId, eventId);

@@ -295,11 +295,20 @@ public class EventController {
     @Path("/{eventId}/attendances")
     public Response unattendEvent(@PathParam("eventId") final long eventId) {
         final Long userId = accessHelper.getCurrentUserId();
+        return Response.temporaryRedirect(UriUtils.getEventAttendanceUri(uriInfo, eventId, userId)).build(); // TODO: ¿tiene que retornar 404 si no existe o simplemente dejamos que el otro endpoint le tire el 404?
+    }
+
+    @DELETE
+    @Path("/{eventId}/attendances/{userId}")
+    public Response unattendEventByUser(
+            @PathParam("eventId") final long eventId,
+            @PathParam("userId") final long userId
+    ) {
         eventService.deleteEventAttendance(userId, eventId);
         return Response.noContent().build();
     }
 
-    // ==================== RATINGS (Sub-resource of Events) ====================
+    // ==================== RATINGS ====================
 
     @GET
     @Path("/{eventId}/ratings")

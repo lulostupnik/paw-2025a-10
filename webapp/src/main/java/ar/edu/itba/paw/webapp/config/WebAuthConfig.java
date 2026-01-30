@@ -153,6 +153,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
                 .antMatchers(HttpMethod.POST, "/api/events/*/attendances").access("isAuthenticated()")
                 .antMatchers(HttpMethod.DELETE, "/api/events/*/attendances").access("isAuthenticated()")
+                .antMatchers(HttpMethod.DELETE, "/api/events/*/attendances/{userId}").access("@accessHelper.isCurrentUser(#userId)")
 
                 .antMatchers(HttpMethod.GET, "/api/events/*/ratings").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/events/{eventId}/ratings").access("@accessHelper.isUserEventAttendee(#eventId)")
